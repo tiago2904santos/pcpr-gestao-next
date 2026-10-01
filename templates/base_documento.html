@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <meta name="csrf-token" content="{{ csrf_token }}">
-  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "scrollIntoViewOnBoost": false, "globalViewTransitions": true}'>
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "scrollIntoViewOnBoost": false}'>
   <title>{% block titulo %}{% endblock %} · {{ instituicao.sigla }} — {{ instituicao.produto }}</title>
   <link rel="icon" href="{% static 'img/favicon-32.png' %}" type="image/png">
   <link rel="preload" href="{% static 'fonts/inter-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
@@ -24,6 +24,8 @@
   <link rel="modulepreload" href="{% static 'js/componentes/abas.js' %}">
   <link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}">
   <link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/acao.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/registro.js' %}">
   <script src="{% static 'vendor/htmx.min.js' %}" defer nonce="{{ csp_nonce }}"></script>
   <script type="module" src="{% static 'js/app.js' %}" nonce="{{ csp_nonce }}"></script>
 </head>

@@ -1,7 +1,7 @@
 {% load viagens %}
 {% contagem_dias o.primeira_saida as contagem %}
-{# data-vt: nome de transição (a placa viaja para o detalhe; a lista se reordena ao filtrar). #}
-<li class="registro" data-vt="{{ vt_prefixo|default:'r' }}{{ o.pk }}">
+{# data-vt na placa: a placa do registro aberto viaja até o cabeçalho do detalhe (registro.js deixa só a clicada nomeada no pageswap). #}
+<li class="registro">
   {# Placa: o número do ofício como assinatura visual da lista (o link abaixo já o anuncia). #}
   <span class="placa{% if o.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true" data-vt="placa-{{ vt_prefixo|default:'r' }}{{ o.pk }}">
     <span class="placa__rotulo">Ofício</span>

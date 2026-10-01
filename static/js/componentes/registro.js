@@ -30,6 +30,20 @@ document.addEventListener("keydown", (e) => {
   botao?.focus();
 });
 
+// Continuidade espacial com custo mínimo: ao sair da página por um registro, só a placa
+// daquele registro mantém o nome de transição (as outras 19 não viram snapshot).
+/** @type {Element | null} */
+let registroAtivado = null;
+document.addEventListener("click", (e) => {
+  registroAtivado = /** @type {HTMLElement} */ (e.target).closest(".registro");
+}, true);
+window.addEventListener("pageswap", (evento) => {
+  if (!(/** @type {any} */ (evento)).viewTransition) return;
+  document.querySelectorAll(".registro .placa[data-vt]").forEach((placa) => {
+    if (!registroAtivado || !registroAtivado.contains(placa)) placa.removeAttribute("data-vt");
+  });
+});
+
 /** @param {Event} evento @returns {HTMLElement | null} */
 function extraDe(evento) {
   const e = /** @type {CustomEvent} */ (evento);

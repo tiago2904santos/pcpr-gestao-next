@@ -47,9 +47,12 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
          if r.status < 300 else 0, "server_timing": r.headers.get("server-timing", "")}))
     pg.add_init_script(f"({OBSERVADORES})()")
     pg.goto(url, wait_until="networkidle")
-    # Interação real para INP: abre e fecha o menu do usuário.
+    # Interação real para INP: abre e fecha o menu do usuário; na lista, expande um registro.
     pg.click(".perfil")
     pg.keyboard.press("Escape")
+    if pg.locator("[data-expandir]").count():
+        pg.locator("[data-expandir]").first.click()
+        pg.wait_for_selector(".registro--aberto .resumo")
     pg.wait_for_timeout(200)
     nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
         const fcp = performance.getEntriesByName('first-contentful-paint')[0];

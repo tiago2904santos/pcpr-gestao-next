@@ -39,8 +39,9 @@ def _htmx(request: HttpRequest) -> bool:
 
 def _oficio_visivel(request: HttpRequest, pk: int) -> Oficio:
     oficio = get_object_or_404(
-        Oficio.objects.select_related("unidade", "viatura", "viatura__combustivel", "sede",
-                                      "transporte_combustivel"), pk=pk)
+        Oficio.objects.select_related("unidade", "unidade__configuracao", "viatura",
+                                      "viatura__combustivel", "sede", "transporte_combustivel"),
+        pk=pk)
     if not policies.pode_ver(request.user, oficio):
         raise Http404  # não revela a existência de ofícios de outras unidades
     return oficio

@@ -54,10 +54,10 @@ tudo é desligado (`::view-transition-*` com `animation: none`).
 | Transição | Mecanismo |
 |---|---|
 | Entre páginas (lista → detalhe, revisar → emitido) | `@view-transition { navigation: auto }` (same-origin) |
-| Placa do ofício | `data-vt="placa-<id>"` na lista, no detalhe e na edição: a placa da linha cresce até o cabeçalho |
+| Placa do ofício | `data-vt="placa-r<id>"` na lista, no detalhe e na edição: a placa da linha cresce até o cabeçalho. No `pageswap`, `registro.js` deixa nomeada só a placa do registro clicado (as outras não viram snapshot: custo medido de 200–280 ms → ~60 ms) |
 | Aba ativa | `.aba[aria-current="page"] { view-transition-name: aba-ativa }`: o destaque desliza entre abas, também nas trocas HTMX (OOB) |
 | Botão "Emitir" → selo "Emitido" | `data-vt="emissao-<id>"` no botão da revisão e no selo do detalhe |
-| Reordenação da lista ao filtrar/ordenar | `htmx-config` com `globalViewTransitions: true` + `data-vt="r<id>"` em cada registro |
+| Troca da lista ao filtrar/ordenar | `hx-swap="outerHTML transition:true"` só no swap de `#resultados` (não há transição global do HTMX: cada swap pagaria um snapshot da página) |
 
 Os nomes vêm de `[data-vt] { view-transition-name: attr(data-vt type(<custom-ident>), none) }`
 (sem estilos inline, compatível com a CSP). No painel, as duas listas usam prefixos

@@ -275,6 +275,13 @@ class TestEmissaoEAcoes:
         assert "Roteiro" in html and "Equipe" in html and "Documentos" in html
         assert "<html" not in html  # fragmento, não página inteira
 
+    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 13), ("oficio_emitido", 12)])
+    def test_resumo_tem_orcamento_de_consultas(self, operador, cenario, chave, limite,
+                                               django_assert_max_num_queries):
+        with django_assert_max_num_queries(limite):
+            operador.get(reverse("viagens:resumo", args=[cenario.ids[chave]]),
+                         HTTP_HX_REQUEST="true")
+
     def test_resumo_respeita_a_visibilidade_por_unidade(self, operador, cenario):
         r = operador.get(reverse("viagens:resumo", args=[cenario.ids["oficio_outra_unidade"]]))
         assert r.status_code == 404

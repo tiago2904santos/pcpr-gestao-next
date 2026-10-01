@@ -287,7 +287,7 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     pg = logado
     pg.goto("/viagens/oficios/")
     expect(pg.locator(".registros__grupo").first).to_be_visible()
-    assert pg.locator(".registro[data-vt]").count() == pg.locator(".registro").count()
+    assert pg.locator(".registro .placa[data-vt]").count() == pg.locator(".registro").count()
     # a placa da lista e a placa do detalhe compartilham o nome (continuidade espacial)
     nome = pg.locator(".registro .placa").first.get_attribute("data-vt")
     pg.locator(".registro__link").first.click()
