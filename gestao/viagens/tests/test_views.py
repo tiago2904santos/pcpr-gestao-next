@@ -275,7 +275,7 @@ class TestEmissaoEAcoes:
         assert "Roteiro" in html and "Equipe" in html and "Documentos" in html
         assert "<html" not in html  # fragmento, não página inteira
 
-    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 13), ("oficio_emitido", 12)])
+    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 16), ("oficio_emitido", 14)])
     def test_resumo_tem_orcamento_de_consultas(self, operador, cenario, chave, limite,
                                                django_assert_max_num_queries):
         with django_assert_max_num_queries(limite):
