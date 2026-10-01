@@ -23,7 +23,15 @@ from . import policies
 from .dominio import diarias as dominio_diarias
 from .dominio.numeracao import proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
-from .models import Documento, Historico, NumeracaoAnual, Oficio, Trecho, Viajante
+from .models import (
+    Documento,
+    Historico,
+    LacunaNumeracao,
+    NumeracaoAnual,
+    Oficio,
+    Trecho,
+    Viajante,
+)
 from .queries import buscar_tabelas_vigentes, trechos_de, viajantes_de
 
 
@@ -53,11 +61,15 @@ def configuracao_da_unidade(oficio_ou_unidade) -> ConfiguracaoInstitucional:
 
 # ---------------------------------------------------------------- numeração
 def reservar_numero(ano: int) -> int:
-    """Próximo número livre do ano. Serializa por ano com lock na linha de numeração."""
+    """Próximo número do ano (dominio.numeracao). Serializa por ano com lock na linha de
+    numeração; a lacuna usada deixa de existir na mesma transação."""
     numeracao, _ = NumeracaoAnual.objects.get_or_create(ano=ano)
     NumeracaoAnual.objects.select_for_update().get(pk=numeracao.pk)
     ocupados = Oficio.objects.filter(ano=ano).values_list("numero", flat=True)
-    return proximo_numero(ocupados, numeracao.piso)
+    lacunas = LacunaNumeracao.objects.filter(ano=ano).values_list("numero", flat=True)
+    numero = proximo_numero(ocupados, numeracao.piso, lacunas)
+    LacunaNumeracao.objects.filter(ano=ano, numero=numero).delete()
+    return numero
 
 
 # ---------------------------------------------------------------- criação
@@ -294,7 +306,8 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
     if not oficio.motivo.strip():
         p.append(Pendencia("dados", "Descreva o motivo da viagem."))
     if not oficio.protocolo:
-        p.append(Pendencia("dados", "Protocolo do eProtocolo ainda não informado.", False))
+        # Decisão D1: protocolo é obrigatório para emitir (como na referência).
+        p.append(Pendencia("dados", "Informe o protocolo do eProtocolo."))
     if oficio.custeio == Oficio.Custeio.OUTRA_INSTITUICAO and not oficio.custeio_instituicao:
         p.append(Pendencia("dados", "Informe qual instituição custeia a viagem."))
     viajantes = viajantes_de(oficio)
@@ -419,8 +432,11 @@ def excluir_rascunho(oficio: Oficio, usuario) -> str:
     policies.exigir(policies.pode_excluir(usuario, atual),
                     "Só rascunhos sem documento emitido podem ser excluídos.")
     numero = atual.numero_formatado
+    ano, livre = atual.ano, atual.numero
     atual.historico.all().delete()
     atual.delete()
+    # Só a exclusão libera número para reaproveitamento (decisão D5).
+    LacunaNumeracao.objects.get_or_create(ano=ano, numero=livre)
     return numero
 
 

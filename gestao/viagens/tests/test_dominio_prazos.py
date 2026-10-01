@@ -31,15 +31,24 @@ def test_mensagens_dizem_o_que_fazer():
     assert "dispensada" in avaliar_prazo(OFICIO, date(2026, 12, 1), 10).mensagem
 
 
-@pytest.mark.parametrize(("ocupados", "piso", "esperado"), [
-    ([], 1, 1), ([1, 2, 3], 1, 4), ([1, 3], 1, 2), ([1, 2, 3], 100, 100),
-    ([100, 101, 5], 100, 102)])
-def test_proximo_numero(ocupados, piso, esperado):
-    assert proximo_numero(ocupados, piso) == esperado
+@pytest.mark.parametrize(("ocupados", "piso", "lacunas", "esperado"), [
+    ([], 1, [], 1),
+    ([1, 2, 3], 1, [], 4),
+    ([1, 3], 1, [], 4),            # D5: buraco sem exclusão não é reaproveitado
+    ([1, 3], 1, [2], 2),           # lacuna registrada (rascunho excluído) é reaproveitada
+    ([1, 2, 4, 6], 1, [5, 3], 3),  # a menor lacuna primeiro
+    ([1, 2, 3], 1, [2], 4),        # lacuna já ocupada de novo é ignorada
+    ([1, 2, 3], 100, [], 100),     # piso acima dos ocupados
+    ([100, 101, 5], 100, [3], 102),  # lacuna abaixo do piso é ignorada
+])
+def test_proximo_numero(ocupados, piso, lacunas, esperado):
+    assert proximo_numero(ocupados, piso, lacunas) == esperado
 
 
-def test_formatar_numero():
-    assert formatar_numero(7, 2026) == "007/2026"
+def test_formatar_numero_com_dois_digitos():
+    """Decisão D2: "05/2026", como na referência; acima de 99 o número cresce."""
+    assert formatar_numero(7, 2026) == "07/2026"
+    assert formatar_numero(131, 2026) == "131/2026"
     assert formatar_numero(None, 2026) == "Sem número"
 
 

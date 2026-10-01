@@ -1,8 +1,8 @@
 """E2E: a navegação principal é SUPERIOR em todas as larguras (ADR 0006).
 
 Desktop/tablet: barra horizontal logo abaixo do cabeçalho, na largura toda, sem ☰.
-Celular: o ☰ abre o mesmo menu para baixo, sob o cabeçalho e na largura toda; fechado ao
-carregar e depois de usado. Uma barra lateral (fixa ou deslizando da esquerda) reprova aqui.
+Celular (decisão D9): o ☰ abre o menu numa gaveta lateral temporária sob o cabeçalho;
+fechada ao carregar e depois de usada. Uma barra lateral permanente reprova aqui.
 """
 
 from __future__ import annotations
@@ -70,23 +70,31 @@ def test_menu_superior_horizontal_no_tablet_e_desktop(logado, largura):
 
 
 @pytest.mark.parametrize("largura", [360, 390])
-def test_celular_abre_o_menu_superior_para_baixo(logado, largura):
+def test_celular_abre_gaveta_lateral_temporaria(logado, largura):
     pg = logado
     _abrir(pg, largura)
     nav = pg.get_by_role("navigation", name="Navegação principal")
     botao = pg.get_by_role("button", name="Abrir menu de navegação")
-    expect(nav).not_to_be_visible()  # fechado ao carregar: nada fica preso na tela
+    expect(nav).not_to_be_in_viewport()  # fechada ao carregar: nada fica preso na tela
+    g = pg.evaluate(GEOMETRIA)
+    assert g["main"]["left"] == 0 and g["main"]["width"] >= g["largura"] - 1
     botao.click()
-    expect(nav).to_be_visible()
+    expect(nav).to_be_in_viewport()
     pg.wait_for_timeout(300)  # fim da transição
     g = pg.evaluate(GEOMETRIA)
+    # Gaveta à esquerda, sob o cabeçalho, sem ocupar a tela toda (o véu mostra o conteúdo).
     assert abs(g["nav"]["top"] - g["cabecalho"]["bottom"]) <= 1
-    assert g["nav"]["left"] == 0 and g["nav"]["width"] >= g["largura"] - 1
+    assert g["nav"]["left"] == 0 and g["nav"]["width"] < g["largura"]
     pg.keyboard.press("Escape")
-    expect(nav).not_to_be_visible()
+    expect(nav).not_to_be_in_viewport()
     expect(botao).to_be_focused()
-    # Escolher um destino fecha o menu e a página nova abre com ele fechado.
+    # Tocar fora (no véu) fecha.
+    botao.click()
+    expect(nav).to_be_in_viewport()
+    pg.mouse.click(g["largura"] - 10, 600)
+    expect(nav).not_to_be_in_viewport()
+    # Escolher um destino fecha a gaveta e a página nova abre com ela fechada.
     botao.click()
     nav.get_by_role("link", name="Painel").click()
     expect(pg).to_have_url(re.compile(r"/viagens/$"))
-    expect(nav).not_to_be_visible()
+    expect(nav).not_to_be_in_viewport()

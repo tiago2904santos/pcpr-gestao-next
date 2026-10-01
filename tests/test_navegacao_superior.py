@@ -1,9 +1,9 @@
 """Decisão do dono do produto (ADR 0006): a navegação principal é SUPERIOR, nunca lateral.
 
-Desktop = menu superior · tablet = menu superior responsivo · celular = menu superior que
-abre para baixo (☰) · barra lateral permanente = não. Estes testes estáticos impedem que
-uma navegação lateral volte por CSS, template ou registro de módulo; o comportamento no
-navegador está em `tests/e2e/test_navegacao_superior.py`.
+Desktop = menu superior · tablet = menu superior responsivo · celular = gaveta lateral
+temporária aberta pelo ☰ (decisão D9) · barra lateral permanente = não. Estes testes
+estáticos impedem que uma navegação lateral fixa volte por CSS, template ou registro de
+módulo; o comportamento no navegador está em `tests/e2e/test_navegacao_superior.py`.
 """
 
 from __future__ import annotations
@@ -35,16 +35,20 @@ def test_sem_navegacao_lateral_no_codigo(arquivo: Path):
     assert not achados, "Navegação lateral é proibida (ADR 0006):\n" + "\n".join(achados)
 
 
-def test_gaveta_so_no_celular():
-    """A gaveta (☰) só existe abaixo de 768px; tablet e desktop usam a barra horizontal."""
+def test_gaveta_so_no_celular_e_sempre_temporaria():
+    """A gaveta (☰) só existe abaixo de 768px e começa escondida; acima, barra horizontal."""
     css = (RAIZ / "static/css/layout.css").read_text(encoding="utf-8")
     js = (RAIZ / "static/js/componentes/shell.js").read_text(encoding="utf-8")
     assert "const LARGURA_GAVETA = 768;" in js
-    bloco_celular = css[css.index("@media (max-width: 767.98px)"):]
-    assert "position: fixed" in bloco_celular.split("@media")[1]
-    # O menu do celular desce do topo na largura toda; nunca um painel preso à esquerda.
-    trecho = bloco_celular.split(".shell--gaveta-aberta .navegacao")[0]
-    assert "left: 0;" in trecho and "right: 0;" in trecho and "translateX" not in trecho
+    blocos = css.split("@media")
+    celular = next(b for b in blocos if b.startswith(" (max-width: 767.98px)"))
+    fechada = celular.split(".shell--gaveta-aberta .navegacao")[0]
+    assert "position: fixed" in fechada and "translateX(-100%)" in fechada
+    assert "visibility: hidden" in fechada
+    # Nenhuma outra faixa posiciona o menu como painel fixo (seria barra lateral permanente).
+    for bloco in blocos:
+        if bloco is not celular and ".navegacao {" in bloco:
+            assert "position: fixed" not in bloco.split(".navegacao {")[1].split("}")[0]
 
 
 def test_decisao_registrada_na_adr_e_no_design_system():

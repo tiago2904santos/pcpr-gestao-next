@@ -37,6 +37,9 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
             destinos.append(rotulo)
     volta = trechos[-1:] if trechos and trechos[-1].destino_id == oficio.sede_id else []
     ida = trechos[:-1] if volta else trechos
+    # Decisão D7: com volta intermediária à sede (bate-volta), o roteiro sai por trechos
+    # numerados, na ordem em que acontecem, em vez de ida/retorno.
+    bate_volta = any(t.destino_id == oficio.sede_id for t in ida)
     if oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA and oficio.viatura:
         transporte = {
             "meio": oficio.viatura.modelo, "placa": oficio.viatura.placa_formatada,
@@ -84,6 +87,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "destinos": destinos,
         "ida": [linha_trecho(t) for t in ida],
         "volta": [linha_trecho(t) for t in volta],
+        "bate_volta": bate_volta,
+        "trechos": [linha_trecho(t) for t in trechos],
         "transporte": transporte,
         "motorista": motorista.nome if motorista else "",
         "porte_arma": oficio.porte_arma,

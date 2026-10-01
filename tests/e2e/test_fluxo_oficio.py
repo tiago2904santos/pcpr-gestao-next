@@ -36,7 +36,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
 
     expect(pg.locator(".toast")).to_contain_text("criado como rascunho")
     titulo = pg.get_by_role("heading", level=1).inner_text()
-    numero = re.search(r"\d{3}/\d{4}", titulo).group(0)
+    numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
 
     # Equipe via combobox remoto (HTMX).
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
@@ -46,7 +46,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
     expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
 
-    # Transporte e roteiro (formulário principal).
+    # Protocolo (obrigatório para emitir — D1), transporte e roteiro (formulário principal).
+    pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
     pg.get_by_label("Cidade de destino").fill("Londrina/PR")
@@ -77,7 +78,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
         pass
     # A lista se atualiza sozinha (HTMX a cada 2s) quando o PDF fica pronto.
     expect(pg.locator("#documentos-lista")).to_contain_text("PDF/A pronto", timeout=8000)
-    oficio = Oficio.objects.get(numero=int(numero[:3]), ano=int(numero[-4:]))
+    n, ano = numero.split("/")
+    oficio = Oficio.objects.get(numero=int(n), ano=int(ano))
     assert oficio.documentos.get(tipo=Documento.Tipo.OFICIO).situacao == "pronto"
     assert pg.erros_console == []
 
@@ -152,8 +154,8 @@ def test_teclado_pular_conteudo_menu_e_dialogo(logado, dados_e2e):
     pg.keyboard.press("Control+k")
     paleta = pg.get_by_role("dialog", name="Buscar ou ir para")
     expect(paleta).to_be_visible()
-    pg.keyboard.type("001/")
-    expect(paleta.get_by_role("option").first).to_contain_text("Ofício 001/")
+    pg.keyboard.type("01/")
+    expect(paleta.get_by_role("option").first).to_contain_text("Ofício 01/")
     pg.keyboard.press("Escape")
     expect(paleta).to_be_hidden()
 

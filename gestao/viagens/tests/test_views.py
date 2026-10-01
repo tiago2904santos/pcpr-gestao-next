@@ -424,3 +424,43 @@ class TestProvasDaRevisaoDeUX:
         r = client.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]),
                        follow=True)
         assert "Seu perfil permite consultar, mas não editar ofícios." in r.content.decode()
+
+
+class TestDecisoesDoDono:
+    def test_bate_volta_sai_por_trechos_no_documento(self, cenario):
+        """D7: voltas intermediárias aparecem como trechos numerados, na ordem."""
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import html_do_documento
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        sede = oficio.sede
+        destino = Municipio.objects.filter(uf="PR").exclude(pk=sede.pk).first()
+        dia = timezone.now() + timedelta(days=20)
+        hora = timedelta(hours=1)
+        services.salvar_trechos(oficio, cenario.usuarios["operador"], [
+            services.TrechoInformado(sede.pk, destino.pk, dia, dia + 2 * hora),
+            services.TrechoInformado(destino.pk, sede.pk, dia + 8 * hora, dia + 10 * hora),
+            services.TrechoInformado(sede.pk, destino.pk, dia + 24 * hora, dia + 26 * hora),
+            services.TrechoInformado(destino.pk, sede.pk, dia + 32 * hora, dia + 34 * hora),
+        ])
+        oficio.refresh_from_db()
+        dados = dados_do_oficio(oficio)
+        assert dados["bate_volta"] and len(dados["trechos"]) == 4
+        html = html_do_documento("oficio", dados)
+        assert "ROTEIRO POR TRECHOS" in html and "Trecho 4" in html
+        assert "ROTEIRO DE IDA" not in html
+
+    def test_viagem_simples_continua_com_ida_e_retorno(self, cenario):
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import html_do_documento
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        html = html_do_documento("oficio", dados_do_oficio(oficio))
+        assert "ROTEIRO DE IDA" in html and "ROTEIRO DE RETORNO" in html
+        assert "ROTEIRO POR TRECHOS" not in html
+
+    def test_numero_impresso_com_dois_digitos(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        html = operador.get(reverse("viagens:detalhe", args=[oficio.pk])).content.decode()
+        assert f"Ofício {oficio.numero:02d}/{oficio.ano}" in html
+        assert f"{oficio.numero:03d}/{oficio.ano}" not in html

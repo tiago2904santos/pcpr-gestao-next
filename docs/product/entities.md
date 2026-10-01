@@ -36,6 +36,7 @@ erDiagram
 | **Documento** | oficio, tipo (ofício/justificativa), versao, situacao (gerando/pronto/falhou), dados (instantâneo), arquivo, sha256, tamanho, emitido_por | (ofício, tipo, versão) único; pronto tem hash; **nunca alterado** | ✓ |
 | **Historico** | oficio, acao, descricao, usuario, em, dados | linha do tempo de negócio | ✓ |
 | **NumeracaoAnual** | ano (único), piso | serializa a reserva de número (lock na linha) | ✓ |
+| **LacunaNumeracao** | ano, número (únicos juntos) | número liberado pela exclusão de um rascunho; único tipo reaproveitado (D5); consumido ao reservar | ✓ |
 | Justificativa (entidade própria 1:1) | modelo, texto, obrigatória, dias de antecedência, prazo, 1ª saída, status, assinante, data | — | ~ (campos no Oficio; instantâneo no Documento) |
 | Roteiro / RoteiroDestino / RoteiroTrecho / RoteiroDiariaComponente | roteiro reutilizável; composição auditável das diárias | recalcular substitui tudo numa transação | ~ (Trecho + `diarias_calculo`) |
 | DistanciaMunicipios | cache de distância/duração (fonte) | — | — |

@@ -36,6 +36,39 @@ def test_numeracao_sequencial_reutiliza_lacuna_de_rascunho_excluido(cenario):
     assert novo.numero == vazio.numero
 
 
+def test_buraco_sem_exclusao_nao_e_reaproveitado(cenario):
+    """D5: só a exclusão de rascunho libera número; buracos de outra origem ficam vazios."""
+    op = cenario.usuarios["operador"]
+    vazio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+    Oficio.objects.filter(pk=vazio.pk).update(numero=20)  # ex.: dado migrado com salto
+    novo = services.criar_rascunho(op)
+    assert novo.numero == 21
+    services.excluir_rascunho(novo, op)
+    assert services.criar_rascunho(op).numero == 21  # lacuna registrada pela exclusão
+    assert services.criar_rascunho(op).numero == 22
+
+
+def test_data_do_oficio_fora_do_ano_do_numero_e_erro(cenario):
+    """D3: número 05/2026 com data de outro ano não é aceito."""
+    oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+    with pytest.raises(services.RegraViolada, match=f"deve estar em {oficio.ano}"):
+        services.salvar_dados(oficio, cenario.usuarios["operador"],
+                              {"data_oficio": oficio.data_oficio.replace(year=oficio.ano + 1)})
+
+
+def test_protocolo_e_obrigatorio_para_emitir(cenario):
+    """D1: sem protocolo a emissão é bloqueada."""
+    op = cenario.usuarios["operador"]
+    oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+    oficio = services.salvar_dados(oficio, op, {"justificativa": "Convocação de última hora."})
+    prontidao = services.verificar_prontidao(oficio)
+    assert [p.mensagem for p in prontidao.bloqueantes] == ["Informe o protocolo do eProtocolo."]
+    with pytest.raises(services.RegraViolada, match="protocolo"):
+        services.emitir(oficio, op)
+    oficio = services.salvar_dados(oficio, op, {"protocolo": "123456789"})
+    services.emitir(oficio, op)
+
+
 def test_cancelado_mantem_numero_ocupado(cenario):
     cancelado = Oficio.objects.get(pk=cenario.ids["oficio_cancelado"])
     novo = services.criar_rascunho(cenario.usuarios["operador"])
@@ -85,7 +118,8 @@ def test_rascunho_fora_do_prazo_exige_justificativa(cenario):
     with pytest.raises(services.RegraViolada, match="Justificativa obrigatória"):
         services.emitir(oficio, cenario.usuarios["operador"])
     oficio = services.salvar_dados(oficio, cenario.usuarios["operador"],
-                                   {"justificativa": "Convocação recebida em cima da hora."})
+                                   {"justificativa": "Convocação recebida em cima da hora.",
+                                    "protocolo": "123456789"})
     services.emitir(oficio, cenario.usuarios["operador"])
     oficio.refresh_from_db()
     assert oficio.situacao == Oficio.Situacao.EMITIDO

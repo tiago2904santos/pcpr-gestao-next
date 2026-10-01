@@ -640,31 +640,28 @@ html:has(.barra-acoes) {
 }
 
 @media (max-width: 767.98px) {
-  /* Celular: o menu superior abre para baixo pelo ☰ (<pc-shell>), sob o cabeçalho e na
-     largura toda. Não é barra lateral: fecha ao escolher, com Esc ou tocando fora. */
+  /* Celular (D9): o ☰ abre o menu numa gaveta lateral TEMPORÁRIA, sob o cabeçalho. Começa
+     fechada e fecha ao escolher, com Esc ou tocando fora — nunca fica fixa (ADR 0006). */
   .navegacao {
     position: fixed;
     top: var(--altura-cabecalho);
+    bottom: 0;
     left: 0;
-    right: 0;
     z-index: var(--z-gaveta);
-    max-height: calc(100dvh - var(--altura-cabecalho));
+    width: min(20rem, 86vw);
     overflow-y: auto;
-    opacity: 0;
-    transform: translateY(calc(-1 * var(--esp-2)));
+    border-right: var(--borda);
+    transform: translateX(-100%);
     visibility: hidden;
     transition: transform var(--duracao-media) var(--curva-padrao),
-      opacity var(--duracao-media) var(--curva-padrao),
       visibility 0s linear var(--duracao-media);
     box-shadow: var(--sombra-3);
   }
 
   .shell--gaveta-aberta .navegacao {
-    opacity: 1;
     transform: none;
     visibility: visible;
-    transition: transform var(--duracao-media) var(--curva-padrao),
-      opacity var(--duracao-media) var(--curva-padrao);
+    transition: transform var(--duracao-media) var(--curva-padrao);
   }
 
   .navegacao__interno {
@@ -702,7 +699,7 @@ html:has(.barra-acoes) {
     border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
   }
 
-  /* No menu aberto, os grupos abrem embutidos (sem flutuar). */
+  /* Na gaveta, os grupos abrem embutidos (sem flutuar). */
   .navegacao .menu__painel {
     position: static;
     margin: 0 0 var(--esp-2) var(--esp-4);
@@ -712,7 +709,7 @@ html:has(.barra-acoes) {
     border-radius: 0;
   }
 
-  /* O véu fica sob o topo (cabeçalho + menu aberto), senão cobriria os próprios links. */
+  /* O véu fica sob o topo (cabeçalho + gaveta), senão cobriria os próprios links. */
   .shell__veu {
     position: fixed;
     inset: var(--altura-cabecalho) 0 0 0;

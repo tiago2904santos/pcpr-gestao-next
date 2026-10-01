@@ -4,7 +4,7 @@
 | Nome | Largura | Mudanças principais |
 |---|---|---|
 | xs | < 480 | Sigla menor; sem selo de ambiente; diálogos com botões empilhados |
-| sm | 480–767 | Menu superior abre para baixo pelo ☰; grade de campos em 1 coluna; tabela vira cartões; filtros empilhados; campos 44px e 16px |
+| sm | 480–767 | Menu em gaveta lateral temporária (☰); grade de campos em 1 coluna; tabela vira cartões; filtros empilhados; campos 44px e 16px |
 | md | 768–1023 | Menu superior compacto; detalhe em 1 coluna; índice de seções do formulário oculto |
 | lg | 1024–1279 | Menu superior; padding 24px |
 | xl | ≥ 1280 | Conteúdo até 1280px; padding 32px |

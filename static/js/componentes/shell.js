@@ -2,7 +2,7 @@
 /**
  * <pc-shell> — comportamento do App Shell.
  *  - ≥768px (tablet e desktop): o menu superior é uma barra horizontal comum;
- *  - <768px (celular): o mesmo menu superior abre para baixo pelo ☰, com foco
+ *  - <768px (celular): o ☰ abre o menu numa gaveta lateral temporária, com foco
  *    gerenciado, Esc, véu e conteúdo `inert` enquanto aberta.
  * Sem JavaScript a navegação continua acessível (HTML comum).
  */

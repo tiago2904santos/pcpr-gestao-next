@@ -70,7 +70,7 @@
             <p class="entrada entrada--estatica" aria-labelledby="rotulo-numero">{{ oficio.numero_formatado }}</p>
           </div>
           {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
-          {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" %}
+          {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" exigido_para_emitir=True %}
           <fieldset class="grupo-campos">
             <legend>Documento</legend>
             <p class="campo__ajuda mb-4">Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }} — Autorização quando o ofício é anterior à saída; senão, Convalidação.</p>

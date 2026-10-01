@@ -55,8 +55,8 @@ stateDiagram-v2
     note right of RASCUNHO : cancelar/reativar é flag ortogonal; retificar e complementar são ações
 ```
 
-Diferenças: novo une GERADO+FINALIZADO em *Emitido* (decisão pendente), cancelamento é
-terminal (sem reativar), não há arquivar; protocolo não bloqueia (decisão pendente).
+Diferenças: novo une GERADO+FINALIZADO em *Emitido* (D4, a confirmar), cancelamento é
+terminal (sem reativar), não há arquivar; protocolo bloqueia a emissão (D1, como a referência).
 
 ## 2. Solicitação de Evento Social (Planejado)
 

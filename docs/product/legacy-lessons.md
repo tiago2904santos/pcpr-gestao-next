@@ -54,18 +54,21 @@ Outros riscos registrados: `get_or_create` do primeiro número do ano pode colid
 (IntegrityError não tratado); excluir rascunho apaga o `Historico` (fica só o trigger);
 transporte "outro meio" com placa não exige motorista (confirmar regra).
 
-## 3. Decisões pendentes com o dono do produto
+## 3. Decisões do dono do produto (01/10/2026)
 
-| # | Pergunta | Referência | Novo hoje | Impacto |
-|---|---|---|---|---|
-| **a** | **Protocolo é obrigatório para emitir?** | Bloqueante para finalizar ("Informe o protocolo.") | Aviso não bloqueante | Ofício emitido sem protocolo; afeta a integração eProtocolo |
-| **b** | **Formato da numeração: `03d` ou `02d`?** | `05/2026` | `005/2026` | Texto impresso, busca e migração; confirmar padrão oficial |
-| **c** | **Data do ofício fora do ano do número: erro ou aviso?** | Aviso ao finalizar | Erro ao salvar | Rascunho de dezembro emitido em janeiro exige excluir e recriar (perde o número) |
-| **d** | **Unificar GERADO + FINALIZADO em "Emitido"?** | 4 estados + cancelado ortogonal | rascunho/emitido/cancelado | Simplifica; exige mapeamento na migração e definição de onde entram assinatura e arquivamento |
+| # | Pergunta | Decisão |
+|---|---|---|
+| **a** (D1) | Protocolo é obrigatório para emitir? | **Sim** — bloqueia a emissão |
+| **b** (D2) | Formato da numeração | **`05/2026`** |
+| **c** (D3) | Data do ofício fora do ano do número | **Erro** |
+| **d** (D4) | Unificar GERADO + FINALIZADO em "Emitido"? | **A confirmar** (mantido unificado) |
+| D5 | Reaproveitamento de números | **Só lacunas de exclusão** |
+| D6 | Motorista fora da equipe | **Prioridade média/alta** |
+| D7 | Bate-volta no documento | **Em trechos** |
+| D9 | Navegação no celular | **Gaveta lateral temporária** |
 
 Também em aberto (da matriz de paridade):
-- Numeração: reaproveitar **qualquer** buraco (novo) ou só lacunas de exclusão (referência)?
-  Afeta dados migrados com saltos e o livro compartilhado com o Coffee Break.
+- Livro de numeração compartilhado com o Coffee Break (só se esse módulo for migrado).
 - Justificativa: gerar documento sempre que há texto (novo) ou só quando exigida (referência)?
 - DOCX: oferecer documento editável fora do sistema?
 - Efetivo ≠ equipe listada (snapshot de quantidade de servidores da referência)?

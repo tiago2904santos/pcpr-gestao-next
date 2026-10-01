@@ -26,7 +26,7 @@ encontrados nas capturas de 360/768/1024/1440 e corrigidos:
 - barra de ações quebrando em duas linhas a 768 px;
 - no celular, o véu escuro cobria o próprio menu aberto (links impossíveis de tocar);
 - tablet (768–1023 px) usava gaveta lateral: agora menu superior horizontal (ADR 0006);
-  no celular o menu abre para baixo, sob o cabeçalho.
+  no celular, gaveta lateral temporária (decisão D9).
 O teste responsivo passou a verificar o cabeçalho (sobreposição e busca espremida) e os
 links do menu superior; `tests/e2e/test_navegacao_superior.py` mede a geometria do menu.
 
