@@ -15,21 +15,23 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
 | Indicador (KPI) | `.indicador` | `--atencao`; pode ser link | Valor + rótulo legíveis por leitor de tela |
 | Selo de status | `.selo` | `--neutro/info/sucesso/aviso/perigo/marca/forte`, `--sem-ponto` | Texto obrigatório (status nunca só por cor) |
 | Alerta | `.alerta` | info, sucesso, aviso, perigo; com lista | `role="alert"` só para erro bloqueante |
-| Toast | `<pc-toasts>` | sucesso/aviso/info somem em 6s (pausam no hover); erro persiste | `role="status"`, não rouba foco |
+| Toast | `<pc-toasts>` | sucesso/aviso/info somem em 6s com barra de tempo (`::after`), pausam no hover **e no foco** (`.toast--pausado`), saem animados (`.toast--saindo`); erro persiste; `--fixo` | `role="status"`, não rouba foco |
+| Placa | `.placa` | `__rotulo` + `__numero`; `--grande` (detalhe), `--cancelada` (tachado) | Decorativa (`aria-hidden`): o link/heading ao lado já diz "Ofício N" |
+| Trilho de processo | `ol.processo > li.processo__passo` | `--feito`, `--atual`, `--cancelado` | `aria-label="Etapas do ofício"`; texto em cada passo (nunca só cor) |
 | Abas | `.abas` + `.aba` | links de filtro (`aria-current`) ou `<pc-abas>` (ARIA tabs) | Setas/Home/End em `<pc-abas>` |
 | Sanfona | `details.sanfona` | aberta/fechada | Nativo |
 | Etapas | `.etapas` | concluída, atual, pendente; vertical/horizontal | `aria-current="step"` |
 | Tabela | `.tabela` | `--compacta`, `--responsiva` (vira cartões <768px), `--linhas-clicaveis`, ordenação (`aria-sort`), rodapé de totais | `caption`, `scope`, números alinhados à direita |
-| Lista de registros | `.registros > .registro` | metadados com ícones, vazio em itálico, ações ⋮ | Link principal cobre a linha sem aninhar interativos |
+| Lista de registros | `.registros > .registro` | placa + título + selos + metadados com ícones; equipe mostra 3 nomes e `+N` (`.registro__mais`); vazio em itálico; ações ⋮ (opacidade .6 → 1 no hover/foco); hover com trilho dourado | Link principal cobre a linha sem aninhar interativos; `.registro:has(:focus-visible)` desenha o foco na linha inteira |
 | Filtros | `.filtros`, `.filtros-ativos`, `.ficha` | busca, selects, fichas removíveis | `role="search"` |
 | Paginação | `componentes/paginacao.html` | elipses, anterior/próxima desabilitadas | `aria-current="page"`, rótulos |
 | Migalhas | `componentes/migalhas.html` | — | `nav[aria-label]`, último item `aria-current` |
-| Diálogo | `dialog.dialogo` | confirmação, `--perigo`, gaveta (`.gaveta`) | `<dialog>` nativo: foco preso, Esc, retorno do foco |
+| Diálogo | `dialog.dialogo` | confirmação, `--perigo`, gaveta (`.gaveta`); entra com `--curva-expressiva`, sai com `.dialogo--saindo` (`fecharDialogo()` em dialogo.js) | `<dialog>` nativo: foco preso, Esc, retorno do foco; Esc e botões `method=dialog` passam pela saída animada mantendo `returnValue` |
 | Confirmação | `data-confirmar` / `hx-confirm` | destrutiva (`data-confirmar-perigo`) | Substitui `window.confirm` |
 | Menu suspenso | `<pc-menu>` | item de perigo, separador | Padrão menu button; setas, Esc |
 | Paleta de comandos | `<pc-comandos>` | navegação + busca no servidor | Ctrl+K ou "/"; combobox + listbox |
 | Estado vazio | `componentes/vazio.html` | primeiro uso (ação), sem resultado (limpar filtros) | Heading + orientação |
-| Carregando | `.esqueleto`, `.girando`, `.indicador-htmx` | — | `aria-busy`, `role="status"` |
+| Carregando | `.esqueleto` (`--titulo/--linha/--curto/--bloco`, `.registro--esqueleto`), `.girando`, `.lista-resultados.htmx-request` (esmaece + barra dourada) | — | `aria-busy`, `role="status"` |
 | Pessoa | `.pessoa`, `.avatar` | motorista (selo forte), com termo | Botão remover com nome no rótulo |
 | Valor | `.valor-destaque`, `.por-extenso` | `--marca` | — |
 | Prévia de documento | `.previa-documento` | iframe do PDF | Título no iframe |

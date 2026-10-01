@@ -24,6 +24,17 @@ Fonte única: [`static/css/tokens.css`](../../static/css/tokens.css). Contrastes
 | `--cor-foco`, `--anel-foco` | Foco (azul — contrasta com grafite e com dourado) |
 | `--cor-{sucesso,aviso,perigo,info}(-fundo/-borda)` | Selos, alertas, toasts |
 
+## Tokens translúcidos (profundidade sem cor nova)
+| Token | Uso |
+|---|---|
+| `--tinta-04 … 28` | sombras e anéis de 1px (grafite com alfa) — substituem bordas cinzas |
+| `--luz-10 … 28` | superfícies sobre o grafite (busca global, botões do cabeçalho) |
+| `--brilho-dourado-08 … 45` | brilho do fundo da página, anéis do login, halo do passo atual, sombra do botão de marca |
+| `--sombra-cartao`, `--sombra-cartao-hover`, `--sombra-flutuante`, `--sombra-marca` | cartões, barra de ações flutuante, botão dourado |
+
+Regra: alfa só sobre a mesma família (tinta = grafite, luz = branco, brilho = dourado).
+Nunca texto sobre token translúcido sem medir o contraste do resultado composto.
+
 ## Tema
 **Somente claro — sem modo escuro** (decisão do dono do produto). Não criar variantes
 `prefers-color-scheme: dark` nem alternador de tema; os testes reprovam.

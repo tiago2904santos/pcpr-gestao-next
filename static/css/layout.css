@@ -1,19 +1,21 @@
 /* =====================================================================
    LAYOUT — App Shell (cabeçalho institucional, menu superior,
-   área de conteúdo) e esqueleto das páginas (arquétipos).
+   área de conteúdo), esqueleto das páginas (arquétipos) e acesso.
    Pontos de quebra: 480 · 768 · 1024 · 1280 (docs/design-system/responsive.md)
    ===================================================================== */
 
 /* ---------------- Cabeçalho institucional ---------------- */
 .cabecalho {
+  position: relative;
   height: var(--altura-cabecalho);
   display: flex;
   align-items: center;
   gap: var(--esp-3);
   padding: 0 var(--esp-4);
-  background: var(--shell-cabecalho-fundo);
+  background: linear-gradient(180deg, var(--shell-cabecalho-fundo), var(--shell-cabecalho-fundo-escuro));
   color: var(--shell-cabecalho-texto);
-  border-bottom: 3px solid var(--shell-filete);
+  border-bottom: var(--filete) solid var(--shell-filete);
+  box-shadow: var(--sombra-interna-topo);
 }
 
 .cabecalho__menu {
@@ -22,13 +24,18 @@
   width: var(--altura-controle);
   height: var(--altura-controle);
   border: 0;
-  border-radius: var(--raio-md);
+  border-radius: var(--raio-pilula);
   background: transparent;
   color: inherit;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
 .cabecalho__menu:hover {
-  background: var(--grafite-700);
+  background: var(--luz-10);
+}
+
+.cabecalho__menu[aria-expanded="true"] {
+  background: var(--luz-16);
 }
 
 .marca {
@@ -49,12 +56,13 @@
   width: 2.5rem;
   height: 2.5rem;
   object-fit: contain;
+  filter: drop-shadow(0 1px 2px var(--tinta-28));
 }
 
 .marca__sigla {
   font-size: var(--texto-2xl);
   font-weight: var(--peso-forte);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
@@ -62,7 +70,7 @@
   width: 1px;
   align-self: stretch;
   margin: var(--esp-3) 0;
-  background: var(--grafite-600);
+  background: var(--luz-16);
 }
 
 .marca__produto {
@@ -76,6 +84,7 @@
   overflow: hidden;
   font-weight: var(--peso-semi);
   font-size: var(--texto-md);
+  letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -85,15 +94,17 @@
   color: var(--cor-texto-inverso-sutil);
 }
 
+/* Selo de ambiente: contorno dourado, nunca preenchido (não compete com a marca). */
 .cabecalho__ambiente {
   padding: var(--esp-05) var(--esp-2);
+  border: 1px solid var(--shell-filete);
   border-radius: var(--raio-xs);
   font-size: var(--texto-2xs);
   font-weight: var(--peso-forte);
   letter-spacing: var(--rastreio-rotulo);
   text-transform: uppercase;
-  background: var(--ambar-100);
-  color: var(--ambar-700);
+  color: var(--shell-filete-claro);
+  background: transparent;
 }
 
 .cabecalho__busca {
@@ -108,19 +119,28 @@
   align-items: center;
   gap: var(--esp-2);
   width: 100%;
-  max-width: 28rem;
+  max-width: 30rem;
   height: var(--altura-controle);
-  padding: 0 var(--esp-3);
-  border: 1px solid var(--grafite-600);
-  border-radius: var(--raio-md);
-  background: var(--grafite-800);
+  padding: 0 var(--esp-2) 0 var(--esp-4);
+  border: 1px solid var(--luz-16);
+  border-radius: var(--raio-pilula);
+  background: var(--luz-10);
   color: var(--cor-texto-inverso-sutil);
   text-align: left;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
 }
 
-.busca-global:hover {
-  border-color: var(--dourado-400);
+.busca-global:hover,
+.busca-global:focus-visible {
+  border-color: var(--shell-filete);
+  background: var(--luz-16);
   color: var(--cor-texto-inverso);
+}
+
+.busca-global > .icone {
+  color: var(--shell-filete-claro);
 }
 
 .busca-global__texto {
@@ -132,13 +152,14 @@
 .busca-global__atalho {
   white-space: nowrap;
   margin-left: auto;
-  padding: 0 var(--esp-1);
-  background: transparent;
+  padding: var(--esp-05) var(--esp-2);
+  background: var(--luz-10);
   color: var(--cor-texto-inverso-sutil);
-  border: 1px solid var(--grafite-600);
-  border-radius: var(--raio-xs);
-  font-size: var(--texto-xs);
+  border: 1px solid var(--luz-16);
+  border-radius: var(--raio-pilula);
+  font-size: var(--texto-2xs);
   font-family: var(--fonte-mono);
+  letter-spacing: 0.02em;
 }
 
 .cabecalho__acoes {
@@ -155,24 +176,25 @@
   width: var(--altura-controle);
   height: var(--altura-controle);
   border: 0;
-  border-radius: var(--raio-md);
+  border-radius: var(--raio-pilula);
   background: transparent;
   color: var(--cor-texto-inverso);
   text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
 .cabecalho__botao:hover {
-  background: var(--grafite-700);
+  background: var(--luz-10);
 }
 
 .cabecalho__marcador {
   position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
+  top: 0.6rem;
+  right: 0.6rem;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: var(--raio-pilula);
-  background: var(--dourado-400);
+  background: var(--shell-filete);
   box-shadow: 0 0 0 2px var(--shell-cabecalho-fundo);
 }
 
@@ -183,13 +205,15 @@
   height: var(--altura-controle);
   padding: 0 var(--esp-2) 0 var(--esp-1);
   border: 0;
-  border-radius: var(--raio-md);
+  border-radius: var(--raio-pilula);
   background: transparent;
   color: var(--cor-texto-inverso);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
-.perfil:hover {
-  background: var(--grafite-700);
+.perfil:hover,
+.perfil[aria-expanded="true"] {
+  background: var(--luz-10);
 }
 
 .perfil__avatar {
@@ -198,10 +222,12 @@
   width: 2rem;
   height: 2rem;
   border-radius: var(--raio-pilula);
-  background: var(--dourado-500);
+  background: linear-gradient(145deg, var(--dourado-300), var(--dourado-600));
   color: var(--grafite-950);
   font-size: var(--texto-xs);
   font-weight: var(--peso-forte);
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 2px var(--luz-16);
 }
 
 .perfil__texto {
@@ -220,7 +246,7 @@
   font-size: var(--texto-2xs);
   letter-spacing: var(--rastreio-rotulo);
   text-transform: uppercase;
-  color: var(--dourado-300);
+  color: var(--shell-filete-claro);
 }
 
 /* ---------------- Topo fixo: cabeçalho + menu superior ---------------- */
@@ -234,7 +260,7 @@
 .navegacao {
   background: var(--shell-navegacao-fundo);
   border-bottom: var(--borda);
-  box-shadow: var(--sombra-1);
+  box-shadow: 0 1px 0 var(--tinta-04), 0 4px 16px -12px var(--tinta-18);
 }
 
 /* Alinhado à mesma coluna do conteúdo (largura máxima e respiros iguais). */
@@ -261,15 +287,28 @@
   gap: var(--esp-2);
   padding: 0 var(--esp-3);
   border: 0;
-  border-left: 3px solid var(--cor-marca);
+  border-left: var(--filete) solid var(--cor-marca);
+  border-radius: 0 var(--raio-md) var(--raio-md) 0;
   background: transparent;
   color: var(--cor-texto);
   font-size: var(--texto-lg);
   font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-titulo);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
-.navegacao__seletor:hover {
-  background: var(--cor-superficie-realce);
+.navegacao__seletor:hover,
+.navegacao__seletor[aria-expanded="true"] {
+  background: var(--cor-marca-fundo);
+}
+
+.navegacao__seletor > .icone {
+  color: var(--cor-texto-terciario);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.navegacao__seletor[aria-expanded="true"] > .icone {
+  transform: rotate(180deg);
 }
 
 .navegacao__lista {
@@ -303,12 +342,21 @@
   font-weight: var(--peso-medio);
   text-decoration: none;
   white-space: nowrap;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.navegacao__link > .icone {
+  color: var(--cor-texto-terciario);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
 }
 
 .navegacao__link:hover {
   color: var(--cor-texto);
-  background: var(--cor-superficie-sutil);
   text-decoration: none;
+}
+
+.navegacao__link:hover > .icone {
+  color: var(--cor-marca-texto);
 }
 
 .navegacao__link[aria-current="page"],
@@ -317,17 +365,19 @@
   font-weight: var(--peso-semi);
 }
 
-/* Filete dourado sob o item ativo (as referências visuais aprovadas). */
+/* Filete dourado sob o item ativo (as referências visuais aprovadas); nasce da esquerda. */
 .navegacao__link[aria-current="page"]::after,
 .navegacao__link--ativo::after {
   content: "";
   position: absolute;
   left: var(--esp-2);
   right: var(--esp-2);
-  bottom: 0;
-  height: 3px;
+  bottom: -1px;
+  height: var(--filete);
   border-radius: var(--raio-xs) var(--raio-xs) 0 0;
   background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-media) var(--curva-padrao);
 }
 
 .navegacao__link[aria-current="page"] .icone,
@@ -382,7 +432,7 @@
   /* Texto alinhado à coluna do conteúdo; o filete ocupa a largura toda. */
   padding: var(--esp-4) max(var(--esp-8), calc((100% - var(--largura-conteudo)) / 2 + var(--esp-8)));
   border-top: var(--borda);
-  color: var(--cor-texto-secundario);
+  color: var(--cor-texto-terciario);
   font-size: var(--texto-xs);
 }
 
@@ -410,9 +460,13 @@
 }
 
 .migalhas li + li::before {
-  content: "/";
-  color: var(--cor-texto-terciario);
-  padding-right: var(--esp-1);
+  content: "";
+  width: 0.3rem;
+  height: 0.3rem;
+  margin: 0 var(--esp-1);
+  border-right: 1.5px solid var(--cor-texto-terciario);
+  border-bottom: 1.5px solid var(--cor-texto-terciario);
+  transform: rotate(-45deg);
 }
 
 .migalhas a {
@@ -430,7 +484,10 @@
   font-weight: var(--peso-medio);
 }
 
+/* O cabeçalho de página fecha com um fio e um traço dourado curto — a mesma
+   assinatura do cabeçalho institucional, em escala de página. */
 .pagina-cabecalho {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -440,6 +497,16 @@
   border-bottom: var(--borda);
 }
 
+.pagina-cabecalho::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 3rem;
+  height: var(--filete-fino);
+  background: var(--cor-marca);
+}
+
 .pagina-cabecalho__icone {
   display: inline-grid;
   place-items: center;
@@ -447,8 +514,9 @@
   height: 3rem;
   border: 1px solid var(--cor-marca-borda);
   border-radius: var(--raio-lg);
-  background: var(--cor-marca-fundo);
+  background: linear-gradient(180deg, var(--cor-superficie), var(--cor-marca-fundo));
   color: var(--cor-marca-texto);
+  box-shadow: var(--sombra-1);
   flex: none;
 }
 
@@ -459,6 +527,7 @@
 
 .pagina-cabecalho__sobretitulo {
   margin-bottom: var(--esp-1);
+  color: var(--cor-marca-texto);
 }
 
 .pagina-cabecalho__titulo {
@@ -468,7 +537,7 @@
   gap: var(--esp-2) var(--esp-3);
   font-size: var(--texto-3xl);
   font-weight: var(--peso-semi);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--rastreio-titulo);
 }
 
 .pagina-cabecalho__descricao {
@@ -482,6 +551,7 @@
   flex-wrap: wrap;
   gap: var(--esp-2);
   align-items: center;
+  align-self: center;
 }
 
 /* ---------------- Grades de página ---------------- */
@@ -531,26 +601,32 @@ html:has(.barra-acoes) {
 
 .barra-acoes {
   position: sticky;
-  bottom: 0;
+  bottom: var(--esp-3);
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-3);
   margin-top: var(--esp-6);
-  padding: var(--esp-3) var(--esp-4);
-  border: var(--borda);
-  border-radius: var(--raio-lg);
-  background: var(--cor-superficie);
-  box-shadow: var(--sombra-3);
+  padding: var(--esp-3) var(--esp-3) var(--esp-3) var(--esp-5);
+  border-radius: var(--raio-xl);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
 }
 
 /* Base 0: o texto do status quebra linha antes de empurrar os botões para baixo. */
 .barra-acoes__status {
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
   color: var(--cor-texto-secundario);
   font-size: var(--texto-sm);
+}
+
+.barra-acoes__status > .icone {
+  color: var(--cor-sucesso);
 }
 
 .barra-acoes__status--sujo {
@@ -558,12 +634,21 @@ html:has(.barra-acoes) {
   font-weight: var(--peso-semi);
 }
 
-/* ---------------- Página de autenticação ---------------- */
+.barra-acoes__status--sujo::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-aviso-solida);
+  animation: pulsar 1.6s var(--curva-suave) infinite;
+}
+
+/* ---------------- Página de acesso (login) ---------------- */
 .autenticacao {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  background: var(--neutro-100);
+  background: var(--fundo-pagina);
 }
 
 .autenticacao .cabecalho {
@@ -576,19 +661,107 @@ html:has(.barra-acoes) {
   padding: var(--esp-8) var(--esp-4);
 }
 
+/* Composição em duas peças: a marca (grafite) e o formulário (papel). */
+.acesso {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 26rem);
+  width: 100%;
+  max-width: 48rem;
+  border-radius: var(--raio-xl);
+  overflow: hidden;
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-4), 0 0 0 1px var(--tinta-08);
+  animation: aparecer var(--duracao-lenta) var(--curva-padrao) both;
+}
+
+.acesso__marca {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--esp-8);
+  padding: var(--esp-8);
+  background: linear-gradient(160deg, var(--grafite-800), var(--grafite-950));
+  color: var(--cor-texto-inverso);
+  overflow: hidden;
+}
+
+/* Ambientação discreta: anéis dourados muito suaves, como a marca d'água de um timbre. */
+.acesso__marca::before {
+  content: "";
+  position: absolute;
+  right: -7rem;
+  bottom: -9rem;
+  width: 22rem;
+  height: 22rem;
+  border-radius: var(--raio-pilula);
+  border: 1px solid var(--brilho-dourado-28);
+  box-shadow: inset 0 0 0 2.5rem var(--brilho-dourado-08), inset 0 0 0 5rem var(--brilho-dourado-08);
+  pointer-events: none;
+}
+
+.acesso__marca::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--filete);
+  background: linear-gradient(90deg, var(--dourado-500), var(--dourado-300) 55%, transparent);
+}
+
+.acesso__brasao {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px var(--tinta-28));
+}
+
+.acesso__sigla {
+  margin-top: var(--esp-4);
+  font-size: var(--texto-5xl);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-display);
+  line-height: 1;
+}
+
+.acesso__produto {
+  margin-top: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-inverso);
+}
+
+.acesso__instituicao {
+  margin-top: var(--esp-1);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-inverso-sutil);
+}
+
+.acesso__nota {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--shell-filete-claro);
+}
+
+.acesso__formulario {
+  padding: var(--esp-8);
+}
+
 .cartao-acesso {
   width: 100%;
-  max-width: 26rem;
-  padding: var(--esp-8);
-  border: var(--borda);
-  border-radius: var(--raio-lg);
-  background: var(--cor-superficie);
-  box-shadow: var(--sombra-3);
 }
 
 .cartao-acesso__titulo {
   font-size: var(--texto-2xl);
-  font-weight: var(--peso-forte);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-titulo);
 }
 
 .cartao-acesso__selo {
@@ -598,6 +771,21 @@ html:has(.barra-acoes) {
   gap: var(--esp-2);
   padding-top: var(--esp-4);
   border-top: var(--borda);
+}
+
+.acesso__ambiente {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-05) var(--esp-2);
+  border: 1px solid var(--cor-marca-borda);
+  border-radius: var(--raio-xs);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-marca-texto);
+  background: var(--cor-marca-fundo);
 }
 
 /* ---------------- Página de erro ---------------- */
@@ -613,9 +801,14 @@ html:has(.barra-acoes) {
   font-weight: var(--peso-forte);
   color: var(--cor-marca-texto);
   font-variant-numeric: tabular-nums;
+  letter-spacing: var(--rastreio-display);
 }
 
 /* ================= Responsivo ================= */
+@media (min-width: 1024px) {
+  .pagina-cabecalho__titulo { font-size: var(--texto-display); }
+}
+
 @media (max-width: 1279.98px) {
   .conteudo__interno { padding: var(--esp-6) var(--esp-6) var(--esp-12); }
   .navegacao__interno { padding: 0 var(--esp-6); }
@@ -643,6 +836,11 @@ html:has(.barra-acoes) {
   .layout-formulario { grid-template-columns: minmax(0, 1fr); }
   .layout-formulario__indice { display: none; }
   .grade--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .acesso { grid-template-columns: minmax(0, 1fr); max-width: 28rem; }
+  .acesso__marca { gap: var(--esp-5); padding: var(--esp-6); }
+  .acesso__sigla { font-size: var(--texto-3xl); margin-top: var(--esp-3); }
+  .acesso__brasao { width: 2.75rem; height: 2.75rem; }
+  .acesso__marca::before { width: 14rem; height: 14rem; right: -5rem; bottom: -7rem; }
 }
 
 @media (max-width: 767.98px) {
@@ -661,7 +859,7 @@ html:has(.barra-acoes) {
     visibility: hidden;
     transition: transform var(--duracao-media) var(--curva-padrao),
       visibility 0s linear var(--duracao-media);
-    box-shadow: var(--sombra-3);
+    box-shadow: var(--sombra-4);
   }
 
   .shell--gaveta-aberta .navegacao {
@@ -696,15 +894,25 @@ html:has(.barra-acoes) {
     border-radius: var(--raio-md);
   }
 
+  .navegacao__link:hover {
+    background: var(--cor-superficie-sutil);
+  }
+
+  .navegacao__link[aria-current="page"],
+  .navegacao__link--ativo {
+    background: var(--cor-marca-fundo);
+  }
+
   .navegacao__link[aria-current="page"]::after,
   .navegacao__link--ativo::after {
     left: 0;
     right: auto;
     top: var(--esp-2);
     bottom: var(--esp-2);
-    width: 3px;
+    width: var(--filete);
     height: auto;
     border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
+    transform-origin: center top;
   }
 
   /* Na gaveta, os grupos abrem embutidos (sem flutuar). */
@@ -715,6 +923,7 @@ html:has(.barra-acoes) {
     border: 0;
     border-left: var(--borda);
     border-radius: 0;
+    animation: none;
   }
 
   /* O véu fica sob o topo (cabeçalho + gaveta), senão cobriria os próprios links. */
@@ -723,6 +932,8 @@ html:has(.barra-acoes) {
     inset: var(--altura-cabecalho) 0 0 0;
     z-index: calc(var(--z-cabecalho) - 1);
     background: var(--cor-veu);
+    backdrop-filter: blur(var(--desfoque-veu));
+    animation: aparecer var(--duracao-media) var(--curva-padrao);
   }
 
   .cabecalho { gap: var(--esp-2); padding: 0 var(--esp-2); }
@@ -738,11 +949,13 @@ html:has(.barra-acoes) {
   .pagina-cabecalho__titulo { font-size: var(--texto-2xl); }
   .pagina-cabecalho__acoes { width: 100%; }
   .grade--2, .grade--3, .grade--4 { grid-template-columns: minmax(0, 1fr); }
-  .cartao-acesso { padding: var(--esp-6) var(--esp-5); }
+  .autenticacao__palco { padding: var(--esp-4) var(--esp-3) var(--esp-8); align-items: start; }
+  .acesso__formulario { padding: var(--esp-6) var(--esp-5); }
   /* Barra compacta no celular: uma linha, rótulos curtos, status só quando há algo a avisar. */
   .barra-acoes {
     flex-wrap: nowrap;
     gap: var(--esp-2);
+    bottom: var(--esp-2);
     margin-left: calc(-1 * var(--esp-2));
     margin-right: calc(-1 * var(--esp-2));
     padding: var(--esp-2);
@@ -760,5 +973,5 @@ html:has(.barra-acoes) {
 
 .texto-acesso {
   gap: var(--esp-2);
-  color: var(--dourado-300);
+  color: var(--shell-filete-claro);
 }

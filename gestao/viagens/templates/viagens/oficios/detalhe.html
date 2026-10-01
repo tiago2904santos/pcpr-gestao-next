@@ -4,7 +4,10 @@
 
 {% block cabecalho_detalhe %}
 <header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone oficio.situacao|icone_situacao classe="icone--lg" %}</span>
+  <span class="placa placa--grande{% if oficio.situacao == 'cancelado' %} placa--cancelada{% endif %} pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Ofício</span>
+    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
+  </span>
   <div class="pagina-cabecalho__texto">
     <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem</p>
     <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }}
@@ -12,6 +15,14 @@
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
     </h1>
     <p class="pagina-cabecalho__descricao">{% with d=oficio|destinos %}{{ d|default:"Sem destino" }}{% endwith %}{% with p=trechos|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %} · {{ oficio.unidade.sigla }}</p>
+    <ol class="processo mt-2" aria-label="Etapas do ofício">
+      <li class="processo__passo {% if oficio.situacao == 'rascunho' %}processo__passo--atual{% else %}processo__passo--feito{% endif %}">Rascunho</li>
+      {% if oficio.situacao == 'cancelado' %}
+        <li class="processo__passo processo__passo--cancelado">Cancelado</li>
+      {% else %}
+        <li class="processo__passo{% if oficio.situacao == 'emitido' %} processo__passo--atual{% endif %}">Emitido</li>
+      {% endif %}
+    </ol>
   </div>
   <div class="pagina-cabecalho__acoes">
     {% if pode_editar %}<a class="botao{% if not pode_emitir %} botao--primario{% endif %}" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Editar</a>{% endif %}

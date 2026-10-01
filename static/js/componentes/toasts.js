@@ -47,23 +47,42 @@ export class PcToasts extends HTMLElement {
     this.agendar(t);
   }
 
+  /**
+   * Sai com a animação do Design System (toast-sair) e só então remove do DOM.
+   * @param {HTMLElement} t
+   */
+  remover(t) {
+    if (t.classList.contains("toast--saindo")) return;
+    t.classList.add("toast--saindo");
+    const fim = () => t.remove();
+    t.addEventListener("animationend", fim, { once: true });
+    window.setTimeout(fim, 400); // reduced-motion ou animação indisponível
+  }
+
   /** @param {HTMLElement} t */
   agendar(t) {
-    t.querySelector(".toast__fechar")?.addEventListener("click", () => t.remove());
+    t.querySelector(".toast__fechar")?.addEventListener("click", () => this.remover(t));
     // Erros ficam até serem fechados (WCAG 2.2.1); demais somem após 6s.
+    // A barra de tempo (CSS ::after) acompanha: pausa junto com o cronômetro.
     if (!t.classList.contains("toast--perigo")) {
       let restante = 6000;
       let inicio = Date.now();
       /** @type {number | undefined} */
-      let timer = window.setTimeout(() => t.remove(), restante);
-      t.addEventListener("mouseenter", () => {
+      let timer = window.setTimeout(() => this.remover(t), restante);
+      const pausar = () => {
         window.clearTimeout(timer);
         restante -= Date.now() - inicio;
-      });
-      t.addEventListener("mouseleave", () => {
+        t.classList.add("toast--pausado");
+      };
+      const retomar = () => {
         inicio = Date.now();
-        timer = window.setTimeout(() => t.remove(), Math.max(restante, 1500));
-      });
+        t.classList.remove("toast--pausado");
+        timer = window.setTimeout(() => this.remover(t), Math.max(restante, 1500));
+      };
+      t.addEventListener("mouseenter", pausar);
+      t.addEventListener("mouseleave", retomar);
+      t.addEventListener("focusin", pausar);
+      t.addEventListener("focusout", retomar);
     }
   }
 }

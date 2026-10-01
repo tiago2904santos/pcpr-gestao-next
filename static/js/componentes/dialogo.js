@@ -14,6 +14,25 @@ function dialogoPorId(id) {
   return /** @type {HTMLDialogElement | null} */ (document.getElementById(id));
 }
 
+/**
+ * Fecha com a animação de saída (recolher) e só então chama close().
+ * Reentrante: um segundo pedido durante a saída é ignorado.
+ * @param {HTMLDialogElement} d @param {string} [valor]
+ */
+export function fecharDialogo(d, valor) {
+  if (!d.open || d.classList.contains("dialogo--saindo")) return;
+  d.classList.add("dialogo--saindo");
+  let feito = false;
+  const fim = () => {
+    if (feito) return;
+    feito = true;
+    d.classList.remove("dialogo--saindo");
+    d.close(valor);
+  };
+  d.addEventListener("animationend", fim, { once: true });
+  window.setTimeout(fim, 300); // reduced-motion ou animação indisponível
+}
+
 document.addEventListener("click", (e) => {
   const alvo = /** @type {HTMLElement} */ (e.target);
   const abrir = /** @type {HTMLElement | null} */ (alvo.closest("[data-abrir-dialogo]"));
@@ -26,8 +45,30 @@ document.addEventListener("click", (e) => {
     return;
   }
   const fechar = alvo.closest("[data-fechar-dialogo]");
-  if (fechar) fechar.closest("dialog")?.close();
+  if (fechar) {
+    const d = /** @type {HTMLDialogElement | null} */ (fechar.closest("dialog"));
+    if (d) fecharDialogo(d);
+    return;
+  }
+  // Botões de <form method="dialog"> (confirmação): saem animados com o mesmo returnValue.
+  const botao = /** @type {HTMLButtonElement | null} */ (alvo.closest("form[method=dialog] button"));
+  if (botao && !botao.hasAttribute("formmethod")) {
+    const d = /** @type {HTMLDialogElement | null} */ (botao.closest("dialog"));
+    if (d) {
+      e.preventDefault();
+      fecharDialogo(d, botao.value);
+    }
+  }
 });
+
+// Esc: a mesma saída animada (o navegador fecharia na hora).
+document.addEventListener("cancel", (e) => {
+  const d = /** @type {HTMLDialogElement} */ (e.target);
+  if (d instanceof HTMLDialogElement && d.classList.contains("dialogo")) {
+    e.preventDefault();
+    fecharDialogo(d, "");
+  }
+}, true);
 
 /**
  * Abre o diálogo de confirmação padrão e resolve com true/false.

@@ -1,11 +1,15 @@
 {% load viagens %}
 {% contagem_dias o.primeira_saida as contagem %}
 <li class="registro">
-  <span class="registro__icone" aria-hidden="true">{% icone o.situacao|icone_situacao %}</span>
+  {# Placa: o número do ofício como assinatura visual da lista (o link abaixo já o anuncia). #}
+  <span class="placa{% if o.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
+    <span class="placa__rotulo">Ofício</span>
+    <span class="placa__numero">{{ o.numero_formatado }}</span>
+  </span>
   <div>
     <div class="registro__titulo">
       <a class="registro__link" href="{% if o.editavel and pode_editar_oficios %}{% url 'viagens:editar' o.pk %}{% else %}{% url 'viagens:detalhe' o.pk %}{% endif %}">
-        Ofício {{ o.numero_formatado }}{% with d=o|destinos %}{% if d %} · {{ d }}{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
+        <span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>
       {% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}
@@ -14,7 +18,7 @@
     <div class="registro__meta">
       {% if o.protocolo %}<span class="registro__meta-item">{% icone "stamp" classe="icone--sm" %}Protocolo {{ o.protocolo_formatado }}</span>{% endif %}
       {% with vs=o.viajantes.all %}
-        {% if vs %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="quebra-palavras">{% for v in vs %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</span></span>
+        {% if vs %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="quebra-palavras">{% for v in vs|slice:":3" %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if vs|length > 3 %} <span class="registro__mais">+{{ vs|length|add:"-3" }}</span>{% endif %}</span></span>
         {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span>{% endif %}
       {% endwith %}
       {% if o.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ o.viatura.modelo }} · {{ o.viatura.placa_formatada }}</span>

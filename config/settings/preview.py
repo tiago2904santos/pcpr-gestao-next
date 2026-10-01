@@ -25,6 +25,13 @@ SECURE_SSL_REDIRECT = env_bool("DJANGO_SSL_REDIRECT", False)  # noqa: F405
 SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = env_bool("PREVIEW_HTTPS", False)  # noqa: F405
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")  # noqa: F405
 
+# Iteração visual local (runserver): estáticos direto das pastas, sem collectstatic.
+if env_bool("PREVIEW_ESTATICOS_AO_VIVO", False):  # noqa: F405
+    STORAGES["staticfiles"] = {  # noqa: F405
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
+    WHITENOISE_AUTOREFRESH = True
+    WHITENOISE_USE_FINDERS = True
+
 if DEMO_MODE:  # noqa: F405
     AUTHENTICATION_BACKENDS = [*_BACKENDS_BASE, "gestao.identidade.backends.DemoBackend"]
     _depois = _MIDDLEWARE_BASE.index("django.contrib.auth.middleware.AuthenticationMiddleware")
