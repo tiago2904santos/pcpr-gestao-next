@@ -14,6 +14,7 @@ sys.path.insert(0, str(RAIZ / "scripts"))
 
 import contraste  # noqa: E402
 
+ARQUIVOS = sorted(p.name for p in CSS.glob("*.css") if p.name != "tokens.css")
 COR_SOLTA = re.compile(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(")
 
 
@@ -21,14 +22,14 @@ def _sem_comentarios(texto: str) -> str:
     return re.sub(r"/\*.*?\*/", "", texto, flags=re.S)
 
 
-@pytest.mark.parametrize("arquivo", sorted(p.name for p in CSS.glob("*.css") if p.name != "tokens.css"))
+@pytest.mark.parametrize("arquivo", ARQUIVOS)
 def test_css_nao_usa_cor_fora_dos_tokens(arquivo):
     texto = _sem_comentarios((CSS / arquivo).read_text())
     achados = [linha.strip() for linha in texto.splitlines() if COR_SOLTA.search(linha)]
     assert not achados, f"{arquivo} usa cor literal; use var(--…): {achados[:5]}"
 
 
-@pytest.mark.parametrize("arquivo", sorted(p.name for p in CSS.glob("*.css") if p.name != "tokens.css"))
+@pytest.mark.parametrize("arquivo", ARQUIVOS)
 def test_css_nao_usa_espacamento_em_px_solto(arquivo):
     """Espaçamentos (margin/padding/gap) só por token. Bordas de 1–4px são permitidas."""
     texto = _sem_comentarios((CSS / arquivo).read_text())

@@ -39,7 +39,7 @@ def formatar_moeda(valor: Decimal | int | float | None) -> str:
     numero = Decimal(str(valor)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     sinal = "-" if numero < 0 else ""
     inteiro, centavos = f"{abs(numero):.2f}".split(".")
-    grupos = []
+    grupos: list[str] = []
     while inteiro:
         grupos.insert(0, inteiro[-3:])
         inteiro = inteiro[:-3]

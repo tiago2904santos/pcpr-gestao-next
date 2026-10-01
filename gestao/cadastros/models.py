@@ -168,8 +168,12 @@ class TabelaDiaria(models.Model):
         verbose_name = "vigência de diária"
         verbose_name_plural = "tabela de diárias"
         constraints = [
-            models.UniqueConstraint(fields=["faixa", "vigente_desde"], name="diaria_vigencia_unica"),
-            models.CheckConstraint(condition=models.Q(valor_24h__gt=0), name="diaria_valor_positivo"),
+            models.UniqueConstraint(
+                fields=["faixa", "vigente_desde"], name="diaria_vigencia_unica"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(valor_24h__gt=0), name="diaria_valor_positivo"
+            ),
         ]
 
     def __str__(self) -> str:

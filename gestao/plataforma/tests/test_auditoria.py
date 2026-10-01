@@ -52,9 +52,12 @@ def test_update_sem_mudanca_efetiva_nao_gera_evento():
 ])
 def test_trilha_e_somente_insercao(sql):
     Usuario.objects.create_user("dani", "dani@pc.pr.gov.br", "x" * 12, nome="Dani")
-    with pytest.raises(DatabaseError, match="somente inserção"), transaction.atomic():
-        with connection.cursor() as cur:
-            cur.execute(sql)
+    with (
+        pytest.raises(DatabaseError, match="somente inserção"),
+        transaction.atomic(),
+        connection.cursor() as cur,
+    ):
+        cur.execute(sql)
 
 
 def test_cadeia_de_hash_integra_e_detecta_adulteracao():

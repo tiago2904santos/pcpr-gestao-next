@@ -8,6 +8,7 @@ dependência). Itens podem exigir uma permissão (`requer`).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from django.http import HttpRequest
 from django.urls import NoReverseMatch, reverse
@@ -63,12 +64,12 @@ def navegacao_para(request: HttpRequest) -> dict[str, object]:
     if usuario is None or not usuario.is_authenticated:
         return {"modulos": [], "atual": None}
     caminho = request.path
-    visiveis = []
-    atual = None
+    visiveis: list[dict[str, Any]] = []
+    atual: dict[str, Any] | None = None
     for modulo in modulos():
-        grupos = []
+        grupos: list[dict[str, Any]] = []
         for grupo in modulo.grupos:
-            itens = []
+            itens: list[dict[str, Any]] = []
             for item in grupo.itens:
                 if item.requer and not usuario.has_perm(item.requer):
                     continue

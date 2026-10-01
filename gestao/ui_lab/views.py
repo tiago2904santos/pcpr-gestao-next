@@ -32,7 +32,7 @@ class FormularioExemplo(forms.Form):
         widget=forms.TextInput(attrs={"class": "entrada", "data-mascara": "protocolo",
                                       "inputmode": "numeric", "placeholder": "26.655.434-6"}),
     )
-    data = forms.DateField(label="Data do ofício",
+    data_oficio = forms.DateField(label="Data do ofício",
                            widget=forms.DateInput(attrs={"class": "entrada", "type": "date"}))
     destino = forms.ChoiceField(
         label="Destino (órgão)",

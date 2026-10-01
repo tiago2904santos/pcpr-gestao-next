@@ -3,11 +3,12 @@ from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_not_required
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 
 from .forms import FormularioEntrada, FormularioTrocaSenha
-from .models import TentativaAcesso
+from .models import TentativaAcesso, Usuario
 
 
 @method_decorator(login_not_required, name="dispatch")
@@ -32,7 +33,9 @@ class AlterarSenha(auth_views.PasswordChangeView):
 
     def form_valid(self, form):
         resposta = super().form_valid(form)
-        self.request.user.deve_trocar_senha = False
-        self.request.user.save(update_fields=["deve_trocar_senha"])
+        usuario = self.request.user
+        if not isinstance(usuario, Usuario):
+            raise PermissionDenied
+        Usuario.objects.filter(pk=usuario.pk).update(deve_trocar_senha=False)
         messages.success(self.request, "Senha alterada com sucesso.")
         return resposta

@@ -8,6 +8,7 @@ vendorizados, configuração do ambiente. Sai com código 1 se algo estiver erra
 from __future__ import annotations
 
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 from django.conf import settings
@@ -50,7 +51,7 @@ class Command(BaseCommand):
         self.item("Triggers de auditoria", gatilhos > 0, f"{gatilhos} tabela(s) auditada(s)")
         atrasadas = MensagemOutbox.objects.filter(
             situacao=MensagemOutbox.Situacao.PENDENTE,
-            disponivel_em__lt=timezone.now() - timezone.timedelta(minutes=5),
+            disponivel_em__lt=timezone.now() - timedelta(minutes=5),
         ).count()
         falhas = MensagemOutbox.objects.filter(situacao=MensagemOutbox.Situacao.FALHOU).count()
         self.item("Outbox em dia", atrasadas == 0,
