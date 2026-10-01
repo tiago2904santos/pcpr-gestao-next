@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from .conftest import ARTEFATOS, LARGURAS
+from .conftest import ARTEFATOS, LARGURAS, nome_seguro
 from .rotas import ROTAS_AUTENTICADAS, resolver
 
 pytestmark = pytest.mark.visual
@@ -54,7 +54,7 @@ def test_layout_em_cada_largura(logado, dados_e2e, rota, largura):
     url = resolver(rota, dados_e2e.ids)
     pg.goto(url, wait_until="networkidle")
     excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
-    nome = url.strip("/").replace("/", "_").replace("?", "_").replace("=", "-") or "raiz"
+    nome = nome_seguro(url)
     destino = ARTEFATOS / "responsivo" / str(largura) / f"{nome}.png"
     destino.parent.mkdir(parents=True, exist_ok=True)
     pg.screenshot(path=str(destino), full_page=True)

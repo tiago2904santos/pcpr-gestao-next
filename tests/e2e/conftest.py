@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -77,6 +78,11 @@ def rodar_axe(pg: Page) -> list[dict]:
     return resultado["violations"]
 
 
+def nome_seguro(texto: str) -> str:
+    """Nome de arquivo válido em qualquer sistema e no upload de artefatos do CI."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", texto).strip("_") or "raiz"
+
+
 def salvar_relatorio(nome: str, dados: object) -> None:
     ARTEFATOS.mkdir(exist_ok=True)
-    (ARTEFATOS / nome).write_text(json.dumps(dados, ensure_ascii=False, indent=2))
+    (ARTEFATOS / nome_seguro(nome)).write_text(json.dumps(dados, ensure_ascii=False, indent=2))

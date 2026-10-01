@@ -17,7 +17,7 @@ env:
   DJANGO_SETTINGS_MODULE: config.settings.test
   POSTGRES_DB: pcpr_gestao
   POSTGRES_USER: pcpr_gestao
-  POSTGRES_PASSWORD: pcpr_gestao
+  POSTGRES_PASSWORD: ci-${{ github.run_id }}
   POSTGRES_HOST: localhost
 
 jobs:
@@ -58,7 +58,7 @@ jobs:
         env:
           POSTGRES_DB: pcpr_gestao
           POSTGRES_USER: pcpr_gestao
-          POSTGRES_PASSWORD: pcpr_gestao
+          POSTGRES_PASSWORD: ci-${{ github.run_id }}
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
@@ -85,7 +85,7 @@ jobs:
         env:
           POSTGRES_DB: pcpr_gestao
           POSTGRES_USER: pcpr_gestao
-          POSTGRES_PASSWORD: pcpr_gestao
+          POSTGRES_PASSWORD: ci-${{ github.run_id }}
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
