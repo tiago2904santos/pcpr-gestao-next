@@ -186,3 +186,10 @@ def test_datas_de_viagem_ficam_no_fuso_local(cenario):
     oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
     primeiro = oficio.trechos.order_by("ordem").first()
     assert timezone.localtime(primeiro.saida_em).hour == 9
+
+
+@pytest.mark.parametrize("formato", ["{n}", "{n:03d}", "{n:03d}/", "{n}/{a}", "{n:03d} / {a}"])
+def test_busca_aceita_formatos_de_numero(cenario, formato):
+    oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+    termo = formato.format(n=oficio.numero, a=oficio.ano)
+    assert oficio in services.buscar_por_texto(Oficio.objects.all(), termo)

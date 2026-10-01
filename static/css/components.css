@@ -442,6 +442,9 @@ fieldset.grupo-campos > legend {
 }
 
 .resumo-erros a {
+  display: inline-block;
+  min-height: 1.5rem;
+  line-height: 1.5rem;
   color: var(--cor-perigo);
   font-weight: var(--peso-medio);
 }
@@ -636,7 +639,8 @@ a.indicador:hover {
 
 .indicador__valor {
   font-size: var(--texto-2xl);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
   font-weight: var(--peso-semi);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -888,6 +892,8 @@ a.indicador:hover {
 
 /* =============== Sanfona (details) =============== */
 .sanfona {
+  min-width: 0;
+  max-width: 100%;
   border: var(--borda);
   border-radius: var(--raio-md);
   background: var(--cor-superficie);
@@ -928,8 +934,15 @@ a.indicador:hover {
   padding: 0 var(--esp-4) var(--esp-4);
 }
 
+/* Conteúdo de sanfona fechada fora do layout (o Chromium ainda o mede e pode
+   gerar rolagem horizontal fantasma — achado do teste responsivo a 1024px). */
+.sanfona:not([open]) > :not(summary) {
+  display: none;
+}
+
 /* =============== Tabela =============== */
 .tabela-rolagem {
+  max-width: 100%;
   overflow-x: auto;
   border-radius: inherit;
 }
@@ -1293,6 +1306,7 @@ a.tabela__principal:hover {
 
 .paginacao__paginas {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--esp-1);
   list-style: none;
   margin: 0;

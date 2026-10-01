@@ -226,7 +226,7 @@ def _trechos_informados(oficio, destinos, retorno) -> list[services.TrechoInform
 def _secao_equipe(request, oficio, erro: str = "") -> HttpResponse:
     oficio.refresh_from_db()
     contexto = {
-        "oficio": oficio, "erro_equipe": erro,
+        "oficio": oficio, "erro_equipe": erro, "oob": True,
         "viajantes": oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"),
         "prontidao": services.verificar_prontidao(oficio),
     }

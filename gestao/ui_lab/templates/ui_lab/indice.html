@@ -346,7 +346,7 @@
       <div class="cartao__corpo grade grade--2">
         <div class="cartao">{% include "componentes/vazio.html" with icone="file-plus-2" titulo="Nenhum ofício ainda" texto="Comece criando o primeiro ofício de viagem da sua unidade." acao_url="#vazios" acao_rotulo="Novo ofício" %}</div>
         <div class="cartao">{% include "componentes/vazio.html" with icone="search" titulo="Nenhum resultado para “Tamarana”" texto="Confira a grafia ou remova filtros para ampliar a busca." limpar_url="#vazios" %}</div>
-        <div class="cartao cartao__corpo pilha-sm" aria-busy="true" aria-label="Carregando lista">
+        <div class="cartao cartao__corpo pilha-sm" role="status" aria-busy="true" aria-label="Carregando lista">
           <span class="esqueleto lab__esqueleto-60"></span><span class="esqueleto"></span><span class="esqueleto lab__esqueleto-80"></span>
         </div>
         <div class="cartao cartao__corpo linha">{% icone "loader-circle" classe="girando" %}<span role="status">Calculando diárias…</span></div>

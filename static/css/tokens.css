@@ -88,7 +88,7 @@
   --cor-texto-secundario: var(--neutro-600);
   --cor-texto-terciario: var(--neutro-500);
   --cor-texto-inverso: var(--neutro-0);
-  --cor-texto-inverso-sutil: #c9c6bf;
+  --cor-texto-inverso-sutil: var(--neutro-300);
   --cor-link: var(--azul-700);
 
   --cor-marca: var(--dourado-600);

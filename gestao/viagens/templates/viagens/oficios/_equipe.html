@@ -1,4 +1,5 @@
 {% load viagens %}
+{% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
 <section class="cartao" id="equipe" aria-labelledby="t-equipe">
   <div class="cartao__cabecalho">
     <h2 class="cartao__titulo" id="t-equipe"><span class="cartao__numero">2</span>Equipe</h2>

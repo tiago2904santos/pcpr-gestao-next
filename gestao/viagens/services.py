@@ -6,6 +6,7 @@ histórico de negócio e publica efeitos colaterais na outbox (mesma transação
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
@@ -405,12 +406,12 @@ def buscar_por_texto(qs, termo: str):
     filtro = (Q(motivo__icontains=termo) | Q(trechos__destino__nome__unaccent__icontains=termo)
               | Q(viajantes__servidor__nome__unaccent__icontains=termo))
     digitos = "".join(c for c in termo if c.isdigit())
-    if "/" in termo:
-        num, _, ano = termo.partition("/")
-        if num.strip().isdigit() and ano.strip().isdigit():
-            filtro |= Q(numero=int(num), ano=int(ano))
-    elif termo.isdigit() and len(termo) <= 5:
-        filtro |= Q(numero=int(termo))
+    numero = re.match(r"^(\d{1,5})(?:\s*/\s*(\d{4})?)?$", termo)
+    if numero:
+        por_numero = Q(numero=int(numero.group(1)))
+        if numero.group(2):
+            por_numero &= Q(ano=int(numero.group(2)))
+        filtro |= por_numero
     if len(digitos) >= 5:
         filtro |= Q(protocolo__contains=digitos)
     return qs.filter(filtro).distinct()

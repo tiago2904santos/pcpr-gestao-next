@@ -136,6 +136,12 @@ export class PcComandos extends HTMLElement {
 
   /** @param {KeyboardEvent} e */
   teclado(e) {
+    if (e.key === "Escape") {
+      // Em input type=search o Esc só limparia o texto; aqui ele fecha a paleta.
+      e.preventDefault();
+      this.dialogo?.close();
+      return;
+    }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       const passo = e.key === "ArrowDown" ? 1 : -1;

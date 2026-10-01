@@ -14,7 +14,7 @@
 
 .lab__matriz {
   display: grid;
-  grid-template-columns: 7rem repeat(4, minmax(0, max-content));
+  grid-template-columns: 7rem repeat(4, max-content);
   gap: var(--esp-3) var(--esp-4);
   align-items: center;
   overflow-x: auto;

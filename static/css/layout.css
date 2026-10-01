@@ -125,6 +125,8 @@
 .busca-global__atalho {
   margin-left: auto;
   padding: 0 var(--esp-1);
+  background: transparent;
+  color: var(--cor-texto-inverso-sutil);
   border: 1px solid var(--grafite-600);
   border-radius: var(--raio-xs);
   font-size: var(--texto-xs);
@@ -418,7 +420,7 @@
   gap: var(--esp-2) var(--esp-4);
   padding: var(--esp-4) var(--esp-8);
   border-top: var(--borda);
-  color: var(--cor-texto-terciario);
+  color: var(--cor-texto-secundario);
   font-size: var(--texto-xs);
 }
 
@@ -559,7 +561,12 @@
   top: calc(var(--altura-cabecalho) + var(--esp-4));
 }
 
-/* Barra de ações fixa no rodapé de formulários longos. */
+/* Barra de ações fixa no rodapé de formulários longos. O scroll-padding garante que
+   o campo focado nunca fique escondido atrás dela (WCAG 2.4.11). */
+html:has(.barra-acoes) {
+  scroll-padding-bottom: 7rem;
+}
+
 .barra-acoes {
   position: sticky;
   bottom: 0;

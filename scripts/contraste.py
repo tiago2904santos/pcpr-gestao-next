@@ -19,6 +19,8 @@ PARES: list[tuple[str, str, float, str]] = [
     ("--neutro-600", "--neutro-50", 4.5, "Texto secundário sobre fundo"),
     ("--neutro-500", "--neutro-0", 4.5, "Texto terciário (placeholder) sobre superfície"),
     ("--neutro-500", "--neutro-50", 4.5, "Texto terciário sobre fundo"),
+    ("--neutro-600", "--neutro-100", 4.5, "Texto secundário sobre fundo do login/realce"),
+    ("--neutro-300", "--grafite-800", 4.5, "Texto sutil do cabeçalho (busca, subtítulo)"),
     ("--neutro-0", "--grafite-900", 4.5, "Texto do cabeçalho / botão primário"),
     ("--grafite-950", "--dourado-500", 4.5, "Texto do botão de marca"),
     ("--dourado-700", "--neutro-0", 4.5, "Texto dourado sobre branco"),
