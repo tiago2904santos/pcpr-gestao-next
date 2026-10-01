@@ -43,6 +43,19 @@ def pode_ver(usuario, oficio: Oficio) -> bool:
         unidade_do_usuario(usuario), "pk", None)
 
 
+def pode_listar(usuario) -> bool:
+    return usuario.has_perm("viagens.view_oficio")
+
+
+def edita_oficios(usuario) -> bool:
+    """Perfil com permissão de editar (para oferecer ações de edição nas listas)."""
+    return usuario.has_perm("viagens.change_oficio")
+
+
+def pode_buscar_servidores(usuario) -> bool:
+    return usuario.has_perm("cadastros.view_servidor")
+
+
 def pode_criar(usuario) -> bool:
     return usuario.has_perm("viagens.add_oficio") and unidade_do_usuario(usuario) is not None
 

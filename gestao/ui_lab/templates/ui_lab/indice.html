@@ -124,11 +124,19 @@
               <input class="entrada" id="lab-longo" value="GABINETE DO DELEGADO-GERAL ADJUNTO ADMINISTRATIVO — DIVISÃO DE PLANEJAMENTO E ORÇAMENTO DA POLÍCIA CIVIL DO PARANÁ">
             </div>
             <fieldset class="grupo-campos col-6">
-              <legend>Custeio</legend>
-              <div class="pilha-sm">
+              <legend>Custeio (<code>.escolhas</code>)</legend>
+              <div class="escolhas">
                 <label class="escolha"><input type="radio" name="custeio" checked> <span>Unidade (diárias e combustível pela DPC)<span class="escolha__descricao">Padrão para viagens institucionais.</span></span></label>
                 <label class="escolha"><input type="radio" name="custeio"> <span>Outra instituição</span></label>
                 <label class="escolha"><input type="radio" name="custeio" disabled> <span>Ônus limitados aos próprios vencimentos (desabilitado)</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="grupo-campos col-6">
+              <legend>Marcador (<code>.escolhas--linha</code>)</legend>
+              <div class="escolhas escolhas--linha">
+                <label class="escolha"><input type="radio" name="marcador" checked> <span>Nenhum</span></label>
+                <label class="escolha"><input type="radio" name="marcador"> <span>Retificado</span></label>
+                <label class="escolha"><input type="radio" name="marcador"> <span>Complementar</span></label>
               </div>
             </fieldset>
             <div class="col-6 pilha-sm">

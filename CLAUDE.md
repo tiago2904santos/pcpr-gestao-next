@@ -32,4 +32,4 @@ testes de caracterização em `gestao/*/tests/`; para ver a tela de referência 
 ## Segurança
 - Nunca commitar segredos (`.env` é ignorado). Credenciais do sistema de referência só em variáveis de ambiente.
 - Operações destrutivas apenas com `APP_ENV` em lab/dev/test (`gestao.plataforma.ambiente`).
-- Em PRODUCTION, ferramentas do agente são somente leitura (`.mcp.json` usa papel `pcpr_leitura`).
+- Em PRODUCTION, ferramentas do agente são somente leitura (a URL `PCPR_MCP_DATABASE_URL` usada pelo `.mcp.json` deve ser do papel `pcpr_leitura`).

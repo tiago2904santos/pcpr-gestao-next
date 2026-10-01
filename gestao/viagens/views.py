@@ -62,7 +62,7 @@ def painel(request: HttpRequest) -> HttpResponse:
     return render(request, "viagens/painel.html", {
         "indicadores": queries.indicadores_do_painel(qs),
         "pendentes": pendentes, "proximos": proximos,
-        "pode_editar_oficios": request.user.has_perm("viagens.change_oficio"),
+        "pode_editar_oficios": policies.edita_oficios(request.user),
         "pode_criar": policies.pode_criar(request.user),
         "migalhas": [("Início", reverse("painel:inicio")), ("Viagens", "")],
     })
@@ -71,7 +71,7 @@ def painel(request: HttpRequest) -> HttpResponse:
 # ------------------------------------------------------------------ lista
 @require_GET
 def lista(request: HttpRequest) -> HttpResponse:
-    if not request.user.has_perm("viagens.view_oficio"):
+    if not policies.pode_listar(request.user):
         raise PermissionDenied
     base = policies.oficios_visiveis(request.user)
     situacao = request.GET.get("situacao") or ""
@@ -96,7 +96,7 @@ def lista(request: HttpRequest) -> HttpResponse:
         "abas": [("", "Todos", "todos")] + [
             (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
         "pode_criar": policies.pode_criar(request.user),
-        "pode_editar_oficios": request.user.has_perm("viagens.change_oficio"),
+        "pode_editar_oficios": policies.edita_oficios(request.user),
         "agora": timezone.now(),
         "migalhas": _migalhas(("Ofícios", "")),
     }
@@ -424,7 +424,7 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
 # ------------------------------------------------------------------ APIs (combobox/busca)
 @require_GET
 def buscar_servidores(request: HttpRequest) -> JsonResponse:
-    if not request.user.has_perm("cadastros.view_servidor"):
+    if not policies.pode_buscar_servidores(request.user):
         raise PermissionDenied
     termo = (request.GET.get("q") or "").strip()
     digitos = "".join(c for c in termo if c.isdigit())

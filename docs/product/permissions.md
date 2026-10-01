@@ -7,7 +7,9 @@ Três camadas (ADR 0009):
    versionada; `sincronizar_papeis` é idempotente).
 2. **Permissão** do Django (`viagens.emitir_oficio`, `viagens.ver_todas_unidades`…).
 3. **Regra por objeto** em `policies.py` do contexto (ex.: `gestao/viagens/policies.py`).
-   Views e menus usam só essas funções; nunca checam papel "na mão".
+   Views, listas e menus usam só essas funções (inclusive `pode_listar`, `edita_oficios`,
+   `pode_buscar_servidores`); nunca checam papel ou permissão "na mão". O menu superior
+   filtra itens pela permissão declarada no registro do módulo (`Item.requer`).
 
 Autenticação: tudo exige login (exceções: entrar, saúde); login **ou** e-mail institucional;
 bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.

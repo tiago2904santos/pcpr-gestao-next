@@ -127,6 +127,7 @@ def test_erro_de_validacao_aparece_no_resumo_e_no_campo(logado, dados_e2e):
     pg.get_by_role("button", name="Salvar rascunho").click()
     resumo = pg.locator("#resumo-erros")
     expect(resumo).to_contain_text("O protocolo tem 9 dígitos")
+    expect(resumo).to_be_focused()  # leitor de tela anuncia os erros logo após salvar
     campo = pg.get_by_label("Protocolo (eProtocolo)")
     expect(campo).to_have_attribute("aria-invalid", "true")
     resumo.get_by_role("link").first.click()
@@ -227,3 +228,36 @@ def test_sistema_nao_muda_com_sistema_operacional_em_modo_escuro(navegador, live
     contexto.close()
     assert fundo == "rgb(246, 245, 242)"  # --neutro-50
     assert esquema == "light"
+
+
+def test_ctrl_s_salva_o_rascunho(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/")
+    pg.get_by_label("Motivo da viagem").fill("Apoio ao evento regional.")
+    pg.keyboard.press("Control+s")
+    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.get_by_label("Motivo da viagem")).to_have_value("Apoio ao evento regional.")
+
+
+@pytest.mark.parametrize("largura", [360, 768, 1440])
+def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, largura):
+    """WCAG 2.4.11: com Tab pelo formulário, o foco não some sob o topo fixo nem sob a barra."""
+    pg = logado
+    pg.set_viewport_size({"width": largura, "height": 700})
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    pg.get_by_label("Data do ofício").focus()
+    escondidos = []
+    for _ in range(25):
+        pg.keyboard.press("Tab")
+        pg.wait_for_timeout(30)
+        r = pg.evaluate("""() => {
+          const el = document.activeElement;
+          if (!el || el.closest('.barra-acoes, .topo')) return null;
+          const c = el.getBoundingClientRect();
+          const topo = document.querySelector('.topo').getBoundingClientRect().bottom;
+          const barra = document.querySelector('.barra-acoes').getBoundingClientRect().top;
+          return {id: el.id || el.name || el.tagName, c: c.top, b: c.bottom, topo, barra};
+        }""")
+        if r and (r["c"] < r["topo"] - 1 or r["b"] > r["barra"] + 1):
+            escondidos.append(r)
+    assert escondidos == [], escondidos

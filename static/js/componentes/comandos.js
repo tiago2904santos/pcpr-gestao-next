@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * <pc-comandos> — paleta de comandos / busca global (Ctrl+K ou "/").
- * Combina atalhos de navegação (lidos do menu lateral, respeitando permissões)
+ * Combina atalhos de navegação (lidos do menu superior, respeitando permissões)
  * com resultados do servidor (`data-fonte`), ex.: "131/2026" abre o ofício.
  */
 

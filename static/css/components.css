@@ -362,6 +362,20 @@
   flex: none;
 }
 
+/* Grupo de rádios/caixas: uma opção por linha; `--linha` lado a lado quando couber. */
+.escolhas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--esp-2);
+}
+
+.escolhas--linha {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-6);
+}
+
 .escolha__descricao {
   display: block;
   font-size: var(--texto-xs);

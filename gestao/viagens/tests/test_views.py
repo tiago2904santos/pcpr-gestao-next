@@ -377,3 +377,50 @@ class TestOrcamentoDeConsultas:
         with django_assert_max_num_queries(25):
             r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
         assert r.status_code == 302
+
+
+class TestProvasDaRevisaoDeUX:
+    """Cada correção da revisão de UX/paridade com um teste que reprova sem ela."""
+
+    def test_documento_retroativo_sai_como_convalidacao(self, cenario):
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import html_do_documento
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        sede = oficio.sede
+        destino = Municipio.objects.filter(uf="PR").exclude(pk=sede.pk).first()
+        ontem = timezone.now() - timedelta(days=3)
+        services.salvar_trechos(oficio, cenario.usuarios["operador"], [
+            services.TrechoInformado(sede.pk, destino.pk, ontem, ontem + timedelta(hours=3)),
+            services.TrechoInformado(destino.pk, sede.pk, ontem + timedelta(days=1),
+                                     ontem + timedelta(days=1, hours=3)),
+        ])
+        oficio.refresh_from_db()
+        dados = dados_do_oficio(oficio)
+        assert dados["assunto_termo"] == "convalidação"
+        html = html_do_documento("oficio", dados)
+        assert "solicito convalidação" in html and "(Convalidação)" in html
+        assert "(Autorização)" not in html
+
+    def test_busca_ao_vivo_atualiza_abas_preservando_busca_e_ordem(self, operador):
+        r = operador.get(reverse("viagens:oficios"), {"q": "arapongas", "ordem": "saida"},
+                         HTTP_HX_REQUEST="true", HTTP_HX_TARGET="resultados")
+        html = r.content.decode()
+        assert 'id="abas-filtro"' in html and 'hx-swap-oob="true"' in html
+        assert "?situacao=rascunho&q=arapongas&ordem=saida" in html
+
+    def test_adicionar_destino_e_erro_marcam_alteracoes_nao_salvas(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        url = reverse("viagens:editar", args=[oficio.pk])
+        assert "data-sujo" not in operador.get(url).content.decode()
+        for extra in ({"acao": "adicionar_destino"}, {"protocolo": "123"}):
+            html = operador.post(url, _post_edicao(oficio, **extra)).content.decode()
+            assert "data-sujo" in html and "Alterações não salvas" in html
+
+    def test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa(self, client, cenario):
+        client.force_login(cenario.usuarios["consulta"])
+        lista = client.get(reverse("viagens:oficios")).content.decode()
+        assert "Continuar edição" not in lista and "Ver detalhes" in lista
+        r = client.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]),
+                       follow=True)
+        assert "Seu perfil permite consultar, mas não editar ofícios." in r.content.decode()

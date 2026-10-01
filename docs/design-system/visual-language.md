@@ -9,7 +9,7 @@
 | Sublinhado dourado no item de navegação ativo | Navegação horizontal | **Mantido** no menu superior e nas abas de filtro |
 | Chips de filtro com contagem ("Todos 56") | Listas de Ofícios/Viagens | **Mantido** como abas de filtro com contador |
 | Linha-cartão com ícone, título forte e metadados com ícones | Lista de Ofícios | **Mantido e refinado** (`.registro`) |
-| Seções numeradas no formulário do ofício (1 Dados… 7 Documentos) | Cadastro de ofício | **Mantido**, com índice lateral fixo |
+| Seções numeradas no formulário do ofício (1 Dados… 7 Documentos) | Cadastro de ofício | **Mantido**, com índice de seções fixo ao lado do formulário (não é navegação) |
 | Cartões de valor (Valor total, Tipo de destino, Quantidade) | Seção Diárias | **Mantido** como `.indicador` |
 | Login em cartão central sobre cinza, botão dourado "Entrar →" | Referência visual 3 | **Mantido** |
 
