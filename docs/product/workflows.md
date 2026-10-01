@@ -6,7 +6,7 @@
 
 | # | Passo | Regras principais | Onde (novo) |
 |---|---|---|---|
-| 1 | **Criar rascunho** | Exige lotação em unidade e configuração institucional da unidade. Informa data do ofício (padrão hoje) e, opcionalmente, motivo. O **número do ano é reservado já na criação** (menor lacuna ≥ piso). Sede = sede da unidade. | `services.criar_rascunho` |
+| 1 | **Criar rascunho** | Exige lotação em unidade e configuração institucional da unidade. "Novo ofício" abre a folha completa (as 7 seções, como no sistema de referência); só a data do ofício (padrão hoje) é obrigatória. Nada é gravado antes de "Salvar ofício": nesse clique, numa transação, o **número do ano é reservado** (menor lacuna ≥ piso) e dados, equipe (com motorista), roteiro e diárias são gravados juntos. Com erro de validação nada é reservado. Sede = sede da unidade. | `services.criar_oficio` (usa `criar_rascunho`) |
 | 2 | **Dados** | Data do ofício deve estar no ano do número; protocolo opcional (9 dígitos); marcador (nenhum/retificado/complementar); motivo; custeio (outra instituição exige o nome). Concorrência otimista por `versao`. | `services.salvar_edicao` (dados + roteiro numa transação) |
 | 3 | **Equipe** | Incluir servidores ativos (sem repetição); marcar no máximo um motorista. | `adicionar_viajante`, `definir_motorista` |
 | 4 | **Transporte** | Viatura oficial (exige viatura + motorista na equipe) **ou** outro meio (exige descrição; placa e combustível opcionais). Porte de arma (padrão: sim). | `salvar_edicao` |

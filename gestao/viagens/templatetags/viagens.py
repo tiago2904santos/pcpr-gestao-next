@@ -84,12 +84,14 @@ def data_curta_iso(valor: str) -> str:
 @register.filter
 def secao_ok(prontidao, secao: str) -> bool:
     """Seção sem pendências bloqueantes (para o índice do formulário)."""
+    if not prontidao:
+        return False
     return not any(p.bloqueia and p.secao == secao for p in prontidao.pendencias)
 
 
 @register.filter
 def pendencias_da_secao(prontidao, secao: str):
-    return prontidao.da_secao(secao)
+    return prontidao.da_secao(secao) if prontidao else []
 
 
 @register.filter

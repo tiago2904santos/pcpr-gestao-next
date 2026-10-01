@@ -31,22 +31,17 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.goto("/viagens/oficios/")
     pg.get_by_role("link", name="Novo ofício").first.click()
     expect(pg.get_by_role("heading", level=1)).to_have_text("Novo ofício de viagem")
+    # Página única (como no sistema de referência): tudo é preenchido antes do 1º salvamento.
     pg.get_by_label("Motivo da viagem").fill("Cobertura do evento PCPR na Comunidade.")
-    pg.get_by_role("button", name="Criar rascunho e continuar").click()
 
-    expect(pg.locator(".toast")).to_contain_text("criado como rascunho")
-    titulo = pg.get_by_role("heading", level=1).inner_text()
-    numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
-
-    # Equipe via combobox remoto (HTMX).
+    # Equipe montada na própria página (gravada junto com o ofício).
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
     busca.fill("isab")
     pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
     expect(pg.locator("#equipe")).to_contain_text("Isabela Prado Cavalcanti")
-    pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
-    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
+    pg.get_by_role("checkbox", name=re.compile(r"Motorista\s*:\s*Isabela Prado")).check()
 
-    # Protocolo (obrigatório para emitir — D1), transporte e roteiro (formulário principal).
+    # Protocolo (obrigatório para emitir — D1), transporte e roteiro.
     pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
@@ -55,9 +50,14 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.locator("#id_destino-0-chegada").fill(_dt(15, 14))
     pg.locator("#id_retorno-saida").fill(_dt(17, 8))
     pg.locator("#id_retorno-chegada").fill(_dt(17, 15, 30))
-    pg.get_by_role("button", name="Salvar rascunho").click()
+    pg.get_by_role("button", name="Salvar ofício").click()
 
+    # Só agora o número é reservado; a mesma folha volta como edição.
+    expect(pg.locator(".toast")).to_contain_text("criado como rascunho")
+    titulo = pg.get_by_role("heading", level=1).inner_text()
+    numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
+    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
@@ -303,19 +303,21 @@ def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
     instituicao = pg.get_by_label("Instituição que custeia")
-    pg.get_by_role("radio", name=re.compile("^Unidade")).check()
+    pg.locator("label.opcao").filter(has_text="Diárias e combustível pela unidade").click()
     expect(instituicao).to_be_hidden()
-    pg.get_by_role("radio", name=re.compile("^Outra instituição")).check()
+    pg.locator("label.opcao").filter(has_text="Outra instituição").click()
+    expect(pg.get_by_role("radio", name=re.compile("^Outra instituição"))).to_be_checked()
     expect(instituicao).to_be_visible()
     # Teclado: setas trocam o meio de transporte (rádios nativos sob os cartões).
+    pg.locator("label.opcao").filter(has_text="Viatura oficial").click()
     viatura = pg.get_by_role("radio", name=re.compile("^Viatura oficial"))
-    viatura.check()
+    expect(viatura).to_be_checked()
     viatura.focus()
     pg.keyboard.press("ArrowDown")
     expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
     expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
     # Porte de arma é um interruptor.
-    expect(pg.get_by_role("switch", name=re.compile("Porte/trânsito de arma"))).to_be_visible()
+    expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
     # Itinerário: começa e termina na sede; o trecho diz de onde sai.
     paradas = pg.locator("#roteiro .parada")
     expect(paradas.first).to_contain_text("sede · partida")
@@ -324,6 +326,20 @@ def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado
     # Conferência: diz quantas pendências faltam e lista as seções.
     expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
     expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
+
+
+def test_clique_em_texto_nao_rola_a_pagina_nem_perde_a_escolha(logado, dados_e2e):
+    """Regressão: com tabindex fixo no <main>, apertar o mouse num texto não focável dava
+    foco ao <main>, a página rolava antes de soltar o botão e o clique no cartão se perdia."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    descricao = pg.locator("label.opcao").filter(has_text="Outro meio").locator(".opcao__descricao")
+    descricao.scroll_into_view_if_needed()
+    antes = pg.evaluate("scrollY")
+    descricao.click()
+    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    assert pg.evaluate("scrollY") == antes
+    expect(pg.locator("main#conteudo")).not_to_have_attribute("tabindex", "-1")
 
 
 def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
@@ -337,9 +353,19 @@ def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
     expect(faixa.locator("[aria-current='location']")).to_have_count(1)
 
 
-def test_novo_oficio_abre_a_folha_com_a_placa_a_reservar(logado):
+def test_novo_oficio_abre_a_folha_completa_em_pagina_unica(logado):
+    """Como no sistema de referência: "Novo ofício" já traz todas as seções."""
     pg = logado
     pg.goto("/viagens/oficios/novo/")
-    expect(pg.locator(".placa--a-reservar")).to_be_visible()
-    expect(pg.get_by_role("navigation", name="O que vem depois")).to_contain_text("Conferência")
-    expect(pg.get_by_role("button", name="Criar rascunho e continuar")).to_be_visible()
+    expect(pg.locator(".pagina-cabecalho .placa--a-reservar")).to_be_visible()
+    for secao in ("dados", "equipe", "transporte", "roteiro", "diarias", "justificativa",
+                  "emissao"):
+        expect(pg.locator(f"#{secao}")).to_be_attached()
+    expect(pg.get_by_role("button", name="Salvar ofício")).to_be_visible()
+    # A equipe se monta na página: incluir e remover sem gravar nada.
+    pg.get_by_role("combobox", name="Adicionar servidor").fill("isab")
+    pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
+    expect(pg.locator("#equipe [data-equipe-contagem]")).to_have_text("1 servidor")
+    pg.get_by_role("button", name=re.compile("Remover Isabela Prado")).click()
+    expect(pg.locator("#equipe [data-equipe-contagem]")).to_have_text("0 servidores")
+    assert pg.erros_console == []  # type: ignore[attr-defined]

@@ -93,11 +93,64 @@ class TestListaEPainel:
 
 
 class TestNovoEEdicao:
-    def test_novo_cria_rascunho_e_redireciona_para_equipe(self, operador):
-        assert operador.get(reverse("viagens:novo")).status_code == 200
-        r = operador.post(reverse("viagens:novo"), {"data_oficio": timezone.localdate(),
-                                                    "motivo": "Teste"})
-        assert r.status_code == 302 and r["Location"].endswith("#equipe")
+    def test_novo_e_a_folha_completa_e_cria_tudo_ao_salvar(self, operador, cenario):
+        """Página única: dados, equipe (com motorista) e roteiro gravados no 1º salvamento."""
+        r = operador.get(reverse("viagens:novo"))
+        html = r.content.decode()
+        assert r.status_code == 200
+        for secao in ('id="dados"', 'id="equipe"', 'id="roteiro"', 'id="emissao"'):
+            assert secao in html
+        servidores = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
+        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0))
+        dados.pop("versao")
+        dados.update(equipe=[s.pk for s in servidores], motorista=servidores[1].pk)
+        antes = Oficio.objects.count()
+        r = operador.post(reverse("viagens:novo"), dados)
+        assert r.status_code == 302, r.content.decode()[:800]
+        oficio = Oficio.objects.latest("pk")
+        assert Oficio.objects.count() == antes + 1
+        assert r["Location"] == reverse("viagens:editar", args=[oficio.pk]) + "?salvo=1"
+        assert oficio.protocolo == "123456789" and oficio.diarias_resumo
+        equipe = list(oficio.viajantes.order_by("ordem"))
+        assert [v.servidor_id for v in equipe] == [s.pk for s in servidores]
+        assert [v.motorista for v in equipe] == [False, True]
+        assert [t.destino.nome for t in oficio.trechos.order_by("ordem")] == [
+            "Ponta Grossa", "Curitiba"]
+
+    def test_aviso_de_conflito_nao_deixa_a_secao_pendente(self, operador, cenario):
+        """Servidor em outro ofício no mesmo período é aviso: a seção Equipe segue pronta,
+        coerente com a conferência ("tudo pronto para emitir")."""
+        servidores = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
+        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0))
+        dados.pop("versao")
+        dados.update(equipe=[s.pk for s in servidores], motorista=servidores[1].pk)
+        for _ in range(2):
+            assert operador.post(reverse("viagens:novo"), dados).status_code == 302
+        oficio = Oficio.objects.latest("pk")
+        prontidao = services.verificar_prontidao(oficio)
+        assert prontidao.da_secao("equipe") and prontidao.pode_emitir
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        assert 'conferencia__item conferencia__item--ok">Equipe' in html
+
+    def test_novo_com_erro_nao_reserva_numero_e_preserva_a_equipe(self, operador):
+        servidor = Servidor.objects.filter(ativo=True).first()
+        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0),
+                             protocolo="123")  # protocolo inválido
+        dados.pop("versao")
+        dados["equipe"] = [servidor.pk]
+        antes = Oficio.objects.count()
+        r = operador.post(reverse("viagens:novo"), dados)
+        assert r.status_code == 422 and Oficio.objects.count() == antes
+        html = r.content.decode()
+        assert f'name="equipe" value="{servidor.pk}"' in html and "9 dígitos" in html
+
+    def test_novo_so_com_data_cria_rascunho_incompleto(self, operador):
+        """Rascunho pode nascer incompleto: o que falta aparece na conferência."""
+        r = operador.post(reverse("viagens:novo"), {
+            "data_oficio": timezone.localdate().isoformat(), "custeio": "unidade",
+            "tipo_transporte": "viatura", "marcador": ""})
+        assert r.status_code == 302, r.content.decode()[:800]
+        assert "?salvo=1" in r["Location"]
 
     def test_novo_proibido_para_consulta(self, client, cenario):
         client.force_login(cenario.usuarios["consulta"])

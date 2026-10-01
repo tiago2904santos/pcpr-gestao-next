@@ -319,18 +319,6 @@
     background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
-/* Valor fixo (número reservado): texto sobre uma linha pontilhada, como no papel. */
-.entrada--estatica {
-  min-height: auto;
-  padding: var(--esp-2) 0;
-  border: 0;
-  border-bottom: 1px dashed var(--cor-borda-forte);
-  border-radius: 0;
-  background: transparent;
-  font-weight: var(--peso-semi);
-  font-variant-numeric: tabular-nums;
-}
-
 .area-texto {
   min-height: 6rem;
   line-height: var(--altura-linha);
@@ -1012,40 +1000,6 @@ fieldset.grupo-campos > legend {
   .secao:focus-within::before { left: calc(-1 * var(--esp-4)); }
 }
 
-/* Rodapé da folha: o que vem depois + as ações, dentro do documento. */
-.documento__rodape {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--esp-4);
-  margin-top: var(--esp-6);
-  padding-top: var(--esp-5);
-  border-top: var(--borda-sutil);
-}
-
-.documento__rodape .progresso {
-  margin: 0;
-}
-
-.documento__rodape .grupo-botoes {
-  margin-left: auto;
-}
-
-/* Abertura da folha (novo ofício): placa + identificação da unidade numa linha. */
-.abertura {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--esp-3) var(--esp-6);
-  margin-bottom: var(--esp-6);
-}
-
-.abertura .definicoes {
-  flex: 1 1 20rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 /* =============== Progresso de preenchimento (formulário longo) =============== */
 /* Substitui o índice lateral: uma faixa horizontal com as seções e o quanto já está
    pronto. Cada seção é um link âncora; a forma do marcador segue a linguagem de estado. */
@@ -1105,37 +1059,6 @@ fieldset.grupo-campos > legend {
   text-decoration: none;
   transition: background-color var(--duracao-rapida) var(--curva-padrao),
     color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.progresso__etapa > span {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-2);
-  min-height: 2rem;
-  padding: 0 var(--esp-2);
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-medio);
-}
-
-.progresso__etapa > span::before {
-  content: "";
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: var(--raio-pilula);
-  border: 1.5px solid var(--neutro-500);
-  flex: none;
-}
-
-.progresso__etapa--atual > span {
-  color: var(--cor-texto);
-  font-weight: var(--peso-semi);
-}
-
-.progresso__etapa--atual > span::before {
-  border-color: var(--cor-marca);
-  background: var(--cor-marca);
-  box-shadow: 0 0 0 3px var(--brilho-dourado-28);
 }
 
 .progresso__etapa > a:hover {

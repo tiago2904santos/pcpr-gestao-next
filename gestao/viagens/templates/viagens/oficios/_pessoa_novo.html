@@ -1,0 +1,11 @@
+{# Servidor na equipe do cadastro novo (sem ofício gravado ainda): vai no POST do formulário. Também é o modelo clonado por equipe.js (s vazio). #}
+<li class="pessoa" data-servidor="{{ s.pk|default:'' }}">
+  <span class="avatar" aria-hidden="true" data-iniciais>{{ s.iniciais|default:'' }}</span>
+  <div class="pessoa__texto">
+    <div class="pessoa__nome" data-nome>{{ s.nome|default:'' }}</div>
+    <div class="pessoa__meta" data-meta>{% if s %}{{ s.cargo }} • {{ s.unidade.sigla }}{% endif %}</div>
+  </div>
+  <input type="hidden" name="equipe" value="{{ s.pk|default:'' }}" form="form-oficio" data-id>
+  <label class="escolha texto-sm"><input type="checkbox" name="motorista" value="{{ s.pk|default:'' }}" form="form-oficio" data-motorista{% if s and motorista_novo == s.pk %} checked{% endif %}> <span>Motorista<span class="sr-only" data-nome-sr>{% if s %}: {{ s.nome }}{% endif %}</span></span></label>
+  <button type="button" class="botao botao--icone botao--sm botao--sutil" data-remover-servidor aria-label="{% if s %}Remover {{ s.nome }} da equipe{% endif %}">{% icone "x" %}</button>
+</li>

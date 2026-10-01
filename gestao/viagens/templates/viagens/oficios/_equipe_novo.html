@@ -1,0 +1,25 @@
+{# Equipe no cadastro novo: montada na página (equipe.js) e gravada junto com o ofício ao salvar. #}
+<section class="secao" id="equipe" aria-labelledby="t-equipe" data-equipe-local>
+  <div class="secao__cabecalho">
+    <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">2</span>Equipe</h2>
+    <div class="secao__estado">
+      <span class="selo selo--situacao-rascunho" data-equipe-contagem>{{ equipe_novo|length|pluralizar:"servidor,servidores" }}</span>
+      <span class="texto-terciario texto-xs">gravada ao salvar</span>
+    </div>
+  </div>
+  <div class="pilha">
+    <div class="campo">
+      <label class="campo__rotulo" for="busca-servidor">Adicionar servidor</label>
+      <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2">
+        <div class="entrada-composta">{% icone "search" %}<input id="busca-servidor" class="entrada" role="combobox" placeholder="Buscar por nome, CPF ou RG" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
+      </pc-combobox>
+      <p class="campo__ajuda" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista. Marque quem dirige.</p>
+    </div>
+    <ul class="grade grade--2" role="list" aria-label="Servidores da equipe" data-equipe-lista>
+      {% for s in equipe_novo %}{% include "viagens/oficios/_pessoa_novo.html" %}{% endfor %}
+    </ul>
+    <p class="texto-secundario" data-equipe-vazia{% if equipe_novo %} hidden{% endif %}>Nenhum servidor na equipe ainda.</p>
+    <p class="sr-only" aria-live="polite" data-equipe-anuncio></p>
+    <template data-equipe-modelo>{% include "viagens/oficios/_pessoa_novo.html" with s=None %}</template>
+  </div>
+</section>

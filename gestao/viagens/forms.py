@@ -166,22 +166,6 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         return dados
 
 
-class FormularioNovoOficio(forms.Form):
-    data_oficio = forms.DateField(
-        label="Data do ofício", widget=forms.DateInput(attrs=_attrs(type="date"),
-                                                       format="%Y-%m-%d"),
-        help_text="Define o ano da numeração.")
-    motivo = forms.CharField(
-        label="Motivo da viagem", required=False,
-        widget=forms.Textarea(attrs=_attrs("area-texto", rows=3,
-                                           placeholder="Ex.: Cobertura do evento…")),
-        help_text="Pode completar depois.")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["data_oficio"].initial = timezone.localdate()
-
-
 class FormularioDestino(AssociadoAoFormularioDoOficio, forms.Form):
     cidade = CampoMunicipio(label="Cidade de destino")
     saida = CampoDataHora(label="Saída")

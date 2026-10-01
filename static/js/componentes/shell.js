@@ -26,6 +26,22 @@ export class PcShell extends HTMLElement {
       if (e.key === "Escape" && !e.defaultPrevented && this.gavetaAberta()) this.fecharGaveta();
     });
     this.midia.addEventListener("change", () => this.fecharGaveta(false));
+    document.querySelector(".pular-conteudo")?.addEventListener("click", (e) => this.pularParaConteudo(e));
+  }
+
+  /**
+   * "Pular para o conteúdo" leva o foco ao <main>. O tabindex só existe durante esse foco:
+   * um tabindex permanente faz o <main> receber foco a cada clique em área não focável
+   * (texto, rótulos de cartão) e o navegador rola a página até ele — o clique se perde.
+   * @param {Event} e
+   */
+  pularParaConteudo(e) {
+    const main = document.getElementById("conteudo");
+    if (!main) return;
+    e.preventDefault();
+    main.setAttribute("tabindex", "-1");
+    main.addEventListener("blur", () => main.removeAttribute("tabindex"), { once: true });
+    main.focus();
   }
 
   gavetaAberta() {
