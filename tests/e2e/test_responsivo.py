@@ -41,9 +41,29 @@ CULPADOS_JS = """() => { const w = window.innerWidth; const out = [];
       out.push('texto vazando: ' + e.tagName + '.' + (e.className.baseVal ?? e.className)); });
   return out.slice(0, 8); }"""
 
-CORTADO_JS = """() => [...document.querySelectorAll('.botao, .selo, .aba, .lateral__link')]
+CORTADO_JS = """() => [...document.querySelectorAll('.botao, .selo, .aba, .navegacao__link, .navegacao__seletor, .marca__titulo')]
   .filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).whiteSpace === 'nowrap')
   .map(e => e.textContent.trim().slice(0, 60)).slice(0, 5)"""
+
+# O cabeçalho fica fora do detector geral (é fixo); aqui seus blocos não podem se sobrepor
+# (ex.: nome do produto por baixo do selo de ambiente) e a busca não pode virar um toco.
+CABECALHO_JS = """() => {
+  const blocos = [...document.querySelectorAll('.cabecalho > *, .marca > *')]
+    .filter(e => { const r = e.getBoundingClientRect(); return r.width > 1 && getComputedStyle(e).display !== 'none'; });
+  const problemas = [];
+  for (let i = 0; i < blocos.length; i++) for (let j = i + 1; j < blocos.length; j++) {
+    if (blocos[i].contains(blocos[j]) || blocos[j].contains(blocos[i])) continue;
+    const a = blocos[i].getBoundingClientRect(), b = blocos[j].getBoundingClientRect();
+    if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+        Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1)
+      problemas.push(blocos[i].className + ' × ' + blocos[j].className);
+  }
+  const texto = document.querySelector('.busca-global__texto');
+  if (texto && getComputedStyle(texto).display !== 'none' && texto.getBoundingClientRect().width < 80)
+    problemas.push('busca espremida: ' + Math.round(texto.getBoundingClientRect().width) + 'px');
+  return problemas;
+}"""
+
 
 
 @pytest.mark.parametrize("largura", LARGURAS)
@@ -63,6 +83,7 @@ def test_layout_em_cada_largura(logado, dados_e2e, rota, largura):
     sobrepostos = pg.evaluate(SOBREPOSICAO_JS)
     assert sobrepostos == [], f"{url} @ {largura}px: elementos sobrepostos {sobrepostos}"
     assert pg.evaluate(CORTADO_JS) == [], f"{url} @ {largura}px: texto cortado"
+    assert pg.evaluate(CABECALHO_JS) == [], f"{url} @ {largura}px: cabeçalho {pg.evaluate(CABECALHO_JS)}"
     erros = [e for e in pg.erros_console
              if not ("404" in e and url.startswith("/nao-existe"))]  # 404 é o esperado ali
     assert erros == [], f"{url}: erros no console {erros}"

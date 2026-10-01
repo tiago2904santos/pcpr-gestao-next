@@ -23,7 +23,7 @@
 | Pular para o conteúdo | `a.pular-conteudo` | Primeiro foco da página |
 | Topo fixo | `div.topo` | Cabeçalho + menu ficam fixos juntos ao rolar |
 | Cabeçalho | `header.cabecalho` | Marca, ambiente, busca global, notificações, perfil |
-| Navegação | `nav#navegacao-principal` | Menu superior (≥1024); gaveta aberta pelo ☰ (<1024) |
+| Navegação | `nav#navegacao-principal` | Menu superior horizontal (≥768); abre para baixo pelo ☰ (<768). Nunca lateral (ADR 0006) |
 | Conteúdo | `main#conteudo` | Largura máx. 1280px; 896px em formulários (`--estreito`) |
 | Rodapé | `footer.rodape` | "Ambiente restrito e monitorado" |
 
