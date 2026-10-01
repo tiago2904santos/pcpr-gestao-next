@@ -25,7 +25,7 @@ class GerenciadorUsuarios(BaseUserManager["Usuario"]):
 class Usuario(AbstractBaseUser, PermissionsMixin):
     """Pessoa que acessa o sistema.
 
-    Entra com o login (ex.: `Tiago2904`) ou com o e-mail institucional. O
+    Entra com o login (ex.: `ana.lima`) ou com o e-mail institucional. O
     vínculo com um servidor (cadastro de Viagens) é opcional e fica no
     contexto de Cadastros, para não acoplar identidade a regra de negócio.
     """

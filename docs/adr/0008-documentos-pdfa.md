@@ -11,7 +11,7 @@ Office é frágil e não garante arquivamento de longo prazo.
 - Documento = **template HTML + CSS de impressão** (`@page`, cabeçalho/rodapé corridos),
   renderizado pelo **WeasyPrint 70** com `pdf_variant="pdf/a-2a"`: fontes embutidas
   (Liberation Serif, OFL), perfil sRGB, estrutura marcada (tags) e metadados XMP.
-- Cada emissão gera uma **versão** (`DocumentoEmitido`: número da versão, SHA-256 do arquivo,
+- Cada emissão gera uma **versão** (`Documento`: número da versão, SHA-256 do arquivo,
   quem/quando, dados usados — "snapshot" JSON). Versões emitidas nunca são alteradas;
   corrigir = reabrir e emitir nova versão (registrado).
 - Geração assíncrona via outbox (`oficio.emitido` → gera PDF); a prévia na tela usa o mesmo

@@ -26,6 +26,7 @@ from .forms import (
     iniciais_do_roteiro,
 )
 from .models import Documento, Oficio
+from .queries import trechos_de, viajantes_de
 
 POR_PAGINA = 20
 
@@ -142,7 +143,7 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "destinos": destinos,
         "retorno": retorno,
         "erro_roteiro": erro_roteiro,
-        "viajantes": oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"),
+        "viajantes": viajantes_de(oficio),
         "prontidao": prontidao,
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "assunto": services.assunto_do_oficio(oficio),
@@ -198,12 +199,9 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
     if form.is_valid() and roteiro_ok:
         try:
             dados = {k: v for k, v in form.cleaned_data.items() if k != "versao"}
-            oficio = services.salvar_dados(oficio, request.user, dados,
-                                           versao=form.cleaned_data.get("versao"))
-            if not roteiro_vazio:
-                services.salvar_trechos(oficio, request.user,
-                                        _trechos_informados(oficio, destinos, retorno))
-                oficio.refresh_from_db()
+            trechos = None if roteiro_vazio else _trechos_informados(oficio, destinos, retorno)
+            oficio = services.salvar_edicao(oficio, request.user, dados, trechos,
+                                            versao=form.cleaned_data.get("versao"))
         except services.ConflitoDeEdicao as exc:
             form.add_error(None, str(exc))
         except services.RegraViolada as exc:
@@ -246,7 +244,7 @@ def _secao_equipe(request, oficio, erro: str = "") -> HttpResponse:
     oficio.refresh_from_db()
     contexto = {
         "oficio": oficio, "erro_equipe": erro, "oob": True,
-        "viajantes": oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"),
+        "viajantes": viajantes_de(oficio),
         "prontidao": services.verificar_prontidao(oficio),
     }
     resposta = render(request, "viagens/oficios/_equipe.html", contexto)
@@ -363,8 +361,8 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
     documentos = list(oficio.documentos.select_related("emitido_por"))
     return render(request, "viagens/oficios/detalhe.html", {
         "oficio": oficio,
-        "viajantes": oficio.viajantes.select_related("servidor__cargo"),
-        "trechos": oficio.trechos.select_related("origem", "destino").order_by("ordem"),
+        "viajantes": viajantes_de(oficio),
+        "trechos": trechos_de(oficio),
         "documentos": documentos,
         "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
         "historico": oficio.historico.select_related("usuario")[:30],

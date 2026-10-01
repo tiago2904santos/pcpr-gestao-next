@@ -58,7 +58,8 @@ def main() -> None:
                     "document.documentElement.scrollWidth - window.innerWidth"
                 )
                 aviso = f"  ⚠ rolagem horizontal: {excesso}px" if excesso > 0 else ""
-                print(f"{largura:>5} {rota} → {destino.relative_to(RAIZ)}{aviso}")
+                exibido = destino.relative_to(RAIZ) if destino.is_relative_to(RAIZ) else destino
+                print(f"{largura:>5} {rota} → {exibido}{aviso}")
         navegador.close()
 
 

@@ -2,7 +2,7 @@
 
 Os valores esperados vêm dos demonstrativos do sistema oficial de solicitação de
 diárias, usados como caracterização no sistema de referência
-(docs/product/diarias.md). Se um destes quebrar, a regressão é de dinheiro.
+(docs/product/documents.md, seção Diárias). Se um destes quebrar, a regressão é de dinheiro.
 """
 
 from __future__ import annotations

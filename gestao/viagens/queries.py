@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from django.db.models import Count, Min, Prefetch, Q, QuerySet
+from django.db.models import Count, Min, Prefetch, Q, QuerySet, prefetch_related_objects
 from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
@@ -24,6 +24,25 @@ def buscar_tabelas_vigentes(data_referencia: date) -> dict[Faixa, ValorVigente]:
             vigentes[faixa] = ValorVigente(faixa, linha.valor_24h, linha.vigente_desde,
                                            f"tabeladiaria:{linha.pk}")
     return vigentes
+
+
+# Trechos e equipe de um ofício são lidos por várias regras na mesma requisição
+# (diárias, prazo, assunto, prontidão, conflitos, documento): carregados uma vez só.
+TRECHOS = Prefetch("trechos", queryset=Trecho.objects.select_related("origem", "destino"))
+VIAJANTES = Prefetch("viajantes", queryset=Viajante.objects.select_related(
+    "servidor__cargo", "servidor__unidade"))
+
+
+def trechos_de(oficio: Oficio) -> list[Trecho]:
+    """Trechos em ordem, do cache da requisição (carrega na primeira chamada)."""
+    prefetch_related_objects([oficio], TRECHOS)
+    return list(oficio.trechos.all())
+
+
+def viajantes_de(oficio: Oficio) -> list[Viajante]:
+    """Equipe em ordem, do cache da requisição (carrega na primeira chamada)."""
+    prefetch_related_objects([oficio], VIAJANTES)
+    return list(oficio.viajantes.all())
 
 
 def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:

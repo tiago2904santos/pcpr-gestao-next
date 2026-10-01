@@ -16,6 +16,7 @@ from gestao.cadastros.models import Combustivel, ModeloTexto, Municipio, Viatura
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
 
 from .models import Oficio
+from .queries import trechos_de
 
 FORM_ID = "form-oficio"
 
@@ -219,7 +220,7 @@ ConjuntoDestinos = forms.formset_factory(FormularioDestino, extra=0, min_num=1,
 
 def iniciais_do_roteiro(oficio: Oficio) -> tuple[list[dict], dict]:
     """Valores iniciais dos formulários de roteiro a partir dos trechos gravados."""
-    trechos = list(oficio.trechos.select_related("destino").order_by("ordem"))
+    trechos = trechos_de(oficio)
 
     def local(dt: datetime) -> str:
         return timezone.localtime(dt).strftime("%Y-%m-%dT%H:%M")

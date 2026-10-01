@@ -17,4 +17,4 @@
 - **Regras por objeto** em `policies.py` de cada contexto: ex. operador só vê/edita ofícios
   da própria unidade; ofício emitido não é editável; cancelar exige permissão própria.
 - Views usam `policies` (nunca `if user.groups…` espalhado); o menu usa as mesmas permissões.
-- Matriz documentada em `docs/product/permissions.md` e testada (`test_policies.py`).
+- Matriz documentada em `docs/product/permissions.md` e testada (`gestao/viagens/tests/test_servicos.py` e `test_views.py`: papéis, unidade e 404 para outra unidade).

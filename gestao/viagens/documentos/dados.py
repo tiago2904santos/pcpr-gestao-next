@@ -15,6 +15,7 @@ from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from ..dominio.extenso import reais_por_extenso
 from ..models import Oficio
+from ..queries import trechos_de, viajantes_de
 
 
 def _dt(valor) -> dict[str, str]:
@@ -26,8 +27,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     from ..services import assunto_do_oficio, avaliar_prazo_do_oficio, configuracao_da_unidade
 
     config = configuracao_da_unidade(oficio)
-    viajantes = list(oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"))
-    trechos = list(oficio.trechos.select_related("origem", "destino").order_by("ordem"))
+    viajantes = viajantes_de(oficio)
+    trechos = trechos_de(oficio)
     motorista = next((v.servidor for v in viajantes if v.motorista), None)
     destinos = []
     for t in trechos:

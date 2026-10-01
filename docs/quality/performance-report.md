@@ -20,9 +20,18 @@ HTML ≤ 120 KB · CSS ≤ 90 KB · JS ≤ 110 KB · ≤ 25 requisições · ≤
 - **CSS 70 KB** sem compressão (~13 KB com Brotli em produção). Quatro arquivos cacheáveis.
 - **Fonte**: uma Inter variável (48 KB, *preload*, `swap`) — CLS 0.
 - **Ícones**: sprite único (18 KB) referenciado por `<use>`.
-- **SQL**: a edição do ofício é a página mais cara (20 consultas): prontidão + prazo +
-  conflitos de agenda. Próxima otimização: consolidar `verificar_prontidao` num único
-  pré-carregamento (meta: ≤ 12).
+- **SQL**: trechos e equipe do ofício são carregados **uma vez por requisição**
+  (`queries.trechos_de`/`viajantes_de`) e reaproveitados por diárias, prazo, assunto,
+  prontidão, conflitos e documento. Antes a tabela de trechos era lida até 7× por página.
+  | Página | Antes | Depois |
+  |---|---|---|
+  | Editar (GET) | 25 | 18 |
+  | Revisar e emitir | 26 | 16 |
+  | Detalhe (rascunho) | 26 | 17 |
+  | Salvar edição (POST) | 37 | 25 |
+  Número fixo com equipe de 5 e roteiro de 4 trechos (`TestOrcamentoDeConsultas`, ≤ 20 nas
+  páginas e ≤ 25 no POST). Cerca de 9 consultas são do quadro comum (sessão, usuário,
+  permissões, lotação, contexto de auditoria).
 - **Lista**: número de consultas fixo independentemente do tamanho da página (teste
   `test_lista_tem_orcamento_de_consultas`, ≤ 15).
 

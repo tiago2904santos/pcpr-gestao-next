@@ -24,7 +24,7 @@ from .dominio import diarias as dominio_diarias
 from .dominio.numeracao import proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
 from .models import Documento, Historico, NumeracaoAnual, Oficio, Trecho, Viajante
-from .queries import buscar_tabelas_vigentes
+from .queries import buscar_tabelas_vigentes, trechos_de, viajantes_de
 
 
 class RegraViolada(Exception):
@@ -88,7 +88,8 @@ CAMPOS_EDITAVEIS = [
 
 
 def _travar_para_edicao(oficio: Oficio, usuario, versao: int | None) -> Oficio:
-    atual = Oficio.objects.select_for_update().get(pk=oficio.pk)
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
     policies.exigir(policies.pode_editar(usuario, atual),
                     "Este ofício não pode ser alterado (emitido, cancelado ou sem permissão).")
     if versao is not None and versao != atual.versao:
@@ -102,6 +103,23 @@ def _travar_para_edicao(oficio: Oficio, usuario, versao: int | None) -> Oficio:
 @transaction.atomic
 def salvar_dados(oficio: Oficio, usuario, dados: dict, *, versao: int | None = None) -> Oficio:
     atual = _travar_para_edicao(oficio, usuario, versao)
+    _aplicar_dados(atual, usuario, dados)
+    return atual
+
+
+@transaction.atomic
+def salvar_edicao(oficio: Oficio, usuario, dados: dict, trechos: list[TrechoInformado] | None,
+                  *, versao: int | None = None) -> Oficio:
+    """Dados + roteiro do formulário numa só transação: ou grava tudo, ou nada."""
+    atual = _travar_para_edicao(oficio, usuario, versao)
+    _aplicar_dados(atual, usuario, dados)
+    if trechos is not None:
+        _aplicar_trechos(atual, trechos, tocar=False)  # a versão já subiu com os dados
+        recalcular_diarias(atual)
+    return atual
+
+
+def _aplicar_dados(atual: Oficio, usuario, dados: dict) -> None:
     if dados.get("data_oficio") and dados["data_oficio"].year != atual.ano:
         raise RegraViolada(
             f"A data do ofício deve estar em {atual.ano}, o ano do número "
@@ -121,11 +139,10 @@ def salvar_dados(oficio: Oficio, usuario, dados: dict, *, versao: int | None = N
         atual.custeio_instituicao = ""
     atual.versao += 1
     atual.save()
-    recalcular_diarias(atual)
+    # Diárias dependem só de trechos, equipe e sede: nada aqui muda o cálculo.
     if alterados:
         _registrar(atual, Historico.Acao.ALTERADO, "Dados do ofício alterados.", usuario,
                    campos=alterados)
-    return atual
 
 
 @transaction.atomic
@@ -179,7 +196,10 @@ class TrechoInformado:
 
 @transaction.atomic
 def salvar_trechos(oficio: Oficio, usuario, trechos: list[TrechoInformado]) -> None:
-    atual = _travar_para_edicao(oficio, usuario, None)
+    _aplicar_trechos(_travar_para_edicao(oficio, usuario, None), trechos)
+
+
+def _aplicar_trechos(atual: Oficio, trechos: list[TrechoInformado], *, tocar: bool = True) -> None:
     for anterior, seguinte in pairwise(trechos):
         if seguinte.saida_em < anterior.chegada_em:
             raise RegraViolada(
@@ -193,13 +213,14 @@ def salvar_trechos(oficio: Oficio, usuario, trechos: list[TrechoInformado]) -> N
                saida_em=t.saida_em, chegada_em=t.chegada_em)
         for i, t in enumerate(trechos, start=1)
     ])
-    _tocar(atual)
+    if tocar:
+        _tocar(atual)
 
 
 # ---------------------------------------------------------------- cálculo
 def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
     """Calcula as diárias do ofício (sem gravar). Levanta erros de domínio."""
-    trechos = list(oficio.trechos.select_related("destino").order_by("ordem"))
+    trechos = trechos_de(oficio)
     if not trechos:
         raise dominio_diarias.RoteiroIncalculavel("Informe os trechos (ida e volta).")
     if trechos[-1].destino_id != oficio.sede_id:
@@ -214,7 +235,7 @@ def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
     return dominio_diarias.calcular(
         destinos, timezone.localtime(trechos[-1].chegada_em),
         buscar_tabelas=buscar_tabelas_vigentes,
-        servidores=oficio.viajantes.count(),
+        servidores=len(viajantes_de(oficio)),
         sede=(oficio.sede.nome, oficio.sede.uf),
     )
 
@@ -238,8 +259,8 @@ def recalcular_diarias(oficio: Oficio) -> None:
 
 
 def avaliar_prazo_do_oficio(oficio: Oficio) -> AvaliacaoPrazo:
-    primeiro = oficio.trechos.order_by("ordem").first()
-    saida = timezone.localdate(primeiro.saida_em) if primeiro else None
+    trechos = trechos_de(oficio)
+    saida = timezone.localdate(trechos[0].saida_em) if trechos else None
     prazo = configuracao_da_unidade(oficio).prazo_justificativa_dias
     return avaliar_prazo(oficio.data_oficio, saida, prazo)
 
@@ -276,7 +297,7 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
         p.append(Pendencia("dados", "Protocolo do eProtocolo ainda não informado.", False))
     if oficio.custeio == Oficio.Custeio.OUTRA_INSTITUICAO and not oficio.custeio_instituicao:
         p.append(Pendencia("dados", "Informe qual instituição custeia a viagem."))
-    viajantes = list(oficio.viajantes.all())
+    viajantes = viajantes_de(oficio)
     if not viajantes:
         p.append(Pendencia("equipe", "Inclua ao menos um servidor na equipe."))
     if oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA:
@@ -286,7 +307,7 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
             p.append(Pendencia("equipe", "Indique quem da equipe é o motorista da viatura."))
     elif not oficio.transporte_descricao.strip():
         p.append(Pendencia("transporte", "Descreva o meio de transporte."))
-    if not oficio.trechos.exists():
+    if not trechos_de(oficio):
         p.append(Pendencia("roteiro", "Informe os trechos de ida e de volta."))
     if oficio.diarias_erro:
         p.append(Pendencia("diarias", oficio.diarias_erro))
@@ -300,7 +321,7 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
 
 def conflitos_de_agenda(oficio: Oficio) -> list[str]:
     """Avisos (não bloqueiam): servidor ou viatura em outro ofício no mesmo período."""
-    trechos = list(oficio.trechos.order_by("ordem"))
+    trechos = trechos_de(oficio)
     if not trechos:
         return []
     inicio, fim = trechos[0].saida_em, trechos[-1].chegada_em
@@ -308,7 +329,7 @@ def conflitos_de_agenda(oficio: Oficio) -> list[str]:
         Oficio.objects.exclude(pk=oficio.pk).exclude(situacao=Oficio.Situacao.CANCELADO)
         .filter(trechos__saida_em__lt=fim, trechos__chegada_em__gt=inicio).distinct()
     )
-    servidores = set(oficio.viajantes.values_list("servidor_id", flat=True))
+    servidores = {v.servidor_id for v in viajantes_de(oficio)}
     avisos = []
     for outro in sobrepostos.prefetch_related("viajantes__servidor"):
         for v in outro.viajantes.all():
@@ -360,7 +381,8 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
 
 @transaction.atomic
 def reabrir(oficio: Oficio, usuario, motivo: str) -> Oficio:
-    atual = Oficio.objects.select_for_update().get(pk=oficio.pk)
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
     policies.exigir(policies.pode_reabrir(usuario, atual), "Você não pode reabrir este ofício.")
     if not motivo.strip():
         raise RegraViolada("Explique por que o ofício está sendo reaberto.")
@@ -375,7 +397,8 @@ def reabrir(oficio: Oficio, usuario, motivo: str) -> Oficio:
 
 @transaction.atomic
 def cancelar(oficio: Oficio, usuario, motivo: str) -> Oficio:
-    atual = Oficio.objects.select_for_update().get(pk=oficio.pk)
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
     policies.exigir(policies.pode_cancelar(usuario, atual), "Você não pode cancelar este ofício.")
     if not motivo.strip():
         raise RegraViolada("Informe o motivo do cancelamento.")
@@ -391,7 +414,8 @@ def cancelar(oficio: Oficio, usuario, motivo: str) -> Oficio:
 
 @transaction.atomic
 def excluir_rascunho(oficio: Oficio, usuario) -> str:
-    atual = Oficio.objects.select_for_update().get(pk=oficio.pk)
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
     policies.exigir(policies.pode_excluir(usuario, atual),
                     "Só rascunhos sem documento emitido podem ser excluídos.")
     numero = atual.numero_formatado
@@ -426,6 +450,6 @@ def assunto_do_oficio(oficio: Oficio):
     """Autorização × Convalidação pela data do ofício e da 1ª saída (dominio.assunto)."""
     from .dominio.assunto import resolver_assunto
 
-    primeiro = oficio.trechos.order_by("ordem").first()
-    saida = timezone.localdate(primeiro.saida_em) if primeiro else None
+    trechos = trechos_de(oficio)
+    saida = timezone.localdate(trechos[0].saida_em) if trechos else None
     return resolver_assunto(oficio.data_oficio, saida, oficio.marcador)

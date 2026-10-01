@@ -2,7 +2,7 @@
 
 Reimplementação (sem código da referência) das regras levantadas contra os
 demonstrativos do sistema oficial de solicitação de diárias. Especificação
-completa e casos em docs/product/diarias.md; testes em
+completa e casos em docs/product/documents.md, seção Diárias; testes em
 gestao/viagens/tests/test_dominio_diarias.py.
 
 Regras

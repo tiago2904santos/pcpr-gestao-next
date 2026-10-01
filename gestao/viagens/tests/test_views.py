@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from itertools import pairwise
 
 import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from gestao.cadastros.models import Servidor
+from gestao.cadastros.models import Municipio, Servidor
 from gestao.plataforma import outbox
 from gestao.viagens import services
 from gestao.viagens.models import Documento, Oficio
@@ -149,6 +150,10 @@ class TestNovoEEdicao:
         dados = _post_edicao(oficio, **{"destino-0-chegada": _local(22, 10)})
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
         assert r.status_code == 422 and "sai antes da chegada" in r.content.decode()
+        # Dados e roteiro são uma gravação só: roteiro recusado não deixa dados pela metade.
+        oficio.refresh_from_db()
+        assert oficio.protocolo == "" and not oficio.trechos.exists()
+        assert not oficio.historico.filter(acao="alterado").exists()
 
     def test_conflito_de_versao(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
@@ -337,3 +342,38 @@ class TestRoteiroComVoltaIntermediaria:
         depois = (list(oficio.trechos.values_list("destino__nome", flat=True).order_by("ordem")),
                   oficio.diarias_total)
         assert depois == antes
+
+
+class TestOrcamentoDeConsultas:
+    """Telas do ofício em número fixo de consultas, independente do tamanho da equipe/roteiro."""
+
+    @staticmethod
+    def _engordar(oficio: Oficio, usuario) -> None:
+        for servidor in Servidor.objects.filter(ativo=True).exclude(
+                pk__in=oficio.viajantes.values("servidor"))[:4]:
+            services.adicionar_viajante(oficio, usuario, servidor)
+        sede, agora = oficio.sede, timezone.now()
+        cidades = list(Municipio.objects.filter(uf="PR").exclude(pk=sede.pk)[:3])
+        paradas = [sede, *cidades, sede]
+        services.salvar_trechos(oficio, usuario, [
+            services.TrechoInformado(a.pk, b.pk, agora + timedelta(days=20, hours=10 * i),
+                                     agora + timedelta(days=20, hours=10 * i + 3))
+            for i, (a, b) in enumerate(pairwise(paradas))
+        ])
+
+    @pytest.mark.parametrize("engordar", [False, True], ids=["pequeno", "grande"])
+    @pytest.mark.parametrize("rota", ["viagens:editar", "viagens:revisar_emissao",
+                                      "viagens:detalhe"])
+    def test_paginas_do_oficio(self, operador, cenario, django_assert_max_num_queries,
+                               rota, engordar):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        if engordar:
+            self._engordar(oficio, cenario.usuarios["operador"])
+        with django_assert_max_num_queries(20):
+            assert operador.get(reverse(rota, args=[oficio.pk])).status_code == 200
+
+    def test_salvar_edicao(self, operador, cenario, django_assert_max_num_queries):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        with django_assert_max_num_queries(25):
+            r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
+        assert r.status_code == 302
