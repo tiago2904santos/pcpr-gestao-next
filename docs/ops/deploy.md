@@ -12,5 +12,10 @@ Passos: `uv sync --frozen --no-dev` → `manage.py migrate` → `manage.py colle
 gerenciador de segredos, nunca no Git). Nginx na frente com TLS, `X-Real-IP` e
 `X-Forwarded-Proto`. HSTS preload fica a cargo da infraestrutura do domínio institucional.
 
+Contêiner: o `Dockerfile` da raiz é a imagem de produção (gunicorn + WhiteNoise; entrypoint
+`scripts/preview-entrypoint.sh web|worker`). O PREVIEW (`compose.preview.yml`) usa a mesma
+imagem — ver `docs/ops/preview.md`. Em produção, `DEMO_MODE` não pode existir (os settings
+recusam).
+
 Dependências do sistema: `libpango-1.0-0`, `libpangoft2-1.0-0`, `libharfbuzz-subset0`
 (WeasyPrint/PDF/A).

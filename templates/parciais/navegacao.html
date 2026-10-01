@@ -1,10 +1,11 @@
 {% comment %}
-Menu superior (abaixo do cabeçalho institucional). ≥1024px: barra horizontal com
+Menu superior (abaixo do cabeçalho institucional). ≥768px: barra horizontal com
 seletor de módulo, links diretos e menus suspensos para grupos (em_menu).
-<1024px: o mesmo HTML vira gaveta aberta pelo botão ☰ do cabeçalho (<pc-shell>).
+<768px: o mesmo HTML vira gaveta temporária aberta pelo botão ☰ do cabeçalho (<pc-shell>).
 {% endcomment %}
 <nav id="navegacao-principal" class="navegacao" aria-label="Navegação principal">
   <div class="navegacao__interno">
+    {% if demo_ativo %}<p class="navegacao__ambiente"><span class="selo selo--aviso">Demonstração · {{ app_env|upper }}</span></p>{% endif %}
     {% with modulo=navegacao.atual %}
     <pc-menu class="menu navegacao__modulo">
       <button type="button" class="navegacao__seletor" data-menu-botao aria-haspopup="menu"

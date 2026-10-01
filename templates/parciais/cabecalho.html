@@ -14,7 +14,7 @@
     </span>
   </a>
   {% if app_env != "production" %}
-    <span class="cabecalho__ambiente" title="Ambiente de {{ app_env|upper }}: dados não oficiais">{{ app_env|upper }}</span>
+    <span class="cabecalho__ambiente" title="Ambiente de {{ app_env|upper }}: dados não oficiais{% if demo_ativo %}, acesso de demonstração{% endif %}">{{ app_env|upper }}</span>
   {% endif %}
   <div class="cabecalho__busca">
     <button type="button" class="busca-global" data-abrir-comandos aria-label="Buscar ou ir para (Ctrl+K)">
@@ -41,6 +41,7 @@
         <div class="menu__cabecalho">
           <div class="perfil__nome">{{ user.nome }}</div>
           <div class="texto-secundario texto-xs">{{ user.email }}</div>
+          {% if demo_ativo %}<span class="selo selo--aviso mt-2">Demonstração · {{ app_env|upper }}</span>{% endif %}
         </div>
         <a class="menu__item" role="menuitem" href="{% url 'identidade:alterar_senha' %}">{% icone "lock" %} Alterar senha</a>
         <a class="menu__item" role="menuitem" href="{% url 'ui_lab:indice' %}">{% icone "palette" %} UI Lab</a>

@@ -1,0 +1,64 @@
+# PREVIEW navegável (APP_ENV=preview + DEMO_MODE) — docs/ops/preview.md.
+#   docker compose -f compose.preview.yml up --build      → http://localhost:8000
+# O mesmo arquivo é usado pelo GitHub Codespaces (.devcontainer/).
+name: pcpr-preview
+
+x-app: &app
+  image: pcpr-gestao:preview
+  environment: &ambiente
+    DJANGO_SETTINGS_MODULE: config.settings.preview
+    APP_ENV: preview
+    DEMO_MODE: "true"
+    POSTGRES_HOST: db
+    POSTGRES_DB: pcpr_preview
+    POSTGRES_USER: pcpr_preview
+    DJANGO_ALLOWED_HOSTS: ${PREVIEW_HOSTS:-localhost,127.0.0.1,.app.github.dev}
+    DJANGO_CSRF_TRUSTED_ORIGINS: ${PREVIEW_ORIGENS:-http://localhost:8000,http://127.0.0.1:8000,https://*.app.github.dev}
+    PREVIEW_HTTPS: ${PREVIEW_HTTPS:-false}
+  volumes:
+    - midia:/app/var/media
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: pcpr_preview
+      POSTGRES_USER: pcpr_preview
+      # Banco descartável, só alcançável pela rede interna do compose (sem porta publicada).
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - banco:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pcpr_preview -d pcpr_preview"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  web:
+    <<: *app
+    build: .
+    command: ["web"]
+    ports:
+      - "${PREVIEW_PORTA:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/saude/')"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  banco:
+  midia:

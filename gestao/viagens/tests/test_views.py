@@ -402,6 +402,12 @@ class TestProvasDaRevisaoDeUX:
         assert "solicito convalidação" in html and "(Convalidação)" in html
         assert "(Autorização)" not in html
 
+    def test_lista_declara_vary_para_o_voltar_do_navegador_nao_mostrar_fragmento(
+            self, operador):
+        r = operador.get(reverse("viagens:oficios"), {"q": "x"}, HTTP_HX_REQUEST="true",
+                         HTTP_HX_TARGET="resultados")
+        assert {"HX-Request", "HX-Target"} <= {h.strip() for h in r["Vary"].split(",")}
+
     def test_busca_ao_vivo_atualiza_abas_preservando_busca_e_ordem(self, operador):
         r = operador.get(reverse("viagens:oficios"), {"q": "arapongas", "ordem": "saida"},
                          HTTP_HX_REQUEST="true", HTTP_HX_TARGET="resultados")

@@ -7,6 +7,7 @@
 | LAB | `config.settings.lab` | sintéticos | **sim** (auditorias destrutivas, carga) | leitura e escrita |
 | DEV | `config.settings.dev` | fictícios | sim (local) | leitura e escrita |
 | TEST | `config.settings.test` | gerados por teste | sim (banco efêmero) | — |
+| PREVIEW | `config.settings.preview` | fictícios (`semear_demo`) | só o dataset DEMO | leitura e escrita (ADR 0011) |
 | STAGING | `config.settings.staging` | anonimizados | não | leitura |
 | PRODUCTION | `config.settings.production` | reais | não | **somente leitura** |
 

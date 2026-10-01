@@ -14,6 +14,7 @@ def plataforma(request: HttpRequest) -> dict[str, Any]:
         "papel_principal": _papel(request),
         "instituicao": settings.INSTITUICAO,
         "app_env": ambiente.atual(),
+        "demo_ativo": ambiente.demo_ativo(),
         "navegacao": navegacao_para(request),
     }
 

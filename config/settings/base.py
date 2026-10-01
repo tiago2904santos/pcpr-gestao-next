@@ -53,6 +53,11 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
 
 
+# Entrada de demonstração (sem senha) — só tem efeito com APP_ENV=preview; em qualquer outro
+# ambiente a combinação é recusada (production_base, check plataforma.E004 e
+# ambiente.demo_ativo()). Ver docs/adr/0011-ambiente-preview-demo.md.
+DEMO_MODE = env_bool("DEMO_MODE", False)
+
 SECRET_KEY = env("DJANGO_SECRET_KEY", "dev-insecure-key-somente-local")
 DEBUG = False
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")

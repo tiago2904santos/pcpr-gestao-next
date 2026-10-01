@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.vary import vary_on_headers
 
 from gestao.cadastros.models import Servidor
 
@@ -70,6 +71,7 @@ def painel(request: HttpRequest) -> HttpResponse:
 
 # ------------------------------------------------------------------ lista
 @require_GET
+@vary_on_headers("HX-Request", "HX-Target")  # senão o "Voltar" do navegador reusa o fragmento
 def lista(request: HttpRequest) -> HttpResponse:
     if not policies.pode_listar(request.user):
         raise PermissionDenied
