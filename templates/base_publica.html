@@ -1,0 +1,27 @@
+{% extends "base_documento.html" %}
+{% load static %}
+{% block classe_body %}autenticacao{% endblock %}
+{% block corpo %}
+<header class="cabecalho">
+  <a class="marca" href="/" aria-label="{{ instituicao.sigla }} — {{ instituicao.produto }}">
+    <img class="marca__brasao" src="{% static 'img/brasao-pcpr-96.webp' %}" alt="" width="29" height="40">
+    <span class="marca__sigla">{{ instituicao.sigla }}</span>
+    <span class="marca__divisor" aria-hidden="true"></span>
+    <span class="marca__produto">
+      <span class="marca__titulo">{{ instituicao.produto }}</span>
+      <span class="marca__subtitulo">{{ instituicao.nome }}</span>
+    </span>
+  </a>
+  {% if app_env != "production" %}<span class="cabecalho__ambiente">{{ app_env|upper }}</span>{% endif %}
+  <span class="cabecalho__acoes rotulo-caixa-alta peso-semi texto-acesso">{% icone "shield-check" classe="icone--sm" %}Acesso restrito</span>
+</header>
+<main id="conteudo" class="autenticacao__palco">
+  {% block conteudo %}{% endblock %}
+</main>
+<footer class="rodape">
+  <span class="linha">{% icone "lock" classe="icone--sm" %} Ambiente restrito e monitorado</span>
+  <span aria-hidden="true">·</span>
+  <span>{{ instituicao.nome }}</span>
+</footer>
+{% include "parciais/toasts.html" %}
+{% endblock %}

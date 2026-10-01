@@ -1,0 +1,12 @@
+{% if form.errors %}
+<div class="alerta alerta--perigo resumo-erros" role="alert" tabindex="-1" id="resumo-erros">
+  {% icone "alert-circle" %}
+  <div class="alerta__corpo">
+    <p class="alerta__titulo">{% if form.errors|length == 1 %}Há 1 campo para corrigir{% else %}Há {{ form.errors|length }} campos para corrigir{% endif %}</p>
+    <ul>
+      {% for erro in form.non_field_errors %}<li>{{ erro }}</li>{% endfor %}
+      {% for campo in form %}{% for erro in campo.errors %}<li><a href="#{{ campo.auto_id }}">{{ campo.label }}: {{ erro }}</a></li>{% endfor %}{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}

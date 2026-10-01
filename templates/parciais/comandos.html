@@ -1,0 +1,15 @@
+{% load static %}
+<pc-comandos data-fonte="{% url 'painel:busca' %}?q=" data-sprite="{% static 'icons/sprite.svg' %}">
+  <dialog class="dialogo comandos" aria-label="Buscar ou ir para">
+    <div class="comandos__busca">
+      {% icone "search" %}
+      <label for="comandos-entrada" class="sr-only">Buscar ou ir para</label>
+      <input id="comandos-entrada" type="search" role="combobox" aria-expanded="true" aria-controls="comandos-lista" aria-autocomplete="list" placeholder="Número do ofício, protocolo, servidor ou página…" autocomplete="off">
+      <button type="button" class="botao botao--sutil botao--sm" data-fechar-dialogo>Esc</button>
+    </div>
+    <ul id="comandos-lista" class="comandos__lista" role="listbox" aria-label="Resultados"></ul>
+    <div class="comandos__rodape">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>
+    </div>
+  </dialog>
+</pc-comandos>

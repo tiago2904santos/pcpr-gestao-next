@@ -1,0 +1,25 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Erro interno · PCPR</title>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+</head>
+<body class="autenticacao">
+  <header class="cabecalho">
+    <a class="marca" href="/"><img class="marca__brasao" src="{% static 'img/brasao-pcpr-96.webp' %}" alt="" width="29" height="40"><span class="marca__sigla">PCPR</span></a>
+  </header>
+  <main class="autenticacao__palco">
+    <section class="vazio" aria-labelledby="erro-titulo">
+      <p class="pagina-erro__codigo">500</p>
+      <h1 class="vazio__titulo" id="erro-titulo">Algo deu errado do nosso lado</h1>
+      <p class="vazio__texto">O erro foi registrado automaticamente. Seus dados já salvos não foram afetados. Tente novamente em instantes; se persistir, informe o horário ao suporte.</p>
+      <div class="grupo-botoes"><a class="botao botao--primario" href="/">Ir para o início</a></div>
+    </section>
+  </main>
+</body>
+</html>

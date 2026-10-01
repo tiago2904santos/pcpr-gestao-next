@@ -1,0 +1,99 @@
+"""Registro de navegação.
+
+Cada contexto de negócio registra seu módulo no `AppConfig.ready()`; a
+plataforma só monta o menu, sem conhecer os contextos (inversão de
+dependência). Itens podem exigir uma permissão (`requer`).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+from django.http import HttpRequest
+from django.urls import NoReverseMatch, reverse
+
+
+@dataclass(frozen=True)
+class Item:
+    rotulo: str
+    url_name: str
+    icone: str
+    requer: str | None = None
+    # Prefixos de caminho que também marcam o item como ativo.
+    ativo_em: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Grupo:
+    rotulo: str
+    itens: tuple[Item, ...]
+
+
+@dataclass(frozen=True)
+class Modulo:
+    chave: str
+    rotulo: str
+    icone: str
+    url_name: str
+    descricao: str = ""
+    grupos: tuple[Grupo, ...] = field(default_factory=tuple)
+    ordem: int = 100
+
+
+_MODULOS: dict[str, Modulo] = {}
+
+
+def registrar_modulo(modulo: Modulo) -> None:
+    _MODULOS[modulo.chave] = modulo
+
+
+def modulos() -> list[Modulo]:
+    return sorted(_MODULOS.values(), key=lambda m: m.ordem)
+
+
+def _url(nome: str) -> str | None:
+    try:
+        return reverse(nome)
+    except NoReverseMatch:
+        return None
+
+
+def navegacao_para(request: HttpRequest) -> dict[str, object]:
+    usuario = getattr(request, "user", None)
+    if usuario is None or not usuario.is_authenticated:
+        return {"modulos": [], "atual": None}
+    caminho = request.path
+    visiveis = []
+    atual = None
+    for modulo in modulos():
+        grupos = []
+        for grupo in modulo.grupos:
+            itens = []
+            for item in grupo.itens:
+                if item.requer and not usuario.has_perm(item.requer):
+                    continue
+                url = _url(item.url_name)
+                if url is None:
+                    continue
+                ativo = caminho.startswith(url) or any(caminho.startswith(p) for p in item.ativo_em)
+                itens.append({"rotulo": item.rotulo, "url": url, "icone": item.icone,
+                              "ativo": ativo, "tamanho_url": len(url)})
+            if itens:
+                grupos.append({"rotulo": grupo.rotulo, "itens": itens})
+        url_modulo = _url(modulo.url_name)
+        if not grupos and url_modulo is None:
+            continue
+        # Só o item de prefixo mais longo fica ativo (evita "Início" sempre aceso).
+        todos = [i for g in grupos for i in g["itens"]]
+        ativos = [i for i in todos if i["ativo"]]
+        if ativos:
+            melhor = max(ativos, key=lambda i: i["tamanho_url"])
+            for i in todos:
+                i["ativo"] = i is melhor
+        entrada = {"chave": modulo.chave, "rotulo": modulo.rotulo, "icone": modulo.icone,
+                   "url": url_modulo, "descricao": modulo.descricao, "grupos": grupos,
+                   "ativo": bool(ativos)}
+        visiveis.append(entrada)
+        if ativos and atual is None:
+            atual = entrada
+    return {"modulos": visiveis, "atual": atual}

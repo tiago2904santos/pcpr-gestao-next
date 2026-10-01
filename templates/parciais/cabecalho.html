@@ -1,0 +1,55 @@
+{% load static %}
+<header class="cabecalho">
+  <button type="button" class="cabecalho__menu cabecalho__menu--gaveta" data-acao="abrir-gaveta"
+          aria-controls="navegacao-lateral" aria-expanded="false" aria-label="Abrir menu de navegação">
+    {% icone "menu" %}
+  </button>
+  <a class="marca" href="{% url 'painel:inicio' %}" aria-label="{{ instituicao.sigla }} — {{ instituicao.produto }}, página inicial">
+    <img class="marca__brasao" src="{% static 'img/brasao-pcpr-96.webp' %}" alt="" width="29" height="40">
+    <span class="marca__sigla">{{ instituicao.sigla }}</span>
+    <span class="marca__divisor" aria-hidden="true"></span>
+    <span class="marca__produto">
+      <span class="marca__titulo">{{ instituicao.produto }}</span>
+      <span class="marca__subtitulo">{{ instituicao.nome }}</span>
+    </span>
+  </a>
+  {% if app_env != "production" %}
+    <span class="cabecalho__ambiente" title="Ambiente de {{ app_env|upper }}: dados não oficiais">{{ app_env|upper }}</span>
+  {% endif %}
+  <div class="cabecalho__busca">
+    <button type="button" class="busca-global" data-abrir-comandos aria-label="Buscar ou ir para (Ctrl+K)">
+      {% icone "search" %}
+      <span class="busca-global__texto">Buscar ofício, servidor ou página…</span>
+      <kbd class="busca-global__atalho">Ctrl K</kbd>
+    </button>
+  </div>
+  <div class="cabecalho__acoes">
+    <a class="cabecalho__botao" href="{% url 'painel:notificacoes' %}" aria-label="Notificações{% if notificacoes_nao_lidas %} ({{ notificacoes_nao_lidas }} não lidas){% endif %}" data-dica="Notificações">
+      {% icone "bell" %}
+      {% if notificacoes_nao_lidas %}<span class="cabecalho__marcador" aria-hidden="true"></span>{% endif %}
+    </a>
+    <pc-menu class="menu">
+      <button type="button" class="perfil" data-menu-botao aria-haspopup="menu" aria-label="Menu do usuário {{ user.nome }}">
+        <span class="perfil__avatar" aria-hidden="true">{{ user.iniciais }}</span>
+        <span class="perfil__texto">
+          <span class="perfil__nome">{{ user.primeiro_nome }}</span>
+          <span class="perfil__papel">{{ papel_principal|default:"Usuário" }}</span>
+        </span>
+        {% icone "chevron-down" classe="icone--sm" %}
+      </button>
+      <div class="menu__painel" role="menu" hidden>
+        <div class="menu__cabecalho">
+          <div class="perfil__nome">{{ user.nome }}</div>
+          <div class="texto-secundario texto-xs">{{ user.email }}</div>
+        </div>
+        <a class="menu__item" role="menuitem" href="{% url 'identidade:alterar_senha' %}">{% icone "lock" %} Alterar senha</a>
+        <a class="menu__item" role="menuitem" href="{% url 'ui_lab:indice' %}">{% icone "palette" %} UI Lab</a>
+        <div class="menu__separador" role="separator"></div>
+        <form method="post" action="{% url 'identidade:sair' %}">
+          {% csrf_token %}
+          <button type="submit" class="menu__item" role="menuitem">{% icone "log-out" %} Sair</button>
+        </form>
+      </div>
+    </pc-menu>
+  </div>
+</header>

@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% block titulo %}UI Lab{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block cabecalho_pagina %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="UI Lab" sobretitulo="Design System" icone="palette" descricao="Vitrine viva: todos os componentes em todos os estados. Hover, foco e ativo são exercitados com mouse e teclado (e pelos testes visuais automatizados)." acoes="ui_lab/_acoes_cabecalho.html" %}
+{% endblock %}
+{% block conteudo %}
+<div class="lab">
+  <nav class="lab__indice cartao" aria-label="Seções do UI Lab">
+    <ol class="etapas">
+      <li class="etapas__item"><a href="#botoes"><span class="etapas__marcador">1</span>Botões</a></li>
+      <li class="etapas__item"><a href="#campos"><span class="etapas__marcador">2</span>Campos</a></li>
+      <li class="etapas__item"><a href="#combobox"><span class="etapas__marcador">3</span>Combobox e data</a></li>
+      <li class="etapas__item"><a href="#status"><span class="etapas__marcador">4</span>Status e alertas</a></li>
+      <li class="etapas__item"><a href="#navegacao"><span class="etapas__marcador">5</span>Navegação</a></li>
+      <li class="etapas__item"><a href="#cartoes"><span class="etapas__marcador">6</span>Cartões e indicadores</a></li>
+      <li class="etapas__item"><a href="#tabelas"><span class="etapas__marcador">7</span>Tabelas e listas</a></li>
+      <li class="etapas__item"><a href="#sobreposicoes"><span class="etapas__marcador">8</span>Diálogos e menus</a></li>
+      <li class="etapas__item"><a href="#vazios"><span class="etapas__marcador">9</span>Vazio e carregando</a></li>
+    </ol>
+  </nav>
+
+  <div class="pilha-lg">
+    <!-- 1. BOTÕES -->
+    <section class="cartao" id="botoes" aria-labelledby="t-botoes">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-botoes"><span class="cartao__numero">1</span>Botões</h2></div>
+      <div class="cartao__corpo pilha">
+        <div class="lab__matriz" role="group" aria-label="Variantes de botão">
+          <span class="rotulo-caixa-alta">Variante</span><span class="rotulo-caixa-alta">Padrão</span><span class="rotulo-caixa-alta">Com ícone</span><span class="rotulo-caixa-alta">Desabilitado</span><span class="rotulo-caixa-alta">Carregando</span>
+          <span>Primário</span>
+          <span><button class="botao botao--primario" type="button" data-lab="botao-primario">Salvar ofício</button></span>
+          <span><button class="botao botao--primario" type="button">{% icone "save" %}Salvar</button></span>
+          <span><button class="botao botao--primario" type="button" disabled>Salvar</button></span>
+          <span><button class="botao botao--primario" type="button" aria-busy="true"><span>Salvando</span></button></span>
+          <span>Marca</span>
+          <span><button class="botao botao--marca" type="button" data-lab="botao-marca">Emitir ofício</button></span>
+          <span><button class="botao botao--marca" type="button">{% icone "stamp" %}Emitir</button></span>
+          <span><button class="botao botao--marca" type="button" disabled>Emitir</button></span>
+          <span><button class="botao botao--marca" type="button" aria-busy="true"><span>Emitindo</span></button></span>
+          <span>Secundário</span>
+          <span><button class="botao" type="button" data-lab="botao-secundario">Cancelar</button></span>
+          <span><button class="botao" type="button">{% icone "download" %}Exportar</button></span>
+          <span><button class="botao" type="button" disabled>Exportar</button></span>
+          <span><button class="botao" type="button" aria-busy="true"><span>Exportando</span></button></span>
+          <span>Sutil</span>
+          <span><button class="botao botao--sutil" type="button">Limpar</button></span>
+          <span><button class="botao botao--sutil" type="button">{% icone "x" %}Limpar</button></span>
+          <span><button class="botao botao--sutil" type="button" disabled>Limpar</button></span>
+          <span><button class="botao botao--sutil" type="button" aria-busy="true"><span>Limpando</span></button></span>
+          <span>Perigo</span>
+          <span><button class="botao botao--perigo" type="button">Cancelar ofício</button></span>
+          <span><button class="botao botao--perigo-contorno" type="button">{% icone "trash-2" %}Remover</button></span>
+          <span><button class="botao botao--perigo" type="button" disabled>Cancelar</button></span>
+          <span><button class="botao botao--perigo" type="button" aria-busy="true"><span>Cancelando</span></button></span>
+        </div>
+        <div class="linha">
+          <button class="botao botao--sm" type="button">Pequeno</button>
+          <button class="botao" type="button">Médio</button>
+          <button class="botao botao--lg" type="button">Grande (toque)</button>
+          <button class="botao botao--icone" type="button" aria-label="Mais ações">{% icone "ellipsis-vertical" %}</button>
+          <button class="botao botao--icone botao--sm" type="button" aria-label="Editar">{% icone "pencil" %}</button>
+          <a class="botao" href="#botoes">Link com aparência de botão</a>
+        </div>
+        <div class="lab__estreito">
+          <button class="botao botao--primario botao--bloco" type="button">Botão em bloco com rótulo muito longo que precisa quebrar sem estourar o contêiner</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. CAMPOS -->
+    <section class="cartao" id="campos" aria-labelledby="t-campos">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-campos"><span class="cartao__numero">2</span>Campos de formulário</h2></div>
+      <div class="cartao__corpo pilha-lg">
+        <div>
+          <h3 class="subtitulo-secao">Padrão</h3>
+          <div class="campos">
+            {% include "componentes/campo.html" with campo=form_vazio.nome classe="col-6" %}
+            {% include "componentes/campo.html" with campo=form_vazio.protocolo classe="col-3" %}
+            {% include "componentes/campo.html" with campo=form_vazio.data classe="col-3" %}
+            {% include "componentes/campo.html" with campo=form_vazio.destino classe="col-6" %}
+            {% include "componentes/campo.html" with campo=form_vazio.observacao classe="col-6" %}
+            {% include "componentes/campo.html" with campo=form_vazio.ciente %}
+          </div>
+        </div>
+        <div>
+          <h3 class="subtitulo-secao">Erro (validação do servidor)</h3>
+          {% include "componentes/resumo_erros.html" with form=form_erro %}
+          <div class="campos mt-4">
+            {% include "componentes/campo.html" with campo=form_erro.nome classe="col-6" %}
+            {% include "componentes/campo.html" with campo=form_erro.protocolo classe="col-3" %}
+            {% include "componentes/campo.html" with campo=form_erro.destino classe="col-3" %}
+          </div>
+        </div>
+        <div>
+          <h3 class="subtitulo-secao">Sucesso, desabilitado, somente leitura, composto e longo</h3>
+          <div class="campos">
+            <div class="campo col-4 campo--sucesso">
+              <label class="campo__rotulo" for="lab-ok">Placa</label>
+              <input class="entrada" id="lab-ok" value="AYS-4579" aria-describedby="lab-ok-msg">
+              <p class="campo__ajuda" id="lab-ok-msg">Viatura encontrada no cadastro.</p>
+            </div>
+            <div class="campo col-4">
+              <label class="campo__rotulo" for="lab-des">Ano</label>
+              <input class="entrada" id="lab-des" value="2026" disabled>
+            </div>
+            <div class="campo col-4">
+              <label class="campo__rotulo" for="lab-ro">Valor por extenso</label>
+              <input class="entrada" id="lab-ro" value="dois mil quatrocentos e onze reais" readonly>
+            </div>
+            <div class="campo col-4">
+              <label class="campo__rotulo" for="lab-num">Nº do ofício</label>
+              <div class="entrada-composta">
+                <input class="entrada" id="lab-num" inputmode="numeric" value="131">
+                <span class="entrada-composta__texto-fixo">/ 2026</span>
+              </div>
+            </div>
+            <div class="campo col-4">
+              <label class="campo__rotulo" for="lab-busca">Buscar</label>
+              <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-busca" type="search" placeholder="Número, protocolo ou destino"></div>
+            </div>
+            <div class="campo col-4">
+              <label class="campo__rotulo" for="lab-longo">Conteúdo longo</label>
+              <input class="entrada" id="lab-longo" value="GABINETE DO DELEGADO-GERAL ADJUNTO ADMINISTRATIVO — DIVISÃO DE PLANEJAMENTO E ORÇAMENTO DA POLÍCIA CIVIL DO PARANÁ">
+            </div>
+            <fieldset class="grupo-campos col-6">
+              <legend>Custeio</legend>
+              <div class="pilha-sm">
+                <label class="escolha"><input type="radio" name="custeio" checked> <span>Unidade (diárias e combustível pela DPC)<span class="escolha__descricao">Padrão para viagens institucionais.</span></span></label>
+                <label class="escolha"><input type="radio" name="custeio"> <span>Outra instituição</span></label>
+                <label class="escolha"><input type="radio" name="custeio" disabled> <span>Ônus limitados aos próprios vencimentos (desabilitado)</span></label>
+              </div>
+            </fieldset>
+            <div class="col-6 pilha-sm">
+              <label class="interruptor"><input type="checkbox" role="switch" checked> Vincular a um roteiro existente</label>
+              <label class="interruptor"><input type="checkbox" role="switch"> Bate-volta diário</label>
+              <label class="interruptor"><input type="checkbox" role="switch" disabled> Porte de arma (desabilitado)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. COMBOBOX E DATA -->
+    <section class="cartao" id="combobox" aria-labelledby="t-combobox">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca e data</h2></div>
+      <div class="cartao__corpo">
+        <div class="campos">
+          <div class="campo col-6">
+            <label class="campo__rotulo" for="lab-municipio">Município (lista local)</label>
+            <pc-combobox class="combobox" data-placeholder="Digite o município…">
+              <select id="lab-municipio" name="municipio" aria-describedby="lab-municipio-ajuda">
+                <option value="">Selecione…</option>
+                {% for m in municipios %}<option value="{{ m }}" data-meta="Paraná">{{ m }}</option>{% endfor %}
+              </select>
+            </pc-combobox>
+            <p class="campo__ajuda" id="lab-municipio-ajuda">Sem JavaScript, vira um select comum.</p>
+          </div>
+          <div class="campo col-6">
+            <label class="campo__rotulo" for="lab-servidor">Servidor (busca remota)</label>
+            <pc-combobox class="combobox" data-fonte="{% url 'ui_lab:busca_exemplo' %}?q=" data-minimo="1">
+              <div class="entrada-composta">{% icone "search" %}<input id="lab-servidor" class="entrada" role="combobox" placeholder="Buscar por nome, CPF ou RG"></div>
+            </pc-combobox>
+          </div>
+          <div class="campo col-4">
+            <label class="campo__rotulo" for="lab-data">Data de saída</label>
+            <input class="entrada" type="date" id="lab-data" value="2026-10-08" aria-describedby="lab-data-ajuda">
+            <p class="campo__ajuda" id="lab-data-ajuda">Seletor nativo: acessível e adequado ao teclado do celular.</p>
+          </div>
+          <div class="campo col-4">
+            <label class="campo__rotulo" for="lab-hora">Hora de saída</label>
+            <input class="entrada" type="time" id="lab-hora" value="09:00">
+          </div>
+          <div class="campo col-4 campo--erro">
+            <label class="campo__rotulo" for="lab-data-erro">Data de retorno</label>
+            <input class="entrada" type="date" id="lab-data-erro" value="2026-10-01" aria-invalid="true" aria-describedby="lab-data-erro-msg">
+            <p class="campo__erro" id="lab-data-erro-msg">{% icone "alert-circle" classe="icone--sm" %}<span>O retorno não pode ser antes da saída (08/10/2026).</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STATUS E ALERTAS -->
+    <section class="cartao" id="status" aria-labelledby="t-status">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-status"><span class="cartao__numero">4</span>Status, alertas e toasts</h2></div>
+      <div class="cartao__corpo pilha">
+        <div class="linha">{% for rotulo, tom in tons_status %}<span class="selo selo--{{ tom }}">{{ rotulo }}</span>{% endfor %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
+        <div class="alerta" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Informação</p><p>O número do ofício é reservado ao salvar o rascunho e confirmado na emissão.</p></div></div>
+        <div class="alerta alerta--sucesso" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Ofício 131/2026 emitido</p><p>O PDF foi gerado e está disponível na seção Documentos.</p></div></div>
+        <div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">Conflito de agenda</p><ul><li>Gilberto Reinaldo Müller Junior já está no Ofício 129/2026 de 09/10 a 11/10/2026 (Arapongas/PR).</li><li>Viatura AYS-4579 já está no Ofício 129/2026 no mesmo período.</li></ul><p class="texto-sm">É só um aviso: confira com a outra equipe; dá para salvar assim mesmo.</p></div></div>
+        <div class="alerta alerta--perigo" role="alert">{% icone "x-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Não foi possível emitir</p><p>Falta a justificativa: a viagem começa em 3 dias e o prazo mínimo é de 10 dias.</p></div></div>
+        <div class="linha">
+          <button class="botao" type="button" data-lab-toast="sucesso">Mostrar toast de sucesso</button>
+          <button class="botao" type="button" data-lab-toast="aviso">Toast de aviso</button>
+          <button class="botao" type="button" data-lab-toast="perigo">Toast de erro (persistente)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. NAVEGAÇÃO -->
+    <section class="cartao" id="navegacao" aria-labelledby="t-navegacao">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-navegacao"><span class="cartao__numero">5</span>Navegação: migalhas, abas, sanfona, etapas, paginação</h2></div>
+      <div class="cartao__corpo pilha-lg">
+        <nav class="migalhas" aria-label="Exemplo de migalhas"><ol><li><a href="#navegacao">Início</a></li><li><a href="#navegacao">Viagens</a></li><li><a href="#navegacao">Ofícios</a></li><li><span aria-current="page">131/2026</span></li></ol></nav>
+        <div>
+          <h3 class="subtitulo-secao">Abas de filtro (links)</h3>
+          <nav class="abas" aria-label="Filtro de situação">
+            <a class="aba" href="#navegacao" aria-current="page">Todos <span class="aba__contagem">56</span></a>
+            <a class="aba" href="#navegacao">Rascunhos <span class="aba__contagem">8</span></a>
+            <a class="aba" href="#navegacao">Emitidos <span class="aba__contagem">38</span></a>
+            <a class="aba" href="#navegacao">Justificativa pendente <span class="aba__contagem">5</span></a>
+            <a class="aba" href="#navegacao">Cancelados <span class="aba__contagem">5</span></a>
+          </nav>
+        </div>
+        <div>
+          <h3 class="subtitulo-secao">Abas de conteúdo (ARIA tabs)</h3>
+          <pc-abas>
+            <div role="tablist" class="abas" aria-label="Detalhes do ofício">
+              <button type="button" role="tab" class="aba" id="aba-1" aria-controls="painel-1" aria-selected="true">Resumo</button>
+              <button type="button" role="tab" class="aba" id="aba-2" aria-controls="painel-2">Documentos</button>
+              <button type="button" role="tab" class="aba" id="aba-3" aria-controls="painel-3">Histórico</button>
+            </div>
+            <div role="tabpanel" id="painel-1" aria-labelledby="aba-1" tabindex="0" class="mt-4">Resumo do ofício: destino, período, servidores e valores.</div>
+            <div role="tabpanel" id="painel-2" aria-labelledby="aba-2" tabindex="0" class="mt-4" hidden>Versões emitidas do documento.</div>
+            <div role="tabpanel" id="painel-3" aria-labelledby="aba-3" tabindex="0" class="mt-4" hidden>Quem fez o quê e quando.</div>
+          </pc-abas>
+        </div>
+        <div>
+          <h3 class="subtitulo-secao">Sanfona</h3>
+          <details class="sanfona" open><summary>Como foi calculado</summary><div class="sanfona__corpo">4 diárias de 100% + 1 diária de 15%, faixa Interior, tabela vigente desde 01/01/2000.</div></details>
+          <details class="sanfona"><summary>Dados para o eProtocolo</summary><div class="sanfona__corpo">Assunto, interessados e resumo prontos para copiar.</div></details>
+        </div>
+        <div class="grade grade--2">
+          <div>
+            <h3 class="subtitulo-secao">Etapas (índice de formulário)</h3>
+            <ol class="etapas">
+              <li class="etapas__item etapas__item--concluida"><a href="#navegacao"><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Dados e viajantes</a></li>
+              <li class="etapas__item etapas__item--atual"><a href="#navegacao" aria-current="step"><span class="etapas__marcador">2</span>Roteiro e trechos</a></li>
+              <li class="etapas__item etapas__item--pendente"><a href="#navegacao"><span class="etapas__marcador">3</span>Diárias</a></li>
+              <li class="etapas__item"><a href="#navegacao"><span class="etapas__marcador">4</span>Justificativa</a></li>
+            </ol>
+          </div>
+          <div>
+            <h3 class="subtitulo-secao">Paginação</h3>
+            <div class="cartao">{% include "componentes/paginacao.html" %}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CARTÕES -->
+    <section class="cartao" id="cartoes" aria-labelledby="t-cartoes">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cartoes"><span class="cartao__numero">6</span>Cartões, indicadores e pessoas</h2></div>
+      <div class="cartao__corpo pilha">
+        <div class="grade grade--4">
+          <a class="indicador" href="#cartoes"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-text" classe="icone--sm" %}Ofícios no mês</span><span class="indicador__valor">18</span><span class="indicador__nota">↑ 4 em relação a agosto</span></a>
+          <a class="indicador indicador--atencao" href="#cartoes"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "alert-triangle" classe="icone--sm" %}Justificativa pendente</span><span class="indicador__valor">5</span><span class="indicador__nota">Viagens com menos de 10 dias</span></a>
+          <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Diárias no mês</span><span class="indicador__valor">R$ 42.318,90</span><span class="indicador__nota">Conteúdo longo não estoura</span></div>
+          <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Viagens em 30 dias</span><span class="indicador__valor">0</span><span class="indicador__nota">Estado zerado</span></div>
+        </div>
+        <div class="grade grade--2">
+          <div class="cartao"><div class="cartao__cabecalho"><h3 class="cartao__titulo cartao__titulo--institucional">{% icone "users" %}Responsável pelo preenchimento</h3></div><div class="cartao__corpo"><dl class="definicoes"><div><dt class="rotulo-caixa-alta">Nome</dt><dd>Operador Teste</dd></div><div><dt class="rotulo-caixa-alta">Unidade</dt><dd>Assessoria de Comunicação</dd></div><div><dt class="rotulo-caixa-alta">Protocolo</dt><dd><span class="vazio-inline">Não informado</span></dd></div></dl></div></div>
+          <div class="pilha-sm">
+            <div class="pessoa"><span class="avatar">GJ</span><div class="pessoa__texto"><div class="pessoa__nome">GILBERTO REINALDO MÜLLER JUNIOR</div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><span class="selo selo--sucesso">Com termo</span><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Gilberto Reinaldo Müller Junior">{% icone "x" %}</button></div>
+            <div class="pessoa"><span class="avatar avatar--escuro">SJ</span><div class="pessoa__texto"><div class="pessoa__nome">SYLVIO PIVA JUNIOR <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span></div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Sylvio Piva Junior">{% icone "x" %}</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. TABELAS -->
+    <section class="cartao" id="tabelas" aria-labelledby="t-tabelas">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-tabelas"><span class="cartao__numero">7</span>Tabelas, filtros e listas</h2></div>
+      <div class="cartao__corpo--sem-respiro">
+        <form class="filtros" role="search" aria-label="Filtrar ofícios (exemplo)" method="get" action="#tabelas">
+          <div class="campo filtros__busca"><label class="campo__rotulo" for="lab-f-q">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-f-q" type="search" placeholder="Número, protocolo, destino ou servidor"></div></div>
+          <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></div>
+          <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button></div>
+        </form>
+        <div class="filtros-ativos"><span class="texto-secundario">Filtros:</span><a class="ficha" href="#tabelas">Situação: Emitido {% icone "x" %}<span class="sr-only">remover filtro</span></a><a class="ficha" href="#tabelas">Ano: 2026 {% icone "x" %}<span class="sr-only">remover filtro</span></a></div>
+        <div class="tabela-rolagem">
+          <table class="tabela tabela--responsiva tabela--linhas-clicaveis">
+            <caption class="sr-only">Ofícios de exemplo</caption>
+            <thead><tr>
+              <th scope="col" aria-sort="descending"><a class="tabela__ordenar" href="#tabelas">Número {% icone "arrow-up-down" classe="icone--sm" %}</a></th>
+              <th scope="col">Destino</th><th scope="col">Servidores</th><th scope="col" class="coluna-num">Valor</th><th scope="col">Situação</th><th scope="col"><span class="sr-only">Ações</span></th>
+            </tr></thead>
+            <tbody>
+              {% for l in linhas %}
+              <tr>
+                <td class="tabela__celula-principal" data-rotulo="Número"><a class="tabela__principal" href="#tabelas">Ofício {{ l.numero }}</a><span class="tabela__secundario">Protocolo 26.655.434-6</span></td>
+                <td data-rotulo="Destino">{{ l.destino }}</td>
+                <td data-rotulo="Servidores" class="quebra-palavras">{{ l.servidores }}</td>
+                <td data-rotulo="Valor" class="num">{{ l.valor|moeda }}</td>
+                <td data-rotulo="Situação"><span class="selo selo--{{ l.status.1 }}">{{ l.status.0 }}</span></td>
+                <td data-rotulo="" class="num"><button type="button" class="botao botao--icone botao--sutil botao--sm tabela__acao" aria-label="Ações do ofício {{ l.numero }}">{% icone "ellipsis-vertical" %}</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot><tr><td colspan="3">Total</td><td class="num">{{ 6926.40|moeda }}</td><td colspan="2"></td></tr></tfoot>
+          </table>
+        </div>
+        <ul class="registros" aria-label="Lista de registros (exemplo)">
+          <li class="registro">
+            <span class="registro__icone">{% icone "file-text" %}</span>
+            <div><div class="registro__titulo"><a class="registro__link" href="#tabelas">Ofício 131/2026 · Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso">Emitido</span><span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
+              <div class="registro__meta"><span class="registro__meta-item">{% icone "users" classe="icone--sm" %}Gilberto R. Müller Jr., Sylvio Piva Jr. (motorista)</span><span class="registro__meta-item">{% icone "car" classe="icone--sm" %}Renault Master · AYS-4579</span><span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}R$ 2.411,56 · 4 × 100% + 1 × 15%</span></div></div>
+            <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do ofício 131/2026">{% icone "ellipsis-vertical" %}</button></div>
+          </li>
+          <li class="registro">
+            <span class="registro__icone">{% icone "file-pen-line" %}</span>
+            <div><div class="registro__titulo"><a class="registro__link" href="#tabelas">Ofício 128/2026</a><span class="selo">Rascunho</span></div>
+              <div class="registro__meta"><span class="registro__meta-item registro__meta-item--vazio">{% icone "map-pin" classe="icone--sm" %}Sem roteiro</span><span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span></div></div>
+            <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do ofício 128/2026">{% icone "ellipsis-vertical" %}</button></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8. SOBREPOSIÇÕES -->
+    <section class="cartao" id="sobreposicoes" aria-labelledby="t-sobreposicoes">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-sobreposicoes"><span class="cartao__numero">8</span>Diálogos, gaveta, menu e paleta de comandos</h2></div>
+      <div class="cartao__corpo linha">
+        <button class="botao" type="button" data-abrir-dialogo="lab-dialogo">{% icone "info" %}Abrir diálogo</button>
+        <form method="post" action="#sobreposicoes" data-confirmar="O ofício 131/2026 será cancelado. O número não volta a ser usado e a ação fica registrada no histórico." data-confirmar-titulo="Cancelar ofício?" data-confirmar-rotulo="Cancelar ofício" data-confirmar-perigo>
+          <button class="botao botao--perigo-contorno" type="submit" data-lab="confirmar-perigo">{% icone "ban" %}Confirmação destrutiva</button>
+        </form>
+        <button class="botao" type="button" data-abrir-dialogo="lab-gaveta">{% icone "sliders-horizontal" %}Abrir gaveta</button>
+        <pc-menu class="menu">
+          <button class="botao" type="button" data-menu-botao aria-haspopup="menu">Ações {% icone "chevron-down" classe="icone--sm" %}</button>
+          <div class="menu__painel" role="menu" hidden>
+            <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "eye" %}Abrir</a>
+            <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "copy" %}Duplicar</a>
+            <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "printer" %}Imprimir</a>
+            <div class="menu__separador" role="separator"></div>
+            <a class="menu__item menu__item--perigo" role="menuitem" href="#sobreposicoes">{% icone "ban" %}Cancelar ofício</a>
+          </div>
+        </pc-menu>
+        <button class="botao" type="button" data-abrir-comandos>{% icone "command" %}Paleta de comandos <kbd>Ctrl K</kbd></button>
+      </div>
+    </section>
+
+    <!-- 9. VAZIO E CARREGANDO -->
+    <section class="cartao" id="vazios" aria-labelledby="t-vazios">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-vazios"><span class="cartao__numero">9</span>Estados vazios e carregamento</h2></div>
+      <div class="cartao__corpo grade grade--2">
+        <div class="cartao">{% include "componentes/vazio.html" with icone="file-plus-2" titulo="Nenhum ofício ainda" texto="Comece criando o primeiro ofício de viagem da sua unidade." acao_url="#vazios" acao_rotulo="Novo ofício" %}</div>
+        <div class="cartao">{% include "componentes/vazio.html" with icone="search" titulo="Nenhum resultado para “Tamarana”" texto="Confira a grafia ou remova filtros para ampliar a busca." limpar_url="#vazios" %}</div>
+        <div class="cartao cartao__corpo pilha-sm" aria-busy="true" aria-label="Carregando lista">
+          <span class="esqueleto lab__esqueleto-60"></span><span class="esqueleto"></span><span class="esqueleto lab__esqueleto-80"></span>
+        </div>
+        <div class="cartao cartao__corpo linha">{% icone "loader-circle" classe="girando" %}<span role="status">Calculando diárias…</span></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<dialog id="lab-dialogo" class="dialogo" aria-labelledby="lab-dialogo-titulo">
+  <div class="dialogo__cabecalho"><span class="dialogo__icone">{% icone "info" %}</span><h2 class="dialogo__titulo" id="lab-dialogo-titulo">Emitir ofício 131/2026?</h2></div>
+  <div class="dialogo__corpo"><p>Depois de emitido, os dados ficam travados e uma nova versão só pode ser gerada reabrindo o ofício (ação registrada).</p></div>
+  <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo autofocus>Voltar</button><button class="botao botao--marca" type="button" data-fechar-dialogo>{% icone "stamp" %}Emitir</button></div>
+</dialog>
+
+<dialog id="lab-gaveta" class="dialogo gaveta" aria-labelledby="lab-gaveta-titulo">
+  <div class="dialogo__cabecalho"><h2 class="dialogo__titulo" id="lab-gaveta-titulo">Filtros avançados</h2><button class="botao botao--icone botao--sutil" type="button" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button></div>
+  <div class="dialogo__corpo pilha">
+    <div class="campo"><label class="campo__rotulo" for="lab-g-1">Período: de</label><input class="entrada" type="date" id="lab-g-1"></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-2">até</label><input class="entrada" type="date" id="lab-g-2"></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-3">Unidade</label><select class="selecao" id="lab-g-3"><option>Todas</option></select></div>
+  </div>
+  <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Limpar</button><button class="botao botao--primario" type="button" data-fechar-dialogo>Aplicar</button></div>
+</dialog>
+<script type="module" nonce="{{ csp_nonce }}">
+  document.querySelectorAll("[data-lab-toast]").forEach((b) => b.addEventListener("click", () => {
+    const nivel = b.getAttribute("data-lab-toast");
+    const textos = {sucesso: "Rascunho salvo às 14:32.", aviso: "Viatura em uso no mesmo período.", perigo: "Falha ao gerar o PDF. Tente novamente."};
+    document.body.dispatchEvent(new CustomEvent("toast", {detail: {nivel, mensagem: textos[nivel]}}));
+  }));
+</script>
+{% endblock %}

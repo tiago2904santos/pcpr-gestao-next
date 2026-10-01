@@ -1,0 +1,9 @@
+{% comment %}migalhas: lista de (rótulo, url) — o último item é a página atual (sem link).{% endcomment %}
+<nav class="migalhas" aria-label="Você está em">
+  <ol>
+    {% for rotulo, url in migalhas %}
+      {% if forloop.last %}<li><span aria-current="page">{{ rotulo }}</span></li>
+      {% else %}<li><a href="{{ url }}">{{ rotulo }}</a></li>{% endif %}
+    {% endfor %}
+  </ol>
+</nav>

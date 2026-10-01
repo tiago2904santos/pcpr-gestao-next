@@ -1,0 +1,51 @@
+<nav id="navegacao-lateral" class="lateral" aria-label="Navegação principal">
+  {% with modulo=navegacao.atual %}
+  {% if modulo %}
+    <a class="lateral__modulo" href="{% url 'painel:inicio' %}" aria-label="Módulo atual: {{ modulo.rotulo }}. Voltar à central de módulos" data-dica="Central de módulos">
+      <span class="lateral__modulo-icone">{% icone modulo.icone %}</span>
+      <span class="lateral__modulo-texto">
+        <span class="rotulo-caixa-alta">Módulo</span>
+        <span class="lateral__modulo-nome">{{ modulo.rotulo }}</span>
+      </span>
+      {% icone "chevrons-up-down" classe="icone--sm" %}
+    </a>
+    {% for grupo in modulo.grupos %}
+      <div class="lateral__grupo">
+        <div class="lateral__grupo-titulo rotulo-caixa-alta" id="nav-grupo-{{ forloop.counter }}">{{ grupo.rotulo }}</div>
+        <ul class="lateral__lista" aria-labelledby="nav-grupo-{{ forloop.counter }}">
+          {% for item in grupo.itens %}
+            <li>
+              <a class="lateral__link" href="{{ item.url }}"{% if item.ativo %} aria-current="page"{% endif %} data-dica="{{ item.rotulo }}">
+                {% icone item.icone %}<span class="lateral__rotulo">{{ item.rotulo }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="lateral__grupo">
+      <div class="lateral__grupo-titulo rotulo-caixa-alta" id="nav-modulos">Módulos</div>
+      <ul class="lateral__lista" aria-labelledby="nav-modulos">
+        <li>
+          <a class="lateral__link" href="{% url 'painel:inicio' %}"{% if request.resolver_match.view_name == "painel:inicio" %} aria-current="page"{% endif %} data-dica="Início">
+            {% icone "home" %}<span class="lateral__rotulo">Início</span>
+          </a>
+        </li>
+        {% for m in navegacao.modulos %}
+          <li>
+            <a class="lateral__link" href="{{ m.url }}" data-dica="{{ m.rotulo }}">
+              {% icone m.icone %}<span class="lateral__rotulo">{{ m.rotulo }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  {% endwith %}
+  <div class="lateral__rodape">
+    <button type="button" class="lateral__recolher" data-acao="recolher-lateral" aria-pressed="false" aria-label="Recolher menu">
+      {% icone "panel-left" %}<span class="lateral__rotulo">Recolher menu</span>
+    </button>
+  </div>
+</nav>

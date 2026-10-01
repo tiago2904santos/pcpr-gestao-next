@@ -1,0 +1,35 @@
+{% comment %}
+Campo de formulário acessível. Uso:
+  {% include "componentes/campo.html" with campo=form.protocolo classe="col-4" ajuda="Nove dígitos" %}
+Variáveis opcionais: classe, ajuda (sobrepõe help_text), prefixo_icone, texto_fixo, texto_fixo_antes.
+- Rótulo sempre visível (nunca só placeholder);
+- ajuda e erro ligados via aria-describedby; aria-invalid quando houver erro.
+{% endcomment %}
+{% with id=campo.auto_id ajuda_texto=ajuda|default:campo.help_text %}
+<div class="campo {{ classe }}{% if campo.errors %} campo--erro{% endif %}"{% if campo.field.widget.input_type == "hidden" %} hidden{% endif %}>
+  {% if campo.field.widget.input_type == "checkbox" %}
+    <label class="escolha" for="{{ id }}">
+      {{ campo }}
+      <span>{{ campo.label }}{% if ajuda_texto %}<span class="escolha__descricao" id="{{ id }}-ajuda">{{ ajuda_texto }}</span>{% endif %}</span>
+    </label>
+  {% else %}
+    <label class="campo__rotulo" for="{{ id }}">
+      {{ campo.label }}{% if campo.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% else %}<span class="campo__opcional">(opcional)</span>{% endif %}
+    </label>
+    {% if prefixo_icone or texto_fixo or texto_fixo_antes %}
+      <div class="entrada-composta">
+        {% if prefixo_icone %}{% icone prefixo_icone %}{% endif %}
+        {% if texto_fixo_antes %}<span class="entrada-composta__texto-fixo" aria-hidden="true">{{ texto_fixo_antes }}</span>{% endif %}
+        {{ campo }}
+        {% if texto_fixo %}<span class="entrada-composta__texto-fixo">{{ texto_fixo }}</span>{% endif %}
+      </div>
+    {% else %}
+      {{ campo }}
+    {% endif %}
+    {% if ajuda_texto %}<p class="campo__ajuda" id="{{ id }}-ajuda">{{ ajuda_texto }}</p>{% endif %}
+  {% endif %}
+  {% for erro in campo.errors %}
+    <p class="campo__erro" id="{{ id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>
+  {% endfor %}
+</div>
+{% endwith %}

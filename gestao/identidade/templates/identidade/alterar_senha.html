@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Alterar senha{% endblock %}
+{% block classe_conteudo %}conteudo__interno--estreito{% endblock %}
+{% block cabecalho_pagina %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Alterar senha" sobretitulo="Minha conta" icone="lock" descricao="Use ao menos 10 caracteres. Evite datas, nomes e sequências." %}
+{% endblock %}
+{% block conteudo %}
+<form method="post" class="cartao" novalidate>
+  {% csrf_token %}
+  <div class="cartao__corpo pilha">
+    {% include "componentes/resumo_erros.html" %}
+    {% for campo in form %}{% include "componentes/campo.html" with campo=campo %}{% endfor %}
+  </div>
+  <div class="cartao__rodape">
+    <a class="botao" href="{% url 'painel:inicio' %}">Cancelar</a>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar nova senha</button>
+  </div>
+</form>
+{% endblock %}

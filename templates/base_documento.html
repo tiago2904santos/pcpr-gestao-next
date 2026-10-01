@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "scrollIntoViewOnBoost": false}'>
+  <title>{% block titulo %}{% endblock %} · {{ instituicao.sigla }} — {{ instituicao.produto }}</title>
+  <link rel="icon" href="{% static 'img/favicon-32.png' %}" type="image/png">
+  <link rel="preload" href="{% static 'fonts/inter-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  {% block estilos %}{% endblock %}
+  <link rel="modulepreload" href="{% static 'js/componentes/shell.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/menu.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/dialogo.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/toasts.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/comandos.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/abas.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}">
+  <script src="{% static 'vendor/htmx.min.js' %}" defer nonce="{{ csp_nonce }}"></script>
+  <script type="module" src="{% static 'js/app.js' %}" nonce="{{ csp_nonce }}"></script>
+</head>
+<body class="{% block classe_body %}{% endblock %}" hx-headers='{"X-Requested-With": "htmx"}'>
+  {% block corpo %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  APP_ENV: test
+  DJANGO_SETTINGS_MODULE: config.settings.test
+  POSTGRES_DB: pcpr_gestao
+  POSTGRES_USER: pcpr_gestao
+  POSTGRES_PASSWORD: pcpr_gestao
+  POSTGRES_HOST: localhost
+
+jobs:
+  qualidade:
+    name: Lint, tipos, arquitetura e segurança
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - name: Ruff (lint + formato de imports)
+        run: uv run ruff check .
+      - name: Fronteiras entre contextos (import-linter)
+        run: uv run lint-imports
+      - name: Tipos (mypy)
+        run: uv run mypy gestao config
+      - name: Bandit (SAST)
+        run: uv run bandit -q -r gestao config -x "*/tests/*,*/migrations/*"
+      - name: Dependências vulneráveis (pip-audit)
+        run: uv run pip-audit --strict --progress-spinner off
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Tipos dos Web Components (tsc --checkJs)
+        run: npm run typecheck
+      - name: Tokens e artefatos vendorizados em dia
+        run: |
+          python3 scripts/vendor_assets.py
+          git diff --exit-code -- static/vendor static/icons
+
+  testes:
+    name: Unit + integração (PostgreSQL)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pcpr_gestao
+          POSTGRES_USER: pcpr_gestao
+          POSTGRES_PASSWORD: pcpr_gestao
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Bibliotecas do WeasyPrint
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 fonts-liberation
+      - run: uv sync --frozen
+      - name: Migrações sem pendências
+        run: uv run python manage.py makemigrations --check --dry-run
+      - name: Checks de deploy
+        run: APP_ENV=production DJANGO_SECRET_KEY=ci-${{ github.sha }}-chave-longa-aleatoria uv run python manage.py check --deploy --settings=config.settings.production --fail-level WARNING
+      - name: Testes (unit + integração) com cobertura
+        run: uv run pytest -m "not e2e and not visual and not a11y and not perf" -n auto --cov --cov-report=term-missing --cov-fail-under=85
+
+  navegador:
+    name: E2E, acessibilidade, responsivo, visual e desempenho
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pcpr_gestao
+          POSTGRES_USER: pcpr_gestao
+          POSTGRES_PASSWORD: pcpr_gestao
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Bibliotecas do WeasyPrint
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 fonts-liberation
+      - run: uv sync --frozen
+      - run: uv run playwright install --with-deps chromium
+      - name: Navegador (E2E + axe + larguras 360–1440 + orçamentos)
+        run: uv run pytest -m "e2e or visual or a11y or perf" -p no:randomly
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capturas
+          path: artifacts/
+          retention-days: 14
