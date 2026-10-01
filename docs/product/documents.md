@@ -122,12 +122,17 @@ Exemplos fictícios (sede Curitiba/PR):
 |---|---|---|
 | Escopo | anual, global (único por ano) | anual, global; livro compartilhado com ofícios do Coffee Break |
 | Quando | **reservado ao criar o rascunho** | reserva transacional |
-| Próximo número | **menor número livre ≥ piso** entre os ocupados; sem buraco, `max + 1` | menor **lacuna registrada** (criada só por exclusão) ≥ piso, senão `max + 1` |
+| Próximo número | menor **lacuna registrada** (criada só por exclusão — D5) ≥ piso, senão `max + 1` | igual |
 | Piso | `NumeracaoAnual.piso` (sem tela; via carga) | configurável em tela |
 | Cancelado | **mantém o número** (rastreabilidade do protocolo) | mantém |
 | Excluir rascunho | **libera o número** (só rascunho sem documento) | exclusão cria lacuna reaproveitável |
 | Concorrência | `select_for_update` na linha do ano + constraint única | advisory lock + repetição |
-| Formato | `NNN/AAAA` (`005/2026`) | `NN/AAAA` (`05/2026`) — **decisão pendente** |
-| Data × ano | data do ofício **deve** estar no ano do número (erro) | aviso ao finalizar — **decisão pendente** |
+| Formato | `NN/AAAA` (`05/2026`) — decisão D2 | igual |
+| Data × ano | data do ofício **deve** estar no ano do número (erro) — decisão D3 | aviso ao finalizar |
 
-Nome do arquivo (novo): `oficio-005-2026-v1.pdf`, `justificativa-005-2026-v1.pdf`.
+Nome do arquivo (novo): `oficio-05-2026-v1.pdf`, `justificativa-05-2026-v1.pdf`.
+
+Roteiro no documento (D7): viagem simples → "ROTEIRO DE IDA" e "ROTEIRO DE RETORNO";
+com volta intermediária à sede (bate-volta) → "ROTEIRO POR TRECHOS", numerados na ordem.
+
+Protocolo (D1): obrigatório para emitir (pendência bloqueante); opcional no rascunho.

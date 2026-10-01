@@ -33,6 +33,7 @@
 
 .marca {
   display: flex;
+  flex-shrink: 0; /* quem encolhe é a busca; o nome do produto não pode ficar sob o selo de ambiente */
   align-items: center;
   gap: var(--esp-3);
   min-width: 0;
@@ -72,9 +73,11 @@
 }
 
 .marca__titulo {
+  overflow: hidden;
   font-weight: var(--peso-semi);
   font-size: var(--texto-md);
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .marca__subtitulo {
@@ -536,8 +539,9 @@ html:has(.barra-acoes) {
   box-shadow: var(--sombra-3);
 }
 
+/* Base 0: o texto do status quebra linha antes de empurrar os botões para baixo. */
 .barra-acoes__status {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   color: var(--cor-texto-secundario);
   font-size: var(--texto-sm);
@@ -614,13 +618,30 @@ html:has(.barra-acoes) {
   .grade--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .cabecalho__menu--gaveta { display: none; }
   html { scroll-padding-top: calc(var(--altura-topo) + var(--esp-4)); }
 }
 
+/* Tablet: o mesmo menu superior horizontal, só mais compacto (ADR 0006). */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .navegacao__lista { margin-left: var(--esp-2); }
+  .navegacao__link { padding: 0 var(--esp-2); }
+  .navegacao__seletor { font-size: var(--texto-md); }
+}
+
 @media (max-width: 1023.98px) {
-  /* O menu superior vira gaveta (off-canvas) aberta pelo ☰ do cabeçalho (<pc-shell>). */
+  .barra-acoes__secundario { display: none; }
+  .layout-detalhe { grid-template-columns: minmax(0, 1fr); }
+  .layout-detalhe__lateral { position: static; }
+  .layout-formulario { grid-template-columns: minmax(0, 1fr); }
+  .layout-formulario__indice { display: none; }
+  .grade--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767.98px) {
+  /* Celular (D9): o ☰ abre o menu numa gaveta lateral TEMPORÁRIA, sob o cabeçalho. Começa
+     fechada e fecha ao escolher, com Esc ou tocando fora — nunca fica fixa (ADR 0006). */
   .navegacao {
     position: fixed;
     top: var(--altura-cabecalho);
@@ -648,7 +669,7 @@ html:has(.barra-acoes) {
     align-items: stretch;
     height: auto;
     margin: 0;
-    padding: var(--esp-3);
+    padding: var(--esp-3) var(--esp-4) var(--esp-4);
   }
 
   .navegacao__lista {
@@ -678,7 +699,7 @@ html:has(.barra-acoes) {
     border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
   }
 
-  /* Na gaveta, os menus suspensos abrem embutidos (sem flutuar). */
+  /* Na gaveta, os grupos abrem embutidos (sem flutuar). */
   .navegacao .menu__painel {
     position: static;
     margin: 0 0 var(--esp-2) var(--esp-4);
@@ -688,34 +709,20 @@ html:has(.barra-acoes) {
     border-radius: 0;
   }
 
+  /* O véu fica sob o topo (cabeçalho + gaveta), senão cobriria os próprios links. */
   .shell__veu {
     position: fixed;
     inset: var(--altura-cabecalho) 0 0 0;
-    z-index: calc(var(--z-gaveta) - 1);
+    z-index: calc(var(--z-cabecalho) - 1);
     background: var(--cor-veu);
   }
 
-  .layout-detalhe { grid-template-columns: minmax(0, 1fr); }
-  .layout-detalhe__lateral { position: static; }
-  .layout-formulario { grid-template-columns: minmax(0, 1fr); }
-  .layout-formulario__indice { display: none; }
-  .grade--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 767.98px) {
   .cabecalho { gap: var(--esp-2); padding: 0 var(--esp-2); }
   .marca__divisor, .marca__produto, .perfil__texto { display: none; }
   .marca__brasao { width: 2.25rem; height: 2.25rem; }
   .cabecalho__busca { justify-content: flex-end; }
   .busca-global { width: var(--altura-controle); padding: 0; justify-content: center; }
-  .busca-global__texto, .busca-global__texto {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.busca-global__atalho {
-  white-space: nowrap; display: none; }
+  .busca-global__texto, .busca-global__atalho { display: none; }
   .conteudo__interno { padding: var(--esp-4) var(--esp-4) var(--esp-12); }
   .rodape { padding: var(--esp-4); }
   .pagina-cabecalho { margin-bottom: var(--esp-4); padding-bottom: var(--esp-4); }

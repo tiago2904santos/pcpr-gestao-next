@@ -1,5 +1,14 @@
 # Navegação
 
+> **Regra do dono do produto (ADR 0006): a navegação principal é SUPERIOR, nunca lateral.**
+
+| Largura | Navegação principal |
+|---|---|
+| Desktop (≥ 1024 px) | **Menu superior** horizontal |
+| Tablet (768–1023 px) | **Menu superior responsivo** (horizontal, mais compacto) |
+| Celular (< 768 px) | **Gaveta lateral temporária** aberta pelo ☰ do cabeçalho (decisão D9 do dono do produto): começa fechada, fecha ao escolher, com Esc ou tocando fora |
+| Qualquer largura | **SIDEBAR PERMANENTE = NÃO** |
+
 ## Níveis
 1. **Central de módulos** (`/`): cartões por módulo com indicadores e "Entrar no módulo".
 2. **Menu superior do módulo** (`templates/parciais/navegacao.html`): seletor de módulo
@@ -22,6 +31,9 @@ por item). A plataforma não importa contextos de negócio (contrato do import-l
 
 ## Responsivo
 - ≥1024px: barra horizontal fixa no topo, junto com o cabeçalho.
-- <1024px: o mesmo menu vira gaveta (☰ no cabeçalho), com véu, Esc, foco no item atual e
-  conteúdo `inert` enquanto aberta; os menus suspensos abrem embutidos.
-- <768px: cabeçalho mostra só brasão, sigla, busca (ícone), notificações e avatar.
+- 768–1023px: a mesma barra horizontal, com espaçamentos menores (sem ☰).
+- <768px: o ☰ do cabeçalho abre uma **gaveta lateral temporária** (D9) sob o cabeçalho,
+  com véu, Esc, foco no item atual e conteúdo `inert` enquanto aberta; os menus suspensos
+  abrem embutidos; fecha ao escolher. O cabeçalho mostra só brasão, sigla, busca (ícone),
+  notificações e avatar.
+- Testes: `tests/test_navegacao_superior.py` e `tests/e2e/test_navegacao_superior.py`.

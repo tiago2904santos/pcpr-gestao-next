@@ -242,7 +242,7 @@ class Documento(models.Model):
 
     @property
     def nome_arquivo(self) -> str:
-        base = f"{self.get_tipo_display()}-{self.oficio.numero:03d}-{self.oficio.ano}"
+        base = f"{self.get_tipo_display()}-{self.oficio.numero:02d}-{self.oficio.ano}"
         return f"{base}-v{self.versao}.pdf".lower().replace("í", "i")
 
 
@@ -286,3 +286,21 @@ class NumeracaoAnual(models.Model):
 
     def __str__(self) -> str:
         return f"{self.ano}: a partir de {self.piso}"
+
+
+class LacunaNumeracao(models.Model):
+    """Número liberado pela exclusão de um rascunho; é o único tipo de número reaproveitado."""
+
+    ano = models.PositiveSmallIntegerField()
+    numero = models.PositiveIntegerField()
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "lacuna de numeração"
+        verbose_name_plural = "lacunas de numeração"
+        constraints = [
+            models.UniqueConstraint(fields=["ano", "numero"], name="lacuna_numeracao_unica"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.numero:02d}/{self.ano} (livre)"

@@ -70,18 +70,18 @@
             <p class="entrada entrada--estatica" aria-labelledby="rotulo-numero">{{ oficio.numero_formatado }}</p>
           </div>
           {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
-          {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" %}
+          {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" exigido_para_emitir=True %}
           <fieldset class="grupo-campos">
             <legend>Documento</legend>
             <p class="campo__ajuda mb-4">Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }} — Autorização quando o ofício é anterior à saída; senão, Convalidação.</p>
-            <div class="linha">
+            <div class="escolhas escolhas--linha">
               {% for opcao in form.marcador %}<label class="escolha" for="{{ opcao.id_for_label }}">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>{% endfor %}
             </div>
           </fieldset>
           {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
           <fieldset class="grupo-campos col-6">
             <legend>Custeio das diárias e do deslocamento</legend>
-            <div class="pilha-sm">
+            <div class="escolhas">
               {% for opcao in form.custeio %}<label class="escolha" for="{{ opcao.id_for_label }}">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>{% endfor %}
             </div>
           </fieldset>
@@ -190,7 +190,7 @@
 
 <div class="barra-acoes">
   <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair.">
-    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}{% endif %}
+    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir<span class="barra-acoes__secundario"> · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
   <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Revisar e emitir</button>{% endif %}

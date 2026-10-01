@@ -87,7 +87,9 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     protocolo = forms.CharField(
         label="Protocolo (eProtocolo)", required=False, max_length=14,
         help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
-        widget=forms.TextInput(attrs=_attrs(inputmode="numeric", placeholder="12.345.678-9",
+        # Sem placeholder: em cinza parecia valor preenchido (revisão de UX, QA-2); a ajuda
+        # já mostra o formato.
+        widget=forms.TextInput(attrs=_attrs(inputmode="numeric",
                                             **{"data-mascara": "protocolo"})),
     )
 
@@ -109,7 +111,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "viatura": forms.Select(attrs=_attrs("selecao")),
             "transporte_descricao": forms.TextInput(attrs=_attrs(
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
-            "transporte_placa": forms.TextInput(attrs=_attrs(placeholder="ABC1D23")),
+            "transporte_placa": forms.TextInput(attrs=_attrs(placeholder="Ex.: ABC1D23")),
             "transporte_combustivel": forms.Select(attrs=_attrs("selecao")),
             "justificativa_modelo": forms.Select(attrs=_attrs("selecao")),
             "justificativa": forms.Textarea(attrs=_attrs("area-texto", rows=5)),

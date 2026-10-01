@@ -62,7 +62,7 @@ def indice(request: HttpRequest) -> HttpResponse:
     )
     form_erro.is_valid()
     linhas = [
-        {"numero": f"{n:03d}/2026", "destino": d, "servidores": s, "valor": v, "status": st}
+        {"numero": f"{n:02d}/2026", "destino": d, "servidores": s, "valor": v, "status": st}
         for n, d, s, v, st in [
             (131, "Arapongas/PR", "Ana Beatriz Correia Lima, Bruno Henrique Martins", 2411.56,
              ("Emitido", "sucesso")),

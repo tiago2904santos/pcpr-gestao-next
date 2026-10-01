@@ -7,10 +7,10 @@
 | # | Passo | Regras principais | Onde (novo) |
 |---|---|---|---|
 | 1 | **Criar rascunho** | Exige lotação em unidade e configuração institucional da unidade. Informa data do ofício (padrão hoje) e, opcionalmente, motivo. O **número do ano é reservado já na criação** (menor lacuna ≥ piso). Sede = sede da unidade. | `services.criar_rascunho` |
-| 2 | **Dados** | Data do ofício deve estar no ano do número; protocolo opcional (9 dígitos); marcador (nenhum/retificado/complementar); motivo; custeio (outra instituição exige o nome). Concorrência otimista por `versao`. | `services.salvar_dados` |
+| 2 | **Dados** | Data do ofício deve estar no ano do número; protocolo opcional (9 dígitos); marcador (nenhum/retificado/complementar); motivo; custeio (outra instituição exige o nome). Concorrência otimista por `versao`. | `services.salvar_edicao` (dados + roteiro numa transação) |
 | 3 | **Equipe** | Incluir servidores ativos (sem repetição); marcar no máximo um motorista. | `adicionar_viajante`, `definir_motorista` |
-| 4 | **Transporte** | Viatura oficial (exige viatura + motorista na equipe) **ou** outro meio (exige descrição; placa e combustível opcionais). Porte de arma (padrão: sim). | `salvar_dados` |
-| 5 | **Roteiro** | Até 10 destinos + retorno. Cada trecho sai de onde o anterior chegou, não sai antes da chegada anterior, chega depois de sair; o último volta à sede. | `salvar_trechos` |
+| 4 | **Transporte** | Viatura oficial (exige viatura + motorista na equipe) **ou** outro meio (exige descrição; placa e combustível opcionais). Porte de arma (padrão: sim). | `salvar_edicao` |
+| 5 | **Roteiro** | Até 10 destinos + retorno. Cada trecho sai de onde o anterior chegou, não sai antes da chegada anterior, chega depois de sair; o último volta à sede. | `salvar_edicao` (roteiro recusado não grava nada) |
 | 6 | **Diárias** | Recalculadas automaticamente a cada mudança de equipe/trechos; erro (ex.: sem tabela vigente) aparece como pendência bloqueante. | `recalcular_diarias` |
 | 7 | **Justificativa** | Obrigatória se antecedência ≤ prazo da unidade (padrão 10 dias) ou saída antes da data do ofício. Pode partir de um texto pronto. | `avaliar_prazo_do_oficio` |
 | 8 | **Revisar e emitir** | Só sem pendências bloqueantes. Muda para *Emitido*, cria versão do Ofício (+ Justificativa se houver texto) com instantâneo dos dados e publica geração do PDF na outbox. | `services.emitir` |
@@ -55,8 +55,8 @@ stateDiagram-v2
     note right of RASCUNHO : cancelar/reativar é flag ortogonal; retificar e complementar são ações
 ```
 
-Diferenças: novo une GERADO+FINALIZADO em *Emitido* (decisão pendente), cancelamento é
-terminal (sem reativar), não há arquivar; protocolo não bloqueia (decisão pendente).
+Diferenças: novo une GERADO+FINALIZADO em *Emitido* (D4, a confirmar), cancelamento é
+terminal (sem reativar), não há arquivar; protocolo bloqueia a emissão (D1, como a referência).
 
 ## 2. Solicitação de Evento Social (Planejado)
 

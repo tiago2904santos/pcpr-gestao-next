@@ -20,7 +20,7 @@ interativos, texto cortado em botões/selos/abas e erros de console.
 | Indicador dourado no item ativo | sublinhado na barra horizontal | ✅ filete dourado no menu superior e nas abas |
 | Abas de filtro com contagem | "Todos 56", "Que vão acontecer 8"… | "Todos 4", "Rascunhos 2"… |
 | Linha-cartão com título forte e metadados com ícones | lista de Ofícios | `.registro` (mesmo padrão, contraste corrigido) |
-| Seções numeradas do ofício (1 a 7) | ✅ | ✅ com índice lateral e estado de cada seção |
+| Seções numeradas do ofício (1 a 7) | ✅ | ✅ com índice de seções e estado de cada seção |
 | Cartões de diárias (Valor total / Tipo de destino / Quantidade) + "Como foi calculado" | ✅ | ✅ mesmos números (R$ 2.411,56 · 4 x 100% + 1 x 15%) |
 | Login em cartão central, botão dourado "Entrar →", "Ambiente restrito e monitorado" | foto 3 | ✅ |
 | Documento oficial (timbre, tabelas, roteiro de ida/retorno, custeio, assinatura, destinatário) | ✅ DOCX→PDF | ✅ PDF/A-2a de uma página |

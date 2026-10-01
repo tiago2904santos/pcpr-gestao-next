@@ -16,8 +16,9 @@ Telas citadas da referência são descritas por função (não por implementaç�
 
 - **Propósito**: montar e emitir o ofício de viagem com cálculo de diárias e justificativa.
 - **Telas (novo)**: painel de Viagens; lista com abas de situação e busca; novo ofício (data +
-  motivo); editor em seções (Dados, Equipe, Transporte, Roteiro, Diárias, Justificativa,
-  Documentos, Registro/Histórico) com painel de pendências; revisão da emissão; detalhe;
+  motivo); editor em 7 seções (Dados, Equipe, Transporte, Roteiro, Diárias, Justificativa,
+  Emissão — "Pronto para emitir?") com índice de seções e pendências; revisão da emissão;
+  detalhe com documentos e histórico;
   minuta PDF; download de documentos; reabrir, cancelar, excluir.
 - **Telas (referência)**: lista com filtros de período/ano/ordenação, formulário longo com
   autosave, numeração anual, justificativas, configuração institucional, catálogos de

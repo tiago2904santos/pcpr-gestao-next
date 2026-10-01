@@ -49,8 +49,21 @@ class Modulo:
 
 _MODULOS: dict[str, Modulo] = {}
 
+# Menu superior sem transbordo (ADR 0006): links diretos + menus suspensos por módulo.
+MAX_ENTRADAS_NA_BARRA = 7
+
+
+def entradas_na_barra(modulo: Modulo) -> int:
+    """Entradas de primeiro nível: cada item de grupo comum + um por grupo suspenso."""
+    return sum(1 if g.em_menu else len(g.itens) for g in modulo.grupos)
+
 
 def registrar_modulo(modulo: Modulo) -> None:
+    if entradas_na_barra(modulo) > MAX_ENTRADAS_NA_BARRA:
+        raise ValueError(
+            f"Módulo {modulo.chave!r} teria {entradas_na_barra(modulo)} entradas no menu "
+            f"superior (máximo {MAX_ENTRADAS_NA_BARRA}): agrupe o excedente num menu suspenso."
+        )
     _MODULOS[modulo.chave] = modulo
 
 

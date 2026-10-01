@@ -1,13 +1,13 @@
 // @ts-check
 /**
  * <pc-shell> — comportamento do App Shell.
- *  - ≥1024px: o menu superior é uma barra comum (nada a fazer aqui);
- *  - <1024px: o mesmo menu vira gaveta aberta pelo ☰ do cabeçalho, com foco
+ *  - ≥768px (tablet e desktop): o menu superior é uma barra horizontal comum;
+ *  - <768px (celular): o ☰ abre o menu numa gaveta lateral temporária, com foco
  *    gerenciado, Esc, véu e conteúdo `inert` enquanto aberta.
  * Sem JavaScript a navegação continua acessível (HTML comum).
  */
 
-const LARGURA_GAVETA = 1024;
+const LARGURA_GAVETA = 768;
 
 export class PcShell extends HTMLElement {
   connectedCallback() {

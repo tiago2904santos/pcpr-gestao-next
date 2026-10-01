@@ -5,18 +5,33 @@
 
 ## Situação das correções (commit `e77e154`)
 
-| Top-10 | Situação | Prova |
+| Top-10 | Situação | Prova (teste que reprova sem a correção) |
 |---|---|---|
 | 1. Enter salva | ✅ Corrigido — botão de envio padrão oculto no início de `#form-oficio` | e2e `test_enter_salva_e_alteracao_nao_salva_e_avisada` |
-| 2. Perda de dados | ✅ Corrigido — `protecao.js`: "Alterações não salvas" na barra, confirmação ao sair, estado sujo mantido após "Adicionar destino" e erro 422 | mesmo teste e2e (diálogo `beforeunload`) |
-| 3. Foco coberto pela barra | ✅ Barra compacta < 768 px + rolagem no `focusin` + `scroll-padding-bottom` | `test_responsivo.py` (sobreposição) |
-| 4. Ações por permissão | ✅ "Continuar edição" só com permissão de editar; mensagem correta para quem só consulta | `test_consulta_ve_mas_nao_cria_nem_edita` |
-| 5. Abas + busca | ✅ Abas atualizadas por OOB no swap HTMX, preservando `q` e `ordem`; ordenação dispara no `change` | `test_views.py` (parcial HTMX) |
-| 6. Foco no resumo de erros | ✅ `foco="resumo-erros"` após salvar inválido | `test_erro_de_validacao_aparece_no_resumo_e_no_campo` |
+| 2. Perda de dados | ✅ Corrigido — `protecao.js`: "Alterações não salvas" na barra, confirmação ao sair, estado sujo mantido após "Adicionar destino" e erro 422 | e2e acima (diálogo `beforeunload`); `test_adicionar_destino_e_erro_marcam_alteracoes_nao_salvas` |
+| 3. Foco coberto pela barra | ✅ Barra compacta < 768 px + rolagem no `focusin` + `scroll-padding` | e2e `test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra` (360/768/1440; reprova sem a correção) |
+| 4. Ações por permissão | ✅ "Continuar edição" só com permissão de editar; mensagem correta para quem só consulta | `test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa` |
+| 5. Abas + busca | ✅ Abas atualizadas por OOB no swap HTMX, preservando `q` e `ordem` | `test_busca_ao_vivo_atualiza_abas_preservando_busca_e_ordem` |
+| 6. Foco no resumo de erros | ✅ `foco="resumo-erros"` após salvar inválido | e2e `test_erro_de_validacao_aparece_no_resumo_e_no_campo` (`to_be_focused`) |
 | 7. Datas do roteiro | ⏳ Pendente — validar no navegador institucional ou campo mascarado | — |
 | 8. Etapas / beco sem saída | 🟡 Parcial — "Revisar e emitir" com pendências salva e volta à seção 7 com aviso | `test_revisar_e_emitir_com_pendencias_volta_para_a_secao`, e2e `test_emissao_bloqueada…` |
-| 9. Velocidade do operador | 🟡 Parcial — Ctrl+S feito; duplicar, sugestões de viatura e adicionar vários servidores pendentes | — |
-| 10. Placeholder real / SQL | 🟡 Placeholder e todos os dados reais trocados por fictícios; consultas repetidas de trechos (P-1) pendentes — `/editar/` POST chega a 33 consultas | log do orçamento SQL |
+| 9. Velocidade do operador | 🟡 Parcial — Ctrl+S feito; duplicar, sugestões de viatura e adicionar vários servidores pendentes | e2e `test_ctrl_s_salva_o_rascunho` |
+| 10. Placeholder real / SQL | ✅ Placeholder do protocolo removido (a ajuda mostra o formato); dados reais trocados por fictícios no código atual; consultas repetidas resolvidas (P-1): editar 18, revisar 16, detalhe 17, salvar 25 | `TestOrcamentoDeConsultas` (≤ 20 nas páginas com equipe de 5 e 4 trechos; ≤ 25 no POST) |
+
+**Auditoria final do Ofício (01/10/2026, após o merge do PR 1)** — defeitos visuais
+encontrados nas capturas de 360/768/1024/1440 e corrigidos:
+- busca do cabeçalho espremida ("B.") a 360 px — regra CSS corrompida na faixa < 768 px;
+- nome do produto por baixo do selo "DEV" a 768 px;
+- opções de custeio coladas ("Outra instituição◯ Ônus…") — novo grupo `.escolhas` (UI Lab);
+- barra de ações quebrando em duas linhas a 768 px;
+- no celular, o véu escuro cobria o próprio menu aberto (links impossíveis de tocar);
+- tablet (768–1023 px) usava gaveta lateral: agora menu superior horizontal (ADR 0006);
+  no celular, gaveta lateral temporária (decisão D9).
+O teste responsivo passou a verificar o cabeçalho (sobreposição e busca espremida) e os
+links do menu superior; `tests/e2e/test_navegacao_superior.py` mede a geometria do menu.
+
+> Nota: as seções abaixo foram escritas antes da ADR 0006 revisada; menções a "barra
+> lateral", "Recolher menu" e gaveta no tablet referem-se à versão anterior do shell.
 
 Também corrigidos: **QA-5** (`scripts/capturar.py` aceita `--saida` fora do repositório) e
 **assunto** — deixou de ser campo de texto: agora é calculado (Autorização/Convalidação) com

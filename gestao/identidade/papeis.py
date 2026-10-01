@@ -1,7 +1,7 @@
 """Papéis (perfis) e suas permissões — fonte única.
 
-Um papel é um `Group` do Django. A migração de dados e o comando
-`sincronizar_papeis` criam/atualizam os grupos a partir deste dicionário, de
+Um papel é um `Group` do Django. A função `sincronizar_papeis`, chamada no
+`post_migrate`, cria/atualiza os grupos a partir deste dicionário, de
 modo que a matriz de permissões fica versionada em Git e testada.
 Ver docs/product/permissions.md.
 """

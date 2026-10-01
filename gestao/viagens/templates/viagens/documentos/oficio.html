@@ -92,6 +92,18 @@
       </tr>
     </table>
 
+    {% if d.bate_volta %}
+    <p class="titulo-secao">ROTEIRO POR TRECHOS</p>
+    <table>
+      {% for t in d.trechos %}
+      <tr>
+        <td class="centro"><strong>Trecho {{ forloop.counter }}</strong></td>
+        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
     <p class="titulo-secao">ROTEIRO DE IDA</p>
     <table>
       {% for t in d.ida %}
@@ -111,6 +123,7 @@
       </tr>
       {% endfor %}
     </table>
+    {% endif %}
 
     <table>
       <tr>
