@@ -2966,14 +2966,6 @@ kbd {
   gap: var(--esp-2);
 }
 
-.indicador-htmx {
-  display: none;
-}
-
-.htmx-request .indicador-htmx,
-.htmx-request.indicador-htmx {
-  display: inline-flex;
-}
 
 .girando {
   animation: girar 800ms linear infinite;

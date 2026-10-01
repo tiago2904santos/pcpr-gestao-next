@@ -5,7 +5,8 @@ from __future__ import annotations
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Q
+from django.db.models.expressions import OrderBy
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -81,8 +82,11 @@ def lista(request: HttpRequest) -> HttpResponse:
     qs = queries.aplicar_filtro_situacao(base, situacao)
     qs = services.buscar_por_texto(qs, termo)
     ordem = request.GET.get("ordem") or "-numero"
-    ordens = {"-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
-              "saida": ("primeira_saida",), "-saida": ("-primeira_saida",)}
+    ordens: dict[str, tuple[str | OrderBy, ...]] = {
+        "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
+        "saida": (F("primeira_saida").asc(nulls_last=True),),
+        "-saida": (F("primeira_saida").desc(nulls_last=True),),  # sem roteiro vão ao fim
+    }
     qs = queries.com_dados_de_lista(qs).order_by(*ordens.get(ordem, ordens["-numero"]))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     filtros = request.GET.copy()
