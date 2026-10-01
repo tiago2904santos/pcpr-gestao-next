@@ -1,31 +1,43 @@
 {% extends "base_publica.html" %}
+{% load static %}
 {% block titulo %}Acesso ao sistema{% endblock %}
 {% block conteudo %}
-<section class="cartao-acesso" aria-labelledby="titulo-acesso">
-  <form method="post" novalidate class="pilha">
-    {% csrf_token %}
-    <div class="pilha-sm">
-      <h1 class="cartao-acesso__titulo" id="titulo-acesso">Acesso ao sistema</h1>
-      <p class="texto-secundario">Entre com seu usuário ou e-mail institucional e a senha cadastrada pelo administrador da unidade.</p>
+<div class="acesso">
+  <aside class="acesso__marca" aria-label="Identificação institucional">
+    <div>
+      <img class="acesso__brasao" src="{% static 'img/brasao-pcpr-96.webp' %}" alt="" width="56" height="56">
+      <p class="acesso__sigla">{{ instituicao.sigla }}</p>
+      <p class="acesso__produto">{{ instituicao.produto }}</p>
+      <p class="acesso__instituicao">{{ instituicao.nome }}</p>
     </div>
-    {% if demo_ativo %}
-      <div class="alerta" role="note">
-        {% icone "info" %}
-        <div class="alerta__corpo"><p><strong>Ambiente de demonstração</strong> — dados fictícios. Deixe os campos em branco e clique em <strong>Entrar</strong>.</p></div>
+    <p class="acesso__nota">{% icone "shield-check" classe="icone--sm" %}Ambiente restrito e monitorado</p>
+  </aside>
+  <section class="acesso__formulario cartao-acesso" aria-labelledby="titulo-acesso">
+    <form method="post" novalidate class="pilha">
+      {% csrf_token %}
+      <div class="pilha-sm">
+        {% if app_env != "production" %}<span class="acesso__ambiente">{% icone "monitor" classe="icone--sm" %}{{ app_env|upper }}</span>{% endif %}
+        <h1 class="cartao-acesso__titulo" id="titulo-acesso">Acesso ao sistema</h1>
+        <p class="texto-secundario">Entre com seu usuário ou e-mail institucional e a senha cadastrada pelo administrador da unidade.</p>
       </div>
-    {% endif %}
-    {% if form.non_field_errors %}
-      <div class="alerta alerta--perigo" role="alert">
-        {% icone "alert-circle" %}
-        <div class="alerta__corpo">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>
-      </div>
-    {% endif %}
-    {% include "componentes/campo.html" with campo=form.username prefixo_icone="user" %}
-    {% include "componentes/campo.html" with campo=form.password prefixo_icone="lock" %}
-    <input type="hidden" name="next" value="{{ next }}">
-    <button type="submit" class="botao botao--marca botao--lg botao--bloco"><span>Entrar</span>{% icone "arrow-right" %}</button>
-    <p class="cartao-acesso__selo rotulo-caixa-alta">{% icone "shield-check" classe="icone--sm" %}Ambiente restrito e monitorado</p>
-    <p class="texto-secundario texto-sm texto-centro">Problemas com o acesso? Fale com o administrador da sua unidade.</p>
-  </form>
-</section>
+      {% if demo_ativo %}
+        <div class="alerta" role="note">
+          {% icone "info" %}
+          <div class="alerta__corpo"><p><strong>Ambiente de demonstração</strong> — dados fictícios. Deixe os campos em branco e clique em <strong>Entrar</strong>.</p></div>
+        </div>
+      {% endif %}
+      {% if form.non_field_errors %}
+        <div class="alerta alerta--perigo" role="alert">
+          {% icone "alert-circle" %}
+          <div class="alerta__corpo">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>
+        </div>
+      {% endif %}
+      {% include "componentes/campo.html" with campo=form.username prefixo_icone="user" %}
+      {% include "componentes/campo.html" with campo=form.password prefixo_icone="lock" %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="botao botao--marca botao--lg botao--bloco"><span>Entrar</span>{% icone "arrow-right" classe="icone--seta" %}</button>
+      <p class="cartao-acesso__selo texto-secundario texto-sm texto-centro">Problemas com o acesso? Fale com o administrador da sua unidade.</p>
+    </form>
+  </section>
+</div>
 {% endblock %}

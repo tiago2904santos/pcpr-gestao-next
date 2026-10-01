@@ -11,7 +11,7 @@
 
 {% block filtros %}
 <form class="filtros" role="search" method="get" action="{% url 'viagens:oficios' %}"
-      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-trigger="submit, input changed delay:350ms from:#busca-oficios, change from:#ordem-oficios">
+      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados" hx-trigger="submit, input changed delay:350ms from:#busca-oficios, change from:#ordem-oficios">
   {% if situacao %}<input type="hidden" name="situacao" value="{{ situacao }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-oficios">Buscar</label>
@@ -37,7 +37,6 @@
   <div class="lista-cabecalho">
     <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Ofícios{% endif %}</h2>
     <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
-    <span class="indicador-htmx girando" aria-hidden="true">{% icone "loader-circle" %}</span>
   </div>
   {% if oficios %}
     <ul class="registros" aria-labelledby="titulo-resultados">

@@ -24,9 +24,27 @@
 | Itálico cinza para "Sem viatura", "Sem roteiro" com baixo contraste | Lista de Ofícios | `registro__meta-item--vazio` com contraste ≥ 4,5:1 |
 
 ## Personalidade
-**Institucional, sóbria, precisa.** Nada de gradientes, ilustrações genéricas ou
-glassmorphism. Profundidade só com bordas de 1px e sombras discretas. Cantos de 8–12px
-(modernos sem parecer app de consumo).
+**Institucional, sóbria, precisa — e com assinatura.** Sem ilustrações genéricas, sem
+glassmorphism em superfícies de conteúdo (desfoque só no véu de diálogo/gaveta), sem
+gradientes multicolores: os únicos gradientes são **tonais** dentro de uma família
+(grafite 900→950 no cabeçalho e no painel do login; dourado 500→400 no botão de marca).
+Profundidade por **sombras em camadas** (`--sombra-cartao`, `--sombra-flutuante`) em vez de
+bordas cinzas; cantos de 8–16px.
+
+## A assinatura visual ("papel timbrado digital")
+O produto é reconhecível por cinco gestos, todos derivados do timbre institucional:
+
+| Gesto | Onde | Classe/token |
+|---|---|---|
+| **Filete dourado** — uma linha, nunca uma mancha | sob o cabeçalho, item ativo da navegação, aba ativa, segmento curto sob o título da página, trilho à esquerda no hover de linhas/registros, `focus-within` de seção do formulário | `--filete`, `--filete-fino`, `filete-crescer` |
+| **Placa** — o número do ofício como peça de papel | lista de registros, cabeçalho do detalhe (`--grande`), cancelado com tachado vermelho | `.placa` |
+| **Trilho de processo** — status como narrativa | detalhe do ofício: Rascunho → Emitido / Cancelado | `.processo` |
+| **Carimbo** — a emissão é um ato | selo "Emitido" recém-emitido, botão concluído | `carimbar`, `.selo--carimbo` |
+| **Papel quente** — fundo com brilho dourado muito suave no topo | todas as páginas | `--fundo-pagina`, `--brilho-dourado-08` |
+
+O que **dilui** a assinatura e por isso é proibido: dourado como fundo de área, mais de um
+botão dourado por tela, ícones coloridos, bordas douradas em todos os cartões (o dourado
+só marca o que está ativo, selecionado ou em foco).
 
 ## Referências visuais externas (fotos 1–4)
 Princípios extraídos: cabeçalho institucional escuro com filete dourado; navegação com

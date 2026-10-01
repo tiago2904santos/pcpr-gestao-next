@@ -46,7 +46,9 @@ def test_todos_os_tokens_usados_existem():
         usados |= set(re.findall(r"var\((--[a-z0-9-]+)", arquivo.read_text()))
     locais = {"--botao-fundo", "--botao-texto", "--botao-borda", "--botao-fundo-hover",
               "--selo-fundo", "--selo-texto", "--selo-borda", "--alerta-fundo",
-              "--alerta-texto", "--alerta-borda"}
+              "--alerta-texto", "--alerta-borda",
+              # Variáveis locais de componente (definidas no próprio seletor).
+              "--botao-sombra", "--toast-cor"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

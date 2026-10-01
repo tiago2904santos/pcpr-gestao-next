@@ -24,20 +24,22 @@
             {% for rotulo, valor, destaque in m.indicadores %}<div{% if destaque %} class="modulo__numero--destaque"{% endif %}><dd>{{ valor }}</dd><dt>{{ rotulo }}</dt></div>{% endfor %}
           </dl>
         {% endif %}
-        <a class="botao botao--primario" href="{{ m.url }}">Entrar no módulo {% icone "arrow-right" %}</a>
-      </div>
-    </section>
-  {% endfor %}
-  {% for f in futuros %}
-    <section class="cartao modulo modulo--futuro" aria-labelledby="fut-{{ forloop.counter }}">
-      <div class="cartao__corpo pilha">
-        <div class="linha modulo__topo">
-          <span class="modulo__icone" aria-hidden="true">{% icone f.icone classe="icone--lg" %}</span>
-          <div class="cresce"><h2 class="cartao__titulo" id="fut-{{ forloop.counter }}">{{ f.rotulo }}</h2><p class="texto-secundario texto-sm">{{ f.descricao }}</p></div>
-        </div>
-        <p class="selo selo--neutro">Próximos módulos da migração</p>
+        <a class="botao botao--primario" href="{{ m.url }}">Entrar no módulo {% icone "arrow-right" classe="icone--seta" %}</a>
       </div>
     </section>
   {% endfor %}
 </div>
+{% if futuros %}
+<section class="modulos-futuros mt-6" aria-labelledby="t-futuros">
+  <h2 class="rotulo-caixa-alta rotulo-caixa-alta--marca" id="t-futuros">Próximos módulos da migração</h2>
+  <ul class="modulos-futuros__lista" role="list">
+    {% for f in futuros %}
+      <li class="modulo-futuro">
+        <span class="modulo-futuro__icone" aria-hidden="true">{% icone f.icone %}</span>
+        <div><p class="modulo-futuro__nome">{{ f.rotulo }}</p><p class="modulo-futuro__descricao">{{ f.descricao }}</p></div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
 {% endblock %}

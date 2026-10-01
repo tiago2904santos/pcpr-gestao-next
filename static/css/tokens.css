@@ -9,6 +9,11 @@
       nunca a paleta crua (--grafite-900…), exceto o próprio shell.
    3. Contraste mínimo verificado: texto 4.5:1, componentes 3:1
       (docs/design-system/colors.md traz a tabela medida).
+
+   Direção de arte "papel timbrado digital" (docs/design-system/visual-language.md):
+   grafite = autoridade, dourado = assinatura (linha e selo, nunca tinta),
+   neutros quentes = papel. Profundidade por camadas de sombra suave, não
+   por bordas pesadas. Movimento curto, com propósito.
    ===================================================================== */
 
 @font-face {
@@ -76,14 +81,34 @@
   --violeta-700: #5a3d8a;
   --violeta-50: #f3eff9;
 
+  /* Translúcidos (únicos valores com alfa do sistema; usados em sombras,
+     véus, brilhos e anéis). */
+  --tinta-04: rgb(31 30 27 / 0.04);
+  --tinta-06: rgb(31 30 27 / 0.06);
+  --tinta-08: rgb(31 30 27 / 0.08);
+  --tinta-12: rgb(31 30 27 / 0.12);
+  --tinta-18: rgb(31 30 27 / 0.18);
+  --tinta-28: rgb(31 30 27 / 0.28);
+  --luz-10: rgb(255 255 255 / 0.1);
+  --luz-16: rgb(255 255 255 / 0.16);
+  --luz-28: rgb(255 255 255 / 0.28);
+  --brilho-dourado-08: rgb(191 154 69 / 0.08);
+  --brilho-dourado-16: rgb(191 154 69 / 0.16);
+  --brilho-dourado-28: rgb(191 154 69 / 0.28);
+  --brilho-dourado-45: rgb(191 154 69 / 0.45);
+  --anel-foco-suave: rgb(35 100 170 / 0.2);
+  --anel-perigo-suave: rgb(180 35 24 / 0.18);
+
   /* ---------- Tokens semânticos ---------- */
   --cor-fundo: var(--neutro-50);
   --cor-superficie: var(--neutro-0);
   --cor-superficie-sutil: var(--neutro-25);
   --cor-superficie-realce: var(--neutro-100);
+  --cor-superficie-elevada: var(--neutro-0);
   --cor-borda: var(--neutro-200);
+  --cor-borda-sutil: var(--neutro-100);
   --cor-borda-forte: var(--neutro-300);
-  --cor-borda-campo: var(--neutro-400);
+  --cor-borda-campo: var(--neutro-300);
   --cor-texto: var(--neutro-900);
   --cor-texto-secundario: var(--neutro-600);
   --cor-texto-terciario: var(--neutro-500);
@@ -93,21 +118,26 @@
 
   --cor-marca: var(--dourado-600);
   --cor-marca-forte: var(--dourado-600);
+  --cor-marca-viva: var(--dourado-500);
   --cor-marca-texto: var(--dourado-700);
   --cor-marca-fundo: var(--dourado-50);
+  --cor-marca-fundo-forte: var(--dourado-100);
   --cor-marca-borda: var(--dourado-200);
 
   --cor-primaria: var(--grafite-900);
-  --cor-primaria-hover: var(--grafite-700);
+  --cor-primaria-hover: var(--grafite-800);
+  --cor-primaria-ativa: var(--grafite-950);
   --cor-primaria-texto: var(--neutro-0);
 
   --cor-foco: var(--azul-600);
   --anel-foco: 0 0 0 2px var(--neutro-0), 0 0 0 4px var(--cor-foco);
 
   --cor-sucesso: var(--verde-700);
+  --cor-sucesso-solida: var(--verde-600);
   --cor-sucesso-fundo: var(--verde-50);
   --cor-sucesso-borda: var(--verde-100);
   --cor-aviso: var(--ambar-700);
+  --cor-aviso-solida: var(--ambar-500);
   --cor-aviso-fundo: var(--ambar-50);
   --cor-aviso-borda: var(--ambar-100);
   --cor-perigo: var(--vermelho-700);
@@ -120,12 +150,19 @@
 
   /* Cabeçalho institucional */
   --shell-cabecalho-fundo: var(--grafite-900);
+  --shell-cabecalho-fundo-escuro: var(--grafite-950);
   --shell-cabecalho-texto: var(--neutro-0);
   --shell-filete: var(--dourado-500);
+  --shell-filete-claro: var(--dourado-300);
   --shell-navegacao-fundo: var(--neutro-0);
 
+  /* Fundo da página: papel com um brilho dourado discreto no topo. */
+  --fundo-pagina: radial-gradient(60rem 22rem at 50% -8rem, var(--brilho-dourado-08), transparent 70%),
+    var(--cor-fundo);
+
   /* Sobreposições */
-  --cor-veu: rgb(27 28 31 / 0.48);
+  --cor-veu: rgb(27 28 31 / 0.42);
+  --desfoque-veu: 3px;
 
   /* ---------- Tipografia ---------- */
   --fonte-base: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto,
@@ -140,7 +177,9 @@
   --texto-xl: 1.125rem;    /* 18px */
   --texto-2xl: 1.375rem;   /* 22px */
   --texto-3xl: 1.75rem;    /* 28px — título de página */
+  --texto-display: 2rem;   /* 32px — título de página em telas largas */
   --texto-4xl: 2.25rem;    /* 36px — números de destaque */
+  --texto-5xl: 2.75rem;    /* 44px — número do ofício no login/detalhe */
 
   --peso-normal: 400;
   --peso-medio: 500;
@@ -150,6 +189,8 @@
   --altura-linha-justa: 1.25;
   --altura-linha: 1.5;
   --rastreio-rotulo: 0.06em;
+  --rastreio-titulo: -0.02em;
+  --rastreio-display: -0.025em;
 
   /* ---------- Espaçamento (grade de 4px) ---------- */
   --esp-0: 0;
@@ -165,6 +206,7 @@
   --esp-10: 2.5rem;   /* 40 */
   --esp-12: 3rem;     /* 48 */
   --esp-16: 4rem;     /* 64 */
+  --esp-20: 5rem;     /* 80 */
 
   /* ---------- Dimensões ---------- */
   --altura-controle: 2.5rem;        /* 40px: inputs/botões padrão (alvo ≥ 24px) */
@@ -178,27 +220,45 @@
   --largura-leitura: 42rem;
   --tamanho-icone: 1.125rem;
   --tamanho-icone-sm: 1rem;
+  --filete: 3px;                    /* a linha dourada da assinatura */
+  --filete-fino: 2px;
 
   /* ---------- Bordas, raios, sombras ---------- */
   --borda: 1px solid var(--cor-borda);
+  --borda-sutil: 1px solid var(--cor-borda-sutil);
   --borda-forte: 1px solid var(--cor-borda-forte);
   --raio-xs: 4px;
   --raio-sm: 6px;
   --raio-md: 8px;
   --raio-lg: 12px;
+  --raio-xl: 16px;
   --raio-pilula: 999px;
 
-  --sombra-1: 0 1px 2px rgb(31 30 27 / 0.06);
-  --sombra-2: 0 1px 3px rgb(31 30 27 / 0.08), 0 4px 12px rgb(31 30 27 / 0.06);
-  --sombra-3: 0 8px 24px rgb(31 30 27 / 0.14), 0 2px 6px rgb(31 30 27 / 0.08);
-  --sombra-foco-campo: 0 0 0 3px rgb(35 100 170 / 0.22);
+  /* Elevação: anel de 1px (define a borda) + sombra difusa. Nível sobe com a
+     importância temporal do elemento (cartão < menu < diálogo). */
+  --sombra-1: 0 1px 2px var(--tinta-06);
+  --sombra-2: 0 1px 3px var(--tinta-08), 0 4px 12px var(--tinta-06);
+  --sombra-3: 0 8px 24px var(--tinta-12), 0 2px 6px var(--tinta-08);
+  --sombra-4: 0 24px 48px -12px var(--tinta-28), 0 8px 16px -8px var(--tinta-12);
+  --sombra-cartao: 0 0 0 1px var(--tinta-06), 0 1px 2px var(--tinta-04), 0 10px 28px -16px var(--tinta-18);
+  --sombra-cartao-hover: 0 0 0 1px var(--tinta-08), 0 2px 4px var(--tinta-06), 0 16px 32px -14px var(--tinta-28);
+  --sombra-flutuante: 0 0 0 1px var(--tinta-08), 0 12px 32px -8px var(--tinta-28), 0 2px 6px var(--tinta-08);
+  --sombra-foco-campo: 0 0 0 3px var(--anel-foco-suave);
+  --sombra-erro-campo: 0 0 0 3px var(--anel-perigo-suave);
+  --sombra-interna-topo: inset 0 1px 0 var(--luz-16);
+  --sombra-marca: 0 1px 2px var(--tinta-08), 0 6px 16px -6px var(--brilho-dourado-45);
 
-  /* ---------- Movimento ---------- */
-  --duracao-rapida: 120ms;
-  --duracao-media: 200ms;
-  --duracao-lenta: 320ms;
-  --curva-padrao: cubic-bezier(0.2, 0, 0, 1);
-  --curva-saida: cubic-bezier(0.4, 0, 1, 1);
+  /* ---------- Movimento (docs/design-system/motion.md) ---------- */
+  --duracao-instantanea: 90ms;  /* pressionar, foco */
+  --duracao-rapida: 140ms;      /* hover, troca de cor, menus */
+  --duracao-media: 220ms;       /* entrada de diálogo, toast, abas, gaveta */
+  --duracao-lenta: 360ms;       /* página, troca de lista, linha do tempo */
+  --duracao-enfase: 640ms;      /* carimbo (emissão), confirmações */
+  --curva-padrao: cubic-bezier(0.2, 0, 0, 1);         /* entrada: desacelera */
+  --curva-saida: cubic-bezier(0.4, 0, 1, 1);          /* saída: acelera */
+  --curva-suave: cubic-bezier(0.65, 0, 0.35, 1);      /* troca de estado simétrica */
+  --curva-expressiva: cubic-bezier(0.34, 1.35, 0.64, 1); /* ênfase: leve ultrapassagem */
+  --escala-pressao: 0.985;
 
   /* ---------- Camadas ---------- */
   --z-cabecalho: 30;
@@ -210,8 +270,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
+    --duracao-instantanea: 0ms;
     --duracao-rapida: 0ms;
     --duracao-media: 0ms;
     --duracao-lenta: 0ms;
+    --duracao-enfase: 0ms;
+    --escala-pressao: 1;
   }
 }
