@@ -24,6 +24,10 @@ Fonte única: [`static/css/tokens.css`](../../static/css/tokens.css). Contrastes
 | `--cor-foco`, `--anel-foco` | Foco (azul — contrasta com grafite e com dourado) |
 | `--cor-{sucesso,aviso,perigo,info}(-fundo/-borda)` | Selos, alertas, toasts |
 
+## Tema
+**Somente claro — sem modo escuro** (decisão do dono do produto). Não criar variantes
+`prefers-color-scheme: dark` nem alternador de tema; os testes reprovam.
+
 ## Regras
 1. **Dourado como texto** só `--cor-marca-texto` (`--dourado-700`).
 2. **Dourado como indicador** (barra/sublinhado ativo) `--cor-marca` (`--dourado-600`, 3,75:1).

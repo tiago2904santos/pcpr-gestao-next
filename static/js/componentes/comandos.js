@@ -51,8 +51,8 @@ export class PcComandos extends HTMLElement {
   navegacao() {
     /** @type {Item[]} */
     const itens = [];
-    document.querySelectorAll("#navegacao-lateral a[href]").forEach((a) => {
-      const rotulo = a.querySelector(".lateral__rotulo")?.textContent?.trim() || a.textContent?.trim() || "";
+    document.querySelectorAll("#navegacao-principal a[href]").forEach((a) => {
+      const rotulo = a.textContent?.trim() || "";
       itens.push({ titulo: rotulo, url: a.getAttribute("href") || "#", grupo: "Ir para", icone: "arrow-right" });
     });
     return itens;

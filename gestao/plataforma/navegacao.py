@@ -1,8 +1,13 @@
-"""Registro de navegação.
+"""Registro de navegação (menu superior).
 
 Cada contexto de negócio registra seu módulo no `AppConfig.ready()`; a
 plataforma só monta o menu, sem conhecer os contextos (inversão de
 dependência). Itens podem exigir uma permissão (`requer`).
+
+Na barra superior, grupos comuns viram links diretos; grupos com
+`em_menu=True` viram um menu suspenso (ex.: "Cadastros ▾"). Regra do Design
+System: no máximo 7 entradas de primeiro nível por módulo — o resto vai para
+menus (docs/design-system/navigation.md).
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ class Item:
 class Grupo:
     rotulo: str
     itens: tuple[Item, ...]
+    em_menu: bool = False
 
 
 @dataclass(frozen=True)
@@ -80,7 +86,8 @@ def navegacao_para(request: HttpRequest) -> dict[str, Any]:
                 itens.append({"rotulo": item.rotulo, "url": url, "icone": item.icone,
                               "ativo": ativo, "tamanho_url": len(url)})
             if itens:
-                grupos.append({"rotulo": grupo.rotulo, "itens": itens})
+                grupos.append({"rotulo": grupo.rotulo, "itens": itens,
+                               "em_menu": grupo.em_menu})
         url_modulo = _url(modulo.url_name)
         if not grupos and url_modulo is None:
             continue
@@ -91,6 +98,8 @@ def navegacao_para(request: HttpRequest) -> dict[str, Any]:
             melhor = max(ativos, key=lambda i: i["tamanho_url"])
             for i in todos:
                 i["ativo"] = i is melhor
+        for g in grupos:
+            g["ativo"] = any(i["ativo"] for i in g["itens"])
         entrada = {"chave": modulo.chave, "rotulo": modulo.rotulo, "icone": modulo.icone,
                    "url": url_modulo, "descricao": modulo.descricao, "grupos": grupos,
                    "ativo": bool(ativos)}

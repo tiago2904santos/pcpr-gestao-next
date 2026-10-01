@@ -122,7 +122,7 @@
   --shell-cabecalho-fundo: var(--grafite-900);
   --shell-cabecalho-texto: var(--neutro-0);
   --shell-filete: var(--dourado-500);
-  --shell-lateral-fundo: var(--neutro-0);
+  --shell-navegacao-fundo: var(--neutro-0);
 
   /* Sobreposições */
   --cor-veu: rgb(27 28 31 / 0.48);
@@ -171,8 +171,8 @@
   --altura-controle-sm: 2rem;       /* 32px */
   --altura-controle-lg: 2.75rem;    /* 44px: mobile/toque */
   --altura-cabecalho: 4rem;         /* 64px */
-  --largura-lateral: 15.5rem;       /* 248px */
-  --largura-lateral-recolhida: 4rem;
+  --altura-navegacao: 3.25rem;      /* 52px: menu superior */
+  --altura-topo: calc(var(--altura-cabecalho) + var(--altura-navegacao));
   --largura-conteudo: 80rem;        /* 1280px */
   --largura-formulario: 56rem;      /* 896px */
   --largura-leitura: 42rem;
@@ -202,7 +202,6 @@
 
   /* ---------- Camadas ---------- */
   --z-cabecalho: 30;
-  --z-lateral: 40;
   --z-gaveta: 60;
   --z-dialogo: 70;
   --z-toast: 80;

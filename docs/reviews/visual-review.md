@@ -17,7 +17,7 @@ interativos, texto cortado em botões/selos/abas e erros de console.
 |---|---|---|
 | Cabeçalho grafite + brasão + PCPR + nome do produto | ✅ | ✅ 64 px, filete dourado de 3 px |
 | Micro-rótulos em caixa alta | ✅ ("VIAGENS", cabeçalhos de tabela) | ✅ token `--rastreio-rotulo` |
-| Indicador dourado no item ativo | sublinhado na barra horizontal | barra vertical dourada na lateral + filete nas abas |
+| Indicador dourado no item ativo | sublinhado na barra horizontal | ✅ filete dourado no menu superior e nas abas |
 | Abas de filtro com contagem | "Todos 56", "Que vão acontecer 8"… | "Todos 4", "Rascunhos 2"… |
 | Linha-cartão com título forte e metadados com ícones | lista de Ofícios | `.registro` (mesmo padrão, contraste corrigido) |
 | Seções numeradas do ofício (1 a 7) | ✅ | ✅ com índice lateral e estado de cada seção |
@@ -28,8 +28,8 @@ interativos, texto cortado em botões/selos/abas e erros de console.
 ## O que melhorou (com evidência)
 | Problema na referência | Evidência | Novo |
 |---|---|---|
-| Página da lista de Ofícios com **1588 px** de largura numa janela de 1440 (13 abas transbordam) | `p-viagens-oficios.png` | Lateral agrupada; 0 px de rolagem lateral nas 6 larguras |
-| A 390 px a lista tem **622 px** de largura; título do produto corta e sobrepõe ícones do cabeçalho; navegação truncada ("Ofi…") | `artifacts/referencia/390/viagens-oficios.png` | Cabeçalho compacto (brasão, sigla, busca, sino, avatar); gaveta de navegação |
+| Página da lista de Ofícios com **1588 px** de largura numa janela de 1440 (13 abas transbordam) | `p-viagens-oficios.png` | Menu superior com grupos em menus suspensos; 0 px de rolagem lateral nas 6 larguras |
+| A 390 px a lista tem **622 px** de largura; título do produto corta e sobrepõe ícones do cabeçalho; navegação truncada ("Ofi…") | `artifacts/referencia/390/viagens-oficios.png` | Cabeçalho compacto (brasão, sigla, busca, sino, avatar); menu vira gaveta |
 | Botão flutuante "+ Novo ofício" cobre os botões ⋮ das linhas (1440 e 390) | idem | Ação primária no cabeçalho da página |
 | Nomes em CAIXA ALTA nas linhas da lista | lista de Ofícios | Caixa original nos nomes; caixa alta só em micro-rótulos e no documento |
 | "Sem viatura", "Sem roteiro" em itálico cinza claro | lista | `registro__meta-item--vazio` com contraste ≥ 4,5:1 |

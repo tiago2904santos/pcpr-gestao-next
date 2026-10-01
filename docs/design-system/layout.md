@@ -1,38 +1,39 @@
 # Layout e App Shell
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│ ☰ [brasão] PCPR │ Gestão de Eventos e Viagens   [DEV] [🔍 Buscar… Ctrl K]  🔔 (T) Tiago ▾ │  ← grafite, 64px
-╞══════════════════════════════ filete dourado 3px ════════════════════╡
-│ ┌Módulo─────────┐ │  Início / Viagens / Ofícios                        │
-│ │ Viagens     ⇵ │ │  VIAGENS                                           │
-│ └───────────────┘ │  Ofícios                           [Exportar][+ Novo]│
-│ OPERAÇÃO          │  ──────────────────────────────────────────────────  │
-│ ▌Ofícios          │  [Todos 56][Rascunhos 8][Emitidos 38]…              │
-│  Roteiros         │  ┌ cartão: filtros + lista/tabela + paginação ────┐ │
-│ CADASTROS         │  │                                                │ │
-│  Servidores       │  └────────────────────────────────────────────────┘ │
-│  Viaturas         │                                                     │
-│ [« Recolher]      │  🔒 Ambiente restrito e monitorado · PCPR            │
-└───────────────────┴─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ ☰ [brasão] PCPR │ Gestão de Eventos e Viagens [DEV]  [🔍 Buscar… Ctrl K]  🔔 (OT) Operador ▾ │ ← grafite 64px
+╞══════════════════════════ filete dourado 3px ═══════════════════════════╡
+│     ▌Viagens ▾    ⊞ Painel   📄 Ofícios   Cadastros ▾                      │ ← menu superior 52px
+│                               ▔▔▔▔▔▔▔▔ (filete dourado no ativo)           │
+├──────────────────────────────────────────────────────────────────────────┤
+│     Início / Viagens / Ofícios                                             │
+│     VIAGENS                                                                │
+│     Ofícios                                        [Exportar] [+ Novo]     │
+│     [Todos 56][Rascunhos 8][Emitidos 38]…                                  │
+│     ┌ cartão: filtros + lista/tabela + paginação ─────────────────────┐    │
+│     └─────────────────────────────────────────────────────────────────┘    │
+│     🔒 Ambiente restrito e monitorado · PCPR                               │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Regiões (landmarks)
 | Região | Elemento | Notas |
 |---|---|---|
 | Pular para o conteúdo | `a.pular-conteudo` | Primeiro foco da página |
-| Cabeçalho | `header.cabecalho` | Sticky; marca, ambiente, busca global, notificações, perfil |
-| Navegação | `nav#navegacao-lateral` | 248px; recolhível a 64px (≥1024); gaveta (<1024) |
+| Topo fixo | `div.topo` | Cabeçalho + menu ficam fixos juntos ao rolar |
+| Cabeçalho | `header.cabecalho` | Marca, ambiente, busca global, notificações, perfil |
+| Navegação | `nav#navegacao-principal` | Menu superior (≥1024); gaveta aberta pelo ☰ (<1024) |
 | Conteúdo | `main#conteudo` | Largura máx. 1280px; 896px em formulários (`--estreito`) |
 | Rodapé | `footer.rodape` | "Ambiente restrito e monitorado" |
 
-## Por que navegação lateral (e não as abas horizontais da referência)?
-O módulo Viagens tem 13 destinos; na referência eles transbordam a 1440px (rolagem lateral
-da página inteira). A lateral **agrupa** (Operação, Documentos, Cadastros, Configuração),
-escala para novos módulos e libera a largura do conteúdo. O DNA é preservado: cabeçalho
-grafite, filete dourado e indicador dourado no item ativo. As **abas horizontais com filete
-dourado** continuam existindo onde funcionam bem: filtros de lista e abas de conteúdo.
-Decisão registrada em `docs/adr/0006-app-shell-navegacao-lateral.md`.
+## Menu superior (decisão do dono do produto)
+O padrão conhecido pelos usuários e presente nas referências visuais é o **menu horizontal**.
+Mantemos a barra com **seletor de módulo** ("▌Viagens ▾"), **links diretos** e **filete
+dourado** no item ativo. Para não repetir o transbordo da referência (13 abas que estouram a
+1440px), grupos secundários viram **menus suspensos** ("Cadastros ▾") e vale a regra de no
+máximo 7 entradas de primeiro nível. Menu, conteúdo e rodapé usam a mesma coluna centralizada.
+Decisão registrada em `docs/adr/0006-app-shell-menu-superior.md`.
 
 ## Grades
 - `.campos`: 12 colunas para formulários (`col-3`, `col-4`, `col-6`…; tudo vira 12 no celular).

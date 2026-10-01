@@ -157,3 +157,45 @@ def test_gaveta_de_navegacao_no_celular(logado):
     pg.keyboard.press("Escape")
     expect(botao).to_be_focused()
     expect(botao).to_have_attribute("aria-expanded", "false")
+
+
+def test_menu_superior_com_item_ativo_e_submenu_por_teclado(logado):
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    nav = pg.get_by_role("navigation", name="Navegação principal")
+    expect(nav).to_be_in_viewport()
+    expect(nav.get_by_role("link", name="Ofícios")).to_have_attribute("aria-current", "page")
+    cadastros = nav.get_by_role("button", name="Cadastros")
+    cadastros.focus()
+    pg.keyboard.press("Enter")
+    expect(nav.get_by_role("menuitem", name="Servidores")).to_be_focused()
+    pg.keyboard.press("ArrowDown")
+    expect(nav.get_by_role("menuitem", name="Viaturas")).to_be_focused()
+    pg.keyboard.press("Escape")
+    expect(cadastros).to_be_focused()
+    cadastros.click()
+    nav.get_by_role("menuitem", name="Servidores").click()
+    expect(pg).to_have_url(re.compile("/cadastros/servidores/"))
+    expect(pg.get_by_role("button", name=re.compile("Cadastros.*seção atual"))).to_be_visible()
+
+
+def test_seletor_de_modulo_leva_a_central(logado):
+    pg = logado
+    pg.goto("/viagens/")
+    pg.get_by_role("button", name="Módulo atual: Viagens. Trocar de módulo").click()
+    pg.get_by_role("menuitem", name="Central de módulos").click()
+    expect(pg.get_by_role("heading", level=1)).to_have_text("Central de módulos")
+
+
+def test_sistema_nao_muda_com_sistema_operacional_em_modo_escuro(navegador, live_server, dados_e2e):
+    """Sem modo escuro: com o SO/navegador em dark, o sistema continua claro."""
+    contexto = navegador.new_context(color_scheme="dark", base_url=live_server.url,
+                                     viewport={"width": 1280, "height": 900})
+    pg = contexto.new_page()
+    entrar(pg)
+    pg.goto("/viagens/oficios/")
+    fundo = pg.evaluate("getComputedStyle(document.body).backgroundColor")
+    esquema = pg.evaluate("getComputedStyle(document.documentElement).colorScheme")
+    contexto.close()
+    assert fundo == "rgb(246, 245, 242)"  # --neutro-50
+    assert esquema == "light"

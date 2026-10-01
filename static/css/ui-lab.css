@@ -8,7 +8,7 @@
 
 .lab__indice {
   position: sticky;
-  top: calc(var(--altura-cabecalho) + var(--esp-4));
+  top: calc(var(--altura-topo) + var(--esp-4));
   padding: var(--esp-2);
 }
 

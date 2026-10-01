@@ -55,3 +55,13 @@ def test_todos_os_tokens_usados_existem():
 def test_contraste_wcag_dos_pares_do_design_system(par):
     primeiro, fundo, valor, minimo, uso = par
     assert valor >= minimo, f"{uso}: {primeiro} sobre {fundo} = {valor}:1 (mínimo {minimo}:1)"
+
+
+def test_sem_modo_escuro():
+    """Decisão do dono do produto: somente tema claro (docs/design-system/principles.md §9)."""
+    for arquivo in CSS.glob("*.css"):
+        texto = arquivo.read_text()
+        assert "prefers-color-scheme" not in texto, f"{arquivo.name} define modo escuro"
+    assert "color-scheme: light;" in (CSS / "base.css").read_text()
+    base = (RAIZ / "templates" / "base_documento.html").read_text()
+    assert '<meta name="color-scheme" content="light">' in base

@@ -1,56 +1,29 @@
 // @ts-check
 /**
  * <pc-shell> — comportamento do App Shell.
- *  - ≥1024px: recolhe/expande a navegação lateral (preferência guardada no navegador);
- *  - <1024px: navegação vira gaveta com foco gerenciado, Esc e véu.
- * Sem JavaScript a navegação continua acessível (a lateral é HTML comum).
+ *  - ≥1024px: o menu superior é uma barra comum (nada a fazer aqui);
+ *  - <1024px: o mesmo menu vira gaveta aberta pelo ☰ do cabeçalho, com foco
+ *    gerenciado, Esc, véu e conteúdo `inert` enquanto aberta.
+ * Sem JavaScript a navegação continua acessível (HTML comum).
  */
 
-const CHAVE = "pc:lateral-recolhida";
 const LARGURA_GAVETA = 1024;
-
-function lerPreferencia() {
-  try {
-    return window.localStorage.getItem(CHAVE) === "1";
-  } catch {
-    return false;
-  }
-}
-
-/** @param {boolean} valor */
-function gravarPreferencia(valor) {
-  try {
-    window.localStorage.setItem(CHAVE, valor ? "1" : "0");
-  } catch {
-    /* armazenamento indisponível: preferência só vale nesta página */
-  }
-}
 
 export class PcShell extends HTMLElement {
   connectedCallback() {
     this.raiz = /** @type {HTMLElement} */ (this.closest(".shell") || document.body);
-    this.lateral = /** @type {HTMLElement | null} */ (document.getElementById("navegacao-lateral"));
-    this.conteudo = /** @type {HTMLElement | null} */ (document.querySelector(".conteudo"));
+    this.navegacao = /** @type {HTMLElement | null} */ (
+      document.getElementById("navegacao-principal")
+    );
+    this.conteudo = /** @type {HTMLElement | null} */ (document.querySelector(".shell__corpo"));
     this.botaoGaveta = /** @type {HTMLButtonElement | null} */ (
       document.querySelector("[data-acao='abrir-gaveta']")
     );
-    this.botaoRecolher = /** @type {HTMLButtonElement | null} */ (
-      document.querySelector("[data-acao='recolher-lateral']")
-    );
     this.midia = window.matchMedia(`(max-width: ${LARGURA_GAVETA - 0.02}px)`);
-
-    if (lerPreferencia()) this.raiz.classList.add("shell--recolhido");
-    this.atualizarRecolher();
-
     this.botaoGaveta?.addEventListener("click", () => this.alternarGaveta());
-    this.botaoRecolher?.addEventListener("click", () => this.alternarRecolhida());
-    this.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && this.gavetaAberta()) {
-        this.fecharGaveta();
-      }
-    });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && this.gavetaAberta()) this.fecharGaveta();
+      // Esc com um menu suspenso aberto fecha só o menu (<pc-menu> chama preventDefault).
+      if (e.key === "Escape" && !e.defaultPrevented && this.gavetaAberta()) this.fecharGaveta();
     });
     this.midia.addEventListener("change", () => this.fecharGaveta(false));
   }
@@ -65,7 +38,7 @@ export class PcShell extends HTMLElement {
   }
 
   abrirGaveta() {
-    if (!this.raiz || !this.lateral) return;
+    if (!this.raiz || !this.navegacao) return;
     this.raiz.classList.add("shell--gaveta-aberta");
     this.botaoGaveta?.setAttribute("aria-expanded", "true");
     this.conteudo?.setAttribute("inert", "");
@@ -75,7 +48,7 @@ export class PcShell extends HTMLElement {
     veu.addEventListener("click", () => this.fecharGaveta());
     this.raiz.append(veu);
     const primeiro = /** @type {HTMLElement | null} */ (
-      this.lateral.querySelector("[aria-current='page'], a, button")
+      this.navegacao.querySelector("[aria-current='page'], a, button")
     );
     primeiro?.focus();
   }
@@ -88,22 +61,6 @@ export class PcShell extends HTMLElement {
     this.conteudo?.removeAttribute("inert");
     this.raiz.querySelectorAll("[data-veu]").forEach((v) => v.remove());
     if (estavaAberta && devolverFoco) this.botaoGaveta?.focus();
-  }
-
-  alternarRecolhida() {
-    if (!this.raiz) return;
-    const recolhida = this.raiz.classList.toggle("shell--recolhido");
-    gravarPreferencia(recolhida);
-    this.atualizarRecolher();
-  }
-
-  atualizarRecolher() {
-    const recolhida = this.raiz?.classList.contains("shell--recolhido") ?? false;
-    if (!this.botaoRecolher) return;
-    this.botaoRecolher.setAttribute("aria-pressed", String(recolhida));
-    const rotulo = recolhida ? "Expandir menu" : "Recolher menu";
-    this.botaoRecolher.setAttribute("aria-label", rotulo);
-    this.botaoRecolher.dataset.dica = recolhida ? rotulo : "";
   }
 }
 

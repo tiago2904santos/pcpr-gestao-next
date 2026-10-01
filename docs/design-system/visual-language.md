@@ -6,7 +6,7 @@
 | Cabeçalho grafite com brasão, sigla **PCPR**, divisor e nome do produto | Todas as telas | **Mantido**, com altura 64px e filete dourado de 3px |
 | Filete dourado sob o cabeçalho | Todas as telas e referências visuais | **Mantido** — é a assinatura |
 | Micro-rótulos em caixa alta e espaçados ("VIAGENS", cabeçalhos de tabela) | Listas, tabelas, KPIs | **Mantido** em 11px/600, `letter-spacing: .06em` |
-| Sublinhado dourado no item de navegação ativo | Navegação horizontal | **Mantido** nas abas; na lateral vira barra vertical dourada |
+| Sublinhado dourado no item de navegação ativo | Navegação horizontal | **Mantido** no menu superior e nas abas de filtro |
 | Chips de filtro com contagem ("Todos 56") | Listas de Ofícios/Viagens | **Mantido** como abas de filtro com contador |
 | Linha-cartão com ícone, título forte e metadados com ícones | Lista de Ofícios | **Mantido e refinado** (`.registro`) |
 | Seções numeradas no formulário do ofício (1 Dados… 7 Documentos) | Cadastro de ofício | **Mantido**, com índice lateral fixo |
@@ -16,7 +16,7 @@
 ## O que corrigimos
 | Problema observado | Evidência | Correção |
 |---|---|---|
-| Navegação do módulo Viagens com 13 itens transborda a 1440px ("Textos dos documentos" cortado; página com rolagem horizontal) | captura `p-viagens-oficios.png` (largura 1588px numa janela de 1440px) | Navegação lateral agrupada (Operação / Documentos / Cadastros / Configuração), recolhível |
+| Navegação do módulo Viagens com 13 itens transborda a 1440px ("Textos dos documentos" cortado; página com rolagem horizontal) | captura `p-viagens-oficios.png` (largura 1588px numa janela de 1440px) | Menu superior com seletor de módulo, links diretos e menus suspensos para grupos (máx. 7 entradas) |
 | Botão flutuante "+ Novo ofício" sobrepõe os botões ⋮ das linhas | captura da lista de Ofícios | Ação primária no cabeçalho da página; nada flutua sobre conteúdo |
 | Dourado como texto sobre branco (contraste ~2,6:1) | KPIs e links dourados | Texto dourado só em `--dourado-700` (5,8:1) |
 | Nomes em CAIXA ALTA em listas longas cansam a leitura | Linhas da lista de Ofícios | Caixa alta só em micro-rótulos e no documento oficial; nomes em caixa original |

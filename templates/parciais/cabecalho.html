@@ -1,7 +1,7 @@
 {% load static %}
 <header class="cabecalho">
   <button type="button" class="cabecalho__menu cabecalho__menu--gaveta" data-acao="abrir-gaveta"
-          aria-controls="navegacao-lateral" aria-expanded="false" aria-label="Abrir menu de navegação">
+          aria-controls="navegacao-principal" aria-expanded="false" aria-label="Abrir menu de navegação">
     {% icone "menu" %}
   </button>
   <a class="marca" href="{% url 'painel:inicio' %}" aria-label="{{ instituicao.sigla }} — {{ instituicao.produto }}, página inicial">

@@ -1,14 +1,11 @@
 /* =====================================================================
-   LAYOUT — App Shell (cabeçalho institucional, navegação lateral,
+   LAYOUT — App Shell (cabeçalho institucional, menu superior,
    área de conteúdo) e esqueleto das páginas (arquétipos).
    Pontos de quebra: 480 · 768 · 1024 · 1280 (docs/design-system/responsive.md)
    ===================================================================== */
 
 /* ---------------- Cabeçalho institucional ---------------- */
 .cabecalho {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-cabecalho);
   height: var(--altura-cabecalho);
   display: flex;
   align-items: center;
@@ -77,6 +74,7 @@
 .marca__titulo {
   font-weight: var(--peso-semi);
   font-size: var(--texto-md);
+  white-space: nowrap;
 }
 
 .marca__subtitulo {
@@ -122,7 +120,14 @@
   color: var(--cor-texto-inverso);
 }
 
+.busca-global__texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .busca-global__atalho {
+  white-space: nowrap;
   margin-left: auto;
   padding: 0 var(--esp-1);
   background: transparent;
@@ -215,183 +220,130 @@
   color: var(--dourado-300);
 }
 
-/* ---------------- Corpo do shell ---------------- */
-.shell__corpo {
-  display: grid;
-  grid-template-columns: var(--largura-lateral) minmax(0, 1fr);
-  min-height: calc(100vh - var(--altura-cabecalho));
-}
-
-.shell--recolhido .shell__corpo {
-  grid-template-columns: var(--largura-lateral-recolhida) minmax(0, 1fr);
-}
-
-/* ---------------- Navegação lateral ---------------- */
-.lateral {
+/* ---------------- Topo fixo: cabeçalho + menu superior ---------------- */
+.topo {
   position: sticky;
-  top: var(--altura-cabecalho);
-  height: calc(100vh - var(--altura-cabecalho));
-  display: flex;
-  flex-direction: column;
-  border-right: var(--borda);
-  background: var(--shell-lateral-fundo);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  top: 0;
+  z-index: var(--z-cabecalho);
 }
 
-.lateral__modulo {
+/* ---------------- Menu superior ---------------- */
+.navegacao {
+  background: var(--shell-navegacao-fundo);
+  border-bottom: var(--borda);
+  box-shadow: var(--sombra-1);
+}
+
+/* Alinhado à mesma coluna do conteúdo (largura máxima e respiros iguais). */
+.navegacao__interno {
   display: flex;
+  align-items: stretch;
+  gap: var(--esp-2);
+  height: var(--altura-navegacao);
+  max-width: var(--largura-conteudo);
+  margin: 0 auto;
+  padding: 0 var(--esp-8);
+}
+
+/* Seletor de módulo: filete dourado vertical + nome do módulo (DNA da referência). */
+.menu.navegacao__modulo {
+  display: flex;
+  align-items: stretch;
+  padding: var(--esp-2) 0;
+}
+
+.navegacao__seletor {
+  display: inline-flex;
   align-items: center;
-  gap: var(--esp-3);
-  margin: var(--esp-3);
-  padding: var(--esp-2) var(--esp-3);
-  border: var(--borda);
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-sutil);
-  color: var(--cor-texto);
-  text-align: left;
-  width: calc(100% - 2 * var(--esp-3));
-}
-
-.lateral__modulo:hover {
-  border-color: var(--cor-marca-borda);
-  text-decoration: none;
-}
-
-.lateral__modulo {
-  text-decoration: none;
-}
-
-.lateral__modulo-icone {
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--raio-sm);
-  background: var(--cor-marca-fundo);
-  color: var(--cor-marca-texto);
-}
-
-.lateral__modulo-texto {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: var(--altura-linha-justa);
-}
-
-.lateral__modulo-nome {
-  font-weight: var(--peso-semi);
-}
-
-.lateral__grupo {
-  padding: var(--esp-2) var(--esp-3);
-}
-
-.lateral__grupo-titulo {
-  padding: var(--esp-2) var(--esp-3) var(--esp-1);
-}
-
-.lateral__lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.lateral__link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--esp-3);
-  min-height: 2.25rem;
-  padding: var(--esp-2) var(--esp-3);
-  border-radius: var(--raio-md);
-  color: var(--cor-texto-secundario);
-  font-weight: var(--peso-medio);
-  text-decoration: none;
-}
-
-.lateral__link:hover {
-  background: var(--cor-superficie-realce);
-  color: var(--cor-texto);
-  text-decoration: none;
-}
-
-.lateral__link[aria-current="page"] {
-  background: var(--cor-marca-fundo);
-  color: var(--cor-texto);
-  font-weight: var(--peso-semi);
-}
-
-.lateral__link[aria-current="page"]::before {
-  content: "";
-  position: absolute;
-  left: calc(-1 * var(--esp-3));
-  top: var(--esp-2);
-  bottom: var(--esp-2);
-  width: 3px;
-  border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
-  background: var(--cor-marca);
-}
-
-.lateral__link[aria-current="page"] .icone {
-  color: var(--cor-marca-texto);
-}
-
-.lateral__rodape {
-  margin-top: auto;
-  padding: var(--esp-3);
-  border-top: var(--borda);
-}
-
-.lateral__recolher {
-  display: flex;
-  align-items: center;
-  gap: var(--esp-3);
-  width: 100%;
-  padding: var(--esp-2) var(--esp-3);
+  gap: var(--esp-2);
+  padding: 0 var(--esp-3);
   border: 0;
-  border-radius: var(--raio-md);
+  border-left: 3px solid var(--cor-marca);
+  background: transparent;
+  color: var(--cor-texto);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.navegacao__seletor:hover {
+  background: var(--cor-superficie-realce);
+}
+
+.navegacao__lista {
+  display: flex;
+  align-items: stretch;
+  gap: var(--esp-1);
+  min-width: 0;
+  margin: 0 0 0 var(--esp-4);
+  padding: 0;
+  list-style: none;
+}
+
+.navegacao__lista > li {
+  display: flex;
+}
+
+.navegacao__lista .menu {
+  display: flex;
+}
+
+.navegacao__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 0 var(--esp-3);
+  border: 0;
   background: transparent;
   color: var(--cor-texto-secundario);
-}
-
-.lateral__recolher:hover {
-  background: var(--cor-superficie-realce);
-  color: var(--cor-texto);
-}
-
-/* Modo recolhido (≥1024px): só ícones, rótulos para leitores de tela. */
-.shell--recolhido .lateral__rotulo,
-.shell--recolhido .lateral__grupo-titulo,
-.shell--recolhido .lateral__modulo-texto,
-.shell--recolhido .lateral__modulo > .icone {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.shell--recolhido .lateral__link,
-.shell--recolhido .lateral__recolher {
-  justify-content: center;
-  padding: var(--esp-2);
+.navegacao__link:hover {
+  color: var(--cor-texto);
+  background: var(--cor-superficie-sutil);
+  text-decoration: none;
 }
 
-.shell--recolhido .lateral__modulo {
-  justify-content: center;
-  padding: var(--esp-1);
-  margin: var(--esp-3) var(--esp-2);
-  width: auto;
+.navegacao__link[aria-current="page"],
+.navegacao__link--ativo {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
 }
 
-.shell--recolhido .lateral__grupo {
-  padding: var(--esp-1) var(--esp-2);
+/* Filete dourado sob o item ativo (as referências visuais aprovadas). */
+.navegacao__link[aria-current="page"]::after,
+.navegacao__link--ativo::after {
+  content: "";
+  position: absolute;
+  left: var(--esp-2);
+  right: var(--esp-2);
+  bottom: 0;
+  height: 3px;
+  border-radius: var(--raio-xs) var(--raio-xs) 0 0;
+  background: var(--cor-marca);
 }
 
-.shell--recolhido .lateral__recolher .icone {
-  transform: rotate(180deg);
+.navegacao__link[aria-current="page"] .icone,
+.navegacao__link--ativo .icone {
+  color: var(--cor-marca-texto);
+}
+
+.navegacao__link:focus-visible,
+.navegacao__seletor:focus-visible {
+  outline-offset: -2px;
+}
+
+.navegacao .menu__painel {
+  top: calc(100% - var(--esp-1));
+}
+
+.navegacao .menu__item[aria-current] {
+  background: var(--cor-marca-fundo);
+  font-weight: var(--peso-semi);
 }
 
 /* ---------------- Conteúdo ---------------- */
@@ -418,7 +370,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-2) var(--esp-4);
-  padding: var(--esp-4) var(--esp-8);
+  /* Texto alinhado à coluna do conteúdo; o filete ocupa a largura toda. */
+  padding: var(--esp-4) max(var(--esp-8), calc((100% - var(--largura-conteudo)) / 2 + var(--esp-8)));
   border-top: var(--borda);
   color: var(--cor-texto-secundario);
   font-size: var(--texto-xs);
@@ -543,7 +496,7 @@
 
 .layout-detalhe__lateral {
   position: sticky;
-  top: calc(var(--altura-cabecalho) + var(--esp-4));
+  top: calc(var(--altura-topo) + var(--esp-4));
   display: grid;
   gap: var(--esp-4);
 }
@@ -558,7 +511,7 @@
 
 .layout-formulario__indice {
   position: sticky;
-  top: calc(var(--altura-cabecalho) + var(--esp-4));
+  top: calc(var(--altura-topo) + var(--esp-4));
 }
 
 /* Barra de ações fixa no rodapé de formulários longos. O scroll-padding garante que
@@ -650,27 +603,28 @@ html:has(.barra-acoes) {
 /* ================= Responsivo ================= */
 @media (max-width: 1279.98px) {
   .conteudo__interno { padding: var(--esp-6) var(--esp-6) var(--esp-12); }
+  .navegacao__interno { padding: 0 var(--esp-6); }
+  .perfil__texto, .busca-global__atalho, .marca__subtitulo { display: none; }
   .layout-detalhe { grid-template-columns: minmax(0, 1fr) 17rem; }
   .grade--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1024px) {
   .cabecalho__menu--gaveta { display: none; }
+  html { scroll-padding-top: calc(var(--altura-topo) + var(--esp-4)); }
 }
 
 @media (max-width: 1023.98px) {
-  .shell__corpo,
-  .shell--recolhido .shell__corpo {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* A lateral vira gaveta (off-canvas) controlada por <pc-shell>. */
-  .lateral {
+  /* O menu superior vira gaveta (off-canvas) aberta pelo ☰ do cabeçalho (<pc-shell>). */
+  .navegacao {
     position: fixed;
-    inset: var(--altura-cabecalho) auto 0 0;
-    z-index: var(--z-lateral);
+    top: var(--altura-cabecalho);
+    bottom: 0;
+    left: 0;
+    z-index: var(--z-gaveta);
     width: min(20rem, 86vw);
-    height: auto;
+    overflow-y: auto;
+    border-right: var(--borda);
     transform: translateX(-100%);
     visibility: hidden;
     transition: transform var(--duracao-media) var(--curva-padrao),
@@ -678,20 +632,64 @@ html:has(.barra-acoes) {
     box-shadow: var(--sombra-3);
   }
 
-  .shell--gaveta-aberta .lateral {
+  .shell--gaveta-aberta .navegacao {
     transform: none;
     visibility: visible;
     transition: transform var(--duracao-media) var(--curva-padrao);
   }
 
+  .navegacao__interno {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    margin: 0;
+    padding: var(--esp-3);
+  }
+
+  .navegacao__lista {
+    flex-direction: column;
+    margin: var(--esp-2) 0 0;
+  }
+
+  .navegacao__lista > li,
+  .navegacao__lista .menu {
+    display: block;
+  }
+
+  .navegacao__link {
+    width: 100%;
+    min-height: var(--altura-controle-lg);
+    border-radius: var(--raio-md);
+  }
+
+  .navegacao__link[aria-current="page"]::after,
+  .navegacao__link--ativo::after {
+    left: 0;
+    right: auto;
+    top: var(--esp-2);
+    bottom: var(--esp-2);
+    width: 3px;
+    height: auto;
+    border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
+  }
+
+  /* Na gaveta, os menus suspensos abrem embutidos (sem flutuar). */
+  .navegacao .menu__painel {
+    position: static;
+    margin: 0 0 var(--esp-2) var(--esp-4);
+    box-shadow: none;
+    border: 0;
+    border-left: var(--borda);
+    border-radius: 0;
+  }
+
   .shell__veu {
     position: fixed;
     inset: var(--altura-cabecalho) 0 0 0;
-    z-index: calc(var(--z-lateral) - 1);
+    z-index: calc(var(--z-gaveta) - 1);
     background: var(--cor-veu);
   }
 
-  .lateral__recolher { display: none; }
   .layout-detalhe { grid-template-columns: minmax(0, 1fr); }
   .layout-detalhe__lateral { position: static; }
   .layout-formulario { grid-template-columns: minmax(0, 1fr); }
@@ -705,7 +703,14 @@ html:has(.barra-acoes) {
   .marca__brasao { width: 2.25rem; height: 2.25rem; }
   .cabecalho__busca { justify-content: flex-end; }
   .busca-global { width: var(--altura-controle); padding: 0; justify-content: center; }
-  .busca-global__texto, .busca-global__atalho { display: none; }
+  .busca-global__texto, .busca-global__texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.busca-global__atalho {
+  white-space: nowrap; display: none; }
   .conteudo__interno { padding: var(--esp-4) var(--esp-4) var(--esp-12); }
   .rodape { padding: var(--esp-4); }
   .pagina-cabecalho { margin-bottom: var(--esp-4); padding-bottom: var(--esp-4); }

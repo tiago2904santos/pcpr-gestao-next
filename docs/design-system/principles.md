@@ -45,7 +45,15 @@ Português claro e institucional, sem jargão técnico: "Emitir ofício", não "
 mensagens de erro dizem **o que aconteceu e como resolver** ("A viagem começa em 3 dias e
 o prazo mínimo é de 10: preencha a justificativa").
 
-## 9. Tokens como contrato
+## 9. Somente tema claro (sem modo escuro)
+Decisão do dono do produto: o sistema **não tem modo escuro**. A página declara
+`color-scheme: light` (CSS e `<meta>`), não existe `prefers-color-scheme: dark` em nenhum
+CSS e o navegador/SO em modo escuro não altera nada — inclusive campos nativos, barras de
+rolagem e seletores de data continuam claros. Verificado por
+`tests/test_design_tokens.py::test_sem_modo_escuro` e
+`tests/e2e/test_fluxo_oficio.py::test_sistema_nao_muda_com_sistema_operacional_em_modo_escuro`.
+
+## 10. Tokens como contrato
 Nenhum valor visual solto: cor, espaço, raio, sombra e tipografia vêm de
 `static/css/tokens.css`. Um teste (`tests/test_design_tokens.py`) reprova CSS com hex,
 `rgb()` ou `px` de espaçamento fora dos tokens.
