@@ -629,6 +629,16 @@ html:has(.barra-acoes) {
   color: var(--cor-sucesso);
 }
 
+/* Recém-salvo: o ícone carimba e o texto fica verde por um instante — a barra é a
+   confirmação, não um toast. */
+.barra-acoes__status--salvo {
+  color: var(--cor-sucesso);
+}
+
+.barra-acoes__status--salvo > .icone {
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
+}
+
 .barra-acoes__status--sujo {
   color: var(--cor-aviso);
   font-weight: var(--peso-semi);

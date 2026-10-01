@@ -57,7 +57,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.locator("#id_retorno-chegada").fill(_dt(17, 15, 30))
     pg.get_by_role("button", name="Salvar rascunho").click()
 
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
@@ -117,7 +117,7 @@ def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
 
     # Enter num campo de texto salva o rascunho (não adiciona destino nem emite).
     protocolo.press("Enter")
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(status).to_contain_text("Rascunho salvo às")
     expect(pg.get_by_label("Protocolo (eProtocolo)")).to_have_value(re.compile(r"^12\D?345\D?678\D?9$"))
     expect(status).not_to_contain_text("não salvas")
 
@@ -237,7 +237,7 @@ def test_ctrl_s_salva_o_rascunho(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/")
     pg.get_by_label("Motivo da viagem").fill("Apoio ao evento regional.")
     pg.keyboard.press("Control+s")
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     expect(pg.get_by_label("Motivo da viagem")).to_have_value("Apoio ao evento regional.")
 
 
@@ -263,3 +263,32 @@ def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, la
         if r and (r["c"] < r["topo"] - 1 or r["b"] > r["barra"] + 1):
             escondidos.append(r)
     assert escondidos == [], escondidos
+
+
+def test_registro_da_lista_expande_com_resumo_e_fecha_com_esc(logado, dados_e2e):
+    """Overdrive 2: o registro revela roteiro/equipe/documentos sem sair da lista."""
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    botao = pg.locator("[data-expandir]").first
+    registro = pg.locator(".registro").first
+    expect(botao).to_have_attribute("aria-expanded", "false")
+    botao.click()
+    expect(botao).to_have_attribute("aria-expanded", "true")
+    expect(registro).to_have_class(re.compile("registro--aberto"))
+    expect(registro.locator(".resumo")).to_be_visible()
+    expect(registro.locator(".resumo")).to_contain_text("Roteiro")
+    pg.keyboard.press("Escape")
+    expect(botao).to_have_attribute("aria-expanded", "false")
+    expect(registro.locator(".resumo")).to_be_hidden()
+    assert pg.evaluate("document.activeElement?.hasAttribute('data-expandir')")
+
+
+def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    expect(pg.locator(".registros__grupo").first).to_be_visible()
+    assert pg.locator(".registro[data-vt]").count() == pg.locator(".registro").count()
+    # a placa da lista e a placa do detalhe compartilham o nome (continuidade espacial)
+    nome = pg.locator(".registro .placa").first.get_attribute("data-vt")
+    pg.locator(".registro__link").first.click()
+    expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)

@@ -144,7 +144,7 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
     pg.get_by_role("button", name=re.compile("^Salvar")).click()
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     _sem_rolagem_lateral(pg)
 
     # Sair → login; a entrada automática não volta depois de sair.

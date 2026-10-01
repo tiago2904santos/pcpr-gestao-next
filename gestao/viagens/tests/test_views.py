@@ -266,6 +266,28 @@ class TestEmissaoEAcoes:
         r = operador.post(reverse("viagens:excluir", args=[pk]))
         assert r.status_code == 302 and not Oficio.objects.filter(pk=pk).exists()
 
+    def test_resumo_do_registro_traz_roteiro_equipe_e_documentos(self, operador, cenario):
+        """Overdrive 2: o registro da lista expande com um fragmento HTMX."""
+        r = operador.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]),
+                         HTTP_HX_REQUEST="true")
+        html = r.content.decode()
+        assert r.status_code == 200 and 'class="resumo"' in html
+        assert "Roteiro" in html and "Equipe" in html and "Documentos" in html
+        assert "<html" not in html  # fragmento, não página inteira
+
+    def test_resumo_respeita_a_visibilidade_por_unidade(self, operador, cenario):
+        r = operador.get(reverse("viagens:resumo", args=[cenario.ids["oficio_outra_unidade"]]))
+        assert r.status_code == 404
+
+    def test_salvar_confirma_na_barra_de_acoes_sem_toast(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio),
+                          follow=True)
+        html = r.content.decode()
+        assert "?salvo=1" in r.redirect_chain[-1][0]
+        assert "Rascunho salvo às" in html and "barra-acoes__status--salvo" in html
+        assert "Rascunho do Ofício" not in html  # sem toast para o trivial
+
     def test_detalhe_mostra_historico_e_documentos(self, operador, cenario):
         r = operador.get(reverse("viagens:detalhe", args=[cenario.ids["oficio_emitido"]]))
         html = r.content.decode()

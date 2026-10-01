@@ -35,3 +35,76 @@
 @media (max-width: 767.98px) {
   .lab__matriz { grid-template-columns: 6rem repeat(4, max-content); }
 }
+
+/* ---- Laboratório de conceitos (só na vitrine) ---- */
+.lab__conceito-titulo {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.lab__opcoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4);
+}
+
+.lab__opcoes--largas {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lab__opcao {
+  padding: var(--esp-4);
+  border: 1px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-lg);
+}
+
+.lab__opcao--escolhida {
+  border: 1px solid var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+}
+
+.lab__opcao-rotulo {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.lab__opcao--escolhida .lab__opcao-rotulo {
+  color: var(--cor-marca-texto);
+}
+
+.lab__opcao--escolhida .lab__opcao-rotulo::after {
+  content: " · escolhida";
+}
+
+.lab__opcao-nota {
+  margin-top: var(--esp-3);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.lab__escuro {
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--shell-cabecalho-fundo-escuro);
+  color: var(--cor-texto-inverso);
+}
+
+.lab__escuro-rotulo { color: var(--cor-texto-inverso-sutil); }
+.lab__link-claro { color: var(--dourado-300); }
+
+/* Conceitos descartados (ficam só aqui, para registro). */
+.lab-botao-progresso { background: linear-gradient(90deg, var(--cor-marca-fundo) 60%, var(--cor-superficie) 60%); }
+.lab-campo-caixa { background: var(--cor-superficie); }
+.lab-campo-linha { border-radius: 0; border-width: 0 0 1px; background: transparent; padding-left: 0; }
+.lab-tabela-densa td, .lab-tabela-densa th { padding: var(--esp-1) var(--esp-2); }
+.lab-progresso-larga { width: 100%; }
+.lab-tempo-compacta { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+
+@media (max-width: 767.98px) {
+  .lab__opcoes { grid-template-columns: minmax(0, 1fr); }
+}

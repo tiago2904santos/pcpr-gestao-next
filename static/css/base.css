@@ -85,15 +85,32 @@ time {
   font-variant-numeric: tabular-nums;
 }
 
-/* Foco visível e consistente em tudo que é interativo (WCAG 2.4.7/2.4.11). */
+/* =====================================================================
+   FOCO — assinatura própria (docs/design-system/accessibility.md#foco).
+   Anel grafite afastado 2px do elemento, com halo claro preenchendo o vão: lê-se sobre
+   branco, sobre superfícies tingidas e sobre o dourado. Nunca o azul do navegador.
+   ===================================================================== */
 :focus-visible {
-  outline: 2px solid var(--cor-foco);
-  outline-offset: 2px;
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: var(--foco-offset);
+  box-shadow: 0 0 0 var(--foco-offset) var(--foco-contraste);
+}
+
+/* Links no texto corrido ganham canto arredondado no anel. */
+a:not([class]):focus-visible {
   border-radius: var(--raio-xs);
 }
 
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Superfícies escuras invertem o par: anel dourado, halo grafite. */
+.cabecalho,
+.acesso__marca,
+.superficie-escura {
+  --foco-cor: var(--foco-cor-inverso);
+  --foco-contraste: var(--foco-contraste-inverso);
 }
 
 [hidden] {
@@ -275,6 +292,48 @@ time {
   to { transform: translateX(400%); }
 }
 
+/* Recusa: o elemento "balança a cabeça" uma vez (erro de ação, campo inválido ao enviar). */
+@keyframes sacudir {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-3px); }
+  40%, 60% { transform: translateX(3px); }
+}
+
+/* Trilho vertical cresce de cima (seção de formulário em foco). */
+@keyframes trilho-crescer {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* =====================================================================
+   MOTION 2.0 — continuidade espacial com View Transitions.
+   - Entre páginas (same-origin): a placa do ofício, a aba ativa e o botão "Emitir"
+     viajam para o lugar onde reaparecem (lista → detalhe, revisar → emitido).
+   - Dentro da página: trocas HTMX (globalViewTransitions) reordenam registros em vez
+     de piscar. Os nomes vêm de data-vt (attr() tipado); navegadores sem suporte
+     simplesmente trocam o conteúdo.
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duracao-rapida);
+}
+
+::view-transition-group(*) {
+  animation-duration: var(--duracao-lenta);
+  animation-timing-function: var(--curva-padrao);
+}
+
+[data-vt] {
+  view-transition-name: attr(data-vt type(<custom-ident>), none);
+}
+
 /* Página: o conteúdo entra em cascata curta (orientação, não decoração). */
 .conteudo__interno > * {
   animation: aparecer var(--duracao-lenta) var(--curva-padrao) both;
@@ -306,6 +365,11 @@ time {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

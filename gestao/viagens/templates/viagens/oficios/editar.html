@@ -4,10 +4,13 @@
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block conteudo %}
 <header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "file-pen-line" classe="icone--lg" %}</span>
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true" data-vt="placa-r{{ oficio.pk }}">
+    <span class="placa__rotulo">Ofício</span>
+    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
+  </span>
   <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem</p>
-    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }}">{{ oficio.get_situacao_display }}</span>
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem · edição</p>
+    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}</h1>
     <p class="pagina-cabecalho__descricao">{{ oficio.unidade.nome }} · sede {{ oficio.sede }} · criado em {{ oficio.criado_em|date:"d/m/Y" }}</p>
   </div>
@@ -44,27 +47,26 @@
   <div class="alerta alerta--perigo mb-4" role="alert" id="alerta-roteiro" tabindex="-1">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
 {% endif %}
 
-<div class="layout-formulario">
-  <nav class="layout-formulario__indice cartao" aria-label="Seções do ofício">
-    <ol class="etapas">
-      {% with p=prontidao %}
-      <li class="etapas__item {% if p|secao_ok:'dados' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#dados"><span class="etapas__marcador">{% if p|secao_ok:'dados' %}{% icone "check" classe="icone--sm" %}{% else %}1{% endif %}</span>Dados</a></li>
-      <li class="etapas__item {% if p|secao_ok:'equipe' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#equipe"><span class="etapas__marcador">{% if p|secao_ok:'equipe' %}{% icone "check" classe="icone--sm" %}{% else %}2{% endif %}</span>Equipe</a></li>
-      <li class="etapas__item {% if p|secao_ok:'transporte' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#transporte"><span class="etapas__marcador">{% if p|secao_ok:'transporte' %}{% icone "check" classe="icone--sm" %}{% else %}3{% endif %}</span>Transporte</a></li>
-      <li class="etapas__item {% if p|secao_ok:'roteiro' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#roteiro"><span class="etapas__marcador">{% if p|secao_ok:'roteiro' %}{% icone "check" classe="icone--sm" %}{% else %}4{% endif %}</span>Roteiro</a></li>
-      <li class="etapas__item {% if p|secao_ok:'diarias' and oficio.diarias_resumo %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#diarias"><span class="etapas__marcador">{% if p|secao_ok:'diarias' and oficio.diarias_resumo %}{% icone "check" classe="icone--sm" %}{% else %}5{% endif %}</span>Diárias</a></li>
-      <li class="etapas__item {% if p|secao_ok:'justificativa' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#justificativa"><span class="etapas__marcador">{% if p|secao_ok:'justificativa' %}{% icone "check" classe="icone--sm" %}{% else %}6{% endif %}</span>Justificativa</a></li>
-      <li class="etapas__item"><a href="#emissao"><span class="etapas__marcador">7</span>Emissão</a></li>
-      {% endwith %}
-    </ol>
-  </nav>
+{# Progresso: substitui o índice lateral. Cada seção é um link; a forma do marcador é a linguagem de estado. #}
+<nav class="progresso{% if prontidao.pode_emitir %} progresso--completo{% endif %}" aria-label="Seções do ofício">
+  <ol class="progresso__etapas">
+    {% for sec in secoes %}
+      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}</a></li>
+    {% endfor %}
+    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Emissão</a></li>
+  </ol>
+  <div class="progresso__medida">
+    <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Seções prontas"></progress>
+    <span>{{ secoes_ok }} de {{ secoes|length }} seções prontas</span>
+  </div>
+</nav>
 
-  <div class="pilha-lg">
+<div class="documento">
     <!-- 1. Dados -->
-    <section class="cartao" id="dados" aria-labelledby="t-dados">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados"><span class="cartao__numero">1</span>Dados do ofício</h2></div>
-      <div class="cartao__corpo">
-        <div class="campos">
+    <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="dados" aria-labelledby="t-dados">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados do ofício</h2>
+        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
+      <div class="campos">
           <div class="campo col-3">
             <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
             <p class="entrada entrada--estatica" aria-labelledby="rotulo-numero">{{ oficio.numero_formatado }}</p>
@@ -86,7 +88,6 @@
             </div>
           </fieldset>
           {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="col-6" ajuda="Só quando outra instituição custeia." %}
-        </div>
       </div>
     </section>
 
@@ -94,9 +95,10 @@
     {% include "viagens/oficios/_equipe.html" %}
 
     <!-- 3. Transporte -->
-    <section class="cartao" id="transporte" aria-labelledby="t-transporte">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-transporte"><span class="cartao__numero">3</span>Transporte</h2></div>
-      <div class="cartao__corpo transporte">
+    <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="transporte" aria-labelledby="t-transporte">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-transporte"><span class="secao__numero">3</span>Transporte</h2>
+        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
+      <div class="transporte">
         <div class="campos">
           <fieldset class="grupo-campos">
             <legend>Meio de transporte</legend>
@@ -117,14 +119,15 @@
     </section>
 
     <!-- 4. Roteiro -->
-    <section class="cartao" id="roteiro" aria-labelledby="t-roteiro">
-      <div class="cartao__cabecalho">
-        <h2 class="cartao__titulo" id="t-roteiro"><span class="cartao__numero">4</span>Roteiro</h2>
-        <div class="cartao__acoes">
+    <section class="secao{% if secoes.3.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">4</span>Roteiro</h2>
+        <div class="secao__estado">
+          {% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}
           <button type="submit" form="form-oficio" name="acao" value="adicionar_destino" class="botao botao--sm" formnovalidate>{% icone "plus" %}Adicionar destino</button>
         </div>
       </div>
-      <div class="cartao__corpo pilha">
+      <div class="pilha">
         <p class="texto-secundario texto-sm">Saída de <strong>{{ oficio.sede }}</strong>. Informe cada destino com a saída e a chegada, e por fim o retorno à sede. Horários no fuso de Brasília.</p>
         {% for f in destinos %}
           <fieldset class="roteiro-linha" aria-labelledby="leg-destino-{{ forloop.counter }}">
@@ -162,12 +165,12 @@
     </div>
 
     <!-- 6. Justificativa -->
-    <section class="cartao" id="justificativa" aria-labelledby="t-justificativa">
-      <div class="cartao__cabecalho">
-        <h2 class="cartao__titulo" id="t-justificativa"><span class="cartao__numero">6</span>Justificativa de prazo</h2>
-        {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso">Dispensada</span>{% endif %}
+    <section class="secao{% if secoes.5.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">6</span>Justificativa de prazo</h2>
+        <div class="secao__estado">{% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}</div>
       </div>
-      <div class="cartao__corpo pilha">
+      <div class="pilha">
         <div class="alerta {% if prazo.justificativa_obrigatoria %}alerta--aviso{% else %}{% endif %}" role="note">
           {% icone "calendar-days" %}<div class="alerta__corpo"><p>{{ prazo.mensagem }}</p></div>
         </div>
@@ -179,18 +182,15 @@
     </section>
 
     <!-- 7. Emissão -->
-    <section class="cartao" id="emissao" aria-labelledby="t-emissao">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-emissao"><span class="cartao__numero">7</span>Pronto para emitir?</h2></div>
-      <div class="cartao__corpo">
-        {% include "viagens/oficios/_prontidao.html" with na_edicao=True %}
-      </div>
+    <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">7</span>Pronto para emitir?</h2></div>
+      {% include "viagens/oficios/_prontidao.html" with na_edicao=True %}
     </section>
-  </div>
 </div>
 
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair.">
-    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir<span class="barra-acoes__secundario"> · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
+  <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
+    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario"> · {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir<span class="barra-acoes__secundario"> · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
   <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Revisar e emitir</button>{% endif %}

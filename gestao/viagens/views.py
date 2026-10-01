@@ -133,15 +133,29 @@ def novo(request: HttpRequest) -> HttpResponse:
 
 
 # ------------------------------------------------------------------ edição
+SECOES_DO_OFICIO = [("dados", "Dados"), ("equipe", "Equipe"), ("transporte", "Transporte"),
+                    ("roteiro", "Roteiro"), ("diarias", "Diárias"),
+                    ("justificativa", "Justificativa")]
+
+
 def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, erro_roteiro=""):
     if destinos is None or retorno is None:
         iniciais_destinos, inicial_retorno = iniciais_do_roteiro(oficio)
         destinos = destinos or ConjuntoDestinos(initial=iniciais_destinos, prefix="destino")
         retorno = retorno or FormularioRetorno(initial=inicial_retorno, prefix="retorno")
     prontidao = services.verificar_prontidao(oficio)
+    secoes = []
+    for chave, rotulo in SECOES_DO_OFICIO:
+        pendencias = prontidao.da_secao(chave)
+        ok = not pendencias and (chave != "diarias" or bool(oficio.diarias_resumo))
+        secoes.append({"chave": chave, "rotulo": rotulo, "ok": ok,
+                       "bloqueia": any(p.bloqueia for p in pendencias)})
     return {
         "oficio": oficio,
         "form": form or FormularioOficio(instance=oficio),
+        "secoes": secoes,
+        "secoes_ok": sum(1 for sec in secoes if sec["ok"]),
+        "recem_salvo": request.GET.get("salvo") == "1",
         "destinos": destinos,
         "retorno": retorno,
         "erro_roteiro": erro_roteiro,
@@ -218,8 +232,9 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                                               "pendência(s) para emitir. Veja a seção 7.")
                     return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
                 return redirect("viagens:revisar_emissao", pk=oficio.pk)
-            messages.success(request, f"Rascunho do Ofício {oficio.numero_formatado} salvo.")
-            return redirect("viagens:editar", pk=oficio.pk)
+            # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
+            # não de um toast: o operador salva dezenas de vezes por dia.
+            return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")
     contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
     contexto.update(sujo=True, foco="resumo-erros" if form.errors else "alerta-roteiro")
     return render(request, "viagens/oficios/editar.html", contexto, status=422)
@@ -367,7 +382,7 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
         "trechos": trechos_de(oficio),
         "documentos": documentos,
         "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
-        "historico": oficio.historico.select_related("usuario")[:30],
+        "historico": list(oficio.historico.select_related("usuario")[:30]),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "assunto": services.assunto_do_oficio(oficio),
@@ -380,6 +395,20 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
         "pode_excluir": policies.pode_excluir(request.user, oficio),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, "")),
+    })
+
+
+@require_GET
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: o registro da lista se expande com roteiro, equipe e documentos."""
+    oficio = _oficio_visivel(request, pk)
+    return render(request, "viagens/oficios/_resumo.html", {
+        "oficio": oficio,
+        "viajantes": viajantes_de(oficio),
+        "trechos": trechos_de(oficio),
+        "documentos": list(oficio.documentos.select_related("emitido_por")),
+        "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
+        "pode_editar": policies.pode_editar(request.user, oficio),
     })
 
 

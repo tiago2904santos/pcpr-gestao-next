@@ -67,3 +67,34 @@ def test_sem_modo_escuro():
     assert "color-scheme: light;" in (CSS / "base.css").read_text()
     base = (RAIZ / "templates" / "base_documento.html").read_text()
     assert '<meta name="color-scheme" content="light">' in base
+
+
+FOCO = ["--foco-cor", "--foco-contraste", "--foco-cor-inverso", "--foco-contraste-inverso",
+        "--foco-espessura", "--foco-offset"]
+
+
+def test_sistema_de_foco_proprio_definido_em_tokens():
+    """Overdrive 2: foco com tokens próprios, grafite/dourado, nunca o anel azul padrão."""
+    tokens = (CSS / "tokens.css").read_text()
+    for t in FOCO:
+        assert re.search(rf"{t}\s*:", tokens), f"token de foco ausente: {t}"
+    assert re.search(r"--foco-cor:\s*var\(--grafite-900\)", tokens)
+    assert re.search(r"--foco-cor-inverso:\s*var\(--dourado-300\)", tokens)
+    assert not re.search(r"--foco-cor[a-z-]*:\s*var\(--azul", tokens)
+
+
+def test_focus_visible_global_usa_os_tokens_de_foco():
+    base = (CSS / "base.css").read_text()
+    bloco = re.search(r":focus-visible\s*\{([^}]*)\}", base).group(1)
+    assert "var(--foco-cor)" in bloco and "var(--foco-espessura)" in bloco
+    assert "var(--foco-offset)" in bloco and "var(--foco-contraste)" in bloco
+    todo = "\n".join(f.read_text() for f in CSS.glob("*.css"))
+    assert "outline: auto" not in todo and "-webkit-focus-ring-color" not in todo
+    assert not re.search(r"outline:\s*\d+px\s+solid\s+var\(--azul", todo)
+
+
+def test_view_transitions_respeitam_movimento_reduzido():
+    base = (CSS / "base.css").read_text()
+    assert "@view-transition" in base and "attr(data-vt type(<custom-ident>)" in base
+    reduzido = base[base.index("prefers-reduced-motion: reduce"):]
+    assert "::view-transition-group(*)" in reduzido and "animation: none" in reduzido

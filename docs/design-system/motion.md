@@ -45,3 +45,27 @@ confirmam, uma única ênfase reservada ao momento institucional (emitir).
 - **Pausa com foco**: o toast pausa a barra e o cronômetro em `mouseenter` **e** `focusin`.
 - `prefers-reduced-motion: reduce` zera todos os tokens de duração, `--escala-pressao` vira 1
   e um bloco global força `animation-duration: 0.01ms` — inclusive `pulsar` e `girar`.
+
+## Motion 2.0 — continuidade espacial (View Transitions)
+Em vez de "sumir e aparecer", elementos relacionados **viajam** até onde reaparecem.
+Tudo é CSS; sem suporte do navegador, a troca é instantânea; com `prefers-reduced-motion`,
+tudo é desligado (`::view-transition-*` com `animation: none`).
+
+| Transição | Mecanismo |
+|---|---|
+| Entre páginas (lista → detalhe, revisar → emitido) | `@view-transition { navigation: auto }` (same-origin) |
+| Placa do ofício | `data-vt="placa-<id>"` na lista, no detalhe e na edição: a placa da linha cresce até o cabeçalho |
+| Aba ativa | `.aba[aria-current="page"] { view-transition-name: aba-ativa }`: o destaque desliza entre abas, também nas trocas HTMX (OOB) |
+| Botão "Emitir" → selo "Emitido" | `data-vt="emissao-<id>"` no botão da revisão e no selo do detalhe |
+| Reordenação da lista ao filtrar/ordenar | `htmx-config` com `globalViewTransitions: true` + `data-vt="r<id>"` em cada registro |
+
+Os nomes vêm de `[data-vt] { view-transition-name: attr(data-vt type(<custom-ident>), none) }`
+(sem estilos inline, compatível com a CSP). No painel, as duas listas usam prefixos
+distintos (`p`, `q`) para um mesmo ofício nunca ter dois nomes iguais na página.
+
+## Linguagem de ação (botões)
+`aria-busy` = processando (indicador no centro, largura preservada);
+`data-estado="concluido"` = vira verde e o ícone carimba por 1,6 s;
+`data-estado="erro"` = balança uma vez (`sacudir`). `static/js/componentes/acao.js` aplica
+isso a toda requisição HTMX disparada por botão e ao `invalid` de formulários; o
+salvamento do ofício confirma na barra de ações (`.barra-acoes__status--salvo`), sem toast.

@@ -21,7 +21,7 @@ Fonte única: [`static/css/tokens.css`](../../static/css/tokens.css). Contrastes
 | `--cor-texto`, `--cor-texto-secundario`, `--cor-texto-terciario` | Hierarquia de texto (todos ≥ 4,5:1) |
 | `--cor-marca`, `--cor-marca-texto`, `--cor-marca-fundo`, `--cor-marca-borda` | Indicador ativo, texto dourado legível, realces |
 | `--cor-primaria(-hover/-texto)` | Botão primário grafite |
-| `--cor-foco`, `--anel-foco` | Foco (azul — contrasta com grafite e com dourado) |
+| `--foco-cor`, `--foco-contraste`, `--foco-cor-inverso`, `--foco-contraste-inverso`, `--foco-espessura`, `--foco-offset` | Foco próprio: anel grafite com halo claro; dourado sobre o grafite (`--cor-foco` é alias) |
 | `--cor-{sucesso,aviso,perigo,info}(-fundo/-borda)` | Selos, alertas, toasts |
 
 ## Tokens translúcidos (profundidade sem cor nova)
@@ -65,6 +65,8 @@ Nunca texto sobre token translúcido sem medir o contraste do resultado composto
 | `--neutro-600` | `--neutro-50` | 6.19:1 ✅ | 4.5:1 | Texto secundário sobre fundo |
 | `--neutro-500` | `--neutro-0` | 5.30:1 ✅ | 4.5:1 | Texto terciário (placeholder) sobre superfície |
 | `--neutro-500` | `--neutro-50` | 4.86:1 ✅ | 4.5:1 | Texto terciário sobre fundo |
+| `--neutro-600` | `--neutro-100` | 5.72:1 ✅ | 4.5:1 | Texto secundário sobre fundo do login/realce |
+| `--neutro-300` | `--grafite-800` | 7.58:1 ✅ | 4.5:1 | Texto sutil do cabeçalho (busca, subtítulo) |
 | `--neutro-0` | `--grafite-900` | 14.92:1 ✅ | 4.5:1 | Texto do cabeçalho / botão primário |
 | `--grafite-950` | `--dourado-500` | 6.43:1 ✅ | 4.5:1 | Texto do botão de marca |
 | `--dourado-700` | `--neutro-0` | 5.84:1 ✅ | 4.5:1 | Texto dourado sobre branco |
@@ -77,7 +79,10 @@ Nunca texto sobre token translúcido sem medir o contraste do resultado composto
 | `--azul-700` | `--neutro-0` | 7.61:1 ✅ | 4.5:1 | Links |
 | `--neutro-0` | `--vermelho-600` | 6.57:1 ✅ | 4.5:1 | Botão de perigo |
 | `--neutro-400` | `--neutro-0` | 3.43:1 ✅ | 3.0:1 | Borda de campo (componente, 1.4.11) |
-| `--azul-600` | `--neutro-0` | 6.04:1 ✅ | 3.0:1 | Anel de foco (2.4.11/1.4.11) |
+| `--grafite-900` | `--neutro-0` | 14.92:1 ✅ | 3.0:1 | Anel de foco sobre superfícies claras (2.4.11/1.4.11) |
+| `--grafite-900` | `--neutro-50` | 13.68:1 ✅ | 3.0:1 | Anel de foco sobre o fundo da página |
+| `--dourado-300` | `--grafite-900` | 8.55:1 ✅ | 3.0:1 | Anel de foco sobre o cabeçalho |
+| `--grafite-800` | `--neutro-0` | 12.79:1 ✅ | 3.0:1 | Borda do campo em foco |
 | `--dourado-600` | `--neutro-0` | 3.75:1 ✅ | 3.0:1 | Indicador dourado de item ativo (não textual) |
 | `--dourado-600` | `--dourado-50` | 3.51:1 ✅ | 3.0:1 | Indicador ativo sobre fundo de marca |
 | `--neutro-400` | `--neutro-50` | 3.15:1 ✅ | 3.0:1 | Borda de campo sobre fundo |

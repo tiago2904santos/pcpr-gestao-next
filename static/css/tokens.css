@@ -96,7 +96,7 @@
   --brilho-dourado-16: rgb(191 154 69 / 0.16);
   --brilho-dourado-28: rgb(191 154 69 / 0.28);
   --brilho-dourado-45: rgb(191 154 69 / 0.45);
-  --anel-foco-suave: rgb(35 100 170 / 0.2);
+  --anel-foco-suave: rgb(191 154 69 / 0.32);   /* halo dourado do campo em foco */
   --anel-perigo-suave: rgb(180 35 24 / 0.18);
 
   /* ---------- Tokens semânticos ---------- */
@@ -129,8 +129,18 @@
   --cor-primaria-ativa: var(--grafite-950);
   --cor-primaria-texto: var(--neutro-0);
 
-  --cor-foco: var(--azul-600);
-  --anel-foco: 0 0 0 2px var(--neutro-0), 0 0 0 4px var(--cor-foco);
+  /* Foco: assinatura própria, nunca o anel azul do navegador. Anel grafite com um halo
+     claro que o separa de qualquer fundo; sobre superfícies escuras (cabeçalho) o anel
+     vira dourado-300 e o halo, grafite. Tudo via :focus-visible (teclado), WCAG 2.4.7/2.4.11. */
+  --foco-cor: var(--grafite-900);
+  --foco-contraste: var(--neutro-0);
+  --foco-cor-inverso: var(--dourado-300);
+  --foco-contraste-inverso: var(--grafite-950);
+  --foco-espessura: 2px;
+  --foco-offset: 2px;
+  --cor-foco: var(--foco-cor);
+  --anel-foco: 0 0 0 var(--foco-offset) var(--foco-contraste),
+    0 0 0 calc(var(--foco-offset) + var(--foco-espessura)) var(--foco-cor);
 
   --cor-sucesso: var(--verde-700);
   --cor-sucesso-solida: var(--verde-600);
@@ -276,5 +286,13 @@
     --duracao-lenta: 0ms;
     --duracao-enfase: 0ms;
     --escala-pressao: 1;
+  }
+}
+
+/* No celular o menu vira gaveta: o topo fixo é só o cabeçalho (âncoras, sticky e
+   scroll-padding usam este token). */
+@media (max-width: 767.98px) {
+  :root {
+    --altura-topo: var(--altura-cabecalho);
   }
 }

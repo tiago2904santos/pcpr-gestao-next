@@ -29,6 +29,6 @@
 {% block navegacao_etapas %}
   <a class="botao" href="{% url 'viagens:editar' oficio.pk %}">{% icone "arrow-left" %}Voltar e corrigir</a>
   <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
-  <button type="submit" class="botao botao--marca" formaction="{% url 'viagens:emitir' oficio.pk %}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}
+  <button type="submit" class="botao botao--marca" formaction="{% url 'viagens:emitir' oficio.pk %}" data-vt="emissao-{{ oficio.pk }}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}
           data-confirmar="O Ofício {{ oficio.numero_formatado }} será emitido com valor total de {{ dados.diarias.total }}. Os dados ficam travados e o PDF oficial é gerado." data-confirmar-titulo="Emitir ofício?" data-confirmar-rotulo="Emitir">{% icone "stamp" %}Emitir ofício</button>
 {% endblock %}
