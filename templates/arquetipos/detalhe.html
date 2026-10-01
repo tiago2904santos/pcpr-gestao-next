@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo DETAIL. Blocos: cabecalho_detalhe, principal, contexto (coluna lateral).{% endcomment %}
+{% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
+{% block conteudo %}
+{% block cabecalho_detalhe %}{% endblock %}
+<div class="layout-detalhe">
+  <div class="pilha-lg">{% block principal %}{% endblock %}</div>
+  <aside class="layout-detalhe__lateral" aria-label="Contexto">{% block contexto %}{% endblock %}</aside>
+</div>
+{% endblock %}

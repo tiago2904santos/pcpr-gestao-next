@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% comment %}
+Arquétipo FORM. Blocos: indice (etapas), secoes, barra_status, barra_acoes.
+O <form> envolve índice e seções; a barra de ações fixa fica dentro do form.
+{% endcomment %}
+{% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
+{% block conteudo %}
+{% block cabecalho_formulario %}{% endblock %}
+<form method="post" novalidate {% block atributos_form %}{% endblock %}>
+  {% csrf_token %}
+  {% block resumo_erros %}{% include "componentes/resumo_erros.html" %}{% endblock %}
+  <div class="layout-formulario mt-4">
+    <nav class="layout-formulario__indice cartao" aria-label="Seções do formulário">{% block indice %}{% endblock %}</nav>
+    <div class="pilha-lg">{% block secoes %}{% endblock %}</div>
+  </div>
+  <div class="barra-acoes">
+    <div class="barra-acoes__status" aria-live="polite">{% block barra_status %}{% endblock %}</div>
+    {% block barra_acoes %}{% endblock %}
+  </div>
+</form>
+{% endblock %}

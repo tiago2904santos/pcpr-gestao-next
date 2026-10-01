@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest:*)",
+      "Bash(uv run python manage.py check:*)",
+      "Bash(uv run python manage.py doctor:*)",
+      "Bash(uv run python scripts/capturar.py:*)",
+      "Bash(scripts/verificar.sh:*)",
+      "Bash(npm run typecheck:*)"
+    ],
+    "deny": [
+      "Bash(uv run python manage.py flush:*)",
+      "Bash(dropdb:*)",
+      "Read(.env)",
+      "Read(**/.env)"
+    ]
+  }
+}

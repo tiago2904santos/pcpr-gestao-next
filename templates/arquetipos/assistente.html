@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo WIZARD. Blocos: etapas (horizontal), etapa, navegacao_etapas.{% endcomment %}
+{% block classe_conteudo %}conteudo__interno--estreito{% endblock %}
+{% block conteudo %}
+{% block cabecalho_assistente %}{% endblock %}
+<ol class="etapas etapas--horizontal mb-4" aria-label="Etapas">{% block etapas %}{% endblock %}</ol>
+<form method="post" class="cartao" novalidate>
+  {% csrf_token %}
+  <div class="cartao__corpo pilha">{% block etapa %}{% endblock %}</div>
+  <div class="cartao__rodape">{% block navegacao_etapas %}{% endblock %}</div>
+</form>
+{% endblock %}

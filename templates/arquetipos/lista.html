@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% comment %}
+Arquétipo LIST. Blocos: titulo_lista, acoes_lista, abas_filtro, filtros, itens, vazio.
+Contexto esperado: migalhas, page_obj, querystring_base, total.
+{% endcomment %}
+{% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    {% block sobretitulo %}{% endblock %}
+    <h1 class="pagina-cabecalho__titulo">{% block titulo_lista %}{% endblock %}</h1>
+    {% block descricao_lista %}{% endblock %}
+  </div>
+  <div class="pagina-cabecalho__acoes">{% block acoes_lista %}{% endblock %}</div>
+</header>
+{% block abas_filtro %}{% endblock %}
+<section class="cartao mt-4" aria-labelledby="titulo-resultados">
+  {% block filtros %}{% endblock %}
+  <div id="resultados" class="lista-resultados">
+    {% block resultados %}{% endblock %}
+  </div>
+</section>
+{% endblock %}

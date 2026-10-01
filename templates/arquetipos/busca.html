@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo SEARCH: campo grande e resultados agrupados por tipo (funciona sem JS).{% endcomment %}
+{% block conteudo %}
+{% block cabecalho_busca %}{% endblock %}
+<form method="get" role="search" class="cartao cartao__corpo">{% block campo_busca %}{% endblock %}</form>
+<div class="pilha-lg mt-6">{% block grupos_resultados %}{% endblock %}</div>
+{% endblock %}

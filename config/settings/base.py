@@ -194,7 +194,11 @@ LOGGING = {
     "formatters": {"simples": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}},
     "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simples"}},
     "root": {"handlers": ["console"], "level": "INFO"},
-    "loggers": {"django.db.backends": {"level": "WARNING"}},
+    "loggers": {
+        "django.db.backends": {"level": "WARNING"},
+        "weasyprint": {"level": "WARNING"},
+        "fontTools": {"level": "WARNING"},
+    },
 }
 
 # Identidade institucional exibida no shell e nos documentos.

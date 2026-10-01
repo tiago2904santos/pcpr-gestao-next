@@ -628,7 +628,8 @@ a.indicador:hover {
 }
 
 .indicador__valor {
-  font-size: var(--texto-3xl);
+  font-size: var(--texto-2xl);
+  white-space: nowrap;
   font-weight: var(--peso-semi);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -1000,6 +1001,7 @@ a.indicador:hover {
 }
 
 .tabela__principal {
+  white-space: nowrap;
   font-weight: var(--peso-semi);
   color: var(--cor-texto);
   text-decoration: none;
@@ -1458,8 +1460,8 @@ a.tabela__principal:hover {
   counter-reset: etapa;
 }
 
-.etapas__item a,
-.etapas__item span {
+.etapas__item > a,
+.etapas__item > span {
   display: flex;
   align-items: center;
   gap: var(--esp-3);
@@ -1471,7 +1473,7 @@ a.tabela__principal:hover {
   font-weight: var(--peso-medio);
 }
 
-.etapas__item a:hover {
+.etapas__item > a:hover {
   background: var(--cor-superficie-realce);
   color: var(--cor-texto);
 }
@@ -1489,8 +1491,8 @@ a.tabela__principal:hover {
   flex: none;
 }
 
-.etapas__item--atual a,
-.etapas__item--atual span {
+.etapas__item--atual > a,
+.etapas__item--atual > span {
   background: var(--cor-marca-fundo);
   color: var(--cor-texto);
   font-weight: var(--peso-semi);
