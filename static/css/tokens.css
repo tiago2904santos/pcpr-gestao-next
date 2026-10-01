@@ -108,7 +108,7 @@
   --cor-borda: var(--neutro-200);
   --cor-borda-sutil: var(--neutro-100);
   --cor-borda-forte: var(--neutro-300);
-  --cor-borda-campo: var(--neutro-300);
+  --cor-borda-campo: var(--neutro-400);   /* 3,4:1 — limite do campo visível (1.4.11) */
   --cor-texto: var(--neutro-900);
   --cor-texto-secundario: var(--neutro-600);
   --cor-texto-terciario: var(--neutro-500);

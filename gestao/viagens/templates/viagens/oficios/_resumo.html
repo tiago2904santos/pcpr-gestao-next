@@ -2,7 +2,7 @@
 {# Resumo em linha do ofício (expansão do registro na lista). Três colunas de leitura, sem caixas. #}
 <div class="resumo">
   <div>
-    <p class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</p>
+    <h3 class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</h3>
     {% if trechos %}
       <ol class="resumo__lista">
         {% for t in trechos %}<li class="resumo__trecho"><span>{{ t.origem }} → {{ t.destino }}</span><time datetime="{{ t.saida_em|date:'c' }}">{{ t.saida_em|date:"d/m H:i" }}</time></li>{% endfor %}
@@ -10,7 +10,7 @@
     {% else %}<p class="vazio-inline">Roteiro não informado.</p>{% endif %}
   </div>
   <div>
-    <p class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</p>
+    <h3 class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</h3>
     {% if viajantes %}
       <ul class="resumo__lista">
         {% for v in viajantes %}<li>{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</li>{% endfor %}
@@ -18,18 +18,18 @@
     {% else %}<p class="vazio-inline">Sem servidores.</p>{% endif %}
   </div>
   <div>
-    <p class="resumo__titulo">{% icone "files" classe="icone--sm" %}{% if prontidao %}Próximos passos{% else %}Documentos{% endif %}</p>
-    {% if prontidao %}
-      {% if prontidao.pode_emitir %}<p>{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.</p>
-      {% else %}<ul class="resumo__lista">{% for p in prontidao.bloqueantes|slice:":3" %}<li>{{ p.mensagem }}</li>{% endfor %}{% if prontidao.bloqueantes|length > 3 %}<li class="texto-secundario">+{{ prontidao.bloqueantes|length|add:"-3" }} pendências</li>{% endif %}</ul>{% endif %}
-    {% elif documentos %}
+    <h3 class="resumo__titulo">{% icone "files" classe="icone--sm" %}Documentos</h3>
+    {% if documentos %}
       <ul class="resumo__lista">
-        {% for d in documentos %}<li>{% if d.situacao == "pronto" %}<a href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{{ d.get_tipo_display }} v{{ d.versao }}</a>{% else %}{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }}){% endif %}</li>{% endfor %}
+        {% for d in documentos %}<li>{% if d.situacao == "pronto" %}<a href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{{ d.get_tipo_display }} v{{ d.versao }}<span class="sr-only"> (nova aba)</span></a>{% else %}{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }}){% endif %}</li>{% endfor %}
       </ul>
-    {% else %}<p class="vazio-inline">Nenhum documento.</p>{% endif %}
+    {% else %}<p class="vazio-inline">{% if prontidao %}Nenhum ainda — aparecem na emissão.{% else %}Nenhum documento.{% endif %}</p>{% endif %}
+    {% if prontidao %}
+      <p class="resumo__pendencias">{% if prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %}Tudo pronto para emitir{% else %}{% icone "alert-circle" classe="icone--sm" %}<a href="{% url 'viagens:editar' oficio.pk %}#emissao">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</a>{% endif %}</p>
+    {% endif %}
     <div class="resumo__acoes">
-      <a class="botao botao--sm" href="{% url 'viagens:detalhe' oficio.pk %}">{% icone "eye" %}Abrir</a>
-      {% if pode_editar %}<a class="botao botao--sm botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Editar</a>{% endif %}
+      {% if pode_editar %}<a class="botao botao--sm botao--primario" href="{% url 'viagens:editar' oficio.pk %}" aria-label="Continuar edição do Ofício {{ oficio.numero_formatado }}">{% icone "pencil" %}Continuar edição</a>{% endif %}
+      <a class="botao botao--sm" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
     </div>
   </div>
 </div>

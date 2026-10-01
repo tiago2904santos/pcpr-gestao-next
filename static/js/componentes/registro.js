@@ -2,8 +2,9 @@
 /**
  * Registro expansível (listas): `<button data-expandir aria-expanded="false">` dentro de
  * `.registro` abre/fecha `.registro__extra`. O conteúdo vem por HTMX na primeira abertura
- * (`hx-trigger="click once"` no próprio botão); este módulo só cuida do estado visual
- * e do teclado (Esc fecha e devolve o foco ao botão).
+ * (depois, `data-carregado` no registro cancela novas buscas); este módulo cuida
+ * do estado visual, do carregamento (aria-busy, erro) e do teclado (Esc fecha e devolve
+ * o foco ao botão — sem roubar o Esc dos menus abertos dentro da linha).
  */
 document.addEventListener("click", (e) => {
   const botao = /** @type {HTMLElement | null} */ (
@@ -19,12 +20,49 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  const registro = /** @type {HTMLElement | null} */ (
-    /** @type {HTMLElement} */ (e.target).closest(".registro--aberto")
-  );
+  const alvo = /** @type {HTMLElement} */ (e.target);
+  if (alvo.closest("[role='menu']")) return; // o menu trata o seu próprio Esc
+  const registro = /** @type {HTMLElement | null} */ (alvo.closest(".registro--aberto"));
   if (!registro) return;
   const botao = /** @type {HTMLElement | null} */ (registro.querySelector("[data-expandir]"));
   registro.classList.remove("registro--aberto");
   botao?.setAttribute("aria-expanded", "false");
   botao?.focus();
+});
+
+/** @param {Event} evento @returns {HTMLElement | null} */
+function extraDe(evento) {
+  const e = /** @type {CustomEvent} */ (evento);
+  const origem = /** @type {HTMLElement | undefined} */ (e.detail?.elt);
+  if (!origem?.hasAttribute("data-expandir")) return null;
+  return /** @type {HTMLElement | null} */ (origem.closest(".registro")?.querySelector(".registro__extra"));
+}
+
+document.body.addEventListener("htmx:beforeRequest", (evento) => {
+  const extra = extraDe(evento);
+  if (!extra) return;
+  // Já carregado: não busca de novo (sem filtro de evento no hx-trigger — a CSP proíbe eval).
+  if (extra.closest(".registro")?.hasAttribute("data-carregado")) {
+    evento.preventDefault();
+    return;
+  }
+  extra.setAttribute("aria-busy", "true");
+});
+
+document.body.addEventListener("htmx:afterRequest", (evento) => {
+  const extra = extraDe(evento);
+  if (!extra) return;
+  extra.removeAttribute("aria-busy");
+  const ok = Boolean(/** @type {CustomEvent} */ (evento).detail?.successful);
+  if (ok) {
+    extra.closest(".registro")?.setAttribute("data-carregado", "");
+    return;
+  }
+  // Falhou: mensagem no lugar do esqueleto; o próximo clique tenta de novo.
+  extra.textContent = "";
+  const aviso = document.createElement("p");
+  aviso.className = "registro__erro";
+  aviso.setAttribute("role", "alert");
+  aviso.textContent = "Não foi possível carregar o resumo. Tente de novo.";
+  extra.append(aviso);
 });

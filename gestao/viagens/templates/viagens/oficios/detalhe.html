@@ -15,8 +15,7 @@ lateral: o que é secundário recua por hierarquia e disclosure, não por caixa 
   </span>
   <div class="pagina-cabecalho__texto">
     <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem · {{ oficio.unidade.sigla }}</p>
-    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }}
-      <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}" data-vt="emissao-{{ oficio.pk }}">{{ oficio.get_situacao_display }}</span>
+    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }}<span class="sr-only"> — {{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
     </h1>
     <p class="pagina-cabecalho__descricao">{% with d=oficio|destinos %}{{ d|default:"Sem destino" }}{% endwith %}{% with p=trechos|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}{% if oficio.protocolo %} · Protocolo {{ oficio.protocolo_formatado }}{% endif %}</p>
@@ -25,7 +24,7 @@ lateral: o que é secundário recua por hierarquia e disclosure, não por caixa 
       {% if oficio.situacao == 'cancelado' %}
         <li class="processo__passo processo__passo--cancelado">Cancelado</li>
       {% else %}
-        <li class="processo__passo{% if oficio.situacao == 'emitido' %} processo__passo--atual{% endif %}">Emitido</li>
+        <li class="processo__passo{% if oficio.situacao == 'emitido' %} processo__passo--atual{% endif %}"{% if oficio.situacao == 'emitido' %} data-vt="emissao-{{ oficio.pk }}"{% endif %}>Emitido</li>
       {% endif %}
     </ol>
   </div>
@@ -132,7 +131,7 @@ lateral: o que é secundário recua por hierarquia e disclosure, não por caixa 
   </ol>
   {% if historico|length > 6 %}
     <details>
-      <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}Ver histórico completo ({{ historico|length }} eventos)</summary>
+      <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
       <ol class="linha-tempo linha-tempo--colunas mt-4">
         {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
       </ol>

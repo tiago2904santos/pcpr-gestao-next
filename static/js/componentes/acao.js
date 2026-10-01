@@ -16,7 +16,7 @@ const DURACAO_CONCLUIDO = 1600;
 function botaoDe(evento) {
   const e = /** @type {CustomEvent} */ (evento);
   const origem = /** @type {HTMLElement | undefined} */ (e.detail?.elt);
-  if (!origem) return null;
+  if (!origem || origem.hasAttribute("data-expandir")) return null; // disclosure, não ação
   if (origem instanceof HTMLButtonElement) return origem;
   const submissor = /** @type {HTMLButtonElement | null | undefined} */ (e.detail?.requestConfig?.triggeringEvent?.submitter);
   if (submissor) return submissor;
@@ -71,6 +71,28 @@ document.body.addEventListener("htmx:afterRequest", (evento) => {
     b.addEventListener("animationend", () => delete b.dataset.estado, { once: true });
   }
 });
+
+// Formulário comum salvo por POST + redirecionamento (barra marcada como "salvo"):
+// o botão "Salvar" chega já no estado concluído e volta ao normal em seguida.
+const salvo = document.querySelector(".barra-acoes__status--salvo");
+const botaoSalvar = /** @type {HTMLButtonElement | null} */ (
+  document.querySelector(".barra-acoes button[form]:not([name])")
+);
+if (salvo && botaoSalvar) {
+  botaoSalvar.dataset.estado = "concluido";
+  window.setTimeout(() => {
+    if (botaoSalvar.dataset.estado === "concluido") delete botaoSalvar.dataset.estado;
+  }, DURACAO_CONCLUIDO);
+  // Região ao vivo: conteúdo que já veio do servidor não é anunciado; reescrevê-lo é.
+  const texto = salvo.textContent;
+  window.requestAnimationFrame(() => { salvo.textContent = texto; });
+  // F5 não deve "salvar de novo": tira ?salvo=1 da URL.
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("salvo")) {
+    url.searchParams.delete("salvo");
+    window.history.replaceState(window.history.state, "", url);
+  }
+}
 
 // Formulário comum recusado pelo navegador (campo required vazio): o botão balança.
 document.addEventListener("invalid", (e) => {

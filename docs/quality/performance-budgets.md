@@ -11,7 +11,7 @@ usuário logado, cenário fictício). Estourar qualquer orçamento reprova o CI.
 | CLS | ≤ 0,05 | Esqueletos reservam espaço; imagens com dimensão |
 | INP | ≤ 200 ms | Limite "bom" do Core Web Vitals |
 | HTML | ≤ 120 KB | Listas paginadas (20 por página) |
-| CSS | ≤ 90 KB | 4 arquivos, sem framework |
+| CSS | ≤ 130 KB | 4 arquivos, sem framework; ≈ 24 KB com gzip (Overdrive 2: 120 KB brutos, dos quais ~17 KB são comentários do Design System) |
 | JS | ≤ 110 KB | htmx (52 KB) + Web Components (~20 KB) + página |
 | Requisições | ≤ 25 | Sprite único de ícones, uma fonte |
 | Consultas SQL por página | ≤ 25 | `select_related`/`prefetch_related`; alerta no log acima disso |

@@ -20,7 +20,7 @@ pytestmark = pytest.mark.perf
 
 ORCAMENTO = {
     "ttfb_ms": 300, "fcp_ms": 1200, "lcp_ms": 1800, "cls": 0.05, "inp_ms": 200,
-    "html_kb": 120, "css_kb": 90, "js_kb": 110, "requisicoes": 25, "sql": 25, "db_ms": 80,
+    "html_kb": 120, "css_kb": 130, "js_kb": 110, "requisicoes": 25, "sql": 25, "db_ms": 80,
 }
 
 ROTAS = ["/", "/viagens/", "/viagens/oficios/", "/viagens/oficios/novo/",

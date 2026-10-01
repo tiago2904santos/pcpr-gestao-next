@@ -43,9 +43,9 @@
       {% for o in oficios %}
         {# Agrupamento por mês: pela saída quando a ordem é por saída; senão pela data do ofício. #}
         {% if ordem == "saida" or ordem == "-saida" %}
-          {% ifchanged o.primeira_saida|date:"Y-m" %}<li class="registros__grupo" role="presentation">{% if o.primeira_saida %}Saída em {{ o.primeira_saida|date:"F \d\e Y" }}{% else %}Sem data de saída{% endif %}</li>{% endifchanged %}
+          {% ifchanged o.primeira_saida|date:"Y-m" %}<li class="registros__grupo">{% if o.primeira_saida %}Saída em {{ o.primeira_saida|date:"F \d\e Y" }}{% else %}Sem data de saída{% endif %}</li>{% endifchanged %}
         {% else %}
-          {% ifchanged o.data_oficio|date:"Y-m" %}<li class="registros__grupo" role="presentation">{{ o.data_oficio|date:"F \d\e Y" }}</li>{% endifchanged %}
+          {% ifchanged o.data_oficio|date:"Y-m" %}<li class="registros__grupo">{{ o.data_oficio|date:"F \d\e Y" }}</li>{% endifchanged %}
         {% endif %}
         {% include "viagens/oficios/_registro.html" %}
       {% endfor %}

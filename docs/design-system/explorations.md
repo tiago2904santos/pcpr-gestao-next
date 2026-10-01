@@ -19,3 +19,18 @@ por **melhora a experiência? melhora a compreensão? continua eficiente o dia i
 Ideias mantidas "fora da caixa": o botão **Emitir** que se transforma no selo **Emitido**
 ao chegar no detalhe; a **placa** que viaja da linha da lista até o cabeçalho; o
 salvamento que **carimba na barra** em vez de abrir um toast.
+
+## Segunda rodada (revisão UX e auditoria de acessibilidade)
+Aplicado: título do registro sempre abre o detalhe (editar é ação explícita); selos de
+contagem/justificativa só em rascunho; placa em linha no celular (1,5 → ~2,5 ofícios por
+tela); histórico em grade por linha (ordem de leitura) e não em `columns`; um só estado no
+cabeçalho do detalhe (o trilho); "Revisar e emitir" dourado só quando a emissão está
+disponível e o número de pendências vira link; "Salvo" aparece no próprio botão depois do
+recarregamento e a barra anuncia ao vivo; bordas de caixa/rádio/campo com ≥ 3:1; summary do
+histórico visível quando aberto; expansão com estado de erro e novo clique após falha.
+
+Rejeitado (com motivo): converter o salvar do ofício em HTMX parcial — o formulário tem
+formset de destinos, comboboxes e validação de roteiro; a troca parcial multiplicaria
+estados; a confirmação na barra + "Salvo" no botão entrega o mesmo feedback sem o risco.
+Agrupar só quando ordenado por saída — o grupo por mês também dá ritmo à ordem por
+número; o cabeçalho ficou mais discreto (grafite) para não disputar com o dourado.

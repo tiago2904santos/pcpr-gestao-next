@@ -185,7 +185,7 @@
 }
 
 .botao[aria-busy="true"] > * {
-  visibility: hidden;
+  opacity: 0; /* some, mas o nome acessível continua */
 }
 
 /* Concluído: vira verde por um instante e o ícone "carimba" — confirmação no próprio
@@ -227,7 +227,7 @@
   --botao-fundo-hover: transparent;
   --botao-sombra: none;
   --botao-texto: var(--cor-texto);
-  min-height: auto;
+  min-height: 1.5rem;
   padding: var(--esp-05) 0;
   border-radius: var(--raio-xs);
   text-decoration: underline;
@@ -499,7 +499,7 @@
   width: 1.125rem;
   height: 1.125rem;
   margin: 0.15rem 0 0;
-  border: 1.5px solid var(--cor-borda-forte);
+  border: 1.5px solid var(--neutro-500); /* 5,3:1 sobre branco (1.4.11) */
   border-radius: var(--raio-xs);
   background: var(--cor-superficie);
   flex: none;
@@ -848,7 +848,17 @@ fieldset.grupo-campos > legend {
 }
 
 .documento--leitura {
-  max-width: 64rem;
+  max-width: 76rem;
+}
+
+.documento .sanfona {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.documento .sanfona > summary {
+  padding-left: 0;
 }
 
 .secao {
@@ -978,7 +988,12 @@ fieldset.grupo-campos > legend {
 
 /* Lista de definições dentro do documento: colunas respiram mais que no cartão. */
 .documento .definicoes {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--esp-4) var(--esp-6);
+}
+
+@media (max-width: 767.98px) {
+  .documento .definicoes { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 767.98px) {
@@ -1033,7 +1048,7 @@ fieldset.grupo-campos > legend {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: var(--raio-pilula);
-  border: 1.5px solid var(--cor-borda-forte);
+  border: 1.5px solid var(--neutro-500);
   background: var(--cor-superficie);
   flex: none;
 }
@@ -1052,12 +1067,18 @@ fieldset.grupo-campos > legend {
 }
 
 .progresso__etapa--pendente > a::before {
-  border-color: var(--cor-aviso-solida);
+  border-color: var(--cor-aviso);
 }
 
 .progresso__etapa--bloqueia > a::before {
-  border-color: var(--cor-perigo-solida);
-  background: var(--cor-perigo-fundo);
+  border-color: var(--cor-aviso);
+  background: var(--cor-aviso-fundo);
+}
+
+@media (max-width: 479.98px) {
+  .progresso__etapas { display: none; }
+  .progresso__medida { margin-left: 0; }
+  .progresso__barra { flex: 1; }
 }
 
 .progresso__medida {
@@ -1088,7 +1109,7 @@ fieldset.grupo-campos > legend {
 }
 
 .progresso__barra::-webkit-progress-value {
-  background: linear-gradient(90deg, var(--dourado-500), var(--dourado-400));
+  background: linear-gradient(90deg, var(--dourado-600), var(--dourado-500));
   border-radius: var(--raio-pilula);
   transition: width var(--duracao-lenta) var(--curva-padrao);
 }
@@ -1222,6 +1243,11 @@ a.indicador:hover {
 
 .placa--cancelada .placa__rotulo {
   color: var(--cor-texto-terciario);
+}
+
+.placa--campo {
+  margin: 0;
+  align-self: flex-start;
 }
 
 .placa--grande {
@@ -1599,6 +1625,11 @@ a.indicador:hover {
   text-decoration: none;
 }
 
+.aba:focus-visible {
+  outline-offset: calc(-1 * var(--foco-offset));
+  box-shadow: none;
+}
+
 .aba[aria-selected="true"],
 .aba[aria-current="page"] {
   color: var(--cor-texto);
@@ -1941,7 +1972,7 @@ a.tabela__principal:hover {
   font-weight: var(--peso-forte);
   letter-spacing: var(--rastreio-rotulo);
   text-transform: uppercase;
-  color: var(--cor-marca-texto);
+  color: var(--cor-texto-secundario);
 }
 
 .registros__grupo::after {
@@ -2035,6 +2066,24 @@ a.tabela__principal:hover {
   white-space: nowrap;
 }
 
+.registro__erro {
+  padding: var(--esp-2) 0;
+  color: var(--cor-perigo);
+  font-size: var(--texto-sm);
+}
+
+.resumo__pendencias {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-1);
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-secundario);
+}
+
+.resumo__pendencias .icone {
+  color: var(--cor-aviso);
+}
+
 .resumo__acoes {
   display: flex;
   flex-wrap: wrap;
@@ -2092,6 +2141,19 @@ a.tabela__principal:hover {
   box-shadow: inset 0 0 0 2px var(--cor-foco);
 }
 
+/* Sem :has() (navegadores antigos), o próprio link mostra o anel. */
+@supports not selector(:has(a)) {
+  .registro__link:focus-visible {
+    outline: var(--foco-espessura) solid var(--foco-cor);
+    outline-offset: var(--foco-offset);
+  }
+}
+
+/* Linha focada nunca fica sob o cabeçalho de grupo preso ao topo. */
+.registro {
+  scroll-margin-top: calc(var(--altura-topo) + 2.5rem);
+}
+
 .registro__meta {
   display: flex;
   flex-wrap: wrap;
@@ -2143,17 +2205,29 @@ a.tabela__principal:hover {
 }
 
 @media (max-width: 767.98px) {
+  /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda. */
   .registro {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: var(--esp-2) var(--esp-3);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "placa acoes" "corpo corpo" "extra extra";
+    gap: var(--esp-1) var(--esp-3);
     align-items: start;
     padding: var(--esp-3) var(--esp-4);
   }
   .registro__icone { display: none; }
-  /* A placa continua: é como o operador reconhece o ofício. Só fica mais compacta. */
-  .registro > .placa { min-width: 3.75rem; padding: var(--esp-05) var(--esp-1); }
+  .registro > .placa {
+    grid-area: placa;
+    justify-self: start;
+    flex-direction: row;
+    gap: var(--esp-1);
+    min-width: 0;
+    padding: 0 var(--esp-1);
+    line-height: 1.4;
+  }
   .registro > .placa .placa__numero { font-size: var(--texto-sm); }
-  .registro__acoes { opacity: 1; }
+  .registro__corpo { grid-area: corpo; }
+  .registro__acoes { grid-area: acoes; opacity: 1; }
+  .registro__extra { grid-area: extra; }
+  .registro__meta { gap: var(--esp-05) var(--esp-3); font-size: var(--texto-xs); }
 }
 
 /* =============== Barra de filtros =============== */
@@ -2460,12 +2534,14 @@ a.tabela__principal:hover {
 
 /* Histórico em duas colunas em telas largas (eventos são curtos; a página respira). */
 .linha-tempo--colunas {
-  columns: 2;
-  column-gap: var(--esp-8);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--esp-8);
 }
 
-.linha-tempo--colunas .linha-tempo__item {
-  break-inside: avoid;
+/* Em grade, a ordem de leitura é por linha; o conector vertical sairia do eixo. */
+.linha-tempo--colunas .linha-tempo__item::before {
+  display: none;
 }
 
 /* Disclosure "ver histórico completo": o resumo mostra os últimos eventos. */
@@ -2482,10 +2558,11 @@ a.tabela__principal:hover {
 
 .linha-tempo__mais::-webkit-details-marker { display: none; }
 
-details[open] > .linha-tempo__mais { display: none; }
+details[open] > .linha-tempo__mais .linha-tempo__mais-abrir,
+details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: none; }
 
 @media (max-width: 767.98px) {
-  .linha-tempo--colunas { columns: 1; }
+  .linha-tempo--colunas { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* =============== Etapas (wizard / índice de seções) =============== */
@@ -2725,8 +2802,9 @@ dialog.dialogo.gaveta[open] {
 
 .menu__item:hover,
 .menu__item:focus-visible {
+  outline-offset: calc(-1 * var(--foco-offset));
+  box-shadow: none;
   background: var(--cor-superficie-realce);
-  outline: none;
   text-decoration: none;
 }
 

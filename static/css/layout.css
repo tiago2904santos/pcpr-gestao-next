@@ -599,6 +599,11 @@ html:has(.barra-acoes) {
   scroll-padding-bottom: 7rem;
 }
 
+/* O fim da página nunca fica atrás da barra flutuante. */
+html:has(.barra-acoes) .conteudo__interno {
+  padding-bottom: var(--esp-12);
+}
+
 .barra-acoes {
   position: sticky;
   bottom: var(--esp-3);

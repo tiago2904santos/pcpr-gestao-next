@@ -326,7 +326,7 @@ a:not([class]):focus-visible {
 }
 
 ::view-transition-group(*) {
-  animation-duration: var(--duracao-lenta);
+  animation-duration: var(--duracao-media);
   animation-timing-function: var(--curva-padrao);
 }
 

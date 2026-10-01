@@ -140,7 +140,8 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
 
     # Editar um rascunho e salvar.
     pg.goto("/viagens/oficios/?situacao=rascunho")
-    pg.locator(".registro__link").first.click()
+    pg.locator(".registro__link").first.click()  # o título abre o detalhe…
+    pg.get_by_role("link", name="Editar").first.click()  # …e editar é ação explícita
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
     pg.get_by_role("button", name=re.compile("^Salvar")).click()

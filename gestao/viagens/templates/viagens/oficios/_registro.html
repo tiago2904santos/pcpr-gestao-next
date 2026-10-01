@@ -7,13 +7,14 @@
     <span class="placa__rotulo">Ofício</span>
     <span class="placa__numero">{{ o.numero_formatado }}</span>
   </span>
-  <div>
+  <div class="registro__corpo">
     <div class="registro__titulo">
-      <a class="registro__link" href="{% if o.editavel and pode_editar_oficios %}{% url 'viagens:editar' o.pk %}{% else %}{% url 'viagens:detalhe' o.pk %}{% endif %}">
+      {# O título sempre abre o detalhe; "Continuar edição" é ação explícita (menu e resumo). #}
+      <a class="registro__link" href="{% url 'viagens:detalhe' o.pk %}">
         <span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>
-      {% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}
+      {% if o.editavel %}{% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}{% endif %}
       {% if contagem and o.situacao != "cancelado" %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
     </div>
     <div class="registro__meta">
@@ -32,8 +33,8 @@
   <div class="registro__acoes">
     {# Expansão em linha: roteiro, equipe e documentos sem sair da lista (carrega uma vez). #}
     <button type="button" class="botao botao--icone botao--sutil registro__expandir" data-expandir aria-expanded="false"
-            aria-controls="resumo-{{ o.pk }}" aria-label="Mostrar resumo do Ofício {{ o.numero_formatado }}"
-            hx-get="{% url 'viagens:resumo' o.pk %}" hx-trigger="click once" hx-target="#resumo-{{ o.pk }}" hx-swap="innerHTML">{% icone "chevron-down" %}</button>
+            aria-controls="resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}" aria-label="Mostrar resumo do Ofício {{ o.numero_formatado }}"
+            hx-get="{% url 'viagens:resumo' o.pk %}" hx-trigger="click" hx-target="#resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}" hx-swap="innerHTML">{% icone "chevron-down" %}</button>
     <pc-menu class="menu">
       <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
@@ -43,7 +44,7 @@
       </div>
     </pc-menu>
   </div>
-  <div class="registro__extra" id="resumo-{{ o.pk }}">
+  <div class="registro__extra" id="resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}">
     <div class="esqueleto esqueleto--linha"></div><div class="esqueleto esqueleto--curto"></div>
   </div>
 </li>

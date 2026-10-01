@@ -51,9 +51,9 @@
 <nav class="progresso{% if prontidao.pode_emitir %} progresso--completo{% endif %}" aria-label="Seções do ofício">
   <ol class="progresso__etapas">
     {% for sec in secoes %}
-      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}</a></li>
+      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %} (pronta){% elif sec.bloqueia %} (impede a emissão){% else %} (com aviso){% endif %}</span></a></li>
     {% endfor %}
-    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Emissão</a></li>
+    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Emissão<span class="sr-only">{% if prontidao.pode_emitir %} (pronta){% else %} (aguardando as seções){% endif %}</span></a></li>
   </ol>
   <div class="progresso__medida">
     <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Seções prontas"></progress>
@@ -69,7 +69,7 @@
       <div class="campos">
           <div class="campo col-3">
             <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
-            <p class="entrada entrada--estatica" aria-labelledby="rotulo-numero">{{ oficio.numero_formatado }}</p>
+            <p class="placa placa--campo" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Reservado</span><span class="placa__numero">{{ oficio.numero_formatado }}</span></p>
           </div>
           {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
           {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" exigido_para_emitir=True %}
@@ -190,10 +190,11 @@
 
 <div class="barra-acoes">
   <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
-    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario"> · {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir<span class="barra-acoes__secundario"> · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
+    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario"> · {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}<a href="#emissao">{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir</a><span class="barra-acoes__secundario"> · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
   <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
-  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Revisar e emitir</button>{% endif %}
+  {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva à seção 7 (sem beco sem saída), mas não promete emissão. #}
+  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
 </div>
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}
