@@ -11,10 +11,9 @@ from gestao.cadastros.validacoes import (
     sem_acentos,
     somente_digitos,
 )
-from gestao.viagens.tests.cenarios import cpf_ficticio
 
 
-@pytest.mark.parametrize("cpf", ["529.982.247-25", "52998224725", cpf_ficticio(123456700)])
+@pytest.mark.parametrize("cpf", ["529.982.247-25", "52998224725", "12345670088"])
 def test_cpf_valido(cpf):
     assert cpf_valido(cpf)
 
