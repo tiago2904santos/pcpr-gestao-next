@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from django import template
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 register = template.Library()
@@ -89,3 +90,23 @@ def secao_ok(prontidao, secao: str) -> bool:
 @register.filter
 def pendencias_da_secao(prontidao, secao: str):
     return prontidao.da_secao(secao)
+
+
+@register.filter
+def selo_justificativa(oficio) -> dict[str, str] | None:
+    """Selo da lista: justificativa pendente/preenchida quando o prazo a exige."""
+    from ..dominio.prazos import avaliar_prazo
+
+    saida = getattr(oficio, "primeira_saida", None)
+    if oficio.situacao == "cancelado" or saida is None:
+        return None
+    try:
+        prazo = oficio.unidade.configuracao.prazo_justificativa_dias
+    except ObjectDoesNotExist:  # unidade sem configuração: as pendências já avisam
+        return None
+    avaliacao = avaliar_prazo(oficio.data_oficio, timezone.localdate(saida), prazo)
+    if not avaliacao.justificativa_obrigatoria:
+        return None
+    if oficio.justificativa.strip():
+        return {"texto": "Justificativa preenchida", "tom": "sucesso"}
+    return {"texto": "Justificativa pendente", "tom": "aviso"}

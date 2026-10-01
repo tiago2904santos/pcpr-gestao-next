@@ -8,6 +8,7 @@
         Ofício {{ o.numero_formatado }}{% with d=o|destinos %}{% if d %} · {{ d }}{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>
+      {% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}
       {% if contagem and o.situacao != "cancelado" %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
     </div>
     <div class="registro__meta">
