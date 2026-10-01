@@ -136,7 +136,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         modelo.queryset = ModeloTexto.objects.filter(ativo=True,
                                                      tipo=ModeloTexto.Tipo.JUSTIFICATIVA)
         modelo.empty_label = "Escrever do zero"
-        self.fields["porte_arma"].widget.attrs["class"] = ""
+        self.fields["porte_arma"].widget.attrs.update({"class": "", "role": "switch"})
         if self.instance.pk:
             self.fields["versao"].initial = self.instance.versao
             self.initial["protocolo"] = self.instance.protocolo_formatado

@@ -243,7 +243,7 @@ def test_ctrl_s_salva_o_rascunho(logado, dados_e2e):
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
 def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, largura):
-    """WCAG 2.4.11: com Tab pelo formulário, o foco não some sob o topo fixo nem sob a barra."""
+    """WCAG 2.4.11: com Tab, o foco não some sob o topo, a faixa de progresso fixa ou a barra."""
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
@@ -256,7 +256,9 @@ def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, la
           const el = document.activeElement;
           if (!el || el.closest('.barra-acoes, .topo')) return null;
           const c = el.getBoundingClientRect();
-          const topo = document.querySelector('.topo').getBoundingClientRect().bottom;
+          const faixa = document.querySelector('.progresso--fixo');
+          const topo = Math.max(document.querySelector('.topo').getBoundingClientRect().bottom,
+                                faixa ? faixa.getBoundingClientRect().bottom : 0);
           const barra = document.querySelector('.barra-acoes').getBoundingClientRect().top;
           return {id: el.id || el.name || el.tagName, c: c.top, b: c.bottom, topo, barra};
         }""")
@@ -292,3 +294,52 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     nome = pg.locator(".registro .placa").first.get_attribute("data-vt")
     pg.locator(".registro__link").first.click()
     expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
+
+
+def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado, dados_e2e):
+    """Cadastro do ofício: escolhas como cartões (rádios nativos), campo condicional colado à
+    escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
+    instituicao = pg.get_by_label("Instituição que custeia")
+    pg.get_by_role("radio", name=re.compile("^Unidade")).check()
+    expect(instituicao).to_be_hidden()
+    pg.get_by_role("radio", name=re.compile("^Outra instituição")).check()
+    expect(instituicao).to_be_visible()
+    # Teclado: setas trocam o meio de transporte (rádios nativos sob os cartões).
+    viatura = pg.get_by_role("radio", name=re.compile("^Viatura oficial"))
+    viatura.check()
+    viatura.focus()
+    pg.keyboard.press("ArrowDown")
+    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
+    # Porte de arma é um interruptor.
+    expect(pg.get_by_role("switch", name=re.compile("Porte/trânsito de arma"))).to_be_visible()
+    # Itinerário: começa e termina na sede; o trecho diz de onde sai.
+    paradas = pg.locator("#roteiro .parada")
+    expect(paradas.first).to_contain_text("sede · partida")
+    expect(paradas.last).to_contain_text("Retorno a")
+    expect(pg.locator("#roteiro .parada__trecho").first).to_contain_text("Saída de")
+    # Conferência: diz quantas pendências faltam e lista as seções.
+    expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
+    expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
+
+
+def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    faixa = pg.locator(".progresso--fixo")
+    pg.locator("#roteiro").scroll_into_view_if_needed()
+    pg.mouse.wheel(0, 200)
+    expect(faixa).to_be_in_viewport()
+    expect(faixa).to_have_class(re.compile("progresso--flutuando"))
+    expect(faixa.locator("[aria-current='location']")).to_have_count(1)
+
+
+def test_novo_oficio_abre_a_folha_com_a_placa_a_reservar(logado):
+    pg = logado
+    pg.goto("/viagens/oficios/novo/")
+    expect(pg.locator(".placa--a-reservar")).to_be_visible()
+    expect(pg.get_by_role("navigation", name="O que vem depois")).to_contain_text("Conferência")
+    expect(pg.get_by_role("button", name="Criar rascunho e continuar")).to_be_visible()

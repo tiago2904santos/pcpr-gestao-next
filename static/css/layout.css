@@ -599,6 +599,11 @@ html:has(.barra-acoes) {
   scroll-padding-bottom: 7rem;
 }
 
+/* Com a faixa de progresso fixa, a rolagem até um campo/âncora desconta também a faixa. */
+html:has(.progresso--fixo) {
+  scroll-padding-top: calc(var(--altura-topo) + 4rem);
+}
+
 /* O fim da página nunca fica atrás da barra flutuante. */
 html:has(.barra-acoes) .conteudo__interno {
   padding-bottom: var(--esp-12);

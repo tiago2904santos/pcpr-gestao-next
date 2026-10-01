@@ -149,6 +149,11 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         destinos = destinos or ConjuntoDestinos(initial=iniciais_destinos, prefix="destino")
         retorno = retorno or FormularioRetorno(initial=inicial_retorno, prefix="retorno")
     prontidao = services.verificar_prontidao(oficio)
+    # Itinerário: cada destino sabe de onde parte o trecho que chega nele.
+    formularios = list(destinos)
+    anteriores = [str(oficio.sede)] + [
+        (f["cidade"].value() or f"destino {i + 1}") for i, f in enumerate(formularios)]
+    paradas = list(zip(formularios, anteriores[:-1], strict=True))
     secoes = []
     for chave, rotulo in SECOES_DO_OFICIO:
         pendencias = prontidao.da_secao(chave)
@@ -159,6 +164,9 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "oficio": oficio,
         "form": form or FormularioOficio(instance=oficio),
         "secoes": secoes,
+        "paradas": paradas,
+        "ultima_parada": anteriores[-1],
+        "trechos": trechos_de(oficio),
         "secoes_ok": sum(1 for sec in secoes if sec["ok"]),
         "recem_salvo": request.GET.get("salvo") == "1",
         "destinos": destinos,

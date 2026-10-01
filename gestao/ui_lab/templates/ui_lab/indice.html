@@ -20,6 +20,7 @@
       <li class="etapas__item"><a href="#vazios"><span class="etapas__marcador">9</span>Vazio e carregando</a></li>
       <li class="etapas__item"><a href="#foco"><span class="etapas__marcador">10</span>Foco e ação</a></li>
       <li class="etapas__item"><a href="#conceitos"><span class="etapas__marcador">11</span>Laboratório de conceitos</a></li>
+      <li class="etapas__item"><a href="#pecas-formulario"><span class="etapas__marcador">12</span>Peças do formulário</a></li>
     </ol>
   </nav>
 
@@ -382,6 +383,36 @@
           <span class="esqueleto lab__esqueleto-60"></span><span class="esqueleto"></span><span class="esqueleto lab__esqueleto-80"></span>
         </div>
         <div class="cartao cartao__corpo linha">{% icone "loader-circle" classe="girando" %}<span role="status">Calculando diárias…</span></div>
+      </div>
+    </section>
+
+    <!-- 12. PEÇAS DO FORMULÁRIO DO OFÍCIO -->
+    <section class="cartao" id="pecas-formulario" aria-labelledby="t-pecas">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pecas"><span class="cartao__numero">12</span>Peças do formulário do ofício</h2></div>
+      <div class="cartao__corpo pilha-lg">
+        <fieldset class="opcoes" data-lab="opcoes">
+          <legend>Cartões de escolha (rádio nativo; teclado com setas)</legend>
+          <label class="opcao" for="lab-op-1"><input type="radio" name="lab-op" id="lab-op-1" checked><span class="opcao__icone" aria-hidden="true">{% icone "car" %}</span><span class="opcao__texto"><span class="opcao__titulo">Viatura oficial</span><span class="opcao__descricao">Escolha pela placa ou pelo modelo</span></span></label>
+          <label class="opcao" for="lab-op-2"><input type="radio" name="lab-op" id="lab-op-2"><span class="opcao__icone" aria-hidden="true">{% icone "bus" %}</span><span class="opcao__texto"><span class="opcao__titulo">Outro meio</span><span class="opcao__descricao">Ônibus, avião, veículo cedido…</span></span></label>
+          <label class="opcao" for="lab-op-3"><input type="radio" name="lab-op" id="lab-op-3" disabled><span class="opcao__icone" aria-hidden="true">{% icone "plane" %}</span><span class="opcao__texto"><span class="opcao__titulo">Indisponível</span><span class="opcao__descricao">Estado desabilitado</span></span></label>
+        </fieldset>
+        <label class="interruptor interruptor--descrito" for="lab-interruptor"><input type="checkbox" role="switch" id="lab-interruptor" aria-describedby="lab-interruptor-ajuda" checked><span>Interruptor com descrição<span class="escolha__descricao" id="lab-interruptor-ajuda">Para sim/não com efeito no documento.</span></span></label>
+        <ol class="itinerario" aria-label="Itinerário (exemplo)">
+          <li class="parada parada--sede"><span class="parada__marco" aria-hidden="true">{% icone "home" %}</span><div class="parada__corpo"><p class="parada__titulo">Curitiba/PR <small>sede · partida</small></p></div></li>
+          <li class="parada"><span class="parada__marco" aria-hidden="true">1</span><div class="parada__corpo"><p class="parada__titulo">Arapongas/PR <small>trecho 1 · sai de Curitiba/PR</small></p><div class="parada__trecho"><span class="parada__trecho-rotulo">08/10 07:00 → 08/10 12:30</span></div></div></li>
+          <li class="parada parada--nova"><span class="parada__marco" aria-hidden="true">{% icone "plus" %}</span><div class="parada__corpo"><button type="button" class="botao botao--sm">{% icone "plus" %}Adicionar destino</button></div></li>
+          <li class="parada parada--sede"><span class="parada__marco" aria-hidden="true">{% icone "undo-2" %}</span><div class="parada__corpo"><p class="parada__titulo">Retorno a Curitiba/PR <small>sede · fim da viagem</small></p></div></li>
+        </ol>
+        <div class="conferencia">
+          <p class="conferencia__titulo">{% icone "list-checks" %}2 itens faltam para emitir</p>
+          <ul class="conferencia__itens" aria-label="Situação das seções (exemplo)"><li class="conferencia__item conferencia__item--ok">Dados</li><li class="conferencia__item conferencia__item--ok">Equipe</li><li class="conferencia__item">Roteiro</li><li class="conferencia__item">Justificativa</li></ul>
+          <div class="conferencia__acoes"><button type="button" class="botao">{% icone "printer" %}Ver minuta (PDF)</button></div>
+        </div>
+        <div class="conferencia conferencia--pronta">
+          <p class="conferencia__titulo">{% icone "stamp" %}Tudo pronto para emitir</p>
+          <div class="conferencia__acoes"><button type="button" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button></div>
+        </div>
+        <details class="divulgacao"><summary>{% icone "plus" classe="icone--sm" %}Incluir justificativa mesmo assim (opcional)</summary><div class="divulgacao__corpo"><p class="texto-secundario">Conteúdo revelado sob demanda, sem caixa.</p></div></details>
       </div>
     </section>
 

@@ -618,6 +618,15 @@
 }
 
 
+/* Interruptor com descrição: o texto em duas linhas, alinhado ao topo. */
+.interruptor--descrito {
+  align-items: flex-start;
+}
+
+.interruptor--descrito input {
+  margin-top: 0.15rem;
+}
+
 fieldset.grupo-campos {
   margin: 0;
   padding: 0;
@@ -1003,6 +1012,40 @@ fieldset.grupo-campos > legend {
   .secao:focus-within::before { left: calc(-1 * var(--esp-4)); }
 }
 
+/* Rodapé da folha: o que vem depois + as ações, dentro do documento. */
+.documento__rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  margin-top: var(--esp-6);
+  padding-top: var(--esp-5);
+  border-top: var(--borda-sutil);
+}
+
+.documento__rodape .progresso {
+  margin: 0;
+}
+
+.documento__rodape .grupo-botoes {
+  margin-left: auto;
+}
+
+/* Abertura da folha (novo ofício): placa + identificação da unidade numa linha. */
+.abertura {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-6);
+  margin-bottom: var(--esp-6);
+}
+
+.abertura .definicoes {
+  flex: 1 1 20rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* =============== Progresso de preenchimento (formulário longo) =============== */
 /* Substitui o índice lateral: uma faixa horizontal com as seções e o quanto já está
    pronto. Cada seção é um link âncora; a forma do marcador segue a linguagem de estado. */
@@ -1012,6 +1055,32 @@ fieldset.grupo-campos > legend {
   align-items: center;
   gap: var(--esp-2) var(--esp-4);
   margin: var(--esp-2) 0 var(--esp-4);
+}
+
+/* Fixa sob o topo enquanto o formulário rola: uma faixa (não um painel lateral). */
+.progresso--fixo {
+  position: sticky;
+  top: var(--altura-topo);
+  z-index: 2;
+  margin-left: calc(-1 * var(--esp-2));
+  margin-right: calc(-1 * var(--esp-2));
+  padding: var(--esp-2);
+  border-radius: 0 0 var(--raio-lg) var(--raio-lg);
+  background: var(--cor-fundo);
+  transition: box-shadow var(--duracao-media) var(--curva-padrao);
+}
+
+/* Quando descola do conteúdo (rolando), ganha a sombra do topo — progresso.js marca. */
+.progresso--flutuando {
+  box-shadow: 0 8px 16px -12px var(--tinta-28);
+}
+
+/* Você está aqui: a seção visível no momento. */
+.progresso__etapa--atual > a {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+  box-shadow: inset 0 0 0 1px var(--cor-borda), inset 0 -2px 0 var(--cor-marca);
 }
 
 .progresso__etapas {
@@ -1036,6 +1105,37 @@ fieldset.grupo-campos > legend {
   text-decoration: none;
   transition: background-color var(--duracao-rapida) var(--curva-padrao),
     color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.progresso__etapa > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 2rem;
+  padding: 0 var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+}
+
+.progresso__etapa > span::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--raio-pilula);
+  border: 1.5px solid var(--neutro-500);
+  flex: none;
+}
+
+.progresso__etapa--atual > span {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+.progresso__etapa--atual > span::before {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca);
+  box-shadow: 0 0 0 3px var(--brilho-dourado-28);
 }
 
 .progresso__etapa > a:hover {
@@ -1076,8 +1176,8 @@ fieldset.grupo-campos > legend {
 }
 
 @media (max-width: 479.98px) {
-  .progresso__etapas { display: none; }
-  .progresso__medida { margin-left: 0; }
+  .progresso--fixo .progresso__etapas { display: none; }
+  .progresso--fixo .progresso__medida { margin-left: 0; flex: 1; }
   .progresso__barra { flex: 1; }
 }
 
@@ -1243,6 +1343,18 @@ a.indicador:hover {
 
 .placa--cancelada .placa__rotulo {
   color: var(--cor-texto-terciario);
+}
+
+/* Número ainda não reservado: a placa existe, tracejada, esperando o número. */
+.placa--a-reservar {
+  box-shadow: none;
+  border: 1.5px dashed var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+}
+
+.placa--a-reservar .placa__numero {
+  color: var(--cor-texto-terciario);
+  letter-spacing: 0.04em;
 }
 
 .placa--campo {
@@ -3093,32 +3205,439 @@ kbd {
 
 /* =============== Específicos de formulários longos =============== */
 
-.roteiro-linha {
-  position: relative;
-  margin: 0;
-  padding: var(--esp-4);
+/* ---------- Cartões de escolha (rádio como decisão, não como lista de bolinhas) ----------
+   O <input> continua nativo (teclado, rótulo, leitor de tela); o cartão inteiro é o rótulo.
+   Marcado: borda grafite + marca dourada no canto. Foco: o anel do DS no cartão. */
+.opcoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--esp-2);
+  margin-inline: 0;
+  margin-bottom: 0;
+  padding: 0;
   border: 0;
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-sutil);
-  box-shadow: 0 0 0 1px var(--cor-borda);
   min-width: 0;
 }
 
-.roteiro-linha--retorno {
-  background: var(--cor-superficie);
-  box-shadow: 0 0 0 1px var(--cor-marca-borda);
+.opcoes--compactas {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), max-content));
 }
 
-.roteiro-linha__titulo {
+.opcoes > legend {
+  padding: 0;
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+}
+
+.opcao {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--esp-1) var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  cursor: pointer;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.opcao > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opcao__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.opcao__titulo {
+  display: block;
+  font-weight: var(--peso-semi);
+  line-height: var(--altura-linha-justa);
+}
+
+.opcao__descricao {
+  display: block;
+  margin-top: var(--esp-05);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Sem ícone, o texto ocupa as duas colunas. */
+.opcao__texto:first-of-type:last-child,
+.opcao > input + .opcao__texto {
+  grid-column: 1 / -1;
+}
+
+.opcao:hover {
+  border-color: var(--neutro-500);
+  background: var(--cor-superficie);
+}
+
+.opcao:has(input:checked) {
+  border-color: var(--grafite-900);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--grafite-900);
+}
+
+.opcao:has(input:checked) .opcao__icone {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* Marca de escolhido: um canto dourado com ✓ — a "dobra" do papel marcado. */
+.opcao::after {
+  content: "";
+  position: absolute;
+  top: var(--esp-2);
+  right: var(--esp-2);
+  width: 0.75rem;
+  height: 0.6rem;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+  transform: scale(0);
+  transition: transform var(--duracao-rapida) var(--curva-expressiva);
+}
+
+.opcao:has(input:checked)::after {
+  transform: scale(1);
+}
+
+.opcao:has(input:focus-visible) {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: var(--foco-offset);
+}
+
+.opcao:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.opcao:active:not(:has(input:disabled)) {
+  transform: scale(var(--escala-pressao));
+}
+
+/* Campo que só vale para uma escolha: aparece colado à decisão (sem JS: :has()). */
+.condicional {
+  display: none;
+}
+
+.custeio:has(input[name="custeio"][value="outra_instituicao"]:checked) .condicional--outra-instituicao {
   display: flex;
-  align-items: center;
-  gap: var(--esp-2);
-  padding: 0 var(--esp-1);
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* ---------- Itinerário: o roteiro como trajeto (sede → destinos → sede) ----------
+   Um trilho vertical liga as paradas; cada parada traz a cidade e o trecho que chega
+   nela (saída do ponto anterior → chegada). Origem e retorno são a sede. */
+.itinerario {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.parada {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--esp-3);
+  padding-bottom: var(--esp-5);
+}
+
+/* O trilho: do marco desta parada até o da próxima. */
+.parada::before {
+  content: "";
+  position: absolute;
+  left: calc(1rem - 1px);
+  top: 1.75rem;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(180deg, var(--cor-borda-forte) 0 6px, transparent 6px 10px);
+}
+
+.parada:last-child {
+  padding-bottom: 0;
+}
+
+.parada:last-child::before {
+  display: none;
+}
+
+.parada__marco {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--raio-pilula);
+  border: 2px solid var(--cor-marca);
+  background: var(--cor-superficie);
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+}
+
+.parada__marco .icone {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.parada--sede .parada__marco {
+  border-color: var(--grafite-900);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.parada__corpo {
+  min-width: 0;
+  margin: 0;
+  padding: var(--esp-1) 0 0;
+  border: 0;
+}
+
+legend.parada__titulo {
+  float: left; /* tira a legenda da borda do fieldset: vira um título comum */
+  width: 100%;
+  padding: 0;
+}
+
+legend.parada__titulo + * {
+  clear: both;
+}
+
+.parada__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-1) var(--esp-2);
+  margin-bottom: var(--esp-3);
   font-weight: var(--peso-semi);
 }
 
-.roteiro-linha__titulo .icone {
+.parada__titulo small {
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-terciario);
+}
+
+/* O trecho: rótulo pequeno "trecho N" acima das duas datas. */
+.parada__trecho {
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+}
+
+.parada__trecho-rotulo {
+  display: block;
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-terciario);
+}
+
+.parada:focus-within .parada__marco {
+  background: var(--cor-marca);
+  color: var(--grafite-950);
+}
+
+.parada--sede:focus-within .parada__marco {
+  background: var(--grafite-700);
+  color: var(--neutro-0);
+}
+
+/* Parada marcada para remoção: recua e fica riscada até salvar. */
+.parada:has(.parada__remover input:checked) .parada__corpo {
+  opacity: 0.55;
+}
+
+.parada:has(.parada__remover input:checked) .parada__titulo {
+  text-decoration: line-through;
+  text-decoration-color: var(--cor-perigo);
+}
+
+.parada__remover {
+  margin-left: auto;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-secundario);
+}
+
+/* "Adicionar parada": um nó tracejado no próprio trilho. */
+.parada--nova .parada__marco {
+  border-style: dashed;
+  border-color: var(--cor-borda-forte);
+  color: var(--cor-texto-secundario);
+}
+
+.parada--nova .parada__corpo {
+  padding-top: var(--esp-05);
+}
+
+/* ---------- Conferência final (seção 7) ---------- */
+.conferencia {
+  display: grid;
+  gap: var(--esp-4);
+  padding: var(--esp-5);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+
+.conferencia--pronta {
+  background: linear-gradient(180deg, var(--cor-superficie), var(--cor-marca-fundo));
+  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+}
+
+.conferencia__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.conferencia--pronta .conferencia__titulo .icone {
   color: var(--cor-marca-texto);
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
+}
+
+.conferencia__itens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: var(--esp-1) var(--esp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-sm);
+}
+
+.conferencia__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--cor-texto-secundario);
+}
+
+.conferencia__item::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--raio-pilula);
+  border: 1.5px solid var(--cor-aviso);
+}
+
+.conferencia__item--ok {
+  color: var(--cor-texto);
+}
+
+.conferencia__item--ok::before {
+  width: 0.6rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+.conferencia__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* ---------- Divulgação (details) aberta, sem caixa ---------- */
+.divulgacao > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 1.5rem;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  cursor: pointer;
+  list-style: none;
+}
+
+.divulgacao > summary::-webkit-details-marker { display: none; }
+
+.divulgacao > summary .icone {
+  transition: transform var(--duracao-media) var(--curva-expressiva);
+}
+
+.divulgacao[open] > summary .icone {
+  transform: rotate(45deg);
+}
+
+.divulgacao > summary:hover {
+  color: var(--cor-texto);
+}
+
+.divulgacao[open] > .divulgacao__corpo {
+  margin-top: var(--esp-4);
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* ---------- Frase do ofício (cabeçalho da edição) ---------- */
+/* O que o documento diz até agora, numa linha: servidores · destinos · período · transporte · valor. */
+.frase-oficio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-3);
+  margin-top: var(--esp-2);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.frase-oficio__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+}
+
+.frase-oficio__item .icone {
+  color: var(--cor-texto-terciario);
+}
+
+.frase-oficio__item--vazio {
+  color: var(--cor-texto-terciario);
+  font-style: italic;
+}
+
+.frase-oficio__valor {
+  font-weight: var(--peso-semi);
+  color: var(--cor-marca-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767.98px) {
+  .parada { grid-template-columns: 1.5rem minmax(0, 1fr); gap: var(--esp-2); }
+  .parada::before { left: calc(0.75rem - 1px); top: 1.5rem; }
+  .parada__marco { width: 1.5rem; height: 1.5rem; }
+  .parada__trecho { padding: var(--esp-3); }
+  .conferencia { padding: var(--esp-4); }
 }
 
 .checklist {

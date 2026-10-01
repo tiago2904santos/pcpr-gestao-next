@@ -34,3 +34,20 @@ formset de destinos, comboboxes e validação de roteiro; a troca parcial multip
 estados; a confirmação na barra + "Salvo" no botão entrega o mesmo feedback sem o risco.
 Agrupar só quando ordenado por saída — o grupo por mês também dá ritmo à ordem por
 número; o cabeçalho ficou mais discreto (grafite) para não disputar com o dourado.
+
+## Cadastro do ofício (terceira rodada)
+| Peça | Antes | Agora | Por quê |
+|---|---|---|---|
+| Novo ofício | cartão + "passo a passo" de 4 etapas que não era um assistente | abertura da mesma folha: placa tracejada à espera do número, unidade/sede, data e motivo; prévia das seções no rodapé | continuidade com a edição; nada promete etapas que não existem |
+| Documento, custeio, transporte | rádios soltos | cartões de escolha com ícone e descrição | são decisões com efeito no documento; o cartão diz o que cada uma significa |
+| Instituição que custeia | sempre visível | só com "Outra instituição" (`:has()`, sem JS) | campo irrelevante some |
+| Porte de arma | caixa de seleção | interruptor (`role=switch`) | é um sim/não |
+| Roteiro | fieldsets em caixas, legenda cortando a borda | itinerário sede → destinos → sede, trilho tracejado, trecho com "Saída de <ponto anterior>" | o roteiro é um trajeto; o rótulo diz de onde se sai |
+| Justificativa | sempre aberta | em destaque quando obrigatória; recolhida (divulgação) quando dispensada | espaço para o que importa |
+| Fim do formulário | lista de pendências | conferência: seções ✓/○, pendências-link, próxima ação | o formulário conclui |
+| Progresso | some ao rolar | faixa fixa sob o topo com "você está aqui" | orientação sem painel lateral |
+| Cabeçalho | unidade · sede · criado em | frase do ofício: servidores · destinos · período · transporte · valor | o que o documento diz até agora |
+
+Descartado: pré-visualização viva do PDF ao lado (painel lateral; pedido explícito para não usar) e
+assistente em etapas com páginas separadas (o operador volta a seções o tempo todo; a folha única
+com âncoras e a faixa fixa é mais rápida).
