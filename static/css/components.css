@@ -106,6 +106,13 @@
   width: var(--altura-controle-sm);
 }
 
+.botao[aria-pressed="true"] {
+  --botao-fundo: var(--grafite-900);
+  --botao-texto: var(--neutro-0);
+  --botao-borda: var(--grafite-900);
+  --botao-fundo-hover: var(--grafite-700);
+}
+
 .botao:disabled,
 .botao[aria-disabled="true"] {
   cursor: not-allowed;
@@ -1205,7 +1212,7 @@ a.tabela__principal:hover {
 }
 
 .filtros__campo {
-  flex: 0 1 12rem;
+  flex: 0 1 15rem;
 }
 
 .filtros__acoes {
@@ -1803,6 +1810,7 @@ kbd {
 
 .pessoa {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-3);
   padding: var(--esp-3);
@@ -1813,7 +1821,7 @@ kbd {
 }
 
 .pessoa__texto {
-  flex: 1 1 auto;
+  flex: 1 1 9rem;
   min-width: 0;
 }
 
@@ -1889,4 +1897,145 @@ kbd {
   height: 70vh;
   border: 0;
   background: var(--neutro-0);
+}
+
+/* =============== Específicos de formulários longos =============== */
+.entrada--estatica {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  background: var(--cor-superficie-realce);
+  border-color: var(--cor-borda);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+.roteiro-linha {
+  margin: 0;
+  padding: var(--esp-4);
+  border: var(--borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  min-width: 0;
+}
+
+.roteiro-linha--retorno {
+  border-style: dashed;
+}
+
+.roteiro-linha__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 0 var(--esp-1);
+  font-weight: var(--peso-semi);
+}
+
+.roteiro-linha__titulo .icone {
+  color: var(--cor-marca-texto);
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+}
+
+.checklist__item > .icone {
+  margin-top: 0.15rem;
+}
+
+.checklist__item--ok > .icone { color: var(--cor-sucesso); }
+.checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
+.checklist__item--aviso > .icone { color: var(--cor-aviso); }
+
+.checklist__item a {
+  color: inherit;
+}
+
+/* =============== Central de módulos =============== */
+.modulo__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--raio-lg);
+  border: 1px solid var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+  flex: none;
+}
+
+.modulo__topo {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: var(--esp-3);
+}
+
+.modulo__numeros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-2);
+  margin: 0;
+}
+
+.modulo__numeros > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--esp-1);
+  padding: var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  border: var(--borda);
+  text-align: center;
+}
+
+.modulo__numeros dd {
+  margin: 0;
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+.modulo__numeros dt {
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.modulo__numero--destaque {
+  background: var(--cor-marca-fundo) !important;
+  border-color: var(--cor-marca-borda) !important;
+}
+
+.modulo__numero--destaque dd {
+  color: var(--cor-marca-texto);
+}
+
+.modulo--futuro {
+  background: var(--cor-superficie-sutil);
+  box-shadow: none;
+}
+
+.modulo--futuro .modulo__icone {
+  background: var(--cor-superficie-realce);
+  border-color: var(--cor-borda);
+  color: var(--cor-texto-secundario);
+}
+
+/* Campos que só valem para um meio de transporte (sem JS: :has()). */
+.transporte:has(input[name="tipo_transporte"][value="viatura"]:checked) .so-outro,
+.transporte:has(input[name="tipo_transporte"][value="outro"]:checked) .so-viatura {
+  display: none;
 }

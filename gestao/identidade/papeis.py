@@ -13,8 +13,9 @@ PAPEIS: dict[str, dict[str, object]] = {
         "descricao": "Monta ofícios, roteiros e termos da sua unidade.",
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
-            "viagens.emitir_oficio",
+            "viagens.emitir_oficio", "viagens.delete_oficio",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
+            "cadastros.view_tabeladiaria", "cadastros.view_modelotexto",
         ],
     },
     "GESTOR_VIAGENS": {
@@ -22,6 +23,7 @@ PAPEIS: dict[str, dict[str, object]] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.cancelar_oficio", "viagens.reabrir_oficio",
+            "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.change_tabeladiaria",
             "viagens.ver_todas_unidades", "viagens.gerir_numeracao",
             "cadastros.view_servidor", "cadastros.add_servidor", "cadastros.change_servidor",
             "cadastros.view_viatura", "cadastros.add_viatura", "cadastros.change_viatura",
@@ -44,3 +46,22 @@ PAPEIS: dict[str, dict[str, object]] = {
         ],
     },
 }
+
+
+def sincronizar_papeis() -> dict[str, int]:
+    """Cria/atualiza os grupos e suas permissões a partir de PAPEIS (idempotente)."""
+    from django.contrib.auth.models import Group, Permission
+
+    resultado = {}
+    for nome, definicao in PAPEIS.items():
+        grupo, _ = Group.objects.get_or_create(name=nome)
+        perms = []
+        for codigo in definicao["permissoes"]:  # type: ignore[union-attr]
+            app, codename = str(codigo).split(".")
+            perm = Permission.objects.filter(content_type__app_label=app,
+                                             codename=codename).first()
+            if perm:
+                perms.append(perm)
+        grupo.permissions.set(perms)
+        resultado[nome] = len(perms)
+    return resultado

@@ -1,6 +1,43 @@
 {% extends "base.html" %}
 {% block titulo %}Início{% endblock %}
 {% block cabecalho_pagina %}
-{% include "componentes/pagina_cabecalho.html" with titulo="Central de módulos" sobretitulo="Início" descricao="Escolha um módulo para trabalhar." %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "home" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Bem-vindo(a), {{ user.primeiro_nome }}</p>
+    <h1 class="pagina-cabecalho__titulo">Central de módulos</h1>
+    <p class="pagina-cabecalho__descricao">Escolha um módulo para trabalhar. Os indicadores mostram a situação atual de cada um.</p>
+  </div>
+</header>
 {% endblock %}
-{% block conteudo %}<p>Em construção.</p>{% endblock %}
+{% block conteudo %}
+<div class="grade grade--auto">
+  {% for m in modulos %}
+    <section class="cartao modulo" aria-labelledby="mod-{{ m.chave }}">
+      <div class="cartao__corpo pilha">
+        <div class="linha modulo__topo">
+          <span class="modulo__icone" aria-hidden="true">{% icone m.icone classe="icone--lg" %}</span>
+          <div class="cresce"><h2 class="cartao__titulo" id="mod-{{ m.chave }}">{{ m.rotulo }}</h2><p class="texto-secundario texto-sm">{{ m.descricao }}</p></div>
+        </div>
+        {% if m.indicadores %}
+          <dl class="modulo__numeros">
+            {% for rotulo, valor, destaque in m.indicadores %}<div{% if destaque %} class="modulo__numero--destaque"{% endif %}><dd>{{ valor }}</dd><dt>{{ rotulo }}</dt></div>{% endfor %}
+          </dl>
+        {% endif %}
+        <a class="botao botao--primario" href="{{ m.url }}">Entrar no módulo {% icone "arrow-right" %}</a>
+      </div>
+    </section>
+  {% endfor %}
+  {% for f in futuros %}
+    <section class="cartao modulo modulo--futuro" aria-labelledby="fut-{{ forloop.counter }}">
+      <div class="cartao__corpo pilha">
+        <div class="linha modulo__topo">
+          <span class="modulo__icone" aria-hidden="true">{% icone f.icone classe="icone--lg" %}</span>
+          <div class="cresce"><h2 class="cartao__titulo" id="fut-{{ forloop.counter }}">{{ f.rotulo }}</h2><p class="texto-secundario texto-sm">{{ f.descricao }}</p></div>
+        </div>
+        <p class="selo selo--neutro">Próximos módulos da migração</p>
+      </div>
+    </section>
+  {% endfor %}
+</div>
+{% endblock %}

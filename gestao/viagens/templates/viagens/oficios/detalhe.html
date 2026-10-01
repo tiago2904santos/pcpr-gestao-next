@@ -1,0 +1,156 @@
+{% extends "arquetipos/detalhe.html" %}
+{% load viagens %}
+{% block titulo %}Ofício {{ oficio.numero_formatado }}{% endblock %}
+
+{% block cabecalho_detalhe %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone oficio.situacao|icone_situacao classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem</p>
+    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }}
+      <span class="selo selo--{{ oficio.situacao|tom_situacao }}">{{ oficio.get_situacao_display }}</span>
+      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
+    </h1>
+    <p class="pagina-cabecalho__descricao">{% with d=oficio|destinos %}{{ d|default:"Sem destino" }}{% endwith %}{% with p=trechos|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %} · {{ oficio.unidade.sigla }}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    {% if pode_editar %}<a class="botao{% if not pode_emitir %} botao--primario{% endif %}" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Editar</a>{% endif %}
+    {% if pode_emitir %}<a class="botao botao--marca" href="{% url 'viagens:revisar_emissao' oficio.pk %}">{% icone "stamp" %}Revisar e emitir</a>{% endif %}
+    {% if oficio.situacao == "emitido" %}
+      {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and forloop.first %}<a class="botao botao--primario" href="{% url 'viagens:baixar_documento' d.pk %}?baixar=1">{% icone "download" %}Baixar PDF</a>{% endif %}{% endfor %}
+    {% endif %}
+    {% if pode_reabrir or pode_cancelar or pode_excluir or oficio.editavel %}
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do ofício">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel" role="menu" hidden>
+        {% if oficio.editavel %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>{% endif %}
+        {% if pode_reabrir %}<button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="dialogo-reabrir">{% icone "undo-2" %}Reabrir para correção</button>{% endif %}
+        {% if pode_cancelar %}<div class="menu__separador" role="separator"></div><button type="button" class="menu__item menu__item--perigo" role="menuitem" data-abrir-dialogo="dialogo-cancelar">{% icone "ban" %}Cancelar ofício</button>{% endif %}
+        {% if pode_excluir %}<button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>{% endif %}
+      </div>
+    </pc-menu>
+    {% endif %}
+  </div>
+</header>
+{% if oficio.situacao == "cancelado" %}
+  <div class="alerta alerta--perigo mb-4" role="note">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Ofício cancelado em {{ oficio.cancelado_em|date:"d/m/Y H:i" }}</p><p>{{ oficio.motivo_cancelamento }}</p></div></div>
+{% endif %}
+{% endblock %}
+
+{% block principal %}
+<section class="cartao" aria-labelledby="t-resumo">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo cartao__titulo--institucional" id="t-resumo">{% icone "file-text" %}Identificação</h2></div>
+  <div class="cartao__corpo">
+    <dl class="definicoes">
+      <div><dt class="rotulo-caixa-alta">Número</dt><dd>{{ oficio.numero_formatado }}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Data</dt><dd>{{ oficio.data_oficio|date:"d/m/Y" }}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Custeio</dt><dd>{{ oficio.get_custeio_display }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Assunto</dt><dd>{{ oficio.assunto }}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-equipe">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo cartao__titulo--institucional" id="t-equipe">{% icone "users" %}Equipe e transporte</h2></div>
+  <div class="cartao__corpo pilha">
+    {% if viajantes %}
+    <ul class="grade grade--2" role="list" aria-label="Servidores">
+      {% for v in viajantes %}
+        <li class="pessoa"><span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+          <div class="pessoa__texto"><div class="pessoa__nome">{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</div><div class="pessoa__meta">{{ v.servidor.cargo }}{% if v.servidor.cpf %} • CPF {{ v.servidor.cpf_formatado }}{% endif %}</div></div></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="vazio-inline">Nenhum servidor na equipe.</p>{% endif %}
+    <dl class="definicoes">
+      <div><dt class="rotulo-caixa-alta">Transporte</dt><dd>{% if oficio.viatura %}{{ oficio.viatura.modelo }} · {{ oficio.viatura.placa_formatada }} ({{ oficio.viatura.get_tipo_display|lower }}){% elif oficio.transporte_descricao %}{{ oficio.transporte_descricao }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Porte/trânsito de arma</dt><dd>{{ oficio.porte_arma|yesno:"Sim,Não" }}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="cartao" aria-labelledby="t-roteiro">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo cartao__titulo--institucional" id="t-roteiro">{% icone "route" %}Roteiro</h2></div>
+  {% if trechos %}
+  <div class="tabela-rolagem">
+    <table class="tabela tabela--responsiva">
+      <caption class="sr-only">Trechos da viagem</caption>
+      <thead><tr><th scope="col">Trecho</th><th scope="col">Saída</th><th scope="col">Chegada</th></tr></thead>
+      <tbody>
+        {% for t in trechos %}
+          <tr><td class="tabela__celula-principal" data-rotulo="Trecho"><span class="tabela__principal">{{ t.origem }} → {{ t.destino }}</span></td>
+            <td data-rotulo="Saída">{{ t.saida_em|date:"d/m/Y H:i" }}</td><td data-rotulo="Chegada">{{ t.chegada_em|date:"d/m/Y H:i" }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<div class="cartao__corpo"><p class="vazio-inline">Roteiro ainda não informado.</p></div>{% endif %}
+</section>
+
+{% include "viagens/oficios/_diarias.html" %}
+
+{% if oficio.justificativa or prazo.justificativa_obrigatoria %}
+<section class="cartao" aria-labelledby="t-just">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo cartao__titulo--institucional" id="t-just">{% icone "calendar-days" %}Justificativa de prazo</h2></div>
+  <div class="cartao__corpo pilha-sm"><p class="texto-secundario">{{ prazo.mensagem }}</p>{% if oficio.justificativa %}<p>{{ oficio.justificativa|linebreaksbr }}</p>{% else %}<p class="vazio-inline">Ainda não preenchida.</p>{% endif %}</div>
+</section>
+{% endif %}
+
+<section class="cartao" id="documentos" aria-labelledby="t-docs">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo cartao__titulo--institucional" id="t-docs">{% icone "files" %}Documentos</h2></div>
+  <div class="cartao__corpo--sem-respiro">{% include "viagens/oficios/_documentos.html" %}</div>
+</section>
+{% endblock %}
+
+{% block contexto %}
+{% if prontidao %}
+<section class="cartao" aria-labelledby="t-pront">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pront">Próximos passos</h2></div>
+  <div class="cartao__corpo">{% include "viagens/oficios/_prontidao.html" %}</div>
+</section>
+{% endif %}
+<section class="cartao" aria-labelledby="t-hist">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-hist">Histórico</h2></div>
+  <div class="cartao__corpo">
+    <ol class="linha-tempo">
+      {% for h in historico %}
+        <li class="linha-tempo__item{% if h.acao == 'emitido' or h.acao == 'documento' %} linha-tempo__item--marca{% endif %}">
+          <span class="linha-tempo__marcador" aria-hidden="true">{% if h.acao == "emitido" %}{% icone "stamp" %}{% elif h.acao == "cancelado" %}{% icone "ban" %}{% elif h.acao == "documento" %}{% icone "file-check-2" %}{% elif h.acao == "reaberto" %}{% icone "undo-2" %}{% else %}{% icone "circle-dot" %}{% endif %}</span>
+          <div><p class="linha-tempo__titulo">{{ h.descricao }}</p><p class="linha-tempo__meta"><time datetime="{{ h.em|date:'c' }}">{{ h.em|date:"d/m/Y H:i" }}</time>{% if h.usuario %} · {{ h.usuario.nome }}{% else %} · sistema{% endif %}</p></div>
+        </li>
+      {% empty %}<li class="vazio-inline">Sem eventos.</li>{% endfor %}
+    </ol>
+  </div>
+</section>
+
+{% if pode_reabrir %}
+<dialog id="dialogo-reabrir" class="dialogo" aria-labelledby="dialogo-reabrir-titulo">
+  <form method="post" action="{% url 'viagens:reabrir' oficio.pk %}">
+    {% csrf_token %}
+    <div class="dialogo__cabecalho"><span class="dialogo__icone">{% icone "undo-2" %}</span><h2 class="dialogo__titulo" id="dialogo-reabrir-titulo">Reabrir o Ofício {{ oficio.numero_formatado }}?</h2></div>
+    <div class="dialogo__corpo pilha">
+      <p>O ofício volta a rascunho para correção. As versões já emitidas continuam guardadas; a próxima emissão gera uma nova versão.</p>
+      <div class="campo"><label class="campo__rotulo" for="motivo-reabrir">Motivo da reabertura<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="area-texto" id="motivo-reabrir" name="motivo" rows="3" required></textarea></div>
+    </div>
+    <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Voltar</button><button type="submit" class="botao botao--primario">{% icone "undo-2" %}Reabrir</button></div>
+  </form>
+</dialog>
+{% endif %}
+{% if pode_cancelar %}
+<dialog id="dialogo-cancelar" class="dialogo dialogo--perigo" aria-labelledby="dialogo-cancelar-titulo">
+  <form method="post" action="{% url 'viagens:cancelar' oficio.pk %}">
+    {% csrf_token %}
+    <div class="dialogo__cabecalho"><span class="dialogo__icone">{% icone "ban" %}</span><h2 class="dialogo__titulo" id="dialogo-cancelar-titulo">Cancelar o Ofício {{ oficio.numero_formatado }}?</h2></div>
+    <div class="dialogo__corpo pilha">
+      <p>O número não volta a ser usado e o cancelamento fica registrado no histórico. Esta ação não pode ser desfeita.</p>
+      <div class="campo"><label class="campo__rotulo" for="motivo-cancelar">Motivo do cancelamento<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="area-texto" id="motivo-cancelar" name="motivo" rows="3" required></textarea></div>
+    </div>
+    <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Voltar</button><button type="submit" class="botao botao--perigo">{% icone "ban" %}Cancelar ofício</button></div>
+  </form>
+</dialog>
+{% endif %}
+{% if pode_excluir %}
+<form id="form-excluir" method="post" action="{% url 'viagens:excluir' oficio.pk %}" hidden data-confirmar="O rascunho {{ oficio.numero_formatado }} será excluído e o número volta a ficar disponível." data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir rascunho" data-confirmar-perigo>{% csrf_token %}</form>
+{% endif %}
+{% endblock %}

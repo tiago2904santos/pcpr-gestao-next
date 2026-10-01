@@ -56,3 +56,28 @@ def pluralizar(n: int, formas: str) -> str:
     """`{{ n|pluralizar:"ofício,ofícios" }}` → "1 ofício" / "3 ofícios"."""
     singular, plural = formas.split(",")
     return f"{n} {singular if n == 1 else plural}"
+
+
+@register.filter
+def campo_acessivel(campo, tem_ajuda: object = False):
+    """Renderiza o widget com aria-invalid e aria-describedby (ajuda/erro) corretos."""
+    descritores = []
+    if tem_ajuda:
+        descritores.append(f"{campo.auto_id}-ajuda")
+    if campo.errors:
+        descritores.append(f"{campo.auto_id}-erro")
+    attrs = {}
+    if descritores:
+        attrs["aria-describedby"] = " ".join(descritores)
+    if campo.errors:
+        attrs["aria-invalid"] = "true"
+    return campo.as_widget(attrs=attrs)
+
+
+@register.filter
+def get_item(dicionario, chave):
+    """`{{ dic|get_item:chave }}` — acesso por chave variável em templates."""
+    try:
+        return dicionario.get(chave)
+    except AttributeError:
+        return None

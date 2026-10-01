@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Justificativa do Ofício {{ d.numero }}</title>
+<meta name="author" content="{{ d.origem }}">
+<style>
+  @font-face { font-family: "Doc Serif"; src: url("{{ assets }}/fontes/LiberationSerif-Regular.ttf"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ assets }}/fontes/LiberationSerif-Bold.ttf"); }
+  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ assets }}/fontes/LiberationSerif-Italic.ttf"); }
+  @page { size: A4; margin: 20mm 20mm 26mm 20mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Doc Serif", serif; font-size: 11pt; color: #000; line-height: 1.5; }
+  body { margin: 0; }
+  header.timbre { text-align: center; margin-bottom: 8mm; }
+  header.timbre img { height: 20mm; display: block; margin: 0 auto 2mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; }
+  h1 { font-size: 12pt; text-align: center; margin: 4mm 0 6mm; }
+  p { margin: 0 0 4mm; text-align: justify; }
+  .assinatura { text-align: center; margin-top: 14mm; }
+  .assinatura p { margin: 0; text-align: center; }
+  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt; color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
+</style>
+</head>
+<body>
+  {% if previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
+  <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
+  <header class="timbre">
+    <img src="{{ assets }}/brasao-pcpr.png" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
+  </header>
+  <main>
+    <h1>JUSTIFICATIVA — OFÍCIO Nº {{ d.numero }}</h1>
+    <p><strong>Protocolo:</strong> {{ d.protocolo|default:"—" }} · <strong>Destino:</strong> {{ d.destinos|join:", " }}{% if d.ida %} · <strong>Saída:</strong> {{ d.ida.0.saida.data }}{% endif %}</p>
+    <p><strong>Antecedência:</strong> {{ d.prazo.dias }} dia{{ d.prazo.dias|pluralize }} (prazo mínimo de {{ d.prazo.prazo }} dias).</p>
+    <p>{{ d.justificativa|linebreaksbr }}</p>
+    <p>{{ d.destinatario.cidade }}, {{ d.data_oficio }}.</p>
+    <div class="assinatura">
+      <p><strong>{{ d.chefia.nome }}</strong></p>
+      <p><strong>{{ d.chefia.cargo }}</strong></p>
+    </div>
+  </main>
+</body>
+</html>

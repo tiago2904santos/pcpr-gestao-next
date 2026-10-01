@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load viagens %}
+{% block titulo %}Ofício {{ oficio.numero_formatado }} — edição{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "file-pen-line" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem</p>
+    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }}">{{ oficio.get_situacao_display }}</span>
+      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}</h1>
+    <p class="pagina-cabecalho__descricao">{{ oficio.unidade.nome }} · sede {{ oficio.sede }} · criado em {{ oficio.criado_em|date:"d/m/Y" }}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do ofício">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel" role="menu" hidden>
+        <a class="menu__item" role="menuitem" href="{% url 'viagens:detalhe' oficio.pk %}">{% icone "eye" %}Ver detalhes e histórico</a>
+        {% if pode_excluir %}<div class="menu__separador" role="separator"></div>
+        <button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>{% endif %}
+      </div>
+    </pc-menu>
+  </div>
+</header>
+
+{% if pode_excluir %}
+<form id="form-excluir" method="post" action="{% url 'viagens:excluir' oficio.pk %}" hidden
+      data-confirmar="O rascunho {{ oficio.numero_formatado }} será excluído e o número volta a ficar disponível. Esta ação não pode ser desfeita."
+      data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir rascunho" data-confirmar-perigo>{% csrf_token %}</form>
+{% endif %}
+
+<form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate>
+  {% csrf_token %}
+  {{ form.versao }}
+  {{ destinos.management_form }}
+</form>
+
+{% include "componentes/resumo_erros.html" %}
+{% if destinos.non_form_errors or erro_roteiro %}
+  <div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
+{% endif %}
+
+<div class="layout-formulario">
+  <nav class="layout-formulario__indice cartao" aria-label="Seções do ofício">
+    <ol class="etapas">
+      {% with p=prontidao %}
+      <li class="etapas__item {% if p|secao_ok:'dados' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#dados"><span class="etapas__marcador">{% if p|secao_ok:'dados' %}{% icone "check" classe="icone--sm" %}{% else %}1{% endif %}</span>Dados</a></li>
+      <li class="etapas__item {% if p|secao_ok:'equipe' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#equipe"><span class="etapas__marcador">{% if p|secao_ok:'equipe' %}{% icone "check" classe="icone--sm" %}{% else %}2{% endif %}</span>Equipe</a></li>
+      <li class="etapas__item {% if p|secao_ok:'transporte' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#transporte"><span class="etapas__marcador">{% if p|secao_ok:'transporte' %}{% icone "check" classe="icone--sm" %}{% else %}3{% endif %}</span>Transporte</a></li>
+      <li class="etapas__item {% if p|secao_ok:'roteiro' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#roteiro"><span class="etapas__marcador">{% if p|secao_ok:'roteiro' %}{% icone "check" classe="icone--sm" %}{% else %}4{% endif %}</span>Roteiro</a></li>
+      <li class="etapas__item {% if p|secao_ok:'diarias' and oficio.diarias_resumo %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#diarias"><span class="etapas__marcador">{% if p|secao_ok:'diarias' and oficio.diarias_resumo %}{% icone "check" classe="icone--sm" %}{% else %}5{% endif %}</span>Diárias</a></li>
+      <li class="etapas__item {% if p|secao_ok:'justificativa' %}etapas__item--concluida{% else %}etapas__item--pendente{% endif %}"><a href="#justificativa"><span class="etapas__marcador">{% if p|secao_ok:'justificativa' %}{% icone "check" classe="icone--sm" %}{% else %}6{% endif %}</span>Justificativa</a></li>
+      <li class="etapas__item"><a href="#emissao"><span class="etapas__marcador">7</span>Emissão</a></li>
+      {% endwith %}
+    </ol>
+  </nav>
+
+  <div class="pilha-lg">
+    <!-- 1. Dados -->
+    <section class="cartao" id="dados" aria-labelledby="t-dados">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-dados"><span class="cartao__numero">1</span>Dados do ofício</h2></div>
+      <div class="cartao__corpo">
+        <div class="campos">
+          <div class="campo col-3">
+            <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
+            <p class="entrada entrada--estatica" aria-labelledby="rotulo-numero">{{ oficio.numero_formatado }}</p>
+          </div>
+          {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
+          {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" %}
+          {% include "componentes/campo.html" with campo=form.assunto %}
+          {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
+          <fieldset class="grupo-campos col-6">
+            <legend>Custeio das diárias e do deslocamento</legend>
+            <div class="pilha-sm">
+              {% for opcao in form.custeio %}<label class="escolha" for="{{ opcao.id_for_label }}">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>{% endfor %}
+            </div>
+          </fieldset>
+          {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="col-6" ajuda="Só quando outra instituição custeia." %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Equipe (salva na hora, via HTMX) -->
+    {% include "viagens/oficios/_equipe.html" %}
+
+    <!-- 3. Transporte -->
+    <section class="cartao" id="transporte" aria-labelledby="t-transporte">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-transporte"><span class="cartao__numero">3</span>Transporte</h2></div>
+      <div class="cartao__corpo transporte">
+        <div class="campos">
+          <fieldset class="grupo-campos">
+            <legend>Meio de transporte</legend>
+            <div class="linha">
+              {% for opcao in form.tipo_transporte %}<label class="escolha" for="{{ opcao.id_for_label }}">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>{% endfor %}
+            </div>
+          </fieldset>
+          <div class="campo col-6 so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(necessário para emitir)</span></label>
+            <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
+          </div>
+          {% include "componentes/campo.html" with campo=form.transporte_descricao classe="col-6 so-outro" exigido_para_emitir=True %}
+          {% include "componentes/campo.html" with campo=form.transporte_placa classe="col-3 so-outro" %}
+          {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="col-3 so-outro" %}
+          {% include "componentes/campo.html" with campo=form.porte_arma classe="col-6" %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Roteiro -->
+    <section class="cartao" id="roteiro" aria-labelledby="t-roteiro">
+      <div class="cartao__cabecalho">
+        <h2 class="cartao__titulo" id="t-roteiro"><span class="cartao__numero">4</span>Roteiro</h2>
+        <div class="cartao__acoes">
+          <button type="submit" form="form-oficio" name="acao" value="adicionar_destino" class="botao botao--sm" formnovalidate>{% icone "plus" %}Adicionar destino</button>
+        </div>
+      </div>
+      <div class="cartao__corpo pilha">
+        <p class="texto-secundario texto-sm">Saída de <strong>{{ oficio.sede }}</strong>. Informe cada destino com a saída e a chegada, e por fim o retorno à sede. Horários no fuso de Brasília.</p>
+        {% for f in destinos %}
+          <fieldset class="roteiro-linha" aria-labelledby="leg-destino-{{ forloop.counter }}">
+            <legend class="roteiro-linha__titulo" id="leg-destino-{{ forloop.counter }}">{% icone "map-pin" classe="icone--sm" %}Destino {{ forloop.counter }}</legend>
+            {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+            <div class="campos">
+              <div class="campo col-4{% if f.cidade.errors %} campo--erro{% endif %}">
+                <label class="campo__rotulo" for="{{ f.cidade.id_for_label }}">{{ f.cidade.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+                <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
+                  <div class="entrada-composta">{% icone "map-pin" %}{{ f.cidade|campo_acessivel:"" }}</div>
+                </pc-combobox>
+                {% if f.cidade.errors %}<p class="campo__erro" id="{{ f.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ f.cidade.errors|join:" " }}</span></p>{% endif %}
+              </div>
+              {% include "componentes/campo.html" with campo=f.saida classe="col-4" %}
+              {% include "componentes/campo.html" with campo=f.chegada classe="col-4" %}
+            </div>
+            {% if destinos.total_form_count > 1 %}
+              <label class="escolha texto-sm mt-2"><input type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" form="form-oficio"{% if f.DELETE.value %} checked{% endif %}> <span>Remover este destino ao salvar</span></label>
+            {% endif %}
+          </fieldset>
+        {% endfor %}
+        <fieldset class="roteiro-linha roteiro-linha--retorno" aria-labelledby="leg-retorno">
+          <legend class="roteiro-linha__titulo" id="leg-retorno">{% icone "undo-2" classe="icone--sm" %}Retorno a {{ oficio.sede }}</legend>
+          <div class="campos">
+            {% include "componentes/campo.html" with campo=retorno.saida classe="col-6" %}
+            {% include "componentes/campo.html" with campo=retorno.chegada classe="col-6" %}
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <!-- 5. Diárias (somente leitura, atualizada ao salvar ou ao mudar a equipe) -->
+    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
+      {% include "viagens/oficios/_diarias.html" with numerado=True %}
+    </div>
+
+    <!-- 6. Justificativa -->
+    <section class="cartao" id="justificativa" aria-labelledby="t-justificativa">
+      <div class="cartao__cabecalho">
+        <h2 class="cartao__titulo" id="t-justificativa"><span class="cartao__numero">6</span>Justificativa de prazo</h2>
+        {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso">Dispensada</span>{% endif %}
+      </div>
+      <div class="cartao__corpo pilha">
+        <div class="alerta {% if prazo.justificativa_obrigatoria %}alerta--aviso{% else %}{% endif %}" role="note">
+          {% icone "calendar-days" %}<div class="alerta__corpo"><p>{{ prazo.mensagem }}</p></div>
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="col-6" ajuda="Usado quando a justificativa estiver em branco." %}
+          {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=prazo.justificativa_obrigatoria %}
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Emissão -->
+    <section class="cartao" id="emissao" aria-labelledby="t-emissao">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-emissao"><span class="cartao__numero">7</span>Pronto para emitir?</h2></div>
+      <div class="cartao__corpo">
+        {% include "viagens/oficios/_prontidao.html" with na_edicao=True %}
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="barra-acoes">
+  <div class="barra-acoes__status">
+    {% if prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}{% endif %}
+  </div>
+  <button type="submit" form="form-oficio" class="botao">{% icone "save" %}Salvar rascunho</button>
+  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Salvar e revisar emissão</button>{% endif %}
+</div>
+{% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
+{% endblock %}

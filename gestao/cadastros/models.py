@@ -127,12 +127,15 @@ class Viatura(Ativavel):
 
 
 class Municipio(models.Model):
-    """Município brasileiro (IBGE). Capital e DF determinam a faixa de diária."""
+    """Município brasileiro (lista oficial do IBGE, dados/municipios_ibge.csv).
+
+    A faixa de diária (capital/interior/Brasília) é regra do domínio de Viagens
+    (`viagens.dominio.diarias.faixa_do_destino`), não um atributo cadastral.
+    """
 
     codigo_ibge = models.CharField("código IBGE", max_length=7, unique=True)
     nome = models.CharField("nome", max_length=120)
     uf = models.CharField("UF", max_length=2)
-    capital = models.BooleanField("capital do estado", default=False)
 
     class Meta:
         ordering = ["nome"]
@@ -178,6 +181,42 @@ class TabelaDiaria(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_faixa_display()} desde {self.vigente_desde:%d/%m/%Y}"
+
+
+class Lotacao(models.Model):
+    """Unidade em que o usuário do sistema trabalha (define o escopo dos ofícios)."""
+
+    usuario = models.OneToOneField(
+        "identidade.Usuario", on_delete=models.CASCADE, related_name="lotacao"
+    )
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="lotacoes")
+
+    class Meta:
+        verbose_name = "lotação"
+        verbose_name_plural = "lotações"
+
+    def __str__(self) -> str:
+        return f"{self.usuario} em {self.unidade}"
+
+
+class ModeloTexto(Ativavel):
+    """Textos prontos reutilizáveis (motivo da viagem, justificativa)."""
+
+    class Tipo(models.TextChoices):
+        MOTIVO = "motivo", "Motivo do ofício"
+        JUSTIFICATIVA = "justificativa", "Justificativa de prazo"
+
+    tipo = models.CharField(max_length=20, choices=Tipo.choices)
+    nome = models.CharField("nome", max_length=120)
+    texto = models.TextField("texto")
+
+    class Meta:
+        ordering = ["tipo", "nome"]
+        verbose_name = "modelo de texto"
+        verbose_name_plural = "modelos de texto"
+
+    def __str__(self) -> str:
+        return self.nome
 
 
 class ConfiguracaoInstitucional(models.Model):

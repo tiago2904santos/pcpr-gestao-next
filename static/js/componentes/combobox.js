@@ -29,7 +29,11 @@ export class PcCombobox extends HTMLElement {
     contador += 1;
     const base = `cbx-${contador}`;
     this.select = /** @type {HTMLSelectElement | null} */ (this.querySelector("select"));
-    this.entrada = /** @type {HTMLInputElement | null} */ (this.querySelector("input[role='combobox']"));
+    this.entrada = /** @type {HTMLInputElement | null} */ (
+      this.querySelector("input[role='combobox']") ||
+        (this.dataset.fonte ? this.querySelector("input:not([type='hidden'])") : null)
+    );
+    if (this.entrada) this.entrada.setAttribute("role", "combobox");
     if (this.select && !this.entrada) this.criarEntradaParaSelect();
     if (!this.entrada) return;
 
@@ -244,6 +248,10 @@ export class PcCombobox extends HTMLElement {
       this.select.value = opcao.id;
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
       this.entrada.value = opcao.titulo;
+    } else if (this.hasAttribute("data-valor-texto")) {
+      // Modo "texto": o próprio campo é o valor (ex.: "Arapongas/PR"), validado no servidor.
+      this.entrada.value = opcao.titulo;
+      this.entrada.dispatchEvent(new Event("change", { bubbles: true }));
     } else {
       this.entrada.value = "";
     }

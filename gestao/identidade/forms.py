@@ -33,9 +33,6 @@ class FormularioEntrada(AuthenticationForm):
         self.fields["password"].widget.attrs.update(
             {"class": "entrada", "autocomplete": "current-password"}
         )
-        for nome in ("username", "password"):
-            if self.errors.get(nome):
-                self.fields[nome].widget.attrs["aria-invalid"] = "true"
 
     def _identificador(self) -> str:
         return (self.data.get("username") or "").strip().lower()[:150]

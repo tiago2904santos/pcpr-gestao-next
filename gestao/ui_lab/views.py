@@ -61,9 +61,6 @@ def indice(request: HttpRequest) -> HttpResponse:
         data={"nome": "", "protocolo": "123", "destino": ""}
     )
     form_erro.is_valid()
-    for nome in form_erro.errors:
-        if nome in form_erro.fields:
-            form_erro.fields[nome].widget.attrs["aria-invalid"] = "true"
     linhas = [
         {"numero": f"{n:03d}/2026", "destino": d, "servidores": s, "valor": v, "status": st}
         for n, d, s, v, st in [

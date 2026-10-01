@@ -253,6 +253,11 @@
 
 .lateral__modulo:hover {
   border-color: var(--cor-marca-borda);
+  text-decoration: none;
+}
+
+.lateral__modulo {
+  text-decoration: none;
 }
 
 .lateral__modulo-icone {

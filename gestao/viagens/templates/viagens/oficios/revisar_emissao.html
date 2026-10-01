@@ -1,0 +1,34 @@
+{% extends "arquetipos/assistente.html" %}
+{% load viagens %}
+{% block titulo %}Emitir Ofício {{ oficio.numero_formatado }}{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block cabecalho_assistente %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Revisar e emitir" sobretitulo=oficio.numero_formatado icone="stamp" descricao="Confira os dados que vão para o documento oficial. Depois de emitido, o ofício fica travado." %}
+{% endblock %}
+{% block etapas %}
+  <li class="etapas__item etapas__item--concluida"><span><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Preencher</span></li>
+  <li class="etapas__item etapas__item--atual"><span aria-current="step"><span class="etapas__marcador">2</span>Revisar</span></li>
+  <li class="etapas__item"><span><span class="etapas__marcador">3</span>Emitir (PDF/A)</span></li>
+{% endblock %}
+{% block etapa %}
+  {% include "viagens/oficios/_prontidao.html" %}
+  <hr class="separador">
+  <dl class="definicoes">
+    <div><dt class="rotulo-caixa-alta">Destino</dt><dd>{{ dados.destinos|join:", "|default:"—" }}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Período</dt><dd>{% if dados.ida %}{{ dados.ida.0.saida.data }} {{ dados.ida.0.saida.hora }}{% endif %}{% if dados.volta %} a {{ dados.volta.0.chegada.data }} {{ dados.volta.0.chegada.hora }}{% endif %}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Equipe</dt><dd>{% for v in dados.viajantes %}{{ v.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Diárias por servidor</dt><dd>{{ dados.diarias.resumo|default:"—" }}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Valor total</dt><dd class="valor-destaque valor-destaque--marca">{{ dados.diarias.total }}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Destinatário</dt><dd>{{ dados.destinatario.nome }}, {{ dados.destinatario.cargo }}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Assina</dt><dd>{{ dados.chefia.nome }} — {{ dados.chefia.cargo }}</dd></div>
+    <div><dt class="rotulo-caixa-alta">Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
+  </dl>
+  <p class="por-extenso">Valor por extenso: {{ dados.diarias.extenso }}.</p>
+  <input type="hidden" name="versao" value="{{ oficio.versao }}">
+{% endblock %}
+{% block navegacao_etapas %}
+  <a class="botao" href="{% url 'viagens:editar' oficio.pk %}">{% icone "arrow-left" %}Voltar e corrigir</a>
+  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
+  <button type="submit" class="botao botao--marca" formaction="{% url 'viagens:emitir' oficio.pk %}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}
+          data-confirmar="O Ofício {{ oficio.numero_formatado }} será emitido com valor total de {{ dados.diarias.total }}. Os dados ficam travados e o PDF oficial é gerado." data-confirmar-titulo="Emitir ofício?" data-confirmar-rotulo="Emitir">{% icone "stamp" %}Emitir ofício</button>
+{% endblock %}
