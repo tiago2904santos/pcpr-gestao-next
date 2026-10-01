@@ -9,3 +9,7 @@ STORAGES["staticfiles"] = {  # noqa: F405
     "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
 }
 MEDIA_ROOT = BASE_DIR / "var" / "test-media"  # noqa: F405
+
+# Serve estáticos direto das pastas de origem (sem collectstatic em teste/dev).
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_USE_FINDERS = True
