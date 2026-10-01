@@ -17,7 +17,6 @@ env:
   DJANGO_SETTINGS_MODULE: config.settings.test
   POSTGRES_DB: pcpr_gestao
   POSTGRES_USER: pcpr_gestao
-  POSTGRES_PASSWORD: ci-${{ github.run_id }}
   POSTGRES_HOST: localhost
 
 jobs:
@@ -58,7 +57,8 @@ jobs:
         env:
           POSTGRES_DB: pcpr_gestao
           POSTGRES_USER: pcpr_gestao
-          POSTGRES_PASSWORD: ci-${{ github.run_id }}
+          # Contêiner descartável, só acessível pelo runner: sem senha no workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
@@ -72,7 +72,11 @@ jobs:
       - name: Migrações sem pendências
         run: uv run python manage.py makemigrations --check --dry-run
       - name: Checks de deploy
-        run: APP_ENV=production DJANGO_SECRET_KEY=ci-${{ github.sha }}-chave-longa-aleatoria uv run python manage.py check --deploy --settings=config.settings.production --fail-level WARNING
+        # Valores gerados na hora: o check não conecta ao banco, só exige que existam.
+        run: |
+          APP_ENV=production DJANGO_SECRET_KEY="$(openssl rand -hex 32)" \
+          POSTGRES_PASSWORD="$(openssl rand -hex 16)" \
+          uv run python manage.py check --deploy --settings=config.settings.production --fail-level WARNING
       - name: Testes (unit + integração) com cobertura
         run: uv run pytest -m "not e2e and not visual and not a11y and not perf" -n auto --cov --cov-report=term-missing --cov-fail-under=85
 
@@ -85,7 +89,8 @@ jobs:
         env:
           POSTGRES_DB: pcpr_gestao
           POSTGRES_USER: pcpr_gestao
-          POSTGRES_PASSWORD: ci-${{ github.run_id }}
+          # Contêiner descartável, só acessível pelo runner: sem senha no workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U pcpr_gestao" --health-interval 5s
