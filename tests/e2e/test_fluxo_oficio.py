@@ -71,7 +71,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     dialogo.get_by_role("button", name="Emitir").click()
 
     expect(pg.locator(".toast")).to_contain_text(f"Ofício {numero} emitido")
-    expect(pg.locator(".pagina-cabecalho .selo").first).to_have_text("Emitido")
+    expect(pg.locator(".pagina-cabecalho .processo__passo--atual")).to_have_text("Emitido")
     expect(pg.locator("#documentos-lista")).to_contain_text("Gerando")
 
     while outbox.processar_lote():
