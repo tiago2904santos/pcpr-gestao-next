@@ -66,6 +66,8 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
     policies.exigir(policies.pode_criar(usuario),
                     "Seu usuário não está lotado em uma unidade ou não pode criar ofícios.")
     unidade = policies.unidade_do_usuario(usuario)
+    if unidade is None:
+        raise RegraViolada("Seu usuário não está lotado em nenhuma unidade.")
     config = configuracao_da_unidade(unidade)
     data_oficio = data_oficio or timezone.localdate()
     oficio = Oficio.objects.create(
@@ -313,7 +315,7 @@ def conflitos_de_agenda(oficio: Oficio) -> list[str]:
             if v.servidor_id in servidores:
                 avisos.append(f"{v.servidor} também está no Ofício {outro.numero_formatado} "
                               "no mesmo período.")
-        if oficio.viatura_id and outro.viatura_id == oficio.viatura_id:
+        if oficio.viatura is not None and outro.viatura_id == oficio.viatura_id:
             avisos.append(f"A viatura {oficio.viatura.placa_formatada} também está no Ofício "
                           f"{outro.numero_formatado} no mesmo período.")
     return avisos

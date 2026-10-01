@@ -152,7 +152,7 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
         "Expoara.", "viatura": master})
     for s in servidores[:2]:
         services.adicionar_viajante(emitido, operador, s)
-    services.definir_motorista(emitido, operador, emitido.viajantes.last().pk)
+    services.definir_motorista(emitido, operador, list(emitido.viajantes.all())[-1].pk)
     services.salvar_trechos(emitido, operador, roteiro(20, 4))
     emitido.refresh_from_db()
     services.emitir(emitido, operador)
@@ -163,7 +163,7 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
     rascunho = services.salvar_dados(rascunho, operador, {
         "motivo": "Cobertura jornalística de operação no interior.", "viatura": master})
     services.adicionar_viajante(rascunho, operador, servidores[2])
-    services.definir_motorista(rascunho, operador, rascunho.viajantes.first().pk)
+    services.definir_motorista(rascunho, operador, next(iter(rascunho.viajantes.all())).pk)
     services.salvar_trechos(rascunho, operador, roteiro(3, 2, _municipio("Maringá", "PR")))
     c.ids["oficio_rascunho"] = rascunho.pk
 

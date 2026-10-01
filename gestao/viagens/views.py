@@ -30,6 +30,10 @@ from .models import Documento, Oficio
 POR_PAGINA = 20
 
 
+def _htmx(request: HttpRequest) -> bool:
+    return bool(getattr(request, "htmx", False))
+
+
 def _oficio_visivel(request: HttpRequest, pk: int) -> Oficio:
     oficio = get_object_or_404(
         Oficio.objects.select_related("unidade", "viatura", "viatura__combustivel", "sede",
@@ -53,7 +57,7 @@ def painel(request: HttpRequest) -> HttpResponse:
     proximos = list(queries.com_dados_de_lista(
         qs.exclude(situacao=Oficio.Situacao.CANCELADO).filter(
             trechos__ordem=1, trechos__saida_em__gte=timezone.now())
-    ).order_by("primeira_saida")[:5])
+    ).order_by("primeira_saida")[:5])  # type: ignore[misc]  # anotado em com_dados_de_lista
     return render(request, "viagens/painel.html", {
         "indicadores": queries.indicadores_do_painel(qs),
         "pendentes": pendentes, "proximos": proximos,
@@ -93,7 +97,7 @@ def lista(request: HttpRequest) -> HttpResponse:
         "agora": timezone.now(),
         "migalhas": _migalhas(("Ofícios", "")),
     }
-    if request.htmx and request.htmx.target == "resultados":
+    if _htmx(request) and request.htmx.target == "resultados":  # type: ignore[attr-defined]
         return render(request, "viagens/oficios/lista.html#resultados", contexto)
     return render(request, "viagens/oficios/lista.html", contexto)
 
@@ -243,7 +247,7 @@ def adicionar_viajante(request: HttpRequest, pk: int) -> HttpResponse:
         services.adicionar_viajante(oficio, request.user, servidor)
     except services.RegraViolada as exc:
         return _secao_equipe(request, oficio, str(exc))
-    if not request.htmx:
+    if not _htmx(request):
         return redirect(f"{reverse('viagens:editar', args=[pk])}#equipe")
     return _secao_equipe(request, oficio)
 
@@ -252,7 +256,7 @@ def adicionar_viajante(request: HttpRequest, pk: int) -> HttpResponse:
 def remover_viajante(request: HttpRequest, pk: int, viajante_id: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     services.remover_viajante(oficio, request.user, viajante_id)
-    if not request.htmx:
+    if not _htmx(request):
         return redirect(f"{reverse('viagens:editar', args=[pk])}#equipe")
     return _secao_equipe(request, oficio)
 
@@ -262,7 +266,7 @@ def definir_motorista(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     viajante_id = request.POST.get("viajante") or None
     services.definir_motorista(oficio, request.user, int(viajante_id) if viajante_id else None)
-    if not request.htmx:
+    if not _htmx(request):
         return redirect(f"{reverse('viagens:editar', args=[pk])}#equipe")
     return _secao_equipe(request, oficio)
 
@@ -373,7 +377,7 @@ def documentos_parcial(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_GET
-def baixar_documento(request: HttpRequest, documento_id: int) -> HttpResponse:
+def baixar_documento(request: HttpRequest, documento_id: int) -> FileResponse:
     doc = get_object_or_404(Documento.objects.select_related("oficio"), pk=documento_id)
     if not policies.pode_ver(request.user, doc.oficio):
         raise Http404

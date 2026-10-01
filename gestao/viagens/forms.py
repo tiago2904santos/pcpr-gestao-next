@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
+from typing import cast
 
 from django import forms
 from django.contrib.postgres.lookups import Unaccent
@@ -121,15 +122,17 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["viatura"].queryset = Viatura.objects.filter(ativo=True).select_related(
-            "combustivel")
-        self.fields["viatura"].empty_label = "Selecione a viatura…"
-        self.fields["transporte_combustivel"].queryset = Combustivel.objects.filter(ativo=True)
-        self.fields["transporte_combustivel"].required = False
-        self.fields["transporte_combustivel"].empty_label = "Selecione…"
-        self.fields["justificativa_modelo"].queryset = ModeloTexto.objects.filter(
-            ativo=True, tipo=ModeloTexto.Tipo.JUSTIFICATIVA)
-        self.fields["justificativa_modelo"].empty_label = "Escrever do zero"
+        viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
+        viatura.queryset = Viatura.objects.filter(ativo=True).select_related("combustivel")
+        viatura.empty_label = "Selecione a viatura…"
+        combustivel = cast(forms.ModelChoiceField, self.fields["transporte_combustivel"])
+        combustivel.queryset = Combustivel.objects.filter(ativo=True)
+        combustivel.required = False
+        combustivel.empty_label = "Selecione…"
+        modelo = cast(forms.ModelChoiceField, self.fields["justificativa_modelo"])
+        modelo.queryset = ModeloTexto.objects.filter(ativo=True,
+                                                     tipo=ModeloTexto.Tipo.JUSTIFICATIVA)
+        modelo.empty_label = "Escrever do zero"
         self.fields["porte_arma"].widget.attrs["class"] = ""
         if self.instance.pk:
             self.fields["versao"].initial = self.instance.versao
@@ -150,7 +153,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         return placa
 
     def clean(self):
-        dados = super().clean()
+        super().clean()
+        dados = self.cleaned_data
         if (dados.get("custeio") == Oficio.Custeio.OUTRA_INSTITUICAO
                 and not dados.get("custeio_instituicao")):
             self.add_error("custeio_instituicao", "Informe qual instituição custeia a viagem.")
@@ -185,7 +189,8 @@ class FormularioDestino(AssociadoAoFormularioDoOficio, forms.Form):
         self._associar()
 
     def clean(self):
-        dados = super().clean()
+        super().clean()
+        dados = self.cleaned_data
         if dados.get("saida") and dados.get("chegada") and dados["chegada"] <= dados["saida"]:
             self.add_error("chegada", "A chegada precisa ser depois da saída.")
         return dados
@@ -200,7 +205,8 @@ class FormularioRetorno(AssociadoAoFormularioDoOficio, forms.Form):
         self._associar()
 
     def clean(self):
-        dados = super().clean()
+        super().clean()
+        dados = self.cleaned_data
         if dados.get("saida") and dados.get("chegada") and dados["chegada"] <= dados["saida"]:
             self.add_error("chegada", "A chegada precisa ser depois da saída.")
         return dados

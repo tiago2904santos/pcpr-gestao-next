@@ -60,7 +60,7 @@ def test_trilha_e_somente_insercao(sql):
         cur.execute(sql)
 
 
-def test_cadeia_de_hash_integra_e_detecta_adulteracao():
+def test_cadeia_de_hash_integra_e_detecta_adulteracao(trilha_descartavel):
     for i in range(3):
         Usuario.objects.create_user(f"u{i}", f"u{i}@pc.pr.gov.br", "x" * 12, nome=f"U{i}")
     integra, total, quebra = auditoria.verificar_cadeia()

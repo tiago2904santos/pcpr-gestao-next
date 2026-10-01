@@ -59,7 +59,7 @@ def _url(nome: str) -> str | None:
         return None
 
 
-def navegacao_para(request: HttpRequest) -> dict[str, object]:
+def navegacao_para(request: HttpRequest) -> dict[str, Any]:
     usuario = getattr(request, "user", None)
     if usuario is None or not usuario.is_authenticated:
         return {"modulos": [], "atual": None}

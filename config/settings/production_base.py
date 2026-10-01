@@ -12,3 +12,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")  # noqa: F405
+# Preload de HSTS é decisão do domínio institucional (afeta subdomínios fora deste
+# sistema); fica a cargo da equipe de infraestrutura — docs/ops/deploy.md.
+SILENCED_SYSTEM_CHECKS = ["security.W021"]

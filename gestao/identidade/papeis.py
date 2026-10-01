@@ -8,7 +8,15 @@ Ver docs/product/permissions.md.
 
 from __future__ import annotations
 
-PAPEIS: dict[str, dict[str, object]] = {
+from typing import TypedDict
+
+
+class Papel(TypedDict):
+    descricao: str
+    permissoes: list[str]
+
+
+PAPEIS: dict[str, Papel] = {
     "OPERADOR_VIAGENS": {
         "descricao": "Monta ofícios, roteiros e termos da sua unidade.",
         "permissoes": [
@@ -56,8 +64,8 @@ def sincronizar_papeis() -> dict[str, int]:
     for nome, definicao in PAPEIS.items():
         grupo, _ = Group.objects.get_or_create(name=nome)
         perms = []
-        for codigo in definicao["permissoes"]:  # type: ignore[union-attr]
-            app, codename = str(codigo).split(".")
+        for codigo in definicao["permissoes"]:
+            app, codename = codigo.split(".")
             perm = Permission.objects.filter(content_type__app_label=app,
                                              codename=codename).first()
             if perm:
