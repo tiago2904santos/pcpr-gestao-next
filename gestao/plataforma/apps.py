@@ -8,3 +8,7 @@ class PlataformaConfig(AppConfig):
 
     def ready(self) -> None:
         from . import checks  # noqa: F401
+        from .ambiente import exigir_demo_somente_no_preview
+
+        # Vale para qualquer processo (gunicorn, worker, shell), não só para `check`.
+        exigir_demo_somente_no_preview()

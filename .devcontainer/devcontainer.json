@@ -1,0 +1,17 @@
+{
+  "name": "PCPR — Preview (DEMO, dados fictícios)",
+  "dockerComposeFile": ["../compose.preview.yml"],
+  "service": "web",
+  "runServices": ["db", "web", "worker"],
+  "workspaceFolder": "/app",
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "PCPR Preview",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "hostRequirements": { "cpus": 2, "memory": "4gb" }
+}

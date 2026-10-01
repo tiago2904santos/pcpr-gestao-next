@@ -344,6 +344,12 @@
   top: calc(100% - var(--esp-1));
 }
 
+/* Selo de demonstração dentro da gaveta: no celular o selo do cabeçalho não cabe. */
+.navegacao__ambiente {
+  display: none;
+  margin: 0 0 var(--esp-2);
+}
+
 .navegacao .menu__item[aria-current] {
   background: var(--cor-marca-fundo);
   font-weight: var(--peso-semi);
@@ -671,6 +677,8 @@ html:has(.barra-acoes) {
     margin: 0;
     padding: var(--esp-3) var(--esp-4) var(--esp-4);
   }
+
+  .navegacao__ambiente { display: block; }
 
   .navegacao__lista {
     flex-direction: column;

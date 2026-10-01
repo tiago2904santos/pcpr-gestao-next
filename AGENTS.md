@@ -25,6 +25,7 @@ revisadas + paridade atualizada em `docs/parity/` quando a funcionalidade existi
 |---|---|---|
 | LAB | sintéticos, descartáveis | tudo, inclusive auditorias destrutivas e carga |
 | DEV | fictícios locais | tudo exceto apontar para bancos remotos |
+| PREVIEW | fictícios (`semear_demo`), entrada DEMO sem senha | resetar/semear o dataset DEMO; navegar e testar |
 | STAGING | anonimizados | ler; escrever só via fluxos da aplicação |
 | PRODUCTION | reais | **somente leitura** |
 

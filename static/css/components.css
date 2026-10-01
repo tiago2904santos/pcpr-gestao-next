@@ -2019,7 +2019,7 @@ kbd {
   display: flex;
   flex-direction: column-reverse;
   gap: var(--esp-1);
-  padding: var(--esp-3);
+  padding: var(--esp-3) var(--esp-1);
   border-radius: var(--raio-md);
   background: var(--cor-superficie-sutil);
   border: var(--borda);
@@ -2037,7 +2037,8 @@ kbd {
   font-size: var(--texto-2xs);
   font-weight: var(--peso-semi);
   letter-spacing: 0.02em;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal; /* nunca "RASCUN/HOS": palavra inteira ou hifenização */
+  hyphens: auto;
   text-transform: uppercase;
   color: var(--cor-texto-secundario);
 }

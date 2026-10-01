@@ -8,6 +8,12 @@
       <h1 class="cartao-acesso__titulo" id="titulo-acesso">Acesso ao sistema</h1>
       <p class="texto-secundario">Entre com seu usuário ou e-mail institucional e a senha cadastrada pelo administrador da unidade.</p>
     </div>
+    {% if demo_ativo %}
+      <div class="alerta" role="note">
+        {% icone "info" %}
+        <div class="alerta__corpo"><p><strong>Ambiente de demonstração</strong> — dados fictícios. Deixe os campos em branco e clique em <strong>Entrar</strong>.</p></div>
+      </div>
+    {% endif %}
     {% if form.non_field_errors %}
       <div class="alerta alerta--perigo" role="alert">
         {% icone "alert-circle" %}

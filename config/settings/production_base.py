@@ -2,6 +2,12 @@
 
 from .base import *  # noqa: F403
 
+if DEMO_MODE:  # noqa: F405
+    raise ImproperlyConfigured(  # noqa: F405
+        "DEMO_MODE=true é proibido em STAGING/PRODUCTION: a entrada sem senha existe só no "
+        "ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md)."
+    )
+
 DEBUG = False
 SECRET_KEY = env("DJANGO_SECRET_KEY", required=True)  # noqa: F405
 DATABASES["default"]["PASSWORD"] = env("POSTGRES_PASSWORD", required=True)  # noqa: F405

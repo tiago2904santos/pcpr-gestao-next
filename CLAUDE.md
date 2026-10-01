@@ -15,6 +15,9 @@ testes de caracterização em `gestao/*/tests/`; para ver a tela de referência 
 - Lint/tipos/fronteiras: `scripts/verificar.sh`
 - Capturas: `uv run python scripts/capturar.py /viagens/oficios/ --larguras 360,1440`
 - Diagnóstico: `uv run python manage.py doctor`
+- Preview navegável (DEMO, sem senha): `scripts/preview.sh subir|local|resetar|verificar` —
+  ver `docs/ops/preview.md`; E2E: `uv run pytest tests/e2e/test_preview_demo.py`
+  (ou com `PREVIEW_URL=…` contra um preview publicado).
 
 ## Regras de arquitetura (verificadas por import-linter)
 - `gestao/viagens/dominio/` é Python puro (sem Django): regras de diárias, prazos, estados.
@@ -31,5 +34,9 @@ testes de caracterização em `gestao/*/tests/`; para ver a tela de referência 
 
 ## Segurança
 - Nunca commitar segredos (`.env` é ignorado). Credenciais do sistema de referência só em variáveis de ambiente.
-- Operações destrutivas apenas com `APP_ENV` em lab/dev/test (`gestao.plataforma.ambiente`).
+- Operações destrutivas apenas com `APP_ENV` em lab/dev/test (`gestao.plataforma.ambiente`);
+  `semear_demo`/`resetar_demo` só em PREVIEW.
+- Entrada sem senha (DEMO) só com `APP_ENV=preview` **e** `DEMO_MODE=true` (ADR 0011). Nunca
+  condicionar autenticação a `DEBUG`; nunca ligar `DEMO_MODE` fora do PREVIEW (o startup falha).
+- Novas telas precisam de dados em `gestao/viagens/demonstracao.py` para serem avaliadas no PREVIEW.
 - Em PRODUCTION, ferramentas do agente são somente leitura (a URL `PCPR_MCP_DATABASE_URL` usada pelo `.mcp.json` deve ser do papel `pcpr_leitura`).

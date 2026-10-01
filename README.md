@@ -28,6 +28,17 @@ uv run python manage.py processar_outbox # outro terminal: worker (PDF, notifica
 ```
 Acesse http://127.0.0.1:8000 — usuário `operador` / senha `senha-local-123` (só DEV/LAB).
 
+## Ver o sistema no navegador (PREVIEW, sem senha)
+Ambiente `preview` com base fictícia populosa (~260 ofícios) e entrada DEMO: na tela de login,
+deixe usuário e senha em branco e clique em **Entrar**. Só existe com `APP_ENV=preview` e
+`DEMO_MODE=true`; produção recusa essa combinação (ADR 0011).
+```bash
+scripts/preview.sh subir     # Docker → http://localhost:8000
+scripts/preview.sh local     # sem Docker (PostgreSQL local, banco pcpr_preview)
+```
+Ou **Code → Codespaces → Create codespace** no GitHub (URL privada `…-8000.app.github.dev`).
+Detalhes, reset e verificação: `docs/ops/preview.md`.
+
 ## Qualidade
 ```bash
 uv run python manage.py doctor           # diagnóstico do ambiente
@@ -37,7 +48,7 @@ uv run pytest -m "e2e or visual or a11y or perf"   # navegador (Playwright + axe
 
 ## Estrutura
 ```
-config/                 settings por ambiente (lab, dev, staging, production, test)
+config/                 settings por ambiente (lab, dev, preview, staging, production, test)
 gestao/plataforma/      núcleo técnico: auditoria, outbox, navegação, UI, erros, saúde
 gestao/identidade/      usuários, login, papéis
 gestao/cadastros/       servidores, viaturas, unidades, cargos, municípios, tabela de diárias

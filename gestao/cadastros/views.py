@@ -10,6 +10,7 @@ from django.db.models.functions import Lower
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.views.decorators.http import require_GET
 
 from .models import Municipio, Servidor, TabelaDiaria, Viatura
@@ -31,7 +32,7 @@ def servidores(request: HttpRequest) -> HttpResponse:
     pagina = Paginator(qs, 25).get_page(request.GET.get("pagina"))
     return render(request, "cadastros/servidores.html", {
         "page_obj": pagina, "termo": termo,
-        "querystring_base": f"q={termo}&" if termo else "",
+        "querystring_base": f"{urlencode({'q': termo})}&" if termo else "",
         "migalhas": _migalhas("Servidores")})
 
 
