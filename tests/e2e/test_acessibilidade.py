@@ -50,6 +50,7 @@ def _foco(pg, seletor: str) -> dict:
     alvo.focus()
     pg.keyboard.press("Shift+Tab")
     pg.keyboard.press("Tab")
+    pg.wait_for_timeout(400)  # transições de borda/halo (--duracao-rapida) terminam
     return alvo.evaluate("""e => { const s = getComputedStyle(e);
         return {outline: s.outlineStyle, cor: s.outlineColor, largura: s.outlineWidth,
                 offset: s.outlineOffset, borda: s.borderColor, sombra: s.boxShadow}; }""")
