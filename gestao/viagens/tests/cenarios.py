@@ -148,7 +148,7 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
     # 1. Emitido, no prazo, dois servidores (um motorista), viatura.
     emitido = services.criar_rascunho(operador, data_oficio=hoje)
     emitido = services.salvar_dados(emitido, operador, {
-        "protocolo": "266554346", "motivo": "Apoio e condução da Unidade Móvel no evento "
+        "protocolo": "123456789", "motivo": "Apoio e condução da Unidade Móvel no evento "
         "Expoara.", "viatura": master})
     for s in servidores[:2]:
         services.adicionar_viajante(emitido, operador, s)

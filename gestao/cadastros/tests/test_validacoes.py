@@ -26,14 +26,14 @@ def test_cpf_invalido(cpf):
 def test_formatacoes():
     assert formatar_cpf("52998224725") == "529.982.247-25"
     assert formatar_cpf("123") == "123"
-    assert somente_digitos("26.655.434-6") == "266554346"
+    assert somente_digitos("12.345.678-9") == "123456789"
     assert normalizar_placa("abc-1d23") == "ABC1D23"
-    assert formatar_placa("AYS4579") == "AYS-4579"
+    assert formatar_placa("ABC1234") == "ABC-1234"
     assert formatar_placa("ABC1D23") == "ABC1D23"
     assert sem_acentos("Paraná São José") == "Parana Sao Jose"
 
 
-@pytest.mark.parametrize(("placa", "ok"), [("AYS-4579", True), ("ABC1D23", True),
+@pytest.mark.parametrize(("placa", "ok"), [("ABC-1234", True), ("ABC1D23", True),
                                             ("AB12345", False), ("ABCD123", False)])
 def test_placa(placa, ok):
     assert placa_valida(placa) is ok

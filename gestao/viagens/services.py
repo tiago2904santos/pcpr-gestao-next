@@ -81,7 +81,7 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
 
 # ---------------------------------------------------------------- edição
 CAMPOS_EDITAVEIS = [
-    "data_oficio", "protocolo", "assunto", "motivo", "custeio", "custeio_instituicao",
+    "data_oficio", "protocolo", "marcador", "motivo", "custeio", "custeio_instituicao",
     "tipo_transporte", "viatura", "transporte_descricao", "transporte_placa",
     "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa",
 ]
@@ -420,3 +420,12 @@ def buscar_por_texto(qs, termo: str):
 
 
 __all__ = ["IntegrityError"]
+
+
+def assunto_do_oficio(oficio: Oficio):
+    """Autorização × Convalidação pela data do ofício e da 1ª saída (dominio.assunto)."""
+    from .dominio.assunto import resolver_assunto
+
+    primeiro = oficio.trechos.order_by("ordem").first()
+    saida = timezone.localdate(primeiro.saida_em) if primeiro else None
+    return resolver_assunto(oficio.data_oficio, saida, oficio.marcador)

@@ -7,19 +7,11 @@
   {% if pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo' %}">{% icone "plus" %}Novo ofício</a>{% endif %}
 {% endblock %}
 
-{% block abas_filtro %}
-<nav class="abas" aria-label="Filtrar por situação">
-  {% for chave, rotulo, contador in abas %}
-    <a class="aba" href="?{% if chave %}situacao={{ chave }}{% endif %}{% if termo %}{% if chave %}&{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == situacao %} aria-current="page"{% endif %}>
-      {{ rotulo }} <span class="aba__contagem">{% with n=contagens|get_item:contador %}{{ n }}{% endwith %}</span>
-    </a>
-  {% endfor %}
-</nav>
-{% endblock %}
+{% block abas_filtro %}{% include "viagens/oficios/_abas.html" %}{% endblock %}
 
 {% block filtros %}
 <form class="filtros" role="search" method="get" action="{% url 'viagens:oficios' %}"
-      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-trigger="submit, input changed delay:350ms from:#busca-oficios">
+      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-trigger="submit, input changed delay:350ms from:#busca-oficios, change from:#ordem-oficios">
   {% if situacao %}<input type="hidden" name="situacao" value="{{ situacao }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-oficios">Buscar</label>
@@ -41,6 +33,7 @@
 {% block resultados %}
 {% partialdef resultados inline %}
 <div id="resultados">
+  {% if request.htmx %}{% include "viagens/oficios/_abas.html" with oob=True %}{% endif %}
   <div class="lista-cabecalho">
     <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Ofícios{% endif %}</h2>
     <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>

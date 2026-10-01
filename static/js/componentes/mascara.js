@@ -4,7 +4,7 @@
  * O servidor valida e normaliza de novo — a máscara é só conforto de digitação.
  */
 const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
-  // eProtocolo: 9 dígitos → 26.655.434-6
+  // eProtocolo: 9 dígitos → 12.345.678-9
   protocolo: (d) => {
     const v = d.replace(/\D/g, "").slice(0, 9);
     return v

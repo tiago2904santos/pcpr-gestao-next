@@ -46,7 +46,7 @@
       <div><dt class="rotulo-caixa-alta">Data</dt><dd>{{ oficio.data_oficio|date:"d/m/Y" }}</dd></div>
       <div><dt class="rotulo-caixa-alta">Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
       <div><dt class="rotulo-caixa-alta">Custeio</dt><dd>{{ oficio.get_custeio_display }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
-      <div><dt class="rotulo-caixa-alta">Assunto</dt><dd>{{ oficio.assunto }}</dd></div>
+      <div><dt class="rotulo-caixa-alta">Assunto</dt><dd>{{ assunto.linha }} {{ assunto.rotulo }}</dd></div>
       <div><dt class="rotulo-caixa-alta">Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     </dl>
   </div>

@@ -16,7 +16,7 @@
 - Obrigatório marcado com `*` (vermelho, `aria-hidden`) **e** atributo `required`;
   opcionais dizem "(opcional)" — reduz ambiguidade.
 - Ajuda curta abaixo do campo (`.campo__ajuda`) ligada por `aria-describedby`.
-- Erro abaixo, com ícone, em linguagem de solução: "Informe 9 dígitos (ex.: 26.655.434-6)".
+- Erro abaixo, com ícone, em linguagem de solução: "Informe 9 dígitos (ex.: 12.345.678-9)".
 - Máscaras leves (`data-mascara="protocolo|cpf"`) apenas como conforto: o servidor
   normaliza e valida de novo.
 - Datas/horas nativas (`type="date"`/`"time"`).

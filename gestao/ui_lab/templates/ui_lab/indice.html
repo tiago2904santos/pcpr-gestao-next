@@ -97,7 +97,7 @@
           <div class="campos">
             <div class="campo col-4 campo--sucesso">
               <label class="campo__rotulo" for="lab-ok">Placa</label>
-              <input class="entrada" id="lab-ok" value="AYS-4579" aria-describedby="lab-ok-msg">
+              <input class="entrada" id="lab-ok" value="ABC-1234" aria-describedby="lab-ok-msg">
               <p class="campo__ajuda" id="lab-ok-msg">Viatura encontrada no cadastro.</p>
             </div>
             <div class="campo col-4">
@@ -187,7 +187,7 @@
         <div class="linha">{% for rotulo, tom in tons_status %}<span class="selo selo--{{ tom }}">{{ rotulo }}</span>{% endfor %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
         <div class="alerta" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Informação</p><p>O número do ofício é reservado ao salvar o rascunho e confirmado na emissão.</p></div></div>
         <div class="alerta alerta--sucesso" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Ofício 131/2026 emitido</p><p>O PDF foi gerado e está disponível na seção Documentos.</p></div></div>
-        <div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">Conflito de agenda</p><ul><li>Gilberto Reinaldo Müller Junior já está no Ofício 129/2026 de 09/10 a 11/10/2026 (Arapongas/PR).</li><li>Viatura AYS-4579 já está no Ofício 129/2026 no mesmo período.</li></ul><p class="texto-sm">É só um aviso: confira com a outra equipe; dá para salvar assim mesmo.</p></div></div>
+        <div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">Conflito de agenda</p><ul><li>Ana Beatriz Correia Lima já está no Ofício 129/2026 de 09/10 a 11/10/2026 (Arapongas/PR).</li><li>Viatura ABC-1234 já está no Ofício 129/2026 no mesmo período.</li></ul><p class="texto-sm">É só um aviso: confira com a outra equipe; dá para salvar assim mesmo.</p></div></div>
         <div class="alerta alerta--perigo" role="alert">{% icone "x-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Não foi possível emitir</p><p>Falta a justificativa: a viagem começa em 3 dias e o prazo mínimo é de 10 dias.</p></div></div>
         <div class="linha">
           <button class="botao" type="button" data-lab-toast="sucesso">Mostrar toast de sucesso</button>
@@ -261,8 +261,8 @@
         <div class="grade grade--2">
           <div class="cartao"><div class="cartao__cabecalho"><h3 class="cartao__titulo cartao__titulo--institucional">{% icone "users" %}Responsável pelo preenchimento</h3></div><div class="cartao__corpo"><dl class="definicoes"><div><dt class="rotulo-caixa-alta">Nome</dt><dd>Operador Teste</dd></div><div><dt class="rotulo-caixa-alta">Unidade</dt><dd>Assessoria de Comunicação</dd></div><div><dt class="rotulo-caixa-alta">Protocolo</dt><dd><span class="vazio-inline">Não informado</span></dd></div></dl></div></div>
           <div class="pilha-sm">
-            <div class="pessoa"><span class="avatar">GJ</span><div class="pessoa__texto"><div class="pessoa__nome">GILBERTO REINALDO MÜLLER JUNIOR</div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><span class="selo selo--sucesso">Com termo</span><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Gilberto Reinaldo Müller Junior">{% icone "x" %}</button></div>
-            <div class="pessoa"><span class="avatar avatar--escuro">SJ</span><div class="pessoa__texto"><div class="pessoa__nome">SYLVIO PIVA JUNIOR <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span></div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Sylvio Piva Junior">{% icone "x" %}</button></div>
+            <div class="pessoa"><span class="avatar">AL</span><div class="pessoa__texto"><div class="pessoa__nome">Ana Beatriz Correia Lima</div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><span class="selo selo--sucesso">Com termo</span><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Ana Beatriz Correia Lima">{% icone "x" %}</button></div>
+            <div class="pessoa"><span class="avatar avatar--escuro">BM</span><div class="pessoa__texto"><div class="pessoa__nome">Bruno Henrique Martins <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span></div><div class="pessoa__meta">Agente de Polícia Judiciária • DM</div></div><button type="button" class="botao botao--icone botao--sutil botao--sm" aria-label="Remover Bruno Henrique Martins">{% icone "x" %}</button></div>
           </div>
         </div>
       </div>
@@ -288,7 +288,7 @@
             <tbody>
               {% for l in linhas %}
               <tr>
-                <td class="tabela__celula-principal" data-rotulo="Número"><a class="tabela__principal" href="#tabelas">Ofício {{ l.numero }}</a><span class="tabela__secundario">Protocolo 26.655.434-6</span></td>
+                <td class="tabela__celula-principal" data-rotulo="Número"><a class="tabela__principal" href="#tabelas">Ofício {{ l.numero }}</a><span class="tabela__secundario">Protocolo 12.345.678-9</span></td>
                 <td data-rotulo="Destino">{{ l.destino }}</td>
                 <td data-rotulo="Servidores" class="quebra-palavras">{{ l.servidores }}</td>
                 <td data-rotulo="Valor" class="num">{{ l.valor|moeda }}</td>
@@ -304,7 +304,7 @@
           <li class="registro">
             <span class="registro__icone">{% icone "file-text" %}</span>
             <div><div class="registro__titulo"><a class="registro__link" href="#tabelas">Ofício 131/2026 · Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso">Emitido</span><span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
-              <div class="registro__meta"><span class="registro__meta-item">{% icone "users" classe="icone--sm" %}Gilberto R. Müller Jr., Sylvio Piva Jr. (motorista)</span><span class="registro__meta-item">{% icone "car" classe="icone--sm" %}Renault Master · AYS-4579</span><span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}R$ 2.411,56 · 4 × 100% + 1 × 15%</span></div></div>
+              <div class="registro__meta"><span class="registro__meta-item">{% icone "users" classe="icone--sm" %}Ana B. Correia Lima, Bruno H. Martins (motorista)</span><span class="registro__meta-item">{% icone "car" classe="icone--sm" %}Renault Master · ABC-1234</span><span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}R$ 2.411,56 · 4 × 100% + 1 × 15%</span></div></div>
             <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do ofício 131/2026">{% icone "ellipsis-vertical" %}</button></div>
           </li>
           <li class="registro">

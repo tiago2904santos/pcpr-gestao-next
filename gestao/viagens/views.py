@@ -61,6 +61,7 @@ def painel(request: HttpRequest) -> HttpResponse:
     return render(request, "viagens/painel.html", {
         "indicadores": queries.indicadores_do_painel(qs),
         "pendentes": pendentes, "proximos": proximos,
+        "pode_editar_oficios": request.user.has_perm("viagens.change_oficio"),
         "pode_criar": policies.pode_criar(request.user),
         "migalhas": [("Início", reverse("painel:inicio")), ("Viagens", "")],
     })
@@ -94,6 +95,7 @@ def lista(request: HttpRequest) -> HttpResponse:
         "abas": [("", "Todos", "todos")] + [
             (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
         "pode_criar": policies.pode_criar(request.user),
+        "pode_editar_oficios": request.user.has_perm("viagens.change_oficio"),
         "agora": timezone.now(),
         "migalhas": _migalhas(("Ofícios", "")),
     }
@@ -143,6 +145,7 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "viajantes": oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"),
         "prontidao": prontidao,
         "prazo": services.avaliar_prazo_do_oficio(oficio),
+        "assunto": services.assunto_do_oficio(oficio),
         "calculo": oficio.diarias_calculo,
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_emitir": policies.pode_emitir(request.user, oficio),
@@ -157,8 +160,12 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
 def editar(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     if not policies.pode_editar(request.user, oficio):
-        messages.info(request, f"O Ofício {oficio.numero_formatado} não está em rascunho; "
-                               "veja os detalhes abaixo.")
+        if oficio.editavel:
+            messages.info(request, "Seu perfil permite consultar, mas não editar ofícios.")
+        else:
+            messages.info(request, f"O Ofício {oficio.numero_formatado} está "
+                                   f"{oficio.get_situacao_display().lower()} e não pode ser "
+                                   "editado; veja os detalhes abaixo.")
         return redirect("viagens:detalhe", pk=oficio.pk)
     if request.method != "POST":
         return render(request, "viagens/oficios/editar.html", _contexto_edicao(request, oficio))
@@ -179,6 +186,7 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
         form.is_valid()
         contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
         contexto["foco"] = f"id_destino-{len(iniciais) - 1}-cidade"
+        contexto["sujo"] = True  # nada foi salvo ainda: avisa e protege a saída
         return render(request, "viagens/oficios/editar.html", contexto)
     destinos = ConjuntoDestinos(request.POST, prefix="destino")
     retorno = FormularioRetorno(request.POST, prefix="retorno")
@@ -200,13 +208,20 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
             form.add_error(None, str(exc))
         except services.RegraViolada as exc:
             contexto = _contexto_edicao(request, oficio, form, destinos, retorno, str(exc))
+            contexto.update(sujo=True, foco="alerta-roteiro")
             return render(request, "viagens/oficios/editar.html", contexto, status=422)
         else:
             if request.POST.get("acao") == "emitir":
+                bloqueantes = services.verificar_prontidao(oficio).bloqueantes
+                if bloqueantes:
+                    messages.warning(request, f"Rascunho salvo, mas ainda há {len(bloqueantes)} "
+                                              "pendência(s) para emitir. Veja a seção 7.")
+                    return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
                 return redirect("viagens:revisar_emissao", pk=oficio.pk)
             messages.success(request, f"Rascunho do Ofício {oficio.numero_formatado} salvo.")
             return redirect("viagens:editar", pk=oficio.pk)
     contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
+    contexto.update(sujo=True, foco="resumo-erros" if form.errors else "alerta-roteiro")
     return render(request, "viagens/oficios/editar.html", contexto, status=422)
 
 
@@ -355,6 +370,7 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
         "historico": oficio.historico.select_related("usuario")[:30],
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "prazo": services.avaliar_prazo_do_oficio(oficio),
+        "assunto": services.assunto_do_oficio(oficio),
         "calculo": oficio.diarias_calculo,
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_editar": policies.pode_editar(request.user, oficio),

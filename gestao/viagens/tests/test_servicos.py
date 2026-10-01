@@ -177,7 +177,7 @@ def test_busca_por_numero_protocolo_destino_e_servidor(cenario):
     oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
     qs = Oficio.objects.all()
     assert oficio in services.buscar_por_texto(qs, f"{oficio.numero}/{oficio.ano}")
-    assert oficio in services.buscar_por_texto(qs, "26.655.434-6")
+    assert oficio in services.buscar_por_texto(qs, "12.345.678-9")
     assert oficio in services.buscar_por_texto(qs, "arapongas")
     assert oficio in services.buscar_por_texto(qs, "ana beatriz")
 

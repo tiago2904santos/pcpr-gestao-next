@@ -61,3 +61,22 @@ def test_reais_por_extenso(valor, texto):
     from decimal import Decimal
 
     assert reais_por_extenso(Decimal(valor)) == texto
+
+
+from gestao.viagens.dominio.assunto import Marcador, resolver_assunto  # noqa: E402
+
+
+@pytest.mark.parametrize(("saida", "marcador", "rotulo", "termo"), [
+    (date(2026, 10, 8), "", "(Autorização)", "autorização"),
+    (None, "", "(Autorização)", "autorização"),
+    (date(2026, 9, 28), "", "(Convalidação)", "convalidação"),   # mesmo dia = convalidação
+    (date(2026, 9, 1), "", "(Convalidação)", "convalidação"),
+    (date(2026, 10, 8), Marcador.RETIFICADO, "(Retificado)", "autorização"),
+    (date(2026, 9, 1), Marcador.RETIFICADO, "(Convalidação)", "convalidação"),  # ignorado
+    (date(2026, 10, 8), Marcador.COMPLEMENTAR, "(Complementar)", "autorização"),
+    (date(2026, 9, 1), Marcador.COMPLEMENTAR, "(Complementar)", "convalidação"),
+])
+def test_assunto_autorizacao_ou_convalidacao(saida, marcador, rotulo, termo):
+    a = resolver_assunto(OFICIO, saida, marcador)
+    assert (a.rotulo, a.termo) == (rotulo, termo)
+    assert a.linha == f"Solicitação de {termo} e concessão de diárias."

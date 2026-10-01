@@ -33,3 +33,4 @@ artifacts/
 .vscode/
 .idea/
 .DS_Store
+.hypothesis/

@@ -30,7 +30,7 @@ class FormularioExemplo(forms.Form):
     protocolo = forms.CharField(
         label="Protocolo", help_text="Nove dígitos, com ou sem pontuação.",
         widget=forms.TextInput(attrs={"class": "entrada", "data-mascara": "protocolo",
-                                      "inputmode": "numeric", "placeholder": "26.655.434-6"}),
+                                      "inputmode": "numeric", "placeholder": "12.345.678-9"}),
     )
     data_oficio = forms.DateField(label="Data do ofício",
                            widget=forms.DateInput(attrs={"class": "entrada", "type": "date"}))
@@ -64,16 +64,16 @@ def indice(request: HttpRequest) -> HttpResponse:
     linhas = [
         {"numero": f"{n:03d}/2026", "destino": d, "servidores": s, "valor": v, "status": st}
         for n, d, s, v, st in [
-            (131, "Arapongas/PR", "Gilberto Reinaldo Müller Junior, Sylvio Piva Junior", 2411.56,
+            (131, "Arapongas/PR", "Ana Beatriz Correia Lima, Bruno Henrique Martins", 2411.56,
              ("Emitido", "sucesso")),
-            (129, "Antonina/PR", "Fabiano Rodrigo Teixeira Pinto", 2324.40,
+            (129, "Antonina/PR", "Carla Regina Duarte", 2324.40,
              ("Pronto para emitir", "marca")),
             (128, "—", "—", 0, ("Rascunho", "neutro")),
             (127, "Rio Branco do Ivaí/PR",
-             "Adilson José Domingues, Adriano Rodrigues da Silva, Aluízio Sebastião Crespo de "
-             "Oliveira Junior, Vanderlim Cezar Rodrigues", 1336.54,
+             "Diego Fernandes Rocha, Elaine Cristina Moraes, "
+             "Fábio Augusto Teixeira, Gabriela Nunes Ribeiro", 1336.54,
              ("Justificativa pendente", "aviso")),
-            (126, "Fortaleza/CE", "Eliott Souza Cabral", 853.90, ("Cancelado", "perigo")),
+            (126, "Fortaleza/CE", "Henrique Lopes Batista", 853.90, ("Cancelado", "perigo")),
         ]
     ]
     pagina = Paginator(range(1, 241), 20).get_page(request.GET.get("pagina", 5))
@@ -97,8 +97,8 @@ def busca_exemplo(request: HttpRequest) -> HttpResponse:
     termo = (request.GET.get("q") or "").lower()
     resultados = [
         {"id": str(i), "titulo": nome.upper(), "meta": "Agente de Polícia Judiciária • DM"}
-        for i, nome in enumerate(["Gilberto Reinaldo Müller Junior", "Sylvio Piva Junior",
-                                  "Fabiano Rodrigo Teixeira Pinto", "Adilson José Domingues"])
+        for i, nome in enumerate(["Ana Beatriz Correia Lima", "Bruno Henrique Martins",
+                                  "Carla Regina Duarte", "Diego Fernandes Rocha"])
         if termo in nome.lower()
     ]
     return JsonResponse({"resultados": resultados})

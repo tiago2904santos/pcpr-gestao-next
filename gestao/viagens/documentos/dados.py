@@ -23,7 +23,7 @@ def _dt(valor) -> dict[str, str]:
 
 
 def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
-    from ..services import avaliar_prazo_do_oficio, configuracao_da_unidade
+    from ..services import assunto_do_oficio, avaliar_prazo_do_oficio, configuracao_da_unidade
 
     config = configuracao_da_unidade(oficio)
     viajantes = list(oficio.viajantes.select_related("servidor__cargo", "servidor__unidade"))
@@ -34,8 +34,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         rotulo = f"{t.destino.nome}/{t.destino.uf}"
         if t.destino_id != oficio.sede_id and rotulo not in destinos:
             destinos.append(rotulo)
-    ida = [t for t in trechos if t.destino_id != oficio.sede_id]
-    volta = [t for t in trechos if t.destino_id == oficio.sede_id]
+    volta = trechos[-1:] if trechos and trechos[-1].destino_id == oficio.sede_id else []
+    ida = trechos[:-1] if volta else trechos
     if oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA and oficio.viatura:
         transporte = {
             "meio": oficio.viatura.modelo, "placa": oficio.viatura.placa_formatada,
@@ -49,6 +49,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
             "oficial": False,
         }
     prazo = avaliar_prazo_do_oficio(oficio)
+    assunto = assunto_do_oficio(oficio)
 
     def linha_trecho(t):
         return {"origem": f"{t.origem.nome}/{t.origem.uf}",
@@ -60,7 +61,9 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "ano": oficio.ano,
         "data_oficio": f"{oficio.data_oficio:%d/%m/%Y}",
         "protocolo": oficio.protocolo_formatado,
-        "assunto": oficio.assunto,
+        "assunto": assunto.linha,
+        "assunto_rotulo": assunto.rotulo,
+        "assunto_termo": assunto.termo,
         "origem": config.nome_extenso,
         "unidade_sigla": oficio.unidade.sigla,
         "destinatario": {

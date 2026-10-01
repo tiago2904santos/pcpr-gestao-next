@@ -30,15 +30,18 @@
       data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir rascunho" data-confirmar-perigo>{% csrf_token %}</form>
 {% endif %}
 
-<form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate>
+<form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate
+      data-proteger{% if sujo %} data-sujo{% endif %}>
   {% csrf_token %}
+  {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário, antes de "Adicionar destino"). #}
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar rascunho</button>
   {{ form.versao }}
   {{ destinos.management_form }}
 </form>
 
 {% include "componentes/resumo_erros.html" %}
 {% if destinos.non_form_errors or erro_roteiro %}
-  <div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
+  <div class="alerta alerta--perigo mb-4" role="alert" id="alerta-roteiro" tabindex="-1">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
 {% endif %}
 
 <div class="layout-formulario">
@@ -68,7 +71,13 @@
           </div>
           {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
           {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" %}
-          {% include "componentes/campo.html" with campo=form.assunto %}
+          <fieldset class="grupo-campos">
+            <legend>Documento</legend>
+            <p class="campo__ajuda mb-4">Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }} — Autorização quando o ofício é anterior à saída; senão, Convalidação.</p>
+            <div class="linha">
+              {% for opcao in form.marcador %}<label class="escolha" for="{{ opcao.id_for_label }}">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>{% endfor %}
+            </div>
+          </fieldset>
           {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
           <fieldset class="grupo-campos col-6">
             <legend>Custeio das diárias e do deslocamento</legend>
@@ -180,11 +189,11 @@
 </div>
 
 <div class="barra-acoes">
-  <div class="barra-acoes__status">
-    {% if prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}{% endif %}
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair.">
+    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir · última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}{% endif %}
   </div>
-  <button type="submit" form="form-oficio" class="botao">{% icone "save" %}Salvar rascunho</button>
-  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Salvar e revisar emissão</button>{% endif %}
+  <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
+  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--marca">{% icone "stamp" %}Revisar e emitir</button>{% endif %}
 </div>
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

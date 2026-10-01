@@ -62,7 +62,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     expect(diarias).to_contain_text("R$ 624,68")
     expect(pg.locator("#justificativa .selo")).to_have_text("Dispensada")
 
-    pg.get_by_role("button", name="Salvar e revisar emissão").click()
+    pg.get_by_role("button", name="Revisar e emitir").click()
     expect(pg.get_by_role("heading", level=1)).to_have_text("Revisar e emitir")
     pg.get_by_role("button", name="Emitir ofício").click()
     dialogo = pg.get_by_role("dialog", name="Emitir ofício?")
@@ -87,9 +87,37 @@ def test_emissao_bloqueada_sem_justificativa_mostra_o_motivo(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     expect(pg.locator("#justificativa .selo")).to_have_text("Obrigatória")
     expect(pg.locator(".barra-acoes__status")).to_contain_text("pendência")
-    pg.get_by_role("button", name="Salvar e revisar emissão").click()
+    pg.get_by_role("button", name="Revisar e emitir").click()
+    # Com pendências, salva e volta para a seção de emissão (sem beco sem saída).
+    expect(pg.locator(".toast")).to_contain_text("pendência")
+    expect(pg).to_have_url(re.compile(r"/editar/#emissao$"))
+    expect(pg.locator("#emissao .checklist")).to_contain_text("Justificativa obrigatória")
+    # Mesmo pela URL direta, a revisão não deixa emitir.
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/emitir/")
     expect(pg.get_by_role("button", name="Emitir ofício")).to_be_disabled()
-    expect(pg.locator(".checklist")).to_contain_text("Justificativa obrigatória")
+
+
+def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
+    pg = logado
+    url = f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/"
+    pg.goto(url)
+    status = pg.locator("[data-status-salvamento]")
+    protocolo = pg.get_by_label("Protocolo (eProtocolo)")
+    protocolo.fill("123456789")
+    expect(status).to_contain_text("não salvas")
+
+    # Sair com alterações pendentes pede confirmação (beforeunload).
+    avisos: list[str] = []
+    pg.once("dialog", lambda d: (avisos.append(d.type), d.dismiss()))
+    pg.get_by_role("link", name="Ofícios").first.click()
+    assert avisos == ["beforeunload"]
+    expect(pg).to_have_url(re.compile(re.escape(url)))
+
+    # Enter num campo de texto salva o rascunho (não adiciona destino nem emite).
+    protocolo.press("Enter")
+    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.get_by_label("Protocolo (eProtocolo)")).to_have_value(re.compile(r"^12\D?345\D?678\D?9$"))
+    expect(status).not_to_contain_text("não salvas")
 
 
 def test_erro_de_validacao_aparece_no_resumo_e_no_campo(logado, dados_e2e):

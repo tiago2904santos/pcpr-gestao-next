@@ -543,6 +543,11 @@ html:has(.barra-acoes) {
   font-size: var(--texto-sm);
 }
 
+.barra-acoes__status--sujo {
+  color: var(--cor-aviso);
+  font-weight: var(--peso-semi);
+}
+
 /* ---------------- Página de autenticação ---------------- */
 .autenticacao {
   min-height: 100vh;
@@ -719,7 +724,18 @@ html:has(.barra-acoes) {
   .pagina-cabecalho__acoes { width: 100%; }
   .grade--2, .grade--3, .grade--4 { grid-template-columns: minmax(0, 1fr); }
   .cartao-acesso { padding: var(--esp-6) var(--esp-5); }
-  .barra-acoes { margin-left: calc(-1 * var(--esp-2)); margin-right: calc(-1 * var(--esp-2)); }
+  /* Barra compacta no celular: uma linha, rótulos curtos, status só quando há algo a avisar. */
+  .barra-acoes {
+    flex-wrap: nowrap;
+    gap: var(--esp-2);
+    margin-left: calc(-1 * var(--esp-2));
+    margin-right: calc(-1 * var(--esp-2));
+    padding: var(--esp-2);
+  }
+  .barra-acoes__status:not(.barra-acoes__status--sujo) { display: none; }
+  .barra-acoes__status { font-size: var(--texto-xs); }
+  .barra-acoes__extra { display: none; }
+  .barra-acoes .botao { flex: 1 1 0; padding: 0 var(--esp-2); }
 }
 
 @media (max-width: 479.98px) {

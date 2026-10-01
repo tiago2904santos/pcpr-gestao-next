@@ -4,7 +4,7 @@
   <span class="registro__icone" aria-hidden="true">{% icone o.situacao|icone_situacao %}</span>
   <div>
     <div class="registro__titulo">
-      <a class="registro__link" href="{% if o.editavel %}{% url 'viagens:editar' o.pk %}{% else %}{% url 'viagens:detalhe' o.pk %}{% endif %}">
+      <a class="registro__link" href="{% if o.editavel and pode_editar_oficios %}{% url 'viagens:editar' o.pk %}{% else %}{% url 'viagens:detalhe' o.pk %}{% endif %}">
         Ofício {{ o.numero_formatado }}{% with d=o|destinos %}{% if d %} · {{ d }}{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>
@@ -29,7 +29,7 @@
       <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
         <a class="menu__item" role="menuitem" href="{% url 'viagens:detalhe' o.pk %}">{% icone "eye" %}Ver detalhes</a>
-        {% if o.editavel %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Continuar edição</a>{% endif %}
+        {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Continuar edição</a>{% endif %}
         <a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
       </div>
     </pc-menu>

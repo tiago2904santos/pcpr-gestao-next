@@ -1,0 +1,8 @@
+{# Abas de situação; preservam busca e ordenação. Atualizadas fora de banda (OOB) pela busca ao vivo. #}
+<nav class="abas" id="abas-filtro" aria-label="Filtrar por situação"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}situacao={{ chave }}&{% endif %}{% if termo %}q={{ termo|urlencode }}&{% endif %}{% if ordem and ordem != "-numero" %}ordem={{ ordem }}{% endif %}"{% if chave == situacao %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>

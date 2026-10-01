@@ -8,7 +8,9 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
+from gestao.cadastros.models import Servidor
 from gestao.plataforma import outbox
+from gestao.viagens import services
 from gestao.viagens.models import Documento, Oficio
 
 from .cenarios import cenario_completo
@@ -41,7 +43,7 @@ def _local(dias: int, hora: int, minuto: int = 0) -> str:
 def _post_edicao(oficio: Oficio, **extra) -> dict:
     dados = {
         "versao": oficio.versao, "data_oficio": oficio.data_oficio.isoformat(),
-        "protocolo": "26.655.434-6", "assunto": oficio.assunto, "motivo": "Pauta institucional",
+        "protocolo": "12.345.678-9", "marcador": "", "motivo": "Pauta institucional",
         "custeio": "unidade", "tipo_transporte": "outro", "transporte_descricao": "Ônibus",
         "porte_arma": "on", "destino-TOTAL_FORMS": "1", "destino-INITIAL_FORMS": "0",
         "destino-MIN_NUM_FORMS": "1", "destino-MAX_NUM_FORMS": "10",
@@ -106,12 +108,22 @@ class TestNovoEEdicao:
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
         assert r.status_code == 302, r.content.decode()[:500]
         oficio.refresh_from_db()
-        assert oficio.protocolo == "266554346"
+        assert oficio.protocolo == "123456789"
         assert [t.destino.nome for t in oficio.trechos.order_by("ordem")] == [
             "Ponta Grossa", "Curitiba"]
 
-    def test_salvar_e_revisar_vai_para_emissao(self, operador, cenario):
+    def test_revisar_e_emitir_com_pendencias_volta_para_a_secao(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]),
+                          _post_edicao(oficio, acao="emitir"), follow=True)
+        assert r.redirect_chain[-1][0] == reverse("viagens:editar", args=[oficio.pk]) + "#emissao"
+        assert "pendência" in r.content.decode()
+
+    def test_revisar_e_emitir_pronto_vai_para_revisao(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        services.adicionar_viajante(oficio, cenario.usuarios["operador"],
+                                    Servidor.objects.filter(ativo=True).first())
+        oficio.refresh_from_db()
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]),
                           _post_edicao(oficio, acao="emitir"))
         assert r["Location"] == reverse("viagens:revisar_emissao", args=[oficio.pk])
@@ -275,10 +287,53 @@ class TestCadastrosEPlataforma:
         assert r.status_code == 404 and "Página não encontrada" in r.content.decode()
         assert operador.get(reverse("painel:notificacoes")).status_code == 200
         assert operador.get(reverse("ui_lab:indice")).status_code == 200
-        assert operador.get(reverse("ui_lab:busca_exemplo"), {"q": "gil"}).json()["resultados"]
+        assert operador.get(reverse("ui_lab:busca_exemplo"), {"q": "bru"}).json()["resultados"]
         client.logout()
         assert client.get(reverse("saude")).json() == {"status": "ok", "banco": "ok"}
 
     def test_cabecalho_mostra_papel(self, operador):
         html = operador.get(reverse("painel:inicio")).content.decode()
         assert "Operador de viagens" in html
+
+
+class TestRoteiroComVoltaIntermediaria:
+    """R3 (paridade): bate-volta com passagem pela sede não pode perder trechos ao reabrir."""
+
+    def test_reabrir_e_salvar_preserva_volta_intermediaria(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        dados = _post_edicao(oficio, **{
+            "destino-TOTAL_FORMS": "3",
+            "destino-0-cidade": "Ponta Grossa/PR", "destino-0-saida": _local(20, 8),
+            "destino-0-chegada": _local(20, 10),
+            "destino-1-cidade": "Curitiba/PR", "destino-1-saida": _local(20, 16),
+            "destino-1-chegada": _local(20, 18),
+            "destino-2-cidade": "Paranaguá/PR", "destino-2-saida": _local(21, 8),
+            "destino-2-chegada": _local(21, 10),
+            "retorno-saida": _local(21, 15), "retorno-chegada": _local(21, 17),
+        })
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
+        assert r.status_code == 302, r.content.decode()[:300]
+        oficio.refresh_from_db()
+        antes = (list(oficio.trechos.values_list("destino__nome", flat=True).order_by("ordem")),
+                 oficio.diarias_total)
+        assert antes[0] == ["Ponta Grossa", "Curitiba", "Paranaguá", "Curitiba"]
+
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        assert 'name="destino-2-cidade"' in html and 'value="Curitiba/PR"' in html
+        # Reenvia o formulário exatamente como reaberto: nada pode mudar.
+        from gestao.viagens.forms import iniciais_do_roteiro
+
+        destinos, retorno = iniciais_do_roteiro(oficio)
+        reenvio = _post_edicao(oficio, versao=oficio.versao,
+                               **{"destino-TOTAL_FORMS": str(len(destinos)),
+                                  "retorno-saida": retorno["saida"],
+                                  "retorno-chegada": retorno["chegada"]})
+        for i, d in enumerate(destinos):
+            for campo in ("cidade", "saida", "chegada"):
+                reenvio[f"destino-{i}-{campo}"] = d[campo]
+        assert operador.post(reverse("viagens:editar", args=[oficio.pk]), reenvio).status_code \
+            == 302
+        oficio.refresh_from_db()
+        depois = (list(oficio.trechos.values_list("destino__nome", flat=True).order_by("ordem")),
+                  oficio.diarias_total)
+        assert depois == antes

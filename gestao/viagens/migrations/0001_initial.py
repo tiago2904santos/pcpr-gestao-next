@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                     "protocolo",
                     models.CharField(
                         blank=True,
-                        help_text="Nove dígitos, com ou sem pontuação (ex.: 26.655.434-6).",
+                        help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
                         max_length=9,
                         verbose_name="protocolo (eProtocolo)",
                     ),

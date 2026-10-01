@@ -85,20 +85,20 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     versao = forms.IntegerField(widget=forms.HiddenInput, required=False)
     protocolo = forms.CharField(
         label="Protocolo (eProtocolo)", required=False, max_length=14,
-        help_text="Nove dígitos, com ou sem pontuação (ex.: 26.655.434-6).",
-        widget=forms.TextInput(attrs=_attrs(inputmode="numeric", placeholder="26.655.434-6",
+        help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
+        widget=forms.TextInput(attrs=_attrs(inputmode="numeric", placeholder="12.345.678-9",
                                             **{"data-mascara": "protocolo"})),
     )
 
     class Meta:
         model = Oficio
-        fields = ["data_oficio", "protocolo", "assunto", "motivo", "custeio",
+        fields = ["data_oficio", "protocolo", "marcador", "motivo", "custeio",
                   "custeio_instituicao", "tipo_transporte", "viatura", "transporte_descricao",
                   "transporte_placa", "transporte_combustivel", "porte_arma",
                   "justificativa_modelo", "justificativa"]
         widgets = {
             "data_oficio": forms.DateInput(attrs=_attrs(type="date"), format="%Y-%m-%d"),
-            "assunto": forms.TextInput(attrs=_attrs()),
+            "marcador": forms.RadioSelect,
             "motivo": forms.Textarea(attrs=_attrs("area-texto", rows=3,
                                                   placeholder="Ex.: Apoio e condução da Unidade "
                                                               "Móvel no evento Expoara.")),
@@ -224,8 +224,10 @@ def iniciais_do_roteiro(oficio: Oficio) -> tuple[list[dict], dict]:
     def local(dt: datetime) -> str:
         return timezone.localtime(dt).strftime("%Y-%m-%dT%H:%M")
 
-    ida = [t for t in trechos if t.destino_id != oficio.sede_id]
-    volta = next((t for t in reversed(trechos) if t.destino_id == oficio.sede_id), None)
+    # O último trecho que chega à sede é o retorno; todos os anteriores (inclusive
+    # passagens intermediárias pela sede, como no bate-volta) são "destinos".
+    volta = trechos[-1] if trechos and trechos[-1].destino_id == oficio.sede_id else None
+    ida = trechos[:-1] if volta else trechos
     destinos = [{"cidade": f"{t.destino.nome}/{t.destino.uf}", "saida": local(t.saida_em),
                  "chegada": local(t.chegada_em)} for t in ida] or [{}]
     retorno = {"saida": local(volta.saida_em), "chegada": local(volta.chegada_em)} if volta \

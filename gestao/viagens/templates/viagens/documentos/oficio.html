@@ -58,7 +58,7 @@
   <main>
     <table>
       <tr>
-        <td>Ofício Nº <strong>{{ d.numero }}</strong> (Autorização)</td>
+        <td>Ofício Nº <strong>{{ d.numero }}</strong> {{ d.assunto_rotulo }}</td>
         <td>Data: {{ d.data_oficio }}</td>
       </tr>
       <tr>
@@ -67,11 +67,11 @@
       </tr>
       <tr>
         <td>Protocolo Nº: {{ d.protocolo|default:"—" }}</td>
-        <td>Assunto: {{ d.assunto }}.</td>
+        <td>Assunto: {{ d.assunto }}</td>
       </tr>
     </table>
 
-    <p><strong>Senhor Delegado,</strong> através deste, solicito autorização e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
+    <p><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
 
     <table>
       <thead>

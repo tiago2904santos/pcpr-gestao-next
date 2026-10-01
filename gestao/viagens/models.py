@@ -43,7 +43,10 @@ class Oficio(models.Model):
         VIATURA = "viatura", "Viatura oficial"
         OUTRO = "outro", "Outro meio (informar)"
 
-    ASSUNTO_PADRAO = "Solicitação de autorização e concessão de diárias"
+    class Marcador(models.TextChoices):
+        NENHUM = "", "Nenhum (documento original)"
+        RETIFICADO = "retificado", "Retificado (corrige ofício anterior à viagem)"
+        COMPLEMENTAR = "complementar", "Complementar (acrescenta ao ofício já enviado)"
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="oficios",
                                 verbose_name="unidade emissora")
@@ -52,9 +55,12 @@ class Oficio(models.Model):
     data_oficio = models.DateField("data do ofício")
     protocolo = models.CharField(
         "protocolo (eProtocolo)", max_length=9, blank=True,
-        help_text="Nove dígitos, com ou sem pontuação (ex.: 26.655.434-6).",
+        help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
     )
-    assunto = models.CharField("assunto", max_length=200, default=ASSUNTO_PADRAO)
+    # O assunto do documento é calculado (Autorização × Convalidação), nunca texto livre:
+    # ver viagens.dominio.assunto. O marcador ajusta o rótulo.
+    marcador = models.CharField("marcador do documento", max_length=15, blank=True,
+                                choices=Marcador.choices, default=Marcador.NENHUM)
     motivo = models.TextField("motivo da viagem", blank=True)
     custeio = models.CharField("custeio", max_length=20, choices=Custeio.choices,
                                default=Custeio.UNIDADE)
