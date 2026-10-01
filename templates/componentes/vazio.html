@@ -1,0 +1,12 @@
+{% comment %}Estado vazio: icone, titulo, texto, e opcionalmente acao_url/acao_rotulo/acao_icone e limpar_url.{% endcomment %}
+<div class="vazio">
+  <span class="vazio__icone" aria-hidden="true">{% icone icone|default:"inbox" classe="icone--lg" %}</span>
+  <h2 class="vazio__titulo">{{ titulo }}</h2>
+  {% if texto %}<p class="vazio__texto">{{ texto }}</p>{% endif %}
+  {% if acao_url or limpar_url %}
+    <div class="grupo-botoes">
+      {% if limpar_url %}<a class="botao" href="{{ limpar_url }}">{% icone "x" %}Limpar filtros</a>{% endif %}
+      {% if acao_url %}<a class="botao botao--primario" href="{{ acao_url }}">{% icone acao_icone|default:"plus" %}{{ acao_rotulo }}</a>{% endif %}
+    </div>
+  {% endif %}
+</div>

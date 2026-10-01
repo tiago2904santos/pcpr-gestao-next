@@ -1,0 +1,217 @@
+/* =====================================================================
+   TOKENS — fonte única de valores visuais do sistema.
+   ---------------------------------------------------------------------
+   Regras (verificadas por tests/test_design_tokens.py):
+   1. Cor, sombra, raio, espaçamento e tipografia só existem aqui.
+      Os demais CSS usam var(--…). Hex/rgb soltos fora deste arquivo
+      reprovam o teste.
+   2. Componentes usam tokens SEMÂNTICOS (--cor-texto, --cor-borda…),
+      nunca a paleta crua (--grafite-900…), exceto o próprio shell.
+   3. Contraste mínimo verificado: texto 4.5:1, componentes 3:1
+      (docs/design-system/colors.md traz a tabela medida).
+   ===================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("../fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* ---------- Paleta institucional ---------- */
+  /* Grafite: cabeçalho, ações primárias, texto forte. */
+  --grafite-950: #1b1c1f;
+  --grafite-900: #26272b;
+  --grafite-800: #313237;
+  --grafite-700: #404148;
+  --grafite-600: #57585f;
+
+  /* Dourado: assinatura da marca. Preenchimentos e realces; como TEXTO
+     sobre branco só a partir do 700 (contraste ≥ 4.5:1). */
+  --dourado-50: #fbf7ec;
+  --dourado-100: #f5ecd3;
+  --dourado-200: #ead9a8;
+  --dourado-300: #dcc27a;
+  --dourado-400: #cdac5a;
+  --dourado-500: #bf9a45;
+  --dourado-600: #a17f31;
+  --dourado-700: #7c6125;
+  --dourado-800: #5b471b;
+
+  /* Neutros levemente quentes (harmonizam com o dourado). */
+  --neutro-0: #ffffff;
+  --neutro-25: #fbfaf8;
+  --neutro-50: #f6f5f2;
+  --neutro-100: #eeece7;
+  --neutro-200: #e1ded7;
+  --neutro-300: #cbc7be;
+  --neutro-400: #8f8a81;
+  --neutro-500: #6f6b64;
+  --neutro-600: #5f5b54;
+  --neutro-700: #46433e;
+  --neutro-800: #2f2d2a;
+  --neutro-900: #1f1e1b;
+
+  /* Semânticas (texto escuro + fundo claro + borda média). */
+  --verde-700: #17603d;
+  --verde-600: #1f7a4d;
+  --verde-100: #dcefe3;
+  --verde-50: #eef7f1;
+  --ambar-700: #7a4f00;
+  --ambar-500: #c98a00;
+  --ambar-100: #fbecc6;
+  --ambar-50: #fdf6e3;
+  --vermelho-700: #a3241a;
+  --vermelho-600: #b42318;
+  --vermelho-100: #f9dcd8;
+  --vermelho-50: #fdeeec;
+  --azul-700: #1b5592;
+  --azul-600: #2364aa;
+  --azul-100: #dbe7f6;
+  --azul-50: #eef4fb;
+  --violeta-700: #5a3d8a;
+  --violeta-50: #f3eff9;
+
+  /* ---------- Tokens semânticos ---------- */
+  --cor-fundo: var(--neutro-50);
+  --cor-superficie: var(--neutro-0);
+  --cor-superficie-sutil: var(--neutro-25);
+  --cor-superficie-realce: var(--neutro-100);
+  --cor-borda: var(--neutro-200);
+  --cor-borda-forte: var(--neutro-300);
+  --cor-borda-campo: var(--neutro-400);
+  --cor-texto: var(--neutro-900);
+  --cor-texto-secundario: var(--neutro-600);
+  --cor-texto-terciario: var(--neutro-500);
+  --cor-texto-inverso: var(--neutro-0);
+  --cor-texto-inverso-sutil: var(--neutro-300);
+  --cor-link: var(--azul-700);
+
+  --cor-marca: var(--dourado-600);
+  --cor-marca-forte: var(--dourado-600);
+  --cor-marca-texto: var(--dourado-700);
+  --cor-marca-fundo: var(--dourado-50);
+  --cor-marca-borda: var(--dourado-200);
+
+  --cor-primaria: var(--grafite-900);
+  --cor-primaria-hover: var(--grafite-700);
+  --cor-primaria-texto: var(--neutro-0);
+
+  --cor-foco: var(--azul-600);
+  --anel-foco: 0 0 0 2px var(--neutro-0), 0 0 0 4px var(--cor-foco);
+
+  --cor-sucesso: var(--verde-700);
+  --cor-sucesso-fundo: var(--verde-50);
+  --cor-sucesso-borda: var(--verde-100);
+  --cor-aviso: var(--ambar-700);
+  --cor-aviso-fundo: var(--ambar-50);
+  --cor-aviso-borda: var(--ambar-100);
+  --cor-perigo: var(--vermelho-700);
+  --cor-perigo-solida: var(--vermelho-600);
+  --cor-perigo-fundo: var(--vermelho-50);
+  --cor-perigo-borda: var(--vermelho-100);
+  --cor-info: var(--azul-700);
+  --cor-info-fundo: var(--azul-50);
+  --cor-info-borda: var(--azul-100);
+
+  /* Cabeçalho institucional */
+  --shell-cabecalho-fundo: var(--grafite-900);
+  --shell-cabecalho-texto: var(--neutro-0);
+  --shell-filete: var(--dourado-500);
+  --shell-navegacao-fundo: var(--neutro-0);
+
+  /* Sobreposições */
+  --cor-veu: rgb(27 28 31 / 0.48);
+
+  /* ---------- Tipografia ---------- */
+  --fonte-base: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --fonte-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+
+  --texto-2xs: 0.6875rem;  /* 11px — micro-rótulos em caixa alta */
+  --texto-xs: 0.75rem;     /* 12px */
+  --texto-sm: 0.8125rem;   /* 13px */
+  --texto-md: 0.875rem;    /* 14px — corpo padrão (alta densidade) */
+  --texto-lg: 1rem;        /* 16px */
+  --texto-xl: 1.125rem;    /* 18px */
+  --texto-2xl: 1.375rem;   /* 22px */
+  --texto-3xl: 1.75rem;    /* 28px — título de página */
+  --texto-4xl: 2.25rem;    /* 36px — números de destaque */
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 600;
+  --peso-forte: 700;
+
+  --altura-linha-justa: 1.25;
+  --altura-linha: 1.5;
+  --rastreio-rotulo: 0.06em;
+
+  /* ---------- Espaçamento (grade de 4px) ---------- */
+  --esp-0: 0;
+  --esp-px: 1px;
+  --esp-05: 0.125rem; /* 2 */
+  --esp-1: 0.25rem;   /* 4 */
+  --esp-2: 0.5rem;    /* 8 */
+  --esp-3: 0.75rem;   /* 12 */
+  --esp-4: 1rem;      /* 16 */
+  --esp-5: 1.25rem;   /* 20 */
+  --esp-6: 1.5rem;    /* 24 */
+  --esp-8: 2rem;      /* 32 */
+  --esp-10: 2.5rem;   /* 40 */
+  --esp-12: 3rem;     /* 48 */
+  --esp-16: 4rem;     /* 64 */
+
+  /* ---------- Dimensões ---------- */
+  --altura-controle: 2.5rem;        /* 40px: inputs/botões padrão (alvo ≥ 24px) */
+  --altura-controle-sm: 2rem;       /* 32px */
+  --altura-controle-lg: 2.75rem;    /* 44px: mobile/toque */
+  --altura-cabecalho: 4rem;         /* 64px */
+  --altura-navegacao: 3.25rem;      /* 52px: menu superior */
+  --altura-topo: calc(var(--altura-cabecalho) + var(--altura-navegacao));
+  --largura-conteudo: 80rem;        /* 1280px */
+  --largura-formulario: 56rem;      /* 896px */
+  --largura-leitura: 42rem;
+  --tamanho-icone: 1.125rem;
+  --tamanho-icone-sm: 1rem;
+
+  /* ---------- Bordas, raios, sombras ---------- */
+  --borda: 1px solid var(--cor-borda);
+  --borda-forte: 1px solid var(--cor-borda-forte);
+  --raio-xs: 4px;
+  --raio-sm: 6px;
+  --raio-md: 8px;
+  --raio-lg: 12px;
+  --raio-pilula: 999px;
+
+  --sombra-1: 0 1px 2px rgb(31 30 27 / 0.06);
+  --sombra-2: 0 1px 3px rgb(31 30 27 / 0.08), 0 4px 12px rgb(31 30 27 / 0.06);
+  --sombra-3: 0 8px 24px rgb(31 30 27 / 0.14), 0 2px 6px rgb(31 30 27 / 0.08);
+  --sombra-foco-campo: 0 0 0 3px rgb(35 100 170 / 0.22);
+
+  /* ---------- Movimento ---------- */
+  --duracao-rapida: 120ms;
+  --duracao-media: 200ms;
+  --duracao-lenta: 320ms;
+  --curva-padrao: cubic-bezier(0.2, 0, 0, 1);
+  --curva-saida: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---------- Camadas ---------- */
+  --z-cabecalho: 30;
+  --z-gaveta: 60;
+  --z-dialogo: 70;
+  --z-toast: 80;
+  --z-dica: 90;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duracao-rapida: 0ms;
+    --duracao-media: 0ms;
+    --duracao-lenta: 0ms;
+  }
+}

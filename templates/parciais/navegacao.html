@@ -1,0 +1,54 @@
+{% comment %}
+Menu superior (abaixo do cabeçalho institucional). ≥1024px: barra horizontal com
+seletor de módulo, links diretos e menus suspensos para grupos (em_menu).
+<1024px: o mesmo HTML vira gaveta aberta pelo botão ☰ do cabeçalho (<pc-shell>).
+{% endcomment %}
+<nav id="navegacao-principal" class="navegacao" aria-label="Navegação principal">
+  <div class="navegacao__interno">
+    {% with modulo=navegacao.atual %}
+    <pc-menu class="menu navegacao__modulo">
+      <button type="button" class="navegacao__seletor" data-menu-botao aria-haspopup="menu"
+              aria-label="{% if modulo %}Módulo atual: {{ modulo.rotulo }}. Trocar de módulo{% else %}Escolher módulo{% endif %}">
+        <span class="navegacao__seletor-texto">{% if modulo %}{{ modulo.rotulo }}{% else %}Início{% endif %}</span>
+        {% icone "chevron-down" classe="icone--sm" %}
+      </button>
+      <div class="menu__painel menu__painel--esquerda" role="menu" hidden>
+        <a class="menu__item" role="menuitem" href="{% url 'painel:inicio' %}"{% if not modulo %} aria-current="page"{% endif %}>{% icone "home" %}Central de módulos</a>
+        <div class="menu__separador" role="separator"></div>
+        {% for m in navegacao.modulos %}
+          <a class="menu__item" role="menuitem" href="{{ m.url }}"{% if m.ativo %} aria-current="true"{% endif %}>{% icone m.icone %}{{ m.rotulo }}</a>
+        {% endfor %}
+      </div>
+    </pc-menu>
+    <ul class="navegacao__lista">
+      {% if modulo %}
+        {% for grupo in modulo.grupos %}
+          {% if grupo.em_menu %}
+            <li>
+              <pc-menu class="menu">
+                <button type="button" class="navegacao__link{% if grupo.ativo %} navegacao__link--ativo{% endif %}" data-menu-botao aria-haspopup="menu">
+                  {{ grupo.rotulo }}{% if grupo.ativo %}<span class="sr-only"> (seção atual)</span>{% endif %} {% icone "chevron-down" classe="icone--sm" %}
+                </button>
+                <div class="menu__painel menu__painel--esquerda" role="menu" hidden>
+                  {% for item in grupo.itens %}
+                    <a class="menu__item" role="menuitem" href="{{ item.url }}"{% if item.ativo %} aria-current="page"{% endif %}>{% icone item.icone %}{{ item.rotulo }}</a>
+                  {% endfor %}
+                </div>
+              </pc-menu>
+            </li>
+          {% else %}
+            {% for item in grupo.itens %}
+              <li><a class="navegacao__link" href="{{ item.url }}"{% if item.ativo %} aria-current="page"{% endif %}>{% icone item.icone %}{{ item.rotulo }}</a></li>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <li><a class="navegacao__link" href="{% url 'painel:inicio' %}"{% if request.resolver_match.view_name == "painel:inicio" %} aria-current="page"{% endif %}>{% icone "home" %}Início</a></li>
+        {% for m in navegacao.modulos %}
+          <li><a class="navegacao__link" href="{{ m.url }}">{% icone m.icone %}{{ m.rotulo }}</a></li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+    {% endwith %}
+  </div>
+</nav>

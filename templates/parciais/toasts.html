@@ -1,0 +1,10 @@
+{% load static %}
+<pc-toasts class="toasts" data-sprite="{% static 'icons/sprite.svg' %}">
+  {% for mensagem in messages %}
+    <div class="toast toast--{% if mensagem.level_tag == 'success' %}sucesso{% elif mensagem.level_tag == 'warning' %}aviso{% elif mensagem.level_tag == 'error' %}perigo{% else %}info{% endif %}">
+      {% if mensagem.level_tag == 'success' %}{% icone "check-circle-2" %}{% elif mensagem.level_tag == 'warning' %}{% icone "alert-triangle" %}{% elif mensagem.level_tag == 'error' %}{% icone "x-circle" %}{% else %}{% icone "info" %}{% endif %}
+      <div>{{ mensagem }}</div>
+      <button type="button" class="toast__fechar" aria-label="Fechar notificação">×</button>
+    </div>
+  {% endfor %}
+</pc-toasts>

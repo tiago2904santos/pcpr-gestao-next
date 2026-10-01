@@ -1,0 +1,13 @@
+<dialog id="dialogo-confirmacao" class="dialogo" aria-labelledby="dialogo-confirmacao-titulo" aria-describedby="dialogo-confirmacao-mensagem">
+  <form method="dialog">
+    <div class="dialogo__cabecalho">
+      <span class="dialogo__icone">{% icone "alert-triangle" %}</span>
+      <h2 class="dialogo__titulo" id="dialogo-confirmacao-titulo" data-titulo>Confirmar ação</h2>
+    </div>
+    <p class="dialogo__corpo" id="dialogo-confirmacao-mensagem" data-mensagem></p>
+    <div class="dialogo__rodape">
+      <button class="botao" value="cancelar" autofocus>Cancelar</button>
+      <button class="botao botao--primario" value="confirmar" data-confirmar>Confirmar</button>
+    </div>
+  </form>
+</dialog>

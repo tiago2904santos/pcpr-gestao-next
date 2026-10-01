@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo CALENDAR: navegação de período + grade (tabela semântica).{% endcomment %}
+{% block conteudo %}
+{% block cabecalho_calendario %}{% endblock %}
+<section class="cartao" aria-label="Calendário">
+  <div class="cartao__cabecalho">{% block navegacao_periodo %}{% endblock %}</div>
+  <div class="tabela-rolagem">{% block grade %}{% endblock %}</div>
+</section>
+{% endblock %}

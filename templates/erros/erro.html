@@ -1,0 +1,15 @@
+{% extends user.is_authenticated|yesno:"base.html,base_publica.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block conteudo %}
+<section class="pagina-erro" aria-labelledby="erro-titulo">
+  <div class="vazio">
+    <span class="vazio__icone" aria-hidden="true">{% icone icone classe="icone--lg" %}</span>
+    <p class="pagina-erro__codigo">{{ status }}</p>
+    <h1 class="vazio__titulo" id="erro-titulo">{{ titulo }}</h1>
+    <p class="vazio__texto">{{ mensagem }}</p>
+    <div class="grupo-botoes">
+      <a class="botao botao--primario" href="{% url 'painel:inicio' %}">{% icone "home" %}Ir para o início</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

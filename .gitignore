@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Node (somente ferramentas; artefatos vendorizados ficam em static/vendor)
+node_modules/
+
+# Dados locais e gerados
+var/
+*.sqlite3
+media/
+test-results/
+playwright-report/
+artifacts/
+
+# Segredos — NUNCA versionar
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.claude/settings.local.json
+.mcp.local.json
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+.hypothesis/

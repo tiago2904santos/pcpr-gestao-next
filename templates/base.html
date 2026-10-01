@@ -1,0 +1,25 @@
+{% extends "base_documento.html" %}
+{% load static %}
+{% block classe_body %}shell{% endblock %}
+{% block corpo %}
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<pc-shell>
+  <div class="topo">
+    {% include "parciais/cabecalho.html" %}
+    {% include "parciais/navegacao.html" %}
+  </div>
+  <div class="shell__corpo">
+    <main id="conteudo" class="conteudo" tabindex="-1">
+      <div class="conteudo__interno {% block classe_conteudo %}{% endblock %}">
+        {% block migalhas %}{% endblock %}
+        {% block cabecalho_pagina %}{% endblock %}
+        {% block conteudo %}{% endblock %}
+      </div>
+      {% include "parciais/rodape.html" %}
+    </main>
+  </div>
+</pc-shell>
+{% include "parciais/toasts.html" %}
+{% include "parciais/dialogo_confirmacao.html" %}
+{% include "parciais/comandos.html" %}
+{% endblock %}

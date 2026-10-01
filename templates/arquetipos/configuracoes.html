@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo SETTINGS: navegação de seções + formulários curtos.{% endcomment %}
+{% block conteudo %}
+{% block cabecalho_configuracoes %}{% endblock %}
+<div class="layout-formulario">
+  <nav class="layout-formulario__indice cartao" aria-label="Seções de configuração">{% block secoes_nav %}{% endblock %}</nav>
+  <div class="pilha-lg">{% block formularios %}{% endblock %}</div>
+</div>
+{% endblock %}

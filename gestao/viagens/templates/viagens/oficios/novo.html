@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Novo ofício{% endblock %}
+{% block classe_conteudo %}conteudo__interno--estreito{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block cabecalho_pagina %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Novo ofício de viagem" sobretitulo="Viagens · Ofícios" icone="file-plus-2" descricao="Comece pela data e pelo motivo. Ao salvar, o número é reservado e você segue para a equipe, o transporte e o roteiro." %}
+{% endblock %}
+{% block conteudo %}
+<form method="post" novalidate class="pilha-lg">
+  {% csrf_token %}
+  {% include "componentes/resumo_erros.html" %}
+  <ol class="etapas etapas--horizontal" aria-label="Como funciona">
+    <li class="etapas__item etapas__item--atual"><span aria-current="step"><span class="etapas__marcador">1</span>Dados iniciais</span></li>
+    <li class="etapas__item"><span><span class="etapas__marcador">2</span>Equipe e transporte</span></li>
+    <li class="etapas__item"><span><span class="etapas__marcador">3</span>Roteiro e diárias</span></li>
+    <li class="etapas__item"><span><span class="etapas__marcador">4</span>Revisar e emitir</span></li>
+  </ol>
+  <section class="cartao" aria-labelledby="t-dados">
+    <div class="cartao__cabecalho">
+      <h2 class="cartao__titulo cartao__titulo--institucional" id="t-dados">{% icone "file-text" %}Identificação do ofício</h2>
+    </div>
+    <div class="cartao__corpo pilha">
+      <dl class="definicoes">
+        <div><dt class="rotulo-caixa-alta">Unidade emissora</dt><dd>{{ unidade.nome|default:"—" }}</dd></div>
+        <div><dt class="rotulo-caixa-alta">Número</dt><dd><span class="vazio-inline">Reservado ao salvar (próximo livre do ano)</span></dd></div>
+        <div><dt class="rotulo-caixa-alta">Origem / sede</dt><dd>{{ unidade.configuracao.sede|default:"—" }}</dd></div>
+      </dl>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data_oficio classe="col-4" %}
+        {% include "componentes/campo.html" with campo=form.motivo classe="col-8" %}
+      </div>
+    </div>
+    <div class="cartao__rodape">
+      <a class="botao" href="{% url 'viagens:oficios' %}">Cancelar</a>
+      <button type="submit" class="botao botao--primario">{% icone "arrow-right" %}Criar rascunho e continuar</button>
+    </div>
+  </section>
+</form>
+{% endblock %}

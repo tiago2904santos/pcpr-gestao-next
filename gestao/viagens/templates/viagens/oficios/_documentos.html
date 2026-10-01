@@ -1,0 +1,31 @@
+<div id="documentos-lista"{% if gerando %} hx-get="{% url 'viagens:documentos' oficio.pk %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if documentos %}
+    <ul class="registros" aria-label="Documentos emitidos">
+      {% for d in documentos %}
+        <li class="registro">
+          <span class="registro__icone" aria-hidden="true">{% icone "file-check-2" %}</span>
+          <div>
+            <div class="registro__titulo">
+              {% if d.situacao == "pronto" %}<a class="registro__link" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{{ d.get_tipo_display }} — versão {{ d.versao }}</a>
+              {% else %}<span>{{ d.get_tipo_display }} — versão {{ d.versao }}</span>{% endif %}
+              {% if d.situacao == "pronto" %}<span class="selo selo--sucesso">PDF/A pronto</span>
+              {% elif d.situacao == "gerando" %}<span class="selo selo--info" role="status">{% icone "loader-circle" classe="icone--sm girando" %}Gerando…</span>
+              {% else %}<span class="selo selo--perigo">Falhou</span>{% endif %}
+            </div>
+            <div class="registro__meta">
+              <span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ d.emitido_por.nome }}</span>
+              <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ d.emitido_em|date:"d/m/Y H:i" }}</span>
+              {% if d.sha256 %}<span class="registro__meta-item" title="Impressão digital SHA-256 do arquivo">{% icone "shield-check" classe="icone--sm" %}SHA-256 {{ d.sha256|slice:":12" }}…</span>{% endif %}
+              {% if d.erro %}<span class="registro__meta-item">{{ d.erro|truncatechars:120 }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="registro__acoes">
+            {% if d.situacao == "pronto" %}<a class="botao botao--sm" href="{% url 'viagens:baixar_documento' d.pk %}?baixar=1" aria-label="Baixar {{ d.get_tipo_display }} versão {{ d.versao }}">{% icone "download" %}Baixar</a>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {% include "componentes/vazio.html" with icone="file-text" titulo="Nenhum documento emitido" texto="Os PDFs oficiais aparecem aqui após a emissão. Antes disso, use “Ver minuta”." %}
+  {% endif %}
+</div>

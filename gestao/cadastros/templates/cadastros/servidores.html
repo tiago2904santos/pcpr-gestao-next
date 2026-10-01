@@ -1,0 +1,30 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Servidores{% endblock %}
+{% block sobretitulo %}<p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Cadastros</p>{% endblock %}
+{% block titulo_lista %}Servidores{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Servidores que podem compor equipes de viagem. A edição chega com o módulo de Cadastros.</p>{% endblock %}
+{% block filtros %}
+<form class="filtros" role="search" method="get">
+  <div class="campo filtros__busca"><label class="campo__rotulo" for="q-serv">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="q-serv" type="search" name="q" value="{{ termo }}" placeholder="Nome, CPF ou RG"></div></div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="titulo-resultados">Servidores</h2><span class="lista-cabecalho__total">{{ page_obj.paginator.count|pluralizar:"servidor,servidores" }}</span></div>
+{% if page_obj.object_list %}
+<div class="tabela-rolagem">
+  <table class="tabela tabela--responsiva">
+    <caption class="sr-only">Servidores cadastrados</caption>
+    <thead><tr><th scope="col">Nome</th><th scope="col">Cargo</th><th scope="col">Unidade</th><th scope="col">CPF</th><th scope="col">Situação</th></tr></thead>
+    <tbody>
+      {% for s in page_obj.object_list %}
+      <tr><td class="tabela__celula-principal" data-rotulo="Nome"><span class="tabela__principal quebra-palavras">{{ s.nome }}</span></td><td data-rotulo="Cargo">{{ s.cargo }}</td><td data-rotulo="Unidade">{{ s.unidade.sigla }}</td><td data-rotulo="CPF" class="num">{{ s.cpf_formatado|default:"—" }}</td><td data-rotulo="Situação"><span class="selo selo--{{ s.ativo|yesno:'sucesso,neutro' }}">{{ s.ativo|yesno:"Ativo,Inativo" }}</span></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "componentes/paginacao.html" %}
+{% else %}
+{% include "componentes/vazio.html" with icone="search" titulo="Nenhum servidor encontrado" texto="Confira a grafia ou busque pelo CPF." limpar_url=request.path %}
+{% endif %}
+{% endblock %}

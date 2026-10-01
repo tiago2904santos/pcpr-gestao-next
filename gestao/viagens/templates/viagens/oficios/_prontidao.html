@@ -1,0 +1,13 @@
+{% if prontidao.pode_emitir %}
+  <div class="alerta alerta--sucesso" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Tudo certo para emitir</p><p>Revise a minuta e emita. Depois de emitido, o ofício fica travado; correções exigem reabertura (registrada no histórico).</p></div></div>
+{% else %}
+  <p class="mb-4">Antes de emitir, resolva:</p>
+{% endif %}
+<ul class="checklist mt-4">
+  {% for p in prontidao.pendencias %}
+    <li class="checklist__item {% if p.bloqueia %}checklist__item--bloqueia{% else %}checklist__item--aviso{% endif %}">
+      {% if p.bloqueia %}{% icone "x-circle" rotulo="Pendência" %}{% else %}{% icone "alert-triangle" rotulo="Aviso" %}{% endif %}
+      <span><a href="{% if not na_edicao %}{% url 'viagens:editar' oficio.pk %}{% endif %}#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</span>
+    </li>
+  {% endfor %}
+</ul>

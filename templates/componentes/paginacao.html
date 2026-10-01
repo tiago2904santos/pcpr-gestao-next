@@ -1,0 +1,15 @@
+{% comment %}Paginação acessível. Requer page_obj e querystring_base (filtros atuais sem "pagina").{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="paginacao" aria-label="Paginação">
+  <span>Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}</span>
+  <ul class="paginacao__paginas">
+    <li>{% if page_obj.has_previous %}<a class="paginacao__pagina" href="?{{ querystring_base }}pagina={{ page_obj.previous_page_number }}" aria-label="Página anterior">{% icone "chevron-left" %}</a>{% else %}<span class="paginacao__pagina" aria-disabled="true">{% icone "chevron-left" %}<span class="sr-only">Página anterior</span></span>{% endif %}</li>
+    {% for n in page_obj.paginator.page_range %}
+      {% if n == page_obj.number %}<li class="paginacao__numero paginacao__numero--atual"><a class="paginacao__pagina" href="?{{ querystring_base }}pagina={{ n }}" aria-current="page" aria-label="Página {{ n }}, atual">{{ n }}</a></li>
+      {% elif n == 1 or n == page_obj.paginator.num_pages or n|add:"-2" <= page_obj.number and page_obj.number <= n|add:"2" %}<li class="paginacao__numero"><a class="paginacao__pagina" href="?{{ querystring_base }}pagina={{ n }}" aria-label="Página {{ n }}">{{ n }}</a></li>
+      {% elif n == 2 or n == page_obj.paginator.num_pages|add:"-1" %}<li class="paginacao__numero"><span class="paginacao__pagina" aria-hidden="true">…</span></li>{% endif %}
+    {% endfor %}
+    <li>{% if page_obj.has_next %}<a class="paginacao__pagina" href="?{{ querystring_base }}pagina={{ page_obj.next_page_number }}" aria-label="Próxima página">{% icone "chevron-right" %}</a>{% else %}<span class="paginacao__pagina" aria-disabled="true">{% icone "chevron-right" %}<span class="sr-only">Próxima página</span></span>{% endif %}</li>
+  </ul>
+</nav>
+{% endif %}

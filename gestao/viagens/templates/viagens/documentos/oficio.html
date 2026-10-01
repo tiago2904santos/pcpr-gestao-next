@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Ofício {{ d.numero }}</title>
+<meta name="author" content="{{ d.origem }}">
+<meta name="description" content="{{ d.assunto }}">
+<meta name="keywords" content="ofício, diárias, viagem, {{ d.unidade_sigla }}">
+<meta name="generator" content="PCPR Gestão de Eventos e Viagens">
+<style>
+  @font-face { font-family: "Doc Serif"; src: url("{{ assets }}/fontes/LiberationSerif-Regular.ttf"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ assets }}/fontes/LiberationSerif-Bold.ttf"); }
+  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ assets }}/fontes/LiberationSerif-Italic.ttf"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; font-style: italic; src: url("{{ assets }}/fontes/LiberationSerif-BoldItalic.ttf"); }
+
+  @page {
+    size: A4;
+    margin: 14mm 18mm 24mm 18mm;
+    @bottom-center {
+      content: element(rodape);
+    }
+  }
+  html { font-family: "Doc Serif", serif; font-size: 9.5pt; color: #000; line-height: 1.3; }
+  body { margin: 0; }
+  header.timbre { text-align: center; margin-bottom: 5mm; }
+  header.timbre img { height: 18mm; display: block; margin: 0 auto 2mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; }
+  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
+            color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 3mm; }
+  td, th { border: 0.6pt solid #000; padding: 1.4mm 2mm; vertical-align: top; text-align: left; }
+  th { font-weight: bold; text-align: center; vertical-align: middle; }
+  .centro { text-align: center; }
+  .titulo-secao { text-align: center; font-weight: bold; margin: 2mm 0 1.5mm; }
+  .sem-borda td { border: 0; padding: 0; }
+  p { margin: 0 0 2.5mm; }
+  .assinatura { text-align: center; margin-top: 6mm; break-inside: avoid; }
+  .assinatura .nome { font-weight: bold; font-size: 10.5pt; margin: 0; }
+  .assinatura .cargo { font-weight: bold; margin: 0; }
+  .destinatario { margin-top: 8mm; font-weight: bold; line-height: 1.25; break-inside: avoid; }
+  .destinatario p { margin: 0; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; letter-spacing: 1pt; color: #555; }
+  .marcacao { display: inline-block; width: 7mm; text-align: center; }
+</style>
+</head>
+<body>
+  {% if previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
+  <div class="rodape" role="contentinfo"><strong>PCPR</strong>{{ d.rodape }}</div>
+
+  <header class="timbre">
+    <img src="{{ assets }}/brasao-pcpr.png" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
+  </header>
+
+  <main>
+    <table>
+      <tr>
+        <td>Ofício Nº <strong>{{ d.numero }}</strong> {{ d.assunto_rotulo }}</td>
+        <td>Data: {{ d.data_oficio }}</td>
+      </tr>
+      <tr>
+        <td>Origem: <strong>{{ d.origem }}</strong></td>
+        <td>Destino: <strong>{{ d.destinatario.orgao }}</strong></td>
+      </tr>
+      <tr>
+        <td>Protocolo Nº: {{ d.protocolo|default:"—" }}</td>
+        <td>Assunto: {{ d.assunto }}</td>
+      </tr>
+    </table>
+
+    <p><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
+
+    <table>
+      <thead>
+        <tr><th scope="col">Nome</th><th scope="col">CPF</th><th scope="col">Cargo</th><th scope="col">Nº solicitação<br>(Central de Viagens)</th></tr>
+      </thead>
+      <tbody>
+        {% for v in d.viajantes %}
+        <tr><td>{{ v.nome }}</td><td>CPF: {{ v.cpf|default:"—" }}</td><td><strong>{{ v.cargo }}</strong></td><td></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <table>
+      <tr>
+        <td class="centro"><strong>Destino da viagem:</strong><br>{{ d.destinos|join:", " }}</td>
+        <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }} diárias</td>
+        <td class="centro"><strong>Valor total do ofício:</strong><br>{{ d.diarias.total }}</td>
+      </tr>
+    </table>
+
+    <p class="titulo-secao">ROTEIRO DE IDA</p>
+    <table>
+      {% for t in d.ida %}
+      <tr>
+        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <p class="titulo-secao">ROTEIRO DE RETORNO</p>
+    <table>
+      {% for t in d.volta %}
+      <tr>
+        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <table>
+      <tr>
+        <td>
+          <strong>Meio de transporte:</strong> {{ d.transporte.meio }}<br>
+          {% if d.transporte.placa %}<strong>Placa{% if d.transporte.oficial %} oficial{% endif %}:</strong> {{ d.transporte.placa }}<br>{% endif %}
+          {% if d.motorista %}<strong>Motorista:</strong> {{ d.motorista }}{% endif %}
+        </td>
+        <td>
+          {% if d.transporte.combustivel %}<strong>Combustível:</strong> {{ d.transporte.combustivel }}<br>{% endif %}
+          {% if d.transporte.viatura %}<strong>Viatura:</strong> {{ d.transporte.viatura }}{% endif %}
+        </td>
+        <td><strong>Porte/trânsito de arma:</strong> {{ d.porte_arma|yesno:"Sim,Não" }}</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr><td>
+        <strong>Custos:</strong> informar qual entidade custeará as diárias (hospedagem/alimentação) e deslocamento:<br>
+        <span class="marcacao">({% if d.custeio == "unidade" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> UNIDADE - {{ d.unidade_sigla }} (diárias e combustível custeados pela {{ d.unidade_sigla }}).<br>
+        <span class="marcacao">({% if d.custeio == "outra_instituicao" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> OUTRA INSTITUIÇÃO{% if d.custeio_instituicao %}: {{ d.custeio_instituicao }}{% endif %}<br>
+        <span class="marcacao">({% if d.custeio == "onus_limitado" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> ÔNUS LIMITADOS AOS PRÓPRIOS VENCIMENTOS
+      </td></tr>
+      <tr><td><strong>Motivo da viagem:</strong> {{ d.motivo }}</td></tr>
+      <tr><td><strong>Declaro que os servidores estão cientes da necessidade de estar na posse de cartão corporativo vigente e apto para uso, no período do deslocamento.</strong></td></tr>
+    </table>
+
+    <div class="assinatura">
+      <p>Respeitosamente,</p>
+      <p class="nome">{{ d.chefia.nome }}</p>
+      <p class="cargo">{{ d.chefia.cargo }}</p>
+    </div>
+
+    <div class="destinatario">
+      <p>{{ d.destinatario.tratamento }}</p>
+      <p>{{ d.destinatario.nome }}</p>
+      <p>{{ d.destinatario.cargo }}</p>
+      <p>{{ d.destinatario.cidade }}</p>
+    </div>
+  </main>
+</body>
+</html>

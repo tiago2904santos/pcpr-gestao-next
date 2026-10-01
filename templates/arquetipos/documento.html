@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% comment %}Arquétipo DOCUMENT. Blocos: cabecalho_documento, previa, metadados.{% endcomment %}
+{% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
+{% block conteudo %}
+{% block cabecalho_documento %}{% endblock %}
+<div class="layout-detalhe">
+  <section class="cartao" aria-label="Prévia do documento"><div class="previa-documento">{% block previa %}{% endblock %}</div></section>
+  <aside class="layout-detalhe__lateral">{% block metadados %}{% endblock %}</aside>
+</div>
+{% endblock %}

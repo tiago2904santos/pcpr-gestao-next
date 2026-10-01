@@ -1,0 +1,15 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Tabela de diárias{% endblock %}
+{% block sobretitulo %}<p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Cadastros</p>{% endblock %}
+{% block titulo_lista %}Tabela de diárias{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Valor da diária de 24 horas por faixa e vigência. Os valores de 15% e 30% são calculados a partir dele (arredondamento ao centavo).</p>{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="titulo-resultados">Vigências</h2></div>
+{% if linhas %}
+<div class="tabela-rolagem"><table class="tabela tabela--responsiva">
+  <caption class="sr-only">Vigências da tabela de diárias</caption>
+  <thead><tr><th scope="col">Faixa</th><th scope="col">Vigente a partir de</th><th scope="col" class="coluna-num">24 horas</th><th scope="col" class="coluna-num">15%</th><th scope="col" class="coluna-num">30%</th><th scope="col">Norma</th></tr></thead>
+  <tbody>{% for l in linhas %}<tr><td class="tabela__celula-principal" data-rotulo="Faixa"><span class="tabela__principal">{{ l.tabela.get_faixa_display }}</span></td><td data-rotulo="Vigente a partir de">{{ l.tabela.vigente_desde|date:"d/m/Y" }}</td><td data-rotulo="24 horas" class="num">{{ l.tabela.valor_24h|moeda }}</td><td data-rotulo="15%" class="num">{{ l.p15|moeda }}</td><td data-rotulo="30%" class="num">{{ l.p30|moeda }}</td><td data-rotulo="Norma">{{ l.tabela.norma|default:"—" }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% else %}{% include "componentes/vazio.html" with icone="banknote" titulo="Nenhuma vigência cadastrada" texto="Sem vigência o cálculo de diárias é recusado (nunca usa valores embutidos no código)." %}{% endif %}
+{% endblock %}

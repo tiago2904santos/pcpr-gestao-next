@@ -1,0 +1,37 @@
+{% load viagens %}
+{% contagem_dias o.primeira_saida as contagem %}
+<li class="registro">
+  <span class="registro__icone" aria-hidden="true">{% icone o.situacao|icone_situacao %}</span>
+  <div>
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% if o.editavel and pode_editar_oficios %}{% url 'viagens:editar' o.pk %}{% else %}{% url 'viagens:detalhe' o.pk %}{% endif %}">
+        Ofício {{ o.numero_formatado }}{% with d=o|destinos %}{% if d %} · {{ d }}{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
+      </a>
+      <span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>
+      {% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}
+      {% if contagem and o.situacao != "cancelado" %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
+    </div>
+    <div class="registro__meta">
+      {% if o.protocolo %}<span class="registro__meta-item">{% icone "stamp" classe="icone--sm" %}Protocolo {{ o.protocolo_formatado }}</span>{% endif %}
+      {% with vs=o.viajantes.all %}
+        {% if vs %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="quebra-palavras">{% for v in vs %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</span></span>
+        {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span>{% endif %}
+      {% endwith %}
+      {% if o.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ o.viatura.modelo }} · {{ o.viatura.placa_formatada }}</span>
+      {% elif o.transporte_descricao %}<span class="registro__meta-item">{% icone "bus" classe="icone--sm" %}{{ o.transporte_descricao }}</span>
+      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}Sem transporte</span>{% endif %}
+      {% if o.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ o.diarias_total|moeda }} · {{ o.diarias_resumo }}</span>
+      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}Sem diárias calculadas</span>{% endif %}
+    </div>
+  </div>
+  <div class="registro__acoes">
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel" role="menu" hidden>
+        <a class="menu__item" role="menuitem" href="{% url 'viagens:detalhe' o.pk %}">{% icone "eye" %}Ver detalhes</a>
+        {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Continuar edição</a>{% endif %}
+        <a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
+      </div>
+    </pc-menu>
+  </div>
+</li>

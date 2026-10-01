@@ -1,0 +1,37 @@
+/* Estilos exclusivos da vitrine (não usados no produto). */
+.lab {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--esp-6);
+  align-items: start;
+}
+
+.lab__indice {
+  position: sticky;
+  top: calc(var(--altura-topo) + var(--esp-4));
+  padding: var(--esp-2);
+}
+
+.lab__matriz {
+  display: grid;
+  grid-template-columns: 7rem repeat(4, max-content);
+  gap: var(--esp-3) var(--esp-4);
+  align-items: center;
+  overflow-x: auto;
+}
+
+.lab__estreito {
+  max-width: 18rem;
+}
+
+.lab__esqueleto-60 { width: 60%; }
+.lab__esqueleto-80 { width: 80%; }
+
+@media (max-width: 1023.98px) {
+  .lab { grid-template-columns: minmax(0, 1fr); }
+  .lab__indice { display: none; }
+}
+
+@media (max-width: 767.98px) {
+  .lab__matriz { grid-template-columns: 6rem repeat(4, max-content); }
+}

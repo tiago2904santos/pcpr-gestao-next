@@ -1,0 +1,49 @@
+{% load viagens %}
+<section class="cartao" id="diarias" aria-labelledby="t-diarias">
+  <div class="cartao__cabecalho">
+    {% if numerado %}<h2 class="cartao__titulo" id="t-diarias"><span class="cartao__numero">5</span>Diárias</h2>
+    {% else %}<h2 class="cartao__titulo cartao__titulo--institucional" id="t-diarias">{% icone "banknote" %}Diárias</h2>{% endif %}
+    {% if calculo.total %}<span class="selo selo--sucesso">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% endif %}
+  </div>
+  <div class="cartao__corpo pilha">
+    {% if oficio.diarias_erro %}
+      <div class="alerta alerta--aviso" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Ainda não dá para calcular</p><p>{{ oficio.diarias_erro }}</p></div></div>
+    {% elif calculo.total %}
+      <div class="grade grade--3">
+        <div class="indicador indicador--atencao"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor total</span><span class="indicador__valor">{{ calculo.total|moeda }}</span><span class="indicador__nota">{{ calculo.por_servidor|moeda }} por servidor</span></div>
+        <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "map-pin" classe="icone--sm" %}Tipo de destino</span><span class="indicador__valor">{{ calculo.tipo_destino }}</span></div>
+        <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "list-checks" classe="icone--sm" %}Quantidade por servidor</span><span class="indicador__valor">{{ calculo.resumo }}</span></div>
+      </div>
+      <p class="por-extenso">Por extenso: {{ calculo.extenso }}.</p>
+      <details class="sanfona">
+        <summary>Como foi calculado</summary>
+        <div class="sanfona__corpo">
+          <div class="tabela-rolagem">
+            <table class="tabela tabela--compacta tabela--responsiva">
+              <caption class="sr-only">Memória de cálculo das diárias</caption>
+              <thead><tr><th scope="col">Faixa</th><th scope="col">Início</th><th scope="col">Fim</th><th scope="col" class="coluna-num">Diária</th><th scope="col" class="coluna-num">Qtd.</th><th scope="col" class="coluna-num">Valor unitário</th><th scope="col" class="coluna-num">Subtotal</th><th scope="col">Tabela de</th></tr></thead>
+              <tbody>
+                {% for p in calculo.parcelas %}
+                <tr>
+                  <td data-rotulo="Faixa">{{ faixas|get_item:p.faixa }}</td>
+                  <td data-rotulo="Início">{{ p.inicio|data_iso }}</td>
+                  <td data-rotulo="Fim">{{ p.fim|data_iso }}</td>
+                  <td data-rotulo="Diária" class="num">{{ p.percentual }}%</td>
+                  <td data-rotulo="Qtd." class="num">{{ p.quantidade }}</td>
+                  <td data-rotulo="Valor unitário" class="num">{{ p.valor_unitario|moeda }}</td>
+                  <td data-rotulo="Subtotal" class="num">{{ p.subtotal|moeda }}</td>
+                  <td data-rotulo="Tabela de">{{ p.vigente_desde|data_curta_iso }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot><tr><td colspan="6">Total ({{ calculo.servidores|pluralizar:"servidor,servidores" }})</td><td class="num">{{ calculo.total|moeda }}</td><td></td></tr></tfoot>
+            </table>
+          </div>
+          <p class="texto-secundario texto-sm mt-2">Regra: períodos contados da saída da sede até a volta, agrupados por faixa (Interior, Capital, Brasília). Sobra até 6h não gera diária; até 8h, 15%; até 12h, 30%; acima de 12h, diária inteira.</p>
+        </div>
+      </details>
+    {% else %}
+      <p class="texto-secundario">O cálculo aparece aqui assim que houver equipe e roteiro.</p>
+    {% endif %}
+  </div>
+</section>

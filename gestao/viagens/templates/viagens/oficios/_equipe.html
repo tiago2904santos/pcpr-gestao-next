@@ -1,0 +1,48 @@
+{% load viagens %}
+{% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
+<section class="cartao" id="equipe" aria-labelledby="t-equipe">
+  <div class="cartao__cabecalho">
+    <h2 class="cartao__titulo" id="t-equipe"><span class="cartao__numero">2</span>Equipe</h2>
+    <span class="texto-secundario texto-sm">{{ viajantes|length|pluralizar:"servidor,servidores" }} · alterações salvas na hora</span>
+  </div>
+  <div class="cartao__corpo pilha">
+    {% if erro_equipe %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro_equipe }}</p></div></div>{% endif %}
+    <form method="post" action="{% url 'viagens:adicionar_viajante' oficio.pk %}" class="campo"
+          hx-post="{% url 'viagens:adicionar_viajante' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+      {% csrf_token %}
+      <label class="campo__rotulo" for="busca-servidor">Adicionar servidor</label>
+      <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2"
+                   data-acao-url="{% url 'viagens:adicionar_viajante' oficio.pk %}" data-alvo="#equipe" data-troca="outerHTML">
+        <div class="entrada-composta">{% icone "search" %}<input id="busca-servidor" class="entrada" role="combobox" name="busca" placeholder="Buscar por nome, CPF ou RG" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
+      </pc-combobox>
+      <p class="campo__ajuda" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista.</p>
+      <noscript><p class="campo__ajuda">Sem JavaScript: informe o código do servidor.</p><input class="entrada" name="id" inputmode="numeric"><button class="botao botao--sm mt-2">Adicionar</button></noscript>
+    </form>
+    {% if viajantes %}
+      <ul class="grade grade--2" role="list" aria-label="Servidores da equipe">
+        {% for v in viajantes %}
+          <li class="pessoa">
+            <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+            <div class="pessoa__texto">
+              <div class="pessoa__nome">{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</div>
+              <div class="pessoa__meta">{{ v.servidor.cargo }} • {{ v.servidor.unidade.sigla }}{% if v.servidor.cpf %} • CPF {{ v.servidor.cpf_formatado }}{% endif %}</div>
+            </div>
+            <form method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+              {% csrf_token %}<input type="hidden" name="viajante" value="{% if not v.motorista %}{{ v.pk }}{% endif %}">
+              <button type="submit" class="botao botao--sm botao--sutil" aria-pressed="{{ v.motorista|yesno:'true,false' }}" aria-label="{% if v.motorista %}Desmarcar {{ v.servidor.nome }} como motorista{% else %}Marcar {{ v.servidor.nome }} como motorista{% endif %}">{% icone "car" %}<span class="sr-only">Motorista</span></button>
+            </form>
+            <form method="post" action="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-post="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+              {% csrf_token %}
+              <button type="submit" class="botao botao--icone botao--sm botao--sutil" aria-label="Remover {{ v.servidor.nome }} da equipe">{% icone "x" %}</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="texto-secundario">Nenhum servidor na equipe ainda.</p>
+    {% endif %}
+    {% for p in prontidao|pendencias_da_secao:"equipe" %}
+      <div class="alerta {% if p.bloqueia %}alerta--perigo{% else %}alerta--aviso{% endif %}" role="note">{% icone p.bloqueia|yesno:"alert-circle,alert-triangle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}{% if not p.bloqueia %} <span class="texto-sm">(é só um aviso)</span>{% endif %}</p></div></div>
+    {% endfor %}
+  </div>
+</section>
