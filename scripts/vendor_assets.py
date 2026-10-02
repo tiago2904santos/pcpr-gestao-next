@@ -40,7 +40,7 @@ ICONES = sorted({
 def sprite() -> str:
     simbolos = []
     for nome in ICONES:
-        svg = (NODE / "lucide-static" / "icons" / f"{nome}.svg").read_text()
+        svg = (NODE / "lucide-static" / "icons" / f"{nome}.svg").read_text(encoding="utf-8")
         corpo = re.search(r"<svg[^>]*>(.*)</svg>", svg, re.S)
         assert corpo, nome
         miolo = re.sub(r"<!--.*?-->", "", corpo.group(1), flags=re.S)
@@ -59,12 +59,19 @@ def main() -> None:
     shutil.copy(NODE / "htmx.org/dist/htmx.min.js", RAIZ / "static/vendor/htmx.min.js")
     leaflet = RAIZ / "static/vendor/leaflet"
     leaflet.mkdir(parents=True, exist_ok=True)
-    for arquivo in ("leaflet.js", "leaflet.css"):
-        shutil.copy(NODE / "leaflet/dist" / arquivo, leaflet / arquivo)
+    for arquivo in ("leaflet.js", "leaflet.css", "leaflet.js.map"):
+        src = NODE / "leaflet/dist" / arquivo
+        if src.exists():
+            shutil.copy(src, leaflet / arquivo)
     shutil.copy(NODE / "leaflet/LICENSE", leaflet / "LICENSE")
+    # Copia imagens do Leaflet (referenciadas pelo CSS)
+    images_src = NODE / "leaflet/dist/images"
+    images_dest = leaflet / "images"
+    if images_src.exists():
+        shutil.copytree(images_src, images_dest, dirs_exist_ok=True)
     (RAIZ / "tests/_vendor").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "axe-core/axe.min.js", RAIZ / "tests/_vendor/axe.min.js")
-    (RAIZ / "static/icons/sprite.svg").write_text(sprite())
+    (RAIZ / "static/icons/sprite.svg").write_text(sprite(), encoding="utf-8")
     (RAIZ / "static/fonts").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
                 RAIZ / "static/fonts/inter-latin-wght-normal.woff2")
