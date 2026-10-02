@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load viagens %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Roteiro cadastrado (como no sistema de referência): a mesma folha do ofício para o itinerário,
@@ -80,8 +80,8 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
   <section class="secao" id="efetivo" aria-labelledby="t-efetivo">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-efetivo"><span class="secao__numero">2</span>Servidores e observações</h2></div>
     <div class="campos">
-      {% include "componentes/campo.html" with campo=form.quantidade_servidores classe="col-3" %}
-      {% include "componentes/campo.html" with campo=form.observacoes classe="col-9" %}
+      {% include "componentes/campo.html" with campo=form.quantidade_servidores classe="campo--xs" %}
+      {% include "componentes/campo.html" with campo=form.observacoes classe="campo--lg" %}
     </div>
   </section>
 

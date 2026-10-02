@@ -14,10 +14,17 @@
    botões nunca mudem de lugar no instante do toque.
 
 ## Campos
+- **Largura pelo conteúdo, não pela tela** (`.campos` + `campo--xs/sm/md/lg/auto`): o protocolo tem a
+  largura de um protocolo (14rem), a data a de uma data (10rem), a placa a de uma placa (6,5rem);
+  nomes e descrições crescem até fechar a linha; texto longo ocupa a linha inteira. Campos
+  relacionados dividem a linha (nº · data · protocolo · tipo de documento; cartões de transporte +
+  viatura; texto pronto + justificativa). Um `fieldset.opcoes` dentro da linha vira "campo"
+  (legenda na borda, cartões alinhados às caixas). No celular os curtos vão dois a dois.
 - Rótulo acima, sempre visível; placeholder só como exemplo de formato.
 - Obrigatório marcado com `*` (dourado, `aria-hidden`) **e** atributo `required`. Opcional
   **não leva sufixo**: marcar os dois lados era ruído em todo rótulo (refinamento V2).
-  O único sufixo é "(necessário para emitir)": campo livre no rascunho, exigido para emitir.
+  O único sufixo é "(para emitir)" — leitor de tela ouve "necessário para emitir": campo livre
+  no rascunho, exigido para emitir. Curto de propósito: cabe no rótulo na borda de um campo compacto.
 - Senhas usam `componentes/campo_senha.html`: botão "mostrar/ocultar" dentro da caixa
   (`aria-pressed`, `aria-controls`; sem JavaScript não aparece).
 - Ajuda curta abaixo do campo (`.campo__ajuda`) ligada por `aria-describedby`.

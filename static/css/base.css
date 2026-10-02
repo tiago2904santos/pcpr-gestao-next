@@ -199,7 +199,8 @@ a:not([class]):focus-visible {
 }
 
 /* Conteúdo apenas para leitores de tela. */
-.sr-only {
+.sr-only,
+.campos > .opcoes--compactas .opcao__descricao { /* explicação só para leitores de tela */
   position: absolute !important;
   width: 1px;
   height: 1px;

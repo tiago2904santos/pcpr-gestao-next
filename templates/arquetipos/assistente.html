@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}">{% endblock %}
 {% comment %}Arquétipo WIZARD. Blocos: etapas (horizontal), etapa, navegacao_etapas.{% endcomment %}
 {% block classe_conteudo %}conteudo__interno--estreito{% endblock %}
 {% block conteudo %}

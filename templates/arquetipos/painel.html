@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% comment %}Arquétipo DASHBOARD. Blocos: indicadores, principal, lateral.{% endcomment %}
 {% block conteudo %}
 {% block cabecalho_painel %}{% endblock %}

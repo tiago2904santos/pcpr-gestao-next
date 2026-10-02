@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% load viagens %}
 {% comment %}
 Detalhe do ofício como DOCUMENTO OPERACIONAL: uma folha única (identificação, equipe,

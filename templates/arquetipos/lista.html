@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% comment %}
 Arquétipo LIST. Blocos: titulo_lista, acoes_lista, abas_filtro, filtros, itens, vazio.
 Contexto esperado: migalhas, page_obj, querystring_base, total.

@@ -47,7 +47,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
 
     # Protocolo (obrigatório para emitir — D1), transporte e roteiro (formulário principal).
-    pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
+    pg.get_by_label("Protocolo", exact=False).fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
     pg.locator("input[name='destino-0-cidade']").fill("Londrina/PR")
@@ -107,7 +107,7 @@ def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
     url = f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/"
     pg.goto(url)
     status = pg.locator("[data-status-salvamento]")
-    protocolo = pg.get_by_label("Protocolo (eProtocolo)")
+    protocolo = pg.get_by_label("Protocolo", exact=False)
     protocolo.fill("123456789")
     expect(status).to_contain_text("não salvas")
 
@@ -121,19 +121,19 @@ def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
     # Enter num campo de texto salva o rascunho (não adiciona destino nem emite).
     protocolo.press("Enter")
     expect(status).to_contain_text("Rascunho salvo às")
-    expect(pg.get_by_label("Protocolo (eProtocolo)")).to_have_value(re.compile(r"^12\D?345\D?678\D?9$"))
+    expect(pg.get_by_label("Protocolo", exact=False)).to_have_value(re.compile(r"^12\D?345\D?678\D?9$"))
     expect(status).not_to_contain_text("não salvas")
 
 
 def test_erro_de_validacao_aparece_no_resumo_e_no_campo(logado, dados_e2e):
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/")
-    pg.get_by_label("Protocolo (eProtocolo)").fill("123")
+    pg.get_by_label("Protocolo", exact=False).fill("123")
     pg.get_by_role("button", name="Salvar rascunho").click()
     resumo = pg.locator("#resumo-erros")
     expect(resumo).to_contain_text("O protocolo tem 9 dígitos")
     expect(resumo).to_be_focused()  # leitor de tela anuncia os erros logo após salvar
-    campo = pg.get_by_label("Protocolo (eProtocolo)")
+    campo = pg.get_by_label("Protocolo", exact=False)
     expect(campo).to_have_attribute("aria-invalid", "true")
     resumo.get_by_role("link").first.click()
     expect(campo).to_be_focused()

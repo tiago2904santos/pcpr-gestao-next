@@ -7,7 +7,7 @@ Grade de **4px**. Tokens `--esp-*` em `rem` (respeitam o zoom do navegador).
 | `--esp-1` | 4 | Ícone ↔ texto em selos; gaps mínimos |
 | `--esp-2` | 8 | Ícone ↔ rótulo em botões; entre botões |
 | `--esp-3` | 12 | Padding de itens de menu/listas; gap de filtros |
-| `--esp-4` | 16 | Gap da grade de campos; padding horizontal no celular |
+| `--esp-4` | 16 | Gap horizontal da linha de campos (vertical: `--esp-3`); padding horizontal no celular |
 | `--esp-5` | 20 | Padding de cartões |
 | `--esp-6` | 24 | Espaço entre seções; padding da página (tablet) |
 | `--esp-8` | 32 | Padding horizontal da página (desktop) |
