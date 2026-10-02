@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Cadastro do ofício em página única (como no sistema de referência). "Novo ofício" já cria o
 rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto ao salvar.

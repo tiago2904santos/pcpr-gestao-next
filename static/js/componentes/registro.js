@@ -96,3 +96,6 @@ document.body.addEventListener("htmx:afterRequest", (evento) => {
   aviso.textContent = "Não foi possível carregar o resumo. Tente de novo.";
   extra.append(aviso);
 });
+
+// Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
+export {};

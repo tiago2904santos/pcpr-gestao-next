@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Roteiro cadastrado (como no sistema de referência): a mesma folha do ofício para o itinerário,
 o efetivo usado na estimativa de diárias e as observações. Novo e edição usam este template.
