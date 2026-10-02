@@ -4,6 +4,7 @@ cadastro/edição com o mesmo itinerário do ofício, e "criar ofício com este 
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import Any
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -123,9 +124,13 @@ def _formulario(request: HttpRequest, roteiro: Roteiro | None) -> HttpResponse:
             return redirect("viagens:roteiros")
     template = "viagens/roteiros/editar.html"
     if request.method != "POST":
-        trechos = queries.trechos_do_roteiro(roteiro) if roteiro else []
-        blocos = list(roteiro.bate_voltas.select_related("destino")) if roteiro else []
-        itin = itinerario.montar(FORM_ID_ROTEIRO, sede=sede, trechos=trechos, blocos=blocos,
+        # Linhas do banco (TrechoRoteiro/BateVoltaRoteiro) para preencher a tela — nome
+        # próprio porque o caminho do POST reusa `trechos`/`blocos` para os objetos de
+        # domínio que vão ao serviço.
+        trechos_salvos = queries.trechos_do_roteiro(roteiro) if roteiro else []
+        blocos_salvos = list(roteiro.bate_voltas.select_related("destino")) if roteiro else []
+        itin = itinerario.montar(FORM_ID_ROTEIRO, sede=sede, trechos=trechos_salvos,
+                                 blocos=blocos_salvos,
                                  bate_volta_ligado=bool(roteiro and roteiro.bate_volta))
         contexto = _contexto(request, roteiro, FormularioRoteiro(instance=roteiro), itin)
         contexto["recem_salvo"] = request.GET.get("salvo") == "1"
@@ -209,7 +214,8 @@ def autosave(request: HttpRequest) -> JsonResponse:
     if not itin.sede.is_valid():
         return JsonResponse({"salvo": False, "motivo": "sede"}, status=200)
 
-    dados = {"sede": itin.sede.cleaned_data["cidade"] or sede, "bate_volta": ligado}
+    dados: dict[str, Any] = {"sede": itin.sede.cleaned_data["cidade"] or sede,
+                             "bate_volta": ligado}
     # "Grava o que der": itinerário incompleto não impede o rascunho — só não vira trecho.
     trechos: list | None = []
     blocos: list = []

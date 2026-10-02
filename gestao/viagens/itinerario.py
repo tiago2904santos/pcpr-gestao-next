@@ -21,6 +21,7 @@ from gestao.plataforma.widgets import EntradaDataHora
 
 from . import rotas
 from .dominio import bate_volta
+from .dominio.bate_volta import Bloco  # o campo `bate_volta: bool` esconde o módulo na classe
 from .forms import (
     ConjuntoBateVoltas,
     ConjuntoDestinos,
@@ -88,7 +89,7 @@ class Itinerario:
             return all([self.sede.is_valid(), self.blocos.is_valid()])
         return all([self.sede.is_valid(), self.destinos.is_valid(), self.retorno.is_valid()])
 
-    def blocos_em_ordem(self) -> list[bate_volta.Bloco]:
+    def blocos_em_ordem(self) -> list[Bloco]:
         """Blocos validados, na ordem da tela, prontos para a expansão do domínio."""
         vivos = [f for f in self.blocos
                  if not (f["DELETE"].value() if "DELETE" in f.fields else False)]

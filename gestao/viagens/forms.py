@@ -72,7 +72,7 @@ class FiltrosOficio(forms.Form):
             campo.widget.attrs["form"] = form_id or "filtros-oficios"
 
     def clean(self):
-        dados = super().clean()
+        dados = super().clean() or {}
         # Inverteu as pontas? Entende e segue, em vez de devolver erro.
         for menor, maior in (("saida_de", "saida_ate"), ("diarias_de", "diarias_ate")):
             a, b = dados.get(menor), dados.get(maior)

@@ -607,12 +607,17 @@ class TestProvasDaRevisaoDeUX:
             html = operador.post(url, _post_edicao(oficio, **extra)).content.decode()
             assert "data-sujo" in html and "Alterações não salvas" in html
 
-    def test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa(self, client, cenario):
+    def test_consulta_nao_ve_acao_de_edicao_e_recebe_mensagem_certa(self, client, cenario):
+        """A ação da linha tem o mesmo rótulo para todos ("Abrir o ofício"); o que muda é o
+        destino. Quem só consulta nunca recebe link para /editar/ — por isso a prova é a
+        URL, que é a fronteira de permissão, e não o texto do menu."""
         client.force_login(cenario.usuarios["consulta"])
         lista = client.get(reverse("viagens:oficios")).content.decode()
-        assert "Continuar edição" not in lista and "Ver detalhes" in lista
-        r = client.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]),
-                       follow=True)
+        rascunho = cenario.ids["oficio_rascunho"]
+        assert not re.search(r"/viagens/oficios/\d+/editar/", lista)
+        assert reverse("viagens:detalhe", args=[rascunho]) in lista
+        assert "Abrir o ofício" in lista
+        r = client.get(reverse("viagens:editar", args=[rascunho]), follow=True)
         assert "Seu perfil permite consultar, mas não editar ofícios." in r.content.decode()
 
 
