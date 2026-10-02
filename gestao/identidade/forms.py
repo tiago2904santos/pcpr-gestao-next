@@ -82,3 +82,7 @@ class FormularioTrocaSenha(PasswordChangeForm):
         super().__init__(*args, **kwargs)
         for campo in self.fields.values():
             campo.widget.attrs["class"] = "entrada"
+        # A ajuda padrão do Django é uma lista HTML (quebra o <p> do campo); uma frase basta —
+        # as regras completas voltam como erro do campo quando não forem atendidas.
+        self.fields["new_password1"].help_text = (
+            "Ao menos 10 caracteres. Evite dados pessoais, sequências e senhas comuns.")

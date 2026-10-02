@@ -25,7 +25,7 @@ confirmam, uma única ênfase reservada ao momento institucional (emitir).
 | `brotar` | cresce a partir da origem | menus suspensos, paleta de comandos |
 | `recolher` | encolhe e some | saída de diálogo (`.dialogo--saindo`) |
 | `filete-crescer` | o filete dourado cresce da esquerda | item ativo da navegação, aba ativa, foco de seção |
-| `carimbar` | entra grande, girado, assenta | selo "Emitido" recém-emitido (`.selo--carimbo`), botão concluído |
+| `carimbar` | entra grande, girado, assenta | botão concluído; `.selo--carimbo` (selo "Emitido" recém-emitido) existe só no catálogo (`ui-lab.css`) até a tela de emissão usá-lo |
 | `pulsar` | opacidade 1 → .35 → 1 | "gerando documento" (`.selo--processo`), status sujo da barra |
 | `girar` | rotação contínua | `.girando` (indicadores de carregamento) |
 | `esqueleto` | brilho horizontal | `.esqueleto` |
@@ -45,3 +45,36 @@ confirmam, uma única ênfase reservada ao momento institucional (emitir).
 - **Pausa com foco**: o toast pausa a barra e o cronômetro em `mouseenter` **e** `focusin`.
 - `prefers-reduced-motion: reduce` zera todos os tokens de duração, `--escala-pressao` vira 1
   e um bloco global força `animation-duration: 0.01ms` — inclusive `pulsar` e `girar`.
+
+## Motion 2.0 — continuidade espacial (View Transitions)
+Em vez de "sumir e aparecer", elementos relacionados **viajam** até onde reaparecem.
+Tudo é CSS; sem suporte do navegador, a troca é instantânea; com `prefers-reduced-motion`,
+tudo é desligado (`::view-transition-*` com `animation: none`).
+
+| Transição | Mecanismo |
+|---|---|
+| Entre páginas (lista → detalhe, revisar → emitido) | `@view-transition { navigation: auto }` (same-origin) |
+| Placa do ofício | `data-vt="placa-r<id>"` na lista, no detalhe e na edição: a placa da linha cresce até o cabeçalho. No `pageswap`, `registro.js` deixa nomeada só a placa do registro clicado (as outras não viram snapshot: custo medido de 200–280 ms → ~60 ms) |
+| Aba ativa | `.aba[aria-current="page"] { view-transition-name: aba-ativa }`: o destaque desliza entre abas, também nas trocas HTMX (OOB) |
+| Botão "Emitir" → selo "Emitido" | `data-vt="emissao-<id>"` no botão da revisão e no selo do detalhe |
+| Troca da lista ao filtrar/ordenar | `hx-swap="outerHTML transition:true"` só no swap de `#resultados` (não há transição global do HTMX: cada swap pagaria um snapshot da página) |
+
+Os nomes vêm de `[data-vt] { view-transition-name: attr(data-vt type(<custom-ident>), none) }`
+(sem estilos inline, compatível com a CSP). No painel, as duas listas usam prefixos
+distintos (`p`, `q`) para um mesmo ofício nunca ter dois nomes iguais na página.
+
+## Refinamento V2 — movimento que explica
+| Interação | Mecanismo |
+|---|---|
+| Resumo do registro abre crescendo | `.registro__extra { display:grid; grid-template-rows: 0fr → 1fr }` + `visibility` atrasada: anima altura real sem JS medir nada |
+| Registro recém-alterado | `.registro--destaque` (`destacar-registro`, 2,4 s): o formulário grava `sessionStorage["pcpr-destaque"]` ao enviar; a lista acende a linha e rola até ela se estiver fora da tela |
+| Assistente de emissão | fio entre etapas; o trecho percorrido cresce em dourado (`filete-crescer`) |
+| Mostrar senha | troca de ícone instantânea; o foco volta ao campo sem rolar |
+| Atalhos do painel | a seta anda 2px no hover (a mesma gramática dos botões direcionais) |
+
+## Linguagem de ação (botões)
+`aria-busy` = processando (indicador no centro, largura preservada);
+`data-estado="concluido"` = vira verde e o ícone carimba por 1,6 s;
+`data-estado="erro"` = balança uma vez (`sacudir`). `static/js/componentes/acao.js` aplica
+isso a toda requisição HTMX disparada por botão e ao `invalid` de formulários; o
+salvamento do ofício confirma na barra de ações (`.barra-acoes__status--salvo`), sem toast.

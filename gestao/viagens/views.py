@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from itertools import pairwise
+
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Q
+from django.db.models.expressions import OrderBy
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -13,21 +16,17 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_headers
 
-from gestao.cadastros.models import Servidor
+from gestao.cadastros.models import Municipio, Servidor
+from gestao.plataforma.templatetags.ui import formatar_moeda
 
-from . import policies, queries, services
+from . import itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
 from .dominio.diarias import Faixa
-from .forms import (
-    ConjuntoDestinos,
-    FormularioNovoOficio,
-    FormularioOficio,
-    FormularioRetorno,
-    iniciais_do_roteiro,
-)
+from .forms import FORM_ID, FormularioOficio, iniciais_de_trechos, resolver_municipio
 from .models import Documento, Oficio
 from .queries import trechos_de, viajantes_de
+from .templatetags.viagens import formatar_periodo
 
 POR_PAGINA = 20
 
@@ -38,8 +37,9 @@ def _htmx(request: HttpRequest) -> bool:
 
 def _oficio_visivel(request: HttpRequest, pk: int) -> Oficio:
     oficio = get_object_or_404(
-        Oficio.objects.select_related("unidade", "viatura", "viatura__combustivel", "sede",
-                                      "transporte_combustivel"), pk=pk)
+        Oficio.objects.select_related("unidade", "unidade__configuracao", "viatura",
+                                      "viatura__combustivel", "sede", "transporte_combustivel"),
+        pk=pk)
     if not policies.pode_ver(request.user, oficio):
         raise Http404  # não revela a existência de ofícios de outras unidades
     return oficio
@@ -81,8 +81,11 @@ def lista(request: HttpRequest) -> HttpResponse:
     qs = queries.aplicar_filtro_situacao(base, situacao)
     qs = services.buscar_por_texto(qs, termo)
     ordem = request.GET.get("ordem") or "-numero"
-    ordens = {"-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
-              "saida": ("primeira_saida",), "-saida": ("-primeira_saida",)}
+    ordens: dict[str, tuple[str | OrderBy, ...]] = {
+        "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
+        "saida": (F("primeira_saida").asc(nulls_last=True),),
+        "-saida": (F("primeira_saida").desc(nulls_last=True),),  # sem roteiro vão ao fim
+    }
     qs = queries.com_dados_de_lista(qs).order_by(*ordens.get(ordem, ordens["-numero"]))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     filtros = request.GET.copy()
@@ -107,43 +110,48 @@ def lista(request: HttpRequest) -> HttpResponse:
     return render(request, "viagens/oficios/lista.html", contexto)
 
 
-# ------------------------------------------------------------------ novo
 def novo(request: HttpRequest) -> HttpResponse:
+    """"Novo ofício" já cria o ofício, como no sistema de referência: reserva o número e abre
+    a folha de edição. Não existe página intermediária (GET volta para a lista)."""
     policies.exigir(policies.pode_criar(request.user),
                     "Seu usuário precisa estar lotado em uma unidade para criar ofícios.")
-    form = FormularioNovoOficio(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        try:
-            oficio = services.criar_rascunho(request.user,
-                                             data_oficio=form.cleaned_data["data_oficio"])
-            if form.cleaned_data["motivo"]:
-                services.salvar_dados(oficio, request.user,
-                                      {"motivo": form.cleaned_data["motivo"]})
-        except services.RegraViolada as exc:
-            form.add_error(None, str(exc))
-        else:
-            messages.success(request, f"Ofício {oficio.numero_formatado} criado como rascunho. "
-                                      "Agora inclua a equipe e o roteiro.")
-            return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#equipe")
-    unidade = policies.unidade_do_usuario(request.user)
-    return render(request, "viagens/oficios/novo.html", {
-        "form": form, "unidade": unidade,
-        "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")), ("Novo ofício", "")),
-    })
+    if request.method != "POST":  # link antigo/favorito: nada é criado por GET
+        return redirect("viagens:oficios")
+    try:
+        oficio = services.criar_rascunho(request.user)
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:oficios")
+    messages.success(request, f"Ofício {oficio.numero_formatado} criado. Preencha e salve.")
+    return redirect("viagens:editar", oficio.pk)
 
 
 # ------------------------------------------------------------------ edição
-def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, erro_roteiro=""):
-    if destinos is None or retorno is None:
-        iniciais_destinos, inicial_retorno = iniciais_do_roteiro(oficio)
-        destinos = destinos or ConjuntoDestinos(initial=iniciais_destinos, prefix="destino")
-        retorno = retorno or FormularioRetorno(initial=inicial_retorno, prefix="retorno")
+SECOES_DO_OFICIO = [("dados", "Dados"), ("equipe", "Equipe"), ("transporte", "Transporte"),
+                    ("roteiro", "Roteiro"), ("diarias", "Diárias"),
+                    ("justificativa", "Justificativa")]
+
+
+def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
+    if itin is None:
+        itin = itinerario.montar(FORM_ID, sede=oficio.sede, trechos=trechos_de(oficio))
     prontidao = services.verificar_prontidao(oficio)
+    secoes = []
+    for chave, rotulo in SECOES_DO_OFICIO:
+        pendencias = prontidao.da_secao(chave)
+        bloqueia = any(p.bloqueia for p in pendencias)
+        # Aviso (ex.: servidor em outro ofício no mesmo período) não deixa a seção pendente:
+        # a conferência diria "tudo pronto" enquanto a faixa marca a seção em aberto.
+        ok = not bloqueia and (chave != "diarias" or bool(oficio.diarias_resumo))
+        secoes.append({"chave": chave, "rotulo": rotulo, "ok": ok, "bloqueia": bloqueia})
     return {
         "oficio": oficio,
         "form": form or FormularioOficio(instance=oficio),
-        "destinos": destinos,
-        "retorno": retorno,
+        "secoes": secoes,
+        **itin.contexto(),
+        "trechos": trechos_de(oficio),
+        "secoes_ok": sum(1 for sec in secoes if sec["ok"]),
+        "recem_salvo": request.GET.get("salvo") == "1",
         "erro_roteiro": erro_roteiro,
         "viajantes": viajantes_de(oficio),
         "prontidao": prontidao,
@@ -153,6 +161,12 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_emitir": policies.pode_emitir(request.user, oficio),
         "pode_excluir": policies.pode_excluir(request.user, oficio),
+        # None = o perfil não vê roteiros (a escolha nem aparece).
+        "roteiros_disponiveis": (
+            _opcoes_de_roteiro(queries.roteiros_para_oficio(
+                policies.roteiros_visiveis(request.user), oficio))
+            if request.user.has_perm("viagens.view_roteiro") else None),
+        "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, reverse("viagens:detalhe",
                                                                 args=[oficio.pk])),
@@ -174,71 +188,98 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
         return render(request, "viagens/oficios/editar.html", _contexto_edicao(request, oficio))
 
     form = FormularioOficio(request.POST, instance=oficio)
-    if request.POST.get("acao") == "adicionar_destino":
-        # Reexibe o formulário com uma linha a mais, preservando o que foi digitado.
-        total = int(request.POST.get("destino-TOTAL_FORMS") or 0)
-        iniciais = [
-            {c: request.POST.get(f"destino-{i}-{c}", "") for c in ("cidade", "saida", "chegada")}
-            for i in range(total) if not request.POST.get(f"destino-{i}-DELETE")
-        ]
-        ultimo = iniciais[-1] if iniciais else {}
-        iniciais.append({"saida": ultimo.get("chegada", "")})
-        destinos = ConjuntoDestinos(initial=iniciais[:10], prefix="destino")
-        retorno = FormularioRetorno(initial={c: request.POST.get(f"retorno-{c}", "")
-                                             for c in ("saida", "chegada")}, prefix="retorno")
+    acao = request.POST.get("acao")
+    if acao == "usar_roteiro":
+        return _usar_roteiro(request, oficio)
+    if acao == "adicionar_destino":  # sem JavaScript; com JS a parada entra na hora
+        itin = itinerario.com_iniciais(FORM_ID, request.POST, mais_um=True)
         form.is_valid()
-        contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
-        contexto["foco"] = f"id_destino-{len(iniciais) - 1}-cidade"
+        contexto = _contexto_edicao(request, oficio, form, itin)
+        contexto["foco"] = f"id_destino-{itin.destinos.total_form_count() - 1}-cidade"
         contexto["sujo"] = True  # nada foi salvo ainda: avisa e protege a saída
         return render(request, "viagens/oficios/editar.html", contexto)
-    destinos = ConjuntoDestinos(request.POST, prefix="destino")
-    retorno = FormularioRetorno(request.POST, prefix="retorno")
-    roteiro_vazio = not any(
-        request.POST.get(f"destino-{i}-{c}") for i in range(10)
-        for c in ("cidade", "saida", "chegada")
-    ) and not any(request.POST.get(f"retorno-{c}") for c in ("saida", "chegada"))
-    roteiro_ok = roteiro_vazio or (destinos.is_valid() and retorno.is_valid())
+    itin = itinerario.montar(FORM_ID, dados=request.POST)
+    vazio = itin.vazio(request.POST)
+    sede_ok = itin.sede.is_valid()
+    roteiro_ok = sede_ok and (vazio or itin.valido())
     if form.is_valid() and roteiro_ok:
         try:
             dados = {k: v for k, v in form.cleaned_data.items() if k != "versao"}
-            trechos = None if roteiro_vazio else _trechos_informados(oficio, destinos, retorno)
+            dados["sede"] = itin.sede.cleaned_data["cidade"]
+            trechos = None if vazio else itinerario.trechos(itin)
             oficio = services.salvar_edicao(oficio, request.user, dados, trechos,
                                             versao=form.cleaned_data.get("versao"))
         except services.ConflitoDeEdicao as exc:
             form.add_error(None, str(exc))
         except services.RegraViolada as exc:
-            contexto = _contexto_edicao(request, oficio, form, destinos, retorno, str(exc))
+            contexto = _contexto_edicao(request, oficio, form, itin, str(exc))
             contexto.update(sujo=True, foco="alerta-roteiro")
             return render(request, "viagens/oficios/editar.html", contexto, status=422)
         else:
-            if request.POST.get("acao") == "emitir":
+            if acao == "emitir":
                 bloqueantes = services.verificar_prontidao(oficio).bloqueantes
                 if bloqueantes:
                     messages.warning(request, f"Rascunho salvo, mas ainda há {len(bloqueantes)} "
                                               "pendência(s) para emitir. Veja a seção 7.")
                     return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
                 return redirect("viagens:revisar_emissao", pk=oficio.pk)
-            messages.success(request, f"Rascunho do Ofício {oficio.numero_formatado} salvo.")
-            return redirect("viagens:editar", pk=oficio.pk)
-    contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
+            # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
+            # não de um toast: o operador salva dezenas de vezes por dia.
+            return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")
+    contexto = _contexto_edicao(request, oficio, form, itin)
     contexto.update(sujo=True, foco="resumo-erros" if form.errors else "alerta-roteiro")
     return render(request, "viagens/oficios/editar.html", contexto, status=422)
 
 
-def _trechos_informados(oficio, destinos, retorno) -> list[services.TrechoInformado]:
-    trechos = []
-    origem = oficio.sede
-    for f in destinos:
-        if not f.cleaned_data or f.cleaned_data.get("DELETE"):
-            continue
-        cidade = f.cleaned_data["cidade"]
-        trechos.append(services.TrechoInformado(origem.pk, cidade.pk, f.cleaned_data["saida"],
-                                                f.cleaned_data["chegada"]))
-        origem = cidade
-    trechos.append(services.TrechoInformado(origem.pk, oficio.sede_id,
-                                            retorno.cleaned_data["saida"],
-                                            retorno.cleaned_data["chegada"]))
-    return trechos
+def _opcoes_de_roteiro(roteiros) -> list[dict]:
+    """Rótulo e detalhe de cada roteiro na escolha "Usar um roteiro cadastrado"."""
+    opcoes = []
+    for r in roteiros:
+        sede = f"{r.sede.nome}/{r.sede.uf}"
+        destinos = list(dict.fromkeys(p for p in r.paradas if p and p != sede))
+        diarias = f"{formatar_moeda(r.diarias_total)} · {r.diarias_resumo}" if r.diarias_resumo \
+            else "sem diárias"
+        servidores = f"{r.quantidade_servidores} servidor" + (
+            "es" if r.quantidade_servidores != 1 else "")
+        opcoes.append({
+            "pk": r.pk,
+            "rotulo": f"#{r.pk} · {sede} → {', '.join(destinos)}",
+            "meta": f"{formatar_periodo(r.primeira_saida, r.ultima_chegada)} · {diarias} · "
+                    f"{servidores}",
+        })
+    return opcoes
+
+
+def _usar_roteiro(request, oficio) -> HttpResponse:
+    """Preenche o itinerário (sede inclusive) com os trechos de um roteiro cadastrado,
+    preservando tudo o que foi digitado no resto da folha. Nada é gravado: a pessoa confere
+    e salva."""
+    escolhido = (request.POST.get("roteiro_modelo") or "").strip()
+    roteiro = (policies.roteiros_visiveis(request.user).select_related("sede")
+               .filter(pk=escolhido).first() if escolhido.isdigit() else None)
+    dados = request.POST.copy()
+    erro = "" if roteiro else "Escolha um roteiro da lista para preencher os trechos."
+    if roteiro is not None:
+        try:
+            services.exigir_roteiro_compativel(roteiro, oficio)
+        except services.RegraViolada as exc:
+            erro = str(exc)
+    if erro or roteiro is None:
+        form = FormularioOficio(dados, instance=oficio)
+        itin = itinerario.com_iniciais(FORM_ID, request.POST)
+        contexto = _contexto_edicao(request, oficio, form, itin, erro)
+        contexto.update(sujo=True, foco="alerta-roteiro")
+        return render(request, "viagens/oficios/editar.html", contexto, status=422)
+    dados["roteiro"] = str(roteiro.pk)
+    form = FormularioOficio(dados, instance=oficio)
+    form.is_valid()
+    iniciais, inicial_retorno = iniciais_de_trechos(queries.trechos_do_roteiro(roteiro),
+                                                    roteiro.sede_id)
+    itin = itinerario.com_iniciais(FORM_ID, request.POST, destinos=iniciais,
+                                   retorno=inicial_retorno, sede=roteiro.sede)
+    contexto = _contexto_edicao(request, oficio, form, itin)
+    contexto.update(sujo=True, foco="roteiro-aplicado", roteiro_aplicado=roteiro)
+    return render(request, "viagens/oficios/editar.html", contexto)
 
 
 # ------------------------------------------------------------------ equipe (HTMX)
@@ -367,7 +408,7 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
         "trechos": trechos_de(oficio),
         "documentos": documentos,
         "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
-        "historico": oficio.historico.select_related("usuario")[:30],
+        "historico": list(oficio.historico.select_related("usuario")[:30]),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "assunto": services.assunto_do_oficio(oficio),
@@ -380,6 +421,20 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
         "pode_excluir": policies.pode_excluir(request.user, oficio),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, "")),
+    })
+
+
+@require_GET
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: o registro da lista se expande com roteiro, equipe e documentos."""
+    oficio = _oficio_visivel(request, pk)
+    return render(request, "viagens/oficios/_resumo.html", {
+        "oficio": oficio,
+        "viajantes": viajantes_de(oficio),
+        "trechos": trechos_de(oficio),
+        "documentos": list(oficio.documentos.select_related("emitido_por")),
+        "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
+        "pode_editar": policies.pode_editar(request.user, oficio),
     })
 
 
@@ -439,3 +494,42 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
         {"id": str(s.pk), "titulo": s.nome, "meta": f"{s.cargo} • {s.unidade.sigla}"}
         for s in servidores]})
 
+
+
+# ------------------------------------------------------------------ rota (mapa do itinerário)
+@require_GET
+def rota(request: HttpRequest) -> JsonResponse:
+    """Pernas da rota entre as paradas informadas (?p=Cidade/UF&p=...): km, tempo de estrada,
+    tempo adicional sugerido e traçado para o mapa. Paradas inválidas voltam com erro."""
+    if not (request.user.has_perm("viagens.view_oficio")
+            or request.user.has_perm("viagens.view_roteiro")):
+        raise PermissionDenied
+    textos = [t.strip() for t in request.GET.getlist("p")][:12]
+    pontos: list[dict] = []
+    municipios: list[Municipio | None] = []
+    for texto in textos:
+        try:
+            m = resolver_municipio(texto)
+        except ValidationError as exc:
+            pontos.append({"rotulo": texto, "erro": exc.messages[0]})
+            municipios.append(None)
+            continue
+        pontos.append({"rotulo": f"{m.nome}/{m.uf}",
+                       "lat": float(m.latitude) if m.latitude is not None else None,
+                       "lon": float(m.longitude) if m.longitude is not None else None})
+        municipios.append(m)
+    pernas: list[dict | None] = []
+    for a, b in pairwise(municipios):
+        if a is None or b is None:
+            pernas.append(None)
+            continue
+        p = rotas.calcular(a, b)
+        pernas.append({"km": float(p.km), "minutos": p.minutos,
+                       "adicional_sugerido": p.adicional_sugerido, "fonte": p.fonte,
+                       "tracado": p.tracado})
+    validas = [p for p in pernas if p]
+    return JsonResponse({
+        "pontos": pontos, "pernas": pernas,
+        "total": {"km": round(sum(p["km"] for p in validas), 1),
+                  "minutos": sum(p["minutos"] for p in validas)},
+    })

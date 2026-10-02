@@ -1,0 +1,4 @@
+<li class="linha-tempo__item{% if h.acao == 'emitido' or h.acao == 'documento' %} linha-tempo__item--marca{% endif %}">
+  <span class="linha-tempo__marcador" aria-hidden="true">{% if h.acao == "emitido" %}{% icone "stamp" %}{% elif h.acao == "cancelado" %}{% icone "ban" %}{% elif h.acao == "documento" %}{% icone "file-check-2" %}{% elif h.acao == "reaberto" %}{% icone "undo-2" %}{% else %}{% icone "circle-dot" %}{% endif %}</span>
+  <div><p class="linha-tempo__titulo">{{ h.descricao }}</p><p class="linha-tempo__meta"><time datetime="{{ h.em|date:'c' }}">{{ h.em|date:"d/m/Y H:i" }}</time>{% if h.usuario %} · {{ h.usuario.nome }}{% else %} · sistema{% endif %}</p></div>
+</li>

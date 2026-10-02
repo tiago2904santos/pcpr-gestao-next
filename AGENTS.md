@@ -33,4 +33,4 @@ revisadas + paridade atualizada em `docs/parity/` quando a funcionalidade existi
 - `.claude/agents/` — revisores especializados (UX, acessibilidade, desempenho, segurança, cético).
 - `.claude/skills/` — receitas (novo componente, nova tela, comparar com referência).
 - `.mcp.json` — Playwright (navegador) e PostgreSQL somente leitura.
-- `scripts/` — `capturar.py`, `verificar.sh`, `contraste.py`, `vendor_assets.py`, `referencia/`.
+- `scripts/` — `capturar.py`, `evidencias_visuais.py` (antes × depois de todas as páginas), `verificar.sh`, `contraste.py`, `vendor_assets.py`, `referencia/`.

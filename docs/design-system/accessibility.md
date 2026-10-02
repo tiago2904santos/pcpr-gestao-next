@@ -19,6 +19,22 @@
 | 4.1.2 Nome, função, valor | `aria-expanded`, `aria-current`, `aria-selected`, `aria-busy` | axe |
 | 4.1.3 Mensagens de status | Toasts `role="status"`, contagem de resultados no combobox | E2E |
 
+## Foco (assinatura própria, não o anel do navegador)
+Tokens em `tokens.css`: `--foco-cor` (grafite-900), `--foco-contraste` (branco),
+`--foco-cor-inverso` (dourado-300) e `--foco-contraste-inverso` (grafite-950) para
+superfícies escuras, `--foco-espessura` (2px) e `--foco-offset` (2px).
+
+- Regra global `:focus-visible`: `outline` de 2px na cor de foco, afastado 2px, com um
+  halo claro (`box-shadow`) preenchendo o vão — lê-se sobre branco, sobre superfícies
+  tingidas e sobre o dourado (1.4.11 e 2.4.11/2.4.13: ≥ 3:1, nunca obscurecido).
+- `.cabecalho` e `.acesso__marca` invertem o par (`.superficie-escura`, só no catálogo, idem) (dourado sobre grafite).
+- Campos não ganham anel externo: acendem (fundo branco, borda grafite-800 ≥ 3:1, halo
+  dourado). Registros de lista desenham o anel na linha inteira (`.registro:has(:focus-visible)`).
+- Só `:focus-visible` (teclado); o clique do mouse não deixa anel.
+- Verificado por `tests/test_design_tokens.py` (tokens e regra global) e por
+  `tests/e2e/test_acessibilidade.py::test_foco_por_teclado_e_a_assinatura_do_sistema_nao_o_anel_do_navegador`
+  (estilos computados no Chromium, inclusive sobre o cabeçalho).
+
 ## Movimento
 `prefers-reduced-motion: reduce` zera durações (tokens) e animações (base.css).
 

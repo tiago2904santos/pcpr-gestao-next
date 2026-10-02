@@ -1,0 +1,77 @@
+{% load static viagens %}
+{% comment %}
+Itinerário 2.0 (ofício e roteiro cadastrado — ADR 0016), em três blocos como no modelo:
+1) Sede e destinos: só as paradas (UF que filtra os municípios, ordem por arrastar e soltar);
+2) Rota: mapa e resumo de km e tempos;
+3) Trechos: um card dourado por trecho — só a saída é informada, a chegada é calculada
+   (saída + tempo de viagem + tempo adicional).
+Os campos de um destino ficam em dois lugares (parada e trecho), ligados pelo prefixo do
+formulário. Sem JavaScript continua um formulário comum (o servidor calcula tudo ao salvar).
+Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_tiles.
+{% endcomment %}
+<pc-itinerario class="itin" data-form="{{ form_id }}" data-rota-url="{% url 'viagens:rota' %}"
+               data-municipios-url="{% url 'cadastros:buscar_municipios' %}"
+               data-tiles="{{ mapa_tiles }}" data-atribuicao="{{ mapa_atribuicao }}"
+               data-leaflet="{% static 'vendor/leaflet/leaflet.js' %}" data-leaflet-css="{% static 'vendor/leaflet/leaflet.css' %}">
+
+  <section class="itin__bloco" aria-labelledby="itin-t-paradas">
+    <header class="itin__bloco-cabecalho">
+      <h3 class="itin__bloco-titulo" id="itin-t-paradas">{% icone "map-pin" %}Sede e destinos</h3>
+      <span class="itin__dica" data-dica-arraste hidden>{% icone "grip-vertical" classe="icone--sm" %}Arraste pelo número para mudar a ordem</span>
+    </header>
+    <ol class="itin__paradas" aria-label="Sede e destinos, na ordem da visita" data-paradas>
+      <li class="itin__parada itin__parada--sede">
+        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
+        <div class="itin__local" role="group" aria-label="Sede (origem e volta da viagem)">
+          {% include "componentes/campo.html" with campo=sede_form.uf classe="itin__uf" %}
+          <div class="campo itin__cidade{% if sede_form.cidade.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="{{ sede_form.cidade.id_for_label }}" id="{{ sede_form.cidade.auto_id }}-rotulo">Sede (origem da viagem)<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ sede_form.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
+              <div class="entrada-composta">{% icone "home" %}{{ sede_form.cidade|campo_acessivel:"" }}</div>
+            </pc-combobox>
+            {% if sede_form.cidade.errors %}<p class="campo__erro" id="{{ sede_form.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ sede_form.cidade.errors|join:" " }}</span></p>{% endif %}
+          </div>
+        </div>
+      </li>
+      {% for f, anterior in paradas %}{% include "viagens/_parada.html" with numero=forloop.counter %}{% endfor %}
+      <li class="itin__adicionar" data-adicionar-li>
+        <span class="itin__marco itin__marco--novo" aria-hidden="true">{% icone "plus" %}</span>
+        <button type="submit" form="{{ form_id }}" name="acao" value="adicionar_destino" class="itin__botao-adicionar" formnovalidate data-adicionar>
+          {% icone "plus" %}<span>Adicionar destino</span><small>entra antes da volta à sede</small>
+        </button>
+      </li>
+    </ol>
+  </section>
+
+  <section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">
+    <header class="itin__bloco-cabecalho">
+      <h3 class="itin__bloco-titulo" id="itin-t-rota">{% icone "route" %}Rota</h3>
+      <p class="itin__fonte" data-rota-fonte role="status">Distâncias e tempos são calculados pela rota.</p>
+    </header>
+    <div class="itin__rota">
+      <div class="itin__mapa" data-mapa>
+        <p class="itin__mapa-vazio" data-mapa-vazio>{% icone "map" %}O mapa traça a rota assim que houver a sede e um destino.</p>
+      </div>
+      <dl class="itin__resumo" data-resumo>
+        <div class="itin__resumo-item itin__resumo-item--destaque"><dt>{% icone "route" classe="icone--sm" %}Distância total</dt><dd data-total-km>—</dd></div>
+        <div class="itin__resumo-item"><dt>{% icone "clock" classe="icone--sm" %}Tempo de estrada</dt><dd data-total-viagem>—</dd></div>
+        <div class="itin__resumo-item"><dt>{% icone "history" classe="icone--sm" %}Tempo adicional</dt><dd data-total-adicional>—</dd></div>
+        <div class="itin__resumo-item"><dt>{% icone "home" classe="icone--sm" %}Volta à sede</dt><dd data-volta>—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="itin__bloco" aria-labelledby="itin-t-trechos">
+    <header class="itin__bloco-cabecalho itin__ferramentas">
+      <h3 class="itin__bloco-titulo" id="itin-t-trechos">{% icone "navigation" %}Trechos</h3>
+      <button type="button" class="botao botao--sm" data-preencher-datas aria-haspopup="dialog" aria-expanded="false" hidden>{% icone "calendar-days" %}Preencher datas de saída</button>
+    </header>
+    <ol class="itin__trechos" aria-label="Trechos da viagem" data-trechos>
+      {% for f, anterior in paradas %}{% include "viagens/_trecho_campos.html" with t=f de=anterior para=f.cidade.value numero=forloop.counter %}{% endfor %}
+      {% include "viagens/_trecho_campos.html" with t=retorno de=ultima_parada para=sede_form.cidade.value volta=True %}
+    </ol>
+  </section>
+
+  <template data-modelo>{% include "viagens/_parada.html" with f=destinos.empty_form numero="__n__" %}</template>
+  <template data-modelo-trecho>{% include "viagens/_trecho_campos.html" with t=destinos.empty_form de="" para="" numero="__n__" %}</template>
+</pc-itinerario>

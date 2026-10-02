@@ -4,7 +4,7 @@
 
 | Necessidade | Decisão | Motivo |
 |---|---|---|
-| Seletor de data/hora | `input type=date/time` nativo | Acessível, teclado numérico no celular, 0 KB |
+| Seletor de data/hora | ~~`input type=date/time` nativo~~ → `<pc-data>`/`<pc-hora>` próprios (ADR 0014) | Identidade do sistema; digitação com máscara continua; sem JS vira texto |
 | Busca de servidores/viaturas | `<pc-combobox>` remoto + HTMX | Padrão WAI-ARIA, servidor decide o que é válido |
 | Diálogos | `<dialog>` nativo | Foco preso e Esc nativos |
 | Paleta de comandos | `<pc-comandos>` próprio (~5 KB) | Simples; reusa o menu já filtrado por permissão |

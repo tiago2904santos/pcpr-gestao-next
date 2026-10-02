@@ -60,9 +60,11 @@ def diarias(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def buscar_municipios(request: HttpRequest) -> JsonResponse:
-    """Autocompletar "Cidade/UF": prefixo sem acento/caixa, Paraná primeiro."""
+    """Autocompletar "Cidade/UF": prefixo sem acento/caixa, Paraná primeiro; `?uf=SC`
+    restringe ao estado escolhido no itinerário."""
     termo = (request.GET.get("q") or "").strip()
     nome, _, uf = termo.partition("/")
+    uf = uf or (request.GET.get("uf") or "")  # filtro do seletor de estado (itinerário)
     qs = Municipio.objects.annotate(n=Unaccent(Lower("nome"))).filter(
         n__startswith=Unaccent(Lower(Value(nome.strip()))))
     if uf.strip():

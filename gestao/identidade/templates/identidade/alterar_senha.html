@@ -9,7 +9,7 @@
   {% csrf_token %}
   <div class="cartao__corpo pilha">
     {% include "componentes/resumo_erros.html" %}
-    {% for campo in form %}{% include "componentes/campo.html" with campo=campo %}{% endfor %}
+    {% for campo in form %}{% include "componentes/campo_senha.html" with campo=campo %}{% endfor %}
   </div>
   <div class="cartao__rodape">
     <a class="botao" href="{% url 'painel:inicio' %}">Cancelar</a>

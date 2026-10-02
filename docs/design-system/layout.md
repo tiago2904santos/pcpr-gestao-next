@@ -39,7 +39,7 @@ Decisão registrada em `docs/adr/0006-app-shell-menu-superior.md`.
 - `.campos`: 12 colunas para formulários (`col-3`, `col-4`, `col-6`…; tudo vira 12 no celular).
 - `.grade--2/3/4/auto`: cartões e indicadores.
 - `.layout-detalhe`: conteúdo + coluna de contexto (320px), sticky.
-- `.layout-formulario`: índice de seções (208px, sticky) + seções.
+- `.layout-formulario`: índice de seções (208px, sticky) + seções — só no arquétipo (CSS em `ui-lab.css`); o produto usa a folha única `.documento` com a faixa `.progresso--fixo`.
 
 ## Larguras de leitura
 Descrições de página limitadas a ~42rem (`--largura-leitura`) para linhas de 70–80 caracteres.

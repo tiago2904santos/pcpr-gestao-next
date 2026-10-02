@@ -6,7 +6,7 @@
 
 | # | Passo | Regras principais | Onde (novo) |
 |---|---|---|---|
-| 1 | **Criar rascunho** | Exige lotação em unidade e configuração institucional da unidade. Informa data do ofício (padrão hoje) e, opcionalmente, motivo. O **número do ano é reservado já na criação** (menor lacuna ≥ piso). Sede = sede da unidade. | `services.criar_rascunho` |
+| 1 | **Criar rascunho** | Exige lotação em unidade e configuração institucional da unidade. O botão "Novo ofício" (POST) já cria o rascunho, como no sistema de referência: o **número do ano é reservado na hora** (menor lacuna ≥ piso), a data do ofício é hoje e a sede é a da unidade; em seguida abre a folha completa de edição (as 7 seções). Não existe página intermediária; `GET /viagens/oficios/novo/` volta para a lista sem criar nada. | `services.criar_rascunho` |
 | 2 | **Dados** | Data do ofício deve estar no ano do número; protocolo opcional (9 dígitos); marcador (nenhum/retificado/complementar); motivo; custeio (outra instituição exige o nome). Concorrência otimista por `versao`. | `services.salvar_edicao` (dados + roteiro numa transação) |
 | 3 | **Equipe** | Incluir servidores ativos (sem repetição); marcar no máximo um motorista. | `adicionar_viajante`, `definir_motorista` |
 | 4 | **Transporte** | Viatura oficial (exige viatura + motorista na equipe) **ou** outro meio (exige descrição; placa e combustível opcionais). Porte de arma (padrão: sim). | `salvar_edicao` |
@@ -117,7 +117,7 @@ Pedido público entra com canal PORTAL e token de acompanhamento.
 | Objeto | Estados | Observações |
 |---|---|---|
 | Viagem | rascunho → em preparação → documentos gerados → em execução → finalizado; cancelado | cancelar cascateia aos documentos; reativar os traz de volta; dados propagam para documentos novos |
-| Roteiro | RASCUNHO/FINALIZADO; cálculo PENDENTE/CALCULADA/DESATUALIZADA | recalcular substitui a composição inteira; sem tabela vigente → erro |
+| Roteiro | referência: RASCUNHO/FINALIZADO; cálculo PENDENTE/CALCULADA/DESATUALIZADA. **Novo**: ativo/cancelado; diárias recalculadas a cada salvamento | recalcular substitui a composição inteira; sem tabela vigente → erro; roteiro usado em ofício não pode ser excluído (cancelar) |
 | Termo, OS | cancelar/reativar/excluir | OS com numeração anual e lacunas |
 | Plano de trabalho | RASCUNHO/GERADO | numeração anual + sufixo |
 

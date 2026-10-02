@@ -120,7 +120,8 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     pg.get_by_role("link", name=re.compile("^Emitidos")).click()
     emitidos = _total(pg)
     assert 0 < emitidos < total
-    pg.get_by_label("Ordenar por").select_option("saida")
+    pg.get_by_role("combobox", name="Ordenar por").click()
+    pg.get_by_role("option", name="Data de saída (próximas)").click()
     expect(pg).to_have_url(re.compile("ordem=saida"))
     _sem_rolagem_lateral(pg)
 
@@ -140,11 +141,12 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
 
     # Editar um rascunho e salvar.
     pg.goto("/viagens/oficios/?situacao=rascunho")
-    pg.locator(".registro__link").first.click()
+    pg.locator(".registro__link").first.click()  # o título abre o detalhe…
+    pg.get_by_role("link", name="Editar").first.click()  # …e editar é ação explícita
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
-    pg.get_by_role("button", name=re.compile("^Salvar")).click()
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    pg.get_by_role("button", name=re.compile(r"^Salvar( rascunho)?$")).click()  # "rascunho" some no celular
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     _sem_rolagem_lateral(pg)
 
     # Sair → login; a entrada automática não volta depois de sair.

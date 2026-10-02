@@ -12,6 +12,46 @@ import "./componentes/comandos.js";
 import "./componentes/abas.js";
 import "./componentes/mascara.js";
 import "./componentes/protecao.js";
+import "./componentes/acao.js";
+import "./componentes/registro.js";
+import "./componentes/progresso.js";
+import "./componentes/seletor-data.js";
+import "./componentes/seletor-hora.js";
+import "./componentes/seletor.js";
+
+// Com JavaScript, o que só serve sem ele some (ex.: "Aplicar" numa busca que já é ao vivo).
+document.querySelectorAll("[data-so-sem-js]").forEach((e) => { /** @type {HTMLElement} */ (e).hidden = true; });
+
+// Campo de senha: mostrar/ocultar (componentes/campo_senha.html).
+document.querySelectorAll("[data-alternar-senha]").forEach((b) => b.removeAttribute("hidden"));
+document.addEventListener("click", (evento) => {
+  const botao = /** @type {HTMLElement | null} */ (
+    /** @type {HTMLElement} */ (evento.target).closest("[data-alternar-senha]")
+  );
+  if (!botao) return;
+  const campo = /** @type {HTMLInputElement | null} */ (
+    document.getElementById(botao.getAttribute("aria-controls") || "")
+  );
+  if (!campo) return;
+  const mostrar = campo.type === "password";
+  campo.type = mostrar ? "text" : "password";
+  botao.setAttribute("aria-pressed", String(mostrar));
+  const rotulo = botao.querySelector(".sr-only");
+  if (rotulo) rotulo.textContent = mostrar ? "Ocultar senha" : "Mostrar senha";
+  campo.focus({ preventScroll: true });
+});
+
+// Ao salvar um registro, a lista de onde se veio acende a linha dele (registro.js).
+document.addEventListener("submit", (evento) => {
+  const form = /** @type {HTMLFormElement} */ (evento.target);
+  const chave = form.dataset.destaque;
+  if (!chave || evento.defaultPrevented) return;
+  try {
+    window.sessionStorage.setItem("pcpr-destaque", chave);
+  } catch {
+    /* armazenamento indisponível: só não há destaque */
+  }
+});
 
 // HTMX: envia o token CSRF em toda requisição e respeita prefers-reduced-motion.
 document.body.addEventListener("htmx:configRequest", (evento) => {

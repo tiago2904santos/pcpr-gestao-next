@@ -1,11 +1,15 @@
 {% load viagens %}
 {% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
-<section class="cartao" id="equipe" aria-labelledby="t-equipe">
-  <div class="cartao__cabecalho">
-    <h2 class="cartao__titulo" id="t-equipe"><span class="cartao__numero">2</span>Equipe</h2>
-    <span class="texto-secundario texto-sm">{{ viajantes|length|pluralizar:"servidor,servidores" }} · alterações salvas na hora</span>
+{% with pendencias_equipe=prontidao|pendencias_da_secao:"equipe" %}
+<section class="secao{% if not pendencias_equipe %} secao--ok{% endif %}" id="equipe" aria-labelledby="t-equipe">
+  <div class="secao__cabecalho">
+    <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">2</span>Equipe</h2>
+    <div class="secao__estado">
+      <span class="selo{% if viajantes %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}">{{ viajantes|length|pluralizar:"servidor,servidores" }}</span>
+      <span class="texto-terciario texto-xs">salva na hora</span>
+    </div>
   </div>
-  <div class="cartao__corpo pilha">
+  <div class="pilha">
     {% if erro_equipe %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro_equipe }}</p></div></div>{% endif %}
     <form method="post" action="{% url 'viagens:adicionar_viajante' oficio.pk %}" class="campo"
           hx-post="{% url 'viagens:adicionar_viajante' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
@@ -41,8 +45,9 @@
     {% else %}
       <p class="texto-secundario">Nenhum servidor na equipe ainda.</p>
     {% endif %}
-    {% for p in prontidao|pendencias_da_secao:"equipe" %}
+    {% for p in pendencias_equipe %}
       <div class="alerta {% if p.bloqueia %}alerta--perigo{% else %}alerta--aviso{% endif %}" role="note">{% icone p.bloqueia|yesno:"alert-circle,alert-triangle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}{% if not p.bloqueia %} <span class="texto-sm">(é só um aviso)</span>{% endif %}</p></div></div>
     {% endfor %}
   </div>
 </section>
+{% endwith %}

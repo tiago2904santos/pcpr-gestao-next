@@ -12,7 +12,7 @@
   </div>
   <div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'viagens:oficios' %}">{% icone "file-text" %}Todos os ofícios</a>
-    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo' %}">{% icone "plus" %}Novo ofício</a>{% endif %}
+    {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
   </div>
 </header>
 {% endblock %}
@@ -25,26 +25,24 @@
 {% block principal %}
 <section class="cartao" aria-labelledby="t-pendentes">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pendentes">Para concluir</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'viagens:oficios' %}?situacao=rascunho">Ver todos</a></div></div>
-  {% if pendentes %}<ul class="registros">{% for o in pendentes %}{% include "viagens/oficios/_registro.html" %}{% endfor %}</ul>
+  {% if pendentes %}<ul class="registros">{% for o in pendentes %}{% include "viagens/oficios/_registro.html" with vt_prefixo="r" %}{% endfor %}</ul>
   {% else %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhum rascunho pendente" texto="Tudo em dia por aqui." %}{% endif %}
 </section>
 <section class="cartao" aria-labelledby="t-proximos">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-proximos">Próximas viagens</h2></div>
-  {% if proximos %}<ul class="registros">{% for o in proximos %}{% include "viagens/oficios/_registro.html" %}{% endfor %}</ul>
+  {% if proximos %}<ul class="registros">{% for o in proximos %}{% include "viagens/oficios/_registro.html" with vt_prefixo="q" %}{% endfor %}</ul>
   {% else %}{% include "componentes/vazio.html" with icone="calendar" titulo="Nenhuma viagem programada" texto="Viagens com saída futura aparecem aqui." %}{% endif %}
 </section>
 {% endblock %}
 {% block lateral %}
 <section class="cartao" aria-labelledby="t-atalhos">
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-atalhos">Atalhos</h2></div>
-  <div class="cartao__corpo pilha-sm">
-    <a class="botao botao--bloco" href="{% url 'cadastros:servidores' %}">{% icone "users" %}Servidores</a>
-    <a class="botao botao--bloco" href="{% url 'cadastros:diarias' %}">{% icone "banknote" %}Tabela de diárias</a>
-    <button type="button" class="botao botao--bloco" data-abrir-comandos>{% icone "search" %}Buscar ofício <kbd>Ctrl K</kbd></button>
-  </div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'viagens:roteiros' %}">{% icone "route" %}Roteiros cadastrados{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'cadastros:servidores' %}">{% icone "users" %}Servidores{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'cadastros:diarias' %}">{% icone "banknote" %}Tabela de diárias{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><button type="button" class="atalho" data-abrir-comandos>{% icone "search" %}Buscar ofício <kbd>Ctrl K</kbd></button></li>
+  </ul>
 </section>
-<section class="cartao" aria-labelledby="t-regra">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-regra">Lembrete de prazo</h2></div>
-  <div class="cartao__corpo"><p class="texto-secundario texto-sm">Pedidos com 10 dias ou menos de antecedência precisam de justificativa. O sistema avisa e não deixa emitir sem ela.</p></div>
-</section>
+<aside class="lembrete" aria-label="Lembrete de prazo">{% icone "calendar-days" %}<p><strong>Prazo de 10 dias.</strong> Pedidos com 10 dias ou menos de antecedência precisam de justificativa — o sistema avisa e não deixa emitir sem ela.</p></aside>
 {% endblock %}

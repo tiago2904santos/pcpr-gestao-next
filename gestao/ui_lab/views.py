@@ -10,8 +10,17 @@ from __future__ import annotations
 
 from django import forms
 from django.core.paginator import Paginator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import render
+
+from gestao.plataforma.widgets import (
+    FORMATOS_DATA,
+    FORMATOS_DATA_HORA,
+    EntradaData,
+    EntradaDataHora,
+    EntradaHora,
+    Selecao,
+)
 
 TONS_STATUS = [
     ("Rascunho", "neutro"),
@@ -32,19 +41,36 @@ class FormularioExemplo(forms.Form):
         widget=forms.TextInput(attrs={"class": "entrada", "data-mascara": "protocolo",
                                       "inputmode": "numeric", "placeholder": "12.345.678-9"}),
     )
-    data_oficio = forms.DateField(label="Data do ofício",
-                           widget=forms.DateInput(attrs={"class": "entrada", "type": "date"}))
+    data_oficio = forms.DateField(label="Data do ofício", input_formats=FORMATOS_DATA,
+                                  widget=EntradaData())
     destino = forms.ChoiceField(
         label="Destino (órgão)",
         choices=[("", "Selecione…"), ("dga", "Gabinete do Delegado-Geral Adjunto Administrativo"),
                  ("dg", "Delegacia-Geral"), ("gaf", "Grupo Auxiliar Financeiro")],
-        widget=forms.Select(attrs={"class": "selecao"}),
+        widget=Selecao(),
     )
     observacao = forms.CharField(label="Observação", required=False,
                                  widget=forms.Textarea(attrs={"class": "area-texto", "rows": 3}))
     ciente = forms.BooleanField(
         label="Declaro que os servidores possuem cartão corporativo vigente", required=False
     )
+
+
+class FormularioSeletores(forms.Form):
+    """Calendário, relógio, data + hora e lista própria (seção 3 do laboratório)."""
+
+    data_saida = forms.DateField(label="Data de saída", input_formats=FORMATOS_DATA,
+                                 widget=EntradaData())
+    hora_saida = forms.TimeField(label="Hora de saída", widget=EntradaHora())
+    saida = forms.DateTimeField(label="Saída de Curitiba/PR", input_formats=FORMATOS_DATA_HORA,
+                                widget=EntradaDataHora())
+    ordem = forms.ChoiceField(
+        label="Ordenar por", widget=Selecao(),
+        choices=[("-numero", "Número (mais recente)"), ("numero", "Número (mais antigo)"),
+                 ("saida", "Data de saída (próximas)"), ("-saida", "Data de saída (recentes)")])
+    retorno = forms.DateTimeField(
+        label="Chegada na sede", input_formats=FORMATOS_DATA_HORA, widget=EntradaDataHora(),
+        error_messages={"invalid": "Informe data e hora, ex.: 08/10/2026 09:00."})
 
 
 MUNICIPIOS = [
@@ -55,12 +81,33 @@ MUNICIPIOS = [
 ]
 
 
+def _itinerario_exemplo() -> dict:
+    """O itinerário 2.0 de verdade (ADR 0016), com uma ida e volta de exemplo."""
+    from gestao.cadastros.models import Municipio
+    from gestao.viagens import itinerario
+
+    sede = Municipio.objects.filter(nome="Curitiba", uf="PR").first()
+    destinos = [{"uf": "PR", "cidade": "Ponta Grossa/PR", "ORDER": 1,
+                 "saida": "2026-10-08T07:00", "tempo_viagem": "02:00",
+                 "tempo_adicional": "00:15"}]
+    retorno = {"saida": "2026-10-09T16:00", "tempo_viagem": "02:00", "tempo_adicional": "00:15"}
+    itin = itinerario.com_iniciais("lab-itin", QueryDict(), destinos=destinos, retorno=retorno,
+                                   sede=sede)
+    return itin.contexto()
+
+
 def indice(request: HttpRequest) -> HttpResponse:
     form_vazio = FormularioExemplo()
+    # Prefixo: os mesmos campos aparecem duas vezes na página (padrão e erro) sem ids repetidos.
     form_erro = FormularioExemplo(
-        data={"nome": "", "protocolo": "123", "destino": ""}
+        prefix="erro", data={"erro-nome": "", "erro-protocolo": "123", "erro-destino": ""}
     )
     form_erro.is_valid()
+    form_seletores = FormularioSeletores(initial={
+        "data_saida": "08/10/2026", "hora_saida": "09:00", "saida": "2026-10-08T09:00",
+        "ordem": "-numero"})
+    form_seletores_erro = FormularioSeletores(data={"retorno_0": "10/10/2026", "retorno_1": "25"})
+    form_seletores_erro.is_valid()
     linhas = [
         {"numero": f"{n:02d}/2026", "destino": d, "servidores": s, "valor": v, "status": st}
         for n, d, s, v, st in [
@@ -81,11 +128,14 @@ def indice(request: HttpRequest) -> HttpResponse:
         "tons_status": TONS_STATUS,
         "form_vazio": form_vazio,
         "form_erro": form_erro,
+        "form_seletores": form_seletores,
+        "form_seletores_erro": form_seletores_erro,
         "linhas": linhas,
         "page_obj": pagina,
         "querystring_base": "",
         "municipios": MUNICIPIOS,
         "migalhas": [("Início", "/"), ("Design System", "/ui-lab/"), ("UI Lab", "")],
+        **_itinerario_exemplo(),
     }
     return render(request, "ui_lab/indice.html", contexto)
 

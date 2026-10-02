@@ -22,6 +22,8 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.delete_oficio",
+            "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
+            "viagens.delete_roteiro",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
             "cadastros.view_tabeladiaria", "cadastros.view_modelotexto",
         ],
@@ -32,6 +34,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.cancelar_oficio", "viagens.reabrir_oficio",
             "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.change_tabeladiaria",
+            "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
+            "viagens.delete_roteiro",
             "viagens.ver_todas_unidades", "viagens.gerir_numeracao",
             "cadastros.view_servidor", "cadastros.add_servidor", "cadastros.change_servidor",
             "cadastros.view_viatura", "cadastros.add_viatura", "cadastros.change_viatura",
@@ -40,9 +44,9 @@ PAPEIS: dict[str, Papel] = {
         ],
     },
     "CONSULTA": {
-        "descricao": "Somente leitura de ofícios e cadastros.",
+        "descricao": "Somente leitura de ofícios, roteiros e cadastros.",
         "permissoes": [
-            "viagens.view_oficio", "viagens.ver_todas_unidades",
+            "viagens.view_oficio", "viagens.ver_todas_unidades", "viagens.view_roteiro",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
         ],
     },

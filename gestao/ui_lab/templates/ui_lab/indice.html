@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/ui-lab.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
+{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
   {% include "componentes/pagina_cabecalho.html" with titulo="UI Lab" sobretitulo="Design System" icone="palette" descricao="Vitrine viva: todos os componentes em todos os estados. Hover, foco e ativo são exercitados com mouse e teclado (e pelos testes visuais automatizados)." acoes="ui_lab/_acoes_cabecalho.html" %}
@@ -18,6 +19,9 @@
       <li class="etapas__item"><a href="#tabelas"><span class="etapas__marcador">7</span>Tabelas e listas</a></li>
       <li class="etapas__item"><a href="#sobreposicoes"><span class="etapas__marcador">8</span>Diálogos e menus</a></li>
       <li class="etapas__item"><a href="#vazios"><span class="etapas__marcador">9</span>Vazio e carregando</a></li>
+      <li class="etapas__item"><a href="#foco"><span class="etapas__marcador">10</span>Foco e ação</a></li>
+      <li class="etapas__item"><a href="#conceitos"><span class="etapas__marcador">11</span>Laboratório de conceitos</a></li>
+      <li class="etapas__item"><a href="#pecas-formulario"><span class="etapas__marcador">12</span>Peças do formulário</a></li>
     </ol>
   </nav>
 
@@ -53,6 +57,15 @@
           <span><button class="botao botao--perigo-contorno" type="button">{% icone "trash-2" %}Remover</button></span>
           <span><button class="botao botao--perigo" type="button" disabled>Cancelar</button></span>
           <span><button class="botao botao--perigo" type="button" aria-busy="true"><span>Cancelando</span></button></span>
+        </div>
+        <p class="rotulo-caixa-alta rotulo-caixa-alta--marca">Linguagem de ação (ocioso → processando → concluído / recusado)</p>
+        <div class="linha" data-lab="acao">
+          <button class="botao" type="button">{% icone "save" %}<span>Salvar rascunho</span></button>
+          <button class="botao" type="button" aria-busy="true">{% icone "save" %}<span>Salvando…</span></button>
+          <button class="botao" type="button" data-estado="concluido">{% icone "check" %}<span>Salvo</span></button>
+          <button class="botao" type="button" data-estado="erro">{% icone "save" %}<span>Não salvou</span></button>
+          <button class="botao botao--texto" type="button">Ação terciária</button>
+          <button class="botao botao--primario botao--avancar" type="button"><span>Avançar</span>{% icone "arrow-right" classe="icone--seta" %}</button>
         </div>
         <div class="linha">
           <button class="botao botao--sm" type="button">Pequeno</button>
@@ -139,6 +152,10 @@
                 <label class="escolha"><input type="radio" name="marcador"> <span>Complementar</span></label>
               </div>
             </fieldset>
+            <div class="campo col-6">
+              <label class="campo__rotulo" for="lab-senha">Senha (mostrar/ocultar)</label>
+              <div class="entrada-composta entrada-composta--senha">{% icone "lock" %}<input class="entrada" id="lab-senha" type="password" value="segredo-123" autocomplete="off"><button type="button" class="entrada-composta__botao" data-alternar-senha aria-controls="lab-senha" aria-pressed="false" hidden>{% icone "eye" classe="entrada-composta__ver" %}{% icone "eye-off" classe="entrada-composta__ocultar" %}<span class="sr-only">Mostrar senha</span></button></div>
+            </div>
             <div class="col-6 pilha-sm">
               <label class="interruptor"><input type="checkbox" role="switch" checked> Vincular a um roteiro existente</label>
               <label class="interruptor"><input type="checkbox" role="switch"> Bate-volta diário</label>
@@ -151,7 +168,7 @@
 
     <!-- 3. COMBOBOX E DATA -->
     <section class="cartao" id="combobox" aria-labelledby="t-combobox">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca e data</h2></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca, data, hora e lista</h2></div>
       <div class="cartao__corpo">
         <div class="campos">
           <div class="campo col-6">
@@ -170,20 +187,11 @@
               <div class="entrada-composta">{% icone "search" %}<input id="lab-servidor" class="entrada" role="combobox" placeholder="Buscar por nome, CPF ou RG"></div>
             </pc-combobox>
           </div>
-          <div class="campo col-4">
-            <label class="campo__rotulo" for="lab-data">Data de saída</label>
-            <input class="entrada" type="date" id="lab-data" value="2026-10-08" aria-describedby="lab-data-ajuda">
-            <p class="campo__ajuda" id="lab-data-ajuda">Seletor nativo: acessível e adequado ao teclado do celular.</p>
-          </div>
-          <div class="campo col-4">
-            <label class="campo__rotulo" for="lab-hora">Hora de saída</label>
-            <input class="entrada" type="time" id="lab-hora" value="09:00">
-          </div>
-          <div class="campo col-4 campo--erro">
-            <label class="campo__rotulo" for="lab-data-erro">Data de retorno</label>
-            <input class="entrada" type="date" id="lab-data-erro" value="2026-10-01" aria-invalid="true" aria-describedby="lab-data-erro-msg">
-            <p class="campo__erro" id="lab-data-erro-msg">{% icone "alert-circle" classe="icone--sm" %}<span>O retorno não pode ser antes da saída (08/10/2026).</span></p>
-          </div>
+          {% include "componentes/campo.html" with campo=form_seletores.data_saida classe="col-3" ajuda="Calendário próprio; também aceita digitar (máscara dd/mm/aaaa)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.hora_saida classe="col-3" ajuda="Relógio: horas e minutos de 5 em 5." %}
+          {% include "componentes/campo.html" with campo=form_seletores.ordem classe="col-6" ajuda="Lista própria sobre um select comum (sem JS, vira o select)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.saida classe="col-6" ajuda="Data e hora lado a lado, como nos trechos do roteiro." %}
+          {% include "componentes/campo.html" with campo=form_seletores_erro.retorno classe="col-6" %}
         </div>
       </div>
     </section>
@@ -193,6 +201,8 @@
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-status"><span class="cartao__numero">4</span>Status, alertas e toasts</h2></div>
       <div class="cartao__corpo pilha">
         <div class="linha">{% for rotulo, tom in tons_status %}<span class="selo selo--{{ tom }}">{{ rotulo }}</span>{% endfor %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span><span class="selo selo--marca selo--processo">Gerando PDF</span><span class="selo selo--sucesso selo--carimbo">Emitido</span></div>
+        <p class="rotulo-caixa-alta rotulo-caixa-alta--marca">Linguagem de estado: a forma do marcador diz o estado antes do texto</p>
+        <div class="linha"><span class="selo selo--situacao-rascunho">Rascunho (anel vazio: incompleto)</span><span class="selo selo--sucesso selo--situacao-emitido">Emitido (✓: concluído)</span><span class="selo selo--perigo selo--situacao-cancelado">Cancelado (×: encerrado)</span><span class="selo selo--info">Vigente (ponto cheio)</span><span class="selo selo--marca selo--processo">Processando (pulso)</span></div>
         <p class="rotulo-caixa-alta rotulo-caixa-alta--marca">Placa e trilho de processo (assinatura visual)</p>
         <div class="linha">
           <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">131/2026</span></span>
@@ -260,7 +270,13 @@
             </ol>
           </div>
           <div>
-            <h3 class="subtitulo-secao">Paginação</h3>
+            <h3 class="subtitulo-secao">Etapas horizontais (assistente)</h3>
+            <ol class="etapas etapas--horizontal" aria-label="Etapas (exemplo)">
+              <li class="etapas__item etapas__item--concluida"><span><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Preencher</span></li>
+              <li class="etapas__item etapas__item--atual"><span aria-current="step"><span class="etapas__marcador">2</span>Revisar</span></li>
+              <li class="etapas__item"><span><span class="etapas__marcador">3</span>Emitir</span></li>
+            </ol>
+            <h3 class="subtitulo-secao mt-4">Paginação</h3>
             <div class="cartao">{% include "componentes/paginacao.html" %}</div>
           </div>
         </div>
@@ -293,7 +309,7 @@
       <div class="cartao__corpo--sem-respiro">
         <form class="filtros" role="search" aria-label="Filtrar ofícios (exemplo)" method="get" action="#tabelas">
           <div class="campo filtros__busca"><label class="campo__rotulo" for="lab-f-q">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-f-q" type="search" placeholder="Número, protocolo, destino ou servidor"></div></div>
-          <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></div>
+          <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><pc-select class="seletor"><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></pc-select></div>
           <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button></div>
         </form>
         <div class="filtros-ativos"><span class="texto-secundario">Filtros:</span><a class="ficha" href="#tabelas">Situação: Emitido {% icone "x" %}<span class="sr-only">remover filtro</span></a><a class="ficha" href="#tabelas">Ano: 2026 {% icone "x" %}<span class="sr-only">remover filtro</span></a></div>
@@ -322,13 +338,13 @@
         <ul class="registros" aria-label="Lista de registros (exemplo)">
           <li class="registro">
             <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">131/2026</span></span>
-            <div><div class="registro__titulo"><a class="registro__link" href="#tabelas"><span class="sr-only">Ofício 131/2026 · </span>Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso">Emitido</span><span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
+            <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#tabelas"><span class="sr-only">Ofício 131/2026 · </span>Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso">Emitido</span><span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 7 dias</span></div>
               <div class="registro__meta"><span class="registro__meta-item">{% icone "users" classe="icone--sm" %}Ana B. Correia Lima, Bruno H. Martins (motorista)</span><span class="registro__meta-item">{% icone "car" classe="icone--sm" %}Renault Master · ABC-1234</span><span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}R$ 2.411,56 · 4 × 100% + 1 × 15%</span></div></div>
             <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do ofício 131/2026">{% icone "ellipsis-vertical" %}</button></div>
           </li>
           <li class="registro">
             <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">128/2026</span></span>
-            <div><div class="registro__titulo"><a class="registro__link" href="#tabelas"><span class="sr-only">Ofício 128/2026 · </span>Sem destino</a><span class="selo">Rascunho</span></div>
+            <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#tabelas"><span class="sr-only">Ofício 128/2026 · </span>Sem destino</a><span class="selo">Rascunho</span></div>
               <div class="registro__meta"><span class="registro__meta-item registro__meta-item--vazio">{% icone "map-pin" classe="icone--sm" %}Sem roteiro</span><span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span></div></div>
             <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do ofício 128/2026">{% icone "ellipsis-vertical" %}</button></div>
           </li>
@@ -371,6 +387,121 @@
         <div class="cartao cartao__corpo linha">{% icone "loader-circle" classe="girando" %}<span role="status">Calculando diárias…</span></div>
       </div>
     </section>
+
+    <!-- 12. PEÇAS DO FORMULÁRIO DO OFÍCIO -->
+    <section class="cartao" id="pecas-formulario" aria-labelledby="t-pecas">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pecas"><span class="cartao__numero">12</span>Peças do formulário do ofício</h2></div>
+      <div class="cartao__corpo pilha-lg">
+        <fieldset class="opcoes" data-lab="opcoes">
+          <legend>Cartões de escolha (rádio nativo; teclado com setas)</legend>
+          <label class="opcao" for="lab-op-1"><input type="radio" name="lab-op" id="lab-op-1" checked><span class="opcao__icone" aria-hidden="true">{% icone "car" %}</span><span class="opcao__texto"><span class="opcao__titulo">Viatura oficial</span><span class="opcao__descricao">Escolha pela placa ou pelo modelo</span></span></label>
+          <label class="opcao" for="lab-op-2"><input type="radio" name="lab-op" id="lab-op-2"><span class="opcao__icone" aria-hidden="true">{% icone "bus" %}</span><span class="opcao__texto"><span class="opcao__titulo">Outro meio</span><span class="opcao__descricao">Ônibus, avião, veículo cedido…</span></span></label>
+          <label class="opcao" for="lab-op-3"><input type="radio" name="lab-op" id="lab-op-3" disabled><span class="opcao__icone" aria-hidden="true">{% icone "plane" %}</span><span class="opcao__texto"><span class="opcao__titulo">Indisponível</span><span class="opcao__descricao">Estado desabilitado</span></span></label>
+        </fieldset>
+        <label class="interruptor interruptor--descrito" for="lab-interruptor"><input type="checkbox" role="switch" id="lab-interruptor" aria-describedby="lab-interruptor-ajuda" checked><span>Interruptor com descrição<span class="escolha__descricao" id="lab-interruptor-ajuda">Para sim/não com efeito no documento.</span></span></label>
+        <form id="lab-itin" class="pilha" novalidate aria-label="Itinerário (exemplo)">{{ destinos.management_form }}</form>
+        {% include "viagens/_itinerario.html" %}
+        <div class="conferencia">
+          <p class="conferencia__titulo">{% icone "list-checks" %}2 itens faltam para emitir</p>
+          <ul class="conferencia__itens" aria-label="Situação das seções (exemplo)"><li class="conferencia__item conferencia__item--ok">Dados</li><li class="conferencia__item conferencia__item--ok">Equipe</li><li class="conferencia__item">Roteiro</li><li class="conferencia__item">Justificativa</li></ul>
+          <div class="conferencia__acoes"><button type="button" class="botao">{% icone "printer" %}Ver minuta (PDF)</button></div>
+        </div>
+        <div class="conferencia conferencia--pronta">
+          <p class="conferencia__titulo">{% icone "stamp" %}Tudo pronto para emitir</p>
+          <div class="conferencia__acoes"><button type="button" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button></div>
+        </div>
+        <details class="divulgacao"><summary>{% icone "plus" classe="icone--sm" %}Incluir justificativa mesmo assim (opcional)</summary><div class="divulgacao__corpo"><p class="texto-secundario">Conteúdo revelado sob demanda, sem caixa.</p></div></details>
+      </div>
+    </section>
+
+    <!-- 10. FOCO E AÇÃO -->
+    <section class="cartao" id="foco" aria-labelledby="t-foco">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-foco"><span class="cartao__numero">10</span>Sistema de foco e microinterações</h2></div>
+      <div class="cartao__corpo pilha">
+        <p class="texto-secundario">Percorra com <kbd>Tab</kbd>: o anel é grafite com halo claro (nunca o azul do navegador); sobre o grafite vira dourado; campos acendem em vez de ganhar anel externo. Tokens <code>--foco-*</code>.</p>
+        <div class="linha" data-lab="foco">
+          <a class="botao botao--primario" href="#foco">Link-botão</a>
+          <button class="botao" type="button">Botão</button>
+          <button class="botao botao--marca" type="button">Marca</button>
+          <button class="botao botao--icone" type="button" aria-label="Botão-ícone">{% icone "bell" %}</button>
+          <a href="#foco">Link no texto</a>
+          <label class="escolha"><input type="checkbox"> <span>Caixa</span></label>
+          <label class="escolha"><input type="radio" name="lab-foco"> <span>Rádio</span></label>
+          <label class="interruptor"><input type="checkbox" role="switch"> Interruptor</label>
+        </div>
+        <div class="superficie-escura lab__escuro linha">
+          <span class="rotulo-caixa-alta lab__escuro-rotulo">Sobre superfície escura</span>
+          <button class="cabecalho__botao" type="button" aria-label="Notificações (exemplo)">{% icone "bell" %}</button>
+          <a class="botao botao--marca" href="#foco">Entrar</a>
+          <a class="lab__link-claro" href="#foco">Link claro</a>
+        </div>
+        <div class="campos lab__estreito">
+          <div class="campo"><label class="campo__rotulo" for="lab-foco-campo">Campo aceso</label><input class="entrada" id="lab-foco-campo" placeholder="Foque para ver"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. LABORATÓRIO DE CONCEITOS -->
+    <section class="cartao" id="conceitos" aria-labelledby="t-conceitos">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-conceitos"><span class="cartao__numero">11</span>Laboratório de conceitos (A / B / C)</h2><span class="texto-secundario texto-sm">Três abordagens por componente; a escolhida está marcada. As descartadas ficam aqui como registro da exploração (docs/design-system/explorations.md).</span></div>
+      <div class="cartao__corpo pilha-lg">
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Botão de ação</h3>
+          <div class="lab__opcoes">
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Pílula com toast</p><button class="botao" type="button">{% icone "save" %}Salvar</button><p class="lab__opcao-nota">Feedback fora do botão; o operador olha para outro lugar.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Linguagem de ação</p><div class="linha"><button class="botao" type="button" aria-busy="true"><span>Salvando</span></button><button class="botao" type="button" data-estado="concluido">{% icone "check" %}<span>Salvo</span></button></div><p class="lab__opcao-nota">Processa e confirma no próprio lugar; largura estável; recusa balança.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Barra de progresso interna</p><button class="botao lab-botao-progresso" type="button"><span>Salvando</span></button><p class="lab__opcao-nota">Progresso falso (não há etapas reais); descartado.</p></div>
+          </div>
+        </div>
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Status</h3>
+          <div class="lab__opcoes">
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Pílula só por cor</p><div class="linha"><span class="selo">Rascunho</span><span class="selo selo--sucesso">Emitido</span><span class="selo selo--perigo">Cancelado</span></div><p class="lab__opcao-nota">Depende de ler; cor não diferencia estado de progresso.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Forma do marcador</p><div class="linha"><span class="selo selo--situacao-rascunho">Rascunho</span><span class="selo selo--sucesso selo--situacao-emitido">Emitido</span><span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span></div><p class="lab__opcao-nota">Anel vazio / ✓ / × — entende-se de relance; a mesma gramática no trilho e no progresso.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Só trilho</p><ol class="processo"><li class="processo__passo processo__passo--feito">Rascunho</li><li class="processo__passo processo__passo--atual">Emitido</li></ol><p class="lab__opcao-nota">Ótimo no detalhe, largo demais na lista; mantido só no detalhe.</p></div>
+          </div>
+        </div>
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Campo de texto</h3>
+          <div class="lab__opcoes">
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">A · Caixa branca, rótulo na borda</p><div class="campo"><label class="campo__rotulo" for="lab-a">Protocolo</label><input class="entrada" id="lab-a" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Escolhida na 3ª rodada: é a linguagem do sistema de referência, que os usuários já leem sem esforço. A identidade fica no foco (borda grafite + halo dourado) e no rótulo que acende.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">B · Linha de papel</p><div class="campo"><label class="campo__rotulo" for="lab-b">Protocolo</label><input class="entrada lab-campo-linha" id="lab-b" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Bonito em formulários curtos; em grades densas o alvo some. Descartado.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Campo aceso</p><div class="campo"><label class="campo__rotulo" for="lab-c">Protocolo</label><input class="entrada lab-campo-tingido" id="lab-c" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Área tingida em repouso; ao focar fica branco, borda grafite, halo dourado — e o rótulo acende.</p></div>
+          </div>
+        </div>
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Registro de lista</h3>
+          <div class="lab__opcoes lab__opcoes--largas">
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Linha com ícone</p><ul class="registros"><li class="registro"><span class="registro__icone">{% icone "file-text" %}</span><div><div class="registro__titulo"><a class="registro__link" href="#conceitos">Ofício 131/2026 · Arapongas/PR</a><span class="selo selo--sucesso">Emitido</span></div></div></li></ul><p class="lab__opcao-nota">Número perdido no título; ícone genérico.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Placa + grupo + expansão</p><ul class="registros"><li class="registros__grupo">Outubro de 2026</li><li class="registro registro--aberto"><span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">131/2026</span></span><div><div class="registro__titulo"><a class="registro__link" href="#conceitos">Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso selo--situacao-emitido">Emitido</span></div></div><div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil registro__expandir" aria-expanded="true" aria-label="Ocultar resumo">{% icone "chevron-down" %}</button></div><div class="registro__extra"><div class="registro__extra-corpo"><div class="resumo"><div><p class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</p><ol class="resumo__lista"><li class="resumo__trecho"><span>Curitiba/PR → Arapongas/PR</span><time>08/10 07:00</time></li></ol></div><div><p class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</p><ul class="resumo__lista"><li>Ana Beatriz Correia Lima</li></ul></div><div><p class="resumo__titulo">{% icone "files" classe="icone--sm" %}Documentos</p><ul class="resumo__lista"><li><a href="#conceitos">Ofício v1</a></li></ul></div></div></div></div></li></ul><p class="lab__opcao-nota">Leitura rápida pelo número, grupos por mês, resumo sem sair da lista.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Tabela densa</p><table class="tabela tabela--compacta lab-tabela-densa"><thead><tr><th>Nº</th><th>Destino</th><th>Situação</th></tr></thead><tbody><tr><td>131/2026</td><td>Arapongas/PR</td><td><span class="selo selo--sucesso">Emitido</span></td></tr><tr><td>130/2026</td><td>Campo Grande/MS</td><td><span class="selo">Rascunho</span></td></tr></tbody></table><p class="lab__opcao-nota">Mais linhas por tela, mas perde equipe/transporte sem rolagem horizontal no celular. Descartado.</p></div>
+          </div>
+        </div>
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Progresso do formulário (stepper)</h3>
+          <div class="lab__opcoes lab__opcoes--largas">
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Índice lateral fixo</p><ol class="etapas lab__estreito"><li class="etapas__item etapas__item--concluida"><span><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Dados</span></li><li class="etapas__item etapas__item--pendente"><span><span class="etapas__marcador">2</span>Equipe</span></li></ol><p class="lab__opcao-nota">Painel lateral estreito que comprime o formulário. Descartado.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Faixa de progresso</p><nav class="progresso" aria-label="Exemplo"><ol class="progresso__etapas"><li class="progresso__etapa progresso__etapa--ok"><a href="#conceitos">Dados</a></li><li class="progresso__etapa progresso__etapa--bloqueia"><a href="#conceitos">Equipe</a></li><li class="progresso__etapa progresso__etapa--pendente"><a href="#conceitos">Roteiro</a></li><li class="progresso__etapa"><a href="#conceitos">Emissão</a></li></ol><div class="progresso__medida"><progress class="progresso__barra" value="1" max="3" aria-label="Seções prontas"></progress><span>1 de 3 seções prontas</span></div></nav><p class="lab__opcao-nota">Ocupa uma linha, mostra o quanto falta e a forma de cada seção; o formulário respira.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Só barra</p><progress class="progresso__barra lab-progresso-larga" value="4" max="6" aria-label="Exemplo"></progress><p class="lab__opcao-nota">Diz "quanto" mas não "o quê". Descartado.</p></div>
+          </div>
+        </div>
+
+        <div class="lab__conceito">
+          <h3 class="lab__conceito-titulo">Linha do tempo</h3>
+          <div class="lab__opcoes lab__opcoes--largas">
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Vertical em painel lateral</p><ol class="linha-tempo lab__estreito"><li class="linha-tempo__item linha-tempo__item--marca"><span class="linha-tempo__marcador">{% icone "stamp" %}</span><div><p class="linha-tempo__titulo">Emitido</p><p class="linha-tempo__meta">01/10 10:09</p></div></li><li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "circle-dot" %}</span><div><p class="linha-tempo__titulo">Dados alterados</p><p class="linha-tempo__meta">01/10 09:17</p></div></li></ol><p class="lab__opcao-nota">Rouba 20rem de largura do documento. Descartado.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Colunas + disclosure</p><ol class="linha-tempo linha-tempo--colunas"><li class="linha-tempo__item linha-tempo__item--marca"><span class="linha-tempo__marcador">{% icone "stamp" %}</span><div><p class="linha-tempo__titulo">Emitido</p><p class="linha-tempo__meta">01/10 10:09</p></div></li><li class="linha-tempo__item"><span class="linha-tempo__marcador">{% icone "circle-dot" %}</span><div><p class="linha-tempo__titulo">Dados alterados</p><p class="linha-tempo__meta">01/10 09:17</p></div></li></ol><details><summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo (10 eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary></details><p class="lab__opcao-nota">Abaixo do documento, em duas colunas; o resto sob demanda.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Linha única compacta</p><p class="lab-tempo-compacta"><span>01/10 10:09 Emitido</span> · <span>09:17 Dados alterados</span> · <span>09:12 Equipe</span></p><p class="lab__opcao-nota">Compacta demais para auditoria. Descartado.</p></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
   </div>
 </div>
 
@@ -383,9 +514,9 @@
 <dialog id="lab-gaveta" class="dialogo gaveta" aria-labelledby="lab-gaveta-titulo">
   <div class="dialogo__cabecalho"><h2 class="dialogo__titulo" id="lab-gaveta-titulo">Filtros avançados</h2><button class="botao botao--icone botao--sutil" type="button" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button></div>
   <div class="dialogo__corpo pilha">
-    <div class="campo"><label class="campo__rotulo" for="lab-g-1">Período: de</label><input class="entrada" type="date" id="lab-g-1"></div>
-    <div class="campo"><label class="campo__rotulo" for="lab-g-2">até</label><input class="entrada" type="date" id="lab-g-2"></div>
-    <div class="campo"><label class="campo__rotulo" for="lab-g-3">Unidade</label><select class="selecao" id="lab-g-3"><option>Todas</option></select></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-1">Período: de</label><pc-data class="seletor"><input class="entrada" id="lab-g-1" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-2">até</label><pc-data class="seletor"><input class="entrada" id="lab-g-2" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-3">Unidade</label><pc-select class="seletor"><select class="selecao" id="lab-g-3"><option>Todas</option><option>ASCOM</option><option>DPC</option></select></pc-select></div>
   </div>
   <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Limpar</button><button class="botao botao--primario" type="button" data-fechar-dialogo>Aplicar</button></div>
 </dialog>

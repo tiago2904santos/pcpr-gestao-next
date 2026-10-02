@@ -36,8 +36,14 @@ Telas citadas da referência são descritas por função (não por implementaç�
   ida/volta, "como foi calculado", histórico, cálculo de rota (OpenRouteService), cache de
   distâncias, autosave.
 - **Novo**: trechos embutidos no ofício (até 10 destinos + retorno); cálculo no domínio puro
-  `gestao/viagens/dominio/diarias.py`, gravado como instantâneo no ofício.
-- **Situação**: **Parcial** — roteiro reutilizável, mapa, km e tempo sugerido: planejado.
+  `gestao/viagens/dominio/diarias.py`, gravado como instantâneo no ofício. **Roteiros
+  cadastrados** (`Roteiro`, `TrechoRoteiro`): lista com abas (todos, que vão acontecer, em
+  andamento e realizados, cancelados) e busca; cadastro com o mesmo itinerário do ofício,
+  efetivo (quantidade de servidores) e diárias estimadas; no ofício, "Usar um roteiro
+  cadastrado" preenche os trechos e "Criar ofício com este roteiro" cria o rascunho já com
+  eles (ADR 0015).
+- **Situação**: **Parcial** — mapa, km, tempo de viagem sugerido e a aba "Finalizados":
+  planejado / decisão pendente.
 
 ## Viagens — Cadastros
 

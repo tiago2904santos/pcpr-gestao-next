@@ -27,6 +27,9 @@ bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.
 | Reabrir emitido (`reabrir_oficio`) | — | ✓ | — | — |
 | Cancelar (`cancelar_oficio`) | — | ✓ | — | — |
 | Gerir numeração (`gerir_numeracao`) | — | ✓ (sem tela ainda) | — | — |
+| Ver roteiros (`view_roteiro`) | ✓ (só da unidade) | ✓ | ✓ | — |
+| Criar/alterar/cancelar roteiros (`add_roteiro`, `change_roteiro`) | ✓ | ✓ | — | — |
+| Excluir roteiro não usado (`delete_roteiro`) | ✓ | ✓ | — | — |
 | Ver servidores, viaturas, unidades | ✓ | ✓ | ✓ | — |
 | Criar/alterar servidores, viaturas, unidades | — | ✓ | — | — |
 | Ver tabela de diárias | ✓ | ✓ | — | — |

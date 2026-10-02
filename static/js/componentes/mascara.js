@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Máscaras leves por atributo: `data-mascara="protocolo|cpf|placa"`.
+ * Máscaras leves por atributo: `data-mascara="protocolo|cpf|data|hora"`.
  * O servidor valida e normaliza de novo — a máscara é só conforto de digitação.
  */
 const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
@@ -12,6 +12,13 @@ const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
       .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
       .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
   },
+  // Data e hora: a barra/os dois-pontos entram quando chega o dígito seguinte (apagar
+  // continua natural) e o que a pessoa digitou ("8/10/2026") é respeitado.
+  data: (v) =>
+    v.replace(/[^\d/]/g, "").slice(0, 10)
+      .replace(/^(\d{2})(\d)/, "$1/$2")
+      .replace(/^(\d{1,2}\/)(\d{2})(\d)/, "$1$2/$3"),
+  hora: (v) => v.replace(/[^\d:]/g, "").slice(0, 5).replace(/^(\d{2})(\d)/, "$1:$2"),
   cpf: (d) => {
     const v = d.replace(/\D/g, "").slice(0, 11);
     return v

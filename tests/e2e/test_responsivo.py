@@ -22,6 +22,9 @@ SOBREPOSICAO_JS = """() => {
     const a = alvos[i].getBoundingClientRect();
     for (let j = i + 1; j < alvos.length; j++) {
       if (alvos[i].contains(alvos[j]) || alvos[j].contains(alvos[i])) continue;
+      // Botão do calendário/relógio/mostrar senha dentro do próprio campo: sobreposição intencional.
+      const seletor = alvos[i].closest('.seletor, .entrada-composta--senha');
+      if (seletor && seletor === alvos[j].closest('.seletor, .entrada-composta--senha')) continue;
       const b = alvos[j].getBoundingClientRect();
       const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
       const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);

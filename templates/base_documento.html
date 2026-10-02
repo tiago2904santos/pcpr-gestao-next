@@ -24,8 +24,16 @@
   <link rel="modulepreload" href="{% static 'js/componentes/abas.js' %}">
   <link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}">
   <link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/acao.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/registro.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}">
+  <link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}">
   <script src="{% static 'vendor/htmx.min.js' %}" defer nonce="{{ csp_nonce }}"></script>
   <script type="module" src="{% static 'js/app.js' %}" nonce="{{ csp_nonce }}"></script>
+  {% block modulos %}{% endblock %}
 </head>
 <body class="{% block classe_body %}{% endblock %}" hx-headers='{"X-Requested-With": "htmx"}'>
   {% block corpo %}{% endblock %}

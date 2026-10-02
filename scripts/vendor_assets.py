@@ -1,6 +1,7 @@
 """Copia dependências de front-end do node_modules para static/ (sem CDN).
 
 - htmx.min.js  → static/vendor/
+- Leaflet (BSD-2) → static/vendor/leaflet/ (carregado sob demanda pelo mapa do itinerário)
 - axe.min.js   → tests/_vendor/ (somente testes; nunca servido)
 - Inter (variável, subconjunto latino, OFL) → static/fonts/
 - ícones Lucide usados pelo sistema → static/icons/sprite.svg (um único request,
@@ -32,6 +33,7 @@ ICONES = sorted({
     "shield-alert", "sliders-horizontal", "sun", "trash-2", "user", "user-round",
     "users", "x", "x-circle", "wallet", "landmark", "palette", "command", "keyboard",
     "bus", "plane", "receipt", "scale", "server-crash", "ban", "undo-2", "stamp",
+    "grip-vertical", "flag", "timer", "navigation",
 })
 
 
@@ -55,13 +57,18 @@ def sprite() -> str:
 def main() -> None:
     (RAIZ / "static/vendor").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "htmx.org/dist/htmx.min.js", RAIZ / "static/vendor/htmx.min.js")
+    leaflet = RAIZ / "static/vendor/leaflet"
+    leaflet.mkdir(parents=True, exist_ok=True)
+    for arquivo in ("leaflet.js", "leaflet.css"):
+        shutil.copy(NODE / "leaflet/dist" / arquivo, leaflet / arquivo)
+    shutil.copy(NODE / "leaflet/LICENSE", leaflet / "LICENSE")
     (RAIZ / "tests/_vendor").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "axe-core/axe.min.js", RAIZ / "tests/_vendor/axe.min.js")
     (RAIZ / "static/icons/sprite.svg").write_text(sprite())
     (RAIZ / "static/fonts").mkdir(parents=True, exist_ok=True)
     shutil.copy(NODE / "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
                 RAIZ / "static/fonts/inter-latin-wght-normal.woff2")
-    print(f"OK: htmx, axe-core e {len(ICONES)} ícones.")
+    print(f"OK: htmx, Leaflet, axe-core e {len(ICONES)} ícones.")
 
 
 if __name__ == "__main__":

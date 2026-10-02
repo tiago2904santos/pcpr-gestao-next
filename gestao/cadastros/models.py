@@ -136,6 +136,9 @@ class Municipio(models.Model):
     codigo_ibge = models.CharField("código IBGE", max_length=7, unique=True)
     nome = models.CharField("nome", max_length=120)
     uf = models.CharField("UF", max_length=2)
+    # Sede municipal (dados/municipios_coordenadas.csv): mapa e estimativa de distância.
+    latitude = models.DecimalField(max_digits=7, decimal_places=4, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=7, decimal_places=4, null=True, blank=True)
 
     class Meta:
         ordering = ["nome"]

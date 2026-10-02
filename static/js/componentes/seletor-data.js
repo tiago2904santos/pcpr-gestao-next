@@ -1,0 +1,178 @@
+// @ts-check
+/**
+ * <pc-data> — campo dd/mm/aaaa com calendário próprio (padrão "Date Picker Dialog" do
+ * WAI-ARIA APG). Teclado na grade: setas (dia/semana), Home/End (início/fim da semana),
+ * PageUp/PageDown (mês; com Shift, ano), Enter/Espaço escolhem, Esc fecha.
+ */
+import { SeletorFlutuante } from "./seletor-base.js";
+
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
+  "setembro", "outubro", "novembro", "dezembro"];
+const SEMANA = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira",
+  "sexta-feira", "sábado"];
+
+/** @param {number} n */
+const dois = (n) => String(n).padStart(2, "0");
+/** @param {Date} d */
+const formatar = (d) => `${dois(d.getDate())}/${dois(d.getMonth() + 1)}/${d.getFullYear()}`;
+/** @param {Date} a @param {Date} b */
+const mesmoDia = (a, b) => a.toDateString() === b.toDateString();
+
+/** "8/10/2026" → Date (ou null se não for uma data real). @param {string} texto */
+function lerData(texto) {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(texto.trim());
+  if (!m) return null;
+  const [dia, mes, ano] = [Number(m[1]), Number(m[2]) - 1, Number(m[3])];
+  const d = new Date(ano, mes, dia);
+  return d.getDate() === dia && d.getMonth() === mes ? d : null;
+}
+
+/** Soma meses mantendo o dia (31/01 + 1 mês → 28 ou 29/02). @param {Date} d @param {number} n */
+function somarMeses(d, n) {
+  const alvo = new Date(d.getFullYear(), d.getMonth() + n, 1);
+  const ultimo = new Date(alvo.getFullYear(), alvo.getMonth() + 1, 0).getDate();
+  alvo.setDate(Math.min(d.getDate(), ultimo));
+  return alvo;
+}
+
+export class PcData extends SeletorFlutuante {
+  classePainel = "calendario";
+  textoBotao = "Escolher data";
+  foco = new Date();
+
+  montar() {
+    const painel = /** @type {HTMLElement} */ (this.painel);
+    const entrada = /** @type {HTMLInputElement} */ (this.entrada);
+    this.foco = lerData(entrada.value) || new Date();
+    if (!this.grade) {
+      const topo = document.createElement("div");
+      topo.className = "calendario__topo";
+      const anterior = this.botaoDoPainel("", "calendario__nav", () => this.mudarMes(-1));
+      anterior.setAttribute("aria-label", "Mês anterior");
+      anterior.append(this.icone("chevron-left"));
+      const proximo = this.botaoDoPainel("", "calendario__nav", () => this.mudarMes(1));
+      proximo.setAttribute("aria-label", "Próximo mês");
+      proximo.append(this.icone("chevron-right"));
+      this.titulo = document.createElement("p");
+      this.titulo.className = "calendario__mes";
+      this.titulo.id = `${painel.id}-mes`;
+      this.titulo.setAttribute("aria-live", "polite");
+      topo.append(anterior, this.titulo, proximo);
+
+      const grade = document.createElement("table");
+      grade.className = "calendario__grade";
+      grade.setAttribute("role", "grid");
+      grade.setAttribute("aria-labelledby", this.titulo.id);
+      const cabeca = grade.createTHead().insertRow();
+      SEMANA.forEach((nome) => {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.abbr = nome;
+        th.textContent = nome[0].toUpperCase();
+        cabeca.append(th);
+      });
+      this.corpo = grade.createTBody();
+      this.corpo.addEventListener("keydown", (e) => this.teclado(e));
+      this.corpo.addEventListener("click", (e) => {
+        const td = /** @type {HTMLElement} */ (e.target).closest("td");
+        if (td?.dataset.data) this.escolher(new Date(`${td.dataset.data}T12:00`));
+      });
+      this.grade = grade;
+
+      const rodape = document.createElement("div");
+      rodape.className = "calendario__rodape";
+      rodape.append(
+        this.botaoDoPainel("Hoje", "botao botao--sm botao--texto", () => this.escolher(new Date())),
+        this.botaoDoPainel("Limpar", "botao botao--sm botao--texto", () => {
+          this.escrever("");
+          this.fechar(true);
+        }),
+      );
+      painel.append(topo, grade, rodape);
+    }
+    this.renderizar();
+  }
+
+  renderizar() {
+    const corpo = /** @type {HTMLTableSectionElement} */ (this.corpo);
+    const entrada = /** @type {HTMLInputElement} */ (this.entrada);
+    const escolhida = lerData(entrada.value);
+    const hoje = new Date();
+    const [ano, mes] = [this.foco.getFullYear(), this.foco.getMonth()];
+    const nomeMes = MESES[mes];
+    /** @type {HTMLElement} */ (this.titulo).textContent = `${nomeMes[0].toUpperCase()}${nomeMes.slice(1)} de ${ano}`;
+    const inicio = new Date(ano, mes, 1);
+    inicio.setDate(1 - inicio.getDay());
+    corpo.replaceChildren();
+    for (let semana = 0; semana < 6; semana += 1) {
+      const linha = corpo.insertRow();
+      for (let dia = 0; dia < 7; dia += 1) {
+        const d = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + semana * 7 + dia);
+        const td = linha.insertCell();
+        td.textContent = String(d.getDate());
+        td.dataset.data = `${d.getFullYear()}-${dois(d.getMonth() + 1)}-${dois(d.getDate())}`;
+        td.setAttribute("aria-label", `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}, ${SEMANA[d.getDay()]}`);
+        td.tabIndex = mesmoDia(d, this.foco) ? 0 : -1;
+        if (d.getMonth() !== mes) td.className = "calendario__fora";
+        if (mesmoDia(d, hoje)) td.setAttribute("aria-current", "date");
+        td.setAttribute("aria-selected", String(Boolean(escolhida && mesmoDia(d, escolhida))));
+      }
+    }
+  }
+
+  focarInicial() {
+    /** @type {HTMLElement | null | undefined} */ (this.corpo?.querySelector("td[tabindex='0']"))?.focus();
+  }
+
+  /** @param {Date} nova */
+  irPara(nova) {
+    const mudouMes = nova.getMonth() !== this.foco.getMonth() || nova.getFullYear() !== this.foco.getFullYear();
+    this.foco = nova;
+    if (mudouMes) this.renderizar();
+    else {
+      this.corpo?.querySelectorAll("td").forEach((td) => {
+        td.tabIndex = td.dataset.data === `${nova.getFullYear()}-${dois(nova.getMonth() + 1)}-${dois(nova.getDate())}` ? 0 : -1;
+      });
+    }
+    this.focarInicial();
+  }
+
+  /** @param {number} n */
+  mudarMes(n) {
+    this.foco = somarMeses(this.foco, n);
+    this.renderizar();
+  }
+
+  /** @param {KeyboardEvent} e */
+  teclado(e) {
+    const d = this.foco;
+    /** @param {number} n */
+    const dias = (n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    /** @type {Record<string, () => Date>} */
+    const acoes = {
+      ArrowLeft: () => dias(-1),
+      ArrowRight: () => dias(1),
+      ArrowUp: () => dias(-7),
+      ArrowDown: () => dias(7),
+      Home: () => dias(-d.getDay()),
+      End: () => dias(6 - d.getDay()),
+      PageUp: () => somarMeses(d, e.shiftKey ? -12 : -1),
+      PageDown: () => somarMeses(d, e.shiftKey ? 12 : 1),
+    };
+    if (acoes[e.key]) {
+      e.preventDefault();
+      this.irPara(acoes[e.key]());
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      this.escolher(d);
+    }
+  }
+
+  /** @param {Date} d */
+  escolher(d) {
+    this.escrever(formatar(d));
+    this.fechar(true);
+  }
+}
+
+customElements.define("pc-data", PcData);

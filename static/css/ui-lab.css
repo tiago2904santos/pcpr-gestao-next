@@ -35,3 +35,307 @@
 @media (max-width: 767.98px) {
   .lab__matriz { grid-template-columns: 6rem repeat(4, max-content); }
 }
+
+/* ---- Laboratório de conceitos (só na vitrine) ---- */
+.lab__conceito-titulo {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.lab__opcoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4);
+}
+
+.lab__opcoes--largas {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lab__opcao {
+  padding: var(--esp-4);
+  border: 1px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-lg);
+}
+
+.lab__opcao--escolhida {
+  border: 1px solid var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+}
+
+.lab__opcao-rotulo {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.lab__opcao--escolhida .lab__opcao-rotulo {
+  color: var(--cor-marca-texto);
+}
+
+.lab__opcao--escolhida .lab__opcao-rotulo::after {
+  content: " · escolhida";
+}
+
+.lab__opcao-nota {
+  margin-top: var(--esp-3);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.lab__escuro {
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--shell-cabecalho-fundo-escuro);
+  color: var(--cor-texto-inverso);
+}
+
+.lab__escuro-rotulo { color: var(--cor-texto-inverso-sutil); }
+.lab__link-claro { color: var(--dourado-300); }
+
+/* Conceitos descartados (ficam só aqui, para registro). */
+.lab-botao-progresso { background: linear-gradient(90deg, var(--cor-marca-fundo) 60%, var(--cor-superficie) 60%); }
+.lab-campo-tingido { background: var(--cor-superficie-sutil); }
+.lab-campo-linha { border-radius: 0; border-width: 0 0 1px; background: transparent; padding-left: 0; }
+.lab-tabela-densa td, .lab-tabela-densa th { padding: var(--esp-1) var(--esp-2); }
+.lab-progresso-larga { width: 100%; }
+.lab-tempo-compacta { font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+
+@media (max-width: 767.98px) {
+  .lab__opcoes { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- Catálogo: componentes do Design System ainda sem uso nas telas do produto ----
+   Ficam só na vitrine para não pesar no CSS compartilhado; ao usar numa tela, mova o bloco
+   de volta para components.css. ---- */
+.filtros-ativos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-5);
+  border-bottom: var(--borda);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-sm);
+}
+
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-05) var(--esp-1) var(--esp-05) var(--esp-2);
+  border: var(--borda);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.ficha:hover {
+  border-color: var(--cor-borda-forte);
+  text-decoration: none;
+}
+
+.ficha .icone {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cor-texto-secundario);
+}
+
+.tabela__ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+}
+
+.tabela th[aria-sort="ascending"],
+.tabela th[aria-sort="descending"] {
+  color: var(--cor-marca-texto);
+}
+
+.tabela__secundario {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Linha da tabela inteira clicável sem quebrar semântica:
+   o link principal estende a área com ::after. */
+.tabela--linhas-clicaveis tbody tr {
+  position: relative;
+}
+
+.tabela--linhas-clicaveis .tabela__principal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tabela--linhas-clicaveis .tabela__acao {
+  position: relative;
+  z-index: 1;
+}
+
+/* Grupo de rádios/caixas: uma opção por linha; `--linha` lado a lado quando couber. */
+.escolhas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--esp-2);
+}
+
+.escolhas--linha {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-6);
+}
+
+fieldset.grupo-campos {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+fieldset.grupo-campos > legend {
+  padding: 0;
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* Ação direcional ("Avançar", "Entrar"): a seta anda e o rótulo fica. */
+.botao--avancar > .icone:last-child {
+  margin-right: calc(-1 * var(--esp-1));
+}
+
+/* Título de seção institucional: ícone dourado + caixa alta (DNA). */
+.cartao__titulo--institucional {
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.cartao__titulo--institucional .icone {
+  color: var(--cor-marca-texto);
+}
+
+/* =============== Prévia de documento =============== */
+.previa-documento {
+  padding: var(--esp-6);
+  border-radius: var(--raio-md);
+  background: var(--neutro-200);
+  overflow: auto;
+}
+
+.previa-documento iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: var(--neutro-0);
+}
+
+/* Seção de formulário em foco: trilho dourado à esquerda diz "você está aqui". */
+.layout-formulario .cartao:focus-within {
+  box-shadow: var(--sombra-cartao-hover), inset var(--filete) 0 0 var(--cor-marca);
+}
+
+.layout-formulario .cartao:focus-within .cartao__numero {
+  background: var(--cor-marca);
+  color: var(--grafite-950);
+}
+
+/* Arquétipo de formulário com índice lateral (templates/arquetipos/formulario.html; o produto usa a folha única). */
+/* Formulário longo: índice de seções + seções. */
+.layout-formulario {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--esp-6);
+  align-items: start;
+}
+
+.layout-formulario__indice {
+  position: sticky;
+  top: calc(var(--altura-topo) + var(--esp-4));
+}
+
+@media (max-width: 1023.98px) {
+  .layout-formulario { grid-template-columns: minmax(0, 1fr); }
+  .layout-formulario__indice { display: none; }
+}
+
+/* ---- Catálogo sem uso no produto (V2, 2ª leva): variantes mostradas só no UI Lab ---- */
+.botao--perigo-contorno {
+  --botao-texto: var(--cor-perigo);
+  --botao-borda: var(--cor-perigo-borda);
+  --botao-fundo-hover: var(--cor-perigo-fundo);
+}
+
+.campo--sucesso .entrada {
+  border-color: var(--cor-sucesso-solida);
+}
+
+.cartao__numero {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  border: 1px solid var(--cor-marca-borda);
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.cartao__corpo--sem-respiro {
+  padding: 0;
+}
+
+.subtitulo-secao {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.selo--marca {
+  --selo-fundo: var(--cor-marca-fundo);
+  --selo-texto: var(--cor-marca-texto);
+  --selo-borda: var(--cor-marca-borda);
+}
+
+/* Carimbo: entrada enfática para "Emitido" recém-confirmado. */
+.selo--carimbo {
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
+}
+
+.etapas__item--pendente .etapas__marcador {
+  border-color: var(--cor-aviso-solida);
+  color: var(--cor-aviso);
+}
+
+.superficie-escura {
+  --foco-cor: var(--foco-cor-inverso);
+  --foco-contraste: var(--foco-contraste-inverso);
+}

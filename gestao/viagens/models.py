@@ -87,6 +87,10 @@ class Oficio(models.Model):
         limit_choices_to={"tipo": ModeloTexto.Tipo.JUSTIFICATIVA},
     )
     justificativa = models.TextField("justificativa", blank=True)
+    # Roteiro cadastrado que serviu de modelo (os trechos são copiados para o ofício; mudar o
+    # roteiro depois não altera o ofício).
+    roteiro = models.ForeignKey("Roteiro", on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name="oficios", verbose_name="roteiro de origem")
 
     # Instantâneo do cálculo (refeito a cada alteração de trechos/viajantes).
     diarias_total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal(0))
@@ -186,6 +190,12 @@ class Trecho(models.Model):
     destino = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
     saida_em = models.DateTimeField("saída")
     chegada_em = models.DateTimeField("chegada")
+    # Itinerário 2.0 (ADR 0016): a chegada é saída + tempo de estrada + tempo adicional.
+    distancia_km = models.DecimalField("distância (km)", max_digits=8, decimal_places=1,
+                                       null=True, blank=True)
+    tempo_viagem_min = models.PositiveIntegerField("tempo de estrada (min)", null=True,
+                                                   blank=True)
+    tempo_adicional_min = models.PositiveIntegerField("tempo adicional (min)", default=0)
 
     class Meta:
         ordering = ["ordem"]
@@ -199,6 +209,101 @@ class Trecho(models.Model):
 
     def __str__(self) -> str:
         return f"{self.origem} → {self.destino}"
+
+
+class Roteiro(models.Model):
+    """Roteiro reutilizável (como no sistema de referência): saída da sede, destinos, volta
+    e diárias estimadas para um efetivo. Serve de modelo para ofícios."""
+
+    class Situacao(models.TextChoices):
+        ATIVO = "ativo", "Ativo"
+        CANCELADO = "cancelado", "Cancelado"
+
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="roteiros")
+    sede = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+",
+                             verbose_name="sede (origem da viagem)")
+    quantidade_servidores = models.PositiveSmallIntegerField(
+        "quantidade de servidores", default=1,
+        help_text="Efetivo usado para estimar as diárias do roteiro.")
+    observacoes = models.TextField("observações", blank=True)
+    situacao = models.CharField(max_length=10, choices=Situacao.choices, default=Situacao.ATIVO)
+    diarias_total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal(0))
+    diarias_resumo = models.CharField(max_length=120, blank=True)
+    diarias_calculo = models.JSONField(default=dict, blank=True)
+    diarias_erro = models.CharField(max_length=300, blank=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-criado_em"]
+        verbose_name = "roteiro"
+        verbose_name_plural = "roteiros"
+        constraints = [
+            models.CheckConstraint(condition=Q(quantidade_servidores__gte=1),
+                                   name="roteiro_ao_menos_um_servidor"),
+            models.CheckConstraint(condition=Q(diarias_total__gte=0),
+                                   name="roteiro_diarias_nao_negativas"),
+        ]
+        indexes = [models.Index(fields=["unidade", "situacao"], name="roteiro_unidade_idx")]
+
+    def __str__(self) -> str:
+        return f"Roteiro #{self.pk}"
+
+    @property
+    def editavel(self) -> bool:
+        return self.situacao == self.Situacao.ATIVO
+
+
+class TrechoRoteiro(models.Model):
+    """Trecho de um roteiro (mesmas regras do trecho do ofício)."""
+
+    roteiro = models.ForeignKey(Roteiro, on_delete=models.CASCADE, related_name="trechos")
+    ordem = models.PositiveSmallIntegerField()
+    origem = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    destino = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    saida_em = models.DateTimeField("saída")
+    chegada_em = models.DateTimeField("chegada")
+    # Itinerário 2.0 (ADR 0016): a chegada é saída + tempo de estrada + tempo adicional.
+    distancia_km = models.DecimalField("distância (km)", max_digits=8, decimal_places=1,
+                                       null=True, blank=True)
+    tempo_viagem_min = models.PositiveIntegerField("tempo de estrada (min)", null=True,
+                                                   blank=True)
+    tempo_adicional_min = models.PositiveIntegerField("tempo adicional (min)", default=0)
+
+    class Meta:
+        ordering = ["ordem"]
+        constraints = [
+            models.UniqueConstraint(fields=["roteiro", "ordem"], name="trecho_roteiro_ordem_unica"),
+            models.CheckConstraint(condition=Q(chegada_em__gt=models.F("saida_em")),
+                                   name="trecho_roteiro_chega_depois_de_sair"),
+            models.CheckConstraint(condition=~Q(origem=models.F("destino")),
+                                   name="trecho_roteiro_origem_diferente_destino"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.origem} → {self.destino}"
+
+
+class DistanciaMunicipios(models.Model):
+    """Cache da rota entre dois municípios (sentido origem → destino), como na referência.
+    Tabela de cache: não é auditada (só reflete o serviço de rotas)."""
+
+    origem = models.ForeignKey(Municipio, on_delete=models.CASCADE, related_name="+")
+    destino = models.ForeignKey(Municipio, on_delete=models.CASCADE, related_name="+")
+    km = models.DecimalField(max_digits=8, decimal_places=1)
+    minutos = models.PositiveIntegerField("tempo de estrada (min)")
+    geometria = models.JSONField(default=list, blank=True)  # [[lat, lon], ...] simplificada
+    fonte = models.CharField(max_length=20)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["origem", "destino"],
+                                               name="distancia_par_unico")]
+
+    def __str__(self) -> str:
+        return f"{self.origem} → {self.destino}: {self.km} km"
 
 
 class Documento(models.Model):

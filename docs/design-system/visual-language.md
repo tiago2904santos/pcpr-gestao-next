@@ -39,7 +39,7 @@ O produto é reconhecível por cinco gestos, todos derivados do timbre instituci
 | **Filete dourado** — uma linha, nunca uma mancha | sob o cabeçalho, item ativo da navegação, aba ativa, segmento curto sob o título da página, trilho à esquerda no hover de linhas/registros, `focus-within` de seção do formulário | `--filete`, `--filete-fino`, `filete-crescer` |
 | **Placa** — o número do ofício como peça de papel | lista de registros, cabeçalho do detalhe (`--grande`), cancelado com tachado vermelho | `.placa` |
 | **Trilho de processo** — status como narrativa | detalhe do ofício: Rascunho → Emitido / Cancelado | `.processo` |
-| **Carimbo** — a emissão é um ato | selo "Emitido" recém-emitido, botão concluído | `carimbar`, `.selo--carimbo` |
+| **Carimbo** — a emissão é um ato | selo "Emitido" recém-emitido, botão concluído | `carimbar` (`.selo--carimbo` só no catálogo, `ui-lab.css`) |
 | **Papel quente** — fundo com brilho dourado muito suave no topo | todas as páginas | `--fundo-pagina`, `--brilho-dourado-08` |
 
 O que **dilui** a assinatura e por isso é proibido: dourado como fundo de área, mais de um
@@ -51,3 +51,23 @@ Princípios extraídos: cabeçalho institucional escuro com filete dourado; nave
 ícone + rótulo e indicador dourado; seções com ícone dourado e título em caixa alta;
 formulários em grade de duas colunas com rótulos acima; botão principal dourado no login;
 selo "Ambiente restrito e monitorado". Não copiamos layouts; reaplicamos os princípios.
+
+## Overdrive 2 — linguagem de componentes e de interação
+Perguntas feitas a cada componente: *parece desenhado para este produto? tem identidade?
+comunica o que está acontecendo?* As respostas viraram cinco regras:
+
+1. **Menos caixas.** O ofício é **uma folha** (`.documento`) com seções separadas por
+   linhas; o histórico fica abaixo, em colunas, com disclosure. Nenhum painel lateral
+   estreito: o que é secundário recua por hierarquia, não por caixa à parte.
+2. **Estado tem forma.** Anel vazio = incompleto, ✓ = concluído, × = encerrado, pulso =
+   processando. A mesma gramática vale no selo, no trilho de processo, no progresso do
+   formulário e nas seções.
+3. **A ação responde no lugar.** Botões processam, confirmam (carimbo) ou recusam
+   (balançam) sem toast para o trivial; o salvamento confirma na barra de ações.
+4. **Foco é assinatura.** Anel grafite com halo claro; dourado sobre o grafite; campos
+   acendem. Nunca o azul do navegador.
+5. **Continuidade espacial.** A placa viaja da lista ao detalhe, a aba ativa desliza,
+   "Emitir" vira "Emitido", a lista se reordena ao filtrar (View Transitions, sem JS).
+
+Conceitos explorados e descartados estão no UI Lab (seção 11) e em
+`docs/design-system/explorations.md`.

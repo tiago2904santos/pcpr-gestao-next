@@ -21,24 +21,24 @@ from .conftest import entrar
 pytestmark = pytest.mark.e2e
 
 
-def _dt(dias: int, hora: int, minuto: int = 0) -> str:
+def _data_hora(pg, campo: str, dias: int, hora: int, minuto: int = 0) -> None:
+    """Data e hora em campos separados (dd/mm/aaaa e hh:mm), como a pessoa digita."""
     alvo = timezone.localtime() + timedelta(days=dias)
-    return alvo.replace(hour=hora, minute=minuto).strftime("%Y-%m-%dT%H:%M")
+    pg.locator(f"#id_{campo}_0").fill(alvo.strftime("%d/%m/%Y"))
+    pg.locator(f"#id_{campo}_1").fill(f"{hora:02d}:{minuto:02d}")
 
 
 def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg = logado
     pg.goto("/viagens/oficios/")
-    pg.get_by_role("link", name="Novo ofício").first.click()
-    expect(pg.get_by_role("heading", level=1)).to_have_text("Novo ofício de viagem")
-    pg.get_by_label("Motivo da viagem").fill("Cobertura do evento PCPR na Comunidade.")
-    pg.get_by_role("button", name="Criar rascunho e continuar").click()
-
-    expect(pg.locator(".toast")).to_contain_text("criado como rascunho")
+    # Como no sistema de referência: o botão já cria o ofício e abre a folha completa.
+    pg.get_by_role("button", name="Novo ofício").first.click()
+    expect(pg.locator(".toast")).to_contain_text("criado")
     titulo = pg.get_by_role("heading", level=1).inner_text()
     numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
+    pg.get_by_label("Motivo da viagem").fill("Cobertura do evento PCPR na Comunidade.")
 
-    # Equipe via combobox remoto (HTMX).
+    # Equipe via combobox remoto (HTMX, salva na hora).
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
     busca.fill("isab")
     pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
@@ -50,14 +50,17 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
-    pg.get_by_label("Cidade de destino").fill("Londrina/PR")
-    pg.locator("#id_destino-0-saida").fill(_dt(15, 8))
-    pg.locator("#id_destino-0-chegada").fill(_dt(15, 14))
-    pg.locator("#id_retorno-saida").fill(_dt(17, 8))
-    pg.locator("#id_retorno-chegada").fill(_dt(17, 15, 30))
+    pg.locator("input[name='destino-0-cidade']").fill("Londrina/PR")
+    # Itinerário 2.0: só a saída; tempo de estrada e adicional vêm da rota, a chegada é
+    # calculada na tela (e de novo no servidor).
+    _data_hora(pg, "destino-0-saida", 15, 8)
+    _data_hora(pg, "retorno-saida", 17, 8)
+    expect(pg.locator("#id_destino-0-tempo_viagem")).not_to_have_value("")
+    expect(pg.locator("[data-total-km]")).to_contain_text("km")
     pg.get_by_role("button", name="Salvar rascunho").click()
 
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
+    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
@@ -71,7 +74,7 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     dialogo.get_by_role("button", name="Emitir").click()
 
     expect(pg.locator(".toast")).to_contain_text(f"Ofício {numero} emitido")
-    expect(pg.locator(".pagina-cabecalho .selo").first).to_have_text("Emitido")
+    expect(pg.locator(".pagina-cabecalho .processo__passo--atual")).to_have_text("Emitido")
     expect(pg.locator("#documentos-lista")).to_contain_text("Gerando")
 
     while outbox.processar_lote():
@@ -117,7 +120,7 @@ def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
 
     # Enter num campo de texto salva o rascunho (não adiciona destino nem emite).
     protocolo.press("Enter")
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(status).to_contain_text("Rascunho salvo às")
     expect(pg.get_by_label("Protocolo (eProtocolo)")).to_have_value(re.compile(r"^12\D?345\D?678\D?9$"))
     expect(status).not_to_contain_text("não salvas")
 
@@ -163,7 +166,7 @@ def test_teclado_pular_conteudo_menu_e_dialogo(logado, dados_e2e):
 def test_consulta_ve_mas_nao_cria_nem_edita(pagina, dados_e2e):
     entrar(pagina, "consulta")
     pagina.goto("/viagens/oficios/")
-    expect(pagina.get_by_role("link", name="Novo ofício")).to_have_count(0)
+    expect(pagina.get_by_role("button", name="Novo ofício")).to_have_count(0)
     resposta = pagina.goto("/viagens/oficios/novo/")
     assert resposta.status == 403
     expect(pagina.get_by_role("heading", level=1)).to_have_text("Acesso não permitido")
@@ -237,17 +240,17 @@ def test_ctrl_s_salva_o_rascunho(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/")
     pg.get_by_label("Motivo da viagem").fill("Apoio ao evento regional.")
     pg.keyboard.press("Control+s")
-    expect(pg.locator(".toast")).to_contain_text("salvo")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     expect(pg.get_by_label("Motivo da viagem")).to_have_value("Apoio ao evento regional.")
 
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
 def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, largura):
-    """WCAG 2.4.11: com Tab pelo formulário, o foco não some sob o topo fixo nem sob a barra."""
+    """WCAG 2.4.11: com Tab, o foco não some sob o topo, a faixa de progresso fixa ou a barra."""
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
-    pg.get_by_label("Data do ofício").focus()
+    pg.get_by_role("textbox", name="Data do ofício", exact=True).focus()
     escondidos = []
     for _ in range(25):
         pg.keyboard.press("Tab")
@@ -256,10 +259,181 @@ def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, la
           const el = document.activeElement;
           if (!el || el.closest('.barra-acoes, .topo')) return null;
           const c = el.getBoundingClientRect();
-          const topo = document.querySelector('.topo').getBoundingClientRect().bottom;
+          const faixa = document.querySelector('.progresso--fixo');
+          const topo = Math.max(document.querySelector('.topo').getBoundingClientRect().bottom,
+                                faixa ? faixa.getBoundingClientRect().bottom : 0);
           const barra = document.querySelector('.barra-acoes').getBoundingClientRect().top;
           return {id: el.id || el.name || el.tagName, c: c.top, b: c.bottom, topo, barra};
         }""")
         if r and (r["c"] < r["topo"] - 1 or r["b"] > r["barra"] + 1):
             escondidos.append(r)
     assert escondidos == [], escondidos
+
+
+def test_registro_da_lista_expande_com_resumo_e_fecha_com_esc(logado, dados_e2e):
+    """Overdrive 2: o registro revela roteiro/equipe/documentos sem sair da lista."""
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    botao = pg.locator("[data-expandir]").first
+    registro = pg.locator(".registro").first
+    expect(botao).to_have_attribute("aria-expanded", "false")
+    botao.click()
+    expect(botao).to_have_attribute("aria-expanded", "true")
+    expect(registro).to_have_class(re.compile("registro--aberto"))
+    expect(registro.locator(".resumo")).to_be_visible()
+    expect(registro.locator(".resumo")).to_contain_text("Roteiro")
+    pg.keyboard.press("Escape")
+    expect(botao).to_have_attribute("aria-expanded", "false")
+    expect(registro.locator(".resumo")).to_be_hidden()
+    assert pg.evaluate("document.activeElement?.hasAttribute('data-expandir')")
+
+
+def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    expect(pg.locator(".registros__grupo").first).to_be_visible()
+    assert pg.locator(".registro .placa[data-vt]").count() == pg.locator(".registro").count()
+    # a placa da lista e a placa do detalhe compartilham o nome (continuidade espacial)
+    nome = pg.locator(".registro .placa").first.get_attribute("data-vt")
+    pg.locator(".registro__link").first.click()
+    expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
+
+
+def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado, dados_e2e):
+    """Cadastro do ofício: escolhas como cartões (rádios nativos), campo condicional colado à
+    escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
+    instituicao = pg.get_by_label("Instituição que custeia")
+    pg.locator("label.opcao").filter(has_text="Diárias e combustível pela unidade").click()
+    expect(instituicao).to_be_hidden()
+    pg.locator("label.opcao").filter(has_text="Outra instituição").click()
+    expect(pg.get_by_role("radio", name=re.compile("^Outra instituição"))).to_be_checked()
+    expect(instituicao).to_be_visible()
+    # Teclado: setas trocam o meio de transporte (rádios nativos sob os cartões).
+    pg.locator("label.opcao").filter(has_text="Viatura oficial").click()
+    viatura = pg.get_by_role("radio", name=re.compile("^Viatura oficial"))
+    expect(viatura).to_be_checked()
+    viatura.focus()
+    pg.keyboard.press("ArrowDown")
+    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
+    # Porte de arma é um interruptor.
+    expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
+    # Itinerário: começa e termina na sede; o trecho diz de onde sai.
+    expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
+    expect(pg.locator("#roteiro .itin__trecho").last).to_contain_text("Chegada na sede")
+    expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
+    # Conferência: diz quantas pendências faltam e lista as seções.
+    expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
+    expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
+
+
+def test_clique_em_texto_nao_rola_a_pagina_nem_perde_a_escolha(logado, dados_e2e):
+    """Regressão: com tabindex fixo no <main>, apertar o mouse num texto não focável dava
+    foco ao <main>, a página rolava antes de soltar o botão e o clique no cartão se perdia."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    descricao = pg.locator("label.opcao").filter(has_text="Outro meio").locator(".opcao__descricao")
+    descricao.scroll_into_view_if_needed()
+    antes = pg.evaluate("scrollY")
+    descricao.click()
+    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    assert pg.evaluate("scrollY") == antes
+    expect(pg.locator("main#conteudo")).not_to_have_attribute("tabindex", "-1")
+
+
+def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    faixa = pg.locator(".progresso--fixo")
+    pg.locator("#roteiro").scroll_into_view_if_needed()
+    pg.mouse.wheel(0, 200)
+    expect(faixa).to_be_in_viewport()
+    expect(faixa).to_have_class(re.compile("progresso--flutuando"))
+    expect(faixa.locator("[aria-current='location']")).to_have_count(1)
+
+
+def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
+    """Como no sistema de referência: não há página "novo"; o botão cria o ofício."""
+    pg = logado
+    pg.goto("/viagens/")
+    pg.get_by_role("button", name="Novo ofício").first.click()
+    expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Ofício ")
+    for secao in ("dados", "equipe", "transporte", "roteiro", "diarias", "justificativa",
+                  "emissao"):
+        expect(pg.locator(f"#{secao}")).to_be_attached()
+    assert pg.erros_console == []  # type: ignore[attr-defined]
+
+
+def test_sem_seletores_nativos_de_data_hora_ou_lista(logado, dados_e2e):
+    """Calendário, relógio e listas são do design system, nunca os do navegador."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    nativos = pg.locator("input[type=date], input[type=time], input[type=datetime-local]")
+    expect(nativos).to_have_count(0)
+    expect(pg.locator("select:visible")).to_have_count(0)
+    expect(pg.locator("pc-data .seletor__botao:visible").first).to_be_visible()
+
+
+def test_calendario_por_teclado(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    campo = pg.get_by_role("textbox", name="Data do ofício", exact=True)
+    campo.fill("08/10/2026")
+    botao = pg.get_by_role("button", name="Escolher data: Data do ofício")
+    botao.click()
+    calendario = pg.get_by_role("dialog", name="Escolher data: Data do ofício")
+    expect(calendario).to_be_visible()
+    expect(calendario.get_by_role("grid")).to_have_accessible_name("Outubro de 2026")
+    expect(pg.locator("td[aria-selected='true']")).to_have_text("8")
+    expect(pg.locator(":focus")).to_have_text("8")  # o foco começa no dia escolhido
+    pg.keyboard.press("ArrowRight")
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("Enter")
+    expect(campo).to_have_value("16/10/2026")
+    expect(calendario).to_be_hidden()
+    expect(botao).to_be_focused()
+    botao.click()
+    pg.keyboard.press("PageDown")
+    expect(calendario.get_by_role("grid")).to_have_accessible_name("Novembro de 2026")
+    pg.keyboard.press("Escape")
+    expect(calendario).to_be_hidden()
+    expect(campo).to_have_value("16/10/2026")  # Esc não muda nada
+    expect(botao).to_be_focused()
+
+
+def test_relogio_e_lista_propria(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    hora = pg.locator("#id_destino-0-saida_1")
+    hora.fill("09:00")
+    pg.get_by_role("button", name=re.compile(r"^Escolher hora: Saída")).first.click()
+    horas = pg.get_by_role("listbox", name="Horas")
+    expect(horas).to_be_focused()
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("ArrowRight")
+    expect(pg.get_by_role("listbox", name="Minutos")).to_be_focused()
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("Enter")
+    expect(hora).to_have_value("10:10")
+    # Máscara: digitar só números monta a data.
+    data = pg.locator("#id_destino-0-saida_0")
+    data.fill("")
+    data.press_sequentially("21102026")
+    expect(data).to_have_value("21/10/2026")
+    # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
+    pg.locator("label.opcao").filter(has_text="Outro meio").click()
+    lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
+    lista.click()
+    expect(lista).to_have_attribute("aria-expanded", "true")
+    pg.get_by_role("option", name="Diesel").click()
+    expect(lista).to_contain_text("Diesel")
+    expect(pg.locator("#id_transporte_combustivel")).to_have_value(re.compile(r"\d+"))
+    lista.press("ArrowDown")
+    pg.keyboard.press("Escape")
+    expect(lista).to_have_attribute("aria-expanded", "false")
+    assert pg.erros_console == []  # type: ignore[attr-defined]
