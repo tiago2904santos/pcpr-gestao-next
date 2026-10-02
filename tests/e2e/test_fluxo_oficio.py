@@ -270,22 +270,32 @@ def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, la
     assert escondidos == [], escondidos
 
 
-def test_registro_da_lista_expande_com_resumo_e_fecha_com_esc(logado, dados_e2e):
-    """Overdrive 2: o registro revela roteiro/equipe/documentos sem sair da lista."""
+def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e2e):
+    """Clicar no registro mostra roteiro/equipe/documentos numa janela, sem sair da lista."""
     pg = logado
     pg.goto("/viagens/oficios/")
-    botao = pg.locator("[data-expandir]").first
-    registro = pg.locator(".registro").first
-    expect(botao).to_have_attribute("aria-expanded", "false")
-    botao.click()
-    expect(botao).to_have_attribute("aria-expanded", "true")
-    expect(registro).to_have_class(re.compile("registro--aberto"))
-    expect(registro.locator(".resumo")).to_be_visible()
-    expect(registro.locator(".resumo")).to_contain_text("Roteiro")
+    janela = pg.locator("#dialogo-resumo")
+    expect(janela).to_be_hidden()
+    pg.locator(".registro__link").first.click()
+    expect(janela).to_be_visible()
+    expect(janela.locator(".resumo")).to_contain_text("Roteiro")
+    expect(janela.locator(".resumo")).to_contain_text("Equipe")
+    expect(janela.get_by_role("link", name="Ver o ofício inteiro")).to_be_visible()
     pg.keyboard.press("Escape")
-    expect(botao).to_have_attribute("aria-expanded", "false")
-    expect(registro.locator(".resumo")).to_be_hidden()
-    assert pg.evaluate("document.activeElement?.hasAttribute('data-expandir')")
+    expect(janela).to_be_hidden()
+    assert pg.url.endswith("/viagens/oficios/")  # a lista continua onde estava
+
+
+def test_gaveta_de_filtros_filtra_por_protocolo(logado, dados_e2e):
+    """Os filtros finos ficam guardados; abertos, valem na hora e aparecem na URL."""
+    pg = logado
+    pg.goto("/viagens/oficios/")
+    gaveta = pg.locator("#filtros-mais")
+    expect(gaveta.locator(".filtros__avancados")).to_be_hidden()
+    gaveta.get_by_text("Mais filtros").click()
+    gaveta.get_by_label("Protocolo").fill("123456789")
+    expect(pg.locator(".lista-cabecalho__total")).to_contain_text("1 ofício")
+    assert "protocolo=123456789" in pg.url
 
 
 def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):

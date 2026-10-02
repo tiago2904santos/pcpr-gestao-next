@@ -23,6 +23,7 @@ from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
 
+from .dominio import busca
 from .dominio.diarias import Faixa, ValorVigente
 from .models import Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
 
@@ -94,6 +95,89 @@ def contagens(qs: QuerySet[Oficio]) -> dict[str, int]:
     return resultado
 
 
+def filtro_de_leitura(leitura: busca.Leitura) -> Q:
+    """O Q de cada leitura do termo (dominio.busca diz quais existem)."""
+    termo = leitura.termo
+    if leitura.escopo == busca.NUMERO_ESCOPO:
+        numero, ano = termo.split("/")
+        return Q(numero=int(numero), ano=int(ano))
+    if leitura.escopo == busca.PROTOCOLO:
+        return Q(protocolo__contains=termo)
+    if leitura.escopo == busca.PLACA_ESCOPO:
+        placa = termo.replace("-", "").replace(" ", "").upper()
+        return Q(viatura__placa__icontains=placa) | Q(transporte_placa__icontains=placa)
+    if leitura.escopo == busca.DESTINO:
+        return Q(trechos__destino__nome__unaccent__icontains=termo)
+    return Q(viajantes__servidor__nome__unaccent__icontains=termo)
+
+
+# Leituras que juntam tabelas: filtrar por elas repete o ofício uma vez por linha casada.
+_COM_JUNCAO = {busca.DESTINO, busca.SERVIDOR}
+
+
+def aplicar_leitura(qs: QuerySet[Oficio], leitura: busca.Leitura) -> QuerySet[Oficio]:
+    filtrado = qs.filter(filtro_de_leitura(leitura))
+    return filtrado.distinct() if leitura.escopo in _COM_JUNCAO else filtrado
+
+
+def contar_leituras(qs: QuerySet[Oficio], leituras: list[busca.Leitura]) -> dict[str, int]:
+    """Quantos ofícios cada leitura traria — numa consulta só, para a tela poder dizer
+    "Ofício 26/2026 (1)" e "Protocolo com 26 (12)" antes de a pessoa escolher."""
+    if not leituras:
+        return {}
+    return qs.aggregate(**{
+        leitura.escopo: Count("pk", filter=filtro_de_leitura(leitura), distinct=True)
+        for leitura in leituras
+    })
+
+
+# Categorias de veículo que a frota não guarda em campo próprio: o que as distingue hoje
+# é o modelo da viatura ou a descrição do transporte ("Ônibus de linha", "Unidade Móvel").
+PALAVRAS_DE_VEICULO = {
+    "unidade_movel": ("unidade móvel", "unidade movel"),
+    "onibus": ("ônibus", "onibus"),
+    "caminhao": ("caminhão", "caminhao"),
+    "van": ("van",),
+}
+
+
+def _filtro_de_veiculo(chave: str) -> Q:
+    if chave in ("caracterizada", "descaracterizada"):
+        return Q(viatura__tipo=chave)
+    if chave == "sem":
+        return Q(viatura__isnull=True, transporte_descricao="")
+    filtro = Q()
+    for palavra in PALAVRAS_DE_VEICULO.get(chave, ()):
+        filtro |= (Q(viatura__modelo__unaccent__icontains=palavra)
+                   | Q(transporte_descricao__unaccent__icontains=palavra))
+    return filtro
+
+
+def aplicar_filtros_avancados(qs: QuerySet[Oficio], filtros: dict) -> QuerySet[Oficio]:
+    """Filtros da gaveta "Mais filtros" (forms.FiltrosOficio já validado). Chave ausente ou
+    vazia não filtra nada."""
+    de, ate = filtros.get("saida_de"), filtros.get("saida_ate")
+    if de or ate:
+        # Tudo na mesma chamada: é o mesmo trecho (a ida) que tem de cair no período.
+        periodo = Q(trechos__ordem=1)
+        if de:
+            periodo &= Q(trechos__saida_em__date__gte=de)
+        if ate:
+            periodo &= Q(trechos__saida_em__date__lte=ate)
+        qs = qs.filter(periodo)
+    protocolo = "".join(c for c in (filtros.get("protocolo") or "") if c.isdigit())
+    if protocolo:
+        qs = qs.filter(protocolo__contains=protocolo)
+    if filtros.get("veiculo"):
+        qs = qs.filter(_filtro_de_veiculo(filtros["veiculo"]))
+    if filtros.get("diarias_de") is not None:
+        qs = qs.filter(diarias_total__gte=filtros["diarias_de"])
+    if filtros.get("diarias_ate") is not None:
+        qs = qs.filter(diarias_total__lte=filtros["diarias_ate"])
+    # Juntar com trechos repete o ofício uma vez por linha casada.
+    return qs.distinct() if (de or ate) else qs
+
+
 def aplicar_filtro_situacao(qs: QuerySet[Oficio], chave: str | None) -> QuerySet[Oficio]:
     if not chave or chave not in FILTROS_SITUACAO:
         return qs
@@ -139,7 +223,8 @@ def roteiros_de_lista(qs: QuerySet[Roteiro]) -> QuerySet[Roteiro]:
             "trechos", queryset=TrechoRoteiro.objects.select_related("origem", "destino")))
         .annotate(primeira_saida=Min("trechos__saida_em"),
                   ultima_chegada=Max("trechos__chegada_em"),
-                  total_trechos=Count("trechos", distinct=True))
+                  total_trechos=Count("trechos", distinct=True),
+                  total_oficios=Count("oficios", distinct=True))
     )
 
 

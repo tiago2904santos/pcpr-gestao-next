@@ -34,7 +34,7 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
     <pc-menu class="menu">
       <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do ofício">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
-        <a class="menu__item" role="menuitem" href="{% url 'viagens:detalhe' oficio.pk %}">{% icone "eye" %}Ver detalhes e histórico</a>
+        <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
         {% if pode_excluir %}<div class="menu__separador" role="separator"></div>
         <button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>{% endif %}
       </div>
@@ -253,6 +253,25 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
       </div>
     </section>
 </div>
+
+{% comment %}
+Histórico no pé da folha: era a única coisa que a página de leitura tinha de próprio, e o
+lugar dela é aqui, junto do ofício que se está trabalhando.
+{% endcomment %}
+<section class="historico mt-6" id="historico" aria-labelledby="t-hist">
+  <h2 class="rotulo-caixa-alta rotulo-caixa-alta--marca mb-4" id="t-hist">Histórico</h2>
+  <ol class="linha-tempo linha-tempo--colunas">
+    {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="vazio-inline">Sem eventos.</li>{% endfor %}
+  </ol>
+  {% if historico|length > 6 %}
+    <details>
+      <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
+      <ol class="linha-tempo linha-tempo--colunas mt-4">
+        {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
+      </ol>
+    </details>
+  {% endif %}
+</section>
 
 <div class="barra-acoes">
   <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">

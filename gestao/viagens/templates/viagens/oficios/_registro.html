@@ -9,8 +9,9 @@
   </span>
   <div class="registro__corpo">
     <div class="registro__titulo">
-      {# O título sempre abre o detalhe; "Continuar edição" é ação explícita (menu e resumo). #}
-      <a class="registro__link" href="{% url 'viagens:detalhe' o.pk %}">
+      {# Clicar abre o resumo numa janela, sobre a lista; sem JavaScript, vai para o ofício. #}
+      <a class="registro__link" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo"
+         hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">
         <span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>
@@ -31,20 +32,12 @@
     </div>
   </div>
   <div class="registro__acoes">
-    {# Expansão em linha: roteiro, equipe e documentos sem sair da lista (carrega uma vez). #}
-    <button type="button" class="botao botao--icone botao--sutil registro__expandir" data-expandir aria-expanded="false"
-            aria-controls="resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}" aria-label="Mostrar resumo do Ofício {{ o.numero_formatado }}"
-            hx-get="{% url 'viagens:resumo' o.pk %}" hx-trigger="click" hx-target="#resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}" hx-swap="innerHTML">{% icone "chevron-down" %}</button>
     <pc-menu class="menu">
       <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
-        <a class="menu__item" role="menuitem" href="{% url 'viagens:detalhe' o.pk %}">{% icone "eye" %}Ver detalhes</a>
-        {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Continuar edição</a>{% endif %}
-        <a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
+        {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+        {% else %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver a minuta (PDF)</a>{% endif %}
       </div>
     </pc-menu>
   </div>
-  <div class="registro__extra"><div class="registro__extra-corpo" id="resumo-{{ vt_prefixo|default:'r' }}{{ o.pk }}">
-    <div class="esqueleto esqueleto--linha"></div><div class="esqueleto esqueleto--curto"></div>
-  </div></div>
 </li>

@@ -1,35 +1,153 @@
 {% load viagens %}
-{# Resumo em linha do ofício (expansão do registro na lista). Três colunas de leitura, sem caixas. #}
-<div class="resumo">
-  <div>
-    <h3 class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</h3>
-    {% if trechos %}
-      <ol class="resumo__lista">
-        {% for t in trechos %}<li class="resumo__trecho"><span>{{ t.origem }} → {{ t.destino }}</span><time datetime="{{ t.saida_em|date:'c' }}">{{ t.saida_em|date:"d/m H:i" }}</time></li>{% endfor %}
-      </ol>
-    {% else %}<p class="vazio-inline">Roteiro não informado.</p>{% endif %}
+{% comment %}
+Janela de resumo do ofício (lista → clique no registro). É a leitura completa do ofício:
+identificação, roteiro, equipe e transporte, diárias e documentos — na mesma ordem da
+folha do ofício, para quem alterna entre as duas não se perder. O que muda o ofício
+continua sendo a edição; aqui só se lê e se decide.
+{% endcomment %}
+<div class="dialogo__cabecalho">
+  <span class="placa{% if oficio.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
+    <span class="placa__rotulo">Ofício</span>
+    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
+  </span>
+  <div class="dialogo__cabecalho-texto">
+    {# O período já está nos trechos, logo abaixo: aqui ficam o destino e o estado. #}
+    <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}
+      <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
+      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
+    </h2>
   </div>
-  <div>
-    <h3 class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</h3>
-    {% if viajantes %}
-      <ul class="resumo__lista">
-        {% for v in viajantes %}<li>{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</li>{% endfor %}
-      </ul>
-    {% else %}<p class="vazio-inline">Sem servidores.</p>{% endif %}
-  </div>
-  <div>
-    <h3 class="resumo__titulo">{% icone "files" classe="icone--sm" %}Documentos</h3>
-    {% if documentos %}
-      <ul class="resumo__lista">
-        {% for d in documentos %}<li>{% if d.situacao == "pronto" %}<a href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{{ d.get_tipo_display }} v{{ d.versao }}<span class="sr-only"> (nova aba)</span></a>{% else %}{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }}){% endif %}</li>{% endfor %}
-      </ul>
-    {% else %}<p class="vazio-inline">{% if prontidao %}Nenhum ainda — aparecem na emissão.{% else %}Nenhum documento.{% endif %}</p>{% endif %}
-    {% if prontidao %}
-      <p class="resumo__pendencias">{% if prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %}Tudo pronto para emitir{% else %}{% icone "alert-circle" classe="icone--sm" %}<a href="{% url 'viagens:editar' oficio.pk %}#emissao">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</a>{% endif %}</p>
-    {% endif %}
-    <div class="resumo__acoes">
-      {% if pode_editar %}<a class="botao botao--sm botao--primario" href="{% url 'viagens:editar' oficio.pk %}" aria-label="Continuar edição do Ofício {{ oficio.numero_formatado }}">{% icone "pencil" %}Continuar edição</a>{% endif %}
-      <a class="botao botao--sm" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
+</div>
+<div class="dialogo__corpo">
+  {% if prontidao and not prontidao.pode_emitir %}
+    <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-circle" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</p>
+      <ul class="resumo__lista">{% for p in prontidao.bloqueantes %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
+    </div></div>
+  {% endif %}
+
+  <dl class="resumo__definicoes">
+    <div><dt>Data</dt><dd>{{ oficio.data_oficio|date:"d/m/Y" }}</dd></div>
+    <div><dt>Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
+    <div><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
+    <div><dt>Porte de arma</dt><dd>{{ oficio.porte_arma|yesno:"Sim,Não" }}</dd></div>
+    <div class="resumo__largo"><dt>Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
+  </dl>
+
+  <div class="resumo">
+    {% comment %}
+    Caminho e dinheiro: lado a lado só quando o roteiro é longo o bastante para encher a
+    coluna. Com até três trechos, o roteiro ocupa a linha toda e as diárias descem para a
+    de baixo, em três quadros — melhor isso do que meia coluna em branco.
+    {% endcomment %}
+    <div class="{% if trechos|length > 3 %}resumo__linha{% else %}resumo__empilhado{% endif %}">
+      <section class="resumo__coluna" aria-labelledby="resumo-roteiro">
+        <h3 class="resumo__titulo" id="resumo-roteiro">{% icone "route" classe="icone--sm" %}Roteiro</h3>
+        {% if trechos %}
+          {% comment %}
+          Uma linha por trecho, como na conferência do bate-volta. Lado a lado com as
+          diárias, a moldura trava a altura e a lista rola dentro dela.
+          {% endcomment %}
+          <div class="resumo__moldura">
+          <ol class="resumo__trechos" aria-label="Trechos da viagem">
+            {% for t in trechos %}
+              <li class="resumo__trecho-linha">
+                <span class="resumo__trecho-dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small></span>
+                <span class="resumo__trecho-rota">{{ t.origem }} <span class="resumo__trecho-seta" aria-hidden="true">→</span> <b>{{ t.destino }}</b></span>
+                <span class="resumo__trecho-horas">{{ t.saida_em|date:"H:i" }}<span class="resumo__trecho-seta" aria-hidden="true">→</span>{{ t.chegada_em|date:"H:i" }}</span>
+              </li>
+            {% endfor %}
+          </ol>
+          </div>
+        {% else %}<p class="vazio-inline">Roteiro não informado.</p>{% endif %}
+      </section>
+
+      <section class="resumo__coluna" aria-labelledby="resumo-diarias">
+        <h3 class="resumo__titulo" id="resumo-diarias">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
+        {% if calculo.total %}
+          {# Os mesmos quadros da folha do ofício e do roteiro, empilhados na coluna. #}
+          <div class="grade resumo__indicadores">
+            <div class="indicador indicador--atencao"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor total</span><span class="indicador__valor">{{ calculo.total|moeda }}</span><span class="indicador__nota">{{ calculo.por_servidor|moeda }} por servidor</span></div>
+            <div class="indicador indicador--compacto"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "map-pin" classe="icone--sm" %}Tipo de destino</span><span class="indicador__valor indicador__valor--grande">{{ calculo.tipo_destino }}</span></div>
+            <div class="indicador indicador--compacto"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "list-checks" classe="icone--sm" %}Quantidade por servidor</span><span class="indicador__valor" title="{{ calculo.resumo }}">{{ calculo.resumo }}</span></div>
+          </div>
+        {% elif oficio.diarias_erro %}
+          <p class="vazio-inline">{{ oficio.diarias_erro }}</p>
+        {% else %}<p class="vazio-inline">Sem diárias calculadas.</p>{% endif %}
+      </section>
     </div>
+
+    {% comment %}
+    Linha 2: quem vai e com o quê, na mesma grade. As larguras vêm de larguras_de_cartoes
+    (seis colunas de base): até três por linha, e a última linha sempre cheia — quatro
+    cartões viram 2+2, cinco viram 3+2.
+    {% endcomment %}
+    <section aria-labelledby="resumo-equipe">
+      <h3 class="resumo__titulo" id="resumo-equipe">{% icone "users" classe="icone--sm" %}Equipe e transporte</h3>
+      {% with quantos=viajantes|length %}
+      {% with larguras=quantos|add:1|larguras_de_cartoes %}
+        <ul class="resumo__cartoes" role="list">
+          {% for v in viajantes %}
+            <li class="pessoa resumo__cartao--{{ larguras|get_item:forloop.counter0 }}">
+              <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+              <span class="pessoa__texto">
+                <span class="pessoa__nome">{{ v.servidor.nome }}</span>
+                <span class="pessoa__meta">{% if v.motorista %}Motorista{% else %}{{ v.servidor.cargo }}{% endif %}</span>
+              </span>
+            </li>
+          {% endfor %}
+          <li class="pessoa resumo__cartao--{{ larguras|get_item:quantos }}">
+            <span class="avatar" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+            <span class="pessoa__texto">
+              {% if oficio.viatura %}
+                <span class="pessoa__nome">{{ oficio.viatura.modelo }}</span>
+                <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }} · {{ oficio.viatura.get_tipo_display|lower }}</span>
+              {% elif oficio.transporte_descricao %}
+                <span class="pessoa__nome">{{ oficio.transporte_descricao }}</span>
+                <span class="pessoa__meta">Transporte informado</span>
+              {% else %}
+                <span class="pessoa__nome">Sem transporte</span>
+                <span class="pessoa__meta">Nada informado</span>
+              {% endif %}
+            </span>
+          </li>
+        </ul>
+      {% endwith %}{% endwith %}
+    </section>
+
+    {# Linha 3: o que saiu em papel. #}
+    <section aria-labelledby="resumo-documentos">
+      <h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
+      {% if documentos %}
+        <ul class="resumo__documentos" role="list">
+          {% for d in documentos %}
+            <li>
+              {% if d.situacao == "pronto" %}
+                <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">
+                  {% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span>
+                </a>
+              {% else %}
+                <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}<p class="vazio-inline">{% if prontidao %}Nenhum ainda — aparecem na emissão.{% else %}Nenhum documento.{% endif %}</p>{% endif %}
+    </section>
   </div>
+</div>
+{% comment %}
+"Abrir o ofício" leva direto à folha de edição — é lá que se trabalha. Quando o ofício já
+foi emitido ou cancelado (ou quem olha não edita), não há o que abrir para mexer: a leitura
+completa continua na página do ofício.
+{% endcomment %}
+<div class="dialogo__rodape">
+  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
+  {% if pode_editar %}
+    <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+  {% else %}
+    {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and forloop.first %}
+      <a class="botao botao--primario" href="{% url 'viagens:baixar_documento' d.pk %}?baixar=1">{% icone "download" %}Baixar PDF</a>
+    {% endif %}{% endfor %}
+  {% endif %}
 </div>

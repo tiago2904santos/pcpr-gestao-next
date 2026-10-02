@@ -76,7 +76,12 @@ def campo_acessivel(campo, tem_ajuda: object = False):
 
 @register.filter
 def get_item(dicionario, chave):
-    """`{{ dic|get_item:chave }}` — acesso por chave variável em templates."""
+    """`{{ dic|get_item:chave }}` — acesso por chave variável em templates (dict ou lista)."""
+    if isinstance(dicionario, (list, tuple)):
+        try:
+            return dicionario[int(chave)]
+        except (IndexError, TypeError, ValueError):
+            return None
     try:
         return dicionario.get(chave)
     except AttributeError:

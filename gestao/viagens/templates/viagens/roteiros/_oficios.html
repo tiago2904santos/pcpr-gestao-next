@@ -1,0 +1,29 @@
+{% load viagens %}
+{% comment %}
+Ofícios feitos com um roteiro. Serve à caixinha da lista (ao pousar o mouse em "usado
+em…") e à folha do roteiro. Daqui se chega ao ofício; quando o módulo de viagens existir,
+as viagens entram nesta mesma lista.
+{% endcomment %}
+{% comment %}
+Escolher um ofício leva à lista de ofícios, filtrada nele e com a janela de resumo já
+aberta — o mesmo lugar onde se lê qualquer ofício. Sem JavaScript, a lista aparece
+filtrada do mesmo jeito; só a janela não abre sozinha.
+{% endcomment %}
+{% if oficios %}
+  <ul class="lista-ligacoes" role="list">
+    {% for o in oficios %}
+      <li>
+        <a class="lista-ligacoes__item" href="{% url 'viagens:oficios' %}?q={{ o.numero_formatado|urlencode }}&amp;resumo={{ o.pk }}">
+          <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">{{ o.numero_formatado }}</span></span>
+          <span class="lista-ligacoes__texto">
+            <span class="lista-ligacoes__titulo">{% with d=o|destinos %}{{ d|default:"Sem destino" }}{% endwith %}</span>
+            <span class="lista-ligacoes__meta">{% with p=o.trechos.all|periodo %}{{ p|default:"sem datas" }}{% endwith %}</span>
+          </span>
+          <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="vazio-inline">Este roteiro ainda não foi usado em nenhum ofício.</p>
+{% endif %}

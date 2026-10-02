@@ -66,8 +66,6 @@ def paginas(settings):
         reverse("viagens:oficios"),
         reverse("viagens:oficios") + "?q=zzz",
         reverse("viagens:editar", args=[rascunho.pk]),
-        reverse("viagens:detalhe", args=[emitido.pk]),
-        reverse("viagens:detalhe", args=[rascunho.pk]),
         reverse("viagens:revisar_emissao", args=[rascunho.pk]),
         reverse("viagens:roteiros"),
         reverse("viagens:novo_roteiro"),

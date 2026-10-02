@@ -1,0 +1,16 @@
+{% comment %}
+Janela de resumo do ofício: a leitura completa, aberta de onde o ofício aparece
+(lista de ofícios, lista de roteiros, folha do roteiro). O botão de fechar fica fora
+do pedaço que o HTMX troca, para a janela sempre ter um controle enquanto carrega.
+{% endcomment %}
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo" aria-label="Resumo do ofício"{% if abrir_resumo %} data-abrir-ao-carregar{% endif %}>
+  <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="Fechar o resumo">{% icone "x" %}</button>
+  <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>
+    {% comment %}
+    Pedida por outra tela ("?resumo=<pk>"), a janela já vem desenhada: abre pronta, sem
+    piscar o esqueleto. Nos outros casos, o esqueleto espera o HTMX.
+    {% endcomment %}
+    {% if abrir_resumo %}{% include "viagens/oficios/_resumo.html" with oficio=resumo.oficio assunto=resumo.assunto prazo=resumo.prazo calculo=resumo.calculo viajantes=resumo.viajantes trechos=resumo.trechos documentos=resumo.documentos prontidao=resumo.prontidao pode_editar=resumo.pode_editar %}
+    {% else %}{% include "viagens/oficios/_resumo_carregando.html" %}{% endif %}
+  </div>
+</dialog>

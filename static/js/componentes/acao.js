@@ -16,7 +16,7 @@ const DURACAO_CONCLUIDO = 1600;
 function botaoDe(evento) {
   const e = /** @type {CustomEvent} */ (evento);
   const origem = /** @type {HTMLElement | undefined} */ (e.detail?.elt);
-  if (!origem || origem.hasAttribute("data-expandir")) return null; // disclosure, não ação
+  if (!origem || origem.hasAttribute("data-abrir-dialogo")) return null; // abre janela, não é ação
   if (origem instanceof HTMLButtonElement) return origem;
   const submissor = /** @type {HTMLButtonElement | null | undefined} */ (e.detail?.requestConfig?.triggeringEvent?.submitter);
   if (submissor) return submissor;

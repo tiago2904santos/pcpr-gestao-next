@@ -17,6 +17,7 @@ const sobDemanda = [
   ["pc-combobox", () => import("./componentes/combobox.js")],
   ["pc-abas", () => import("./componentes/abas.js")],
   ["[data-mascara]", () => import("./componentes/mascara.js")],
+  ["input[type='search'].entrada, input[data-limpavel]", () => import("./componentes/limpar.js")],
   ["form[data-proteger]", () => import("./componentes/protecao.js")],
   ["form[data-autosave]", () => import("./componentes/autosave.js")],
   [".registro", () => import("./componentes/registro.js")],

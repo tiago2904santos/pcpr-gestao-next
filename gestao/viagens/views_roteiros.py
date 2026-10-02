@@ -37,6 +37,17 @@ def _roteiro_visivel(request: HttpRequest, pk: int) -> Roteiro:
 
 @require_GET
 @vary_on_headers("HX-Request", "HX-Target")
+@require_GET
+def oficios_do_roteiro(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: os ofícios que usaram este roteiro, para a janelinha da lista."""
+    roteiro = get_object_or_404(policies.roteiros_visiveis(request.user), pk=pk)
+    return render(request, "viagens/roteiros/_oficios.html", {
+        "roteiro": roteiro,
+        "oficios": list(roteiro.oficios.select_related("sede")
+                        .prefetch_related("trechos__destino").order_by("-ano", "-numero")[:50]),
+    })
+
+
 def lista(request: HttpRequest) -> HttpResponse:
     if not request.user.has_perm("viagens.view_roteiro"):
         raise PermissionDenied

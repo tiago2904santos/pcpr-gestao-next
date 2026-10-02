@@ -24,7 +24,30 @@
       {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}Sem período</span>{% endif %}
       {% endwith %}
       <span class="registro__meta-item">{% icone "route" classe="icone--sm" %}{{ r.total_trechos|pluralizar:"trecho,trechos" }}</span>
-      <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{{ r.quantidade_servidores|pluralizar:"servidor,servidores" }}</span>
+      {% comment %}
+      O cálculo do roteiro é sempre para um servidor (o ofício é que tem equipe), então a
+      quantidade não diz nada aqui. O que interessa é onde este roteiro já foi usado.
+      {% endcomment %}
+      {% if r.total_oficios %}
+        {% comment %}
+        Caixa de ações que abre ao pousar o mouse (ou ao focar pelo teclado): é só CSS —
+        :hover/:focus-within no bloco. O conteúdo vem por HTMX na primeira vez.
+        {% endcomment %}
+        <span class="menu menu--pousar">
+          <button type="button" class="registro__meta-item registro__meta-item--acao" aria-controls="oficios-roteiro-{{ r.pk }}"
+                  hx-get="{% url 'viagens:oficios_do_roteiro' r.pk %}" hx-trigger="mouseenter once, focus once"
+                  hx-target="#oficios-roteiro-{{ r.pk }} [data-corpo-pop]" hx-swap="innerHTML">
+            {% icone "file-text" classe="icone--sm" %}Usado em {{ r.total_oficios|pluralizar:"ofício,ofícios" }}
+          </button>
+          <div class="menu__painel menu__painel--esquerda" id="oficios-roteiro-{{ r.pk }}" role="group"
+               aria-label="Ofícios com o roteiro #{{ r.pk }}">
+            <p class="menu__titulo">Ofícios com o roteiro #{{ r.pk }}</p>
+            <div data-corpo-pop><div class="esqueleto esqueleto--linha"></div><div class="esqueleto esqueleto--curto"></div></div>
+          </div>
+        </span>
+      {% else %}
+        <span class="registro__meta-item registro__meta-item--vazio">{% icone "file-text" classe="icone--sm" %}Ainda não usado</span>
+      {% endif %}
       {% if r.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}</span>
       {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}Sem diárias calculadas</span>{% endif %}
       {% if r.observacoes %}<span class="registro__meta-item quebra-palavras">{% icone "info" classe="icone--sm" %}{{ r.observacoes|truncatechars:80 }}</span>{% endif %}

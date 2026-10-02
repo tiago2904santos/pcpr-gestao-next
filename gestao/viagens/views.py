@@ -1,4 +1,7 @@
-"""Telas do módulo Viagens (piloto: painel, lista, novo, edição, detalhe, documentos)."""
+"""Telas do módulo Viagens (piloto: painel, lista, novo, edição, emissão, documentos).
+
+A leitura de um ofício é a janela de resumo que a lista abre (views.resumo): não há
+página separada só para ler — ela repetia a folha e dividia a atenção."""
 
 from __future__ import annotations
 
@@ -23,7 +26,14 @@ from . import itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
 from .dominio.diarias import Faixa
-from .forms import FORM_ID, FormularioOficio, iniciais_de_trechos, resolver_municipio
+from .dominio import busca as dominio_busca
+from .forms import (
+    FORM_ID,
+    FiltrosOficio,
+    FormularioOficio,
+    iniciais_de_trechos,
+    resolver_municipio,
+)
 from .models import Documento, Oficio
 from .queries import trechos_de, viajantes_de
 from .templatetags.viagens import formatar_periodo
@@ -43,6 +53,25 @@ def _oficio_visivel(request: HttpRequest, pk: int) -> Oficio:
     if not policies.pode_ver(request.user, oficio):
         raise Http404  # não revela a existência de ofícios de outras unidades
     return oficio
+
+
+def _resumo_pedido(request: HttpRequest) -> dict:
+    """Contexto da janela de resumo quando a lista é aberta com "?resumo=<pk>"."""
+    pk = (request.GET.get("resumo") or "").strip()
+    if not pk.isdigit():
+        return {}
+    try:
+        oficio = _oficio_visivel(request, int(pk))
+    except Http404:
+        return {}
+    return {"abrir_resumo": oficio.pk, "resumo": _contexto_resumo(request, oficio)}
+
+
+def _na_lista(oficio) -> str:
+    """A lista filtrada neste ofício. É o destino de quem termina uma ação (emitir,
+    cancelar) e de quem não pode editar: a leitura completa é a janela de resumo, que
+    abre na própria lista."""
+    return f"{reverse('viagens:oficios')}?q={oficio.numero_formatado}"
 
 
 def _migalhas(*itens: tuple[str, str]) -> list[tuple[str, str]]:
@@ -78,8 +107,22 @@ def lista(request: HttpRequest) -> HttpResponse:
     base = policies.oficios_visiveis(request.user)
     situacao = request.GET.get("situacao") or ""
     termo = (request.GET.get("q") or "").strip()
+    escopo = request.GET.get("escopo") or ""
     qs = queries.aplicar_filtro_situacao(base, situacao)
-    qs = services.buscar_por_texto(qs, termo)
+    qs = services.buscar_por_texto(qs, termo, escopo)
+    # Leituras do termo ("26" é número de ofício? protocolo?) com quantos ofícios cada uma
+    # traria: a tela oferece o refino em vez de despejar tudo o que casou por acaso.
+    leituras = dominio_busca.ler(termo, timezone.localdate().year)
+    contagem_leituras = queries.contar_leituras(
+        queries.aplicar_filtro_situacao(base, situacao), leituras) if leituras else {}
+    refinos = [
+        {"escopo": leitura.escopo, "rotulo": leitura.rotulo,
+         "quantidade": contagem_leituras.get(leitura.escopo, 0)}
+        for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
+    ]
+    avancados = FiltrosOficio(request.GET)
+    qs = queries.aplicar_filtros_avancados(
+        qs, avancados.cleaned_data if avancados.is_valid() else {})
     ordem = request.GET.get("ordem") or "-numero"
     ordens: dict[str, tuple[str | OrderBy, ...]] = {
         "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
@@ -90,6 +133,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
+    # As abas trocam só a situação: tudo o mais que a pessoa filtrou continua valendo.
+    das_abas = filtros.copy()
+    das_abas.pop("situacao", None)
+    # As fichas de refino trocam só o escopo da busca.
+    do_refino = filtros.copy()
+    do_refino.pop("escopo", None)
     contexto = {
         "page_obj": pagina,
         "oficios": pagina.object_list,
@@ -97,7 +146,16 @@ def lista(request: HttpRequest) -> HttpResponse:
         "situacao": situacao,
         "termo": termo,
         "ordem": ordem,
+        "escopo": escopo,
+        # Outra tela mandou abrir a janela de um ofício (roteiros → "usado em…"): ela já
+        # vai desenhada no HTML, para abrir pronta em vez de piscar o esqueleto.
+        **_resumo_pedido(request),
+        "refinos": refinos,
+        "refino_atual": next((r for r in refinos if r["escopo"] == escopo), None),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
+        "querystring_abas": das_abas.urlencode(),
+        "querystring_refino": (do_refino.urlencode() + "&") if do_refino else "",
+        "avancados": avancados,
         "abas": [("", "Todos", "todos")] + [
             (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
         "pode_criar": policies.pode_criar(request.user),
@@ -167,10 +225,9 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
                 policies.roteiros_visiveis(request.user), oficio))
             if request.user.has_perm("viagens.view_roteiro") else None),
         "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
+        "historico": list(oficio.historico.select_related("usuario")[:30]),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
-                              (oficio.numero_formatado, reverse("viagens:detalhe",
-                                                                args=[oficio.pk])),
-                              ("Editar", "")),
+                              (oficio.numero_formatado, "")),
     }
 
 
@@ -182,8 +239,8 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
         else:
             messages.info(request, f"O Ofício {oficio.numero_formatado} está "
                                    f"{oficio.get_situacao_display().lower()} e não pode ser "
-                                   "editado; veja os detalhes abaixo.")
-        return redirect("viagens:detalhe", pk=oficio.pk)
+                                   "editado; abra o resumo na lista para conferir.")
+        return redirect(_na_lista(oficio))
     if request.method != "POST":
         return render(request, "viagens/oficios/editar.html", _contexto_edicao(request, oficio))
 
@@ -346,8 +403,7 @@ def revisar_emissao(request: HttpRequest, pk: int) -> HttpResponse:
         "oficio": oficio, "prontidao": prontidao, "dados": dados_do_oficio(oficio),
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
-                              (oficio.numero_formatado, reverse("viagens:detalhe",
-                                                                args=[oficio.pk])),
+                              (oficio.numero_formatado, _na_lista(oficio)),
                               ("Emitir", "")),
     })
 
@@ -362,7 +418,7 @@ def emitir(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("viagens:revisar_emissao", pk=pk)
     messages.success(request, f"Ofício {oficio.numero_formatado} emitido. O PDF está sendo "
                               "gerado e aparece em Documentos em instantes.")
-    return redirect("viagens:detalhe", pk=pk)
+    return redirect(_na_lista(oficio))
 
 
 @require_POST
@@ -372,7 +428,7 @@ def reabrir(request: HttpRequest, pk: int) -> HttpResponse:
         services.reabrir(oficio, request.user, request.POST.get("motivo", ""))
     except services.RegraViolada as exc:
         messages.error(request, str(exc))
-        return redirect("viagens:detalhe", pk=pk)
+        return redirect(_na_lista(oficio))
     messages.success(request, "Ofício reaberto. Corrija e emita uma nova versão.")
     return redirect("viagens:editar", pk=pk)
 
@@ -386,7 +442,7 @@ def cancelar(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, str(exc))
     else:
         messages.success(request, f"Ofício {oficio.numero_formatado} cancelado.")
-    return redirect("viagens:detalhe", pk=pk)
+    return redirect(_na_lista(oficio))
 
 
 @require_POST
@@ -395,47 +451,27 @@ def excluir(request: HttpRequest, pk: int) -> HttpResponse:
     numero = services.excluir_rascunho(oficio, request.user)
     messages.success(request, f"Rascunho {numero} excluído; o número volta a ficar disponível.")
     return redirect("viagens:oficios")
-
-
-# ------------------------------------------------------------------ detalhe
-@require_GET
-def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
-    oficio = _oficio_visivel(request, pk)
-    documentos = list(oficio.documentos.select_related("emitido_por"))
-    return render(request, "viagens/oficios/detalhe.html", {
+def _contexto_resumo(request: HttpRequest, oficio) -> dict:
+    """O que a janela de resumo mostra — serve ao fragmento HTMX e à janela já desenhada."""
+    return {
         "oficio": oficio,
-        "viajantes": viajantes_de(oficio),
-        "trechos": trechos_de(oficio),
-        "documentos": documentos,
-        "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
-        "historico": list(oficio.historico.select_related("usuario")[:30]),
-        "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
-        "prazo": services.avaliar_prazo_do_oficio(oficio),
         "assunto": services.assunto_do_oficio(oficio),
+        "prazo": services.avaliar_prazo_do_oficio(oficio),
         "calculo": oficio.diarias_calculo,
-        "faixas": {f.value: f.rotulo for f in Faixa},
-        "pode_editar": policies.pode_editar(request.user, oficio),
-        "pode_emitir": policies.pode_emitir(request.user, oficio),
-        "pode_reabrir": policies.pode_reabrir(request.user, oficio),
-        "pode_cancelar": policies.pode_cancelar(request.user, oficio),
-        "pode_excluir": policies.pode_excluir(request.user, oficio),
-        "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
-                              (oficio.numero_formatado, "")),
-    })
-
-
-@require_GET
-def resumo(request: HttpRequest, pk: int) -> HttpResponse:
-    """Fragmento HTMX: o registro da lista se expande com roteiro, equipe e documentos."""
-    oficio = _oficio_visivel(request, pk)
-    return render(request, "viagens/oficios/_resumo.html", {
-        "oficio": oficio,
         "viajantes": viajantes_de(oficio),
         "trechos": trechos_de(oficio),
         "documentos": list(oficio.documentos.select_related("emitido_por")),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
-    })
+    }
+
+
+@require_GET
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo que a lista abre no clique. Traz o que a pessoa
+    precisa para decidir sem abrir o ofício — o mesmo conteúdo da folha, menos o histórico."""
+    oficio = _oficio_visivel(request, pk)
+    return render(request, "viagens/oficios/_resumo.html", _contexto_resumo(request, oficio))
 
 
 @require_GET

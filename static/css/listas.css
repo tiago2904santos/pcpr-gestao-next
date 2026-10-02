@@ -8,7 +8,10 @@
 .abas {
   display: flex;
   gap: var(--esp-1);
+  /* Rolar só de lado (telas estreitas): com overflow-x sozinho o navegador liga a rolagem
+     vertical junto e um fio de sobra já fazia aparecer a barra. */
   overflow-x: auto;
+  overflow-y: hidden;
   border-bottom: var(--borda);
 }
 
@@ -43,10 +46,14 @@
   font-weight: var(--peso-semi);
 }
 
-/* A aba ativa tem nome de transição: ao trocar de filtro, o destaque desliza até a nova
-   aba (entre páginas e em trocas HTMX) em vez de sumir e reaparecer. */
-.aba[aria-current="page"] {
-  view-transition-name: aba-ativa;
+/* Ao trocar de aba, quem se mexe é o que mudou de estado: o filete, que cresce de lado
+   (eixo X), e a contagem, que sobe (eixo Y). O rótulo fica parado — ele não mudou. */
+.aba[aria-current="page"] .aba__contagem {
+  animation: contagem-entrar var(--duracao-media) var(--curva-padrao);
+}
+
+@keyframes contagem-entrar {
+  from { opacity: 0; translate: 0 0.4rem; }
 }
 
 /* Filete dourado sob a aba ativa (DNA das referências), nasce da esquerda. */
@@ -82,6 +89,94 @@
 .aba[aria-selected="true"] .aba__contagem {
   background: var(--grafite-900);
   color: var(--neutro-0);
+}
+
+/* Item de meta que é ação (ex.: "Usado em 3 ofícios" abre a lista): tem a mesma cara do
+   texto ao lado, mas se comporta como botão. */
+.registro__meta-item--acao {
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--cor-marca-texto);
+  cursor: pointer;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.registro__meta-item--acao:hover {
+  color: var(--cor-texto);
+}
+
+/* =============== Refino da busca (fichas) =============== */
+/* A tela diz como entendeu o termo e deixa escolher: "Ofício 26/2026 (1)" ou
+   "Protocolo com 26 (12)". Fica entre os filtros e o cabeçalho dos resultados. */
+.refino {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-5) 0;
+}
+
+.refino__rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-1) var(--esp-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  text-decoration: none;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao),
+    translate var(--duracao-rapida) var(--curva-padrao);
+}
+
+a.ficha:hover {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca-fundo);
+  text-decoration: none;
+  translate: 0 -1px;
+}
+
+.ficha__contagem {
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Escopo em uso: a ficha fica em grafite, com o X para voltar à busca ampla. */
+.ficha--ativa {
+  border-color: var(--grafite-800);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.ficha__remover {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: calc(-1 * var(--esp-1));
+  border-radius: var(--raio-pilula);
+  color: inherit;
+}
+
+.ficha__remover:hover {
+  background: var(--cor-primaria-hover);
 }
 
 /* =============== Lista de registros (linha-cartão) =============== */
@@ -122,67 +217,30 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: var(--esp-3);
+  gap: var(--esp-2);
   padding: var(--esp-2) var(--esp-5);
-  background: var(--cor-superficie);
-  font-size: var(--texto-2xs);
+  border-top: var(--borda);
+  border-bottom: var(--borda-sutil);
+  background: var(--cor-superficie-realce);
+  font-size: var(--texto-xs);
   font-weight: var(--peso-forte);
   letter-spacing: var(--rastreio-rotulo);
   text-transform: uppercase;
-  color: var(--cor-texto-secundario);
+  color: var(--cor-texto);
 }
 
-.registros__grupo::after {
+/* O primeiro grupo encosta no cabeçalho da lista: sem linha dupla ali. */
+.registros__grupo:first-child {
+  border-top: 0;
+}
+
+/* Marca do mês: o mesmo filete dourado das abas e do cabeçalho da página. */
+.registros__grupo::before {
   content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--cor-borda);
-}
-
-/* Expansão em linha: o registro revela roteiro, equipe e documentos sem sair da lista. */
-.registro__expandir > .icone {
-  transition: transform var(--duracao-media) var(--curva-expressiva);
-}
-
-.registro__expandir[aria-expanded="true"] > .icone {
-  transform: rotate(180deg);
-}
-
-/* O resumo abre crescendo (grid 0fr → 1fr: anima altura sem medir nada no JS) e fica
-   fora da ordem de foco enquanto fechado (visibility). */
-.registro__extra {
-  position: relative;
-  z-index: 1;
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-rows: 0fr;
-  margin-top: calc(-1 * var(--esp-2)); /* anula o gap da linha vazia */
-  visibility: hidden;
-  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
-    margin-top var(--duracao-media) var(--curva-padrao),
-    visibility 0s linear var(--duracao-media);
-}
-
-.registro__extra-corpo {
-  min-height: 0;
-  overflow: hidden;
-}
-
-.registro--aberto {
-  background: var(--cor-superficie-sutil);
-  box-shadow: inset var(--filete-fino) 0 0 var(--cor-marca);
-}
-
-.registro--aberto .registro__extra {
-  grid-template-rows: 1fr;
-  margin-top: 0;
-  visibility: visible;
-  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
-    margin-top var(--duracao-media) var(--curva-padrao);
-}
-
-.registro--aberto .registro__extra-corpo > * {
-  animation: aparecer var(--duracao-media) var(--curva-padrao);
+  width: var(--filete);
+  height: 0.75rem;
+  border-radius: var(--raio-xs);
+  background: var(--cor-marca);
 }
 
 /* Recém-alterado: ao voltar da edição, a linha acende em dourado e assenta (registro.js). */
@@ -196,18 +254,274 @@
   100% { background: transparent; box-shadow: inset var(--filete) 0 0 transparent; }
 }
 
-.registro__extra .esqueleto + .esqueleto {
-  margin-top: var(--esp-2);
+/* Resumo (janela aberta pela lista): três colunas de leitura, sem caixas. */
+.resumo__titulo--adiante {
+  margin-top: var(--esp-4);
 }
 
-/* Resumo expandido: três colunas de leitura, sem caixas. */
+/* O corpo da janela são três faixas: caminho e dinheiro, depois quem vai e com o quê,
+   depois o papel. Dentro de cada faixa as colunas têm a mesma altura (stretch). */
 .resumo {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--esp-4) var(--esp-6);
-  padding: var(--esp-3) 0 var(--esp-1);
-  border-top: 1px dashed var(--cor-borda);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-5);
   font-size: var(--texto-sm);
+}
+
+/* Roteiro curto: cada bloco na sua linha, e os quadros das diárias se espalham em três. */
+.resumo__empilhado {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-5);
+}
+
+.resumo__empilhado .resumo__indicadores {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Os cartões da linha têm a altura do mais alto (o valor total, que leva uma nota
+   embaixo). Nos outros, o conteúdo fica no meio e o número cresce — o cartão passa a ser
+   ocupado pelo que importa, em vez de guardar um vão. */
+.resumo__indicadores .indicador--compacto {
+  justify-content: center;
+  gap: var(--esp-2);
+}
+
+/* Numa linha só: a conta das diárias ("18 × 100% + 1 × 15%") perde o sentido quebrada no
+   meio. Se não couber, corta com reticências — o valor inteiro fica no title e na folha. */
+.resumo__indicadores .indicador--compacto .indicador__valor {
+  font-size: var(--texto-xl);
+  line-height: var(--altura-linha-justa);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Valor curto (o tipo de destino): pode ocupar o cartão. */
+.resumo__indicadores .indicador--compacto .indicador__valor--grande {
+  font-size: var(--texto-3xl);
+}
+
+/* O roteiro é texto que quebra (nomes de cidade), as diárias são números curtos: 60/40. */
+.resumo__linha {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--esp-5);
+  align-items: stretch;
+}
+
+.resumo__coluna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  min-height: 0;
+}
+
+.resumo__indicadores {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-2);
+}
+
+.resumo__trechos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  overflow: hidden;
+}
+
+.resumo__moldura {
+  min-width: 0;
+}
+
+/* Lado a lado, quem manda na altura são os quadros das diárias: a lista do roteiro se
+   encaixa no que sobrar e rola por dentro. Em posição absoluta ela não entra na conta da
+   altura da linha — por isso a linha não cresce com o roteiro. */
+.resumo__linha .resumo__moldura {
+  position: relative;
+  flex: 1;
+  min-height: 9rem;
+}
+
+.resumo__linha .resumo__trechos {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+}
+
+/* Cada trecho em três colunas fixas: o dia, o caminho e as horas. Alinhadas assim, as
+   linhas se leem em coluna mesmo quando o nome da cidade é longo e quebra. */
+.resumo__trecho-linha {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: var(--esp-1) var(--esp-3);
+  align-items: center;
+  padding: var(--esp-3);
+  border-bottom: var(--borda-sutil);
+}
+
+.resumo__trecho-linha:last-child {
+  border-bottom: 0;
+}
+
+/* O filete do dia acompanha a linha inteira; a data fica centrada nele. */
+.resumo__trecho-dia {
+  display: grid;
+  align-content: center;
+  align-self: stretch;
+  gap: var(--esp-05);
+  padding-right: var(--esp-3);
+  border-right: var(--borda-sutil);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.resumo__trecho-dia b {
+  font-weight: var(--peso-semi);
+}
+
+.resumo__trecho-dia small {
+  color: var(--cor-texto-terciario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+}
+
+.resumo__trecho-rota {
+  color: var(--cor-texto-secundario);
+  overflow-wrap: anywhere;
+}
+
+.resumo__trecho-rota b {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+.resumo__trecho-seta {
+  color: var(--cor-texto-terciario);
+  padding: 0 var(--esp-05);
+}
+
+.resumo__trecho-horas {
+  justify-self: end;
+  white-space: nowrap;
+  color: var(--cor-texto-secundario);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sem largura para as três colunas, as horas descem para a linha de baixo, alinhadas
+   com o caminho. */
+@container (max-width: 26rem) {
+  .resumo__trecho-linha {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+  }
+
+  .resumo__trecho-horas {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+/* Equipe e transporte na mesma grade: seis colunas de base, cada cartão ocupando duas
+   (três por linha) ou três (duas por linha) — a última linha nunca fica pela metade.
+   Quem decide a largura de cada um é larguras_de_cartoes, no servidor. */
+.resumo__cartoes {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__cartao--2 { grid-column: span 2; }
+.resumo__cartao--3 { grid-column: span 3; }
+.resumo__cartao--6 { grid-column: span 6; }
+
+@media (max-width: 767.98px) {
+  .resumo__cartoes > * {
+    grid-column: span 6;
+  }
+}
+
+/* Documentos: fichas numa linha só, quebrando quando precisar. */
+.resumo__documentos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__documento {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+a.resumo__documento:hover {
+  background: var(--cor-marca-fundo);
+  text-decoration: none;
+}
+
+.resumo__documento--parado {
+  color: var(--cor-texto-secundario);
+}
+
+@media (max-width: 767.98px) {
+  .resumo__linha,
+  .resumo__empilhado .resumo__indicadores {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* O aviso de pendências não encosta na identificação logo abaixo. */
+.resumo__aviso {
+  margin-bottom: var(--esp-4);
+}
+
+/* Identificação do ofício na janela de resumo: rótulos curtos em caixa alta, valores
+   embaixo; o que é texto corrido (assunto, motivo) ocupa a linha toda. */
+.resumo__definicoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--esp-3) var(--esp-5);
+  margin: 0 0 var(--esp-4);
+  padding-bottom: var(--esp-4);
+  border-bottom: var(--borda-sutil);
+  font-size: var(--texto-sm);
+}
+
+.resumo__definicoes dt {
+  margin-bottom: var(--esp-05);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+}
+
+.resumo__definicoes dd {
+  margin: 0;
+}
+
+.resumo__definicoes .resumo__largo {
+  grid-column: 1 / -1;
+}
+
+.resumo__valor {
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
 }
 
 .resumo__titulo {
@@ -389,7 +703,7 @@
   /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda. */
   .registro {
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "placa acoes" "corpo corpo" "extra extra";
+    grid-template-areas: "placa acoes" "corpo corpo";
     gap: var(--esp-1) var(--esp-3);
     align-items: start;
     padding: var(--esp-3) var(--esp-4);
@@ -407,12 +721,12 @@
   .registro > .placa .placa__numero { font-size: var(--texto-sm); }
   .registro__corpo { grid-area: corpo; }
   .registro__acoes { grid-area: acoes; opacity: 1; }
-  .registro__extra { grid-area: extra; }
   .registro__meta { gap: var(--esp-05) var(--esp-3); font-size: var(--texto-xs); }
 }
 
 /* =============== Barra de filtros =============== */
 .filtros {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -436,6 +750,103 @@
   gap: var(--esp-2);
 }
 
+/* Gaveta "Mais filtros": o botão fica na linha da busca, com a mesma altura dos campos;
+   o painel abre logo abaixo da barra, flutuando sobre a lista — assim a lista não dá um
+   pulo cada vez que a gaveta abre ou fecha. Continua um <details>: sem JavaScript também
+   abre. */
+.filtros__mais {
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+
+.filtros__mais-resumo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  height: var(--altura-controle);
+  padding: 0 var(--esp-3);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.filtros__mais-resumo::-webkit-details-marker {
+  display: none;
+}
+
+.filtros__mais-resumo:hover {
+  border-color: var(--neutro-500);
+  color: var(--cor-texto);
+}
+
+/* Aberta ou com filtro valendo, a gaveta se assume: borda e texto em grafite. */
+.filtros__mais[open] .filtros__mais-resumo {
+  border-color: var(--grafite-800);
+  color: var(--cor-texto);
+}
+
+.filtros__mais-resumo:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: var(--foco-offset);
+}
+
+.filtros__mais-seta {
+  transition: rotate var(--duracao-rapida) var(--curva-padrao);
+}
+
+.filtros__mais[open] .filtros__mais-seta {
+  rotate: 180deg;
+}
+
+/* Grade em vez de linha: os seis campos se arrumam sozinhos em qualquer largura, sem
+   sobrar um deles solto numa linha só para ele. */
+.filtros__avancados {
+  position: absolute;
+  z-index: var(--z-painel-campo);
+  top: calc(100% - var(--esp-2));
+  right: var(--esp-5);
+  left: var(--esp-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  align-items: end;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top center;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.filtros__limpar {
+  justify-self: start;
+  align-self: center;
+}
+
+/* Faixa de valores (de … a …): dois campos curtos que se leem como um. */
+.filtros__faixa {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.filtros__faixa .entrada {
+  min-width: 0;
+}
+
+.filtros__faixa-sep {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
 .lista-cabecalho {
   display: flex;
   flex-wrap: wrap;
@@ -455,6 +866,10 @@
    a mudança é explicada, não parece "reload". */
 .lista-resultados {
   position: relative;
+  /* Recorte com o mesmo raio do cartão: a fita dourada do hover, na última linha, curva
+     junto com a quina em vez de passar reto por fora dela. clip-path (e não overflow)
+     porque o cabeçalho de mês precisa continuar grudando no topo. */
+  clip-path: inset(0 round 0 0 var(--raio-lg) var(--raio-lg));
   transition: opacity var(--duracao-media) var(--curva-padrao);
 }
 

@@ -1,16 +1,20 @@
 {% extends "arquetipos/lista.html" %}
+{# Além da lista, esta tela tem campos de formulário (a gaveta "Mais filtros" usa data e seleção). #}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo %}Ofícios{% endblock %}
 {% block titulo_lista %}Ofícios{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios de viagem com cálculo de diárias, justificativa e documentos.</p>{% endblock %}
-{% block acoes_lista %}
-  {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
-{% endblock %}
+{% comment %}
+"Novo ofício" mora na barra que acompanha a rolagem (abaixo), não no alto da página: numa
+lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofício.
+{% endcomment %}
 
 {% block abas_filtro %}{% include "viagens/oficios/_abas.html" %}{% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:oficios' %}"
-      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML transition:true" hx-push-url="true" hx-indicator=".lista-resultados" hx-trigger="submit, input changed delay:350ms from:#busca-oficios, change from:#ordem-oficios">
+<form class="filtros" id="filtros-oficios" role="search" method="get" action="{% url 'viagens:oficios' %}"
+      hx-get="{% url 'viagens:oficios' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-oficios, change from:#ordem-oficios, change from:#filtros-mais, input changed delay:350ms from:#filtros-mais">
   {% if situacao %}<input type="hidden" name="situacao" value="{{ situacao }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-oficios">Buscar</label>
@@ -26,6 +30,46 @@
     </select></pc-select>
   </div>
   <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
+  {% comment %}
+  Busca e ordenação ficam sempre à vista; o resto mora aqui dentro, fechado, e só abre
+  quando alguém precisa. A gaveta já vem aberta se algum filtro estiver valendo — senão a
+  lista apareceria filtrada sem dizer por quê.
+  {% endcomment %}
+  <details class="filtros__mais" id="filtros-mais"{% if avancados.ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if avancados.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ avancados.ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      {% comment %}
+      Período num campo só: o calendário é o mesmo do roteiro (marca começo e fim), e as
+      duas pontas vão escondidas para o formulário. Destino, servidor e número não estão
+      aqui de propósito — quem procura por eles usa a busca de cima, que já pergunta em
+      qual deles procurar.
+      {% endcomment %}
+      <div class="campo filtros__campo--md">
+        <label class="campo__rotulo" for="filtro-periodo" id="filtro-periodo-rotulo">Período de saída</label>
+        <pc-data class="seletor" data-periodo>
+          <input class="entrada" type="text" id="filtro-periodo" value="{{ avancados.periodo_texto }}"
+                 placeholder="Qualquer data" autocomplete="off" form="filtros-oficios">
+          <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
+          {{ avancados.saida_de }}{{ avancados.saida_ate }}
+        </pc-data>
+      </div>
+      {% include "componentes/campo.html" with campo=avancados.protocolo classe="filtros__campo--md" %}
+      {% include "componentes/campo.html" with campo=avancados.veiculo classe="filtros__campo--md" %}
+      <div class="campo filtros__campo--md">
+        <span class="campo__rotulo" id="filtro-diarias-rotulo">Diárias (R$)</span>
+        <div class="filtros__faixa" role="group" aria-labelledby="filtro-diarias-rotulo">
+          {{ avancados.diarias_de }}<span class="filtros__faixa-sep" aria-hidden="true">a</span>{{ avancados.diarias_ate }}
+        </div>
+      </div>
+      {% if avancados.ativos %}
+        <a class="botao botao--texto filtros__limpar" href="{% url 'viagens:oficios' %}{% if situacao %}?situacao={{ situacao }}{% endif %}">{% icone "x" %}Limpar filtros</a>
+      {% endif %}
+    </div>
+  </details>
 </form>
 {% endblock %}
 
@@ -33,6 +77,7 @@
 {% partialdef resultados inline %}
 <div id="resultados">
   {% if request.htmx %}{% include "viagens/oficios/_abas.html" with oob=True %}{% endif %}
+  {% include "viagens/oficios/_refino.html" %}
   <div class="lista-cabecalho">
     <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Ofícios{% endif %}</h2>
     <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
@@ -61,4 +106,12 @@
   {% endif %}
 </div>
 {% endpartialdef %}
+{% endblock %}
+
+{% block depois_lista %}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or situacao or avancados.ativos %} no filtro de agora{% endif %}</p>
+  {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
+</div>
+{% include "viagens/oficios/_dialogo_resumo.html" %}
 {% endblock %}

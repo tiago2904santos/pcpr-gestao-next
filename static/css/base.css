@@ -124,6 +124,8 @@ input:autofill {
 .relogio__lista,
 .combobox__lista,
 .comandos__lista,
+.resumo__trechos,
+dialog.dialogo,
 .gaveta .dialogo__corpo {
   scrollbar-width: thin;
   scrollbar-color: var(--neutro-300) transparent;
@@ -392,6 +394,13 @@ a:not([class]):focus-visible {
 .conteudo__interno > :nth-child(2) { animation-delay: 40ms; }
 .conteudo__interno > :nth-child(3) { animation-delay: 80ms; }
 .conteudo__interno > :nth-child(n + 4) { animation-delay: 120ms; }
+
+/* Quando a navegação já tem transição de view (trocar de aba, abrir um registro), a
+   cascata seria uma segunda entrada por cima da primeira: aparecia em degraus, parecendo
+   travado. A transição cuida da passagem; a cascata fica para as cargas comuns. */
+html:active-view-transition .conteudo__interno > * {
+  animation: none;
+}
 
 /* HTMX: troca de fragmento sem parecer "reload". */
 .htmx-swapping {

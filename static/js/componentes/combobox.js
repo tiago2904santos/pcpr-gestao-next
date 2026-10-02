@@ -11,6 +11,8 @@
  *     servidor continua sendo a fonte da verdade.
  */
 
+import { adicionarLimpar } from "./limpar.js";
+
 /** @typedef {{id: string, titulo: string, meta?: string}} Opcao */
 
 let contador = 0;
@@ -24,8 +26,8 @@ export class PcCombobox extends HTMLElement {
   ativo = -1;
   /** Quem digitou já quer a primeira sugestão pronta; quem só abriu a lista, não. */
   primeiroPronto = false;
-  /** @type {HTMLButtonElement | null} */
-  limparBotao = null;
+  /** @type {(() => void) | undefined} */
+  sincronizarBotao = undefined;
 
   connectedCallback() {
     if (this.dataset.pronto) return;
@@ -81,55 +83,14 @@ export class PcCombobox extends HTMLElement {
    * Botão "limpar" dentro do campo: trocar de município não exige apagar letra por letra.
    * Só aparece quando há texto, então não cria parada no Tab em campo vazio.
    */
+  /** Botão × do campo, igual ao das buscas (componentes/limpar.js). */
   criarLimpar() {
     const entrada = /** @type {HTMLInputElement} */ (this.entrada);
-    let caixa = entrada.parentElement;
-    if (!caixa || !caixa.classList.contains("entrada-composta")) {
-      caixa = document.createElement("div");
-      caixa.className = "entrada-composta";
-      entrada.before(caixa);
-      caixa.append(entrada);
-    }
-    caixa.classList.add("entrada-composta--limpavel");
-    const botao = document.createElement("button");
-    botao.type = "button";
-    botao.className = "entrada-composta__botao";
-    botao.title = "Limpar o campo";
-    botao.hidden = true;
-    const rotulo = document.createElement("span");
-    rotulo.className = "sr-only";
-    rotulo.textContent = "Limpar o campo";
-    botao.append(this.iconeX(), rotulo);
-    botao.addEventListener("click", () => this.limpar());
-    caixa.append(botao);
-    this.limparBotao = botao;
-    this.sincronizarLimpar();
-  }
-
-  /** Ícone do sprite já carregado pela página. */
-  iconeX() {
-    const uso = document.querySelector("svg.icone use")?.getAttribute("href") || "";
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("class", "icone");
-    svg.setAttribute("aria-hidden", "true");
-    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    use.setAttribute("href", `${uso.split("#")[0]}#i-x`);
-    svg.append(use);
-    return svg;
+    this.sincronizarBotao = adicionarLimpar(entrada, () => this.aoDigitar());
   }
 
   sincronizarLimpar() {
-    if (this.limparBotao) this.limparBotao.hidden = !this.entrada?.value.trim();
-  }
-
-  limpar() {
-    if (!this.entrada) return;
-    this.entrada.value = "";
-    // Os mesmos eventos de quem apaga à mão: o <select> volta a vazio e a tela recalcula.
-    this.entrada.dispatchEvent(new Event("input", { bubbles: true }));
-    this.entrada.dispatchEvent(new Event("change", { bubbles: true }));
-    this.entrada.focus();
-    this.sincronizarLimpar();
+    this.sincronizarBotao?.();
   }
 
   criarEntradaParaSelect() {

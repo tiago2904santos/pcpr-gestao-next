@@ -51,8 +51,10 @@ def busca(request: HttpRequest) -> JsonResponse:
             resultados.append({
                 "titulo": f"Ofício {o.numero_formatado}",
                 "meta": f"{o.get_situacao_display()} · {o.motivo[:60]}",
-                "url": reverse("viagens:editar" if o.editavel else "viagens:detalhe",
-                               args=[o.pk]),
+                # Emitido ou cancelado não tem folha para abrir: a busca leva à lista
+                # filtrada nele, onde a janela de resumo mostra tudo.
+                "url": (reverse("viagens:editar", args=[o.pk]) if o.editavel
+                        else f"{reverse('viagens:oficios')}?q={o.numero_formatado}"),
                 "grupo": "Ofícios", "icone": "file-text",
             })
     return JsonResponse({"resultados": resultados})
