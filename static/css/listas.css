@@ -1,0 +1,569 @@
+/* =====================================================================
+   LISTAS — registros (linha-cartão), filtros, paginação e abas. Carregado nas listas
+   (ofícios, roteiros, cadastros, documentos) e no painel.
+   Regras só com tokens (tokens.css); depende de base.css e components.css.
+   ===================================================================== */
+
+/* =============== Abas =============== */
+.abas {
+  display: flex;
+  gap: var(--esp-1);
+  overflow-x: auto;
+  border-bottom: var(--borda);
+}
+
+.aba {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-3);
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba:hover {
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.aba:focus-visible {
+  outline-offset: calc(-1 * var(--foco-offset));
+  box-shadow: none;
+}
+
+.aba[aria-selected="true"],
+.aba[aria-current="page"] {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+/* A aba ativa tem nome de transição: ao trocar de filtro, o destaque desliza até a nova
+   aba (entre páginas e em trocas HTMX) em vez de sumir e reaparecer. */
+.aba[aria-current="page"] {
+  view-transition-name: aba-ativa;
+}
+
+/* Filete dourado sob a aba ativa (DNA das referências), nasce da esquerda. */
+.aba[aria-selected="true"]::after,
+.aba[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: var(--esp-2);
+  right: var(--esp-2);
+  bottom: -1px;
+  height: var(--filete);
+  border-radius: var(--raio-xs) var(--raio-xs) 0 0;
+  background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-media) var(--curva-padrao);
+}
+
+.aba__contagem {
+  min-width: 1.5rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba[aria-current="page"] .aba__contagem,
+.aba[aria-selected="true"] .aba__contagem {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* =============== Lista de registros (linha-cartão) =============== */
+.registros {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.registro {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--esp-2) var(--esp-4);
+  align-items: center;
+  padding: var(--esp-4) var(--esp-5);
+  border-bottom: var(--borda-sutil);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.registro:last-child {
+  border-bottom: 0;
+}
+
+/* Hover: superfície sutil + trilho dourado à esquerda (a mesma gramática das tabelas). */
+.registro:hover,
+.registro:focus-within {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset var(--filete-fino) 0 0 var(--cor-marca);
+}
+
+/* Cabeçalho de grupo (mês): leitura em alta velocidade numa lista longa. Fica preso
+   sob o topo enquanto o grupo rola. */
+.registros__grupo {
+  position: sticky;
+  top: var(--altura-topo);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-5);
+  background: var(--cor-superficie);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.registros__grupo::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--cor-borda);
+}
+
+/* Expansão em linha: o registro revela roteiro, equipe e documentos sem sair da lista. */
+.registro__expandir > .icone {
+  transition: transform var(--duracao-media) var(--curva-expressiva);
+}
+
+.registro__expandir[aria-expanded="true"] > .icone {
+  transform: rotate(180deg);
+}
+
+/* O resumo abre crescendo (grid 0fr → 1fr: anima altura sem medir nada no JS) e fica
+   fora da ordem de foco enquanto fechado (visibility). */
+.registro__extra {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(-1 * var(--esp-2)); /* anula o gap da linha vazia */
+  visibility: hidden;
+  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
+    margin-top var(--duracao-media) var(--curva-padrao),
+    visibility 0s linear var(--duracao-media);
+}
+
+.registro__extra-corpo {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.registro--aberto {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset var(--filete-fino) 0 0 var(--cor-marca);
+}
+
+.registro--aberto .registro__extra {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  visibility: visible;
+  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
+    margin-top var(--duracao-media) var(--curva-padrao);
+}
+
+.registro--aberto .registro__extra-corpo > * {
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* Recém-alterado: ao voltar da edição, a linha acende em dourado e assenta (registro.js). */
+.registro--destaque {
+  animation: destacar-registro 2.4s var(--curva-suave) both;
+}
+
+@keyframes destacar-registro {
+  0% { background: var(--cor-marca-fundo-forte); box-shadow: inset var(--filete) 0 0 var(--cor-marca); }
+  60% { background: var(--cor-marca-fundo); box-shadow: inset var(--filete) 0 0 var(--cor-marca); }
+  100% { background: transparent; box-shadow: inset var(--filete) 0 0 transparent; }
+}
+
+.registro__extra .esqueleto + .esqueleto {
+  margin-top: var(--esp-2);
+}
+
+/* Resumo expandido: três colunas de leitura, sem caixas. */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4) var(--esp-6);
+  padding: var(--esp-3) 0 var(--esp-1);
+  border-top: 1px dashed var(--cor-borda);
+  font-size: var(--texto-sm);
+}
+
+.resumo__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-1);
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.resumo__titulo .icone {
+  color: var(--cor-marca-texto);
+}
+
+.resumo__lista {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__trecho {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-2);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.resumo__trecho time {
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.registro__erro {
+  padding: var(--esp-2) 0;
+  color: var(--cor-perigo);
+  font-size: var(--texto-sm);
+}
+
+.resumo__pendencias {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-1);
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-secundario);
+}
+
+.resumo__pendencias .icone {
+  color: var(--cor-aviso);
+}
+
+.resumo__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  margin-top: var(--esp-2);
+}
+
+@media (max-width: 1023.98px) {
+  .resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767.98px) {
+  .resumo { grid-template-columns: minmax(0, 1fr); }
+  .registros__grupo { padding: var(--esp-2) var(--esp-4); }
+}
+
+.registro__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+}
+
+.registro__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+  font-weight: var(--peso-semi);
+}
+
+.registro__link {
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.registro__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.registro:hover .registro__link {
+  color: var(--cor-marca-texto);
+}
+
+.registro__link:focus-visible {
+  outline: none;
+}
+
+.registro:has(.registro__link:focus-visible) {
+  box-shadow: inset 0 0 0 2px var(--cor-foco);
+}
+
+/* Sem :has() (navegadores antigos), o próprio link mostra o anel. */
+@supports not selector(:has(a)) {
+  .registro__link:focus-visible {
+    outline: var(--foco-espessura) solid var(--foco-cor);
+    outline-offset: var(--foco-offset);
+  }
+}
+
+/* Linha focada nunca fica sob o cabeçalho de grupo preso ao topo. */
+.registro {
+  scroll-margin-top: calc(var(--altura-topo) + 2.5rem);
+}
+
+.registro__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1) var(--esp-4);
+  margin-top: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.registro__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  min-width: 0;
+}
+
+.registro__meta-item > .icone {
+  color: var(--cor-texto-terciario);
+}
+
+.registro__mais {
+  display: inline-block;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-xs);
+  background: var(--cor-superficie-realce);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+}
+
+.registro__meta-item--vazio {
+  color: var(--cor-texto-terciario);
+  font-style: italic;
+}
+
+/* Ações: discretas até o ponteiro ou o foco chegarem à linha (sem sumir: a11y). */
+.registro__acoes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: var(--esp-2);
+  opacity: 0.6;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao);
+}
+
+.registro:hover .registro__acoes,
+.registro:focus-within .registro__acoes {
+  opacity: 1;
+}
+
+@media (max-width: 767.98px) {
+  /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda. */
+  .registro {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "placa acoes" "corpo corpo" "extra extra";
+    gap: var(--esp-1) var(--esp-3);
+    align-items: start;
+    padding: var(--esp-3) var(--esp-4);
+  }
+  .registro__icone { display: none; }
+  .registro > .placa {
+    grid-area: placa;
+    justify-self: start;
+    flex-direction: row;
+    gap: var(--esp-1);
+    min-width: 0;
+    padding: 0 var(--esp-1);
+    line-height: 1.4;
+  }
+  .registro > .placa .placa__numero { font-size: var(--texto-sm); }
+  .registro__corpo { grid-area: corpo; }
+  .registro__acoes { grid-area: acoes; opacity: 1; }
+  .registro__extra { grid-area: extra; }
+  .registro__meta { gap: var(--esp-05) var(--esp-3); font-size: var(--texto-xs); }
+}
+
+/* =============== Barra de filtros =============== */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--esp-3);
+  padding: var(--esp-4) var(--esp-5);
+  border-bottom: var(--borda-sutil);
+  background: var(--cor-superficie-sutil);
+  border-radius: var(--raio-lg) var(--raio-lg) 0 0;
+}
+
+.filtros__busca {
+  flex: 1 1 18rem;
+}
+
+.filtros__campo {
+  flex: 0 1 15rem;
+}
+
+.filtros__acoes {
+  display: flex;
+  gap: var(--esp-2);
+}
+
+.lista-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+  padding: var(--esp-3) var(--esp-5);
+  border-bottom: var(--borda-sutil);
+}
+
+.lista-cabecalho__total {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lista atualizando (HTMX): esmaece e mostra uma linha dourada correndo no topo —
+   a mudança é explicada, não parece "reload". */
+.lista-resultados {
+  position: relative;
+  transition: opacity var(--duracao-media) var(--curva-padrao);
+}
+
+.lista-resultados.htmx-request {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.lista-resultados.htmx-request::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: var(--filete-fino);
+  background: var(--cor-marca);
+  animation: deslizar-indeterminado 1s var(--curva-suave) infinite;
+}
+
+@media (max-width: 767.98px) {
+  .filtros { padding: var(--esp-3) var(--esp-4); }
+  .filtros__campo, .filtros__busca { flex: 1 1 100%; }
+  .filtros__acoes { width: 100%; }
+  .filtros__acoes .botao { flex: 1; }
+  .lista-cabecalho { padding: var(--esp-3) var(--esp-4); }
+}
+
+/* =============== Paginação =============== */
+.paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-5);
+  border-top: var(--borda-sutil);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+  font-variant-numeric: tabular-nums;
+}
+
+.paginacao__paginas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.paginacao__pagina {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--altura-controle-sm);
+  height: var(--altura-controle-sm);
+  padding: 0 var(--esp-2);
+  border: 1px solid transparent;
+  border-radius: var(--raio-pilula);
+  color: var(--cor-texto);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    border-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.paginacao__pagina:hover {
+  background: var(--cor-superficie-realce);
+  text-decoration: none;
+}
+
+.paginacao__pagina[aria-current="page"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+  font-weight: var(--peso-semi);
+  box-shadow: var(--sombra-interna-topo);
+}
+
+.paginacao__pagina[aria-disabled="true"] {
+  color: var(--cor-texto-terciario);
+  pointer-events: none;
+}
+
+@media (max-width: 479.98px) {
+  .paginacao { justify-content: center; }
+  .paginacao__numero:not(.paginacao__numero--atual) { display: none; }
+}
+
+/* =============== Roteiros cadastrados: registro sem link =============== */
+/* Registro sem link (roteiro cancelado ou perfil só de leitura): não finge ser clicável. */
+.registro__link--estatico::after {
+  content: none;
+}
+
+.registro:hover .registro__link--estatico {
+  color: var(--cor-texto);
+}
+
+.lista-simples {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0 0 var(--esp-3);
+  padding: 0;
+  list-style: none;
+}
+
+.lista-simples > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+}

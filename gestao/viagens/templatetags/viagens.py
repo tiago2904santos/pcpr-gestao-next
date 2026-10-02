@@ -102,6 +102,12 @@ def pendencias_da_secao(prontidao, secao: str):
 
 
 @register.filter
+def so_avisos(pendencias):
+    """Só as pendências que não impedem a emissão (agrupadas numa nota só na tela)."""
+    return [p for p in pendencias if not p.bloqueia]
+
+
+@register.filter
 def selo_justificativa(oficio) -> dict[str, str] | None:
     """Selo da lista: justificativa pendente/preenchida quando o prazo a exige."""
     from ..dominio.prazos import avaliar_prazo

@@ -1,0 +1,124 @@
+/* =====================================================================
+   ASSISTENTE — etapas do passo a passo (Preencher → Revisar → Emitir).
+   Carregado só nas telas de assistente (arquetipos/assistente.html).
+   Regras só com tokens (tokens.css); depende de base.css e components.css.
+   ===================================================================== */
+
+/* =============== Etapas (wizard / índice de seções) =============== */
+.etapas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-1);
+  counter-reset: etapa;
+}
+
+.etapas__item > a,
+.etapas__item > span {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  color: var(--cor-texto-secundario);
+  text-decoration: none;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.etapas__item > a:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.etapas__marcador {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--raio-pilula);
+  border: 1px solid var(--cor-borda-forte);
+  background: var(--cor-superficie);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  flex: none;
+  transition: background-color var(--duracao-media) var(--curva-padrao),
+    border-color var(--duracao-media) var(--curva-padrao);
+}
+
+.etapas__item--atual > a,
+.etapas__item--atual > span {
+  background: var(--cor-marca-fundo);
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+.etapas__item--atual .etapas__marcador {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca);
+  color: var(--grafite-950);
+  box-shadow: 0 0 0 3px var(--brilho-dourado-28);
+}
+
+.etapas__item--concluida .etapas__marcador {
+  border-color: var(--cor-sucesso-solida);
+  background: var(--cor-sucesso-solida);
+  color: var(--neutro-0);
+}
+
+/* Etapas horizontais (assistente): marcadores ligados por um fio; o fio percorrido
+   fica dourado; a etapa atual ganha o halo. No celular empilham com o fio vertical. */
+.etapas--horizontal {
+  flex-direction: row;
+  gap: 0;
+}
+
+.etapas--horizontal .etapas__item {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+}
+
+.etapas--horizontal .etapas__item:last-child {
+  flex: 0 0 auto;
+}
+
+.etapas--horizontal .etapas__item > a,
+.etapas--horizontal .etapas__item > span {
+  flex: none;
+  padding: var(--esp-1) var(--esp-2);
+  border-radius: var(--raio-pilula);
+  white-space: nowrap;
+}
+
+.etapas--horizontal .etapas__item:not(:last-child)::after {
+  content: "";
+  flex: 1 1 0;
+  height: 2px;
+  margin: 0 var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-borda-forte);
+}
+
+.etapas--horizontal .etapas__item--concluida:not(:last-child)::after {
+  background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-lenta) var(--curva-padrao);
+}
+
+@media (max-width: 479.98px) {
+  .etapas--horizontal {
+    flex-direction: column;
+    gap: var(--esp-1);
+  }
+
+  .etapas--horizontal .etapas__item::after {
+    display: none;
+  }
+}
+

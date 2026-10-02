@@ -1,0 +1,552 @@
+/* =====================================================================
+   DOCUMENTO — folha única (seções), trilho de processo, histórico, definições, pessoa,
+   valor em destaque e sanfona. Carregado nas telas de documento (detalhe, edição, emissão).
+   Regras só com tokens (tokens.css); depende de base.css e components.css.
+   ===================================================================== */
+
+/* =============== Documento (folha única) e seções abertas =============== */
+/* Em vez de "um cartão por seção", o ofício é UMA folha: seções separadas por linhas,
+   numeradas, com o trilho dourado marcando onde o operador está. Menos caixas, mais
+   leitura; a composição é a do próprio documento que o sistema emite. */
+.documento {
+  position: relative;
+  background: var(--cor-superficie);
+  border-radius: var(--raio-xl);
+  box-shadow: var(--sombra-cartao);
+  padding: var(--esp-6) var(--esp-8) var(--esp-8);
+}
+
+/* Timbre: um segmento dourado curto no alto da folha. */
+.documento::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--esp-8);
+  width: 3rem;
+  height: var(--filete);
+  border-radius: 0 0 var(--raio-xs) var(--raio-xs);
+  background: var(--cor-marca);
+}
+
+.documento--leitura {
+  max-width: 76rem;
+}
+
+.documento .sanfona {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.documento .sanfona > summary {
+  padding-left: 0;
+}
+
+.secao {
+  position: relative;
+  padding: var(--esp-5) 0;
+  border-top: var(--borda-sutil);
+  scroll-margin-top: calc(var(--altura-topo) + var(--esp-6));
+}
+
+.secao:first-child {
+  padding-top: var(--esp-2);
+  border-top: 0;
+}
+
+.secao:last-child {
+  padding-bottom: 0;
+}
+
+.secao__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+}
+
+.secao__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.secao__titulo--institucional {
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.secao__titulo--institucional .icone {
+  color: var(--cor-marca-texto);
+}
+
+.secao__numero {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  border: 1px solid var(--cor-marca-borda);
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.secao__estado {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.secao__nota {
+  flex-basis: 100%;
+  margin-top: calc(-1 * var(--esp-2));
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+/* Foco dentro da seção: trilho dourado na margem da folha, crescendo de cima. */
+.secao:focus-within::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--esp-8));
+  top: var(--esp-5);
+  bottom: var(--esp-5);
+  width: var(--filete);
+  border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
+  background: var(--cor-marca);
+  transform-origin: top center;
+  animation: trilho-crescer var(--duracao-media) var(--curva-padrao);
+}
+
+.secao:first-child:focus-within::before {
+  top: var(--esp-2);
+}
+
+.secao:focus-within .secao__numero {
+  background: var(--cor-marca);
+  border-color: var(--cor-marca);
+  color: var(--grafite-950);
+}
+
+/* Seção concluída: o número vira ✓ dourado (feito via classe no template). */
+.secao--ok .secao__numero {
+  background: var(--cor-superficie);
+  color: var(--cor-marca-texto);
+}
+
+/* Dentro do documento, pessoa e indicador deixam de ser caixas: linha com divisor e
+   área tingida — a folha continua uma só superfície. */
+.documento .pessoa {
+  padding: var(--esp-2) 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px dashed var(--cor-borda);
+}
+
+.documento .pessoa:hover {
+  box-shadow: none;
+}
+
+.documento .indicador {
+  box-shadow: none;
+  background: var(--cor-superficie-sutil);
+}
+
+/* Lista de definições dentro do documento: colunas respiram mais que no cartão. */
+.documento .definicoes {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-4) var(--esp-6);
+}
+
+@media (max-width: 767.98px) {
+  .documento .definicoes { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 767.98px) {
+  .documento { padding: var(--esp-5) var(--esp-4) var(--esp-6); border-radius: var(--raio-lg); }
+  .documento::before { left: var(--esp-4); }
+  .secao { padding: var(--esp-5) 0; }
+  .secao:focus-within::before { left: calc(-1 * var(--esp-4)); }
+}
+
+/* =============== Trilho de processo (status como narrativa) =============== */
+.processo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-terciario);
+}
+
+.processo__passo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-05) var(--esp-2);
+  border-radius: var(--raio-pilula);
+  white-space: nowrap;
+}
+
+.processo__passo::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--raio-pilula);
+  border: 1.5px solid var(--cor-borda-forte);
+  background: var(--cor-superficie);
+  flex: none;
+}
+
+/* Linha entre os passos. */
+.processo__passo + .processo__passo::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--esp-3));
+  top: 50%;
+  width: var(--esp-3);
+  height: 1.5px;
+  background: var(--cor-borda-forte);
+}
+
+.processo__passo + .processo__passo {
+  margin-left: var(--esp-3);
+}
+
+.processo__passo--feito {
+  color: var(--cor-texto-secundario);
+}
+
+.processo__passo--feito::before {
+  width: 0.6rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+.processo__passo--feito + .processo__passo::after {
+  background: var(--cor-marca);
+}
+
+.processo__passo--atual {
+  color: var(--cor-texto);
+  background: var(--cor-marca-fundo);
+}
+
+.processo__passo--atual::before {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca);
+  box-shadow: 0 0 0 3px var(--brilho-dourado-28);
+}
+
+.processo__passo--cancelado {
+  color: var(--cor-perigo);
+  background: var(--cor-perigo-fundo);
+}
+
+.processo__passo--cancelado::before {
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--cor-perigo-solida);
+  clip-path: polygon(20% 0, 50% 30%, 80% 0, 100% 20%, 70% 50%, 100% 80%, 80% 100%, 50% 70%, 20% 100%, 0 80%, 30% 50%, 0 20%);
+}
+
+/* =============== Sanfona (details) =============== */
+.sanfona {
+  min-width: 0;
+  max-width: 100%;
+  border: var(--borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+
+.sanfona + .sanfona {
+  margin-top: var(--esp-2);
+}
+
+.sanfona > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+  cursor: pointer;
+  list-style: none;
+  font-weight: var(--peso-semi);
+  border-radius: var(--raio-md);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.sanfona > summary:hover {
+  background: var(--cor-superficie-sutil);
+}
+
+.sanfona > summary::-webkit-details-marker { display: none; }
+
+.sanfona > summary::after {
+  content: "";
+  margin-left: auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--neutro-500);
+  border-bottom: 2px solid var(--neutro-500);
+  transform: rotate(45deg);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.sanfona[open] > summary::after {
+  transform: rotate(-135deg);
+}
+
+.sanfona__corpo {
+  padding: 0 var(--esp-4) var(--esp-4);
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* Conteúdo de sanfona fechada fora do layout (o Chromium ainda o mede e pode
+   gerar rolagem horizontal fantasma — achado do teste responsivo a 1024px). */
+.sanfona:not([open]) > :not(summary) {
+  display: none;
+}
+
+/* =============== Lista de definição (detalhe) =============== */
+.definicoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--esp-4) var(--esp-6);
+}
+
+.definicoes dt {
+  margin-bottom: var(--esp-05);
+  color: var(--cor-texto-terciario);
+}
+
+.definicoes dd {
+  margin: 0;
+  font-weight: var(--peso-medio);
+  overflow-wrap: anywhere;
+}
+
+.definicoes .vazio-inline {
+  color: var(--cor-texto-terciario);
+  font-weight: var(--peso-normal);
+}
+
+/* =============== Linha do tempo (histórico) =============== */
+.linha-tempo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.linha-tempo__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: var(--esp-3);
+  padding-bottom: var(--esp-4);
+  animation: aparecer var(--duracao-lenta) var(--curva-padrao) both;
+}
+
+.linha-tempo__item:nth-child(2) { animation-delay: 40ms; }
+.linha-tempo__item:nth-child(3) { animation-delay: 80ms; }
+.linha-tempo__item:nth-child(4) { animation-delay: 120ms; }
+.linha-tempo__item:nth-child(n + 5) { animation-delay: 160ms; }
+
+.linha-tempo__item::before {
+  content: "";
+  position: absolute;
+  left: calc(0.875rem - 1px);
+  top: 1.75rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--cor-borda);
+}
+
+.linha-tempo__item:last-child::before {
+  display: none;
+}
+
+.linha-tempo__marcador {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--raio-pilula);
+  border: var(--borda);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+}
+
+.linha-tempo__marcador .icone {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.linha-tempo__item--marca .linha-tempo__marcador {
+  background: var(--cor-marca);
+  border-color: var(--cor-marca);
+  color: var(--grafite-950);
+  box-shadow: 0 0 0 3px var(--brilho-dourado-16);
+}
+
+.linha-tempo__titulo {
+  font-weight: var(--peso-semi);
+}
+
+.linha-tempo__meta {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Histórico em duas colunas em telas largas (eventos são curtos; a página respira). */
+.linha-tempo--colunas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--esp-8);
+}
+
+/* Em grade, a ordem de leitura é por linha; o conector vertical sairia do eixo. */
+.linha-tempo--colunas .linha-tempo__item::before {
+  display: none;
+}
+
+/* Disclosure "ver histórico completo": o resumo mostra os últimos eventos. */
+.linha-tempo__mais {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  margin-top: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  cursor: pointer;
+  list-style: none;
+}
+
+.linha-tempo__mais::-webkit-details-marker { display: none; }
+
+details[open] > .linha-tempo__mais .linha-tempo__mais-abrir,
+details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: none; }
+
+@media (max-width: 767.98px) {
+  .linha-tempo--colunas { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* =============== Avatar / pessoa =============== */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.avatar--escuro {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.pessoa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+  min-width: 0;
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.pessoa:hover {
+  box-shadow: 0 0 0 1px var(--cor-borda-forte), var(--sombra-1);
+}
+
+.pessoa__texto {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+.pessoa__nome {
+  font-weight: var(--peso-semi);
+  overflow-wrap: anywhere;
+}
+
+.pessoa__meta {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* =============== Valor em destaque (financeiro) =============== */
+.valor-destaque {
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-titulo);
+  font-variant-numeric: tabular-nums;
+}
+
+.valor-destaque--marca {
+  color: var(--cor-marca-texto);
+}
+
+.por-extenso {
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+  font-style: italic;
+}
+
+/* =============== Checklist de pendências (conferência e detalhe do rascunho) =============== */
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+}
+
+.checklist__item > .icone {
+  margin-top: 0.15rem;
+}
+.checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
+.checklist__item--aviso > .icone { color: var(--cor-aviso); }
+
+.checklist__item a {
+  color: inherit;
+}
+

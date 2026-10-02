@@ -1,23 +1,40 @@
 // @ts-check
 /**
- * Ponto de entrada do front-end. Sem bundler: módulos ES servidos direto,
- * pré-carregados com <link rel="modulepreload"> (ver templates/base.html).
+ * Ponto de entrada do front-end. Sem bundler: módulos ES servidos direto.
+ * O que toda tela usa (shell, menus, diálogos, toasts, paleta, ações HTMX) entra sempre, pré-carregado
+ * com <link rel="modulepreload"> (templates/base_documento.html). O resto só entra quando a tela tem
+ * o elemento que o pede — a tela que precisa pré-carrega os seus no bloco `modulos`.
  */
 import "./componentes/shell.js";
 import "./componentes/menu.js";
 import "./componentes/dialogo.js";
 import "./componentes/toasts.js";
-import "./componentes/combobox.js";
 import "./componentes/comandos.js";
-import "./componentes/abas.js";
-import "./componentes/mascara.js";
-import "./componentes/protecao.js";
 import "./componentes/acao.js";
-import "./componentes/registro.js";
-import "./componentes/progresso.js";
-import "./componentes/seletor-data.js";
-import "./componentes/seletor-hora.js";
-import "./componentes/seletor.js";
+
+/** @type {Array<[string, () => Promise<unknown>]>} */
+const sobDemanda = [
+  ["pc-combobox", () => import("./componentes/combobox.js")],
+  ["pc-abas", () => import("./componentes/abas.js")],
+  ["[data-mascara]", () => import("./componentes/mascara.js")],
+  ["form[data-proteger]", () => import("./componentes/protecao.js")],
+  [".registro", () => import("./componentes/registro.js")],
+  [".progresso", () => import("./componentes/progresso.js")],
+  ["pc-data", () => import("./componentes/seletor-data.js")],
+  ["pc-hora", () => import("./componentes/seletor-hora.js")],
+  ["pc-select", () => import("./componentes/seletor.js")],
+];
+const carregados = new Set();
+function carregarSobDemanda() {
+  for (const [seletor, carregar] of sobDemanda) {
+    if (carregados.has(seletor) || !document.querySelector(seletor)) continue;
+    carregados.add(seletor);
+    carregar();
+  }
+}
+carregarSobDemanda();
+// Fragmentos HTMX podem trazer um componente que a tela ainda não tinha.
+document.body.addEventListener("htmx:afterSwap", carregarSobDemanda);
 
 // Com JavaScript, o que só serve sem ele some (ex.: "Aplicar" numa busca que já é ao vivo).
 document.querySelectorAll("[data-so-sem-js]").forEach((e) => { /** @type {HTMLElement} */ (e).hidden = true; });

@@ -93,8 +93,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     versao = forms.IntegerField(widget=forms.HiddenInput, required=False)
     protocolo = forms.CharField(
-        label="Protocolo (eProtocolo)", required=False, max_length=14,
-        help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
+        label="Protocolo", required=False, max_length=14,
+        help_text="eProtocolo: nove dígitos (ex.: 12.345.678-9).",
         # Sem placeholder: em cinza parecia valor preenchido (revisão de UX, QA-2); a ajuda
         # já mostra o formato.
         widget=forms.TextInput(attrs=_attrs(inputmode="numeric",

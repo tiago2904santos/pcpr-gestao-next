@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/registro.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% comment %}
 Arquétipo LIST. Blocos: titulo_lista, acoes_lista, abas_filtro, filtros, itens, vazio.
 Contexto esperado: migalhas, page_obj, querystring_base, total.

@@ -1,6 +1,6 @@
 # Catálogo de componentes
 
-Todos vivem em `static/css/components.css` (controles nativos neutralizados em `base.css`:
+O compartilhado vive em `static/css/components.css` (botões, campos, selos, alertas, toasts, tabelas, diálogos, menus, paleta); o que só algumas telas usam vai em pacotes carregados por `{% block estilos %}`: `formulario.css` (seletores de data/hora/lista, combobox, progresso, cartões de escolha, conferência), `documento.css` (folha única e seções, trilho de processo, histórico, definições, pessoa), `listas.css` (registros, filtros, paginação, abas), `painel.css` (central e coluna de contexto), `assistente.css` (etapas) e `itinerario.css`. Controles nativos neutralizados em `base.css`.
 sem o "x" do campo de busca, sem setas no campo numérico, sem o amarelo do preenchimento
 automático, barras de rolagem finas) e são exercitados em **/ui-lab/** (estados:
 padrão, hover, foco, ativo, desabilitado, carregando, erro, sucesso, vazio, conteúdo longo,
