@@ -2151,6 +2151,7 @@ a.tabela__principal:hover {
   .tabela--responsiva td {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: var(--esp-05);
     padding: 0;
     border: 0;
@@ -2169,7 +2170,8 @@ a.tabela__principal:hover {
   }
 
   .tabela--responsiva td[data-rotulo=""]::before { display: none; }
-  .tabela--responsiva td.tabela__celula-principal { grid-column: 1 / -1; }
+  .tabela--responsiva td.tabela__celula-principal,
+  .tabela--responsiva td:has(> .selo) { grid-column: 1 / -1; } /* selo não quebra linha: ganha a largura toda */
   .tabela--responsiva td.tabela__celula-principal::before { display: none; }
   .tabela--responsiva td.num { text-align: left; }
   .tabela--responsiva tfoot td { grid-column: 1 / -1; }

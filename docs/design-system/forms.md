@@ -9,7 +9,9 @@
 3. **Faixa de progresso** fixa sob o topo em formulários longos (`nav.progresso--fixo`),
    com o estado de cada seção; o índice lateral ficou só como arquétipo.
 4. **Barra de ações fixa** (`.barra-acoes`) no rodapé: status do salvamento à esquerda,
-   ações à direita ("Salvar rascunho", "Emitir").
+   ações à direita ("Salvar rascunho", "Emitir"). No celular a barra é uma linha só de
+   botões; o aviso "Alterações não salvas" flutua **acima** dela (chip âmbar) para que os
+   botões nunca mudem de lugar no instante do toque.
 
 ## Campos
 - Rótulo acima, sempre visível; placeholder só como exemplo de formato.

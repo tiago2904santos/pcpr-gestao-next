@@ -88,3 +88,13 @@ Evidências em `artifacts/visual-refinement-v2/` (galeria `comparacoes/index.htm
 | Resumo de erros / regras de senha | marcador desalinhado; lista HTML quebrando o parágrafo | itens alinhados; uma frase de ajuda, regras voltam como erro | legibilidade |
 | Paleta no celular | entrada estourando e "Esc" cortado | entrada encolhe; "Esc" some abaixo de 480px | caber é o mínimo |
 | CSS compartilhado | 31,2 KB gzip após as adições | 29,9 KB: catálogo sem uso (fichas, ordenação, linhas clicáveis, arquétipo de formulário) foi para `ui-lab.css` | orçamento mantido sem subir o número |
+
+Defeitos que as capturas (e não os testes) revelaram — e que viraram regra:
+- **Menus no celular por baixo do bloco seguinte**: a entrada dos blocos da página
+  (`.conteudo__interno > *`) usava `animation-fill-mode: both`, que mantém um contexto de
+  empilhamento depois da animação; o menu "Mais ações" do detalhe ficava inclicável a 390px.
+  Agora é `backwards` (o estado final é o da folha de estilo, sem contexto preso).
+- **Barra de ações do celular mexia no momento do toque**: o aviso "Alterações não salvas"
+  entrava na linha dos botões (a barra dobrava de altura) justamente ao sair do campo — o dedo
+  ia para "Salvar" e acertava a barra. O aviso agora flutua **acima** da barra
+  (`.barra-acoes__status--sujo` absoluto, chip âmbar): os botões nunca mudam de lugar.

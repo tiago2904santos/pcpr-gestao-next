@@ -380,9 +380,12 @@ a:not([class]):focus-visible {
   view-transition-name: attr(data-vt type(<custom-ident>), none);
 }
 
-/* Página: o conteúdo entra em cascata curta (orientação, não decoração). */
+/* Página: o conteúdo entra em cascata curta (orientação, não decoração).
+   `backwards`, não `both`: com o preenchimento final a animação continuaria "ativa" e cada
+   bloco viraria um contexto de empilhamento — o menu do cabeçalho da página ficava por baixo
+   da folha seguinte no celular. */
 .conteudo__interno > * {
-  animation: aparecer var(--duracao-lenta) var(--curva-padrao) both;
+  animation: aparecer var(--duracao-lenta) var(--curva-padrao) backwards;
 }
 
 .conteudo__interno > :nth-child(2) { animation-delay: 40ms; }

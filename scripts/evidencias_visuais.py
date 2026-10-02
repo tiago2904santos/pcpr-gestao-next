@@ -340,7 +340,7 @@ def resolver_dados(pg, base) -> dict:
     return dados
 
 
-def capturar(rotulo: str, base: str, apenas: list[str] | None) -> None:
+def capturar(rotulo: str, base: str, apenas: list[str] | None, so_erros: bool = False) -> None:
     from playwright.sync_api import sync_playwright
 
     pasta = SAIDA / rotulo
@@ -373,7 +373,7 @@ def capturar(rotulo: str, base: str, apenas: list[str] | None) -> None:
         print("dados:", dados)
 
         pendentes = None
-        if apenas and (pasta / "manifesto.json").exists():
+        if so_erros and (pasta / "manifesto.json").exists():  # refaz só os pares (id, largura) com erro
             pendentes = {(c["id"], c["largura"]) for c in json.loads((pasta / "manifesto.json").read_text())["capturas"] if "erro" in c}
         for w in LARGURAS:
             cenarios = [c for c in CENARIOS if w in c["larguras"] and (not apenas or c["id"] in apenas)
@@ -605,10 +605,11 @@ def main() -> None:
     a = p.parse_args()
     if a.cmd == "capturar":
         apenas = [x for x in a.apenas.split(",") if x]
-        if apenas == ["erros"]:
+        so_erros = apenas == ["erros"]
+        if so_erros:
             m = json.loads((SAIDA / a.rotulo / "manifesto.json").read_text())["capturas"]
             apenas = sorted({c["id"] for c in m if "erro" in c})
-        capturar(a.rotulo, a.base, apenas)
+        capturar(a.rotulo, a.base, apenas, so_erros)
     else:
         compor()
 
