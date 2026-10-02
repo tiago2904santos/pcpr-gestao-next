@@ -565,12 +565,22 @@ def limpar() -> None:
         cur.execute(f"TRUNCATE {', '.join(TABELAS)} RESTART IDENTITY CASCADE")
 
 
+def atualizar_estatisticas() -> None:
+    """ANALYZE dentro da transação do seed. A transação trava as tabelas, então o autovacuum
+    não consegue analisá-las; com estatísticas velhas (ex.: "municípios = 1 linha") o
+    planejador escolheu laços aninhados de ~37 s por consulta de trechos e o seed nunca
+    terminava (CI travado). O ANALYZE da própria transação enxerga as linhas recém-inseridas."""
+    with connection.cursor() as cur:
+        cur.execute(f"ANALYZE {', '.join((*TABELAS, 'cadastros_municipio'))}")
+
+
 @transaction.atomic
 def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     """Apaga os dados de negócio e recria o dataset DEMO (idempotente)."""
     limpar()
     gerador = _Gerador(hoje or timezone.localdate(), escala)
     gerador.cadastros()
+    atualizar_estatisticas()
     oficios = gerador.oficios()
     return resumo(len(oficios))
 

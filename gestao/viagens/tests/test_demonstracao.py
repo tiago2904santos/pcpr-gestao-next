@@ -9,7 +9,7 @@ import pytest
 from django.core.management import call_command
 from django.test import override_settings
 
-from gestao.cadastros.models import ConfiguracaoInstitucional, Servidor, Viatura
+from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor, Viatura
 from gestao.cadastros.validacoes import cpf_valido, placa_valida
 from gestao.identidade.backends import LOGIN_DEMO
 from gestao.identidade.models import Usuario
@@ -135,3 +135,14 @@ def test_resetar_demo_recria_base_limpa():
     assert not Usuario.objects.filter(login="intruso").exists()
     assert Usuario.objects.filter(login=LOGIN_DEMO).exists()
     assert Oficio.objects.count() >= 10
+
+
+def test_seed_atualiza_as_estatisticas_do_planejador(dataset):
+    """Regressão do CI travado: sem ANALYZE dentro da transação do seed, o planejador
+    supunha 1 município e cada consulta de trechos levava ~37 s."""
+    from django.db import connection
+
+    with connection.cursor() as cur:
+        cur.execute("SELECT reltuples FROM pg_class WHERE relname = 'cadastros_municipio'")
+        estimado = cur.fetchone()[0]
+    assert estimado >= 0.9 * Municipio.objects.count()
