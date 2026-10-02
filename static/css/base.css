@@ -119,7 +119,6 @@ input:autofill {
 }
 
 /* Barras de rolagem internas (listas, tabelas, painéis): finas e nos neutros do papel. */
-.rolagem-fina,
 .tabela-rolagem,
 .abas,
 .relogio__lista,
@@ -164,8 +163,7 @@ a:not([class]):focus-visible {
 
 /* Superfícies escuras invertem o par: anel dourado, halo grafite. */
 .cabecalho,
-.acesso__marca,
-.superficie-escura {
+.acesso__marca {
   --foco-cor: var(--foco-cor-inverso);
   --foco-contraste: var(--foco-contraste-inverso);
 }
@@ -398,10 +396,7 @@ a:not([class]):focus-visible {
   transition: opacity var(--duracao-rapida) var(--curva-saida);
 }
 
-.htmx-added {
-  animation: aparecer var(--duracao-media) var(--curva-padrao);
-}
-
+.htmx-added,
 .htmx-settling {
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }

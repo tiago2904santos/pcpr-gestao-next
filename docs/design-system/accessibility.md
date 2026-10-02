@@ -27,7 +27,7 @@ superfícies escuras, `--foco-espessura` (2px) e `--foco-offset` (2px).
 - Regra global `:focus-visible`: `outline` de 2px na cor de foco, afastado 2px, com um
   halo claro (`box-shadow`) preenchendo o vão — lê-se sobre branco, sobre superfícies
   tingidas e sobre o dourado (1.4.11 e 2.4.11/2.4.13: ≥ 3:1, nunca obscurecido).
-- `.cabecalho`, `.acesso__marca` e `.superficie-escura` invertem o par (dourado sobre grafite).
+- `.cabecalho` e `.acesso__marca` invertem o par (`.superficie-escura`, só no catálogo, idem) (dourado sobre grafite).
 - Campos não ganham anel externo: acendem (fundo branco, borda grafite-800 ≥ 3:1, halo
   dourado). Registros de lista desenham o anel na linha inteira (`.registro:has(:focus-visible)`).
 - Só `:focus-visible` (teclado); o clique do mouse não deixa anel.

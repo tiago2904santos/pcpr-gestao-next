@@ -3,7 +3,7 @@
 ## Estrutura
 1. **Resumo de erros** no topo após envio inválido (`componentes/resumo_erros.html`), com
    links para cada campo e foco programático (WCAG 3.3.1).
-2. **Seções numeradas** em cartões (`.cartao__numero`), na ordem em que a informação existe
+2. **Seções numeradas** na folha única (`.secao__numero`; o `.cartao__numero` ficou só no catálogo, `ui-lab.css`), na ordem em que a informação existe
    no mundo real (ex.: Ofício → Dados e viajantes → Roteiro → Diárias → Justificativa →
    Documentos).
 3. **Faixa de progresso** fixa sob o topo em formulários longos (`nav.progresso--fixo`),

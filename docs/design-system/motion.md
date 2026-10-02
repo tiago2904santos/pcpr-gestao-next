@@ -25,7 +25,7 @@ confirmam, uma única ênfase reservada ao momento institucional (emitir).
 | `brotar` | cresce a partir da origem | menus suspensos, paleta de comandos |
 | `recolher` | encolhe e some | saída de diálogo (`.dialogo--saindo`) |
 | `filete-crescer` | o filete dourado cresce da esquerda | item ativo da navegação, aba ativa, foco de seção |
-| `carimbar` | entra grande, girado, assenta | selo "Emitido" recém-emitido (`.selo--carimbo`), botão concluído |
+| `carimbar` | entra grande, girado, assenta | botão concluído; `.selo--carimbo` (selo "Emitido" recém-emitido) existe só no catálogo (`ui-lab.css`) até a tela de emissão usá-lo |
 | `pulsar` | opacidade 1 → .35 → 1 | "gerando documento" (`.selo--processo`), status sujo da barra |
 | `girar` | rotação contínua | `.girando` (indicadores de carregamento) |
 | `esqueleto` | brilho horizontal | `.esqueleto` |

@@ -112,12 +112,6 @@
   border-color: var(--cor-perigo);
 }
 
-.botao--perigo-contorno {
-  --botao-texto: var(--cor-perigo);
-  --botao-borda: var(--cor-perigo-borda);
-  --botao-fundo-hover: var(--cor-perigo-fundo);
-}
-
 .botao--sm {
   min-height: var(--altura-controle-sm);
   padding: 0 var(--esp-3);
@@ -379,10 +373,6 @@
 .campo--erro .area-texto:focus-visible,
 .campo--erro .selecao:focus-visible {
   box-shadow: var(--sombra-erro-campo);
-}
-
-.campo--sucesso .entrada {
-  border-color: var(--cor-sucesso-solida);
 }
 
 /* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
@@ -772,12 +762,9 @@
 }
 
 .campos > * { grid-column: span 12; }
-.campos > .col-2 { grid-column: span 2; }
 .campos > .col-3 { grid-column: span 3; }
 .campos > .col-4 { grid-column: span 4; }
-.campos > .col-5 { grid-column: span 5; }
 .campos > .col-6 { grid-column: span 6; }
-.campos > .col-8 { grid-column: span 8; }
 .campos > .col-9 { grid-column: span 9; }
 
 @media (max-width: 767.98px) {
@@ -856,14 +843,6 @@
 
 .escolha:active input:not(:disabled) {
   transform: scale(0.9);
-}
-
-/* Grupo de rádios/caixas: uma opção por linha; `--linha` lado a lado quando couber. */
-.escolhas {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--esp-2);
 }
 
 .escolha__descricao {
@@ -1039,23 +1018,6 @@
   font-weight: var(--peso-semi);
 }
 
-.cartao__numero {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.75rem;
-  height: 1.75rem;
-  padding: 0 var(--esp-1);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-marca-fundo);
-  border: 1px solid var(--cor-marca-borda);
-  color: var(--cor-marca-texto);
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-forte);
-  font-variant-numeric: tabular-nums;
-  transition: background-color var(--duracao-rapida) var(--curva-padrao),
-    color var(--duracao-rapida) var(--curva-padrao);
-}
-
 .cartao__acoes {
   margin-left: auto;
   display: flex;
@@ -1065,10 +1027,6 @@
 
 .cartao__corpo {
   padding: var(--esp-5);
-}
-
-.cartao__corpo--sem-respiro {
-  padding: 0;
 }
 
 .cartao__rodape {
@@ -1415,12 +1373,6 @@
   background: var(--cor-borda);
 }
 
-.subtitulo-secao {
-  margin-bottom: var(--esp-3);
-  font-size: var(--texto-md);
-  font-weight: var(--peso-semi);
-}
-
 /* =============== Indicadores (KPI) =============== */
 .indicador {
   position: relative;
@@ -1578,8 +1530,6 @@ a.indicador:hover {
 
 .selo--sem-ponto::before { display: none; }
 
-.selo--neutro { /* padrão */ }
-
 .selo--info {
   --selo-fundo: var(--cor-info-fundo);
   --selo-texto: var(--cor-info);
@@ -1602,12 +1552,6 @@ a.indicador:hover {
   --selo-fundo: var(--cor-perigo-fundo);
   --selo-texto: var(--cor-perigo);
   --selo-borda: var(--cor-perigo-borda);
-}
-
-.selo--marca {
-  --selo-fundo: var(--cor-marca-fundo);
-  --selo-texto: var(--cor-marca-texto);
-  --selo-borda: var(--cor-marca-borda);
 }
 
 .selo--forte {
@@ -1643,11 +1587,6 @@ a.indicador:hover {
 /* Em andamento: o ponto pulsa (gerando PDF, processando). */
 .selo--processo::before {
   animation: pulsar 1.4s var(--curva-suave) infinite;
-}
-
-/* Carimbo: entrada enfática para "Emitido" recém-confirmado. */
-.selo--carimbo {
-  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
 }
 
 /* =============== Trilho de processo (status como narrativa) =============== */
@@ -2864,11 +2803,6 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   color: var(--neutro-0);
 }
 
-.etapas__item--pendente .etapas__marcador {
-  border-color: var(--cor-aviso-solida);
-  color: var(--cor-aviso);
-}
-
 /* Etapas horizontais (assistente): marcadores ligados por um fio; o fio percorrido
    fica dourado; a etapa atual ganha o halo. No celular empilham com o fio vertical. */
 .etapas--horizontal {
@@ -3707,13 +3641,6 @@ kbd {
   background: var(--cor-superficie-sutil);
   box-shadow: inset 0 0 0 1px var(--cor-borda-sutil);
   text-align: center;
-  color: inherit;
-  text-decoration: none;
-}
-
-a.modulo__numeros-link:hover {
-  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
-  text-decoration: none;
 }
 
 .modulo__numeros dd {

@@ -39,7 +39,7 @@ O produto é reconhecível por cinco gestos, todos derivados do timbre instituci
 | **Filete dourado** — uma linha, nunca uma mancha | sob o cabeçalho, item ativo da navegação, aba ativa, segmento curto sob o título da página, trilho à esquerda no hover de linhas/registros, `focus-within` de seção do formulário | `--filete`, `--filete-fino`, `filete-crescer` |
 | **Placa** — o número do ofício como peça de papel | lista de registros, cabeçalho do detalhe (`--grande`), cancelado com tachado vermelho | `.placa` |
 | **Trilho de processo** — status como narrativa | detalhe do ofício: Rascunho → Emitido / Cancelado | `.processo` |
-| **Carimbo** — a emissão é um ato | selo "Emitido" recém-emitido, botão concluído | `carimbar`, `.selo--carimbo` |
+| **Carimbo** — a emissão é um ato | selo "Emitido" recém-emitido, botão concluído | `carimbar` (`.selo--carimbo` só no catálogo, `ui-lab.css`) |
 | **Papel quente** — fundo com brilho dourado muito suave no topo | todas as páginas | `--fundo-pagina`, `--brilho-dourado-08` |
 
 O que **dilui** a assinatura e por isso é proibido: dourado como fundo de área, mais de um

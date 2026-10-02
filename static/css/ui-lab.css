@@ -190,6 +190,14 @@
   z-index: 1;
 }
 
+/* Grupo de rádios/caixas: uma opção por linha; `--linha` lado a lado quando couber. */
+.escolhas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--esp-2);
+}
+
 .escolhas--linha {
   flex-direction: row;
   flex-wrap: wrap;
@@ -271,4 +279,63 @@ fieldset.grupo-campos > legend {
 @media (max-width: 1023.98px) {
   .layout-formulario { grid-template-columns: minmax(0, 1fr); }
   .layout-formulario__indice { display: none; }
+}
+
+/* ---- Catálogo sem uso no produto (V2, 2ª leva): variantes mostradas só no UI Lab ---- */
+.botao--perigo-contorno {
+  --botao-texto: var(--cor-perigo);
+  --botao-borda: var(--cor-perigo-borda);
+  --botao-fundo-hover: var(--cor-perigo-fundo);
+}
+
+.campo--sucesso .entrada {
+  border-color: var(--cor-sucesso-solida);
+}
+
+.cartao__numero {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  border: 1px solid var(--cor-marca-borda);
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.cartao__corpo--sem-respiro {
+  padding: 0;
+}
+
+.subtitulo-secao {
+  margin-bottom: var(--esp-3);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.selo--marca {
+  --selo-fundo: var(--cor-marca-fundo);
+  --selo-texto: var(--cor-marca-texto);
+  --selo-borda: var(--cor-marca-borda);
+}
+
+/* Carimbo: entrada enfática para "Emitido" recém-confirmado. */
+.selo--carimbo {
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
+}
+
+.etapas__item--pendente .etapas__marcador {
+  border-color: var(--cor-aviso-solida);
+  color: var(--cor-aviso);
+}
+
+.superficie-escura {
+  --foco-cor: var(--foco-cor-inverso);
+  --foco-contraste: var(--foco-contraste-inverso);
 }

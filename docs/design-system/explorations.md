@@ -87,7 +87,7 @@ Evidências em `artifacts/visual-refinement-v2/` (galeria `comparacoes/index.htm
 | Senha | campo mudo | mostrar/ocultar dentro da caixa (login e troca de senha) | erro de digitação é a causa nº 1 de bloqueio |
 | Resumo de erros / regras de senha | marcador desalinhado; lista HTML quebrando o parágrafo | itens alinhados; uma frase de ajuda, regras voltam como erro | legibilidade |
 | Paleta no celular | entrada estourando e "Esc" cortado | entrada encolhe; "Esc" some abaixo de 480px | caber é o mínimo |
-| CSS compartilhado | 31,2 KB gzip após as adições | 29,9 KB: catálogo sem uso (fichas, ordenação, linhas clicáveis, arquétipo de formulário) foi para `ui-lab.css` | orçamento mantido sem subir o número |
+| CSS compartilhado | 31,2 KB gzip após as adições (30,2 KB na medida do CI, gzip nível 6) | 29,8 KB: catálogo sem uso (fichas, ordenação, linhas clicáveis, arquétipo de formulário, variantes só do catálogo) foi para `ui-lab.css`; regras mortas (`col-2/5/8`, `grade--auto`, `selo--neutro`) removidas | orçamento de 30 KB mantido sem subir o número |
 
 Defeitos que as capturas (e não os testes) revelaram — e que viraram regra:
 - **Menus no celular por baixo do bloco seguinte**: a entrada dos blocos da página
