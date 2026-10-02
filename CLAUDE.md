@@ -14,6 +14,9 @@ testes de caracterização em `gestao/*/tests/`; para ver a tela de referência 
 - Navegador: `uv run pytest -m "e2e or a11y or visual or perf"` (servidor sobe sozinho)
 - Lint/tipos/fronteiras: `scripts/verificar.sh`
 - Capturas: `uv run python scripts/capturar.py /viagens/oficios/ --larguras 360,1440`
+- Evidências ANTES × DEPOIS de todas as páginas e estados (contra o PREVIEW):
+  `uv run python scripts/evidencias_visuais.py capturar antes|depois` e depois `compor`
+  → `artifacts/visual-refinement-v2/comparacoes/index.html`
 - Diagnóstico: `uv run python manage.py doctor`
 - Preview navegável (DEMO, sem senha): `scripts/preview.sh subir|local|resetar|verificar` —
   ver `docs/ops/preview.md`; E2E: `uv run pytest tests/e2e/test_preview_demo.py`

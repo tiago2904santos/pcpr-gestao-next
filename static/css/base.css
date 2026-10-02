@@ -78,6 +78,63 @@ table {
   border-collapse: collapse;
 }
 
+/* =====================================================================
+   CONTROLES NATIVOS — nada com a cara do navegador escapa do Design System.
+   ===================================================================== */
+/* Campo de busca: sem o "x" azul do Chromium (a limpeza é Esc/apagar; o DS não o desenha). */
+input[type="search"] {
+  appearance: none;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button {
+  appearance: none;
+  display: none;
+}
+
+/* Campo numérico: sem as setinhas (inputmode="numeric" já traz o teclado certo). */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Preenchimento automático: o navegador tingiria o campo de amarelo/azul. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--cor-texto);
+  box-shadow: 0 0 0 100rem var(--cor-superficie) inset;
+  transition: background-color 9999s;
+}
+
+input:autofill {
+  box-shadow: 0 0 0 100rem var(--cor-superficie) inset;
+}
+
+/* Barras de rolagem internas (listas, tabelas, painéis): finas e nos neutros do papel. */
+.rolagem-fina,
+.tabela-rolagem,
+.abas,
+.relogio__lista,
+.combobox__lista,
+.comandos__lista,
+.gaveta .dialogo__corpo {
+  scrollbar-width: thin;
+  scrollbar-color: var(--neutro-300) transparent;
+}
+
+/* Área de texto: a alça de redimensionar só vertical (a largura é da grade). */
+textarea {
+  resize: vertical;
+}
+
 /* Números alinhados em tabelas, valores e datas. */
 .num,
 td,

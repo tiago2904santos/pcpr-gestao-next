@@ -57,7 +57,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
 {% endif %}
 
 <form id="{{ form_id }}" method="post" action="{% if roteiro %}{% url 'viagens:editar_roteiro' roteiro.pk %}{% else %}{% url 'viagens:novo_roteiro' %}{% endif %}" novalidate
-      data-proteger{% if sujo %} data-sujo{% endif %}>
+      data-proteger{% if sujo %} data-sujo{% endif %}{% if roteiro %} data-destaque="roteiro:{{ roteiro.pk }}"{% endif %}>
   {% csrf_token %}
   <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar roteiro</button>
   {{ destinos.management_form }}
@@ -72,7 +72,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
   <section class="secao" id="roteiro" aria-labelledby="t-roteiro">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">1</span>Origem e destinos</h2>
-      <p class="secao__nota">Cada parada traz o trecho que chega nela: saída do ponto anterior e chegada. Horários de Brasília.</p>
+      <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
     </div>
     {% include "viagens/_itinerario.html" %}
   </section>

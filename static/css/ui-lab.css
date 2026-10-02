@@ -108,3 +108,167 @@
 @media (max-width: 767.98px) {
   .lab__opcoes { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- Catálogo: componentes do Design System ainda sem uso nas telas do produto ----
+   Ficam só na vitrine para não pesar no CSS compartilhado; ao usar numa tela, mova o bloco
+   de volta para components.css. ---- */
+.filtros-ativos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-5);
+  border-bottom: var(--borda);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-sm);
+}
+
+.ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-05) var(--esp-1) var(--esp-05) var(--esp-2);
+  border: var(--borda);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.ficha:hover {
+  border-color: var(--cor-borda-forte);
+  text-decoration: none;
+}
+
+.ficha .icone {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--cor-texto-secundario);
+}
+
+.tabela__ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+}
+
+.tabela th[aria-sort="ascending"],
+.tabela th[aria-sort="descending"] {
+  color: var(--cor-marca-texto);
+}
+
+.tabela__secundario {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Linha da tabela inteira clicável sem quebrar semântica:
+   o link principal estende a área com ::after. */
+.tabela--linhas-clicaveis tbody tr {
+  position: relative;
+}
+
+.tabela--linhas-clicaveis .tabela__principal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tabela--linhas-clicaveis .tabela__acao {
+  position: relative;
+  z-index: 1;
+}
+
+.escolhas--linha {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-6);
+}
+
+fieldset.grupo-campos {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+fieldset.grupo-campos > legend {
+  padding: 0;
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* Ação direcional ("Avançar", "Entrar"): a seta anda e o rótulo fica. */
+.botao--avancar > .icone:last-child {
+  margin-right: calc(-1 * var(--esp-1));
+}
+
+/* Título de seção institucional: ícone dourado + caixa alta (DNA). */
+.cartao__titulo--institucional {
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.cartao__titulo--institucional .icone {
+  color: var(--cor-marca-texto);
+}
+
+/* =============== Prévia de documento =============== */
+.previa-documento {
+  padding: var(--esp-6);
+  border-radius: var(--raio-md);
+  background: var(--neutro-200);
+  overflow: auto;
+}
+
+.previa-documento iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: var(--neutro-0);
+}
+
+/* Seção de formulário em foco: trilho dourado à esquerda diz "você está aqui". */
+.layout-formulario .cartao:focus-within {
+  box-shadow: var(--sombra-cartao-hover), inset var(--filete) 0 0 var(--cor-marca);
+}
+
+.layout-formulario .cartao:focus-within .cartao__numero {
+  background: var(--cor-marca);
+  color: var(--grafite-950);
+}
+
+/* Arquétipo de formulário com índice lateral (templates/arquetipos/formulario.html; o produto usa a folha única). */
+/* Formulário longo: índice de seções + seções. */
+.layout-formulario {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--esp-6);
+  align-items: start;
+}
+
+.layout-formulario__indice {
+  position: sticky;
+  top: calc(var(--altura-topo) + var(--esp-4));
+}
+
+@media (max-width: 1023.98px) {
+  .layout-formulario { grid-template-columns: minmax(0, 1fr); }
+  .layout-formulario__indice { display: none; }
+}

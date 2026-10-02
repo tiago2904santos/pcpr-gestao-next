@@ -67,3 +67,24 @@ continuar com o visual nativo.
 Descartado: `appearance: base-select` (lista customizável só com CSS). Hoje só o Chromium
 suporta; o Firefox continuaria mostrando a lista nativa. Painel do calendário abrindo para
 cima: ficava sob a faixa fixa de progresso.
+
+
+## Refinamento visual V2 (componente por componente, página por página)
+Evidências em `artifacts/visual-refinement-v2/` (galeria `comparacoes/index.html`, gerada por
+`scripts/evidencias_visuais.py`).
+
+| Peça | Antes | Agora | Por quê |
+|---|---|---|---|
+| Rótulos | `*` **e** "(opcional)" em todo campo | só `*` (e "(necessário para emitir)") | marcar os dois lados era ruído; o login chegava a dizer "Senha (opcional)" |
+| Controles nativos | "x" azul no campo de busca (paleta, filtros), setas no numérico, amarelo do autofill, rolagem padrão | neutralizados em `base.css` | nada com a cara do navegador no meio da identidade |
+| Central de módulos | um cartão estreito perdido na largura | console do módulo: números, ação e atalhos (itens do menu que o usuário vê) | a central passa a levar direto ao trabalho |
+| Painel · coluna de contexto | três botões em bloco + cartão de texto | lista de atalhos com seta e lembrete como nota | menos caixa, mais leitura |
+| Lista · registro | resumo aparece de uma vez | abre crescendo; linha recém-salva acende ao voltar | movimento que explica o que mudou e onde está |
+| Lista · filtros | "Aplicar" ao lado de uma busca que já é ao vivo | some com JavaScript (fica para quem não tem) | um controle a menos sem perder a função |
+| Tabelas no celular | rótulo/valor em linhas (uma tela por registro) | cartão: principal no alto, demais colunas 2 a 2 | metade da altura, leitura em grade |
+| KPIs no celular | quatro cartões empilhados | dois a dois, compactos | a lista entra na primeira tela |
+| Assistente de emissão | três pílulas soltas | etapas ligadas por um fio, percorrido em dourado | lê-se onde se está e o que falta |
+| Senha | campo mudo | mostrar/ocultar dentro da caixa (login e troca de senha) | erro de digitação é a causa nº 1 de bloqueio |
+| Resumo de erros / regras de senha | marcador desalinhado; lista HTML quebrando o parágrafo | itens alinhados; uma frase de ajuda, regras voltam como erro | legibilidade |
+| Paleta no celular | entrada estourando e "Esc" cortado | entrada encolhe; "Esc" some abaixo de 480px | caber é o mínimo |
+| CSS compartilhado | 31,2 KB gzip após as adições | 29,9 KB: catálogo sem uso (fichas, ordenação, linhas clicáveis, arquétipo de formulário) foi para `ui-lab.css` | orçamento mantido sem subir o número |

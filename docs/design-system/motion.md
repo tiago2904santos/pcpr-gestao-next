@@ -63,6 +63,15 @@ Os nomes vêm de `[data-vt] { view-transition-name: attr(data-vt type(<custom-id
 (sem estilos inline, compatível com a CSP). No painel, as duas listas usam prefixos
 distintos (`p`, `q`) para um mesmo ofício nunca ter dois nomes iguais na página.
 
+## Refinamento V2 — movimento que explica
+| Interação | Mecanismo |
+|---|---|
+| Resumo do registro abre crescendo | `.registro__extra { display:grid; grid-template-rows: 0fr → 1fr }` + `visibility` atrasada: anima altura real sem JS medir nada |
+| Registro recém-alterado | `.registro--destaque` (`destacar-registro`, 2,4 s): o formulário grava `sessionStorage["pcpr-destaque"]` ao enviar; a lista acende a linha e rola até ela se estiver fora da tela |
+| Assistente de emissão | fio entre etapas; o trecho percorrido cresce em dourado (`filete-crescer`) |
+| Mostrar senha | troca de ícone instantânea; o foco volta ao campo sem rolar |
+| Atalhos do painel | a seta anda 2px no hover (a mesma gramática dos botões direcionais) |
+
 ## Linguagem de ação (botões)
 `aria-busy` = processando (indicador no centro, largura preservada);
 `data-estado="concluido"` = vira verde e o ícone carimba por 1,6 s;

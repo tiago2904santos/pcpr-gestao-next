@@ -44,6 +44,22 @@ window.addEventListener("pageswap", (evento) => {
   });
 });
 
+// Recém-alterado: a linha do registro que acabou de ser salvo acende em dourado — a pessoa
+// volta da edição e sabe onde o item está sem procurar.
+try {
+  const chave = window.sessionStorage.getItem("pcpr-destaque");
+  const alvo = chave ? document.querySelector(`.registro[data-destaque="${CSS.escape(chave)}"]`) : null;
+  if (chave) window.sessionStorage.removeItem("pcpr-destaque");
+  if (alvo) {
+    alvo.classList.add("registro--destaque");
+    alvo.addEventListener("animationend", () => alvo.classList.remove("registro--destaque"), { once: true });
+    const r = alvo.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > window.innerHeight) alvo.scrollIntoView({ block: "center" });
+  }
+} catch {
+  /* sessionStorage bloqueado: sem destaque */
+}
+
 /** @param {Event} evento @returns {HTMLElement | null} */
 function extraDe(evento) {
   const e = /** @type {CustomEvent} */ (evento);

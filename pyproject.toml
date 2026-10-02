@@ -44,6 +44,8 @@ ignore = ["S101", "RUF012", "RUF001", "RUF002", "RUF003"]
 "tests/**" = ["S105", "S106", "S311", "T20"]
 "tests/e2e/**" = ["S105", "S106", "S311", "T20", "E501"]
 "scripts/**" = ["T20", "S603", "S607"]
+# Tabela de cenários e HTML da galeria: uma linha por cenário é mais legível que quebrar.
+"scripts/evidencias_visuais.py" = ["T20", "S603", "S607", "E501"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"

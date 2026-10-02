@@ -98,8 +98,9 @@ def _itinerario_exemplo() -> dict:
 
 def indice(request: HttpRequest) -> HttpResponse:
     form_vazio = FormularioExemplo()
+    # Prefixo: os mesmos campos aparecem duas vezes na página (padrão e erro) sem ids repetidos.
     form_erro = FormularioExemplo(
-        data={"nome": "", "protocolo": "123", "destino": ""}
+        prefix="erro", data={"erro-nome": "", "erro-protocolo": "123", "erro-destino": ""}
     )
     form_erro.is_valid()
     form_seletores = FormularioSeletores(initial={

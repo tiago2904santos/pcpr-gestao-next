@@ -152,6 +152,10 @@
                 <label class="escolha"><input type="radio" name="marcador"> <span>Complementar</span></label>
               </div>
             </fieldset>
+            <div class="campo col-6">
+              <label class="campo__rotulo" for="lab-senha">Senha (mostrar/ocultar)</label>
+              <div class="entrada-composta entrada-composta--senha">{% icone "lock" %}<input class="entrada" id="lab-senha" type="password" value="segredo-123" autocomplete="off"><button type="button" class="entrada-composta__botao" data-alternar-senha aria-controls="lab-senha" aria-pressed="false" hidden>{% icone "eye" classe="entrada-composta__ver" %}{% icone "eye-off" classe="entrada-composta__ocultar" %}<span class="sr-only">Mostrar senha</span></button></div>
+            </div>
             <div class="col-6 pilha-sm">
               <label class="interruptor"><input type="checkbox" role="switch" checked> Vincular a um roteiro existente</label>
               <label class="interruptor"><input type="checkbox" role="switch"> Bate-volta diário</label>
@@ -266,7 +270,13 @@
             </ol>
           </div>
           <div>
-            <h3 class="subtitulo-secao">Paginação</h3>
+            <h3 class="subtitulo-secao">Etapas horizontais (assistente)</h3>
+            <ol class="etapas etapas--horizontal" aria-label="Etapas (exemplo)">
+              <li class="etapas__item etapas__item--concluida"><span><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Preencher</span></li>
+              <li class="etapas__item etapas__item--atual"><span aria-current="step"><span class="etapas__marcador">2</span>Revisar</span></li>
+              <li class="etapas__item"><span><span class="etapas__marcador">3</span>Emitir</span></li>
+            </ol>
+            <h3 class="subtitulo-secao mt-4">Paginação</h3>
             <div class="cartao">{% include "componentes/paginacao.html" %}</div>
           </div>
         </div>
@@ -467,7 +477,7 @@
           <h3 class="lab__conceito-titulo">Registro de lista</h3>
           <div class="lab__opcoes lab__opcoes--largas">
             <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Linha com ícone</p><ul class="registros"><li class="registro"><span class="registro__icone">{% icone "file-text" %}</span><div><div class="registro__titulo"><a class="registro__link" href="#conceitos">Ofício 131/2026 · Arapongas/PR</a><span class="selo selo--sucesso">Emitido</span></div></div></li></ul><p class="lab__opcao-nota">Número perdido no título; ícone genérico.</p></div>
-            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Placa + grupo + expansão</p><ul class="registros"><li class="registros__grupo">Outubro de 2026</li><li class="registro registro--aberto"><span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">131/2026</span></span><div><div class="registro__titulo"><a class="registro__link" href="#conceitos">Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso selo--situacao-emitido">Emitido</span></div></div><div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil registro__expandir" aria-expanded="true" aria-label="Ocultar resumo">{% icone "chevron-down" %}</button></div><div class="registro__extra"><div class="resumo"><div><p class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</p><ol class="resumo__lista"><li class="resumo__trecho"><span>Curitiba/PR → Arapongas/PR</span><time>08/10 07:00</time></li></ol></div><div><p class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</p><ul class="resumo__lista"><li>Ana Beatriz Correia Lima</li></ul></div><div><p class="resumo__titulo">{% icone "files" classe="icone--sm" %}Documentos</p><ul class="resumo__lista"><li><a href="#conceitos">Ofício v1</a></li></ul></div></div></div></li></ul><p class="lab__opcao-nota">Leitura rápida pelo número, grupos por mês, resumo sem sair da lista.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">B · Placa + grupo + expansão</p><ul class="registros"><li class="registros__grupo">Outubro de 2026</li><li class="registro registro--aberto"><span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">131/2026</span></span><div><div class="registro__titulo"><a class="registro__link" href="#conceitos">Arapongas/PR · 08/10 a 12/10/2026</a><span class="selo selo--sucesso selo--situacao-emitido">Emitido</span></div></div><div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil registro__expandir" aria-expanded="true" aria-label="Ocultar resumo">{% icone "chevron-down" %}</button></div><div class="registro__extra"><div class="registro__extra-corpo"><div class="resumo"><div><p class="resumo__titulo">{% icone "route" classe="icone--sm" %}Roteiro</p><ol class="resumo__lista"><li class="resumo__trecho"><span>Curitiba/PR → Arapongas/PR</span><time>08/10 07:00</time></li></ol></div><div><p class="resumo__titulo">{% icone "users" classe="icone--sm" %}Equipe</p><ul class="resumo__lista"><li>Ana Beatriz Correia Lima</li></ul></div><div><p class="resumo__titulo">{% icone "files" classe="icone--sm" %}Documentos</p><ul class="resumo__lista"><li><a href="#conceitos">Ofício v1</a></li></ul></div></div></div></div></li></ul><p class="lab__opcao-nota">Leitura rápida pelo número, grupos por mês, resumo sem sair da lista.</p></div>
             <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Tabela densa</p><table class="tabela tabela--compacta lab-tabela-densa"><thead><tr><th>Nº</th><th>Destino</th><th>Situação</th></tr></thead><tbody><tr><td>131/2026</td><td>Arapongas/PR</td><td><span class="selo selo--sucesso">Emitido</span></td></tr><tr><td>130/2026</td><td>Campo Grande/MS</td><td><span class="selo">Rascunho</span></td></tr></tbody></table><p class="lab__opcao-nota">Mais linhas por tela, mas perde equipe/transporte sem rolagem horizontal no celular. Descartado.</p></div>
           </div>
         </div>

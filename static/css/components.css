@@ -209,11 +209,6 @@
   box-shadow: 0 0 0 3px var(--tinta-06);
 }
 
-/* Ação direcional ("Avançar", "Entrar"): a seta anda e o rótulo fica. */
-.botao--avancar > .icone:last-child {
-  margin-right: calc(-1 * var(--esp-1));
-}
-
 /* Botão "texto": só o rótulo, sublinhado dourado no hover. Para ações terciárias. */
 .botao--texto {
   --botao-fundo: transparent;
@@ -280,6 +275,13 @@
 .campo__ajuda {
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
+}
+
+.campo__ajuda ul {
+  margin: var(--esp-1) 0 0;
+  padding-left: var(--esp-4);
+  display: grid;
+  gap: var(--esp-05);
 }
 
 .campo__erro {
@@ -606,7 +608,6 @@
   list-style: none;
   border-radius: var(--raio-md);
   background: var(--cor-superficie-sutil);
-  scrollbar-width: thin;
 }
 
 .relogio__lista > li {
@@ -725,6 +726,44 @@
   border-bottom-left-radius: 0;
 }
 
+/* Botão dentro do campo (mostrar senha): à direita, com a mesma altura da caixa. */
+.entrada-composta--senha > .entrada {
+  padding-right: calc(var(--esp-2) + 2rem);
+}
+
+.entrada-composta__botao {
+  position: absolute;
+  top: 50%;
+  right: var(--esp-1);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  translate: 0 -50%;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.entrada-composta__botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.entrada-composta__botao:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
+}
+
+.entrada-composta__botao[aria-pressed="true"] .entrada-composta__ver,
+.entrada-composta__botao[aria-pressed="false"] .entrada-composta__ocultar {
+  display: none;
+}
+
 /* Grade de campos (12 colunas) */
 .campos {
   display: grid;
@@ -827,12 +866,6 @@
   gap: var(--esp-2);
 }
 
-.escolhas--linha {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--esp-2) var(--esp-6);
-}
-
 .escolha__descricao {
   display: block;
   font-size: var(--texto-xs);
@@ -893,20 +926,6 @@
   margin-top: 0.15rem;
 }
 
-fieldset.grupo-campos {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-fieldset.grupo-campos > legend {
-  padding: 0;
-  margin-bottom: var(--esp-2);
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-semi);
-}
-
 /* Resumo de erros no topo do formulário (WCAG 3.3.1). */
 .resumo-erros {
   border-left: var(--filete) solid var(--cor-perigo-solida);
@@ -917,10 +936,11 @@ fieldset.grupo-campos > legend {
   padding-left: var(--esp-5);
 }
 
+.resumo-erros li + li {
+  margin-top: var(--esp-1);
+}
+
 .resumo-erros a {
-  display: inline-block;
-  min-height: 1.5rem;
-  line-height: 1.5rem;
   color: var(--cor-perigo);
   font-weight: var(--peso-medio);
 }
@@ -1019,19 +1039,6 @@ fieldset.grupo-campos > legend {
   font-weight: var(--peso-semi);
 }
 
-/* Título de seção institucional: ícone dourado + caixa alta (DNA). */
-.cartao__titulo--institucional {
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-forte);
-  letter-spacing: var(--rastreio-rotulo);
-  text-transform: uppercase;
-  color: var(--cor-texto-secundario);
-}
-
-.cartao__titulo--institucional .icone {
-  color: var(--cor-marca-texto);
-}
-
 .cartao__numero {
   display: inline-grid;
   place-items: center;
@@ -1073,16 +1080,6 @@ fieldset.grupo-campos > legend {
   border-top: var(--borda-sutil);
   background: var(--cor-superficie-sutil);
   border-radius: 0 0 var(--raio-lg) var(--raio-lg);
-}
-
-/* Seção de formulário em foco: trilho dourado à esquerda diz "você está aqui". */
-.layout-formulario .cartao:focus-within {
-  box-shadow: var(--sombra-cartao-hover), inset var(--filete) 0 0 var(--cor-marca);
-}
-
-.layout-formulario .cartao:focus-within .cartao__numero {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
 }
 
 /* =============== Documento (folha única) e seções abertas =============== */
@@ -1890,7 +1887,6 @@ a.indicador:hover {
   gap: var(--esp-1);
   overflow-x: auto;
   border-bottom: var(--borda);
-  scrollbar-width: thin;
 }
 
 .aba {
@@ -2106,25 +2102,6 @@ a.indicador:hover {
   white-space: nowrap;
 }
 
-.tabela__ordenar {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-1);
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  text-decoration: none;
-}
-
-.tabela th[aria-sort="ascending"],
-.tabela th[aria-sort="descending"] {
-  color: var(--cor-marca-texto);
-}
-
 .tabela__principal {
   white-space: nowrap;
   font-weight: var(--peso-semi);
@@ -2136,34 +2113,11 @@ a.tabela__principal:hover {
   text-decoration: underline;
 }
 
-.tabela__secundario {
-  display: block;
-  font-size: var(--texto-xs);
-  color: var(--cor-texto-secundario);
-}
-
 .tabela tfoot td {
   border-top: var(--borda-forte);
   border-bottom: 0;
   font-weight: var(--peso-semi);
   background: var(--cor-superficie-sutil);
-}
-
-/* Linha da tabela inteira clicável sem quebrar semântica:
-   o link principal estende a área com ::after. */
-.tabela--linhas-clicaveis tbody tr {
-  position: relative;
-}
-
-.tabela--linhas-clicaveis .tabela__principal::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-.tabela--linhas-clicaveis .tabela__acao {
-  position: relative;
-  z-index: 1;
 }
 
 /* Em telas estreitas a tabela vira lista de cartões (sem rolagem lateral). */
@@ -2184,35 +2138,41 @@ a.tabela__principal:hover {
     width: 100%;
   }
 
+  /* Cada linha vira um cartão: a célula principal no alto, as demais em duas colunas com
+     o rótulo em micro-caixa-alta — metade da altura de uma lista rótulo/valor. */
   .tabela--responsiva tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--esp-2) var(--esp-4);
     padding: var(--esp-3) var(--esp-4);
     border-bottom: var(--borda);
   }
 
   .tabela--responsiva td {
     display: flex;
-    gap: var(--esp-3);
-    justify-content: space-between;
-    padding: var(--esp-1) 0;
+    flex-direction: column;
+    gap: var(--esp-05);
+    padding: 0;
     border: 0;
-    text-align: right;
+    text-align: left;
   }
 
   .tabela tbody tr:hover td:first-child { box-shadow: none; }
 
   .tabela--responsiva td::before {
     content: attr(data-rotulo);
-    color: var(--cor-texto-secundario);
-    font-size: var(--texto-xs);
+    color: var(--cor-texto-terciario);
+    font-size: var(--texto-2xs);
     font-weight: var(--peso-semi);
-    text-align: left;
     text-transform: uppercase;
     letter-spacing: var(--rastreio-rotulo);
   }
 
   .tabela--responsiva td[data-rotulo=""]::before { display: none; }
-  .tabela--responsiva td.tabela__celula-principal { display: block; text-align: left; }
+  .tabela--responsiva td.tabela__celula-principal { grid-column: 1 / -1; }
   .tabela--responsiva td.tabela__celula-principal::before { display: none; }
+  .tabela--responsiva td.num { text-align: left; }
+  .tabela--responsiva tfoot td { grid-column: 1 / -1; }
 }
 
 /* =============== Lista de registros (linha-cartão) =============== */
@@ -2279,11 +2239,24 @@ a.tabela__principal:hover {
   transform: rotate(180deg);
 }
 
+/* O resumo abre crescendo (grid 0fr → 1fr: anima altura sem medir nada no JS) e fica
+   fora da ordem de foco enquanto fechado (visibility). */
 .registro__extra {
   position: relative;
   z-index: 1;
   grid-column: 1 / -1;
-  display: none;
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(-1 * var(--esp-2)); /* anula o gap da linha vazia */
+  visibility: hidden;
+  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
+    margin-top var(--duracao-media) var(--curva-padrao),
+    visibility 0s linear var(--duracao-media);
+}
+
+.registro__extra-corpo {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .registro--aberto {
@@ -2292,8 +2265,26 @@ a.tabela__principal:hover {
 }
 
 .registro--aberto .registro__extra {
-  display: block;
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  visibility: visible;
+  transition: grid-template-rows var(--duracao-media) var(--curva-padrao),
+    margin-top var(--duracao-media) var(--curva-padrao);
+}
+
+.registro--aberto .registro__extra-corpo > * {
   animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* Recém-alterado: ao voltar da edição, a linha acende em dourado e assenta (registro.js). */
+.registro--destaque {
+  animation: destacar-registro 2.4s var(--curva-suave) both;
+}
+
+@keyframes destacar-registro {
+  0% { background: var(--cor-marca-fundo-forte); box-shadow: inset var(--filete) 0 0 var(--cor-marca); }
+  60% { background: var(--cor-marca-fundo); box-shadow: inset var(--filete) 0 0 var(--cor-marca); }
+  100% { background: transparent; box-shadow: inset var(--filete) 0 0 transparent; }
 }
 
 .registro__extra .esqueleto + .esqueleto {
@@ -2534,42 +2525,6 @@ a.tabela__principal:hover {
 .filtros__acoes {
   display: flex;
   gap: var(--esp-2);
-}
-
-.filtros-ativos {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--esp-2);
-  padding: var(--esp-2) var(--esp-5);
-  border-bottom: var(--borda);
-  background: var(--cor-superficie-sutil);
-  font-size: var(--texto-sm);
-}
-
-.ficha {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-1);
-  padding: var(--esp-05) var(--esp-1) var(--esp-05) var(--esp-2);
-  border: var(--borda);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-superficie);
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-medio);
-  color: var(--cor-texto);
-  text-decoration: none;
-}
-
-.ficha:hover {
-  border-color: var(--cor-borda-forte);
-  text-decoration: none;
-}
-
-.ficha .icone {
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--cor-texto-secundario);
 }
 
 .lista-cabecalho {
@@ -2912,10 +2867,56 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   color: var(--cor-aviso);
 }
 
-/* Etapas horizontais (wizard em telas largas). */
+/* Etapas horizontais (assistente): marcadores ligados por um fio; o fio percorrido
+   fica dourado; a etapa atual ganha o halo. No celular empilham com o fio vertical. */
 .etapas--horizontal {
   flex-direction: row;
-  flex-wrap: wrap;
+  gap: 0;
+}
+
+.etapas--horizontal .etapas__item {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+}
+
+.etapas--horizontal .etapas__item:last-child {
+  flex: 0 0 auto;
+}
+
+.etapas--horizontal .etapas__item > a,
+.etapas--horizontal .etapas__item > span {
+  flex: none;
+  padding: var(--esp-1) var(--esp-2);
+  border-radius: var(--raio-pilula);
+  white-space: nowrap;
+}
+
+.etapas--horizontal .etapas__item:not(:last-child)::after {
+  content: "";
+  flex: 1 1 0;
+  height: 2px;
+  margin: 0 var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-borda-forte);
+}
+
+.etapas--horizontal .etapas__item--concluida:not(:last-child)::after {
+  background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-lenta) var(--curva-padrao);
+}
+
+@media (max-width: 479.98px) {
+  .etapas--horizontal {
+    flex-direction: column;
+    gap: var(--esp-1);
+  }
+
+  .etapas--horizontal .etapas__item::after {
+    display: none;
+  }
 }
 
 /* =============== Diálogo / gaveta (pc-dialogo) =============== */
@@ -3048,10 +3049,18 @@ dialog.dialogo.gaveta[open] {
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
 }
 
-.menu__painel--esquerda {
+.menu__painel--esquerda,
+.menu__painel--forcar-esquerda {
   right: auto;
   left: 0;
   transform-origin: top left;
+}
+
+/* menu.js: o painel que sairia pela borda abre para o outro lado. */
+.menu__painel--forcar-direita {
+  right: 0;
+  left: auto;
+  transform-origin: top right;
 }
 
 .menu__item {
@@ -3129,6 +3138,7 @@ dialog.dialogo.gaveta[open] {
 
 .comandos__busca input {
   flex: 1 1 auto;
+  min-width: 0;
   border: 0;
   outline: none;
   font-size: var(--texto-xl);
@@ -3179,6 +3189,12 @@ dialog.dialogo.gaveta[open] {
 
 .comandos__opcao[aria-selected="true"] .icone {
   color: var(--cor-marca-texto);
+}
+
+@media (max-width: 479.98px) {
+  .comandos { margin-top: var(--esp-4); }
+  .comandos__busca { padding: var(--esp-3) var(--esp-4); }
+  .comandos__busca .botao { display: none; }
 }
 
 .comandos__rodape {
@@ -3319,22 +3335,6 @@ kbd {
   pointer-events: none;
   box-shadow: var(--sombra-3);
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
-}
-
-/* =============== Prévia de documento =============== */
-.previa-documento {
-  padding: var(--esp-6);
-  border-radius: var(--raio-md);
-  background: var(--neutro-200);
-  overflow: auto;
-}
-
-.previa-documento iframe {
-  display: block;
-  width: 100%;
-  height: 70vh;
-  border: 0;
-  background: var(--neutro-0);
 }
 
 /* =============== Específicos de formulários longos =============== */
@@ -3642,6 +3642,29 @@ kbd {
 }
 
 /* =============== Central de módulos =============== */
+/* Cada módulo é um console: identidade e descrição, os números que orientam a decisão e
+   as entradas diretas (as mesmas do menu superior, com as permissões do usuário). */
+.modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 38rem), 1fr));
+  gap: var(--esp-4);
+}
+
+.modulo__corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-5) var(--esp-8);
+  align-items: start;
+  padding: var(--esp-5) var(--esp-6);
+}
+
+.modulo__intro {
+  display: flex;
+  gap: var(--esp-4);
+  align-items: flex-start;
+  min-width: 0;
+}
+
 .modulo__icone {
   display: inline-grid;
   place-items: center;
@@ -3655,15 +3678,19 @@ kbd {
   flex: none;
 }
 
-.modulo__topo {
-  align-items: flex-start;
-  flex-wrap: nowrap;
-  gap: var(--esp-3);
+.modulo__titulo {
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-semi);
+}
+
+.modulo__descricao {
+  margin-top: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  max-width: 34rem;
 }
 
 .modulo__numeros {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   gap: var(--esp-2);
   margin: 0;
 }
@@ -3671,12 +3698,20 @@ kbd {
 .modulo__numeros > div {
   display: flex;
   flex-direction: column-reverse;
-  gap: var(--esp-1);
-  padding: var(--esp-3) var(--esp-1);
+  gap: var(--esp-05);
+  min-width: 6rem;
+  padding: var(--esp-3) var(--esp-3);
   border-radius: var(--raio-md);
   background: var(--cor-superficie-sutil);
-  box-shadow: 0 0 0 1px var(--cor-borda-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda-sutil);
   text-align: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.modulo__numeros-link:hover {
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
+  text-decoration: none;
 }
 
 .modulo__numeros dd {
@@ -3691,19 +3726,64 @@ kbd {
   font-size: var(--texto-2xs);
   font-weight: var(--peso-semi);
   letter-spacing: 0.02em;
-  overflow-wrap: normal; /* nunca "RASCUN/HOS": palavra inteira ou hifenização */
-  hyphens: auto;
   text-transform: uppercase;
   color: var(--cor-texto-secundario);
 }
 
 .modulo__numero--destaque {
-  background: var(--cor-marca-fundo) !important;
-  box-shadow: 0 0 0 1px var(--cor-marca-borda) !important;
+  background: var(--cor-marca-fundo);
+  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
 }
 
 .modulo__numero--destaque dd {
   color: var(--cor-marca-texto);
+}
+
+/* Entradas diretas: a ação principal e os atalhos do módulo numa linha só. */
+.modulo__acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  padding-top: var(--esp-4);
+  border-top: var(--borda-sutil);
+}
+
+.modulo__atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle);
+  padding: 0 var(--esp-3);
+  border-radius: var(--raio-md);
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.modulo__atalho > .icone {
+  color: var(--cor-texto-terciario);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.modulo__atalho:hover {
+  background: var(--cor-marca-fundo);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.modulo__atalho:hover > .icone {
+  color: var(--cor-marca-texto);
+}
+
+@media (max-width: 767.98px) {
+  .modulo__corpo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-4); }
+  .modulo__numeros > div { flex: 1 1 0; min-width: 0; padding: var(--esp-2) var(--esp-1); }
+  .modulo__numeros dt { overflow-wrap: normal; hyphens: auto; }
+  .modulo__acoes .botao { width: 100%; }
 }
 
 /* Próximos módulos: uma faixa discreta, não quatro cartões vazios. */
@@ -3742,6 +3822,75 @@ kbd {
 
 .modulo-futuro__descricao {
   font-size: var(--texto-sm);
+}
+
+/* =============== Painel: atalhos e lembrete (coluna de contexto) =============== */
+/* Atalhos como linhas de lista, não como botões soltos: menos caixa, mais leitura. */
+.atalhos {
+  list-style: none;
+  margin: 0;
+  padding: var(--esp-2);
+}
+
+.atalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: var(--altura-controle);
+  padding: 0 var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-md);
+  width: 100%;
+  background: transparent;
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: var(--peso-medio);
+  text-align: left;
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.atalho > .icone:first-child {
+  color: var(--cor-marca-texto);
+}
+
+.atalho__seta {
+  margin-left: auto;
+  color: var(--cor-texto-terciario);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.atalho:hover {
+  background: var(--cor-superficie-sutil);
+  text-decoration: none;
+}
+
+.atalho:hover .atalho__seta {
+  transform: translateX(2px);
+}
+
+.atalho kbd {
+  margin-left: auto;
+}
+
+.lembrete {
+  display: flex;
+  gap: var(--esp-3);
+  padding: var(--esp-4) var(--esp-5);
+  border-radius: var(--raio-lg);
+  border: 1px dashed var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.lembrete > .icone {
+  color: var(--cor-marca-texto);
+  margin-top: 0.1rem;
+}
+
+.lembrete strong {
+  color: var(--cor-texto);
 }
 
 /* Campos que só valem para um meio de transporte (sem JS: :has()). */

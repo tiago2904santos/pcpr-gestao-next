@@ -50,7 +50,7 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
 {% endif %}
 
 <form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate
-      data-proteger{% if sujo %} data-sujo{% endif %}>
+      data-proteger{% if sujo %} data-sujo{% endif %} data-destaque="oficio:{{ oficio.pk }}">
   {% csrf_token %}
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário, antes de "Adicionar destino"). #}
   <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar rascunho</button>
@@ -165,7 +165,7 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
       <div class="secao__cabecalho">
         <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">4</span>Roteiro</h2>
         <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-        <p class="secao__nota">Cada parada traz o trecho que chega nela: saída do ponto anterior e chegada. Horários de Brasília.</p>
+        <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
       </div>
       {# Como no sistema de referência: o roteiro pode vir de um roteiro cadastrado. #}
       {% if roteiros_disponiveis is not None %}

@@ -17,7 +17,7 @@
     <label class="campo__rotulo" for="busca-roteiros">Buscar</label>
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-roteiros" type="search" name="q" value="{{ termo }}" placeholder="Sede, destino, observações ou número (#12)" autocomplete="off"></div>
   </div>
-  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
+  <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
 {% endblock %}
 

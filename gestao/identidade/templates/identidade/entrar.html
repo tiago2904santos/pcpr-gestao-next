@@ -33,7 +33,7 @@
         </div>
       {% endif %}
       {% include "componentes/campo.html" with campo=form.username prefixo_icone="user" %}
-      {% include "componentes/campo.html" with campo=form.password prefixo_icone="lock" %}
+      {% include "componentes/campo_senha.html" with campo=form.password prefixo_icone="lock" %}
       <input type="hidden" name="next" value="{{ next }}">
       <button type="submit" class="botao botao--marca botao--lg botao--bloco"><span>Entrar</span>{% icone "arrow-right" classe="icone--seta" %}</button>
       <p class="cartao-acesso__selo texto-secundario texto-sm texto-centro">Problemas com o acesso? Fale com o administrador da sua unidade.</p>

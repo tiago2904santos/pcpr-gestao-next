@@ -1,0 +1,23 @@
+{% comment %}
+Campo de senha com "mostrar/ocultar" (app.js: [data-alternar-senha]). Uso:
+  {% include "componentes/campo_senha.html" with campo=form.password prefixo_icone="lock" %}
+Sem JavaScript o botão fica escondido e o campo é um campo de senha comum.
+{% endcomment %}
+{% with id=campo.auto_id ajuda_texto=ajuda|default:campo.help_text %}
+<div class="campo {{ classe }}{% if campo.errors %} campo--erro{% endif %}">
+  <label class="campo__rotulo" for="{{ campo.id_for_label }}" id="{{ id }}-rotulo">
+    {{ rotulo|default:campo.label }}{% if campo.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% endif %}
+  </label>
+  <div class="entrada-composta entrada-composta--senha">
+    {% if prefixo_icone %}{% icone prefixo_icone %}{% endif %}
+    {{ campo|campo_acessivel:ajuda_texto }}
+    <button type="button" class="entrada-composta__botao" data-alternar-senha aria-controls="{{ id }}" aria-pressed="false" hidden>
+      {% icone "eye" classe="entrada-composta__ver" %}{% icone "eye-off" classe="entrada-composta__ocultar" %}<span class="sr-only">Mostrar senha</span>
+    </button>
+  </div>
+  {% if ajuda_texto %}<p class="campo__ajuda" id="{{ id }}-ajuda">{{ ajuda_texto }}</p>{% endif %}
+  {% if campo.errors %}
+    <p class="campo__erro" id="{{ id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>
+  {% endif %}
+</div>
+{% endwith %}

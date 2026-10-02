@@ -565,6 +565,10 @@
 .grade--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .grade--auto { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
 
+/* Indicadores do painel: quatro em telas largas, dois a dois abaixo (inclusive no celular,
+   onde empilhar quatro cartões empurrava a lista para fora da primeira tela). */
+.grade--kpi { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
 /* Detalhe: conteúdo principal + coluna de contexto. */
 .layout-detalhe {
   display: grid;
@@ -578,19 +582,6 @@
   top: calc(var(--altura-topo) + var(--esp-4));
   display: grid;
   gap: var(--esp-4);
-}
-
-/* Formulário longo: índice de seções + seções. */
-.layout-formulario {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
-  gap: var(--esp-6);
-  align-items: start;
-}
-
-.layout-formulario__indice {
-  position: sticky;
-  top: calc(var(--altura-topo) + var(--esp-4));
 }
 
 /* Barra de ações fixa no rodapé de formulários longos. O scroll-padding garante que
@@ -689,7 +680,7 @@ html:has(.barra-acoes) .conteudo__interno {
   .navegacao__interno { padding: 0 var(--esp-6); }
   .perfil__texto, .busca-global__atalho, .marca__subtitulo { display: none; }
   .layout-detalhe { grid-template-columns: minmax(0, 1fr) 17rem; }
-  .grade--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grade--4, .grade--kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 768px) {
@@ -708,8 +699,6 @@ html:has(.barra-acoes) .conteudo__interno {
   .barra-acoes__secundario { display: none; }
   .layout-detalhe { grid-template-columns: minmax(0, 1fr); }
   .layout-detalhe__lateral { position: static; }
-  .layout-formulario { grid-template-columns: minmax(0, 1fr); }
-  .layout-formulario__indice { display: none; }
   .grade--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -819,6 +808,10 @@ html:has(.barra-acoes) .conteudo__interno {
   .pagina-cabecalho__titulo { font-size: var(--texto-2xl); }
   .pagina-cabecalho__acoes { width: 100%; }
   .grade--2, .grade--3, .grade--4 { grid-template-columns: minmax(0, 1fr); }
+  .grade--kpi { gap: var(--esp-2); }
+  .grade--kpi .indicador { padding: var(--esp-3); gap: var(--esp-05); }
+  .grade--kpi .indicador__valor { font-size: var(--texto-2xl); }
+  .grade--kpi .indicador__nota { display: none; }
   /* Barra compacta no celular: uma linha, rótulos curtos, status só quando há algo a avisar. */
   .barra-acoes {
     flex-wrap: nowrap;

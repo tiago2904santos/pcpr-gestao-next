@@ -52,7 +52,17 @@ export class PcMenu extends HTMLElement {
     this.painel.hidden = false;
     this.botao.setAttribute("aria-expanded", "true");
     if (this.fora) document.addEventListener("pointerdown", this.fora);
+    this.encaixar();
     this.itens()[0]?.focus();
+  }
+
+  /** O painel nunca sai da tela: abre para o lado em que cabe (celular, botão à esquerda). */
+  encaixar() {
+    if (!this.painel) return;
+    this.painel.classList.remove("menu__painel--forcar-esquerda", "menu__painel--forcar-direita");
+    const r = this.painel.getBoundingClientRect();
+    if (r.left < 0) this.painel.classList.add("menu__painel--forcar-esquerda");
+    else if (r.right > window.innerWidth) this.painel.classList.add("menu__painel--forcar-direita");
   }
 
   fechar(devolverFoco = true) {
