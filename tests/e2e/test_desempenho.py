@@ -63,9 +63,9 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     # Interação real para INP: abre e fecha o menu do usuário; na lista, expande um registro.
     pg.click(".perfil")
     pg.keyboard.press("Escape")
-    if pg.locator("[data-expandir]").count():
-        pg.locator("[data-expandir]").first.click()
-        pg.wait_for_selector(".registro--aberto .resumo")
+    if pg.locator(".registro__link").count():
+        pg.locator(".registro__link").first.click()
+        pg.wait_for_selector("#dialogo-resumo[open] .resumo")
     pg.wait_for_timeout(200)
     nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
         const fcp = performance.getEntriesByName('first-contentful-paint')[0];

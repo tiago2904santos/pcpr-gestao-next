@@ -10,7 +10,7 @@
 | 1. Enter salva | ✅ Corrigido — botão de envio padrão oculto no início de `#form-oficio` | e2e `test_enter_salva_e_alteracao_nao_salva_e_avisada` |
 | 2. Perda de dados | ✅ Corrigido — `protecao.js`: "Alterações não salvas" na barra, confirmação ao sair, estado sujo mantido após "Adicionar destino" e erro 422 | e2e acima (diálogo `beforeunload`); `test_adicionar_destino_e_erro_marcam_alteracoes_nao_salvas` |
 | 3. Foco coberto pela barra | ✅ Barra compacta < 768 px + rolagem no `focusin` + `scroll-padding` | e2e `test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra` (360/768/1440; reprova sem a correção) |
-| 4. Ações por permissão | ✅ "Continuar edição" só com permissão de editar; mensagem correta para quem só consulta | `test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa` |
+| 4. Ações por permissão | ✅ "Abrir o ofício" só leva a `/editar/` com permissão de editar; mensagem correta para quem só consulta | `test_consulta_nao_ve_acao_de_edicao_e_recebe_mensagem_certa` |
 | 5. Abas + busca | ✅ Abas atualizadas por OOB no swap HTMX, preservando `q` e `ordem` | `test_busca_ao_vivo_atualiza_abas_preservando_busca_e_ordem` |
 | 6. Foco no resumo de erros | ✅ `foco="resumo-erros"` após salvar inválido | e2e `test_erro_de_validacao_aparece_no_resumo_e_no_campo` (`to_be_focused`) |
 | 7. Datas do roteiro | ⏳ Pendente — validar no navegador institucional ou campo mascarado | — |

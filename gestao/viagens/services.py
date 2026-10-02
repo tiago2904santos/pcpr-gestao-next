@@ -21,6 +21,7 @@ from gestao.plataforma import outbox
 
 from . import policies
 from .dominio import bate_volta as dominio_bate_volta
+from .dominio import busca as dominio_busca
 from .dominio import diarias as dominio_diarias
 from .dominio.numeracao import proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
@@ -36,7 +37,13 @@ from .models import (
     TrechoRoteiro,
     Viajante,
 )
-from .queries import buscar_tabelas_vigentes, trechos_de, trechos_do_roteiro, viajantes_de
+from .queries import (
+    aplicar_leitura,
+    buscar_tabelas_vigentes,
+    trechos_de,
+    trechos_do_roteiro,
+    viajantes_de,
+)
 
 
 class RegraViolada(Exception):
@@ -487,11 +494,20 @@ def excluir_rascunho(oficio: Oficio, usuario) -> str:
     return numero
 
 
-def buscar_por_texto(qs, termo: str):
-    """Busca por número (131 ou 131/2026), protocolo, motivo, destino ou servidor."""
+def buscar_por_texto(qs, termo: str, escopo: str = ""):
+    """Busca por número (131 ou 131/2026), protocolo, motivo, destino ou servidor.
+
+    Com `escopo`, procura só onde foi pedido (dominio.busca): é o que tira da frente as
+    dezenas de ofícios que casam com "26" por acaso."""
     termo = (termo or "").strip()
     if not termo:
         return qs
+    if escopo:
+        escolhida = next(
+            (leitura for leitura in dominio_busca.ler(termo, timezone.localdate().year)
+             if leitura.escopo == escopo), None)
+        if escolhida:
+            return aplicar_leitura(qs, escolhida)
     filtro = (Q(motivo__icontains=termo) | Q(trechos__destino__nome__unaccent__icontains=termo)
               | Q(viajantes__servidor__nome__unaccent__icontains=termo))
     digitos = "".join(c for c in termo if c.isdigit())

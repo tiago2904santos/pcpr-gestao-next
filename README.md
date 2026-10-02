@@ -39,6 +39,13 @@ scripts/preview.sh local     # sem Docker (PostgreSQL local, banco pcpr_preview)
 Ou **Code → Codespaces → Create codespace** no GitHub (URL privada `…-8000.app.github.dev`).
 Detalhes, reset e verificação: `docs/ops/preview.md`.
 
+## Abrir no celular (URL pública HTTPS)
+```powershell
+.\scripts\tunnel.ps1     # Windows: instala o devtunnel, sobe o DEV e publica https://…devtunnels.ms
+```
+Alternativas (mesma rede Wi-Fi, Codespaces, Cloudflare) e as variáveis que o Django precisa
+atrás de um tunnel: `docs/ops/tunnel.md`.
+
 ## Qualidade
 ```bash
 uv run python manage.py doctor           # diagnóstico do ambiente

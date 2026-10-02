@@ -7,6 +7,11 @@
  * Intervalo: com `data-ate="<id de outro campo de data>"`, o mesmo calendário marca começo e
  * fim — o primeiro clique abre o período, o segundo fecha, e os dias entre eles aparecem
  * marcados. Sem JavaScript continuam dois campos de data comuns.
+ *
+ * Período num campo só: com `data-periodo`, o campo visível mostra "13/10/2026 a 20/10/2026"
+ * (e aceita ser digitado assim) enquanto dois campos escondidos — `[data-periodo-de]` e
+ * `[data-periodo-ate]` — levam as datas ao formulário. Serve a filtros, onde duas caixas
+ * para uma ideia só ("o período") pesam mais do que ajudam.
  */
 import { SeletorFlutuante } from "./seletor-base.js";
 
@@ -21,6 +26,9 @@ const dois = (n) => String(n).padStart(2, "0");
 const formatar = (d) => `${dois(d.getDate())}/${dois(d.getMonth() + 1)}/${d.getFullYear()}`;
 /** @param {Date} a @param {Date} b */
 const mesmoDia = (a, b) => a.toDateString() === b.toDateString();
+
+/** Separador do período escrito no campo: "13/10/2026 a 20/10/2026" (ou com travessão). */
+const SEPARADOR = /\s+(?:a|–|—|-)\s+|\s*[–—]\s*/;
 
 /** "8/10/2026" → Date (ou null se não for uma data real). @param {string} texto */
 function lerData(texto) {
@@ -52,10 +60,70 @@ export class PcData extends SeletorFlutuante {
     return id ? /** @type {HTMLInputElement | null} */ (document.getElementById(id)) : null;
   }
 
+  /** Um campo só para o período inteiro (filtros). */
+  get ehPeriodo() {
+    return this.hasAttribute("data-periodo");
+  }
+
+  /** Este calendário marca duas pontas? */
+  get temFim() {
+    return this.ehPeriodo || Boolean(this.campoFim);
+  }
+
+  get inicioAtual() {
+    const texto = /** @type {HTMLInputElement} */ (this.entrada).value;
+    return lerData(this.ehPeriodo ? texto.split(SEPARADOR)[0] || "" : texto);
+  }
+
+  get fimAtual() {
+    if (this.ehPeriodo) {
+      const texto = /** @type {HTMLInputElement} */ (this.entrada).value;
+      return lerData(texto.split(SEPARADOR)[1] || "");
+    }
+    return this.campoFim ? lerData(this.campoFim.value) : null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    // Digitar o período à mão também vale: os campos escondidos acompanham o que foi escrito.
+    if (this.ehPeriodo && this.entrada) {
+      this.entrada.addEventListener("change", () => this.gravarEscondidos(this.inicioAtual,
+                                                                          this.fimAtual));
+    }
+  }
+
+  /** @param {Date | null} de @param {Date | null} ate */
+  gravarEscondidos(de, ate) {
+    for (const [seletor, valor] of [["[data-periodo-de]", de], ["[data-periodo-ate]", ate]]) {
+      const campo = /** @type {HTMLInputElement | null} */ (
+        this.querySelector(/** @type {string} */ (seletor)));
+      if (!campo) continue;
+      const texto = valor ? formatar(/** @type {Date} */ (valor)) : "";
+      if (campo.value === texto) continue;
+      campo.value = texto;
+      campo.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
+
+  /** Grava o par escolhido onde ele mora neste modo. @param {Date | null} de @param {Date | null} ate */
+  definir(de, ate) {
+    if (this.ehPeriodo) {
+      const texto = !de ? "" : (ate ? `${formatar(de)} a ${formatar(ate)}` : formatar(de));
+      this.escrever(texto);
+      this.gravarEscondidos(de, ate);
+      return;
+    }
+    this.escrever(de ? formatar(de) : "");
+    const fim = this.campoFim;
+    if (!fim) return;
+    fim.value = ate ? formatar(ate) : "";
+    fim.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
   montar() {
     const painel = /** @type {HTMLElement} */ (this.painel);
     const entrada = /** @type {HTMLInputElement} */ (this.entrada);
-    this.foco = lerData(entrada.value) || new Date();
+    this.foco = this.inicioAtual || new Date();
     if (!this.grade) {
       const topo = document.createElement("div");
       topo.className = "calendario__topo";
@@ -96,7 +164,8 @@ export class PcData extends SeletorFlutuante {
       rodape.append(
         this.botaoDoPainel("Hoje", "botao botao--sm botao--texto", () => this.escolher(new Date())),
         this.botaoDoPainel("Limpar", "botao botao--sm botao--texto", () => {
-          this.escrever("");
+          this.definir(null, null);
+          this.aguardandoFim = false;
           this.fechar(true);
         }),
       );
@@ -107,8 +176,8 @@ export class PcData extends SeletorFlutuante {
 
   renderizar() {
     const corpo = /** @type {HTMLTableSectionElement} */ (this.corpo);
-    const entrada = /** @type {HTMLInputElement} */ (this.entrada);
-    const escolhida = lerData(entrada.value);
+    const escolhida = this.inicioAtual;
+    const fim = this.fimAtual;
     const hoje = new Date();
     const [ano, mes] = [this.foco.getFullYear(), this.foco.getMonth()];
     const nomeMes = MESES[mes];
@@ -127,7 +196,6 @@ export class PcData extends SeletorFlutuante {
         td.tabIndex = mesmoDia(d, this.foco) ? 0 : -1;
         if (d.getMonth() !== mes) td.className = "calendario__fora";
         if (mesmoDia(d, hoje)) td.setAttribute("aria-current", "date");
-        const fim = this.campoFim && lerData(this.campoFim.value);
         const extremo = Boolean((escolhida && mesmoDia(d, escolhida)) || (fim && mesmoDia(d, fim)));
         td.setAttribute("aria-selected", String(extremo));
         if (escolhida && fim && d > escolhida && d < fim) td.classList.add("calendario__intervalo");
@@ -185,27 +253,22 @@ export class PcData extends SeletorFlutuante {
 
   /** @param {Date} d */
   escolher(d) {
-    const fim = this.campoFim;
-    if (!fim) {
-      this.escrever(formatar(d));
+    if (!this.temFim) {
+      this.definir(d, null);
       this.fechar(true);
       return;
     }
     if (!this.aguardandoFim) {
       // Primeiro clique: abre um período novo e espera o segundo, sem fechar o calendário.
-      this.escrever(formatar(d));
-      fim.value = "";
-      fim.dispatchEvent(new Event("change", { bubbles: true }));
+      this.definir(d, null);
       this.aguardandoFim = true;
       this.renderizar();
       return;
     }
     // Segundo clique fecha o período; clicar antes do começo inverte os dois.
-    const inicio = lerData(/** @type {HTMLInputElement} */ (this.entrada).value) || d;
+    const inicio = this.inicioAtual || d;
     const [a, b] = d < inicio ? [d, inicio] : [inicio, d];
-    this.escrever(formatar(a));
-    fim.value = formatar(b);
-    fim.dispatchEvent(new Event("change", { bubbles: true }));
+    this.definir(a, b);
     this.aguardandoFim = false;
     this.fechar(true);
   }

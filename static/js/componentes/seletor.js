@@ -9,6 +9,7 @@
  */
 
 import { abrirEspaco } from "./seletor-base.js";
+import { icone } from "./icone.js";
 
 let contador = 0;
 /** @param {string} t */
@@ -43,7 +44,9 @@ export class PcSelect extends HTMLElement {
     if (rotulo) rotulo.setAttribute("for", gatilho.id);
     this.valor = document.createElement("span");
     this.valor.className = "seletor__valor";
-    gatilho.append(this.valor);
+    // Seta de verdade, dentro do botão: desenhá-la no fundo (como no <select> sem JS)
+    // a fazia sumir no hover e no foco, que reescrevem o atalho `background`.
+    gatilho.append(this.valor, icone("chevron-down", "icone seletor__seta"));
 
     const lista = document.createElement("ul");
     lista.className = "combobox__lista seletor__lista";

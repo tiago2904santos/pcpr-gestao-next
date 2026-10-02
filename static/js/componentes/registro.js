@@ -1,35 +1,11 @@
 // @ts-check
 /**
- * Registro expansível (listas): `<button data-expandir aria-expanded="false">` dentro de
- * `.registro` abre/fecha `.registro__extra`. O conteúdo vem por HTMX na primeira abertura
- * (depois, `data-carregado` no registro cancela novas buscas); este módulo cuida
- * do estado visual, do carregamento (aria-busy, erro) e do teclado (Esc fecha e devolve
- * o foco ao botão — sem roubar o Esc dos menus abertos dentro da linha).
+ * Listas de registros: o resumo em janela, o destaque de quem acabou de ser salvo e a
+ * continuidade da placa ao abrir um registro.
+ *
+ * O resumo é pedido por HTMX (o próprio <a> do registro) e cai dentro de #resumo-dialogo;
+ * aqui ficam o esqueleto a cada abertura, o estado de carregando e a mensagem de erro.
  */
-document.addEventListener("click", (e) => {
-  const botao = /** @type {HTMLElement | null} */ (
-    /** @type {HTMLElement} */ (e.target).closest("[data-expandir]")
-  );
-  if (!botao) return;
-  const registro = botao.closest(".registro");
-  if (!registro) return;
-  const aberto = botao.getAttribute("aria-expanded") === "true";
-  botao.setAttribute("aria-expanded", String(!aberto));
-  registro.classList.toggle("registro--aberto", !aberto);
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
-  const alvo = /** @type {HTMLElement} */ (e.target);
-  if (alvo.closest("[role='menu']")) return; // o menu trata o seu próprio Esc
-  const registro = /** @type {HTMLElement | null} */ (alvo.closest(".registro--aberto"));
-  if (!registro) return;
-  const botao = /** @type {HTMLElement | null} */ (registro.querySelector("[data-expandir]"));
-  registro.classList.remove("registro--aberto");
-  botao?.setAttribute("aria-expanded", "false");
-  botao?.focus();
-});
-
 // Continuidade espacial com custo mínimo: ao sair da página por um registro, só a placa
 // daquele registro mantém o nome de transição (as outras 19 não viram snapshot).
 /** @type {Element | null} */
@@ -60,41 +36,42 @@ try {
   /* sessionStorage bloqueado: sem destaque */
 }
 
-/** @param {Event} evento @returns {HTMLElement | null} */
-function extraDe(evento) {
-  const e = /** @type {CustomEvent} */ (evento);
-  const origem = /** @type {HTMLElement | undefined} */ (e.detail?.elt);
-  if (!origem?.hasAttribute("data-expandir")) return null;
-  return /** @type {HTMLElement | null} */ (origem.closest(".registro")?.querySelector(".registro__extra"));
+const ESQUELETO = `<div class="dialogo__corpo" aria-busy="true">
+  <p class="sr-only" role="status">Carregando o resumo do ofício.</p>
+  <div class="esqueleto esqueleto--linha"></div>
+  <div class="esqueleto esqueleto--linha"></div>
+  <div class="esqueleto esqueleto--curto"></div>
+</div>`;
+
+/**
+ * Corpo da janela que este pedido vai preencher — serve ao resumo do ofício e à lista de
+ * ofícios de um roteiro. @param {Event} evento
+ */
+function corpoDaJanela(evento) {
+  const origem = /** @type {HTMLElement | undefined} */ (
+    /** @type {CustomEvent} */ (evento).detail?.elt
+  );
+  const id = origem?.getAttribute("data-abrir-dialogo");
+  if (!id) return null;
+  return document.getElementById(id)?.querySelector("[data-corpo-dialogo]") ?? null;
 }
 
+// Cada abertura começa do esqueleto: o conteúdo do item anterior não pode ficar na tela
+// enquanto o novo não chega.
 document.body.addEventListener("htmx:beforeRequest", (evento) => {
-  const extra = extraDe(evento);
-  if (!extra) return;
-  // Já carregado: não busca de novo (sem filtro de evento no hx-trigger — a CSP proíbe eval).
-  if (extra.closest(".registro")?.hasAttribute("data-carregado")) {
-    evento.preventDefault();
-    return;
-  }
-  extra.setAttribute("aria-busy", "true");
+  const corpo = corpoDaJanela(evento);
+  if (corpo) corpo.innerHTML = ESQUELETO;
 });
 
-document.body.addEventListener("htmx:afterRequest", (evento) => {
-  const extra = extraDe(evento);
-  if (!extra) return;
-  extra.removeAttribute("aria-busy");
-  const ok = Boolean(/** @type {CustomEvent} */ (evento).detail?.successful);
-  if (ok) {
-    extra.closest(".registro")?.setAttribute("data-carregado", "");
-    return;
-  }
-  // Falhou: mensagem no lugar do esqueleto; o próximo clique tenta de novo.
-  extra.textContent = "";
+document.body.addEventListener("htmx:responseError", (evento) => {
+  const corpo = corpoDaJanela(evento);
+  if (!corpo) return;
+  corpo.innerHTML = "";
   const aviso = document.createElement("p");
-  aviso.className = "registro__erro";
+  aviso.className = "dialogo__corpo registro__erro";
   aviso.setAttribute("role", "alert");
-  aviso.textContent = "Não foi possível carregar o resumo. Tente de novo.";
-  extra.append(aviso);
+  aviso.textContent = "Não foi possível carregar agora. Feche e tente de novo.";
+  corpo.append(aviso);
 });
 
 // Sem exportações: a marca de módulo permite o import() sob demanda (app.js).

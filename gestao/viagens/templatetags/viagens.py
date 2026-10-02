@@ -24,6 +24,30 @@ def icone_situacao(situacao: str) -> str:
     return ICONE_SITUACAO.get(situacao, "file-text")
 
 
+@register.filter
+def larguras_de_cartoes(total: int) -> list[int]:
+    """Quantas colunas (de seis) cada cartão ocupa para as linhas ficarem sempre cheias:
+    até três por linha e nunca uma linha com um cartão sozinho quando dá para repartir em
+    duas — 4 cartões viram 2+2, e não 3+1."""
+    restante, larguras = int(total or 0), []
+    while restante > 0:
+        por_linha = 2 if restante == 4 else min(3, restante)
+        larguras += [6 // por_linha] * por_linha
+        restante -= por_linha
+    return larguras
+
+
+CUSTEIO_CURTO = {"unidade": "Unidade", "outra_instituicao": "Outra instituição",
+                 "onus_limitado": "Ônus limitado"}
+
+
+@register.filter
+def custeio_curto(custeio: str) -> str:
+    """Só o nome do custeio. A explicação entre parênteses cabe na folha do ofício; num
+    resumo, ela ocuparia três linhas para dizer "Unidade"."""
+    return CUSTEIO_CURTO.get(custeio, custeio)
+
+
 @register.simple_tag
 def contagem_dias(primeira_saida: datetime | None) -> dict[str, str] | None:
     """"faltam 7 dias" / "hoje" / "há 3 dias" (selo da lista)."""

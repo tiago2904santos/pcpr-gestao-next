@@ -85,9 +85,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
   {% if oficios_do_roteiro %}
   <section class="secao" id="oficios" aria-labelledby="t-oficios">
     <div class="secao__cabecalho"><h2 class="secao__titulo secao__titulo--institucional" id="t-oficios">{% icone "file-text" %}Ofícios preenchidos com este roteiro</h2></div>
-    <ul class="lista-simples">
-      {% for o in oficios_do_roteiro %}<li><a href="{% url 'viagens:detalhe' o.pk %}">Ofício {{ o.numero_formatado }}</a> <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span></li>{% endfor %}
-    </ul>
+    {% include "viagens/roteiros/_oficios.html" with oficios=oficios_do_roteiro %}
     <p class="texto-secundario texto-sm">Os trechos foram copiados para cada ofício; alterar o roteiro não muda esses ofícios.</p>
   </section>
   {% endif %}

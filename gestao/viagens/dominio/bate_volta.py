@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
+from itertools import pairwise
 
 
 class BateVoltaInvalido(ValueError):
@@ -51,7 +52,7 @@ def validar(blocos: list[Bloco]) -> None:
         if bloco.hora_volta <= bloco.hora_saida:
             raise BateVoltaInvalido(
                 f"Bate-volta {i}: a volta precisa ser depois da saída, no mesmo dia.")
-    for i, (a, b) in enumerate(zip(blocos, blocos[1:], strict=False), start=1):
+    for i, (a, b) in enumerate(pairwise(blocos), start=1):
         if b.dia_inicial <= a.dia_final:
             raise BateVoltaInvalido(
                 f"Bate-volta {i + 1} começa antes de o {i} terminar: os períodos não podem "

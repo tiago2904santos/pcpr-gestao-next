@@ -40,7 +40,8 @@ def test_css_nao_usa_espacamento_em_px_solto(arquivo):
 
 
 def test_todos_os_tokens_usados_existem():
-    definidos = set(re.findall(r"(--[a-z0-9-]+)\s*:", (CSS / "tokens.css").read_text(encoding="utf-8")))
+    tokens_css = (CSS / "tokens.css").read_text(encoding="utf-8")
+    definidos = set(re.findall(r"(--[a-z0-9-]+)\s*:", tokens_css))
     usados: set[str] = set()
     for arquivo in CSS.glob("*.css"):
         usados |= set(re.findall(r"var\((--[a-z0-9-]+)", arquivo.read_text(encoding="utf-8")))

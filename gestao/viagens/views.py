@@ -22,8 +22,15 @@ from gestao.plataforma.templatetags.ui import formatar_moeda
 from . import itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
+from .dominio import busca as dominio_busca
 from .dominio.diarias import Faixa
-from .forms import FORM_ID, FormularioOficio, iniciais_de_trechos, resolver_municipio
+from .forms import (
+    FORM_ID,
+    FiltrosOficio,
+    FormularioOficio,
+    iniciais_de_trechos,
+    resolver_municipio,
+)
 from .models import Documento, Oficio
 from .queries import trechos_de, viajantes_de
 from .templatetags.viagens import formatar_periodo
@@ -78,8 +85,22 @@ def lista(request: HttpRequest) -> HttpResponse:
     base = policies.oficios_visiveis(request.user)
     situacao = request.GET.get("situacao") or ""
     termo = (request.GET.get("q") or "").strip()
+    escopo = request.GET.get("escopo") or ""
     qs = queries.aplicar_filtro_situacao(base, situacao)
-    qs = services.buscar_por_texto(qs, termo)
+    qs = services.buscar_por_texto(qs, termo, escopo)
+    # Leituras do termo ("26" é número de ofício? protocolo?) com quantos ofícios cada uma
+    # traria: a tela oferece o refino em vez de despejar tudo o que casou por acaso.
+    leituras = dominio_busca.ler(termo, timezone.localdate().year)
+    contagem_leituras = queries.contar_leituras(
+        queries.aplicar_filtro_situacao(base, situacao), leituras) if leituras else {}
+    refinos = [
+        {"escopo": leitura.escopo, "rotulo": leitura.rotulo,
+         "quantidade": contagem_leituras.get(leitura.escopo, 0)}
+        for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
+    ]
+    avancados = FiltrosOficio(request.GET)
+    qs = queries.aplicar_filtros_avancados(
+        qs, avancados.cleaned_data if avancados.is_valid() else {})
     ordem = request.GET.get("ordem") or "-numero"
     ordens: dict[str, tuple[str | OrderBy, ...]] = {
         "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
@@ -90,6 +111,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
+    # As abas trocam só a situação: tudo o mais que a pessoa filtrou continua valendo.
+    das_abas = filtros.copy()
+    das_abas.pop("situacao", None)
+    # As fichas de refino trocam só o escopo da busca.
+    do_refino = filtros.copy()
+    do_refino.pop("escopo", None)
     contexto = {
         "page_obj": pagina,
         "oficios": pagina.object_list,
@@ -97,7 +124,13 @@ def lista(request: HttpRequest) -> HttpResponse:
         "situacao": situacao,
         "termo": termo,
         "ordem": ordem,
+        "escopo": escopo,
+        "refinos": refinos,
+        "refino_atual": next((r for r in refinos if r["escopo"] == escopo), None),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
+        "querystring_abas": das_abas.urlencode(),
+        "querystring_refino": (do_refino.urlencode() + "&") if do_refino else "",
+        "avancados": avancados,
         "abas": [("", "Todos", "todos")] + [
             (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
         "pode_criar": policies.pode_criar(request.user),
@@ -426,10 +459,15 @@ def detalhe(request: HttpRequest, pk: int) -> HttpResponse:
 
 @require_GET
 def resumo(request: HttpRequest, pk: int) -> HttpResponse:
-    """Fragmento HTMX: o registro da lista se expande com roteiro, equipe e documentos."""
+    """Fragmento HTMX: a janela de resumo que a lista abre no clique. Traz o que a pessoa
+    precisa para decidir sem abrir o ofício — por isso o mesmo conteúdo do detalhe, menos
+    o histórico."""
     oficio = _oficio_visivel(request, pk)
     return render(request, "viagens/oficios/_resumo.html", {
         "oficio": oficio,
+        "assunto": services.assunto_do_oficio(oficio),
+        "prazo": services.avaliar_prazo_do_oficio(oficio),
+        "calculo": oficio.diarias_calculo,
         "viajantes": viajantes_de(oficio),
         "trechos": trechos_de(oficio),
         "documentos": list(oficio.documentos.select_related("emitido_por")),

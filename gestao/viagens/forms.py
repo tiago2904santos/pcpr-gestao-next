@@ -33,6 +33,74 @@ def _attrs(classe: str = "entrada", **extra) -> dict:
     return {"class": classe, **extra}
 
 
+class FiltrosOficio(forms.Form):
+    """Gaveta "Mais filtros" da lista de ofícios — o que a busca por texto não resolve.
+
+    Destino, servidor e número ficaram na busca de cima (ela já pergunta "é destino ou
+    servidor?"); aqui ficam os cortes: período, protocolo, veículo e valor de diárias.
+    Tudo é opcional, e valor inválido é ignorado em vez de dar erro — uma lista nunca deve
+    recusar a busca de quem está procurando.
+    """
+
+    # O período é um campo só na tela (<pc-data data-periodo>): estes dois levam as pontas.
+    saida_de = forms.DateField(required=False, input_formats=FORMATOS_DATA,
+                               widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    saida_ate = forms.DateField(required=False, input_formats=FORMATOS_DATA,
+                                widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    protocolo = forms.CharField(label="Protocolo", required=False, max_length=20,
+                                widget=forms.TextInput(attrs=_attrs(
+                                    inputmode="numeric", placeholder="00.366.136-8")))
+    veiculo = forms.ChoiceField(
+        label="Veículo", required=False, widget=Selecao(),
+        choices=[("", "Qualquer"), ("unidade_movel", "Unidade móvel"), ("onibus", "Ônibus"),
+                 ("caminhao", "Caminhão"), ("van", "Van"),
+                 ("caracterizada", "Viatura caracterizada"),
+                 ("descaracterizada", "Viatura descaracterizada"),
+                 ("sem", "Sem transporte")])
+    diarias_de = forms.DecimalField(
+        label="Diárias de", required=False, min_value=0, max_digits=10, decimal_places=2,
+        localize=True, widget=forms.TextInput(attrs=_attrs(
+            inputmode="decimal", placeholder="mínimo", **{"aria-label": "Diárias a partir de"})))
+    diarias_ate = forms.DecimalField(
+        label="até", required=False, min_value=0, max_digits=10, decimal_places=2,
+        localize=True, widget=forms.TextInput(attrs=_attrs(
+            inputmode="decimal", placeholder="máximo", **{"aria-label": "Diárias até"})))
+
+    def __init__(self, *args, form_id: str | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        for campo in self.fields.values():
+            campo.widget.attrs["form"] = form_id or "filtros-oficios"
+
+    def clean(self):
+        dados = super().clean() or {}
+        # Inverteu as pontas? Entende e segue, em vez de devolver erro.
+        for menor, maior in (("saida_de", "saida_ate"), ("diarias_de", "diarias_ate")):
+            a, b = dados.get(menor), dados.get(maior)
+            if a is not None and b is not None and b < a:
+                dados[menor], dados[maior] = b, a
+        return dados
+
+    @property
+    def periodo_texto(self) -> str:
+        """O que aparece no campo único do período."""
+        if not self.is_valid():
+            return ""
+        de, ate = self.cleaned_data.get("saida_de"), self.cleaned_data.get("saida_ate")
+        if not de:
+            return ""
+        return f"{de:%d/%m/%Y} a {ate:%d/%m/%Y}" if ate else f"{de:%d/%m/%Y}"
+
+    @property
+    def ativos(self) -> int:
+        """Quantos filtros estão valendo — o número que aparece no botão da gaveta. O
+        período conta como um só, que é como quem filtra enxerga."""
+        if not self.is_valid():
+            return 0
+        dados = dict(self.cleaned_data)
+        periodo = bool(dados.pop("saida_de", None) or dados.pop("saida_ate", None))
+        return sum(1 for valor in dados.values() if valor not in (None, "")) + (1 if periodo else 0)
+
+
 class AssociadoAoFormularioDoOficio:
     """Os campos ficam espalhados pelas seções da página e se ligam ao <form id="form-oficio">
     pelo atributo HTML `form` — assim a seção Equipe pode ter formulários próprios (HTMX)

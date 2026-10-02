@@ -1,7 +1,11 @@
-{# Abas de situação; preservam busca e ordenação. Atualizadas fora de banda (OOB) pela busca ao vivo. #}
+{% comment %}
+Abas de situação; trocam só a situação e preservam o resto dos filtros (querystring_abas).
+Atualizadas fora de banda (OOB) pela busca ao vivo. O separador vai como &amp; — é assim
+que se escreve "&" dentro de um atributo HTML.
+{% endcomment %}
 <nav class="abas" id="abas-filtro" aria-label="Filtrar por situação"{% if oob %} hx-swap-oob="true"{% endif %}>
   {% for chave, rotulo, contador in abas %}
-    <a class="aba" href="?{% if chave %}situacao={{ chave }}&{% endif %}{% if termo %}q={{ termo|urlencode }}&{% endif %}{% if ordem and ordem != "-numero" %}ordem={{ ordem }}{% endif %}"{% if chave == situacao %} aria-current="page"{% endif %}>
+    <a class="aba" href="?{% if chave %}situacao={{ chave }}{% if querystring_abas %}&amp;{% endif %}{% endif %}{{ querystring_abas }}"{% if chave == situacao %} aria-current="page"{% endif %}>
       {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
     </a>
   {% endfor %}
