@@ -35,10 +35,14 @@ def test_cadastrar_roteiro_pela_tela(logado):
     # Com ida, volta e datas, as diárias aparecem antes de salvar (prévia no servidor).
     expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
     pg.get_by_role("button", name="Salvar roteiro").click()
+    # O autosave já guarda o caminho; salvar quer dizer "terminei" e volta para a lista.
+    expect(pg.get_by_role("heading", level=1)).to_have_text("Roteiros")
     expect(pg.locator(".toast")).to_contain_text("cadastrado")
-    expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
     roteiro = Roteiro.objects.latest("pk")
     assert roteiro.quantidade_servidores == 1 and roteiro.trechos.count() == 2
+    # O cálculo guardado reaparece ao abrir o roteiro de novo.
+    pg.goto(f"/viagens/roteiros/{roteiro.pk}/editar/")
+    expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
