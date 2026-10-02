@@ -1,0 +1,58 @@
+{% load viagens %}
+{% contagem_dias r.primeira_saida as contagem %}
+<li class="registro">
+  <span class="placa{% if r.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
+    <span class="placa__rotulo">Roteiro</span>
+    <span class="placa__numero">#{{ r.pk }}</span>
+  </span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      {% with d=r|destinos %}
+      {% if r.situacao == "ativo" and pode_editar_roteiros %}
+        <a class="registro__link" href="{% url 'viagens:editar_roteiro' r.pk %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span>{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</a>
+      {% else %}
+        <span class="registro__link registro__link--estatico"><span class="sr-only">Roteiro #{{ r.pk }} · </span>{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span>
+      {% endif %}
+      {% endwith %}
+      {% if r.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>
+      {% elif r.primeira_saida and r.primeira_saida <= agora and r.ultima_chegada >= agora %}<span class="selo selo--info selo--processo">em andamento</span>
+      {% elif contagem %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
+    </div>
+    <div class="registro__meta">
+      {% with p=r.trechos.all|periodo %}
+      {% if p %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{{ p }}</span>
+      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}Sem período</span>{% endif %}
+      {% endwith %}
+      <span class="registro__meta-item">{% icone "route" classe="icone--sm" %}{{ r.total_trechos|pluralizar:"trecho,trechos" }}</span>
+      <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{{ r.quantidade_servidores|pluralizar:"servidor,servidores" }}</span>
+      {% if r.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}</span>
+      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}Sem diárias calculadas</span>{% endif %}
+      {% if r.observacoes %}<span class="registro__meta-item quebra-palavras">{% icone "info" classe="icone--sm" %}{{ r.observacoes|truncatechars:80 }}</span>{% endif %}
+    </div>
+  </div>
+  {% if pode_editar_roteiros %}
+  <div class="registro__acoes">
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do roteiro #{{ r.pk }}">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel" role="menu" hidden>
+        {% if r.situacao == "ativo" %}
+          <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_roteiro' r.pk %}">{% icone "pencil" %}Editar roteiro</a>
+          {% if pode_criar_oficio and r.total_trechos %}<button type="submit" form="r-oficio-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
+          <button type="submit" form="r-cancelar-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>
+        {% else %}
+          <button type="submit" form="r-reativar-{{ r.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar roteiro</button>
+        {% endif %}
+        <div class="menu__separador" role="separator"></div>
+        <button type="submit" form="r-excluir-{{ r.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>
+      </div>
+    </pc-menu>
+    {% if r.situacao == "ativo" %}
+      <form id="r-oficio-{{ r.pk }}" method="post" action="{% url 'viagens:criar_oficio_do_roteiro' r.pk %}" hidden>{% csrf_token %}</form>
+      <form id="r-cancelar-{{ r.pk }}" method="post" action="{% url 'viagens:cancelar_roteiro' r.pk %}" hidden data-confirmar="O roteiro #{{ r.pk }} deixa de aparecer para uso nos ofícios. Ofícios já preenchidos com ele não mudam." data-confirmar-titulo="Cancelar roteiro?" data-confirmar-rotulo="Cancelar roteiro">{% csrf_token %}</form>
+    {% else %}
+      <form id="r-reativar-{{ r.pk }}" method="post" action="{% url 'viagens:reativar_roteiro' r.pk %}" hidden>{% csrf_token %}</form>
+    {% endif %}
+    <form id="r-excluir-{{ r.pk }}" method="post" action="{% url 'viagens:excluir_roteiro' r.pk %}" hidden data-confirmar="O roteiro #{{ r.pk }} será excluído. Esta ação não pode ser desfeita." data-confirmar-titulo="Excluir roteiro?" data-confirmar-rotulo="Excluir roteiro" data-confirmar-perigo>{% csrf_token %}</form>
+  </div>
+  {% endif %}
+</li>

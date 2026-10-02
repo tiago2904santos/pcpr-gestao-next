@@ -24,11 +24,17 @@ ORCAMENTO = {
     "ttfb_ms": 300, "fcp_ms": 1200, "lcp_ms": 1800, "cls": 0.05, "inp_ms": 200,
     "html_kb": 120, "css_kb": 140, "css_gzip_kb": 30, "js_kb": 130, "js_gzip_kb": 45,
     "requisicoes": 25,
+    # Itinerário com mapa (ADR 0016): só nas telas que editam itinerário, depois da primeira
+    # pintura (Leaflet sob demanda). Orçamento próprio para não esconder o do resto da tela.
+    "itinerario_gzip_kb": 64, "itinerario_requisicoes": 6,
     "sql": 25, "db_ms": 80,
 }
 
+ITINERARIO = re.compile(r"/vendor/leaflet/|/itinerario\.(css|js)|/api/rota/")
+
 ROTAS = ["/", "/viagens/", "/viagens/oficios/",
-         "/viagens/oficios/{oficio_emitido}/", "/viagens/oficios/{oficio_rascunho}/editar/"]
+         "/viagens/oficios/{oficio_emitido}/", "/viagens/oficios/{oficio_rascunho}/editar/",
+         "/viagens/roteiros/{roteiro}/editar/"]
 
 OBSERVADORES = """() => {
   window.__lcp = 0; window.__cls = 0; window.__inp = 0;
@@ -70,6 +76,9 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
     db_ms = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
 
+    itinerario = [r for r in recursos if ITINERARIO.search(r["url"])]
+    recursos = [r for r in recursos if not ITINERARIO.search(r["url"])]
+
     def kb(tipo: str) -> float:
         return round(sum(r["tamanho"] for r in recursos if r["tipo"] == tipo) / 1024, 1)
 
@@ -81,6 +90,8 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
                                  if r["tipo"] == "stylesheet") / 1024, 1),
         "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
         "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
+        "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
+        "itinerario_requisicoes": len(itinerario),
     }
     salvar_relatorio(f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json", medido)
     estourados = {k: (v, ORCAMENTO[k]) for k, v in medido.items() if v > ORCAMENTO[k]}

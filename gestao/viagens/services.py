@@ -29,10 +29,12 @@ from .models import (
     LacunaNumeracao,
     NumeracaoAnual,
     Oficio,
+    Roteiro,
     Trecho,
+    TrechoRoteiro,
     Viajante,
 )
-from .queries import buscar_tabelas_vigentes, trechos_de, viajantes_de
+from .queries import buscar_tabelas_vigentes, trechos_de, trechos_do_roteiro, viajantes_de
 
 
 class RegraViolada(Exception):
@@ -95,7 +97,8 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
 CAMPOS_EDITAVEIS = [
     "data_oficio", "protocolo", "marcador", "motivo", "custeio", "custeio_instituicao",
     "tipo_transporte", "viatura", "transporte_descricao", "transporte_placa",
-    "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa",
+    "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa", "roteiro",
+    "sede",
 ]
 
 
@@ -204,6 +207,15 @@ class TrechoInformado:
     destino_id: int
     saida_em: datetime
     chegada_em: datetime
+    distancia_km: Decimal | None = None
+    tempo_viagem_min: int | None = None
+    tempo_adicional_min: int = 0
+
+    def campos(self) -> dict:
+        return {"origem_id": self.origem_id, "destino_id": self.destino_id,
+                "saida_em": self.saida_em, "chegada_em": self.chegada_em,
+                "distancia_km": self.distancia_km, "tempo_viagem_min": self.tempo_viagem_min,
+                "tempo_adicional_min": self.tempo_adicional_min}
 
 
 @transaction.atomic
@@ -211,7 +223,8 @@ def salvar_trechos(oficio: Oficio, usuario, trechos: list[TrechoInformado]) -> N
     _aplicar_trechos(_travar_para_edicao(oficio, usuario, None), trechos)
 
 
-def _aplicar_trechos(atual: Oficio, trechos: list[TrechoInformado], *, tocar: bool = True) -> None:
+def _validar_sequencia(trechos: list[TrechoInformado]) -> None:
+    """Regras comuns ao roteiro do ofício e ao roteiro cadastrado."""
     for anterior, seguinte in pairwise(trechos):
         if seguinte.saida_em < anterior.chegada_em:
             raise RegraViolada(
@@ -219,25 +232,25 @@ def _aplicar_trechos(atual: Oficio, trechos: list[TrechoInformado], *, tocar: bo
             )
         if seguinte.origem_id != anterior.destino_id:
             raise RegraViolada("Cada trecho deve sair da cidade onde o anterior chegou.")
+
+
+def _aplicar_trechos(atual: Oficio, trechos: list[TrechoInformado], *, tocar: bool = True) -> None:
+    _validar_sequencia(trechos)
     atual.trechos.all().delete()
     Trecho.objects.bulk_create([
-        Trecho(oficio=atual, ordem=i, origem_id=t.origem_id, destino_id=t.destino_id,
-               saida_em=t.saida_em, chegada_em=t.chegada_em)
-        for i, t in enumerate(trechos, start=1)
+        Trecho(oficio=atual, ordem=i, **t.campos()) for i, t in enumerate(trechos, start=1)
     ])
     if tocar:
         _tocar(atual)
 
 
 # ---------------------------------------------------------------- cálculo
-def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
-    """Calcula as diárias do ofício (sem gravar). Levanta erros de domínio."""
-    trechos = trechos_de(oficio)
+def _calcular_trechos(trechos, sede, servidores: int) -> dominio_diarias.CalculoDiarias:
     if not trechos:
         raise dominio_diarias.RoteiroIncalculavel("Informe os trechos (ida e volta).")
-    if trechos[-1].destino_id != oficio.sede_id:
+    if trechos[-1].destino_id != sede.pk:
         raise dominio_diarias.RoteiroIncalculavel(
-            f"O último trecho precisa voltar para a sede ({oficio.sede})."
+            f"O último trecho precisa voltar para a sede ({sede})."
         )
     destinos = [
         dominio_diarias.Destino(t.destino.nome, t.destino.uf,
@@ -247,27 +260,38 @@ def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
     return dominio_diarias.calcular(
         destinos, timezone.localtime(trechos[-1].chegada_em),
         buscar_tabelas=buscar_tabelas_vigentes,
-        servidores=len(viajantes_de(oficio)),
-        sede=(oficio.sede.nome, oficio.sede.uf),
+        servidores=servidores,
+        sede=(sede.nome, sede.uf),
     )
 
 
-def recalcular_diarias(oficio: Oficio) -> None:
+def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
+    """Calcula as diárias do ofício (sem gravar). Levanta erros de domínio."""
+    return _calcular_trechos(trechos_de(oficio), oficio.sede, len(viajantes_de(oficio)))
+
+
+def _gravar_diarias(obj: Oficio | Roteiro, calcular_fn) -> None:
+    """Grava o cálculo (ou o motivo de não calcular) no ofício ou no roteiro."""
+    modelo = type(obj)
     try:
-        resultado = calcular(oficio)
+        resultado = calcular_fn()
     except (dominio_diarias.RoteiroIncalculavel, dominio_diarias.SemTabelaDeDiarias) as exc:
-        Oficio.objects.filter(pk=oficio.pk).update(
+        modelo.objects.filter(pk=obj.pk).update(
             diarias_total=Decimal(0), diarias_resumo="", diarias_calculo={},
             diarias_erro=str(exc)[:300])
-        oficio.diarias_total, oficio.diarias_resumo, oficio.diarias_erro = Decimal(0), "", str(exc)
-        oficio.diarias_calculo = {}
+        obj.diarias_total, obj.diarias_resumo, obj.diarias_erro = Decimal(0), "", str(exc)
+        obj.diarias_calculo = {}
         return
     dados = resultado.como_dict()
-    Oficio.objects.filter(pk=oficio.pk).update(
+    modelo.objects.filter(pk=obj.pk).update(
         diarias_total=resultado.total, diarias_resumo=resultado.resumo, diarias_calculo=dados,
         diarias_erro="")
-    oficio.diarias_total, oficio.diarias_resumo = resultado.total, resultado.resumo
-    oficio.diarias_calculo, oficio.diarias_erro = dados, ""
+    obj.diarias_total, obj.diarias_resumo = resultado.total, resultado.resumo
+    obj.diarias_calculo, obj.diarias_erro = dados, ""
+
+
+def recalcular_diarias(oficio: Oficio) -> None:
+    _gravar_diarias(oficio, lambda: calcular(oficio))
 
 
 def avaliar_prazo_do_oficio(oficio: Oficio) -> AvaliacaoPrazo:
@@ -469,3 +493,113 @@ def assunto_do_oficio(oficio: Oficio):
     trechos = trechos_de(oficio)
     saida = timezone.localdate(trechos[0].saida_em) if trechos else None
     return resolver_assunto(oficio.data_oficio, saida, oficio.marcador)
+
+
+# ---------------------------------------------------------------- roteiros cadastrados
+CAMPOS_ROTEIRO = ["quantidade_servidores", "observacoes", "sede"]
+
+
+def recalcular_diarias_roteiro(roteiro: Roteiro) -> None:
+    """Diárias estimadas do roteiro para o efetivo informado (quantidade de servidores)."""
+    _gravar_diarias(roteiro, lambda: _calcular_trechos(
+        list(roteiro.trechos.select_related("origem", "destino")), roteiro.sede,
+        roteiro.quantidade_servidores))
+
+
+@transaction.atomic
+def salvar_roteiro(usuario, roteiro: Roteiro | None, dados: dict,
+                   trechos: list[TrechoInformado] | None) -> Roteiro:
+    """Cria (roteiro=None) ou altera um roteiro. A sede é a da unidade, como no ofício.
+    Roteiro sem trechos é permitido (rascunho); as diárias dizem o que falta."""
+    if roteiro is None:
+        policies.exigir(policies.pode_criar_roteiro(usuario),
+                        "Seu usuário precisa estar lotado em uma unidade para criar roteiros.")
+        unidade = policies.unidade_do_usuario(usuario)
+        roteiro = Roteiro(unidade=unidade, sede=configuracao_da_unidade(unidade).sede,
+                          criado_por=usuario)
+    else:
+        roteiro = (Roteiro.objects.select_for_update(of=("self",)).select_related("sede")
+                   .get(pk=roteiro.pk))
+        policies.exigir(policies.pode_editar_roteiro(usuario, roteiro),
+                        "Este roteiro não pode ser alterado (cancelado ou sem permissão).")
+    for campo in CAMPOS_ROTEIRO:
+        if campo in dados:
+            setattr(roteiro, campo, dados[campo])
+    roteiro.save()
+    if trechos is not None:
+        _validar_sequencia(trechos)
+        roteiro.trechos.all().delete()
+        TrechoRoteiro.objects.bulk_create([
+            TrechoRoteiro(roteiro=roteiro, ordem=i, **t.campos())
+            for i, t in enumerate(trechos, start=1)
+        ])
+    recalcular_diarias_roteiro(roteiro)
+    return roteiro
+
+
+@transaction.atomic
+def cancelar_roteiro(usuario, roteiro: Roteiro) -> Roteiro:
+    policies.exigir(policies.pode_cancelar_roteiro(usuario, roteiro))
+    Roteiro.objects.filter(pk=roteiro.pk).update(situacao=Roteiro.Situacao.CANCELADO,
+                                                 atualizado_em=timezone.now())
+    roteiro.situacao = Roteiro.Situacao.CANCELADO
+    return roteiro
+
+
+@transaction.atomic
+def reativar_roteiro(usuario, roteiro: Roteiro) -> Roteiro:
+    policies.exigir(policies.pode_cancelar_roteiro(usuario, roteiro))
+    Roteiro.objects.filter(pk=roteiro.pk).update(situacao=Roteiro.Situacao.ATIVO,
+                                                 atualizado_em=timezone.now())
+    roteiro.situacao = Roteiro.Situacao.ATIVO
+    return roteiro
+
+
+@transaction.atomic
+def excluir_roteiro(usuario, roteiro: Roteiro) -> None:
+    policies.exigir(policies.pode_excluir_roteiro(usuario, roteiro))
+    usados = list(roteiro.oficios.order_by("ano", "numero")[:3])
+    if usados:
+        nomes = ", ".join(o.numero_formatado for o in usados)
+        raise RegraViolada(f"O roteiro #{roteiro.pk} já serviu de modelo para o(s) Ofício(s) "
+                           f"{nomes}. Cancele o roteiro em vez de excluir.")
+    roteiro.delete()
+
+
+def _informado(t: Trecho | TrechoRoteiro) -> TrechoInformado:
+    return TrechoInformado(t.origem_id, t.destino_id, t.saida_em, t.chegada_em, t.distancia_km,
+                           t.tempo_viagem_min, t.tempo_adicional_min)
+
+
+def trechos_informados_do_roteiro_de(oficio: Oficio) -> list[TrechoInformado]:
+    """Trechos do ofício no formato de entrada (para cadastrar um roteiro a partir dele)."""
+    return [_informado(t) for t in trechos_de(oficio)]
+
+
+def trechos_informados_do_roteiro(roteiro: Roteiro) -> list[TrechoInformado]:
+    return [_informado(t) for t in trechos_do_roteiro(roteiro)]
+
+
+def exigir_roteiro_compativel(roteiro: Roteiro, oficio: Oficio) -> None:
+    """Roteiro ativo serve a qualquer ofício visível; a sede vem junto com os trechos."""
+    if not roteiro.editavel:
+        raise RegraViolada(f"O roteiro #{roteiro.pk} está cancelado.")
+
+
+@transaction.atomic
+def criar_oficio_do_roteiro(usuario, roteiro: Roteiro) -> Oficio:
+    """"Criar ofício com este roteiro": rascunho numerado com os trechos copiados do roteiro.
+    Mudar o roteiro depois não altera o ofício (e vice-versa)."""
+    policies.exigir(policies.pode_ver_roteiro(usuario, roteiro))
+    oficio = criar_rascunho(usuario)
+    exigir_roteiro_compativel(roteiro, oficio)
+    trechos = trechos_informados_do_roteiro(roteiro)
+    if trechos:  # a sede do roteiro vira a sede do ofício (abaixo)
+        _aplicar_trechos(oficio, trechos, tocar=False)
+    Oficio.objects.filter(pk=oficio.pk).update(roteiro=roteiro, sede=roteiro.sede)
+    oficio.roteiro, oficio.sede = roteiro, roteiro.sede
+    recalcular_diarias(oficio)
+    _registrar(oficio, Historico.Acao.ALTERADO,
+               f"Roteiro preenchido a partir do roteiro #{roteiro.pk}.", usuario,
+               campos=["roteiro"])
+    return oficio

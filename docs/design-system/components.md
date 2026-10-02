@@ -15,7 +15,7 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
 | Hora | `<pc-hora class="seletor">` (widget `EntradaHora`) | texto hh:mm com máscara; relógio com duas colunas (horas; minutos de 5 em 5) | Duas `listbox` com `aria-activedescendant`; ↑/↓ mudam o valor, ←/→ trocam de coluna, Enter confirma |
 | Data + hora | `.data-hora` (widget `EntradaDataHora`) | data e hora lado a lado; chegam como "dd/mm/aaaa hh:mm" | Nome de cada parte: rótulo do campo + "(data)"/"(hora)" via `aria-labelledby` |
 | Lista | `<pc-select class="seletor">` (widget `Selecao`) | botão com a cara do campo + lista do combobox; opção atual com ✓ dourado; vazio em cinza | WAI-ARIA APG Select-Only Combobox; salto por letra; o `<select>` oculto continua sendo o valor (e o que funciona sem JS) |
-| Cartão/Seção | `.cartao` | `__cabecalho` com `__numero` ou `__titulo--institucional` (ícone dourado + caixa alta), `__rodape`, `--destaque`, `--interativo` | Título é heading real |
+| Cartão/Seção | `.cartao` | `__cabecalho` com `__numero` ou `__titulo--institucional` (ícone dourado + caixa alta), `__rodape` | Título é heading real |
 | Indicador (KPI) | `.indicador` | `--atencao`; pode ser link | Valor + rótulo legíveis por leitor de tela |
 | Selo de status | `.selo` | tons `--neutro/info/sucesso/aviso/perigo/marca/forte`; **linguagem de estado** pela forma do marcador: `--situacao-rascunho` (anel vazio), `--situacao-emitido` (✓), `--situacao-cancelado` (×), `--processo` (pulso), `--carimbo`; `--sem-ponto` | Texto obrigatório (status nunca só por cor; a forma é reforço) |
 | Alerta | `.alerta` | info, sucesso, aviso, perigo; com lista | `role="alert"` só para erro bloqueante |

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from itertools import pairwise
+
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.db.models.expressions import OrderBy
@@ -14,21 +16,17 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_headers
 
-from gestao.cadastros.models import Servidor
-from gestao.plataforma.widgets import EntradaDataHora
+from gestao.cadastros.models import Municipio, Servidor
+from gestao.plataforma.templatetags.ui import formatar_moeda
 
-from . import policies, queries, services
+from . import itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
 from .dominio.diarias import Faixa
-from .forms import (
-    ConjuntoDestinos,
-    FormularioOficio,
-    FormularioRetorno,
-    iniciais_do_roteiro,
-)
+from .forms import FORM_ID, FormularioOficio, iniciais_de_trechos, resolver_municipio
 from .models import Documento, Oficio
 from .queries import trechos_de, viajantes_de
+from .templatetags.viagens import formatar_periodo
 
 POR_PAGINA = 20
 
@@ -112,39 +110,6 @@ def lista(request: HttpRequest) -> HttpResponse:
     return render(request, "viagens/oficios/lista.html", contexto)
 
 
-_LEITOR_DATA_HORA = EntradaDataHora()
-
-
-def _do_post(request, nome: str) -> str:
-    """Valor cru de um campo do roteiro (data e hora chegam em dois campos: nome_0/nome_1)."""
-    if nome.endswith(("-saida", "-chegada")):
-        return _LEITOR_DATA_HORA.value_from_datadict(request.POST, None, nome) or ""
-    return request.POST.get(nome, "")
-
-
-def _destinos_com_mais_um(request, form):
-    """Reexibe o roteiro com uma linha a mais, preservando o que foi digitado."""
-    total = int(request.POST.get("destino-TOTAL_FORMS") or 0)
-    iniciais = [
-        {c: _do_post(request, f"destino-{i}-{c}") for c in ("cidade", "saida", "chegada")}
-        for i in range(total) if not request.POST.get(f"destino-{i}-DELETE")
-    ]
-    ultimo = iniciais[-1] if iniciais else {}
-    iniciais.append({"saida": ultimo.get("chegada", "")})
-    destinos = ConjuntoDestinos(initial=iniciais[:10], prefix="destino")
-    retorno = FormularioRetorno(initial={c: _do_post(request, f"retorno-{c}")
-                                         for c in ("saida", "chegada")}, prefix="retorno")
-    form.is_valid()
-    return destinos, retorno, f"id_destino-{len(iniciais) - 1}-cidade"
-
-
-def _roteiro_vazio(request) -> bool:
-    return not any(
-        _do_post(request, f"destino-{i}-{c}") for i in range(10)
-        for c in ("cidade", "saida", "chegada")
-    ) and not any(_do_post(request, f"retorno-{c}") for c in ("saida", "chegada"))
-
-
 def novo(request: HttpRequest) -> HttpResponse:
     """"Novo ofício" já cria o ofício, como no sistema de referência: reserva o número e abre
     a folha de edição. Não existe página intermediária (GET volta para a lista)."""
@@ -167,17 +132,10 @@ SECOES_DO_OFICIO = [("dados", "Dados"), ("equipe", "Equipe"), ("transporte", "Tr
                     ("justificativa", "Justificativa")]
 
 
-def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, erro_roteiro=""):
-    if destinos is None or retorno is None:
-        iniciais_destinos, inicial_retorno = iniciais_do_roteiro(oficio)
-        destinos = destinos or ConjuntoDestinos(initial=iniciais_destinos, prefix="destino")
-        retorno = retorno or FormularioRetorno(initial=inicial_retorno, prefix="retorno")
+def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
+    if itin is None:
+        itin = itinerario.montar(FORM_ID, sede=oficio.sede, trechos=trechos_de(oficio))
     prontidao = services.verificar_prontidao(oficio)
-    # Itinerário: cada destino sabe de onde parte o trecho que chega nele.
-    formularios = list(destinos)
-    anteriores = [str(oficio.sede)] + [
-        (f["cidade"].value() or f"destino {i + 1}") for i, f in enumerate(formularios)]
-    paradas = list(zip(formularios, anteriores[:-1], strict=True))
     secoes = []
     for chave, rotulo in SECOES_DO_OFICIO:
         pendencias = prontidao.da_secao(chave)
@@ -190,13 +148,10 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "oficio": oficio,
         "form": form or FormularioOficio(instance=oficio),
         "secoes": secoes,
-        "paradas": paradas,
-        "ultima_parada": anteriores[-1],
+        **itin.contexto(),
         "trechos": trechos_de(oficio),
         "secoes_ok": sum(1 for sec in secoes if sec["ok"]),
         "recem_salvo": request.GET.get("salvo") == "1",
-        "destinos": destinos,
-        "retorno": retorno,
         "erro_roteiro": erro_roteiro,
         "viajantes": viajantes_de(oficio),
         "prontidao": prontidao,
@@ -206,6 +161,12 @@ def _contexto_edicao(request, oficio, form=None, destinos=None, retorno=None, er
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_emitir": policies.pode_emitir(request.user, oficio),
         "pode_excluir": policies.pode_excluir(request.user, oficio),
+        # None = o perfil não vê roteiros (a escolha nem aparece).
+        "roteiros_disponiveis": (
+            _opcoes_de_roteiro(queries.roteiros_para_oficio(
+                policies.roteiros_visiveis(request.user), oficio))
+            if request.user.has_perm("viagens.view_roteiro") else None),
+        "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, reverse("viagens:detalhe",
                                                                 args=[oficio.pk])),
@@ -227,30 +188,35 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
         return render(request, "viagens/oficios/editar.html", _contexto_edicao(request, oficio))
 
     form = FormularioOficio(request.POST, instance=oficio)
-    if request.POST.get("acao") == "adicionar_destino":
-        destinos, retorno, foco = _destinos_com_mais_um(request, form)
-        contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
-        contexto["foco"] = foco
+    acao = request.POST.get("acao")
+    if acao == "usar_roteiro":
+        return _usar_roteiro(request, oficio)
+    if acao == "adicionar_destino":  # sem JavaScript; com JS a parada entra na hora
+        itin = itinerario.com_iniciais(FORM_ID, request.POST, mais_um=True)
+        form.is_valid()
+        contexto = _contexto_edicao(request, oficio, form, itin)
+        contexto["foco"] = f"id_destino-{itin.destinos.total_form_count() - 1}-cidade"
         contexto["sujo"] = True  # nada foi salvo ainda: avisa e protege a saída
         return render(request, "viagens/oficios/editar.html", contexto)
-    destinos = ConjuntoDestinos(request.POST, prefix="destino")
-    retorno = FormularioRetorno(request.POST, prefix="retorno")
-    roteiro_vazio = _roteiro_vazio(request)
-    roteiro_ok = roteiro_vazio or (destinos.is_valid() and retorno.is_valid())
+    itin = itinerario.montar(FORM_ID, dados=request.POST)
+    vazio = itin.vazio(request.POST)
+    sede_ok = itin.sede.is_valid()
+    roteiro_ok = sede_ok and (vazio or itin.valido())
     if form.is_valid() and roteiro_ok:
         try:
             dados = {k: v for k, v in form.cleaned_data.items() if k != "versao"}
-            trechos = None if roteiro_vazio else _trechos_informados(oficio, destinos, retorno)
+            dados["sede"] = itin.sede.cleaned_data["cidade"]
+            trechos = None if vazio else itinerario.trechos(itin)
             oficio = services.salvar_edicao(oficio, request.user, dados, trechos,
                                             versao=form.cleaned_data.get("versao"))
         except services.ConflitoDeEdicao as exc:
             form.add_error(None, str(exc))
         except services.RegraViolada as exc:
-            contexto = _contexto_edicao(request, oficio, form, destinos, retorno, str(exc))
+            contexto = _contexto_edicao(request, oficio, form, itin, str(exc))
             contexto.update(sujo=True, foco="alerta-roteiro")
             return render(request, "viagens/oficios/editar.html", contexto, status=422)
         else:
-            if request.POST.get("acao") == "emitir":
+            if acao == "emitir":
                 bloqueantes = services.verificar_prontidao(oficio).bloqueantes
                 if bloqueantes:
                     messages.warning(request, f"Rascunho salvo, mas ainda há {len(bloqueantes)} "
@@ -260,25 +226,60 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
             # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
             # não de um toast: o operador salva dezenas de vezes por dia.
             return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")
-    contexto = _contexto_edicao(request, oficio, form, destinos, retorno)
+    contexto = _contexto_edicao(request, oficio, form, itin)
     contexto.update(sujo=True, foco="resumo-erros" if form.errors else "alerta-roteiro")
     return render(request, "viagens/oficios/editar.html", contexto, status=422)
 
 
-def _trechos_informados(oficio, destinos, retorno) -> list[services.TrechoInformado]:
-    trechos = []
-    origem = oficio.sede
-    for f in destinos:
-        if not f.cleaned_data or f.cleaned_data.get("DELETE"):
-            continue
-        cidade = f.cleaned_data["cidade"]
-        trechos.append(services.TrechoInformado(origem.pk, cidade.pk, f.cleaned_data["saida"],
-                                                f.cleaned_data["chegada"]))
-        origem = cidade
-    trechos.append(services.TrechoInformado(origem.pk, oficio.sede_id,
-                                            retorno.cleaned_data["saida"],
-                                            retorno.cleaned_data["chegada"]))
-    return trechos
+def _opcoes_de_roteiro(roteiros) -> list[dict]:
+    """Rótulo e detalhe de cada roteiro na escolha "Usar um roteiro cadastrado"."""
+    opcoes = []
+    for r in roteiros:
+        sede = f"{r.sede.nome}/{r.sede.uf}"
+        destinos = list(dict.fromkeys(p for p in r.paradas if p and p != sede))
+        diarias = f"{formatar_moeda(r.diarias_total)} · {r.diarias_resumo}" if r.diarias_resumo \
+            else "sem diárias"
+        servidores = f"{r.quantidade_servidores} servidor" + (
+            "es" if r.quantidade_servidores != 1 else "")
+        opcoes.append({
+            "pk": r.pk,
+            "rotulo": f"#{r.pk} · {sede} → {', '.join(destinos)}",
+            "meta": f"{formatar_periodo(r.primeira_saida, r.ultima_chegada)} · {diarias} · "
+                    f"{servidores}",
+        })
+    return opcoes
+
+
+def _usar_roteiro(request, oficio) -> HttpResponse:
+    """Preenche o itinerário (sede inclusive) com os trechos de um roteiro cadastrado,
+    preservando tudo o que foi digitado no resto da folha. Nada é gravado: a pessoa confere
+    e salva."""
+    escolhido = (request.POST.get("roteiro_modelo") or "").strip()
+    roteiro = (policies.roteiros_visiveis(request.user).select_related("sede")
+               .filter(pk=escolhido).first() if escolhido.isdigit() else None)
+    dados = request.POST.copy()
+    erro = "" if roteiro else "Escolha um roteiro da lista para preencher os trechos."
+    if roteiro is not None:
+        try:
+            services.exigir_roteiro_compativel(roteiro, oficio)
+        except services.RegraViolada as exc:
+            erro = str(exc)
+    if erro or roteiro is None:
+        form = FormularioOficio(dados, instance=oficio)
+        itin = itinerario.com_iniciais(FORM_ID, request.POST)
+        contexto = _contexto_edicao(request, oficio, form, itin, erro)
+        contexto.update(sujo=True, foco="alerta-roteiro")
+        return render(request, "viagens/oficios/editar.html", contexto, status=422)
+    dados["roteiro"] = str(roteiro.pk)
+    form = FormularioOficio(dados, instance=oficio)
+    form.is_valid()
+    iniciais, inicial_retorno = iniciais_de_trechos(queries.trechos_do_roteiro(roteiro),
+                                                    roteiro.sede_id)
+    itin = itinerario.com_iniciais(FORM_ID, request.POST, destinos=iniciais,
+                                   retorno=inicial_retorno, sede=roteiro.sede)
+    contexto = _contexto_edicao(request, oficio, form, itin)
+    contexto.update(sujo=True, foco="roteiro-aplicado", roteiro_aplicado=roteiro)
+    return render(request, "viagens/oficios/editar.html", contexto)
 
 
 # ------------------------------------------------------------------ equipe (HTMX)
@@ -493,3 +494,42 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
         {"id": str(s.pk), "titulo": s.nome, "meta": f"{s.cargo} • {s.unidade.sigla}"}
         for s in servidores]})
 
+
+
+# ------------------------------------------------------------------ rota (mapa do itinerário)
+@require_GET
+def rota(request: HttpRequest) -> JsonResponse:
+    """Pernas da rota entre as paradas informadas (?p=Cidade/UF&p=...): km, tempo de estrada,
+    tempo adicional sugerido e traçado para o mapa. Paradas inválidas voltam com erro."""
+    if not (request.user.has_perm("viagens.view_oficio")
+            or request.user.has_perm("viagens.view_roteiro")):
+        raise PermissionDenied
+    textos = [t.strip() for t in request.GET.getlist("p")][:12]
+    pontos: list[dict] = []
+    municipios: list[Municipio | None] = []
+    for texto in textos:
+        try:
+            m = resolver_municipio(texto)
+        except ValidationError as exc:
+            pontos.append({"rotulo": texto, "erro": exc.messages[0]})
+            municipios.append(None)
+            continue
+        pontos.append({"rotulo": f"{m.nome}/{m.uf}",
+                       "lat": float(m.latitude) if m.latitude is not None else None,
+                       "lon": float(m.longitude) if m.longitude is not None else None})
+        municipios.append(m)
+    pernas: list[dict | None] = []
+    for a, b in pairwise(municipios):
+        if a is None or b is None:
+            pernas.append(None)
+            continue
+        p = rotas.calcular(a, b)
+        pernas.append({"km": float(p.km), "minutos": p.minutos,
+                       "adicional_sugerido": p.adicional_sugerido, "fonte": p.fonte,
+                       "tracado": p.tracado})
+    validas = [p for p in pernas if p]
+    return JsonResponse({
+        "pontos": pontos, "pernas": pernas,
+        "total": {"km": round(sum(p["km"] for p in validas), 1),
+                  "minutos": sum(p["minutos"] for p in validas)},
+    })

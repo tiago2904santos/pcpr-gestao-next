@@ -1,0 +1,19 @@
+{% load viagens %}
+{# Card dourado de um trecho: só a saída é informada; tempo de viagem vem da rota, adicional da sugestão; a chegada é calculada (ADR 0016). #}
+<li class="itin__trecho{% if volta %} itin__trecho--volta{% endif %}" data-trecho{% if volta %} data-retorno{% else %} data-trecho-de="{{ t.prefix }}"{% endif %}>
+  <header class="itin__trecho-cabecalho">
+    <span class="itin__trecho-numero" aria-hidden="true">{% if volta %}{% icone "undo-2" %}{% else %}<span data-numero>{{ numero }}</span>{% endif %}</span>
+    <h4 class="itin__trecho-rota" id="tt-{{ t.prefix }}"><span class="sr-only">{% if volta %}Volta à sede: {% else %}Trecho <span data-numero>{{ numero }}</span>: {% endif %}</span><span class="itin__trecho-de" data-de>{{ de }}</span> {% icone "arrow-right" classe="icone--sm" %} <span class="itin__trecho-para" data-para>{{ para }}</span></h4>
+    <span class="itin__trecho-km" data-km>{% if t.initial.km %}{{ t.initial.km }} km{% endif %}</span>
+  </header>
+  <div class="itin__tempos">
+    {% include "componentes/campo.html" with campo=t.saida classe="itin__saida" rotulo="Saída" %}
+    {% include "componentes/campo.html" with campo=t.tempo_viagem classe="itin__duracao" %}
+    {% include "componentes/campo.html" with campo=t.tempo_adicional classe="itin__duracao" %}
+    <div class="itin__chegada">
+      <span class="itin__chegada-rotulo">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}</span>
+      <output class="itin__chegada-valor" data-chegada>{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</output>
+    </div>
+  </div>
+  <p class="itin__aviso" data-aviso hidden>{% icone "alert-triangle" classe="icone--sm" %}Sai antes de chegar ao ponto anterior: confira a data e a hora.</p>
+</li>

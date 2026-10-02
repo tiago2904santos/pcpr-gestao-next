@@ -185,4 +185,19 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
     outra = services.criar_rascunho(c.usuarios["outra"], data_oficio=hoje)
     c.ids["oficio_outra_unidade"] = outra.pk
     assert Oficio.objects.count() == 5
+
+    # 6. Roteiros cadastrados: um ativo (3 servidores, Ponta Grossa), um cancelado e um de
+    #    outra unidade (não visível ao operador da ASCOM).
+    pg = _municipio("Ponta Grossa", "PR")
+    r = services.salvar_roteiro(operador, None, {
+        "quantidade_servidores": 3, "observacoes": "Unidade Móvel na Expo Ponta Grossa."},
+        roteiro(25, 2, pg))
+    c.ids["roteiro"] = r.pk
+    r_cancelado = services.salvar_roteiro(operador, None, {
+        "quantidade_servidores": 1, "observacoes": "Seminário adiado."}, roteiro(40, 1))
+    services.cancelar_roteiro(operador, r_cancelado)
+    c.ids["roteiro_cancelado"] = r_cancelado.pk
+    r_outra = services.salvar_roteiro(c.usuarios["outra"], None, {
+        "quantidade_servidores": 2, "observacoes": "Roteiro da DPC."}, roteiro(10, 1))
+    c.ids["roteiro_outra_unidade"] = r_outra.pk
     return c

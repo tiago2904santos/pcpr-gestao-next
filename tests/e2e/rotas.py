@@ -13,6 +13,9 @@ ROTAS_AUTENTICADAS = [
     "/viagens/oficios/?q=nada-encontrado-xyz",
     "/viagens/oficios/{oficio_rascunho}/editar/",
     "/viagens/oficios/{oficio_emitido}/",
+    "/viagens/roteiros/",
+    "/viagens/roteiros/novo/",
+    "/viagens/roteiros/{roteiro}/editar/",
     "/ui-lab/",
     "/nao-existe/",
 ]

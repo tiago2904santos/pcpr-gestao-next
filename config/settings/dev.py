@@ -12,3 +12,8 @@ STORAGES["staticfiles"] = {  # noqa: F405
 # Serve estáticos direto das pastas de origem (sem collectstatic em teste/dev).
 WHITENOISE_AUTOREFRESH = True
 WHITENOISE_USE_FINDERS = True
+
+# Rotas reais na demonstração/desenvolvimento: servidor público do OSRM (sem chave; uso leve).
+# Produção configura o próprio (ROTAS_PROVEDOR/ROTAS_URL) — ver docs/ops/rotas.md.
+ROTAS_PROVEDOR = env("ROTAS_PROVEDOR", "osrm")  # noqa: F405
+ROTAS_URL = env("ROTAS_URL", "https://router.project-osrm.org")  # noqa: F405

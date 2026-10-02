@@ -1,9 +1,9 @@
 {% load viagens %}
 <section class="secao{% if numerado and calculo.total %} secao--ok{% endif %}" id="diarias" aria-labelledby="t-diarias">
   <div class="secao__cabecalho">
-    {% if numerado %}<h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">5</span>Diárias</h2>
+    {% if numerado %}<h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">{{ numero|default:"5" }}</span>Diárias</h2>
     {% else %}<h2 class="secao__titulo secao__titulo--institucional" id="t-diarias">{% icone "banknote" %}Diárias</h2>{% endif %}
-    <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% elif numerado %}<span class="selo selo--situacao-rascunho">Aguardando equipe e roteiro</span>{% endif %}</div>
+    <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% elif numerado %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
   </div>
   <div class="pilha">
     {% if oficio.diarias_erro %}
@@ -43,7 +43,7 @@
         </div>
       </details>
     {% else %}
-      <p class="texto-secundario">O cálculo aparece aqui assim que houver equipe e roteiro.</p>
+      <p class="texto-secundario">{{ texto_vazio|default:"O cálculo aparece aqui assim que houver equipe e roteiro." }}</p>
     {% endif %}
   </div>
 </section>

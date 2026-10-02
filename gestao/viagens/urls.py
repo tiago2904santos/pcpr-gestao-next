@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_roteiros
 
 app_name = "viagens"
 
@@ -27,4 +27,13 @@ urlpatterns = [
     path("oficios/<int:pk>/minuta.pdf", views.previa, name="previa"),
     path("documentos/<int:documento_id>/", views.baixar_documento, name="baixar_documento"),
     path("api/servidores/", views.buscar_servidores, name="buscar_servidores"),
+    path("api/rota/", views.rota, name="rota"),
+    path("roteiros/", views_roteiros.lista, name="roteiros"),
+    path("roteiros/novo/", views_roteiros.novo, name="novo_roteiro"),
+    path("roteiros/<int:pk>/editar/", views_roteiros.editar, name="editar_roteiro"),
+    path("roteiros/<int:pk>/cancelar/", views_roteiros.cancelar, name="cancelar_roteiro"),
+    path("roteiros/<int:pk>/reativar/", views_roteiros.reativar, name="reativar_roteiro"),
+    path("roteiros/<int:pk>/excluir/", views_roteiros.excluir, name="excluir_roteiro"),
+    path("roteiros/<int:pk>/criar-oficio/", views_roteiros.criar_oficio,
+         name="criar_oficio_do_roteiro"),
 ]

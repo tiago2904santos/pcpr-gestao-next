@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
+{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Cadastro do ofício em página única (como no sistema de referência). "Novo ofício" já cria o
 rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto ao salvar.
@@ -53,6 +55,7 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário, antes de "Adicionar destino"). #}
   <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar rascunho</button>
   {{ form.versao }}
+  {{ form.roteiro }}
   {{ destinos.management_form }}
 </form>
 
@@ -164,59 +167,34 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
         <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
         <p class="secao__nota">Cada parada traz o trecho que chega nela: saída do ponto anterior e chegada. Horários de Brasília.</p>
       </div>
-      <ol class="itinerario" aria-label="Itinerário da viagem">
-        <li class="parada parada--sede">
-          <span class="parada__marco" aria-hidden="true">{% icone "home" %}</span>
-          <div class="parada__corpo"><p class="parada__titulo">{{ oficio.sede }} <small>sede · partida</small></p></div>
-        </li>
-        {% for f, anterior in paradas %}
-          <li class="parada">
-            <span class="parada__marco" aria-hidden="true">{{ forloop.counter }}</span>
-            <fieldset class="parada__corpo" aria-labelledby="leg-destino-{{ forloop.counter }}">
-              <legend class="parada__titulo" id="leg-destino-{{ forloop.counter }}">Destino {{ forloop.counter }} <small>trecho {{ forloop.counter }} · sai de {{ anterior }}</small></legend>
-              {% for h in f.hidden_fields %}{{ h }}{% endfor %}
-              <div class="campos">
-                <div class="campo col-4{% if f.cidade.errors %} campo--erro{% endif %}">
-                  <label class="campo__rotulo" for="{{ f.cidade.id_for_label }}">{{ f.cidade.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-                  <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
-                    <div class="entrada-composta">{% icone "map-pin" %}{{ f.cidade|campo_acessivel:"" }}</div>
-                  </pc-combobox>
-                  {% if f.cidade.errors %}<p class="campo__erro" id="{{ f.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ f.cidade.errors|join:" " }}</span></p>{% endif %}
-                </div>
-                <div class="col-8 parada__trecho">
-                  <div class="campos">
-                    {% include "componentes/campo.html" with campo=f.saida classe="col-6" rotulo="Saída de "|add:anterior %}
-                    {% include "componentes/campo.html" with campo=f.chegada classe="col-6" rotulo="Chegada ao destino" %}
-                  </div>
-                </div>
-              </div>
-              {% if destinos.total_form_count > 1 %}
-                <label class="escolha texto-sm mt-2 parada__remover"><input type="checkbox" name="{{ f.DELETE.html_name }}" id="{{ f.DELETE.auto_id }}" form="form-oficio"{% if f.DELETE.value %} checked{% endif %}> <span>Remover esta parada ao salvar</span></label>
-              {% endif %}
-            </fieldset>
-          </li>
-        {% endfor %}
-        <li class="parada parada--nova">
-          <span class="parada__marco" aria-hidden="true">{% icone "plus" %}</span>
-          <div class="parada__corpo linha">
-            <button type="submit" form="form-oficio" name="acao" value="adicionar_destino" class="botao botao--sm" formnovalidate>{% icone "plus" %}Adicionar destino</button>
-            <span class="texto-terciario texto-xs">Mais uma parada antes do retorno; o que já foi digitado é mantido.</span>
+      {# Como no sistema de referência: o roteiro pode vir de um roteiro cadastrado. #}
+      {% if roteiros_disponiveis is not None %}
+      <div class="usar-roteiro">
+        {% if roteiro_aplicado %}
+          <div class="alerta alerta--info" role="status" id="roteiro-aplicado" tabindex="-1">{% icone "route" %}<div class="alerta__corpo"><p class="alerta__titulo">Trechos do roteiro #{{ roteiro_aplicado.pk }} preenchidos</p><p>Confira datas e horários e salve. Nada foi gravado ainda.</p></div></div>
+        {% elif oficio.roteiro_id %}
+          <p class="usar-roteiro__origem">{% icone "route" classe="icone--sm" %}<span>Preenchido a partir do <a href="{% url 'viagens:editar_roteiro' oficio.roteiro_id %}">roteiro #{{ oficio.roteiro_id }}</a>. Mudanças aqui não alteram o roteiro.</span></p>
+        {% endif %}
+        {% if roteiros_disponiveis %}
+        <div class="usar-roteiro__escolha">
+          <div class="campo">
+            <label class="campo__rotulo" for="id_roteiro_modelo">Usar um roteiro cadastrado</label>
+            <pc-combobox class="combobox" data-placeholder="Destino, período ou número (#12)…">
+              <select id="id_roteiro_modelo" name="roteiro_modelo" form="form-oficio" aria-describedby="ajuda-roteiro-modelo">
+                <option value="">Selecione…</option>
+                {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}"{% if r.pk == roteiro_aplicado.pk %} selected{% endif %}>{{ r.rotulo }}</option>{% endfor %}
+              </select>
+            </pc-combobox>
+            <p class="campo__ajuda" id="ajuda-roteiro-modelo">Preenche os trechos abaixo com os do roteiro. Nada é gravado até você salvar.</p>
           </div>
-        </li>
-        <li class="parada parada--sede">
-          <span class="parada__marco" aria-hidden="true">{% icone "undo-2" %}</span>
-          <fieldset class="parada__corpo" aria-labelledby="leg-retorno">
-            <legend class="parada__titulo" id="leg-retorno">Retorno a {{ oficio.sede }} <small>sede · fim da viagem</small></legend>
-            <div class="parada__trecho">
-              <span class="parada__trecho-rotulo">Trecho final · {{ ultima_parada }} → {{ oficio.sede }}</span>
-              <div class="campos">
-                {% include "componentes/campo.html" with campo=retorno.saida classe="col-6" rotulo="Saída de "|add:ultima_parada %}
-                {% include "componentes/campo.html" with campo=retorno.chegada classe="col-6" %}
-              </div>
-            </div>
-          </fieldset>
-        </li>
-      </ol>
+          <button type="submit" form="form-oficio" name="acao" value="usar_roteiro" class="botao" formnovalidate>{% icone "route" %}Usar este roteiro</button>
+        </div>
+        {% elif pode_criar_roteiro %}
+          <p class="texto-secundario texto-sm">Nenhum roteiro cadastrado com saída de {{ oficio.sede }}. <a href="{% url 'viagens:novo_roteiro' %}">Cadastrar um roteiro</a></p>
+        {% endif %}
+      </div>
+      {% endif %}
+      {% include "viagens/_itinerario.html" %}
     </section>
 
     <!-- 5. Diárias (somente leitura, atualizada ao salvar ou ao mudar a equipe) -->

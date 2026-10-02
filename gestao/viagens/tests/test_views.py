@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import timedelta
 from itertools import pairwise
 
@@ -41,16 +42,30 @@ def _local(dias: int, hora: int, minuto: int = 0) -> str:
     return alvo.replace(hour=hora, minute=minuto).strftime("%Y-%m-%dT%H:%M")
 
 
+def _itinerario(*destinos: tuple[str, str], volta: str, sede: str = "Curitiba/PR",
+                viagem: str = "02:00", adicional: str = "00:00") -> dict:
+    """Campos do itinerário 2.0: sede, destinos (cidade, saída) na ordem e a volta. Só a
+    saída é informada; a chegada = saída + tempo de viagem + tempo adicional."""
+    dados = {"sede-uf": sede.split("/")[1], "sede-cidade": sede,
+             "destino-TOTAL_FORMS": str(len(destinos)), "destino-INITIAL_FORMS": "0",
+             "destino-MIN_NUM_FORMS": "1", "destino-MAX_NUM_FORMS": "10",
+             "retorno-saida": volta, "retorno-tempo_viagem": viagem,
+             "retorno-tempo_adicional": adicional}
+    for i, (cidade, saida) in enumerate(destinos):
+        dados.update({f"destino-{i}-uf": cidade.split("/")[1], f"destino-{i}-cidade": cidade,
+                      f"destino-{i}-saida": saida, f"destino-{i}-ORDER": str(i + 1),
+                      f"destino-{i}-tempo_viagem": viagem,
+                      f"destino-{i}-tempo_adicional": adicional})
+    return dados
+
+
 def _post_edicao(oficio: Oficio, **extra) -> dict:
     dados = {
         "versao": oficio.versao, "data_oficio": oficio.data_oficio.isoformat(),
         "protocolo": "12.345.678-9", "marcador": "", "motivo": "Pauta institucional",
         "custeio": "unidade", "tipo_transporte": "outro", "transporte_descricao": "Ônibus",
-        "porte_arma": "on", "destino-TOTAL_FORMS": "1", "destino-INITIAL_FORMS": "0",
-        "destino-MIN_NUM_FORMS": "1", "destino-MAX_NUM_FORMS": "10",
-        "destino-0-cidade": "Ponta Grossa/PR", "destino-0-saida": _local(20, 8),
-        "destino-0-chegada": _local(20, 10), "retorno-saida": _local(21, 15),
-        "retorno-chegada": _local(21, 17),
+        "porte_arma": "on", **_itinerario(("Ponta Grossa/PR", _local(20, 8)),
+                                          volta=_local(21, 15)),
     }
     dados.update(extra)
     return dados
@@ -143,7 +158,7 @@ class TestNovoEEdicao:
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = _post_edicao(oficio, data_oficio=timezone.localdate().strftime("%d/%m/%Y"))
         esperado = dados["destino-0-saida"]
-        for nome in ("destino-0-saida", "destino-0-chegada", "retorno-saida", "retorno-chegada"):
+        for nome in ("destino-0-saida", "retorno-saida"):
             data, hora = dados.pop(nome).split("T")
             ano, mes, dia = data.split("-")
             dados[f"{nome}_0"], dados[f"{nome}_1"] = f"{dia}/{mes}/{ano}", hora
@@ -155,14 +170,17 @@ class TestNovoEEdicao:
     def test_adicionar_destino_preserva_data_e_hora_separadas(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = _post_edicao(oficio, acao="adicionar_destino")
-        dados.pop("destino-0-saida"), dados.pop("destino-0-chegada")
+        dados.pop("destino-0-saida")
         dados.update({"destino-0-saida_0": "08/10/2026", "destino-0-saida_1": "07:30",
-                      "destino-0-chegada_0": "08/10/2026", "destino-0-chegada_1": "11:45"})
+                      "destino-0-tempo_viagem": "04:15", "destino-0-uf": "SC",
+                      "destino-0-cidade": "Joinville/SC"})
         html = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados).content.decode()
         assert 'name="destino-0-saida_1" value="07:30"' in html
-        # A nova parada já sai de onde a anterior chegou.
-        assert 'name="destino-1-saida_0" value="08/10/2026"' in html
-        assert 'name="destino-1-saida_1" value="11:45"' in html
+        assert 'name="destino-0-tempo_viagem" value="04:15"' in html
+        # A nova parada começa na mesma UF da anterior (filtra os municípios).
+        assert 'name="destino-1-cidade"' in html
+        assert re.search(r'<option value="SC" selected>[^<]*</option>', html.split(
+            'name="destino-1-uf"')[1]) is not None
 
     def test_data_invalida_volta_com_mensagem_clara(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
@@ -222,7 +240,8 @@ class TestNovoEEdicao:
 
     def test_regra_de_negocio_respondida_na_tela(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
-        dados = _post_edicao(oficio, **{"destino-0-chegada": _local(22, 10)})
+        # Chega a Ponta Grossa às 10h (8h + 2h de estrada), mas a volta sai às 9h.
+        dados = _post_edicao(oficio, **{"retorno-saida": _local(20, 9)})
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
         assert r.status_code == 422 and "sai antes da chegada" in r.content.decode()
         # Dados e roteiro são uma gravação só: roteiro recusado não deixa dados pela metade.
@@ -410,16 +429,9 @@ class TestRoteiroComVoltaIntermediaria:
 
     def test_reabrir_e_salvar_preserva_volta_intermediaria(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
-        dados = _post_edicao(oficio, **{
-            "destino-TOTAL_FORMS": "3",
-            "destino-0-cidade": "Ponta Grossa/PR", "destino-0-saida": _local(20, 8),
-            "destino-0-chegada": _local(20, 10),
-            "destino-1-cidade": "Curitiba/PR", "destino-1-saida": _local(20, 16),
-            "destino-1-chegada": _local(20, 18),
-            "destino-2-cidade": "Paranaguá/PR", "destino-2-saida": _local(21, 8),
-            "destino-2-chegada": _local(21, 10),
-            "retorno-saida": _local(21, 15), "retorno-chegada": _local(21, 17),
-        })
+        dados = _post_edicao(oficio, **_itinerario(
+            ("Ponta Grossa/PR", _local(20, 8)), ("Curitiba/PR", _local(20, 16)),
+            ("Paranaguá/PR", _local(21, 8)), volta=_local(21, 15)))
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
         assert r.status_code == 302, r.content.decode()[:300]
         oficio.refresh_from_db()
@@ -434,11 +446,11 @@ class TestRoteiroComVoltaIntermediaria:
 
         destinos, retorno = iniciais_do_roteiro(oficio)
         reenvio = _post_edicao(oficio, versao=oficio.versao,
-                               **{"destino-TOTAL_FORMS": str(len(destinos)),
-                                  "retorno-saida": retorno["saida"],
-                                  "retorno-chegada": retorno["chegada"]})
+                               **{"destino-TOTAL_FORMS": str(len(destinos))})
+        for campo in ("saida", "tempo_viagem", "tempo_adicional"):
+            reenvio[f"retorno-{campo}"] = retorno[campo]
         for i, d in enumerate(destinos):
-            for campo in ("cidade", "saida", "chegada"):
+            for campo in ("uf", "cidade", "saida", "tempo_viagem", "tempo_adicional", "ORDER"):
                 reenvio[f"destino-{i}-{campo}"] = d[campo]
         assert operador.post(reverse("viagens:editar", args=[oficio.pk]), reenvio).status_code \
             == 302

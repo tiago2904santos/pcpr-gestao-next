@@ -50,11 +50,13 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
-    pg.get_by_label("Cidade de destino").fill("Londrina/PR")
+    pg.locator("input[name='destino-0-cidade']").fill("Londrina/PR")
+    # Itinerário 2.0: só a saída; tempo de estrada e adicional vêm da rota, a chegada é
+    # calculada na tela (e de novo no servidor).
     _data_hora(pg, "destino-0-saida", 15, 8)
-    _data_hora(pg, "destino-0-chegada", 15, 14)
     _data_hora(pg, "retorno-saida", 17, 8)
-    _data_hora(pg, "retorno-chegada", 17, 15, 30)
+    expect(pg.locator("#id_destino-0-tempo_viagem")).not_to_have_value("")
+    expect(pg.locator("[data-total-km]")).to_contain_text("km")
     pg.get_by_role("button", name="Salvar rascunho").click()
 
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
@@ -320,10 +322,9 @@ def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado
     # Porte de arma é um interruptor.
     expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
     # Itinerário: começa e termina na sede; o trecho diz de onde sai.
-    paradas = pg.locator("#roteiro .parada")
-    expect(paradas.first).to_contain_text("sede · partida")
-    expect(paradas.last).to_contain_text("Retorno a")
-    expect(pg.locator("#roteiro .parada__trecho").first).to_contain_text("Saída de")
+    expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
+    expect(pg.locator("#roteiro .itin__trecho").last).to_contain_text("Chegada na sede")
+    expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
     # Conferência: diz quantas pendências faltam e lista as seções.
     expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
     expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
@@ -409,7 +410,7 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     hora = pg.locator("#id_destino-0-saida_1")
     hora.fill("09:00")
-    pg.get_by_role("button", name=re.compile(r"^Escolher hora: Saída de .* \(hora\)")).first.click()
+    pg.get_by_role("button", name=re.compile(r"^Escolher hora: Saída")).first.click()
     horas = pg.get_by_role("listbox", name="Horas")
     expect(horas).to_be_focused()
     pg.keyboard.press("ArrowDown")

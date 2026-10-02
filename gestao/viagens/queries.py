@@ -4,13 +4,27 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from django.db.models import Count, Min, Prefetch, Q, QuerySet, prefetch_related_objects
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import (
+    Count,
+    Exists,
+    F,
+    Max,
+    Min,
+    OuterRef,
+    Prefetch,
+    Q,
+    QuerySet,
+    Value,
+    prefetch_related_objects,
+)
+from django.db.models.functions import Concat
 from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
 
 from .dominio.diarias import Faixa, ValorVigente
-from .models import Oficio, Trecho, Viajante
+from .models import Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
 
 
 def buscar_tabelas_vigentes(data_referencia: date) -> dict[Faixa, ValorVigente]:
@@ -107,3 +121,81 @@ def indicadores_do_painel(qs: QuerySet[Oficio]) -> dict[str, object]:
             start=0,
         ),
     }
+
+
+# ---------------------------------------------------------------- roteiros
+def trechos_do_roteiro(roteiro: Roteiro) -> list[TrechoRoteiro]:
+    """Trechos do roteiro em ordem, com origem e destino (uma consulta)."""
+    prefetch_related_objects([roteiro], Prefetch(
+        "trechos", queryset=TrechoRoteiro.objects.select_related("origem", "destino")))
+    return list(roteiro.trechos.all())
+
+
+def roteiros_de_lista(qs: QuerySet[Roteiro]) -> QuerySet[Roteiro]:
+    """Tudo que a lista de roteiros exibe, em número fixo de consultas."""
+    return (
+        qs.select_related("sede", "unidade")
+        .prefetch_related(Prefetch(
+            "trechos", queryset=TrechoRoteiro.objects.select_related("origem", "destino")))
+        .annotate(primeira_saida=Min("trechos__saida_em"),
+                  ultima_chegada=Max("trechos__chegada_em"),
+                  total_trechos=Count("trechos", distinct=True))
+    )
+
+
+# Abas como no sistema de referência (finalizados: decisão pendente — ver paridade).
+FILTROS_ROTEIRO = {
+    "futuros": "Que vão acontecer",
+    "andamento": "Em andamento e realizados",
+    "cancelados": "Cancelados",
+}
+
+
+def filtrar_roteiros(qs: QuerySet[Roteiro], aba: str | None) -> QuerySet[Roteiro]:
+    agora = timezone.now()
+    ativos = qs.filter(situacao=Roteiro.Situacao.ATIVO)
+    if aba == "futuros":
+        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(_ini__gt=agora)
+    if aba == "andamento":
+        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(_ini__lte=agora)
+    if aba == "cancelados":
+        return qs.filter(situacao=Roteiro.Situacao.CANCELADO)
+    return qs
+
+
+def contagens_roteiros(qs: QuerySet[Roteiro]) -> dict[str, int]:
+    resultado = {"todos": qs.count()}
+    for chave in FILTROS_ROTEIRO:
+        resultado[chave] = filtrar_roteiros(qs, chave).count()
+    return resultado
+
+
+def buscar_roteiros(qs: QuerySet[Roteiro], termo: str) -> QuerySet[Roteiro]:
+    """Sede, destino, observações ou número (#12)."""
+    termo = termo.strip()
+    if not termo:
+        return qs
+    numero = termo.lstrip("#")
+    filtro = (Q(sede__nome__unaccent__icontains=termo)
+              | Q(trechos__destino__nome__unaccent__icontains=termo)
+              | Q(observacoes__unaccent__icontains=termo))
+    if numero.isdigit():
+        filtro |= Q(pk=int(numero))
+    return qs.filter(filtro).distinct()
+
+
+def roteiros_para_oficio(qs: QuerySet[Roteiro], oficio: Oficio) -> list[Roteiro]:
+    """Roteiros que podem servir de modelo ao ofício: ativos e com trechos (a sede do
+    roteiro vem junto ao usá-lo)."""
+    # Uma consulta só: período e destinos vêm agregados (sem buscar os trechos à parte).
+    com_trechos = Exists(TrechoRoteiro.objects.filter(roteiro=OuterRef("pk")))
+    return list(
+        qs.filter(com_trechos, situacao=Roteiro.Situacao.ATIVO)
+        .select_related("sede")
+        .annotate(primeira_saida=Min("trechos__saida_em"),
+                  ultima_chegada=Max("trechos__chegada_em"),
+                  paradas=ArrayAgg(Concat("trechos__destino__nome", Value("/"),
+                                          "trechos__destino__uf"),
+                                   order_by="trechos__ordem"))
+        .order_by(F("primeira_saida").desc(nulls_last=True))[:200]
+    )

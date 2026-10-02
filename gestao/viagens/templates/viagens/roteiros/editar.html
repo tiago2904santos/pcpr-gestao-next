@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load viagens %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
+{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% comment %}
+Roteiro cadastrado (como no sistema de referência): a mesma folha do ofício para o itinerário,
+o efetivo usado na estimativa de diárias e as observações. Novo e edição usam este template.
+{% endcomment %}
+{% block titulo %}{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Roteiro</span>
+    <span class="placa__numero">{% if roteiro %}#{{ roteiro.pk }}{% else %}novo{% endif %}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · roteiros</p>
+    <h1 class="pagina-cabecalho__titulo">{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}</h1>
+    {% if roteiro %}
+    <p class="frase-oficio">
+      <span class="sr-only">Resumo do roteiro: </span>
+      {% with d=roteiro|destinos %}<span class="frase-oficio__item{% if not d %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ roteiro.sede.nome }}/{{ roteiro.sede.uf }}{% if d %} → {{ d }}{% endif %}</span>{% endwith %}
+      {% with p=roteiro.trechos.all|periodo %}<span class="frase-oficio__item{% if not p %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ p|default:"sem datas" }}</span>{% endwith %}
+      <span class="frase-oficio__item">{% icone "users" classe="icone--sm" %}{{ roteiro.quantidade_servidores|pluralizar:"servidor,servidores" }}</span>
+      {% if roteiro.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ roteiro.diarias_total|moeda }}</span>{% endif %}
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">Informe a sede, os destinos e a saída de cada trecho; a rota calcula distância, tempos e chegadas. As diárias são estimadas para o efetivo do roteiro.</p>
+    {% endif %}
+  </div>
+  {% if roteiro %}
+  <div class="pagina-cabecalho__acoes">
+    {% if pode_criar_oficio and roteiro.trechos.all %}<button type="submit" form="form-criar-oficio" class="botao">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
+    {% if pode_cancelar or pode_excluir %}
+    <pc-menu class="menu">
+      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do roteiro">{% icone "ellipsis-vertical" %}</button>
+      <div class="menu__painel" role="menu" hidden>
+        {% if pode_cancelar %}<button type="submit" form="form-cancelar" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>{% endif %}
+        {% if pode_excluir %}<div class="menu__separador" role="separator"></div>
+        <button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>{% endif %}
+      </div>
+    </pc-menu>
+    {% endif %}
+  </div>
+  {% endif %}
+</header>
+
+{% if roteiro %}
+<form id="form-criar-oficio" method="post" action="{% url 'viagens:criar_oficio_do_roteiro' roteiro.pk %}" hidden>{% csrf_token %}</form>
+<form id="form-cancelar" method="post" action="{% url 'viagens:cancelar_roteiro' roteiro.pk %}" hidden
+      data-confirmar="O roteiro #{{ roteiro.pk }} deixa de aparecer para uso nos ofícios. Ofícios já preenchidos com ele não mudam."
+      data-confirmar-titulo="Cancelar roteiro?" data-confirmar-rotulo="Cancelar roteiro">{% csrf_token %}</form>
+<form id="form-excluir" method="post" action="{% url 'viagens:excluir_roteiro' roteiro.pk %}" hidden
+      data-confirmar="O roteiro #{{ roteiro.pk }} será excluído. Esta ação não pode ser desfeita."
+      data-confirmar-titulo="Excluir roteiro?" data-confirmar-rotulo="Excluir roteiro" data-confirmar-perigo>{% csrf_token %}</form>
+{% endif %}
+
+<form id="{{ form_id }}" method="post" action="{% if roteiro %}{% url 'viagens:editar_roteiro' roteiro.pk %}{% else %}{% url 'viagens:novo_roteiro' %}{% endif %}" novalidate
+      data-proteger{% if sujo %} data-sujo{% endif %}>
+  {% csrf_token %}
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar roteiro</button>
+  {{ destinos.management_form }}
+</form>
+
+{% include "componentes/resumo_erros.html" %}
+{% if destinos.non_form_errors or erro_roteiro %}
+  <div class="alerta alerta--perigo mb-4" role="alert" id="alerta-roteiro" tabindex="-1">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
+{% endif %}
+
+<div class="documento">
+  <section class="secao" id="roteiro" aria-labelledby="t-roteiro">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">1</span>Origem e destinos</h2>
+      <p class="secao__nota">Cada parada traz o trecho que chega nela: saída do ponto anterior e chegada. Horários de Brasília.</p>
+    </div>
+    {% include "viagens/_itinerario.html" %}
+  </section>
+
+  <section class="secao" id="efetivo" aria-labelledby="t-efetivo">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-efetivo"><span class="secao__numero">2</span>Servidores e observações</h2></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.quantidade_servidores classe="col-3" %}
+      {% include "componentes/campo.html" with campo=form.observacoes classe="col-9" %}
+    </div>
+  </section>
+
+  {% if roteiro %}
+    {% include "viagens/oficios/_diarias.html" with oficio=roteiro numerado=True numero="3" aguardando="Aguardando trechos" texto_vazio="O cálculo aparece aqui assim que o roteiro tiver ida e volta." %}
+  {% else %}
+  <section class="secao" id="diarias" aria-labelledby="t-diarias">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">3</span>Diárias</h2>
+      <div class="secao__estado"><span class="selo selo--situacao-rascunho">Calculadas ao salvar</span></div></div>
+    <p class="texto-secundario">As diárias são estimadas para a quantidade de servidores do roteiro assim que você salvar com ida e volta.</p>
+  </section>
+  {% endif %}
+
+  {% if oficios_do_roteiro %}
+  <section class="secao" id="oficios" aria-labelledby="t-oficios">
+    <div class="secao__cabecalho"><h2 class="secao__titulo secao__titulo--institucional" id="t-oficios">{% icone "file-text" %}Ofícios preenchidos com este roteiro</h2></div>
+    <ul class="lista-simples">
+      {% for o in oficios_do_roteiro %}<li><a href="{% url 'viagens:detalhe' o.pk %}">Ofício {{ o.numero_formatado }}</a> <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span></li>{% endfor %}
+    </ul>
+    <p class="texto-secundario texto-sm">Os trechos foram copiados para cada ofício; alterar o roteiro não muda esses ofícios.</p>
+  </section>
+  {% endif %}
+</div>
+
+<div class="barra-acoes">
+  <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
+    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Roteiro salvo às {{ roteiro.atualizado_em|date:"H:i" }}{% elif roteiro %}Última alteração {{ roteiro.atualizado_em|date:"d/m/Y H:i" }}{% else %}Novo roteiro{% endif %}
+  </div>
+  <a class="botao botao--texto" href="{% url 'viagens:roteiros' %}">Voltar</a>
+  <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar roteiro</span></button>
+</div>
+{% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
+{% endblock %}

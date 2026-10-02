@@ -44,8 +44,8 @@ from gestao.identidade.backends import LOGIN_DEMO
 from gestao.identidade.models import Usuario
 from gestao.identidade.papeis import sincronizar_papeis
 
-from . import services
-from .models import Documento, Historico, Oficio, Trecho, Viajante
+from . import rotas, services
+from .models import Documento, Historico, Oficio, Roteiro, Trecho, Viajante
 
 SEMENTE = 20_261_001
 OFICIOS_BASE = 260
@@ -54,7 +54,8 @@ VIATURAS_BASE = 48
 
 TABELAS = (
     "viagens_historico", "viagens_documento", "viagens_trecho", "viagens_viajante",
-    "viagens_oficio", "viagens_numeracaoanual", "viagens_lacunanumeracao",
+    "viagens_oficio", "viagens_trechoroteiro", "viagens_roteiro", "viagens_numeracaoanual",
+    "viagens_lacunanumeracao",
     "cadastros_lotacao", "cadastros_configuracaoinstitucional", "cadastros_servidor",
     "cadastros_viatura", "cadastros_cargo", "cadastros_combustivel", "cadastros_tabeladiaria",
     "cadastros_modelotexto", "cadastros_unidade", "plataforma_outbox",
@@ -340,8 +341,14 @@ class _Gerador:
                  ) -> tuple[list[services.TrechoInformado], list[Municipio]]:
         rng = self.rng
 
-        def deslocamento() -> timedelta:
-            return timedelta(minutes=15 * rng.randint(4, 28))
+        def perna(origem: Municipio, destino: Municipio, saida: datetime
+                  ) -> services.TrechoInformado:
+            # Tempos como o itinerário 2.0 sugere: estimativa offline (sem rede no seed).
+            e = rotas.estimar(origem, destino)
+            return services.TrechoInformado(
+                origem.pk, destino.pk, saida,
+                saida + timedelta(minutes=e.minutos + e.adicional_sugerido),
+                e.km or None, e.minutos, e.adicional_sugerido)
 
         trechos: list[services.TrechoInformado] = []
         destinos: list[Municipio] = []
@@ -350,12 +357,13 @@ class _Gerador:
             destino = self._destino(sede)
             destinos = [destino]
             for dia in range(rng.randint(2, 3)):
-                ida = saida + timedelta(days=dia)
-                chegada = ida + deslocamento()
-                trechos.append(services.TrechoInformado(sede.pk, destino.pk, ida, chegada))
-                volta = chegada + timedelta(hours=rng.randint(3, 8))
-                trechos.append(services.TrechoInformado(destino.pk, sede.pk, volta,
-                                                        volta + deslocamento()))
+                inicio = saida + timedelta(days=dia)
+                if trechos:  # destino longe: o dia seguinte começa depois de voltar
+                    inicio = max(inicio, trechos[-1].chegada_em + timedelta(hours=8))
+                ida = perna(sede, destino, inicio)
+                trechos.append(ida)
+                volta = ida.chegada_em + timedelta(hours=rng.randint(3, 8))
+                trechos.append(perna(destino, sede, volta))
             return trechos, destinos
         quantidade = {"simples": 1, "mesmo_dia": 1, "varios": rng.randint(2, 4),
                       "muitos": 8}[tipo]
@@ -363,14 +371,15 @@ class _Gerador:
             destino = self._destino(atual if atual.pk != sede.pk else sede)
             while destino.pk in (atual.pk, sede.pk) or destino in destinos:
                 destino = self._destino(sede)
-            chegada = t + deslocamento()
-            trechos.append(services.TrechoInformado(atual.pk, destino.pk, t, chegada))
+            trecho = perna(atual, destino, t)
+            trechos.append(trecho)
+            chegada = trecho.chegada_em
             destinos.append(destino)
             permanencia = (timedelta(hours=rng.randint(2, 5)) if tipo == "mesmo_dia" else
                            timedelta(hours=rng.choice([6, 10, 20, 26, 30, 44, 50, 70, 96])))
             t = chegada + permanencia
             atual = destino
-        trechos.append(services.TrechoInformado(atual.pk, sede.pk, t, t + deslocamento()))
+        trechos.append(perna(atual, sede, t))
         return trechos, destinos
 
     def oficios(self) -> list[Oficio]:
@@ -538,6 +547,45 @@ class _Gerador:
             return oficio, t, t
         return oficio, t, None
 
+    # ------------------------------------------------------------- roteiros
+    def roteiros(self, oficios: list[Oficio]) -> None:
+        """Roteiros cadastrados (tela de roteiros e "usar roteiro" no ofício): um a cada
+        quatro ofícios com trechos vira roteiro de origem; mais roteiros futuros avulsos na
+        unidade do operador DEMO e um cancelado. Gerador próprio: não altera os ofícios."""
+        rng = random.Random(SEMENTE + 2)  # noqa: S311  # nosec B311 — determinismo
+        for indice, oficio in enumerate(oficios):
+            if indice % 4 or oficio.situacao == Oficio.Situacao.CANCELADO:
+                continue
+            trechos = services.trechos_informados_do_roteiro_de(oficio)
+            if not trechos:
+                continue
+            autor = self.operadores[oficio.unidade_id]
+            roteiro = services.salvar_roteiro(autor, None, {
+                "quantidade_servidores": max(1, oficio.viajantes.count()),
+                "observacoes": oficio.motivo[:120]}, trechos)
+            Oficio.objects.filter(pk=oficio.pk).update(roteiro=roteiro)
+            Roteiro.objects.filter(pk=roteiro.pk).update(criado_em=oficio.criado_em,
+                                                         atualizado_em=oficio.criado_em)
+        ascom = self.unidades[0]
+        autor = self.demo or self.operadores[ascom.pk]
+        sede = self.sedes[ascom.pk]
+        avulsos = []
+        for i in range(max(4, round(12 * self.escala))):
+            saida = _aware(self.hoje + timedelta(days=rng.randint(6, 75)), rng.choice([6, 7, 8]),
+                           rng.choice([0, 30]))
+            tipo = rng.choice(["simples", "simples", "varios", "bate_volta"])
+            trechos, destinos = self._roteiro(sede, saida, tipo)
+            evento = rng.choice(EVENTOS)
+            avulsos.append(services.salvar_roteiro(autor, None, {
+                "quantidade_servidores": rng.choice([1, 2, 3, 4, 6, 8, 10]),
+                "observacoes": f"Unidade Móvel no evento {evento} ({destinos[0].nome})."},
+                trechos))
+            if i == 1:  # um sem trechos ainda: "rascunho" de planejamento
+                avulsos.append(services.salvar_roteiro(autor, None, {
+                    "quantidade_servidores": 4, "observacoes": "Planejamento: destino a definir."},
+                    []))
+        services.cancelar_roteiro(autor, avulsos[-1])
+
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""
         return max(anterior + timedelta(seconds=30), min(desejado, self.agora))
@@ -582,6 +630,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.cadastros()
     atualizar_estatisticas()
     oficios = gerador.oficios()
+    gerador.roteiros(oficios)
     return resumo(len(oficios))
 
 
@@ -608,7 +657,7 @@ def resumo(total_oficios: int | None = None) -> Resultado:
         "oficios": total_oficios if total_oficios is not None else Oficio.objects.count(),
         "viajantes": Viajante.objects.count(), "trechos": Trecho.objects.count(),
         "documentos": Documento.objects.count(), "historico": Historico.objects.count(),
-        "municipios": Municipio.objects.count(),
+        "municipios": Municipio.objects.count(), "roteiros": Roteiro.objects.count(),
     }
     r.por_situacao = dict(Counter(Oficio.objects.values_list("situacao", flat=True)))
     r.por_unidade = dict(Counter(Oficio.objects.values_list("unidade__sigla", flat=True)))
@@ -623,4 +672,6 @@ def impressao_digital() -> list[tuple]:
     return list(Oficio.objects.order_by("ano", "numero").values_list(
         "ano", "numero", "situacao", "unidade__sigla", "diarias_total", "diarias_resumo",
         "protocolo", "motivo", "custeio", "tipo_transporte", "data_oficio",
-    )) + list(Servidor.objects.order_by("pk").values_list("nome", "cpf", "unidade__sigla"))
+    )) + list(Servidor.objects.order_by("pk").values_list("nome", "cpf", "unidade__sigla")) + list(
+        Roteiro.objects.order_by("pk").values_list("unidade__sigla", "situacao",
+                                                   "quantidade_servidores", "diarias_total"))

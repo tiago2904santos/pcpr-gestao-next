@@ -117,7 +117,7 @@ Pedido público entra com canal PORTAL e token de acompanhamento.
 | Objeto | Estados | Observações |
 |---|---|---|
 | Viagem | rascunho → em preparação → documentos gerados → em execução → finalizado; cancelado | cancelar cascateia aos documentos; reativar os traz de volta; dados propagam para documentos novos |
-| Roteiro | RASCUNHO/FINALIZADO; cálculo PENDENTE/CALCULADA/DESATUALIZADA | recalcular substitui a composição inteira; sem tabela vigente → erro |
+| Roteiro | referência: RASCUNHO/FINALIZADO; cálculo PENDENTE/CALCULADA/DESATUALIZADA. **Novo**: ativo/cancelado; diárias recalculadas a cada salvamento | recalcular substitui a composição inteira; sem tabela vigente → erro; roteiro usado em ofício não pode ser excluído (cancelar) |
 | Termo, OS | cancelar/reativar/excluir | OS com numeração anual e lacunas |
 | Plano de trabalho | RASCUNHO/GERADO | numeração anual + sufixo |
 

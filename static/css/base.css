@@ -195,13 +195,6 @@ a:not([class]):focus-visible {
   color: var(--cor-texto-terciario);
 }
 
-.texto-truncado {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
 .quebra-palavras {
   overflow-wrap: anywhere;
 }
@@ -223,10 +216,6 @@ a:not([class]):focus-visible {
   align-items: center;
   gap: var(--esp-2);
   flex-wrap: wrap;
-}
-
-.linha--entre {
-  justify-content: space-between;
 }
 
 .cresce {
@@ -377,7 +366,6 @@ a:not([class]):focus-visible {
 .texto-sm { font-size: var(--texto-sm); }
 .texto-lg { font-size: var(--texto-lg); }
 .peso-semi { font-weight: var(--peso-semi); }
-.mt-0 { margin-top: 0; }
 .mt-2 { margin-top: var(--esp-2); }
 .mt-4 { margin-top: var(--esp-4); }
 .mt-6 { margin-top: var(--esp-6); }

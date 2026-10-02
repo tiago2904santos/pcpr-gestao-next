@@ -1,6 +1,7 @@
 {% extends "base_documento.html" %}
 {% load static %}
 {% block classe_body %}autenticacao{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/publica.css' %}">{% endblock %}
 {% block corpo %}
 <header class="cabecalho">
   <a class="marca" href="/" aria-label="{{ instituicao.sigla }} — {{ instituicao.produto }}">

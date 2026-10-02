@@ -179,7 +179,7 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
 # Content Security Policy nativa do Django 6: nenhum script inline sem nonce,
 # nenhum recurso de terceiros.
-SECURE_CSP = {
+SECURE_CSP: dict[str, list[str]] = {
     "default-src": [CSP.SELF],
     "script-src": [CSP.SELF, CSP.NONCE],
     "style-src": [CSP.SELF],
@@ -191,6 +191,26 @@ SECURE_CSP = {
     "base-uri": [CSP.SELF],
     "object-src": [CSP.NONE],
 }
+
+# Rotas e mapa do itinerário (ADR 0016). Provedor: "osrm" (servidor OSRM em ROTAS_URL),
+# "openrouteservice" (chave ROTAS_CHAVE, só via ambiente) ou "estimativa" (offline: linha
+# reta × 1,3 a 70 km/h). Falha do provedor cai na estimativa — o formulário nunca trava.
+ROTAS_PROVEDOR = env("ROTAS_PROVEDOR", "estimativa")
+ROTAS_URL = env("ROTAS_URL", "")
+ROTAS_CHAVE = env("ROTAS_CHAVE", "")
+ROTAS_TIMEOUT = float(env("ROTAS_TIMEOUT", "4"))
+# Mosaico do mapa (vazio = mapa sem fundo, só a rota). A origem entra no img-src da CSP.
+MAPA_TILES_URL = env("MAPA_TILES_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+MAPA_ATRIBUICAO = env("MAPA_ATRIBUICAO", "© OpenStreetMap")
+
+
+def _origem(url: str) -> str:
+    partes = url.split("/")
+    return "/".join(partes[:3]) if url.startswith(("https://", "http://")) else ""
+
+
+if _origem(MAPA_TILES_URL):
+    SECURE_CSP["img-src"].append(_origem(MAPA_TILES_URL))
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 

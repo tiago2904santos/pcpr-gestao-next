@@ -1,0 +1,162 @@
+/* =====================================================================
+   Páginas públicas (acesso e erro): carregado só por base_publica.html,
+   para não pesar nas telas do sistema.
+   ===================================================================== */
+
+/* ---------------- Página de acesso (login) ---------------- */
+.autenticacao {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--fundo-pagina);
+}
+
+.autenticacao .cabecalho {
+  position: static;
+}
+
+.autenticacao__palco {
+  display: grid;
+  place-items: center;
+  padding: var(--esp-8) var(--esp-4);
+}
+
+/* Composição em duas peças: a marca (grafite) e o formulário (papel). */
+.acesso {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 26rem);
+  width: 100%;
+  max-width: 48rem;
+  border-radius: var(--raio-xl);
+  overflow: hidden;
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-4), 0 0 0 1px var(--tinta-08);
+  animation: aparecer var(--duracao-lenta) var(--curva-padrao) both;
+}
+
+.acesso__marca {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--esp-8);
+  padding: var(--esp-8);
+  background: linear-gradient(160deg, var(--grafite-800), var(--grafite-950));
+  color: var(--cor-texto-inverso);
+  overflow: hidden;
+}
+
+/* Ambientação discreta: anéis dourados muito suaves, como a marca d'água de um timbre. */
+.acesso__marca::before {
+  content: "";
+  position: absolute;
+  right: -7rem;
+  bottom: -9rem;
+  width: 22rem;
+  height: 22rem;
+  border-radius: var(--raio-pilula);
+  border: 1px solid var(--brilho-dourado-28);
+  box-shadow: inset 0 0 0 2.5rem var(--brilho-dourado-08), inset 0 0 0 5rem var(--brilho-dourado-08);
+  pointer-events: none;
+}
+
+.acesso__marca::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--filete);
+  background: linear-gradient(90deg, var(--dourado-500), var(--dourado-300) 55%, transparent);
+}
+
+.acesso__brasao {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px var(--tinta-28));
+}
+
+.acesso__sigla {
+  margin-top: var(--esp-4);
+  font-size: var(--texto-5xl);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-display);
+  line-height: 1;
+}
+
+.acesso__produto {
+  margin-top: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-inverso);
+}
+
+.acesso__instituicao {
+  margin-top: var(--esp-1);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-inverso-sutil);
+}
+
+.acesso__nota {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--shell-filete-claro);
+}
+
+.acesso__formulario {
+  padding: var(--esp-8);
+}
+
+.cartao-acesso {
+  width: 100%;
+}
+
+.cartao-acesso__titulo {
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-titulo);
+}
+
+.cartao-acesso__selo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  padding-top: var(--esp-4);
+  border-top: var(--borda);
+}
+
+.acesso__ambiente {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-05) var(--esp-2);
+  border: 1px solid var(--cor-marca-borda);
+  border-radius: var(--raio-xs);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-marca-texto);
+  background: var(--cor-marca-fundo);
+}
+
+@media (max-width: 1023.98px) {
+  .acesso { grid-template-columns: minmax(0, 1fr); max-width: 28rem; }
+  .acesso__marca { gap: var(--esp-5); padding: var(--esp-6); }
+  .acesso__sigla { font-size: var(--texto-3xl); margin-top: var(--esp-3); }
+  .acesso__brasao { width: 2.75rem; height: 2.75rem; }
+  .acesso__marca::before { width: 14rem; height: 14rem; right: -5rem; bottom: -7rem; }
+}
+
+@media (max-width: 767.98px) {
+  .autenticacao__palco { padding: var(--esp-4) var(--esp-3) var(--esp-8); align-items: start; }
+  .acesso__formulario { padding: var(--esp-6) var(--esp-5); }
+}

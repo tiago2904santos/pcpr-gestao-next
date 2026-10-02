@@ -22,7 +22,7 @@ from gestao.plataforma.widgets import (
     Selecao,
 )
 
-from .models import Oficio
+from .models import Oficio, Roteiro
 from .queries import trechos_de
 
 FORM_ID = "form-oficio"
@@ -37,9 +37,11 @@ class AssociadoAoFormularioDoOficio:
     pelo atributo HTML `form` — assim a seção Equipe pode ter formulários próprios (HTMX)
     sem aninhar <form> (HTML inválido)."""
 
+    form_id = FORM_ID
+
     def _associar(self) -> None:
         for campo in self.fields.values():  # type: ignore[attr-defined]
-            campo.widget.attrs["form"] = FORM_ID
+            campo.widget.attrs["form"] = self.form_id
 
 
 def resolver_municipio(texto: str) -> Municipio:
@@ -104,7 +106,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         fields = ["data_oficio", "protocolo", "marcador", "motivo", "custeio",
                   "custeio_instituicao", "tipo_transporte", "viatura", "transporte_descricao",
                   "transporte_placa", "transporte_combustivel", "porte_arma",
-                  "justificativa_modelo", "justificativa"]
+                  "justificativa_modelo", "justificativa", "roteiro"]
         widgets = {
             "data_oficio": EntradaData(),
             "marcador": forms.RadioSelect,
@@ -121,6 +123,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "transporte_combustivel": Selecao(),
             "justificativa_modelo": Selecao(),
             "justificativa": forms.Textarea(attrs=_attrs("area-texto", rows=5)),
+            "roteiro": forms.HiddenInput,
         }
         labels = {"motivo": "Motivo da viagem", "justificativa_modelo": "Texto pronto",
                   "viatura": "Viatura", "transporte_combustivel": "Combustível"}
@@ -142,6 +145,10 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         modelo.queryset = ModeloTexto.objects.filter(ativo=True,
                                                      tipo=ModeloTexto.Tipo.JUSTIFICATIVA)
         modelo.empty_label = "Escrever do zero"
+        # Roteiro de origem: só roteiros da unidade do ofício (o vínculo vem de "Usar roteiro").
+        roteiro = cast(forms.ModelChoiceField, self.fields["roteiro"])
+        roteiro.queryset = Roteiro.objects.filter(unidade_id=self.instance.unidade_id)
+        roteiro.required = False
         self.fields["porte_arma"].widget.attrs.update({"class": "", "role": "switch"})
         data = cast(forms.DateField, self.fields["data_oficio"])
         data.input_formats = FORMATOS_DATA
@@ -175,57 +182,168 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         return dados
 
 
-class FormularioDestino(AssociadoAoFormularioDoOficio, forms.Form):
+UFS = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB",
+       "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
+
+
+def _minutos_hhmm(minutos: int | None) -> str:
+    if minutos is None:
+        return ""
+    return f"{minutos // 60:02d}:{minutos % 60:02d}"
+
+
+class CampoDuracao(forms.CharField):
+    """Duração "hh:mm" (ex.: 04:30) → minutos. Vazio = calcular/sugerir automaticamente."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", forms.TextInput(attrs=_attrs(
+            inputmode="numeric", placeholder="hh:mm", autocomplete="off", maxlength="5",
+            **{"data-mascara": "hora"})))
+        super().__init__(**kwargs)
+
+    def to_python(self, value):
+        texto = (super().to_python(value) or "").strip()
+        if not texto:
+            return None
+        m = re.match(r"^(\d{1,2}):?(\d{2})$", texto)
+        if not m or int(m.group(2)) > 59:
+            raise forms.ValidationError("Informe a duração em horas e minutos, ex.: 04:30.")
+        return int(m.group(1)) * 60 + int(m.group(2))
+
+    def prepare_value(self, value):
+        return _minutos_hhmm(value) if isinstance(value, int) else value
+
+
+class CampoUF(forms.ChoiceField):
+    """Estado da parada: filtra a busca de municípios e confere a escolha."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("label", "UF")
+        kwargs.setdefault("choices", [("", "UF")] + [(uf, uf) for uf in UFS])
+        kwargs.setdefault("widget", Selecao(attrs={"data-uf": ""}))
+        super().__init__(**kwargs)
+
+
+class _ParadaBase(AssociadoAoFormularioDoOficio, forms.Form):
+    def __init__(self, *args, form_id: str | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_id = form_id or FORM_ID
+        if "cidade" in self.fields and not self.initial.get("uf"):
+            texto = str(self.initial.get("cidade") or "")
+            if "/" in texto:
+                self.initial["uf"] = texto.rsplit("/", 1)[1].strip().upper()[:2]
+        self._associar()
+
+    def clean(self):
+        super().clean()
+        dados = self.cleaned_data
+        uf, cidade = dados.get("uf"), dados.get("cidade")
+        if uf and cidade and cidade.uf != uf:
+            self.add_error("cidade", f"Escolha um município de {uf} (ou mude a UF).")
+        return dados
+
+
+class FormularioSede(_ParadaBase):
+    """Sede (origem e volta da viagem): pode ser trocada no ofício e no roteiro."""
+
+    uf = CampoUF()
+    cidade = CampoMunicipio(label="Sede (origem da viagem)")
+
+
+class FormularioDestino(_ParadaBase):
+    uf = CampoUF()
     cidade = CampoMunicipio(label="Cidade de destino")
     saida = CampoDataHora(label="Saída")
-    chegada = CampoDataHora(label="Chegada")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._associar()
-
-    def clean(self):
-        super().clean()
-        dados = self.cleaned_data
-        if dados.get("saida") and dados.get("chegada") and dados["chegada"] <= dados["saida"]:
-            self.add_error("chegada", "A chegada precisa ser depois da saída.")
-        return dados
+    tempo_viagem = CampoDuracao(label="Tempo de viagem")
+    tempo_adicional = CampoDuracao(label="Tempo adicional")
 
 
-class FormularioRetorno(AssociadoAoFormularioDoOficio, forms.Form):
+class FormularioRetorno(_ParadaBase):
     saida = CampoDataHora(label="Saída para a sede")
-    chegada = CampoDataHora(label="Chegada na sede")
+    tempo_viagem = CampoDuracao(label="Tempo de viagem")
+    tempo_adicional = CampoDuracao(label="Tempo adicional")
+
+
+class _ConjuntoDestinosBase(forms.BaseFormSet):
+    """Ordem (arrastar e soltar) e remoção como campos ligados ao <form> da página."""
+
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        form_id = self.form_kwargs.get("form_id") or FORM_ID
+        form.fields["ORDER"].widget = forms.HiddenInput(attrs={"data-ordem": "",
+                                                               "form": form_id})
+        form.fields["DELETE"].widget.attrs.update({"data-remover": "", "form": form_id})
+
+
+ConjuntoDestinos = forms.formset_factory(
+    FormularioDestino, formset=_ConjuntoDestinosBase, extra=0, min_num=1, validate_min=True,
+    max_num=10, validate_max=True, can_delete=True, can_order=True)
+
+
+FORM_ID_ROTEIRO = "form-roteiro"
+
+
+class FormularioRoteiro(AssociadoAoFormularioDoOficio, forms.ModelForm):
+    """Efetivo e observações do roteiro cadastrado (o itinerário usa os formulários acima)."""
+
+    form_id = FORM_ID_ROTEIRO
+
+    class Meta:
+        model = Roteiro
+        fields = ["quantidade_servidores", "observacoes"]
+        widgets = {
+            "quantidade_servidores": forms.NumberInput(attrs=_attrs(min="1", max="99",
+                                                                   inputmode="numeric")),
+            "observacoes": forms.Textarea(attrs=_attrs(
+                "area-texto", rows=3, placeholder="Ex.: Unidade Móvel no evento Expoara.")),
+        }
+        labels = {"quantidade_servidores": "Quantidade de servidores"}
+        help_texts = {
+            "quantidade_servidores": "Efetivo usado para estimar as diárias do roteiro. No "
+                                     "ofício, as diárias usam a equipe do próprio ofício.",
+            "observacoes": "Aparece na busca de roteiros.",
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._associar()
 
-    def clean(self):
-        super().clean()
-        dados = self.cleaned_data
-        if dados.get("saida") and dados.get("chegada") and dados["chegada"] <= dados["saida"]:
-            self.add_error("chegada", "A chegada precisa ser depois da saída.")
-        return dados
-
-
-ConjuntoDestinos = forms.formset_factory(FormularioDestino, extra=0, min_num=1,
-                                         validate_min=True, max_num=10, validate_max=True,
-                                         can_delete=True)
+    def clean_quantidade_servidores(self):
+        valor = self.cleaned_data.get("quantidade_servidores")
+        if valor is not None and not 1 <= valor <= 99:
+            raise forms.ValidationError("Informe de 1 a 99 servidores.")
+        return valor
 
 
 def iniciais_do_roteiro(oficio: Oficio) -> tuple[list[dict], dict]:
     """Valores iniciais dos formulários de roteiro a partir dos trechos gravados."""
-    trechos = trechos_de(oficio)
+    return iniciais_de_trechos(trechos_de(oficio), oficio.sede_id)
+
+
+def iniciais_de_trechos(trechos, sede_id: int | None) -> tuple[list[dict], dict]:
+    """Trechos gravados (do ofício ou de um roteiro cadastrado) → iniciais do itinerário.
+    Trechos antigos (sem tempos gravados) viram tempo de viagem = chegada − saída."""
+    trechos = list(trechos)
 
     def local(dt: datetime) -> str:
         return timezone.localtime(dt).strftime("%Y-%m-%dT%H:%M")
 
+    def tempos(t) -> dict:
+        adicional = t.tempo_adicional_min or 0
+        viagem = t.tempo_viagem_min
+        if viagem is None:
+            viagem = max(0, int((t.chegada_em - t.saida_em).total_seconds() // 60) - adicional)
+        return {"saida": local(t.saida_em), "tempo_viagem": _minutos_hhmm(viagem),
+                "tempo_adicional": _minutos_hhmm(adicional), "chegada": local(t.chegada_em),
+                "km": t.distancia_km}
+
     # O último trecho que chega à sede é o retorno; todos os anteriores (inclusive
     # passagens intermediárias pela sede, como no bate-volta) são "destinos".
-    volta = trechos[-1] if trechos and trechos[-1].destino_id == oficio.sede_id else None
+    volta = trechos[-1] if trechos and trechos[-1].destino_id == sede_id else None
     ida = trechos[:-1] if volta else trechos
-    destinos = [{"cidade": f"{t.destino.nome}/{t.destino.uf}", "saida": local(t.saida_em),
-                 "chegada": local(t.chegada_em)} for t in ida] or [{}]
-    retorno = {"saida": local(volta.saida_em), "chegada": local(volta.chegada_em)} if volta \
-        else {}
+    destinos = [{"cidade": f"{t.destino.nome}/{t.destino.uf}", "uf": t.destino.uf,
+                 "ORDER": i, **tempos(t)} for i, t in enumerate(ida, start=1)] or [{}]
+    retorno = tempos(volta) if volta else {}
     return destinos, retorno

@@ -44,8 +44,15 @@ def periodo(trechos) -> str:
     trechos = list(trechos)
     if not trechos:
         return ""
-    ini = timezone.localtime(trechos[0].saida_em)
-    fim = timezone.localtime(trechos[-1].chegada_em)
+    return formatar_periodo(trechos[0].saida_em, trechos[-1].chegada_em)
+
+
+def formatar_periodo(saida: datetime | None, chegada: datetime | None) -> str:
+    """"08/10 a 12/10/2026" (ou só a data, quando ida e volta são no mesmo dia)."""
+    if not saida or not chegada:
+        return ""
+    ini = timezone.localtime(saida)
+    fim = timezone.localtime(chegada)
     if ini.date() == fim.date():
         return f"{ini:%d/%m/%Y}"
     if ini.year == fim.year:

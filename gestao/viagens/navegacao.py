@@ -14,6 +14,7 @@ registrar_modulo(
             Grupo("Operação", (
                 Item("Painel", "viagens:painel", "layout-dashboard"),
                 Item("Ofícios", "viagens:oficios", "file-text", requer="viagens.view_oficio"),
+                Item("Roteiros", "viagens:roteiros", "route", requer="viagens.view_roteiro"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Servidores", "cadastros:servidores", "users",

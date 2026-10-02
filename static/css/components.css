@@ -187,23 +187,17 @@
 .botao[aria-busy="true"] > * {
   opacity: 0; /* some, mas o nome acessível continua */
 }
-
 /* Concluído: vira verde por um instante e o ícone "carimba" — confirmação no próprio
-   botão, sem toast para o trivial. */
-.botao--concluido,
+   botão,
 .botao[data-estado="concluido"] {
   --botao-fundo: var(--cor-sucesso-fundo);
   --botao-texto: var(--cor-sucesso);
   --botao-borda: var(--cor-sucesso-borda);
   --botao-fundo-hover: var(--cor-sucesso-fundo);
   --botao-sombra: none;
-}
-
-.botao--concluido > .icone,
-.botao[data-estado="concluido"] > .icone {
+}.botao[data-estado="concluido"] > .icone {
   animation: carimbar var(--duracao-enfase) var(--curva-expressiva);
 }
-
 /* Recusado: balança uma vez (erro de validação ou servidor) e volta ao normal. */
 .botao[data-estado="erro"] {
   --botao-borda: var(--cor-perigo-solida);
@@ -702,11 +696,6 @@
   padding-left: calc(var(--esp-3) * 2 + var(--tamanho-icone));
 }
 
-.entrada-composta__sufixo {
-  position: absolute;
-  right: var(--esp-1);
-}
-
 .entrada-composta__texto-fixo {
   display: inline-flex;
   align-items: center;
@@ -1071,10 +1060,6 @@ fieldset.grupo-campos > legend {
   padding: var(--esp-5);
 }
 
-.cartao__corpo--compacto {
-  padding: var(--esp-4);
-}
-
 .cartao__corpo--sem-respiro {
   padding: 0;
 }
@@ -1088,15 +1073,6 @@ fieldset.grupo-campos > legend {
   border-top: var(--borda-sutil);
   background: var(--cor-superficie-sutil);
   border-radius: 0 0 var(--raio-lg) var(--raio-lg);
-}
-
-.cartao--destaque {
-  background: linear-gradient(180deg, var(--cor-superficie), var(--cor-marca-fundo));
-  box-shadow: var(--sombra-cartao), inset 0 0 0 1px var(--cor-marca-borda);
-}
-
-.cartao--interativo:hover {
-  box-shadow: var(--sombra-cartao-hover);
 }
 
 /* Seção de formulário em foco: trilho dourado à esquerda diz "você está aqui". */
@@ -2294,13 +2270,6 @@ a.tabela__principal:hover {
   background: var(--cor-borda);
 }
 
-.registros__grupo-total {
-  font-weight: var(--peso-medio);
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--cor-texto-terciario);
-}
-
 /* Expansão em linha: o registro revela roteiro, equipe e documentos sem sair da lista. */
 .registro__expandir > .icone {
   transition: transform var(--duracao-media) var(--curva-expressiva);
@@ -2754,11 +2723,6 @@ a.tabela__principal:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
   gap: var(--esp-4) var(--esp-6);
-}
-
-.definicoes--coluna {
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--esp-3);
 }
 
 .definicoes dt {
@@ -3248,34 +3212,12 @@ kbd {
   animation: esqueleto 1.2s ease-in-out infinite;
 }
 
-.esqueleto--titulo {
-  height: 1.125rem;
-  width: 45%;
-  border-radius: var(--raio-sm);
-}
-
 .esqueleto--linha {
   width: 100%;
 }
 
 .esqueleto--curto {
   width: 30%;
-}
-
-.esqueleto--bloco {
-  height: 2.25rem;
-  width: 2.25rem;
-  border-radius: var(--raio-md);
-}
-
-/* Linha de registro esqueleto: mesma geometria da linha real (CLS = 0). */
-.registro--esqueleto {
-  pointer-events: none;
-}
-
-.registro--esqueleto > div {
-  display: grid;
-  gap: var(--esp-2);
 }
 
 
@@ -3385,14 +3327,6 @@ kbd {
   border-radius: var(--raio-md);
   background: var(--neutro-200);
   overflow: auto;
-}
-
-.previa-documento__folha {
-  width: 100%;
-  max-width: 50rem;
-  margin: 0 auto;
-  background: var(--neutro-0);
-  box-shadow: var(--sombra-2);
 }
 
 .previa-documento iframe {
@@ -3542,160 +3476,6 @@ kbd {
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
-/* ---------- Itinerário: o roteiro como trajeto (sede → destinos → sede) ----------
-   Um trilho vertical liga as paradas; cada parada traz a cidade e o trecho que chega
-   nela (saída do ponto anterior → chegada). Origem e retorno são a sede. */
-.itinerario {
-  position: relative;
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.parada {
-  position: relative;
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
-  gap: var(--esp-3);
-  padding-bottom: var(--esp-5);
-}
-
-/* O trilho: do marco desta parada até o da próxima. */
-.parada::before {
-  content: "";
-  position: absolute;
-  left: calc(1rem - 1px);
-  top: 1.75rem;
-  bottom: 0;
-  width: 2px;
-  background: repeating-linear-gradient(180deg, var(--cor-borda-forte) 0 6px, transparent 6px 10px);
-}
-
-.parada:last-child {
-  padding-bottom: 0;
-}
-
-.parada:last-child::before {
-  display: none;
-}
-
-.parada__marco {
-  position: relative;
-  z-index: 1;
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--raio-pilula);
-  border: 2px solid var(--cor-marca);
-  background: var(--cor-superficie);
-  color: var(--cor-marca-texto);
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-forte);
-  font-variant-numeric: tabular-nums;
-}
-
-.parada__marco .icone {
-  width: 0.95rem;
-  height: 0.95rem;
-}
-
-.parada--sede .parada__marco {
-  border-color: var(--grafite-900);
-  background: var(--grafite-900);
-  color: var(--neutro-0);
-}
-
-.parada__corpo {
-  min-width: 0;
-  margin: 0;
-  padding: var(--esp-1) 0 0;
-  border: 0;
-}
-
-legend.parada__titulo {
-  float: left; /* tira a legenda da borda do fieldset: vira um título comum */
-  width: 100%;
-  padding: 0;
-}
-
-legend.parada__titulo + * {
-  clear: both;
-}
-
-.parada__titulo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--esp-1) var(--esp-2);
-  margin-bottom: var(--esp-3);
-  font-weight: var(--peso-semi);
-}
-
-.parada__titulo small {
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-medio);
-  color: var(--cor-texto-terciario);
-}
-
-/* O trecho: rótulo pequeno "trecho N" acima das duas datas. */
-.parada__trecho {
-  padding: var(--esp-3) var(--esp-4);
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-sutil);
-  --fundo-rotulo: var(--cor-superficie-sutil);
-}
-
-.parada__trecho-rotulo {
-  display: block;
-  margin-bottom: var(--esp-2);
-  font-size: var(--texto-2xs);
-  font-weight: var(--peso-forte);
-  letter-spacing: var(--rastreio-rotulo);
-  text-transform: uppercase;
-  color: var(--cor-texto-terciario);
-}
-
-.parada:focus-within .parada__marco {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
-}
-
-.parada--sede:focus-within .parada__marco {
-  background: var(--grafite-700);
-  color: var(--neutro-0);
-}
-
-/* Parada marcada para remoção: recua e fica riscada até salvar. */
-.parada:has(.parada__remover input:checked) .parada__corpo {
-  opacity: 0.55;
-}
-
-.parada:has(.parada__remover input:checked) .parada__titulo {
-  text-decoration: line-through;
-  text-decoration-color: var(--cor-perigo);
-}
-
-.parada__remover {
-  margin-left: auto;
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-medio);
-  color: var(--cor-texto-secundario);
-}
-
-/* "Adicionar parada": um nó tracejado no próprio trilho. */
-.parada--nova .parada__marco {
-  border-style: dashed;
-  border-color: var(--cor-borda-forte);
-  color: var(--cor-texto-secundario);
-}
-
-.parada--nova .parada__corpo {
-  padding-top: var(--esp-05);
-}
-
 /* ---------- Conferência final (seção 7) ---------- */
 .conferencia {
   display: grid;
@@ -3834,10 +3614,6 @@ legend.parada__titulo + * {
 }
 
 @media (max-width: 767.98px) {
-  .parada { grid-template-columns: 1.5rem minmax(0, 1fr); gap: var(--esp-2); }
-  .parada::before { left: calc(0.75rem - 1px); top: 1.5rem; }
-  .parada__marco { width: 1.5rem; height: 1.5rem; }
-  .parada__trecho { padding: var(--esp-3); }
   .conferencia { padding: var(--esp-4); }
 }
 
@@ -3858,8 +3634,6 @@ legend.parada__titulo + * {
 .checklist__item > .icone {
   margin-top: 0.15rem;
 }
-
-.checklist__item--ok > .icone { color: var(--cor-sucesso); }
 .checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
 .checklist__item--aviso > .icone { color: var(--cor-aviso); }
 
@@ -3974,4 +3748,59 @@ legend.parada__titulo + * {
 .transporte:has(input[name="tipo_transporte"][value="viatura"]:checked) .so-outro,
 .transporte:has(input[name="tipo_transporte"][value="outro"]:checked) .so-viatura {
   display: none;
+}
+
+/* =============== Roteiros cadastrados =============== */
+/* Registro sem link (roteiro cancelado ou perfil só de leitura): não finge ser clicável. */
+.registro__link--estatico::after {
+  content: none;
+}
+
+.registro:hover .registro__link--estatico {
+  color: var(--cor-texto);
+}
+
+.lista-simples {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0 0 var(--esp-3);
+  padding: 0;
+  list-style: none;
+}
+
+.lista-simples > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+/* Ofício: escolher um roteiro cadastrado para preencher o itinerário. */
+.usar-roteiro {
+  display: grid;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+}
+
+.usar-roteiro__escolha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--esp-3);
+}
+
+.usar-roteiro__escolha > .campo {
+  flex: 1 1 22rem;
+}
+
+.usar-roteiro__escolha > .botao {
+  margin-top: 0.5rem; /* alinha com a caixa do campo (rótulo na borda) */
+}
+
+.usar-roteiro__origem {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
 }

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from django import forms
 from django.core.paginator import Paginator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import render
 
 from gestao.plataforma.widgets import (
@@ -81,6 +81,21 @@ MUNICIPIOS = [
 ]
 
 
+def _itinerario_exemplo() -> dict:
+    """O itinerário 2.0 de verdade (ADR 0016), com uma ida e volta de exemplo."""
+    from gestao.cadastros.models import Municipio
+    from gestao.viagens import itinerario
+
+    sede = Municipio.objects.filter(nome="Curitiba", uf="PR").first()
+    destinos = [{"uf": "PR", "cidade": "Ponta Grossa/PR", "ORDER": 1,
+                 "saida": "2026-10-08T07:00", "tempo_viagem": "02:00",
+                 "tempo_adicional": "00:15"}]
+    retorno = {"saida": "2026-10-09T16:00", "tempo_viagem": "02:00", "tempo_adicional": "00:15"}
+    itin = itinerario.com_iniciais("lab-itin", QueryDict(), destinos=destinos, retorno=retorno,
+                                   sede=sede)
+    return itin.contexto()
+
+
 def indice(request: HttpRequest) -> HttpResponse:
     form_vazio = FormularioExemplo()
     form_erro = FormularioExemplo(
@@ -119,6 +134,7 @@ def indice(request: HttpRequest) -> HttpResponse:
         "querystring_base": "",
         "municipios": MUNICIPIOS,
         "migalhas": [("Início", "/"), ("Design System", "/ui-lab/"), ("UI Lab", "")],
+        **_itinerario_exemplo(),
     }
     return render(request, "ui_lab/indice.html", contexto)
 

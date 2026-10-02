@@ -40,3 +40,8 @@ if DEMO_MODE:  # noqa: F405
         "gestao.identidade.middleware.EntradaDemoMiddleware",
         *_MIDDLEWARE_BASE[_depois + 1 :],
     ]
+
+# Rotas reais na demonstração/desenvolvimento: servidor público do OSRM (sem chave; uso leve).
+# Produção configura o próprio (ROTAS_PROVEDOR/ROTAS_URL) — ver docs/ops/rotas.md.
+ROTAS_PROVEDOR = env("ROTAS_PROVEDOR", "osrm")  # noqa: F405
+ROTAS_URL = env("ROTAS_URL", "https://router.project-osrm.org")  # noqa: F405

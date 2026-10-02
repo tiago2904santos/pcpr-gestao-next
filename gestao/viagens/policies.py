@@ -10,7 +10,7 @@ from django.db.models import QuerySet
 
 from gestao.cadastros.models import Lotacao, Unidade
 
-from .models import Oficio
+from .models import Oficio, Roteiro
 
 
 def unidade_do_usuario(usuario) -> Unidade | None:
@@ -83,6 +83,41 @@ def pode_excluir(usuario, oficio: Oficio) -> bool:
     """Só rascunho sem nenhum documento emitido pode ser excluído (libera o número)."""
     return (oficio.situacao == Oficio.Situacao.RASCUNHO and not oficio.documentos.exists()
             and usuario.has_perm("viagens.delete_oficio") and pode_ver(usuario, oficio))
+
+
+# ---------------------------------------------------------------- roteiros
+def roteiros_visiveis(usuario) -> QuerySet[Roteiro]:
+    if not usuario.has_perm("viagens.view_roteiro"):
+        return Roteiro.objects.none()
+    if ve_todas_unidades(usuario):
+        return Roteiro.objects.all()
+    unidade = unidade_do_usuario(usuario)
+    return Roteiro.objects.filter(unidade=unidade) if unidade else Roteiro.objects.none()
+
+
+def pode_ver_roteiro(usuario, roteiro: Roteiro) -> bool:
+    if not usuario.has_perm("viagens.view_roteiro"):
+        return False
+    return ve_todas_unidades(usuario) or roteiro.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_criar_roteiro(usuario) -> bool:
+    return usuario.has_perm("viagens.add_roteiro") and unidade_do_usuario(usuario) is not None
+
+
+def pode_editar_roteiro(usuario, roteiro: Roteiro) -> bool:
+    return (roteiro.editavel and usuario.has_perm("viagens.change_roteiro")
+            and pode_ver_roteiro(usuario, roteiro))
+
+
+def pode_cancelar_roteiro(usuario, roteiro: Roteiro) -> bool:
+    """Cancelar e reativar: quem edita roteiros da unidade."""
+    return usuario.has_perm("viagens.change_roteiro") and pode_ver_roteiro(usuario, roteiro)
+
+
+def pode_excluir_roteiro(usuario, roteiro: Roteiro) -> bool:
+    return usuario.has_perm("viagens.delete_roteiro") and pode_ver_roteiro(usuario, roteiro)
 
 
 def exigir(condicao: bool, mensagem: str = "Você não tem permissão para esta ação.") -> None:
