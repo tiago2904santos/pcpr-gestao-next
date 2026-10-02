@@ -1,0 +1,749 @@
+/* =====================================================================
+   FORMULÁRIO — seletores próprios (data, hora, lista), combobox, progresso, etapas,
+   cartões de escolha, conferência e peças do cadastro do ofício. Carregado só nas telas
+   que editam (ofício, roteiro, emissão, UI Lab).
+   Regras só com tokens (tokens.css); depende de base.css e components.css.
+   ===================================================================== */
+
+/* =============== Seletores próprios: data, hora e lista =============== */
+/* Sem JS: texto dd/mm/aaaa, hh:mm e <select>. Com JS: botão dentro do campo e painel
+   flutuante (calendário, relógio) ou lista própria — nunca o seletor do navegador. */
+.seletor {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.seletor--ativo > .entrada {
+  padding-right: calc(var(--esp-2) + 2rem);
+}
+
+.seletor__botao {
+  position: absolute;
+  top: 50%;
+  right: var(--esp-1);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  translate: 0 -50%;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.seletor__botao[aria-expanded="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.seletor__botao:focus-visible,
+.calendario__nav:focus-visible,
+.calendario__grade td:focus-visible,
+.relogio__lista:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
+}
+
+.seletor__botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.seletor__painel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + var(--esp-1));
+  left: 0;
+  padding: var(--esp-3);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top left;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__painel--direita {
+  right: 0;
+  left: auto;
+}
+
+/* Data e hora lado a lado (trechos do roteiro). */
+.data-hora {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--esp-2);
+}
+
+/* Calendário: grade do mês, hoje com aro dourado, escolhido em grafite. */
+.calendario {
+  width: 18.5rem;
+}
+
+.calendario__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+  margin-bottom: var(--esp-2);
+}
+
+.calendario__mes {
+  font-weight: var(--peso-semi);
+}
+
+.calendario__nav {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.calendario__nav:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.calendario__grade {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  table-layout: fixed;
+}
+
+.calendario__grade th {
+  padding-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-terciario);
+  text-align: center;
+}
+
+.calendario__grade td {
+  height: 2.25rem;
+  border-radius: var(--raio-sm);
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.calendario__grade td:hover {
+  background: var(--cor-marca-fundo);
+}
+
+.calendario__grade .calendario__fora {
+  color: var(--cor-texto-terciario);
+}
+
+.calendario__grade td[aria-current="date"] {
+  font-weight: var(--peso-semi);
+  box-shadow: inset 0 0 0 1px var(--cor-marca);
+}
+
+.calendario__grade td[aria-selected="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.calendario__rodape {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--esp-2);
+  padding-top: var(--esp-2);
+  border-top: 1px solid var(--cor-borda);
+}
+
+/* Relógio: duas colunas roláveis (horas e minutos). */
+.relogio {
+  display: flex;
+  gap: var(--esp-2);
+}
+
+.relogio__coluna {
+  width: 4.5rem;
+}
+
+.relogio__titulo {
+  margin-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+
+.relogio__lista {
+  height: 13rem;
+  margin: 0;
+  padding: var(--esp-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+}
+
+.relogio__lista > li {
+  padding: var(--esp-1) 0;
+  border-radius: var(--raio-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  cursor: pointer;
+}
+
+.relogio__lista > li:hover {
+  background: var(--cor-marca-fundo);
+}
+
+.relogio__lista > .relogio__ativo {
+  background: var(--cor-marca-fundo);
+}
+
+.relogio__lista:focus-visible > .relogio__ativo {
+  box-shadow: inset 0 0 0 2px var(--foco-cor);
+}
+
+.relogio__lista > li[aria-selected="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* =============== Progresso de preenchimento (formulário longo) =============== */
+/* Substitui o índice lateral: uma faixa horizontal com as seções e o quanto já está
+   pronto. Cada seção é um link âncora; a forma do marcador segue a linguagem de estado. */
+.progresso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+  margin: var(--esp-2) 0 var(--esp-4);
+}
+
+/* Fixa sob o topo enquanto o formulário rola: uma faixa (não um painel lateral). */
+.progresso--fixo {
+  position: sticky;
+  top: var(--altura-topo);
+  z-index: 2;
+  margin-left: calc(-1 * var(--esp-2));
+  margin-right: calc(-1 * var(--esp-2));
+  padding: var(--esp-2);
+  border-radius: 0 0 var(--raio-lg) var(--raio-lg);
+  background: var(--cor-fundo);
+  transition: box-shadow var(--duracao-media) var(--curva-padrao);
+}
+
+/* Quando descola do conteúdo (rolando), ganha a sombra do topo — progresso.js marca. */
+.progresso--flutuando {
+  box-shadow: 0 8px 16px -12px var(--tinta-28);
+}
+
+/* Você está aqui: a seção visível no momento. */
+.progresso__etapa--atual > a {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+  box-shadow: inset 0 0 0 1px var(--cor-borda), inset 0 -2px 0 var(--cor-marca);
+}
+
+.progresso__etapas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-05);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progresso__etapa > a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 2rem;
+  padding: 0 var(--esp-2);
+  border-radius: var(--raio-pilula);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.progresso__etapa > a:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.progresso__etapa > a::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--raio-pilula);
+  border: 1.5px solid var(--neutro-500);
+  background: var(--cor-superficie);
+  flex: none;
+}
+
+.progresso__etapa--ok > a {
+  color: var(--cor-texto);
+}
+
+.progresso__etapa--ok > a::before {
+  width: 0.6rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+.progresso__etapa--pendente > a::before {
+  border-color: var(--cor-aviso);
+}
+
+.progresso__etapa--bloqueia > a::before {
+  border-color: var(--cor-aviso);
+  background: var(--cor-aviso-fundo);
+}
+
+@media (max-width: 479.98px) {
+  .progresso--fixo .progresso__etapas { display: none; }
+  .progresso--fixo .progresso__medida { margin-left: 0; flex: 1; }
+  .progresso__barra { flex: 1; }
+}
+
+.progresso__medida {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-left: auto;
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  font-variant-numeric: tabular-nums;
+}
+
+/* <progress> nativo, vestido: acessível por construção. */
+.progresso__barra {
+  appearance: none;
+  width: 7rem;
+  height: 0.375rem;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  overflow: hidden;
+}
+
+.progresso__barra::-webkit-progress-bar {
+  background: var(--cor-superficie-realce);
+  border-radius: var(--raio-pilula);
+}
+
+.progresso__barra::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--dourado-600), var(--dourado-500));
+  border-radius: var(--raio-pilula);
+  transition: width var(--duracao-lenta) var(--curva-padrao);
+}
+
+.progresso__barra::-moz-progress-bar {
+  background: var(--dourado-500);
+  border-radius: var(--raio-pilula);
+}
+
+.progresso--completo .progresso__medida {
+  color: var(--cor-sucesso);
+}
+
+.separador {
+  height: 1px;
+  margin: var(--esp-5) 0;
+  border: 0;
+  background: var(--cor-borda);
+}
+
+/* =============== Específicos de formulários longos =============== */
+
+/* ---------- Cartões de escolha (rádio como decisão, não como lista de bolinhas) ----------
+   O <input> continua nativo (teclado, rótulo, leitor de tela); o cartão inteiro é o rótulo.
+   Marcado: borda grafite + marca dourada no canto. Foco: o anel do DS no cartão. */
+.opcoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--esp-2);
+  margin-inline: 0;
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.opcoes > legend {
+  padding: 0;
+  margin-bottom: var(--esp-2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+}
+
+/* Dentro de uma linha de campos: a legenda vira rótulo na borda (como nos campos ao lado)
+   e os cartões começam na mesma altura das caixas. Cresce para fechar a linha. */
+.campos > .opcoes {
+  position: relative;
+  flex: 1 1 24rem;
+  padding-top: 0.5rem;
+}
+
+.campos > .opcoes > legend {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--esp-2);
+  margin: 0;
+  padding: 0 var(--esp-1);
+  font-size: var(--texto-xs);
+  line-height: 1rem;
+  white-space: nowrap;
+  background: var(--fundo-rotulo, var(--cor-superficie));
+}
+
+/* Compactos numa linha de campos: ícone + título na altura de um campo; a explicação de
+   cada opção vai para a ajuda da linha (e continua no rótulo para leitores de tela). */
+.campos > .opcoes--compactas {
+  flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.campos > .opcoes--compactas .opcao {
+  padding-right: var(--esp-6);
+}
+
+/* Em folha mais estreita os compactos perdem o ícone e viram pílulas de texto: cabem na
+   linha do número, da data e do protocolo em vez de abrir uma linha pela metade. */
+@media (max-width: 1279.98px) {
+  .campos > .opcoes--compactas .opcao__icone { display: none; }
+}
+
+.opcao {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0 var(--esp-2);
+  min-height: var(--altura-controle);
+  padding: var(--esp-2) var(--esp-3);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  cursor: pointer;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.opcao > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opcao__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.opcao__titulo {
+  display: block;
+  font-weight: var(--peso-semi);
+  line-height: var(--altura-linha-justa);
+}
+
+.opcao__descricao {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* Sem ícone, o texto ocupa as duas colunas. */
+.opcao__texto:first-of-type:last-child,
+.opcao > input + .opcao__texto {
+  grid-column: 1 / -1;
+}
+
+.opcao:hover {
+  border-color: var(--neutro-500);
+  background: var(--cor-superficie);
+}
+
+.opcao:has(input:checked) {
+  border-color: var(--grafite-900);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--grafite-900);
+}
+
+.opcao:has(input:checked) .opcao__icone {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* Marca de escolhido: um canto dourado com ✓ — a "dobra" do papel marcado. */
+.opcao::after {
+  content: "";
+  position: absolute;
+  top: var(--esp-1);
+  right: var(--esp-1);
+  width: 0.75rem;
+  height: 0.6rem;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+  transform: scale(0);
+  transition: transform var(--duracao-rapida) var(--curva-expressiva);
+}
+
+.opcao:has(input:checked)::after {
+  transform: scale(1);
+}
+
+.opcao:has(input:focus-visible) {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: var(--foco-offset);
+}
+
+.opcao:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.opcao:active:not(:has(input:disabled)) {
+  transform: scale(var(--escala-pressao));
+}
+
+/* Campo que só vale para uma escolha: aparece colado à decisão (sem JS: :has()). */
+.condicional {
+  display: none;
+}
+
+.custeio:has(input[name="custeio"][value="outra_instituicao"]:checked) .condicional--outra-instituicao {
+  display: flex;
+  flex: 1 1 16rem;
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* ---------- Conferência final (seção 7) ---------- */
+.conferencia {
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+
+.conferencia--pronta {
+  background: linear-gradient(180deg, var(--cor-superficie), var(--cor-marca-fundo));
+  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+}
+
+.conferencia__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+}
+
+.conferencia--pronta .conferencia__titulo .icone {
+  color: var(--cor-marca-texto);
+  animation: carimbar var(--duracao-enfase) var(--curva-expressiva) both;
+}
+
+.conferencia__itens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: var(--esp-1) var(--esp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-sm);
+}
+
+.conferencia__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--cor-texto-secundario);
+}
+
+.conferencia__item::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--raio-pilula);
+  border: 1.5px solid var(--cor-aviso);
+}
+
+.conferencia__item--ok {
+  color: var(--cor-texto);
+}
+
+.conferencia__item--ok::before {
+  width: 0.6rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+.conferencia__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* ---------- Divulgação (details) aberta, sem caixa ---------- */
+.divulgacao > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 1.5rem;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  cursor: pointer;
+  list-style: none;
+}
+
+.divulgacao > summary::-webkit-details-marker { display: none; }
+
+.divulgacao > summary .icone {
+  transition: transform var(--duracao-media) var(--curva-expressiva);
+}
+
+.divulgacao[open] > summary .icone {
+  transform: rotate(45deg);
+}
+
+.divulgacao > summary:hover {
+  color: var(--cor-texto);
+}
+
+.divulgacao[open] > .divulgacao__corpo {
+  margin-top: var(--esp-4);
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
+/* ---------- Frase do ofício (cabeçalho da edição) ---------- */
+/* O que o documento diz até agora, numa linha: servidores · destinos · período · transporte · valor. */
+.frase-oficio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-3);
+  margin-top: var(--esp-2);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.frase-oficio__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+}
+
+.frase-oficio__item .icone {
+  color: var(--cor-texto-terciario);
+}
+
+.frase-oficio__item--vazio {
+  color: var(--cor-texto-terciario);
+  font-style: italic;
+}
+
+.frase-oficio__valor {
+  font-weight: var(--peso-semi);
+  color: var(--cor-marca-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767.98px) {
+  .conferencia { padding: var(--esp-4); }
+}
+
+/* =============== Transporte e equipe (ofício) =============== */
+/* Campos que só valem para um meio de transporte (sem JS: :has()). Os dois cartões ficam
+   à esquerda; o campo que a escolha pede entra na mesma linha, à direita. */
+.transporte:has(input[name="tipo_transporte"][value="viatura"]:checked) .so-outro,
+.transporte:has(input[name="tipo_transporte"][value="outro"]:checked) .so-viatura {
+  display: none;
+}
+
+.transporte .campos > .opcoes {
+  flex: 0 1 36rem;
+}
+
+/* Equipe: a busca tem a largura de um nome, não da folha; avisos de agenda numa lista só. */
+.equipe__busca {
+  max-width: 32rem;
+}
+
+.alerta__lista {
+  margin: var(--esp-1) 0 0;
+  padding-left: var(--esp-4);
+  display: grid;
+  gap: var(--esp-05);
+}
+
+/* =============== Usar um roteiro cadastrado (ofício) =============== */
+/* Ofício: escolher um roteiro cadastrado para preencher o itinerário. */
+.usar-roteiro {
+  display: grid;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+}
+
+.usar-roteiro__escolha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--esp-3);
+}
+
+.usar-roteiro__escolha > .campo {
+  flex: 0 1 30rem;
+}
+
+.usar-roteiro__escolha > .botao {
+  margin-top: 0.5rem; /* alinha com a caixa do campo (rótulo na borda) */
+}
+
+.usar-roteiro__origem {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}

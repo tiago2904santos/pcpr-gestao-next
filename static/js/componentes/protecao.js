@@ -59,3 +59,6 @@ document.addEventListener("focusin", (e) => {
     window.scrollBy({ top: caixa.bottom - topoBarra + 24, behavior: "instant" });
   }
 });
+
+// Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
+export {};

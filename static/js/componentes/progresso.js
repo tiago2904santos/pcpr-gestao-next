@@ -43,3 +43,6 @@ if (faixa) {
     faixa.classList.toggle("progresso--flutuando", !e.isIntersecting);
   }, { rootMargin: `-${alturaTopo + 1}px 0px 0px 0px` }).observe(sentinela);
 }
+
+// Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
+export {};

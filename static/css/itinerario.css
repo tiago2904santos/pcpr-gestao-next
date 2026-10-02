@@ -374,7 +374,7 @@
   transition: opacity var(--duracao-media) var(--curva-padrao);
 }
 
-@container itin (min-width: 46rem) {
+@container itin (min-width: 46rem) and (max-width: 57.99rem) {
   .itin__rota {
     grid-template-columns: minmax(0, 1fr) 14rem;
   }
@@ -386,6 +386,24 @@
   .itin__resumo {
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
+  }
+}
+
+/* Folha larga: paradas à esquerda, rota à direita (lado a lado, como se lê um roteiro);
+   os trechos atravessam embaixo. O campo de cidade deixa de ter a largura da folha.
+   (Media query, não container: o contêiner não consegue consultar a si mesmo.) */
+@media (min-width: 1200px) {
+  .itin {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: start;
+  }
+
+  .itin__bloco:nth-of-type(3) {
+    grid-column: 1 / -1;
+  }
+
+  .itin__mapa {
+    min-height: 17rem;
   }
 }
 

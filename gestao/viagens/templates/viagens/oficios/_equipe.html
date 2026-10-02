@@ -11,7 +11,7 @@
   </div>
   <div class="pilha">
     {% if erro_equipe %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro_equipe }}</p></div></div>{% endif %}
-    <form method="post" action="{% url 'viagens:adicionar_viajante' oficio.pk %}" class="campo"
+    <form method="post" action="{% url 'viagens:adicionar_viajante' oficio.pk %}" class="campo equipe__busca"
           hx-post="{% url 'viagens:adicionar_viajante' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
       {% csrf_token %}
       <label class="campo__rotulo" for="busca-servidor">Adicionar servidor</label>
@@ -45,9 +45,15 @@
     {% else %}
       <p class="texto-secundario">Nenhum servidor na equipe ainda.</p>
     {% endif %}
-    {% for p in pendencias_equipe %}
-      <div class="alerta {% if p.bloqueia %}alerta--perigo{% else %}alerta--aviso{% endif %}" role="note">{% icone p.bloqueia|yesno:"alert-circle,alert-triangle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}{% if not p.bloqueia %} <span class="texto-sm">(é só um aviso)</span>{% endif %}</p></div></div>
-    {% endfor %}
+    {% for p in pendencias_equipe %}{% if p.bloqueia %}
+      <div class="alerta alerta--perigo" role="note">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}</p></div></div>
+    {% endif %}{% endfor %}
+    {% with avisos=pendencias_equipe|so_avisos %}{% if avisos %}
+      <div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo">
+        <p class="alerta__titulo">{{ avisos|length|pluralizar:"servidor também está,servidores também estão" }} em outro ofício no mesmo período <span class="texto-sm peso-normal">(é só um aviso)</span></p>
+        <ul class="alerta__lista">{% for p in avisos %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
+      </div></div>
+    {% endif %}{% endwith %}
   </div>
 </section>
 {% endwith %}

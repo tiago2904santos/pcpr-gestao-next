@@ -140,8 +140,9 @@ class TestTelasDeRoteiros:
         r = operador.get(reverse("viagens:roteiros"))
         html = r.content.decode()
         assert r.status_code == 200
-        assert f"#{cenario.ids['roteiro']}" in html
-        assert f"#{cenario.ids['roteiro_outra_unidade']}" not in html  # outra unidade
+        # Marcador do registro, não "#id": "#12" também aparece no placeholder da busca.
+        assert f'data-destaque="roteiro:{cenario.ids["roteiro"]}"' in html
+        assert f'data-destaque="roteiro:{cenario.ids["roteiro_outra_unidade"]}"' not in html
         contagens = r.context["contagens"]
         assert contagens == {"todos": 2, "futuros": 1, "andamento": 0, "cancelados": 1}
         busca = operador.get(reverse("viagens:roteiros"), {"q": "ponta"}).context["roteiros"]

@@ -36,3 +36,6 @@ document.addEventListener("input", (e) => {
   campo.value = MASCARAS[tipo](campo.value);
   if (fim) campo.setSelectionRange(campo.value.length, campo.value.length);
 });
+
+// Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
+export {};

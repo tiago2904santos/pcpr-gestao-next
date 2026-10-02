@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% comment %}Arquétipo SEARCH: campo grande e resultados agrupados por tipo (funciona sem JS).{% endcomment %}
 {% block conteudo %}
 {% block cabecalho_busca %}{% endblock %}

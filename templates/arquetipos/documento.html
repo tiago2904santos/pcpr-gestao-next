@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% comment %}Arquétipo DOCUMENT. Blocos: cabecalho_documento, previa, metadados.{% endcomment %}
 {% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
 {% block conteudo %}

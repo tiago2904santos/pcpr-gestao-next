@@ -1,0 +1,249 @@
+/* =====================================================================
+   PAINEL — central de módulos e coluna de contexto (atalhos e lembrete).
+   Regras só com tokens (tokens.css); depende de base.css e components.css.
+   ===================================================================== */
+
+/* =============== Central de módulos =============== */
+/* Cada módulo é um console: identidade e descrição, os números que orientam a decisão e
+   as entradas diretas (as mesmas do menu superior, com as permissões do usuário). */
+.modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 38rem), 1fr));
+  gap: var(--esp-4);
+}
+
+.modulo__corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-5) var(--esp-8);
+  align-items: start;
+  padding: var(--esp-5) var(--esp-6);
+}
+
+.modulo__intro {
+  display: flex;
+  gap: var(--esp-4);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.modulo__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--raio-lg);
+  border: 1px solid var(--cor-marca-borda);
+  background: linear-gradient(180deg, var(--cor-superficie), var(--cor-marca-fundo));
+  color: var(--cor-marca-texto);
+  box-shadow: var(--sombra-1);
+  flex: none;
+}
+
+.modulo__titulo {
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-semi);
+}
+
+.modulo__descricao {
+  margin-top: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  max-width: 34rem;
+}
+
+.modulo__numeros {
+  display: flex;
+  gap: var(--esp-2);
+  margin: 0;
+}
+
+.modulo__numeros > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--esp-05);
+  min-width: 6rem;
+  padding: var(--esp-3) var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda-sutil);
+  text-align: center;
+}
+
+.modulo__numeros dd {
+  margin: 0;
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-titulo);
+  font-variant-numeric: tabular-nums;
+}
+
+.modulo__numeros dt {
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.modulo__numero--destaque {
+  background: var(--cor-marca-fundo);
+  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+}
+
+.modulo__numero--destaque dd {
+  color: var(--cor-marca-texto);
+}
+
+/* Entradas diretas: a ação principal e os atalhos do módulo numa linha só. */
+.modulo__acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  padding-top: var(--esp-4);
+  border-top: var(--borda-sutil);
+}
+
+.modulo__atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle);
+  padding: 0 var(--esp-3);
+  border-radius: var(--raio-md);
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.modulo__atalho > .icone {
+  color: var(--cor-texto-terciario);
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.modulo__atalho:hover {
+  background: var(--cor-marca-fundo);
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.modulo__atalho:hover > .icone {
+  color: var(--cor-marca-texto);
+}
+
+@media (max-width: 767.98px) {
+  .modulo__corpo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-4); }
+  .modulo__numeros > div { flex: 1 1 0; min-width: 0; padding: var(--esp-2) var(--esp-1); }
+  .modulo__numeros dt { overflow-wrap: normal; hyphens: auto; }
+  .modulo__acoes .botao { width: 100%; }
+}
+
+/* Próximos módulos: uma faixa discreta, não quatro cartões vazios. */
+.modulos-futuros__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--esp-3);
+  margin-top: var(--esp-3);
+}
+
+.modulo-futuro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-lg);
+  border: 1px dashed var(--cor-borda-forte);
+  color: var(--cor-texto-secundario);
+}
+
+.modulo-futuro__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-terciario);
+}
+
+.modulo-futuro__nome {
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+}
+
+.modulo-futuro__descricao {
+  font-size: var(--texto-sm);
+}
+
+/* =============== Painel: atalhos e lembrete (coluna de contexto) =============== */
+/* Atalhos como linhas de lista, não como botões soltos: menos caixa, mais leitura. */
+.atalhos {
+  list-style: none;
+  margin: 0;
+  padding: var(--esp-2);
+}
+
+.atalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: var(--altura-controle);
+  padding: 0 var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-md);
+  width: 100%;
+  background: transparent;
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: var(--peso-medio);
+  text-align: left;
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.atalho > .icone:first-child {
+  color: var(--cor-marca-texto);
+}
+
+.atalho__seta {
+  margin-left: auto;
+  color: var(--cor-texto-terciario);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.atalho:hover {
+  background: var(--cor-superficie-sutil);
+  text-decoration: none;
+}
+
+.atalho:hover .atalho__seta {
+  transform: translateX(2px);
+}
+
+.atalho kbd {
+  margin-left: auto;
+}
+
+.lembrete {
+  display: flex;
+  gap: var(--esp-3);
+  padding: var(--esp-4) var(--esp-5);
+  border-radius: var(--raio-lg);
+  border: 1px dashed var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.lembrete > .icone {
+  color: var(--cor-marca-texto);
+  margin-top: 0.1rem;
+}
+
+.lembrete strong {
+  color: var(--cor-texto);
+}

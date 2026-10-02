@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/ui-lab.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -88,11 +88,11 @@
         <div>
           <h3 class="subtitulo-secao">Padrão</h3>
           <div class="campos">
-            {% include "componentes/campo.html" with campo=form_vazio.nome classe="col-6" %}
-            {% include "componentes/campo.html" with campo=form_vazio.protocolo classe="col-3" %}
-            {% include "componentes/campo.html" with campo=form_vazio.data_oficio classe="col-3" %}
-            {% include "componentes/campo.html" with campo=form_vazio.destino classe="col-6" %}
-            {% include "componentes/campo.html" with campo=form_vazio.observacao classe="col-6" %}
+            {% include "componentes/campo.html" with campo=form_vazio.nome classe="campo--lg" %}
+            {% include "componentes/campo.html" with campo=form_vazio.protocolo classe="campo--md" %}
+            {% include "componentes/campo.html" with campo=form_vazio.data_oficio classe="campo--sm" %}
+            {% include "componentes/campo.html" with campo=form_vazio.destino classe="campo--lg" %}
+            {% include "componentes/campo.html" with campo=form_vazio.observacao classe="campo--lg" %}
             {% include "componentes/campo.html" with campo=form_vazio.ciente %}
           </div>
         </div>
@@ -100,43 +100,43 @@
           <h3 class="subtitulo-secao">Erro (validação do servidor)</h3>
           {% include "componentes/resumo_erros.html" with form=form_erro %}
           <div class="campos mt-4">
-            {% include "componentes/campo.html" with campo=form_erro.nome classe="col-6" %}
-            {% include "componentes/campo.html" with campo=form_erro.protocolo classe="col-3" %}
-            {% include "componentes/campo.html" with campo=form_erro.destino classe="col-3" %}
+            {% include "componentes/campo.html" with campo=form_erro.nome classe="campo--lg" %}
+            {% include "componentes/campo.html" with campo=form_erro.protocolo classe="campo--md" %}
+            {% include "componentes/campo.html" with campo=form_erro.destino classe="campo--lg" %}
           </div>
         </div>
         <div>
           <h3 class="subtitulo-secao">Sucesso, desabilitado, somente leitura, composto e longo</h3>
           <div class="campos">
-            <div class="campo col-4 campo--sucesso">
+            <div class="campo campo--md campo--sucesso">
               <label class="campo__rotulo" for="lab-ok">Placa</label>
               <input class="entrada" id="lab-ok" value="ABC-1234" aria-describedby="lab-ok-msg">
               <p class="campo__ajuda" id="lab-ok-msg">Viatura encontrada no cadastro.</p>
             </div>
-            <div class="campo col-4">
+            <div class="campo campo--md">
               <label class="campo__rotulo" for="lab-des">Ano</label>
               <input class="entrada" id="lab-des" value="2026" disabled>
             </div>
-            <div class="campo col-4">
+            <div class="campo campo--md">
               <label class="campo__rotulo" for="lab-ro">Valor por extenso</label>
               <input class="entrada" id="lab-ro" value="dois mil quatrocentos e onze reais" readonly>
             </div>
-            <div class="campo col-4">
+            <div class="campo campo--md">
               <label class="campo__rotulo" for="lab-num">Nº do ofício</label>
               <div class="entrada-composta">
                 <input class="entrada" id="lab-num" inputmode="numeric" value="131">
                 <span class="entrada-composta__texto-fixo">/ 2026</span>
               </div>
             </div>
-            <div class="campo col-4">
+            <div class="campo campo--md">
               <label class="campo__rotulo" for="lab-busca">Buscar</label>
               <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-busca" type="search" placeholder="Número, protocolo ou destino"></div>
             </div>
-            <div class="campo col-4">
+            <div class="campo campo--md">
               <label class="campo__rotulo" for="lab-longo">Conteúdo longo</label>
               <input class="entrada" id="lab-longo" value="GABINETE DO DELEGADO-GERAL ADJUNTO ADMINISTRATIVO — DIVISÃO DE PLANEJAMENTO E ORÇAMENTO DA POLÍCIA CIVIL DO PARANÁ">
             </div>
-            <fieldset class="grupo-campos col-6">
+            <fieldset class="grupo-campos campo--lg">
               <legend>Custeio (<code>.escolhas</code>)</legend>
               <div class="escolhas">
                 <label class="escolha"><input type="radio" name="custeio" checked> <span>Unidade (diárias e combustível pela DPC)<span class="escolha__descricao">Padrão para viagens institucionais.</span></span></label>
@@ -144,7 +144,7 @@
                 <label class="escolha"><input type="radio" name="custeio" disabled> <span>Ônus limitados aos próprios vencimentos (desabilitado)</span></label>
               </div>
             </fieldset>
-            <fieldset class="grupo-campos col-6">
+            <fieldset class="grupo-campos campo--lg">
               <legend>Marcador (<code>.escolhas--linha</code>)</legend>
               <div class="escolhas escolhas--linha">
                 <label class="escolha"><input type="radio" name="marcador" checked> <span>Nenhum</span></label>
@@ -152,11 +152,11 @@
                 <label class="escolha"><input type="radio" name="marcador"> <span>Complementar</span></label>
               </div>
             </fieldset>
-            <div class="campo col-6">
+            <div class="campo campo--lg">
               <label class="campo__rotulo" for="lab-senha">Senha (mostrar/ocultar)</label>
               <div class="entrada-composta entrada-composta--senha">{% icone "lock" %}<input class="entrada" id="lab-senha" type="password" value="segredo-123" autocomplete="off"><button type="button" class="entrada-composta__botao" data-alternar-senha aria-controls="lab-senha" aria-pressed="false" hidden>{% icone "eye" classe="entrada-composta__ver" %}{% icone "eye-off" classe="entrada-composta__ocultar" %}<span class="sr-only">Mostrar senha</span></button></div>
             </div>
-            <div class="col-6 pilha-sm">
+            <div class="campo--lg pilha-sm">
               <label class="interruptor"><input type="checkbox" role="switch" checked> Vincular a um roteiro existente</label>
               <label class="interruptor"><input type="checkbox" role="switch"> Bate-volta diário</label>
               <label class="interruptor"><input type="checkbox" role="switch" disabled> Porte de arma (desabilitado)</label>
@@ -171,7 +171,7 @@
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca, data, hora e lista</h2></div>
       <div class="cartao__corpo">
         <div class="campos">
-          <div class="campo col-6">
+          <div class="campo campo--lg">
             <label class="campo__rotulo" for="lab-municipio">Município (lista local)</label>
             <pc-combobox class="combobox" data-placeholder="Digite o município…">
               <select id="lab-municipio" name="municipio" aria-describedby="lab-municipio-ajuda">
@@ -181,17 +181,17 @@
             </pc-combobox>
             <p class="campo__ajuda" id="lab-municipio-ajuda">Sem JavaScript, vira um select comum.</p>
           </div>
-          <div class="campo col-6">
+          <div class="campo campo--lg">
             <label class="campo__rotulo" for="lab-servidor">Servidor (busca remota)</label>
             <pc-combobox class="combobox" data-fonte="{% url 'ui_lab:busca_exemplo' %}?q=" data-minimo="1">
               <div class="entrada-composta">{% icone "search" %}<input id="lab-servidor" class="entrada" role="combobox" placeholder="Buscar por nome, CPF ou RG"></div>
             </pc-combobox>
           </div>
-          {% include "componentes/campo.html" with campo=form_seletores.data_saida classe="col-3" ajuda="Calendário próprio; também aceita digitar (máscara dd/mm/aaaa)." %}
-          {% include "componentes/campo.html" with campo=form_seletores.hora_saida classe="col-3" ajuda="Relógio: horas e minutos de 5 em 5." %}
-          {% include "componentes/campo.html" with campo=form_seletores.ordem classe="col-6" ajuda="Lista própria sobre um select comum (sem JS, vira o select)." %}
-          {% include "componentes/campo.html" with campo=form_seletores.saida classe="col-6" ajuda="Data e hora lado a lado, como nos trechos do roteiro." %}
-          {% include "componentes/campo.html" with campo=form_seletores_erro.retorno classe="col-6" %}
+          {% include "componentes/campo.html" with campo=form_seletores.data_saida classe="campo--sm" ajuda="Calendário próprio; também aceita digitar (máscara dd/mm/aaaa)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.hora_saida classe="campo--sm" ajuda="Relógio: horas e minutos de 5 em 5." %}
+          {% include "componentes/campo.html" with campo=form_seletores.ordem classe="campo--md" ajuda="Lista própria sobre um select comum (sem JS, vira o select)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.saida classe="campo--lg" ajuda="Data e hora lado a lado, como nos trechos do roteiro." %}
+          {% include "componentes/campo.html" with campo=form_seletores_erro.retorno classe="campo--lg" %}
         </div>
       </div>
     </section>

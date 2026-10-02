@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% comment %}
 Arquétipo FORM. Blocos: indice (etapas), secoes, barra_status, barra_acoes.
 O <form> envolve índice e seções; a barra de ações fixa fica dentro do form.

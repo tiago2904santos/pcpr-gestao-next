@@ -36,7 +36,11 @@ máximo 7 entradas de primeiro nível. Menu, conteúdo e rodapé usam a mesma co
 Decisão registrada em `docs/adr/0006-app-shell-menu-superior.md`.
 
 ## Grades
-- `.campos`: 12 colunas para formulários (`col-3`, `col-4`, `col-6`…; tudo vira 12 no celular).
+- `.campos`: linha de campos em que cada campo tem a largura do que recebe — `campo--xs` (UF, placa,
+  quantidade), `--sm` (data, hora, valor), `--md` (protocolo, telefone), `--lg` (nomes, descrições:
+  cresce até fechar a linha), `--auto` (o próprio conteúdo), sem classe = linha inteira (texto
+  longo). Um `fieldset.opcoes` dentro da linha vira "campo" (legenda na borda). No celular os
+  curtos vão dois a dois; `--auto` e os longos ocupam a linha.
 - `.grade--2/3/4/auto`: cartões e indicadores.
 - `.layout-detalhe`: conteúdo + coluna de contexto (320px), sticky.
 - `.layout-formulario`: índice de seções (208px, sticky) + seções — só no arquétipo (CSS em `ui-lab.css`); o produto usa a folha única `.documento` com a faixa `.progresso--fixo`.
