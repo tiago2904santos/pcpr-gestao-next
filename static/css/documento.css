@@ -444,58 +444,6 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 }
 
 /* =============== Avatar / pessoa =============== */
-.avatar {
-  display: inline-grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-realce);
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-forte);
-  letter-spacing: 0.02em;
-  flex: none;
-}
-
-.avatar--escuro {
-  background: var(--grafite-900);
-  color: var(--neutro-0);
-}
-
-.pessoa {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--esp-3);
-  padding: var(--esp-3);
-  border: 0;
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie);
-  box-shadow: 0 0 0 1px var(--cor-borda);
-  min-width: 0;
-  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
-}
-
-.pessoa:hover {
-  box-shadow: 0 0 0 1px var(--cor-borda-forte), var(--sombra-1);
-}
-
-.pessoa__texto {
-  flex: 1 1 9rem;
-  min-width: 0;
-}
-
-.pessoa__nome {
-  font-weight: var(--peso-semi);
-  overflow-wrap: anywhere;
-}
-
-.pessoa__meta {
-  font-size: var(--texto-xs);
-  color: var(--cor-texto-secundario);
-}
-
 /* =============== Valor em destaque (financeiro) =============== */
 .valor-destaque {
   font-size: var(--texto-2xl);

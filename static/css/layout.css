@@ -501,14 +501,14 @@
   gap: var(--esp-3) var(--esp-4);
   padding-bottom: var(--esp-4);
   margin-bottom: var(--esp-6);
-  border-bottom: var(--borda);
 }
 
+/* Sem régua atravessando a página: fica só o filete da marca, o mesmo do menu. */
 .pagina-cabecalho::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -1px;
+  bottom: 0;
   width: 3rem;
   height: var(--filete-fino);
   background: var(--cor-marca);

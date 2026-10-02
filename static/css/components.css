@@ -333,7 +333,7 @@
 .selecao:hover,
 .area-texto:hover {
   border-color: var(--neutro-500);
-  background: var(--cor-superficie);
+  background-color: var(--cor-superficie);
 }
 
 /* Foco: fundo branco, borda grafite e halo dourado. Sem anel externo: o próprio campo é
@@ -342,7 +342,8 @@
 .selecao:focus-visible,
 .area-texto:focus-visible {
   outline: none;
-  background: var(--cor-superficie);
+  /* `background-color`, não o atalho: ele apagaria a seta do <select>, desenhada no fundo. */
+  background-color: var(--cor-superficie);
   border-color: var(--grafite-800);
   box-shadow: var(--sombra-foco-campo);
 }
@@ -351,7 +352,7 @@
 .selecao:disabled,
 .area-texto:disabled,
 .entrada[readonly] {
-  background: var(--cor-superficie-realce);
+  background-color: var(--cor-superficie-realce);
   color: var(--cor-texto-secundario);
   box-shadow: none;
   cursor: not-allowed;
@@ -366,7 +367,7 @@
 .campo--erro .area-texto,
 [aria-invalid="true"] {
   border-color: var(--cor-perigo-solida);
-  background: var(--cor-perigo-fundo);
+  background-color: var(--cor-perigo-fundo);
 }
 
 .campo--erro .entrada:focus-visible,
@@ -477,9 +478,30 @@
 .seletor__gatilho {
   display: flex;
   align-items: center;
+  gap: var(--esp-2);
+  /* Com a seta dentro do botão, a sobra à direita é só o respiro do ícone. */
+  padding-right: var(--esp-2);
+  background-image: none;
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.seletor__seta {
+  flex: none;
+  color: var(--cor-texto-terciario);
+  transition: rotate var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__gatilho:hover .seletor__seta {
+  color: var(--cor-texto-secundario);
+}
+
+/* Aberta, a seta aponta para cima: o botão diz em que estado a lista está. */
+.seletor__gatilho[aria-expanded="true"] .seletor__seta {
+  rotate: 180deg;
+  color: var(--cor-texto);
 }
 
 .seletor__valor {
@@ -510,6 +532,131 @@
   margin-left: auto;
   background: var(--cor-marca);
   clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
+}
+
+/* =============== Caixa ao pousar o mouse (pop) =============== */
+/* Lista curta que aparece sobre um gatilho — a mesma gramática da caixa de ações, mas
+   sem clique: nasce na camada de topo (popover), então nenhuma lista a recorta. */
+.pop {
+  position: fixed;
+  width: min(26rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  color: var(--cor-texto);
+}
+
+.pop:popover-open {
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.pop__titulo {
+  margin-bottom: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+}
+
+/* =============== Lista de ligações =============== */
+/* Itens que levam a outro registro (ofícios de um roteiro, na folha e na caixinha). */
+.lista-ligacoes {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-ligacoes__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.lista-ligacoes__item:hover {
+  background: var(--cor-superficie-realce);
+  text-decoration: none;
+}
+
+.lista-ligacoes__texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.lista-ligacoes__titulo {
+  display: block;
+  font-weight: var(--peso-medio);
+}
+
+.lista-ligacoes__meta {
+  display: block;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+/* =============== Pessoa e avatar =============== */
+/* Cartão de uma pessoa (ou de um veículo): avatar à esquerda, nome e detalhe à
+   direita. Vale na folha do ofício e na janela de resumo da lista. */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.avatar--escuro {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.pessoa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3);
+  padding: var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+  min-width: 0;
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.pessoa:hover {
+  box-shadow: 0 0 0 1px var(--cor-borda-forte), var(--sombra-1);
+}
+
+.pessoa__texto {
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+
+.pessoa__nome {
+  font-weight: var(--peso-semi);
+  overflow-wrap: anywhere;
+}
+
+.pessoa__meta {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
 }
 
 /* =============== Campo composto, linha de campos, escolhas e resumo de erros =============== */
@@ -1395,6 +1542,7 @@ a.tabela__principal:hover {
 
 /* =============== Diálogo / gaveta (pc-dialogo) =============== */
 dialog.dialogo {
+  position: fixed;
   width: min(32rem, calc(100vw - 2 * var(--esp-4)));
   max-height: calc(100vh - 2 * var(--esp-8));
   padding: 0;
@@ -1456,6 +1604,72 @@ dialog.dialogo.dialogo--saindo {
 .dialogo__corpo {
   padding: var(--esp-2) var(--esp-5) var(--esp-5);
   color: var(--cor-texto-secundario);
+}
+
+/* Janela de resumo (lista de ofícios): mais larga, com as três colunas do resumo dentro
+   e o fechar flutuando no canto, fora do pedaço que o HTMX troca. */
+dialog.dialogo--resumo {
+  width: min(52rem, calc(100vw - 2 * var(--esp-4)));
+  /* A rolagem é do conteúdo, não da janela: assim a quina arredondada corta a barra em
+     vez de deixá-la escapar pelo canto. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialogo--resumo .dialogo__conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dialogo__fechar {
+  position: absolute;
+  top: var(--esp-3);
+  right: var(--esp-3);
+  z-index: 1;
+}
+
+.dialogo__cabecalho-texto {
+  min-width: 0;
+}
+
+/* Na janela de resumo o cabeçalho é uma linha só: placa, destino e selos no mesmo eixo. */
+.dialogo--resumo .dialogo__cabecalho {
+  align-items: center;
+}
+
+.dialogo--resumo .dialogo__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+}
+
+.dialogo__linha-selos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-3);
+  margin-top: var(--esp-1);
+  font-size: var(--texto-sm);
+}
+
+.dialogo__linha-selos .texto-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-texto-secundario);
+}
+
+.dialogo__corpo .resumo {
+  color: var(--cor-texto);
+}
+
+@media (max-width: 767.98px) {
+  .dialogo__corpo .resumo {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .dialogo__rodape {

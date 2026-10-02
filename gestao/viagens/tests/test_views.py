@@ -92,6 +92,74 @@ class TestListaEPainel:
     def test_ordenacao(self, operador, ordem):
         assert operador.get(reverse("viagens:oficios"), {"ordem": ordem}).status_code == 200
 
+    def test_busca_oferece_as_leituras_do_termo_com_contagem(self, operador, cenario):
+        """"26" pode ser o número do ofício ou pedaço de protocolo: a tela pergunta em vez
+        de misturar os dois no mesmo resultado."""
+        usuario = cenario.usuarios["operador"]
+        for _ in range(9):
+            services.criar_rascunho(usuario)
+        alvo = services.criar_rascunho(usuario)  # número de dois dígitos
+        termo = str(alvo.numero)
+        services.salvar_dados(alvo, usuario, {"protocolo": f"{termo}0000000"[:9]})
+        html = operador.get(reverse("viagens:oficios"), {"q": termo}).content.decode()
+        assert f"Ofício {alvo.numero}/{alvo.ano}" in html and "escopo=numero" in html
+        assert "Protocolo com" in html and "escopo=protocolo" in html
+
+    def test_busca_com_escopo_procura_so_onde_foi_pedido(self, operador, cenario):
+        """Com escopo de protocolo, o número do ofício não entra no resultado."""
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])  # protocolo 123456789
+        html = operador.get(reverse("viagens:oficios"),
+                            {"q": "456", "escopo": "protocolo"}).content.decode()
+        assert oficio.numero_formatado in html and "Buscando em" in html
+
+    def test_escopo_inexistente_cai_na_busca_ampla(self, operador, cenario):
+        r = operador.get(reverse("viagens:oficios"), {"q": "arapongas", "escopo": "placa"})
+        assert r.status_code == 200 and "Arapongas" in r.content.decode()
+
+    def test_filtro_avancado_por_periodo_de_saida(self, operador, cenario):
+        """A faixa vale pela ida: só entra quem sai dentro dela."""
+        hoje = timezone.localdate()
+        html = operador.get(reverse("viagens:oficios"), {
+            "saida_de": (hoje + timedelta(days=10)).strftime("%d/%m/%Y"),
+            "saida_ate": (hoje + timedelta(days=25)).strftime("%d/%m/%Y"),
+        }).content.decode()
+        assert "Arapongas" in html  # sai em hoje+20
+        assert "Maringá" not in html and "São Paulo" not in html  # hoje+3 e hoje+30
+
+    def test_filtro_avancado_por_protocolo(self, operador, cenario):
+        """O protocolo é comparado só pelos dígitos: a pontuação é da tela."""
+        html = operador.get(reverse("viagens:oficios"),
+                            {"protocolo": "12.345"}).content.decode()
+        assert "1 ofício" in html and "Arapongas" in html
+
+    def test_filtro_avancado_por_veiculo_sem_transporte(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"), {"veiculo": "sem"}).content.decode()
+        assert "1 ofício" in html and "Sem transporte" in html
+
+    def test_filtro_avancado_por_veiculo_pela_descricao(self, operador, cenario):
+        """Ônibus, caminhão e unidade móvel não são campo no cadastro: valem pelo que está
+        escrito no modelo da viatura ou na descrição do transporte."""
+        html = operador.get(reverse("viagens:oficios"), {"veiculo": "onibus"}).content.decode()
+        assert "1 ofício" in html and "Ônibus de linha" in html
+
+    def test_filtro_avancado_por_valor_de_diarias(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        acima = int(emitido.diarias_total) + 1
+        html = operador.get(reverse("viagens:oficios"),
+                            {"diarias_de": str(acima)}).content.decode()
+        assert emitido.numero_formatado not in html
+
+    def test_filtro_rabiscado_nao_derruba_a_lista(self, operador, cenario):
+        """Data inválida ou opção inventada não viram erro: a lista continua respondendo."""
+        r = operador.get(reverse("viagens:oficios"),
+                         {"saida_de": "32/13/abcd", "veiculo": "inexistente"})
+        assert r.status_code == 200 and "Arapongas" in r.content.decode()
+
+    def test_abas_preservam_os_filtros_avancados(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"),
+                            {"protocolo": "12345"}).content.decode()
+        assert "situacao=emitido&amp;protocolo=12345" in html
+
     def test_sem_resultado_mostra_estado_vazio(self, operador):
         r = operador.get(reverse("viagens:oficios"), {"q": "zzz-inexistente"})
         assert "Nenhum ofício encontrado" in r.content.decode()
@@ -361,7 +429,7 @@ class TestEmissaoEAcoes:
         assert r.status_code == 302 and not Oficio.objects.filter(pk=pk).exists()
 
     def test_resumo_do_registro_traz_roteiro_equipe_e_documentos(self, operador, cenario):
-        """Overdrive 2: o registro da lista expande com um fragmento HTMX."""
+        """Clicar no registro abre uma janela com o resumo (fragmento HTMX)."""
         r = operador.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]),
                          HTTP_HX_REQUEST="true")
         html = r.content.decode()
@@ -529,7 +597,7 @@ class TestProvasDaRevisaoDeUX:
                          HTTP_HX_REQUEST="true", HTTP_HX_TARGET="resultados")
         html = r.content.decode()
         assert 'id="abas-filtro"' in html and 'hx-swap-oob="true"' in html
-        assert "?situacao=rascunho&q=arapongas&ordem=saida" in html
+        assert "?situacao=rascunho&amp;q=arapongas&amp;ordem=saida" in html
 
     def test_adicionar_destino_e_erro_marcam_alteracoes_nao_salvas(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])

@@ -35,6 +35,8 @@ urlpatterns = [
     path("roteiros/previa-trechos/", views_roteiros.previa_trechos,
          name="previa_trechos_roteiro"),
     path("roteiros/autosave/", views_roteiros.autosave, name="autosave_roteiro"),
+    path("roteiros/<int:pk>/oficios/", views_roteiros.oficios_do_roteiro,
+         name="oficios_do_roteiro"),
     path("roteiros/<int:pk>/editar/", views_roteiros.editar, name="editar_roteiro"),
     path("roteiros/<int:pk>/cancelar/", views_roteiros.cancelar, name="cancelar_roteiro"),
     path("roteiros/<int:pk>/reativar/", views_roteiros.reativar, name="reativar_roteiro"),
