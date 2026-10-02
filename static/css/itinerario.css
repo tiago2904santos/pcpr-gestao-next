@@ -268,7 +268,8 @@
   border-bottom-left-radius: 0;
 }
 
-.itin__local :is(.selecao, .entrada):is(:hover, :focus-visible) {
+.itin__local :is(.selecao, .entrada):is(:hover, :focus-visible),
+.itin__bv-onde :is(.selecao, .entrada):is(:hover, :focus-visible) {
   position: relative;
   z-index: 1;
 }
@@ -593,9 +594,13 @@
 }
 
 /* Remover: botão de ícone na ponta da linha (sem JS, a caixa de seleção aparece). */
+/* Serve de <label> (remover um destino) e de <button> (limpar o bate-volta): o botão
+   não pode trazer a moldura e o fundo que o navegador dá de origem. */
 .itin__remover {
   grid-column: 3;
   display: inline-flex;
+  border: 0;
+  background: transparent;
   align-items: center;
   justify-content: center;
   gap: var(--esp-1);
@@ -1133,7 +1138,7 @@
 .itin__calendario {
   right: 0;
   left: auto;
-  width: min(23rem, calc(100vw - 2rem));
+  width: min(20.5rem, calc(100vw - 2rem));
 }
 
 /* Sem espaço abaixo, o calendário abre para cima (caberCalendario). */
@@ -1149,7 +1154,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-1) var(--esp-2);
-  margin: 0 0 var(--esp-3);
+  margin: 0 0 var(--esp-2);
   font-size: var(--texto-sm);
   color: var(--cor-texto-secundario);
 }
@@ -1164,9 +1169,9 @@
 
 .itin__calendario .calendario__grade td {
   position: relative;
-  height: 2.5rem;
+  height: 2.125rem;
   vertical-align: top;
-  padding-top: var(--esp-1);
+  padding-top: var(--esp-05);
 }
 
 /* Dias entre a primeira e a última saída: a viagem está em curso. */

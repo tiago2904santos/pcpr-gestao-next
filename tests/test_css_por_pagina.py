@@ -30,7 +30,7 @@ pytestmark = pytest.mark.django_db
 
 
 def _classes_de(arquivo: str) -> set[str]:
-    css = re.sub(r"/\*.*?\*/", "", (CSS / f"{arquivo}.css").read_text(), flags=re.S)
+    css = re.sub(r"/\*.*?\*/", "", (CSS / f"{arquivo}.css").read_text(encoding="utf-8"), flags=re.S)
     seletores = re.sub(r"\{[^{}]*\}", "{}", css)
     return set(re.findall(r"\.([a-zA-Z][\w-]*)", seletores))
 

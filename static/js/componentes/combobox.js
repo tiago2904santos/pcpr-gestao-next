@@ -22,6 +22,10 @@ export class PcCombobox extends HTMLElement {
   /** @type {Opcao[]} */
   opcoes = [];
   ativo = -1;
+  /** Quem digitou já quer a primeira sugestão pronta; quem só abriu a lista, não. */
+  primeiroPronto = false;
+  /** @type {HTMLButtonElement | null} */
+  limparBotao = null;
 
   connectedCallback() {
     if (this.dataset.pronto) return;
@@ -51,6 +55,7 @@ export class PcCombobox extends HTMLElement {
     this.entrada.setAttribute("aria-expanded", "false");
     this.entrada.setAttribute("aria-autocomplete", "list");
     this.entrada.autocomplete = "off";
+    this.criarLimpar();
 
     /** @type {number | undefined} */
     this.atraso = undefined;
@@ -61,6 +66,8 @@ export class PcCombobox extends HTMLElement {
     this.entrada.addEventListener("focus", () => {
       if (!this.dataset.fonte) this.filtrarLocal();
     });
+    // Valor posto de fora (herdado de outro modo, preenchido pelo servidor): só acerta o "limpar".
+    this.entrada.addEventListener("change", () => this.sincronizarLimpar());
     this.entrada.addEventListener("keydown", (e) => this.teclado(e));
     this.entrada.addEventListener("blur", () => window.setTimeout(() => this.fechar(), 120));
     this.lista.addEventListener("mousedown", (e) => e.preventDefault());
@@ -68,6 +75,61 @@ export class PcCombobox extends HTMLElement {
       const li = /** @type {HTMLElement} */ (e.target).closest("[role='option']");
       if (li) this.escolher(Number(/** @type {HTMLElement} */ (li).dataset.indice));
     });
+  }
+
+  /**
+   * Botão "limpar" dentro do campo: trocar de município não exige apagar letra por letra.
+   * Só aparece quando há texto, então não cria parada no Tab em campo vazio.
+   */
+  criarLimpar() {
+    const entrada = /** @type {HTMLInputElement} */ (this.entrada);
+    let caixa = entrada.parentElement;
+    if (!caixa || !caixa.classList.contains("entrada-composta")) {
+      caixa = document.createElement("div");
+      caixa.className = "entrada-composta";
+      entrada.before(caixa);
+      caixa.append(entrada);
+    }
+    caixa.classList.add("entrada-composta--limpavel");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "entrada-composta__botao";
+    botao.title = "Limpar o campo";
+    botao.hidden = true;
+    const rotulo = document.createElement("span");
+    rotulo.className = "sr-only";
+    rotulo.textContent = "Limpar o campo";
+    botao.append(this.iconeX(), rotulo);
+    botao.addEventListener("click", () => this.limpar());
+    caixa.append(botao);
+    this.limparBotao = botao;
+    this.sincronizarLimpar();
+  }
+
+  /** Ícone do sprite já carregado pela página. */
+  iconeX() {
+    const uso = document.querySelector("svg.icone use")?.getAttribute("href") || "";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "icone");
+    svg.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", `${uso.split("#")[0]}#i-x`);
+    svg.append(use);
+    return svg;
+  }
+
+  sincronizarLimpar() {
+    if (this.limparBotao) this.limparBotao.hidden = !this.entrada?.value.trim();
+  }
+
+  limpar() {
+    if (!this.entrada) return;
+    this.entrada.value = "";
+    // Os mesmos eventos de quem apaga à mão: o <select> volta a vazio e a tela recalcula.
+    this.entrada.dispatchEvent(new Event("input", { bubbles: true }));
+    this.entrada.dispatchEvent(new Event("change", { bubbles: true }));
+    this.entrada.focus();
+    this.sincronizarLimpar();
   }
 
   criarEntradaParaSelect() {
@@ -96,6 +158,7 @@ export class PcCombobox extends HTMLElement {
   }
 
   aoDigitar() {
+    this.sincronizarLimpar();
     if (this.select && this.entrada && this.entrada.value.trim() === "") {
       this.select.value = "";
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
@@ -117,6 +180,7 @@ export class PcCombobox extends HTMLElement {
       .filter((o) => o.value && (mostrarTudo || normalizar(o.textContent || "").includes(termo)))
       .slice(0, 50)
       .map((o) => ({ id: o.value, titulo: o.textContent?.trim() || "", meta: o.dataset.meta }));
+    this.primeiroPronto = !mostrarTudo;
     this.renderizar();
   }
 
@@ -139,10 +203,12 @@ export class PcCombobox extends HTMLElement {
       });
       const dados = await resposta.json();
       this.opcoes = dados.resultados || [];
+      this.primeiroPronto = true;
       this.renderizar();
     } catch (erro) {
       if (/** @type {Error} */ (erro).name !== "AbortError") {
         this.opcoes = [];
+        this.primeiroPronto = false;
         this.renderizar("Não foi possível buscar agora. Tente novamente.");
       }
     } finally {
@@ -188,6 +254,8 @@ export class PcCombobox extends HTMLElement {
       const n = this.opcoes.length;
       this.anuncio.textContent = n === 0 ? "Nenhum resultado." : `${n} resultado${n > 1 ? "s" : ""}.`;
     }
+    // Buscou escrevendo: a primeira já fica escolhida, então digitar e dar Enter basta.
+    if (this.primeiroPronto && this.opcoes.length) this.destacar(0);
   }
 
   fechar() {
@@ -256,6 +324,7 @@ export class PcCombobox extends HTMLElement {
       this.entrada.value = "";
     }
     this.fechar();
+    this.sincronizarLimpar();
     this.dispatchEvent(new CustomEvent("pc-selecionado", { detail: opcao, bubbles: true }));
     const url = this.dataset.acaoUrl;
     const htmx = /** @type {any} */ (window).htmx;

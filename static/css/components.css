@@ -555,7 +555,8 @@
   border-radius: var(--raio-md) 0 0 var(--raio-md);
 }
 
-.entrada-composta .entrada:not(:last-child) {
+/* Só o texto fixo colado à direita corta o canto; um botão dentro da caixa não. */
+.entrada-composta .entrada:has(+ .entrada-composta__texto-fixo) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -565,13 +566,17 @@
   border-bottom-left-radius: 0;
 }
 
-/* Botão dentro do campo (mostrar senha): à direita, com a mesma altura da caixa. */
-.entrada-composta--senha > .entrada {
+/* Botão dentro do campo (mostrar senha, limpar): à direita, com a mesma altura da caixa. */
+.entrada-composta--senha > .entrada,
+.entrada-composta--limpavel > .entrada {
   padding-right: calc(var(--esp-2) + 2rem);
 }
 
 .entrada-composta__botao {
   position: absolute;
+  /* Acima do próprio campo, que em alguns pares (UF + município) sobe no hover e no foco
+     para encostar as bordas — sem isso o botão sumiria debaixo dele e não receberia o clique. */
+  z-index: 3;
   top: 50%;
   right: var(--esp-1);
   display: inline-grid;

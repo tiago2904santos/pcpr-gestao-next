@@ -75,7 +75,7 @@ def test_combobox_local_por_teclado(logado):
     pg.goto("/ui-lab/")
     campo = pg.get_by_role("combobox", name="Município (lista local)")
     campo.fill("londr")
-    pg.keyboard.press("ArrowDown")
+    # A primeira sugestão já vem pronta: quem digita só dá Enter.
     pg.keyboard.press("Enter")
     expect(campo).to_have_value("Londrina")
     assert pg.locator("#lab-municipio").input_value() == "Londrina"

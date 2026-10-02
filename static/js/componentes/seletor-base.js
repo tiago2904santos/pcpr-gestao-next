@@ -104,10 +104,20 @@ export class SeletorFlutuante extends HTMLElement {
    * passaria da tela. */
   posicionar() {
     const painel = /** @type {HTMLElement} */ (this.painel);
-    painel.classList.remove("seletor__painel--direita");
+    painel.classList.remove("seletor__painel--direita", "seletor__painel--acima");
     if (this.getBoundingClientRect().left + painel.offsetWidth > document.documentElement.clientWidth - 8) {
       painel.classList.add("seletor__painel--direita");
     }
+    // Barra de ações e cabeçalho são fixos e ficam por cima: o painel abre para o lado em
+    // que couber inteiro, em vez de nascer escondido atrás de um deles.
+    const campo = this.getBoundingClientRect();
+    const piso = document.querySelector(".barra-acoes")?.getBoundingClientRect().top
+      ?? window.innerHeight;
+    const teto = document.querySelector(".topo")?.getBoundingClientRect().bottom ?? 0;
+    const folga = 8;
+    const cabeAbaixo = campo.bottom + painel.offsetHeight + folga <= piso;
+    const cabeAcima = campo.top - painel.offsetHeight - folga >= teto;
+    if (!cabeAbaixo && cabeAcima) painel.classList.add("seletor__painel--acima");
     abrirEspaco(painel);
   }
 

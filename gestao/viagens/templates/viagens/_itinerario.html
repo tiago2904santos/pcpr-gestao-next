@@ -26,19 +26,7 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
     </header>
     <div class="itin__lista-modo itin__so-bv">
     <ol class="itin__paradas itin__paradas--bv" aria-label="Sede do bate-volta" data-blocos>
-      <li class="itin__parada itin__parada--sede">
-        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
-        <div class="itin__local" role="group" aria-label="Sede (origem e volta de cada dia)">
-          {% include "componentes/campo.html" with campo=sede_form.uf classe="itin__uf" %}
-          <div class="campo itin__cidade{% if sede_form.cidade.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="{{ sede_form.cidade.id_for_label }}" id="{{ sede_form.cidade.auto_id }}-rotulo">Sede (origem da viagem)<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ sede_form.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
-              <div class="entrada-composta">{{ sede_form.cidade|campo_acessivel:"" }}</div>
-            </pc-combobox>
-            {% if sede_form.cidade.errors %}<p class="campo__erro" id="{{ sede_form.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ sede_form.cidade.errors|join:" " }}</span></p>{% endif %}
-          </div>
-        </div>
-      </li>
+      {% if bate_volta %}{% include "viagens/_sede.html" %}{% endif %}
     </ol>
     <ol class="itin__bvs" aria-label="Bate-voltas, na ordem">
       {% for f in blocos %}{% include "viagens/_bate_volta.html" with f=f numero=forloop.counter %}{% endfor %}
@@ -46,19 +34,7 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
     </div>
     <div class="itin__lista-modo itin__so-destinos">
     <ol class="itin__paradas" aria-label="Sede e destinos, na ordem da visita" data-paradas>
-      <li class="itin__parada itin__parada--sede">
-        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
-        <div class="itin__local" role="group" aria-label="Sede (origem e volta da viagem)">
-          {% include "componentes/campo.html" with campo=sede_form.uf classe="itin__uf" %}
-          <div class="campo itin__cidade{% if sede_form.cidade.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="{{ sede_form.cidade.id_for_label }}" id="{{ sede_form.cidade.auto_id }}-rotulo">Sede (origem da viagem)<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ sede_form.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
-              <div class="entrada-composta">{{ sede_form.cidade|campo_acessivel:"" }}</div>
-            </pc-combobox>
-            {% if sede_form.cidade.errors %}<p class="campo__erro" id="{{ sede_form.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ sede_form.cidade.errors|join:" " }}</span></p>{% endif %}
-          </div>
-        </div>
-      </li>
+      {% if not bate_volta %}{% include "viagens/_sede.html" %}{% endif %}
       {% for f, anterior in paradas %}{% include "viagens/_parada.html" with numero=forloop.counter %}{% endfor %}
       <li class="itin__adicionar" data-adicionar-li>
         <span class="itin__marco itin__marco--novo" aria-hidden="true">{% icone "plus" %}</span>

@@ -11,7 +11,13 @@ Especificação: docs/superpowers/specs/2026-10-02-bate-volta-design.md
   <header class="itin__bv-cabecalho">
     <span class="itin__trecho-numero" aria-hidden="true">{{ numero }}</span>
     <h4 class="itin__bv-titulo" id="bv-{{ f.prefix }}">Bate-volta {{ numero }}</h4>
-    <label class="itin__remover" title="Remover bate-volta">{{ f.DELETE }}{% icone "trash-2" %}<span class="itin__remover-texto">Remover<span class="sr-only"> o bate-volta {{ numero }}</span></span></label>
+    {% comment %}
+    O bate-volta é um só por roteiro (min_num=1): apagar o bloco não faria sentido — quem não
+    quer bate-volta desliga o interruptor. Por isso o botão limpa as datas e horas da ida e da
+    volta. O DELETE continua no POST, desmarcado, para o conjunto de formulários não mudar.
+    {% endcomment %}
+    <span hidden>{{ f.DELETE }}</span>
+    <button type="button" class="itin__remover" data-limpar-bv title="Limpar as datas e as horas">{% icone "trash-2" %}<span class="itin__remover-texto">Limpar<span class="sr-only"> as datas e as horas do bate-volta {{ numero }}</span></span></button>
   </header>
   {% for h in f.hidden_fields %}{{ h }}{% endfor %}
   <div class="itin__bv-onde" role="group" aria-labelledby="bv-{{ f.prefix }}">

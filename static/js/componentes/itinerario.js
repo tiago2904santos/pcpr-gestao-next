@@ -392,10 +392,28 @@ export class PcItinerario extends HTMLElement {
       this.enquadrarRota();
     } else if (alvo.closest("[data-passo]")) {
       this.passoDeTempo(/** @type {HTMLElement} */ (alvo.closest("[data-passo]")));
+    } else if (alvo.closest("[data-limpar-bv]")) {
+      this.limparBloco(/** @type {HTMLElement} */ (alvo.closest("[data-bloco-bv]")));
     } else if (alvo.closest("[data-adicionar-bv]")) {
       // Bate-volta ainda não tem clonagem no navegador: o servidor devolve a linha nova.
       return;
     }
+  }
+
+  /** Zera as datas e as horas da ida e da volta de um bate-volta. @param {HTMLElement | null} bloco */
+  limparBloco(bloco) {
+    if (!bloco) return;
+    const campos = ["dia_inicial", "hora_saida", "dia_final", "hora_volta"]
+      .map((c) => /** @type {HTMLInputElement | null} */ (bloco.querySelector(`input[name$='-${c}']`)))
+      .filter((c) => c && c.value);
+    if (campos.length === 0) return;
+    for (const campo of campos) {
+      /** @type {HTMLInputElement} */ (campo).value = "";
+      campo?.dispatchEvent(new Event("input", { bubbles: true }));
+      campo?.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    this.anunciar("Datas e horas do bate-volta apagadas.");
+    /** @type {HTMLInputElement | null} */ (bloco.querySelector("input[name$='-dia_inicial']"))?.focus();
   }
 
   /** O primeiro dia abre o calendário do período; o último é preenchido por ele. @param {Element} bloco */
@@ -467,6 +485,8 @@ export class PcItinerario extends HTMLElement {
     // sem perder o que foi digitado na outra.
     if (alvo.matches("[data-bate-volta]")) {
       this.classList.toggle("itin--bate-volta", alvo.checked);
+      this.moverSede(alvo.checked);
+      this.herdarDestino(alvo.checked);
       this.renumerar();
       this.recalcular();
       this.agendarRota();
@@ -488,9 +508,39 @@ export class PcItinerario extends HTMLElement {
     this.recalcular();
   }
 
+  /** A sede é um campo só, que muda de lista conforme o modo. @param {boolean} paraBv */
+  moverSede(paraBv) {
+    const sede = this.querySelector("[data-sede]");
+    const lista = this.querySelector(paraBv ? "[data-blocos]" : "[data-paradas]");
+    if (sede && lista && sede.parentElement !== lista) lista.prepend(sede);
+  }
+
+  /**
+   * Alternar o modo não pode fazer o destino escolhido sumir da tela: ele passa para o
+   * campo do outro modo, desde que lá ainda esteja vazio (o que foi digitado manda).
+   * @param {boolean} paraBv
+   */
+  herdarDestino(paraBv) {
+    const bloco = /** @type {HTMLElement | null} */ (this.querySelector("[data-bloco-bv]"));
+    const parada = this.paradas()[0] || null;
+    const de = paraBv ? parada : bloco;
+    const para = paraBv ? bloco : parada;
+    const cidadeDe = this.campo(de, "cidade");
+    const cidadePara = this.campo(para, "cidade");
+    if (!cidadeDe?.value.trim() || !cidadePara || cidadePara.value.trim()) return;
+    const ufDe = /** @type {HTMLSelectElement | null} */ (de?.querySelector("[data-uf]") || null);
+    const ufPara = /** @type {HTMLSelectElement | null} */ (para?.querySelector("[data-uf]") || null);
+    if (ufDe && ufPara) ufPara.value = ufDe.value;
+    cidadePara.value = cidadeDe.value;
+    cidadePara.dispatchEvent(new Event("change", { bubbles: true }));
+    // A busca de municípios do campo que recebeu passa a ser a da UF que veio junto.
+    if (ufPara) this.filtrarPorUF(ufPara);
+  }
+
   /** UF filtra a busca de municípios da mesma parada. @param {HTMLSelectElement} select */
   filtrarPorUF(select) {
-    const local = select.closest(".itin__local");
+    // A UF mora em ".itin__local" (sede e destinos) ou em ".itin__bv-onde" (bate-volta).
+    const local = select.closest(".itin__local, .itin__bv-onde");
     const combobox = /** @type {HTMLElement | null} */ (local?.querySelector("pc-combobox") || null);
     if (combobox) combobox.dataset.fonte = `${this.dataset.municipiosUrl}?uf=${encodeURIComponent(select.value)}&q=`;
     const cidade = this.campo(local || null, "cidade");
