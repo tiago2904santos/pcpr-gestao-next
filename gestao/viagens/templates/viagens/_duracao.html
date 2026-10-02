@@ -1,0 +1,14 @@
+{% load viagens %}
+{% comment %}
+Campo de duração (hh:mm) de um trecho, com os passos de 15 minutos ao lado. Os botões só
+existem com JavaScript: sem ele o campo continua sendo digitado normalmente.
+{% endcomment %}
+<div class="campo itin__duracao{% if campo.errors %} campo--erro{% endif %}">
+  <label class="campo__rotulo" for="{{ campo.id_for_label }}" id="{{ campo.auto_id }}-rotulo">{{ campo.label }}</label>
+  <div class="itin__passo">
+    {{ campo|campo_acessivel:"" }}
+    <button type="button" class="itin__passo-botao" data-passo="-15" aria-label="Diminuir 15 minutos: {{ campo.label }}" hidden>&minus;</button>
+    <button type="button" class="itin__passo-botao" data-passo="15" aria-label="Aumentar 15 minutos: {{ campo.label }}" hidden>+</button>
+  </div>
+  {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+</div>

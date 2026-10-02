@@ -32,6 +32,17 @@
   gap: var(--esp-1) var(--esp-4);
 }
 
+/* Trechos é uma etapa do documento, não só um bloco do itinerário: o filete e o título
+   seguem o mesmo desenho das seções numeradas da folha. */
+.itin__bloco--etapa {
+  padding-top: var(--esp-5);
+  border-top: var(--borda-sutil);
+}
+
+.itin__bloco-titulo--etapa {
+  font-size: var(--texto-lg);
+}
+
 .itin__bloco-titulo {
   display: flex;
   align-items: center;
@@ -53,8 +64,13 @@
   color: var(--cor-texto-terciario);
 }
 
-/* ---------- Sede e destinos: o trilho de paradas ---------- */
+/* ---------- Sede e destinos: o trajeto ----------
+   Um trilho fino liga sede → destinos → volta à sede; cada parada é um ponto sobre ele.
+   O centro do marco fica no meio da caixa do campo (abaixo do rótulo na borda). */
 .itin__paradas {
+  --itin-trilho: 2rem;
+  --itin-centro: calc(0.5rem + var(--altura-controle) / 2);
+  position: relative;
   display: grid;
   gap: var(--esp-3);
   margin: 0;
@@ -62,27 +78,31 @@
   list-style: none;
 }
 
-.itin__parada,
-.itin__adicionar {
-  position: relative;
-  display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr) 2.25rem;
-  gap: var(--esp-2);
-  align-items: start;
-}
-
-/* O trilho liga o marco desta parada ao da próxima (atravessa o espaçamento). */
-.itin__parada::before {
+/* Um trilho só, do primeiro marco ao último: assim ele continua inteiro mesmo quando o
+   espaço entre as linhas cresce para preencher a altura da coluna. */
+.itin__paradas::before {
   content: "";
   position: absolute;
-  top: 2.75rem;
-  bottom: calc(-1 * var(--esp-3) - 0.75rem);
-  left: calc(1.375rem - 1px);
+  top: var(--itin-centro);
+  bottom: calc(var(--altura-controle) / 2);
+  left: calc(var(--itin-trilho) / 2 - 1px);
   width: 2px;
-  background: repeating-linear-gradient(180deg, var(--cor-borda-forte) 0 6px, transparent 6px 10px);
+  background: var(--cor-borda-forte);
 }
 
-/* Marco (sem JS) e alça (com JS) ocupam a mesma casa, centrados na altura do campo. */
+.itin__parada,
+.itin__adicionar,
+.itin__vaga {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--itin-trilho) minmax(0, 1fr) 2.25rem;
+  gap: var(--esp-2);
+  align-items: start;
+  transition: scale var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+/* Marco (sem JS) e alça (com JS) ocupam a mesma casa do trilho. */
 .itin__marco,
 .itin__alca {
   position: relative;
@@ -90,51 +110,80 @@
   grid-column: 1;
   grid-row: 1;
   justify-self: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  min-width: 2.25rem;
-  height: 2.25rem;
-  margin-top: calc(0.5rem + (var(--altura-controle) - 2.25rem) / 2);
-  padding: 0 var(--esp-1);
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: calc(var(--itin-centro) - 0.875rem);
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font: inherit;
+}
+
+.itin__marco > *,
+.itin__alca > *,
+.itin__marco::after,
+.itin__alca::after {
+  grid-area: 1 / 1;
+}
+
+/* O ponto do destino; o anel da cor da folha recorta o trilho em volta. */
+.itin__marco::after,
+.itin__alca::after {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
   border: 2px solid var(--cor-marca);
   border-radius: var(--raio-pilula);
   background: var(--cor-superficie);
-  color: var(--cor-marca-texto);
-  font: inherit;
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-forte);
-  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 3px var(--cor-superficie);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    scale var(--duracao-rapida) var(--curva-padrao);
 }
 
-.itin__marco .icone {
-  width: 1rem;
-  height: 1rem;
+/* A parada em edição fica com o ponto cheio. */
+.itin__parada:focus-within > :is(.itin__marco, .itin__alca)::after {
+  background: var(--cor-marca);
 }
 
 .itin__alca:not([hidden]) + .itin__marco {
   display: none;
 }
 
+/* A alça é o próprio ponto: no hover/foco ele vira o "pegador". */
 .itin__alca {
   cursor: grab;
   touch-action: none;
-  transition: background-color var(--duracao-rapida) var(--curva-padrao),
-    color var(--duracao-rapida) var(--curva-padrao);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
 .itin__alca .icone {
-  width: 0.85rem;
-  height: 0.85rem;
-  margin-left: -2px;
-  opacity: 0.7;
+  width: 1rem;
+  height: 1rem;
+  opacity: 0;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao);
 }
 
 .itin__alca:hover,
-.itin__parada:focus-within .itin__alca {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
+.itin__alca:focus-visible,
+.itin__parada--arrastando .itin__alca {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.itin__alca:hover .icone,
+.itin__alca:focus-visible .icone,
+.itin__parada--arrastando .itin__alca .icone {
+  opacity: 1;
+}
+
+.itin__alca:hover::after,
+.itin__alca:focus-visible::after,
+.itin__parada--arrastando .itin__alca::after {
+  scale: 0;
 }
 
 .itin__alca:focus-visible {
@@ -142,30 +191,405 @@
   outline-offset: var(--foco-offset);
 }
 
-.itin__parada--sede .itin__marco {
-  border-color: var(--grafite-900);
+/* Toque não tem hover: o pegador fica sempre à mostra. */
+@media (hover: none) {
+  .itin__alca {
+    background: var(--cor-superficie-realce);
+  }
+
+  .itin__alca .icone {
+    opacity: 1;
+  }
+
+  .itin__alca::after {
+    scale: 0;
+  }
+}
+
+/* Sede e volta: a casa, no começo e no fim do trilho. */
+.itin__parada--sede .itin__marco,
+.itin__parada--volta .itin__marco {
   background: var(--grafite-900);
   color: var(--neutro-0);
+  box-shadow: 0 0 0 3px var(--cor-superficie);
+}
+
+.itin__parada--volta .itin__marco {
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  box-shadow: inset 0 0 0 2px var(--cor-borda-forte), 0 0 0 3px var(--cor-superficie);
+}
+
+.itin__parada--sede .itin__marco::after,
+.itin__parada--volta .itin__marco::after,
+.itin__marco--novo::after {
+  content: none;
+}
+
+.itin__marco .icone {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .itin__marco--novo {
-  border-style: dashed;
-  border-color: var(--cor-borda-forte);
-  color: var(--cor-texto-secundario);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte), 0 0 0 3px var(--cor-superficie);
 }
 
-/* UF + município na mesma linha: a UF filtra a busca. */
+.itin__marco--novo .icone {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+/* UF + município numa caixa só: a UF é o prefixo que filtra a busca. */
 .itin__local {
   grid-column: 2;
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
-  gap: var(--esp-2);
+  grid-template-columns: 5rem minmax(0, 1fr);
   align-items: start;
   min-width: 0;
 }
 
 .itin__parada--sede .itin__local {
   grid-column: 2 / -1;
+}
+
+.itin__uf .selecao {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.itin__cidade {
+  margin-left: -1px;
+}
+
+.itin__cidade .entrada {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.itin__local :is(.selecao, .entrada):is(:hover, :focus-visible) {
+  position: relative;
+  z-index: 1;
+}
+
+/* As duas listas ficam na página e o interruptor só troca qual aparece: alternar não
+   recarrega nem perde o que já foi digitado na outra. */
+.itin__so-bv,
+.itin--bate-volta .itin__so-destinos {
+  display: none;
+}
+
+.itin--bate-volta .itin__so-bv {
+  display: revert;
+}
+
+/* Contêiner da lista de cada modo: só o do modo ativo é desenhado, como grade com respiro
+   entre a sede e os cards. A regra do modo ativo precisa ser mais específica que a que
+   esconde — senão a lista do modo desligado volta a aparecer. */
+.itin__lista-modo {
+  gap: var(--esp-3);
+}
+
+.itin__so-destinos.itin__lista-modo {
+  display: grid;
+}
+
+.itin--bate-volta .itin__so-destinos.itin__lista-modo {
+  display: none;
+}
+
+.itin--bate-volta .itin__so-bv.itin__lista-modo {
+  display: grid;
+}
+
+/* ---------- Bate-volta: um card por destino-e-período ---------- */
+.itin__modo {
+  margin-left: auto;
+}
+
+.itin__bvs {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itin__bv {
+  display: grid;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+
+.itin__bv-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.itin__bv-titulo {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+.itin__bv-cabecalho .itin__remover {
+  grid-column: auto;
+  margin: 0 0 0 auto;
+}
+
+/* Onde: a UF encosta no destino, como nas paradas. */
+.itin__bv-onde {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+}
+
+/* Quando: duas linhas, Ida e Volta, cada uma com data e hora — a leitura da referência. */
+.itin__bv-quando {
+  display: grid;
+  grid-template-columns: auto repeat(2, minmax(8rem, 1fr));
+  gap: var(--esp-2) var(--esp-3);
+  align-items: center;
+}
+
+.itin__bv-rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding-top: 0.5rem;
+  min-width: 4rem;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+}
+
+.itin__bv-rotulo .icone {
+  color: var(--cor-marca-texto);
+}
+
+.itin__bv-nota {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-terciario);
+}
+
+@container itin (max-width: 34rem) {
+  .itin__bv-quando {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .itin__bv-rotulo {
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+}
+
+.itin__bv-resumo:empty {
+  display: none;
+}
+
+.itin__bv-resumo {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.itin__botao-adicionar--solto {
+  grid-column: 1 / -1;
+  margin-top: var(--esp-3);
+}
+
+/* ---------- Movimento ----------
+   Doutrina do projeto (docs/design-system/motion.md): movimento explica mudança de estado,
+   nunca enfeita; só transform e opacity (CLS = 0); os tokens zeram com movimento reduzido.
+   O itinerário muda sozinho enquanto se digita — rota, trechos e diárias —, então aqui o
+   movimento é o que diz "isto acabou de mudar". */
+
+/* Troca de modo: a lista que entra desliza do lado, deixando claro que é outra coisa. */
+.itin__lista-modo {
+  animation: itin-entrar-lista var(--duracao-lenta) var(--curva-padrao);
+}
+
+@keyframes itin-entrar-lista {
+  from { opacity: 0; transform: translateX(-1.25rem); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Dias gerados: cascata de cima para baixo, como se a viagem fosse sendo montada. */
+.itin__gerado {
+  animation: itin-entrar-dia var(--duracao-lenta) var(--curva-expressiva) backwards;
+}
+
+@keyframes itin-entrar-dia {
+  from { opacity: 0; transform: translateX(-1.5rem) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.itin__gerado:nth-child(1) { animation-delay: 0ms; }
+.itin__gerado:nth-child(2) { animation-delay: 60ms; }
+.itin__gerado:nth-child(3) { animation-delay: 120ms; }
+.itin__gerado:nth-child(4) { animation-delay: 180ms; }
+.itin__gerado:nth-child(5) { animation-delay: 240ms; }
+.itin__gerado:nth-child(n + 6) { animation-delay: 300ms; }
+
+.itin__gerado {
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.itin__gerado:hover {
+  background: var(--cor-superficie-sutil);
+}
+
+/* O dia em foco empurra a data para fora, como uma aba de agenda. */
+.itin__gerado-dia {
+  transition: transform var(--duracao-rapida) var(--curva-expressiva);
+}
+
+.itin__gerado:hover .itin__gerado-dia {
+  transform: translateX(2px);
+}
+
+/* Card do bate-volta: entra e, enquanto é preenchido, a borda acende. */
+.itin__bv {
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.itin__bv:focus-within {
+  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+}
+
+/* Enquanto a rota é recalculada, os totais esmaecem: o número velho não finge ser o novo. */
+.itin[aria-busy="true"] .itin__totais {
+  opacity: 0.45;
+  transition: opacity var(--duracao-media) var(--curva-padrao);
+}
+
+/* Interruptor de modo: o trilho responde ao toque antes de a tela trocar. */
+.itin__modo {
+  transition: transform var(--duracao-instantanea) var(--curva-suave);
+}
+
+.itin__modo:active {
+  transform: scale(var(--escala-pressao));
+}
+
+/* Conferência do bate-volta: uma linha por dia, lida como tabela — sem a moldura de card
+   dos trechos editáveis, porque aqui não se preenche nada. */
+/* Moldura como borda real (não sombra interna): o fundo do hover de uma linha passaria
+   por cima de uma sombra interna e comeria o filete. */
+.itin__gerados {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  overflow: hidden;
+}
+
+.itin__gerado {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.itin__gerado + .itin__gerado {
+  border-top: var(--borda-sutil);
+}
+
+.itin__gerado-dia {
+  display: grid;
+  font-weight: var(--peso-forte);
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-marca-texto);
+}
+
+.itin__gerado-dia small {
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-medio);
+  text-transform: capitalize;
+  color: var(--cor-texto-terciario);
+}
+
+.itin__gerado-rota {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1);
+  min-width: 0;
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.itin__gerado-rota b {
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+}
+
+.itin__gerado-ida-volta {
+  color: var(--cor-marca-texto);
+}
+
+.itin__gerado-horas {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.itin__gerado-horas small {
+  font-size: var(--texto-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--rastreio-rotulo);
+  color: var(--cor-texto-terciario);
+}
+
+.itin__gerado-horas > span {
+  color: var(--cor-texto-terciario);
+}
+
+.itin__gerado-km {
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+@container itin (max-width: 46rem) {
+  .itin__gerado {
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+  }
+
+  .itin__gerado-horas:first-of-type {
+    grid-column: 2;
+  }
+}
+
+/* Volta à sede: só leitura, fecha o trajeto. */
+.itin__volta {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+  min-height: var(--altura-controle);
+  margin: 0.5rem 0 0;
+  padding: 0 var(--esp-3);
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.itin__volta-cidade {
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
 }
 
 /* Remover: botão de ícone na ponta da linha (sem JS, a caixa de seleção aparece). */
@@ -177,7 +601,7 @@
   gap: var(--esp-1);
   min-width: 2.25rem;
   height: 2.25rem;
-  margin-top: calc(0.5rem + (var(--altura-controle) - 2.25rem) / 2);
+  margin-top: calc(var(--itin-centro) - 1.125rem);
   border-radius: var(--raio-md);
   font-size: var(--texto-xs);
   font-weight: var(--peso-medio);
@@ -191,7 +615,7 @@
 }
 
 .itin:not(.itin--ativo) .itin__parada {
-  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  grid-template-columns: var(--itin-trilho) minmax(0, 1fr) auto;
 }
 
 .itin--ativo .itin__remover input {
@@ -218,7 +642,7 @@
   opacity: 0.55;
 }
 
-/* Arrastando: a linha flutua sobre o trilho. */
+/* Arrastando: a linha levanta e segue o ponteiro; a vaga mostra onde ela vai cair. */
 .itin--arrastando {
   cursor: grabbing;
   user-select: none;
@@ -229,19 +653,31 @@
 }
 
 .itin__parada--arrastando {
-  z-index: 3;
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 5;
   border-radius: var(--raio-lg);
   background: var(--cor-superficie);
-  box-shadow: 0 0 0 var(--esp-1) var(--cor-superficie),
-    0 0 0 calc(var(--esp-1) + 2px) var(--cor-marca), var(--sombra-flutuante);
+  box-shadow: 0 0 0 var(--esp-2) var(--cor-superficie),
+    0 0 0 calc(var(--esp-2) + 1px) var(--cor-borda), var(--sombra-flutuante);
+  scale: 1.015;
 }
 
-.itin__parada--arrastando .itin__alca {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
+.itin__vaga {
+  align-items: stretch;
 }
 
-/* "Adicionar destino": um nó tracejado no próprio trilho. */
+.itin__vaga::after {
+  content: "";
+  grid-column: 2 / -1;
+  margin-top: 0.5rem;
+  border: 2px dashed var(--cor-marca);
+  border-radius: var(--raio-md);
+  background: var(--cor-marca-fundo);
+}
+
+/* "Adicionar destino": um nó tracejado no próprio trilho, antes da volta. */
 .itin__botao-adicionar {
   grid-column: 2 / -1;
   display: flex;
@@ -288,8 +724,18 @@
 }
 
 .itin__rota {
+  position: relative;
   display: grid;
   gap: var(--esp-3);
+}
+
+/* Atalho sobre o mapa: só aparece quando a vista deixou de mostrar a rota toda. */
+.itin__ver-rota {
+  position: absolute;
+  z-index: 2;
+  right: var(--esp-2);
+  bottom: var(--esp-2);
+  box-shadow: var(--sombra-2);
 }
 
 .itin__mapa {
@@ -324,68 +770,54 @@
   color: var(--cor-marca-texto);
 }
 
-.itin__resumo {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--esp-2);
-  margin: 0;
-}
-
-.itin__resumo-item {
-  display: grid;
-  gap: var(--esp-05);
-  padding: var(--esp-2) var(--esp-3);
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie);
-  box-shadow: inset 0 0 0 1px var(--cor-borda);
-}
-
-.itin__resumo-item dt {
+/* Totais da rota: uma linha só, na mesma altura do título "Rota", acima do mapa. */
+.itin__totais {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-3);
+  margin: 0 0 0 auto;
+}
+
+/* Aviso da rota (estimativa, falha): linha própria, abaixo do título e dos totais. */
+.itin__fonte:not(:empty) {
+  flex-basis: 100%;
+}
+
+.itin__total {
+  display: inline-flex;
   align-items: center;
   gap: var(--esp-1);
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
 }
 
-.itin__resumo-item dd {
-  margin: 0;
-  font-size: var(--texto-lg);
+.itin__total > .icone {
+  color: var(--cor-marca-texto);
+}
+
+.itin__total-valor {
+  font-size: var(--texto-sm);
   font-weight: var(--peso-semi);
   font-variant-numeric: tabular-nums;
+  color: var(--cor-texto);
 }
 
-.itin__resumo-item--destaque {
-  background: var(--grafite-900);
-  box-shadow: none;
-  color: var(--neutro-0);
+.itin__total-valor + .itin__total-valor::before {
+  content: "·";
+  margin-right: var(--esp-1);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-terciario);
 }
 
-.itin__resumo-item--destaque dt {
-  color: var(--cor-texto-inverso-sutil);
-}
-
-.itin__resumo-item--destaque dd {
-  color: var(--cor-marca-viva);
-}
-
-.itin[aria-busy="true"] .itin__resumo dd {
+.itin[aria-busy="true"] .itin__total-valor {
   opacity: 0.5;
   transition: opacity var(--duracao-media) var(--curva-padrao);
 }
 
 @container itin (min-width: 46rem) and (max-width: 57.99rem) {
-  .itin__rota {
-    grid-template-columns: minmax(0, 1fr) 14rem;
-  }
-
   .itin__mapa {
     min-height: 19rem;
-  }
-
-  .itin__resumo {
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
   }
 }
 
@@ -394,16 +826,37 @@
    (Media query, não container: o contêiner não consegue consultar a si mesmo.) */
 @media (min-width: 1200px) {
   .itin {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* As duas colunas terminam juntas: quem for mais alto puxa a outra. Com poucos destinos
+       quem manda é a altura mínima do mapa; a partir de ~3 destinos é a lista de paradas. */
+    align-items: stretch;
   }
 
   .itin__bloco:nth-of-type(3) {
     grid-column: 1 / -1;
   }
 
+  /* Sede e destinos ocupa a altura da coluna: o espaço que sobra vira respiro entre as
+     linhas, em vez de um vão no fim da lista. O recuo acerta o título com o de "Rota",
+     que fica dentro do painel. */
+  .itin__bloco:first-of-type {
+    grid-template-rows: auto minmax(0, 1fr);
+    padding-top: var(--esp-3);
+  }
+
+  .itin__paradas {
+    align-content: space-between;
+  }
+
+  /* A rota ocupa a altura toda da coluna e o mapa ocupa a altura toda da rota. */
+  .itin__painel {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .itin__rota,
   .itin__mapa {
-    min-height: 17rem;
+    height: 100%;
+    min-height: 14rem;
   }
 }
 
@@ -440,9 +893,9 @@
   stroke-opacity: 0.9;
 }
 
+/* A volta percorre as mesmas estradas da ida: mesmo traço, sem pontilhado. */
 .itin-rota--volta {
-  stroke: var(--grafite-700);
-  stroke-dasharray: 2 8;
+  stroke: var(--cor-marca-forte);
 }
 
 /* ---------- Trechos: um card dourado por trecho ---------- */
@@ -455,13 +908,12 @@
 }
 
 .itin__trecho {
-  --fundo-rotulo: var(--cor-marca-fundo);
   display: grid;
   gap: var(--esp-3);
   padding: var(--esp-4);
   border-radius: var(--raio-lg);
-  background: var(--cor-marca-fundo);
-  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
 }
 
 .itin__trecho-cabecalho {
@@ -471,15 +923,17 @@
   min-width: 0;
 }
 
+/* Mesmo desenho dos números das etapas da folha: contorno, não bolha cheia. */
 .itin__trecho-numero {
   display: inline-grid;
   flex: none;
   place-items: center;
   width: 1.75rem;
   height: 1.75rem;
+  border: 1px solid var(--cor-marca-borda);
   border-radius: var(--raio-pilula);
-  background: var(--cor-marca);
-  color: var(--grafite-950);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
   font-size: var(--texto-xs);
   font-weight: var(--peso-forte);
   font-variant-numeric: tabular-nums;
@@ -491,8 +945,20 @@
 }
 
 .itin__trecho--volta .itin__trecho-numero {
-  background: var(--grafite-900);
-  color: var(--neutro-0);
+  background: var(--cor-superficie);
+  border-color: var(--cor-borda);
+  color: var(--cor-texto-secundario);
+}
+
+/* Em foco, o número do trecho acende como o das etapas. */
+.itin__bloco--etapa:focus-within .secao__numero,
+.itin__trecho:focus-within .itin__trecho-numero {
+  border-color: var(--cor-marca);
+  color: var(--cor-marca-texto);
+}
+
+.itin__trecho--volta:focus-within .itin__trecho-numero {
+  background: var(--cor-marca-fundo);
 }
 
 .itin__trecho-rota {
@@ -526,8 +992,7 @@
 .itin__trecho-km:not(:empty) {
   padding: var(--esp-05) var(--esp-2);
   border-radius: var(--raio-pilula);
-  background: var(--cor-superficie);
-  box-shadow: inset 0 0 0 1px var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
 }
 
 .itin__tempos {
@@ -546,35 +1011,93 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Chegada: não é campo — é o resultado (saída + estrada + adicional), em grafite, com o
-   mesmo rótulo na borda para alinhar com os campos ao lado. */
+/* Chegada: não é campo — é o resultado (saída + estrada + adicional), no mesmo cartão usado
+   pelos números das diárias, com o rótulo na borda para ficar da altura dos campos ao lado. */
+.itin__chegada-campo {
+  --fundo-entrada: var(--cor-superficie);
+  transition: transform var(--duracao-media) var(--curva-padrao);
+}
+
+.itin__chegada-campo:hover {
+  transform: translateY(-1px);
+}
+
+.itin__chegada-campo:hover .itin__chegada {
+  transform: none;
+}
+
 .itin__chegada {
-  position: relative;
+  justify-content: center;
+  min-height: var(--altura-controle);
+}
+
+/* Duração com passos de 15 min: a caixa é uma peça só e os botões moram dentro dela. */
+.itin__passo {
   display: flex;
   align-items: center;
+  min-width: 0;
   min-height: var(--altura-controle);
-  margin-top: 0.5rem;
-  padding: 0 var(--esp-3);
+  border: 1px solid var(--cor-borda-campo);
   border-radius: var(--raio-md);
-  background: var(--grafite-900);
+  background: var(--cor-superficie);
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
 }
 
-.itin__chegada-rotulo {
-  position: absolute;
-  top: -0.5rem;
-  left: var(--esp-2);
-  padding: 0 var(--esp-1);
-  border-radius: var(--raio-xs);
-  font-size: var(--texto-xs);
-  line-height: 1rem;
-  background: var(--fundo-rotulo);
-  color: var(--cor-texto-secundario);
+.itin__passo:hover {
+  border-color: var(--neutro-500);
 }
 
-.itin__chegada-valor {
-  font-weight: var(--peso-semi);
+.itin__passo:focus-within {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.itin__passo .entrada {
+  min-height: 0;
+  padding: 0 0 0 var(--esp-3);
+  text-align: left;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   font-variant-numeric: tabular-nums;
-  color: var(--cor-marca-viva);
+}
+
+.itin__passo .entrada:focus-visible {
+  box-shadow: none;
+}
+
+.itin__passo-botao {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0 var(--esp-05);
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-terciario);
+  font: inherit;
+  font-size: var(--texto-md);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.itin__passo-botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.itin__passo-botao:last-child {
+  margin-right: var(--esp-1);
+}
+
+.itin__passo-botao:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
 }
 
 .itin__aviso {
@@ -587,17 +1110,22 @@
 }
 
 .itin__trecho--conflito {
-  box-shadow: inset 0 0 0 1px var(--cor-perigo-borda), inset 4px 0 0 var(--cor-perigo);
+  box-shadow: inset 0 0 0 1px var(--cor-perigo-borda), inset 2px 0 0 var(--cor-perigo);
 }
 
 @container itin (min-width: 42rem) {
   .itin__tempos {
-    grid-template-columns: minmax(14rem, 1.7fr) repeat(2, minmax(5.5rem, 0.8fr)) minmax(9rem, 1.1fr);
+    grid-template-columns: minmax(14rem, 1.6fr) repeat(2, minmax(8rem, 1fr)) minmax(9rem, 1.1fr);
   }
 
   .itin__saida,
   .itin__chegada {
     grid-column: auto;
+  }
+
+  /* Os campos de tempo abrem na linha de baixo, sob os valores que substituem. */
+  .itin__campos-tempo {
+    grid-column: 2 / -1;
   }
 }
 
@@ -608,68 +1136,30 @@
   width: min(23rem, calc(100vw - 2rem));
 }
 
-.itin__calendario-ajuda {
-  margin-bottom: var(--esp-2);
-  font-size: var(--texto-xs);
-  color: var(--cor-texto-secundario);
+/* Sem espaço abaixo, o calendário abre para cima (caberCalendario). */
+.itin__calendario--acima {
+  top: auto;
+  bottom: calc(100% + var(--esp-1));
+  transform-origin: bottom left;
 }
 
-.itin__chips {
-  display: grid;
-  gap: var(--esp-1);
-  max-height: 11.5rem;
-  margin: 0 0 var(--esp-3);
-  padding: 0;
-  overflow-y: auto;
-  list-style: none;
-}
-
-.itin__chip {
-  display: grid;
-  grid-template-columns: minmax(1.5rem, auto) minmax(0, 1fr) auto;
+/* Título do calendário: diz, sozinho, de que trecho é a data que se vai marcar. */
+.itin__calendario-titulo {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--esp-2);
-  width: 100%;
-  min-height: 2.25rem;
-  padding: var(--esp-1) var(--esp-2);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie);
-  color: var(--cor-texto);
-  font: inherit;
-  font-size: var(--texto-xs);
-  text-align: left;
-  cursor: pointer;
-}
-
-.itin__chip b {
-  display: grid;
-  place-items: center;
-  height: 1.5rem;
-  padding: 0 var(--esp-1);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-superficie-realce);
-  font-variant-numeric: tabular-nums;
-}
-
-.itin__chip span {
+  gap: var(--esp-1) var(--esp-2);
+  margin: 0 0 var(--esp-3);
+  font-size: var(--texto-sm);
   color: var(--cor-texto-secundario);
-  font-variant-numeric: tabular-nums;
 }
 
-.itin__chip--atual {
-  border-color: var(--cor-marca);
+.itin__calendario-titulo b {
+  padding: var(--esp-05) var(--esp-2);
+  border-radius: var(--raio-pilula);
   background: var(--cor-marca-fundo);
-}
-
-.itin__chip--atual b {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
-}
-
-.itin__chip:focus-visible {
-  outline: var(--foco-espessura) solid var(--foco-cor);
-  outline-offset: 1px;
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-xs);
 }
 
 .itin__calendario .calendario__grade td {
@@ -677,6 +1167,12 @@
   height: 2.5rem;
   vertical-align: top;
   padding-top: var(--esp-1);
+}
+
+/* Dias entre a primeira e a última saída: a viagem está em curso. */
+.itin__calendario .calendario__intervalo {
+  background: var(--cor-superficie-realce);
+  border-radius: 0;
 }
 
 .itin__marca-dia {
@@ -700,14 +1196,15 @@
     padding: var(--esp-2);
   }
 
-  .itin__parada,
-  .itin__adicionar {
-    grid-template-columns: 2.5rem minmax(0, 1fr) 2rem;
-    gap: var(--esp-1);
+  .itin__paradas {
+    --itin-trilho: 1.75rem;
   }
 
-  .itin__parada::before {
-    left: calc(1.25rem - 1px);
+  .itin__parada,
+  .itin__adicionar,
+  .itin__vaga {
+    grid-template-columns: var(--itin-trilho) minmax(0, 1fr) 2rem;
+    gap: var(--esp-1);
   }
 
   .itin__remover {
@@ -716,7 +1213,6 @@
 
   .itin__local {
     grid-template-columns: 4.25rem minmax(0, 1fr);
-    gap: var(--esp-1);
   }
 
   .itin__trecho {

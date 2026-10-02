@@ -5,7 +5,7 @@
    ===================================================================== */
 
 /* =============== Documento (folha única) e seções abertas =============== */
-/* Em vez de "um cartão por seção", o ofício é UMA folha: seções separadas por linhas,
+/* Em vez de "um cartão por seção", o ofício é UMA folha: seções separadas por linhas e
    numeradas, com o trilho dourado marcando onde o operador está. Menos caixas, mais
    leitura; a composição é a do próprio documento que o sistema emite. */
 .documento {
@@ -16,16 +16,28 @@
   padding: var(--esp-6) var(--esp-8) var(--esp-8);
 }
 
-/* Timbre: um segmento dourado curto no alto da folha. */
-.documento::before {
-  content: "";
+/* Linha-guia: corre ATRÁS da folha e aparece só na beirada esquerda, até a etapa da vez
+   (componentes/guia.js). Tem o formato do canto do cartão, um filete mais para fora, então
+   acompanha a curva; o que entraria por baixo do papel fica escondido — sem ponta à mostra.
+   O fim de baixo só ganha curva quando não falta mais nada a preencher. */
+.documento__guia {
   position: absolute;
+  z-index: -1;
   top: 0;
-  left: var(--esp-8);
-  width: 3rem;
-  height: var(--filete);
-  border-radius: 0 0 var(--raio-xs) var(--raio-xs);
-  background: var(--cor-marca);
+  left: calc(-1 * var(--filete));
+  width: calc(var(--raio-xl) * 2);
+  height: 0;
+  border: var(--filete) solid var(--cor-marca);
+  border-right: 0;
+  border-bottom: 0;
+  border-radius: calc(var(--raio-xl) + var(--filete)) 0 0 0;
+  pointer-events: none;
+  transition: height var(--duracao-enfase) var(--curva-padrao);
+}
+
+.documento__guia--fim {
+  border-bottom: var(--filete) solid var(--cor-marca);
+  border-bottom-left-radius: calc(var(--raio-xl) + var(--filete));
 }
 
 .documento--leitura {
@@ -49,7 +61,10 @@
   scroll-margin-top: calc(var(--altura-topo) + var(--esp-6));
 }
 
-.secao:first-child {
+/* A primeira seção não leva filete nem recuo extra — a linha-guia, que vem antes dela no
+   HTML, é posicionada fora do fluxo e não conta como irmã para esse fim. */
+.secao:first-child,
+.documento__guia + .secao {
   padding-top: var(--esp-2);
   border-top: 0;
 }
@@ -118,28 +133,9 @@
   color: var(--cor-texto-secundario);
 }
 
-/* Foco dentro da seção: trilho dourado na margem da folha, crescendo de cima. */
-.secao:focus-within::before {
-  content: "";
-  position: absolute;
-  left: calc(-1 * var(--esp-8));
-  top: var(--esp-5);
-  bottom: var(--esp-5);
-  width: var(--filete);
-  border-radius: 0 var(--raio-xs) var(--raio-xs) 0;
-  background: var(--cor-marca);
-  transform-origin: top center;
-  animation: trilho-crescer var(--duracao-media) var(--curva-padrao);
-}
-
-.secao:first-child:focus-within::before {
-  top: var(--esp-2);
-}
-
-.secao:focus-within .secao__numero {
-  background: var(--cor-marca);
-  border-color: var(--cor-marca);
-  color: var(--grafite-950);
+/* Uma etapa acesa por vez: quando o foco está numa etapa aninhada, a de fora descansa. */
+.secao:focus-within:has(.itin__bloco--etapa:focus-within) > .secao__cabecalho .secao__numero {
+  border-color: var(--cor-marca-borda);
 }
 
 /* Seção concluída: o número vira ✓ dourado (feito via classe no template). */
@@ -162,11 +158,6 @@
   box-shadow: none;
 }
 
-.documento .indicador {
-  box-shadow: none;
-  background: var(--cor-superficie-sutil);
-}
-
 /* Lista de definições dentro do documento: colunas respiram mais que no cartão. */
 .documento .definicoes {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -179,9 +170,7 @@
 
 @media (max-width: 767.98px) {
   .documento { padding: var(--esp-5) var(--esp-4) var(--esp-6); border-radius: var(--raio-lg); }
-  .documento::before { left: var(--esp-4); }
   .secao { padding: var(--esp-5) 0; }
-  .secao:focus-within::before { left: calc(-1 * var(--esp-4)); }
 }
 
 /* =============== Trilho de processo (status como narrativa) =============== */

@@ -15,7 +15,6 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
     <span class="placa__numero">{% if roteiro %}#{{ roteiro.pk }}{% else %}novo{% endif %}</span>
   </span>
   <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · roteiros</p>
     <h1 class="pagina-cabecalho__titulo">{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}</h1>
     {% if roteiro %}
     <p class="frase-oficio">
@@ -26,7 +25,6 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
       {% if roteiro.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ roteiro.diarias_total|moeda }}</span>{% endif %}
     </p>
     {% else %}
-    <p class="pagina-cabecalho__descricao">Informe a sede, os destinos e a saída de cada trecho; a rota calcula distância, tempos e chegadas. As diárias são estimadas para o efetivo do roteiro.</p>
     {% endif %}
   </div>
   {% if roteiro %}
@@ -56,11 +54,13 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
       data-confirmar-titulo="Excluir roteiro?" data-confirmar-rotulo="Excluir roteiro" data-confirmar-perigo>{% csrf_token %}</form>
 {% endif %}
 
-<form id="{{ form_id }}" method="post" action="{% if roteiro %}{% url 'viagens:editar_roteiro' roteiro.pk %}{% else %}{% url 'viagens:novo_roteiro' %}{% endif %}" novalidate
+<form id="{{ form_id }}" data-autosave="{% url 'viagens:autosave_roteiro' %}" method="post" action="{% if roteiro %}{% url 'viagens:editar_roteiro' roteiro.pk %}{% else %}{% url 'viagens:novo_roteiro' %}{% endif %}" novalidate
       data-proteger{% if sujo %} data-sujo{% endif %}{% if roteiro %} data-destaque="roteiro:{{ roteiro.pk }}"{% endif %}>
   {% csrf_token %}
   <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar roteiro</button>
   {{ destinos.management_form }}
+  {{ blocos.management_form }}
+  <input type="hidden" name="roteiro_id" value="{{ roteiro.pk|default:'' }}" data-roteiro-id>
 </form>
 
 {% include "componentes/resumo_erros.html" %}
@@ -74,26 +74,13 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
       <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">1</span>Origem e destinos</h2>
       <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
     </div>
-    {% include "viagens/_itinerario.html" %}
+    {% include "viagens/_itinerario.html" with etapa_trechos="2" %}
   </section>
 
-  <section class="secao" id="efetivo" aria-labelledby="t-efetivo">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-efetivo"><span class="secao__numero">2</span>Servidores e observações</h2></div>
-    <div class="campos">
-      {% include "componentes/campo.html" with campo=form.quantidade_servidores classe="campo--md" %}
-      {% include "componentes/campo.html" with campo=form.observacoes classe="campo--lg" %}
-    </div>
-  </section>
-
-  {% if roteiro %}
-    {% include "viagens/oficios/_diarias.html" with oficio=roteiro numerado=True numero="3" aguardando="Aguardando trechos" texto_vazio="O cálculo aparece aqui assim que o roteiro tiver ida e volta." %}
-  {% else %}
-  <section class="secao" id="diarias" aria-labelledby="t-diarias">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">3</span>Diárias</h2>
-      <div class="secao__estado"><span class="selo selo--situacao-rascunho">Calculadas ao salvar</span></div></div>
-    <p class="texto-secundario">As diárias são estimadas para a quantidade de servidores do roteiro assim que você salvar com ida e volta.</p>
-  </section>
-  {% endif %}
+  {# A prévia troca esta seção por conta própria assim que houver ida, volta e datas. #}
+  <div id="diarias-previa" data-previa-diarias="{% url 'viagens:previa_diarias_roteiro' %}">
+    {% include "viagens/oficios/_diarias.html" with oficio=roteiro numerado=True numero="3" aguardando="Aguardando trechos" texto_vazio="O cálculo aparece aqui assim que o roteiro tiver ida e volta com datas." %}
+  </div>
 
   {% if oficios_do_roteiro %}
   <section class="secao" id="oficios" aria-labelledby="t-oficios">

@@ -15,7 +15,6 @@ lateral: o que é secundário recua por hierarquia e disclosure, não por caixa 
     <span class="placa__numero">{{ oficio.numero_formatado }}</span>
   </span>
   <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · Ofício de viagem · {{ oficio.unidade.sigla }}</p>
     <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }}<span class="sr-only"> — {{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
     </h1>

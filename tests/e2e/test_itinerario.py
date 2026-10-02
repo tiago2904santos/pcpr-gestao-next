@@ -91,17 +91,19 @@ def test_calendario_unico_preenche_as_saidas_de_todos_os_trechos(logado):
     pg = logado
     pg.goto("/viagens/roteiros/novo/")
     _cidade(pg, 0, "Ponta Gr", "Ponta Grossa/PR")
-    pg.get_by_label("Quantidade de servidores").fill("2")
     botao = pg.get_by_role("button", name="Preencher datas de saída")
     botao.click()
     painel = pg.get_by_role("dialog", name="Datas de saída dos trechos")
     expect(painel).to_be_visible()
-    expect(painel.locator(".itin__chip")).to_have_count(2)  # ida + volta
+    # O título diz de que trecho é a data que se vai marcar (começa pela ida).
+    expect(painel.locator(".itin__calendario-titulo")).to_contain_text("Ponta Grossa/PR")
     painel.locator("[data-mes='1']").click()
     dias = painel.locator("td[data-dia]:not(.calendario__fora)")
     dias.nth(9).click()   # ida no dia 10
     dias.nth(11).click()  # volta no dia 12 (o próximo trecho fica selecionado sozinho)
     expect(painel.locator(".itin__marca-dia")).to_have_count(2)
+    # Os dias entre a ida e a volta ficam marcados como viagem em curso.
+    expect(painel.locator(".calendario__intervalo")).to_have_count(1)
     pg.keyboard.press("Escape")
     expect(painel).to_be_hidden()
     expect(botao).to_be_focused()
@@ -109,7 +111,6 @@ def test_calendario_unico_preenche_as_saidas_de_todos_os_trechos(logado):
     volta = pg.locator("#id_retorno-saida_0").input_value()
     assert ida.startswith("10/") and volta.startswith("12/")
     expect(pg.locator("#id_destino-0-saida_1")).to_have_value("08:00")
-    expect(pg.locator("[data-volta]")).to_contain_text(volta)
     pg.get_by_role("button", name="Salvar roteiro").click()
     expect(pg.locator(".toast")).to_contain_text("cadastrado")
     roteiro = Roteiro.objects.latest("pk")

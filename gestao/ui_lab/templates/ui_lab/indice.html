@@ -4,7 +4,7 @@
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
-  {% include "componentes/pagina_cabecalho.html" with titulo="UI Lab" sobretitulo="Design System" icone="palette" descricao="Vitrine viva: todos os componentes em todos os estados. Hover, foco e ativo são exercitados com mouse e teclado (e pelos testes visuais automatizados)." acoes="ui_lab/_acoes_cabecalho.html" %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="UI Lab" icone="palette" descricao="Vitrine viva: todos os componentes em todos os estados. Hover, foco e ativo são exercitados com mouse e teclado (e pelos testes visuais automatizados)." acoes="ui_lab/_acoes_cabecalho.html" %}
 {% endblock %}
 {% block conteudo %}
 <div class="lab">

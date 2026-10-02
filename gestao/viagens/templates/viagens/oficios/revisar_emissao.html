@@ -3,7 +3,7 @@
 {% block titulo %}Emitir Ofício {{ oficio.numero_formatado }}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_assistente %}
-  {% include "componentes/pagina_cabecalho.html" with titulo="Revisar e emitir" sobretitulo=oficio.numero_formatado icone="stamp" descricao="Confira os dados que vão para o documento oficial. Depois de emitido, o ofício fica travado." %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Revisar e emitir" icone="stamp" descricao="Confira os dados que vão para o documento oficial. Depois de emitido, o ofício fica travado." %}
 {% endblock %}
 {% block etapas %}
   <li class="etapas__item etapas__item--concluida"><span><span class="etapas__marcador">{% icone "check" classe="icone--sm" %}</span>Preencher</span></li>

@@ -3,6 +3,10 @@
  * <pc-data> — campo dd/mm/aaaa com calendário próprio (padrão "Date Picker Dialog" do
  * WAI-ARIA APG). Teclado na grade: setas (dia/semana), Home/End (início/fim da semana),
  * PageUp/PageDown (mês; com Shift, ano), Enter/Espaço escolhem, Esc fecha.
+ *
+ * Intervalo: com `data-ate="<id de outro campo de data>"`, o mesmo calendário marca começo e
+ * fim — o primeiro clique abre o período, o segundo fecha, e os dias entre eles aparecem
+ * marcados. Sem JavaScript continuam dois campos de data comuns.
  */
 import { SeletorFlutuante } from "./seletor-base.js";
 
@@ -39,6 +43,14 @@ export class PcData extends SeletorFlutuante {
   classePainel = "calendario";
   textoBotao = "Escolher data";
   foco = new Date();
+  /** Já há um começo escolhido e o próximo clique fecha o período. */
+  aguardandoFim = false;
+
+  /** Campo do fim do período, quando este calendário marca um intervalo. */
+  get campoFim() {
+    const id = this.dataset.ate;
+    return id ? /** @type {HTMLInputElement | null} */ (document.getElementById(id)) : null;
+  }
 
   montar() {
     const painel = /** @type {HTMLElement} */ (this.painel);
@@ -115,7 +127,10 @@ export class PcData extends SeletorFlutuante {
         td.tabIndex = mesmoDia(d, this.foco) ? 0 : -1;
         if (d.getMonth() !== mes) td.className = "calendario__fora";
         if (mesmoDia(d, hoje)) td.setAttribute("aria-current", "date");
-        td.setAttribute("aria-selected", String(Boolean(escolhida && mesmoDia(d, escolhida))));
+        const fim = this.campoFim && lerData(this.campoFim.value);
+        const extremo = Boolean((escolhida && mesmoDia(d, escolhida)) || (fim && mesmoDia(d, fim)));
+        td.setAttribute("aria-selected", String(extremo));
+        if (escolhida && fim && d > escolhida && d < fim) td.classList.add("calendario__intervalo");
       }
     }
   }
@@ -170,7 +185,28 @@ export class PcData extends SeletorFlutuante {
 
   /** @param {Date} d */
   escolher(d) {
-    this.escrever(formatar(d));
+    const fim = this.campoFim;
+    if (!fim) {
+      this.escrever(formatar(d));
+      this.fechar(true);
+      return;
+    }
+    if (!this.aguardandoFim) {
+      // Primeiro clique: abre um período novo e espera o segundo, sem fechar o calendário.
+      this.escrever(formatar(d));
+      fim.value = "";
+      fim.dispatchEvent(new Event("change", { bubbles: true }));
+      this.aguardandoFim = true;
+      this.renderizar();
+      return;
+    }
+    // Segundo clique fecha o período; clicar antes do começo inverte os dois.
+    const inicio = lerData(/** @type {HTMLInputElement} */ (this.entrada).value) || d;
+    const [a, b] = d < inicio ? [d, inicio] : [inicio, d];
+    this.escrever(formatar(a));
+    fim.value = formatar(b);
+    fim.dispatchEvent(new Event("change", { bubbles: true }));
+    this.aguardandoFim = false;
     this.fechar(true);
   }
 }

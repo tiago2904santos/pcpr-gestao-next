@@ -177,9 +177,9 @@ class TestNovoEEdicao:
         html = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados).content.decode()
         assert 'name="destino-0-saida_1" value="07:30"' in html
         assert 'name="destino-0-tempo_viagem" value="04:15"' in html
-        # A nova parada começa na mesma UF da anterior (filtra os municípios).
+        # A nova parada começa na UF da sede (filtra os municípios), não na do destino anterior.
         assert 'name="destino-1-cidade"' in html
-        assert re.search(r'<option value="SC" selected>[^<]*</option>', html.split(
+        assert re.search(r'<option value="PR" selected>[^<]*</option>', html.split(
             'name="destino-1-uf"')[1]) is not None
 
     def test_data_invalida_volta_com_mensagem_clara(self, operador, cenario):

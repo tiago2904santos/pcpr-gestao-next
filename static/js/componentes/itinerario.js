@@ -40,6 +40,16 @@ const dataHoraBR = (d) => `${dataBR(d)} ${dois(d.getHours())}:${dois(d.getMinute
 /** @param {number} km */
 const kmBR = (km) => `${km.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km`;
 
+const MENOS_MOVIMENTO = matchMedia("(prefers-reduced-motion: reduce)");
+const DESLIZE = { duration: 160, easing: "cubic-bezier(0.2, 0, 0, 1)" };
+
+/** Anima um elemento do lugar onde estava (topo antigo) até onde está agora. @param {Element} el @param {number} topoAntigo */
+function deslizar(el, topoAntigo) {
+  if (MENOS_MOVIMENTO.matches) return;
+  const delta = topoAntigo - el.getBoundingClientRect().top;
+  if (Math.abs(delta) > 0.5) el.animate([{ transform: `translateY(${delta}px)` }, { transform: "none" }], DESLIZE);
+}
+
 /** @type {Promise<any> | null} */
 let carregandoLeaflet = null;
 /** @param {string} js @param {string} css */
@@ -64,12 +74,24 @@ export class PcItinerario extends HTMLElement {
   atraso = undefined;
   /** @type {AbortController | null} */
   pedido = null;
+  /** @type {number | undefined} */
+  atrasoDiarias = undefined;
+  /** @type {AbortController | null} */
+  pedidoDiarias = null;
+  /** @type {AbortController | null} */
+  pedidoTrechos = null;
   /** @type {any} */
   mapa = null;
   /** @type {any} */
   camada = null;
   /** @type {any} */
   ultimaRota = null;
+  /** @type {any} Limites do último desenho concluído (reenquadra quando o mapa muda de tamanho). */
+  limites = null;
+  /** Sede já centrada no mapa, para não refazer o pedido a cada tecla. */
+  sedeNoMapa = "";
+  /** A pessoa já mexeu em algo (só então vale pedir a prévia das diárias). */
+  tocado = false;
   visivel = false;
   arrastando = /** @type {HTMLElement | null} */ (null);
 
@@ -83,6 +105,8 @@ export class PcItinerario extends HTMLElement {
     this.anuncio.setAttribute("aria-live", "polite");
     this.append(this.anuncio);
     this.querySelectorAll("[data-alca], [data-preencher-datas], [data-dica-arraste]").forEach((a) => a.removeAttribute("hidden"));
+    this.querySelectorAll("[data-trecho]").forEach((t) => this.prepararTempos(t));
+    this.querySelectorAll("[data-bloco-bv]").forEach((b) => this.prepararPeriodo(b));
 
     this.addEventListener("click", (e) => this.clique(e));
     this.addEventListener("input", (e) => this.digitou(e));
@@ -91,19 +115,102 @@ export class PcItinerario extends HTMLElement {
     this.addEventListener("keydown", (e) => this.tecla(e));
     this.addEventListener("pointerdown", (e) => this.comecarArraste(e));
 
+    const caixaMapa = /** @type {Element} */ (this.querySelector("[data-mapa]"));
     new IntersectionObserver((entradas) => {
       if (entradas.some((e) => e.isIntersecting)) {
         this.visivel = true;
         if (this.ultimaRota) this.desenhar(this.ultimaRota);
       }
-    }, { rootMargin: "200px" }).observe(/** @type {Element} */ (this.querySelector("[data-mapa]")));
+    }, { rootMargin: "200px" }).observe(caixaMapa);
+    // Na folha larga o mapa acompanha a altura da lista de paradas: ao entrar ou sair um
+    // destino a caixa muda de tamanho e o Leaflet precisa remedir para não cortar a rota.
+    // Os limites são os do último desenho concluído: durante o desenho a camada ainda está
+    // pela metade, e reenquadrar por ela jogaria o mapa em cima de um único ponto.
+    new ResizeObserver(() => {
+      if (!this.mapa) return;
+      this.mapa.invalidateSize();
+      if (this.limites) this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
+    }).observe(caixaMapa);
 
     this.renumerar();
     // Tempos já gravados valem para a rota atual: só uma rota nova (cidade trocada ou
     // ordem mudada) recalcula. Ver aplicarRota().
     for (const t of this.trechos()) t.raiz.dataset.rota = `${t.de}→${t.para}`;
+    // A prévia só vale depois de a pessoa mexer: ao abrir, o servidor já mandou o cálculo
+    // gravado, e pedir de novo seria uma ida à rede por nada.
+    for (const evento of ["input", "change", "click"]) {
+      this.addEventListener(evento, (e) => { this.tocado ||= e.isTrusted; }, true);
+    }
     this.recalcular();
     this.agendarRota(0);
+  }
+
+  // ------------------------------------------------------------------ prévia das diárias
+  /** O servidor calcula com as mesmas regras do salvamento; aqui nada é decidido. */
+  agendarDiarias(espera = 700) {
+    const alvo = document.querySelector("[data-previa-diarias]");
+    if (!alvo || !this.tocado) return;
+    window.clearTimeout(this.atrasoDiarias);
+    this.atrasoDiarias = window.setTimeout(() => {
+      this.buscarTrechosGerados();
+      this.buscarDiarias(alvo);
+    }, espera);
+  }
+
+  /** Trechos gerados pelos blocos, pedidos ao servidor (mesma expansão do salvamento). */
+  async buscarTrechosGerados() {
+    const alvo = this.querySelector("[data-previa-trechos]");
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(this.dataset.form || ""));
+    if (!alvo || !form || !this.classList.contains("itin--bate-volta")) return;
+    const completo = Array.from(this.querySelectorAll("[data-bloco-bv]")).some((b) =>
+      ["-cidade", "-dia_inicial", "-dia_final", "-hora_saida", "-hora_volta"].every((c) =>
+        /** @type {HTMLInputElement | null} */ (b.querySelector(`input[name$='${c}']`))?.value));
+    if (!completo) return;
+    this.pedidoTrechos?.abort();
+    this.pedidoTrechos = new AbortController();
+    try {
+      const resposta = await fetch(String(/** @type {HTMLElement} */ (alvo).dataset.previaTrechos), {
+        method: "POST", body: new FormData(form), signal: this.pedidoTrechos.signal,
+      });
+      if (resposta.ok) alvo.innerHTML = await resposta.text();
+    } catch (erro) {
+      if (/** @type {Error} */ (erro).name !== "AbortError") throw erro;
+    }
+  }
+
+  /** @param {Element} alvo */
+  async buscarDiarias(alvo) {
+    const form = /** @type {HTMLFormElement | null} */ (document.getElementById(this.dataset.form || ""));
+    if (!form) return;
+    // Só pede o cálculo quando há ida, volta e datas: antes disso o servidor só repetiria
+    // "faltam trechos", e cada tecla viraria uma requisição.
+    if (!this.cidadeSede()) return;
+    let completo;
+    if (this.classList.contains("itin--bate-volta")) {
+      // No bate-volta o que conta é o bloco: destino, período e horários.
+      const blocos = Array.from(this.querySelectorAll("[data-bloco-bv]"));
+      completo = blocos.length > 0 && blocos.every((b) =>
+        ["-cidade", "-dia_inicial", "-dia_final", "-hora_saida", "-hora_volta"].every((c) =>
+          /** @type {HTMLInputElement | null} */ (b.querySelector(`input[name$='${c}']`))?.value));
+    } else {
+      const comData = (/** @type {Element | null} */ raiz) => Boolean(this.campo(raiz, "saida_0")?.value && this.campo(raiz, "saida_1")?.value);
+      const destinos = this.paradas();
+      if (destinos.length === 0) return;
+      completo = destinos.every((p) => this.campo(p, "cidade")?.value.includes("/") && comData(this.trechoDa(p)))
+        && comData(this.querySelector("[data-retorno]"));
+    }
+    if (!completo) return;
+    this.pedidoDiarias?.abort();
+    this.pedidoDiarias = new AbortController();
+    try {
+      const resposta = await fetch(String(/** @type {HTMLElement} */ (alvo).dataset.previaDiarias), {
+        method: "POST", body: new FormData(form), signal: this.pedidoDiarias.signal,
+      });
+      if (!resposta.ok) return;
+      alvo.innerHTML = await resposta.text();
+    } catch (erro) {
+      if (/** @type {Error} */ (erro).name !== "AbortError") throw erro;
+    }
   }
 
   // ------------------------------------------------------------------ paradas
@@ -163,6 +270,8 @@ export class PcItinerario extends HTMLElement {
       if (de) de.textContent = t.de;
       if (para) para.textContent = t.para;
     }
+    const voltaSede = this.querySelector("[data-volta-sede]");
+    if (voltaSede) voltaSede.textContent = this.cidadeSede() || "—";
     const total = this.paradas().length;
     const adicionar = /** @type {HTMLElement | null} */ (this.querySelector("[data-adicionar-li]"));
     if (adicionar) adicionar.hidden = total >= 10;
@@ -179,15 +288,17 @@ export class PcItinerario extends HTMLElement {
     const trocar = (/** @type {string} */ html) => html.replaceAll("__prefix__", String(indice)).replaceAll("__n__", String(numero));
     antes.insertAdjacentHTML("beforebegin", trocar(modelo.innerHTML));
     const modeloTrecho = /** @type {HTMLTemplateElement | null} */ (this.querySelector("template[data-modelo-trecho]"));
-    this.querySelector("[data-retorno]")?.insertAdjacentHTML("beforebegin", trocar(modeloTrecho?.innerHTML || ""));
+    const retorno = this.querySelector("[data-retorno]");
+    retorno?.insertAdjacentHTML("beforebegin", trocar(modeloTrecho?.innerHTML || ""));
+    if (retorno?.previousElementSibling) this.prepararTempos(retorno.previousElementSibling);
     contador.value = String(indice + 1);
     const nova = /** @type {HTMLElement} */ (antes.previousElementSibling);
     nova.querySelector("[data-alca]")?.removeAttribute("hidden");
-    // A nova parada começa na mesma UF da anterior (o caso mais comum: interior do estado).
-    const ufAnterior = this.campo(this.paradas().at(-2) || this.querySelector(".itin__parada--sede"), "uf")?.value;
+    // A nova parada começa na UF da sede (o caso mais comum: viagem dentro do estado).
+    const ufSede = this.campo(this.querySelector(".itin__parada--sede"), "uf")?.value;
     const uf = /** @type {HTMLSelectElement | null} */ (nova.querySelector("[data-uf]"));
-    if (uf && ufAnterior) {
-      uf.value = ufAnterior;
+    if (uf && ufSede) {
+      uf.value = ufSede;
       uf.dispatchEvent(new Event("change", { bubbles: true }));
     }
     this.renumerar();
@@ -217,9 +328,27 @@ export class PcItinerario extends HTMLElement {
     const alvo = lista[i + delta];
     if (!alvo) return;
     const saidas = this.saidas();
-    if (delta < 0) alvo.before(parada);
-    else alvo.after(parada);
+    this.animarOrdem(() => {
+      if (delta < 0) alvo.before(parada);
+      else alvo.after(parada);
+    });
     this.depoisDeMover(parada, saidas);
+  }
+
+  /**
+   * Muda a ordem da lista e faz os itens deslizarem até o novo lugar (FLIP). A linha que está
+   * sendo arrastada segue o ponteiro e fica de fora.
+   * @param {() => void} mudar
+   */
+  animarOrdem(mudar) {
+    const itens = Array.from(/** @type {HTMLElement} */ (this.lista).children)
+      .filter((el) => !el.classList.contains("itin__parada--arrastando"));
+    const antes = itens.map((el) => el.getBoundingClientRect().top);
+    mudar();
+    itens.forEach((el, i) => {
+      el.getAnimations().forEach((a) => a.cancel());
+      deslizar(el, antes[i]);
+    });
   }
 
   /** Saídas (data e hora) dos destinos, na ordem atual da tela. */
@@ -259,7 +388,68 @@ export class PcItinerario extends HTMLElement {
       this.adicionar();
     } else if (alvo.closest("[data-preencher-datas]")) {
       this.abrirCalendario();
+    } else if (alvo.closest("[data-ver-rota]")) {
+      this.enquadrarRota();
+    } else if (alvo.closest("[data-passo]")) {
+      this.passoDeTempo(/** @type {HTMLElement} */ (alvo.closest("[data-passo]")));
+    } else if (alvo.closest("[data-adicionar-bv]")) {
+      // Bate-volta ainda não tem clonagem no navegador: o servidor devolve a linha nova.
+      return;
     }
+  }
+
+  /** O primeiro dia abre o calendário do período; o último é preenchido por ele. @param {Element} bloco */
+  prepararPeriodo(bloco) {
+    const datas = bloco.querySelectorAll("pc-data");
+    const fim = datas[1]?.querySelector("input");
+    if (datas.length === 2 && fim?.id) {
+      /** @type {HTMLElement} */ (datas[0]).dataset.ate = fim.id;
+    }
+  }
+
+  /** Mostra os botões de 15 minutos do trecho (só existem com JavaScript). @param {Element} trecho */
+  prepararTempos(trecho) {
+    trecho.querySelectorAll("[data-passo]").forEach((b) => b.removeAttribute("hidden"));
+  }
+
+  /** Soma (ou tira) 15 minutos do campo ao lado, nunca abaixo de zero. @param {HTMLElement} botao */
+  passoDeTempo(botao) {
+    const campo = /** @type {HTMLInputElement | null} */ (
+      botao.closest(".itin__passo")?.querySelector("input"));
+    if (!campo) return;
+    const minutos = Math.max(0, (lerMinutos(campo.value) ?? 0) + Number(botao.dataset.passo));
+    campo.value = hhmm(minutos);
+    campo.dataset.manual = "1";
+    campo.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  /** Volta o mapa ao enquadramento que mostra a rota inteira. */
+  enquadrarRota() {
+    if (!this.mapa || !this.limites) return;
+    this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
+  }
+
+  /**
+   * O traçado se desenha da origem ao destino. É o momento em que a rota deixa de ser
+   * números e vira caminho — por isso vale a ênfase, e só aqui.
+   * @param {SVGPathElement | null} caminho @param {number} ordem
+   */
+  desenharTracado(caminho, ordem) {
+    if (!caminho || MENOS_MOVIMENTO.matches || typeof caminho.getTotalLength !== "function") return;
+    const comprimento = caminho.getTotalLength();
+    if (!comprimento) return;
+    caminho.animate(
+      [{ strokeDasharray: comprimento, strokeDashoffset: comprimento },
+       { strokeDasharray: comprimento, strokeDashoffset: 0 }],
+      { duration: 720, delay: ordem * 160, easing: "cubic-bezier(0.2, 0, 0, 1)", fill: "backwards" },
+    );
+  }
+
+  /** O atalho só aparece quando a vista deixou de mostrar a rota toda. */
+  atualizarVerRota() {
+    const botao = /** @type {HTMLElement | null} */ (this.querySelector("[data-ver-rota]"));
+    if (!botao) return;
+    botao.hidden = !this.limites || !this.mapa || this.mapa.getBounds().contains(this.limites);
   }
 
   /** @param {Event} e */
@@ -273,6 +463,15 @@ export class PcItinerario extends HTMLElement {
   /** @param {Event} e */
   mudou(e) {
     const alvo = /** @type {HTMLInputElement} */ (e.target);
+    // As duas listas já estão na página: alternar só troca qual aparece, sem recarregar e
+    // sem perder o que foi digitado na outra.
+    if (alvo.matches("[data-bate-volta]")) {
+      this.classList.toggle("itin--bate-volta", alvo.checked);
+      this.renumerar();
+      this.recalcular();
+      this.agendarRota();
+      return;
+    }
     if (alvo.matches("[data-remover]") && alvo.checked) {
       const parada = /** @type {HTMLElement | null} */ (alvo.closest("[data-parada]"));
       if (parada) this.remover(parada);
@@ -329,21 +528,55 @@ export class PcItinerario extends HTMLElement {
   }
 
   /**
-   * Arrastar e soltar pela alça (mouse, caneta e toque). Os ouvintes ficam no documento:
-   * o cartão muda de lugar no DOM durante o arraste (o que desfaria uma captura de ponteiro).
+   * Arrastar e soltar pela alça (mouse, caneta e toque). A linha levanta e segue o ponteiro
+   * (posição absoluta na lista); uma vaga tracejada marca onde ela vai cair e os outros
+   * destinos deslizam para abrir espaço. Ao soltar, a linha se encaixa na vaga.
+   * Os ouvintes ficam no documento: a vaga muda de lugar no DOM durante o arraste.
    * @param {PointerEvent} e
    */
   comecarArraste(e) {
     const alca = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (e.target).closest("[data-alca]"));
-    if (!alca || e.button !== 0) return;
+    if (!alca || e.button !== 0 || this.paradas().length < 2) return;
     const parada = /** @type {HTMLElement} */ (alca.closest("[data-parada]"));
+    const lista = /** @type {HTMLElement} */ (this.lista);
     e.preventDefault();
     const saidas = this.saidas();
     const inicio = this.paradas().indexOf(parada);
+    const caixa = parada.getBoundingClientRect();
+    const pega = e.clientY - caixa.top;
+
+    const vaga = document.createElement("li");
+    vaga.className = "itin__vaga";
+    vaga.setAttribute("aria-hidden", "true");
+    vaga.style.height = `${caixa.height}px`;
+    parada.before(vaga);
     parada.classList.add("itin__parada--arrastando");
     this.classList.add("itin--arrastando");
-    // Perto da borda da janela a página rola sozinha (destino lá embaixo ou lá em cima).
+
+    /** Vizinho da vaga na lista, pulando a linha que está no ar. @param {-1 | 1} lado */
+    const vizinho = (lado) => {
+      let el = lado < 0 ? vaga.previousElementSibling : vaga.nextElementSibling;
+      if (el === parada) el = lado < 0 ? el.previousElementSibling : el.nextElementSibling;
+      return el;
+    };
     let y = e.clientY;
+    const reposicionar = () => {
+      parada.style.top = `${y - pega - lista.getBoundingClientRect().top}px`;
+      const centro = y - pega + caixa.height / 2;
+      const outras = this.paradas().filter((p) => p !== parada);
+      const proxima = outras.find((p) => {
+        const r = p.getBoundingClientRect();
+        return centro < r.top + r.height / 2;
+      });
+      const ultima = outras.at(-1);
+      if (proxima) {
+        if (vizinho(1) !== proxima) this.animarOrdem(() => proxima.before(vaga));
+      } else if (ultima && vizinho(-1) !== ultima) {
+        this.animarOrdem(() => ultima.after(vaga));
+      }
+    };
+    reposicionar();
+    // Perto da borda da janela a página rola sozinha (destino lá embaixo ou lá em cima).
     let quadro = 0;
     const rolar = () => {
       const margem = 72;
@@ -353,18 +586,6 @@ export class PcItinerario extends HTMLElement {
         reposicionar();
       }
       quadro = requestAnimationFrame(rolar);
-    };
-    const reposicionar = () => {
-      for (const outra of this.paradas()) {
-        if (outra === parada) continue;
-        const r = outra.getBoundingClientRect();
-        if (y > r.top && y < r.bottom) {
-          if (y < r.top + r.height / 2) outra.before(parada);
-          else outra.after(parada);
-          this.renumerar();
-          break;
-        }
-      }
     };
     const mover = (/** @type {PointerEvent} */ ev) => {
       y = ev.clientY;
@@ -376,10 +597,15 @@ export class PcItinerario extends HTMLElement {
       document.removeEventListener("pointermove", mover);
       document.removeEventListener("pointerup", soltar);
       document.removeEventListener("pointercancel", soltar);
+      const noAr = parada.getBoundingClientRect().top;
+      vaga.replaceWith(parada);
       parada.classList.remove("itin__parada--arrastando");
+      parada.style.removeProperty("top");
       this.classList.remove("itin--arrastando");
+      deslizar(parada, noAr);
       if (this.paradas().indexOf(parada) !== inicio) this.depoisDeMover(parada, saidas);
-      /** @type {HTMLElement | null} */ (parada.querySelector("[data-alca]"))?.focus();
+      // Foco volta à alça (o teclado continua dali) sem acender o anel depois de um arraste com mouse.
+      alca.focus(/** @type {FocusOptions} */ ({ preventScroll: true, focusVisible: false }));
     };
     document.addEventListener("pointermove", mover);
     document.addEventListener("pointerup", soltar);
@@ -389,18 +615,20 @@ export class PcItinerario extends HTMLElement {
   // ------------------------------------------------------------------ tempos e chegadas
   recalcular() {
     let anterior = /** @type {Date | null} */ (null);
-    let viagemTotal = 0;
-    let adicionalTotal = 0;
-    let volta = /** @type {Date | null} */ (null);
-    for (const t of this.trechos()) {
+    // Ida = todos os trechos até o último destino; volta = o trecho de retorno à sede.
+    const ida = { km: 0, minutos: 0 };
+    const regresso = { km: 0, minutos: 0 };
+    const lista = this.trechos();
+    for (const [i, t] of lista.entries()) {
       if (!t.raiz) continue;
+      const parte = i === lista.length - 1 ? regresso : ida;
       const data = this.campo(t.raiz, "saida_0")?.value || "";
       const hora = this.campo(t.raiz, "saida_1")?.value || "";
       const saida = lerDataHora(data, hora);
       const viagem = lerMinutos(this.campo(t.raiz, "tempo_viagem")?.value || "");
       const adicional = lerMinutos(this.campo(t.raiz, "tempo_adicional")?.value || "") ?? 0;
-      viagemTotal += viagem || 0;
-      adicionalTotal += adicional;
+      parte.minutos += (viagem || 0) + adicional;
+      parte.km += Number(t.raiz.dataset.km || 0);
       const saidaChegada = /** @type {HTMLElement | null} */ (t.raiz.querySelector("[data-chegada]"));
       const chegada = saida && viagem !== null ? new Date(saida.getTime() + (viagem + adicional) * 60000) : null;
       if (saidaChegada) saidaChegada.textContent = chegada ? dataHoraBR(chegada) : "—";
@@ -410,16 +638,39 @@ export class PcItinerario extends HTMLElement {
       const aviso = /** @type {HTMLElement | null} */ (t.raiz.querySelector("[data-aviso]"));
       if (aviso) aviso.hidden = !conflito;
       if (chegada) anterior = chegada;
-      volta = chegada;
     }
-    this.texto("[data-total-viagem]", viagemTotal ? duracao(viagemTotal) : "—");
-    this.texto("[data-total-adicional]", adicionalTotal ? duracao(adicionalTotal) : "—");
-    this.texto("[data-volta]", volta ? dataHoraBR(volta) : "—");
+    // No bate-volta os totais são o par do dia, preenchido direto da rota (aplicarRota):
+    // somar trechos aqui só os apagaria, porque nesse modo não há trechos editáveis.
+    if (this.classList.contains("itin--bate-volta")) {
+      this.agendarDiarias();
+      return;
+    }
+    // Ida e volta percorrem a mesma estrada: em vez de dois tempos quase iguais, vale o maior
+    // (o pior caso) — e a viagem inteira é esse tempo duas vezes.
+    const tempo = Math.max(ida.minutos, regresso.minutos);
+    this.texto("[data-ida-km]", ida.km ? kmBR(ida.km) : "—");
+    this.texto("[data-ida-tempo]", tempo ? duracao(tempo) : "—");
+    this.texto("[data-total-km]", ida.km || regresso.km ? kmBR(ida.km + regresso.km) : "—");
+    this.texto("[data-total-tempo]", tempo ? duracao(tempo * 2) : "—");
+    this.agendarDiarias();
   }
 
   /** @param {string} seletor @param {string} valor */
   texto(seletor, valor) {
     const el = this.querySelector(seletor);
+    if (!el || el.textContent === valor) return;
+    const tinha = el.textContent && el.textContent !== "—";
+    el.textContent = valor;
+    // Só o número que mudou se move; trocar tudo a cada tecla seria ruído.
+    if (tinha && !MENOS_MOVIMENTO.matches && valor !== "—") {
+      el.animate([{ transform: "translateY(-0.35em)", opacity: 0 }, { transform: "none", opacity: 1 }],
+        { duration: 260, easing: "cubic-bezier(0.34, 1.35, 0.64, 1)" });
+    }
+  }
+
+  /** @param {Element} raiz @param {string} seletor @param {string} valor */
+  textoEm(raiz, seletor, valor) {
+    const el = raiz.querySelector(seletor);
     if (el) el.textContent = valor;
   }
 
@@ -429,14 +680,28 @@ export class PcItinerario extends HTMLElement {
     this.atraso = window.setTimeout(() => this.buscarRota(), espera);
   }
 
+  /** Destinos dos bate-voltas, na ordem dos blocos. */
+  destinosDosBlocos() {
+    return Array.from(this.querySelectorAll("[data-bloco-bv]"))
+      .filter((b) => !(/** @type {HTMLInputElement | null} */ (b.querySelector("[data-remover]"))?.checked))
+      .map((b) => /** @type {HTMLInputElement | null} */ (b.querySelector("input[name$='-cidade']"))?.value.trim() || "");
+  }
+
   async buscarRota() {
     const sede = this.cidadeSede();
-    const destinos = this.paradas().map((p) => this.campo(p, "cidade")?.value.trim() || "");
+    const destinos = this.classList.contains("itin--bate-volta")
+      ? this.destinosDosBlocos()
+      : this.paradas().map((p) => this.campo(p, "cidade")?.value.trim() || "");
     if (!sede || destinos.length === 0 || destinos.some((d) => !d.includes("/"))) {
-      this.texto("[data-rota-fonte]", "Complete a sede e as cidades para traçar a rota.");
+      this.texto("[data-rota-fonte]", "");
+      // Ainda não há rota: em vez de uma caixa vazia, o mapa já mostra a cidade da sede.
+      if (sede.includes("/")) this.centrarNaSede(sede);
       return;
     }
-    const pontos = [sede, ...destinos, sede];
+    this.sedeNoMapa = "";
+    const pontos = this.classList.contains("itin--bate-volta")
+      ? [sede, ...destinos.flatMap((d) => [d, sede])]
+      : [sede, ...destinos, sede];
     const url = `${this.dataset.rotaUrl}?${pontos.map((p) => `p=${encodeURIComponent(p)}`).join("&")}`;
     this.pedido?.abort();
     this.pedido = new AbortController();
@@ -456,14 +721,13 @@ export class PcItinerario extends HTMLElement {
 
   /** @param {any} rota */
   aplicarRota(rota) {
-    const trechos = this.trechos();
-    let km = 0;
+    const trechos = this.classList.contains("itin--bate-volta") ? [] : this.trechos();
     let estimativa = false;
     rota.pernas.forEach((/** @type {any} */ perna, /** @type {number} */ i) => {
       const t = trechos[i];
       if (!t || !perna) return;
-      km += perna.km;
       estimativa ||= perna.fonte === "estimativa";
+      t.raiz.dataset.km = String(perna.km || 0);
       const rotulo = t.raiz.querySelector("[data-km]");
       if (rotulo) rotulo.textContent = perna.km ? kmBR(perna.km) : "";
       // Rota nova (cidade trocada, ordem mudada): os tempos são refeitos. Mesma rota: só
@@ -479,40 +743,85 @@ export class PcItinerario extends HTMLElement {
         if (nova || (!campo.value && !campo.dataset.manual)) campo.value = hhmm(minutos);
       }
     });
-    this.texto("[data-total-km]", km ? kmBR(km) : "—");
+    // A fonte só fala quando há o que avisar: a rota por estrada é o esperado, e dizer isso
+    // a cada cálculo era ruído na tela.
+    // No bate-volta não há trechos editáveis para somar: os totais são o próprio par do dia,
+    // uma ida e uma volta, direto da rota.
+    if (this.classList.contains("itin--bate-volta")) {
+      const [ida, volta] = rota.pernas;
+      const mostrar = (/** @type {string} */ seletorKm, /** @type {string} */ seletorTempo, /** @type {any} */ perna) => {
+        this.texto(seletorKm, perna?.km ? kmBR(perna.km) : "—");
+        const minutos = perna ? perna.minutos + (perna.adicional_sugerido || 0) : 0;
+        this.texto(seletorTempo, minutos ? duracao(minutos) : "—");
+      };
+      mostrar("[data-ida-km]", "[data-ida-tempo]", ida);
+      mostrar("[data-total-km]", "[data-total-tempo]", volta);
+    }
     this.texto("[data-rota-fonte]", estimativa
       ? "Estimativa (linha reta × 1,3 a 70 km/h): o serviço de rotas não respondeu. Ajuste os tempos se precisar."
-      : "Rota por estrada (OpenStreetMap). Tempo adicional sugerido: 15 min a cada 2 h de estrada.");
+      : "");
     this.recalcular();
     this.ultimaRota = rota;
     if (this.visivel) this.desenhar(rota);
   }
 
-  /** @param {any} rota */
-  async desenhar(rota) {
+  /** Cria o mapa na primeira vez e devolve o Leaflet (null se ele não carregar). */
+  async garantirMapa() {
     const caixa = /** @type {HTMLElement} */ (this.querySelector("[data-mapa]"));
-    const pontos = rota.pontos.filter((/** @type {any} */ p) => p.lat !== undefined && p.lat !== null);
-    if (pontos.length < 2) return;
     let L;
     try {
       L = await carregarLeaflet(this.dataset.leaflet || "", this.dataset.leafletCss || "");
     } catch {
-      return; // sem mapa: o resumo e os tempos continuam valendo
+      return null; // sem mapa: o resumo e os tempos continuam valendo
     }
     caixa.querySelector("[data-mapa-vazio]")?.remove();
     if (!this.mapa) {
       this.mapa = L.map(caixa, { scrollWheelZoom: false, keyboard: false, attributionControl: true, zoomSnap: 0.25 });
+      this.mapa.on("moveend zoomend", () => this.atualizarVerRota());
       if (this.dataset.tiles) {
         L.tileLayer(this.dataset.tiles, { maxZoom: 17, attribution: this.dataset.atribuicao || "" }).addTo(this.mapa);
       } else {
         caixa.classList.add("itin__mapa--sem-mosaico");
       }
     }
+    return L;
+  }
+
+  /** Mapa na cidade da sede enquanto não há rota para traçar. @param {string} sede */
+  async centrarNaSede(sede) {
+    if (this.sedeNoMapa === sede) return;
+    this.sedeNoMapa = sede;
+    const resposta = await fetch(`${this.dataset.rotaUrl}?p=${encodeURIComponent(sede)}`,
+      { headers: { Accept: "application/json" } });
+    if (!resposta.ok) return;
+    const ponto = (await resposta.json()).pontos?.[0];
+    if (!ponto || ponto.lat === null || ponto.lat === undefined) return;
+    this.ultimaRota = null;
+    this.limites = null;
+    if (!this.visivel) return;
+    const L = await this.garantirMapa();
+    if (!L) return;
+    this.camada?.remove();
+    this.camada = L.featureGroup().addTo(this.mapa);
+    const icone = L.divIcon({ className: "itin-pino itin-pino--sede", html: "<span>S</span>", iconSize: [28, 28], iconAnchor: [14, 14] });
+    L.marker([ponto.lat, ponto.lon], { icon: icone, keyboard: false, title: ponto.rotulo }).addTo(this.camada);
+    this.mapa.setView([ponto.lat, ponto.lon], 11);
+    this.atualizarVerRota();
+  }
+
+  /** @param {any} rota */
+  async desenhar(rota) {
+    const pontos = rota.pontos.filter((/** @type {any} */ p) => p.lat !== undefined && p.lat !== null);
+    if (pontos.length < 2) return;
+    const L = await this.garantirMapa();
+    if (!L) return;
     this.camada?.remove();
     this.camada = L.featureGroup().addTo(this.mapa);
     rota.pernas.forEach((/** @type {any} */ perna, /** @type {number} */ i) => {
       if (!perna?.tracado?.length) return;
-      L.polyline(perna.tracado, { className: `itin-rota${i === rota.pernas.length - 1 ? " itin-rota--volta" : ""}`, weight: 4 }).addTo(this.camada);
+      const linha = L.polyline(perna.tracado, { className: `itin-rota${i === rota.pernas.length - 1 ? " itin-rota--volta" : ""}`, weight: 4 });
+      linha.addTo(this.camada);
+      this.desenharTracado(linha.getElement(), i);
     });
     // Paradas no mesmo lugar (bate-volta, volta pela sede) viram um marcador só: "S·2".
     const ultimo = rota.pontos.length - 1;
@@ -532,7 +841,8 @@ export class PcItinerario extends HTMLElement {
       L.marker([g.lat, g.lon], { icon: icone, keyboard: false, title: g.titulo }).addTo(this.camada);
     }
     this.mapa.invalidateSize();
-    this.mapa.fitBounds(this.camada.getBounds(), { padding: [28, 28], maxZoom: 11 });
+    this.limites = this.camada.getBounds();
+    this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
   }
 
   // ------------------------------------------------------------------ calendário das saídas
@@ -559,11 +869,26 @@ export class PcItinerario extends HTMLElement {
     painel.hidden = false;
     botao.setAttribute("aria-expanded", "true");
     this.desenharCalendario();
+    this.caberCalendario(painel);
     /** @type {HTMLElement | null} */ (painel.querySelector("td[tabindex='0']"))?.focus();
     this.foraDoCalendario = (/** @type {PointerEvent} */ ev) => {
       if (!painel?.contains(/** @type {Node} */ (ev.target)) && ev.target !== botao && !botao.contains(/** @type {Node} */ (ev.target))) this.fecharCalendario(false);
     };
     document.addEventListener("pointerdown", this.foraDoCalendario);
+  }
+
+  /**
+   * Abre para baixo quando há espaço; senão sobe e abre acima do botão, para o mês não
+   * ficar cortado na borda da janela.
+   * @param {HTMLElement} painel
+   */
+  caberCalendario(painel) {
+    painel.classList.remove("itin__calendario--acima");
+    const caixa = painel.getBoundingClientRect();
+    const cabeAbaixo = caixa.bottom <= window.innerHeight;
+    const gatilho = /** @type {HTMLElement} */ (this.querySelector("[data-preencher-datas]"));
+    const cabeAcima = gatilho.getBoundingClientRect().top - caixa.height > 0;
+    painel.classList.toggle("itin__calendario--acima", !cabeAbaixo && cabeAcima);
   }
 
   fecharCalendario(devolver = true) {
@@ -591,7 +916,13 @@ export class PcItinerario extends HTMLElement {
     const mes = /** @type {Date} */ (this.mes);
     const atual = this.atual || 0;
     const hoje = new Date().toDateString();
-    const chips = trechos.map((t, i) => `<li><button type="button" class="itin__chip${i === atual ? " itin__chip--atual" : ""}" data-trecho-indice="${i}"${i === atual ? ' aria-current="step"' : ""}><b>${i === trechos.length - 1 ? "Volta" : i + 1}</b> ${escapar(t.de)} → ${escapar(t.para)}<span>${datas[i] ? dataBR(datas[i]) : "sem data"}</span></button></li>`).join("");
+    // Entre a primeira e a última saída a viagem está em curso: o intervalo fica marcado.
+    const marcadas = datas.filter(Boolean).map((d) => /** @type {Date} */ (d).getTime());
+    const [inicioViagem, fimViagem] = [Math.min(...marcadas), Math.max(...marcadas)];
+    const emFoco = trechos[atual];
+    const titulo = emFoco
+      ? `<b>${atual === trechos.length - 1 ? "Volta" : `Trecho ${atual + 1}`}</b> ${escapar(emFoco.de)} → ${escapar(emFoco.para)}`
+      : "";
     const inicio = new Date(mes.getFullYear(), mes.getMonth(), 1);
     inicio.setDate(1 - inicio.getDay());
     let linhas = "";
@@ -601,14 +932,13 @@ export class PcItinerario extends HTMLElement {
         const dia = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + s * 7 + d);
         const marcados = datas.map((x, i) => (x && x.toDateString() === dia.toDateString() ? (i === trechos.length - 1 ? "V" : String(i + 1)) : null)).filter(Boolean);
         const foco = dia.toDateString() === (datas[atual] || new Date(mes.getFullYear(), mes.getMonth(), Math.min(new Date().getDate(), 28))).toDateString() && dia.getMonth() === mes.getMonth();
-        linhas += `<td tabindex="${foco ? 0 : -1}" data-dia="${dataBR(dia)}" aria-label="${dia.getDate()} de ${MESES[dia.getMonth()]}${marcados.length ? `, trecho ${marcados.join(" e ")}` : ""}" aria-selected="${marcados.length > 0}"${dia.toDateString() === hoje ? ' aria-current="date"' : ""} class="${dia.getMonth() !== mes.getMonth() ? "calendario__fora" : ""}">${dia.getDate()}${marcados.length ? `<span class="itin__marca-dia">${marcados.join("·")}</span>` : ""}</td>`;
+        linhas += `<td tabindex="${foco ? 0 : -1}" data-dia="${dataBR(dia)}" aria-label="${dia.getDate()} de ${MESES[dia.getMonth()]}${marcados.length ? `, trecho ${marcados.join(" e ")}` : ""}" aria-selected="${marcados.length > 0}"${dia.toDateString() === hoje ? ' aria-current="date"' : ""} class="${[dia.getMonth() !== mes.getMonth() ? "calendario__fora" : "", marcadas.length > 1 && dia.getTime() > inicioViagem && dia.getTime() < fimViagem ? "calendario__intervalo" : ""].filter(Boolean).join(" ")}">${dia.getDate()}${marcados.length ? `<span class="itin__marca-dia">${marcados.join("·")}</span>` : ""}</td>`;
       }
       linhas += "</tr>";
     }
     const nomeMes = MESES[mes.getMonth()];
     painel.innerHTML = `
-      <p class="itin__calendario-ajuda">Escolha o trecho e clique no dia da saída — o próximo trecho fica selecionado.</p>
-      <ol class="itin__chips">${chips}</ol>
+      <p class="itin__calendario-titulo" aria-live="polite">${titulo}</p>
       <div class="calendario__topo">
         <button type="button" class="calendario__nav" data-mes="-1" aria-label="Mês anterior">‹</button>
         <p class="calendario__mes" aria-live="polite" id="itin-cal-mes">${nomeMes[0].toUpperCase()}${nomeMes.slice(1)} de ${mes.getFullYear()}</p>
@@ -618,7 +948,10 @@ export class PcItinerario extends HTMLElement {
         <thead><tr>${["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"].map((n) => `<th scope="col" abbr="${n}">${n[0].toUpperCase()}</th>`).join("")}</tr></thead>
         <tbody>${linhas}</tbody>
       </table>
-      <div class="calendario__rodape"><button type="button" class="botao botao--sm botao--primario" data-concluir>Concluir</button></div>`;
+      <div class="calendario__rodape">
+        <button type="button" class="botao botao--sm" data-limpar${datas.some(Boolean) ? "" : " disabled"}>Limpar datas</button>
+        <button type="button" class="botao botao--sm botao--primario" data-concluir>Concluir</button>
+      </div>`;
   }
 
   /** @param {Event} e */
@@ -636,9 +969,26 @@ export class PcItinerario extends HTMLElement {
       const mes = /** @type {Date} */ (this.mes);
       this.mes = new Date(mes.getFullYear(), mes.getMonth() + Number(nav.dataset.mes), 1);
       this.desenharCalendario();
+    } else if (alvo.closest("[data-limpar]")) {
+      this.limparDatas();
     } else if (alvo.closest("[data-concluir]")) {
       this.fecharCalendario();
     }
+  }
+
+  /** Apaga a saída (data e hora) de todos os trechos e volta o foco ao primeiro. */
+  limparDatas() {
+    for (const t of this.trechos()) {
+      for (const nome of ["saida_0", "saida_1"]) {
+        const campo = this.campo(t.raiz, nome);
+        if (campo) campo.value = "";
+      }
+    }
+    this.atual = 0;
+    this.anunciar("Datas de saída apagadas.");
+    this.recalcular();
+    this.agendarRota();
+    this.desenharCalendario();
   }
 
   /** @param {string} dataTexto */

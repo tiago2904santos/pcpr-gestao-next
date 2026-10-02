@@ -1,11 +1,11 @@
 {% comment %}
-Cabeçalho de página (todos os arquétipos). Variáveis: titulo, sobretitulo, descricao,
-icone, selos (lista de {texto, tom}), e o bloco de ações via include "acoes".
+Cabeçalho de página (todos os arquétipos). Variáveis: titulo, descricao, icone,
+selos (lista de {texto, tom}), e o bloco de ações via include "acoes".
+Onde a página está é dito pelas migalhas logo acima: o cabeçalho não repete isso.
 {% endcomment %}
 <header class="pagina-cabecalho">
   {% if icone %}<span class="pagina-cabecalho__icone" aria-hidden="true">{% icone icone classe="icone--lg" %}</span>{% endif %}
   <div class="pagina-cabecalho__texto">
-    {% if sobretitulo %}<p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">{{ sobretitulo }}</p>{% endif %}
     <h1 class="pagina-cabecalho__titulo">{{ titulo }}{% for selo in selos %} <span class="selo selo--{{ selo.tom }}">{{ selo.texto }}</span>{% endfor %}</h1>
     {% if descricao %}<p class="pagina-cabecalho__descricao">{{ descricao }}</p>{% endif %}
   </div>

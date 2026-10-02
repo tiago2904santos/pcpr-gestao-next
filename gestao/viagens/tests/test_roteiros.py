@@ -34,7 +34,7 @@ def _data_hora(dias: int, hora: int) -> tuple[str, str]:
     return alvo.strftime("%d/%m/%Y"), f"{hora:02d}:00"
 
 
-def _post_roteiro(cidade="Ponta Grossa/PR", servidores=2, **extra) -> dict:
+def _post_roteiro(cidade="Ponta Grossa/PR", **extra) -> dict:
     uf = cidade.split("/")[1]
     dados = {
         "sede-uf": "PR", "sede-cidade": "Curitiba/PR",
@@ -43,7 +43,6 @@ def _post_roteiro(cidade="Ponta Grossa/PR", servidores=2, **extra) -> dict:
         "destino-0-uf": uf, "destino-0-cidade": cidade, "destino-0-ORDER": "1",
         "destino-0-tempo_viagem": "02:00", "destino-0-tempo_adicional": "00:00",
         "retorno-tempo_viagem": "02:00", "retorno-tempo_adicional": "00:00",
-        "quantidade_servidores": str(servidores), "observacoes": "Unidade Móvel na Expo.",
     }
     for nome, (dias, hora) in {"destino-0-saida": (30, 8), "retorno-saida": (31, 15)}.items():
         dados[f"{nome}_0"], dados[f"{nome}_1"] = _data_hora(dias, hora)
@@ -174,18 +173,20 @@ class TestTelasDeRoteiros:
         r = operador.post(reverse("viagens:novo_roteiro"), _post_roteiro())
         assert r.status_code == 302, r.content.decode()[:800]
         roteiro = Roteiro.objects.latest("pk")
-        assert r["Location"] == reverse("viagens:editar_roteiro", args=[roteiro.pk]) + "?salvo=1"
+        # Com autosave, "Salvar" quer dizer "terminei": volta para a lista.
+        assert r["Location"] == reverse("viagens:roteiros")
         assert [t.destino.nome for t in roteiro.trechos.order_by("ordem")] == [
             "Ponta Grossa", "Curitiba"]
-        assert roteiro.quantidade_servidores == 2 and roteiro.diarias_resumo
+        # A tela não pede mais o efetivo: a estimativa do roteiro é para um servidor.
+        assert roteiro.quantidade_servidores == 1 and roteiro.diarias_resumo
 
     def test_erro_volta_com_mensagem_e_nada_gravado(self, operador):
         antes = Roteiro.objects.count()
         r = operador.post(reverse("viagens:novo_roteiro"),
-                          _post_roteiro(cidade="Cidade Inexistente/PR", servidores=0))
+                          _post_roteiro(cidade="Cidade Inexistente/PR"))
         html = r.content.decode()
         assert r.status_code == 422 and Roteiro.objects.count() == antes
-        assert "Informe de 1 a 99 servidores" in html and "lista oficial de municípios" in html
+        assert "lista oficial de municípios" in html
 
     def test_adicionar_destino_preserva_o_digitado(self, operador, cenario):
         url = reverse("viagens:editar_roteiro", args=[cenario.ids["roteiro"]])

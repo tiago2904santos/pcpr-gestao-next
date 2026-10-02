@@ -61,7 +61,7 @@
 
 .seletor__painel {
   position: absolute;
-  z-index: 30;
+  z-index: var(--z-painel-campo);
   top: calc(100% + var(--esp-1));
   left: 0;
   padding: var(--esp-3);
@@ -161,6 +161,12 @@
   color: var(--neutro-0);
 }
 
+/* Período: os dias entre o começo e o fim escolhidos (pc-data com data-ate). */
+.calendario__grade .calendario__intervalo {
+  background: var(--cor-superficie-realce);
+  border-radius: 0;
+}
+
 .calendario__rodape {
   display: flex;
   justify-content: space-between;
@@ -211,7 +217,7 @@
 }
 
 .relogio__lista > .relogio__ativo {
-  background: var(--cor-marca-fundo);
+  background: var(--cor-superficie-realce);
 }
 
 .relogio__lista:focus-visible > .relogio__ativo {

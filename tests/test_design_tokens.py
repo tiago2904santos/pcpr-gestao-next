@@ -50,7 +50,9 @@ def test_todos_os_tokens_usados_existem():
               # Variáveis locais de componente (definidas no próprio seletor).
               "--botao-sombra", "--toast-cor",
               # Rótulo na borda: fundo de onde o campo está / fundo da caixa.
-              "--fundo-rotulo", "--fundo-entrada"}
+              "--fundo-rotulo", "--fundo-entrada",
+              # Itinerário: largura da coluna do trilho e centro vertical do marco.
+              "--itin-trilho", "--itin-centro"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

@@ -1,5 +1,8 @@
 {% load viagens %}
-{# Card dourado de um trecho: só a saída é informada; tempo de viagem vem da rota, adicional da sugestão; a chegada é calculada (ADR 0016). #}
+{% comment %}
+Trecho: a rota e os números no cabeçalho; embaixo só o que se preenche (a saída) e a chegada
+calculada. Os tempos aparecem como texto — "Ajustar" abre os campos (ADR 0016).
+{% endcomment %}
 <li class="itin__trecho{% if volta %} itin__trecho--volta{% endif %}" data-trecho{% if volta %} data-retorno{% else %} data-trecho-de="{{ t.prefix }}"{% endif %}>
   <header class="itin__trecho-cabecalho">
     <span class="itin__trecho-numero" aria-hidden="true">{% if volta %}{% icone "undo-2" %}{% else %}<span data-numero>{{ numero }}</span>{% endif %}</span>
@@ -8,11 +11,13 @@
   </header>
   <div class="itin__tempos">
     {% include "componentes/campo.html" with campo=t.saida classe="itin__saida" rotulo="Saída" %}
-    {% include "componentes/campo.html" with campo=t.tempo_viagem classe="itin__duracao" %}
-    {% include "componentes/campo.html" with campo=t.tempo_adicional classe="itin__duracao" %}
-    <div class="itin__chegada">
-      <span class="itin__chegada-rotulo">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}</span>
-      <output class="itin__chegada-valor" data-chegada>{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</output>
+    {% include "viagens/_duracao.html" with campo=t.tempo_viagem %}
+    {% include "viagens/_duracao.html" with campo=t.tempo_adicional %}
+    <div class="campo itin__chegada-campo">
+      <span class="campo__rotulo" id="ch-{{ t.prefix }}">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}</span>
+      <div class="indicador indicador--compacto itin__chegada">
+        <output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</output>
+      </div>
     </div>
   </div>
   <p class="itin__aviso" data-aviso hidden>{% icone "alert-triangle" classe="icone--sm" %}Sai antes de chegar ao ponto anterior: confira a data e a hora.</p>

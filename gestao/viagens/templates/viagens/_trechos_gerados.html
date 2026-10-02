@@ -1,0 +1,17 @@
+{% load viagens %}
+{% comment %}
+Conferência do bate-volta: uma linha por dia, com a ida e a volta juntas — quem manda são os
+blocos. Repetir o trajeto em duas linhas por dia só enchia a tela.
+A prévia e a tela usam o mesmo parcial para não divergirem.
+{% endcomment %}
+<ol class="itin__gerados" aria-label="Dias do bate-volta">
+  {% for d in dias_bate_volta %}
+  <li class="itin__gerado">
+    <span class="itin__gerado-dia">{{ d.dia|date:"d/m" }}<small>{{ d.dia|date:"D" }}</small></span>
+    <span class="itin__gerado-rota">{{ d.ida.origem.nome }}/{{ d.ida.origem.uf }}<span class="itin__gerado-ida-volta" aria-label="ida e volta">⇄</span><b>{{ d.destino.nome }}/{{ d.destino.uf }}</b></span>
+    <span class="itin__gerado-horas"><small>ida</small>{{ d.ida.saida_em|date:"H:i" }}<span aria-hidden="true">→</span>{{ d.ida.chegada_em|date:"H:i" }}</span>
+    <span class="itin__gerado-horas"><small>volta</small>{{ d.volta.saida_em|date:"H:i" }}<span aria-hidden="true">→</span>{{ d.volta.chegada_em|date:"H:i" }}</span>
+    <span class="itin__gerado-km">{% if d.km %}{{ d.km|floatformat:1 }} km{% endif %}</span>
+  </li>
+  {% endfor %}
+</ol>

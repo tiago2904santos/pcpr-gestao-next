@@ -62,6 +62,10 @@ class Oficio(models.Model):
     marcador = models.CharField("marcador do documento", max_length=15, blank=True,
                                 choices=Marcador.choices, default=Marcador.NENHUM)
     motivo = models.TextField("motivo da viagem", blank=True)
+    # Modo bate-volta: o itinerário vem dos blocos (bate_voltas), não da lista de destinos.
+    # O campo distingue "modo desligado" de "ligado e ainda vazio", estado que precisa
+    # sobreviver a um salvamento recusado na validação.
+    bate_volta = models.BooleanField("bate-volta", default=False)
     custeio = models.CharField("custeio", max_length=20, choices=Custeio.choices,
                                default=Custeio.UNIDADE)
     custeio_instituicao = models.CharField("instituição que custeia", max_length=160,
@@ -226,6 +230,10 @@ class Roteiro(models.Model):
         "quantidade de servidores", default=1,
         help_text="Efetivo usado para estimar as diárias do roteiro.")
     observacoes = models.TextField("observações", blank=True)
+    # Modo bate-volta: o itinerário vem dos blocos (bate_voltas), não da lista de destinos.
+    # O campo distingue "modo desligado" de "ligado e ainda vazio", estado que precisa
+    # sobreviver a um salvamento recusado na validação.
+    bate_volta = models.BooleanField("bate-volta", default=False)
     situacao = models.CharField(max_length=10, choices=Situacao.choices, default=Situacao.ATIVO)
     diarias_total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal(0))
     diarias_resumo = models.CharField(max_length=120, blank=True)
@@ -284,6 +292,59 @@ class TrechoRoteiro(models.Model):
 
     def __str__(self) -> str:
         return f"{self.origem} → {self.destino}"
+
+
+class BateVoltaBase(models.Model):
+    """Um destino visitado todo dia de um período, saindo e voltando à sede no mesmo dia.
+
+    Os trechos continuam sendo a verdade gravada: ao salvar, o bloco é expandido em duas
+    pernas por dia (dominio/bate_volta.py). Guardar o bloco é o que permite reabrir e mudar
+    uma data sem ter de adivinhar o agrupamento a partir dos trechos.
+    Especificação: docs/superpowers/specs/2026-10-02-bate-volta-design.md
+    """
+
+    ordem = models.PositiveSmallIntegerField()
+    destino = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    dia_inicial = models.DateField("primeiro dia")
+    dia_final = models.DateField("último dia")
+    hora_saida = models.TimeField("hora de saída")
+    hora_volta = models.TimeField("hora da volta")
+
+    class Meta:
+        abstract = True
+        ordering = ["ordem"]
+
+    def __str__(self) -> str:
+        return f"{self.destino} ({self.dia_inicial} a {self.dia_final})"
+
+
+class BateVolta(BateVoltaBase):
+    oficio = models.ForeignKey(Oficio, on_delete=models.CASCADE, related_name="bate_voltas")
+
+    class Meta(BateVoltaBase.Meta):
+        abstract = False
+        constraints = [
+            models.UniqueConstraint(fields=["oficio", "ordem"], name="bate_volta_ordem_unica"),
+            models.CheckConstraint(condition=Q(dia_final__gte=models.F("dia_inicial")),
+                                   name="bate_volta_periodo_valido"),
+            models.CheckConstraint(condition=Q(hora_volta__gt=models.F("hora_saida")),
+                                   name="bate_volta_volta_no_mesmo_dia"),
+        ]
+
+
+class BateVoltaRoteiro(BateVoltaBase):
+    roteiro = models.ForeignKey(Roteiro, on_delete=models.CASCADE, related_name="bate_voltas")
+
+    class Meta(BateVoltaBase.Meta):
+        abstract = False
+        constraints = [
+            models.UniqueConstraint(fields=["roteiro", "ordem"],
+                                    name="bate_volta_roteiro_ordem_unica"),
+            models.CheckConstraint(condition=Q(dia_final__gte=models.F("dia_inicial")),
+                                   name="bate_volta_roteiro_periodo_valido"),
+            models.CheckConstraint(condition=Q(hora_volta__gt=models.F("hora_saida")),
+                                   name="bate_volta_roteiro_volta_no_mesmo_dia"),
+        ]
 
 
 class DistanciaMunicipios(models.Model):

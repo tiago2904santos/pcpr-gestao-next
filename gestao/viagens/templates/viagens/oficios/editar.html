@@ -15,7 +15,6 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
     <span class="placa__numero">{{ oficio.numero_formatado }}</span>
   </span>
   <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · {{ oficio.unidade.sigla }} · edição</p>
     <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}</h1>
     {# A frase do ofício: o que o documento diz até agora (atualiza ao salvar e ao mudar a equipe). #}

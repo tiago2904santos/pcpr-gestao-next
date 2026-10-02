@@ -19,6 +19,7 @@ from gestao.plataforma.widgets import (
     FORMATOS_DATA_HORA,
     EntradaData,
     EntradaDataHora,
+    EntradaHora,
     Selecao,
 )
 
@@ -285,36 +286,65 @@ ConjuntoDestinos = forms.formset_factory(
 FORM_ID_ROTEIRO = "form-roteiro"
 
 
+class CampoDia(forms.DateField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("widget", EntradaData())
+        kwargs.setdefault("input_formats", FORMATOS_DATA)
+        kwargs.setdefault("error_messages", {
+            "invalid": "Informe a data no formato dd/mm/aaaa.", "required": "Informe a data."})
+        super().__init__(**kwargs)
+
+
+class CampoHora(forms.TimeField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("widget", EntradaHora())
+        kwargs.setdefault("input_formats", ["%H:%M", "%H:%M:%S"])
+        kwargs.setdefault("error_messages", {
+            "invalid": "Informe a hora no formato hh:mm.", "required": "Informe a hora."})
+        super().__init__(**kwargs)
+
+
+class FormularioBateVolta(_ParadaBase):
+    """Um bate-volta: um destino visitado todo dia de um período, com os mesmos horários.
+    Especificação: docs/superpowers/specs/2026-10-02-bate-volta-design.md"""
+
+    uf = CampoUF()
+    cidade = CampoMunicipio(label="Destino")
+    dia_inicial = CampoDia(label="Primeiro dia")
+    dia_final = CampoDia(label="Último dia")
+    hora_saida = CampoHora(label="Hora de saída")
+    hora_volta = CampoHora(label="Hora da volta")
+
+    def clean(self):
+        dados = super().clean()
+        inicial, final = dados.get("dia_inicial"), dados.get("dia_final")
+        saida, volta = dados.get("hora_saida"), dados.get("hora_volta")
+        if inicial and final and final < inicial:
+            self.add_error("dia_final", "O último dia não pode ser antes do primeiro.")
+        if saida and volta and volta <= saida:
+            self.add_error("hora_volta", "A volta é no mesmo dia: informe uma hora depois "
+                                         "da saída.")
+        return dados
+
+
+ConjuntoBateVoltas = forms.formset_factory(
+    FormularioBateVolta, formset=_ConjuntoDestinosBase, extra=0, min_num=1, validate_min=True,
+    max_num=10, validate_max=True, can_delete=True, can_order=True)
+
+
 class FormularioRoteiro(AssociadoAoFormularioDoOficio, forms.ModelForm):
-    """Efetivo e observações do roteiro cadastrado (o itinerário usa os formulários acima)."""
+    """O roteiro cadastrado é só o itinerário (formulários acima): a tela não pede mais nada.
+    As diárias são estimadas para um servidor; o ofício usa a equipe dele."""
 
     form_id = FORM_ID_ROTEIRO
 
     class Meta:
         model = Roteiro
-        fields = ["quantidade_servidores", "observacoes"]
-        widgets = {
-            "quantidade_servidores": forms.NumberInput(attrs=_attrs(min="1", max="99",
-                                                                   inputmode="numeric")),
-            "observacoes": forms.Textarea(attrs=_attrs(
-                "area-texto", rows=3, placeholder="Ex.: Unidade Móvel no evento Expoara.")),
-        }
-        labels = {"quantidade_servidores": "Quantidade de servidores"}
-        help_texts = {
-            "quantidade_servidores": "Efetivo usado para estimar as diárias do roteiro. No "
-                                     "ofício, as diárias usam a equipe do próprio ofício.",
-            "observacoes": "Aparece na busca de roteiros.",
-        }
+        fields: list[str] = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._associar()
-
-    def clean_quantidade_servidores(self):
-        valor = self.cleaned_data.get("quantidade_servidores")
-        if valor is not None and not 1 <= valor <= 99:
-            raise forms.ValidationError("Informe de 1 a 99 servidores.")
-        return valor
 
 
 def iniciais_do_roteiro(oficio: Oficio) -> tuple[list[dict], dict]:

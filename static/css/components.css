@@ -378,12 +378,12 @@
 /* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
    é metade "papel" (--fundo-rotulo: onde o campo está) e metade caixa (--fundo-entrada),
    então serve sobre a folha branca e sobre faixas cinzas sem recorte. */
-.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora)) {
+.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada)) {
   position: relative;
   padding-top: 0.5rem;
 }
 
-.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora)) {
+.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada)) {
   position: absolute;
   z-index: 2;
   top: 0;
@@ -414,7 +414,7 @@
 
 .combobox__lista {
   position: absolute;
-  z-index: 20;
+  z-index: var(--z-painel-campo);
   top: calc(100% + var(--esp-1));
   left: 0;
   right: 0;
@@ -840,8 +840,9 @@
   padding: var(--esp-4) var(--esp-5);
   border: 0;
   border-radius: var(--raio-lg);
-  background: var(--cor-superficie);
-  box-shadow: var(--sombra-cartao);
+  /* Tom polido: o cartão se destaca do papel por um degradê curto, não por uma fita. */
+  background: linear-gradient(var(--cor-superficie), var(--cor-superficie-sutil));
+  box-shadow: inset 0 0 0 1px var(--cor-borda), var(--sombra-cartao);
   color: inherit;
   text-decoration: none;
   min-width: 0;
@@ -850,8 +851,8 @@
     transform var(--duracao-media) var(--curva-padrao);
 }
 
-a.indicador:hover {
-  box-shadow: var(--sombra-cartao-hover);
+.indicador:hover {
+  box-shadow: inset 0 0 0 1px var(--cor-borda), var(--sombra-cartao-hover);
   transform: translateY(-1px);
   text-decoration: none;
 }
@@ -876,22 +877,23 @@ a.indicador:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* Compacto: o mesmo cartão, no tamanho de uma linha de formulário. */
+.indicador--compacto {
+  gap: var(--esp-05);
+  padding: var(--esp-2) var(--esp-3);
+}
+
+.indicador--compacto .indicador__valor {
+  font-size: var(--texto-md);
+  letter-spacing: normal;
+}
+
 .indicador__nota {
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
 }
 
-/* Atenção: trilho dourado à esquerda (sem pintar o cartão inteiro). */
-.indicador--atencao::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: var(--filete);
-  background: var(--cor-marca);
-}
-
+/* Atenção: o número é que muda de cor — todos os cartões têm a mesma moldura. */
 .indicador--atencao .indicador__valor {
   color: var(--cor-marca-texto);
 }

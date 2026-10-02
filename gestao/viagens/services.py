@@ -16,14 +16,16 @@ from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.utils import timezone
 
-from gestao.cadastros.models import ConfiguracaoInstitucional, Servidor
+from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor
 from gestao.plataforma import outbox
 
 from . import policies
+from .dominio import bate_volta as dominio_bate_volta
 from .dominio import diarias as dominio_diarias
 from .dominio.numeracao import proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
 from .models import (
+    BateVoltaRoteiro,
     Documento,
     Historico,
     LacunaNumeracao,
@@ -223,8 +225,17 @@ def salvar_trechos(oficio: Oficio, usuario, trechos: list[TrechoInformado]) -> N
     _aplicar_trechos(_travar_para_edicao(oficio, usuario, None), trechos)
 
 
+# Teto de trechos gravados: vinte dias de bate-volta (duas pernas por dia).
+LIMITE_TRECHOS = 40
+
+
 def _validar_sequencia(trechos: list[TrechoInformado]) -> None:
     """Regras comuns ao roteiro do ofício e ao roteiro cadastrado."""
+    if len(trechos) > LIMITE_TRECHOS:
+        raise RegraViolada(
+            f"São {len(trechos)} trechos e o limite é {LIMITE_TRECHOS} "
+            f"({LIMITE_TRECHOS // 2} dias de bate-volta). Divida em mais de um roteiro."
+        )
     for anterior, seguinte in pairwise(trechos):
         if seguinte.saida_em < anterior.chegada_em:
             raise RegraViolada(
@@ -268,6 +279,18 @@ def _calcular_trechos(trechos, sede, servidores: int) -> dominio_diarias.Calculo
 def calcular(oficio: Oficio) -> dominio_diarias.CalculoDiarias:
     """Calcula as diárias do ofício (sem gravar). Levanta erros de domínio."""
     return _calcular_trechos(trechos_de(oficio), oficio.sede, len(viajantes_de(oficio)))
+
+
+def calcular_informados(trechos: list[TrechoInformado], sede,
+                        servidores: int = 1) -> dominio_diarias.CalculoDiarias:
+    """Diárias de trechos ainda não gravados (prévia enquanto a pessoa preenche a tela).
+    Mesmas regras do cálculo que vale ao salvar — nada é persistido."""
+    municipios = Municipio.objects.in_bulk([t.destino_id for t in trechos])
+    objetos = [Trecho(origem_id=t.origem_id, destino_id=t.destino_id, saida_em=t.saida_em,
+                      chegada_em=t.chegada_em) for t in trechos]
+    for objeto, informado in zip(objetos, trechos, strict=True):
+        objeto.destino = municipios[informado.destino_id]
+    return _calcular_trechos(objetos, sede, servidores)
 
 
 def _gravar_diarias(obj: Oficio | Roteiro, calcular_fn) -> None:
@@ -496,7 +519,7 @@ def assunto_do_oficio(oficio: Oficio):
 
 
 # ---------------------------------------------------------------- roteiros cadastrados
-CAMPOS_ROTEIRO = ["quantidade_servidores", "observacoes", "sede"]
+CAMPOS_ROTEIRO = ["quantidade_servidores", "observacoes", "sede", "bate_volta"]
 
 
 def recalcular_diarias_roteiro(roteiro: Roteiro) -> None:
@@ -508,7 +531,8 @@ def recalcular_diarias_roteiro(roteiro: Roteiro) -> None:
 
 @transaction.atomic
 def salvar_roteiro(usuario, roteiro: Roteiro | None, dados: dict,
-                   trechos: list[TrechoInformado] | None) -> Roteiro:
+                   trechos: list[TrechoInformado] | None,
+                   blocos: list[dominio_bate_volta.Bloco] | None = None) -> Roteiro:
     """Cria (roteiro=None) ou altera um roteiro. A sede é a da unidade, como no ofício.
     Roteiro sem trechos é permitido (rascunho); as diárias dizem o que falta."""
     if roteiro is None:
@@ -533,6 +557,17 @@ def salvar_roteiro(usuario, roteiro: Roteiro | None, dados: dict,
             TrechoRoteiro(roteiro=roteiro, ordem=i, **t.campos())
             for i, t in enumerate(trechos, start=1)
         ])
+    if blocos is not None:
+        # Desligar o modo apaga os blocos: guardá-los inertes os faria reaparecer, com datas
+        # velhas, se o modo fosse religado.
+        roteiro.bate_voltas.all().delete()
+        if roteiro.bate_volta:
+            BateVoltaRoteiro.objects.bulk_create([
+                BateVoltaRoteiro(roteiro=roteiro, ordem=i, destino_id=b.destino_id,
+                                 dia_inicial=b.dia_inicial, dia_final=b.dia_final,
+                                 hora_saida=b.hora_saida, hora_volta=b.hora_volta)
+                for i, b in enumerate(blocos, start=1)
+            ])
     recalcular_diarias_roteiro(roteiro)
     return roteiro
 

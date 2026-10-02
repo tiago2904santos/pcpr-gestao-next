@@ -1,0 +1,36 @@
+{% load viagens %}
+{% comment %}
+Um bate-volta: um destino visitado todo dia de um período, saindo e voltando no mesmo dia.
+A leitura é a do sistema de referência — uma linha "Ida" e uma linha "Volta", cada uma com
+data e hora. A data da ida é o primeiro dia; a da volta, o último. O tempo de estrada vem da
+rota, como em qualquer trecho.
+Também é o modelo clonado por "Adicionar bate-volta".
+Especificação: docs/superpowers/specs/2026-10-02-bate-volta-design.md
+{% endcomment %}
+<li class="itin__bv" data-bloco-bv data-prefixo="{{ f.prefix }}">
+  <header class="itin__bv-cabecalho">
+    <span class="itin__trecho-numero" aria-hidden="true">{{ numero }}</span>
+    <h4 class="itin__bv-titulo" id="bv-{{ f.prefix }}">Bate-volta {{ numero }}</h4>
+    <label class="itin__remover" title="Remover bate-volta">{{ f.DELETE }}{% icone "trash-2" %}<span class="itin__remover-texto">Remover<span class="sr-only"> o bate-volta {{ numero }}</span></span></label>
+  </header>
+  {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+  <div class="itin__bv-onde" role="group" aria-labelledby="bv-{{ f.prefix }}">
+    {% include "componentes/campo.html" with campo=f.uf classe="itin__uf" %}
+    <div class="campo itin__cidade{% if f.cidade.errors %} campo--erro{% endif %}">
+      <label class="campo__rotulo" for="{{ f.cidade.id_for_label }}" id="{{ f.cidade.auto_id }}-rotulo">Destino<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+      <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ f.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
+        <div class="entrada-composta">{{ f.cidade|campo_acessivel:"" }}</div>
+      </pc-combobox>
+      {% if f.cidade.errors %}<p class="campo__erro" id="{{ f.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ f.cidade.errors|join:" " }}</span></p>{% endif %}
+    </div>
+  </div>
+  <div class="itin__bv-quando">
+    <span class="itin__bv-rotulo">{% icone "arrow-right" classe="icone--sm" %}Ida</span>
+    {% include "componentes/campo.html" with campo=f.dia_inicial rotulo="Primeiro dia" %}
+    {% include "componentes/campo.html" with campo=f.hora_saida rotulo="Saída" %}
+    <span class="itin__bv-rotulo">{% icone "undo-2" classe="icone--sm" %}Volta</span>
+    {% include "componentes/campo.html" with campo=f.dia_final rotulo="Último dia" %}
+    {% include "componentes/campo.html" with campo=f.hora_volta rotulo="Saída" %}
+  </div>
+  <p class="itin__bv-nota">Sai e volta todo dia do período, nesses horários. O tempo de estrada vem da rota.</p>
+</li>

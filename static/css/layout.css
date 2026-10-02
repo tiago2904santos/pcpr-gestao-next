@@ -281,10 +281,13 @@
   padding: var(--esp-2) 0;
 }
 
+/* O filete deste seletor e a linha-guia da folha correm no mesmo eixo: o recuo negativo o
+   leva para a beirada de fora do documento, onde a guia passa. */
 .navegacao__seletor {
   display: inline-flex;
   align-items: center;
   gap: var(--esp-2);
+  margin-left: calc(-1 * var(--filete));
   padding: 0 var(--esp-3);
   border: 0;
   border-left: var(--filete) solid var(--cor-marca);
@@ -406,10 +409,13 @@
 }
 
 /* ---------------- Conteúdo ---------------- */
+/* O rodapé encosta na base da janela mesmo quando a página é curta: o conteúdo ocupa pelo
+   menos a altura que sobra abaixo do topo fixo, e o miolo empurra o rodapé para baixo. */
 .conteudo {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: calc(100dvh - var(--altura-topo));
 }
 
 .conteudo__interno {
@@ -486,13 +492,14 @@
 
 /* O cabeçalho de página fecha com um fio e um traço dourado curto — a mesma
    assinatura do cabeçalho institucional, em escala de página. */
+/* Placa, título e ações na mesma linha de base; o que a página é fica nas migalhas. */
 .pagina-cabecalho {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--esp-4);
-  padding-bottom: var(--esp-5);
+  align-items: center;
+  gap: var(--esp-3) var(--esp-4);
+  padding-bottom: var(--esp-4);
   margin-bottom: var(--esp-6);
   border-bottom: var(--borda);
 }
@@ -547,6 +554,7 @@
 }
 
 .pagina-cabecalho__acoes {
+  margin-left: auto;
   display: flex;
   flex-wrap: wrap;
   gap: var(--esp-2);
@@ -602,7 +610,7 @@ html:has(.barra-acoes) .conteudo__interno {
 .barra-acoes {
   position: sticky;
   bottom: var(--esp-3);
-  z-index: 5;
+  z-index: var(--z-barra-acoes);
   display: flex;
   flex-wrap: wrap;
   align-items: center;

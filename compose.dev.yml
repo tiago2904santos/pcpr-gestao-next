@@ -1,0 +1,14 @@
+# Iteração ao vivo sobre o PREVIEW: o código da pasta é montado no contêiner e o runserver
+# recarrega Python e templates; estáticos são servidos direto de static/ (sem collectstatic).
+#   docker compose -f compose.preview.yml -f compose.dev.yml up -d
+# Para voltar ao preview "de produção": docker compose -f compose.preview.yml up -d
+services:
+  web:
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    environment:
+      PREVIEW_ESTATICOS_AO_VIVO: "true"
+    volumes:
+      - ./gestao:/app/gestao
+      - ./templates:/app/templates
+      - ./static:/app/static
+      - ./config:/app/config

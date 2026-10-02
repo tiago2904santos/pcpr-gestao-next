@@ -9,16 +9,42 @@ Os campos de um destino ficam em dois lugares (parada e trecho), ligados pelo pr
 formulário. Sem JavaScript continua um formulário comum (o servidor calcula tudo ao salvar).
 Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_tiles.
 {% endcomment %}
-<pc-itinerario class="itin" data-form="{{ form_id }}" data-rota-url="{% url 'viagens:rota' %}"
+<pc-itinerario class="itin{% if bate_volta %} itin--bate-volta{% endif %}" data-form="{{ form_id }}" data-rota-url="{% url 'viagens:rota' %}"
                data-municipios-url="{% url 'cadastros:buscar_municipios' %}"
                data-tiles="{{ mapa_tiles }}" data-atribuicao="{{ mapa_atribuicao }}"
                data-leaflet="{% static 'vendor/leaflet/leaflet.js' %}" data-leaflet-css="{% static 'vendor/leaflet/leaflet.css' %}">
 
   <section class="itin__bloco" aria-labelledby="itin-t-paradas">
     <header class="itin__bloco-cabecalho">
-      <h3 class="itin__bloco-titulo" id="itin-t-paradas">{% icone "map-pin" %}Sede e destinos</h3>
-      <span class="itin__dica" data-dica-arraste hidden>{% icone "grip-vertical" classe="icone--sm" %}Arraste pelo número para mudar a ordem</span>
+      <h3 class="itin__bloco-titulo" id="itin-t-paradas">{% icone "map-pin" %}<span class="itin__so-destinos">Sede e destinos</span><span class="itin__so-bv">Sede e bate-voltas</span></h3>
+      <span class="itin__dica itin__so-destinos" data-dica-arraste hidden>{% icone "grip-vertical" classe="icone--sm" %}Arraste pelo ponto para mudar a ordem</span>
+      <label class="interruptor itin__modo" for="itin-bate-volta" title="Sai da sede de manhã e volta no mesmo dia, todo dia do período">
+        <input type="checkbox" role="switch" id="itin-bate-volta" name="bate_volta" form="{{ form_id }}"{% if bate_volta %} checked{% endif %} data-bate-volta>
+        <span>Bate-volta</span>
+      </label>
+      <button type="submit" form="{{ form_id }}" name="acao" value="alternar_modo" class="botao botao--sm" formnovalidate data-so-sem-js>Aplicar</button>
     </header>
+    <div class="itin__lista-modo itin__so-bv">
+    <ol class="itin__paradas itin__paradas--bv" aria-label="Sede do bate-volta" data-blocos>
+      <li class="itin__parada itin__parada--sede">
+        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
+        <div class="itin__local" role="group" aria-label="Sede (origem e volta de cada dia)">
+          {% include "componentes/campo.html" with campo=sede_form.uf classe="itin__uf" %}
+          <div class="campo itin__cidade{% if sede_form.cidade.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="{{ sede_form.cidade.id_for_label }}" id="{{ sede_form.cidade.auto_id }}-rotulo">Sede (origem da viagem)<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ sede_form.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
+              <div class="entrada-composta">{{ sede_form.cidade|campo_acessivel:"" }}</div>
+            </pc-combobox>
+            {% if sede_form.cidade.errors %}<p class="campo__erro" id="{{ sede_form.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ sede_form.cidade.errors|join:" " }}</span></p>{% endif %}
+          </div>
+        </div>
+      </li>
+    </ol>
+    <ol class="itin__bvs" aria-label="Bate-voltas, na ordem">
+      {% for f in blocos %}{% include "viagens/_bate_volta.html" with f=f numero=forloop.counter %}{% endfor %}
+    </ol>
+    </div>
+    <div class="itin__lista-modo itin__so-destinos">
     <ol class="itin__paradas" aria-label="Sede e destinos, na ordem da visita" data-paradas>
       <li class="itin__parada itin__parada--sede">
         <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
@@ -27,7 +53,7 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
           <div class="campo itin__cidade{% if sede_form.cidade.errors %} campo--erro{% endif %}">
             <label class="campo__rotulo" for="{{ sede_form.cidade.id_for_label }}" id="{{ sede_form.cidade.auto_id }}-rotulo">Sede (origem da viagem)<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
             <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ sede_form.uf.value|default:'' }}&q=" data-minimo="2" data-valor-texto>
-              <div class="entrada-composta">{% icone "home" %}{{ sede_form.cidade|campo_acessivel:"" }}</div>
+              <div class="entrada-composta">{{ sede_form.cidade|campo_acessivel:"" }}</div>
             </pc-combobox>
             {% if sede_form.cidade.errors %}<p class="campo__erro" id="{{ sede_form.cidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ sede_form.cidade.errors|join:" " }}</span></p>{% endif %}
           </div>
@@ -40,33 +66,43 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
           {% icone "plus" %}<span>Adicionar destino</span><small>entra antes da volta à sede</small>
         </button>
       </li>
+      <li class="itin__parada itin__parada--volta">
+        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
+        <p class="itin__volta"><span class="itin__volta-rotulo">Volta à sede</span><span class="itin__volta-cidade" data-volta-sede>{{ sede_form.cidade.value|default:"—" }}</span></p>
+      </li>
     </ol>
+    </div>
   </section>
 
   <section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">
     <header class="itin__bloco-cabecalho">
       <h3 class="itin__bloco-titulo" id="itin-t-rota">{% icone "route" %}Rota</h3>
-      <p class="itin__fonte" data-rota-fonte role="status">Distâncias e tempos são calculados pela rota.</p>
+      {# O tempo é um só: o maior entre ida e volta (mesma estrada, sentidos trocados). #}
+      <p class="itin__totais" data-totais role="status">
+        <span class="itin__total">{% icone "arrow-right" classe="icone--sm" %}<span class="itin__total-rotulo">Ida</span><span class="itin__total-valor" data-ida-km>—</span><span class="itin__total-valor" data-ida-tempo>—</span></span>
+        <span class="itin__total">{% icone "undo-2" classe="icone--sm" %}<span class="itin__total-rotulo itin__so-destinos">Ida e volta</span><span class="itin__total-rotulo itin__so-bv">Volta</span><span class="itin__total-valor" data-total-km>—</span><span class="itin__total-valor" data-total-tempo>—</span></span>
+      </p>
+      <p class="itin__fonte" data-rota-fonte role="status"></p>
     </header>
     <div class="itin__rota">
       <div class="itin__mapa" data-mapa>
         <p class="itin__mapa-vazio" data-mapa-vazio>{% icone "map" %}O mapa traça a rota assim que houver a sede e um destino.</p>
       </div>
-      <dl class="itin__resumo" data-resumo>
-        <div class="itin__resumo-item itin__resumo-item--destaque"><dt>{% icone "route" classe="icone--sm" %}Distância total</dt><dd data-total-km>—</dd></div>
-        <div class="itin__resumo-item"><dt>{% icone "clock" classe="icone--sm" %}Tempo de estrada</dt><dd data-total-viagem>—</dd></div>
-        <div class="itin__resumo-item"><dt>{% icone "history" classe="icone--sm" %}Tempo adicional</dt><dd data-total-adicional>—</dd></div>
-        <div class="itin__resumo-item"><dt>{% icone "home" classe="icone--sm" %}Volta à sede</dt><dd data-volta>—</dd></div>
-      </dl>
+      <button type="button" class="botao botao--sm itin__ver-rota" data-ver-rota hidden>{% icone "route" classe="icone--sm" %}Ver a rota inteira</button>
     </div>
   </section>
 
-  <section class="itin__bloco" aria-labelledby="itin-t-trechos">
+  {# Com `etapa_trechos`, o bloco vira uma etapa numerada da folha (os três blocos precisam ficar sob a mesma raiz). #}
+  <section class="itin__bloco{% if etapa_trechos %} itin__bloco--etapa{% endif %}" aria-labelledby="itin-t-trechos">
     <header class="itin__bloco-cabecalho itin__ferramentas">
-      <h3 class="itin__bloco-titulo" id="itin-t-trechos">{% icone "navigation" %}Trechos</h3>
-      <button type="button" class="botao botao--sm" data-preencher-datas aria-haspopup="dialog" aria-expanded="false" hidden>{% icone "calendar-days" %}Preencher datas de saída</button>
+      <h3 class="itin__bloco-titulo{% if etapa_trechos %} itin__bloco-titulo--etapa{% endif %}" id="itin-t-trechos">{% if etapa_trechos %}<span class="secao__numero">{{ etapa_trechos }}</span>{% else %}{% icone "navigation" %}{% endif %}Trechos</h3>
+      <p class="itin__fonte itin__so-bv">Gerados pelos bate-voltas: para mudar um horário, mude o bate-volta.</p>
+      <button type="button" class="botao botao--sm itin__so-destinos" data-preencher-datas aria-haspopup="dialog" aria-expanded="false" hidden>{% icone "calendar-days" %}Preencher datas de saída</button>
     </header>
-    <ol class="itin__trechos" aria-label="Trechos da viagem" data-trechos>
+    <div class="itin__so-bv" data-previa-trechos="{% url 'viagens:previa_trechos_roteiro' %}">
+{% include "viagens/_trechos_gerados.html" %}
+    </div>
+    <ol class="itin__trechos itin__so-destinos" aria-label="Trechos da viagem" data-trechos>
       {% for f, anterior in paradas %}{% include "viagens/_trecho_campos.html" with t=f de=anterior para=f.cidade.value numero=forloop.counter %}{% endfor %}
       {% include "viagens/_trecho_campos.html" with t=retorno de=ultima_parada para=sede_form.cidade.value volta=True %}
     </ol>

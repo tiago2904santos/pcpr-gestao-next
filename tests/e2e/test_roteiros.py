@@ -32,12 +32,13 @@ def test_cadastrar_roteiro_pela_tela(logado):
     pg.locator("input[name='destino-0-cidade']").fill("Londrina/PR")
     _data_hora(pg, "destino-0-saida", 12, 7)
     _data_hora(pg, "retorno-saida", 14, 8)
-    pg.get_by_label("Quantidade de servidores").fill("4")
+    # Com ida, volta e datas, as diárias aparecem antes de salvar (prévia no servidor).
+    expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
     pg.get_by_role("button", name="Salvar roteiro").click()
     expect(pg.locator(".toast")).to_contain_text("cadastrado")
-    expect(pg.locator("#diarias")).to_contain_text("Calculado para 4 servidores")
+    expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
     roteiro = Roteiro.objects.latest("pk")
-    assert roteiro.quantidade_servidores == 4 and roteiro.trechos.count() == 2
+    assert roteiro.quantidade_servidores == 1 and roteiro.trechos.count() == 2
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
