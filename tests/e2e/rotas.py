@@ -12,7 +12,9 @@ ROTAS_AUTENTICADAS = [
     "/viagens/oficios/?situacao=rascunho",
     "/viagens/oficios/?q=nada-encontrado-xyz",
     "/viagens/oficios/{oficio_rascunho}/editar/",
-    "/viagens/oficios/{oficio_emitido}/",
+    # A leitura de um ofício é a janela de resumo, que abre na própria lista (ADR 0017);
+    # `?resumo=` traz a janela desenhada no HTML e já aberta.
+    "/viagens/oficios/?resumo={oficio_emitido}",
     "/viagens/roteiros/",
     "/viagens/roteiros/novo/",
     "/viagens/roteiros/{roteiro}/editar/",

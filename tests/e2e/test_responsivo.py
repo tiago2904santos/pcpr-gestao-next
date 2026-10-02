@@ -14,6 +14,10 @@ SOBREPOSICAO_JS = """() => {
   const alvos = [...document.querySelectorAll('a, button, input, select, textarea, [role=button]')]
     .filter(e => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
       if (!(r.width > 1 && r.height > 1) || s.visibility === 'hidden') return false;
+      // Conteúdo pulado pelo navegador (gaveta <details> fechada, content-visibility) ainda
+      // devolve um retângulo antigo em getBoundingClientRect, mas não é pintado, não recebe
+      // clique e não aceita foco — medir isso dava sobreposição que ninguém vê na tela.
+      if (!e.checkVisibility()) return false;
       if (e.closest('[hidden], dialog:not([open]), .sr-only, [inert], .barra-acoes, .cabecalho')) return false;
       for (let p = e.parentElement; p; p = p.parentElement) { if (getComputedStyle(p).clip !== 'auto') return false; }
       return true; });
@@ -22,9 +26,11 @@ SOBREPOSICAO_JS = """() => {
     const a = alvos[i].getBoundingClientRect();
     for (let j = i + 1; j < alvos.length; j++) {
       if (alvos[i].contains(alvos[j]) || alvos[j].contains(alvos[i])) continue;
-      // Botão do calendário/relógio/mostrar senha dentro do próprio campo: sobreposição intencional.
-      const seletor = alvos[i].closest('.seletor, .entrada-composta--senha');
-      if (seletor && seletor === alvos[j].closest('.seletor, .entrada-composta--senha')) continue;
+      // Botão dentro do próprio campo (calendário/relógio, mostrar senha, limpar): a
+      // sobreposição é intencional e o campo reserva o espaço dele no padding-right.
+      const DENTRO_DO_CAMPO = '.seletor, .entrada-composta--senha, .entrada-composta--limpavel';
+      const seletor = alvos[i].closest(DENTRO_DO_CAMPO);
+      if (seletor && seletor === alvos[j].closest(DENTRO_DO_CAMPO)) continue;
       const b = alvos[j].getBoundingClientRect();
       const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
       const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
