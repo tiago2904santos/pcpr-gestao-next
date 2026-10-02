@@ -4,7 +4,7 @@
 {% block titulo_lista %}Ofícios{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios de viagem com cálculo de diárias, justificativa e documentos.</p>{% endblock %}
 {% block acoes_lista %}
-  {% if pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo' %}">{% icone "plus" %}Novo ofício</a>{% endif %}
+  {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
 {% endblock %}
 
 {% block abas_filtro %}{% include "viagens/oficios/_abas.html" %}{% endblock %}
@@ -19,12 +19,12 @@
   </div>
   <div class="campo filtros__campo">
     <label class="campo__rotulo" for="ordem-oficios">Ordenar por</label>
-    <select class="selecao" id="ordem-oficios" name="ordem">
+    <pc-select class="seletor"><select class="selecao" id="ordem-oficios" name="ordem">
       <option value="-numero"{% if ordem == "-numero" %} selected{% endif %}>Número (mais recente)</option>
       <option value="numero"{% if ordem == "numero" %} selected{% endif %}>Número (mais antigo)</option>
       <option value="saida"{% if ordem == "saida" %} selected{% endif %}>Data de saída (próximas)</option>
       <option value="-saida"{% if ordem == "-saida" %} selected{% endif %}>Data de saída (recentes)</option>
-    </select>
+    </select></pc-select>
   </div>
   <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
@@ -55,8 +55,7 @@
     {% include "componentes/vazio.html" with icone="search" titulo="Nenhum ofício encontrado" texto="Confira o número (ex.: 131/2026), o protocolo ou o nome — ou remova os filtros." limpar_url=request.path %}
   {% else %}
     {% if pode_criar %}
-      {% url 'viagens:novo' as url_novo %}
-      {% include "componentes/vazio.html" with icone="file-plus-2" titulo="Nenhum ofício ainda" texto="Crie o primeiro ofício de viagem da sua unidade. O número é reservado automaticamente." acao_url=url_novo acao_rotulo="Novo ofício" %}
+      {% include "componentes/vazio.html" with icone="file-plus-2" titulo="Nenhum ofício ainda" texto="Crie o primeiro ofício de viagem da sua unidade. O número é reservado automaticamente." acao_template="viagens/oficios/_botao_novo.html" %}
     {% else %}
       {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum ofício para mostrar" texto="Quando houver ofícios da sua unidade, eles aparecerão aqui." %}
     {% endif %}

@@ -99,7 +99,7 @@
 
 /* Conceitos descartados (ficam só aqui, para registro). */
 .lab-botao-progresso { background: linear-gradient(90deg, var(--cor-marca-fundo) 60%, var(--cor-superficie) 60%); }
-.lab-campo-caixa { background: var(--cor-superficie); }
+.lab-campo-tingido { background: var(--cor-superficie-sutil); }
 .lab-campo-linha { border-radius: 0; border-width: 0 0 1px; background: transparent; padding-left: 0; }
 .lab-tabela-densa td, .lab-tabela-densa th { padding: var(--esp-1) var(--esp-2); }
 .lab-progresso-larga { width: 100%; }

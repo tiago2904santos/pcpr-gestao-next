@@ -14,6 +14,13 @@ from django.utils import timezone
 
 from gestao.cadastros.models import Combustivel, ModeloTexto, Municipio, Viatura
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
+from gestao.plataforma.widgets import (
+    FORMATOS_DATA,
+    FORMATOS_DATA_HORA,
+    EntradaData,
+    EntradaDataHora,
+    Selecao,
+)
 
 from .models import Oficio
 from .queries import trechos_de
@@ -71,9 +78,8 @@ class CampoMunicipio(forms.CharField):
 
 class CampoDataHora(forms.DateTimeField):
     def __init__(self, **kwargs):
-        kwargs.setdefault("widget", forms.DateTimeInput(
-            attrs=_attrs(type="datetime-local"), format="%Y-%m-%dT%H:%M"))
-        kwargs.setdefault("input_formats", ["%Y-%m-%dT%H:%M", "%d/%m/%Y %H:%M"])
+        kwargs.setdefault("widget", EntradaDataHora())
+        kwargs.setdefault("input_formats", FORMATOS_DATA_HORA)
         kwargs.setdefault("error_messages", {
             "invalid": "Informe data e hora, ex.: 08/10/2026 09:00.",
             "required": "Informe data e hora."})
@@ -100,7 +106,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
                   "transporte_placa", "transporte_combustivel", "porte_arma",
                   "justificativa_modelo", "justificativa"]
         widgets = {
-            "data_oficio": forms.DateInput(attrs=_attrs(type="date"), format="%Y-%m-%d"),
+            "data_oficio": EntradaData(),
             "marcador": forms.RadioSelect,
             "motivo": forms.Textarea(attrs=_attrs("area-texto", rows=3,
                                                   placeholder="Ex.: Apoio e condução da Unidade "
@@ -112,8 +118,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "transporte_descricao": forms.TextInput(attrs=_attrs(
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
             "transporte_placa": forms.TextInput(attrs=_attrs(placeholder="Ex.: ABC1D23")),
-            "transporte_combustivel": forms.Select(attrs=_attrs("selecao")),
-            "justificativa_modelo": forms.Select(attrs=_attrs("selecao")),
+            "transporte_combustivel": Selecao(),
+            "justificativa_modelo": Selecao(),
             "justificativa": forms.Textarea(attrs=_attrs("area-texto", rows=5)),
         }
         labels = {"motivo": "Motivo da viagem", "justificativa_modelo": "Texto pronto",
@@ -137,6 +143,9 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
                                                      tipo=ModeloTexto.Tipo.JUSTIFICATIVA)
         modelo.empty_label = "Escrever do zero"
         self.fields["porte_arma"].widget.attrs.update({"class": "", "role": "switch"})
+        data = cast(forms.DateField, self.fields["data_oficio"])
+        data.input_formats = FORMATOS_DATA
+        data.error_messages["invalid"] = "Informe a data no formato dd/mm/aaaa, ex.: 08/10/2026."
         if self.instance.pk:
             self.fields["versao"].initial = self.instance.versao
             self.initial["protocolo"] = self.instance.protocolo_formatado

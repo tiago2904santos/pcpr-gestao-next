@@ -1,0 +1,1 @@
+<div class="data-hora">{% for widget in widget.subwidgets %}{% include widget.template_name %}{% endfor %}{% if widget.id_base %}<span class="sr-only" id="{{ widget.id_base }}-data">(data)</span><span class="sr-only" id="{{ widget.id_base }}-hora">(hora)</span>{% endif %}</div>

@@ -91,20 +91,6 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
     return oficio
 
 
-@transaction.atomic
-def criar_oficio(usuario, dados: dict, trechos: list[TrechoInformado] | None,
-                 servidores: list[Servidor], motorista_id: int | None = None) -> Oficio:
-    """Cadastro em página única: reserva o número e grava dados, equipe e roteiro juntos.
-    Qualquer regra violada desfaz tudo — inclusive a reserva do número."""
-    oficio = criar_rascunho(usuario, data_oficio=dados.get("data_oficio"))
-    viajantes = [adicionar_viajante(oficio, usuario, s) for s in servidores]
-    motorista = next((v for v in viajantes if v.servidor_id == motorista_id), None)
-    if motorista:
-        definir_motorista(oficio, usuario, motorista.pk)
-    oficio.refresh_from_db()
-    return salvar_edicao(oficio, usuario, dados, trechos)
-
-
 # ---------------------------------------------------------------- edição
 CAMPOS_EDITAVEIS = [
     "data_oficio", "protocolo", "marcador", "motivo", "custeio", "custeio_instituicao",

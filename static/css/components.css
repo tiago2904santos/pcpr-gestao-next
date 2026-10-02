@@ -298,9 +298,8 @@
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
-/* Campo "aceso": em repouso é uma área levemente tingida (lê-se como campo, não como
-   caixa HTML); no hover a borda escurece; no foco fica branco, borda grafite e halo
-   dourado — o campo literalmente acende sobre o papel. */
+/* Campo: caixa branca com borda, rótulo sobre a borda (como no sistema de referência).
+   No hover a borda escurece; no foco a borda fica grafite e ganha o halo dourado. */
 .entrada,
 .selecao,
 .area-texto {
@@ -309,7 +308,7 @@
   padding: var(--esp-2) var(--esp-3);
   border: 1px solid var(--cor-borda-campo);
   border-radius: var(--raio-md);
-  background: var(--cor-superficie-sutil);
+  background: var(--cor-superficie);
   color: var(--cor-texto);
   font-size: var(--texto-md);
   line-height: var(--altura-linha-justa);
@@ -388,6 +387,296 @@
 
 .campo--sucesso .entrada {
   border-color: var(--cor-sucesso-solida);
+}
+
+/* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
+   é metade "papel" (--fundo-rotulo: onde o campo está) e metade caixa (--fundo-entrada),
+   então serve sobre a folha branca e sobre faixas cinzas sem recorte. */
+.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora)) {
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora)) {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--esp-2);
+  max-width: calc(100% - var(--esp-4));
+  padding: 0 var(--esp-1);
+  overflow: hidden;
+  font-size: var(--texto-xs);
+  line-height: 1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: linear-gradient(var(--fundo-rotulo, var(--cor-superficie)) 50%,
+    var(--fundo-entrada, var(--cor-superficie)) 50%);
+}
+
+.campo--erro > .campo__rotulo {
+  --fundo-entrada: var(--cor-perigo-fundo);
+}
+
+.campo:has(:disabled) > .campo__rotulo {
+  --fundo-entrada: var(--cor-superficie-realce);
+}
+
+/* =============== Seletores próprios: data, hora e lista =============== */
+/* Sem JS: texto dd/mm/aaaa, hh:mm e <select>. Com JS: botão dentro do campo e painel
+   flutuante (calendário, relógio) ou lista própria — nunca o seletor do navegador. */
+.seletor {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.seletor--ativo > .entrada {
+  padding-right: calc(var(--esp-2) + 2rem);
+}
+
+.seletor__botao {
+  position: absolute;
+  top: 50%;
+  right: var(--esp-1);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  translate: 0 -50%;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.seletor__botao[aria-expanded="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.seletor__botao:focus-visible,
+.calendario__nav:focus-visible,
+.calendario__grade td:focus-visible,
+.relogio__lista:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
+}
+
+.seletor__botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.seletor__painel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + var(--esp-1));
+  left: 0;
+  padding: var(--esp-3);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top left;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.seletor__painel--direita {
+  right: 0;
+  left: auto;
+}
+
+/* Data e hora lado a lado (trechos do roteiro). */
+.data-hora {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--esp-2);
+}
+
+/* Calendário: grade do mês, hoje com aro dourado, escolhido em grafite. */
+.calendario {
+  width: 18.5rem;
+}
+
+.calendario__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+  margin-bottom: var(--esp-2);
+}
+
+.calendario__mes {
+  font-weight: var(--peso-semi);
+}
+
+.calendario__nav {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.calendario__nav:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.calendario__grade {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  table-layout: fixed;
+}
+
+.calendario__grade th {
+  padding-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-terciario);
+  text-align: center;
+}
+
+.calendario__grade td {
+  height: 2.25rem;
+  border-radius: var(--raio-sm);
+  font-size: var(--texto-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.calendario__grade td:hover {
+  background: var(--cor-marca-fundo);
+}
+
+.calendario__grade .calendario__fora {
+  color: var(--cor-texto-terciario);
+}
+
+.calendario__grade td[aria-current="date"] {
+  font-weight: var(--peso-semi);
+  box-shadow: inset 0 0 0 1px var(--cor-marca);
+}
+
+.calendario__grade td[aria-selected="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.calendario__rodape {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--esp-2);
+  padding-top: var(--esp-2);
+  border-top: 1px solid var(--cor-borda);
+}
+
+/* Relógio: duas colunas roláveis (horas e minutos). */
+.relogio {
+  display: flex;
+  gap: var(--esp-2);
+}
+
+.relogio__coluna {
+  width: 4.5rem;
+}
+
+.relogio__titulo {
+  margin-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+
+.relogio__lista {
+  height: 13rem;
+  margin: 0;
+  padding: var(--esp-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  scrollbar-width: thin;
+}
+
+.relogio__lista > li {
+  padding: var(--esp-1) 0;
+  border-radius: var(--raio-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  cursor: pointer;
+}
+
+.relogio__lista > li:hover {
+  background: var(--cor-marca-fundo);
+}
+
+.relogio__lista > .relogio__ativo {
+  background: var(--cor-marca-fundo);
+}
+
+.relogio__lista:focus-visible > .relogio__ativo {
+  box-shadow: inset 0 0 0 2px var(--foco-cor);
+}
+
+.relogio__lista > li[aria-selected="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* Lista própria (<pc-select>): o botão tem a cara do campo; a lista é a do combobox. */
+.seletor__gatilho {
+  display: flex;
+  align-items: center;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.seletor__valor {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.seletor__gatilho--vazio {
+  color: var(--cor-texto-secundario);
+}
+
+.seletor__gatilho[aria-expanded="true"] {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.combobox__opcao--atual {
+  font-weight: var(--peso-semi);
+}
+
+.combobox__opcao--atual::after {
+  content: "";
+  width: 0.75rem;
+  height: 0.6rem;
+  margin-left: auto;
+  background: var(--cor-marca);
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 40% 64%);
 }
 
 /* Campo com ícone/prefixo/sufixo. */
@@ -1266,18 +1555,6 @@ a.indicador:hover {
 
 .placa--cancelada .placa__rotulo {
   color: var(--cor-texto-terciario);
-}
-
-/* Número ainda não reservado: a placa existe, tracejada, esperando o número. */
-.placa--a-reservar {
-  box-shadow: none;
-  border: 1.5px dashed var(--cor-marca-borda);
-  background: var(--cor-marca-fundo);
-}
-
-.placa--a-reservar .placa__numero {
-  color: var(--cor-texto-terciario);
-  letter-spacing: 0.04em;
 }
 
 .placa--campo {
@@ -3368,6 +3645,7 @@ legend.parada__titulo + * {
   padding: var(--esp-3) var(--esp-4);
   border-radius: var(--raio-md);
   background: var(--cor-superficie-sutil);
+  --fundo-rotulo: var(--cor-superficie-sutil);
 }
 
 .parada__trecho-rotulo {

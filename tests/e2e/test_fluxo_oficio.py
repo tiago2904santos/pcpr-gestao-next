@@ -21,41 +21,42 @@ from .conftest import entrar
 pytestmark = pytest.mark.e2e
 
 
-def _dt(dias: int, hora: int, minuto: int = 0) -> str:
+def _data_hora(pg, campo: str, dias: int, hora: int, minuto: int = 0) -> None:
+    """Data e hora em campos separados (dd/mm/aaaa e hh:mm), como a pessoa digita."""
     alvo = timezone.localtime() + timedelta(days=dias)
-    return alvo.replace(hour=hora, minute=minuto).strftime("%Y-%m-%dT%H:%M")
+    pg.locator(f"#id_{campo}_0").fill(alvo.strftime("%d/%m/%Y"))
+    pg.locator(f"#id_{campo}_1").fill(f"{hora:02d}:{minuto:02d}")
 
 
 def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg = logado
     pg.goto("/viagens/oficios/")
-    pg.get_by_role("link", name="Novo ofício").first.click()
-    expect(pg.get_by_role("heading", level=1)).to_have_text("Novo ofício de viagem")
-    # Página única (como no sistema de referência): tudo é preenchido antes do 1º salvamento.
+    # Como no sistema de referência: o botão já cria o ofício e abre a folha completa.
+    pg.get_by_role("button", name="Novo ofício").first.click()
+    expect(pg.locator(".toast")).to_contain_text("criado")
+    titulo = pg.get_by_role("heading", level=1).inner_text()
+    numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
     pg.get_by_label("Motivo da viagem").fill("Cobertura do evento PCPR na Comunidade.")
 
-    # Equipe montada na própria página (gravada junto com o ofício).
+    # Equipe via combobox remoto (HTMX, salva na hora).
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
     busca.fill("isab")
     pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
     expect(pg.locator("#equipe")).to_contain_text("Isabela Prado Cavalcanti")
-    pg.get_by_role("checkbox", name=re.compile(r"Motorista\s*:\s*Isabela Prado")).check()
+    pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
+    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
 
-    # Protocolo (obrigatório para emitir — D1), transporte e roteiro.
+    # Protocolo (obrigatório para emitir — D1), transporte e roteiro (formulário principal).
     pg.get_by_label("Protocolo (eProtocolo)").fill("123456789")
     pg.locator("#id_viatura-busca").fill("ABC")
     pg.get_by_role("option", name=re.compile("ABC1D23")).click()
     pg.get_by_label("Cidade de destino").fill("Londrina/PR")
-    pg.locator("#id_destino-0-saida").fill(_dt(15, 8))
-    pg.locator("#id_destino-0-chegada").fill(_dt(15, 14))
-    pg.locator("#id_retorno-saida").fill(_dt(17, 8))
-    pg.locator("#id_retorno-chegada").fill(_dt(17, 15, 30))
-    pg.get_by_role("button", name="Salvar ofício").click()
+    _data_hora(pg, "destino-0-saida", 15, 8)
+    _data_hora(pg, "destino-0-chegada", 15, 14)
+    _data_hora(pg, "retorno-saida", 17, 8)
+    _data_hora(pg, "retorno-chegada", 17, 15, 30)
+    pg.get_by_role("button", name="Salvar rascunho").click()
 
-    # Só agora o número é reservado; a mesma folha volta como edição.
-    expect(pg.locator(".toast")).to_contain_text("criado como rascunho")
-    titulo = pg.get_by_role("heading", level=1).inner_text()
-    numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
     diarias = pg.locator("#diarias")
@@ -163,7 +164,7 @@ def test_teclado_pular_conteudo_menu_e_dialogo(logado, dados_e2e):
 def test_consulta_ve_mas_nao_cria_nem_edita(pagina, dados_e2e):
     entrar(pagina, "consulta")
     pagina.goto("/viagens/oficios/")
-    expect(pagina.get_by_role("link", name="Novo ofício")).to_have_count(0)
+    expect(pagina.get_by_role("button", name="Novo ofício")).to_have_count(0)
     resposta = pagina.goto("/viagens/oficios/novo/")
     assert resposta.status == 403
     expect(pagina.get_by_role("heading", level=1)).to_have_text("Acesso não permitido")
@@ -247,7 +248,7 @@ def test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra(logado, dados_e2e, la
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 700})
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
-    pg.get_by_label("Data do ofício").focus()
+    pg.get_by_role("textbox", name="Data do ofício", exact=True).focus()
     escondidos = []
     for _ in range(25):
         pg.keyboard.press("Tab")
@@ -353,19 +354,85 @@ def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
     expect(faixa.locator("[aria-current='location']")).to_have_count(1)
 
 
-def test_novo_oficio_abre_a_folha_completa_em_pagina_unica(logado):
-    """Como no sistema de referência: "Novo ofício" já traz todas as seções."""
+def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
+    """Como no sistema de referência: não há página "novo"; o botão cria o ofício."""
     pg = logado
-    pg.goto("/viagens/oficios/novo/")
-    expect(pg.locator(".pagina-cabecalho .placa--a-reservar")).to_be_visible()
+    pg.goto("/viagens/")
+    pg.get_by_role("button", name="Novo ofício").first.click()
+    expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
+    expect(pg.get_by_role("heading", level=1)).to_contain_text("Ofício ")
     for secao in ("dados", "equipe", "transporte", "roteiro", "diarias", "justificativa",
                   "emissao"):
         expect(pg.locator(f"#{secao}")).to_be_attached()
-    expect(pg.get_by_role("button", name="Salvar ofício")).to_be_visible()
-    # A equipe se monta na página: incluir e remover sem gravar nada.
-    pg.get_by_role("combobox", name="Adicionar servidor").fill("isab")
-    pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
-    expect(pg.locator("#equipe [data-equipe-contagem]")).to_have_text("1 servidor")
-    pg.get_by_role("button", name=re.compile("Remover Isabela Prado")).click()
-    expect(pg.locator("#equipe [data-equipe-contagem]")).to_have_text("0 servidores")
+    assert pg.erros_console == []  # type: ignore[attr-defined]
+
+
+def test_sem_seletores_nativos_de_data_hora_ou_lista(logado, dados_e2e):
+    """Calendário, relógio e listas são do design system, nunca os do navegador."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    nativos = pg.locator("input[type=date], input[type=time], input[type=datetime-local]")
+    expect(nativos).to_have_count(0)
+    expect(pg.locator("select:visible")).to_have_count(0)
+    expect(pg.locator("pc-data .seletor__botao:visible").first).to_be_visible()
+
+
+def test_calendario_por_teclado(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    campo = pg.get_by_role("textbox", name="Data do ofício", exact=True)
+    campo.fill("08/10/2026")
+    botao = pg.get_by_role("button", name="Escolher data: Data do ofício")
+    botao.click()
+    calendario = pg.get_by_role("dialog", name="Escolher data: Data do ofício")
+    expect(calendario).to_be_visible()
+    expect(calendario.get_by_role("grid")).to_have_accessible_name("Outubro de 2026")
+    expect(pg.locator("td[aria-selected='true']")).to_have_text("8")
+    expect(pg.locator(":focus")).to_have_text("8")  # o foco começa no dia escolhido
+    pg.keyboard.press("ArrowRight")
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("Enter")
+    expect(campo).to_have_value("16/10/2026")
+    expect(calendario).to_be_hidden()
+    expect(botao).to_be_focused()
+    botao.click()
+    pg.keyboard.press("PageDown")
+    expect(calendario.get_by_role("grid")).to_have_accessible_name("Novembro de 2026")
+    pg.keyboard.press("Escape")
+    expect(calendario).to_be_hidden()
+    expect(campo).to_have_value("16/10/2026")  # Esc não muda nada
+    expect(botao).to_be_focused()
+
+
+def test_relogio_e_lista_propria(logado, dados_e2e):
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
+    hora = pg.locator("#id_destino-0-saida_1")
+    hora.fill("09:00")
+    pg.get_by_role("button", name=re.compile(r"^Escolher hora: Saída de .* \(hora\)")).first.click()
+    horas = pg.get_by_role("listbox", name="Horas")
+    expect(horas).to_be_focused()
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("ArrowRight")
+    expect(pg.get_by_role("listbox", name="Minutos")).to_be_focused()
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("Enter")
+    expect(hora).to_have_value("10:10")
+    # Máscara: digitar só números monta a data.
+    data = pg.locator("#id_destino-0-saida_0")
+    data.fill("")
+    data.press_sequentially("21102026")
+    expect(data).to_have_value("21/10/2026")
+    # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
+    pg.locator("label.opcao").filter(has_text="Outro meio").click()
+    lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
+    lista.click()
+    expect(lista).to_have_attribute("aria-expanded", "true")
+    pg.get_by_role("option", name="Diesel").click()
+    expect(lista).to_contain_text("Diesel")
+    expect(pg.locator("#id_transporte_combustivel")).to_have_value(re.compile(r"\d+"))
+    lista.press("ArrowDown")
+    pg.keyboard.press("Escape")
+    expect(lista).to_have_attribute("aria-expanded", "false")
     assert pg.erros_console == []  # type: ignore[attr-defined]

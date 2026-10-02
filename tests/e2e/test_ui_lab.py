@@ -18,7 +18,7 @@ COMPONENTES = {
     "botao-marca": "[data-lab='botao-marca']",
     "botao-secundario": "[data-lab='botao-secundario']",
     "entrada": "#id_nome",
-    "selecao": "#id_destino",
+    "selecao": "#id_destino-gatilho",
     "aba": ".abas .aba:not([aria-current])",
     "registro": ".registro .registro__link",
 }

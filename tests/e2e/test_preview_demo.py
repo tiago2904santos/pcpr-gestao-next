@@ -120,7 +120,8 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     pg.get_by_role("link", name=re.compile("^Emitidos")).click()
     emitidos = _total(pg)
     assert 0 < emitidos < total
-    pg.get_by_label("Ordenar por").select_option("saida")
+    pg.get_by_role("combobox", name="Ordenar por").click()
+    pg.get_by_role("option", name="Data de saída (próximas)").click()
     expect(pg).to_have_url(re.compile("ordem=saida"))
     _sem_rolagem_lateral(pg)
 

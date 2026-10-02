@@ -1,7 +1,7 @@
 """Fase 13: orçamentos de desempenho medidos no navegador real.
 
 Métricas: TTFB, FCP, LCP, CLS, INP (aproximado por Event Timing num clique real),
-bytes de HTML/CSS/JS (sem compressão no servidor de teste) e CSS comprimido (gzip -6, o
+bytes de HTML/CSS/JS (sem compressão no servidor de teste) e CSS/JS comprimidos (gzip -6, o
 que o WhiteNoise serve em produção),
 número de requisições, consultas SQL e tempo de banco (Server-Timing).
 Resultado gravado em artifacts/desempenho.json. Orçamentos em
@@ -22,11 +22,12 @@ pytestmark = pytest.mark.perf
 
 ORCAMENTO = {
     "ttfb_ms": 300, "fcp_ms": 1200, "lcp_ms": 1800, "cls": 0.05, "inp_ms": 200,
-    "html_kb": 120, "css_kb": 140, "css_gzip_kb": 30, "js_kb": 110, "requisicoes": 25,
+    "html_kb": 120, "css_kb": 140, "css_gzip_kb": 30, "js_kb": 130, "js_gzip_kb": 45,
+    "requisicoes": 25,
     "sql": 25, "db_ms": 80,
 }
 
-ROTAS = ["/", "/viagens/", "/viagens/oficios/", "/viagens/oficios/novo/",
+ROTAS = ["/", "/viagens/", "/viagens/oficios/",
          "/viagens/oficios/{oficio_emitido}/", "/viagens/oficios/{oficio_rascunho}/editar/"]
 
 OBSERVADORES = """() => {
@@ -78,6 +79,7 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
         "html_kb": kb("document"), "css_kb": kb("stylesheet"), "js_kb": kb("script"),
         "css_gzip_kb": round(sum(r["gzip"] for r in recursos
                                  if r["tipo"] == "stylesheet") / 1024, 1),
+        "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
         "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
     }
     salvar_relatorio(f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json", medido)

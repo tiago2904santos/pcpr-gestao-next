@@ -1,0 +1,2 @@
+{# "Novo ofício" cria o ofício na hora (POST: reserva o número) e abre a folha de edição. #}
+<form class="form-em-linha" method="post" action="{% url 'viagens:novo' %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo ofício</button></form>

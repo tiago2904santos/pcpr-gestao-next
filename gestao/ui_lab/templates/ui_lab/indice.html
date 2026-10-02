@@ -163,7 +163,7 @@
 
     <!-- 3. COMBOBOX E DATA -->
     <section class="cartao" id="combobox" aria-labelledby="t-combobox">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca e data</h2></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-combobox"><span class="cartao__numero">3</span>Combobox, busca, data, hora e lista</h2></div>
       <div class="cartao__corpo">
         <div class="campos">
           <div class="campo col-6">
@@ -182,20 +182,11 @@
               <div class="entrada-composta">{% icone "search" %}<input id="lab-servidor" class="entrada" role="combobox" placeholder="Buscar por nome, CPF ou RG"></div>
             </pc-combobox>
           </div>
-          <div class="campo col-4">
-            <label class="campo__rotulo" for="lab-data">Data de saída</label>
-            <input class="entrada" type="date" id="lab-data" value="2026-10-08" aria-describedby="lab-data-ajuda">
-            <p class="campo__ajuda" id="lab-data-ajuda">Seletor nativo: acessível e adequado ao teclado do celular.</p>
-          </div>
-          <div class="campo col-4">
-            <label class="campo__rotulo" for="lab-hora">Hora de saída</label>
-            <input class="entrada" type="time" id="lab-hora" value="09:00">
-          </div>
-          <div class="campo col-4 campo--erro">
-            <label class="campo__rotulo" for="lab-data-erro">Data de retorno</label>
-            <input class="entrada" type="date" id="lab-data-erro" value="2026-10-01" aria-invalid="true" aria-describedby="lab-data-erro-msg">
-            <p class="campo__erro" id="lab-data-erro-msg">{% icone "alert-circle" classe="icone--sm" %}<span>O retorno não pode ser antes da saída (08/10/2026).</span></p>
-          </div>
+          {% include "componentes/campo.html" with campo=form_seletores.data_saida classe="col-3" ajuda="Calendário próprio; também aceita digitar (máscara dd/mm/aaaa)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.hora_saida classe="col-3" ajuda="Relógio: horas e minutos de 5 em 5." %}
+          {% include "componentes/campo.html" with campo=form_seletores.ordem classe="col-6" ajuda="Lista própria sobre um select comum (sem JS, vira o select)." %}
+          {% include "componentes/campo.html" with campo=form_seletores.saida classe="col-6" ajuda="Data e hora lado a lado, como nos trechos do roteiro." %}
+          {% include "componentes/campo.html" with campo=form_seletores_erro.retorno classe="col-6" %}
         </div>
       </div>
     </section>
@@ -307,7 +298,7 @@
       <div class="cartao__corpo--sem-respiro">
         <form class="filtros" role="search" aria-label="Filtrar ofícios (exemplo)" method="get" action="#tabelas">
           <div class="campo filtros__busca"><label class="campo__rotulo" for="lab-f-q">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-f-q" type="search" placeholder="Número, protocolo, destino ou servidor"></div></div>
-          <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></div>
+          <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><pc-select class="seletor"><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></pc-select></div>
           <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button></div>
         </form>
         <div class="filtros-ativos"><span class="texto-secundario">Filtros:</span><a class="ficha" href="#tabelas">Situação: Emitido {% icone "x" %}<span class="sr-only">remover filtro</span></a><a class="ficha" href="#tabelas">Ano: 2026 {% icone "x" %}<span class="sr-only">remover filtro</span></a></div>
@@ -469,9 +460,9 @@
         <div class="lab__conceito">
           <h3 class="lab__conceito-titulo">Campo de texto</h3>
           <div class="lab__opcoes">
-            <div class="lab__opcao"><p class="lab__opcao-rotulo">A · Caixa branca com borda</p><div class="campo"><label class="campo__rotulo" for="lab-a">Protocolo</label><input class="entrada lab-campo-caixa" id="lab-a" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Lê-se como "input HTML"; borda compete com o conteúdo.</p></div>
+            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">A · Caixa branca, rótulo na borda</p><div class="campo"><label class="campo__rotulo" for="lab-a">Protocolo</label><input class="entrada" id="lab-a" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Escolhida na 3ª rodada: é a linguagem do sistema de referência, que os usuários já leem sem esforço. A identidade fica no foco (borda grafite + halo dourado) e no rótulo que acende.</p></div>
             <div class="lab__opcao"><p class="lab__opcao-rotulo">B · Linha de papel</p><div class="campo"><label class="campo__rotulo" for="lab-b">Protocolo</label><input class="entrada lab-campo-linha" id="lab-b" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Bonito em formulários curtos; em grades densas o alvo some. Descartado.</p></div>
-            <div class="lab__opcao lab__opcao--escolhida"><p class="lab__opcao-rotulo">C · Campo aceso</p><div class="campo"><label class="campo__rotulo" for="lab-c">Protocolo</label><input class="entrada" id="lab-c" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Área tingida em repouso; ao focar fica branco, borda grafite, halo dourado — e o rótulo acende.</p></div>
+            <div class="lab__opcao"><p class="lab__opcao-rotulo">C · Campo aceso</p><div class="campo"><label class="campo__rotulo" for="lab-c">Protocolo</label><input class="entrada lab-campo-tingido" id="lab-c" placeholder="12.345.678-9"></div><p class="lab__opcao-nota">Área tingida em repouso; ao focar fica branco, borda grafite, halo dourado — e o rótulo acende.</p></div>
           </div>
         </div>
 
@@ -516,9 +507,9 @@
 <dialog id="lab-gaveta" class="dialogo gaveta" aria-labelledby="lab-gaveta-titulo">
   <div class="dialogo__cabecalho"><h2 class="dialogo__titulo" id="lab-gaveta-titulo">Filtros avançados</h2><button class="botao botao--icone botao--sutil" type="button" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button></div>
   <div class="dialogo__corpo pilha">
-    <div class="campo"><label class="campo__rotulo" for="lab-g-1">Período: de</label><input class="entrada" type="date" id="lab-g-1"></div>
-    <div class="campo"><label class="campo__rotulo" for="lab-g-2">até</label><input class="entrada" type="date" id="lab-g-2"></div>
-    <div class="campo"><label class="campo__rotulo" for="lab-g-3">Unidade</label><select class="selecao" id="lab-g-3"><option>Todas</option></select></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-1">Período: de</label><pc-data class="seletor"><input class="entrada" id="lab-g-1" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-2">até</label><pc-data class="seletor"><input class="entrada" id="lab-g-2" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+    <div class="campo"><label class="campo__rotulo" for="lab-g-3">Unidade</label><pc-select class="seletor"><select class="selecao" id="lab-g-3"><option>Todas</option><option>ASCOM</option><option>DPC</option></select></pc-select></div>
   </div>
   <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Limpar</button><button class="botao botao--primario" type="button" data-fechar-dialogo>Aplicar</button></div>
 </dialog>

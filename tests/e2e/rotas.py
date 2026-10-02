@@ -11,7 +11,6 @@ ROTAS_AUTENTICADAS = [
     "/viagens/oficios/",
     "/viagens/oficios/?situacao=rascunho",
     "/viagens/oficios/?q=nada-encontrado-xyz",
-    "/viagens/oficios/novo/",
     "/viagens/oficios/{oficio_rascunho}/editar/",
     "/viagens/oficios/{oficio_emitido}/",
     "/ui-lab/",

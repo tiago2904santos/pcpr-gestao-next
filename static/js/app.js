@@ -15,7 +15,9 @@ import "./componentes/protecao.js";
 import "./componentes/acao.js";
 import "./componentes/registro.js";
 import "./componentes/progresso.js";
-import "./componentes/equipe.js";
+import "./componentes/seletor-data.js";
+import "./componentes/seletor-hora.js";
+import "./componentes/seletor.js";
 
 // HTMX: envia o token CSRF em toda requisição e respeita prefers-reduced-motion.
 document.body.addEventListener("htmx:configRequest", (evento) => {

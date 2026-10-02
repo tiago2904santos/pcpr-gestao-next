@@ -12,7 +12,7 @@
   </div>
   <div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'viagens:oficios' %}">{% icone "file-text" %}Todos os ofícios</a>
-    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo' %}">{% icone "plus" %}Novo ofício</a>{% endif %}
+    {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
   </div>
 </header>
 {% endblock %}

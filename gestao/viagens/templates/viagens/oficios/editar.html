@@ -1,31 +1,19 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% comment %}
-Cadastro do ofício em página única (como no sistema de referência). Dois modos:
-- novo: a folha completa abre vazia; o número só é reservado — e tudo gravado — ao salvar;
-- edição: a mesma folha de um rascunho já numerado (equipe salva na hora, por HTMX).
+Cadastro do ofício em página única (como no sistema de referência). "Novo ofício" já cria o
+rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto ao salvar.
 {% endcomment %}
-{% block titulo %}{% if novo %}Novo ofício{% else %}Ofício {{ oficio.numero_formatado }} — edição{% endif %}{% endblock %}
+{% block titulo %}Ofício {{ oficio.numero_formatado }} — edição{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block conteudo %}
 <header class="pagina-cabecalho">
-  {% if novo %}
-  <span class="placa placa--grande placa--a-reservar pagina-cabecalho__placa" aria-hidden="true">
-    <span class="placa__rotulo">Ofício</span>
-    <span class="placa__numero">—/{{ oficio.ano }}</span>
-  </span>
-  {% else %}
   <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true" data-vt="placa-r{{ oficio.pk }}">
     <span class="placa__rotulo">Ofício</span>
     <span class="placa__numero">{{ oficio.numero_formatado }}</span>
   </span>
-  {% endif %}
   <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · {{ oficio.unidade.sigla }} · {% if novo %}cadastro{% else %}edição{% endif %}</p>
-    {% if novo %}
-    <h1 class="pagina-cabecalho__titulo">Novo ofício de viagem</h1>
-    <p class="pagina-cabecalho__descricao">Preencha o que já souber e salve: o número é reservado ao salvar. Sede: {{ oficio.sede|default:"—" }}.</p>
-    {% else %}
+    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Viagens · {{ oficio.unidade.sigla }} · edição</p>
     <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}</h1>
     {# A frase do ofício: o que o documento diz até agora (atualiza ao salvar e ao mudar a equipe). #}
@@ -39,9 +27,7 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
       {% else %}<span class="frase-oficio__item frase-oficio__item--vazio">{% icone "car" classe="icone--sm" %}sem transporte</span>{% endif %}
       {% if oficio.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ oficio.diarias_total|moeda }}</span>{% endif %}
     </p>
-    {% endif %}
   </div>
-  {% if not novo %}
   <div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>
     <pc-menu class="menu">
@@ -53,7 +39,6 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
       </div>
     </pc-menu>
   </div>
-  {% endif %}
 </header>
 
 {% if pode_excluir %}
@@ -62,11 +47,11 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
       data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir rascunho" data-confirmar-perigo>{% csrf_token %}</form>
 {% endif %}
 
-<form id="form-oficio" method="post" action="{% if novo %}{% url 'viagens:novo' %}{% else %}{% url 'viagens:editar' oficio.pk %}{% endif %}" novalidate
+<form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate
       data-proteger{% if sujo %} data-sujo{% endif %}>
   {% csrf_token %}
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário, antes de "Adicionar destino"). #}
-  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">{% if novo %}Salvar ofício{% else %}Salvar rascunho{% endif %}</button>
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar rascunho</button>
   {{ form.versao }}
   {{ destinos.management_form }}
 </form>
@@ -99,8 +84,7 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
         <div class="campos">
           <div class="campo col-3">
             <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
-            {% if novo %}<p class="placa placa--campo placa--a-reservar" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Ao salvar</span><span class="placa__numero">—/{{ oficio.ano }}</span></p>
-            {% else %}<p class="placa placa--campo" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Reservado</span><span class="placa__numero">{{ oficio.numero_formatado }}</span></p>{% endif %}
+            <p class="placa placa--campo" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Reservado</span><span class="placa__numero">{{ oficio.numero_formatado }}</span></p>
           </div>
           {% include "componentes/campo.html" with campo=form.data_oficio classe="col-3" %}
           {% include "componentes/campo.html" with campo=form.protocolo classe="col-6" exigido_para_emitir=True %}
@@ -140,7 +124,7 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
     </section>
 
     <!-- 2. Equipe (salva na hora, via HTMX) -->
-    {% if novo %}{% include "viagens/oficios/_equipe_novo.html" %}{% else %}{% include "viagens/oficios/_equipe.html" %}{% endif %}
+    {% include "viagens/oficios/_equipe.html" %}
 
     <!-- 3. Transporte -->
     <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="transporte" aria-labelledby="t-transporte">
@@ -236,17 +220,9 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
     </section>
 
     <!-- 5. Diárias (somente leitura, atualizada ao salvar ou ao mudar a equipe) -->
-    {% if novo %}
-    <section class="secao" id="diarias" aria-labelledby="t-diarias">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">5</span>Diárias</h2>
-        <div class="secao__estado"><span class="selo selo--situacao-rascunho">Calculadas ao salvar</span></div></div>
-      <p class="texto-secundario">O valor sai da equipe, do roteiro e da tabela vigente — aparece aqui assim que você salvar com equipe e roteiro.</p>
-    </section>
-    {% else %}
     <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
       {% include "viagens/oficios/_diarias.html" with numerado=True %}
     </div>
-    {% endif %}
 
     <!-- 6. Justificativa: em destaque quando obrigatória; recolhida quando dispensada. -->
     <section class="secao{% if secoes.5.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
@@ -279,12 +255,6 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
     <!-- 7. Conferência: o fim do formulário conclui (o que está pronto, o que falta, o próximo passo). -->
     <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
       <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">7</span>Conferência</h2></div>
-      {% if novo %}
-      <div class="conferencia">
-        <p class="conferencia__titulo">{% icone "list-checks" %}Salve para reservar o número</p>
-        <p class="texto-secundario texto-sm">Depois de salvar, esta seção mostra o que ainda falta para emitir — e o caminho até lá.</p>
-      </div>
-      {% else %}
       <div class="conferencia{% if prontidao.pode_emitir %} conferencia--pronta{% endif %}">
         <p class="conferencia__titulo">{% if prontidao.pode_emitir %}{% icone "stamp" %}Tudo pronto para emitir{% else %}{% icone "list-checks" %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
         <ul class="conferencia__itens" aria-label="Situação das seções">
@@ -306,19 +276,9 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
           {% if pode_emitir and prontidao.pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button>{% endif %}
         </div>
       </div>
-      {% endif %}
     </section>
 </div>
 
-{% if novo %}
-<div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve para reservar o número." role="status">
-    {% if sujo %}Alterações não salvas — salve para reservar o número.{% else %}Novo ofício<span class="barra-acoes__secundario">· o número é reservado ao salvar</span>{% endif %}
-  </div>
-  <a class="botao botao--texto" href="{% url 'viagens:oficios' %}">Cancelar</a>
-  <button type="submit" form="form-oficio" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar ofício</span></button>
-</div>
-{% else %}
 <div class="barra-acoes">
   <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
     {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario">· {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}<a href="#emissao">{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir</a><span class="barra-acoes__secundario">· última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
@@ -327,6 +287,5 @@ Cadastro do ofício em página única (como no sistema de referência). Dois mod
   {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva à seção 7 (sem beco sem saída), mas não promete emissão. #}
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
 </div>
-{% endif %}
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

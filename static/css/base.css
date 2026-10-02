@@ -383,3 +383,9 @@ a:not([class]):focus-visible {
 .mt-6 { margin-top: var(--esp-6); }
 .mb-4 { margin-bottom: var(--esp-4); }
 .texto-centro { text-align: center; }
+
+/* Formulário que é só um botão (ex.: "Novo ofício" via POST): o botão participa do layout
+   do contêiner como se o <form> não existisse. */
+.form-em-linha {
+  display: contents;
+}

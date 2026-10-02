@@ -51,3 +51,19 @@ número; o cabeçalho ficou mais discreto (grafite) para não disputar com o dou
 Descartado: pré-visualização viva do PDF ao lado (painel lateral; pedido explícito para não usar) e
 assistente em etapas com páginas separadas (o operador volta a seções o tempo todo; a folha única
 com âncoras e a faixa fixa é mais rápida).
+
+
+## Campos e seletores (quarta rodada)
+Pedido: componentes mais parecidos com os do modelo; calendário, relógio e listas não podiam
+continuar com o visual nativo.
+
+| Peça | Antes | Agora | Por quê |
+|---|---|---|---|
+| Campo | "campo aceso" (tingido em repouso) | caixa branca, rótulo na borda (conceito A do UI Lab) | é a linguagem que os usuários já leem no sistema de referência; a identidade fica no foco |
+| Data | `input type=date` nativo | `<pc-data>`: dd/mm/aaaa + calendário próprio | o seletor nativo não segue a identidade e muda de navegador para navegador |
+| Hora | `input type=time` / `datetime-local` | `<pc-hora>`: hh:mm + relógio em colunas; data e hora lado a lado nos trechos | como no modelo; digitar continua sendo o caminho mais rápido |
+| Lista | `<select>` nativo | `<pc-select>`: lista própria sobre o `<select>` | a lista aberta do navegador não segue a identidade |
+
+Descartado: `appearance: base-select` (lista customizável só com CSS). Hoje só o Chromium
+suporta; o Firefox continuaria mostrando a lista nativa. Painel do calendário abrindo para
+cima: ficava sob a faixa fixa de progresso.

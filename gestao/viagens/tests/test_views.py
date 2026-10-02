@@ -93,68 +93,90 @@ class TestListaEPainel:
 
 
 class TestNovoEEdicao:
-    def test_novo_e_a_folha_completa_e_cria_tudo_ao_salvar(self, operador, cenario):
-        """Página única: dados, equipe (com motorista) e roteiro gravados no 1º salvamento."""
-        r = operador.get(reverse("viagens:novo"))
-        html = r.content.decode()
-        assert r.status_code == 200
-        for secao in ('id="dados"', 'id="equipe"', 'id="roteiro"', 'id="emissao"'):
-            assert secao in html
-        servidores = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
-        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0))
-        dados.pop("versao")
-        dados.update(equipe=[s.pk for s in servidores], motorista=servidores[1].pk)
+    def test_novo_cria_o_oficio_e_abre_a_edicao(self, operador):
+        """Como no sistema de referência: o botão já cria o ofício (número reservado) e abre a
+        folha completa. Não há página intermediária."""
         antes = Oficio.objects.count()
-        r = operador.post(reverse("viagens:novo"), dados)
-        assert r.status_code == 302, r.content.decode()[:800]
+        r = operador.post(reverse("viagens:novo"))
         oficio = Oficio.objects.latest("pk")
         assert Oficio.objects.count() == antes + 1
-        assert r["Location"] == reverse("viagens:editar", args=[oficio.pk]) + "?salvo=1"
-        assert oficio.protocolo == "123456789" and oficio.diarias_resumo
-        equipe = list(oficio.viajantes.order_by("ordem"))
-        assert [v.servidor_id for v in equipe] == [s.pk for s in servidores]
-        assert [v.motorista for v in equipe] == [False, True]
-        assert [t.destino.nome for t in oficio.trechos.order_by("ordem")] == [
-            "Ponta Grossa", "Curitiba"]
+        assert oficio.situacao == Oficio.Situacao.RASCUNHO
+        assert r["Location"] == reverse("viagens:editar", args=[oficio.pk])
+        html = operador.get(r["Location"]).content.decode()
+        assert f"Ofício {oficio.numero_formatado}" in html
+        for secao in ('id="dados"', 'id="equipe"', 'id="roteiro"', 'id="emissao"'):
+            assert secao in html
+
+    def test_novo_por_get_nao_cria_nada(self, operador):
+        antes = Oficio.objects.count()
+        r = operador.get(reverse("viagens:novo"))
+        assert r.status_code == 302 and r["Location"] == reverse("viagens:oficios")
+        assert Oficio.objects.count() == antes
+
+    def test_botao_novo_oficio_e_um_formulario_post(self, operador):
+        url = reverse("viagens:novo")
+        for pagina in ("viagens:oficios", "viagens:painel"):
+            html = operador.get(reverse(pagina)).content.decode()
+            assert f'method="post" action="{url}"' in html
+            assert f'href="{url}"' not in html
 
     def test_aviso_de_conflito_nao_deixa_a_secao_pendente(self, operador, cenario):
         """Servidor em outro ofício no mesmo período é aviso: a seção Equipe segue pronta,
         coerente com a conferência ("tudo pronto para emitir")."""
         servidores = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
-        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0))
-        dados.pop("versao")
-        dados.update(equipe=[s.pk for s in servidores], motorista=servidores[1].pk)
         for _ in range(2):
-            assert operador.post(reverse("viagens:novo"), dados).status_code == 302
-        oficio = Oficio.objects.latest("pk")
+            operador.post(reverse("viagens:novo"))
+            oficio = Oficio.objects.latest("pk")
+            for servidor in servidores:
+                services.adicionar_viajante(oficio, cenario.usuarios["operador"], servidor)
+            oficio.refresh_from_db()
+            r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
+            assert r.status_code == 302, r.content.decode()[:500]
+        oficio = Oficio.objects.get(pk=oficio.pk)
         prontidao = services.verificar_prontidao(oficio)
         assert prontidao.da_secao("equipe") and prontidao.pode_emitir
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
         assert 'conferencia__item conferencia__item--ok">Equipe' in html
 
-    def test_novo_com_erro_nao_reserva_numero_e_preserva_a_equipe(self, operador):
-        servidor = Servidor.objects.filter(ativo=True).first()
-        dados = _post_edicao(Oficio(data_oficio=timezone.localdate(), versao=0),
-                             protocolo="123")  # protocolo inválido
-        dados.pop("versao")
-        dados["equipe"] = [servidor.pk]
-        antes = Oficio.objects.count()
-        r = operador.post(reverse("viagens:novo"), dados)
-        assert r.status_code == 422 and Oficio.objects.count() == antes
-        html = r.content.decode()
-        assert f'name="equipe" value="{servidor.pk}"' in html and "9 dígitos" in html
-
-    def test_novo_so_com_data_cria_rascunho_incompleto(self, operador):
-        """Rascunho pode nascer incompleto: o que falta aparece na conferência."""
-        r = operador.post(reverse("viagens:novo"), {
-            "data_oficio": timezone.localdate().isoformat(), "custeio": "unidade",
-            "tipo_transporte": "viatura", "marcador": ""})
+    def test_roteiro_com_data_e_hora_em_campos_separados(self, operador, cenario):
+        """O calendário e o relógio enviam data (dd/mm/aaaa) e hora (hh:mm) em dois campos."""
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        dados = _post_edicao(oficio, data_oficio=timezone.localdate().strftime("%d/%m/%Y"))
+        esperado = dados["destino-0-saida"]
+        for nome in ("destino-0-saida", "destino-0-chegada", "retorno-saida", "retorno-chegada"):
+            data, hora = dados.pop(nome).split("T")
+            ano, mes, dia = data.split("-")
+            dados[f"{nome}_0"], dados[f"{nome}_1"] = f"{dia}/{mes}/{ano}", hora
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
         assert r.status_code == 302, r.content.decode()[:800]
-        assert "?salvo=1" in r["Location"]
+        primeiro = oficio.trechos.order_by("ordem").first()
+        assert timezone.localtime(primeiro.saida_em).strftime("%Y-%m-%dT%H:%M") == esperado
+
+    def test_adicionar_destino_preserva_data_e_hora_separadas(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        dados = _post_edicao(oficio, acao="adicionar_destino")
+        dados.pop("destino-0-saida"), dados.pop("destino-0-chegada")
+        dados.update({"destino-0-saida_0": "08/10/2026", "destino-0-saida_1": "07:30",
+                      "destino-0-chegada_0": "08/10/2026", "destino-0-chegada_1": "11:45"})
+        html = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados).content.decode()
+        assert 'name="destino-0-saida_1" value="07:30"' in html
+        # A nova parada já sai de onde a anterior chegou.
+        assert 'name="destino-1-saida_0" value="08/10/2026"' in html
+        assert 'name="destino-1-saida_1" value="11:45"' in html
+
+    def test_data_invalida_volta_com_mensagem_clara(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]),
+                          _post_edicao(oficio, data_oficio="31/02/2026"))
+        assert r.status_code == 422
+        assert "Informe a data no formato dd/mm/aaaa" in r.content.decode()
 
     def test_novo_proibido_para_consulta(self, client, cenario):
         client.force_login(cenario.usuarios["consulta"])
+        antes = Oficio.objects.count()
         assert client.get(reverse("viagens:novo")).status_code == 403
+        assert client.post(reverse("viagens:novo")).status_code == 403
+        assert Oficio.objects.count() == antes
 
     def test_editar_salva_dados_e_roteiro(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])

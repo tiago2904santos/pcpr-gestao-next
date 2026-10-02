@@ -14,7 +14,7 @@ exigido_para_emitir (campo livre no rascunho, mas exigido para emitir).
       <span>{{ campo.label }}{% if ajuda_texto %}<span class="escolha__descricao" id="{{ id }}-ajuda">{{ ajuda_texto }}</span>{% endif %}</span>
     </label>
   {% else %}
-    <label class="campo__rotulo" for="{{ id }}">
+    <label class="campo__rotulo" for="{{ campo.id_for_label }}" id="{{ id }}-rotulo">
       {{ rotulo|default:campo.label }}{% if campo.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% elif exigido_para_emitir %}<span class="campo__opcional">(necessário para emitir)</span>{% else %}<span class="campo__opcional">(opcional)</span>{% endif %}
     </label>
     {% if prefixo_icone or texto_fixo or texto_fixo_antes %}

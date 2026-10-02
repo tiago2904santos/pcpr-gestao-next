@@ -13,7 +13,8 @@ usuário logado, cenário fictício). Estourar qualquer orçamento reprova o CI.
 | HTML | ≤ 120 KB | Listas paginadas (20 por página) |
 | CSS (bruto) | ≤ 140 KB | 4 arquivos, sem framework; ~17 KB são comentários do Design System (documentação no próprio CSS). Teto de segurança |
 | CSS (gzip) | ≤ 30 KB | **O que de fato trafega** (WhiteNoise serve comprimido). Hoje ≈ 25 KB. É o orçamento que segura o crescimento: estourou, corta-se CSS, não se sobe o número |
-| JS | ≤ 110 KB | htmx (52 KB) + Web Components (~20 KB) + página |
+| JS bruto | ≤ 130 KB | htmx (52 KB) + Web Components (~72 KB, inclui calendário, relógio e lista própria — ADR 0014) |
+| JS gzip | ≤ 45 KB | o que o navegador baixa de fato (WhiteNoise comprime); medido ~43 KB |
 | Requisições | ≤ 25 | Sprite único de ícones, uma fonte |
 | Consultas SQL por página | ≤ 25 | `select_related`/`prefetch_related`; alerta no log acima disso |
 | Tempo de banco por página | ≤ 80 ms | Índices em busca e filtros |
