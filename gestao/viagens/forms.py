@@ -208,17 +208,17 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         # Na folha, as escolhas levam o nome curto — o rótulo completo do modelo (com a
         # explicação entre parênteses) é para o documento e cortaria no campo. A mesma
         # decisão da janela de resumo (`custeio_curto`).
-        self.fields["marcador"].choices = [
+        cast(forms.ChoiceField, self.fields["marcador"]).choices = [
             (Oficio.Marcador.NENHUM, "Original"),
             (Oficio.Marcador.RETIFICADO, "Retificado"),
             (Oficio.Marcador.COMPLEMENTAR, "Complementar"),
         ]
-        self.fields["custeio"].choices = [
+        cast(forms.ChoiceField, self.fields["custeio"]).choices = [
             (Oficio.Custeio.UNIDADE, "Unidade"),
             (Oficio.Custeio.OUTRA_INSTITUICAO, "Outra instituição"),
             (Oficio.Custeio.ONUS_LIMITADO, "Ônus limitados"),
         ]
-        self.fields["tipo_transporte"].choices = [
+        cast(forms.ChoiceField, self.fields["tipo_transporte"]).choices = [
             (Oficio.TipoTransporte.VIATURA, "Viatura oficial"),
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
         ]

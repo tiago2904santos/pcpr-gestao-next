@@ -310,9 +310,13 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
 
 
-def _escolher(pg, campo: str, opcao: str) -> None:
-    """Escolhe numa seleção vestida (pc-select): abre pelo nome do campo e clica na opção."""
-    pg.get_by_role("combobox", name=campo).click()
+def _escolher(pg, campo: str, rotulo: str, opcao: str) -> None:
+    """Escolhe numa seleção vestida (pc-select) pelo gatilho do campo e confere que o rótulo
+    chegou ao gatilho como nome acessível — o <select> nativo, escondido, não entra na
+    árvore (um locator por papel+nome o acharia e não conseguiria clicar)."""
+    gatilho = pg.locator(f"#id_{campo}-gatilho")
+    expect(gatilho).to_have_accessible_name(rotulo)
+    gatilho.click()
     pg.get_by_role("option", name=re.compile(opcao)).click()
 
 
@@ -323,15 +327,15 @@ def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
     instituicao = pg.get_by_label("Instituição que custeia")
-    _escolher(pg, "Custeio", "^Unidade")
+    _escolher(pg, "custeio", "Custeio", "^Unidade")
     expect(instituicao).to_be_hidden()
-    _escolher(pg, "Custeio", "^Outra instituição")
+    _escolher(pg, "custeio", "Custeio", "^Outra instituição")
     expect(pg.locator("select[name=custeio]")).to_have_value("outra_instituicao")
     expect(instituicao).to_be_visible()
     # Meio de transporte: cada escolha traz os seus campos.
-    _escolher(pg, "Meio de transporte", "^Viatura oficial")
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Viatura oficial")
     expect(pg.get_by_label("Descrição do transporte")).to_be_hidden()
-    _escolher(pg, "Meio de transporte", "^Outro meio")
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
     expect(pg.locator("select[name=tipo_transporte]")).to_have_value("outro")
     expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
     # Porte de arma é um interruptor, no cabeçalho do bloco.
@@ -447,7 +451,7 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     data.press_sequentially("21102026")
     expect(data).to_have_value("21/10/2026")
     # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
-    _escolher(pg, "Meio de transporte", "^Outro meio")
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
     lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
     lista.click()
     expect(lista).to_have_attribute("aria-expanded", "true")
