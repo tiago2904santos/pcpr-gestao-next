@@ -25,8 +25,8 @@ from gestao.plataforma.templatetags.ui import formatar_moeda
 from . import itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
-from .dominio.diarias import Faixa
 from .dominio import busca as dominio_busca
+from .dominio.diarias import Faixa
 from .forms import (
     FORM_ID,
     FiltrosOficio,
