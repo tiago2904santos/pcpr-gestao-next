@@ -14,7 +14,7 @@ para emitir); com JavaScript, dialogo.js a reabre como modal.
     Pedida por outra tela ("?resumo=<pk>") ou pela folha ("Revisar e emitir", "?revisar=1"),
     a janela já vem desenhada: abre pronta, sem piscar o esqueleto. Nos outros casos, o esqueleto espera o HTMX.
     {% endcomment %}
-    {% if abrir_resumo %}{% include "viagens/oficios/_resumo.html" with oficio=resumo.oficio assunto=resumo.assunto prazo=resumo.prazo calculo=resumo.calculo viajantes=resumo.viajantes trechos=resumo.trechos documentos=resumo.documentos prontidao=resumo.prontidao pode_editar=resumo.pode_editar pode_retificar=resumo.pode_retificar revisao=resumo.revisao dados=resumo.dados pode_emitir=resumo.pode_emitir %}
+    {% if abrir_resumo %}{% include "viagens/oficios/_resumo.html" with oficio=resumo.oficio assunto=resumo.assunto prazo=resumo.prazo calculo=resumo.calculo viajantes=resumo.viajantes trechos=resumo.trechos documentos=resumo.documentos prontidao=resumo.prontidao pode_editar=resumo.pode_editar pode_retificar=resumo.pode_retificar acoes=resumo.acoes revisao=resumo.revisao dados=resumo.dados pode_emitir=resumo.pode_emitir %}
     {% else %}{% include "viagens/oficios/_resumo_carregando.html" %}{% endif %}
   </div>
 </dialog>

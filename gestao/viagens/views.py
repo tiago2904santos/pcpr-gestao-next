@@ -73,8 +73,9 @@ def _resumo_pedido(request: HttpRequest) -> dict:
 def _na_lista(oficio) -> str:
     """A lista filtrada neste ofício. É o destino de quem termina uma ação (emitir,
     cancelar) e de quem não pode editar: a leitura completa é a janela de resumo, que
-    abre na própria lista."""
-    return f"{reverse('viagens:oficios')}?q={oficio.numero_formatado}"
+    abre na própria lista. Arquivado só aparece na aba Arquivados."""
+    aba = "situacao=arquivado&" if oficio.arquivado_em else ""
+    return f"{reverse('viagens:oficios')}?{aba}q={oficio.numero_formatado}"
 
 
 def _migalhas(*itens: tuple[str, str]) -> list[tuple[str, str]]:
@@ -106,6 +107,8 @@ ORDENS_DA_LISTA: dict[str, tuple[str | OrderBy, ...]] = {
     "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
     "saida": (F("primeira_saida").asc(nulls_last=True),),
     "-saida": (F("primeira_saida").desc(nulls_last=True),),  # sem roteiro vão ao fim
+    # "Criação" da referência = data do ofício; empate pela gravação (como lá).
+    "-criacao": ("-data_oficio", "-criado_em"), "criacao": ("data_oficio", "criado_em"),
 }
 
 
@@ -158,6 +161,9 @@ def lista(request: HttpRequest) -> HttpResponse:
         for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
     ]
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
+    for o in pagina.object_list:  # o menu de cada linha vem da política, por objeto
+        o.acoes = policies.acoes_do_oficio(request.user, o)  # type: ignore[attr-defined]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     # As abas trocam só a situação: tudo o mais que a pessoa filtrou continua valendo.
@@ -583,6 +589,35 @@ def cancelar(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
+def reativar(request: HttpRequest, pk: int) -> HttpResponse:
+    oficio = _oficio_visivel(request, pk)
+    try:
+        oficio = services.reativar(oficio, request.user, request.POST.get("justificativa", ""))
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, f"Ofício {oficio.numero_formatado} reativado "
+                                  f"({oficio.get_situacao_display().lower()}). O cancelamento "
+                                  "e a justificativa ficam no histórico.")
+    return redirect(_na_lista(oficio))
+
+
+@require_POST
+def arquivar(request: HttpRequest, pk: int) -> HttpResponse:
+    oficio = services.arquivar(_oficio_visivel(request, pk), request.user)
+    messages.success(request, f"Ofício {oficio.numero_formatado} arquivado. Ele fica na aba "
+                              "Arquivados e pode ser desarquivado a qualquer momento.")
+    return redirect(_na_lista(oficio))
+
+
+@require_POST
+def desarquivar(request: HttpRequest, pk: int) -> HttpResponse:
+    oficio = services.desarquivar(_oficio_visivel(request, pk), request.user)
+    messages.success(request, f"Ofício {oficio.numero_formatado} desarquivado.")
+    return redirect(_na_lista(oficio))
+
+
+@require_POST
 def excluir(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     numero = services.excluir_rascunho(oficio, request.user)
@@ -607,6 +642,7 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
+        "acoes": policies.acoes_do_oficio(request.user, oficio, com_exclusao=True),
     }
 
 

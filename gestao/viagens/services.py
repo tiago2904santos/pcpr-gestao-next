@@ -786,13 +786,69 @@ def cancelar(oficio: Oficio, usuario, motivo: str) -> Oficio:
     policies.exigir(policies.pode_cancelar(usuario, atual), "Você não pode cancelar este ofício.")
     if not motivo.strip():
         raise RegraViolada("Informe o motivo do cancelamento.")
+    anterior = atual.situacao
     atual.situacao = Oficio.Situacao.CANCELADO
+    atual.situacao_anterior = anterior
     atual.cancelado_em = timezone.now()
     atual.motivo_cancelamento = motivo.strip()
     atual.versao += 1
-    atual.save(update_fields=["situacao", "cancelado_em", "motivo_cancelamento", "versao",
-                              "atualizado_em"])
-    _registrar(atual, Historico.Acao.CANCELADO, f"Cancelado: {motivo.strip()}", usuario)
+    atual.save(update_fields=["situacao", "situacao_anterior", "cancelado_em",
+                              "motivo_cancelamento", "versao", "atualizado_em"])
+    _registrar(atual, Historico.Acao.CANCELADO, f"Cancelado: {motivo.strip()}", usuario,
+               de=anterior, para=Oficio.Situacao.CANCELADO, motivo=motivo.strip())
+    return atual
+
+
+@transaction.atomic
+def reativar(oficio: Oficio, usuario, justificativa: str) -> Oficio:
+    """D2: o cancelado volta à situação que tinha (rascunho ou emitido). O número continua o
+    mesmo (cancelado já o ocupava), nada é emitido de novo e o cancelamento continua no
+    histórico — a reativação registra quem, quando, por quê, de onde e para onde."""
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
+    policies.exigir(policies.pode_reativar(usuario, atual),
+                    "Só o gestor de viagens reativa um ofício cancelado.")
+    justificativa = (justificativa or "").strip()
+    if not justificativa:
+        raise RegraViolada("Informe a justificativa da reativação.")
+    para = atual.situacao_anterior or Oficio.Situacao.RASCUNHO
+    cancelamento = {"motivo": atual.motivo_cancelamento,
+                    "em": atual.cancelado_em.isoformat() if atual.cancelado_em else None}
+    atual.situacao = para
+    atual.situacao_anterior = ""
+    atual.cancelado_em = None
+    atual.motivo_cancelamento = ""
+    atual.versao += 1
+    atual.save(update_fields=["situacao", "situacao_anterior", "cancelado_em",
+                              "motivo_cancelamento", "versao", "atualizado_em"])
+    _registrar(atual, Historico.Acao.REATIVADO,
+               f"Reativado ({Oficio.Situacao(para).label.lower()}): {justificativa}"[:300],
+               usuario, de=Oficio.Situacao.CANCELADO, para=para,
+               justificativa=justificativa, cancelamento=cancelamento)
+    return atual
+
+
+@transaction.atomic
+def arquivar(oficio: Oficio, usuario) -> Oficio:
+    """D1: tira o ofício das abas de trabalho; não apaga nada e não muda a situação."""
+    atual = Oficio.objects.select_for_update(of=("self",)).get(pk=oficio.pk)
+    policies.exigir(policies.pode_arquivar(usuario, atual), "Você não pode arquivar este ofício.")
+    atual.arquivado_em, atual.arquivado_por = timezone.now(), usuario
+    atual.save(update_fields=["arquivado_em", "arquivado_por", "atualizado_em"])
+    _registrar(atual, Historico.Acao.ARQUIVADO, "Arquivado.", usuario,
+               situacao=atual.situacao)
+    return atual
+
+
+@transaction.atomic
+def desarquivar(oficio: Oficio, usuario) -> Oficio:
+    atual = Oficio.objects.select_for_update(of=("self",)).get(pk=oficio.pk)
+    policies.exigir(policies.pode_desarquivar(usuario, atual),
+                    "Você não pode desarquivar este ofício.")
+    atual.arquivado_em, atual.arquivado_por = None, None
+    atual.save(update_fields=["arquivado_em", "arquivado_por", "atualizado_em"])
+    _registrar(atual, Historico.Acao.DESARQUIVADO, "Desarquivado.", usuario,
+               situacao=atual.situacao)
     return atual
 
 

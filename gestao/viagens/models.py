@@ -124,6 +124,14 @@ class Oficio(models.Model):
     emitido_em = models.DateTimeField(null=True, blank=True)
     cancelado_em = models.DateTimeField(null=True, blank=True)
     motivo_cancelamento = models.TextField(blank=True)
+    # Situação de antes do cancelamento: reativar volta para ela (D2). Vazio fora do cancelado.
+    situacao_anterior = models.CharField("situação antes do cancelamento", max_length=10,
+                                         blank=True)
+    # Arquivar (D1) é uma marca, não uma situação: tira o ofício das abas de trabalho sem
+    # apagar nada; desarquivar devolve. Arquivado não se edita nem se emite.
+    arquivado_em = models.DateTimeField("arquivado em", null=True, blank=True)
+    arquivado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                      null=True, blank=True, related_name="+")
 
     class Meta:
         ordering = ["-ano", "-numero"]
@@ -133,6 +141,8 @@ class Oficio(models.Model):
             ("emitir_oficio", "Pode emitir ofícios"),
             ("cancelar_oficio", "Pode cancelar ofícios"),
             ("reabrir_oficio", "Pode reabrir ofícios emitidos"),
+            ("reativar_oficio", "Pode reativar ofícios cancelados (com justificativa)"),
+            ("arquivar_oficio", "Pode arquivar e desarquivar ofícios"),
             ("ver_todas_unidades", "Vê ofícios de todas as unidades"),
             ("gerir_numeracao", "Pode configurar a numeração anual"),
         ]
@@ -176,7 +186,11 @@ class Oficio(models.Model):
 
     @property
     def editavel(self) -> bool:
-        return self.situacao == self.Situacao.RASCUNHO
+        return self.situacao == self.Situacao.RASCUNHO and self.arquivado_em is None
+
+    @property
+    def arquivado(self) -> bool:
+        return self.arquivado_em is not None
 
 
 class Viajante(models.Model):
@@ -486,6 +500,9 @@ class Historico(models.Model):
         DOCUMENTO = "documento", "Documento gerado"
         REABERTO = "reaberto", "Reaberto para correção"
         CANCELADO = "cancelado", "Ofício cancelado"
+        REATIVADO = "reativado", "Ofício reativado"
+        ARQUIVADO = "arquivado", "Ofício arquivado"
+        DESARQUIVADO = "desarquivado", "Ofício desarquivado"
         TEXTO = "texto", "Texto do documento alterado"
 
     oficio = models.ForeignKey(Oficio, on_delete=models.CASCADE, related_name="historico")

@@ -243,3 +243,81 @@ class TestOrigemDoProtocolo:
         assert oficio.protocolo_origem == Oficio.OrigemProtocolo.MANUAL
         oficio = services.salvar_dados(oficio, u, {"protocolo": ""}, versao=oficio.versao)
         assert oficio.protocolo_origem == ""
+
+
+class TestReativarCancelado:
+    """D2: só o gestor reativa, com justificativa; volta à situação anterior, mesmo número,
+    nada é emitido de novo e o cancelamento continua no histórico."""
+
+    def test_operador_nao_reativa(self):
+        c = cenario_completo()
+        cancelado = Oficio.objects.get(pk=c.ids["oficio_cancelado"])
+        with pytest.raises(PermissionDenied):
+            services.reativar(cancelado, c.usuarios["operador"], "Engano.")
+
+    def test_justificativa_obrigatoria(self):
+        c = cenario_completo()
+        cancelado = Oficio.objects.get(pk=c.ids["oficio_cancelado"])
+        with pytest.raises(services.RegraViolada, match="justificativa"):
+            services.reativar(cancelado, c.usuarios["gestor"], "   ")
+        cancelado.refresh_from_db()
+        assert cancelado.situacao == Oficio.Situacao.CANCELADO
+
+    def test_emitido_cancelado_volta_emitido_com_mesmo_numero_e_documentos(self):
+        c = cenario_completo()
+        gestor = c.usuarios["gestor"]
+        emitido = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+        numero = emitido.numero_formatado
+        docs = list(emitido.documentos.values_list("pk", flat=True))
+        services.cancelar(emitido, gestor, "Evento suspenso.")
+        reativado = services.reativar(emitido, gestor, "Evento remarcado na mesma data.")
+        assert reativado.situacao == Oficio.Situacao.EMITIDO
+        assert reativado.numero_formatado == numero
+        assert list(reativado.documentos.values_list("pk", flat=True)) == docs  # sem nova emissão
+        assert reativado.cancelado_em is None and reativado.motivo_cancelamento == ""
+        h = reativado.historico.filter(acao=Historico.Acao.REATIVADO).get()
+        assert h.usuario == gestor and h.dados["de"] == "cancelado" and h.dados["para"] == "emitido"
+        assert h.dados["justificativa"] == "Evento remarcado na mesma data."
+        assert h.dados["cancelamento"]["motivo"] == "Evento suspenso."
+        # o cancelamento anterior continua contado
+        assert reativado.historico.filter(acao=Historico.Acao.CANCELADO).exists()
+
+    def test_rascunho_cancelado_volta_rascunho(self):
+        c = cenario_completo()
+        gestor = c.usuarios["gestor"]
+        rascunho = Oficio.objects.get(pk=c.ids["oficio_vazio"])
+        services.cancelar(rascunho, gestor, "Duplicado.")
+        assert services.reativar(rascunho, gestor, "Não era duplicado.").situacao == "rascunho"
+
+
+class TestArquivar:
+    """D1: arquivar não apaga nem muda a situação; arquivado sai das abas de trabalho, não
+    se edita, e desarquivar devolve."""
+
+    def test_arquivar_e_desarquivar(self):
+        from gestao.viagens import policies, queries
+
+        c = cenario_completo()
+        operador = c.usuarios["operador"]
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        situacao = oficio.situacao
+        arquivado = services.arquivar(oficio, operador)
+        assert arquivado.situacao == situacao and arquivado.arquivado_por == operador
+        assert not policies.pode_editar(operador, arquivado)
+        assert not policies.pode_cancelar(operador, arquivado)
+        base = policies.oficios_visiveis(operador)
+        assert not queries.aplicar_filtro_situacao(base, "").filter(pk=oficio.pk).exists()
+        assert queries.aplicar_filtro_situacao(base, "arquivado").filter(pk=oficio.pk).exists()
+        assert queries.contagens(base)["arquivado"] == 1
+        with pytest.raises(PermissionDenied):
+            services.arquivar(arquivado, operador)  # já arquivado
+        volta = services.desarquivar(arquivado, operador)
+        assert volta.arquivado_em is None and policies.pode_editar(operador, volta)
+        acoes = list(volta.historico.order_by("em", "pk").values_list("acao", flat=True))
+        assert acoes[-2:] == [Historico.Acao.ARQUIVADO, Historico.Acao.DESARQUIVADO]
+
+    def test_consulta_nao_arquiva(self):
+        c = cenario_completo()
+        oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+        with pytest.raises(PermissionDenied):
+            services.arquivar(oficio, c.usuarios["consulta"])

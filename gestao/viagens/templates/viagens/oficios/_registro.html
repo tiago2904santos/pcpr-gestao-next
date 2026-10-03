@@ -36,7 +36,7 @@
       <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
       <div class="menu__painel" role="menu" hidden>
         {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Abrir o ofício</a>
-        {% elif o.situacao == "emitido" and pode_editar_oficios %}
+        {% elif o.situacao == "emitido" and not o.arquivado and pode_editar_oficios %}
           {# Emitido se edita por retificação: a confirmação explica o que muda. #}
           <form method="post" action="{% url 'viagens:retificar' o.pk %}"
                 data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico."
@@ -45,6 +45,7 @@
             <button type="submit" class="menu__item" role="menuitem">{% icone "pencil" %}Editar (retificar)</button>
           </form>
         {% else %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver a minuta (PDF)</a>{% endif %}
+        {% include "viagens/oficios/_acoes_ciclo.html" with acoes=o.acoes %}
       </div>
     </pc-menu>
   </div>

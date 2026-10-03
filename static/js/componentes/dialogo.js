@@ -76,6 +76,45 @@ if (janelaPedida) {
   window.history.replaceState(null, "", url);
 }
 
+// "Pedir motivo" (componentes/dialogo_motivo.html): um botão com data-pedir-motivo abre a
+// janela única da página com título, rótulo e ação dele; o texto é obrigatório.
+document.addEventListener("click", (e) => {
+  const botao = /** @type {HTMLElement | null} */ (
+    /** @type {HTMLElement} */ (e.target).closest("[data-pedir-motivo]"));
+  const janela = dialogoPorId("dialogo-motivo");
+  if (!botao || !janela) return;
+  e.preventDefault();
+  const form = /** @type {HTMLFormElement} */ (janela.querySelector("form"));
+  const texto = /** @type {HTMLTextAreaElement} */ (form.querySelector("textarea"));
+  const d = botao.dataset;
+  form.action = d.pedirMotivo || "";
+  texto.name = d.motivoCampo || "motivo";
+  texto.value = "";
+  /** @type {HTMLElement} */ (janela.querySelector(".dialogo__titulo")).textContent = d.motivoTitulo || "Confirmar";
+  /** @type {HTMLElement} */ (janela.querySelector("[data-motivo-rotulo]")).textContent = d.motivoRotulo || "Motivo";
+  /** @type {HTMLElement} */ (janela.querySelector("[data-motivo-ajuda]")).textContent = d.motivoAjuda || "Fica registrado no histórico do ofício.";
+  const acao = /** @type {HTMLButtonElement} */ (janela.querySelector("[data-motivo-acao]"));
+  acao.textContent = d.motivoAcao || "Confirmar";
+  const perigo = d.motivoPerigo !== undefined;
+  acao.classList.toggle("botao--perigo", perigo);
+  acao.classList.toggle("botao--primario", !perigo);
+  janela.classList.toggle("dialogo--perigo", perigo);
+  /** @type {HTMLElement} */ (janela.querySelector("#dialogo-motivo-erro")).hidden = true;
+  texto.removeAttribute("aria-invalid");
+  janela.showModal();
+  texto.focus();
+});
+document.addEventListener("submit", (e) => {
+  const form = /** @type {HTMLFormElement} */ (e.target);
+  if (!form.matches("[data-motivo-form]")) return;
+  const texto = /** @type {HTMLTextAreaElement} */ (form.querySelector("textarea"));
+  if (texto.value.trim()) return;
+  e.preventDefault();
+  /** @type {HTMLElement} */ (form.querySelector("#dialogo-motivo-erro")).hidden = false;
+  texto.setAttribute("aria-invalid", "true");
+  texto.focus();
+}, true);
+
 // Esc: a mesma saída animada (o navegador fecharia na hora).
 document.addEventListener("cancel", (e) => {
   const d = /** @type {HTMLDialogElement} */ (e.target);

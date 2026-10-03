@@ -21,7 +21,7 @@ PAPEIS: dict[str, Papel] = {
         "descricao": "Monta ofícios, roteiros e termos da sua unidade.",
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
-            "viagens.emitir_oficio", "viagens.delete_oficio",
+            "viagens.emitir_oficio", "viagens.delete_oficio", "viagens.arquivar_oficio",
             "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
             "viagens.delete_roteiro",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
@@ -34,6 +34,7 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.cancelar_oficio", "viagens.reabrir_oficio",
+            "viagens.reativar_oficio", "viagens.arquivar_oficio",
             "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.add_modelotexto",
             "cadastros.change_modelotexto", "cadastros.delete_modelotexto",
             "cadastros.gerir_padrao_texto",

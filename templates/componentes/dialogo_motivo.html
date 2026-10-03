@@ -1,0 +1,28 @@
+{% comment %}
+Janela "pedir motivo" — uma por página, para toda ação que exige um texto de quem decide
+(cancelar com motivo, reativar com justificativa, reabrir…). Quem aciona é um botão com:
+  data-pedir-motivo="<url do POST>"   data-motivo-titulo="Cancelar o Ofício 12/2026?"
+  data-motivo-rotulo="Motivo do cancelamento"   data-motivo-campo="motivo"
+  data-motivo-acao="Cancelar ofício"   data-motivo-ajuda="Fica no histórico."   [data-motivo-perigo]
+dialogo.js preenche e abre; o texto é obrigatório (o servidor também confere).
+{% endcomment %}
+<dialog id="dialogo-motivo" class="dialogo" aria-labelledby="dialogo-motivo-titulo">
+  <form method="post" action="" novalidate data-motivo-form>
+    {% csrf_token %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-motivo-titulo">Confirmar</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <div class="campo">
+        <label class="campo__rotulo" for="dialogo-motivo-texto"><span data-motivo-rotulo>Motivo</span><span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <textarea class="area-texto" id="dialogo-motivo-texto" name="motivo" rows="4" required maxlength="1000" aria-describedby="dialogo-motivo-ajuda dialogo-motivo-erro"></textarea>
+        <p class="campo__ajuda" id="dialogo-motivo-ajuda" data-motivo-ajuda>Fica registrado no histórico do ofício.</p>
+        <p class="campo__erro" id="dialogo-motivo-erro" hidden>{% icone "alert-circle" classe="icone--sm" %}<span>Escreva o texto antes de confirmar.</span></p>
+      </div>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Voltar</button>
+      <button type="submit" class="botao botao--primario" data-motivo-acao>Confirmar</button>
+    </div>
+  </form>
+</dialog>

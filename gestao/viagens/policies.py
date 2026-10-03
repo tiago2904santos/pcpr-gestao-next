@@ -76,7 +76,7 @@ def pode_emitir(usuario, oficio: Oficio) -> bool:
 
 
 def pode_reabrir(usuario, oficio: Oficio) -> bool:
-    return (oficio.situacao == Oficio.Situacao.EMITIDO
+    return (oficio.situacao == Oficio.Situacao.EMITIDO and not oficio.arquivado
             and usuario.has_perm("viagens.reabrir_oficio") and pode_ver(usuario, oficio))
 
 
@@ -84,13 +84,45 @@ def pode_retificar(usuario, oficio: Oficio) -> bool:
     """Editar um ofício já emitido: ele volta a rascunho como RETIFICADO. É a retificação
     do mundo real — quem edita ofícios pode fazer, e tudo fica no histórico. A reabertura
     formal (com motivo registrado) continua sendo do gestor."""
-    return (oficio.situacao == Oficio.Situacao.EMITIDO
+    return (oficio.situacao == Oficio.Situacao.EMITIDO and not oficio.arquivado
             and usuario.has_perm("viagens.change_oficio") and pode_ver(usuario, oficio))
 
 
 def pode_cancelar(usuario, oficio: Oficio) -> bool:
-    return (oficio.situacao != Oficio.Situacao.CANCELADO
+    return (oficio.situacao != Oficio.Situacao.CANCELADO and not oficio.arquivado
             and usuario.has_perm("viagens.cancelar_oficio") and pode_ver(usuario, oficio))
+
+
+def pode_reativar(usuario, oficio: Oficio) -> bool:
+    """D2: só o gestor reativa um cancelado (e com justificativa — regra do serviço)."""
+    return (oficio.situacao == Oficio.Situacao.CANCELADO and not oficio.arquivado
+            and usuario.has_perm("viagens.reativar_oficio") and pode_ver(usuario, oficio))
+
+
+def pode_arquivar(usuario, oficio: Oficio) -> bool:
+    """D1: arquivar tira das abas de trabalho, sem apagar (a referência pede só operador)."""
+    return (not oficio.arquivado and usuario.has_perm("viagens.arquivar_oficio")
+            and pode_ver(usuario, oficio))
+
+
+def pode_desarquivar(usuario, oficio: Oficio) -> bool:
+    return (oficio.arquivado and usuario.has_perm("viagens.arquivar_oficio")
+            and pode_ver(usuario, oficio))
+
+
+def acoes_do_oficio(usuario, oficio: Oficio, *, com_exclusao: bool = False) -> dict[str, bool]:
+    """O que o menu de um ofício oferece (lista e janela de resumo). Sem consulta ao banco,
+    a não ser a da exclusão (pede `com_exclusao`, só na janela de um ofício)."""
+    acoes = {
+        "cancelar": pode_cancelar(usuario, oficio),
+        "reativar": pode_reativar(usuario, oficio),
+        "arquivar": pode_arquivar(usuario, oficio),
+        "desarquivar": pode_desarquivar(usuario, oficio),
+    }
+    if com_exclusao:
+        acoes["excluir"] = pode_excluir(usuario, oficio)
+    acoes["alguma"] = any(acoes.values())
+    return acoes
 
 
 def pode_excluir(usuario, oficio: Oficio) -> bool:

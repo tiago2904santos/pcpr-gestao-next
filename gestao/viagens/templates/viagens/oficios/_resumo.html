@@ -15,6 +15,7 @@ continua sendo a edição; aqui só se lê e se decide.
     {# O período já está nos trechos, logo abaixo: aqui ficam o destino e o estado. #}
     <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}
       <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
+      {% if oficio.arquivado %}<span class="selo selo--neutro selo--sem-ponto">{% icone "inbox" classe="icone--sm" %}Arquivado</span>{% endif %}
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
     </h2>
   </div>
@@ -24,6 +25,12 @@ continua sendo a edição; aqui só se lê e se decide.
     <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-circle" %}<div class="alerta__corpo">
       <p class="alerta__titulo">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</p>
       <ul class="resumo__lista">{% for p in prontidao.bloqueantes %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
+    </div></div>
+  {% endif %}
+  {% if oficio.situacao == "cancelado" %}
+    <div class="alerta alerta--perigo resumo__aviso" role="note">{% icone "ban" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">Cancelado{% if oficio.cancelado_em %} em {{ oficio.cancelado_em|date:"d/m/Y" }}{% endif %}</p>
+      <p>{{ oficio.motivo_cancelamento }}</p>
     </div></div>
   {% endif %}
   {% if revisao and prontidao.avisos %}
@@ -183,6 +190,15 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
     {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
     <a class="botao" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
   {% endif %}{% endfor %}
+  {% if acoes.alguma %}
+    {# Ciclo de vida (cancelar, reativar, arquivar, excluir): o mesmo menu da linha da lista. #}
+    <pc-menu class="menu">
+      <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
+      <div class="menu__painel menu__painel--acima" role="menu" hidden>
+        {% include "viagens/oficios/_acoes_ciclo.html" with o=oficio %}
+      </div>
+    </pc-menu>
+  {% endif %}
   {% if pode_editar %}
     <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
   {% elif pode_retificar %}

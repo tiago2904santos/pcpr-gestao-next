@@ -1,0 +1,46 @@
+{% comment %}
+Ações do ciclo de vida de um ofício (menu da linha e da janela de resumo). `acoes` vem de
+policies.acoes_do_oficio — o template só mostra o que a política libera; o servidor confere
+de novo. Cancelar e reativar pedem o texto na janela "pedir motivo" (dialogo_motivo.html).
+{% endcomment %}
+{% if acoes.alguma %}
+  <div class="menu__separador" role="separator"></div>
+  {% if acoes.reativar %}
+    <button type="button" class="menu__item" role="menuitem"
+            data-pedir-motivo="{% url 'viagens:reativar' o.pk %}" data-motivo-campo="justificativa"
+            data-motivo-titulo="Reativar o Ofício {{ o.numero_formatado }}?"
+            data-motivo-rotulo="Justificativa da reativação"
+            data-motivo-ajuda="Ele volta à situação que tinha antes de ser cancelado, com o mesmo número; nada é emitido de novo. O cancelamento e esta justificativa ficam no histórico."
+            data-motivo-acao="Reativar ofício">{% icone "undo-2" %}Reativar ofício</button>
+  {% endif %}
+  {% if acoes.cancelar %}
+    <button type="button" class="menu__item" role="menuitem"
+            data-pedir-motivo="{% url 'viagens:cancelar' o.pk %}" data-motivo-campo="motivo"
+            data-motivo-titulo="Cancelar o Ofício {{ o.numero_formatado }}?"
+            data-motivo-rotulo="Motivo do cancelamento"
+            data-motivo-ajuda="O número continua ocupado e o histórico é mantido. O gestor pode reativar depois, com justificativa."
+            data-motivo-acao="Cancelar ofício" data-motivo-perigo>{% icone "ban" %}Cancelar ofício</button>
+  {% endif %}
+  {% if acoes.arquivar %}
+    <form method="post" action="{% url 'viagens:arquivar' o.pk %}"
+          data-confirmar="O Ofício {{ o.numero_formatado }} sai das abas de trabalho e vai para Arquivados. Nada é apagado e dá para desarquivar quando quiser."
+          data-confirmar-titulo="Arquivar ofício?" data-confirmar-rotulo="Arquivar">
+      {% csrf_token %}
+      <button type="submit" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar</button>
+    </form>
+  {% endif %}
+  {% if acoes.desarquivar %}
+    <form method="post" action="{% url 'viagens:desarquivar' o.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar</button>
+    </form>
+  {% endif %}
+  {% if acoes.excluir %}
+    <form method="post" action="{% url 'viagens:excluir' o.pk %}"
+          data-confirmar="O rascunho {{ o.numero_formatado }} será excluído e o número volta a ficar disponível. Esta ação não pode ser desfeita."
+          data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>
+      {% csrf_token %}
+      <button type="submit" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>
+    </form>
+  {% endif %}
+{% endif %}

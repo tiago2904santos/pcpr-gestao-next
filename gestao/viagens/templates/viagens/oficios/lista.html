@@ -27,6 +27,8 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
       <option value="numero"{% if ordem == "numero" %} selected{% endif %}>Número (mais antigo)</option>
       <option value="saida"{% if ordem == "saida" %} selected{% endif %}>Data de saída (próximas)</option>
       <option value="-saida"{% if ordem == "-saida" %} selected{% endif %}>Data de saída (recentes)</option>
+      <option value="-criacao"{% if ordem == "-criacao" %} selected{% endif %}>Data do ofício (mais recente)</option>
+      <option value="criacao"{% if ordem == "criacao" %} selected{% endif %}>Data do ofício (mais antiga)</option>
     </select></pc-select>
   </div>
   <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
@@ -55,6 +57,15 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
                  placeholder="Qualquer data" autocomplete="off" form="filtros-oficios">
           <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
           {{ avancados.saida_de }}{{ avancados.saida_ate }}
+        </pc-data>
+      </div>
+      <div class="campo filtros__campo--md">
+        <label class="campo__rotulo" for="filtro-criacao" id="filtro-criacao-rotulo">Data do ofício</label>
+        <pc-data class="seletor" data-periodo>
+          <input class="entrada" type="text" id="filtro-criacao" value="{{ avancados.periodo_criacao_texto }}"
+                 placeholder="Qualquer data" autocomplete="off" form="filtros-oficios">
+          <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
+          {{ avancados.criacao_de }}{{ avancados.criacao_ate }}
         </pc-data>
       </div>
       {% include "componentes/campo.html" with campo=avancados.protocolo classe="filtros__campo--md" %}
@@ -116,4 +127,5 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
   {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
 </div>
 {% include "viagens/oficios/_dialogo_resumo.html" %}
+{% include "componentes/dialogo_motivo.html" %}
 {% endblock %}

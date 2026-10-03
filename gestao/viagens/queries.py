@@ -79,18 +79,22 @@ FILTROS_SITUACAO = {
     "emitido": ("Emitidos", Q(situacao=Oficio.Situacao.EMITIDO)),
     "proximos": ("Próximas viagens", Q(situacao__in=["rascunho", "emitido"])),
     "cancelado": ("Cancelados", Q(situacao=Oficio.Situacao.CANCELADO)),
+    # D1: arquivados saem de todas as outras abas e moram só aqui.
+    "arquivado": ("Arquivados", Q(arquivado_em__isnull=False)),
 }
+NAO_ARQUIVADO = Q(arquivado_em__isnull=True)
 
 
 def contagens(qs: QuerySet[Oficio]) -> dict[str, int]:
     agora = timezone.now()
-    proximos = qs.filter(FILTROS_SITUACAO["proximos"][1], trechos__ordem=1,
+    proximos = qs.filter(FILTROS_SITUACAO["proximos"][1], NAO_ARQUIVADO, trechos__ordem=1,
                          trechos__saida_em__gte=agora)
     resultado = qs.aggregate(
-        todos=Count("pk"),
-        rascunho=Count("pk", filter=FILTROS_SITUACAO["rascunho"][1]),
-        emitido=Count("pk", filter=FILTROS_SITUACAO["emitido"][1]),
-        cancelado=Count("pk", filter=FILTROS_SITUACAO["cancelado"][1]),
+        todos=Count("pk", filter=NAO_ARQUIVADO),
+        rascunho=Count("pk", filter=FILTROS_SITUACAO["rascunho"][1] & NAO_ARQUIVADO),
+        emitido=Count("pk", filter=FILTROS_SITUACAO["emitido"][1] & NAO_ARQUIVADO),
+        cancelado=Count("pk", filter=FILTROS_SITUACAO["cancelado"][1] & NAO_ARQUIVADO),
+        arquivado=Count("pk", filter=FILTROS_SITUACAO["arquivado"][1]),
     )
     resultado["proximos"] = proximos.count()
     return resultado
@@ -166,6 +170,10 @@ def aplicar_filtros_avancados(qs: QuerySet[Oficio], filtros: dict) -> QuerySet[O
         if ate:
             periodo &= Q(trechos__saida_em__date__lte=ate)
         qs = qs.filter(periodo)
+    if filtros.get("criacao_de"):
+        qs = qs.filter(data_oficio__gte=filtros["criacao_de"])
+    if filtros.get("criacao_ate"):
+        qs = qs.filter(data_oficio__lte=filtros["criacao_ate"])
     protocolo = "".join(c for c in (filtros.get("protocolo") or "") if c.isdigit())
     if protocolo:
         qs = qs.filter(protocolo__contains=protocolo)
@@ -180,6 +188,9 @@ def aplicar_filtros_avancados(qs: QuerySet[Oficio], filtros: dict) -> QuerySet[O
 
 
 def aplicar_filtro_situacao(qs: QuerySet[Oficio], chave: str | None) -> QuerySet[Oficio]:
+    if chave == "arquivado":
+        return qs.filter(FILTROS_SITUACAO["arquivado"][1])
+    qs = qs.filter(NAO_ARQUIVADO)
     if not chave or chave not in FILTROS_SITUACAO:
         return qs
     qs = qs.filter(FILTROS_SITUACAO[chave][1])

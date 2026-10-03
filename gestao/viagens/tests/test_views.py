@@ -881,3 +881,115 @@ class TestNumeracaoAnual:
         assert r.status_code == 422 and "1 a 99999" in r.content.decode()
         r = gestor.post(reverse("viagens:numeracao"), {"ano": "abc", "piso": "1"})
         assert r.status_code == 422 and "em números" in r.content.decode()
+
+
+class TestFiltroPorDataDoOficio:
+    """D5: o filtro "criação" da referência é pela data do ofício (`data_criacao` lá)."""
+
+    def _numeros(self, resposta) -> list[str]:
+        return re.findall(r'class="placa__numero">([^<]+)<', resposta.content.decode())
+
+    def _com_datas(self, cenario):
+        from datetime import date
+
+        ano = timezone.localdate().year
+        u = cenario.usuarios["operador"]
+        a = services.criar_rascunho(u, data_oficio=date(ano, 1, 10))
+        b = services.criar_rascunho(u, data_oficio=date(ano, 1, 20))
+        c = services.criar_rascunho(u, data_oficio=date(ano, 1, 31))
+        return ano, a, b, c
+
+    def test_limites_sao_inclusivos(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        r = operador.get(reverse("viagens:oficios"),
+                         {"criacao_de": f"10/01/{ano}", "criacao_ate": f"20/01/{ano}"})
+        numeros = self._numeros(r)
+        assert a.numero_formatado in numeros and b.numero_formatado in numeros
+        assert c.numero_formatado not in numeros
+
+    def test_pontas_invertidas_e_data_invalida(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        r = operador.get(reverse("viagens:oficios"),
+                         {"criacao_de": f"31/01/{ano}", "criacao_ate": f"20/01/{ano}"})
+        assert set(self._numeros(r)) >= {b.numero_formatado, c.numero_formatado}
+        r = operador.get(reverse("viagens:oficios"), {"criacao_de": "99/99/9999"})
+        assert r.status_code == 200 and a.numero_formatado in self._numeros(r)
+
+    def test_combina_com_situacao_busca_e_ordem(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        filtros = {"criacao_de": f"01/01/{ano}", "criacao_ate": f"31/01/{ano}",
+                   "situacao": "rascunho", "ordem": "criacao"}
+        numeros = self._numeros(operador.get(reverse("viagens:oficios"), filtros))
+        assert numeros[:3] == [a.numero_formatado, b.numero_formatado, c.numero_formatado]
+        numeros = self._numeros(operador.get(reverse("viagens:oficios"),
+                                             {**filtros, "ordem": "-criacao"}))
+        assert numeros.index(c.numero_formatado) < numeros.index(a.numero_formatado)
+        r = operador.get(reverse("viagens:oficios"),
+                         {**filtros, "q": b.numero_formatado, "escopo": "numero"})
+        assert self._numeros(r) == [b.numero_formatado]
+        r = operador.get(reverse("viagens:oficios"), {**filtros, "situacao": "cancelado"})
+        assert a.numero_formatado not in self._numeros(r)
+
+    def test_periodo_conta_como_um_filtro_ativo(self):
+        from gestao.viagens.forms import FiltrosOficio
+
+        f = FiltrosOficio({"criacao_de": "01/01/2026", "criacao_ate": "31/01/2026",
+                           "saida_de": "01/02/2026", "saida_ate": "28/02/2026"})
+        assert f.ativos == 2
+        assert f.periodo_criacao_texto == "01/01/2026 a 31/01/2026"
+
+    def test_paginacao_preserva_o_filtro(self, operador, cenario):
+        ano, *_ = self._com_datas(cenario)
+        r = operador.get(reverse("viagens:oficios"), {"criacao_de": f"01/01/{ano}"})
+        assert f"criacao_de=01%2F01%2F{ano}" in r.content.decode() or \
+            f"criacao_de=01/01/{ano}" in r.content.decode()
+
+
+class TestCicloDeVidaNaTela:
+    """Cancelar (com motivo), reativar (gestor, justificativa) e arquivar pela lista/janela."""
+
+    def test_menu_da_linha_oferece_o_que_a_politica_libera(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert 'id="dialogo-motivo"' in html and "Arquivar" in html
+        assert "Reativar ofício" not in html  # operador não reativa
+        html = operador.get(reverse("viagens:oficios") + "?situacao=cancelado").content.decode()
+        assert "Reativar ofício" not in html
+
+    def test_gestor_reativa_pela_tela_e_sem_justificativa_volta_com_erro(self, gestor, cenario):
+        cancelado = Oficio.objects.get(pk=cenario.ids["oficio_cancelado"])
+        html = gestor.get(reverse("viagens:oficios") + "?situacao=cancelado").content.decode()
+        assert f'data-pedir-motivo="{reverse("viagens:reativar", args=[cancelado.pk])}"' in html
+        r = gestor.post(reverse("viagens:reativar", args=[cancelado.pk]), {"justificativa": ""},
+                        follow=True)
+        assert "justificativa" in r.content.decode()
+        cancelado.refresh_from_db()
+        assert cancelado.situacao == "cancelado"
+        gestor.post(reverse("viagens:reativar", args=[cancelado.pk]),
+                    {"justificativa": "Remarcado."})
+        cancelado.refresh_from_db()
+        assert cancelado.situacao != "cancelado"
+
+    def test_operador_nao_reativa_pela_url(self, operador, cenario):
+        cancelado = Oficio.objects.get(pk=cenario.ids["oficio_cancelado"])
+        r = operador.post(reverse("viagens:reativar", args=[cancelado.pk]),
+                          {"justificativa": "x"})
+        assert r.status_code == 403
+
+    def test_cancelar_pela_tela_exige_motivo(self, gestor, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        gestor.post(reverse("viagens:cancelar", args=[oficio.pk]), {"motivo": ""})
+        oficio.refresh_from_db()
+        assert oficio.situacao != "cancelado"
+        gestor.post(reverse("viagens:cancelar", args=[oficio.pk]), {"motivo": "Suspenso."})
+        oficio.refresh_from_db()
+        assert oficio.situacao == "cancelado" and oficio.situacao_anterior == "rascunho"
+
+    def test_arquivar_leva_para_a_aba_arquivados(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        r = operador.post(reverse("viagens:arquivar", args=[oficio.pk]))
+        assert "situacao=arquivado" in r["Location"]
+        lista = operador.get(reverse("viagens:oficios")).content.decode()
+        assert f">{oficio.numero_formatado}<" not in lista
+        arquivados = operador.get(reverse("viagens:oficios") + "?situacao=arquivado")
+        assert f">{oficio.numero_formatado}<" in arquivados.content.decode()
+        assert "Desarquivar" in arquivados.content.decode()

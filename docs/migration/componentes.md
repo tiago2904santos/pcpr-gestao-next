@@ -23,7 +23,7 @@ pelo nome. "Usos" = número de templates que referenciam (03/10/2026).
 | `registro.js` | linha → janela de resumo (htmx), esqueleto, abrir ao carregar | 10 | **toda lista** com janela de resumo |
 | `autosave.js` | gravação automática + `pcpr:dados-salvos` | 2 | toda folha de edição |
 | `limpar.js` | botão × em campos | 6 | automático em `input[type=search]` e `[data-limpavel]` |
-| `dialogo.js` | janelas | 11 | confirmação, resumo |
+| `dialogo.js` | janelas; janela aberta pelo servidor; **pedir motivo** (`data-pedir-motivo` + `componentes/dialogo_motivo.html`) | 11 | confirmação, resumo, qualquer ação que exige texto (cancelar, reativar, reabrir; roteiros e próximos módulos) |
 | `acao.js` | ações com confirmação | 32 | global |
 | `mascara.js` | CPF, RG, protocolo, placa | 2 | cadastros |
 | `progresso.js`, `protecao.js`, `guia.js` | barra de progresso, aviso de saída sem salvar, guia | — | global |

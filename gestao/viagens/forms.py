@@ -48,6 +48,11 @@ class FiltrosOficio(forms.Form):
                                widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
     saida_ate = forms.DateField(required=False, input_formats=FORMATOS_DATA,
                                 widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    # Data do ofício ("criação" na referência: lá o campo data_criacao É a data do ofício).
+    criacao_de = forms.DateField(required=False, input_formats=FORMATOS_DATA,
+                                 widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    criacao_ate = forms.DateField(required=False, input_formats=FORMATOS_DATA,
+                                  widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
     protocolo = forms.CharField(label="Protocolo", required=False, max_length=20,
                                 widget=forms.TextInput(attrs=_attrs(
                                     inputmode="numeric", placeholder="00.366.136-8")))
@@ -75,21 +80,30 @@ class FiltrosOficio(forms.Form):
     def clean(self):
         dados = super().clean() or {}
         # Inverteu as pontas? Entende e segue, em vez de devolver erro.
-        for menor, maior in (("saida_de", "saida_ate"), ("diarias_de", "diarias_ate")):
+        for menor, maior in (("saida_de", "saida_ate"), ("criacao_de", "criacao_ate"),
+                             ("diarias_de", "diarias_ate")):
             a, b = dados.get(menor), dados.get(maior)
             if a is not None and b is not None and b < a:
                 dados[menor], dados[maior] = b, a
         return dados
 
-    @property
-    def periodo_texto(self) -> str:
-        """O que aparece no campo único do período."""
+    def _texto_do_periodo(self, de_nome: str, ate_nome: str) -> str:
         if not self.is_valid():
             return ""
-        de, ate = self.cleaned_data.get("saida_de"), self.cleaned_data.get("saida_ate")
+        de, ate = self.cleaned_data.get(de_nome), self.cleaned_data.get(ate_nome)
         if not de:
             return ""
         return f"{de:%d/%m/%Y} a {ate:%d/%m/%Y}" if ate else f"{de:%d/%m/%Y}"
+
+    @property
+    def periodo_texto(self) -> str:
+        """O que aparece no campo único do período de saída."""
+        return self._texto_do_periodo("saida_de", "saida_ate")
+
+    @property
+    def periodo_criacao_texto(self) -> str:
+        """O que aparece no campo único do período da data do ofício."""
+        return self._texto_do_periodo("criacao_de", "criacao_ate")
 
     @property
     def ativos(self) -> int:
@@ -98,8 +112,12 @@ class FiltrosOficio(forms.Form):
         if not self.is_valid():
             return 0
         dados = dict(self.cleaned_data)
-        periodo = bool(dados.pop("saida_de", None) or dados.pop("saida_ate", None))
-        return sum(1 for valor in dados.values() if valor not in (None, "")) + (1 if periodo else 0)
+        periodos = 0
+        for de, ate in (("saida_de", "saida_ate"), ("criacao_de", "criacao_ate")):
+            # pop dos dois sempre (um `or` deixaria a outra ponta contando sozinha)
+            pontas = [dados.pop(de, None), dados.pop(ate, None)]
+            periodos += 1 if any(pontas) else 0
+        return sum(1 for valor in dados.values() if valor not in (None, "")) + periodos
 
 
 class AssociadoAoFormularioDoOficio:
