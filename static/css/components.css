@@ -210,7 +210,7 @@
   --botao-fundo-hover: transparent;
   --botao-sombra: none;
   --botao-texto: var(--cor-texto);
-  min-height: 1.5rem;
+  min-height: max(1.5rem, var(--alvo-minimo)); /* alvo de toque ≥ 24px mesmo a 90% */
   padding: var(--esp-05) 0;
   border-radius: var(--raio-xs);
   text-decoration: underline;
@@ -832,7 +832,7 @@ a.resumo__documento:hover {
   display: inline-flex;
   align-items: flex-start;
   gap: var(--esp-2);
-  min-height: 1.5rem;
+  min-height: max(1.5rem, var(--alvo-minimo)); /* alvo de toque ≥ 24px mesmo a 90% */
   cursor: pointer;
 }
 

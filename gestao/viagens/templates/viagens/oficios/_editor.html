@@ -70,7 +70,12 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
   </div>
   <div class="editor__avisos" data-avisos></div>
   <div class="previa-documento editor__folha">
-    <iframe id="folha-{{ tipo }}" class="editor__quadro" src="{{ folha_url }}" title="{{ titulo_doc }} — folha" loading="lazy" data-quadro="texto"></iframe>
+    {% comment %}
+    A folha só carrega quando o editor chega à tela (editor-documento.js põe o `src`): na
+    abertura da folha do ofício ela não pesa (D8). Sem JavaScript, o <noscript> mostra a folha.
+    {% endcomment %}
+    <iframe id="folha-{{ tipo }}" class="editor__quadro" data-src="{{ folha_url }}" title="{{ titulo_doc }} — folha" data-quadro="texto" hidden></iframe>
+    <noscript><iframe class="editor__quadro" src="{{ folha_url }}" title="{{ titulo_doc }} — folha" loading="lazy"></iframe></noscript>
     <iframe class="editor__quadro" title="{{ titulo_doc }} (PDF)" data-quadro="pdf" hidden></iframe>
   </div>
   {% if pode_editar_texto %}

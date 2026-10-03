@@ -661,7 +661,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--esp-2);
-  min-height: 1.5rem;
+  min-height: max(1.5rem, var(--alvo-minimo)); /* alvo de toque ≥ 24px mesmo a 90% */
   color: var(--cor-texto-secundario);
   font-weight: var(--peso-medio);
   cursor: pointer;

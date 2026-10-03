@@ -82,6 +82,11 @@ export class PcEditorDocumento extends HTMLElement {
     this.dialogoTexto = /** @type {HTMLDialogElement | null} */ (this.querySelector("dialog[data-guardar-texto]"));
     if (this.barra) this.barra.hidden = false;
     this.prepararBarra();
+    // A folha chega sem `src` (só carrega quando o editor entra na tela — app.js).
+    if (this.quadro && this.quadro.dataset.src && !this.quadro.getAttribute("src")) {
+      this.quadro.src = this.quadro.dataset.src;
+      this.quadro.hidden = false;
+    }
     if (this.quadro) {
       const doc = this.quadro.contentDocument;
       if (doc && doc.readyState === "complete" && doc.body && doc.body.childElementCount) this.prepararFolha();

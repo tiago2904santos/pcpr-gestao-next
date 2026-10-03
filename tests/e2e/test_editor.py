@@ -130,4 +130,4 @@ def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e):
     pg.keyboard.press("ArrowLeft")
     assert pg.evaluate("document.activeElement.dataset.modo") == "texto"
     violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
-    assert not violacoes, [v["id"] for v in violacoes]
+    assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:5]) for v in violacoes]

@@ -32,11 +32,12 @@ ORCAMENTO = {
     "sql": 25, "db_ms": 80,
 }
 
-# Folhas de edição usam quase todos os componentes (módulos ES sem empacotador, ADR 0002):
-# teto provisório de requisições até a decisão do ADR 0021 (proposto). Peso e tempo seguem
-# o orçamento geral.
+# Folhas de edição usam quase todos os componentes (módulos ES sem empacotador, ADR 0002).
+# Decisão D8: teto até 40, condicionado à validação. Validado em 03/10/2026 (rede emulada,
+# docs/quality/performance-budgets.md): a folha precisa de 30; o teto fica em 32 (medido +
+# margem), mais estrito que os 40 autorizados. Peso e tempo seguem o orçamento geral.
 FOLHAS_DE_EDICAO = re.compile(r"/(oficios|roteiros)/\d+/editar/")
-REQUISICOES_FOLHA = 40
+REQUISICOES_FOLHA = 32
 
 ITINERARIO = re.compile(r"/vendor/leaflet/|/itinerario\.(css|js)|/api/rota/")
 
