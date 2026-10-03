@@ -87,53 +87,30 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
 <div class="documento documento--cartoes">
 
   {% comment %}
-  1. Identificação — o documento e quem o compõe: dados do ofício, equipe e transporte.
-  Os dados ficam direto sob o cabeçalho (a identificação É o ofício); equipe e transporte
-  entram como blocos. A linha de cima fecha na margem: o número, a data, o protocolo e as
-  três pílulas do tipo de documento repartem a largura.
+  1. Identificação — o documento e quem o compõe, nos mesmos componentes da folha do roteiro
+  e da janela de resumo: campos de uma altura só, escolhas como seleção (a peça do "Texto
+  pronto" e da UF), interruptor pequeno no cabeçalho do bloco (como o "Bate-volta") e
+  cartões de pessoa. O número não se repete aqui: já está na placa e no título. Toda linha
+  fecha na margem; ajuda que quebraria sob um campo curto fica só para leitores de tela.
   {% endcomment %}
   <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
       {# `assunto.linha` já termina em ponto e `assunto.rotulo` já vem entre parênteses. #}
-      <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %} Retificado corrige um ofício anterior à viagem; complementar acrescenta ao já enviado.</p>
+      <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %}</p>
     </div>
 
     <div class="pilha" id="dados">
-      <div class="campos">
-        <div class="campo campo--auto">
-          <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
-          <p class="placa placa--campo" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Reservado</span><span class="placa__numero">{{ oficio.numero_formatado }}</span></p>
-        </div>
+      {# Uma linha: data · protocolo · tipo de documento · custeio. "Outra instituição" abre a linha seguinte inteira. #}
+      <div class="campos custeio">
         {% include "componentes/campo.html" with campo=form.data_oficio classe="campo--sm" %}
-        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" exigido_para_emitir=True %}
-        <fieldset class="opcoes opcoes--compactas opcoes--estende">
-          <legend>Tipo de documento</legend>
-          {% for opcao in form.marcador %}
-            <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-              <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "retificado" %}{% icone "file-pen-line" %}{% elif opcao.data.value == "complementar" %}{% icone "file-plus-2" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-              <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "retificado" %}Retificado{% elif opcao.data.value == "complementar" %}Complementar{% else %}Original{% endif %}</span>
-                <span class="opcao__descricao">{% if opcao.data.value == "retificado" %}Corrige ofício anterior à viagem{% elif opcao.data.value == "complementar" %}Acrescenta ao ofício já enviado{% else %}Documento sem marcação{% endif %}</span></span>
-            </label>
-          {% endfor %}
-        </fieldset>
+        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" exigido_para_emitir=True ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.marcador classe="campo--md" rotulo="Tipo de documento" %}
+        {% include "componentes/campo.html" with campo=form.custeio classe="campo--lg" rotulo="Custeio" %}
+        {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
       </div>
       {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
-      {# Custeio: quem paga. "Outra instituição" revela o campo da instituição ao lado da escolha. #}
-      <div class="custeio campos">
-        <fieldset class="opcoes">
-          <legend>Custeio das diárias e do deslocamento</legend>
-          {% for opcao in form.custeio %}
-            <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-              <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "outra_instituicao" %}{% icone "landmark" %}{% elif opcao.data.value == "onus_limitado" %}{% icone "wallet" %}{% else %}{% icone "building-2" %}{% endif %}</span>
-              <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "outra_instituicao" %}Outra instituição{% elif opcao.data.value == "onus_limitado" %}Ônus limitados{% else %}Unidade{% endif %}</span>
-                <span class="opcao__descricao">{% if opcao.data.value == "outra_instituicao" %}Informe qual ao lado{% elif opcao.data.value == "onus_limitado" %}Aos próprios vencimentos{% else %}Diárias e combustível pela unidade{% endif %}</span></span>
-            </label>
-          {% endfor %}
-        </fieldset>
-        {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="campo--lg condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
-      </div>
     </div>
 
     {# Equipe: salva na hora, via HTMX (o bloco inteiro é trocado). #}
@@ -142,32 +119,25 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     <div class="secao__bloco" id="transporte" aria-labelledby="t-transporte">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-      </div>
-      <div class="transporte pilha">
-        <div class="campos">
-          <fieldset class="opcoes">
-            <legend>Meio de transporte</legend>
-            {% for opcao in form.tipo_transporte %}
-              <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-                <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "viatura" %}{% icone "car" %}{% else %}{% icone "bus" %}{% endif %}</span>
-                <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "viatura" %}Viatura oficial{% else %}Outro meio{% endif %}</span>
-                  <span class="opcao__descricao">{% if opcao.data.value == "viatura" %}Escolha pela placa ou pelo modelo{% else %}Ônibus, avião, veículo cedido…{% endif %}</span></span>
-              </label>
-            {% endfor %}
-          </fieldset>
-          <div class="campo campo--lg so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span></label>
-            <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
-          </div>
-          {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
-          {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
-          {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
+        <div class="secao__estado">
+          {% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}
+          {# Sim/não com efeito no documento: interruptor no cabeçalho, como o "Bate-volta" do roteiro. #}
+          <label class="interruptor" for="{{ form.porte_arma.auto_id }}" title="Ligue se os servidores transportarão arma de fogo">
+            {{ form.porte_arma|campo_acessivel:"" }}
+            <span>Porte/trânsito de arma</span>
+          </label>
         </div>
-        <label class="interruptor interruptor--descrito" for="{{ form.porte_arma.auto_id }}">
-          {{ form.porte_arma|campo_acessivel:True }}
-          <span>Porte/trânsito de arma<span class="escolha__descricao" id="{{ form.porte_arma.auto_id }}-ajuda">Ligue se os servidores transportarão arma de fogo.</span></span>
-        </label>
+      </div>
+      {# Uma linha: meio de transporte · o que a escolha pede (viatura, ou descrição · placa · combustível). #}
+      <div class="campos transporte">
+        {% include "componentes/campo.html" with campo=form.tipo_transporte classe="campo--md" rotulo="Meio de transporte" %}
+        <div class="campo campo--lg so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span></label>
+          <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
+        </div>
+        {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
+        {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
+        {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
       </div>
     </div>
   </section>

@@ -25,7 +25,8 @@ cartão sozinho com a linha pela metade.
                    data-acao-url="{% url 'viagens:adicionar_viajante' oficio.pk %}" data-alvo="#equipe" data-troca="outerHTML">
         <div class="entrada-composta">{% icone "search" %}<input id="busca-servidor" class="entrada" role="combobox" name="busca" placeholder="Buscar por nome, CPF ou RG" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
       </pc-combobox>
-      <p class="campo__ajuda" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista.</p>
+      {# A ajuda fica só para leitores de tela: o placeholder já diz o que buscar. #}
+      <p class="campo__ajuda sr-only" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista.</p>
       <noscript><p class="campo__ajuda">Sem JavaScript: informe o código do servidor.</p><input class="entrada" name="id" inputmode="numeric"><button class="botao botao--sm mt-2">Adicionar</button></noscript>
     </form>
     {% if viajantes %}

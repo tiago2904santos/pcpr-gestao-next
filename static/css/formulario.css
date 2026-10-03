@@ -568,14 +568,16 @@
   transform: scale(var(--escala-pressao));
 }
 
-/* Campo que só vale para uma escolha: aparece colado à decisão (sem JS: :has()). */
+/* Campo que só vale para uma escolha: aparece colado à decisão (sem JS: :has() sobre a
+   opção marcada do <select>; o pc-select mantém o <select> nativo em dia). Entra tomando a
+   linha inteira — um campo a mais na linha de cima a quebraria pela metade. */
 .condicional {
   display: none;
 }
 
-.custeio:has(input[name="custeio"][value="outra_instituicao"]:checked) .condicional--outra-instituicao {
+.custeio:has(select[name="custeio"] option[value="outra_instituicao"]:checked) .condicional--outra-instituicao {
   display: flex;
-  flex: 1 1 16rem;
+  flex: 1 1 100%;
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
@@ -721,15 +723,12 @@
 }
 
 /* =============== Transporte e equipe (ofício) =============== */
-/* Campos que só valem para um meio de transporte (sem JS: :has()). Os dois cartões ficam
-   à esquerda; o campo que a escolha pede entra na mesma linha, à direita. */
-.transporte:has(input[name="tipo_transporte"][value="viatura"]:checked) .so-outro,
-.transporte:has(input[name="tipo_transporte"][value="outro"]:checked) .so-viatura {
+/* Campos que só valem para um meio de transporte (sem JS: :has() sobre a opção marcada).
+   A seleção fica à esquerda; o que a escolha pede entra na mesma linha, à direita, e a
+   linha fecha na margem. */
+.transporte:has(select[name="tipo_transporte"] option[value="viatura"]:checked) .so-outro,
+.transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) .so-viatura {
   display: none;
-}
-
-.transporte .campos > .opcoes {
-  flex: 0 1 36rem;
 }
 
 /* Equipe: a busca vai de margem a margem, como a busca das listas — uma caixa curta

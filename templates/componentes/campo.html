@@ -2,7 +2,9 @@
 Campo de formulário acessível. Uso:
   {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" ajuda="Nove dígitos" %}
 Variáveis opcionais: classe, rotulo (sobrepõe o label), ajuda (sobrepõe help_text), prefixo_icone, texto_fixo, texto_fixo_antes,
-exigido_para_emitir (campo livre no rascunho, mas exigido para emitir).
+exigido_para_emitir (campo livre no rascunho, mas exigido para emitir),
+ajuda_oculta (a ajuda continua ligada por aria-describedby, mas só para leitores de tela —
+para campos curtos numa linha cheia, onde a ajuda quebraria sob o campo).
 - Rótulo sempre visível (nunca só placeholder); obrigatório com *, "(para emitir)" quando é
   livre no rascunho (leitor de tela ouve "necessário para emitir") — opcional não leva sufixo;
 - ajuda e erro ligados via aria-describedby; aria-invalid quando houver erro.
@@ -28,7 +30,7 @@ exigido_para_emitir (campo livre no rascunho, mas exigido para emitir).
     {% else %}
       {{ campo|campo_acessivel:ajuda_texto }}
     {% endif %}
-    {% if ajuda_texto %}<p class="campo__ajuda" id="{{ id }}-ajuda">{{ ajuda_texto }}</p>{% endif %}
+    {% if ajuda_texto %}<p class="campo__ajuda{% if ajuda_oculta %} sr-only{% endif %}" id="{{ id }}-ajuda">{{ ajuda_texto }}</p>{% endif %}
   {% endif %}
   {% if campo.errors %}
     <p class="campo__erro" id="{{ id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>

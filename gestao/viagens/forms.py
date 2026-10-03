@@ -178,13 +178,15 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
                   "justificativa_modelo", "justificativa", "roteiro"]
         widgets = {
             "data_oficio": EntradaData(),
-            "marcador": forms.RadioSelect,
+            # Escolhas como seleção, na altura dos campos ao lado (a mesma peça do "Texto
+            # pronto", do "Ordenar por" da lista e da UF da folha do roteiro).
+            "marcador": Selecao(),
             "motivo": forms.Textarea(attrs=_attrs("area-texto", rows=3,
                                                   placeholder="Ex.: Apoio e condução da Unidade "
                                                               "Móvel no evento Expoara.")),
-            "custeio": forms.RadioSelect,
+            "custeio": Selecao(),
             "custeio_instituicao": forms.TextInput(attrs=_attrs()),
-            "tipo_transporte": forms.RadioSelect,
+            "tipo_transporte": Selecao(),
             "viatura": forms.Select(attrs=_attrs("selecao")),
             "transporte_descricao": forms.TextInput(attrs=_attrs(
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
@@ -203,6 +205,23 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Na folha, as escolhas levam o nome curto — o rótulo completo do modelo (com a
+        # explicação entre parênteses) é para o documento e cortaria no campo. A mesma
+        # decisão da janela de resumo (`custeio_curto`).
+        self.fields["marcador"].choices = [
+            (Oficio.Marcador.NENHUM, "Original"),
+            (Oficio.Marcador.RETIFICADO, "Retificado"),
+            (Oficio.Marcador.COMPLEMENTAR, "Complementar"),
+        ]
+        self.fields["custeio"].choices = [
+            (Oficio.Custeio.UNIDADE, "Unidade"),
+            (Oficio.Custeio.OUTRA_INSTITUICAO, "Outra instituição"),
+            (Oficio.Custeio.ONUS_LIMITADO, "Ônus limitados"),
+        ]
+        self.fields["tipo_transporte"].choices = [
+            (Oficio.TipoTransporte.VIATURA, "Viatura oficial"),
+            (Oficio.TipoTransporte.OUTRO, "Outro meio"),
+        ]
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
         viatura.queryset = Viatura.objects.filter(ativo=True).select_related("combustivel")
         viatura.empty_label = "Selecione a viatura…"

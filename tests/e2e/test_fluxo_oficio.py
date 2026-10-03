@@ -310,27 +310,31 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
 
 
-def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado, dados_e2e):
-    """Cadastro do ofício: escolhas como cartões (rádios nativos), campo condicional colado à
-    escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
+def _escolher(pg, campo: str, opcao: str) -> None:
+    """Escolhe numa seleção vestida (pc-select): abre pelo nome do campo e clica na opção."""
+    pg.get_by_role("combobox", name=campo).click()
+    pg.get_by_role("option", name=re.compile(opcao)).click()
+
+
+def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2e):
+    """Cadastro do ofício: escolhas como seleção na altura dos campos, campo condicional
+    colado à escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
     instituicao = pg.get_by_label("Instituição que custeia")
-    pg.locator("label.opcao").filter(has_text="Diárias e combustível pela unidade").click()
+    _escolher(pg, "Custeio", "^Unidade")
     expect(instituicao).to_be_hidden()
-    pg.locator("label.opcao").filter(has_text="Outra instituição").click()
-    expect(pg.get_by_role("radio", name=re.compile("^Outra instituição"))).to_be_checked()
+    _escolher(pg, "Custeio", "^Outra instituição")
+    expect(pg.locator("select[name=custeio]")).to_have_value("outra_instituicao")
     expect(instituicao).to_be_visible()
-    # Teclado: setas trocam o meio de transporte (rádios nativos sob os cartões).
-    pg.locator("label.opcao").filter(has_text="Viatura oficial").click()
-    viatura = pg.get_by_role("radio", name=re.compile("^Viatura oficial"))
-    expect(viatura).to_be_checked()
-    viatura.focus()
-    pg.keyboard.press("ArrowDown")
-    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    # Meio de transporte: cada escolha traz os seus campos.
+    _escolher(pg, "Meio de transporte", "^Viatura oficial")
+    expect(pg.get_by_label("Descrição do transporte")).to_be_hidden()
+    _escolher(pg, "Meio de transporte", "^Outro meio")
+    expect(pg.locator("select[name=tipo_transporte]")).to_have_value("outro")
     expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
-    # Porte de arma é um interruptor.
+    # Porte de arma é um interruptor, no cabeçalho do bloco.
     expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
     # Itinerário: começa e termina na sede; o trecho diz de onde sai.
     expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
@@ -344,16 +348,15 @@ def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado
     expect(itens.first).to_contain_text("Identificação")
 
 
-def test_clique_em_texto_nao_rola_a_pagina_nem_perde_a_escolha(logado, dados_e2e):
+def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):
     """Regressão: com tabindex fixo no <main>, apertar o mouse num texto não focável dava
-    foco ao <main>, a página rolava antes de soltar o botão e o clique no cartão se perdia."""
+    foco ao <main> e a página rolava antes de soltar o botão."""
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
-    descricao = pg.locator("label.opcao").filter(has_text="Outro meio").locator(".opcao__descricao")
-    descricao.scroll_into_view_if_needed()
+    titulo = pg.locator("#t-transporte")
+    titulo.scroll_into_view_if_needed()
     antes = pg.evaluate("scrollY")
-    descricao.click()
-    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    titulo.click()
     assert pg.evaluate("scrollY") == antes
     expect(pg.locator("main#conteudo")).not_to_have_attribute("tabindex", "-1")
 
@@ -444,7 +447,7 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     data.press_sequentially("21102026")
     expect(data).to_have_value("21/10/2026")
     # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
-    pg.locator("label.opcao").filter(has_text="Outro meio").click()
+    _escolher(pg, "Meio de transporte", "^Outro meio")
     lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
     lista.click()
     expect(lista).to_have_attribute("aria-expanded", "true")
