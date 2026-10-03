@@ -66,10 +66,16 @@
 }
 
 /* O recuo menor do topo existia porque a primeira seção encostava na borda da folha; com
-   cartão próprio, cada um tem o mesmo respiro em cima. */
+   cartão próprio, cada um tem o mesmo respiro em cima — e o último também embaixo: a
+   regra da folha única tira o recuo final, que aqui deixaria o conteúdo colado na borda
+   do cartão. */
 .documento--cartoes > .secao:first-child,
 .documento--cartoes > .documento__guia + .secao {
   padding-top: var(--esp-6);
+}
+
+.documento--cartoes > .secao:last-child {
+  padding-bottom: var(--esp-6);
 }
 
 /* A fita da margem acompanha cada cartão em vez de descer reta por trás de todos: fica
@@ -160,6 +166,9 @@
    HTMX troca, então não são irmãs diretas do transporte e um seletor de adjacência
    (`+`) deixaria justamente esse fio de fora. */
 .secao__bloco {
+  /* `display` explícito: quando o bloco é um custom element (<pc-transporte>), ele nasce
+     inline e a margem de cima não valeria — o aviso de cima encostava no título. */
+  display: block;
   margin-top: var(--esp-5);
   padding-top: var(--esp-4);
   border-top: 1px solid var(--cor-borda-sutil);
@@ -240,8 +249,9 @@
 }
 
 /* Dentro do documento, pessoa e indicador deixam de ser caixas: linha com divisor e
-   área tingida — a folha continua uma só superfície. */
-.documento .pessoa {
+   área tingida — a folha continua uma só superfície. A equipe é exceção: lá o cartão é a
+   peça que se mexe (marcar motorista, remover), e peça que se mexe tem borda. */
+.documento .pessoa:not(.equipe__cartao) {
   padding: var(--esp-2) 0;
   border-radius: 0;
   background: transparent;
@@ -249,7 +259,7 @@
   border-bottom: 1px dashed var(--cor-borda);
 }
 
-.documento .pessoa:hover {
+.documento .pessoa:not(.equipe__cartao):hover {
   box-shadow: none;
 }
 

@@ -9,6 +9,12 @@
 }
 
 html {
+  /* Tudo 10% menor, que é a medida em que o sistema se lê melhor (o mesmo que pôr o
+     navegador em 90%). Como os tamanhos saem de tokens em rem, basta a raiz: texto,
+     espaçamentos, alturas de controle e raios acompanham. As larguras máximas foram
+     recalculadas em tokens.css para a página não encolher junto, e quem aumenta a letra
+     do navegador continua aumentando tudo — é porcentagem, não pixel fixo. */
+  font-size: 90%;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   color-scheme: light;

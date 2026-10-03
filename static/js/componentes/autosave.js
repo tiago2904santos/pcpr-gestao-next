@@ -71,7 +71,17 @@ export class Autosave {
       }
       const campoId = /** @type {HTMLInputElement | null} */ (this.form.querySelector("[data-roteiro-id]"));
       if (campoId && !campoId.value) campoId.value = String(corpo.id);
+      // Campos que o servidor devolve (ex.: a versão nova do ofício) voltam para o
+      // formulário: sem isso o próximo salvamento brigaria com a gravação de agora.
+      for (const [nome, valor] of Object.entries(corpo.campos || {})) {
+        const campo = /** @type {HTMLInputElement | null} */ (
+          this.form.querySelector(`[name="${nome}"]`)
+        );
+        if (campo) campo.value = String(valor);
+      }
       this.anunciar(`Salvo automaticamente às ${corpo.em}`, true);
+      // Quem mostra o documento pode se refazer com os dados novos (editor-documento.js).
+      document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
     } catch (erro) {
       if (/** @type {Error} */ (erro).name === "AbortError") return;
       this.ultima = "";

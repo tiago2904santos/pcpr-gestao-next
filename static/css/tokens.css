@@ -225,8 +225,10 @@
   --altura-cabecalho: 4rem;         /* 64px */
   --altura-navegacao: 3.25rem;      /* 52px: menu superior */
   --altura-topo: calc(var(--altura-cabecalho) + var(--altura-navegacao));
-  --largura-conteudo: 80rem;        /* 1280px */
-  --largura-formulario: 56rem;      /* 896px */
+  /* Com o rem a 90% (ver base.css), estes valores mantêm a mesma largura em pixels de
+     antes: o sistema fica menor, a página não fica mais estreita. */
+  --largura-conteudo: 88.89rem;     /* 1280px */
+  --largura-formulario: 62.22rem;   /* 896px */
   --largura-leitura: 42rem;
   --tamanho-icone: 1.125rem;
   --tamanho-icone-sm: 1rem;
@@ -273,6 +275,7 @@
   /* ---------- Camadas ----------
      Painéis que brotam de um campo (calendário, listas) ficam ACIMA do conteúdo e ABAIXO
      das barras fixas: o cabeçalho e a barra de ações continuam alcançáveis. */
+  --z-progresso: 15;
   --z-painel-campo: 20;
   --z-barra-acoes: 25;
   --z-cabecalho: 30;

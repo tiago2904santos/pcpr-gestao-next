@@ -230,7 +230,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         # explicação entre parênteses) é para o documento e cortaria no campo. A mesma
         # decisão da janela de resumo (`custeio_curto`).
         cast(forms.ChoiceField, self.fields["marcador"]).choices = [
-            (Oficio.Marcador.NENHUM, "Original"),
+            (Oficio.Marcador.NENHUM, "Autorização"),
             (Oficio.Marcador.RETIFICADO, "Retificado"),
             (Oficio.Marcador.COMPLEMENTAR, "Complementar"),
         ]

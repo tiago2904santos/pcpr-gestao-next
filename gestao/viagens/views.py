@@ -217,7 +217,7 @@ def _mostrar_justificativa(oficio, prazo, form) -> bool:
                 and (form.errors.get("justificativa") or form.errors.get("justificativa_modelo")))
 
 
-def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
+def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", calculo=None):
     if itin is None:
         itin = itinerario.montar(FORM_ID, sede=oficio.sede, trechos=trechos_de(oficio))
     # Documentos numa consulta só: o cartão Documentos lista; `policies.pode_excluir`
@@ -250,7 +250,10 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
         "prazo": prazo,
         "mostrar_justificativa": mostrar_justificativa,
         "assunto": services.assunto_do_oficio(oficio),
-        "calculo": oficio.diarias_calculo,
+        # `calculo` pode vir de fora como prévia (ex.: acabou de aplicar um roteiro e nada
+        # foi gravado ainda); senão, é o que está no ofício.
+        "calculo": oficio.diarias_calculo if calculo is None else calculo,
+        "previa_diarias": calculo is not None,
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_emitir": policies.pode_emitir(request.user, oficio),
         "pode_excluir": policies.pode_excluir(request.user, oficio),
@@ -373,7 +376,13 @@ def _usar_roteiro(request, oficio) -> HttpResponse:
                                                     roteiro.sede_id)
     itin = itinerario.com_iniciais(FORM_ID, request.POST, destinos=iniciais,
                                    retorno=inicial_retorno, sede=roteiro.sede)
-    contexto = _contexto_edicao(request, oficio, form, itin)
+    # Os trechos vieram prontos do roteiro: as diárias já podem ser mostradas, mesmo antes
+    # de salvar — é a mesma conta do salvamento, sobre a equipe que o ofício já tem.
+    informados = [services.TrechoInformado(t.origem_id, t.destino_id, t.saida_em, t.chegada_em)
+                  for t in queries.trechos_do_roteiro(roteiro)]
+    equipe = max(1, len(viajantes_de(oficio)))
+    previa = services.calcular_informados(informados, roteiro.sede, equipe)
+    contexto = _contexto_edicao(request, oficio, form, itin, calculo=previa)
     contexto.update(sujo=True, foco="roteiro-aplicado", roteiro_aplicado=roteiro)
     return render(request, "viagens/oficios/editar.html", contexto)
 
@@ -462,6 +471,59 @@ def emitir(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
+def autosave(request: HttpRequest, pk: int) -> JsonResponse:
+    """Grava o rascunho enquanto a pessoa preenche, a cada pausa na digitação.
+
+    Salva o que der: campo que ainda não é válido fica de fora e o resto é gravado — nunca
+    se perde o que já foi digitado. Os trechos só entram quando o itinerário fecha (ida,
+    volta e datas), senão ficam como estão. Não escreve no histórico (services.salvar_edicao
+    com `registrar=False`): quem conta a história é o salvamento explícito e a emissão.
+    """
+    oficio = _oficio_visivel(request, pk)
+    if not policies.pode_editar(request.user, oficio):
+        return JsonResponse({"salvo": False, "motivo": "Este ofício não pode ser alterado."})
+    form = FormularioOficio(request.POST, instance=oficio)
+    form.is_valid()  # `cleaned_data` fica com o que passou; o resto não é gravado
+    dados = {k: v for k, v in form.cleaned_data.items() if k != "versao"}
+    itin = itinerario.montar(FORM_ID, dados=request.POST)
+    trechos = None
+    if itin.sede.is_valid() and itin.sede.cleaned_data.get("cidade"):
+        dados["sede"] = itin.sede.cleaned_data["cidade"]
+        if itin.valido():
+            try:
+                trechos = itinerario.trechos(itin)
+            except services.RegraViolada:
+                trechos = None
+    try:
+        salvo = services.salvar_edicao(oficio, request.user, dados, trechos,
+                                       versao=form.cleaned_data.get("versao"),
+                                       registrar=False)
+    except (services.ConflitoDeEdicao, services.RegraViolada) as exc:
+        return JsonResponse({"salvo": False, "motivo": str(exc)})
+    return JsonResponse({
+        "salvo": True,
+        "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
+        # A versão nova volta para o formulário: sem isso, o próximo salvamento acusaria
+        # conflito com a gravação que o próprio autosave acabou de fazer.
+        "campos": {"versao": salvo.versao},
+    })
+
+
+@require_POST
+def retificar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Editar um ofício emitido: ele volta a rascunho como retificação e a folha abre."""
+    oficio = _oficio_visivel(request, pk)
+    try:
+        services.retificar(oficio, request.user)
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+        return redirect(_na_lista(oficio))
+    messages.success(request, f"Ofício {oficio.numero_formatado} aberto para retificação. "
+                              "Ao emitir de novo sai a versão corrigida.")
+    return redirect("viagens:editar", pk=pk)
+
+
+@require_POST
 def reabrir(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     try:
@@ -503,6 +565,7 @@ def _contexto_resumo(request: HttpRequest, oficio) -> dict:
         "documentos": list(oficio.documentos.select_related("emitido_por")),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
+        "pode_retificar": policies.pode_retificar(request.user, oficio),
     }
 
 

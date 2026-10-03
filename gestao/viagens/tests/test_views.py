@@ -219,9 +219,36 @@ class TestNovoEEdicao:
         prontidao = services.verificar_prontidao(oficio)
         assert prontidao.da_secao("equipe") and prontidao.pode_emitir
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
-        # A situação de cada cartão vive na faixa de progresso do topo.
-        pronta = 'progresso__etapa progresso__etapa--ok"><a href="#identificacao">Identificação'
-        assert pronta in html
+        # A situação vive no próprio cartão (a faixa de progresso do topo foi retirada).
+        assert 'class="secao secao--ok" id="identificacao"' in html
+
+    def test_autosave_grava_o_rascunho_sem_encher_o_historico(self, operador, cenario):
+        """Salva sozinho a cada pausa: grava o que foi digitado, devolve a versão nova e
+        deixa o histórico para o salvamento explícito."""
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        eventos = oficio.historico.count()
+        r = operador.post(reverse("viagens:autosave_oficio", args=[oficio.pk]),
+                          _post_edicao(oficio, motivo="Rascunho que se salva sozinho."))
+        corpo = r.json()
+        oficio.refresh_from_db()
+        assert corpo["salvo"] and corpo["campos"]["versao"] == oficio.versao
+        assert oficio.motivo == "Rascunho que se salva sozinho."
+        assert oficio.trechos.count() == 2  # o itinerário fechou: os trechos entram
+        assert oficio.historico.count() == eventos
+
+    def test_autosave_grava_o_que_der_mesmo_com_campo_invalido(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:autosave_oficio", args=[oficio.pk]),
+                          _post_edicao(oficio, protocolo="123", motivo="Vale o que é válido."))
+        oficio.refresh_from_db()
+        assert r.json()["salvo"] and oficio.motivo == "Vale o que é válido."
+        assert oficio.protocolo == ""  # o protocolo rabiscado não foi gravado
+
+    def test_autosave_recusa_oficio_que_nao_pode_mudar(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        r = operador.post(reverse("viagens:autosave_oficio", args=[emitido.pk]),
+                          _post_edicao(emitido, motivo="Não pode"))
+        assert r.json()["salvo"] is False
 
     def test_roteiro_com_data_e_hora_em_campos_separados(self, operador, cenario):
         """O calendário e o relógio enviam data (dd/mm/aaaa) e hora (hh:mm) em dois campos."""
@@ -749,9 +776,9 @@ class TestEquipeEViaturaSugerida:
         assert 'data-sigla="ASCOM"' in opcao.group(0)
         assert f'data-motoristas="{isabela.pk}"' in opcao.group(0)
         assert 'data-nomes="Isabela"' in opcao.group(0)
-        # Crachá com os dados que <pc-transporte> lê e o chip da viatura que ela dirige.
+        # O cartão da equipe leva os dados que <pc-transporte> lê para sugerir a viatura.
         assert f'data-servidor="{isabela.pk}" data-unidade="{isabela.unidade_id}"' in html
-        assert "ABC1D23" in html and 'class="cracha__ordem"' in html
+        assert "equipe__cartao" in html
         assert "<pc-transporte" in html
 
     def test_viaturas_do_cadastro_listam_os_motoristas(self, operador, cenario):

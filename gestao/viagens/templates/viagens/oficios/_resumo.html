@@ -142,12 +142,23 @@ foi emitido ou cancelado (ou quem olha não edita), não há o que abrir para me
 completa continua na página do ofício.
 {% endcomment %}
 <div class="dialogo__rodape">
-  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
+  <a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
+  {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and forloop.first %}
+    {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
+    <a class="botao" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
+  {% endif %}{% endfor %}
   {% if pode_editar %}
     <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
-  {% else %}
-    {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and forloop.first %}
-      <a class="botao botao--primario" href="{% url 'viagens:baixar_documento' d.pk %}?baixar=1">{% icone "download" %}Baixar PDF</a>
-    {% endif %}{% endfor %}
+  {% elif pode_retificar %}
+    {% comment %}
+    Ofício já emitido também se edita: ao confirmar, ele volta a rascunho marcado como
+    retificado e ganha uma versão nova — é a retificação do mundo real.
+    {% endcomment %}
+    <form method="post" action="{% url 'viagens:retificar' oficio.pk %}"
+          data-confirmar="O Ofício {{ oficio.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico."
+          data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
+      {% csrf_token %}
+      <button type="submit" class="botao botao--primario">{% icone "pencil" %}Editar ofício</button>
+    </form>
   {% endif %}
 </div>

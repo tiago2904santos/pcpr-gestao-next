@@ -641,11 +641,13 @@
 }
 
 .pessoa__nome {
+  display: block;
   font-weight: var(--peso-semi);
   overflow-wrap: anywhere;
 }
 
 .pessoa__meta {
+  display: block;
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
 }
@@ -1274,6 +1276,18 @@ a.resumo__documento:hover {
 .alerta__corpo {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+/* Aviso que termina numa ação: o texto à esquerda, o botão à direita, na mesma linha
+   (e um embaixo do outro quando a largura aperta) — tudo centrado no mesmo eixo. */
+.alerta:has(.alerta__acao) {
+  align-items: center;
+}
+
+.alerta__acao {
+  margin-left: auto;
+  align-self: center;
+  flex: none;
 }
 
 .alerta__corpo ul {

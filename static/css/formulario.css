@@ -255,7 +255,9 @@
 .progresso--fixo {
   position: sticky;
   top: var(--altura-topo);
-  z-index: 2;
+  /* Acima do conteúdo da folha — os rótulos flutuantes dos campos também são
+     posicionados e passavam por cima da faixa ao rolar. */
+  z-index: var(--z-progresso);
   margin-left: calc(-1 * var(--esp-2));
   margin-right: calc(-1 * var(--esp-2));
   padding: var(--esp-2);
@@ -742,186 +744,79 @@
   color: var(--cor-marca-texto);
 }
 
-/* O crachá: uma peça com número de ordem no canto (como o trecho do roteiro), iniciais
-   grandes, nome, cargo em caixa alta, chips e as ações na base. Quem dirige leva a faixa
-   dourada à esquerda e as iniciais em dourado. */
+/* Equipe: os mesmos cartões de pessoa da janela de resumo (avatar, nome, cargo), numa
+   grade que fecha a linha (larguras_de_cartoes). Quem dirige tem o avatar em grafite e o
+   selo "Motorista"; as ações ficam à direita, discretas até o cartão receber o mouse ou
+   o foco — assim o cartão é leitura, e não um painel de botões. */
 .equipe__cartoes {
+  gap: var(--esp-2);
+  margin-top: var(--esp-3);
+}
+
+.equipe__cartao {
   gap: var(--esp-3);
 }
 
-.cracha {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  column-gap: var(--esp-3);
-  row-gap: var(--esp-2);
-  min-width: 0;
-  padding: var(--esp-3) var(--esp-3) var(--esp-2);
-  border-radius: var(--raio-lg);
-  background: var(--cor-superficie);
-  box-shadow: 0 0 0 1px var(--cor-borda);
-  overflow: hidden;
-  transition: box-shadow var(--duracao-rapida) var(--curva-padrao),
-    translate var(--duracao-rapida) var(--curva-padrao);
-}
-
-.cracha::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: var(--cor-borda-forte);
-  transition: background-color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.cracha:hover {
-  box-shadow: 0 0 0 1px var(--cor-borda-forte), var(--sombra-cartao-hover);
-  translate: 0 -1px;
-}
-
-.cracha--motorista {
-  background: var(--cor-marca-fundo);
-  box-shadow: 0 0 0 1px var(--cor-marca-borda);
-}
-
-.cracha--motorista::before {
-  background: var(--cor-marca);
-}
-
-.cracha__ordem {
-  position: absolute;
-  top: var(--esp-2);
-  right: var(--esp-2);
-  font-size: var(--texto-2xs);
-  font-weight: var(--peso-forte);
-  letter-spacing: var(--rastreio-rotulo);
-  color: var(--cor-texto-terciario);
-}
-
-.cracha__iniciais {
-  grid-row: 1;
-  display: inline-grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--raio-md);
-  background: var(--grafite-900);
-  color: var(--neutro-0);
-  font-size: var(--texto-md);
-  font-weight: var(--peso-forte);
-  letter-spacing: 0.04em;
-}
-
-.cracha--motorista .cracha__iniciais {
-  background: var(--cor-marca);
-  color: var(--grafite-950);
-}
-
-.cracha__texto {
-  grid-row: 1;
-  min-width: 0;
-  padding-right: var(--esp-4);
-}
-
-.cracha__nome {
-  font-weight: var(--peso-semi);
-  line-height: var(--altura-linha-justa);
-  overflow-wrap: anywhere;
-}
-
-.cracha__cargo {
-  margin-top: var(--esp-05);
-  font-size: var(--texto-2xs);
-  font-weight: var(--peso-semi);
-  letter-spacing: var(--rastreio-rotulo);
-  text-transform: uppercase;
-  color: var(--cor-texto-secundario);
-}
-
-.cracha__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--esp-1);
-  margin-top: var(--esp-2);
-}
-
-/* Ações na base, separadas por um fio: o botão de motorista é um "chip que se marca". */
-.cracha__acoes {
-  grid-column: 1 / -1;
+.equipe__acoes {
   display: flex;
   align-items: center;
-  gap: var(--esp-2);
-  padding-top: var(--esp-2);
-  border-top: 1px solid var(--cor-borda-sutil);
+  gap: var(--esp-1);
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao);
 }
 
-.cracha--motorista .cracha__acoes {
-  border-top-color: var(--cor-marca-borda);
+.equipe__cartao:hover .equipe__acoes,
+.equipe__cartao:focus-within .equipe__acoes {
+  opacity: 1;
 }
 
-.cracha__acoes form {
+/* Sem mouse (toque) não há hover: as ações ficam sempre visíveis. */
+@media (hover: none) {
+  .equipe__acoes {
+    opacity: 1;
+  }
+}
+
+.equipe__acoes form {
   display: contents;
 }
 
-.cracha__motorista {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-1);
-  min-height: var(--altura-controle-sm);
-  padding: 0 var(--esp-3);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-superficie);
-  color: var(--cor-texto-secundario);
-  font: inherit;
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-semi);
-  cursor: pointer;
-  transition: background-color var(--duracao-rapida) var(--curva-padrao),
-    color var(--duracao-rapida) var(--curva-padrao),
-    border-color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.cracha__motorista:hover {
-  border-color: var(--cor-marca-borda);
-  background: var(--cor-marca-fundo);
-  color: var(--cor-marca-texto);
-}
-
-.cracha__motorista[aria-pressed="true"] {
-  border-color: var(--grafite-900);
-  background: var(--grafite-900);
-  color: var(--neutro-0);
-}
-
-.cracha__motorista[aria-pressed="true"]:hover {
-  background: var(--grafite-700);
-  border-color: var(--grafite-700);
-}
-
-.cracha__remover {
+.equipe__acao {
   display: inline-grid;
   place-items: center;
   width: var(--altura-controle-sm);
   height: var(--altura-controle-sm);
-  margin-left: auto;
   border: 0;
-  border-radius: var(--raio-pilula);
+  border-radius: var(--raio-md);
   background: transparent;
-  color: var(--cor-texto-terciario);
+  color: var(--cor-texto-secundario);
   cursor: pointer;
   transition: background-color var(--duracao-rapida) var(--curva-padrao),
     color var(--duracao-rapida) var(--curva-padrao);
 }
 
-.cracha__remover:hover {
+.equipe__acao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+/* Já é o motorista: o botão fica aceso e some com o resto só no hover. */
+.equipe__acao[aria-pressed="true"] {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.equipe__cartao:has(.equipe__acao[aria-pressed="true"]) .equipe__acoes {
+  opacity: 1;
+}
+
+.equipe__acao--remover:hover {
   background: var(--cor-perigo-fundo);
   color: var(--cor-perigo);
 }
 
-.cracha__motorista:focus-visible,
-.cracha__remover:focus-visible {
+.equipe__acao:focus-visible {
   outline: var(--foco-espessura) solid var(--foco-cor);
   outline-offset: var(--foco-offset);
 }

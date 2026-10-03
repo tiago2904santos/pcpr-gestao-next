@@ -15,7 +15,11 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
     <span class="placa__numero">{% if roteiro %}#{{ roteiro.pk }}{% else %}novo{% endif %}</span>
   </span>
   <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}</h1>
+    {% comment %}
+    A placa ao lado já diz "Roteiro #12": o título repetiria a mesma coisa. Fica só para
+    leitor de tela — a mesma decisão da folha do ofício.
+    {% endcomment %}
+    <h1 class="sr-only">{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}</h1>
     {% if roteiro %}
     <p class="frase-oficio">
       <span class="sr-only">Resumo do roteiro: </span>
@@ -25,6 +29,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
       {% if roteiro.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ roteiro.diarias_total|moeda }}</span>{% endif %}
     </p>
     {% else %}
+    <p class="frase-oficio"><span class="frase-oficio__item frase-oficio__item--vazio">{% icone "route" classe="icone--sm" %}Preencha a sede e os destinos abaixo</span></p>
     {% endif %}
   </div>
   {% if roteiro %}

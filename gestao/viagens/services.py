@@ -143,17 +143,22 @@ def salvar_dados(oficio: Oficio, usuario, dados: dict, *, versao: int | None = N
 
 @transaction.atomic
 def salvar_edicao(oficio: Oficio, usuario, dados: dict, trechos: list[TrechoInformado] | None,
-                  *, versao: int | None = None) -> Oficio:
-    """Dados + roteiro do formulário numa só transação: ou grava tudo, ou nada."""
+                  *, versao: int | None = None, registrar: bool = True) -> Oficio:
+    """Dados + roteiro do formulário numa só transação: ou grava tudo, ou nada.
+
+    `registrar=False` grava sem escrever no histórico — é o autosave, que salvaria uma
+    linha a cada pausa na digitação e transformaria a história do ofício em ruído. A
+    auditoria do banco (trigger) continua registrando cada alteração.
+    """
     atual = _travar_para_edicao(oficio, usuario, versao)
-    _aplicar_dados(atual, usuario, dados)
+    _aplicar_dados(atual, usuario, dados, registrar=registrar)
     if trechos is not None:
         _aplicar_trechos(atual, trechos, tocar=False)  # a versão já subiu com os dados
         recalcular_diarias(atual)
     return atual
 
 
-def _aplicar_dados(atual: Oficio, usuario, dados: dict) -> None:
+def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = True) -> None:
     if dados.get("data_oficio") and dados["data_oficio"].year != atual.ano:
         raise RegraViolada(
             f"A data do ofício deve estar em {atual.ano}, o ano do número "
@@ -174,7 +179,7 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict) -> None:
     atual.versao += 1
     atual.save()
     # Diárias dependem só de trechos, equipe e sede: nada aqui muda o cálculo.
-    if alterados:
+    if alterados and registrar:
         _registrar(atual, Historico.Acao.ALTERADO, "Dados do ofício alterados.", usuario,
                    campos=alterados)
 
@@ -690,6 +695,25 @@ def reabrir(oficio: Oficio, usuario, motivo: str) -> Oficio:
     atual.save(update_fields=["situacao", "emitido_em", "versao", "atualizado_em"])
     _registrar(atual, Historico.Acao.REABERTO, f"Reaberto para correção: {motivo.strip()}",
                usuario)
+    return atual
+
+
+@transaction.atomic
+def retificar(oficio: Oficio, usuario) -> Oficio:
+    """Abre para correção um ofício já emitido: ele volta a rascunho marcado como
+    RETIFICADO e ganha uma versão nova. O PDF emitido continua guardado; ao emitir de novo
+    sai a versão 2, que é o que a retificação significa no papel."""
+    atual = (Oficio.objects.select_for_update(of=("self",))
+             .select_related("sede", "viatura").get(pk=oficio.pk))
+    policies.exigir(policies.pode_retificar(usuario, atual),
+                    "Você não pode editar este ofício.")
+    atual.situacao = Oficio.Situacao.RASCUNHO
+    atual.emitido_em = None
+    atual.marcador = Oficio.Marcador.RETIFICADO
+    atual.versao += 1
+    atual.save(update_fields=["situacao", "emitido_em", "marcador", "versao", "atualizado_em"])
+    _registrar(atual, Historico.Acao.REABERTO,
+               "Aberto para retificação: o ofício volta a rascunho como retificado.", usuario)
     return atual
 
 

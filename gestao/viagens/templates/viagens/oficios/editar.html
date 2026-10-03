@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
 janela de resumo: cabeçalho com placa, frase e ações; quatro cartões soltos — Identificação,
@@ -22,11 +22,15 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     <span class="placa__numero">{{ oficio.numero_formatado }}</span>
   </span>
   <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Ofício {{ oficio.numero_formatado }} <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
-      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}</h1>
-    {# A frase do ofício: o que o documento diz até agora (atualiza ao salvar e ao mudar a equipe). #}
+    {% comment %}
+    A placa ao lado já diz "Ofício 167/2026": repetir isso num título seria dizer duas
+    vezes a mesma coisa. O <h1> continua existindo para quem navega por leitor de tela.
+    {% endcomment %}
+    <h1 class="sr-only">Ofício {{ oficio.numero_formatado }} — {{ oficio.get_situacao_display }}</h1>
     <p class="frase-oficio">
       <span class="sr-only">Resumo do ofício: </span>
+      <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
+      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
       <span class="frase-oficio__item{% if not viajantes %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if viajantes %}{{ viajantes|length|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>
       {% with d=oficio|destinos %}<span class="frase-oficio__item{% if not d %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ d|default:"sem destino" }}</span>{% endwith %}
       {% with p=trechos|periodo %}<span class="frase-oficio__item{% if not p %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ p|default:"sem datas" }}</span>{% endwith %}
@@ -55,7 +59,13 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
       data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir rascunho" data-confirmar-perigo>{% csrf_token %}</form>
 {% endif %}
 
+{% comment %}
+O rascunho se grava sozinho a cada pausa (componentes/autosave.js → viagens:autosave_oficio):
+ninguém precisa lembrar de salvar. "Salvar rascunho" continua existindo para quem quer a
+confirmação — e é ele que escreve no histórico.
+{% endcomment %}
 <form id="form-oficio" method="post" action="{% url 'viagens:editar' oficio.pk %}" novalidate
+      data-autosave="{% url 'viagens:autosave_oficio' oficio.pk %}"
       data-proteger{% if sujo %} data-sujo{% endif %} data-destaque="oficio:{{ oficio.pk }}">
   {% csrf_token %}
   {# Botão padrão: Enter em qualquer campo SALVA (é o 1º botão de envio do formulário, antes de "Adicionar destino"). #}
@@ -70,19 +80,6 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
   <div class="alerta alerta--perigo mb-4" role="alert" id="alerta-roteiro" tabindex="-1">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Roteiro</p>{% for e in destinos.non_form_errors %}<p>{{ e }}</p>{% endfor %}{% if erro_roteiro %}<p>{{ erro_roteiro }}</p>{% endif %}</div></div>
 {% endif %}
 
-{# Progresso: faixa fixa sob o topo, com "você está aqui" (progresso.js). A forma do marcador é a linguagem de estado. #}
-<nav class="progresso progresso--fixo{% if prontidao.pode_emitir %} progresso--completo{% endif %}" aria-label="Cartões do ofício">
-  <ol class="progresso__etapas">
-    {% for sec in secoes %}
-      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %} (pronto){% elif sec.bloqueia %} (impede a emissão){% else %} (com aviso){% endif %}</span></a></li>
-    {% endfor %}
-    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Documentos<span class="sr-only">{% if prontidao.pode_emitir %} (pronto){% else %} (aguardando os cartões){% endif %}</span></a></li>
-  </ol>
-  <div class="progresso__medida">
-    <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Cartões prontos"></progress>
-    <span>{{ secoes_ok }} de {{ secoes|length }} prontos</span>
-  </div>
-</nav>
 
 <div class="documento documento--cartoes">
 
@@ -136,7 +133,8 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
           <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
         </div>
         {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
-        {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
+        {# Placa cabe em "ABC1D23" e combustível em "Gasolina": ambos campos curtos, do mesmo tamanho. #}
+        {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--sm so-outro" %}
         {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
       </div>
     </pc-transporte>
@@ -228,7 +226,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}4{% else %}3{% endif %}</span>Documentos</h2>
       <div class="secao__estado">{% if prontidao.pode_emitir %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para emitir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }}</span>{% endif %}</div>
-      <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido ele fica travado — correções exigem reabertura, registrada no histórico.</p>
+      <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido, editar abre uma retificação: o ofício volta a rascunho marcado como retificado e a correção fica no histórico.</p>
     </div>
 
     {# Conferência: o mesmo aviso que abre a janela de resumo; aqui cada pendência é um atalho para o cartão. #}
@@ -243,10 +241,14 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
             {% endfor %}
           </ul>
         {% endif %}
-        {% if pode_emitir and prontidao.pode_emitir %}
-          <div class="conferencia__acoes mt-2"><button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button></div>
-        {% endif %}
       </div>
+      {% comment %}
+      A ação fecha a linha do aviso, à direita: dentro do corpo ela virava um botão preto
+      solto no meio do verde.
+      {% endcomment %}
+      {% if pode_emitir and prontidao.pode_emitir %}
+        <button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario alerta__acao">{% icone "stamp" %}Revisar e emitir</button>
+      {% endif %}
     </div>
 
     {% comment %}
@@ -280,26 +282,6 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
       {% endif %}
     </div>
 
-    <div class="secao__bloco" id="documentos" aria-labelledby="t-documentos">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
-        <div class="secao__estado">{% if documentos %}<span class="selo selo--sucesso selo--situacao-emitido">{{ documentos|length|pluralizar:"emitido,emitidos" }}</span>{% else %}<span class="texto-terciario texto-xs">os emitidos entram aqui</span>{% endif %}</div>
-      </div>
-      <ul class="resumo__documentos" role="list">
-        <li><a class="resumo__documento" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" classe="icone--sm" %}<span>Minuta (PDF)</span><span class="sr-only"> (nova aba)</span></a></li>
-        {% for d in documentos %}
-          <li>
-            {% if d.situacao == "pronto" %}
-              <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span></a>
-            {% else %}
-              <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    {# Histórico: uma linha por evento — a mesma receita das linhas de trecho da janela de resumo. #}
     <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>

@@ -95,6 +95,15 @@ export class PcEditorDocumento extends HTMLElement {
       if (this.sujo || this.salvando) e.preventDefault();
     };
     window.addEventListener("beforeunload", this.aoSair);
+    // Os dados do ofício mudaram noutro ponto da folha (autosave, equipe, roteiro): a
+    // folha do documento se refaz sozinha — menos quando há texto em edição por salvar,
+    // que recarregar apagaria.
+    this.aoMudarDados = () => {
+      if (this.sujo || this.salvando || this.vendoVersao !== null) return;
+      this.quadro?.contentWindow?.location.reload();
+    };
+    document.addEventListener("pcpr:dados-salvos", this.aoMudarDados);
+    document.body.addEventListener("equipe-alterada", this.aoMudarDados);
     this.addEventListener("keydown", (e) => this.atalhos(e));
   }
 
@@ -103,6 +112,10 @@ export class PcEditorDocumento extends HTMLElement {
     window.clearTimeout(this.timerSalvar);
     window.clearTimeout(this.timerCampo);
     if (this.aoSair) window.removeEventListener("beforeunload", this.aoSair);
+    if (this.aoMudarDados) {
+      document.removeEventListener("pcpr:dados-salvos", this.aoMudarDados);
+      document.body.removeEventListener("equipe-alterada", this.aoMudarDados);
+    }
   }
 
   // ---------------------------------------------------------------- folha (iframe)

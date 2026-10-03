@@ -74,6 +74,14 @@ def pode_reabrir(usuario, oficio: Oficio) -> bool:
             and usuario.has_perm("viagens.reabrir_oficio") and pode_ver(usuario, oficio))
 
 
+def pode_retificar(usuario, oficio: Oficio) -> bool:
+    """Editar um ofício já emitido: ele volta a rascunho como RETIFICADO. É a retificação
+    do mundo real — quem edita ofícios pode fazer, e tudo fica no histórico. A reabertura
+    formal (com motivo registrado) continua sendo do gestor."""
+    return (oficio.situacao == Oficio.Situacao.EMITIDO
+            and usuario.has_perm("viagens.change_oficio") and pode_ver(usuario, oficio))
+
+
 def pode_cancelar(usuario, oficio: Oficio) -> bool:
     return (oficio.situacao != Oficio.Situacao.CANCELADO
             and usuario.has_perm("viagens.cancelar_oficio") and pode_ver(usuario, oficio))
