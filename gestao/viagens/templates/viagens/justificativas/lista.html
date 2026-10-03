@@ -1,0 +1,122 @@
+{% extends "arquetipos/lista.html" %}
+{% load viagens %}
+{% block titulo %}Justificativas{% endblock %}
+{% block titulo_lista %}Justificativas{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios que pedem justificativa de prazo (saída com antecedência igual ou menor que a da unidade, ou antes da data do ofício) e os que já têm uma. O texto é o do próprio ofício.</p>{% endblock %}
+{% comment %}
+Lista própria de justificativas (D6; paridade com a lista da referência: Todas/Pendentes/
+Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e documento).
+É uma leitura dos ofícios — nada é copiado; escrever aqui grava no ofício.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Filtrar justificativas">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if termo %}{% if chave %}&amp;{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:justificativas' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-justificativas">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-justificativas" type="search" name="q" value="{{ termo }}" placeholder="Número, protocolo, destino, servidor ou trecho do texto" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Justificativas{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
+</div>
+{% if oficios %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for o in oficios %}
+      <li class="registro">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">{{ o.numero_formatado }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <span class="registro__link registro__link--estatico"><span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}</span>
+            {% if o.justificativa %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Preenchida</span>
+            {% else %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pendente</span>{% endif %}
+            {% if o.situacao == "emitido" %}<span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>{% endif %}
+          </div>
+          {% if o.justificativa %}<p class="registro__texto quebra-palavras">{{ o.justificativa|truncatechars:220 }}</p>
+          {% else %}<p class="registro__texto"><span class="vazio-inline">Nenhuma justificativa escrita.</span></p>{% endif %}
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}Ofício de {{ o.data_oficio|date:"d/m/Y" }}</span>
+            {% if o.antecedencia is not None %}
+              <span class="registro__meta-item">{% icone "timer" classe="icone--sm" %}{% if o.antecedencia < 0 %}Saída antes do ofício (retroativa){% else %}{{ o.antecedencia|pluralizar:"dia,dias" }} de antecedência{% endif %}{% if o.exige_justificativa %} · obrigatória{% else %} · dispensada{% endif %}</span>
+            {% endif %}
+            {% if o.justificativa_modelo %}<span class="registro__meta-item">{% icone "text-quote" classe="icone--sm" %}{{ o.justificativa_modelo.nome }}</span>{% endif %}
+          </div>
+        </div>
+        {% if o.editavel_aqui or o.docs_justificativa %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações da justificativa do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if o.editavel_aqui %}
+                <a class="menu__item" role="menuitem" href="?{{ querystring_base }}editar={{ o.pk }}">{% icone "pencil" %}{% if o.justificativa %}Editar justificativa{% else %}Escrever justificativa{% endif %}</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}#justificativa">{% icone "file-text" %}Abrir o ofício</a>
+              {% endif %}
+              {% for d in o.docs_justificativa|slice:":1" %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Ver a justificativa (PDF)</a>
+              {% endfor %}
+              {% if o.editavel_aqui and o.justificativa %}
+                <div class="menu__separador" role="separator"></div>
+                <form method="post" action="{% url 'viagens:salvar_justificativa' o.pk %}"
+                      data-confirmar="O texto da justificativa do Ofício {{ o.numero_formatado }} será apagado. Se o prazo exigir, ele volta para Pendentes."
+                      data-confirmar-titulo="Apagar justificativa?" data-confirmar-rotulo="Apagar" data-confirmar-perigo>
+                  {% csrf_token %}
+                  <input type="hidden" name="justificativa" value="">
+                  <input type="hidden" name="versao" value="{{ o.versao }}">
+                  <input type="hidden" name="voltar" value="{{ querystring_base }}">
+                  <button type="submit" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Apagar justificativa</button>
+                </form>
+              {% endif %}
+            </div>
+          </pc-menu>
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif termo or aba %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma justificativa encontrada" texto="Confira a busca ou troque de aba." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhuma justificativa por aqui" texto="Quando um ofício sair com pouca antecedência, ele aparece aqui para ser justificado." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if editando and form %}
+<dialog id="dialogo-justificativa" class="dialogo" aria-labelledby="dialogo-justificativa-titulo" data-abrir-ao-carregar open>
+  <form method="post" action="{% url 'viagens:salvar_justificativa' editando.pk %}" novalidate>
+    {% csrf_token %}
+    {{ form.versao }}
+    <input type="hidden" name="voltar" value="{{ querystring_base }}">
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-justificativa-titulo">Justificativa do Ofício {{ editando.numero_formatado }}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
+      {% include "componentes/campo.html" with campo=form.justificativa %}
+    </div>
+    <div class="dialogo__rodape">
+      <a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Gravar no ofício</button>
+    </div>
+  </form>
+</dialog>
+{% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
+{% endif %}
+{% endblock %}

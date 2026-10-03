@@ -519,3 +519,29 @@ def iniciais_de_trechos(trechos, sede_id: int | None) -> tuple[list[dict], dict]
                  "ORDER": i, **tempos(t)} for i, t in enumerate(ida, start=1)] or [{}]
     retorno = tempos(volta) if volta else {}
     return destinos, retorno
+
+
+class FormularioJustificativa(forms.Form):
+    """Escrever/editar a justificativa pela lista de justificativas (D6). O texto é o do
+    ofício — não existe cópia; gravar aqui grava no ofício."""
+
+    justificativa_modelo = forms.ModelChoiceField(
+        queryset=ModeloTexto.objects.none(), required=False,
+        label="Texto pronto da justificativa", empty_label="Escrever do zero",
+        widget=SelecaoDeTexto())
+    justificativa = forms.CharField(
+        label="Justificativa", required=False, max_length=4000,
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=6)))
+    versao = forms.IntegerField(widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cast(forms.ModelChoiceField, self.fields["justificativa_modelo"]).queryset = (
+            ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.JUSTIFICATIVA))
+
+    def clean(self):
+        dados = super().clean() or {}
+        if dados.get("justificativa_modelo") and not (dados.get("justificativa") or "").strip():
+            dados["justificativa"] = dados["justificativa_modelo"].texto
+        dados["justificativa"] = " ".join((dados.get("justificativa") or "").split(" ")).strip()
+        return dados

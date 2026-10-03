@@ -18,6 +18,9 @@ ROTAS_AUTENTICADAS = [
     "/viagens/roteiros/",
     "/viagens/roteiros/novo/",
     "/viagens/roteiros/{roteiro}/editar/",
+    "/viagens/justificativas/",
+    "/viagens/justificativas/?editar={oficio_rascunho}",  # janela de escrever aberta
+    "/viagens/oficios/?situacao=arquivado",
     "/cadastros/textos-prontos/",
     "/cadastros/textos-prontos/?tipo=justificativa&novo=1",  # janela de novo texto aberta
     "/ui-lab/",

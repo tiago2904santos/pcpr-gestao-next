@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.db.models import F, Q, prefetch_related_objects
+from django.db.models import F, Prefetch, Q, prefetch_related_objects
 from django.db.models.expressions import OrderBy
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -33,6 +33,7 @@ from .dominio.diarias import Faixa
 from .forms import (
     FORM_ID,
     FiltrosOficio,
+    FormularioJustificativa,
     FormularioOficio,
     iniciais_de_trechos,
     resolver_municipio,
@@ -782,3 +783,85 @@ def numeracao(request: HttpRequest) -> HttpResponse:
         "ano_atual": timezone.localdate().year,
         "migalhas": _migalhas(("Numeração dos ofícios", "")),
     }, status=422 if erro else 200)
+
+
+# ------------------------------------------------------------------ justificativas (D6)
+def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, status=200):
+    policies.exigir(policies.pode_listar(request.user))
+    base = policies.oficios_visiveis(request.user)
+    aba = request.GET.get("aba") or request.POST.get("aba") or ""
+    if aba not in queries.ABAS_JUSTIFICATIVAS:
+        aba = ""
+    termo = (request.GET.get("q") or "").strip()
+    qs = queries.justificativas(base, aba)
+    if termo:
+        achados = services.buscar_por_texto(base, termo).values("pk")
+        qs = qs.filter(Q(pk__in=achados) | Q(justificativa__unaccent__icontains=termo))
+    qs = (queries.com_dados_de_lista(qs).select_related("justificativa_modelo")
+          .prefetch_related(Prefetch("documentos", to_attr="docs_justificativa",
+                                     queryset=Documento.objects.filter(
+                                         tipo=Documento.Tipo.JUSTIFICATIVA,
+                                         situacao=Documento.Situacao.PRONTO).order_by("-versao")))
+          .order_by("-ano", "-numero"))
+    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    pagina.object_list = list(pagina.object_list)
+    for o in pagina.object_list:  # o que cada linha oferece vem da política
+        o.editavel_aqui = policies.pode_editar(request.user, o)  # type: ignore[attr-defined]
+        o.antecedencia = ((o.saida_dia - o.data_oficio).days  # type: ignore[attr-defined]
+                          if o.saida_dia else None)
+    if form is None and (pk := request.GET.get("editar", "")).isdigit():
+        editando = _oficio_visivel(request, int(pk))
+        if policies.pode_editar(request.user, editando):
+            form = FormularioJustificativa(initial={
+                "justificativa": editando.justificativa, "versao": editando.versao,
+                "justificativa_modelo": editando.justificativa_modelo_id})
+        else:
+            editando = None
+    filtros = request.GET.copy()
+    for chave in ("pagina", "editar"):
+        filtros.pop(chave, None)
+    return render(request, "viagens/justificativas/lista.html", {
+        "page_obj": pagina, "oficios": pagina.object_list, "aba": aba, "termo": termo,
+        "abas": [("", "Todas", "todas")] + [(k, r, k) for k, r in
+                                             queries.ABAS_JUSTIFICATIVAS.items()],
+        "contagens": queries.contagens_justificativas(base),
+        "querystring_base": (filtros.urlencode() + "&") if filtros else "",
+        "form": form, "editando": editando,
+        "pode_gerir_textos": policies.pode_gerir_textos_prontos(request.user),
+        "migalhas": _migalhas(("Justificativas", "")),
+    }, status=status)
+
+
+@require_GET
+def justificativas(request: HttpRequest) -> HttpResponse:
+    return _lista_justificativas(request)
+
+
+@require_POST
+def salvar_justificativa(request: HttpRequest, pk: int) -> HttpResponse:
+    """Grava a justificativa no próprio ofício (mesma concorrência por versão da folha)."""
+    oficio = _oficio_visivel(request, pk)
+    policies.exigir(policies.pode_editar(request.user, oficio),
+                    "Só a justificativa de um rascunho pode ser alterada — para um emitido, "
+                    "edite o ofício (ele vira retificado).")
+    form = FormularioJustificativa(request.POST)
+    voltar = f"{reverse('viagens:justificativas')}?{request.POST.get('voltar', '')}"
+    if form.is_valid():
+        dados = form.cleaned_data
+        try:
+            services.salvar_dados(oficio, request.user, {
+                "justificativa": dados["justificativa"],
+                "justificativa_modelo": dados["justificativa_modelo"]},
+                versao=dados["versao"])
+        except (services.ConflitoDeEdicao, services.RegraViolada) as exc:
+            form.add_error(None, str(exc))
+        else:
+            if dados["justificativa"]:
+                messages.success(request, f"Justificativa do Ofício {oficio.numero_formatado} "
+                                          "gravada.")
+            else:
+                messages.success(request, f"Justificativa do Ofício {oficio.numero_formatado} "
+                                          "apagada; o ofício volta a ficar pendente se o prazo "
+                                          "exigir.")
+            return redirect(voltar)
+    return _lista_justificativas(request, form=form, editando=oficio, status=422)

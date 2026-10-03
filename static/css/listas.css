@@ -594,6 +594,12 @@ a.ficha:hover {
   }
 }
 
+/* Placa de largura fixa na lista: com números de 2 ou 3 algarismos (43/2025, 142/2026) o
+   título de cada linha começa na mesma coluna. No celular a placa vira selo (abaixo). */
+.registro > .placa {
+  min-width: 5.25rem;
+}
+
 /* Linha focada nunca fica sob o cabeçalho de grupo preso ao topo. */
 .registro {
   scroll-margin-top: calc(var(--altura-topo) + 2.5rem);

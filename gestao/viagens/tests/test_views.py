@@ -993,3 +993,71 @@ class TestCicloDeVidaNaTela:
         arquivados = operador.get(reverse("viagens:oficios") + "?situacao=arquivado")
         assert f">{oficio.numero_formatado}<" in arquivados.content.decode()
         assert "Desarquivar" in arquivados.content.decode()
+
+
+class TestListaDeJustificativas:
+    """D6: lista própria, leitura dos ofícios (sem cópia), editar grava no ofício."""
+
+    def test_regra_do_banco_igual_a_do_dominio(self, cenario):
+        from gestao.viagens import queries
+
+        for o in queries.com_regra_de_prazo(Oficio.objects.all()):
+            esperado = services.avaliar_prazo_do_oficio(o).justificativa_obrigatoria
+            assert bool(o.exige_justificativa) == esperado, o.numero_formatado
+
+    def test_abas_e_vinculo_com_o_oficio(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])  # prazo exige
+        r = operador.get(reverse("viagens:justificativas"))
+        html = r.content.decode()
+        assert r.status_code == 200 and f">{rascunho.numero_formatado}<" in html
+        pendentes = operador.get(reverse("viagens:justificativas") + "?aba=pendentes")
+        assert f">{rascunho.numero_formatado}<" in pendentes.content.decode()
+        preenchidas = operador.get(reverse("viagens:justificativas") + "?aba=preenchidas")
+        assert f">{rascunho.numero_formatado}<" not in preenchidas.content.decode()
+
+    def test_escrever_pela_lista_grava_no_oficio(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        janela = operador.get(reverse("viagens:justificativas") + f"?editar={rascunho.pk}")
+        assert 'id="dialogo-justificativa"' in janela.content.decode()
+        r = operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
+                          {"justificativa": "Convocação recebida fora do prazo.",
+                           "versao": rascunho.versao, "voltar": "aba=pendentes&"})
+        assert r.status_code == 302 and "aba=pendentes" in r["Location"]
+        rascunho.refresh_from_db()
+        assert rascunho.justificativa == "Convocação recebida fora do prazo."
+        preenchidas = operador.get(reverse("viagens:justificativas") + "?aba=preenchidas")
+        assert f">{rascunho.numero_formatado}<" in preenchidas.content.decode()
+        # apagar devolve para pendentes
+        operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
+                      {"justificativa": "", "versao": rascunho.versao})
+        rascunho.refresh_from_db()
+        assert rascunho.justificativa == ""
+
+    def test_versao_antiga_e_conflito(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        r = operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
+                          {"justificativa": "x", "versao": rascunho.versao - 1})
+        assert r.status_code == 422 and "Outra pessoa salvou" in r.content.decode()
+
+    def test_emitido_e_consulta_nao_editam(self, operador, client, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        r = operador.post(reverse("viagens:salvar_justificativa", args=[emitido.pk]),
+                          {"justificativa": "x", "versao": emitido.versao})
+        assert r.status_code == 403
+        client.force_login(cenario.usuarios["consulta"])
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        assert client.get(reverse("viagens:justificativas")).status_code == 200
+        r = client.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
+                        {"justificativa": "x", "versao": rascunho.versao})
+        assert r.status_code in (403, 404)
+
+    def test_busca_pelo_texto_e_consultas_fixas(self, operador, cenario,
+                                                django_assert_max_num_queries):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        services.salvar_dados(rascunho, cenario.usuarios["operador"],
+                              {"justificativa": "Pauta urgente do governador."},
+                              versao=rascunho.versao)
+        r = operador.get(reverse("viagens:justificativas") + "?q=governador")
+        assert f">{rascunho.numero_formatado}<" in r.content.decode()
+        with django_assert_max_num_queries(16):
+            operador.get(reverse("viagens:justificativas"))

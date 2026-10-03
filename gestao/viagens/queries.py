@@ -5,9 +5,12 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db import models
 from django.db.models import (
     Count,
+    DateField,
     Exists,
+    ExpressionWrapper,
     F,
     Max,
     Min,
@@ -15,10 +18,11 @@ from django.db.models import (
     Prefetch,
     Q,
     QuerySet,
+    Subquery,
     Value,
     prefetch_related_objects,
 )
-from django.db.models.functions import Concat
+from django.db.models.functions import Coalesce, Concat, TruncDate
 from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
@@ -295,4 +299,54 @@ def roteiros_para_oficio(qs: QuerySet[Roteiro], oficio: Oficio) -> list[Roteiro]
                                           "trechos__destino__uf"),
                                    order_by="trechos__ordem"))
         .order_by(F("primeira_saida").desc(nulls_last=True))[:200]
+    )
+
+
+# ---------------------------------------------------------------- justificativas (D6)
+ABAS_JUSTIFICATIVAS = {
+    "pendentes": "Pendentes",
+    "preenchidas": "Preenchidas",
+}
+PRAZO_PADRAO_DIAS = 10  # o mesmo padrão da configuração institucional
+
+
+def com_regra_de_prazo(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
+    """Anota, no banco, a regra de prazo do domínio (dominio/prazos.py): a justificativa é
+    exigida quando a primeira saída (data local) cai até N dias depois da data do ofício —
+    ou antes dela. N vem da configuração da unidade."""
+    primeira = (Trecho.objects.filter(oficio=OuterRef("pk"), ordem=1)
+                .annotate(dia=TruncDate("saida_em", tzinfo=timezone.get_current_timezone()))
+                .values("dia")[:1])
+    return qs.annotate(
+        saida_dia=Subquery(primeira, output_field=DateField()),
+        limite_prazo=ExpressionWrapper(
+            F("data_oficio") + Coalesce(F("unidade__configuracao__prazo_justificativa_dias"),
+                                        Value(PRAZO_PADRAO_DIAS)),
+            output_field=DateField()),
+    ).annotate(
+        exige_justificativa=ExpressionWrapper(
+            Q(saida_dia__isnull=False) & Q(saida_dia__lte=F("limite_prazo")),
+            output_field=models.BooleanField()),
+    )
+
+
+def justificativas(qs: QuerySet[Oficio], aba: str = "") -> QuerySet[Oficio]:
+    """A lista de justificativas é uma leitura dos ofícios (nada é copiado): os que exigem
+    justificativa ou já têm uma escrita. Cancelados e arquivados ficam de fora."""
+    qs = com_regra_de_prazo(qs.exclude(situacao=Oficio.Situacao.CANCELADO).filter(NAO_ARQUIVADO))
+    preenchida = ~Q(justificativa="")
+    qs = qs.filter(Q(exige_justificativa=True) | preenchida)
+    if aba == "pendentes":
+        return qs.filter(exige_justificativa=True, justificativa="")
+    if aba == "preenchidas":
+        return qs.filter(preenchida)
+    return qs
+
+
+def contagens_justificativas(qs: QuerySet[Oficio]) -> dict[str, int]:
+    base = justificativas(qs)
+    return base.aggregate(
+        todas=Count("pk"),
+        pendentes=Count("pk", filter=Q(exige_justificativa=True, justificativa="")),
+        preenchidas=Count("pk", filter=~Q(justificativa="")),
     )
