@@ -463,3 +463,21 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     pg.keyboard.press("Escape")
     expect(lista).to_have_attribute("aria-expanded", "false")
     assert pg.erros_console == []  # type: ignore[attr-defined]
+
+
+def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
+    """O visualizador do cartão Documentos: o iframe carrega a minuta (lazy, ao chegar à
+    vista) e o navegador a aceita emoldurada — sem "Refused to display" no console."""
+    pg = logado
+    pk = dados_e2e.ids["oficio_rascunho"]
+    # Escuta desde antes de navegar: o Chromium carrega iframes `lazy` com folga de mais
+    # de mil pixels, então o PDF pode ser pedido já no goto, antes de rolar até ele.
+    # A rota da minuta é oficios/<pk>/minuta.pdf (viagens:previa).
+    with pg.expect_response(lambda r: r.url.endswith(f"/viagens/oficios/{pk}/minuta.pdf")) as resposta:
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        pg.locator("#minuta iframe").scroll_into_view_if_needed()
+    assert resposta.value.status == 200
+    assert resposta.value.headers["content-type"].startswith("application/pdf")
+    assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]
+    pg.wait_for_timeout(500)
+    assert not [e for e in pg.erros_console if "frame" in e.lower()], pg.erros_console  # type: ignore[attr-defined]

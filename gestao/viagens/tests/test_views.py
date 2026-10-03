@@ -702,3 +702,26 @@ class TestCartaoDaJustificativa:
         oficio = self._com_saida_em(cenario, 30)
         Oficio.objects.filter(pk=oficio.pk).update(justificativa="Escrita antes de remarcar.")
         assert 'id="justificativa"' in self._folha(operador, oficio)
+
+
+class TestVisualizadorDaMinuta:
+    """A folha mostra a minuta num iframe; a resposta precisa deixar a própria origem
+    emoldurá-la — e só ela."""
+
+    def test_minuta_pode_ser_emoldurada_pela_propria_folha(self, operador, cenario):
+        r = operador.get(reverse("viagens:previa", args=[cenario.ids["oficio_rascunho"]]))
+        csp = r["Content-Security-Policy"]
+        assert "frame-ancestors 'self'" in csp
+        assert "frame-ancestors 'none'" not in csp
+        # O resto da política não afrouxa junto.
+        # O PDF não usa nonce, então o script-src dele é só 'self'.
+        assert "object-src 'none'" in csp and "script-src 'self'" in csp
+
+    def test_as_outras_respostas_seguem_sem_moldura(self, operador, cenario):
+        r = operador.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]))
+        assert "frame-ancestors 'none'" in r["Content-Security-Policy"]
+
+    def test_folha_emoldura_a_minuta(self, operador, cenario):
+        pk = cenario.ids["oficio_rascunho"]
+        html = operador.get(reverse("viagens:editar", args=[pk])).content.decode()
+        assert f'<iframe src="{reverse("viagens:previa", args=[pk])}"' in html

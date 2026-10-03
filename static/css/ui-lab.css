@@ -236,21 +236,7 @@ fieldset.grupo-campos > legend {
   color: var(--cor-marca-texto);
 }
 
-/* =============== Prévia de documento =============== */
-.previa-documento {
-  padding: var(--esp-6);
-  border-radius: var(--raio-md);
-  background: var(--neutro-200);
-  overflow: auto;
-}
-
-.previa-documento iframe {
-  display: block;
-  width: 100%;
-  height: 70vh;
-  border: 0;
-  background: var(--neutro-0);
-}
+/* A prévia de documento (.previa-documento) mora em documento.css: a folha do ofício a usa. */
 
 /* Seção de formulário em foco: trilho dourado à esquerda diz "você está aqui". */
 .layout-formulario .cartao:focus-within {

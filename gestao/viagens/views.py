@@ -7,15 +7,18 @@ from __future__ import annotations
 
 from itertools import pairwise
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, prefetch_related_objects
 from django.db.models.expressions import OrderBy
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.csp import CSP
+from django.views.decorators.csp import csp_override
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_headers
 
@@ -217,6 +220,9 @@ def _mostrar_justificativa(oficio, prazo, form) -> bool:
 def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
     if itin is None:
         itin = itinerario.montar(FORM_ID, sede=oficio.sede, trechos=trechos_de(oficio))
+    # Documentos numa consulta só: o cartão Documentos lista; `policies.pode_excluir`
+    # pergunta se existe algum. Com o prefetch os dois leem do cache do ofício.
+    prefetch_related_objects([oficio], "documentos")
     prontidao = services.verificar_prontidao(oficio)
     prazo = services.avaliar_prazo_do_oficio(oficio)
     mostrar_justificativa = _mostrar_justificativa(oficio, prazo, form)
@@ -255,8 +261,8 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
             if request.user.has_perm("viagens.view_roteiro") else None),
         "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
         "historico": list(oficio.historico.select_related("usuario")[:30]),
-        # O cartão Documentos lista o que já saiu em papel, como a janela de resumo.
-        "documentos": list(oficio.documentos.select_related("emitido_por")),
+        # O cartão Documentos lista o que já saiu em papel (do cache do prefetch acima).
+        "documentos": list(oficio.documentos.all()),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, "")),
     }
@@ -530,6 +536,11 @@ def baixar_documento(request: HttpRequest, documento_id: int) -> FileResponse:
 
 
 @require_GET
+# A folha do ofício mostra a minuta num iframe. A política comum manda `frame-ancestors
+# 'none'` em toda resposta (contra clickjacking), o que proibiria o próprio sistema de
+# emoldurá-la. Só nesta resposta, e só para a mesma origem, a moldura é permitida; todas as
+# outras diretivas seguem iguais.
+@csp_override({**settings.SECURE_CSP, "frame-ancestors": [CSP.SELF]})
 def previa(request: HttpRequest, pk: int) -> HttpResponse:
     """Minuta em PDF gerada na hora (rascunho), com marca d'água — não é arquivada."""
     oficio = _oficio_visivel(request, pk)

@@ -585,6 +585,31 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   padding-left: 0;
 }
 
+/* =============== Prévia de documento =============== */
+/* A minuta em PDF dentro da folha: mesa cinza com a página por cima, como no arquétipo
+   DOCUMENT. O iframe só carrega quando chega à vista (loading="lazy"): a minuta é gerada
+   na hora, a cada abertura. */
+.previa-documento {
+  padding: var(--esp-6);
+  border-radius: var(--raio-md);
+  background: var(--neutro-200);
+  overflow: auto;
+}
+
+.previa-documento iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: var(--neutro-0);
+}
+
+@media (max-width: 767.98px) {
+  .previa-documento {
+    padding: var(--esp-3);
+  }
+}
+
 /* =============== Histórico em linhas (folha do ofício) =============== */
 /* Uma linha por evento, em três colunas fixas — quando, o quê, quem — na moldura e no
    ritmo das linhas de trecho da janela de resumo. Uma coluna só: nunca sobra meia linha. */

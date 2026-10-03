@@ -249,6 +249,21 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
       </div>
     </div>
 
+    {% comment %}
+    Visualizador: a minuta em PDF, como vai sair, dentro da folha — a mesma prévia do
+    arquétipo DOCUMENT. Carrega quando chega à vista; a ficha "Minuta (PDF)" abaixo abre a
+    mesma minuta em outra aba, para imprimir.
+    {% endcomment %}
+    <div class="secao__bloco" id="minuta" aria-labelledby="t-minuta">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-minuta">{% icone "printer" classe="icone--sm" %}Minuta</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">gerada agora, com marca d'água — nada é arquivado</span></div>
+      </div>
+      <div class="previa-documento">
+        <iframe src="{% url 'viagens:previa' oficio.pk %}" title="Minuta do Ofício {{ oficio.numero_formatado }} (PDF)" loading="lazy"></iframe>
+      </div>
+    </div>
+
     <div class="secao__bloco" id="documentos" aria-labelledby="t-documentos">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
