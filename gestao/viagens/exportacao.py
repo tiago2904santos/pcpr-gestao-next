@@ -84,7 +84,8 @@ def linha(oficio: Oficio) -> list:
 def planilha_de_oficios(oficios: Iterable[Oficio]) -> bytes:
     livro = Workbook()
     aba = livro.active
-    assert aba is not None  # Workbook() sempre nasce com uma aba
+    if aba is None:  # Workbook() sempre nasce com uma aba; isto só acalma o verificador
+        aba = livro.create_sheet()
     aba.title = "Ofícios"
     aba.append(COLUNAS)
     for celula in aba[1]:

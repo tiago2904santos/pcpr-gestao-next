@@ -140,7 +140,7 @@ class _Escritor:
         return p
 
     def tabela(self, el):
-        linhas = [tr for tr in el.iter("tr")]
+        linhas = list(el.iter("tr"))
         if not linhas:
             return
         colunas = max(sum(int(c.get("colspan") or 1) for c in tr if c.tag in ("td", "th"))
