@@ -39,6 +39,12 @@ Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
 
 ## Próximo passo
 
-Fechar os itens "próximo/pendente" de Ofícios, rodar a regressão completa (rápida + navegador),
-registrar paridade e só então abrir o módulo 2 (Cadastros — CRUD), que promove o padrão de
-"cadastro em janela" já usado nos textos prontos.
+Ofícios está com tudo o que não depende de decisão implementado e testado (suíte rápida 653,
+navegador 146 + 6 de desempenho). Para marcar **CONCLUÍDO** faltam: as decisões D-OF-1..7, a
+comparação com a referência em execução (credenciais) e a decisão do ADR 0021. Enquanto isso,
+o loop segue para o **módulo 2 — Cadastros (CRUD)**, promovendo o padrão "cadastro em janela"
+dos textos prontos (servidores, viaturas, unidades, cargos, combustíveis, tabela de diárias,
+configuração institucional).
+
+Checkpoints desta rodada: `fae9abf` (descoberta), `957f3aa` (revisão, textos, integrações),
+`cb32c8c` (desempenho), `f78250a` (exportar), `a447f80` (numeração).
