@@ -10,7 +10,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 |---|---|---:|---|---|
 | Plataforma / identidade | Parcial | 9 / 19 | `gestao/identidade/tests`, `gestao/painel/tests` | — |
 | Viagens · Cadastros | Parcial (só consulta) | 4 / 22 | `gestao/cadastros/tests` | (a criar) |
-| Viagens · Ofícios | **Em andamento** | 24 / 31 | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
+| Viagens · Ofícios | **Em fechamento** (falta comparação com a referência em execução) | 29 / 31 (+2 bloqueados: termos, assinatura) | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
 | Viagens · Roteiros | Avançado | 11 / 14 | `gestao/viagens/tests/test_roteiros*.py` | (a criar) |
 | Viagens · Termos | Ausente | 0 / 12 | — | — |
 | Viagens · Ordens de serviço | Ausente | 0 / 8 | — | — |
@@ -22,7 +22,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | ASCOM (3 submódulos) | Ausente | 0 / 43 | — | — |
 | Coffee Break | Ausente | 0 / 61 | — | — |
 | Agenda / relatórios / painel | Ausente (só conflito) | 1 / 10 | — | — |
-| Integração eProtocolo | Ausente | 0 / 4 operações | — | [eprotocolo.md](../integrations/eprotocolo.md) |
+| Integração eProtocolo | Simulada (E1/E2) | 0 / 4 operações reais | `gestao/integracoes/tests` | [eprotocolo.md](../integrations/eprotocolo.md) |
 
 \* Contagem aproximada por rota da referência com função equivalente no novo (uma tela nova
 pode cobrir várias rotas antigas, ex.: a janela de resumo). Serve para dimensionar, não

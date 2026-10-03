@@ -4,47 +4,43 @@ Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
 
 ## Agora
 
-**Módulo 1 — Ofícios (fechamento).** Ficha: [oficios.md](oficios.md).
+**Módulo 1 — Ofícios: EM FECHAMENTO.** Tudo o que não depende de terceiros está implementado e
+testado; o módulo **não** é marcado concluído enquanto faltar a comparação com a referência em
+execução. Ficha e matriz: [oficios.md](oficios.md). Decisões: [decisoes.md](decisoes.md).
 
-| Item | Situação |
+| Decisão | Situação |
 |---|---|
-| Revisão antes de emitir na janela de resumo (página "Revisar e emitir" apagada) | ✅ feito — `?revisar=1` abre a janela sobre a folha; rodapé fixo com Emitir |
-| Catálogo de textos prontos (motivo, justificativa, trechos) + seletor na folha + "Guardar como texto pronto" + motivo padrão no ofício novo | ✅ feito — `gestao/cadastros/textos.py`, tela `/cadastros/textos-prontos/`, componente `componentes/texto_pronto.html` + `texto-pronto.js` |
-| Testes de navegador defasados (crachá, faixa de progresso, detalhe, Documentos) | ✅ atualizados — conferir rodada completa |
-| Origem do protocolo (manual/simulado/treinamento/oficial) + camada `gestao/integracoes/eprotocolo` simulada (E1/E2) | ✅ feito — `gestao/integracoes/`, `manage.py eprotocolo_check`, `Oficio.protocolo_origem` |
-| Revisão de UX e de segurança (agentes revisores) e correções | ✅ feito — laço de confirmação, avisos na revisão, emissão sem JS, permissão de gestor para o padrão, cliente HTTP sem redirecionar/só HTTPS, trava explícita |
-| Falso conflito autosave × Salvar; menus sob a barra flutuante | ✅ corrigidos (achados pelos testes de navegador) |
-| Orçamentos de peso (CSS/JS/requisições) | ✅ peso e tempo no orçamento (minificação + editor sob demanda); requisições das folhas: ADR 0021 (proposto) |
-| Exportar a lista em planilha (.xlsx, 14 colunas, como a referência) | ✅ feito — `gestao/viagens/exportacao.py`, botão na barra da lista; 268 ofícios do DEMO em 0,76 s com 11 consultas |
-| Tela do piso da numeração (gestor) | ✅ feito — `/viagens/oficios/numeracao/` |
-| Arquivar / reativar / complementar / motorista externo / DOCX | **decisões pendentes** D-OF-1..4 (ver ficha) |
-| Comparação com a referência em execução | **bloqueada**: precisa de `REF_USER`/`REF_PASS` no ambiente ou sessão aberta pelo usuário |
+| D1 Arquivar | ✅ implementado e testado |
+| D2 Reativar (gestor, justificativa) | ✅ implementado e testado |
+| D3 Motorista de fora da equipe | ✅ implementado e testado |
+| D4 Editor principal + DOCX | ✅ "Baixar DOCX" restabelecido; uso real do Word: evidência pendente |
+| D5 Filtro pela data do ofício | ✅ implementado e testado |
+| D6 Lista de justificativas | ✅ implementado e testado |
+| D7 Marcador "Autorização" | ✅ confirmado (só rótulo) |
+| D8 Teto de requisições | ✅ validado: necessidade 30 → teto 32 (mais estrito que 40) |
 
-## Feito nesta rodada (fase 0 — descoberta)
+Também nesta rodada: revisão na janela de resumo, textos prontos, exportar planilha, numeração,
+base de integrações (eProtocolo simulado), minificação de CSS/JS, correções das revisões de
+segurança e de UX (duas rodadas cada).
 
-- Inventário cruzado ([inventario.md](inventario.md)), paridade por módulo ([parity.md](parity.md)),
-  roadmap ([roadmap.md](roadmap.md)), catálogo de componentes ([componentes.md](componentes.md)),
-  aprendizados ([lessons.md](lessons.md)), backlog ([improvements.md](improvements.md)).
-- Estudos: [eProtocolo](../integrations/eprotocolo.md), [Central de Viagens](../integrations/central-de-viagens.md),
-  [Hostinger](../integrations/hostinger.md), [orquestração/n8n](../integrations/orquestracao.md),
-  [agente de IA](../ai/README.md). ADR 0019 (integrações) e ADR 0020 (automação).
+## Bloqueios
 
-## Bloqueios que dependem do dono do produto
-
-1. Credenciais da referência em execução (variáveis de ambiente) para a comparação visual lado a lado.
-2. Decisões D-OF-1..7 da ficha de Ofícios.
-3. eProtocolo real: credenciamento no PDS Mantis, usuário de sistema com CPF, `consumerId`,
-   IP fixo da VPS, escopos — só então o adaptador HTTP sai do modo simulado.
-4. Dados da VPS Hostinger (plano, uso, IP fixo, backups) para dimensionar n8n.
+| Item | Tipo | O que destrava |
+|---|---|---|
+| Comparação lado a lado com a referência em execução | dependência externa | forma autorizada de acesso (credenciais só por variável de ambiente, ou o usuário abre a sessão no navegador do app) |
+| eProtocolo real | dependência externa | credenciamento (PDS Mantis), usuário de sistema com CPF, `consumerId`, IP fixo, escopos |
+| Central de Viagens | dependência externa | canal institucional (DETO/SEAP, Celepar) |
+| Hospedagem / n8n / IA | dependência externa | plano, recursos, backups e custos da VPS |
+| Termos por servidor, assinatura de documentos | sequência do roteiro | módulos Termos e Documentos |
+| Reabertura formal com motivo sem botão (hoje o caminho é "Editar (retificar)") | **decisão** (nova) | dizer se a reabertura formal ainda precisa de botão |
+| Uso real do DOCX fora do sistema | **evidência** do usuário | dizer como o Word é usado (editar e devolver? anexar?) |
 
 ## Próximo passo
 
-Ofícios está com tudo o que não depende de decisão implementado e testado (suíte rápida 653,
-navegador 146 + 6 de desempenho). Para marcar **CONCLUÍDO** faltam: as decisões D-OF-1..7, a
-comparação com a referência em execução (credenciais) e a decisão do ADR 0021. Enquanto isso,
-o loop segue para o **módulo 2 — Cadastros (CRUD)**, promovendo o padrão "cadastro em janela"
-dos textos prontos (servidores, viaturas, unidades, cargos, combustíveis, tabela de diárias,
-configuração institucional).
+Com a regressão desta rodada verde, seguir para o **módulo 2 — Cadastros (CRUD)**: servidores,
+viaturas, unidades, cargos, combustíveis, tabela de diárias, configuração institucional e
+assinaturas, reaproveitando o "cadastro em janela" dos textos prontos e a janela "pedir motivo".
 
-Checkpoints desta rodada: `fae9abf` (descoberta), `957f3aa` (revisão, textos, integrações),
-`cb32c8c` (desempenho), `f78250a` (exportar), `a447f80` (numeração).
+Checkpoints: `fae9abf` (descoberta), `957f3aa`, `cb32c8c`, `f78250a`, `a447f80`, `0118be7`,
+`6209156` (D1/D2/D5), `9cc2df6` (D6), `43dad01` (D3), `2bcf751` (D8), `e59ae99` (D4),
+`3e2e094` (revisões).

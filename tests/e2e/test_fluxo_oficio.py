@@ -460,7 +460,7 @@ def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
     folha = f"/viagens/oficios/{pk}/documento/oficio/folha/"
     pg.goto(f"/viagens/oficios/{pk}/editar/")
     with pg.expect_response(lambda r: r.url.endswith(folha)) as resposta:
-        pg.locator("pc-editor-documento").scroll_into_view_if_needed()
+        pg.locator("#editor-oficio").scroll_into_view_if_needed()
     assert resposta.value.status == 200
     assert resposta.value.headers["content-type"].startswith("text/html")
     assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]

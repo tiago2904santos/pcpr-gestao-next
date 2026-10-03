@@ -5,6 +5,14 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Abertas
 
+- `[MÓDULO][UX][MÉDIA]` Motorista de fora "servidor de outro ofício": sugerir os ofícios dele no
+  mesmo período e preencher ofício/protocolo de origem (a referência tinha
+  `oficios-do-motorista`).
+- `[GLOBAL][UX][MÉDIA]` "Desfazer" na mensagem depois de arquivar (e então tirar a confirmação).
+- `[GLOBAL][UX][MÉDIA]` Rodapé da janela de resumo a 360 px: agrupar Minuta/Word num grupo
+  "Documento" dentro de "Mais ações".
+- `[MÓDULO][UX][BAIXA]` Numeração: pedir confirmação quando o piso pula muito acima do maior
+  número usado.
 - `[GLOBAL][PERFORMANCE][MÉDIA]` **Requisições nas folhas de edição** (37 ofício, 26 roteiro): decisão
   do ADR 0021 (proposto). Peso e tempo já no orçamento.
 - `[GLOBAL][COMPONENTE][ALTA]` **Janela de resumo genérica** extraída do ofício para Termos,
@@ -28,6 +36,10 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Feitas
 
+- ✅ Decisões D1–D8 de Ofícios (03/10/2026) — ver decisoes.md.
+- ✅ Componentes: janela "pedir motivo" (dialogo_motivo + dialogo.js), combobox remoto com campo
+  oculto, alvo de toque mínimo em .divulgacao/botão-link/.escolha, placa de largura fixa nas
+  listas (03/10/2026).
 - ✅ Orçamentos de peso: CSS/JS minificados no collectstatic (`estaticos.py`, `rjsmin`), editor de
   documento sob demanda, `icone` dentro de `menu.js` — folha do ofício de 165,9→108,3 KB de CSS e
   195,1→113,1 KB de JS (03/10/2026).

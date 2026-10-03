@@ -69,3 +69,5 @@ ciclo de vida voltaram no menu da linha e no "Mais ações" da janela de resumo
 | eProtocolo real (credenciamento, usuário de sistema, `consumerId`, IP fixo, escopos) | dependência externa |
 | Central de Viagens (existência de API, requisitos) | dependência externa |
 | Hospedagem/IA/n8n (plano, recursos, backups, custos) | dependência externa |
+| Reabertura formal (emitido → rascunho com motivo, gestor) sem botão desde a saída da página de detalhe; hoje a tela oferece "Editar (retificar)" | **bloqueante** (decisão: manter só a retificação ou repor o botão de reabrir) |
+| Uso real do DOCX fora do sistema (D4) | evidência do usuário |
