@@ -578,6 +578,98 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 .checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
 .checklist__item--aviso > .icone { color: var(--cor-aviso); }
 
+/* Dentro do aviso de conferência a lista não leva marcador nem recuo: cada linha já é um
+   atalho para o cartão. */
+.alerta__corpo .checklist {
+  margin-top: var(--esp-2);
+  padding-left: 0;
+}
+
+/* =============== Histórico em linhas (folha do ofício) =============== */
+/* Uma linha por evento, em três colunas fixas — quando, o quê, quem — na moldura e no
+   ritmo das linhas de trecho da janela de resumo. Uma coluna só: nunca sobra meia linha. */
+.historico__linhas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  overflow: hidden;
+}
+
+.historico__linha {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: var(--esp-1) var(--esp-3);
+  align-items: center;
+  padding: var(--esp-2) var(--esp-3);
+  border-bottom: var(--borda-sutil);
+  font-size: var(--texto-sm);
+}
+
+.historico__linha:last-child {
+  border-bottom: 0;
+}
+
+.historico__linha--vazia {
+  display: block;
+  color: var(--cor-texto-terciario);
+}
+
+/* O filete do dia acompanha a linha inteira; a data fica centrada nele. */
+.historico__quando {
+  display: grid;
+  align-content: center;
+  align-self: stretch;
+  gap: var(--esp-05);
+  padding-right: var(--esp-3);
+  border-right: var(--borda-sutil);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.historico__quando b {
+  font-weight: var(--peso-semi);
+}
+
+.historico__quando small {
+  color: var(--cor-texto-terciario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--rastreio-rotulo);
+}
+
+.historico__texto {
+  overflow-wrap: anywhere;
+}
+
+.historico__quem {
+  justify-self: end;
+  white-space: nowrap;
+  color: var(--cor-texto-secundario);
+}
+
+/* Emissão e documento: a data em dourado e o texto em peso, como o marcador da emissão. */
+.historico__linha--marca .historico__quando b {
+  color: var(--cor-marca-texto);
+}
+
+.historico__linha--marca .historico__texto {
+  font-weight: var(--peso-semi);
+}
+
+/* Sem largura para as três colunas, quem fez desce para a linha de baixo, alinhado ao texto. */
+@media (max-width: 767.98px) {
+  .historico__linha {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+  }
+
+  .historico__quem {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
 .checklist__item a {
   color: inherit;
 }

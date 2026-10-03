@@ -218,73 +218,76 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
   {% endif %}
 
   {% comment %}
-  4. Documentos — o fim da folha conclui: a conferência diz o que falta, a minuta mostra o
-  ofício como vai sair e o que já foi emitido fica listado como na janela de resumo. É o
-  número 3 quando a justificativa não aparece, para a numeração não pular.
+  4. Documentos — o fim da folha conclui, com as peças da janela de resumo: o aviso de
+  pendências (cada uma levando ao cartão certo), as fichas de documento (a minuta sempre
+  está, então a linha nunca fica vazia) e o histórico, uma linha por evento, dentro do
+  cartão. A situação dos cartões não se repete aqui: a faixa de progresso do topo já a
+  mostra. É o número 3 quando a justificativa não aparece, para a numeração não pular.
   {% endcomment %}
   <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}4{% else %}3{% endif %}</span>Documentos</h2>
-      <div class="secao__estado">{% if documentos %}<span class="selo selo--sucesso selo--situacao-emitido">{{ documentos|length|pluralizar:"emitido,emitidos" }}</span>{% endif %}</div>
-      <p class="secao__nota">Depois de emitido, o ofício fica travado; correções exigem reabertura, registrada no histórico.</p>
+      <div class="secao__estado">{% if prontidao.pode_emitir %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para emitir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }}</span>{% endif %}</div>
+      <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido ele fica travado — correções exigem reabertura, registrada no histórico.</p>
     </div>
-    <div class="conferencia{% if prontidao.pode_emitir %} conferencia--pronta{% endif %}">
-      <p class="conferencia__titulo">{% if prontidao.pode_emitir %}{% icone "stamp" %}Tudo pronto para emitir{% else %}{% icone "list-checks" %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
-      <ul class="conferencia__itens" aria-label="Situação dos cartões">
-        {% for sec in secoes %}<li class="conferencia__item{% if sec.ok %} conferencia__item--ok{% endif %}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %}: pronto{% else %}: pendente{% endif %}</span></li>{% endfor %}
-      </ul>
-      {% if prontidao.pendencias %}
-        <ul class="checklist">
-          {% for p in prontidao.pendencias %}
-            <li class="checklist__item {% if p.bloqueia %}checklist__item--bloqueia{% else %}checklist__item--aviso{% endif %}">
-              {% if p.bloqueia %}{% icone "x-circle" rotulo="Pendência" %}{% else %}{% icone "alert-triangle" rotulo="Aviso" %}{% endif %}
-              <span><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-      <div class="conferencia__acoes">
-        <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
-        {% if pode_emitir and prontidao.pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button>{% endif %}
+
+    {# Conferência: o mesmo aviso que abre a janela de resumo; aqui cada pendência é um atalho para o cartão. #}
+    <div class="alerta {% if prontidao.pode_emitir %}alerta--sucesso{% else %}alerta--aviso{% endif %}" role="status" id="conferencia">
+      {% if prontidao.pode_emitir %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}
+      <div class="alerta__corpo">
+        <p class="alerta__titulo">{% if prontidao.pode_emitir %}Tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
+        {% if prontidao.pendencias %}
+          <ul class="checklist">
+            {% for p in prontidao.pendencias %}
+              <li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if pode_emitir and prontidao.pode_emitir %}
+          <div class="conferencia__acoes mt-2"><button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button></div>
+        {% endif %}
       </div>
     </div>
+
     <div class="secao__bloco" id="documentos" aria-labelledby="t-documentos">
-      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-documentos">{% icone "files" classe="icone--sm" %}Emitidos</h3></div>
-      {% if documentos %}
-        <ul class="resumo__documentos" role="list">
-          {% for d in documentos %}
-            <li>
-              {% if d.situacao == "pronto" %}
-                <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span></a>
-              {% else %}
-                <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}<p class="vazio-inline">Nenhum ainda — aparecem na emissão.</p>{% endif %}
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
+        <div class="secao__estado">{% if documentos %}<span class="selo selo--sucesso selo--situacao-emitido">{{ documentos|length|pluralizar:"emitido,emitidos" }}</span>{% else %}<span class="texto-terciario texto-xs">os emitidos entram aqui</span>{% endif %}</div>
+      </div>
+      <ul class="resumo__documentos" role="list">
+        <li><a class="resumo__documento" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" classe="icone--sm" %}<span>Minuta (PDF)</span><span class="sr-only"> (nova aba)</span></a></li>
+        {% for d in documentos %}
+          <li>
+            {% if d.situacao == "pronto" %}
+              <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span></a>
+            {% else %}
+              <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {# Histórico: uma linha por evento — a mesma receita das linhas de trecho da janela de resumo. #}
+    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+      </div>
+      <ol class="historico__linhas" aria-label="Eventos do ofício">
+        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos.</li>{% endfor %}
+      </ol>
+      {% if historico|length > 6 %}
+        <details>
+          <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
+          <ol class="historico__linhas mt-4" aria-label="Eventos anteriores">
+            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
+          </ol>
+        </details>
+      {% endif %}
     </div>
   </section>
 </div>
-
-{% comment %}
-Histórico no pé da folha: era a única coisa que a página de leitura tinha de próprio, e o
-lugar dela é aqui, junto do ofício que se está trabalhando.
-{% endcomment %}
-<section class="historico mt-6" id="historico" aria-labelledby="t-hist">
-  <h2 class="rotulo-caixa-alta rotulo-caixa-alta--marca mb-4" id="t-hist">Histórico</h2>
-  <ol class="linha-tempo linha-tempo--colunas">
-    {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="vazio-inline">Sem eventos.</li>{% endfor %}
-  </ol>
-  {% if historico|length > 6 %}
-    <details>
-      <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-      <ol class="linha-tempo linha-tempo--colunas mt-4">
-        {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
-      </ol>
-    </details>
-  {% endif %}
-</section>
 
 <div class="barra-acoes">
   <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">

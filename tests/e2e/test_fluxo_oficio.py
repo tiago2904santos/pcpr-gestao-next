@@ -344,12 +344,13 @@ def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2
     expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
     expect(pg.locator("#roteiro .itin__trecho").last).to_contain_text("Chegada na sede")
     expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
-    # Documentos: diz quantas pendências faltam e lista os cartões (Identificação, Roteiro
-    # e, aqui, Justificativa — este ofício está fora do prazo).
-    expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
-    itens = pg.locator("#emissao .conferencia__item")
-    expect(itens).to_have_count(3)
-    expect(itens.first).to_contain_text("Identificação")
+    # Documentos: o aviso de conferência diz quantos itens faltam e cada pendência é um
+    # atalho para o cartão onde se resolve (a situação dos cartões fica na faixa do topo).
+    expect(pg.locator("#emissao #conferencia .alerta__titulo")).to_contain_text("para emitir")
+    pendencias = pg.locator("#emissao .checklist a")
+    expect(pendencias.first).to_have_attribute("href", re.compile(r"^#(dados|equipe|transporte|roteiro|diarias|justificativa)$"))
+    # A minuta está sempre entre os documentos: a linha nunca fica vazia.
+    expect(pg.locator("#documentos .resumo__documento").first).to_contain_text("Minuta")
 
 
 def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):

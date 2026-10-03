@@ -219,7 +219,9 @@ class TestNovoEEdicao:
         prontidao = services.verificar_prontidao(oficio)
         assert prontidao.da_secao("equipe") and prontidao.pode_emitir
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
-        assert 'conferencia__item conferencia__item--ok">Identificação' in html
+        # A situação de cada cartão vive na faixa de progresso do topo.
+        pronta = 'progresso__etapa progresso__etapa--ok"><a href="#identificacao">Identificação'
+        assert pronta in html
 
     def test_roteiro_com_data_e_hora_em_campos_separados(self, operador, cenario):
         """O calendário e o relógio enviam data (dd/mm/aaaa) e hora (hh:mm) em dois campos."""
