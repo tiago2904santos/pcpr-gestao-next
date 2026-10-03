@@ -173,7 +173,31 @@ CAMPOS_EDITAVEIS = [
     "tipo_transporte", "viatura", "transporte_descricao", "transporte_placa",
     "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa", "roteiro",
     "sede",
+    # Motorista de fora da equipe (D3)
+    "motorista_externo", "motorista_externo_servidor", "motorista_externo_nome",
+    "motorista_externo_rg", "motorista_externo_cpf", "motorista_externo_cargo",
+    "motorista_externo_unidade", "motorista_externo_observacao", "motorista_oficio_origem",
+    "motorista_protocolo_origem",
 ]
+CAMPOS_MOTORISTA_MANUAL = ["motorista_externo_nome", "motorista_externo_rg",
+                           "motorista_externo_cpf", "motorista_externo_cargo",
+                           "motorista_externo_unidade", "motorista_externo_observacao"]
+OFICIO_DE_ORIGEM = re.compile(r"^\d{1,6}/\d{4}$")  # até 6 dígitos, como a referência
+
+
+def _normalizar_motorista_externo(atual: Oficio) -> bool:
+    """Um motorista só: externo (servidor OU pessoa não cadastrada) apaga a marca de motorista
+    da equipe; sem externo, os campos dele ficam vazios. Devolve se a equipe mudou."""
+    modo = atual.motorista_externo
+    if modo != Oficio.MotoristaExterno.SERVIDOR:
+        atual.motorista_externo_servidor = None
+    if modo != Oficio.MotoristaExterno.MANUAL:
+        for campo in CAMPOS_MOTORISTA_MANUAL:
+            setattr(atual, campo, "")
+    if not modo:
+        atual.motorista_oficio_origem = atual.motorista_protocolo_origem = ""
+        return False
+    return bool(atual.viajantes.filter(motorista=True).update(motorista=False))
 
 
 def _travar_para_edicao(oficio: Oficio, usuario, versao: int | None) -> Oficio:
@@ -234,6 +258,7 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
         atual.viatura = None
     if atual.custeio != Oficio.Custeio.OUTRA_INSTITUICAO:
         atual.custeio_instituicao = ""
+    _normalizar_motorista_externo(atual)
     atual.versao += 1
     atual.save()
     # Diárias dependem só de trechos, equipe e sede: nada aqui muda o cálculo.
@@ -272,6 +297,12 @@ def definir_motorista(oficio: Oficio, usuario, viajante_id: int | None) -> None:
     atual.viajantes.filter(motorista=True).update(motorista=False)
     if viajante_id:
         atual.viajantes.filter(pk=viajante_id).update(motorista=True)
+        if atual.motorista_externo:  # motorista da equipe substitui o de fora
+            atual.motorista_externo = Oficio.MotoristaExterno.NENHUM
+            _normalizar_motorista_externo(atual)
+            atual.save(update_fields=["motorista_externo", "motorista_externo_servidor",
+                                      *CAMPOS_MOTORISTA_MANUAL, "motorista_oficio_origem",
+                                      "motorista_protocolo_origem"])
     _tocar(atual, recalcular=False)
 
 
@@ -448,10 +479,12 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
     if oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA:
         if not oficio.viatura_id:
             p.append(Pendencia("transporte", "Escolha a viatura."))
-        if viajantes and not any(v.motorista for v in viajantes):
+        if (viajantes and not any(v.motorista for v in viajantes)
+                and not oficio.motorista_externo):
             p.append(Pendencia("equipe", "Indique quem da equipe é o motorista da viatura."))
     elif not oficio.transporte_descricao.strip():
         p.append(Pendencia("transporte", "Descreva o meio de transporte."))
+    p.extend(pendencias_do_motorista_externo(oficio, viajantes))
     if not trechos_de(oficio):
         p.append(Pendencia("roteiro", "Informe os trechos de ida e de volta."))
     if oficio.diarias_erro:
@@ -462,6 +495,40 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
     conflitos = conflitos_de_agenda(oficio)
     p.extend(Pendencia("equipe", c, False) for c in conflitos)
     return Prontidao(p)
+
+
+def pendencias_do_motorista_externo(oficio: Oficio, viajantes) -> list[Pendencia]:
+    """Paridade com pendencias_motorista_documento da referência: pessoa não cadastrada
+    precisa do nome; servidor de fora, de ser escolhido (e não pode já estar na equipe);
+    os dois precisam do ofício de origem (N/AAAA) e do protocolo de 9 dígitos."""
+    modo = oficio.motorista_externo
+    if not modo:
+        return []
+    p: list[Pendencia] = []
+    if modo == Oficio.MotoristaExterno.MANUAL and not oficio.motorista_externo_nome.strip():
+        return [Pendencia("transporte", "Informe o nome do motorista.")]
+    if modo == Oficio.MotoristaExterno.SERVIDOR:
+        if not oficio.motorista_externo_servidor_id:
+            return [Pendencia("transporte", "Escolha o servidor que vai dirigir.")]
+        if any(v.servidor_id == oficio.motorista_externo_servidor_id for v in viajantes):
+            return [Pendencia("transporte", "O motorista escolhido já está na equipe: marque-o "
+                                            "como motorista nela.")]
+    if not OFICIO_DE_ORIGEM.match(oficio.motorista_oficio_origem or ""):
+        p.append(Pendencia("transporte",
+                           "Informe o ofício do motorista no formato número/ano."))
+    if len(somente_digitos(oficio.motorista_protocolo_origem)) != 9:
+        p.append(Pendencia("transporte", "Informe o protocolo do motorista com 9 dígitos."))
+    return p
+
+
+def nome_do_motorista(oficio: Oficio, viajantes=None) -> str:
+    """O nome que vai no documento: o da equipe, ou o de fora (servidor ou não cadastrado)."""
+    if oficio.motorista_externo == Oficio.MotoristaExterno.SERVIDOR:
+        return oficio.motorista_externo_servidor.nome if oficio.motorista_externo_servidor else ""
+    if oficio.motorista_externo == Oficio.MotoristaExterno.MANUAL:
+        return oficio.motorista_externo_nome.strip()
+    equipe = viajantes if viajantes is not None else viajantes_de(oficio)
+    return next((v.servidor.nome for v in equipe if v.motorista), "")
 
 
 def conflitos_de_agenda(oficio: Oficio) -> list[str]:

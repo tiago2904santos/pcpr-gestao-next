@@ -8,7 +8,10 @@
  *  2. Remoto (`data-fonte="/url?q="`): consulta JSON [{id, titulo, meta}] e
  *     emite `pc-selecionado` (detail = opção). Com `data-acao-url`, envia
  *     POST via HTMX ({id}) e troca `data-alvo` pelo HTML retornado — o
- *     servidor continua sendo a fonte da verdade.
+ *     servidor continua sendo a fonte da verdade. Com um
+ *     `<input type="hidden" data-valor-id>` dentro, o id escolhido vai para ele (campo de
+ *     formulário, ex.: um servidor) e o texto visível mostra o título; digitar de novo
+ *     limpa o id, para nunca enviar um valor que não corresponde ao que está escrito.
  */
 
 import { adicionarLimpar } from "./limpar.js";
@@ -128,8 +131,18 @@ export class PcCombobox extends HTMLElement {
     this.entrada = entrada;
   }
 
+  /** @returns {HTMLInputElement | null} */
+  get oculto() {
+    return this.querySelector("input[type='hidden'][data-valor-id]");
+  }
+
   aoDigitar() {
     this.sincronizarLimpar();
+    const oculto = this.oculto;
+    if (oculto && oculto.value) {
+      oculto.value = "";
+      oculto.dispatchEvent(new Event("change", { bubbles: true }));
+    }
     if (this.select && this.entrada && this.entrada.value.trim() === "") {
       this.select.value = "";
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
@@ -311,6 +324,11 @@ export class PcCombobox extends HTMLElement {
       this.select.value = opcao.id;
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
       this.escolhendo = false;
+      this.entrada.value = opcao.titulo;
+    } else if (this.oculto) {
+      const oculto = /** @type {HTMLInputElement} */ (this.oculto);
+      oculto.value = opcao.id;
+      oculto.dispatchEvent(new Event("change", { bubbles: true }));
       this.entrada.value = opcao.titulo;
     } else if (this.hasAttribute("data-valor-texto")) {
       // Modo "texto": o próprio campo é o valor (ex.: "Arapongas/PR"), validado no servidor.

@@ -138,6 +138,33 @@ confirmação — e é ele que escreve no histórico.
         {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--sm so-outro" %}
         {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
       </div>
+      {% comment %}
+      Motorista de fora da equipe (D3): ele viaja por outro ofício e não entra nas diárias
+      deste; o documento cita o nome. Escolher aqui tira a marca de motorista da equipe.
+      Os campos de cada caso aparecem pela escolha (sem JS: :has(), como o custeio).
+      {% endcomment %}
+      <details class="divulgacao motorista-externo"{% if oficio.motorista_externo %} open{% endif %}>
+        <summary>{% icone "user-round" classe="icone--sm" %}Motorista de fora da equipe{% if oficio.motorista_externo %} · {{ oficio.get_motorista_externo_display }}{% endif %}</summary>
+        <div class="divulgacao__corpo campos motorista-externo__campos">
+          {% include "componentes/campo.html" with campo=form.motorista_externo classe="campo--md" %}
+          <div class="campo campo--lg so-servidor-externo">
+            <label class="campo__rotulo" for="busca-motorista-externo">Servidor que vai dirigir</label>
+            <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2">
+              <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}" aria-describedby="ajuda-motorista-externo"></div>
+              {{ form.motorista_externo_servidor }}
+            </pc-combobox>
+            <p class="campo__ajuda" id="ajuda-motorista-externo">Cadastrado, mas fora desta equipe (viaja por outro ofício).</p>
+          </div>
+          {% include "componentes/campo.html" with campo=form.motorista_externo_nome classe="campo--lg so-manual" exigido_para_emitir=True %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_cpf classe="campo--sm so-manual" %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_rg classe="campo--sm so-manual" %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_cargo classe="campo--md so-manual" %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_unidade classe="campo--md so-manual" %}
+          {% include "componentes/campo.html" with campo=form.motorista_oficio_origem classe="campo--md so-externo" exigido_para_emitir=True ajuda="Número/ano do ofício pelo qual ele viaja." ajuda_oculta=True %}
+          {% include "componentes/campo.html" with campo=form.motorista_protocolo_origem classe="campo--md so-externo" exigido_para_emitir=True %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_observacao classe="so-manual motorista-externo__largo" %}
+        </div>
+      </details>
     </pc-transporte>
   </section>
 

@@ -1061,3 +1061,28 @@ class TestListaDeJustificativas:
         assert f">{rascunho.numero_formatado}<" in r.content.decode()
         with django_assert_max_num_queries(16):
             operador.get(reverse("viagens:justificativas"))
+
+
+class TestMotoristaExternoNaFolha:
+    def test_folha_grava_e_documento_cita_o_nome(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        assert "Motorista de fora da equipe" in html and 'data-valor-id' in html
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
+            oficio, motorista_externo="manual", motorista_externo_nome="Carlos Motorista",
+            motorista_externo_cpf="123.456.789-09", motorista_oficio_origem="15 / 2026",
+            motorista_protocolo_origem="12.345.678-9"))
+        assert r.status_code == 302
+        oficio.refresh_from_db()
+        assert (oficio.motorista_externo_cpf, oficio.motorista_oficio_origem,
+                oficio.motorista_protocolo_origem) == ("12345678909", "15/2026", "123456789")
+        folha = operador.get(reverse("viagens:folha", args=[oficio.pk, "oficio"]))
+        assert "Carlos Motorista" in folha.content.decode()
+
+    def test_autosave_grava_o_motorista_externo(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:autosave_oficio", args=[oficio.pk]), _post_edicao(
+            oficio, motorista_externo="manual", motorista_externo_nome="Ana Externa"))
+        assert r.json()["salvo"] is True
+        oficio.refresh_from_db()
+        assert oficio.motorista_externo_nome == "Ana Externa"

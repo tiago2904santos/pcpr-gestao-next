@@ -124,6 +124,7 @@ continua sendo a edição; aqui só se lê e se decide.
               {% if oficio.viatura %}
                 <span class="pessoa__nome">{{ oficio.viatura.modelo }}</span>
                 <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }} · {{ oficio.viatura.get_tipo_display|lower }}</span>
+                {% if oficio.motorista_externo %}<span class="pessoa__meta">Motorista: {% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% else %}{{ oficio.motorista_externo_nome }}{% endif %} (de outro ofício)</span>{% endif %}
               {% elif oficio.transporte_descricao %}
                 <span class="pessoa__nome">{{ oficio.transporte_descricao }}</span>
                 <span class="pessoa__meta">Transporte informado</span>

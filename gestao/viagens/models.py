@@ -124,6 +124,29 @@ class Oficio(models.Model):
     emitido_em = models.DateTimeField(null=True, blank=True)
     cancelado_em = models.DateTimeField(null=True, blank=True)
     motivo_cancelamento = models.TextField(blank=True)
+    # Motorista de fora da equipe (D3; paridade com motorista_modo/manual da referência).
+    # Ele viaja por outro ofício: não entra nas diárias deste, e o documento cita o nome.
+    class MotoristaExterno(models.TextChoices):
+        NENHUM = "", "Da equipe"
+        SERVIDOR = "servidor", "Servidor cadastrado (de outro ofício)"
+        MANUAL = "manual", "Pessoa não cadastrada"
+
+    motorista_externo = models.CharField("motorista de fora da equipe", max_length=10,
+                                         blank=True, choices=MotoristaExterno.choices)
+    motorista_externo_servidor = models.ForeignKey(
+        Servidor, on_delete=models.PROTECT, null=True, blank=True, related_name="+",
+        verbose_name="servidor motorista")
+    motorista_externo_nome = models.CharField("nome do motorista", max_length=255, blank=True)
+    motorista_externo_rg = models.CharField("RG do motorista", max_length=30, blank=True)
+    motorista_externo_cpf = models.CharField("CPF do motorista", max_length=11, blank=True)
+    motorista_externo_cargo = models.CharField("cargo do motorista", max_length=120, blank=True)
+    motorista_externo_unidade = models.CharField("unidade do motorista", max_length=255,
+                                                 blank=True)
+    motorista_externo_observacao = models.TextField("observação sobre o motorista", blank=True)
+    motorista_oficio_origem = models.CharField("ofício do motorista", max_length=12,
+                                               blank=True)
+    motorista_protocolo_origem = models.CharField("protocolo do motorista", max_length=9,
+                                                  blank=True)
     # Situação de antes do cancelamento: reativar volta para ela (D2). Vazio fora do cancelado.
     situacao_anterior = models.CharField("situação antes do cancelamento", max_length=10,
                                          blank=True)

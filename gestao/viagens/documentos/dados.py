@@ -24,12 +24,16 @@ def _dt(valor) -> dict[str, str]:
 
 
 def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
-    from ..services import assunto_do_oficio, avaliar_prazo_do_oficio, configuracao_da_unidade
+    from ..services import (
+        assunto_do_oficio,
+        avaliar_prazo_do_oficio,
+        configuracao_da_unidade,
+        nome_do_motorista,
+    )
 
     config = configuracao_da_unidade(oficio)
     viajantes = viajantes_de(oficio)
     trechos = trechos_de(oficio)
-    motorista = next((v.servidor for v in viajantes if v.motorista), None)
     destinos = []
     for t in trechos:
         rotulo = f"{t.destino.nome}/{t.destino.uf}"
@@ -90,7 +94,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "bate_volta": bate_volta,
         "trechos": [linha_trecho(t) for t in trechos],
         "transporte": transporte,
-        "motorista": motorista.nome if motorista else "",
+        # Da equipe ou de fora (D3): o documento cita quem dirige.
+        "motorista": nome_do_motorista(oficio, viajantes),
         "porte_arma": oficio.porte_arma,
         "custeio": oficio.custeio,
         "custeio_instituicao": oficio.custeio_instituicao,

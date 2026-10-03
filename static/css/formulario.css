@@ -733,6 +733,17 @@
   display: none;
 }
 
+/* Motorista de fora da equipe: cada escolha mostra os seus campos (sem JS: :has()). */
+.motorista-externo__campos:not(:has(option[value="servidor"]:checked)) .so-servidor-externo,
+.motorista-externo__campos:not(:has(option[value="manual"]:checked)) .so-manual,
+.motorista-externo__campos:has(select[name="motorista_externo"] option[value=""]:checked) .so-externo {
+  display: none;
+}
+
+.motorista-externo__largo {
+  flex: 1 1 100%;
+}
+
 /* =============== Equipe: crachás =============== */
 /* A busca vai de margem a margem, como a busca das listas — uma caixa curta deixaria a
    linha pela metade. Avisos de agenda numa lista só. */

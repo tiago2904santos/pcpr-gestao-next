@@ -321,3 +321,80 @@ class TestArquivar:
         oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
         with pytest.raises(PermissionDenied):
             services.arquivar(oficio, c.usuarios["consulta"])
+
+
+class TestMotoristaExterno:
+    """D3: motorista de fora da equipe (servidor de outro ofício ou pessoa não cadastrada).
+    Paridade com a referência: nome obrigatório (não cadastrado), ofício de origem N/AAAA e
+    protocolo de 9 dígitos; não entra nas diárias; o documento cita o nome."""
+
+    def _pronto_com_viatura(self, c):
+        from gestao.cadastros.models import Viatura
+
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        return services.salvar_dados(oficio, c.usuarios["operador"], {
+            "tipo_transporte": Oficio.TipoTransporte.VIATURA,
+            "viatura": Viatura.objects.filter(ativo=True).first()}, versao=oficio.versao)
+
+    def test_pessoa_nao_cadastrada_exige_nome_oficio_e_protocolo(self):
+        c = cenario_completo()
+        oficio = self._pronto_com_viatura(c)
+        oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
+            "motorista_externo": "manual"}, versao=oficio.versao)
+        mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
+        assert "Informe o nome do motorista." in mensagens
+        oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
+            "motorista_externo_nome": "Carlos Motorista", "motorista_oficio_origem": "15/26",
+            "motorista_protocolo_origem": "123"}, versao=oficio.versao)
+        mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
+        assert "Informe o ofício do motorista no formato número/ano." in mensagens
+        assert "Informe o protocolo do motorista com 9 dígitos." in mensagens
+        assert "Indique quem da equipe é o motorista da viatura." not in mensagens
+        oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
+            "motorista_oficio_origem": "1000/2026", "motorista_protocolo_origem": "123456789"},
+            versao=oficio.versao)
+        mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
+        assert not [m for m in mensagens if "motorista" in m]
+
+    def test_externo_tira_a_marca_da_equipe_e_vice_versa(self):
+        c = cenario_completo()
+        u = c.usuarios["operador"]
+        oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+        oficio = services.retificar(oficio, u)  # volta a rascunho para editar
+        assert oficio.viajantes.filter(motorista=True).exists()
+        oficio = services.salvar_dados(oficio, u, {"motorista_externo": "manual",
+                                                   "motorista_externo_nome": "Fulano"},
+                                       versao=oficio.versao)
+        assert not oficio.viajantes.filter(motorista=True).exists()
+        v = oficio.viajantes.first()
+        services.definir_motorista(oficio, u, v.pk)
+        oficio.refresh_from_db()
+        assert oficio.motorista_externo == "" and oficio.motorista_externo_nome == ""
+
+    def test_nao_entra_nas_diarias_e_vai_para_o_documento(self):
+        from gestao.viagens.documentos.dados import dados_do_oficio
+
+        c = cenario_completo()
+        u = c.usuarios["operador"]
+        oficio = self._pronto_com_viatura(c)
+        antes = (oficio.diarias_total, oficio.diarias_resumo)
+        oficio = services.salvar_dados(oficio, u, {
+            "motorista_externo": "manual", "motorista_externo_nome": "Carlos Motorista",
+            "motorista_oficio_origem": "15/2026", "motorista_protocolo_origem": "123456789"},
+            versao=oficio.versao)
+        services.recalcular_diarias(oficio)
+        oficio.refresh_from_db()
+        assert (oficio.diarias_total, oficio.diarias_resumo) == antes
+        assert dados_do_oficio(oficio)["motorista"] == "Carlos Motorista"
+
+    def test_servidor_de_outro_oficio_nao_pode_estar_na_equipe(self):
+        c = cenario_completo()
+        u = c.usuarios["operador"]
+        oficio = self._pronto_com_viatura(c)
+        da_equipe = oficio.viajantes.first().servidor
+        oficio = services.salvar_dados(oficio, u, {
+            "motorista_externo": "servidor", "motorista_externo_servidor": da_equipe,
+            "motorista_oficio_origem": "15/2026", "motorista_protocolo_origem": "123456789"},
+            versao=oficio.versao)
+        mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
+        assert any("já está na equipe" in m for m in mensagens)

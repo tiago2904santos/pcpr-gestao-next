@@ -12,7 +12,7 @@ from django.db.models import Value
 from django.db.models.functions import Lower
 from django.utils import timezone
 
-from gestao.cadastros.models import Combustivel, ModeloTexto, Municipio, Viatura
+from gestao.cadastros.models import Combustivel, ModeloTexto, Municipio, Servidor, Viatura
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
 from gestao.plataforma.widgets import (
     FORMATOS_DATA,
@@ -201,6 +201,14 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     """Seções Dados, Transporte e Justificativa (equipe e roteiro têm formulários próprios)."""
 
     versao = forms.IntegerField(widget=forms.HiddenInput, required=False)
+    # Digitados com pontuação (14 e 12 caracteres); a limpeza deixa só os dígitos (11 e 9).
+    motorista_externo_cpf = forms.CharField(
+        label="CPF", required=False, max_length=14,
+        widget=forms.TextInput(attrs=_attrs(inputmode="numeric", **{"data-mascara": "cpf"})))
+    motorista_protocolo_origem = forms.CharField(
+        label="Protocolo de origem", required=False, max_length=14,
+        widget=forms.TextInput(attrs=_attrs(inputmode="numeric",
+                                            **{"data-mascara": "protocolo"})))
     protocolo = forms.CharField(
         label="Protocolo", required=False, max_length=14,
         help_text="eProtocolo: nove dígitos (ex.: 12.345.678-9).",
@@ -215,7 +223,11 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         fields = ["data_oficio", "protocolo", "marcador", "motivo", "custeio",
                   "custeio_instituicao", "tipo_transporte", "viatura", "transporte_descricao",
                   "transporte_placa", "transporte_combustivel", "porte_arma",
-                  "justificativa_modelo", "justificativa", "roteiro"]
+                  "justificativa_modelo", "justificativa", "roteiro",
+                  "motorista_externo", "motorista_externo_servidor", "motorista_externo_nome",
+                  "motorista_externo_rg", "motorista_externo_cpf", "motorista_externo_cargo",
+                  "motorista_externo_unidade", "motorista_externo_observacao",
+                  "motorista_oficio_origem", "motorista_protocolo_origem"]
         widgets = {
             "data_oficio": EntradaData(),
             # Escolhas como seleção, na altura dos campos ao lado (a mesma peça do "Texto
@@ -235,8 +247,25 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "justificativa_modelo": SelecaoDeTexto(),
             "justificativa": forms.Textarea(attrs=_attrs("area-texto", rows=5)),
             "roteiro": forms.HiddenInput,
+            "motorista_externo": Selecao(),
+            # O id vem do <pc-combobox> remoto (busca de servidores), no campo oculto.
+            "motorista_externo_servidor": forms.HiddenInput(attrs={"data-valor-id": ""}),
+            "motorista_externo_nome": forms.TextInput(attrs=_attrs(autocomplete="off")),
+            "motorista_externo_rg": forms.TextInput(attrs=_attrs(inputmode="numeric")),
+            "motorista_externo_cargo": forms.TextInput(attrs=_attrs()),
+            "motorista_externo_unidade": forms.TextInput(attrs=_attrs()),
+            "motorista_externo_observacao": forms.Textarea(attrs=_attrs("area-texto", rows=2)),
+            "motorista_oficio_origem": forms.TextInput(attrs=_attrs(
+                inputmode="numeric", placeholder="Ex.: 15/2026")),
         }
-        labels = {"motivo": "Motivo da viagem",
+        labels = {"motorista_externo": "Quem dirige",
+                  "motorista_externo_nome": "Nome", "motorista_externo_rg": "RG",
+                  "motorista_externo_cpf": "CPF", "motorista_externo_cargo": "Cargo",
+                  "motorista_externo_unidade": "Unidade",
+                  "motorista_externo_observacao": "Observação",
+                  "motorista_oficio_origem": "Ofício de origem",
+                  "motorista_protocolo_origem": "Protocolo do motorista",
+                  "motivo": "Motivo da viagem",
                   "justificativa_modelo": "Texto pronto da justificativa",
                   "viatura": "Viatura", "transporte_combustivel": "Combustível"}
         help_texts = {
@@ -267,6 +296,14 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             (Oficio.Custeio.OUTRA_INSTITUICAO, "Outra instituição"),
             (Oficio.Custeio.ONUS_LIMITADO, "Ônus limitados"),
         ]
+        cast(forms.ChoiceField, self.fields["motorista_externo"]).choices = [
+            (Oficio.MotoristaExterno.NENHUM, "Alguém da equipe"),
+            (Oficio.MotoristaExterno.SERVIDOR, "Servidor de outro ofício"),
+            (Oficio.MotoristaExterno.MANUAL, "Pessoa não cadastrada"),
+        ]
+        servidor_externo = cast(forms.ModelChoiceField, self.fields["motorista_externo_servidor"])
+        servidor_externo.queryset = Servidor.objects.filter(ativo=True)
+        servidor_externo.required = False
         cast(forms.ChoiceField, self.fields["tipo_transporte"]).choices = [
             (Oficio.TipoTransporte.VIATURA, "Viatura oficial"),
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
@@ -303,6 +340,15 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             raise forms.ValidationError(
                 f"O protocolo tem 9 dígitos; você informou {len(digitos)}.")
         return digitos
+
+    def clean_motorista_externo_cpf(self):
+        return somente_digitos(self.cleaned_data.get("motorista_externo_cpf"))[:11]
+
+    def clean_motorista_protocolo_origem(self):
+        return somente_digitos(self.cleaned_data.get("motorista_protocolo_origem"))[:9]
+
+    def clean_motorista_oficio_origem(self):
+        return "".join((self.cleaned_data.get("motorista_oficio_origem") or "").split())
 
     def clean_transporte_placa(self):
         placa = normalizar_placa(self.cleaned_data.get("transporte_placa"))

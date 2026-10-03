@@ -8,7 +8,7 @@ pelo nome. "Usos" = número de templates que referenciam (03/10/2026).
 
 | Componente | Faz | Usos | Serve para os próximos módulos |
 |---|---|---:|---|
-| `pc-combobox` | busca com sugestões, primeira já marcada, × de limpar | 8 | servidor, município, viatura, unidade, ofício (Termos/OS/PT) |
+| `pc-combobox` | busca com sugestões, primeira já marcada, × de limpar; remoto com **valor em campo oculto** (`input[type=hidden][data-valor-id]`) | 9 | servidor, município, viatura, unidade, ofício (Termos/OS/PT) |
 | `pc-select` | seleção simples estilizada | 9 | status, tipo, catálogos |
 | `pc-data` (`seletor-data.js`) | data e **período** (`data-periodo`) | 2 | **o PeriodoPicker** de PT, Termos, OS, filtros |
 | `pc-hora` | hora | 2 | trechos, eventos de PT |
