@@ -69,7 +69,7 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
     {% for sec in secoes %}
       <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %} (pronta){% elif sec.bloqueia %} (impede a emissão){% else %} (com aviso){% endif %}</span></a></li>
     {% endfor %}
-    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Conferência<span class="sr-only">{% if prontidao.pode_emitir %} (pronta){% else %} (aguardando as seções){% endif %}</span></a></li>
+    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Documentos<span class="sr-only">{% if prontidao.pode_emitir %} (pronta){% else %} (aguardando os cartões){% endif %}</span></a></li>
   </ol>
   <div class="progresso__medida">
     <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Seções prontas"></progress>
@@ -78,10 +78,20 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
 </nav>
 
 <div class="documento">
-    <!-- 1. Dados -->
-    <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="dados" aria-labelledby="t-dados">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados do ofício</h2>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
+    {% comment %}
+    1. Identificação: quem vai, como vai e quanto custa ficam junto do documento que os
+    declara — dados do ofício, equipe, transporte e diárias. Cada assunto continua sendo um
+    bloco com âncora própria (#dados, #equipe, #transporte, #diarias), que é para onde os
+    links de pendência da conferência apontam.
+    {% endcomment %}
+    <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2></div>
+
+      <div class="secao__bloco" id="dados" aria-labelledby="t-dados">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-dados">{% icone "file-text" classe="icone--sm" %}Dados do ofício</h3>
+          <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+        </div>
       <div class="pilha">
         {# Identidade do documento numa linha: cada campo com a largura do que recebe. #}
         <div class="campos">
@@ -121,15 +131,16 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
           {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="campo--lg condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
         </div>
       </div>
-    </section>
+      </div>
 
-    <!-- 2. Equipe (salva na hora, via HTMX) -->
-    {% include "viagens/oficios/_equipe.html" %}
+      {# Equipe salva na hora, via HTMX. #}
+      {% include "viagens/oficios/_equipe.html" %}
 
-    <!-- 3. Transporte -->
-    <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="transporte" aria-labelledby="t-transporte">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-transporte"><span class="secao__numero">3</span>Transporte</h2>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
+      <div class="secao__bloco" id="transporte" aria-labelledby="t-transporte">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
+          <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+        </div>
       <div class="transporte pilha">
         <div class="campos">
         <fieldset class="opcoes">
@@ -155,12 +166,18 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
           <span>Porte/trânsito de arma<span class="escolha__descricao" id="{{ form.porte_arma.auto_id }}-ajuda">Ligue se os servidores transportarão arma de fogo.</span></span>
         </label>
       </div>
+      </div>
+
+      {# Diárias: só leitura, refeita ao salvar ou ao mudar a equipe. #}
+      <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
+        {% include "viagens/oficios/_diarias.html" with bloco=True %}
+      </div>
     </section>
 
-    <!-- 4. Roteiro: itinerário sede → destinos → sede -->
-    <section class="secao{% if secoes.3.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
+    <!-- 2. Roteiro: itinerário sede → destinos → sede -->
+    <section class="secao{% if secoes.1.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
       <div class="secao__cabecalho">
-        <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">4</span>Roteiro</h2>
+        <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">2</span>Roteiro</h2>
         <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
         <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
       </div>
@@ -194,15 +211,16 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
       {% include "viagens/_itinerario.html" %}
     </section>
 
-    <!-- 5. Diárias (somente leitura, atualizada ao salvar ou ao mudar a equipe) -->
-    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
-      {% include "viagens/oficios/_diarias.html" with numerado=True %}
-    </div>
-
-    <!-- 6. Justificativa: em destaque quando obrigatória; recolhida quando dispensada. -->
-    <section class="secao{% if secoes.5.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
+    {% comment %}
+    3. Justificativa: o cartão só existe quando o prazo a exige. Dentro do prazo ele some —
+    exceto se já houver texto escrito (ou erro no campo), porque a justificativa vai para o
+    documento mesmo dispensada e some-lo esconderia um texto que ninguém mais poderia
+    corrigir. Quem decide é `_mostrar_justificativa` em views.py.
+    {% endcomment %}
+    {% if mostrar_justificativa %}
+    <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
       <div class="secao__cabecalho">
-        <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">6</span>Justificativa de prazo</h2>
+        <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">3</span>Justificativa de prazo</h2>
         <div class="secao__estado">{% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}</div>
       </div>
       {% if prazo.justificativa_obrigatoria %}
@@ -226,10 +244,14 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
         </div>
       {% endif %}
     </section>
+    {% endif %}
 
-    <!-- 7. Conferência: o fim do formulário conclui (o que está pronto, o que falta, o próximo passo). -->
+    {% comment %}
+    4. Documentos: o fim da folha conclui — o que está pronto, o que falta, a minuta e a
+    emissão. É o número 3 quando a justificativa não aparece, para a numeração não pular.
+    {% endcomment %}
     <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">7</span>Conferência</h2></div>
+      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}4{% else %}3{% endif %}</span>Documentos</h2></div>
       <div class="conferencia{% if prontidao.pode_emitir %} conferencia--pronta{% endif %}">
         <p class="conferencia__titulo">{% if prontidao.pode_emitir %}{% icone "stamp" %}Tudo pronto para emitir{% else %}{% icone "list-checks" %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
         <ul class="conferencia__itens" aria-label="Situação das seções">

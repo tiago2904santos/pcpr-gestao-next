@@ -185,22 +185,49 @@ def novo(request: HttpRequest) -> HttpResponse:
 
 
 # ------------------------------------------------------------------ edição
-SECOES_DO_OFICIO = [("dados", "Dados"), ("equipe", "Equipe"), ("transporte", "Transporte"),
-                    ("roteiro", "Roteiro"), ("diarias", "Diárias"),
-                    ("justificativa", "Justificativa")]
+# A folha é lida em quatro cartões (decisão do dono): Identificação reúne os dados
+# administrativos, a equipe, o transporte e as diárias; Roteiro fica com sede, destinos e
+# trechos; Justificativa só existe quando o prazo a exige; Documentos conclui (conferência,
+# minuta e emissão) e não tem pendência própria — vale a prontidão inteira.
+# As pendências continuam nascendo com a chave fina ("dados", "equipe", …): é o que leva o
+# link da conferência ao bloco certo dentro do cartão.
+SECOES_DO_OFICIO = [
+    ("identificacao", "Identificação", ("dados", "equipe", "transporte", "diarias")),
+    ("roteiro", "Roteiro", ("roteiro",)),
+    ("justificativa", "Justificativa", ("justificativa",)),
+]
+
+
+def _mostrar_justificativa(oficio, prazo, form) -> bool:
+    """O cartão da justificativa só aparece quando o prazo a torna obrigatória.
+
+    Exceção: texto já escrito (ou erro no campo) mantém o cartão à vista. A justificativa
+    vai para o documento mesmo quando dispensada (`documentos/dados.py`), então esconder o
+    cartão deixaria no ofício um texto que ninguém mais consegue ler, corrigir ou apagar.
+    """
+    if prazo.justificativa_obrigatoria:
+        return True
+    if oficio.justificativa.strip() or oficio.justificativa_modelo_id:
+        return True
+    return bool(form is not None
+                and (form.errors.get("justificativa") or form.errors.get("justificativa_modelo")))
 
 
 def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
     if itin is None:
         itin = itinerario.montar(FORM_ID, sede=oficio.sede, trechos=trechos_de(oficio))
     prontidao = services.verificar_prontidao(oficio)
+    prazo = services.avaliar_prazo_do_oficio(oficio)
+    mostrar_justificativa = _mostrar_justificativa(oficio, prazo, form)
     secoes = []
-    for chave, rotulo in SECOES_DO_OFICIO:
-        pendencias = prontidao.da_secao(chave)
+    for chave, rotulo, origens in SECOES_DO_OFICIO:
+        if chave == "justificativa" and not mostrar_justificativa:
+            continue
+        pendencias = [p for origem in origens for p in prontidao.da_secao(origem)]
         bloqueia = any(p.bloqueia for p in pendencias)
         # Aviso (ex.: servidor em outro ofício no mesmo período) não deixa a seção pendente:
         # a conferência diria "tudo pronto" enquanto a faixa marca a seção em aberto.
-        ok = not bloqueia and (chave != "diarias" or bool(oficio.diarias_resumo))
+        ok = not bloqueia and ("diarias" not in origens or bool(oficio.diarias_resumo))
         secoes.append({"chave": chave, "rotulo": rotulo, "ok": ok, "bloqueia": bloqueia})
     return {
         "oficio": oficio,
@@ -213,7 +240,8 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
         "erro_roteiro": erro_roteiro,
         "viajantes": viajantes_de(oficio),
         "prontidao": prontidao,
-        "prazo": services.avaliar_prazo_do_oficio(oficio),
+        "prazo": prazo,
+        "mostrar_justificativa": mostrar_justificativa,
         "assunto": services.assunto_do_oficio(oficio),
         "calculo": oficio.diarias_calculo,
         "faixas": {f.value: f.rotulo for f in Faixa},
@@ -388,7 +416,8 @@ def definir_motorista(request: HttpRequest, pk: int) -> HttpResponse:
 def secao_diarias(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     return render(request, "viagens/oficios/_diarias.html", {
-        "oficio": oficio, "calculo": oficio.diarias_calculo, "numerado": True,
+        # Bloco dentro do cartão Identificação (a folha do ofício não numera mais assuntos).
+        "oficio": oficio, "calculo": oficio.diarias_calculo, "bloco": True,
         "faixas": {f.value: f.rotulo for f in Faixa}})
 
 

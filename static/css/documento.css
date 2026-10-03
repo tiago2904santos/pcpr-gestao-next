@@ -101,6 +101,45 @@
   color: var(--cor-marca-texto);
 }
 
+/* Bloco dentro do cartão: Identificação reúne dados, equipe, transporte e diárias. Cada
+   bloco guarda o próprio título e a própria âncora, para o link da conferência continuar
+   caindo no lugar certo.
+   O fio vem em todo bloco e sai do primeiro: as diárias moram dentro do invólucro que o
+   HTMX troca, então não são irmãs diretas do transporte e um seletor de adjacência
+   (`+`) deixaria justamente esse fio de fora. */
+.secao__bloco {
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-borda-sutil);
+}
+
+.secao__cabecalho + .secao__bloco {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.secao__bloco-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+}
+
+.secao__bloco-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+}
+
+.secao__bloco-titulo .icone {
+  color: var(--cor-marca-texto);
+}
+
 .secao__numero {
   display: inline-grid;
   place-items: center;

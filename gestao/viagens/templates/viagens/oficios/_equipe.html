@@ -1,9 +1,9 @@
 {% load viagens %}
 {% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
 {% with pendencias_equipe=prontidao|pendencias_da_secao:"equipe" %}
-<section class="secao{% if not pendencias_equipe %} secao--ok{% endif %}" id="equipe" aria-labelledby="t-equipe">
-  <div class="secao__cabecalho">
-    <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">2</span>Equipe</h2>
+<div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
+  <div class="secao__bloco-cabecalho">
+    <h3 class="secao__bloco-titulo" id="t-equipe">{% icone "users" classe="icone--sm" %}Equipe</h3>
     <div class="secao__estado">
       <span class="selo{% if viajantes %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}">{{ viajantes|length|pluralizar:"servidor,servidores" }}</span>
       <span class="texto-terciario texto-xs">salva na hora</span>
@@ -55,5 +55,5 @@
       </div></div>
     {% endif %}{% endwith %}
   </div>
-</section>
+</div>
 {% endwith %}
