@@ -73,6 +73,8 @@ def test_toast_dialogo_e_gaveta(logado):
 def test_combobox_local_por_teclado(logado):
     pg = logado
     pg.goto("/ui-lab/")
+    # O componente monta sob demanda: espera o <select> original sair da árvore acessível.
+    expect(pg.locator("#lab-municipio")).to_have_attribute("aria-hidden", "true")
     campo = pg.get_by_role("combobox", name="Município (lista local)")
     campo.fill("londr")
     # A primeira sugestão já vem pronta: quem digita só dá Enter.

@@ -22,15 +22,10 @@ function nomeDoCampo(entrada) {
     .trim();
 }
 
-/** Rola a janela até o elemento caber acima da barra de ações fixa. @param {HTMLElement} el */
-export function abrirEspaco(el) {
-  // A barra flutua acima da borda da janela: o limite é o topo dela, não a altura.
-  const barra = document.querySelector(".barra-acoes")?.getBoundingClientRect();
-  const limite = (barra && barra.height ? barra.top : window.innerHeight) - 8;
-  // offsetHeight ignora a animação de entrada (scale), que encolhe o retângulo medido.
-  const sobra = el.getBoundingClientRect().top + el.offsetHeight + 4 - limite;
-  if (sobra > 0) window.scrollBy({ top: sobra, behavior: "instant" });
-}
+// Rolar para caber acima da barra flutuante: a mesma regra dos menus de ação (menu.js).
+import { abrirEspaco } from "./menu.js";
+
+export { abrirEspaco };
 
 export class SeletorFlutuante extends HTMLElement {
   /** Classe do painel e textos — definidos pelas subclasses. */

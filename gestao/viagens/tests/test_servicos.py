@@ -227,3 +227,19 @@ def test_busca_aceita_formatos_de_numero(cenario, formato):
     oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
     termo = formato.format(n=oficio.numero, a=oficio.ano)
     assert oficio in services.buscar_por_texto(Oficio.objects.all(), termo)
+
+
+class TestOrigemDoProtocolo:
+    """Paridade com a referência: o número digitado é MANUAL (vale como oficial); apagar o
+    número apaga a origem. Simulado/treinamento só virão da integração (fase E4)."""
+
+    def test_digitar_marca_manual_e_apagar_limpa(self):
+        c = cenario_completo()
+        u = c.usuarios["operador"]
+        oficio = services.criar_rascunho(u)
+        assert oficio.protocolo_origem == ""
+        oficio = services.salvar_dados(oficio, u, {"protocolo": "123456789"},
+                                       versao=oficio.versao)
+        assert oficio.protocolo_origem == Oficio.OrigemProtocolo.MANUAL
+        oficio = services.salvar_dados(oficio, u, {"protocolo": ""}, versao=oficio.versao)
+        assert oficio.protocolo_origem == ""

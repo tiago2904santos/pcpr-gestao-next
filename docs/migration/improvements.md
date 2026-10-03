@@ -5,9 +5,16 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Abertas
 
-- `[GLOBAL][COMPONENTE][ALTA]` **Catálogo de textos prontos reutilizável** (seletor acima do
-  campo + "guardar como modelo" + tela de manutenção com ordem/ativo/padrão). Motivo e
-  justificativa do ofício primeiro; depois RT, despacho, resposta padrão da ASCOM.
+- `[GLOBAL][PERFORMANCE][ALTA]` **Orçamentos de peso estourados** (medidos em 03/10/2026 por
+  `tests/e2e/test_desempenho.py`, dívida acumulada de rodadas anteriores; esta rodada somou
+  ~5 KB de JS e ~2 KB de CSS):
+  folha do ofício CSS 165,9/140 KB (gzip 43,5/30), JS 195,1/130 KB (gzip 65,4/45),
+  **43/25 requisições**; folha do roteiro CSS 142,9, JS 142,7, 27 requisições; lista de
+  ofícios CSS 148,7 (gzip 36,9); painel CSS gzip 33,0. Caminhos: (1) dividir
+  `components.css` por uso real (o teste `test_css_por_pagina` já mapeia classe→pacote);
+  (2) carregar `editor-documento.js` só ao abrir o editor; (3) reduzir módulos pequenos
+  pré-carregados na folha; (4) avaliar minificação no `collectstatic` (ADR, pois ADR 0002 é
+  sem bundler). TTFB/FCP/LCP/CLS/INP e SQL estão dentro do orçamento.
 - `[GLOBAL][COMPONENTE][ALTA]` **Janela de resumo genérica** extraída do ofício para Termos,
   OS, PT e roteiros (cabeçalho com placa/chips, grade de cartões equilibrada, rodapé de ações).
 - `[GLOBAL][COMPONENTE][ALTA]` **CRUD de cadastro em janela** (lista + janela novo/editar +
@@ -31,6 +38,14 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Feitas
 
+- ✅ Catálogo de textos prontos reutilizável (componente + tela + serviço único, inclusive para o
+  editor de documento) (03/10/2026).
+- ✅ Abertura de janela pelo servidor promovida a `dialogo.js` (global) (03/10/2026).
+- ✅ Rodapé fixo na janela de resumo (03/10/2026).
+- ✅ Conflito falso entre autosave e "Salvar" (beacon de saída) corrigido (03/10/2026).
+- ✅ Menus de ação não abrem mais sob a barra flutuante (todas as listas) (03/10/2026).
+- ✅ Alvo mínimo de toque em px (`--alvo-minimo`) contra a escala de 90% (03/10/2026).
+- ✅ Dívida de tipos (mypy) em `views_roteiros`/`itinerario`/`forms` zerada (03/10/2026).
 - ✅ Botão × de limpar unificado (`limpar.js`) para todos os campos (out/2026).
 - ✅ Escala 90% sem estreitar o shell (out/2026).
 - ✅ Autosave do ofício com atualização ao vivo do editor de documento (03/10/2026).

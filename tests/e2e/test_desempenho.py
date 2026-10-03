@@ -32,8 +32,9 @@ ORCAMENTO = {
 
 ITINERARIO = re.compile(r"/vendor/leaflet/|/itinerario\.(css|js)|/api/rota/")
 
+# A leitura de um ofício é a janela de resumo na lista (não há página de detalhe).
 ROTAS = ["/", "/viagens/", "/viagens/oficios/",
-         "/viagens/oficios/{oficio_emitido}/", "/viagens/oficios/{oficio_rascunho}/editar/",
+         "/viagens/oficios/?resumo={oficio_emitido}", "/viagens/oficios/{oficio_rascunho}/editar/",
          "/viagens/roteiros/{roteiro}/editar/"]
 
 OBSERVADORES = """() => {
@@ -63,7 +64,8 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     # Interação real para INP: abre e fecha o menu do usuário; na lista, expande um registro.
     pg.click(".perfil")
     pg.keyboard.press("Escape")
-    if pg.locator(".registro__link").count():
+    janela = pg.locator("#dialogo-resumo")
+    if janela.count() and not janela.evaluate("d => d.open") and pg.locator(".registro__link").count():
         pg.locator(".registro__link").first.click()
         pg.wait_for_selector("#dialogo-resumo[open] .resumo")
     pg.wait_for_timeout(200)

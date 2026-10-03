@@ -35,6 +35,7 @@ bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.
 | Ver tabela de diárias | ✓ | ✓ | — | — |
 | Editar o texto dos documentos do rascunho (`change_oficio`, ADR 0018) | ✓ | ✓ | — | — |
 | Guardar/remover textos prontos (`add_modelotexto`, `change_modelotexto`) | ✓ | ✓ | — | — |
+| Excluir texto pronto de vez (`delete_modelotexto`; nunca os do sistema) | — | ✓ | — | — |
 | Criar/alterar tabela de diárias | — | ✓ | — | — |
 | Ver modelos de texto | ✓ | ✓ | — | — |
 | Usuários (ver/criar/alterar) | — | — | — | ✓ |

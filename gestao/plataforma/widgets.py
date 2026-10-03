@@ -102,3 +102,19 @@ class Selecao(forms.Select):
         final = {**(attrs or {})}
         final["class"] = final.get("class") or "selecao"
         super().__init__(attrs=final, choices=choices)
+
+
+class SelecaoDeTexto(Selecao):
+    """Escolha de "texto pronto": cada opção leva o próprio texto em `data-texto`, para o
+    componente `texto-pronto.js` preencher o campo ao escolher (sem ida ao servidor).
+
+    Serve a qualquer modelo com atributo `texto` (motivo, justificativa, RT, despacho…).
+    """
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        opcao = super().create_option(name, value, label, selected, index, subindex, attrs)
+        instancia = getattr(value, "instance", None)
+        texto = getattr(instancia, "texto", None)
+        if texto:
+            opcao["attrs"]["data-texto"] = texto
+        return opcao

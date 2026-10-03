@@ -1,0 +1,33 @@
+{% comment %}
+Janela "Guardar como texto pronto" (uma por página; texto-pronto.js preenche o tipo e o
+texto do campo que pediu). Grava em cadastros:salvar_texto e devolve o texto criado, que
+entra na escolha já selecionado — sem recarregar a página.
+{% endcomment %}
+<dialog id="dialogo-guardar-texto" class="dialogo" aria-labelledby="dialogo-guardar-texto-titulo">
+  <form method="post" action="{% url 'cadastros:salvar_texto' %}" data-guardar-texto-form novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="tipo" value="">
+    <input type="hidden" name="ordem" value="100">
+    <input type="hidden" name="texto" value="">
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-guardar-texto-titulo">Guardar como texto pronto</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <p class="texto-secundario">O texto do campo fica disponível na escolha “Texto pronto” para toda a equipe.</p>
+      <div class="campo">
+        <label class="campo__rotulo" for="guardar-texto-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <input class="entrada" id="guardar-texto-nome" name="nome" maxlength="120" required autocomplete="off" aria-describedby="guardar-texto-ajuda guardar-texto-erro">
+        <p class="campo__ajuda" id="guardar-texto-ajuda">Curto, para achar na lista. Ex.: “Apoio da Unidade Móvel”.</p>
+        <p class="campo__erro" id="guardar-texto-erro" hidden></p>
+      </div>
+      <details class="divulgacao">
+        <summary>{% icone "eye" classe="icone--sm" %}Ver o texto que será guardado</summary>
+        <p class="divulgacao__corpo quebra-palavras" data-guardar-texto-previa></p>
+      </details>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "bookmark-plus" %}Guardar</button>
+    </div>
+  </form>
+</dialog>

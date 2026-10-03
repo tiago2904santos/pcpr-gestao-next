@@ -44,7 +44,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
     expect(pg.locator("#equipe")).to_contain_text("Isabela Prado Cavalcanti")
     pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
-    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
+    motorista = pg.get_by_role("button", name="Desmarcar Isabela Prado Cavalcanti como motorista")
+    expect(motorista).to_have_attribute("aria-pressed", "true")
 
     # Protocolo (obrigatório para emitir — D1), transporte e roteiro (formulário principal).
     pg.get_by_label("Protocolo", exact=False).fill("123456789")
@@ -60,31 +61,32 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     pg.get_by_role("button", name="Salvar rascunho").click()
 
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
-    expect(pg.locator("#equipe .selo--forte")).to_contain_text("Motorista")
+    expect(motorista).to_have_attribute("aria-pressed", "true")
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
     # Dentro do prazo a justificativa é dispensada — e o cartão nem chega a existir.
     expect(pg.locator("#justificativa")).to_have_count(0)
 
-    pg.get_by_role("button", name="Revisar e emitir").click()
-    expect(pg.get_by_role("heading", level=1)).to_have_text("Revisar e emitir")
-    pg.get_by_role("button", name="Emitir ofício").click()
-    dialogo = pg.get_by_role("dialog", name="Emitir ofício?")
-    expect(dialogo).to_be_visible()
-    dialogo.get_by_role("button", name="Emitir").click()
+    # A revisão é a janela de resumo aberta sobre a folha (não há mais página própria).
+    pg.locator(".barra-acoes").get_by_role("button", name="Revisar e emitir").click()
+    revisao = pg.get_by_role("dialog", name="Revisar e emitir o ofício")
+    expect(revisao).to_be_visible()
+    expect(revisao).to_contain_text("R$ 624,68")
+    # A janela já é a confirmação: um clique emite.
+    revisao.get_by_role("button", name="Emitir ofício").click()
 
     expect(pg.locator(".toast")).to_contain_text(f"Ofício {numero} emitido")
-    expect(pg.locator(".pagina-cabecalho .processo__passo--atual")).to_have_text("Emitido")
-    expect(pg.locator("#documentos-lista")).to_contain_text("Gerando")
+    expect(pg).to_have_url(re.compile(r"/viagens/oficios/\?q="))
 
     while outbox.processar_lote():
         pass
-    # A lista se atualiza sozinha (HTMX a cada 2s) quando o PDF fica pronto.
-    expect(pg.locator("#documentos-lista")).to_contain_text("PDF/A pronto", timeout=8000)
     n, ano = numero.split("/")
     oficio = Oficio.objects.get(numero=int(n), ano=int(ano))
     assert oficio.documentos.get(tipo=Documento.Tipo.OFICIO).situacao == "pronto"
+    # A leitura do emitido é a janela de resumo, com o PDF para abrir.
+    pg.goto(f"/viagens/oficios/?q={numero}&resumo={oficio.pk}")
+    expect(pg.get_by_role("dialog", name="Resumo do ofício")).to_contain_text("Ver o PDF")
     assert pg.erros_console == []
 
 
@@ -98,9 +100,9 @@ def test_emissao_bloqueada_sem_justificativa_mostra_o_motivo(logado, dados_e2e):
     expect(pg.locator(".toast")).to_contain_text("pendência")
     expect(pg).to_have_url(re.compile(r"/editar/#emissao$"))
     expect(pg.locator("#emissao .checklist")).to_contain_text("Justificativa obrigatória")
-    # Mesmo pela URL direta, a revisão não deixa emitir.
-    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/emitir/")
-    expect(pg.get_by_role("button", name="Emitir ofício")).to_be_disabled()
+    # Mesmo pedindo a revisão pelo endereço, a janela de emitir não abre com pendências.
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/?revisar=1")
+    expect(pg.locator("#dialogo-resumo")).to_have_count(0)
 
 
 def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
@@ -281,7 +283,7 @@ def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e
     expect(janela).to_be_visible()
     expect(janela.locator(".resumo")).to_contain_text("Roteiro")
     expect(janela.locator(".resumo")).to_contain_text("Equipe")
-    expect(janela.get_by_role("link", name="Ver o ofício inteiro")).to_be_visible()
+    expect(janela.locator(".dialogo__rodape")).to_contain_text("Minuta")
     pg.keyboard.press("Escape")
     expect(janela).to_be_hidden()
     assert pg.url.endswith("/viagens/oficios/")  # a lista continua onde estava
@@ -304,10 +306,6 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     pg.goto("/viagens/oficios/")
     expect(pg.locator(".registros__grupo").first).to_be_visible()
     assert pg.locator(".registro .placa[data-vt]").count() == pg.locator(".registro").count()
-    # a placa da lista e a placa do detalhe compartilham o nome (continuidade espacial)
-    nome = pg.locator(".registro .placa").first.get_attribute("data-vt")
-    pg.locator(".registro__link").first.click()
-    expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
 
 
 def _escolher(pg, campo: str, rotulo: str, opcao: str) -> None:
@@ -349,8 +347,6 @@ def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2
     expect(pg.locator("#emissao #conferencia .alerta__titulo")).to_contain_text("para emitir")
     pendencias = pg.locator("#emissao .checklist a")
     expect(pendencias.first).to_have_attribute("href", re.compile(r"^#(dados|equipe|transporte|roteiro|diarias|justificativa)$"))
-    # A minuta está sempre entre os documentos: a linha nunca fica vazia.
-    expect(pg.locator("#documentos .resumo__documento").first).to_contain_text("Minuta")
 
 
 def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):
@@ -364,17 +360,6 @@ def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):
     titulo.click()
     assert pg.evaluate("scrollY") == antes
     expect(pg.locator("main#conteudo")).not_to_have_attribute("tabindex", "-1")
-
-
-def test_faixa_de_progresso_fica_fixa_e_marca_a_secao_atual(logado, dados_e2e):
-    pg = logado
-    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
-    faixa = pg.locator(".progresso--fixo")
-    pg.locator("#roteiro").scroll_into_view_if_needed()
-    pg.mouse.wheel(0, 200)
-    expect(faixa).to_be_in_viewport()
-    expect(faixa).to_have_class(re.compile("progresso--flutuando"))
-    expect(faixa.locator("[aria-current='location']")).to_have_count(1)
 
 
 def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
@@ -497,7 +482,7 @@ def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
     busca.fill("isab")
     pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
-    expect(pg.locator("#equipe .cracha")).to_contain_text("Isabela Prado Cavalcanti")
+    expect(pg.locator("#equipe .equipe__cartao")).to_contain_text("Isabela Prado Cavalcanti")
     # Sugestões com chips: Isabela dirige a Master; a Duster é da unidade dela (DPC).
     pg.locator("#id_viatura-busca").click()
     opcoes = pg.locator("#transporte [role='option']")
@@ -509,7 +494,8 @@ def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
     pg.keyboard.press("Escape")
     # Marcar como motorista escolhe a viatura dela e avisa.
     pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
-    expect(pg.locator("#equipe .cracha--motorista")).to_contain_text("Isabela")
+    expect(pg.get_by_role("button", name="Desmarcar Isabela Prado Cavalcanti como motorista")
+           ).to_have_attribute("aria-pressed", "true")
     expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
     expect(pg.locator(".toast").last).to_contain_text("Isabela costuma dirigi-la")
     pg.get_by_role("button", name="Salvar rascunho").click()

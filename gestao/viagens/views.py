@@ -284,7 +284,9 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                                    "editado; abra o resumo na lista para conferir.")
         return redirect(_na_lista(oficio))
     if request.method != "POST":
-        return render(request, "viagens/oficios/editar.html", _contexto_edicao(request, oficio))
+        contexto = _contexto_edicao(request, oficio)
+        contexto.update(_revisao_pedida(request, oficio, contexto))
+        return render(request, "viagens/oficios/editar.html", contexto)
 
     form = FormularioOficio(request.POST, instance=oficio)
     acao = request.POST.get("acao")
@@ -319,9 +321,11 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                 bloqueantes = services.verificar_prontidao(oficio).bloqueantes
                 if bloqueantes:
                     messages.warning(request, f"Rascunho salvo, mas ainda há {len(bloqueantes)} "
-                                              "pendência(s) para emitir. Veja a seção 7.")
+                                              "pendência(s) para emitir. Veja o que falta "
+                                              "logo abaixo.")
                     return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
-                return redirect("viagens:revisar_emissao", pk=oficio.pk)
+                # A revisão é a janela de resumo aberta sobre a própria folha.
+                return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?revisar=1")
             # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
             # não de um toast: o operador salva dezenas de vezes por dia.
             return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")
@@ -442,19 +446,24 @@ def secao_diarias(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 # ------------------------------------------------------------------ emissão
-def revisar_emissao(request: HttpRequest, pk: int) -> HttpResponse:
-    oficio = _oficio_visivel(request, pk)
-    policies.exigir(policies.pode_emitir(request.user, oficio),
-                    "Este ofício não pode ser emitido por você agora.")
-    services.recalcular_diarias(oficio)
-    prontidao = services.verificar_prontidao(oficio)
-    return render(request, "viagens/oficios/revisar_emissao.html", {
-        "oficio": oficio, "prontidao": prontidao, "dados": dados_do_oficio(oficio),
-        "prazo": services.avaliar_prazo_do_oficio(oficio),
-        "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
-                              (oficio.numero_formatado, _na_lista(oficio)),
-                              ("Emitir", "")),
-    })
+def _revisao_pedida(request: HttpRequest, oficio, folha: dict) -> dict:
+    """"Revisar e emitir": a janela de resumo, em modo revisão, aberta sobre a folha.
+
+    Só abre quando quem pede pode emitir e o ofício não tem pendência — senão a folha já
+    mostra o que falta, e uma janela com o botão desligado só atrapalharia. Reaproveita o
+    que a folha já carregou (equipe, trechos, prontidão, prazo): a janela não consulta de novo.
+    """
+    if request.GET.get("revisar") != "1" or not folha["prontidao"].pode_emitir:
+        return {}
+    if not policies.pode_emitir(request.user, oficio):
+        return {}
+    return {"abrir_resumo": oficio.pk, "resumo": {
+        "revisao": True, "oficio": oficio, "dados": dados_do_oficio(oficio),
+        "pode_emitir": True, "assunto": folha["assunto"], "prazo": folha["prazo"],
+        "calculo": oficio.diarias_calculo, "viajantes": folha["viajantes"],
+        "trechos": folha["trechos"], "documentos": list(oficio.documentos.all()),
+        "prontidao": folha["prontidao"],
+    }}
 
 
 @require_POST
@@ -464,7 +473,9 @@ def emitir(request: HttpRequest, pk: int) -> HttpResponse:
         services.emitir(oficio, request.user, versao=int(request.POST.get("versao") or 0) or None)
     except services.RegraViolada as exc:
         messages.error(request, str(exc))
-        return redirect("viagens:revisar_emissao", pk=pk)
+        if oficio.editavel:
+            return redirect(f"{reverse('viagens:editar', args=[pk])}#emissao")
+        return redirect(_na_lista(oficio))
     messages.success(request, f"Ofício {oficio.numero_formatado} emitido. O PDF está sendo "
                               "gerado e aparece em Documentos em instantes.")
     return redirect(_na_lista(oficio))
@@ -553,9 +564,15 @@ def excluir(request: HttpRequest, pk: int) -> HttpResponse:
     numero = services.excluir_rascunho(oficio, request.user)
     messages.success(request, f"Rascunho {numero} excluído; o número volta a ficar disponível.")
     return redirect("viagens:oficios")
-def _contexto_resumo(request: HttpRequest, oficio) -> dict:
-    """O que a janela de resumo mostra — serve ao fragmento HTMX e à janela já desenhada."""
-    return {
+def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> dict:
+    """O que a janela de resumo mostra — serve ao fragmento HTMX e à janela já desenhada.
+
+    Em `revisao` (antes de emitir) ela também mostra o que vai no papel e não está na
+    folha — destinatário e quem assina — e troca o rodapé pelo botão de emitir.
+    """
+    extras = {"revisao": True, "dados": dados_do_oficio(oficio),
+              "pode_emitir": policies.pode_emitir(request.user, oficio)} if revisao else {}
+    return {**extras,
         "oficio": oficio,
         "assunto": services.assunto_do_oficio(oficio),
         "prazo": services.avaliar_prazo_do_oficio(oficio),

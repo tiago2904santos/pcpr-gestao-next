@@ -19,8 +19,8 @@ Situação: **EM ANDAMENTO** (módulo 1 do [roadmap](roadmap.md)). Matriz detalh
 | `retificado_documento` / `complementar_documento` | `marcador` (Nenhum/Retificado/Complementar) | MELHORADO (um campo, regra no domínio) |
 | `assinante` | `ConfiguracaoInstitucional.chefia_*` | DIFERENÇA INTENCIONAL — assinante por unidade, sem substituições ainda |
 | `ConfiguracaoNumeracaoOficio` + `OficioNumeroLacuna` | `NumeracaoAnual` + `LacunaNumeracao` | IGUAL (algoritmo, D5); **tela do piso ausente** |
-| `ModeloMotivoOficio` (nome, texto, ordem, ativo, padrão único) | `ModeloTexto(tipo=motivo)` (nome, texto, ativo, padrao_sistema) | **PENDENTE**: sem tela, sem ordem, sem "padrão" único |
-| `ModeloJustificativa` | `ModeloTexto(tipo=justificativa)` | idem |
+| `ModeloMotivoOficio` (nome, texto, ordem, ativo, padrão único) | `ModeloTexto(tipo=motivo)` (nome, texto, ordem, ativo, padrão único por tipo no banco, padrao_sistema) | **IGUAL** (03/10/2026) — `test_textos_prontos.py::TestServico` |
+| `ModeloJustificativa` | `ModeloTexto(tipo=justificativa)` | **IGUAL** |
 | `Justificativa` (1:1, status, snapshots da regra) | campos no `Oficio` + documento `justificativa` | DIFERENÇA INTENCIONAL (sem entidade própria); lista de justificativas: **PENDENTE** |
 | status `RASCUNHO/GERADO/FINALIZADO/ARQUIVADO` + `cancelado` ortogonal | `rascunho/emitido/cancelado` | DIFERENÇA INTENCIONAL; arquivar/reativar **PENDENTE** |
 
@@ -32,11 +32,11 @@ Situação: **EM ANDAMENTO** (módulo 1 do [roadmap](roadmap.md)). Matriz detalh
 | Cartão da lista com equipe, placa, trechos, valor, justificativa | cartão rico | linha compacta + **janela de resumo** com tudo isso (ADR 0017) | DIFERENÇA INTENCIONAL (pedido do usuário) |
 | Exportar (CSV) | `exportar/` | — | **PENDENTE** |
 | Novo (POST cria rascunho numerado) | sim | sim | IGUAL |
-| Editor: identidade, motivo (com modelo), custeio, equipe, termo por viajante, transporte, motorista externo, porte de arma, roteiro, prazo/justificativa, diárias | wizard de 6 páginas com autosave | uma folha em seções com autosave, roteiro cadastrado aplicável, prévia de diárias | MELHORADO; motorista externo e termo por viajante PENDENTES |
-| Conferência/resumo antes de emitir | etapa 5 | página "Revisar e emitir" → **a substituir pela janela de resumo** (pedido do usuário) | EM CURSO |
+| Editor: identidade, motivo (com modelo; ofício novo nasce com o padrão), custeio, equipe, termo por viajante, transporte, motorista externo, porte de arma, roteiro, prazo/justificativa, diárias | wizard de 6 páginas com autosave | uma folha em seções com autosave, roteiro cadastrado aplicável, prévia de diárias | MELHORADO; motorista externo e termo por viajante PENDENTES |
+| Conferência/resumo antes de emitir | etapa 5 | janela de resumo em modo revisão sobre a folha (`?revisar=1`), com destinatário, quem assina, justificativa e Emitir | **MELHORADO** — `test_views.py::test_revisar_e_emitir_pronto_vai_para_revisao`, e2e `test_operador_cria_preenche_e_emite_um_oficio` |
 | Ações: reabrir, cancelar, reativar, arquivar, retificar, complementar, excluir | sim | reabrir, cancelar, retificar (vira retificado ao editar emitido), excluir | reativar/arquivar/complementar PENDENTES |
 | Documentos: ofício, justificativa (visualizar, PDF, DOCX) | DOCX + PDF | PDF/A-2a versionado, minuta, visualizador em nova aba, editor de documento | MELHORADO; DOCX: DIFERENÇA INTENCIONAL (ADR 0008) — confirmar com o usuário |
-| Catálogos de motivo e de justificativa (CRUD, padrão, ordem, ativo) | sim | — | **PENDENTE** (próximo item) |
+| Catálogos de motivo e de justificativa (CRUD, padrão, ordem, ativo) | sim | `/cadastros/textos-prontos/` (abas por tipo, busca, janela novo/editar, usar como padrão, desativar/reativar, excluir só gestor e nunca o do sistema) + seletor "Texto pronto" na folha que preenche o campo (confirma antes de substituir) + "Guardar como texto pronto" | **IGUAL + MELHORADO** — `test_textos_prontos.py` |
 | Numeração (piso anual) | tela do gestor | — | **PENDENTE** |
 | Configuração institucional | tela | — (seed) | **PENDENTE** (pode ir com Cadastros) |
 | Justificativas (lista própria) | sim | — | PENDENTE — avaliar se a aba/filtro "justificativa pendente" na lista de ofícios resolve (D-OF-6) |

@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     "gestao.viagens",
     "gestao.painel",
     "gestao.ui_lab",
+    # Integrações externas (ADR 0019)
+    "gestao.integracoes",
 ]
 
 MIDDLEWARE = [
@@ -245,6 +247,26 @@ DOMINIO_EMAIL_INSTITUCIONAL = env("DOMINIO_EMAIL_INSTITUCIONAL", "pc.pr.gov.br")
 # Tentativas de login: bloqueio progressivo por e-mail+IP.
 LOGIN_MAX_TENTATIVAS = 5
 LOGIN_JANELA_SEGUNDOS = 15 * 60
+
+# eProtocolo/PR (docs/integrations/eprotocolo.md). Sem credenciais = modo simulado; a trava
+# de somente leitura fica ligada até ser desligada explicitamente.
+EPROTOCOLO = {
+    "ambiente": env("EPROTOCOLO_AMBIENTE", "simulado"),
+    "base_url": env("EPROTOCOLO_BASE_URL"),
+    "token_url": env("EPROTOCOLO_TOKEN_URL"),
+    "client_id": env("EPROTOCOLO_CLIENT_ID"),
+    "client_secret": env("EPROTOCOLO_CLIENT_SECRET"),
+    "consumer_id": env("EPROTOCOLO_CONSUMER_ID"),
+    "escopos": env("EPROTOCOLO_ESCOPOS", "spiserv.protocolos.consultar"),
+    "timeout": env("EPROTOCOLO_TIMEOUT", "15"),
+    # Fica ligada a menos que alguém escreva "false" (ou 0/no/nao): variável vazia não desliga.
+    "somente_leitura": os.environ.get("EPROTOCOLO_SOMENTE_LEITURA", "").strip().lower()
+    not in {"false", "0", "no", "nao", "não"},
+    "cod_orgao": env("EPROTOCOLO_COD_ORGAO"),
+    "cod_local_origem": env("EPROTOCOLO_COD_LOCAL_ORIGEM"),
+    "cod_assunto_viagem": env("EPROTOCOLO_COD_ASSUNTO_VIAGEM"),
+    "cod_especie_oficio": env("EPROTOCOLO_COD_ESPECIE_OFICIO"),
+}
 
 # Orçamento de consultas SQL por requisição (alerta em DEV/LAB e falha em teste).
 ORCAMENTO_SQL_POR_REQUISICAO = 25

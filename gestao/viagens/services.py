@@ -16,6 +16,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.utils import timezone
 
+from gestao.cadastros import textos
 from gestao.cadastros.models import ConfiguracaoInstitucional, ModeloTexto, Municipio, Servidor
 from gestao.cadastros.validacoes import somente_digitos
 from gestao.plataforma import outbox
@@ -103,9 +104,13 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
         raise RegraViolada("Seu usuário não está lotado em nenhuma unidade.")
     config = configuracao_da_unidade(unidade)
     data_oficio = data_oficio or timezone.localdate()
+    # O motivo nasce com o texto padrão do catálogo, como na referência ("padrão sugerido
+    # no novo"); a pessoa ajusta na folha.
+    motivo_padrao = textos.padrao(ModeloTexto.Tipo.MOTIVO)
     oficio = Oficio.objects.create(
         unidade=unidade, ano=data_oficio.year, numero=reservar_numero(data_oficio.year),
         data_oficio=data_oficio, sede=config.sede, criado_por=usuario,
+        motivo=motivo_padrao.texto if motivo_padrao else "",
     )
     _registrar(oficio, Historico.Acao.CRIADO,
                f"Rascunho criado com o número {oficio.numero_formatado}.", usuario)
@@ -169,6 +174,9 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
         if campo in dados and getattr(atual, campo) != dados[campo]:
             setattr(atual, campo, dados[campo])
             alterados.append(campo)
+    if "protocolo" in alterados:
+        # Quem digita o número assume a origem (apaga marca de simulado/treinamento).
+        atual.protocolo_origem = Oficio.OrigemProtocolo.MANUAL if atual.protocolo else ""
     if atual.tipo_transporte == Oficio.TipoTransporte.VIATURA:
         atual.transporte_descricao = atual.transporte_placa = ""
         atual.transporte_combustivel = None
@@ -361,6 +369,11 @@ class Prontidao:
     @property
     def bloqueantes(self) -> list[Pendencia]:
         return [p for p in self.pendencias if p.bloqueia]
+
+    @property
+    def avisos(self) -> list[Pendencia]:
+        """O que não impede a emissão mas merece ser visto antes (ex.: conflito de agenda)."""
+        return [p for p in self.pendencias if not p.bloqueia]
 
     @property
     def pode_emitir(self) -> bool:
@@ -601,7 +614,11 @@ def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *
         return atual
     setattr(atual, campo.atributo, novo)
     atual.versao += 1
-    atual.save(update_fields=[campo.atributo, "versao", "atualizado_em"])
+    gravar = [campo.atributo, "versao", "atualizado_em"]
+    if campo.atributo == "protocolo":  # digitado no documento também é manual
+        atual.protocolo_origem = Oficio.OrigemProtocolo.MANUAL if novo else ""
+        gravar.append("protocolo_origem")
+    atual.save(update_fields=gravar)
     _registrar(atual, Historico.Acao.ALTERADO, f"{campo.rotulo} alterado pelo texto do documento.",
                usuario, campos=[campo.atributo])
     return atual
@@ -609,34 +626,29 @@ def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *
 
 def textos_prontos(tipo: str) -> list[ModeloTexto]:
     tipos = TEXTOS_PRONTOS_POR_DOCUMENTO.get(tipo, [])
-    return list(ModeloTexto.objects.filter(ativo=True, tipo__in=tipos).order_by("tipo", "nome"))
+    return list(ModeloTexto.objects.filter(ativo=True, tipo__in=tipos).order_by("tipo", "ordem",
+                                                                               "nome"))
 
 
-@transaction.atomic
 def criar_texto_pronto(usuario, tipo: str, nome: str, texto: str) -> ModeloTexto:
-    policies.exigir(policies.pode_gerir_textos_prontos(usuario),
-                    "Você não pode criar textos prontos.")
+    """"Guardar como texto pronto" do editor de documento: o mesmo catálogo da folha."""
     tipo = _tipo_de_documento(tipo)
-    nome, texto = " ".join((nome or "").split())[:120], (texto or "").strip()
-    if not nome or not texto:
+    if not " ".join((nome or "").split()) or not (texto or "").strip():
         raise RegraViolada("Dê um nome ao texto pronto e selecione o trecho a guardar.")
     tipo_modelo = (ModeloTexto.Tipo.OFICIO if tipo == "oficio" else ModeloTexto.Tipo.JUSTIFICATIVA)
-    return ModeloTexto.objects.create(tipo=tipo_modelo, nome=nome, texto=texto[:4000])
-
-
-@transaction.atomic
-def desativar_texto_pronto(usuario, pk: int) -> ModeloTexto:
-    policies.exigir(policies.pode_gerir_textos_prontos(usuario),
-                    "Você não pode remover textos prontos.")
     try:
-        modelo = ModeloTexto.objects.select_for_update().get(pk=pk, ativo=True)
+        return textos.salvar(usuario, tipo=tipo_modelo, nome=nome, texto=texto)
+    except textos.TextoInvalido as exc:
+        raise RegraViolada(str(exc)) from None
+
+
+def desativar_texto_pronto(usuario, pk: int) -> ModeloTexto:
+    try:
+        return textos.desativar(usuario, pk)
     except ModeloTexto.DoesNotExist:
         raise RegraViolada("Texto pronto não encontrado.") from None
-    if modelo.padrao_sistema:
-        raise RegraViolada("Este texto vem com o sistema e não pode ser removido.")
-    modelo.ativo = False
-    modelo.save(update_fields=["ativo", "atualizado_em"])
-    return modelo
+    except textos.TextoInvalido as exc:
+        raise RegraViolada(str(exc)) from None
 
 
 # ---------------------------------------------------------------- emissão

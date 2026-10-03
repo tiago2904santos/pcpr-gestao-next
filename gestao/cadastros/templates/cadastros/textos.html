@@ -1,0 +1,123 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Textos prontos{% endblock %}
+{% block titulo_lista %}Textos prontos{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Motivos, justificativas e trechos que a equipe reaproveita. Escolhidos na folha do ofício, entram no campo e ainda podem ser ajustados.</p>{% endblock %}
+{% comment %}
+Catálogo de textos prontos (paridade com os catálogos de motivo e de modelo de
+justificativa da referência): uma aba por tipo, busca, um registro por texto com o menu de
+ações; novo e editar numa janela, como os demais cadastros. "Padrão" é o texto que já vem
+escrito quando o campo nasce vazio — um por tipo.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Tipo de texto">
+  {% for chave, rotulo in abas %}
+    <a class="aba" href="?tipo={{ chave }}{% if termo %}&amp;q={{ termo|urlencode }}{% endif %}"{% if chave == tipo %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:chave|default:0 }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'cadastros:textos' %}">
+  <input type="hidden" name="tipo" value="{{ tipo }}">
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-textos">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-textos" type="search" name="q" value="{{ termo }}" placeholder="Nome ou trecho do texto" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{% for chave, rotulo in abas %}{% if chave == tipo %}{{ rotulo }}{% endif %}{% endfor %}{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ ativos|pluralizar:"ativo,ativos" }}{% if inativos %} · {{ inativos|pluralizar:"inativo,inativos" }}{% endif %}</span>
+</div>
+{% if usa_padrao %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}O motivo <b>padrão</b> já vem escrito em todo ofício novo; quem escolhe o padrão é o gestor.</p>{% endif %}
+{% if textos %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for t in textos %}
+      <li class="registro{% if not t.ativo %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% icone "text-quote" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            {% if t.alteravel %}
+              <a class="registro__link" href="?tipo={{ tipo }}&amp;editar={{ t.pk }}">{{ t.nome }}</a>
+            {% else %}
+              <span class="registro__link registro__link--estatico">{{ t.nome }}</span>
+            {% endif %}
+            {% if t.padrao and usa_padrao %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Padrão</span>{% endif %}
+            {% if not t.ativo %}<span class="selo selo--neutro">Inativo</span>{% endif %}
+            {% if t.padrao_sistema %}<span class="selo selo--info selo--sem-ponto">Do sistema</span>{% endif %}
+          </div>
+          <p class="registro__texto quebra-palavras">{{ t.texto|truncatechars:220 }}</p>
+        </div>
+        {% if t.alteravel or t.excluivel or usa_padrao and pode_definir_padrao %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações de “{{ t.nome }}”">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if t.alteravel %}<a class="menu__item" role="menuitem" href="?tipo={{ tipo }}&amp;editar={{ t.pk }}">{% icone "pencil" %}Editar</a>{% endif %}
+              {% if t.ativo and usa_padrao and pode_definir_padrao %}
+                <button type="submit" form="t-padrao-{{ t.pk }}" class="menu__item" role="menuitem">{% if t.padrao %}{% icone "x" %}Deixar de ser o padrão{% else %}{% icone "check" %}Usar como padrão{% endif %}</button>
+              {% endif %}
+              {% if t.alteravel %}<button type="submit" form="t-ativo-{{ t.pk }}" class="menu__item" role="menuitem">{% if t.ativo %}{% icone "eye-off" %}Desativar{% else %}{% icone "undo-2" %}Reativar{% endif %}</button>{% endif %}
+              {% if t.excluivel %}
+                <div class="menu__separador" role="separator"></div>
+                <button type="submit" form="t-excluir-{{ t.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          <form id="t-padrao-{{ t.pk }}" method="post" action="{% url 'cadastros:texto_padrao' t.pk %}" hidden>{% csrf_token %}</form>
+          <form id="t-ativo-{{ t.pk }}" method="post" action="{% url 'cadastros:texto_ativo' t.pk %}" hidden>{% csrf_token %}</form>
+          {% if t.excluivel %}
+            <form id="t-excluir-{{ t.pk }}" method="post" action="{% url 'cadastros:texto_excluir' t.pk %}" hidden data-confirmar="“{{ t.nome }}” será excluído. Para só tirá-lo da lista de escolha, use Desativar." data-confirmar-titulo="Excluir texto pronto?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% elif termo %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum texto encontrado" texto="Confira a grafia ou procure por outro trecho." limpar_url="?tipo="|add:tipo %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="text-quote" titulo="Nenhum texto pronto deste tipo" texto="Cadastre aqui ou, na folha do ofício, escreva o texto e use “Guardar como texto pronto”." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ ativos|pluralizar:"texto ativo,textos ativos" }}</p>
+  {% if pode_gerir %}
+    {% comment %}Com a janela já preenchida por uma edição, "Novo" pede uma janela limpa ao servidor.{% endcomment %}
+    {% if editando %}<a class="botao botao--primario" href="?tipo={{ tipo }}&amp;novo=1">{% icone "plus" %}Novo texto pronto</a>
+    {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-texto">{% icone "plus" %}Novo texto pronto</button>{% endif %}
+  {% endif %}
+</div>
+{% if pode_gerir %}
+<dialog id="dialogo-texto" class="dialogo" aria-labelledby="dialogo-texto-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_texto' %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-texto-titulo">{% if editando %}Editar “{{ editando.nome }}”{% else %}Novo texto pronto{% endif %}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.tipo classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.ordem classe="campo--sm" ajuda_oculta=True %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.texto %}
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Criar texto pronto{% endif %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}

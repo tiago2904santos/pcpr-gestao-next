@@ -28,6 +28,7 @@ const sobDemanda = [
   ["pc-select", () => import("./componentes/seletor.js")],
   ["pc-editor-documento", () => import("./componentes/editor-documento.js")],
   ["pc-transporte", () => import("./componentes/transporte.js")],
+  ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
 ];
 const carregados = new Set();
 function carregarSobDemanda() {

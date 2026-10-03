@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load viagens %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% if abrir_resumo %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endif %}{% endblock %}
 {% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
@@ -107,6 +107,7 @@ confirmação — e é ele que escreve no histórico.
         {% include "componentes/campo.html" with campo=form.custeio classe="campo--lg" rotulo="Custeio" %}
         {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
       </div>
+      {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
       {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
     </div>
 
@@ -200,14 +201,14 @@ confirmação — e é ele que escreve no histórico.
     {# O texto pronto vai de margem a margem, como a busca de roteiro: um campo curto deixaria a linha pela metade. #}
     {% if prazo.justificativa_obrigatoria %}
       <div class="campos">
-        {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--lg" ajuda="Usado quando a justificativa estiver em branco." %}
+        {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
         {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=True %}
       </div>
     {% else %}
       <details class="divulgacao" open>
         <summary>{% icone "plus" classe="icone--sm" %}Justificativa incluída mesmo dispensada</summary>
         <div class="divulgacao__corpo campos">
-          {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--lg" ajuda="Usado quando a justificativa estiver em branco." %}
+          {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
           {% include "componentes/campo.html" with campo=form.justificativa %}
         </div>
       </details>
@@ -310,5 +311,11 @@ confirmação — e é ele que escreve no histórico.
   {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva ao cartão Documentos (sem beco sem saída), mas não promete emissão. #}
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
 </div>
+{% comment %}
+"Revisar e emitir" salva a folha e volta com "?revisar=1": a janela de resumo em modo
+revisão abre pronta por cima, com o botão de emitir. Fechar é "voltar e corrigir".
+{% endcomment %}
+{% if abrir_resumo %}{% include "viagens/oficios/_dialogo_resumo.html" %}{% endif %}
+{% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

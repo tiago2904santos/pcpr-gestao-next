@@ -1,0 +1,19 @@
+{% comment %}
+Texto pronto acima de uma área de texto (motivo, justificativa e, nos próximos módulos,
+relatório técnico, despacho, resposta padrão). Uso:
+  {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" %}
+- `campo`: escolha com SelecaoDeTexto (cada opção traz o texto em data-texto);
+- `alvo`: id da área de texto que recebe o texto;
+- `tipo`: tipo do texto pronto (ModeloTexto.Tipo) — usado ao guardar um novo;
+- `pode_gerir`: mostra "Guardar como texto pronto" e o atalho para a lista.
+Sem JavaScript, a escolha vai com o formulário e preenche o campo se ele estiver vazio.
+{% endcomment %}
+<div class="texto-pronto" data-texto-pronto data-alvo="{{ alvo }}" data-tipo="{{ tipo }}">
+  {% include "componentes/campo.html" with campo=campo classe="campo--lg texto-pronto__escolha" %}
+  {% if pode_gerir %}
+    <div class="texto-pronto__acoes">
+      <button type="button" class="botao botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" %}Guardar como texto pronto</button>
+      <a class="botao botao--texto" href="{% url 'cadastros:textos' %}?tipo={{ tipo }}" target="_blank" rel="noopener">{% icone "settings" %}Gerenciar<span class="sr-only"> textos prontos (nova aba)</span></a>
+    </div>
+  {% endif %}
+</div>

@@ -98,6 +98,18 @@ source_modules = ["gestao.cadastros"]
 forbidden_modules = ["gestao.viagens", "gestao.painel"]
 
 [[tool.importlinter.contracts]]
+name = "Integrações externas não dependem de contextos de negócio (ADR 0019)"
+type = "forbidden"
+source_modules = ["gestao.integracoes"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade"]
+
+[[tool.importlinter.contracts]]
+name = "Domínio puro não conhece integrações externas (ADR 0019)"
+type = "forbidden"
+source_modules = ["gestao.viagens.dominio"]
+forbidden_modules = ["gestao.integracoes"]
+
+[[tool.importlinter.contracts]]
 name = "Identidade é base: não depende de outros contextos"
 type = "forbidden"
 source_modules = ["gestao.identidade"]

@@ -17,7 +17,6 @@ urlpatterns = [
     path("oficios/<int:pk>/equipe/motorista/", views.definir_motorista,
          name="definir_motorista"),
     path("oficios/<int:pk>/diarias/", views.secao_diarias, name="secao_diarias"),
-    path("oficios/<int:pk>/emitir/", views.revisar_emissao, name="revisar_emissao"),
     path("oficios/<int:pk>/emitir/confirmar/", views.emitir, name="emitir"),
     path("oficios/<int:pk>/autosave/", views.autosave, name="autosave_oficio"),
     path("oficios/<int:pk>/retificar/", views.retificar, name="retificar"),

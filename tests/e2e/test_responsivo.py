@@ -19,6 +19,9 @@ SOBREPOSICAO_JS = """() => {
       // clique e não aceita foco — medir isso dava sobreposição que ninguém vê na tela.
       if (!e.checkVisibility()) return false;
       if (e.closest('[hidden], dialog:not([open]), .sr-only, [inert], .barra-acoes, .cabecalho')) return false;
+      // Com uma janela modal aberta, o resto da página é inerte e fica por baixo do véu.
+      const modal = document.querySelector('dialog:modal');
+      if (modal && !modal.contains(e)) return false;
       for (let p = e.parentElement; p; p = p.parentElement) { if (getComputedStyle(p).clip !== 'auto') return false; }
       return true; });
   const problemas = [];

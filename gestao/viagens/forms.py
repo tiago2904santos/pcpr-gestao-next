@@ -21,6 +21,7 @@ from gestao.plataforma.widgets import (
     EntradaDataHora,
     EntradaHora,
     Selecao,
+    SelecaoDeTexto,
 )
 
 from .models import Oficio, Roteiro
@@ -72,7 +73,7 @@ class FiltrosOficio(forms.Form):
             campo.widget.attrs["form"] = form_id or "filtros-oficios"
 
     def clean(self):
-        dados = super().clean()
+        dados = super().clean() or {}
         # Inverteu as pontas? Entende e segue, em vez de devolver erro.
         for menor, maior in (("saida_de", "saida_ate"), ("diarias_de", "diarias_ate")):
             a, b = dados.get(menor), dados.get(maior)
@@ -213,19 +214,28 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
             "transporte_placa": forms.TextInput(attrs=_attrs(placeholder="Ex.: ABC1D23")),
             "transporte_combustivel": Selecao(),
-            "justificativa_modelo": Selecao(),
+            "justificativa_modelo": SelecaoDeTexto(),
             "justificativa": forms.Textarea(attrs=_attrs("area-texto", rows=5)),
             "roteiro": forms.HiddenInput,
         }
-        labels = {"motivo": "Motivo da viagem", "justificativa_modelo": "Texto pronto",
+        labels = {"motivo": "Motivo da viagem",
+                  "justificativa_modelo": "Texto pronto da justificativa",
                   "viatura": "Viatura", "transporte_combustivel": "Combustível"}
         help_texts = {
             "motivo": "Aparece no ofício exatamente como escrito.",
             "porte_arma": "Marque se os servidores transportarão arma de fogo.",
         }
 
+    # Texto pronto do motivo: só ajuda a escrever (preenche o campo ao escolher); não é
+    # gravado no ofício — o que vale é o texto do motivo.
+    motivo_modelo = forms.ModelChoiceField(
+        queryset=ModeloTexto.objects.none(), required=False, label="Texto pronto do motivo",
+        empty_label="Escrever do zero", widget=SelecaoDeTexto())
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
+            ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
         # Na folha, as escolhas levam o nome curto — o rótulo completo do modelo (com a
         # explicação entre parênteses) é para o documento e cortaria no campo. A mesma
         # decisão da janela de resumo (`custeio_curto`).
@@ -288,8 +298,12 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         if (dados.get("custeio") == Oficio.Custeio.OUTRA_INSTITUICAO
                 and not dados.get("custeio_instituicao")):
             self.add_error("custeio_instituicao", "Informe qual instituição custeia a viagem.")
+        # Sem JavaScript, escolher o texto pronto com o campo vazio é o que preenche o campo.
         if dados.get("justificativa_modelo") and not (dados.get("justificativa") or "").strip():
             dados["justificativa"] = dados["justificativa_modelo"].texto
+        if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
+            dados["motivo"] = dados["motivo_modelo"].texto
+        dados.pop("motivo_modelo", None)
         return dados
 
 

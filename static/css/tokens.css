@@ -222,6 +222,9 @@
   --altura-controle: 2.5rem;        /* 40px: inputs/botões padrão (alvo ≥ 24px) */
   --altura-controle-sm: 2rem;       /* 32px */
   --altura-controle-lg: 2.75rem;    /* 44px: mobile/toque */
+  /* Alvo mínimo de toque (WCAG 2.5.8). Em px de propósito: a escala de 90% (html 90%)
+     encolhe tudo que é rem, e o mínimo de acessibilidade não pode encolher junto. */
+  --alvo-minimo: 24px;
   --altura-cabecalho: 4rem;         /* 64px */
   --altura-navegacao: 3.25rem;      /* 52px: menu superior */
   --altura-topo: calc(var(--altura-cabecalho) + var(--altura-navegacao));

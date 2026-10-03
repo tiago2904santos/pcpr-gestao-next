@@ -95,7 +95,7 @@ viagens (services.py)  ──>  integracoes.eprotocolo.servico  (casos de uso: c
 
 | Fase | Entrega | Precisa de credencial? |
 |---|---|---|
-| E1 | Camada `gestao/integracoes/eprotocolo/` com porta, adaptador **simulado**, configuração, mascaramento, diagnóstico (`manage.py eprotocolo_check`), testes | Não |
+| E1 ✅ | Camada `gestao/integracoes/eprotocolo/` com porta, adaptador **simulado**, adaptador HTTP conforme a doc oficial (Basic + `scope` no token, Bearer + `consumerId`, `GET /v3/protocolos/{n}`), configuração, mascaramento, diagnóstico (`manage.py eprotocolo_check [--ping]`), testes sem rede (`gestao/integracoes/tests/test_eprotocolo.py`) | Não |
 | E2 | Campo `protocolo_origem` no ofício + avisos na tela (manual/simulado/treinamento) | Não |
 | E3 | Adaptador HTTP real em **treinamento**: token, `consumerId`, consulta | **Sim** (treinamento) + IP |
 | E4 | Abrir protocolo ao gravar, via outbox, atrás da trava | Sim + escopo de criação + decisão do dono do produto |
@@ -105,3 +105,12 @@ viagens (services.py)  ──>  integracoes.eprotocolo.servico  (casos de uso: c
 **Bloqueios institucionais (não dependem de código):** credenciamento no PDS Mantis, usuário
 de sistema com CPF, `consumerId`, IP fixo do servidor autorizado (a VPS precisa de IP estável
 — ver [hostinger.md](hostinger.md)), lista de escopos aprovada.
+
+## Diferenças em relação à referência (registradas)
+
+| Ponto | Referência | Novo | Classificação |
+|---|---|---|---|
+| Credenciais no token | `client_id`/`client_secret` no corpo do POST | `Authorization: Basic base64(clientId:secretId)` + `scope`, como a documentação oficial pede | DIFERENÇA INTENCIONAL (conformidade com a doc) |
+| Abrir protocolo sem credencial | gera número **simulado** ao gravar e grava no campo | não abre automaticamente; abertura automática só na fase E4, atrás de configuração e decisão | DIFERENÇA INTENCIONAL — evita número falso em ofício (decisão do dono pendente) |
+| Cabeçalho do `consumerId` | `consumerId` | `consumerId` (a confirmar na doc restrita) | DESCONHECIDO |
+| Caminho de abertura e formato das respostas | `/v3/protocolos` (a referência pede conferência) | não implementado até o treinamento | PENDENTE |

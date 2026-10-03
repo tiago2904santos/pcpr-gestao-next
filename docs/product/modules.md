@@ -55,7 +55,7 @@ Telas citadas da referência são descritas por função (não por implementaç�
 | Tabela de diárias | faixa, vigência, 24h/15%/30% gravados | faixa, vigência, 24h, norma; 15/30% derivados; tela de consulta |
 | Município | IBGE, estado, região, capital, lat/long | IBGE (código, nome, UF) carregado de CSV oficial |
 | Configuração | `ConfiguracaoSistema` por setor + assinaturas e substituições | `ConfiguracaoInstitucional` por unidade (cabeçalho, sede, chefia, destinatário, prazo) |
-| Modelos de texto | motivos e justificativas com marcadores | `ModeloTexto` (motivo, justificativa), sem marcadores |
+| Modelos de texto | motivos e justificativas com marcadores, ordem, ativo, padrão | `ModeloTexto` (motivo, justificativa, trecho do ofício) com ordem, ativo e um padrão por tipo; tela `/cadastros/textos-prontos/` e seletor na folha; marcadores: a confirmar |
 
 **Situação**: **Parcial** — cadastro/edição em tela: planejado (hoje via carga/seed).
 

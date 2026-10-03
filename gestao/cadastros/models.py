@@ -219,13 +219,28 @@ class ModeloTexto(Ativavel):
     tipo = models.CharField(max_length=20, choices=Tipo.choices)
     nome = models.CharField("nome", max_length=120)
     texto = models.TextField("texto")
+    # Ordem na lista de escolha (menor primeiro); empate, pelo nome. Como na referência.
+    ordem = models.PositiveSmallIntegerField("ordem", default=100)
+    # O texto que já vem escrito quando o campo nasce vazio (ex.: motivo do ofício novo).
+    # No máximo um por tipo — o banco garante.
+    padrao = models.BooleanField("padrão", default=False)
     # Texto que vem com o sistema: pode ser desativado, nunca apagado pelo editor.
     padrao_sistema = models.BooleanField("padrão do sistema", default=False)
 
     class Meta:
-        ordering = ["tipo", "nome"]
+        ordering = ["tipo", "ordem", "nome"]
         verbose_name = "modelo de texto"
         verbose_name_plural = "modelos de texto"
+        # O padrão vale para os ofícios novos de todas as unidades, e os textos do sistema
+        # são de todos: mexer neles é do gestor.
+        permissions = [("gerir_padrao_texto",
+                        "Definir o texto padrão e alterar textos padrão ou do sistema")]
+        constraints = [
+            models.UniqueConstraint(fields=["tipo"], condition=models.Q(padrao=True),
+                                    name="modelotexto_um_padrao_por_tipo"),
+            models.CheckConstraint(condition=~models.Q(padrao=True, ativo=False),
+                                   name="modelotexto_padrao_ativo"),
+        ]
 
     def __str__(self) -> str:
         return self.nome

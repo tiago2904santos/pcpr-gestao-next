@@ -8,6 +8,7 @@ from __future__ import annotations
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 
+from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
 from .models import Oficio, Roteiro
@@ -100,7 +101,7 @@ def pode_editar_texto(usuario, oficio: Oficio) -> bool:
 
 
 def pode_gerir_textos_prontos(usuario) -> bool:
-    return usuario.has_perm("cadastros.add_modelotexto")
+    return politicas_cadastros.pode_gerir_textos(usuario)  # uma regra só (cadastros)
 
 
 # ---------------------------------------------------------------- roteiros

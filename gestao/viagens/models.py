@@ -57,6 +57,18 @@ class Oficio(models.Model):
         "protocolo (eProtocolo)", max_length=9, blank=True,
         help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
     )
+
+    class OrigemProtocolo(models.TextChoices):
+        """De onde veio o número (docs/integrations/eprotocolo.md). Só MANUAL e EPROTOCOLO
+        valem como protocolo oficial; treinamento e simulado nunca."""
+
+        MANUAL = "manual", "Digitado"
+        EPROTOCOLO = "eprotocolo", "Aberto no eProtocolo"
+        TREINAMENTO = "treinamento", "eProtocolo de treinamento (não oficial)"
+        SIMULADO = "simulado", "Simulado (não oficial)"
+
+    protocolo_origem = models.CharField("origem do protocolo", max_length=12, blank=True,
+                                        choices=OrigemProtocolo.choices)
     # O assunto do documento é calculado (Autorização × Convalidação), nunca texto livre:
     # ver viagens.dominio.assunto. O marcador ajusta o rótulo.
     marcador = models.CharField("marcador do documento", max_length=15, blank=True,

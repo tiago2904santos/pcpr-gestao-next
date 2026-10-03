@@ -17,7 +17,7 @@ import pytest
 from django.urls import reverse
 
 from gestao.identidade.backends import LOGIN_DEMO
-from gestao.viagens import demonstracao
+from gestao.viagens import demonstracao, services
 from gestao.viagens.models import Oficio, Roteiro
 
 CSS = Path(__file__).resolve().parents[1] / "static" / "css"
@@ -60,13 +60,15 @@ def paginas(settings):
     rascunho = Oficio.objects.filter(situacao="rascunho").first()
     roteiro = Roteiro.objects.first()
     assert emitido and rascunho and roteiro, "a base DEMO precisa de emitido, rascunho e roteiro"
+    pronto = next(o for o in Oficio.objects.filter(situacao="rascunho")
+                  if services.verificar_prontidao(o).pode_emitir)
     return [
         "/",
         reverse("viagens:painel"),
         reverse("viagens:oficios"),
         reverse("viagens:oficios") + "?q=zzz",
         reverse("viagens:editar", args=[rascunho.pk]),
-        reverse("viagens:revisar_emissao", args=[rascunho.pk]),
+        reverse("viagens:editar", args=[pronto.pk]) + "?revisar=1",  # revisão (janela)
         reverse("viagens:roteiros"),
         reverse("viagens:novo_roteiro"),
         reverse("viagens:editar_roteiro", args=[roteiro.pk]),

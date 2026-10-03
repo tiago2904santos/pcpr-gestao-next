@@ -599,6 +599,33 @@ a.ficha:hover {
   scroll-margin-top: calc(var(--altura-topo) + 2.5rem);
 }
 
+/* Texto corrido do registro (ex.: o conteúdo de um texto pronto), em até três linhas. */
+/* Nota curta sob o cabeçalho da lista (o que um selo significa, por exemplo). */
+.lista-cabecalho__nota {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: var(--esp-2) var(--esp-5) 0;
+}
+
+.registro__texto {
+  display: -webkit-box;
+  margin: var(--esp-1) 0 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+/* Desativado: continua na lista (para reativar), mas recua. */
+.registro--inativo .registro__link,
+.registro--inativo .registro__texto {
+  color: var(--cor-texto-terciario);
+}
+
 .registro__meta {
   display: flex;
   flex-wrap: wrap;

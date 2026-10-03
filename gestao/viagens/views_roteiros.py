@@ -151,14 +151,17 @@ def _formulario(request: HttpRequest, roteiro: Roteiro | None) -> HttpResponse:
     if form.is_valid() and roteiro_ok:
         try:
             dados = {"sede": itin.sede.cleaned_data["cidade"], "bate_volta": ligado}
-            blocos = [] if vazio or not ligado else itin.blocos_em_ordem()
+            novos_blocos = [] if vazio or not ligado else itin.blocos_em_ordem()
+            novos_trechos: list[services.TrechoInformado]
             if vazio:
-                trechos = []
+                novos_trechos = []
             elif ligado:
-                trechos = itinerario.trechos_de_blocos(blocos, itin.sede.cleaned_data["cidade"])
+                novos_trechos = itinerario.trechos_de_blocos(novos_blocos,
+                                                             itin.sede.cleaned_data["cidade"])
             else:
-                trechos = itinerario.trechos(itin)
-            salvo = services.salvar_roteiro(request.user, roteiro, dados, trechos, blocos)
+                novos_trechos = itinerario.trechos(itin)
+            salvo = services.salvar_roteiro(request.user, roteiro, dados, novos_trechos,
+                                            novos_blocos)
         except (services.RegraViolada, BateVoltaInvalido) as exc:
             contexto = _contexto(request, roteiro, form, itin, str(exc))
             contexto.update(sujo=True, foco="alerta-roteiro")
@@ -209,7 +212,8 @@ def autosave(request: HttpRequest) -> JsonResponse:
     if not itin.sede.is_valid():
         return JsonResponse({"salvo": False, "motivo": "sede"}, status=200)
 
-    dados = {"sede": itin.sede.cleaned_data["cidade"] or sede, "bate_volta": ligado}
+    sede_do_roteiro: Municipio = itin.sede.cleaned_data["cidade"] or sede
+    dados = {"sede": sede_do_roteiro, "bate_volta": ligado}
     # "Grava o que der": itinerário incompleto não impede o rascunho — só não vira trecho.
     trechos: list | None = []
     blocos: list = []
@@ -217,7 +221,7 @@ def autosave(request: HttpRequest) -> JsonResponse:
         try:
             if ligado:
                 blocos = itin.blocos_em_ordem()
-                trechos = itinerario.trechos_de_blocos(blocos, dados["sede"])
+                trechos = itinerario.trechos_de_blocos(blocos, sede_do_roteiro)
             else:
                 trechos = itinerario.trechos(itin)
         except (BateVoltaInvalido, services.RegraViolada):

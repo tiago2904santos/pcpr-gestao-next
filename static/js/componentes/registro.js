@@ -63,18 +63,6 @@ document.body.addEventListener("htmx:beforeRequest", (evento) => {
   if (corpo) corpo.innerHTML = ESQUELETO;
 });
 
-// Chegou de outra tela pedindo um ofício ("?resumo=<pk>"): a janela já veio desenhada,
-// então é só abrir — e o endereço perde o parâmetro, para recarregar não reabri-la.
-const janelaPedida = /** @type {HTMLDialogElement | null} */ (
-  document.querySelector("dialog[data-abrir-ao-carregar]")
-);
-if (janelaPedida) {
-  janelaPedida.showModal();
-  const url = new URL(window.location.href);
-  url.searchParams.delete("resumo");
-  window.history.replaceState(null, "", url);
-}
-
 // Enquanto a próxima página não chega, o item clicado mostra que está a caminho.
 document.addEventListener("click", (evento) => {
   const item = /** @type {HTMLElement | null} */ (

@@ -11,6 +11,21 @@
  *
  * Teclado: Enter/Espaço/↓ abrem; ↑/↓/Home/End navegam; Esc fecha e devolve o foco.
  */
+/** Topo da barra flutuante (ou o pé da janela): abaixo disso nada aparece inteiro. */
+export function limiteInferior() {
+  // A barra flutua acima da borda da janela: o limite é o topo dela, não a altura.
+  const barra = document.querySelector(".barra-acoes")?.getBoundingClientRect();
+  return (barra && barra.height ? barra.top : window.innerHeight) - 8;
+}
+
+/** Rola o mínimo para `el` aparecer inteiro acima da barra flutuante. @param {HTMLElement} el */
+export function abrirEspaco(el) {
+  const limite = limiteInferior();
+  // offsetHeight ignora a animação de entrada (scale), que encolhe o retângulo medido.
+  const sobra = el.getBoundingClientRect().top + el.offsetHeight + 4 - limite;
+  if (sobra > 0) window.scrollBy({ top: sobra, behavior: "instant" });
+}
+
 export class PcMenu extends HTMLElement {
   connectedCallback() {
     this.botao = /** @type {HTMLButtonElement} */ (this.querySelector("[data-menu-botao]"));
@@ -56,13 +71,19 @@ export class PcMenu extends HTMLElement {
     this.itens()[0]?.focus();
   }
 
-  /** O painel nunca sai da tela: abre para o lado em que cabe (celular, botão à esquerda). */
+  /** O painel nunca sai da tela nem fica sob a barra flutuante: abre para o lado em que
+   * cabe e, perto do pé da página, rola o necessário ou abre para cima. */
   encaixar() {
     if (!this.painel) return;
-    this.painel.classList.remove("menu__painel--forcar-esquerda", "menu__painel--forcar-direita");
+    this.painel.classList.remove("menu__painel--forcar-esquerda", "menu__painel--forcar-direita",
+      "menu__painel--acima");
     const r = this.painel.getBoundingClientRect();
     if (r.left < 0) this.painel.classList.add("menu__painel--forcar-esquerda");
     else if (r.right > window.innerWidth) this.painel.classList.add("menu__painel--forcar-direita");
+    abrirEspaco(this.painel);
+    if (this.painel.getBoundingClientRect().bottom > limiteInferior()) {
+      this.painel.classList.add("menu__painel--acima");
+    }
   }
 
   fechar(devolverFoco = true) {

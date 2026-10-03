@@ -53,7 +53,9 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **Sem h1 redundante** quando a placa/selo já identifica a página; o subtítulo alinha com a
   placa (h1 fica `sr-only`).
 - **Sem stepper/índice lateral de seções** na folha do ofício (texto sobrepunha; removido).
-- **Revisão antes de emitir na janela de resumo**, não em página própria (pedido em curso).
+- **Revisão antes de emitir na janela de resumo**, não em página própria: "Revisar e emitir"
+  salva e volta com `?revisar=1`; a janela abre pronta (reaproveitando o contexto da folha, sem
+  consultas a mais) e o **rodapé fica fixo** para a decisão nunca sumir em tela baixa.
 - **Botão × de limpar** em campos de texto/busca e no combobox (`limpar.js`, um só para
   todos); nunca some no hover/foco.
 - **Combobox: a primeira sugestão já vem marcada** — digitar + Enter escolhe.
@@ -65,6 +67,13 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   escrito; ações discretas ao lado.
 - Alertas nunca colados no bloco seguinte (margem), e ações do alerta centradas.
 - Documento abre **em nova aba para visualizar**, sem baixar.
+
+- **Texto pronto** em qualquer área de texto: `componentes/texto_pronto.html` +
+  `SelecaoDeTexto` (opção leva `data-texto`); escolher preenche na hora e **pergunta antes de
+  substituir** texto já escrito; "Guardar como texto pronto" grava pelo catálogo e já deixa
+  escolhido. Sem JS, a escolha preenche o campo vazio no servidor.
+- **Janela aberta pelo servidor** = `dialog[data-abrir-ao-carregar]` (tratado em `dialogo.js`,
+  global): serve a resumo pedido, revisão e edição em cadastros (`?editar=<pk>`).
 
 ## Escala e visual
 
@@ -89,8 +98,25 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - Contêiner de teste `pcpr-testdb` parado → centenas de erros de conexão: `docker start pcpr-testdb`.
 - Banco do preview precisa de `migrate` depois de puxar migrações de outro agente.
 
+- **Autosave × envio pelo botão**: o beacon de `pagehide` e um autosave em voo competiam com o
+  POST do "Salvar"/"Usar roteiro" e geravam falso "outra pessoa salvou". Regra: envio
+  explícito cancela o agendado, desliga o beacon e espera o autosave em voo (`autosave.js`).
+- **Nada abre por baixo da barra flutuante**: menus de ação e seletores usam `abrirEspaco`/
+  `limiteInferior` (em `menu.js`, carregado sempre) e abrem para cima quando não há espaço.
+- **Alvo de toque em px**: com `html {font-size: 90%}`, rem encolhe; o mínimo WCAG 2.5.8 é
+  o token `--alvo-minimo: 24px`.
+- **Janela aberta pelo servidor vem com `open`** (funciona sem JS) e o JS a reabre modal.
+- **A janela de revisão é a confirmação**: sem segunda janela "Tem certeza?" por cima; avisos
+  não bloqueantes (conflito de agenda) aparecem nela.
+- **Detector de sobreposição dos testes ignora o que está sob uma janela modal** (inerte).
+
 ## Processo
 
 - O usuário prefere ver a tela funcionando no navegador do app antes do relatório.
 - Mudança de componente compartilhado: procurar todos os usos (`grep` no nome do elemento/
   classe) e rodar os testes das páginas afetadas.
+- Pedir revisão aos agentes `revisor-ux` e `revisor-seguranca` ao fim de cada bloco: na rodada
+  de 03/10 acharam um laço de confirmação, ampliação de privilégio (padrão global editável
+  por operador) e vazamento potencial de credencial em redirecionamento.
+- Testes de navegador demoram ~17 min: rodar a suíte rápida primeiro e o navegador sem editar
+  código durante a execução.

@@ -20,6 +20,10 @@ export class Autosave {
   pedido = null;
   /** Última carga enviada, para não regravar o que não mudou. */
   ultima = "";
+  /** @type {Promise<void> | null} gravação automática em andamento */
+  emVoo = null;
+  /** O formulário está sendo enviado pelo botão (Salvar, Usar roteiro…). */
+  enviando = false;
 
   /** @param {HTMLFormElement} form */
   constructor(form) {
@@ -31,8 +35,28 @@ export class Autosave {
         if (this.doFormulario(/** @type {Element} */ (e.target))) this.agendar();
       });
     }
-    // Sair da página com algo por gravar: manda agora, sem esperar a pausa.
-    window.addEventListener("pagehide", () => this.gravar(true));
+    // Sair da página com algo por gravar: manda agora, sem esperar a pausa. Mas não quando
+    // a saída é o próprio envio do formulário — o envio já leva tudo, e um segundo pedido com
+    // a mesma versão seria acusado de conflito ("outra pessoa salvou…").
+    window.addEventListener("pagehide", () => { if (!this.enviando) this.gravar(true); });
+    form.addEventListener("submit", (e) => this.aoEnviar(/** @type {SubmitEvent} */ (e)));
+  }
+
+  /** Envio pelo botão: cancela o que estava agendado e, se uma gravação automática está no
+   * meio do caminho, espera ela voltar (com a versão nova) antes de enviar. @param {SubmitEvent} e */
+  aoEnviar(e) {
+    window.clearTimeout(this.atraso);
+    if (this.enviando) return;
+    if (!this.emVoo) {
+      this.enviando = true;
+      return;
+    }
+    e.preventDefault();
+    const quem = e.submitter;
+    this.emVoo.finally(() => {
+      this.enviando = true;
+      this.form.requestSubmit(/** @type {HTMLElement | null} */ (quem) ?? undefined);
+    });
   }
 
   /** @param {Element} alvo */
@@ -60,6 +84,11 @@ export class Autosave {
     this.pedido?.abort();
     this.pedido = new AbortController();
     this.anunciar("Salvando…");
+    /** @type {(valor?: void) => void} */
+    let terminar = () => {};
+    /** @type {Promise<void>} */
+    const meu = new Promise((resolver) => { terminar = resolver; });
+    this.emVoo = meu;
     try {
       const resposta = await fetch(this.url, { method: "POST", body: dados, signal: this.pedido.signal });
       if (!resposta.ok) throw new Error(String(resposta.status));
@@ -86,6 +115,10 @@ export class Autosave {
       if (/** @type {Error} */ (erro).name === "AbortError") return;
       this.ultima = "";
       this.anunciar("Não foi possível salvar agora — suas alterações continuam na tela.");
+    } finally {
+      // Uma gravação cancelada por outra mais nova não apaga o registro da mais nova.
+      if (this.emVoo === meu) this.emVoo = null;
+      terminar();
     }
   }
 

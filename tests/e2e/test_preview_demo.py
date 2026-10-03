@@ -129,12 +129,14 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg).to_have_url(re.compile("ordem=saida"))
     _sem_rolagem_lateral(pg)
 
-    # Ofício emitido: histórico e documentos.
+    # Ofício emitido: a leitura é a janela de resumo, com documentos, sem sair da lista.
     pg.locator(".registro__link").first.click()
-    expect(pg.get_by_role("heading", name="Histórico")).to_be_visible()
-    expect(pg.locator("#documentos-lista .registro, #documentos-lista li").first).to_be_visible()
+    janela = pg.get_by_role("dialog", name="Resumo do ofício")
+    expect(janela).to_be_visible()
+    expect(janela.locator(".resumo__documentos li").first).to_be_visible()
     _sem_rolagem_lateral(pg)
-    pg.go_back()
+    pg.keyboard.press("Escape")
+    expect(janela).to_be_hidden()
     expect(pg.locator(".lista-cabecalho__total")).to_be_visible()
 
     # Nova busca: sem resultado e de volta.
@@ -145,8 +147,9 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
 
     # Editar um rascunho e salvar.
     pg.goto("/viagens/oficios/?situacao=rascunho")
-    pg.locator(".registro__link").first.click()  # o título abre o detalhe…
-    pg.get_by_role("link", name="Editar").first.click()  # …e editar é ação explícita
+    pg.locator(".registro__link").first.click()  # o título abre a janela de resumo…
+    janela = pg.get_by_role("dialog", name="Resumo do ofício")
+    janela.get_by_role("link", name="Abrir o ofício").click()  # …e editar é ação explícita
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
     pg.get_by_role("button", name=re.compile(r"^Salvar( rascunho)?$")).click()  # "rascunho" some no celular

@@ -61,6 +61,21 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// Janela que o servidor já mandou desenhada e aberta (`data-abrir-ao-carregar`): o resumo
+// pedido por outra tela ("?resumo=<pk>") ou a revisão antes de emitir ("?revisar=1").
+// Abre na carga, e o endereço perde o parâmetro para recarregar não reabri-la.
+const janelaPedida = /** @type {HTMLDialogElement | null} */ (
+  document.querySelector("dialog[data-abrir-ao-carregar]")
+);
+if (janelaPedida) {
+  if (janelaPedida.open) janelaPedida.close(); // veio aberta (sem JS ela já serve); vira modal
+  janelaPedida.showModal();
+  const url = new URL(window.location.href);
+  url.searchParams.delete("resumo");
+  url.searchParams.delete("revisar");
+  window.history.replaceState(null, "", url);
+}
+
 // Esc: a mesma saída animada (o navegador fecharia na hora).
 document.addEventListener("cancel", (e) => {
   const d = /** @type {HTMLDialogElement} */ (e.target);

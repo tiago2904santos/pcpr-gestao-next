@@ -61,7 +61,7 @@ def test_foco_por_teclado_e_a_assinatura_do_sistema_nao_o_anel_do_navegador(loga
     campos acendem (borda grafite + halo) em vez de anel externo. Nunca azul."""
     pg = logado
     pg.goto("/viagens/oficios/")
-    botao = _foco(pg, ".pagina-cabecalho .botao--primario")
+    botao = _foco(pg, ".barra-acoes .botao--primario")  # "Novo ofício" acompanha a rolagem
     assert botao["outline"] == "solid" and botao["cor"] == _rgb("--grafite-900"), botao
     assert botao["largura"] == "2px" and botao["offset"] == "2px", botao
     assert _rgb("--neutro-0") in botao["sombra"], botao  # halo claro no vão

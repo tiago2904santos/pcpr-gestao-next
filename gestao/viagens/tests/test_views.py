@@ -317,7 +317,23 @@ class TestNovoEEdicao:
         oficio.refresh_from_db()
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]),
                           _post_edicao(oficio, acao="emitir"))
-        assert r["Location"] == reverse("viagens:revisar_emissao", args=[oficio.pk])
+        revisar = reverse("viagens:editar", args=[oficio.pk]) + "?revisar=1"
+        assert r["Location"] == revisar
+        # A revisão é a janela de resumo aberta sobre a folha, com o botão de emitir.
+        html = operador.get(revisar).content.decode()
+        assert "data-abrir-ao-carregar" in html and "Revisar e emitir o ofício" in html
+        assert f'action="{reverse("viagens:emitir", args=[oficio.pk])}"' in html
+        assert "Destinatário" in html and "Voltar e corrigir" in html
+
+    def test_revisar_com_pendencias_nao_abre_a_janela(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk]) + "?revisar=1"
+                            ).content.decode()
+        assert "data-abrir-ao-carregar" not in html
+
+    def test_pagina_de_revisao_nao_existe_mais(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        assert operador.get(f"/viagens/oficios/{oficio.pk}/emitir/").status_code == 404
 
     def test_adicionar_destino_reexibe_sem_salvar(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
@@ -410,8 +426,8 @@ class TestEmissaoEAcoes:
 
         operador.post(reverse("viagens:adicionar_viajante", args=[oficio.pk]),
                       {"id": Servidor.objects.first().pk})
-        assert operador.get(reverse("viagens:revisar_emissao", args=[oficio.pk])).status_code \
-            == 200
+        revisao = operador.get(reverse("viagens:editar", args=[oficio.pk]) + "?revisar=1")
+        assert "data-abrir-ao-carregar" in revisao.content.decode()
         oficio.refresh_from_db()
         r = operador.post(reverse("viagens:emitir", args=[oficio.pk]), {"versao": oficio.versao})
         assert r["Location"] == f"{reverse('viagens:oficios')}?q={oficio.numero_formatado}"
@@ -584,16 +600,18 @@ class TestOrcamentoDeConsultas:
         ])
 
     @pytest.mark.parametrize("engordar", [False, True], ids=["pequeno", "grande"])
-    @pytest.mark.parametrize("rota", ["viagens:editar", "viagens:revisar_emissao"])
+    @pytest.mark.parametrize("revisar", [False, True], ids=["folha", "revisao"])
     def test_paginas_do_oficio(self, operador, cenario, django_assert_max_num_queries,
-                               rota, engordar):
+                               revisar, engordar):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         if engordar:
             self._engordar(oficio, cenario.usuarios["operador"])
-        # 22: as duas a mais são as viaturas que cada viajante dirige e os motoristas de cada
-        # viatura (a equipe mostra, a lista de viaturas sugere).
-        with django_assert_max_num_queries(22):
-            assert operador.get(reverse(rota, args=[oficio.pk])).status_code == 200
+        # 23: as duas a mais são as viaturas que cada viajante dirige e os motoristas de cada
+        # viatura (a equipe mostra, a lista de viaturas sugere); mais uma, constante, é a
+        # lista de textos prontos do motivo. A revisão (janela) reaproveita a folha: mesmo teto.
+        with django_assert_max_num_queries(23):
+            url = reverse("viagens:editar", args=[oficio.pk]) + ("?revisar=1" if revisar else "")
+            assert operador.get(url).status_code == 200
 
     def test_salvar_edicao(self, operador, cenario, django_assert_max_num_queries):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
@@ -770,7 +788,10 @@ class TestEquipeEViaturaSugerida:
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
         master = Viatura.objects.get(placa="ABC1D23")
         # Opção da viatura com unidade, sigla e motoristas habituais.
-        opcao = re.search(rf'<option value="{master.pk}"[^>]*>', html)
+        # (procura dentro da escolha de viatura: outras escolhas também têm option value=N)
+        viatura = re.search(r'<select[^>]*name="viatura".*?</select>', html, re.S)
+        assert viatura is not None
+        opcao = re.search(rf'<option value="{master.pk}"[^>]*>', viatura.group(0))
         assert opcao is not None
         assert f'data-unidade="{master.unidade_id}"' in opcao.group(0)
         assert 'data-sigla="ASCOM"' in opcao.group(0)

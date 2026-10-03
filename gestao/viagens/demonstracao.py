@@ -119,6 +119,23 @@ MODELOS_VIATURA = [
     ("Fiat Cronos", "Flex"), ("Volkswagen Gol", "Flex"), ("Renault Duster", "Flex"),
     ("Jeep Compass", "Flex"), ("Fiat Ducato Furgão", "Diesel"), ("Chevrolet Spin", "Flex"),
 ]
+MOTIVOS_PRONTOS = [
+    ("Unidade móvel em evento", "Apoio e condução da Unidade Móvel no evento.", True, True),
+    ("Polícia Civil itinerante",
+     "Atendimento à população com emissão de documentos no programa Polícia Civil "
+     "Itinerante, com a equipe da unidade.", False, True),
+    ("Cerimonial e apoio institucional",
+     "Apoio ao cerimonial e à organização de solenidade institucional da Polícia Civil do "
+     "Paraná.", False, True),
+    ("Capacitação de servidores",
+     "Participação de servidores em curso de capacitação promovido pela Escola Superior de "
+     "Polícia Civil.", False, True),
+    ("Escolta e transporte de material de grande porte para exposição agropecuária regional",
+     "Escolta e transporte do material expositivo da Polícia Civil para a exposição "
+     "agropecuária regional, com montagem e desmontagem do estande.", False, True),
+    ("Feira antiga (não usar)", "Texto antigo mantido apenas para consulta.", False, False),
+]
+
 CAPITAIS = [("São Paulo", "SP"), ("Florianópolis", "SC"), ("Porto Alegre", "RS"),
             ("Rio de Janeiro", "RJ"), ("Campo Grande", "MS"), ("Belo Horizonte", "MG")]
 MOTIVOS = [
@@ -231,8 +248,11 @@ class _Gerador:
         cargos = [Cargo.objects.create(nome=n) for n in CARGOS]
         combustiveis = {n: Combustivel.objects.create(nome=n)
                         for n in ("Diesel", "Flex", "Gasolina")}
-        ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.MOTIVO, nome="Unidade móvel em evento",
-                                   texto="Apoio e condução da Unidade Móvel no evento.")
+        # Catálogo de motivos (textos prontos): um é o padrão do ofício novo, um está inativo
+        # e os nomes longos testam a escolha na folha.
+        for ordem, (nome, texto, padrao, ativo) in enumerate(MOTIVOS_PRONTOS, start=1):
+            ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.MOTIVO, nome=nome, texto=texto,
+                                       ordem=ordem * 10, padrao=padrao, ativo=ativo)
         # Trechos prontos para o editor do documento (ADR 0018); os do sistema não se apagam.
         for nome, texto in TEXTOS_PRONTOS:
             ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.OFICIO, nome=nome, texto=texto,

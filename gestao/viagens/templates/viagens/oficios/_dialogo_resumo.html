@@ -3,14 +3,18 @@ Janela de resumo do ofício: a leitura completa, aberta de onde o ofício aparec
 (lista de ofícios, lista de roteiros, folha do roteiro). O botão de fechar fica fora
 do pedaço que o HTMX troca, para a janela sempre ter um controle enquanto carrega.
 {% endcomment %}
-<dialog id="dialogo-resumo" class="dialogo dialogo--resumo" aria-label="Resumo do ofício"{% if abrir_resumo %} data-abrir-ao-carregar{% endif %}>
-  <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="Fechar o resumo">{% icone "x" %}</button>
+{% comment %}
+Aberta pelo servidor, a janela já vem com `open`: sem JavaScript ela aparece no lugar (e dá
+para emitir); com JavaScript, dialogo.js a reabre como modal.
+{% endcomment %}
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo" aria-label="{% if resumo.revisao %}Revisar e emitir o ofício{% else %}Resumo do ofício{% endif %}"{% if abrir_resumo %} data-abrir-ao-carregar open{% endif %}>
+  <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="{% if resumo.revisao %}Voltar e corrigir{% else %}Fechar o resumo{% endif %}">{% icone "x" %}</button>
   <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>
     {% comment %}
-    Pedida por outra tela ("?resumo=<pk>"), a janela já vem desenhada: abre pronta, sem
-    piscar o esqueleto. Nos outros casos, o esqueleto espera o HTMX.
+    Pedida por outra tela ("?resumo=<pk>") ou pela folha ("Revisar e emitir", "?revisar=1"),
+    a janela já vem desenhada: abre pronta, sem piscar o esqueleto. Nos outros casos, o esqueleto espera o HTMX.
     {% endcomment %}
-    {% if abrir_resumo %}{% include "viagens/oficios/_resumo.html" with oficio=resumo.oficio assunto=resumo.assunto prazo=resumo.prazo calculo=resumo.calculo viajantes=resumo.viajantes trechos=resumo.trechos documentos=resumo.documentos prontidao=resumo.prontidao pode_editar=resumo.pode_editar %}
+    {% if abrir_resumo %}{% include "viagens/oficios/_resumo.html" with oficio=resumo.oficio assunto=resumo.assunto prazo=resumo.prazo calculo=resumo.calculo viajantes=resumo.viajantes trechos=resumo.trechos documentos=resumo.documentos prontidao=resumo.prontidao pode_editar=resumo.pode_editar pode_retificar=resumo.pode_retificar revisao=resumo.revisao dados=resumo.dados pode_emitir=resumo.pode_emitir %}
     {% else %}{% include "viagens/oficios/_resumo_carregando.html" %}{% endif %}
   </div>
 </dialog>

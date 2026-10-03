@@ -22,6 +22,8 @@ registrar_modulo(
                 Item("Viaturas", "cadastros:viaturas", "car", requer="cadastros.view_viatura"),
                 Item("Tabela de diárias", "cadastros:diarias", "banknote",
                      requer="cadastros.view_tabeladiaria"),
+                Item("Textos prontos", "cadastros:textos", "text-quote",
+                     requer="cadastros.view_modelotexto"),
             )),
         ),
     )
