@@ -179,12 +179,16 @@
   margin-bottom: var(--esp-3);
 }
 
+/* O título do bloco fala a mesma língua dos títulos da janela de resumo e das seções
+   institucionais da folha do roteiro: caixa alta miúda, ícone dourado. */
 .secao__bloco-titulo {
   display: flex;
   align-items: center;
   gap: var(--esp-2);
-  font-size: var(--texto-md);
-  font-weight: var(--peso-semi);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
   color: var(--cor-texto-secundario);
 }
 

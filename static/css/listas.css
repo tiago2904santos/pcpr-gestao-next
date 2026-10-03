@@ -424,58 +424,8 @@ a.ficha:hover {
   }
 }
 
-/* Equipe e transporte na mesma grade: seis colunas de base, cada cartão ocupando duas
-   (três por linha) ou três (duas por linha) — a última linha nunca fica pela metade.
-   Quem decide a largura de cada um é larguras_de_cartoes, no servidor. */
-.resumo__cartoes {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: var(--esp-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.resumo__cartao--2 { grid-column: span 2; }
-.resumo__cartao--3 { grid-column: span 3; }
-.resumo__cartao--6 { grid-column: span 6; }
-
-@media (max-width: 767.98px) {
-  .resumo__cartoes > * {
-    grid-column: span 6;
-  }
-}
-
-/* Documentos: fichas numa linha só, quebrando quando precisar. */
-.resumo__documentos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--esp-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.resumo__documento {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-2);
-  padding: var(--esp-2) var(--esp-3);
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-realce);
-  color: var(--cor-texto);
-  text-decoration: none;
-  transition: background-color var(--duracao-rapida) var(--curva-padrao);
-}
-
-a.resumo__documento:hover {
-  background: var(--cor-marca-fundo);
-  text-decoration: none;
-}
-
-.resumo__documento--parado {
-  color: var(--cor-texto-secundario);
-}
+/* A grade de cartões de pessoa (.resumo__cartoes) e as fichas de documentos
+   (.resumo__documentos) moram em components.css: a folha do ofício também as usa. */
 
 @media (max-width: 767.98px) {
   .resumo__linha,

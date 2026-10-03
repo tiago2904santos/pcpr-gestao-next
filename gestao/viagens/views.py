@@ -255,6 +255,8 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
             if request.user.has_perm("viagens.view_roteiro") else None),
         "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
         "historico": list(oficio.historico.select_related("usuario")[:30]),
+        # O cartão Documentos lista o que já saiu em papel, como a janela de resumo.
+        "documentos": list(oficio.documentos.select_related("emitido_por")),
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, "")),
     }

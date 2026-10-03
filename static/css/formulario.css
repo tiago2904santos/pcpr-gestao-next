@@ -450,6 +450,16 @@
   padding-right: var(--esp-6);
 }
 
+/* Fechando a linha: os compactos crescem até a margem, cada pílula com a sua parte, para
+   a linha do número, da data e do protocolo não terminar num vão. */
+.campos > .opcoes--estende {
+  flex: 1 1 auto;
+}
+
+.campos > .opcoes--estende .opcao {
+  flex: 1 1 9rem;
+}
+
 /* Em folha mais estreita os compactos perdem o ícone e viram pílulas de texto: cabem na
    linha do número, da data e do protocolo em vez de abrir uma linha pela metade. */
 @media (max-width: 1279.98px) {
@@ -722,9 +732,10 @@
   flex: 0 1 36rem;
 }
 
-/* Equipe: a busca tem a largura de um nome, não da folha; avisos de agenda numa lista só. */
+/* Equipe: a busca vai de margem a margem, como a busca das listas — uma caixa curta
+   deixaria a linha pela metade. Avisos de agenda numa lista só. */
 .equipe__busca {
-  max-width: 32rem;
+  width: 100%;
 }
 
 .alerta__lista {
@@ -749,8 +760,9 @@
   gap: var(--esp-3);
 }
 
+/* O campo cresce até o botão: a linha fecha na margem, sem sobra. */
 .usar-roteiro__escolha > .campo {
-  flex: 0 1 30rem;
+  flex: 1 1 30rem;
 }
 
 .usar-roteiro__escolha > .botao {

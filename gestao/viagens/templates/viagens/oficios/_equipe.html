@@ -1,5 +1,11 @@
 {% load viagens %}
 {% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
+{% comment %}
+Equipe do ofício: bloco do cartão Identificação, salvo na hora (o HTMX troca este bloco
+inteiro). A busca vai de margem a margem; os cartões de pessoa seguem a grade da janela de
+resumo — seis colunas de base e a última linha sempre cheia (larguras_de_cartoes), nunca um
+cartão sozinho com a linha pela metade.
+{% endcomment %}
 {% with pendencias_equipe=prontidao|pendencias_da_secao:"equipe" %}
 <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
   <div class="secao__bloco-cabecalho">
@@ -23,9 +29,10 @@
       <noscript><p class="campo__ajuda">Sem JavaScript: informe o código do servidor.</p><input class="entrada" name="id" inputmode="numeric"><button class="botao botao--sm mt-2">Adicionar</button></noscript>
     </form>
     {% if viajantes %}
-      <ul class="grade grade--2" role="list" aria-label="Servidores da equipe">
+      {% with larguras=viajantes|length|larguras_de_cartoes %}
+      <ul class="resumo__cartoes" role="list" aria-label="Servidores da equipe">
         {% for v in viajantes %}
-          <li class="pessoa">
+          <li class="pessoa resumo__cartao--{{ larguras|get_item:forloop.counter0 }}">
             <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
             <div class="pessoa__texto">
               <div class="pessoa__nome">{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</div>
@@ -42,8 +49,9 @@
           </li>
         {% endfor %}
       </ul>
+      {% endwith %}
     {% else %}
-      <p class="texto-secundario">Nenhum servidor na equipe ainda.</p>
+      <p class="vazio-inline">Nenhum servidor na equipe ainda — busque acima para incluir.</p>
     {% endif %}
     {% for p in pendencias_equipe %}{% if p.bloqueia %}
       <div class="alerta alerta--perigo" role="note">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}</p></div></div>
