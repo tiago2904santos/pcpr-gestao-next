@@ -44,6 +44,34 @@
   max-width: 76rem;
 }
 
+/* Quatro cartões soltos, não uma folha única repartida por fios: cada seção vira o próprio
+   cartão, com o respiro entre eles fazendo a separação que o filete fazia antes. Só a folha
+   do ofício usa esta variante — a do roteiro continua sendo uma folha só. */
+.documento--cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-5);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.documento--cartoes > .secao {
+  padding: var(--esp-6) var(--esp-8);
+  border-top: 0;
+  border-radius: var(--raio-xl);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
+}
+
+/* O recuo menor do topo existia porque a primeira seção encostava na borda da folha; com
+   cartão próprio, cada um tem o mesmo respiro em cima. */
+.documento--cartoes > .secao:first-child,
+.documento--cartoes > .documento__guia + .secao {
+  padding-top: var(--esp-6);
+}
+
 .documento .sanfona {
   border: 0;
   border-radius: 0;
