@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
 janela de resumo: cabeçalho com placa, frase e ações; quatro cartões soltos — Identificação,
@@ -116,7 +116,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     {# Equipe: salva na hora, via HTMX (o bloco inteiro é trocado). #}
     {% include "viagens/oficios/_equipe.html" %}
 
-    <div class="secao__bloco" id="transporte" aria-labelledby="t-transporte">
+    <pc-transporte class="secao__bloco" id="transporte" aria-labelledby="t-transporte">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
         <div class="secao__estado">
@@ -139,7 +139,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
         {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
         {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
       </div>
-    </div>
+    </pc-transporte>
   </section>
 
   {% comment %}

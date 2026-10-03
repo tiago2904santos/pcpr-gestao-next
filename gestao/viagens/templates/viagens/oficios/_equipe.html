@@ -1,10 +1,15 @@
 {% load viagens %}
 {% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
 {% comment %}
-Equipe do ofício: bloco do cartão Identificação, salvo na hora (o HTMX troca este bloco
-inteiro). A busca vai de margem a margem; os cartões de pessoa seguem a grade da janela de
-resumo — seis colunas de base e a última linha sempre cheia (larguras_de_cartoes), nunca um
-cartão sozinho com a linha pela metade.
+Equipe do ofício — crachás numa grade que fecha na margem. Cada pessoa é um crachá: a
+posição na equipe no canto (o número do trecho, como no roteiro), a faixa dourada quando
+é quem dirige, as iniciais grandes, nome, cargo em caixa alta e os chips do que importa
+para a viagem (unidade, viatura que costuma dirigir). As ações ficam na base do crachá:
+"Motorista" é um botão que se marca (aria-pressed), "Remover" um × discreto.
+
+Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista` são o que
+<pc-transporte> lê para sugerir e escolher a viatura. A grade é a da janela de resumo
+(seis colunas, última linha sempre cheia — larguras_de_cartoes).
 {% endcomment %}
 {% with pendencias_equipe=prontidao|pendencias_da_secao:"equipe" %}
 <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
@@ -23,36 +28,49 @@ cartão sozinho com a linha pela metade.
       <label class="campo__rotulo" for="busca-servidor">Adicionar servidor</label>
       <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2"
                    data-acao-url="{% url 'viagens:adicionar_viajante' oficio.pk %}" data-alvo="#equipe" data-troca="outerHTML">
-        <div class="entrada-composta">{% icone "search" %}<input id="busca-servidor" class="entrada" role="combobox" name="busca" placeholder="Buscar por nome, CPF ou RG" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
+        <div class="entrada-composta equipe__entrada">{% icone "user-round" %}<input id="busca-servidor" class="entrada" role="combobox" name="busca" placeholder="Nome, CPF ou RG — escolha na lista e a pessoa entra na hora" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
       </pc-combobox>
-      {# A ajuda fica só para leitores de tela: o placeholder já diz o que buscar. #}
       <p class="campo__ajuda sr-only" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista.</p>
       <noscript><p class="campo__ajuda">Sem JavaScript: informe o código do servidor.</p><input class="entrada" name="id" inputmode="numeric"><button class="botao botao--sm mt-2">Adicionar</button></noscript>
     </form>
     {% if viajantes %}
       {% with larguras=viajantes|length|larguras_de_cartoes %}
-      <ul class="resumo__cartoes" role="list" aria-label="Servidores da equipe">
+      <ul class="resumo__cartoes equipe__cartoes" role="list" aria-label="Servidores da equipe">
         {% for v in viajantes %}
-          <li class="pessoa resumo__cartao--{{ larguras|get_item:forloop.counter0 }}">
-            <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
-            <div class="pessoa__texto">
-              <div class="pessoa__nome">{{ v.servidor.nome }}{% if v.motorista %} <span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}</div>
-              <div class="pessoa__meta">{{ v.servidor.cargo }} • {{ v.servidor.unidade.sigla }}{% if v.servidor.cpf %} • CPF {{ v.servidor.cpf_formatado }}{% endif %}</div>
+          <li class="cracha resumo__cartao--{{ larguras|get_item:forloop.counter0 }}{% if v.motorista %} cracha--motorista{% endif %}"
+              data-servidor="{{ v.servidor_id }}" data-unidade="{{ v.servidor.unidade_id }}" data-nome="{{ v.servidor.nome }}"{% if v.motorista %} data-motorista{% endif %}>
+            <span class="cracha__ordem" aria-hidden="true">{{ forloop.counter }}</span>
+            <span class="cracha__iniciais" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+            <div class="cracha__texto">
+              <div class="cracha__nome">{{ v.servidor.nome }}</div>
+              <div class="cracha__cargo">{{ v.servidor.cargo }}</div>
+              <div class="cracha__chips">
+                <span class="selo selo--sem-ponto">{% icone "building-2" classe="icone--sm" %}{{ v.servidor.unidade.sigla }}</span>
+                {% for viatura in v.servidor.viaturas_que_dirige.all %}
+                  <span class="selo selo--info selo--sem-ponto" title="{{ viatura.modelo }} — costuma dirigir">{% icone "car" classe="icone--sm" %}{{ viatura.placa_formatada }}</span>
+                {% endfor %}
+                {% if v.motorista %}<span class="selo selo--forte selo--sem-ponto">{% icone "car" classe="icone--sm" %}Motorista</span>{% endif %}
+              </div>
             </div>
-            <form method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
-              {% csrf_token %}<input type="hidden" name="viajante" value="{% if not v.motorista %}{{ v.pk }}{% endif %}">
-              <button type="submit" class="botao botao--sm botao--sutil" aria-pressed="{{ v.motorista|yesno:'true,false' }}" aria-label="{% if v.motorista %}Desmarcar {{ v.servidor.nome }} como motorista{% else %}Marcar {{ v.servidor.nome }} como motorista{% endif %}">{% icone "car" %}<span class="sr-only">Motorista</span></button>
-            </form>
-            <form method="post" action="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-post="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-target="#equipe" hx-swap="outerHTML">
-              {% csrf_token %}
-              <button type="submit" class="botao botao--icone botao--sm botao--sutil" aria-label="Remover {{ v.servidor.nome }} da equipe">{% icone "x" %}</button>
-            </form>
+            <div class="cracha__acoes">
+              <form method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+                {% csrf_token %}<input type="hidden" name="viajante" value="{% if not v.motorista %}{{ v.pk }}{% endif %}">
+                <button type="submit" class="cracha__motorista" aria-pressed="{{ v.motorista|yesno:'true,false' }}" aria-label="{% if v.motorista %}Desmarcar {{ v.servidor.nome }} como motorista{% else %}Marcar {{ v.servidor.nome }} como motorista{% endif %}" title="{% if v.motorista %}Desmarcar como motorista{% else %}Marcar como motorista{% endif %}">{% icone "car" classe="icone--sm" %}<span>{% if v.motorista %}Dirige{% else %}Motorista{% endif %}</span></button>
+              </form>
+              <form method="post" action="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-post="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+                {% csrf_token %}
+                <button type="submit" class="cracha__remover" aria-label="Remover {{ v.servidor.nome }} da equipe" title="Remover da equipe">{% icone "x" classe="icone--sm" %}</button>
+              </form>
+            </div>
           </li>
         {% endfor %}
       </ul>
       {% endwith %}
     {% else %}
-      <p class="vazio-inline">Nenhum servidor na equipe ainda — busque acima para incluir.</p>
+      <div class="equipe__vazia">
+        {% icone "users" %}
+        <p><strong>Ninguém na equipe ainda.</strong> Busque acima: a pessoa entra na hora e o primeiro marcado como motorista escolhe a viatura.</p>
+      </div>
     {% endif %}
     {% for p in pendencias_equipe %}{% if p.bloqueia %}
       <div class="alerta alerta--perigo" role="note">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}</p></div></div>

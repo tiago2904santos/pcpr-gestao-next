@@ -487,3 +487,31 @@ def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
     assert "frame-ancestors 'self'" in pdf.value.headers["content-security-policy"]
     pg.wait_for_timeout(500)
     assert not [e for e in pg.erros_console if "frame" in e.lower()], pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
+    """A viatura acompanha a equipe: a lista sugere as da unidade e as que alguém dirige
+    (com chips), e marcar o motorista escolhe sozinha a viatura que ele costuma dirigir."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/#equipe")
+    busca = pg.get_by_role("combobox", name="Adicionar servidor")
+    busca.fill("isab")
+    pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
+    expect(pg.locator("#equipe .cracha")).to_contain_text("Isabela Prado Cavalcanti")
+    # Sugestões com chips: Isabela dirige a Master; a Duster é da unidade dela (DPC).
+    pg.locator("#id_viatura-busca").click()
+    opcoes = pg.locator("#transporte [role='option']")
+    expect(opcoes.first).to_contain_text("ABC1D23")
+    expect(opcoes.first.locator(".combobox__chip")).to_have_text(["Isabela"])
+    expect(opcoes.nth(1)).to_contain_text("XYZ-9876")
+    expect(opcoes.nth(1).locator(".combobox__chip")).to_have_text(["Unidade DPC"])
+    expect(pg.locator("#transporte .combobox__grupo").first).to_have_text("Sugeridas pela equipe")
+    pg.keyboard.press("Escape")
+    # Marcar como motorista escolhe a viatura dela e avisa.
+    pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
+    expect(pg.locator("#equipe .cracha--motorista")).to_contain_text("Isabela")
+    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
+    expect(pg.locator(".toast").last).to_contain_text("Isabela costuma dirigi-la")
+    pg.get_by_role("button", name="Salvar rascunho").click()
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
+    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))

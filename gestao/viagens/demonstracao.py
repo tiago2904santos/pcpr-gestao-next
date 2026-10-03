@@ -287,11 +287,17 @@ class _Gerador:
                 rng.choices(self.unidades, self.pesos)[0]
             modelo, combustivel = MODELOS_VIATURA[i % len(MODELOS_VIATURA)]
             placa = f"ZZ{chr(65 + i % 26)}{i % 10}{chr(65 + (i * 7) % 26)}{(i * 13) % 100:02d}"
-            self.viaturas_por_unidade[unidade.pk].append(Viatura.objects.create(
+            viatura = Viatura.objects.create(
                 placa=placa, modelo=modelo, combustivel=combustiveis[combustivel],
                 tipo=Viatura.Tipo.CARACTERIZADA if i % 3 else Viatura.Tipo.DESCARACTERIZADA,
                 unidade=unidade,
-            ))
+            )
+            # Motoristas habituais: a maioria das viaturas tem um ou dois da própria unidade.
+            proprios = self.servidores_por_unidade[unidade.pk]
+            if proprios and rng.random() < 0.7:
+                quantos = min(len(proprios), rng.choice([1, 1, 2]))
+                viatura.motoristas.set(rng.sample(proprios, quantos))
+            self.viaturas_por_unidade[unidade.pk].append(viatura)
         self._usuarios()
 
     def _usuarios(self) -> None:

@@ -40,7 +40,8 @@ def servidores(request: HttpRequest) -> HttpResponse:
 @permission_required("cadastros.view_viatura", raise_exception=True)
 def viaturas(request: HttpRequest) -> HttpResponse:
     return render(request, "cadastros/viaturas.html", {
-        "viaturas": Viatura.objects.select_related("combustivel", "unidade"),
+        "viaturas": Viatura.objects.select_related("combustivel", "unidade")
+        .prefetch_related("motoristas"),
         "migalhas": _migalhas("Viaturas")})
 
 

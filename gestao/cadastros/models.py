@@ -108,6 +108,12 @@ class Viatura(Ativavel):
     unidade = models.ForeignKey(
         Unidade, on_delete=models.PROTECT, null=True, blank=True, related_name="viaturas"
     )
+    # Quem costuma dirigi-la: na folha do ofício, marcar um deles como motorista escolhe a
+    # viatura sozinha, e a lista de viaturas sugere as ligadas à equipe.
+    motoristas = models.ManyToManyField(
+        Servidor, verbose_name="motoristas habituais", blank=True,
+        related_name="viaturas_que_dirige",
+    )
 
     class Meta:
         ordering = ["placa"]

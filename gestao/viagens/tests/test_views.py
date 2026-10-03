@@ -563,7 +563,9 @@ class TestOrcamentoDeConsultas:
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         if engordar:
             self._engordar(oficio, cenario.usuarios["operador"])
-        with django_assert_max_num_queries(20):
+        # 22: as duas a mais são as viaturas que cada viajante dirige e os motoristas de cada
+        # viatura (a equipe mostra, a lista de viaturas sugere).
+        with django_assert_max_num_queries(22):
             assert operador.get(reverse(rota, args=[oficio.pk])).status_code == 200
 
     def test_salvar_edicao(self, operador, cenario, django_assert_max_num_queries):
@@ -727,3 +729,31 @@ class TestVisualizadorDaMinuta:
         # O visualizador é a folha HTML (editável); o PDF entra pelo modo "PDF" do editor.
         assert f'src="{reverse("viagens:folha", args=[pk, "oficio"])}"' in html
         assert f'data-pdf="{reverse("viagens:previa", args=[pk])}?tipo=oficio"' in html
+
+
+class TestEquipeEViaturaSugerida:
+    """Crachás da equipe e viatura que acompanha a equipe (motoristas habituais)."""
+
+    def test_folha_traz_os_dados_que_a_sugestao_usa(self, operador, cenario):
+        from gestao.cadastros.models import Servidor, Viatura
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        isabela = Servidor.objects.get(nome__startswith="Isabela")
+        services.adicionar_viajante(oficio, cenario.usuarios["operador"], isabela)
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        master = Viatura.objects.get(placa="ABC1D23")
+        # Opção da viatura com unidade, sigla e motoristas habituais.
+        opcao = re.search(rf'<option value="{master.pk}"[^>]*>', html)
+        assert opcao is not None
+        assert f'data-unidade="{master.unidade_id}"' in opcao.group(0)
+        assert 'data-sigla="ASCOM"' in opcao.group(0)
+        assert f'data-motoristas="{isabela.pk}"' in opcao.group(0)
+        assert 'data-nomes="Isabela"' in opcao.group(0)
+        # Crachá com os dados que <pc-transporte> lê e o chip da viatura que ela dirige.
+        assert f'data-servidor="{isabela.pk}" data-unidade="{isabela.unidade_id}"' in html
+        assert "ABC1D23" in html and 'class="cracha__ordem"' in html
+        assert "<pc-transporte" in html
+
+    def test_viaturas_do_cadastro_listam_os_motoristas(self, operador, cenario):
+        html = operador.get(reverse("cadastros:viaturas")).content.decode()
+        assert "Motoristas habituais" in html and "Isabela Prado Cavalcanti" in html

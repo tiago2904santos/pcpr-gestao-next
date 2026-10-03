@@ -6,8 +6,8 @@
 {% if viaturas %}
 <div class="tabela-rolagem"><table class="tabela tabela--responsiva">
   <caption class="sr-only">Viaturas cadastradas</caption>
-  <thead><tr><th scope="col">Placa</th><th scope="col">Modelo</th><th scope="col">Combustível</th><th scope="col">Tipo</th><th scope="col">Unidade</th></tr></thead>
-  <tbody>{% for v in viaturas %}<tr><td class="tabela__celula-principal" data-rotulo="Placa"><span class="tabela__principal">{{ v.placa_formatada }}</span></td><td data-rotulo="Modelo">{{ v.modelo }}</td><td data-rotulo="Combustível">{{ v.combustivel }}</td><td data-rotulo="Tipo">{{ v.get_tipo_display }}</td><td data-rotulo="Unidade">{{ v.unidade.sigla|default:"—" }}</td></tr>{% endfor %}</tbody>
+  <thead><tr><th scope="col">Placa</th><th scope="col">Modelo</th><th scope="col">Combustível</th><th scope="col">Tipo</th><th scope="col">Unidade</th><th scope="col">Motoristas habituais</th></tr></thead>
+  <tbody>{% for v in viaturas %}<tr><td class="tabela__celula-principal" data-rotulo="Placa"><span class="tabela__principal">{{ v.placa_formatada }}</span></td><td data-rotulo="Modelo">{{ v.modelo }}</td><td data-rotulo="Combustível">{{ v.combustivel }}</td><td data-rotulo="Tipo">{{ v.get_tipo_display }}</td><td data-rotulo="Unidade">{{ v.unidade.sigla|default:"—" }}</td><td data-rotulo="Motoristas habituais">{% for m in v.motoristas.all %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td></tr>{% endfor %}</tbody>
 </table></div>
 {% else %}{% include "componentes/vazio.html" with icone="car" titulo="Nenhuma viatura cadastrada" %}{% endif %}
 {% endblock %}

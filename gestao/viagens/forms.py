@@ -157,6 +157,27 @@ class CampoDataHora(forms.DateTimeField):
         super().__init__(**kwargs)
 
 
+class SelecaoDeViatura(forms.Select):
+    """<select> de viaturas com o que a folha precisa para sugerir e escolher sozinha:
+    unidade, sigla, motoristas habituais e a linha de detalhe de cada opção."""
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        opcao = super().create_option(name, value, label, selected, index, subindex, attrs)
+        # ModelChoiceIteratorValue traz a instância: nenhuma consulta a mais por opção.
+        viatura: Viatura | None = getattr(value, "instance", None)
+        if viatura is not None:
+            sigla = viatura.unidade.sigla if viatura.unidade is not None else ""
+            opcao["attrs"].update({
+                "data-unidade": str(viatura.unidade_id or ""),
+                "data-sigla": sigla,
+                "data-motoristas": " ".join(str(m.pk) for m in viatura.motoristas.all()),
+                "data-nomes": "|".join(m.nome.split()[0] for m in viatura.motoristas.all()),
+                "data-meta": " · ".join(p for p in (
+                    str(viatura.combustivel), viatura.get_tipo_display(), sigla) if p),
+            })
+        return opcao
+
+
 class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     """Seções Dados, Transporte e Justificativa (equipe e roteiro têm formulários próprios)."""
 
@@ -187,7 +208,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "custeio": Selecao(),
             "custeio_instituicao": forms.TextInput(attrs=_attrs()),
             "tipo_transporte": Selecao(),
-            "viatura": forms.Select(attrs=_attrs("selecao")),
+            "viatura": SelecaoDeViatura(attrs=_attrs("selecao")),
             "transporte_descricao": forms.TextInput(attrs=_attrs(
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
             "transporte_placa": forms.TextInput(attrs=_attrs(placeholder="Ex.: ABC1D23")),
@@ -223,7 +244,9 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
         ]
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
-        viatura.queryset = Viatura.objects.filter(ativo=True).select_related("combustivel")
+        viatura.queryset = (Viatura.objects.filter(ativo=True)
+                            .select_related("combustivel", "unidade")
+                            .prefetch_related("motoristas"))
         viatura.empty_label = "Selecione a viatura…"
         combustivel = cast(forms.ModelChoiceField, self.fields["transporte_combustivel"])
         combustivel.queryset = Combustivel.objects.filter(ativo=True)

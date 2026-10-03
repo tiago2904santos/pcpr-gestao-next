@@ -462,6 +462,25 @@
   font-weight: var(--peso-semi);
 }
 
+/* Sugestões: cabeçalho de grupo e chips ao lado do título (viaturas da equipe). */
+.combobox__grupo {
+  padding: var(--esp-2) var(--esp-3) var(--esp-1);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-terciario);
+}
+
+.combobox__grupo + .combobox__grupo {
+  display: none;
+}
+
+.combobox__chip {
+  vertical-align: middle;
+  margin-left: var(--esp-1);
+}
+
 .combobox__opcao-meta {
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
