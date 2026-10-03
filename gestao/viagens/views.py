@@ -254,6 +254,8 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro=""):
         "faixas": {f.value: f.rotulo for f in Faixa},
         "pode_emitir": policies.pode_emitir(request.user, oficio),
         "pode_excluir": policies.pode_excluir(request.user, oficio),
+        "pode_editar_texto": policies.pode_editar_texto(request.user, oficio),
+        "pode_gerir_textos": policies.pode_gerir_textos_prontos(request.user),
         # None = o perfil não vê roteiros (a escolha nem aparece).
         "roteiros_disponiveis": (
             _opcoes_de_roteiro(queries.roteiros_para_oficio(

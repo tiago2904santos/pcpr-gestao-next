@@ -33,6 +33,8 @@ bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.
 | Ver servidores, viaturas, unidades | ✓ | ✓ | ✓ | — |
 | Criar/alterar servidores, viaturas, unidades | — | ✓ | — | — |
 | Ver tabela de diárias | ✓ | ✓ | — | — |
+| Editar o texto dos documentos do rascunho (`change_oficio`, ADR 0018) | ✓ | ✓ | — | — |
+| Guardar/remover textos prontos (`add_modelotexto`, `change_modelotexto`) | ✓ | ✓ | — | — |
 | Criar/alterar tabela de diárias | — | ✓ | — | — |
 | Ver modelos de texto | ✓ | ✓ | — | — |
 | Usuários (ver/criar/alterar) | — | — | — | ✓ |

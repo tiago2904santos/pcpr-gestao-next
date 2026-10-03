@@ -1,4 +1,4 @@
-<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -7,11 +7,14 @@
 <meta name="description" content="{{ d.assunto }}">
 <meta name="keywords" content="ofício, diárias, viagem, {{ d.unidade_sigla }}">
 <meta name="generator" content="PCPR Gestão de Eventos e Viagens">
-<style>
-  @font-face { font-family: "Doc Serif"; src: url("{{ assets }}/fontes/LiberationSerif-Regular.ttf"); }
-  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ assets }}/fontes/LiberationSerif-Bold.ttf"); }
-  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ assets }}/fontes/LiberationSerif-Italic.ttf"); }
-  @font-face { font-family: "Doc Serif"; font-weight: bold; font-style: italic; src: url("{{ assets }}/fontes/LiberationSerif-BoldItalic.ttf"); }
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @font-face { font-family: "Doc Serif"; font-style: italic; src: url("{{ fontes.italico }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; font-style: italic; src: url("{{ fontes.negrito_italico }}"); }
 
   @page {
     size: A4;
@@ -42,6 +45,8 @@
   .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
   .rodape strong { display: block; font-style: normal; font-size: 13pt; letter-spacing: 1pt; color: #555; }
   .marcacao { display: inline-block; width: 7mm; text-align: center; }
+  .quebra { display: none; }
+  .quebra--ativa { display: block; break-before: page; height: 0; }
 </style>
 </head>
 <body>
@@ -49,14 +54,15 @@
   <div class="rodape" role="contentinfo"><strong>PCPR</strong>{{ d.rodape }}</div>
 
   <header class="timbre">
-    <img src="{{ assets }}/brasao-pcpr.png" alt="Brasão da Polícia Civil do Paraná">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
     <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
     <p>POLÍCIA CIVIL DO PARANÁ</p>
     <p>{{ d.cabecalho_unidade }}</p>
   </header>
 
   <main>
-    <table>
+    {% regiao "cabecalho" "Identificação" %}
+    <table data-bloco="identificacao" data-rotulo="Identificação do ofício">
       <tr>
         <td>Ofício Nº <strong>{{ d.numero }}</strong> {{ d.assunto_rotulo }}</td>
         <td>Data: {{ d.data_oficio }}</td>
@@ -66,14 +72,16 @@
         <td>Destino: <strong>{{ d.destinatario.orgao }}</strong></td>
       </tr>
       <tr>
-        <td>Protocolo Nº: {{ d.protocolo|default:"—" }}</td>
+        <td>Protocolo Nº: {% campo_vinculado "protocolo" d.protocolo %}</td>
         <td>Assunto: {{ d.assunto }}</td>
       </tr>
     </table>
+    {% endregiao %}
 
-    <p><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
+    {% regiao "corpo" "Corpo do ofício" %}
+    <p data-bloco="saudacao" data-rotulo="Saudação e pedido"><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
 
-    <table>
+    <table data-bloco="equipe" data-rotulo="Servidores">
       <thead>
         <tr><th scope="col">Nome</th><th scope="col">CPF</th><th scope="col">Cargo</th><th scope="col">Nº solicitação<br>(Central de Viagens)</th></tr>
       </thead>
@@ -84,7 +92,7 @@
       </tbody>
     </table>
 
-    <table>
+    <table data-bloco="resumo" data-rotulo="Destino, diárias e valor">
       <tr>
         <td class="centro"><strong>Destino da viagem:</strong><br>{{ d.destinos|join:", " }}</td>
         <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }} diárias</td>
@@ -92,6 +100,8 @@
       </tr>
     </table>
 
+    {% ponto_de_quebra "antes-roteiro" "Antes do roteiro" %}
+    <div data-bloco="roteiro" data-rotulo="Roteiro">
     {% if d.bate_volta %}
     <p class="titulo-secao">ROTEIRO POR TRECHOS</p>
     <table>
@@ -124,8 +134,9 @@
       {% endfor %}
     </table>
     {% endif %}
+    </div>
 
-    <table>
+    <table data-bloco="transporte" data-rotulo="Transporte">
       <tr>
         <td>
           <strong>Meio de transporte:</strong> {{ d.transporte.meio }}<br>
@@ -141,28 +152,32 @@
     </table>
 
     <table>
-      <tr><td>
+      <tr><td data-bloco="custos" data-rotulo="Custos">
         <strong>Custos:</strong> informar qual entidade custeará as diárias (hospedagem/alimentação) e deslocamento:<br>
         <span class="marcacao">({% if d.custeio == "unidade" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> UNIDADE - {{ d.unidade_sigla }} (diárias e combustível custeados pela {{ d.unidade_sigla }}).<br>
-        <span class="marcacao">({% if d.custeio == "outra_instituicao" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> OUTRA INSTITUIÇÃO{% if d.custeio_instituicao %}: {{ d.custeio_instituicao }}{% endif %}<br>
+        <span class="marcacao">({% if d.custeio == "outra_instituicao" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> OUTRA INSTITUIÇÃO{% if d.custeio == "outra_instituicao" %}: {% campo_vinculado "custeio_instituicao" d.custeio_instituicao %}{% endif %}<br>
         <span class="marcacao">({% if d.custeio == "onus_limitado" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> ÔNUS LIMITADOS AOS PRÓPRIOS VENCIMENTOS
       </td></tr>
-      <tr><td><strong>Motivo da viagem:</strong> {{ d.motivo }}</td></tr>
-      <tr><td><strong>Declaro que os servidores estão cientes da necessidade de estar na posse de cartão corporativo vigente e apto para uso, no período do deslocamento.</strong></td></tr>
+      <tr><td data-bloco="motivo" data-rotulo="Motivo da viagem"><strong>Motivo da viagem:</strong> {% campo_vinculado "motivo" d.motivo %}</td></tr>
+      <tr><td data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro que os servidores estão cientes da necessidade de estar na posse de cartão corporativo vigente e apto para uso, no período do deslocamento.</strong></td></tr>
     </table>
+    {% endregiao %}
 
-    <div class="assinatura">
+    {% regiao "rodape" "Assinatura e destinatário" %}
+    {% ponto_de_quebra "antes-assinatura" "Antes da assinatura" %}
+    <div class="assinatura" data-bloco="assinatura" data-rotulo="Assinatura">
       <p>Respeitosamente,</p>
       <p class="nome">{{ d.chefia.nome }}</p>
       <p class="cargo">{{ d.chefia.cargo }}</p>
     </div>
 
-    <div class="destinatario">
+    <div class="destinatario" data-bloco="destinatario" data-rotulo="Destinatário">
       <p>{{ d.destinatario.tratamento }}</p>
       <p>{{ d.destinatario.nome }}</p>
       <p>{{ d.destinatario.cargo }}</p>
       <p>{{ d.destinatario.cidade }}</p>
     </div>
+    {% endregiao %}
   </main>
 </body>
 </html>

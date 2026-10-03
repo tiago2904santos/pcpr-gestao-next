@@ -724,4 +724,6 @@ class TestVisualizadorDaMinuta:
     def test_folha_emoldura_a_minuta(self, operador, cenario):
         pk = cenario.ids["oficio_rascunho"]
         html = operador.get(reverse("viagens:editar", args=[pk])).content.decode()
-        assert f'<iframe src="{reverse("viagens:previa", args=[pk])}"' in html
+        # O visualizador é a folha HTML (editável); o PDF entra pelo modo "PDF" do editor.
+        assert f'src="{reverse("viagens:folha", args=[pk, "oficio"])}"' in html
+        assert f'data-pdf="{reverse("viagens:previa", args=[pk])}?tipo=oficio"' in html

@@ -466,18 +466,24 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
 
 
 def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
-    """O visualizador do cartão Documentos: o iframe carrega a minuta (lazy, ao chegar à
-    vista) e o navegador a aceita emoldurada — sem "Refused to display" no console."""
+    """O visualizador do cartão Documentos (ADR 0018): o iframe carrega a folha HTML do
+    documento (lazy, ao chegar à vista) e o navegador a aceita emoldurada — sem "Refused to
+    display" no console; o modo PDF pede a minuta, também emoldurável."""
     pg = logado
     pk = dados_e2e.ids["oficio_rascunho"]
     # Escuta desde antes de navegar: o Chromium carrega iframes `lazy` com folga de mais
-    # de mil pixels, então o PDF pode ser pedido já no goto, antes de rolar até ele.
-    # A rota da minuta é oficios/<pk>/minuta.pdf (viagens:previa).
-    with pg.expect_response(lambda r: r.url.endswith(f"/viagens/oficios/{pk}/minuta.pdf")) as resposta:
+    # de mil pixels, então a folha pode ser pedida já no goto, antes de rolar até ela.
+    folha = f"/viagens/oficios/{pk}/documento/oficio/folha/"
+    with pg.expect_response(lambda r: r.url.endswith(folha)) as resposta:
         pg.goto(f"/viagens/oficios/{pk}/editar/")
-        pg.locator("#minuta iframe").scroll_into_view_if_needed()
+        pg.locator("#minuta iframe").first.scroll_into_view_if_needed()
     assert resposta.value.status == 200
-    assert resposta.value.headers["content-type"].startswith("application/pdf")
+    assert resposta.value.headers["content-type"].startswith("text/html")
     assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]
+    with pg.expect_response(lambda r: f"/viagens/oficios/{pk}/minuta.pdf" in r.url) as pdf:
+        pg.click("#editor-oficio [data-modo='pdf']")
+    assert pdf.value.status == 200
+    assert pdf.value.headers["content-type"].startswith("application/pdf")
+    assert "frame-ancestors 'self'" in pdf.value.headers["content-security-policy"]
     pg.wait_for_timeout(500)
     assert not [e for e in pg.erros_console if "frame" in e.lower()], pg.erros_console  # type: ignore[attr-defined]

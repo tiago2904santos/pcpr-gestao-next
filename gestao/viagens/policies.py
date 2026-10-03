@@ -85,6 +85,16 @@ def pode_excluir(usuario, oficio: Oficio) -> bool:
             and usuario.has_perm("viagens.delete_oficio") and pode_ver(usuario, oficio))
 
 
+# ---------------------------------------------------------------- texto dos documentos (ADR 0018)
+def pode_editar_texto(usuario, oficio: Oficio) -> bool:
+    """Quem edita o ofício edita o texto dos seus documentos — e só enquanto é rascunho."""
+    return pode_editar(usuario, oficio)
+
+
+def pode_gerir_textos_prontos(usuario) -> bool:
+    return usuario.has_perm("cadastros.add_modelotexto")
+
+
 # ---------------------------------------------------------------- roteiros
 def roteiros_visiveis(usuario) -> QuerySet[Roteiro]:
     if not usuario.has_perm("viagens.view_roteiro"):

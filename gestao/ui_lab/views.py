@@ -9,9 +9,13 @@ nas larguras de referência antes de qualquer tela de negócio.
 from __future__ import annotations
 
 from django import forms
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, QueryDict
+from django.middleware.csp import get_nonce
 from django.shortcuts import render
+from django.utils.csp import CSP
+from django.views.decorators.csp import csp_override
 
 from gestao.plataforma.widgets import (
     FORMATOS_DATA,
@@ -152,3 +156,51 @@ def busca_exemplo(request: HttpRequest) -> HttpResponse:
         if termo in nome.lower()
     ]
     return JsonResponse({"resultados": resultados})
+
+
+# ---------------------------------------------------------------- editor de documento (ADR 0018)
+DADOS_FOLHA_EXEMPLO = {
+    "numero": "00/2026", "ano": 2026, "data_oficio": "01/10/2026", "protocolo": "00.000.000-0",
+    "assunto": "Solicitação de autorização e concessão de diárias.",
+    "assunto_rotulo": "(Autorização)", "assunto_termo": "autorização",
+    "origem": "Assessoria de Comunicação Social", "unidade_sigla": "ASCOM",
+    "destinatario": {"tratamento": "Ao Senhor", "nome": "Delegado Fictício de Exemplo",
+                     "cargo": "Delegado-Geral Adjunto", "orgao": "Gabinete do Delegado-Geral",
+                     "cidade": "Curitiba/PR"},
+    "chefia": {"nome": "Chefia Fictícia de Exemplo", "cargo": "Delegada de Polícia"},
+    "cabecalho_unidade": "ASSESSORIA DE COMUNICAÇÃO SOCIAL",
+    "rodape": "Rua Fictícia, 100 - Centro - Curitiba/PR - CEP 80000-000",
+    "viajantes": [{"nome": "Ana Fictícia Almeida", "cpf": "000.000.000-00", "rg": "0",
+                   "cargo": "Investigadora de Polícia", "motorista": True},
+                  {"nome": "Bruno Fictício Barbosa", "cpf": "000.000.000-00", "rg": "0",
+                   "cargo": "Escrivão de Polícia", "motorista": False}],
+    "destinos": ["Londrina/PR"],
+    "ida": [{"origem": "Curitiba/PR", "destino": "Londrina/PR",
+             "saida": {"data": "08/10/2026", "hora": "07:00"},
+             "chegada": {"data": "08/10/2026", "hora": "12:30"}}],
+    "volta": [{"origem": "Londrina/PR", "destino": "Curitiba/PR",
+               "saida": {"data": "09/10/2026", "hora": "14:00"},
+               "chegada": {"data": "09/10/2026", "hora": "19:30"}}],
+    "bate_volta": False, "trechos": [],
+    "transporte": {"meio": "Viatura (exemplo)", "placa": "ZZZ-0000", "combustivel": "Flex",
+                   "viatura": "Caracterizada", "oficial": True},
+    "motorista": "Ana Fictícia Almeida", "porte_arma": True, "custeio": "unidade",
+    "custeio_instituicao": "", "motivo": "Cobertura de evento institucional (exemplo).",
+    "diarias": {"resumo": "1 x 100% + 1 x 30%", "total": "R$ 377,72",
+                "total_decimal": "377.72", "extenso": "trezentos e setenta e sete reais",
+                "calculo": {}},
+    "justificativa": "", "prazo": {"dias": 7, "prazo": 10, "obrigatoria": True},
+    "emitido_em": "01/10/2026 09:00",
+}
+
+
+@csp_override({**settings.SECURE_CSP, "frame-ancestors": [CSP.SELF],
+               "style-src": [CSP.SELF, CSP.NONCE]})
+def folha_exemplo(request: HttpRequest) -> HttpResponse:
+    """A folha do ofício com dados fictícios, para a vitrine do editor (nada é salvo)."""
+    from gestao.viagens.documentos.pdf import html_do_documento
+
+    preguicoso = get_nonce(request)
+    nonce = str(preguicoso) if preguicoso is not None else ""
+    return HttpResponse(html_do_documento("oficio", DADOS_FOLHA_EXEMPLO, previa=True,
+                                          folha=True, nonce=nonce))

@@ -208,10 +208,13 @@ class ModeloTexto(Ativavel):
     class Tipo(models.TextChoices):
         MOTIVO = "motivo", "Motivo do ofício"
         JUSTIFICATIVA = "justificativa", "Justificativa de prazo"
+        OFICIO = "oficio", "Trecho para o texto do ofício"
 
     tipo = models.CharField(max_length=20, choices=Tipo.choices)
     nome = models.CharField("nome", max_length=120)
     texto = models.TextField("texto")
+    # Texto que vem com o sistema: pode ser desativado, nunca apagado pelo editor.
+    padrao_sistema = models.BooleanField("padrão do sistema", default=False)
 
     class Meta:
         ordering = ["tipo", "nome"]

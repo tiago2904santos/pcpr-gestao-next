@@ -7,4 +7,5 @@ app_name = "ui_lab"
 urlpatterns = [
     path("", views.indice, name="indice"),
     path("busca-exemplo/", views.busca_exemplo, name="busca_exemplo"),
+    path("folha-exemplo/", views.folha_exemplo, name="folha_exemplo"),
 ]
