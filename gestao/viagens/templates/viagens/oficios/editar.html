@@ -167,11 +167,6 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
         </label>
       </div>
       </div>
-
-      {# Diárias: só leitura, refeita ao salvar ou ao mudar a equipe. #}
-      <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
-        {% include "viagens/oficios/_diarias.html" with bloco=True %}
-      </div>
     </section>
 
     <!-- 2. Roteiro: itinerário sede → destinos → sede -->
@@ -209,6 +204,14 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
       </div>
       {% endif %}
       {% include "viagens/_itinerario.html" %}
+
+      {% comment %}
+      Diárias no fim do Roteiro, que é de onde o cálculo nasce: só leitura, refeita ao
+      salvar ou ao mudar a equipe.
+      {% endcomment %}
+      <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
+        {% include "viagens/oficios/_diarias.html" with bloco=True %}
+      </div>
     </section>
 
     {% comment %}

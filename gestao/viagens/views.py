@@ -186,14 +186,15 @@ def novo(request: HttpRequest) -> HttpResponse:
 
 # ------------------------------------------------------------------ edição
 # A folha é lida em quatro cartões (decisão do dono): Identificação reúne os dados
-# administrativos, a equipe, o transporte e as diárias; Roteiro fica com sede, destinos e
-# trechos; Justificativa só existe quando o prazo a exige; Documentos conclui (conferência,
-# minuta e emissão) e não tem pendência própria — vale a prontidão inteira.
+# administrativos, a equipe e o transporte; Roteiro fica com sede, destinos, trechos e as
+# diárias, que nascem do próprio roteiro; Justificativa só existe quando o prazo a exige;
+# Documentos conclui (conferência, minuta e emissão) e não tem pendência própria — vale a
+# prontidão inteira.
 # As pendências continuam nascendo com a chave fina ("dados", "equipe", …): é o que leva o
 # link da conferência ao bloco certo dentro do cartão.
 SECOES_DO_OFICIO = [
-    ("identificacao", "Identificação", ("dados", "equipe", "transporte", "diarias")),
-    ("roteiro", "Roteiro", ("roteiro",)),
+    ("identificacao", "Identificação", ("dados", "equipe", "transporte")),
+    ("roteiro", "Roteiro", ("roteiro", "diarias")),
     ("justificativa", "Justificativa", ("justificativa",)),
 ]
 
