@@ -18,6 +18,8 @@ ROTAS_AUTENTICADAS = [
     "/viagens/roteiros/",
     "/viagens/roteiros/novo/",
     "/viagens/roteiros/{roteiro}/editar/",
+    "/cadastros/textos-prontos/",
+    "/cadastros/textos-prontos/?tipo=justificativa&novo=1",  # janela de novo texto aberta
     "/ui-lab/",
     "/nao-existe/",
 ]

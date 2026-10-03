@@ -61,6 +61,11 @@ def pode_criar(usuario) -> bool:
     return usuario.has_perm("viagens.add_oficio") and unidade_do_usuario(usuario) is not None
 
 
+def pode_gerir_numeracao(usuario) -> bool:
+    """Piso da numeração anual (número inicial do ano): só o gestor."""
+    return usuario.has_perm("viagens.gerir_numeracao")
+
+
 def pode_editar(usuario, oficio: Oficio) -> bool:
     return oficio.editavel and usuario.has_perm("viagens.change_oficio") and pode_ver(
         usuario, oficio)

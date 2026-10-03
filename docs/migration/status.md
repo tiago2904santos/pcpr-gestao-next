@@ -16,7 +16,7 @@ Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
 | Falso conflito autosave × Salvar; menus sob a barra flutuante | ✅ corrigidos (achados pelos testes de navegador) |
 | Orçamentos de peso (CSS/JS/requisições) | ✅ peso e tempo no orçamento (minificação + editor sob demanda); requisições das folhas: ADR 0021 (proposto) |
 | Exportar a lista em planilha (.xlsx, 14 colunas, como a referência) | ✅ feito — `gestao/viagens/exportacao.py`, botão na barra da lista; 268 ofícios do DEMO em 0,76 s com 11 consultas |
-| Tela do piso da numeração (gestor) | pendente |
+| Tela do piso da numeração (gestor) | ✅ feito — `/viagens/oficios/numeracao/` |
 | Arquivar / reativar / complementar / motorista externo / DOCX | **decisões pendentes** D-OF-1..4 (ver ficha) |
 | Comparação com a referência em execução | **bloqueada**: precisa de `REF_USER`/`REF_PASS` no ambiente ou sessão aberta pelo usuário |
 

@@ -37,7 +37,7 @@ Situação: **EM ANDAMENTO** (módulo 1 do [roadmap](roadmap.md)). Matriz detalh
 | Ações: reabrir, cancelar, reativar, arquivar, retificar, complementar, excluir | sim | reabrir, cancelar, retificar (vira retificado ao editar emitido), excluir | reativar/arquivar/complementar PENDENTES |
 | Documentos: ofício, justificativa (visualizar, PDF, DOCX) | DOCX + PDF | PDF/A-2a versionado, minuta, visualizador em nova aba, editor de documento | MELHORADO; DOCX: DIFERENÇA INTENCIONAL (ADR 0008) — confirmar com o usuário |
 | Catálogos de motivo e de justificativa (CRUD, padrão, ordem, ativo) | sim | `/cadastros/textos-prontos/` (abas por tipo, busca, janela novo/editar, usar como padrão, desativar/reativar, excluir só gestor e nunca o do sistema) + seletor "Texto pronto" na folha que preenche o campo (confirma antes de substituir) + "Guardar como texto pronto" | **IGUAL + MELHORADO** — `test_textos_prontos.py` |
-| Numeração (piso anual) | tela do gestor | — | **PENDENTE** |
+| Numeração (piso anual) | tela do gestor (ano + piso) | `/viagens/oficios/numeracao/` (gestor): tabela por ano com piso, maior número, lacunas livres e próximo número + formulário do piso; nunca renumera | **MELHORADO** — `test_views.py::TestNumeracaoAnual`, a11y `test_telas_do_gestor_sem_violacoes_graves` |
 | Configuração institucional | tela | — (seed) | **PENDENTE** (pode ir com Cadastros) |
 | Justificativas (lista própria) | sim | — | PENDENTE — avaliar se a aba/filtro "justificativa pendente" na lista de ofícios resolve (D-OF-6) |
 | Ofícios do motorista | API para conflito | aviso de conflito de servidor/viatura | IGUAL em propósito |

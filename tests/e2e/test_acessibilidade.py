@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from .conftest import rodar_axe, salvar_relatorio
+from .conftest import entrar, rodar_axe, salvar_relatorio
 from .rotas import ROTAS_AUTENTICADAS, ROTAS_PUBLICAS, resolver
 
 pytestmark = pytest.mark.a11y
@@ -29,6 +29,14 @@ def test_paginas_publicas_sem_violacoes_graves(pagina, rota):
 @pytest.mark.parametrize("rota", ROTAS_AUTENTICADAS)
 def test_paginas_autenticadas_sem_violacoes_graves(logado, dados_e2e, rota):
     _avaliar(logado, resolver(rota, dados_e2e.ids))
+
+
+@pytest.mark.parametrize("rota", ["/viagens/oficios/numeracao/",
+                                  "/cadastros/textos-prontos/?tipo=motivo"])
+def test_telas_do_gestor_sem_violacoes_graves(pagina, dados_e2e, rota):
+    """Telas que só o gestor abre (numeração; padrão dos textos prontos)."""
+    entrar(pagina, "gestor")
+    _avaliar(pagina, rota)
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

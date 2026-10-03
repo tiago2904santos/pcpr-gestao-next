@@ -13,7 +13,7 @@ from decimal import Decimal
 from itertools import pairwise
 
 from django.db import IntegrityError, transaction
-from django.db.models import Max, Q
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 
 from gestao.cadastros import textos
@@ -92,6 +92,56 @@ def reservar_numero(ano: int) -> int:
     numero = proximo_numero(ocupados, numeracao.piso, lacunas)
     LacunaNumeracao.objects.filter(ano=ano, numero=numero).delete()
     return numero
+
+
+@dataclass(frozen=True)
+class AnoDeNumeracao:
+    ano: int
+    piso: int
+    maior: int | None       # maior número já ocupado no ano
+    total: int              # ofícios numerados no ano (cancelados contam)
+    lacunas: list[int]      # liberados por exclusão, ainda livres
+    proximo: int            # o número que o próximo "Novo ofício" do ano recebe
+
+
+def resumo_numeracao(anos: list[int] | None = None) -> list[AnoDeNumeracao]:
+    """Numeração por ano: piso, ocupação, lacunas e o próximo número (dominio.numeracao).
+    Mostra o ano corrente e todo ano com ofício, piso ou lacuna; consultas fixas."""
+    pisos = dict(NumeracaoAnual.objects.values_list("ano", "piso"))
+    ocupacao: dict[int, tuple[int | None, int]] = {
+        o["ano"]: (o["maior"], o["total"])
+        for o in Oficio.objects.values("ano").annotate(maior=Max("numero"), total=Count("id"))}
+    lacunas: dict[int, list[int]] = {}
+    for ano, numero in LacunaNumeracao.objects.order_by("numero").values_list("ano", "numero"):
+        lacunas.setdefault(ano, []).append(numero)
+    todos = sorted(set(anos or []) | {timezone.localdate().year} | set(pisos) | set(ocupacao)
+                   | set(lacunas), reverse=True)
+    resumo = []
+    for ano in todos:
+        piso = pisos.get(ano, 1)
+        maior, total = ocupacao.get(ano, (None, 0))
+        livres = lacunas.get(ano, [])
+        # Lacunas já ocupadas não existem (a reserva as apaga): o domínio decide o próximo.
+        proximo = proximo_numero([maior] if maior else [], piso, livres)
+        resumo.append(AnoDeNumeracao(ano, piso, maior, total, livres, proximo))
+    return resumo
+
+
+@transaction.atomic
+def definir_piso(usuario, ano: int, piso: int) -> NumeracaoAnual:
+    """Número inicial do ano. Não renumera nada: só muda de onde a sequência continua
+    quando o piso passa do maior número já usado (dominio.numeracao)."""
+    policies.exigir(policies.pode_gerir_numeracao(usuario),
+                    "Só o gestor de viagens define a numeração anual.")
+    if not 2000 <= ano <= 2100:
+        raise RegraViolada("Informe um ano entre 2000 e 2100.")
+    if not 1 <= piso <= 99999:
+        raise RegraViolada("O piso vai de 1 a 99999.")
+    numeracao, _ = NumeracaoAnual.objects.get_or_create(ano=ano)
+    numeracao = NumeracaoAnual.objects.select_for_update().get(pk=numeracao.pk)
+    numeracao.piso = piso
+    numeracao.save(update_fields=["piso"])
+    return numeracao
 
 
 # ---------------------------------------------------------------- criação

@@ -718,3 +718,31 @@ def rota(request: HttpRequest) -> JsonResponse:
         "total": {"km": round(sum(p["km"] for p in validas), 1),
                   "minutos": sum(p["minutos"] for p in validas)},
     })
+
+
+# ------------------------------------------------------------------ numeração anual
+def numeracao(request: HttpRequest) -> HttpResponse:
+    """Piso da numeração por ano (paridade com "Numeração" da referência), com o que importa
+    para decidir: maior número usado, lacunas livres e o próximo número que sai."""
+    policies.exigir(policies.pode_gerir_numeracao(request.user),
+                    "Só o gestor de viagens define a numeração anual.")
+    erro = ""
+    if request.method == "POST":
+        try:
+            ano, piso = int(request.POST.get("ano", "")), int(request.POST.get("piso", ""))
+        except ValueError:
+            erro = "Informe o ano e o piso em números, ex.: 2026 e 100."
+        else:
+            try:
+                services.definir_piso(request.user, ano, piso)
+            except services.RegraViolada as exc:
+                erro = str(exc)
+            else:
+                messages.success(request, f"Numeração de {ano}: a sequência parte de {piso}. "
+                                          "Ofícios já numerados não mudam.")
+                return redirect("viagens:numeracao")
+    return render(request, "viagens/numeracao.html", {
+        "anos": services.resumo_numeracao(), "erro": erro,
+        "ano_atual": timezone.localdate().year,
+        "migalhas": _migalhas(("Numeração dos ofícios", "")),
+    }, status=422 if erro else 200)

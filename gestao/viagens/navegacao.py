@@ -24,6 +24,8 @@ registrar_modulo(
                      requer="cadastros.view_tabeladiaria"),
                 Item("Textos prontos", "cadastros:textos", "text-quote",
                      requer="cadastros.view_modelotexto"),
+                Item("Numeração dos ofícios", "viagens:numeracao", "list-ordered",
+                     requer="viagens.gerir_numeracao"),
             )),
         ),
     )

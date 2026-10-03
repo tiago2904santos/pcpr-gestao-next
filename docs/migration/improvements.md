@@ -19,8 +19,6 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
   botões de copiar (alívio imediato sem API).
 - `[GLOBAL][SEGURANÇA][ALTA]` Registro de ferramentas com portão de aprovação antes de
   qualquer automação de escrita (ADR 0020).
-- `[MÓDULO][UX][MÉDIA]` Ofícios: exportar CSV respeitando filtros e visibilidade.
-- `[MÓDULO][UX][MÉDIA]` Ofícios: tela do piso da numeração anual (gestor).
 - `[GLOBAL][PERFORMANCE][MÉDIA]` Medir listas com DEMO populoso (300+ ofícios) e registrar
   consultas/tempo por página em `docs/quality/performance-report.md` a cada módulo.
 - `[GLOBAL][UX][BAIXA]` Mapa do itinerário traçar só a primeira rota (pedido antigo do
