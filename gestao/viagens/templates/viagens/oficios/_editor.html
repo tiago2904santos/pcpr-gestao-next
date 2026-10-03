@@ -1,0 +1,98 @@
+{% load static viagens %}
+{% comment %}
+Editor dentro do visualizador (ADR 0018). Variáveis: `tipo` ("oficio" | "justificativa"),
+`rotulo` (nome do documento), `titulo_doc` (ex.: "Ofício 12/2026"), `folha_url`, `pdf_url`,
+`estado_url` (vazio no UI Lab: vitrine, nada é salvo), `pode_editar_texto`.
+Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica oculta.
+{% endcomment %}
+<pc-editor-documento class="editor" id="editor-{{ tipo }}"
+    data-folha="{{ folha_url }}"{% if estado_url %} data-base="{{ estado_url }}"{% endif %}
+    data-pdf="{{ pdf_url }}"
+    {% if pode_editar_texto %}data-editavel{% endif %}>
+  <div class="editor__barra" role="toolbar" aria-label="Ferramentas d{% if tipo == 'oficio' %}o ofício{% else %}a justificativa{% endif %}" aria-controls="folha-{{ tipo }}" hidden>
+    <div class="editor__linha">
+      <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
+        <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
+        <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
+      </div>
+      <div class="editor__estado">
+        <span class="editor__paginas" data-paginas hidden></span>
+        <span class="editor__presenca" data-presenca hidden></span>
+        <output class="editor__salvo selo selo--sem-ponto" data-salvo aria-live="polite">{% if pode_editar_texto %}Carregando…{% else %}Somente leitura{% endif %}</output>
+      </div>
+    </div>
+    {% if pode_editar_texto %}
+    <div class="editor__linha editor__linha--ferramentas" data-so-texto>
+    <div class="editor__grupo" role="group" aria-label="Formatação">
+      <button type="button" class="botao botao--sm botao--icone" data-comando="bold" aria-pressed="false" aria-label="Negrito (Ctrl+B)" title="Negrito (Ctrl+B)">{% icone "bold" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="italic" aria-pressed="false" aria-label="Itálico (Ctrl+I)" title="Itálico (Ctrl+I)">{% icone "italic" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="underline" aria-pressed="false" aria-label="Sublinhado (Ctrl+U)" title="Sublinhado (Ctrl+U)">{% icone "underline" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="removeFormat" aria-label="Limpar formatação" title="Limpar formatação">{% icone "remove-formatting" classe="icone--sm" %}</button>
+    </div>
+    <div class="editor__grupo" role="group" aria-label="Parágrafo">
+      <button type="button" class="botao botao--sm botao--icone" data-comando="insertUnorderedList" aria-pressed="false" aria-label="Lista" title="Lista">{% icone "list" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="insertOrderedList" aria-pressed="false" aria-label="Lista numerada" title="Lista numerada">{% icone "list-ordered" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="justifyLeft" aria-pressed="false" aria-label="Alinhar à esquerda" title="Alinhar à esquerda">{% icone "align-left" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="justifyCenter" aria-pressed="false" aria-label="Centralizar" title="Centralizar">{% icone "align-center" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="justifyRight" aria-pressed="false" aria-label="Alinhar à direita" title="Alinhar à direita">{% icone "align-right" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="justifyFull" aria-pressed="false" aria-label="Justificar" title="Justificar">{% icone "align-justify" classe="icone--sm" %}</button>
+    </div>
+    <div class="editor__grupo" role="group" aria-label="Inserir">
+      <button type="button" class="botao botao--sm botao--icone" data-acao="quebra" aria-label="Inserir quebra de página" title="Inserir quebra de página">{% icone "separator-horizontal" classe="icone--sm" %}</button>
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--sm botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Inserir tabela" title="Inserir tabela">{% icone "table" classe="icone--sm" %}</button>
+        <div class="menu__painel menu__painel--esquerda editor__painel" role="menu" hidden>
+          <form class="editor__tabela-form" data-tabela>
+            <div class="campo"><label class="campo__rotulo" for="tabela-linhas-{{ tipo }}">Linhas</label><input class="entrada" id="tabela-linhas-{{ tipo }}" name="linhas" type="number" min="1" max="20" value="2" inputmode="numeric"></div>
+            <div class="campo"><label class="campo__rotulo" for="tabela-colunas-{{ tipo }}">Colunas</label><input class="entrada" id="tabela-colunas-{{ tipo }}" name="colunas" type="number" min="1" max="8" value="3" inputmode="numeric"></div>
+            <button type="submit" class="botao botao--sm botao--primario" role="menuitem">Inserir</button>
+          </form>
+        </div>
+      </pc-menu>
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--sm" data-menu-botao aria-haspopup="menu" title="Textos prontos">{% icone "book-open-text" classe="icone--sm" %}Texto pronto</button>
+        <div class="menu__painel menu__painel--esquerda editor__painel" role="menu" hidden data-textos-painel>
+          <div data-textos-lista><p class="texto-secundario texto-sm">Carregando…</p></div>
+          <div class="menu__separador" role="separator"></div>
+          <button type="button" class="menu__item" role="menuitem" data-acao="guardar-texto">{% icone "bookmark-plus" classe="icone--sm" %}Guardar a seleção como texto pronto</button>
+        </div>
+      </pc-menu>
+    </div>
+    <div class="editor__grupo" role="group" aria-label="Versões">
+      <button type="button" class="botao botao--sm botao--icone" data-comando="undo" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">{% icone "undo-2" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-comando="redo" aria-label="Refazer (Ctrl+Y)" title="Refazer (Ctrl+Y)">{% icone "redo-2" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-acao="original" aria-label="Voltar o bloco ao original" title="Voltar o bloco ao original" disabled>{% icone "rotate-ccw" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-acao="modelo" aria-label="Voltar ao modelo" title="Voltar ao modelo" disabled>{% icone "file-x-2" classe="icone--sm" %}</button>
+      <button type="button" class="botao botao--sm botao--icone" data-acao="historico" aria-label="Histórico do texto" title="Histórico do texto">{% icone "history" classe="icone--sm" %}</button>
+    </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="editor__avisos" data-avisos></div>
+  <div class="previa-documento editor__folha">
+    <iframe id="folha-{{ tipo }}" class="editor__quadro" src="{{ folha_url }}" title="{{ titulo_doc }} — folha" loading="lazy" data-quadro="texto"></iframe>
+    <iframe class="editor__quadro" title="{{ titulo_doc }} (PDF)" data-quadro="pdf" hidden></iframe>
+  </div>
+  {% if pode_editar_texto %}
+  <dialog class="dialogo" id="historico-{{ tipo }}" aria-labelledby="t-historico-{{ tipo }}" data-historico>
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__icone">{% icone "history" %}</div>
+      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-historico-{{ tipo }}">Histórico do texto</h2><p class="texto-secundario texto-sm">Cada salvamento é uma versão; restaurar cria outra — nada se perde.</p></div>
+      <button type="button" class="botao botao--icone dialogo__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
+    </div>
+    <div class="dialogo__corpo"><ol class="editor__versoes" data-versoes aria-label="Versões do texto"></ol></div>
+  </dialog>
+  <dialog class="dialogo" id="guardar-texto-{{ tipo }}" aria-labelledby="t-guardar-{{ tipo }}" data-guardar-texto>
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__icone">{% icone "bookmark-plus" %}</div>
+      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-guardar-{{ tipo }}">Guardar como texto pronto</h2><p class="texto-secundario texto-sm">Fica disponível para todos nos próximos documentos.</p></div>
+      <button type="button" class="botao botao--icone dialogo__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
+    </div>
+    <form class="dialogo__corpo" data-guardar>
+      <div class="campo"><label class="campo__rotulo" for="guardar-nome-{{ tipo }}">Nome</label><input class="entrada" id="guardar-nome-{{ tipo }}" name="nome" maxlength="120" required placeholder="Ex.: Pedido de apoio em evento"></div>
+      <div class="campo mt-2"><label class="campo__rotulo" for="guardar-texto-{{ tipo }}">Texto</label><textarea class="entrada area-texto" id="guardar-texto-{{ tipo }}" name="texto" rows="5" required></textarea></div>
+      <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Cancelar</button><button type="submit" class="botao botao--primario">{% icone "save" %}Guardar</button></div>
+    </form>
+  </dialog>
+  {% endif %}
+</pc-editor-documento>

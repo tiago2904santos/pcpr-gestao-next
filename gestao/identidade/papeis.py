@@ -26,6 +26,7 @@ PAPEIS: dict[str, Papel] = {
             "viagens.delete_roteiro",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
             "cadastros.view_tabeladiaria", "cadastros.view_modelotexto",
+            "cadastros.add_modelotexto", "cadastros.change_modelotexto",
         ],
     },
     "GESTOR_VIAGENS": {
@@ -33,7 +34,8 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.cancelar_oficio", "viagens.reabrir_oficio",
-            "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.change_tabeladiaria",
+            "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.add_modelotexto",
+            "cadastros.change_modelotexto", "cadastros.change_tabeladiaria",
             "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
             "viagens.delete_roteiro",
             "viagens.ver_todas_unidades", "viagens.gerir_numeracao",

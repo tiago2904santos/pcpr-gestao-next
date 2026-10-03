@@ -44,8 +44,9 @@ def buscar_tabelas_vigentes(data_referencia: date) -> dict[Faixa, ValorVigente]:
 # Trechos e equipe de um ofício são lidos por várias regras na mesma requisição
 # (diárias, prazo, assunto, prontidão, conflitos, documento): carregados uma vez só.
 TRECHOS = Prefetch("trechos", queryset=Trecho.objects.select_related("origem", "destino"))
+# As viaturas que cada um costuma dirigir entram junto: a equipe mostra e a viatura sugere.
 VIAJANTES = Prefetch("viajantes", queryset=Viajante.objects.select_related(
-    "servidor__cargo", "servidor__unidade"))
+    "servidor__cargo", "servidor__unidade").prefetch_related("servidor__viaturas_que_dirige"))
 
 
 def trechos_de(oficio: Oficio) -> list[Trecho]:

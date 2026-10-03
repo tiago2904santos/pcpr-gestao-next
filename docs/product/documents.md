@@ -4,7 +4,7 @@
 
 | Documento | Módulo | Referência | Novo |
 |---|---|---|---|
-| **Ofício de viagem** | Viagens | DOCX + PDF, editor na página, marcas retificado/complementar | **Implementado**: PDF/A-2a versionado |
+| **Ofício de viagem** | Viagens | DOCX + PDF, editor na página, marcas retificado/complementar | **Implementado**: PDF/A-2a versionado + editor no visualizador (ADR 0018) |
 | **Justificativa** (1:1 com ofício) | Viagens | DOCX + PDF, gerada quando exigida | **Implementado**: PDF/A-2a, gerada sempre que há texto (decisão pendente) |
 | Termo de autorização | Viagens | individual, genérico (sem servidor), por viatura, lote ZIP ou PDF único | Planejado |
 | Ordem de serviço (OS) | Viagens | DOCX/PDF, numeração anual com lacunas, assinante | Planejado |
@@ -113,7 +113,7 @@ Exemplos fictícios (sede Curitiba/PR):
 | Versões | artefato com snapshot, hash, cache; nova versão sob demanda | `Documento` imutável por (ofício, tipo, versão), **instantâneo** dos dados, SHA-256; nova versão só ao reabrir e emitir de novo |
 | Geração | síncrona | **assíncrona** via outbox, idempotente (versão pronta não é refeita) |
 | Prévia | preview do artefato | **minuta** PDF com marca d'água "MINUTA", não arquivada |
-| Edição do texto | editor na página + DOCX baixável | não há (planejado/decisão pendente) |
+| Edição do texto | editor na página + DOCX baixável | **editor dentro do visualizador** (ADR 0018): regiões editáveis na folha, versões append-only, campos vivos, textos prontos, páginas; DOCX pendente |
 | Assinatura | externa (eProtocolo/gov.br) + upload do assinado, conferência, revogação ao reabrir | não há (planejado) |
 
 ## Numeração

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from itertools import pairwise
 
@@ -16,10 +16,19 @@ from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.utils import timezone
 
-from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor
+from gestao.cadastros.models import ConfiguracaoInstitucional, ModeloTexto, Municipio, Servidor
+from gestao.cadastros.validacoes import somente_digitos
 from gestao.plataforma import outbox
 
 from . import policies
+from .documentos.campos import CAMPOS, CampoVinculado
+from .documentos.regioes import (
+    blocos_alterados,
+    campos_presentes,
+    impressao,
+    normalizar,
+    sanear_html,
+)
 from .dominio import bate_volta as dominio_bate_volta
 from .dominio import busca as dominio_busca
 from .dominio import diarias as dominio_diarias
@@ -28,6 +37,7 @@ from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
 from .models import (
     BateVoltaRoteiro,
     Documento,
+    EdicaoDocumento,
     Historico,
     LacunaNumeracao,
     NumeracaoAnual,
@@ -409,6 +419,221 @@ def conflitos_de_agenda(oficio: Oficio) -> list[str]:
     return avisos
 
 
+# ---------------------------------------------------------------- texto dos documentos (ADR 0018)
+TIPOS_DE_DOCUMENTO = {t.value for t in Documento.Tipo}
+# Salvamentos seguidos da mesma pessoa, em poucos minutos, atualizam a mesma versão: o
+# histórico fica legível (uma linha por sessão de escrita, não por tecla), e a trilha do
+# banco continua guardando cada UPDATE.
+JANELA_DE_COALESCENCIA = timedelta(minutes=10)
+TEXTOS_PRONTOS_POR_DOCUMENTO = {
+    "oficio": [ModeloTexto.Tipo.OFICIO, ModeloTexto.Tipo.MOTIVO],
+    "justificativa": [ModeloTexto.Tipo.JUSTIFICATIVA],
+}
+
+
+def _tipo_de_documento(tipo: str) -> str:
+    if tipo not in TIPOS_DE_DOCUMENTO:
+        raise RegraViolada(f"Documento desconhecido: {tipo}.")
+    return tipo
+
+
+def edicao_vigente(oficio: Oficio, tipo: str) -> EdicaoDocumento | None:
+    return (EdicaoDocumento.objects.filter(oficio=oficio, tipo=tipo).select_related("criado_por")
+            .order_by("-numero").first())
+
+
+def regioes_vigentes(oficio: Oficio, tipo: str) -> dict[str, str]:
+    edicao = edicao_vigente(oficio, tipo)
+    return dict(edicao.regioes) if edicao is not None else {}
+
+
+def _descrever_texto(tipo: str, edicao: EdicaoDocumento) -> str:
+    nome = Documento.Tipo(tipo).label
+    if edicao.acao == EdicaoDocumento.Acao.MODELO:
+        return f"Texto d{'o' if tipo == 'oficio' else 'a'} {nome.lower()} voltou ao modelo."
+    if edicao.acao == EdicaoDocumento.Acao.RESTAURADO and edicao.restaurada_de is not None:
+        return f"Texto d{'o' if tipo == 'oficio' else 'a'} {nome.lower()}: versão " \
+               f"{edicao.restaurada_de.numero} restaurada (agora v{edicao.numero})."
+    blocos = edicao.blocos_alterados
+    partes = ", ".join(b["rotulo"] for b in blocos[:4])
+    extra = f" e mais {len(blocos) - 4}" if len(blocos) > 4 else ""
+    return (f"Texto d{'o' if tipo == 'oficio' else 'a'} {nome.lower()} editado "
+            f"(v{edicao.numero}): {partes}{extra}.")[:300]
+
+
+@transaction.atomic
+def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[str, str], *,
+                              versao_base: int | None = None) -> EdicaoDocumento:
+    """Grava o texto das regiões editadas como uma versão nova (ou atualiza a recém-criada).
+
+    Região igual ao modelo não é guardada; se nenhuma diferir, a versão é "do modelo".
+    `versao_base` é o número que o editor tinha ao começar: diferente do vigente, alguém
+    salvou antes — conflito, como no formulário.
+    """
+    from .documentos.dados import dados_do_oficio
+    from .documentos.pdf import regioes_do_modelo
+
+    atual = _travar_para_edicao(oficio, usuario, None)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    tipo = _tipo_de_documento(tipo)
+    vigente = edicao_vigente(atual, tipo)
+    numero_vigente = vigente.numero if vigente else 0
+    if versao_base is not None and versao_base != numero_vigente:
+        raise ConflitoDeEdicao(
+            "Outra pessoa alterou o texto deste documento enquanto você editava. Recarregue "
+            "a folha para ver a versão atual antes de salvar de novo.")
+    originais = regioes_do_modelo(tipo, dados_do_oficio(atual))
+    limpas: dict[str, str] = {}
+    alterados: list[dict[str, str]] = []
+    impressoes: dict[str, str] = {}
+    for chave, original in originais.items():
+        if chave not in regioes:
+            if vigente is not None and chave in vigente.regioes:  # região não enviada: mantém
+                limpas[chave] = vigente.regioes[chave]
+                alterados += blocos_alterados(original, limpas[chave])
+                impressoes[chave] = vigente.impressoes.get(chave, impressao(original))
+            continue
+        html = sanear_html(regioes[chave])
+        faltando = campos_presentes(original) - campos_presentes(html)
+        if faltando:
+            rotulos = ", ".join(CAMPOS[c].rotulo for c in sorted(faltando))
+            raise RegraViolada(f"O trecho «{rotulos}» vem do cadastro e não pode ser removido "
+                               "do texto. Desfaça a alteração ou volte ao modelo.")
+        # Compara os dois lados saneados: o navegador e o saneador reescrevem entidades e
+        # espaços; só diferença de conteúdo conta.
+        if normalizar(html) == normalizar(sanear_html(original)):
+            continue
+        limpas[chave] = html
+        alterados += blocos_alterados(original, html)
+        impressoes[chave] = impressao(original)
+    acao = EdicaoDocumento.Acao.EDITADO if limpas else EdicaoDocumento.Acao.MODELO
+    if vigente is not None and vigente.regioes == limpas:
+        return vigente  # nada mudou
+    if vigente is None and not limpas:
+        raise RegraViolada("O texto está igual ao modelo: não há o que salvar.")
+    coalesce = (vigente is not None and vigente.acao == EdicaoDocumento.Acao.EDITADO
+                and acao == EdicaoDocumento.Acao.EDITADO
+                and vigente.criado_por_id == getattr(usuario, "pk", None)
+                and timezone.now() - vigente.criado_em < JANELA_DE_COALESCENCIA)
+    if coalesce and vigente is not None:
+        vigente.regioes, vigente.blocos_alterados = limpas, alterados
+        vigente.impressoes = impressoes
+        vigente.save(update_fields=["regioes", "blocos_alterados", "impressoes"])
+        return vigente
+    edicao = EdicaoDocumento.objects.create(
+        oficio=atual, tipo=tipo, numero=numero_vigente + 1, acao=acao, regioes=limpas,
+        blocos_alterados=alterados, impressoes=impressoes, criado_por=usuario)
+    _registrar(atual, Historico.Acao.TEXTO, _descrever_texto(tipo, edicao), usuario,
+               tipo=tipo, versao=edicao.numero)
+    return edicao
+
+
+@transaction.atomic
+def restaurar_texto_do_documento(oficio: Oficio, usuario, tipo: str,
+                                 numero: int) -> EdicaoDocumento:
+    """Volta a um texto anterior criando uma versão nova (o histórico nunca perde nada)."""
+    atual = _travar_para_edicao(oficio, usuario, None)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    tipo = _tipo_de_documento(tipo)
+    try:
+        origem = EdicaoDocumento.objects.get(oficio=atual, tipo=tipo, numero=numero)
+    except EdicaoDocumento.DoesNotExist:
+        raise RegraViolada(f"Não existe a versão {numero} do texto.") from None
+    vigente = edicao_vigente(atual, tipo)
+    if vigente is not None and vigente.pk == origem.pk:
+        return vigente
+    edicao = EdicaoDocumento.objects.create(
+        oficio=atual, tipo=tipo, numero=(vigente.numero if vigente else 0) + 1,
+        acao=EdicaoDocumento.Acao.RESTAURADO, regioes=dict(origem.regioes),
+        blocos_alterados=list(origem.blocos_alterados), impressoes=dict(origem.impressoes),
+        restaurada_de=origem, criado_por=usuario)
+    _registrar(atual, Historico.Acao.TEXTO, _descrever_texto(tipo, edicao), usuario,
+               tipo=tipo, versao=edicao.numero, restaurada_de=origem.numero)
+    return edicao
+
+
+@transaction.atomic
+def voltar_texto_ao_modelo(oficio: Oficio, usuario, tipo: str) -> EdicaoDocumento | None:
+    """Descarta o texto editado: o documento volta a sair como o modelo gera."""
+    atual = _travar_para_edicao(oficio, usuario, None)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    tipo = _tipo_de_documento(tipo)
+    vigente = edicao_vigente(atual, tipo)
+    if vigente is None or vigente.do_modelo:
+        return vigente
+    edicao = EdicaoDocumento.objects.create(
+        oficio=atual, tipo=tipo, numero=vigente.numero + 1, acao=EdicaoDocumento.Acao.MODELO,
+        criado_por=usuario)
+    _registrar(atual, Historico.Acao.TEXTO, _descrever_texto(tipo, edicao), usuario,
+               tipo=tipo, versao=edicao.numero)
+    return edicao
+
+
+def _validar_campo_vinculado(campo: CampoVinculado, valor: str) -> str:
+    valor = (valor or "").replace("\r\n", "\n").strip()
+    if not campo.multilinha:
+        valor = " ".join(valor.split())
+    if campo.chave == "protocolo":
+        valor = somente_digitos(valor)
+        if valor and len(valor) != 9:
+            raise RegraViolada(f"O protocolo tem 9 dígitos; você informou {len(valor)}.")
+    if len(valor) > campo.maximo:
+        raise RegraViolada(f"{campo.rotulo}: no máximo {campo.maximo} caracteres.")
+    return valor
+
+
+@transaction.atomic
+def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *,
+                              versao: int | None = None) -> Oficio:
+    """Escreve um campo vinculado de dentro do documento (mesma concorrência do formulário)."""
+    if chave not in CAMPOS:
+        raise RegraViolada(f"Campo desconhecido: {chave}.")
+    campo = CAMPOS[chave]
+    atual = _travar_para_edicao(oficio, usuario, versao)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    novo = _validar_campo_vinculado(campo, valor)
+    if getattr(atual, campo.atributo) == novo:
+        return atual
+    setattr(atual, campo.atributo, novo)
+    atual.versao += 1
+    atual.save(update_fields=[campo.atributo, "versao", "atualizado_em"])
+    _registrar(atual, Historico.Acao.ALTERADO, f"{campo.rotulo} alterado pelo texto do documento.",
+               usuario, campos=[campo.atributo])
+    return atual
+
+
+def textos_prontos(tipo: str) -> list[ModeloTexto]:
+    tipos = TEXTOS_PRONTOS_POR_DOCUMENTO.get(tipo, [])
+    return list(ModeloTexto.objects.filter(ativo=True, tipo__in=tipos).order_by("tipo", "nome"))
+
+
+@transaction.atomic
+def criar_texto_pronto(usuario, tipo: str, nome: str, texto: str) -> ModeloTexto:
+    policies.exigir(policies.pode_gerir_textos_prontos(usuario),
+                    "Você não pode criar textos prontos.")
+    tipo = _tipo_de_documento(tipo)
+    nome, texto = " ".join((nome or "").split())[:120], (texto or "").strip()
+    if not nome or not texto:
+        raise RegraViolada("Dê um nome ao texto pronto e selecione o trecho a guardar.")
+    tipo_modelo = (ModeloTexto.Tipo.OFICIO if tipo == "oficio" else ModeloTexto.Tipo.JUSTIFICATIVA)
+    return ModeloTexto.objects.create(tipo=tipo_modelo, nome=nome, texto=texto[:4000])
+
+
+@transaction.atomic
+def desativar_texto_pronto(usuario, pk: int) -> ModeloTexto:
+    policies.exigir(policies.pode_gerir_textos_prontos(usuario),
+                    "Você não pode remover textos prontos.")
+    try:
+        modelo = ModeloTexto.objects.select_for_update().get(pk=pk, ativo=True)
+    except ModeloTexto.DoesNotExist:
+        raise RegraViolada("Texto pronto não encontrado.") from None
+    if modelo.padrao_sistema:
+        raise RegraViolada("Este texto vem com o sistema e não pode ser removido.")
+    modelo.ativo = False
+    modelo.save(update_fields=["ativo", "atualizado_em"])
+    return modelo
+
+
 # ---------------------------------------------------------------- emissão
 @transaction.atomic
 def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
@@ -433,8 +658,14 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
         tipos.append(Documento.Tipo.JUSTIFICATIVA)
     for tipo in tipos:
         ultima = atual.documentos.filter(tipo=tipo).aggregate(m=Max("versao"))["m"] or 0
+        dados = dados_do_oficio(atual)
+        edicao = edicao_vigente(atual, tipo)
+        if edicao is not None and not edicao.do_modelo:
+            # O PDF arquivado sai do instantâneo, texto editado incluído (ADR 0018).
+            dados["edicao"] = {"numero": edicao.numero, "regioes": edicao.regioes,
+                               "blocos_alterados": edicao.blocos_alterados}
         doc = Documento.objects.create(oficio=atual, tipo=tipo, versao=ultima + 1,
-                                       dados=dados_do_oficio(atual), emitido_por=usuario)
+                                       dados=dados, emitido_por=usuario, edicao=edicao)
         outbox.publicar("viagens.documento.gerar", {"documento_id": doc.pk},
                         chave=f"documento:{doc.pk}")
         documentos.append(doc)

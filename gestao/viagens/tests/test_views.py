@@ -204,8 +204,8 @@ class TestNovoEEdicao:
             assert f'href="{url}"' not in html
 
     def test_aviso_de_conflito_nao_deixa_a_secao_pendente(self, operador, cenario):
-        """Servidor em outro ofício no mesmo período é aviso: a seção Equipe segue pronta,
-        coerente com a conferência ("tudo pronto para emitir")."""
+        """Servidor em outro ofício no mesmo período é aviso: o cartão que contém a equipe
+        (Identificação) segue pronto, coerente com a conferência ("tudo pronto para emitir")."""
         servidores = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
         for _ in range(2):
             operador.post(reverse("viagens:novo"))
@@ -219,7 +219,9 @@ class TestNovoEEdicao:
         prontidao = services.verificar_prontidao(oficio)
         assert prontidao.da_secao("equipe") and prontidao.pode_emitir
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
-        assert 'conferencia__item conferencia__item--ok">Equipe' in html
+        # A situação de cada cartão vive na faixa de progresso do topo.
+        pronta = 'progresso__etapa progresso__etapa--ok"><a href="#identificacao">Identificação'
+        assert pronta in html
 
     def test_roteiro_com_data_e_hora_em_campos_separados(self, operador, cenario):
         """O calendário e o relógio enviam data (dd/mm/aaaa) e hora (hh:mm) em dois campos."""
@@ -561,7 +563,9 @@ class TestOrcamentoDeConsultas:
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         if engordar:
             self._engordar(oficio, cenario.usuarios["operador"])
-        with django_assert_max_num_queries(20):
+        # 22: as duas a mais são as viaturas que cada viajante dirige e os motoristas de cada
+        # viatura (a equipe mostra, a lista de viaturas sugere).
+        with django_assert_max_num_queries(22):
             assert operador.get(reverse(rota, args=[oficio.pk])).status_code == 200
 
     def test_salvar_edicao(self, operador, cenario, django_assert_max_num_queries):
@@ -618,7 +622,9 @@ class TestProvasDaRevisaoDeUX:
     def test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa(self, client, cenario):
         client.force_login(cenario.usuarios["consulta"])
         lista = client.get(reverse("viagens:oficios")).content.decode()
-        assert "Continuar edição" not in lista and "Ver detalhes" in lista
+        # Os rótulos mudaram com a remoção da página do ofício: quem pode editar vê "Abrir o
+        # ofício"; quem só consulta recebe a minuta em PDF, nunca uma ação de escrita.
+        assert "Abrir o ofício" not in lista and "Ver a minuta (PDF)" in lista
         r = client.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]),
                        follow=True)
         assert "Seu perfil permite consultar, mas não editar ofícios." in r.content.decode()
@@ -663,3 +669,91 @@ class TestDecisoesDoDono:
                             HTTP_HX_REQUEST="true").content.decode()
         assert f"Ofício {oficio.numero:02d}/{oficio.ano}" in html
         assert f"{oficio.numero:03d}/{oficio.ano}" not in html
+
+
+class TestCartaoDaJustificativa:
+    """A justificativa só ganha cartão quando o prazo a exige (decisão do dono)."""
+
+    def _com_saida_em(self, cenario, dias: int) -> Oficio:
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        destino = Municipio.objects.filter(uf="PR").exclude(pk=oficio.sede.pk).first()
+        dia = timezone.now() + timedelta(days=dias)
+        hora = timedelta(hours=1)
+        services.salvar_trechos(oficio, cenario.usuarios["operador"], [
+            services.TrechoInformado(oficio.sede.pk, destino.pk, dia, dia + 2 * hora),
+            services.TrechoInformado(destino.pk, oficio.sede.pk, dia + 8 * hora, dia + 10 * hora),
+        ])
+        return oficio
+
+    def _folha(self, operador, oficio) -> str:
+        return operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+
+    def test_dentro_do_prazo_o_cartao_some_e_a_numeracao_nao_pula(self, operador, cenario):
+        html = self._folha(operador, self._com_saida_em(cenario, 30))
+        assert 'id="justificativa"' not in html
+        assert '<span class="secao__numero">3</span>Documentos' in html
+
+    def test_fora_do_prazo_o_cartao_aparece_como_3(self, operador, cenario):
+        html = self._folha(operador, self._com_saida_em(cenario, 3))
+        assert 'id="justificativa"' in html
+        assert '<span class="secao__numero">4</span>Documentos' in html
+
+    def test_texto_ja_escrito_segura_o_cartao_mesmo_dentro_do_prazo(self, operador, cenario):
+        """A justificativa vai ao documento mesmo dispensada: esconder o cartão deixaria no
+        ofício um texto que ninguém mais conseguiria ler, corrigir ou apagar."""
+        oficio = self._com_saida_em(cenario, 30)
+        Oficio.objects.filter(pk=oficio.pk).update(justificativa="Escrita antes de remarcar.")
+        assert 'id="justificativa"' in self._folha(operador, oficio)
+
+
+class TestVisualizadorDaMinuta:
+    """A folha mostra a minuta num iframe; a resposta precisa deixar a própria origem
+    emoldurá-la — e só ela."""
+
+    def test_minuta_pode_ser_emoldurada_pela_propria_folha(self, operador, cenario):
+        r = operador.get(reverse("viagens:previa", args=[cenario.ids["oficio_rascunho"]]))
+        csp = r["Content-Security-Policy"]
+        assert "frame-ancestors 'self'" in csp
+        assert "frame-ancestors 'none'" not in csp
+        # O resto da política não afrouxa junto.
+        # O PDF não usa nonce, então o script-src dele é só 'self'.
+        assert "object-src 'none'" in csp and "script-src 'self'" in csp
+
+    def test_as_outras_respostas_seguem_sem_moldura(self, operador, cenario):
+        r = operador.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]))
+        assert "frame-ancestors 'none'" in r["Content-Security-Policy"]
+
+    def test_folha_emoldura_a_minuta(self, operador, cenario):
+        pk = cenario.ids["oficio_rascunho"]
+        html = operador.get(reverse("viagens:editar", args=[pk])).content.decode()
+        # O visualizador é a folha HTML (editável); o PDF entra pelo modo "PDF" do editor.
+        assert f'src="{reverse("viagens:folha", args=[pk, "oficio"])}"' in html
+        assert f'data-pdf="{reverse("viagens:previa", args=[pk])}?tipo=oficio"' in html
+
+
+class TestEquipeEViaturaSugerida:
+    """Crachás da equipe e viatura que acompanha a equipe (motoristas habituais)."""
+
+    def test_folha_traz_os_dados_que_a_sugestao_usa(self, operador, cenario):
+        from gestao.cadastros.models import Servidor, Viatura
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        isabela = Servidor.objects.get(nome__startswith="Isabela")
+        services.adicionar_viajante(oficio, cenario.usuarios["operador"], isabela)
+        html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        master = Viatura.objects.get(placa="ABC1D23")
+        # Opção da viatura com unidade, sigla e motoristas habituais.
+        opcao = re.search(rf'<option value="{master.pk}"[^>]*>', html)
+        assert opcao is not None
+        assert f'data-unidade="{master.unidade_id}"' in opcao.group(0)
+        assert 'data-sigla="ASCOM"' in opcao.group(0)
+        assert f'data-motoristas="{isabela.pk}"' in opcao.group(0)
+        assert 'data-nomes="Isabela"' in opcao.group(0)
+        # Crachá com os dados que <pc-transporte> lê e o chip da viatura que ela dirige.
+        assert f'data-servidor="{isabela.pk}" data-unidade="{isabela.unidade_id}"' in html
+        assert "ABC1D23" in html and 'class="cracha__ordem"' in html
+        assert "<pc-transporte" in html
+
+    def test_viaturas_do_cadastro_listam_os_motoristas(self, operador, cenario):
+        html = operador.get(reverse("cadastros:viaturas")).content.decode()
+        assert "Motoristas habituais" in html and "Isabela Prado Cavalcanti" in html

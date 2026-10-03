@@ -17,6 +17,7 @@ Fictício por construção:
 
 from __future__ import annotations
 
+import contextlib
 import random
 from collections import Counter
 from dataclasses import dataclass, field
@@ -53,7 +54,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "viagens_historico", "viagens_documento", "viagens_trecho", "viagens_viajante",
+    "viagens_historico", "viagens_documento", "viagens_edicaodocumento", "viagens_trecho",
+    "viagens_viajante",
     "viagens_oficio", "viagens_trechoroteiro", "viagens_roteiro", "viagens_numeracaoanual",
     "viagens_lacunanumeracao",
     "cadastros_lotacao", "cadastros_configuracaoinstitucional", "cadastros_servidor",
@@ -142,6 +144,15 @@ MOTIVO_LONGO = (
     "coordenação, com relatório circunstanciado a ser entregue em até cinco dias úteis após o "
     "retorno da equipe à sede."
 )
+TEXTOS_PRONTOS = [
+    ("Pedido de urgência", "Solicito que o presente seja apreciado em regime de urgência, "
+                           "em razão da proximidade da data do deslocamento."),
+    ("Agradecimento", "Agradeço antecipadamente a atenção dispensada e coloco-me à disposição "
+                      "para quaisquer esclarecimentos."),
+    ("Observação sobre hospedagem", "Informo que a hospedagem será custeada pela organização "
+                                    "do evento, cabendo a esta unidade apenas as despesas de "
+                                    "alimentação e deslocamento."),
+]
 JUSTIFICATIVAS = [
     "A convocação para o evento foi recebida com antecedência inferior ao prazo regulamentar, "
     "inviabilizando o encaminhamento no prazo de 10 dias, sem prejuízo do interesse público.",
@@ -222,6 +233,10 @@ class _Gerador:
                         for n in ("Diesel", "Flex", "Gasolina")}
         ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.MOTIVO, nome="Unidade móvel em evento",
                                    texto="Apoio e condução da Unidade Móvel no evento.")
+        # Trechos prontos para o editor do documento (ADR 0018); os do sistema não se apagam.
+        for nome, texto in TEXTOS_PRONTOS:
+            ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.OFICIO, nome=nome, texto=texto,
+                                       padrao_sistema=True)
         self.modelos_justificativa = [
             ModeloTexto.objects.create(tipo=ModeloTexto.Tipo.JUSTIFICATIVA,
                                        nome=f"Justificativa {i + 1}", texto=t)
@@ -272,11 +287,17 @@ class _Gerador:
                 rng.choices(self.unidades, self.pesos)[0]
             modelo, combustivel = MODELOS_VIATURA[i % len(MODELOS_VIATURA)]
             placa = f"ZZ{chr(65 + i % 26)}{i % 10}{chr(65 + (i * 7) % 26)}{(i * 13) % 100:02d}"
-            self.viaturas_por_unidade[unidade.pk].append(Viatura.objects.create(
+            viatura = Viatura.objects.create(
                 placa=placa, modelo=modelo, combustivel=combustiveis[combustivel],
                 tipo=Viatura.Tipo.CARACTERIZADA if i % 3 else Viatura.Tipo.DESCARACTERIZADA,
                 unidade=unidade,
-            ))
+            )
+            # Motoristas habituais: a maioria das viaturas tem um ou dois da própria unidade.
+            proprios = self.servidores_por_unidade[unidade.pk]
+            if proprios and rng.random() < 0.7:
+                quantos = min(len(proprios), rng.choice([1, 1, 2]))
+                viatura.motoristas.set(rng.sample(proprios, quantos))
+            self.viaturas_por_unidade[unidade.pk].append(viatura)
         self._usuarios()
 
     def _usuarios(self) -> None:
@@ -509,6 +530,12 @@ class _Gerador:
                                                             "justificativa_modelo": modelo})
             self._carimbar(oficio, t)
 
+        # Em parte dos ofícios a redação foi ajustada no editor do documento (ADR 0018).
+        if estagio in ("completo", "pronto") and rng.random() < 0.18:
+            t += timedelta(minutes=rng.randint(2, 15))
+            self._editar_texto(oficio, autor, rng)
+            self._carimbar(oficio, t)
+
         emissao = None
         pronto = services.verificar_prontidao(oficio).pode_emitir
         if pronto and (alvo == "emitido" or (alvo == "cancelado" and rng.random() < 0.5)):
@@ -594,6 +621,25 @@ class _Gerador:
         primeiro = services.emitir(oficio, autor)
         self._carimbar(oficio, quando)
         Documento.objects.filter(oficio=oficio, pk__gte=primeiro.pk).update(emitido_em=quando)
+
+    def _editar_texto(self, oficio: Oficio, autor: Usuario, rng: random.Random) -> None:
+        """Uma edição típica: um aposto na saudação e, às vezes, um parágrafo de texto pronto."""
+        from .documentos.dados import dados_do_oficio
+        from .documentos.pdf import regioes_do_modelo
+
+        original = regioes_do_modelo("oficio", dados_do_oficio(oficio))
+        corpo = original["corpo"].replace(
+            "conforme cronograma abaixo:",
+            rng.choice(["conforme cronograma abaixo, com a urgência que o caso requer:",
+                        "conforme o cronograma a seguir, já alinhado com a organização do evento:",
+                        "conforme cronograma abaixo, em continuidade às tratativas anteriores:"]))
+        if rng.random() < 0.5:
+            texto = rng.choice(TEXTOS_PRONTOS)[1]
+            marca = '<table data-bloco="equipe"'
+            corpo = corpo.replace(marca, f"<p>{texto}</p>{marca}", 1)
+        # Texto igual ao modelo não é guardado (RegraViolada): nada a fazer nesse caso.
+        with contextlib.suppress(services.RegraViolada):
+            services.salvar_texto_do_documento(oficio, autor, "oficio", {"corpo": corpo})
 
     def _fechar(self, oficio: Oficio, inicio: datetime, fim: datetime,
                 emissao: datetime | None = None) -> Oficio:

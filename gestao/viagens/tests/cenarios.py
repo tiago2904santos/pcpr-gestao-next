@@ -102,8 +102,10 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
     master = Viatura.objects.create(placa="ABC1D23", modelo="Renault Master",
                                     combustivel=diesel,
                                     tipo=Viatura.Tipo.CARACTERIZADA, unidade=ascom)
+    # Isabela (índice 8) costuma dirigir a Master: marcá-la como motorista escolhe a viatura.
+    master.motoristas.add(servidores[8])
     Viatura.objects.create(placa="XYZ9876", modelo="Renault Duster", combustivel=gasolina,
-                           tipo=Viatura.Tipo.DESCARACTERIZADA, unidade=ascom)
+                           tipo=Viatura.Tipo.DESCARACTERIZADA, unidade=dpc)
     for faixa, valor in ((TabelaDiaria.Faixa.INTERIOR, "290.55"),
                          (TabelaDiaria.Faixa.CAPITAL, "371.26"),
                          (TabelaDiaria.Faixa.BRASILIA, "468.12")):

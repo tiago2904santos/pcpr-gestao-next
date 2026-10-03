@@ -13,7 +13,7 @@
 
 import { adicionarLimpar } from "./limpar.js";
 
-/** @typedef {{id: string, titulo: string, meta?: string}} Opcao */
+/** @typedef {{id: string, titulo: string, meta?: string, chips?: string[], grupo?: string}} Opcao */
 
 let contador = 0;
 
@@ -28,6 +28,8 @@ export class PcCombobox extends HTMLElement {
   primeiroPronto = false;
   /** @type {(() => void) | undefined} */
   sincronizarBotao = undefined;
+  /** Mudança do <select> disparada por este componente (não precisa reler o texto). */
+  escolhendo = false;
 
   connectedCallback() {
     if (this.dataset.pronto) return;
@@ -70,6 +72,14 @@ export class PcCombobox extends HTMLElement {
     });
     // Valor posto de fora (herdado de outro modo, preenchido pelo servidor): só acerta o "limpar".
     this.entrada.addEventListener("change", () => this.sincronizarLimpar());
+    if (this.select) {
+      this.select.addEventListener("change", () => {
+        if (this.escolhendo || !this.select || !this.entrada) return;
+        const atual = this.select.selectedOptions[0];
+        this.entrada.value = atual && atual.value ? atual.textContent?.trim() || "" : "";
+        this.sincronizarLimpar();
+      });
+    }
     this.entrada.addEventListener("keydown", (e) => this.teclado(e));
     this.entrada.addEventListener("blur", () => window.setTimeout(() => this.fechar(), 120));
     this.lista.addEventListener("mousedown", (e) => e.preventDefault());
@@ -140,7 +150,15 @@ export class PcCombobox extends HTMLElement {
     this.opcoes = Array.from(this.select.options)
       .filter((o) => o.value && (mostrarTudo || normalizar(o.textContent || "").includes(termo)))
       .slice(0, 50)
-      .map((o) => ({ id: o.value, titulo: o.textContent?.trim() || "", meta: o.dataset.meta }));
+      .map((o) => ({
+        id: o.value,
+        titulo: o.textContent?.trim() || "",
+        meta: o.dataset.meta,
+        // Sugestões (ex.: viaturas da unidade da equipe): chips ao lado do título e um
+        // cabeçalho de grupo quando a lista muda de "Sugeridas" para "Outras".
+        chips: o.dataset.chips ? o.dataset.chips.split("|").filter(Boolean) : undefined,
+        grupo: o.dataset.grupo,
+      }));
     this.primeiroPronto = !mostrarTudo;
     this.renderizar();
   }
@@ -188,7 +206,16 @@ export class PcCombobox extends HTMLElement {
       vazio.textContent = mensagemVazia || "Nenhum resultado. Confira a grafia ou o cadastro.";
       this.lista.append(vazio);
     }
+    let grupoAnterior = "";
     this.opcoes.forEach((o, i) => {
+      if (o.grupo && o.grupo !== grupoAnterior) {
+        const cabecalho = document.createElement("li");
+        cabecalho.className = "combobox__grupo";
+        cabecalho.setAttribute("role", "presentation");
+        cabecalho.textContent = o.grupo;
+        this.lista?.append(cabecalho);
+      }
+      grupoAnterior = o.grupo || grupoAnterior;
       const li = document.createElement("li");
       li.id = `${this.lista?.id}-op-${i}`;
       li.className = "combobox__opcao";
@@ -199,6 +226,12 @@ export class PcCombobox extends HTMLElement {
       const titulo = document.createElement("div");
       titulo.className = "combobox__opcao-titulo";
       titulo.textContent = o.titulo;
+      for (const chip of o.chips || []) {
+        const selo = document.createElement("span");
+        selo.className = "selo selo--info selo--sem-ponto combobox__chip";
+        selo.textContent = chip;
+        titulo.append(" ", selo);
+      }
       textos.append(titulo);
       if (o.meta) {
         const meta = document.createElement("div");
@@ -274,8 +307,10 @@ export class PcCombobox extends HTMLElement {
     const opcao = this.opcoes[indice];
     if (!opcao || !this.entrada) return;
     if (this.select) {
+      this.escolhendo = true;
       this.select.value = opcao.id;
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      this.escolhendo = false;
       this.entrada.value = opcao.titulo;
     } else if (this.hasAttribute("data-valor-texto")) {
       // Modo "texto": o próprio campo é o valor (ex.: "Arapongas/PR"), validado no servidor.

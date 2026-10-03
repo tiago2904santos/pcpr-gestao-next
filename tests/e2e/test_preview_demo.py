@@ -117,6 +117,10 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg.locator(".lista-cabecalho")).to_contain_text("Resultados para")
     assert 0 < _total(pg) < total
     busca.fill("")
+    # A busca é ao vivo: espera a lista voltar ao todo antes de filtrar, senão o link
+    # "Emitidos" ainda carrega o `q=` do protocolo e o filtro sai vazio.
+    expect(pg.locator(".lista-cabecalho")).not_to_contain_text("Resultados para")
+    expect(pg.locator(".lista-cabecalho__total")).to_contain_text(str(total))
     pg.get_by_role("link", name=re.compile("^Emitidos")).click()
     emitidos = _total(pg)
     assert 0 < emitidos < total

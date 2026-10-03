@@ -34,6 +34,11 @@ ICONES = sorted({
     "users", "x", "x-circle", "wallet", "landmark", "palette", "command", "keyboard",
     "bus", "plane", "receipt", "scale", "server-crash", "ban", "undo-2", "stamp",
     "grip-vertical", "flag", "timer", "navigation",
+    # Editor de documento (ADR 0018)
+    "bold", "italic", "underline", "list", "list-ordered", "align-left", "align-center",
+    "align-right", "align-justify", "table", "redo-2", "separator-horizontal", "text-quote",
+    "rotate-ccw", "file-x-2", "file-input", "book-open-text", "bookmark-plus", "columns-2",
+    "file-search", "pilcrow", "remove-formatting",
 })
 
 

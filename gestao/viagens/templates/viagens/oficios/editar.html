@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 {% load viagens %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/progresso.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/editor-documento.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
-Cadastro do ofício em página única (como no sistema de referência). "Novo ofício" já cria o
-rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto ao salvar.
+Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
+janela de resumo: cabeçalho com placa, frase e ações; quatro cartões soltos — Identificação,
+Roteiro, Justificativa (só quando o prazo exige) e Documentos — cada um com número, nota e
+selo de estado; dentro deles, blocos com título institucional, cartões de escolha, quadros de
+diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na margem.
+
+"Novo ofício" já cria o rascunho numerado e abre esta folha; a equipe é salva na hora
+(HTMX), o resto ao salvar. As âncoras #dados, #equipe, #transporte, #roteiro, #diarias,
+#justificativa e #emissao são o destino dos links de pendência da conferência.
 {% endcomment %}
 {% block titulo %}Ofício {{ oficio.numero_formatado }} — edição{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
@@ -64,221 +71,261 @@ rascunho numerado e abre esta folha; a equipe é salva na hora (HTMX), o resto a
 {% endif %}
 
 {# Progresso: faixa fixa sob o topo, com "você está aqui" (progresso.js). A forma do marcador é a linguagem de estado. #}
-<nav class="progresso progresso--fixo{% if prontidao.pode_emitir %} progresso--completo{% endif %}" aria-label="Seções do ofício">
+<nav class="progresso progresso--fixo{% if prontidao.pode_emitir %} progresso--completo{% endif %}" aria-label="Cartões do ofício">
   <ol class="progresso__etapas">
     {% for sec in secoes %}
-      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %} (pronta){% elif sec.bloqueia %} (impede a emissão){% else %} (com aviso){% endif %}</span></a></li>
+      <li class="progresso__etapa {% if sec.ok %}progresso__etapa--ok{% elif sec.bloqueia %}progresso__etapa--bloqueia{% else %}progresso__etapa--pendente{% endif %}"><a href="#{{ sec.chave }}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %} (pronto){% elif sec.bloqueia %} (impede a emissão){% else %} (com aviso){% endif %}</span></a></li>
     {% endfor %}
-    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Conferência<span class="sr-only">{% if prontidao.pode_emitir %} (pronta){% else %} (aguardando as seções){% endif %}</span></a></li>
+    <li class="progresso__etapa{% if prontidao.pode_emitir %} progresso__etapa--ok{% endif %}"><a href="#emissao">Documentos<span class="sr-only">{% if prontidao.pode_emitir %} (pronto){% else %} (aguardando os cartões){% endif %}</span></a></li>
   </ol>
   <div class="progresso__medida">
-    <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Seções prontas"></progress>
-    <span>{{ secoes_ok }} de {{ secoes|length }} seções prontas</span>
+    <progress class="progresso__barra" value="{{ secoes_ok }}" max="{{ secoes|length }}" aria-label="Cartões prontos"></progress>
+    <span>{{ secoes_ok }} de {{ secoes|length }} prontos</span>
   </div>
 </nav>
 
-<div class="documento">
-    <!-- 1. Dados -->
-    <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="dados" aria-labelledby="t-dados">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados do ofício</h2>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
-      <div class="pilha">
-        {# Identidade do documento numa linha: cada campo com a largura do que recebe. #}
-        <div class="campos">
-          <div class="campo campo--auto">
-            <span class="campo__rotulo" id="rotulo-numero">Nº do ofício</span>
-            <p class="placa placa--campo" aria-labelledby="rotulo-numero"><span class="placa__rotulo">Reservado</span><span class="placa__numero">{{ oficio.numero_formatado }}</span></p>
-          </div>
-          {% include "componentes/campo.html" with campo=form.data_oficio classe="campo--sm" %}
-          {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" exigido_para_emitir=True %}
-          {# Documento: decisão rara e de efeito institucional — três cartões compactos, na mesma linha. #}
-          <fieldset class="opcoes opcoes--compactas" aria-describedby="ajuda-marcador">
-            <legend>Tipo de documento</legend>
-            {% for opcao in form.marcador %}
-              <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-                <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "retificado" %}{% icone "file-pen-line" %}{% elif opcao.data.value == "complementar" %}{% icone "file-plus-2" %}{% else %}{% icone "file-text" %}{% endif %}</span>
-                <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "retificado" %}Retificado{% elif opcao.data.value == "complementar" %}Complementar{% else %}Original{% endif %}</span>
-                  <span class="opcao__descricao">{% if opcao.data.value == "retificado" %}Corrige ofício anterior à viagem{% elif opcao.data.value == "complementar" %}Acrescenta ao ofício já enviado{% else %}Documento sem marcação{% endif %}</span></span>
-              </label>
-            {% endfor %}
-          </fieldset>
-          <p class="campo__ajuda" id="ajuda-marcador">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }} — {% endif %}Autorização quando o ofício é anterior à saída; senão, Convalidação{% if not assunto %} (calculado pelo roteiro ao salvar){% endif %}. Retificado corrige um ofício anterior à viagem; complementar acrescenta ao já enviado.</p>
-          {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
-        </div>
+<div class="documento documento--cartoes">
 
-        {# Custeio: quem paga. "Outra instituição" revela o campo da instituição ao lado da escolha. #}
-        <div class="custeio campos">
-          <fieldset class="opcoes">
-            <legend>Custeio das diárias e do deslocamento</legend>
-            {% for opcao in form.custeio %}
-              <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-                <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "outra_instituicao" %}{% icone "landmark" %}{% elif opcao.data.value == "onus_limitado" %}{% icone "wallet" %}{% else %}{% icone "building-2" %}{% endif %}</span>
-                <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "outra_instituicao" %}Outra instituição{% elif opcao.data.value == "onus_limitado" %}Ônus limitados{% else %}Unidade{% endif %}</span>
-                  <span class="opcao__descricao">{% if opcao.data.value == "outra_instituicao" %}Informe qual ao lado{% elif opcao.data.value == "onus_limitado" %}Aos próprios vencimentos{% else %}Diárias e combustível pela unidade{% endif %}</span></span>
-              </label>
-            {% endfor %}
-          </fieldset>
-          {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="campo--lg condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. Equipe (salva na hora, via HTMX) -->
-    {% include "viagens/oficios/_equipe.html" %}
-
-    <!-- 3. Transporte -->
-    <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="transporte" aria-labelledby="t-transporte">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-transporte"><span class="secao__numero">3</span>Transporte</h2>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div></div>
-      <div class="transporte pilha">
-        <div class="campos">
-        <fieldset class="opcoes">
-          <legend>Meio de transporte</legend>
-          {% for opcao in form.tipo_transporte %}
-            <label class="opcao" for="{{ opcao.id_for_label }}">{{ opcao.tag }}
-              <span class="opcao__icone" aria-hidden="true">{% if opcao.data.value == "viatura" %}{% icone "car" %}{% else %}{% icone "bus" %}{% endif %}</span>
-              <span class="opcao__texto"><span class="opcao__titulo">{% if opcao.data.value == "viatura" %}Viatura oficial{% else %}Outro meio{% endif %}</span>
-                <span class="opcao__descricao">{% if opcao.data.value == "viatura" %}Escolha pela placa ou pelo modelo{% else %}Ônibus, avião, veículo cedido…{% endif %}</span></span>
-            </label>
-          {% endfor %}
-        </fieldset>
-          <div class="campo campo--lg so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span></label>
-            <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
-          </div>
-          {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
-          {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
-          {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
-        </div>
-        <label class="interruptor interruptor--descrito" for="{{ form.porte_arma.auto_id }}">
-          {{ form.porte_arma|campo_acessivel:True }}
-          <span>Porte/trânsito de arma<span class="escolha__descricao" id="{{ form.porte_arma.auto_id }}-ajuda">Ligue se os servidores transportarão arma de fogo.</span></span>
-        </label>
-      </div>
-    </section>
-
-    <!-- 4. Roteiro: itinerário sede → destinos → sede -->
-    <section class="secao{% if secoes.3.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
-      <div class="secao__cabecalho">
-        <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">4</span>Roteiro</h2>
-        <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-        <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
-      </div>
-      {# Como no sistema de referência: o roteiro pode vir de um roteiro cadastrado. #}
-      {% if roteiros_disponiveis is not None %}
-      <div class="usar-roteiro">
-        {% if roteiro_aplicado %}
-          <div class="alerta alerta--info" role="status" id="roteiro-aplicado" tabindex="-1">{% icone "route" %}<div class="alerta__corpo"><p class="alerta__titulo">Trechos do roteiro #{{ roteiro_aplicado.pk }} preenchidos</p><p>Confira datas e horários e salve. Nada foi gravado ainda.</p></div></div>
-        {% elif oficio.roteiro_id %}
-          <p class="usar-roteiro__origem">{% icone "route" classe="icone--sm" %}<span>Preenchido a partir do <a href="{% url 'viagens:editar_roteiro' oficio.roteiro_id %}">roteiro #{{ oficio.roteiro_id }}</a>. Mudanças aqui não alteram o roteiro.</span></p>
-        {% endif %}
-        {% if roteiros_disponiveis %}
-        <div class="usar-roteiro__escolha">
-          <div class="campo">
-            <label class="campo__rotulo" for="id_roteiro_modelo">Usar um roteiro cadastrado</label>
-            <pc-combobox class="combobox" data-placeholder="Destino, período ou número (#12)…">
-              <select id="id_roteiro_modelo" name="roteiro_modelo" form="form-oficio" aria-describedby="ajuda-roteiro-modelo">
-                <option value="">Selecione…</option>
-                {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}"{% if r.pk == roteiro_aplicado.pk %} selected{% endif %}>{{ r.rotulo }}</option>{% endfor %}
-              </select>
-            </pc-combobox>
-            <p class="campo__ajuda" id="ajuda-roteiro-modelo">Preenche os trechos abaixo com os do roteiro. Nada é gravado até você salvar.</p>
-          </div>
-          <button type="submit" form="form-oficio" name="acao" value="usar_roteiro" class="botao" formnovalidate>{% icone "route" %}Usar este roteiro</button>
-        </div>
-        {% elif pode_criar_roteiro %}
-          <p class="texto-secundario texto-sm">Nenhum roteiro cadastrado com saída de {{ oficio.sede }}. <a href="{% url 'viagens:novo_roteiro' %}">Cadastrar um roteiro</a></p>
-        {% endif %}
-      </div>
-      {% endif %}
-      {% include "viagens/_itinerario.html" %}
-    </section>
-
-    <!-- 5. Diárias (somente leitura, atualizada ao salvar ou ao mudar a equipe) -->
-    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
-      {% include "viagens/oficios/_diarias.html" with numerado=True %}
+  {% comment %}
+  1. Identificação — o documento e quem o compõe, nos mesmos componentes da folha do roteiro
+  e da janela de resumo: campos de uma altura só, escolhas como seleção (a peça do "Texto
+  pronto" e da UF), interruptor pequeno no cabeçalho do bloco (como o "Bate-volta") e
+  cartões de pessoa. O número não se repete aqui: já está na placa e no título. Toda linha
+  fecha na margem; ajuda que quebraria sob um campo curto fica só para leitores de tela.
+  {% endcomment %}
+  <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
+      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+      {# `assunto.linha` já termina em ponto e `assunto.rotulo` já vem entre parênteses. #}
+      <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %}</p>
     </div>
 
-    <!-- 6. Justificativa: em destaque quando obrigatória; recolhida quando dispensada. -->
-    <section class="secao{% if secoes.5.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
-      <div class="secao__cabecalho">
-        <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">6</span>Justificativa de prazo</h2>
-        <div class="secao__estado">{% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}</div>
+    <div class="pilha" id="dados">
+      {# Uma linha: data · protocolo · tipo de documento · custeio. "Outra instituição" abre a linha seguinte inteira. #}
+      <div class="campos custeio">
+        {% include "componentes/campo.html" with campo=form.data_oficio classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" exigido_para_emitir=True ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.marcador classe="campo--md" rotulo="Tipo de documento" %}
+        {% include "componentes/campo.html" with campo=form.custeio classe="campo--lg" rotulo="Custeio" %}
+        {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
       </div>
-      {% if prazo.justificativa_obrigatoria %}
-        <div class="pilha">
-          <div class="alerta alerta--aviso" role="note">{% icone "calendar-days" %}<div class="alerta__corpo"><p>{{ prazo.mensagem }}</p></div></div>
-          <div class="campos">
-            {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--md" ajuda="Usado quando a justificativa estiver em branco." %}
-            {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=True %}
-          </div>
-        </div>
-      {% else %}
-        <div class="pilha">
-          <p class="texto-secundario">{% icone "calendar-days" classe="icone--sm" %} {% if prazo %}{{ prazo.mensagem }}{% else %}Exigida quando a viagem começa em até 10 dias da data do ofício — o sistema avisa ao salvar o roteiro.{% endif %}</p>
-          <details class="divulgacao"{% if oficio.justificativa or form.justificativa.errors or form.justificativa_modelo.errors %} open{% endif %}>
-            <summary>{% icone "plus" classe="icone--sm" %}Incluir justificativa mesmo assim (opcional)</summary>
-            <div class="divulgacao__corpo campos">
-              {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--md" ajuda="Usado quando a justificativa estiver em branco." %}
-              {% include "componentes/campo.html" with campo=form.justificativa %}
-            </div>
-          </details>
-        </div>
-      {% endif %}
-    </section>
+      {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
+    </div>
 
-    <!-- 7. Conferência: o fim do formulário conclui (o que está pronto, o que falta, o próximo passo). -->
-    <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
-      <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">7</span>Conferência</h2></div>
-      <div class="conferencia{% if prontidao.pode_emitir %} conferencia--pronta{% endif %}">
-        <p class="conferencia__titulo">{% if prontidao.pode_emitir %}{% icone "stamp" %}Tudo pronto para emitir{% else %}{% icone "list-checks" %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
-        <ul class="conferencia__itens" aria-label="Situação das seções">
-          {% for sec in secoes %}<li class="conferencia__item{% if sec.ok %} conferencia__item--ok{% endif %}">{{ sec.rotulo }}<span class="sr-only">{% if sec.ok %}: pronta{% else %}: pendente{% endif %}</span></li>{% endfor %}
-        </ul>
+    {# Equipe: salva na hora, via HTMX (o bloco inteiro é trocado). #}
+    {% include "viagens/oficios/_equipe.html" %}
+
+    <pc-transporte class="secao__bloco" id="transporte" aria-labelledby="t-transporte">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
+        <div class="secao__estado">
+          {% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}
+          {# Sim/não com efeito no documento: interruptor no cabeçalho, como o "Bate-volta" do roteiro. #}
+          <label class="interruptor" for="{{ form.porte_arma.auto_id }}" title="Ligue se os servidores transportarão arma de fogo">
+            {{ form.porte_arma|campo_acessivel:"" }}
+            <span>Porte/trânsito de arma</span>
+          </label>
+        </div>
+      </div>
+      {# Uma linha: meio de transporte · o que a escolha pede (viatura, ou descrição · placa · combustível). #}
+      <div class="campos transporte">
+        {% include "componentes/campo.html" with campo=form.tipo_transporte classe="campo--md" rotulo="Meio de transporte" %}
+        <div class="campo campo--lg so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span></label>
+          <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
+        </div>
+        {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
+        {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--xs so-outro" %}
+        {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
+      </div>
+    </pc-transporte>
+  </section>
+
+  {% comment %}
+  2. Roteiro — a mesma peça da folha do roteiro (sede e destinos, mapa, trechos), com o
+  atalho para preencher a partir de um roteiro cadastrado e, no fim, as diárias: elas
+  nascem daqui (destinos, datas e equipe), então moram aqui.
+  {% endcomment %}
+  <section class="secao{% if secoes.1.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">2</span>Roteiro</h2>
+      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+      <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
+    </div>
+    {% if roteiros_disponiveis is not None %}
+    <div class="usar-roteiro">
+      {% if roteiro_aplicado %}
+        <div class="alerta alerta--info" role="status" id="roteiro-aplicado" tabindex="-1">{% icone "route" %}<div class="alerta__corpo"><p class="alerta__titulo">Trechos do roteiro #{{ roteiro_aplicado.pk }} preenchidos</p><p>Confira datas e horários e salve. Nada foi gravado ainda.</p></div></div>
+      {% elif oficio.roteiro_id %}
+        <p class="usar-roteiro__origem">{% icone "route" classe="icone--sm" %}<span>Preenchido a partir do <a href="{% url 'viagens:editar_roteiro' oficio.roteiro_id %}">roteiro #{{ oficio.roteiro_id }}</a>. Mudanças aqui não alteram o roteiro.</span></p>
+      {% endif %}
+      {% if roteiros_disponiveis %}
+      <div class="usar-roteiro__escolha">
+        <div class="campo">
+          <label class="campo__rotulo" for="id_roteiro_modelo">Usar um roteiro cadastrado</label>
+          <pc-combobox class="combobox" data-placeholder="Destino, período ou número (#12)…">
+            <select id="id_roteiro_modelo" name="roteiro_modelo" form="form-oficio" aria-describedby="ajuda-roteiro-modelo">
+              <option value="">Selecione…</option>
+              {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}"{% if r.pk == roteiro_aplicado.pk %} selected{% endif %}>{{ r.rotulo }}</option>{% endfor %}
+            </select>
+          </pc-combobox>
+          <p class="campo__ajuda" id="ajuda-roteiro-modelo">Preenche os trechos abaixo com os do roteiro. Nada é gravado até você salvar.</p>
+        </div>
+        <button type="submit" form="form-oficio" name="acao" value="usar_roteiro" class="botao" formnovalidate>{% icone "route" %}Usar este roteiro</button>
+      </div>
+      {% elif pode_criar_roteiro %}
+        <p class="texto-secundario texto-sm">Nenhum roteiro cadastrado com saída de {{ oficio.sede }}. <a href="{% url 'viagens:novo_roteiro' %}">Cadastrar um roteiro</a></p>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% include "viagens/_itinerario.html" %}
+    {# Diárias: só leitura, refeitas ao salvar ou ao mudar a equipe (o HTMX troca o miolo). #}
+    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
+      {% include "viagens/oficios/_diarias.html" with bloco=True %}
+    </div>
+  </section>
+
+  {% comment %}
+  3. Justificativa — o cartão só existe quando o prazo a exige. Dentro do prazo ele some,
+  exceto se já houver texto escrito (ou erro no campo): a justificativa vai para o documento
+  mesmo dispensada, e sumi-la esconderia um texto que ninguém mais poderia corrigir. Quem
+  decide é `_mostrar_justificativa` em views.py.
+  {% endcomment %}
+  {% if mostrar_justificativa %}
+  <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">3</span>Justificativa de prazo</h2>
+      <div class="secao__estado">{% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}</div>
+      <p class="secao__nota">{% if prazo %}{{ prazo.mensagem }}{% else %}Exigida quando a viagem começa em até 10 dias da data do ofício — o sistema avisa ao salvar o roteiro.{% endif %}</p>
+    </div>
+    {# O texto pronto vai de margem a margem, como a busca de roteiro: um campo curto deixaria a linha pela metade. #}
+    {% if prazo.justificativa_obrigatoria %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--lg" ajuda="Usado quando a justificativa estiver em branco." %}
+        {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=True %}
+      </div>
+    {% else %}
+      <details class="divulgacao" open>
+        <summary>{% icone "plus" classe="icone--sm" %}Justificativa incluída mesmo dispensada</summary>
+        <div class="divulgacao__corpo campos">
+          {% include "componentes/campo.html" with campo=form.justificativa_modelo classe="campo--lg" ajuda="Usado quando a justificativa estiver em branco." %}
+          {% include "componentes/campo.html" with campo=form.justificativa %}
+        </div>
+      </details>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% comment %}
+  4. Documentos — o fim da folha conclui, com as peças da janela de resumo: o aviso de
+  pendências (cada uma levando ao cartão certo), as fichas de documento (a minuta sempre
+  está, então a linha nunca fica vazia) e o histórico, uma linha por evento, dentro do
+  cartão. A situação dos cartões não se repete aqui: a faixa de progresso do topo já a
+  mostra. É o número 3 quando a justificativa não aparece, para a numeração não pular.
+  {% endcomment %}
+  <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}4{% else %}3{% endif %}</span>Documentos</h2>
+      <div class="secao__estado">{% if prontidao.pode_emitir %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para emitir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }}</span>{% endif %}</div>
+      <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido ele fica travado — correções exigem reabertura, registrada no histórico.</p>
+    </div>
+
+    {# Conferência: o mesmo aviso que abre a janela de resumo; aqui cada pendência é um atalho para o cartão. #}
+    <div class="alerta {% if prontidao.pode_emitir %}alerta--sucesso{% else %}alerta--aviso{% endif %}" role="status" id="conferencia">
+      {% if prontidao.pode_emitir %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}
+      <div class="alerta__corpo">
+        <p class="alerta__titulo">{% if prontidao.pode_emitir %}Tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
         {% if prontidao.pendencias %}
           <ul class="checklist">
             {% for p in prontidao.pendencias %}
-              <li class="checklist__item {% if p.bloqueia %}checklist__item--bloqueia{% else %}checklist__item--aviso{% endif %}">
-                {% if p.bloqueia %}{% icone "x-circle" rotulo="Pendência" %}{% else %}{% icone "alert-triangle" rotulo="Aviso" %}{% endif %}
-                <span><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</span>
-              </li>
+              <li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</li>
             {% endfor %}
           </ul>
         {% endif %}
-        {% if prontidao.pode_emitir %}<p class="texto-secundario texto-sm">Depois de emitido, o ofício fica travado; correções exigem reabertura (registrada no histórico).</p>{% endif %}
-        <div class="conferencia__acoes">
-          <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta (PDF)</a>
-          {% if pode_emitir and prontidao.pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button>{% endif %}
-        </div>
+        {% if pode_emitir and prontidao.pode_emitir %}
+          <div class="conferencia__acoes mt-2"><button type="submit" form="form-oficio" name="acao" value="emitir" class="botao botao--primario">{% icone "arrow-right" classe="icone--seta" %}Salvar e seguir para a emissão</button></div>
+        {% endif %}
       </div>
-    </section>
-</div>
+    </div>
 
-{% comment %}
-Histórico no pé da folha: era a única coisa que a página de leitura tinha de próprio, e o
-lugar dela é aqui, junto do ofício que se está trabalhando.
-{% endcomment %}
-<section class="historico mt-6" id="historico" aria-labelledby="t-hist">
-  <h2 class="rotulo-caixa-alta rotulo-caixa-alta--marca mb-4" id="t-hist">Histórico</h2>
-  <ol class="linha-tempo linha-tempo--colunas">
-    {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="vazio-inline">Sem eventos.</li>{% endfor %}
-  </ol>
-  {% if historico|length > 6 %}
-    <details>
-      <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-      <ol class="linha-tempo linha-tempo--colunas mt-4">
-        {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
+    {% comment %}
+    Visualizador com editor (ADR 0018): a folha do documento, como vai sair, dentro do
+    cartão — e é nela que se escreve. O texto em volta dos dados pode ser ajustado; os
+    dados do cadastro (motivo, protocolo…) ficam vivos e gravam no ofício. Com
+    justificativa, a segunda folha entra numa aba ao lado.
+    {% endcomment %}
+    <div class="secao__bloco" id="minuta" aria-labelledby="t-minuta">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-minuta">{% icone "file-pen-line" classe="icone--sm" %}Minuta</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">{% if pode_editar_texto %}escreva direto na folha — salva sozinho{% else %}gerada agora, com marca d'água{% endif %}</span></div>
+      </div>
+      {% url 'viagens:folha' oficio.pk 'oficio' as folha_oficio %}{% url 'viagens:editor_estado' oficio.pk 'oficio' as estado_oficio %}{% url 'viagens:previa' oficio.pk as pdf_oficio %}
+      {% if mostrar_justificativa %}
+      {% url 'viagens:folha' oficio.pk 'justificativa' as folha_just %}{% url 'viagens:editor_estado' oficio.pk 'justificativa' as estado_just %}
+      <pc-abas>
+        <div role="tablist" class="abas" aria-label="Documentos do ofício">
+          <button type="button" role="tab" class="aba" id="aba-doc-oficio" aria-controls="painel-doc-oficio" aria-selected="true">Ofício</button>
+          <button type="button" role="tab" class="aba" id="aba-doc-justificativa" aria-controls="painel-doc-justificativa">Justificativa</button>
+        </div>
+        <div role="tabpanel" id="painel-doc-oficio" aria-labelledby="aba-doc-oficio" tabindex="0" class="mt-4">
+          {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" %}
+        </div>
+        <div role="tabpanel" id="painel-doc-justificativa" aria-labelledby="aba-doc-justificativa" tabindex="0" class="mt-4" hidden>
+          {% include "viagens/oficios/_editor.html" with tipo="justificativa" rotulo="Justificativa" titulo_doc="Justificativa do Ofício "|add:oficio.numero_formatado folha_url=folha_just estado_url=estado_just pdf_url=pdf_oficio|add:"?tipo=justificativa" %}
+        </div>
+      </pc-abas>
+      {% else %}
+        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" %}
+      {% endif %}
+    </div>
+
+    <div class="secao__bloco" id="documentos" aria-labelledby="t-documentos">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
+        <div class="secao__estado">{% if documentos %}<span class="selo selo--sucesso selo--situacao-emitido">{{ documentos|length|pluralizar:"emitido,emitidos" }}</span>{% else %}<span class="texto-terciario texto-xs">os emitidos entram aqui</span>{% endif %}</div>
+      </div>
+      <ul class="resumo__documentos" role="list">
+        <li><a class="resumo__documento" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" classe="icone--sm" %}<span>Minuta (PDF)</span><span class="sr-only"> (nova aba)</span></a></li>
+        {% for d in documentos %}
+          <li>
+            {% if d.situacao == "pronto" %}
+              <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span></a>
+            {% else %}
+              <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {# Histórico: uma linha por evento — a mesma receita das linhas de trecho da janela de resumo. #}
+    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+      </div>
+      <ol class="historico__linhas" aria-label="Eventos do ofício">
+        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos.</li>{% endfor %}
       </ol>
-    </details>
-  {% endif %}
-</section>
+      {% if historico|length > 6 %}
+        <details>
+          <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
+          <ol class="historico__linhas mt-4" aria-label="Eventos anteriores">
+            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
+          </ol>
+        </details>
+      {% endif %}
+    </div>
+  </section>
+</div>
 
 <div class="barra-acoes">
   <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
     {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario">· {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}<a href="#emissao">{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir</a><span class="barra-acoes__secundario">· última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
   <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
-  {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva à seção 7 (sem beco sem saída), mas não promete emissão. #}
+  {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva ao cartão Documentos (sem beco sem saída), mas não promete emissão. #}
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
 </div>
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}

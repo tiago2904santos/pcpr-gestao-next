@@ -158,7 +158,12 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "var" / "static"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    # Brasão e fontes dos documentos: o WeasyPrint lê a pasta; a folha do editor (ADR 0018)
+    # recebe os mesmos arquivos por /static/documentos/.
+    ("documentos", BASE_DIR / "gestao" / "viagens" / "documentos_assets"),
+]
 MEDIA_ROOT = BASE_DIR / "var" / "media"
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_roteiros
+from . import views, views_editor, views_roteiros
 
 app_name = "viagens"
 
@@ -24,6 +24,28 @@ urlpatterns = [
     path("oficios/<int:pk>/excluir/", views.excluir, name="excluir"),
     path("oficios/<int:pk>/documentos/", views.documentos_parcial, name="documentos"),
     path("oficios/<int:pk>/minuta.pdf", views.previa, name="previa"),
+    # Editor de documento no visualizador (ADR 0018)
+    path("oficios/<int:pk>/documento/<str:tipo>/folha/", views_editor.folha, name="folha"),
+    path("oficios/<int:pk>/documento/<str:tipo>/estado/", views_editor.estado,
+         name="editor_estado"),
+    path("oficios/<int:pk>/documento/<str:tipo>/salvar/", views_editor.salvar,
+         name="editor_salvar"),
+    path("oficios/<int:pk>/documento/<str:tipo>/restaurar/<int:numero>/",
+         views_editor.restaurar, name="editor_restaurar"),
+    path("oficios/<int:pk>/documento/<str:tipo>/modelo/", views_editor.modelo,
+         name="editor_modelo"),
+    path("oficios/<int:pk>/documento/<str:tipo>/campos/<str:chave>/", views_editor.campo,
+         name="editor_campo"),
+    path("oficios/<int:pk>/documento/<str:tipo>/original/", views_editor.original,
+         name="editor_original"),
+    path("oficios/<int:pk>/documento/<str:tipo>/paginas/", views_editor.paginas,
+         name="editor_paginas"),
+    path("oficios/<int:pk>/documento/<str:tipo>/presenca/", views_editor.presenca,
+         name="editor_presenca"),
+    path("oficios/<int:pk>/documento/<str:tipo>/textos/", views_editor.textos,
+         name="editor_textos"),
+    path("oficios/<int:pk>/documento/<str:tipo>/textos/<int:texto_id>/remover/",
+         views_editor.remover_texto, name="editor_remover_texto"),
     path("documentos/<int:documento_id>/", views.baixar_documento, name="baixar_documento"),
     path("api/servidores/", views.buscar_servidores, name="buscar_servidores"),
     path("api/rota/", views.rota, name="rota"),

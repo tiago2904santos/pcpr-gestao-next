@@ -1,4 +1,9 @@
-<li class="linha-tempo__item{% if h.acao == 'emitido' or h.acao == 'documento' %} linha-tempo__item--marca{% endif %}">
-  <span class="linha-tempo__marcador" aria-hidden="true">{% if h.acao == "emitido" %}{% icone "stamp" %}{% elif h.acao == "cancelado" %}{% icone "ban" %}{% elif h.acao == "documento" %}{% icone "file-check-2" %}{% elif h.acao == "reaberto" %}{% icone "undo-2" %}{% else %}{% icone "circle-dot" %}{% endif %}</span>
-  <div><p class="linha-tempo__titulo">{{ h.descricao }}</p><p class="linha-tempo__meta"><time datetime="{{ h.em|date:'c' }}">{{ h.em|date:"d/m/Y H:i" }}</time>{% if h.usuario %} · {{ h.usuario.nome }}{% else %} · sistema{% endif %}</p></div>
+{% comment %}
+Um evento do histórico numa linha: quando · o quê · quem. A mesma leitura em colunas das
+linhas de trecho da janela de resumo. Emissão e documento ganham a marca dourada.
+{% endcomment %}
+<li class="historico__linha{% if h.acao == 'emitido' or h.acao == 'documento' %} historico__linha--marca{% endif %}">
+  <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+  <span class="historico__texto">{{ h.descricao }}</span>
+  <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>
 </li>

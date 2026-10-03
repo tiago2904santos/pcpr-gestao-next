@@ -1,0 +1,205 @@
+/* =====================================================================
+   Folha do documento dentro do editor (ADR 0018) — só entra no iframe.
+   O estilo do documento em si (fontes, tabelas, margens) é o mesmo do PDF e vem do
+   próprio modelo; aqui fica o que é da TELA: a folha como papel, as regiões que
+   aceitam escrita, os campos vivos, os blocos alterados, as quebras e as páginas.
+   ===================================================================== */
+
+html {
+  background: var(--neutro-200);
+}
+
+/* `html body`: vence o `body { margin: 0 }` do próprio modelo, que vem depois deste arquivo. */
+html body {
+  /* A4 com as margens de impressão do modelo; na tela a folha encolhe com a janela. */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: min(210mm, 100%);
+  min-height: 297mm;
+  margin: var(--esp-6) auto;
+  padding: 14mm 18mm 24mm;
+  background: var(--neutro-0);
+  box-shadow: var(--sombra-cartao);
+}
+
+/* Rodapé corrido não existe na tela: vira o pé da folha. */
+.rodape {
+  position: static;
+  order: 99;
+  margin-top: auto;
+  padding-top: var(--esp-2);
+  border-top: 1px solid var(--cor-borda-sutil);
+}
+
+main {
+  margin-bottom: var(--esp-8);
+}
+
+/* Marca d'água da minuta: na tela fica atrás do texto, no meio da folha. */
+.minuta {
+  position: absolute;
+  top: 40%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---- Regiões editáveis ---- */
+.regiao {
+  position: relative;
+  border-radius: var(--raio-xs);
+  outline: 1px dashed transparent;
+  outline-offset: 4px;
+  transition: outline-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.regiao[contenteditable="true"]:hover {
+  outline-color: var(--cor-borda-forte);
+}
+
+.regiao[contenteditable="true"]:focus-within {
+  outline: 2px solid var(--cor-marca);
+  outline-offset: 4px;
+}
+
+.regiao[contenteditable="true"]:focus-within::before {
+  content: attr(data-rotulo);
+  position: absolute;
+  top: -1.1rem;
+  right: 0;
+  font-family: var(--fonte-base);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-marca-texto);
+}
+
+.regiao:focus {
+  outline: none;
+}
+
+/* ---- Campos vivos (vêm do cadastro) ---- */
+[data-campo] {
+  border-radius: var(--raio-xs);
+  background: var(--cor-marca-fundo);
+  box-shadow: 0 1px 0 var(--cor-marca-borda);
+  padding-inline: 0.15em;
+}
+
+html.folha--editavel [data-campo]:focus {
+  outline: 2px solid var(--cor-marca);
+  outline-offset: 2px;
+}
+
+[data-campo]:empty::before {
+  content: attr(data-rotulo);
+  color: var(--cor-texto-terciario);
+  font-style: italic;
+}
+
+[data-campo][data-obrigatorio]:empty {
+  background: var(--cor-aviso-fundo);
+  box-shadow: 0 1px 0 var(--cor-aviso-borda);
+}
+
+/* ---- Blocos alterados em relação ao modelo ---- */
+.bloco--alterado {
+  position: relative;
+}
+
+.bloco--alterado::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -10mm;
+  width: 3px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca);
+}
+
+/* ---- Quebras de página: pontos do modelo e quebras livres ---- */
+html.folha--editavel .quebra {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  height: auto;
+  margin: var(--esp-2) 0;
+  font-family: var(--fonte-base);
+  font-size: var(--texto-2xs);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-terciario);
+  cursor: pointer;
+  user-select: none;
+}
+
+html.folha--editavel .quebra::before,
+html.folha--editavel .quebra::after {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed var(--cor-borda-forte);
+}
+
+html.folha--editavel .quebra:not(.quebra--ativa)::before,
+html.folha--editavel .quebra:not(.quebra--ativa)::after {
+  opacity: 0.5;
+}
+
+html.folha--editavel .quebra--ativa {
+  color: var(--cor-marca-texto);
+}
+
+html.folha--editavel .quebra--ativa::before,
+html.folha--editavel .quebra--ativa::after {
+  border-top: 2px solid var(--cor-marca);
+}
+
+/* Quando não se edita, só a quebra ativa aparece — como um corte de página. */
+html:not(.folha--editavel) .quebra--ativa {
+  display: block;
+  height: 0;
+  margin: var(--esp-4) 0;
+  border-top: 2px dashed var(--cor-borda-forte);
+}
+
+/* ---- Marcas de página (calculadas pelo motor do PDF) ---- */
+[data-pagina] {
+  position: relative;
+}
+
+[data-pagina]::before {
+  content: "página " attr(data-pagina);
+  position: absolute;
+  top: -0.5rem;
+  right: -18mm;
+  transform: translateX(100%) rotate(90deg);
+  transform-origin: left top;
+  font-family: var(--fonte-base);
+  font-size: var(--texto-2xs);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cor-texto-terciario);
+}
+
+/* ---- Vendo uma versão antiga: a folha fica em tom de leitura ---- */
+html.folha--leitura body {
+  box-shadow: var(--sombra-cartao), inset 0 0 0 3px var(--cor-aviso-borda);
+}
+
+@media (max-width: 640px) {
+  html body {
+    margin: var(--esp-2) auto;
+    padding: 8mm 8mm 12mm;
+  }
+
+  .bloco--alterado::after {
+    left: -5mm;
+  }
+
+  [data-pagina]::before {
+    right: -8mm;
+  }
+}

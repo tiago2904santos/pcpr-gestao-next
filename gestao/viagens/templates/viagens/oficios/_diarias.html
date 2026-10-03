@@ -1,22 +1,27 @@
 {% load viagens %}
-<section class="secao{% if numerado and calculo.total %} secao--ok{% endif %}" id="diarias" aria-labelledby="t-diarias">
-  <div class="secao__cabecalho">
-    {% if numerado %}<h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">{{ numero|default:"5" }}</span>Diárias</h2>
-    {% else %}<h2 class="secao__titulo secao__titulo--institucional" id="t-diarias">{% icone "banknote" %}Diárias</h2>{% endif %}
-    <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% elif numerado %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
+{% comment %}
+Três invólucros para o mesmo corpo (_diarias_corpo.html):
+- `bloco=True` (folha do ofício): bloco dentro do cartão Identificação, título h3 e sem
+  número — a numeração agora é do cartão, não de cada assunto;
+- `numerado=True` (folha do roteiro, que segue com seções numeradas): seção própria com o
+  número em `numero`;
+- sem nenhum dos dois (janela de resumo, emissão): seção própria, título institucional.
+{% endcomment %}
+{% if bloco %}
+  <div class="secao__bloco" id="diarias" aria-labelledby="t-diarias">
+    <div class="secao__bloco-cabecalho">
+      <h3 class="secao__bloco-titulo" id="t-diarias">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
+      <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% else %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
+    </div>
+    {% include "viagens/oficios/_diarias_corpo.html" %}
   </div>
-  <div class="pilha">
-    {% if oficio.diarias_erro %}
-      <div class="alerta alerta--aviso" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Ainda não dá para calcular</p><p>{{ oficio.diarias_erro }}</p></div></div>
-    {% elif calculo.total %}
-      <div class="grade grade--3">
-        <div class="indicador indicador--atencao"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor total</span><span class="indicador__valor">{{ calculo.total|moeda }}</span><span class="indicador__nota">{{ calculo.por_servidor|moeda }} por servidor</span></div>
-        <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "map-pin" classe="icone--sm" %}Tipo de destino</span><span class="indicador__valor">{{ calculo.tipo_destino }}</span></div>
-        <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "list-checks" classe="icone--sm" %}Quantidade por servidor</span><span class="indicador__valor">{{ calculo.resumo }}</span></div>
-      </div>
-      <p class="por-extenso">Por extenso: {{ calculo.extenso }}.</p>
-    {% else %}
-      <p class="texto-secundario">{{ texto_vazio|default:"O cálculo aparece aqui assim que houver equipe e roteiro." }}</p>
-    {% endif %}
-  </div>
-</section>
+{% else %}
+  <section class="secao{% if numerado and calculo.total %} secao--ok{% endif %}" id="diarias" aria-labelledby="t-diarias">
+    <div class="secao__cabecalho">
+      {% if numerado %}<h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">{{ numero|default:"5" }}</span>Diárias</h2>
+      {% else %}<h2 class="secao__titulo secao__titulo--institucional" id="t-diarias">{% icone "banknote" %}Diárias</h2>{% endif %}
+      <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% elif numerado %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
+    </div>
+    {% include "viagens/oficios/_diarias_corpo.html" %}
+  </section>
+{% endif %}

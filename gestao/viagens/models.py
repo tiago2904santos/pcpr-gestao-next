@@ -393,6 +393,10 @@ class Documento(models.Model):
                                     related_name="+")
     emitido_em = models.DateTimeField(auto_now_add=True)
     gerado_em = models.DateTimeField(null=True, blank=True)
+    # Texto editado em vigor na emissão (ADR 0018); o instantâneo em `dados["edicao"]` é o
+    # que gera o PDF — a chave só diz de onde ele veio.
+    edicao = models.ForeignKey("EdicaoDocumento", on_delete=models.PROTECT, null=True,
+                               blank=True, related_name="documentos")
 
     class Meta:
         ordering = ["tipo", "-versao"]
@@ -412,6 +416,53 @@ class Documento(models.Model):
         return f"{base}-v{self.versao}.pdf".lower().replace("í", "i")
 
 
+class EdicaoDocumento(models.Model):
+    """Uma versão do texto editado de um documento do ofício (ADR 0018).
+
+    Só acrescenta: cada salvamento, restauração ou "voltar ao modelo" é uma linha nova; a
+    versão em vigor é a de maior `numero` do par (ofício, tipo). `regioes` guarda o HTML
+    saneado de cada região editável (`cabecalho`, `corpo`, `rodape`); região ausente sai do
+    modelo. `regioes == {}` significa "como o modelo gera".
+    """
+
+    class Acao(models.TextChoices):
+        EDITADO = "editado", "Texto editado"
+        RESTAURADO = "restaurado", "Versão restaurada"
+        MODELO = "modelo", "Voltou ao modelo"
+
+    oficio = models.ForeignKey(Oficio, on_delete=models.CASCADE, related_name="edicoes")
+    tipo = models.CharField(max_length=15, choices=Documento.Tipo.choices)
+    numero = models.PositiveIntegerField()
+    acao = models.CharField(max_length=10, choices=Acao.choices, default=Acao.EDITADO)
+    regioes = models.JSONField("HTML por região", default=dict, blank=True)
+    # Rótulos dos blocos que diferem do modelo nesta versão — o histórico legível.
+    blocos_alterados = models.JSONField(default=list, blank=True)
+    # Impressão (sha256) de cada região como o modelo a gerava quando o texto foi salvo:
+    # se o cadastro mudar depois, a folha avisa que o texto editado ficou para trás.
+    impressoes = models.JSONField(default=dict, blank=True)
+    restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
+                                      related_name="+")
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   null=True, related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["tipo", "-numero"]
+        constraints = [
+            models.UniqueConstraint(fields=["oficio", "tipo", "numero"],
+                                    name="edicao_documento_numero_unico"),
+        ]
+        verbose_name = "edição de documento"
+        verbose_name_plural = "edições de documento"
+
+    def __str__(self) -> str:
+        return f"{self.get_tipo_display()} {self.oficio.numero_formatado} — texto v{self.numero}"
+
+    @property
+    def do_modelo(self) -> bool:
+        return not self.regioes
+
+
 class Historico(models.Model):
     """Linha do tempo de negócio exibida ao usuário (a trilha técnica é do banco)."""
 
@@ -423,6 +474,7 @@ class Historico(models.Model):
         DOCUMENTO = "documento", "Documento gerado"
         REABERTO = "reaberto", "Reaberto para correção"
         CANCELADO = "cancelado", "Ofício cancelado"
+        TEXTO = "texto", "Texto do documento alterado"
 
     oficio = models.ForeignKey(Oficio, on_delete=models.CASCADE, related_name="historico")
     acao = models.CharField(max_length=12, choices=Acao.choices)

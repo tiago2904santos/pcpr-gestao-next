@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -22,6 +22,7 @@
       <li class="etapas__item"><a href="#foco"><span class="etapas__marcador">10</span>Foco e ação</a></li>
       <li class="etapas__item"><a href="#conceitos"><span class="etapas__marcador">11</span>Laboratório de conceitos</a></li>
       <li class="etapas__item"><a href="#pecas-formulario"><span class="etapas__marcador">12</span>Peças do formulário</a></li>
+      <li class="etapas__item"><a href="#editor"><span class="etapas__marcador">13</span>Editor de documento</a></li>
     </ol>
   </nav>
 
@@ -502,7 +503,16 @@
 
       </div>
     </section>
-  </div>
+  
+    <!-- 13. EDITOR DE DOCUMENTO (ADR 0018) -->
+    <section class="cartao" id="editor" aria-labelledby="t-editor">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-editor"><span class="cartao__numero">13</span>Editor de documento no visualizador</h2><span class="texto-secundario texto-sm">A folha do documento (a mesma que vira PDF) com as regiões editáveis, campos vivos, blocos, quebras, textos prontos e histórico. Aqui é vitrine: edita, formata e insere, mas nada é salvo.</span></div>
+      <div class="cartao__corpo">
+        {% url 'ui_lab:folha_exemplo' as folha_exemplo %}
+        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True %}
+      </div>
+    </section>
+</div>
 </div>
 
 <dialog id="lab-dialogo" class="dialogo" aria-labelledby="lab-dialogo-titulo">

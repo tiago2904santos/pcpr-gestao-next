@@ -108,6 +108,12 @@ class Viatura(Ativavel):
     unidade = models.ForeignKey(
         Unidade, on_delete=models.PROTECT, null=True, blank=True, related_name="viaturas"
     )
+    # Quem costuma dirigi-la: na folha do ofício, marcar um deles como motorista escolhe a
+    # viatura sozinha, e a lista de viaturas sugere as ligadas à equipe.
+    motoristas = models.ManyToManyField(
+        Servidor, verbose_name="motoristas habituais", blank=True,
+        related_name="viaturas_que_dirige",
+    )
 
     class Meta:
         ordering = ["placa"]
@@ -208,10 +214,13 @@ class ModeloTexto(Ativavel):
     class Tipo(models.TextChoices):
         MOTIVO = "motivo", "Motivo do ofício"
         JUSTIFICATIVA = "justificativa", "Justificativa de prazo"
+        OFICIO = "oficio", "Trecho para o texto do ofício"
 
     tipo = models.CharField(max_length=20, choices=Tipo.choices)
     nome = models.CharField("nome", max_length=120)
     texto = models.TextField("texto")
+    # Texto que vem com o sistema: pode ser desativado, nunca apagado pelo editor.
+    padrao_sistema = models.BooleanField("padrão do sistema", default=False)
 
     class Meta:
         ordering = ["tipo", "nome"]

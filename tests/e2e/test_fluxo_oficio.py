@@ -64,7 +64,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
-    expect(pg.locator("#justificativa .selo")).to_have_text("Dispensada")
+    # Dentro do prazo a justificativa é dispensada — e o cartão nem chega a existir.
+    expect(pg.locator("#justificativa")).to_have_count(0)
 
     pg.get_by_role("button", name="Revisar e emitir").click()
     expect(pg.get_by_role("heading", level=1)).to_have_text("Revisar e emitir")
@@ -309,47 +310,58 @@ def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
     expect(pg.locator(".pagina-cabecalho__placa")).to_have_attribute("data-vt", nome)
 
 
-def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado, dados_e2e):
-    """Cadastro do ofício: escolhas como cartões (rádios nativos), campo condicional colado à
-    escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
+def _escolher(pg, campo: str, rotulo: str, opcao: str) -> None:
+    """Escolhe numa seleção vestida (pc-select) pelo gatilho do campo e confere que o rótulo
+    chegou ao gatilho como nome acessível — o <select> nativo, escondido, não entra na
+    árvore (um locator por papel+nome o acharia e não conseguiria clicar)."""
+    gatilho = pg.locator(f"#id_{campo}-gatilho")
+    expect(gatilho).to_have_accessible_name(rotulo)
+    gatilho.click()
+    pg.get_by_role("option", name=re.compile(opcao)).click()
+
+
+def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2e):
+    """Cadastro do ofício: escolhas como seleção na altura dos campos, campo condicional
+    colado à escolha, roteiro como itinerário sede → destinos → sede e conferência no fim."""
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     # Custeio: "Outra instituição" revela o campo da instituição (sem JS: :has()).
     instituicao = pg.get_by_label("Instituição que custeia")
-    pg.locator("label.opcao").filter(has_text="Diárias e combustível pela unidade").click()
+    _escolher(pg, "custeio", "Custeio", "^Unidade")
     expect(instituicao).to_be_hidden()
-    pg.locator("label.opcao").filter(has_text="Outra instituição").click()
-    expect(pg.get_by_role("radio", name=re.compile("^Outra instituição"))).to_be_checked()
+    _escolher(pg, "custeio", "Custeio", "^Outra instituição")
+    expect(pg.locator("select[name=custeio]")).to_have_value("outra_instituicao")
     expect(instituicao).to_be_visible()
-    # Teclado: setas trocam o meio de transporte (rádios nativos sob os cartões).
-    pg.locator("label.opcao").filter(has_text="Viatura oficial").click()
-    viatura = pg.get_by_role("radio", name=re.compile("^Viatura oficial"))
-    expect(viatura).to_be_checked()
-    viatura.focus()
-    pg.keyboard.press("ArrowDown")
-    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    # Meio de transporte: cada escolha traz os seus campos.
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Viatura oficial")
+    expect(pg.get_by_label("Descrição do transporte")).to_be_hidden()
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
+    expect(pg.locator("select[name=tipo_transporte]")).to_have_value("outro")
     expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
-    # Porte de arma é um interruptor.
+    # Porte de arma é um interruptor, no cabeçalho do bloco.
     expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
     # Itinerário: começa e termina na sede; o trecho diz de onde sai.
     expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
     expect(pg.locator("#roteiro .itin__trecho").last).to_contain_text("Chegada na sede")
     expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
-    # Conferência: diz quantas pendências faltam e lista as seções.
-    expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
-    expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
+    # Documentos: o aviso de conferência diz quantos itens faltam e cada pendência é um
+    # atalho para o cartão onde se resolve (a situação dos cartões fica na faixa do topo).
+    expect(pg.locator("#emissao #conferencia .alerta__titulo")).to_contain_text("para emitir")
+    pendencias = pg.locator("#emissao .checklist a")
+    expect(pendencias.first).to_have_attribute("href", re.compile(r"^#(dados|equipe|transporte|roteiro|diarias|justificativa)$"))
+    # A minuta está sempre entre os documentos: a linha nunca fica vazia.
+    expect(pg.locator("#documentos .resumo__documento").first).to_contain_text("Minuta")
 
 
-def test_clique_em_texto_nao_rola_a_pagina_nem_perde_a_escolha(logado, dados_e2e):
+def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):
     """Regressão: com tabindex fixo no <main>, apertar o mouse num texto não focável dava
-    foco ao <main>, a página rolava antes de soltar o botão e o clique no cartão se perdia."""
+    foco ao <main> e a página rolava antes de soltar o botão."""
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
-    descricao = pg.locator("label.opcao").filter(has_text="Outro meio").locator(".opcao__descricao")
-    descricao.scroll_into_view_if_needed()
+    titulo = pg.locator("#t-transporte")
+    titulo.scroll_into_view_if_needed()
     antes = pg.evaluate("scrollY")
-    descricao.click()
-    expect(pg.get_by_role("radio", name=re.compile("^Outro meio"))).to_be_checked()
+    titulo.click()
     assert pg.evaluate("scrollY") == antes
     expect(pg.locator("main#conteudo")).not_to_have_attribute("tabindex", "-1")
 
@@ -372,9 +384,13 @@ def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
     pg.get_by_role("button", name="Novo ofício").first.click()
     expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Ofício ")
-    for secao in ("dados", "equipe", "transporte", "roteiro", "diarias", "justificativa",
-                  "emissao"):
-        expect(pg.locator(f"#{secao}")).to_be_attached()
+    # Quatro cartões; dentro de Identificação cada assunto guarda a própria âncora.
+    for ancora in ("identificacao", "dados", "equipe", "transporte", "diarias",
+                   "roteiro", "emissao"):
+        expect(pg.locator(f"#{ancora}")).to_be_attached()
+    # Rascunho recém-criado não tem saída marcada: sem prazo a cumprir, o cartão da
+    # justificativa nem aparece.
+    expect(pg.locator("#justificativa")).to_have_count(0)
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
@@ -436,7 +452,7 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     data.press_sequentially("21102026")
     expect(data).to_have_value("21/10/2026")
     # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
-    pg.locator("label.opcao").filter(has_text="Outro meio").click()
+    _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
     lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
     lista.click()
     expect(lista).to_have_attribute("aria-expanded", "true")
@@ -447,3 +463,55 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     pg.keyboard.press("Escape")
     expect(lista).to_have_attribute("aria-expanded", "false")
     assert pg.erros_console == []  # type: ignore[attr-defined]
+
+
+def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
+    """O visualizador do cartão Documentos (ADR 0018): o iframe carrega a folha HTML do
+    documento (lazy, ao chegar à vista) e o navegador a aceita emoldurada — sem "Refused to
+    display" no console; o modo PDF pede a minuta, também emoldurável."""
+    pg = logado
+    pk = dados_e2e.ids["oficio_rascunho"]
+    # Escuta desde antes de navegar: o Chromium carrega iframes `lazy` com folga de mais
+    # de mil pixels, então a folha pode ser pedida já no goto, antes de rolar até ela.
+    folha = f"/viagens/oficios/{pk}/documento/oficio/folha/"
+    with pg.expect_response(lambda r: r.url.endswith(folha)) as resposta:
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        pg.locator("#minuta iframe").first.scroll_into_view_if_needed()
+    assert resposta.value.status == 200
+    assert resposta.value.headers["content-type"].startswith("text/html")
+    assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]
+    with pg.expect_response(lambda r: f"/viagens/oficios/{pk}/minuta.pdf" in r.url) as pdf:
+        pg.click("#editor-oficio [data-modo='pdf']")
+    assert pdf.value.status == 200
+    assert pdf.value.headers["content-type"].startswith("application/pdf")
+    assert "frame-ancestors 'self'" in pdf.value.headers["content-security-policy"]
+    pg.wait_for_timeout(500)
+    assert not [e for e in pg.erros_console if "frame" in e.lower()], pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
+    """A viatura acompanha a equipe: a lista sugere as da unidade e as que alguém dirige
+    (com chips), e marcar o motorista escolhe sozinha a viatura que ele costuma dirigir."""
+    pg = logado
+    pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/#equipe")
+    busca = pg.get_by_role("combobox", name="Adicionar servidor")
+    busca.fill("isab")
+    pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
+    expect(pg.locator("#equipe .cracha")).to_contain_text("Isabela Prado Cavalcanti")
+    # Sugestões com chips: Isabela dirige a Master; a Duster é da unidade dela (DPC).
+    pg.locator("#id_viatura-busca").click()
+    opcoes = pg.locator("#transporte [role='option']")
+    expect(opcoes.first).to_contain_text("ABC1D23")
+    expect(opcoes.first.locator(".combobox__chip")).to_have_text(["Isabela"])
+    expect(opcoes.nth(1)).to_contain_text("XYZ-9876")
+    expect(opcoes.nth(1).locator(".combobox__chip")).to_have_text(["Unidade DPC"])
+    expect(pg.locator("#transporte .combobox__grupo").first).to_have_text("Sugeridas pela equipe")
+    pg.keyboard.press("Escape")
+    # Marcar como motorista escolhe a viatura dela e avisa.
+    pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
+    expect(pg.locator("#equipe .cracha--motorista")).to_contain_text("Isabela")
+    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
+    expect(pg.locator(".toast").last).to_contain_text("Isabela costuma dirigi-la")
+    pg.get_by_role("button", name="Salvar rascunho").click()
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
+    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))

@@ -44,6 +44,58 @@
   max-width: 76rem;
 }
 
+/* Quatro cartões soltos, não uma folha única repartida por fios: cada seção vira o próprio
+   cartão, com o respiro entre eles fazendo a separação que o filete fazia antes. Só a folha
+   do ofício usa esta variante — a do roteiro continua sendo uma folha só. */
+.documento--cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-5);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.documento--cartoes > .secao {
+  padding: var(--esp-6) var(--esp-8);
+  border-top: 0;
+  border-radius: var(--raio-xl);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
+}
+
+/* O recuo menor do topo existia porque a primeira seção encostava na borda da folha; com
+   cartão próprio, cada um tem o mesmo respiro em cima. */
+.documento--cartoes > .secao:first-child,
+.documento--cartoes > .documento__guia + .secao {
+  padding-top: var(--esp-6);
+}
+
+/* A fita da margem acompanha cada cartão em vez de descer reta por trás de todos: fica
+   presa ao cartão, com o raio dele, abraçando os dois cantos da esquerda. Corre ATRÁS
+   (z-index negativo), então só aparece o filete que sobra para fora do cartão — o resto
+   some sob a superfície, como na folha única. Quem acende cada uma é guia.js. */
+.documento--cartoes > .secao::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--filete));
+  width: calc(var(--raio-xl) * 2);
+  border: var(--filete) solid var(--cor-marca);
+  border-right: 0;
+  border-radius: calc(var(--raio-xl) + var(--filete)) 0 0 calc(var(--raio-xl) + var(--filete));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao);
+}
+
+.documento--cartoes > .secao--guiada::before {
+  opacity: 1;
+}
+
 .documento .sanfona {
   border: 0;
   border-radius: 0;
@@ -98,6 +150,49 @@
 }
 
 .secao__titulo--institucional .icone {
+  color: var(--cor-marca-texto);
+}
+
+/* Bloco dentro do cartão: Identificação reúne dados, equipe, transporte e diárias. Cada
+   bloco guarda o próprio título e a própria âncora, para o link da conferência continuar
+   caindo no lugar certo.
+   O fio vem em todo bloco e sai do primeiro: as diárias moram dentro do invólucro que o
+   HTMX troca, então não são irmãs diretas do transporte e um seletor de adjacência
+   (`+`) deixaria justamente esse fio de fora. */
+.secao__bloco {
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-borda-sutil);
+}
+
+.secao__cabecalho + .secao__bloco {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.secao__bloco-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  margin-bottom: var(--esp-3);
+}
+
+/* O título do bloco fala a mesma língua dos títulos da janela de resumo e das seções
+   institucionais da folha do roteiro: caixa alta miúda, ícone dourado. */
+.secao__bloco-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-forte);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.secao__bloco-titulo .icone {
   color: var(--cor-marca-texto);
 }
 
@@ -482,6 +577,123 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 }
 .checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
 .checklist__item--aviso > .icone { color: var(--cor-aviso); }
+
+/* Dentro do aviso de conferência a lista não leva marcador nem recuo: cada linha já é um
+   atalho para o cartão. */
+.alerta__corpo .checklist {
+  margin-top: var(--esp-2);
+  padding-left: 0;
+}
+
+/* =============== Prévia de documento =============== */
+/* A minuta em PDF dentro da folha: mesa cinza com a página por cima, como no arquétipo
+   DOCUMENT. O iframe só carrega quando chega à vista (loading="lazy"): a minuta é gerada
+   na hora, a cada abertura. */
+.previa-documento {
+  padding: var(--esp-6);
+  border-radius: var(--raio-md);
+  background: var(--neutro-200);
+  overflow: auto;
+}
+
+.previa-documento iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: var(--neutro-0);
+}
+
+@media (max-width: 767.98px) {
+  .previa-documento {
+    padding: var(--esp-3);
+  }
+}
+
+/* =============== Histórico em linhas (folha do ofício) =============== */
+/* Uma linha por evento, em três colunas fixas — quando, o quê, quem — na moldura e no
+   ritmo das linhas de trecho da janela de resumo. Uma coluna só: nunca sobra meia linha. */
+.historico__linhas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  overflow: hidden;
+}
+
+.historico__linha {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: var(--esp-1) var(--esp-3);
+  align-items: center;
+  padding: var(--esp-2) var(--esp-3);
+  border-bottom: var(--borda-sutil);
+  font-size: var(--texto-sm);
+}
+
+.historico__linha:last-child {
+  border-bottom: 0;
+}
+
+.historico__linha--vazia {
+  display: block;
+  color: var(--cor-texto-terciario);
+}
+
+/* O filete do dia acompanha a linha inteira; a data fica centrada nele. */
+.historico__quando {
+  display: grid;
+  align-content: center;
+  align-self: stretch;
+  gap: var(--esp-05);
+  padding-right: var(--esp-3);
+  border-right: var(--borda-sutil);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.historico__quando b {
+  font-weight: var(--peso-semi);
+}
+
+.historico__quando small {
+  color: var(--cor-texto-terciario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-medio);
+  letter-spacing: var(--rastreio-rotulo);
+}
+
+.historico__texto {
+  overflow-wrap: anywhere;
+}
+
+.historico__quem {
+  justify-self: end;
+  white-space: nowrap;
+  color: var(--cor-texto-secundario);
+}
+
+/* Emissão e documento: a data em dourado e o texto em peso, como o marcador da emissão. */
+.historico__linha--marca .historico__quando b {
+  color: var(--cor-marca-texto);
+}
+
+.historico__linha--marca .historico__texto {
+  font-weight: var(--peso-semi);
+}
+
+/* Sem largura para as três colunas, quem fez desce para a linha de baixo, alinhado ao texto. */
+@media (max-width: 767.98px) {
+  .historico__linha {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+  }
+
+  .historico__quem {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
 
 .checklist__item a {
   color: inherit;
