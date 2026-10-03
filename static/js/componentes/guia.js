@@ -75,7 +75,31 @@ export class Guia {
     return etapas.find((e) => !this.completa(e)) || null;
   }
 
+  /** Os cartões da folha: as etapas de primeiro nível, filhas diretas da raiz. */
+  cartoes() {
+    return /** @type {HTMLElement[]} */ (
+      Array.from(this.raiz.children).filter((e) => e.classList.contains("secao")));
+  }
+
+  /**
+   * Folha de cartões soltos: a fita não pode ser uma linha só, que atravessaria os vãos
+   * entre eles. Cada cartão leva a sua, com o canto dele, do primeiro até o da etapa da vez.
+   */
+  atualizarCartoes() {
+    this.linha.hidden = true;
+    const alvo = this.alvo();
+    const cartoes = this.cartoes();
+    const atual = alvo ? cartoes.findIndex((c) => c.contains(alvo)) : -1;
+    // Sem etapa da vez não falta nada a preencher: a fita cobre todos os cartões.
+    const ate = atual === -1 ? cartoes.length - 1 : atual;
+    cartoes.forEach((c, i) => c.classList.toggle("secao--guiada", i <= ate));
+  }
+
   atualizar() {
+    if (this.raiz.classList.contains("documento--cartoes")) {
+      this.atualizarCartoes();
+      return;
+    }
     const etapas = this.etapas();
     const alvo = this.alvo();
     const caixa = this.raiz.getBoundingClientRect();

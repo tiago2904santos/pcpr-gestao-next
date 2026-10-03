@@ -72,6 +72,30 @@
   padding-top: var(--esp-6);
 }
 
+/* A fita da margem acompanha cada cartão em vez de descer reta por trás de todos: fica
+   presa ao cartão, com o raio dele, abraçando os dois cantos da esquerda. Corre ATRÁS
+   (z-index negativo), então só aparece o filete que sobra para fora do cartão — o resto
+   some sob a superfície, como na folha única. Quem acende cada uma é guia.js. */
+.documento--cartoes > .secao::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * var(--filete));
+  width: calc(var(--raio-xl) * 2);
+  border: var(--filete) solid var(--cor-marca);
+  border-right: 0;
+  border-radius: calc(var(--raio-xl) + var(--filete)) 0 0 calc(var(--raio-xl) + var(--filete));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao);
+}
+
+.documento--cartoes > .secao--guiada::before {
+  opacity: 1;
+}
+
 .documento .sanfona {
   border: 0;
   border-radius: 0;
