@@ -111,6 +111,8 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
 {% block depois_lista %}
 <div class="barra-acoes">
   <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or situacao or avancados.ativos %} no filtro de agora{% endif %}</p>
+  {# Exportar leva exatamente o recorte da tela (busca, situação, filtros e ordem). #}
+  {% if page_obj.paginator.count %}<a class="botao" href="{% url 'viagens:exportar_oficios' %}?{{ querystring_base }}" download>{% icone "download" %}<span>Exportar <span class="barra-acoes__extra">planilha</span></span></a>{% endif %}
   {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
 </div>
 {% include "viagens/oficios/_dialogo_resumo.html" %}

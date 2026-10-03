@@ -8,6 +8,7 @@ dependencies = [
     "django==6.1.*",
     "django-htmx>=1.29",
     "gunicorn>=26",
+    "openpyxl>=3.1",
     "pikepdf>=10",
     "psycopg[binary]>=3.3",
     "rjsmin>=1.2",

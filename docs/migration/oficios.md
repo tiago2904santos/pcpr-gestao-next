@@ -30,7 +30,7 @@ Situação: **EM ANDAMENTO** (módulo 1 do [roadmap](roadmap.md)). Matriz detalh
 |---|---|---|---|
 | Lista: busca, situação (4 combináveis + contagem), ordenação (6), período da viagem, período da criação, paginação 20 | sim | abas de situação, **busca inteligente por leitura** (número/protocolo/placa/destino/servidor), filtros avançados (período, protocolo, veículo, faixa de diárias), ordenação | MELHORADO; período de **criação** e **ordenação por criação**: DESCONHECIDO se ainda necessários (ver D-OF-5) |
 | Cartão da lista com equipe, placa, trechos, valor, justificativa | cartão rico | linha compacta + **janela de resumo** com tudo isso (ADR 0017) | DIFERENÇA INTENCIONAL (pedido do usuário) |
-| Exportar (CSV) | `exportar/` | — | **PENDENTE** |
+| Exportar | `exportar/` (XLSX, 14 colunas, recorte da lista) | `oficios/exportar/` (XLSX, mesmas 14 colunas, mesmo recorte: busca, situação, filtros avançados, ordem) | **IGUAL** — `test_views.py::TestExportarPlanilha` |
 | Novo (POST cria rascunho numerado) | sim | sim | IGUAL |
 | Editor: identidade, motivo (com modelo; ofício novo nasce com o padrão), custeio, equipe, termo por viajante, transporte, motorista externo, porte de arma, roteiro, prazo/justificativa, diárias | wizard de 6 páginas com autosave | uma folha em seções com autosave, roteiro cadastrado aplicável, prévia de diárias | MELHORADO; motorista externo e termo por viajante PENDENTES |
 | Conferência/resumo antes de emitir | etapa 5 | janela de resumo em modo revisão sobre a folha (`?revisar=1`), com destinatário, quem assina, justificativa e Emitir | **MELHORADO** — `test_views.py::test_revisar_e_emitir_pronto_vai_para_revisao`, e2e `test_operador_cria_preenche_e_emite_um_oficio` |

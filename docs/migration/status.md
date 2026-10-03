@@ -14,8 +14,8 @@ Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
 | Origem do protocolo (manual/simulado/treinamento/oficial) + camada `gestao/integracoes/eprotocolo` simulada (E1/E2) | ✅ feito — `gestao/integracoes/`, `manage.py eprotocolo_check`, `Oficio.protocolo_origem` |
 | Revisão de UX e de segurança (agentes revisores) e correções | ✅ feito — laço de confirmação, avisos na revisão, emissão sem JS, permissão de gestor para o padrão, cliente HTTP sem redirecionar/só HTTPS, trava explícita |
 | Falso conflito autosave × Salvar; menus sob a barra flutuante | ✅ corrigidos (achados pelos testes de navegador) |
-| **Orçamentos de peso (CSS/JS/requisições)** | **próximo** — ver improvements.md (ALTA) |
-| Exportar a lista em planilha (.xlsx, 14 colunas, como a referência) | pendente — precisa da dependência `openpyxl` |
+| Orçamentos de peso (CSS/JS/requisições) | ✅ peso e tempo no orçamento (minificação + editor sob demanda); requisições das folhas: ADR 0021 (proposto) |
+| Exportar a lista em planilha (.xlsx, 14 colunas, como a referência) | ✅ feito — `gestao/viagens/exportacao.py`, botão na barra da lista; 268 ofícios do DEMO em 0,76 s com 11 consultas |
 | Tela do piso da numeração (gestor) | pendente |
 | Arquivar / reativar / complementar / motorista externo / DOCX | **decisões pendentes** D-OF-1..4 (ver ficha) |
 | Comparação com a referência em execução | **bloqueada**: precisa de `REF_USER`/`REF_PASS` no ambiente ou sessão aberta pelo usuário |

@@ -805,3 +805,46 @@ class TestEquipeEViaturaSugerida:
     def test_viaturas_do_cadastro_listam_os_motoristas(self, operador, cenario):
         html = operador.get(reverse("cadastros:viaturas")).content.decode()
         assert "Motoristas habituais" in html and "Isabela Prado Cavalcanti" in html
+
+
+class TestExportarPlanilha:
+    """Paridade com o "Exportar" da referência: o recorte da tela numa planilha com 14
+    colunas (docs/migration/oficios.md)."""
+
+    def _ler(self, resposta):
+        from io import BytesIO
+
+        from openpyxl import load_workbook
+
+        return list(load_workbook(BytesIO(resposta.content)).active.values)
+
+    def test_exporta_o_recorte_com_as_colunas_da_referencia(self, operador, cenario):
+        r = operador.get(reverse("viagens:exportar_oficios"))
+        assert r.status_code == 200
+        assert r["Content-Type"].startswith("application/vnd.openxmlformats")
+        assert 'filename="oficios-' in r["Content-Disposition"]
+        linhas = self._ler(r)
+        assert linhas[0][:4] == ("Nº", "Data do ofício", "Protocolo", "Situação")
+        assert len(linhas[0]) == 14
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        da_planilha = {linha[0]: linha for linha in linhas[1:]}
+        assert emitido.numero_formatado in da_planilha
+        assert da_planilha[emitido.numero_formatado][3] == "Emitido"
+
+    def test_respeita_os_filtros_da_lista(self, operador, cenario):
+        r = operador.get(reverse("viagens:exportar_oficios") + "?situacao=cancelado")
+        situacoes = {linha[3] for linha in self._ler(r)[1:]}
+        assert situacoes == {"Cancelado"}
+
+    def test_consultas_nao_crescem_com_a_lista(self, operador, cenario,
+                                               django_assert_max_num_queries):
+        with django_assert_max_num_queries(12):
+            assert operador.get(reverse("viagens:exportar_oficios")).status_code == 200
+
+    def test_consulta_sem_permissao_de_lista_nao_exporta(self, client, cenario):
+        from django.contrib.auth import get_user_model
+
+        anonimo = get_user_model().objects.create_user(
+            login="semperfil", email="semperfil@pc.pr.gov.br", password="x" * 12)
+        client.force_login(anonimo)
+        assert client.get(reverse("viagens:exportar_oficios")).status_code == 403

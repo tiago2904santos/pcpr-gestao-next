@@ -25,7 +25,7 @@ from django.views.decorators.vary import vary_on_headers
 from gestao.cadastros.models import Municipio, Servidor
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
-from . import itinerario, policies, queries, rotas, services
+from . import exportacao, itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, html_do_documento
 from .dominio import busca as dominio_busca
@@ -102,17 +102,51 @@ def painel(request: HttpRequest) -> HttpResponse:
 
 
 # ------------------------------------------------------------------ lista
+ORDENS_DA_LISTA: dict[str, tuple[str | OrderBy, ...]] = {
+    "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
+    "saida": (F("primeira_saida").asc(nulls_last=True),),
+    "-saida": (F("primeira_saida").desc(nulls_last=True),),  # sem roteiro vão ao fim
+}
+
+
+def _recorte_da_lista(request: HttpRequest, base):
+    """O que a lista mostra (busca, situação, filtros avançados e ordem) — a mesma conta
+    serve à tela e à planilha, para quem exporta levar exatamente o que estava vendo."""
+    situacao = request.GET.get("situacao") or ""
+    termo = (request.GET.get("q") or "").strip()
+    escopo = request.GET.get("escopo") or ""
+    qs = queries.aplicar_filtro_situacao(base, situacao)
+    qs = services.buscar_por_texto(qs, termo, escopo)
+    avancados = FiltrosOficio(request.GET)
+    qs = queries.aplicar_filtros_avancados(
+        qs, avancados.cleaned_data if avancados.is_valid() else {})
+    ordem = request.GET.get("ordem") or "-numero"
+    qs = queries.com_dados_de_lista(qs).order_by(
+        *ORDENS_DA_LISTA.get(ordem, ORDENS_DA_LISTA["-numero"]))
+    return qs, situacao, termo, escopo, avancados, ordem
+
+
+@require_GET
+def exportar(request: HttpRequest) -> HttpResponse:
+    """A lista de agora (com os mesmos filtros) numa planilha Excel."""
+    if not policies.pode_listar(request.user):
+        raise PermissionDenied
+    qs = _recorte_da_lista(request, policies.oficios_visiveis(request.user))[0]
+    nome = f"oficios-{timezone.localdate():%Y-%m-%d}.xlsx"
+    resposta = HttpResponse(
+        exportacao.planilha_de_oficios(qs.iterator(chunk_size=200)),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    return resposta
+
+
 @require_GET
 @vary_on_headers("HX-Request", "HX-Target")  # senão o "Voltar" do navegador reusa o fragmento
 def lista(request: HttpRequest) -> HttpResponse:
     if not policies.pode_listar(request.user):
         raise PermissionDenied
     base = policies.oficios_visiveis(request.user)
-    situacao = request.GET.get("situacao") or ""
-    termo = (request.GET.get("q") or "").strip()
-    escopo = request.GET.get("escopo") or ""
-    qs = queries.aplicar_filtro_situacao(base, situacao)
-    qs = services.buscar_por_texto(qs, termo, escopo)
+    qs, situacao, termo, escopo, avancados, ordem = _recorte_da_lista(request, base)
     # Leituras do termo ("26" é número de ofício? protocolo?) com quantos ofícios cada uma
     # traria: a tela oferece o refino em vez de despejar tudo o que casou por acaso.
     leituras = dominio_busca.ler(termo, timezone.localdate().year)
@@ -123,16 +157,6 @@ def lista(request: HttpRequest) -> HttpResponse:
          "quantidade": contagem_leituras.get(leitura.escopo, 0)}
         for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
     ]
-    avancados = FiltrosOficio(request.GET)
-    qs = queries.aplicar_filtros_avancados(
-        qs, avancados.cleaned_data if avancados.is_valid() else {})
-    ordem = request.GET.get("ordem") or "-numero"
-    ordens: dict[str, tuple[str | OrderBy, ...]] = {
-        "-numero": ("-ano", "-numero"), "numero": ("ano", "numero"),
-        "saida": (F("primeira_saida").asc(nulls_last=True),),
-        "-saida": (F("primeira_saida").desc(nulls_last=True),),  # sem roteiro vão ao fim
-    }
-    qs = queries.com_dados_de_lista(qs).order_by(*ordens.get(ordem, ordens["-numero"]))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
