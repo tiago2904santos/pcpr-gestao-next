@@ -335,9 +335,12 @@ def test_formulario_do_oficio_cartoes_de_escolha_itinerario_e_conferencia(logado
     expect(pg.locator("#roteiro .itin__parada--sede")).to_contain_text("Sede (origem da viagem)")
     expect(pg.locator("#roteiro .itin__trecho").last).to_contain_text("Chegada na sede")
     expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
-    # Conferência: diz quantas pendências faltam e lista as seções.
+    # Documentos: diz quantas pendências faltam e lista os cartões (Identificação, Roteiro
+    # e, aqui, Justificativa — este ofício está fora do prazo).
     expect(pg.locator("#emissao .conferencia__titulo")).to_contain_text("para emitir")
-    expect(pg.locator("#emissao .conferencia__item")).to_have_count(6)
+    itens = pg.locator("#emissao .conferencia__item")
+    expect(itens).to_have_count(3)
+    expect(itens.first).to_contain_text("Identificação")
 
 
 def test_clique_em_texto_nao_rola_a_pagina_nem_perde_a_escolha(logado, dados_e2e):
@@ -372,9 +375,13 @@ def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
     pg.get_by_role("button", name="Novo ofício").first.click()
     expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Ofício ")
-    for secao in ("dados", "equipe", "transporte", "roteiro", "diarias", "justificativa",
-                  "emissao"):
-        expect(pg.locator(f"#{secao}")).to_be_attached()
+    # Quatro cartões; dentro de Identificação cada assunto guarda a própria âncora.
+    for ancora in ("identificacao", "dados", "equipe", "transporte", "diarias",
+                   "roteiro", "emissao"):
+        expect(pg.locator(f"#{ancora}")).to_be_attached()
+    # Rascunho recém-criado não tem saída marcada: sem prazo a cumprir, o cartão da
+    # justificativa nem aparece.
+    expect(pg.locator("#justificativa")).to_have_count(0)
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
