@@ -64,7 +64,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     diarias = pg.locator("#diarias")
     expect(diarias).to_contain_text("2 x 100% + 1 x 15%")
     expect(diarias).to_contain_text("R$ 624,68")
-    expect(pg.locator("#justificativa .selo")).to_have_text("Dispensada")
+    # Dentro do prazo a justificativa é dispensada — e o cartão nem chega a existir.
+    expect(pg.locator("#justificativa")).to_have_count(0)
 
     pg.get_by_role("button", name="Revisar e emitir").click()
     expect(pg.get_by_role("heading", level=1)).to_have_text("Revisar e emitir")
