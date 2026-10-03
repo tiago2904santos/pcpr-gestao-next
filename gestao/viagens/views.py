@@ -807,8 +807,9 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
     pagina.object_list = list(pagina.object_list)
     for o in pagina.object_list:  # o que cada linha oferece vem da política
         o.editavel_aqui = policies.pode_editar(request.user, o)  # type: ignore[attr-defined]
-        o.antecedencia = ((o.saida_dia - o.data_oficio).days  # type: ignore[attr-defined]
-                          if o.saida_dia else None)
+        saida_dia = getattr(o, "saida_dia", None)  # anotado por queries.com_regra_de_prazo
+        o.antecedencia = (  # type: ignore[attr-defined]
+            (saida_dia - o.data_oficio).days if saida_dia else None)
     if form is None and (pk := request.GET.get("editar", "")).isdigit():
         editando = _oficio_visivel(request, int(pk))
         if policies.pode_editar(request.user, editando):

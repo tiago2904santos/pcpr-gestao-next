@@ -337,7 +337,7 @@ def justificativas(qs: QuerySet[Oficio], aba: str = "") -> QuerySet[Oficio]:
     preenchida = ~Q(justificativa="")
     qs = qs.filter(Q(exige_justificativa=True) | preenchida)
     if aba == "pendentes":
-        return qs.filter(exige_justificativa=True, justificativa="")
+        return qs.filter(Q(exige_justificativa=True) & Q(justificativa=""))
     if aba == "preenchidas":
         return qs.filter(preenchida)
     return qs
