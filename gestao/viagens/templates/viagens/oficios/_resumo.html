@@ -187,6 +187,8 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
 {% else %}
 <div class="dialogo__rodape">
   <a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
+  {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
+  <a class="botao botao--texto" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download aria-label="Ofício {{ oficio.numero_formatado }} em DOCX editável">{% icone "download" %}DOCX</a>
   {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and forloop.first %}
     {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
     <a class="botao" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>

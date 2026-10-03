@@ -1086,3 +1086,63 @@ class TestMotoristaExternoNaFolha:
         assert r.json()["salvo"] is True
         oficio.refresh_from_db()
         assert oficio.motorista_externo_nome == "Ana Externa"
+
+
+class TestBaixarDocx:
+    """D4: DOCX editável do documento (paridade com a referência): conteúdo e formatação de
+    texto a partir do mesmo HTML do PDF, inclusive o texto editado no editor."""
+
+    def _texto(self, resposta) -> str:
+        from io import BytesIO
+
+        from docx import Document as Docx
+
+        doc = Docx(BytesIO(resposta.content))
+        partes = [p.text for p in doc.paragraphs]
+        for tabela in doc.tables:
+            partes += [c.text for linha in tabela.rows for c in linha.cells]
+        partes += [p.text for p in doc.sections[0].header.paragraphs]
+        return "\n".join(partes)
+
+    def test_rascunho_sai_como_minuta_com_o_texto_editado(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        r = operador.get(reverse("viagens:baixar_docx", args=[oficio.pk, "oficio"]))
+        assert r.status_code == 200
+        assert r["Content-Type"].startswith("application/vnd.openxmlformats")
+        assert 'filename="minuta-oficio-' in r["Content-Disposition"]
+        texto = self._texto(r)
+        assert "MINUTA" in texto and oficio.motivo.split()[0] in texto
+        assert "POLÍCIA CIVIL DO PARANÁ" in texto
+
+    def test_emitido_sai_da_via_emitida(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        doc = emitido.documentos.filter(tipo="oficio").order_by("-versao").first()
+        if doc is None or doc.situacao != "pronto":
+            outbox.processar_lote()
+            doc = emitido.documentos.filter(tipo="oficio").order_by("-versao").first()
+        r = operador.get(reverse("viagens:baixar_docx", args=[emitido.pk, "oficio"]))
+        assert r.status_code == 200
+        if doc is not None and doc.situacao == "pronto":
+            assert f"-v{doc.versao}.docx" in r["Content-Disposition"]
+            assert "MINUTA" not in self._texto(r)
+
+    def test_tipo_desconhecido_e_outra_unidade(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        assert operador.get(reverse("viagens:baixar_docx", args=[oficio.pk, "termo"])
+                            ).status_code == 404
+        outra = Oficio.objects.get(pk=cenario.ids["oficio_outra_unidade"])
+        assert operador.get(reverse("viagens:baixar_docx", args=[outra.pk, "oficio"])
+                            ).status_code == 404
+
+    def test_texto_editado_entra_no_docx(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        from gestao.viagens.documentos.dados import dados_do_oficio
+        from gestao.viagens.documentos.pdf import regioes_do_modelo
+
+        regioes = regioes_do_modelo("oficio", dados_do_oficio(oficio))
+        chave = next(iter(regioes))
+        services.salvar_texto_do_documento(
+            oficio, cenario.usuarios["operador"], "oficio",
+            {chave: regioes[chave] + "<p>Parágrafo acrescentado no editor.</p>"}, versao_base=0)
+        r = operador.get(reverse("viagens:baixar_docx", args=[oficio.pk, "oficio"]))
+        assert "Parágrafo acrescentado no editor." in self._texto(r)

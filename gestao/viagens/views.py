@@ -700,6 +700,32 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
     return resposta
 
 
+@require_GET
+def baixar_docx(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
+    """D4: o documento em DOCX editável (paridade com "Baixar DOCX" da referência). Emitido →
+    a via emitida (dados e texto congelados); rascunho → como está agora, marcado MINUTA."""
+    oficio = _oficio_visivel(request, pk)
+    if tipo not in {"oficio", "justificativa"}:
+        raise Http404
+    from .documentos.docx import docx_do_html
+
+    emitido = (oficio.documentos.filter(tipo=tipo, situacao=Documento.Situacao.PRONTO)
+               .order_by("-versao").first() if oficio.situacao != Oficio.Situacao.RASCUNHO
+               else None)
+    if emitido is not None:
+        html = html_do_documento(tipo, emitido.dados)
+        nome = f"{tipo}-{oficio.numero:02d}-{oficio.ano}-v{emitido.versao}.docx"
+    else:
+        html = html_do_documento(tipo, dados_do_oficio(oficio),
+                                 regioes=services.regioes_vigentes(oficio, tipo))
+        nome = f"minuta-{tipo}-{oficio.numero:02d}-{oficio.ano}.docx"
+    conteudo = docx_do_html(html, base_imagens=ASSETS, minuta=emitido is None)
+    resposta = HttpResponse(conteudo, content_type=(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    return resposta
+
+
 # ------------------------------------------------------------------ APIs (combobox/busca)
 @require_GET
 def buscar_servidores(request: HttpRequest) -> JsonResponse:

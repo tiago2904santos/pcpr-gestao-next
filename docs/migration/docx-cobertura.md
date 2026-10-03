@@ -28,13 +28,18 @@ conferência de páginas pelo motor do PDF, e emissão que congela o texto edita
 | Comentários / controle de alterações | não coberto | — |
 | Termos, ordens de serviço, planos | ainda não migrados | entram com seus módulos, pelo mesmo editor |
 
-## Conclusão e próximo passo
+## Conclusão
 
-- **Paridade necessária (não bloqueante):** a referência oferece DOCX do documento (inclusive
-  do editado). Até haver prova de que ninguém precisa levar o texto para fora, o sistema novo
-  deve oferecer **"Baixar DOCX"** do documento como está (conteúdo + formatação de texto, sem a
-  geometria do PDF), como a referência faz. Implementação planejada com `python-docx` sobre as
-  mesmas regiões saneadas do editor — backlog `[MÓDULO][ALTA]`.
-- **Evidência pendente (dependência do usuário):** quais desses usos acontecem na prática
-  (ex.: o DOCX é editado e devolvido? anexado?). Com essa resposta, decide-se se o DOCX fica
-  permanente ou sai quando o editor cobrir os usos reais.
+- **Paridade restabelecida (03/10/2026):** "Baixar DOCX" do ofício (`viagens:baixar_docx`,
+  botão "DOCX" na janela de resumo). Emitido → a via emitida (dados e texto congelados);
+  rascunho → como está agora, com o aviso "MINUTA" no cabeçalho. Gerado do mesmo HTML do PDF
+  (modelo + texto editado + campos vivos) por `gestao/viagens/documentos/docx.py`
+  (`python-docx`, sobre o `lxml` que já vinha com o `pikepdf`): parágrafos com alinhamento,
+  negrito, itálico, sublinhado, listas, tabelas (com mesclas), brasão, rodapé e quebras de
+  página — **sem a geometria do PDF**, como a referência. Testes:
+  `test_views.py::TestBaixarDocx` (minuta, via emitida, texto editado no editor, permissão).
+- O editor visual continua sendo o caminho principal; o DOCX não sai.
+- **Evidência ainda pendente (dependência do usuário):** quais usos do Word acontecem na
+  prática (editar e devolver? anexar?). Com isso decide-se se o DOCX fica permanente.
+- Justificativa em DOCX: a rota aceita `justificativa`; o botão entra com a lista de
+  justificativas quando houver PDF emitido.

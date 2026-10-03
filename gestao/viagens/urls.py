@@ -33,6 +33,7 @@ urlpatterns = [
     path("oficios/<int:pk>/excluir/", views.excluir, name="excluir"),
     path("oficios/<int:pk>/documentos/", views.documentos_parcial, name="documentos"),
     path("oficios/<int:pk>/minuta.pdf", views.previa, name="previa"),
+    path("oficios/<int:pk>/documento/<str:tipo>.docx", views.baixar_docx, name="baixar_docx"),
     # Editor de documento no visualizador (ADR 0018)
     path("oficios/<int:pk>/documento/<str:tipo>/folha/", views_editor.folha, name="folha"),
     path("oficios/<int:pk>/documento/<str:tipo>/estado/", views_editor.estado,
