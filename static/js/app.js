@@ -26,7 +26,6 @@ const sobDemanda = [
   ["pc-data", () => import("./componentes/seletor-data.js")],
   ["pc-hora", () => import("./componentes/seletor-hora.js")],
   ["pc-select", () => import("./componentes/seletor.js")],
-  ["pc-editor-documento", () => import("./componentes/editor-documento.js")],
   ["pc-transporte", () => import("./componentes/transporte.js")],
   ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
 ];
@@ -41,6 +40,32 @@ function carregarSobDemanda() {
 carregarSobDemanda();
 // Fragmentos HTMX podem trazer um componente que a tela ainda não tinha.
 document.body.addEventListener("htmx:afterSwap", carregarSobDemanda);
+
+/**
+ * Componentes pesados que ficam longe do topo só carregam quando chegam perto da tela
+ * (ex.: o editor de documento, 39 KB, no fim da folha do ofício). Sem IntersectionObserver,
+ * carregam na hora.
+ * @type {Array<[string, () => Promise<unknown>]>}
+ */
+const quandoVisivel = [
+  ["pc-editor-documento", () => import("./componentes/editor-documento.js")],
+];
+function carregarQuandoVisivel() {
+  for (const [seletor, carregar] of quandoVisivel) {
+    const alvos = document.querySelectorAll(seletor);
+    if (carregados.has(seletor) || !alvos.length) continue;
+    carregados.add(seletor);
+    if (!("IntersectionObserver" in window)) { carregar(); continue; }
+    const observador = new IntersectionObserver((entradas) => {
+      if (!entradas.some((e) => e.isIntersecting)) return;
+      observador.disconnect();
+      carregar();
+    }, { rootMargin: "400px 0px" });
+    alvos.forEach((alvo) => observador.observe(alvo));
+  }
+}
+carregarQuandoVisivel();
+document.body.addEventListener("htmx:afterSwap", carregarQuandoVisivel);
 
 // Com JavaScript, o que só serve sem ele some (ex.: "Aplicar" numa busca que já é ao vivo).
 document.querySelectorAll("[data-so-sem-js]").forEach((e) => { /** @type {HTMLElement} */ (e).hidden = true; });

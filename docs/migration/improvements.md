@@ -5,16 +5,8 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Abertas
 
-- `[GLOBAL][PERFORMANCE][ALTA]` **Orçamentos de peso estourados** (medidos em 03/10/2026 por
-  `tests/e2e/test_desempenho.py`, dívida acumulada de rodadas anteriores; esta rodada somou
-  ~5 KB de JS e ~2 KB de CSS):
-  folha do ofício CSS 165,9/140 KB (gzip 43,5/30), JS 195,1/130 KB (gzip 65,4/45),
-  **43/25 requisições**; folha do roteiro CSS 142,9, JS 142,7, 27 requisições; lista de
-  ofícios CSS 148,7 (gzip 36,9); painel CSS gzip 33,0. Caminhos: (1) dividir
-  `components.css` por uso real (o teste `test_css_por_pagina` já mapeia classe→pacote);
-  (2) carregar `editor-documento.js` só ao abrir o editor; (3) reduzir módulos pequenos
-  pré-carregados na folha; (4) avaliar minificação no `collectstatic` (ADR, pois ADR 0002 é
-  sem bundler). TTFB/FCP/LCP/CLS/INP e SQL estão dentro do orçamento.
+- `[GLOBAL][PERFORMANCE][MÉDIA]` **Requisições nas folhas de edição** (37 ofício, 26 roteiro): decisão
+  do ADR 0021 (proposto). Peso e tempo já no orçamento.
 - `[GLOBAL][COMPONENTE][ALTA]` **Janela de resumo genérica** extraída do ofício para Termos,
   OS, PT e roteiros (cabeçalho com placa/chips, grade de cartões equilibrada, rodapé de ações).
 - `[GLOBAL][COMPONENTE][ALTA]` **CRUD de cadastro em janela** (lista + janela novo/editar +
@@ -38,6 +30,9 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Feitas
 
+- ✅ Orçamentos de peso: CSS/JS minificados no collectstatic (`estaticos.py`, `rjsmin`), editor de
+  documento sob demanda, `icone` dentro de `menu.js` — folha do ofício de 165,9→108,3 KB de CSS e
+  195,1→113,1 KB de JS (03/10/2026).
 - ✅ Catálogo de textos prontos reutilizável (componente + tela + serviço único, inclusive para o
   editor de documento) (03/10/2026).
 - ✅ Abertura de janela pelo servidor promovida a `dialogo.js` (global) (03/10/2026).

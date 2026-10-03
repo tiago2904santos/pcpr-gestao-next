@@ -169,7 +169,8 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / "var" / "media"
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    # WhiteNoise (hash + compressão) com CSS minificado (gestao/plataforma/estaticos.py).
+    "staticfiles": {"BACKEND": "gestao.plataforma.estaticos.ArmazenamentoEstatico"},
 }
 
 # Sessão e cookies

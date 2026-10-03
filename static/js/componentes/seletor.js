@@ -9,7 +9,8 @@
  */
 
 import { abrirEspaco } from "./seletor-base.js";
-import { icone } from "./icone.js";
+// O ícone do sprite mora em menu.js (carregado em toda página: sem requisição a mais).
+import { icone } from "./menu.js";
 
 let contador = 0;
 /** @param {string} t */

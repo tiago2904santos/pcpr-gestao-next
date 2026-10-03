@@ -6,7 +6,8 @@
  * Só aparece quando há texto — em campo vazio não cria parada no Tab. Limpar dispara os
  * mesmos eventos de quem apaga à mão, então a busca ao vivo refaz a consulta.
  */
-import { icone } from "./icone.js";
+// O ícone do sprite mora em menu.js (carregado em toda página: sem requisição a mais).
+import { icone } from "./menu.js";
 
 /**
  * Põe o botão no campo e devolve a função que acerta a visibilidade.

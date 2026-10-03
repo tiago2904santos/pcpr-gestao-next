@@ -104,6 +104,11 @@ export class PcEditorDocumento extends HTMLElement {
     };
     document.addEventListener("pcpr:dados-salvos", this.aoMudarDados);
     document.body.addEventListener("equipe-alterada", this.aoMudarDados);
+    // O editor carrega quando chega à tela (app.js): se a folha já tinha sido desenhada e
+    // os dados mudaram antes disso, ela se refaz agora.
+    if (document.documentElement.dataset.dadosSalvos && this.quadro?.contentDocument?.body) {
+      this.aoMudarDados();
+    }
     this.addEventListener("keydown", (e) => this.atalhos(e));
   }
 

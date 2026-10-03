@@ -26,7 +26,8 @@ pelo nome. "Usos" = número de templates que referenciam (03/10/2026).
 | `dialogo.js` | janelas | 11 | confirmação, resumo |
 | `acao.js` | ações com confirmação | 32 | global |
 | `mascara.js` | CPF, RG, protocolo, placa | 2 | cadastros |
-| `progresso.js`, `protecao.js`, `guia.js`, `icone.js` | barra de progresso, aviso de saída sem salvar, guia, ícone do sprite | — | global |
+| `progresso.js`, `protecao.js`, `guia.js` | barra de progresso, aviso de saída sem salvar, guia | — | global |
+| `menu.js` (exporta `icone`, `abrirEspaco`, `limiteInferior`) | utilitários de toda página: ícone do sprite e espaço acima da barra flutuante | — | global (sem requisição extra) |
 
 ## Partes de template (`templates/componentes/`, `templates/arquetipos/`)
 

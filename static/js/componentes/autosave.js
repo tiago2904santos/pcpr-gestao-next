@@ -110,6 +110,7 @@ export class Autosave {
       }
       this.anunciar(`Salvo automaticamente às ${corpo.em}`, true);
       // Quem mostra o documento pode se refazer com os dados novos (editor-documento.js).
+      document.documentElement.dataset.dadosSalvos = "1"; // para quem carregar depois
       document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
     } catch (erro) {
       if (/** @type {Error} */ (erro).name === "AbortError") return;
