@@ -26,7 +26,7 @@ formulário muda só o piso: nada é renumerado.
             <td data-rotulo="Maior número usado" class="num">{{ a.maior|default:"—" }}</td>
             <td data-rotulo="Ofícios" class="num">{{ a.total }}</td>
             <td data-rotulo="Lacunas livres">{% if a.lacunas %}{{ a.lacunas|join:", " }}{% else %}<span class="vazio-inline">Nenhuma</span>{% endif %}</td>
-            <td data-rotulo="Próximo número" class="num"><b>{{ a.proximo|stringformat:"02d" }}/{{ a.ano }}</b></td>
+            <td data-rotulo="Próximo número" class="num">{% if a.ano < ano_atual %}<span class="vazio-inline" title="Ano encerrado">—</span>{% else %}<b>{{ a.proximo|stringformat:"02d" }}/{{ a.ano }}</b>{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -12,7 +12,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% block abas_filtro %}
 <nav class="abas" id="abas-filtro" aria-label="Filtrar justificativas">
   {% for chave, rotulo, contador in abas %}
-    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if termo %}{% if chave %}&amp;{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+    <a class="aba" href="?aba={{ chave|default:'todas' }}{% if termo %}&amp;q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
       {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
     </a>
   {% endfor %}
@@ -42,13 +42,14 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
         <span class="placa" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">{{ o.numero_formatado }}</span></span>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <span class="registro__link registro__link--estatico"><span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}</span>
+            {% comment %}A ação principal é escrever: o título leva à janela (quem pode editar).{% endcomment %}
+            {% if o.editavel_aqui %}<a class="registro__link" href="?{{ querystring_base }}editar={{ o.pk }}">{% else %}<span class="registro__link registro__link--estatico">{% endif %}<span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}{% if o.editavel_aqui %}</a>{% else %}</span>{% endif %}
             {% if o.justificativa %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Preenchida</span>
-            {% else %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pendente</span>{% endif %}
+            {% elif aba != "pendentes" %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pendente</span>{% endif %}
             {% if o.situacao == "emitido" %}<span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>{% endif %}
           </div>
           {% if o.justificativa %}<p class="registro__texto quebra-palavras">{{ o.justificativa|truncatechars:220 }}</p>
-          {% else %}<p class="registro__texto"><span class="vazio-inline">Nenhuma justificativa escrita.</span></p>{% endif %}
+          {% elif aba != "pendentes" %}<p class="registro__texto"><span class="vazio-inline">Nenhuma justificativa escrita.</span></p>{% endif %}
           <div class="registro__meta">
             <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}Ofício de {{ o.data_oficio|date:"d/m/Y" }}</span>
             {% if o.antecedencia is not None %}
@@ -75,7 +76,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
                       data-confirmar="O texto da justificativa do Ofício {{ o.numero_formatado }} será apagado. Se o prazo exigir, ele volta para Pendentes."
                       data-confirmar-titulo="Apagar justificativa?" data-confirmar-rotulo="Apagar" data-confirmar-perigo>
                   {% csrf_token %}
-                  <input type="hidden" name="justificativa" value="">
+                  <input type="hidden" name="justificativa" value=""><input type="hidden" name="apagar" value="1">
                   <input type="hidden" name="versao" value="{{ o.versao }}">
                   <input type="hidden" name="voltar" value="{{ querystring_base }}">
                   <button type="submit" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Apagar justificativa</button>
@@ -107,6 +108,8 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
       <h2 class="dialogo__titulo" id="dialogo-justificativa-titulo">Justificativa do Ofício {{ editando.numero_formatado }}</h2>
     </div>
     <div class="dialogo__corpo pilha">
+      {# O que se usa para escrever: destino, saída e antecedência (princípio 8). #}
+      <p class="texto-secundario">{% with d=editando|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=editando.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %} · ofício de {{ editando.data_oficio|date:"d/m/Y" }}</p>
       {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
       {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
       {% include "componentes/campo.html" with campo=form.justificativa %}

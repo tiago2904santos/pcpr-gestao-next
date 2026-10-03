@@ -256,6 +256,8 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
         atual.transporte_combustivel = None
     else:
         atual.viatura = None
+        # Sem viatura não há motorista (nem de fora): o documento não pode citar um.
+        atual.motorista_externo = Oficio.MotoristaExterno.NENHUM
     if atual.custeio != Oficio.Custeio.OUTRA_INSTITUICAO:
         atual.custeio_instituicao = ""
     _normalizar_motorista_externo(atual)
@@ -481,10 +483,11 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
             p.append(Pendencia("transporte", "Escolha a viatura."))
         if (viajantes and not any(v.motorista for v in viajantes)
                 and not oficio.motorista_externo):
-            p.append(Pendencia("equipe", "Indique quem da equipe é o motorista da viatura."))
+            p.append(Pendencia("equipe", "Indique quem dirige: alguém da equipe ou um motorista "
+                                         "de fora (em Transporte)."))
+        p.extend(pendencias_do_motorista_externo(oficio, viajantes))
     elif not oficio.transporte_descricao.strip():
         p.append(Pendencia("transporte", "Descreva o meio de transporte."))
-    p.extend(pendencias_do_motorista_externo(oficio, viajantes))
     if not trechos_de(oficio):
         p.append(Pendencia("roteiro", "Informe os trechos de ida e de volta."))
     if oficio.diarias_erro:

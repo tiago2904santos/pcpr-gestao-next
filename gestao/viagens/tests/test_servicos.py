@@ -349,7 +349,7 @@ class TestMotoristaExterno:
         mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
         assert "Informe o ofício do motorista no formato número/ano." in mensagens
         assert "Informe o protocolo do motorista com 9 dígitos." in mensagens
-        assert "Indique quem da equipe é o motorista da viatura." not in mensagens
+        assert not [m for m in mensagens if m.startswith("Indique quem dirige")]
         oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
             "motorista_oficio_origem": "1000/2026", "motorista_protocolo_origem": "123456789"},
             versao=oficio.versao)
@@ -398,3 +398,60 @@ class TestMotoristaExterno:
             versao=oficio.versao)
         mensagens = [p.mensagem for p in services.verificar_prontidao(oficio).bloqueantes]
         assert any("já está na equipe" in m for m in mensagens)
+
+
+class TestEndurecimentoDaRevisao:
+    """Achados da revisão de segurança de 03/10/2026."""
+
+    def test_colspan_gigante_nao_passa_no_saneador_nem_trava_o_docx(self):
+        from pathlib import Path
+
+        from gestao.viagens.documentos.docx import docx_do_html
+        from gestao.viagens.documentos.regioes import sanear_html
+
+        limpo = sanear_html('<table><tr><td colspan="99999">x</td>'
+                            '<td colspan="²">y</td><td colspan="3">z</td></tr></table>')
+        assert 'colspan="99999"' not in limpo and "²" not in limpo and 'colspan="3"' in limpo
+        html = '<html><body><table><tr><td colspan="99999">x</td></tr></table></body></html>'
+        import time
+        inicio = time.monotonic()
+        docx_do_html(html, base_imagens=Path())  # segunda trava: teto de 63 colunas
+        assert time.monotonic() - inicio < 5
+
+    def test_docx_nao_le_arquivo_fora_da_pasta_de_recursos(self, tmp_path):
+        from io import BytesIO
+
+        from docx import Document as Docx
+
+        from gestao.viagens.documentos.docx import docx_do_html
+
+        html = '<html><body><p><img src="file:///C:/Windows/win.ini"></p></body></html>'
+        doc = Docx(BytesIO(docx_do_html(html, base_imagens=tmp_path)))
+        assert len(doc.inline_shapes) == 0
+
+    def test_planilha_nao_aceita_formula(self):
+        from gestao.viagens.exportacao import _texto_seguro
+
+        assert _texto_seguro('=HYPERLINK("https://x")') == '\'=HYPERLINK("https://x")'
+        assert _texto_seguro("+1") == "'+1" and _texto_seguro("@a") == "'@a"
+        assert _texto_seguro("Ônibus de linha") == "Ônibus de linha" and _texto_seguro(3) == 3
+
+    def test_outro_meio_apaga_o_motorista_de_fora(self):
+        c = cenario_completo()
+        u = c.usuarios["operador"]
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        oficio = services.salvar_dados(oficio, u, {
+            "tipo_transporte": Oficio.TipoTransporte.VIATURA, "motorista_externo": "manual",
+            "motorista_externo_nome": "Fulano"}, versao=oficio.versao)
+        oficio = services.salvar_dados(oficio, u, {
+            "tipo_transporte": Oficio.TipoTransporte.OUTRO, "transporte_descricao": "Ônibus"},
+            versao=oficio.versao)
+        assert oficio.motorista_externo == "" and oficio.motorista_externo_nome == ""
+
+    def test_rascunho_arquivado_nao_se_exclui(self):
+        from gestao.viagens import policies
+
+        c = cenario_completo()
+        gestor = c.usuarios["gestor"]
+        vazio = services.arquivar(Oficio.objects.get(pk=c.ids["oficio_vazio"]), gestor)
+        assert not policies.pode_excluir(gestor, vazio)

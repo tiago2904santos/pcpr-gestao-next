@@ -54,6 +54,15 @@ def _alinhamento(el):
     return None
 
 
+MAX_COLUNAS = 63  # limite do Word
+
+
+def _span(celula) -> int:
+    """colspan válido e com teto (o saneador já limita; aqui é a segunda trava)."""
+    valor = celula.get("colspan") or "1"
+    return min(MAX_COLUNAS, int(valor)) if valor.isascii() and valor.isdecimal() else 1
+
+
 def _tem_bloco(el) -> bool:
     return any(isinstance(f.tag, str) and f.tag in BLOCOS for f in el.iterchildren())
 
@@ -116,11 +125,12 @@ class _Escritor:
         run.bold, run.italic, run.underline = negrito or None, italico or None, sublinhado or None
 
     def _imagem(self, paragrafo, el):
+        # Só o nome do arquivo, sempre dentro da pasta de recursos do documento: um `src`
+        # nunca aponta para outro lugar do servidor.
         endereco = urlparse(el.get("src") or "")
-        caminho = (Path(url2pathname(endereco.path)) if endereco.scheme == "file"
-                   else self.base_imagens / Path(unquote(endereco.path)).name)
-        if not caminho.is_file():
-            caminho = self.base_imagens / caminho.name
+        nome = Path(url2pathname(endereco.path) if endereco.scheme == "file"
+                    else unquote(endereco.path)).name
+        caminho = self.base_imagens / nome
         if caminho.is_file() and caminho.suffix.lower() in (".png", ".jpg", ".jpeg"):
             paragrafo.add_run().add_picture(str(caminho), height=Mm(18))
 
@@ -143,8 +153,8 @@ class _Escritor:
         linhas = list(el.iter("tr"))
         if not linhas:
             return
-        colunas = max(sum(int(c.get("colspan") or 1) for c in tr if c.tag in ("td", "th"))
-                      for tr in linhas)
+        colunas = min(MAX_COLUNAS, max(
+            sum(_span(c) for c in tr if c.tag in ("td", "th")) for tr in linhas))
         borda = "sem-borda" not in _classes(el)
         tabela = self.doc.add_table(rows=len(linhas), cols=max(1, colunas))
         if borda:
@@ -153,7 +163,9 @@ class _Escritor:
             j = 0
             for celula in (c for c in tr if c.tag in ("td", "th")):
                 alvo = tabela.cell(i, j)
-                largura = int(celula.get("colspan") or 1)
+                if j >= colunas:
+                    break
+                largura = _span(celula)
                 if largura > 1:
                     alvo = alvo.merge(tabela.cell(i, min(colunas - 1, j + largura - 1)))
                 paragrafo = alvo.paragraphs[0]

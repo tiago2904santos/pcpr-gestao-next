@@ -144,7 +144,7 @@ confirmação — e é ele que escreve no histórico.
       Os campos de cada caso aparecem pela escolha (sem JS: :has(), como o custeio).
       {% endcomment %}
       <details class="divulgacao motorista-externo"{% if oficio.motorista_externo %} open{% endif %}>
-        <summary>{% icone "user-round" classe="icone--sm" %}Motorista de fora da equipe{% if oficio.motorista_externo %} · {{ oficio.get_motorista_externo_display }}{% endif %}</summary>
+        <summary>{% icone "plus" classe="icone--sm" %}Motorista de fora da equipe{% if oficio.motorista_externo %} · {{ oficio.get_motorista_externo_display }}{% endif %}</summary>
         <div class="divulgacao__corpo campos motorista-externo__campos">
           {% include "componentes/campo.html" with campo=form.motorista_externo classe="campo--md" %}
           <div class="campo campo--lg so-servidor-externo">

@@ -128,7 +128,7 @@ class Oficio(models.Model):
     # Ele viaja por outro ofício: não entra nas diárias deste, e o documento cita o nome.
     class MotoristaExterno(models.TextChoices):
         NENHUM = "", "Da equipe"
-        SERVIDOR = "servidor", "Servidor cadastrado (de outro ofício)"
+        SERVIDOR = "servidor", "Servidor de outro ofício"
         MANUAL = "manual", "Pessoa não cadastrada"
 
     motorista_externo = models.CharField("motorista de fora da equipe", max_length=10,

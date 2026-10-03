@@ -6,6 +6,7 @@ página separada só para ler — ela repetia a folha e dividia a atenção."""
 from __future__ import annotations
 
 from itertools import pairwise
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,6 +19,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.csp import CSP
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csp import csp_override
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_headers
@@ -69,6 +71,16 @@ def _resumo_pedido(request: HttpRequest) -> dict:
     except Http404:
         return {}
     return {"abrir_resumo": oficio.pk, "resumo": _contexto_resumo(request, oficio)}
+
+
+def _voltar(request: HttpRequest, oficio) -> str:
+    """Depois de uma ação do ciclo de vida, a lista como estava (aba, filtros, página) —
+    o formulário manda o endereço em `voltar`; sem ele (ou fora da lista), a lista do ofício."""
+    voltar = request.POST.get("voltar") or ""
+    if (urlsplit(voltar).path == reverse("viagens:oficios")
+            and url_has_allowed_host_and_scheme(voltar, allowed_hosts={request.get_host()})):
+        return voltar
+    return _na_lista(oficio)
 
 
 def _na_lista(oficio) -> str:
@@ -164,7 +176,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
     for o in pagina.object_list:  # o menu de cada linha vem da política, por objeto
-        o.acoes = policies.acoes_do_oficio(request.user, o)  # type: ignore[attr-defined]
+        o.acoes = policies.acoes_do_oficio(  # type: ignore[attr-defined]
+            request.user, o, com_exclusao=True)
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     # As abas trocam só a situação: tudo o mais que a pessoa filtrou continua valendo.
@@ -585,8 +598,9 @@ def cancelar(request: HttpRequest, pk: int) -> HttpResponse:
     except services.RegraViolada as exc:
         messages.error(request, str(exc))
     else:
-        messages.success(request, f"Ofício {oficio.numero_formatado} cancelado.")
-    return redirect(_na_lista(oficio))
+        messages.success(request, f"Ofício {oficio.numero_formatado} cancelado. O gestor pode "
+                                  "reativá-lo depois, com justificativa.")
+    return redirect(_voltar(request, oficio))
 
 
 @require_POST
@@ -600,7 +614,7 @@ def reativar(request: HttpRequest, pk: int) -> HttpResponse:
         messages.success(request, f"Ofício {oficio.numero_formatado} reativado "
                                   f"({oficio.get_situacao_display().lower()}). O cancelamento "
                                   "e a justificativa ficam no histórico.")
-    return redirect(_na_lista(oficio))
+    return redirect(_voltar(request, oficio))
 
 
 @require_POST
@@ -608,14 +622,14 @@ def arquivar(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = services.arquivar(_oficio_visivel(request, pk), request.user)
     messages.success(request, f"Ofício {oficio.numero_formatado} arquivado. Ele fica na aba "
                               "Arquivados e pode ser desarquivado a qualquer momento.")
-    return redirect(_na_lista(oficio))
+    return redirect(_voltar(request, oficio))
 
 
 @require_POST
 def desarquivar(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = services.desarquivar(_oficio_visivel(request, pk), request.user)
     messages.success(request, f"Ofício {oficio.numero_formatado} desarquivado.")
-    return redirect(_na_lista(oficio))
+    return redirect(_voltar(request, oficio))
 
 
 @require_POST
@@ -623,13 +637,15 @@ def excluir(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = _oficio_visivel(request, pk)
     numero = services.excluir_rascunho(oficio, request.user)
     messages.success(request, f"Rascunho {numero} excluído; o número volta a ficar disponível.")
-    return redirect("viagens:oficios")
+    voltar = _voltar(request, oficio)
+    return redirect(voltar if "q=" not in voltar else "viagens:oficios")
 def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> dict:
     """O que a janela de resumo mostra — serve ao fragmento HTMX e à janela já desenhada.
 
     Em `revisao` (antes de emitir) ela também mostra o que vai no papel e não está na
     folha — destinatário e quem assina — e troca o rodapé pelo botão de emitir.
     """
+    documentos = list(oficio.documentos.select_related("emitido_por").order_by("tipo", "-versao"))
     extras = {"revisao": True, "dados": dados_do_oficio(oficio),
               "pode_emitir": policies.pode_emitir(request.user, oficio)} if revisao else {}
     return {**extras,
@@ -639,11 +655,14 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "calculo": oficio.diarias_calculo,
         "viajantes": viajantes_de(oficio),
         "trechos": trechos_de(oficio),
-        "documentos": list(oficio.documentos.select_related("emitido_por")),
+        "documentos": documentos,
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
         "acoes": policies.acoes_do_oficio(request.user, oficio, com_exclusao=True),
+        # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
+        "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
+                            and d.situacao == Documento.Situacao.PRONTO), None),
     }
 
 
@@ -801,8 +820,13 @@ def numeracao(request: HttpRequest) -> HttpResponse:
             except services.RegraViolada as exc:
                 erro = str(exc)
             else:
-                messages.success(request, f"Numeração de {ano}: a sequência parte de {piso}. "
-                                          "Ofícios já numerados não mudam.")
+                proximo = next((a.proximo for a in services.resumo_numeracao([ano])
+                                if a.ano == ano), piso)
+                efeito = ("" if proximo == piso else
+                          " O piso não muda a sequência agora: o maior número já usado é maior.")
+                messages.success(request, f"Piso de {ano} gravado: {piso}. O próximo ofício de "
+                                          f"{ano} será {proximo:02d}/{ano}.{efeito} Ofícios já "
+                                          "numerados não mudam.")
                 return redirect("viagens:numeracao")
     return render(request, "viagens/numeracao.html", {
         "anos": services.resumo_numeracao(), "erro": erro,
@@ -815,7 +839,10 @@ def numeracao(request: HttpRequest) -> HttpResponse:
 def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, status=200):
     policies.exigir(policies.pode_listar(request.user))
     base = policies.oficios_visiveis(request.user)
+    contagens = queries.contagens_justificativas(base)
     aba = request.GET.get("aba") or request.POST.get("aba") or ""
+    if not aba and contagens["pendentes"]:
+        aba = "pendentes"  # a tela existe para zerar as pendentes: abre nelas
     if aba not in queries.ABAS_JUSTIFICATIVAS:
         aba = ""
     termo = (request.GET.get("q") or "").strip()
@@ -828,7 +855,9 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
                                      queryset=Documento.objects.filter(
                                          tipo=Documento.Tipo.JUSTIFICATIVA,
                                          situacao=Documento.Situacao.PRONTO).order_by("-versao")))
-          .order_by("-ano", "-numero"))
+          # Pendentes pela saída mais próxima (urgência); as demais, pelo número.
+          .order_by(*((F("saida_dia").asc(nulls_last=True), "-ano", "-numero")
+                      if aba == "pendentes" else ("-ano", "-numero"))))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)
     for o in pagina.object_list:  # o que cada linha oferece vem da política
@@ -851,7 +880,7 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
         "page_obj": pagina, "oficios": pagina.object_list, "aba": aba, "termo": termo,
         "abas": [("", "Todas", "todas")] + [(k, r, k) for k, r in
                                              queries.ABAS_JUSTIFICATIVAS.items()],
-        "contagens": queries.contagens_justificativas(base),
+        "contagens": contagens,
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
         "form": form, "editando": editando,
         "pode_gerir_textos": policies.pode_gerir_textos_prontos(request.user),
@@ -873,6 +902,10 @@ def salvar_justificativa(request: HttpRequest, pk: int) -> HttpResponse:
                     "edite o ofício (ele vira retificado).")
     form = FormularioJustificativa(request.POST)
     voltar = f"{reverse('viagens:justificativas')}?{request.POST.get('voltar', '')}"
+    apagar = request.POST.get("apagar") == "1"
+    if form.is_valid() and not apagar and not form.cleaned_data["justificativa"]:
+        form.add_error("justificativa", "Escreva a justificativa. Para apagar o texto, use "
+                                        "“Apagar justificativa” no menu do ofício.")
     if form.is_valid():
         dados = form.cleaned_data
         try:

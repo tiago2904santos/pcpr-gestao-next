@@ -10,7 +10,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from gestao.cadastros.models import Municipio, Servidor
+from gestao.cadastros.models import Municipio, Servidor, Viatura
 from gestao.plataforma import outbox
 from gestao.viagens import services
 from gestao.viagens.models import Documento, Oficio
@@ -1029,7 +1029,7 @@ class TestListaDeJustificativas:
         assert f">{rascunho.numero_formatado}<" in preenchidas.content.decode()
         # apagar devolve para pendentes
         operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
-                      {"justificativa": "", "versao": rascunho.versao})
+                      {"justificativa": "", "apagar": "1", "versao": rascunho.versao})
         rascunho.refresh_from_db()
         assert rascunho.justificativa == ""
 
@@ -1064,12 +1064,16 @@ class TestListaDeJustificativas:
 
 
 class TestMotoristaExternoNaFolha:
+    """Motorista de fora só existe com viatura (sem viatura, não há motorista)."""
+
     def test_folha_grava_e_documento_cita_o_nome(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
         assert "Motorista de fora da equipe" in html and 'data-valor-id' in html
+        viatura = Viatura.objects.filter(ativo=True).first()
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
-            oficio, motorista_externo="manual", motorista_externo_nome="Carlos Motorista",
+            oficio, tipo_transporte="viatura", viatura=viatura.pk, transporte_descricao="",
+            motorista_externo="manual", motorista_externo_nome="Carlos Motorista",
             motorista_externo_cpf="123.456.789-09", motorista_oficio_origem="15 / 2026",
             motorista_protocolo_origem="12.345.678-9"))
         assert r.status_code == 302
@@ -1081,8 +1085,10 @@ class TestMotoristaExternoNaFolha:
 
     def test_autosave_grava_o_motorista_externo(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        viatura = Viatura.objects.filter(ativo=True).first()
         r = operador.post(reverse("viagens:autosave_oficio", args=[oficio.pk]), _post_edicao(
-            oficio, motorista_externo="manual", motorista_externo_nome="Ana Externa"))
+            oficio, tipo_transporte="viatura", viatura=viatura.pk, transporte_descricao="",
+            motorista_externo="manual", motorista_externo_nome="Ana Externa"))
         assert r.json()["salvo"] is True
         oficio.refresh_from_db()
         assert oficio.motorista_externo_nome == "Ana Externa"
@@ -1146,3 +1152,35 @@ class TestBaixarDocx:
             {chave: regioes[chave] + "<p>Parágrafo acrescentado no editor.</p>"}, versao_base=0)
         r = operador.get(reverse("viagens:baixar_docx", args=[oficio.pk, "oficio"]))
         assert "Parágrafo acrescentado no editor." in self._texto(r)
+
+
+class TestRevisaoDeUXDoCicloDeVida:
+    def test_arquivar_volta_para_a_lista_onde_estava(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        voltar = reverse("viagens:oficios") + "?situacao=emitido&pagina=1"
+        r = operador.post(reverse("viagens:arquivar", args=[oficio.pk]), {"voltar": voltar})
+        assert r["Location"] == voltar
+        r = operador.post(reverse("viagens:desarquivar", args=[oficio.pk]),
+                          {"voltar": "https://fora.example/"})
+        assert r["Location"].startswith(reverse("viagens:oficios") + "?q=")
+
+    def test_cpf_e_protocolo_do_motorista_com_tamanho_errado_dao_erro(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
+            oficio, motorista_externo="manual", motorista_externo_nome="X",
+            motorista_externo_cpf="123", motorista_protocolo_origem="12.345.678-90"))
+        html = r.content.decode()
+        assert r.status_code == 422 and "11 dígitos" in html and "9 dígitos" in html
+
+    def test_justificativas_abrem_nas_pendentes_e_nao_gravam_em_branco(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        r = operador.get(reverse("viagens:justificativas"))
+        assert 'aria-current="page">\n      Pendentes' in r.content.decode() or \
+            "aba=pendentes" in r.content.decode()
+        r = operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),
+                          {"justificativa": "", "versao": rascunho.versao})
+        assert r.status_code == 422 and "Escreva a justificativa" in r.content.decode()
+
+    def test_aba_arquivados_vazia_tem_mensagem_propria(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios") + "?situacao=arquivado").content.decode()
+        assert "Nenhum ofício arquivado" in html

@@ -44,6 +44,7 @@ CLASSES_PERMITIDAS = frozenset({
     "centro", "titulo-secao", "sem-borda", "marcacao", "assinatura", "nome", "cargo",
     "destinatario", "quebra", "quebra--ativa", "quebra--livre", "bloco--alterado",
 })
+MAX_SPAN = 20  # mesclas de tabela aceitas no texto editado
 _ESTILO = re.compile(r"^\s*text-align\s*:\s*(left|center|right|justify)\s*;?\s*$", re.I)
 _ALINHAMENTO = frozenset({"left", "center", "right", "justify"})
 
@@ -235,7 +236,9 @@ class _Saneador(HTMLParser):
                     continue
                 valor = valor.lower()
             elif nome in ("colspan", "rowspan"):
-                if not valor.isdigit():
+                # Só algarismos ASCII e um teto realista: um colspan de 99999 travava o
+                # DOCX (revisão de segurança, 03/10/2026).
+                if not (valor.isascii() and valor.isdecimal() and 1 <= int(valor) <= MAX_SPAN):
                     continue
             elif nome in ("data-bloco", "data-campo", "data-quebra", "scope"):
                 if not re.fullmatch(r"[a-z0-9_-]{1,40}", valor):

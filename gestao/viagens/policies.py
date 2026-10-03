@@ -127,7 +127,13 @@ def acoes_do_oficio(usuario, oficio: Oficio, *, com_exclusao: bool = False) -> d
 
 def pode_excluir(usuario, oficio: Oficio) -> bool:
     """Só rascunho sem nenhum documento emitido pode ser excluído (libera o número)."""
-    return (oficio.situacao == Oficio.Situacao.RASCUNHO and not oficio.documentos.exists()
+    if oficio.arquivado or oficio.situacao != Oficio.Situacao.RASCUNHO:
+        return False  # arquivado não se mexe (desarquive antes); só rascunho se exclui
+    # A lista anota `tem_documentos` (uma subconsulta para a página toda); senão, consulta.
+    tem_documentos = getattr(oficio, "tem_documentos", None)
+    if tem_documentos is None:
+        tem_documentos = oficio.documentos.exists()
+    return (oficio.situacao == Oficio.Situacao.RASCUNHO and not tem_documentos
             and usuario.has_perm("viagens.delete_oficio") and pode_ver(usuario, oficio))
 
 

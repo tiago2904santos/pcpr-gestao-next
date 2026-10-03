@@ -332,6 +332,9 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         if self.instance.pk:
             self.fields["versao"].initial = self.instance.versao
             self.initial["protocolo"] = self.instance.protocolo_formatado
+            p = self.instance.motorista_protocolo_origem
+            if len(p) == 9:
+                self.initial["motorista_protocolo_origem"] = f"{p[:2]}.{p[2:5]}.{p[5:8]}-{p[8]}"
         self._associar()
 
     def clean_protocolo(self):
@@ -342,10 +345,17 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         return digitos
 
     def clean_motorista_externo_cpf(self):
-        return somente_digitos(self.cleaned_data.get("motorista_externo_cpf"))[:11]
+        digitos = somente_digitos(self.cleaned_data.get("motorista_externo_cpf"))
+        if digitos and len(digitos) != 11:
+            raise forms.ValidationError(f"O CPF tem 11 dígitos; você informou {len(digitos)}.")
+        return digitos
 
     def clean_motorista_protocolo_origem(self):
-        return somente_digitos(self.cleaned_data.get("motorista_protocolo_origem"))[:9]
+        digitos = somente_digitos(self.cleaned_data.get("motorista_protocolo_origem"))
+        if digitos and len(digitos) != 9:
+            raise forms.ValidationError(
+                f"O protocolo tem 9 dígitos; você informou {len(digitos)}.")
+        return digitos
 
     def clean_motorista_oficio_origem(self):
         return "".join((self.cleaned_data.get("motorista_oficio_origem") or "").split())

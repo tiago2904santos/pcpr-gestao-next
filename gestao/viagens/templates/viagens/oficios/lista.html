@@ -50,7 +50,7 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
       aqui de propósito — quem procura por eles usa a busca de cima, que já pergunta em
       qual deles procurar.
       {% endcomment %}
-      <div class="campo filtros__campo--md">
+      <div class="campo filtros__campo--lg">
         <label class="campo__rotulo" for="filtro-periodo" id="filtro-periodo-rotulo">Período de saída</label>
         <pc-data class="seletor" data-periodo>
           <input class="entrada" type="text" id="filtro-periodo" value="{{ avancados.periodo_texto }}"
@@ -59,7 +59,7 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
           {{ avancados.saida_de }}{{ avancados.saida_ate }}
         </pc-data>
       </div>
-      <div class="campo filtros__campo--md">
+      <div class="campo filtros__campo--lg">
         <label class="campo__rotulo" for="filtro-criacao" id="filtro-criacao-rotulo">Data do ofício</label>
         <pc-data class="seletor" data-periodo>
           <input class="entrada" type="text" id="filtro-criacao" value="{{ avancados.periodo_criacao_texto }}"
@@ -106,6 +106,8 @@ lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofíci
       {% endfor %}
     </ul>
     {% include "componentes/paginacao.html" %}
+  {% elif situacao == "arquivado" and not termo and not avancados.ativos %}
+    {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum ofício arquivado" texto="Arquive pelo menu ⋯ de um ofício para tirá-lo das abas de trabalho. Nada é apagado e dá para desarquivar." %}
   {% elif termo or situacao %}
     {% include "componentes/vazio.html" with icone="search" titulo="Nenhum ofício encontrado" texto="Confira o número (ex.: 131/2026), o protocolo ou o nome — ou remova os filtros." limpar_url=request.path %}
   {% else %}

@@ -9,10 +9,12 @@ dialogo.js preenche e abre; o texto é obrigatório (o servidor também confere)
 <dialog id="dialogo-motivo" class="dialogo" aria-labelledby="dialogo-motivo-titulo">
   <form method="post" action="" novalidate data-motivo-form>
     {% csrf_token %}
+    <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
     <div class="dialogo__cabecalho">
       <h2 class="dialogo__titulo" id="dialogo-motivo-titulo">Confirmar</h2>
     </div>
     <div class="dialogo__corpo pilha">
+      <p class="alerta alerta--info" data-motivo-contexto hidden></p>
       <div class="campo">
         <label class="campo__rotulo" for="dialogo-motivo-texto"><span data-motivo-rotulo>Motivo</span><span class="campo__obrigatorio" aria-hidden="true">*</span></label>
         <textarea class="area-texto" id="dialogo-motivo-texto" name="motivo" rows="4" required maxlength="1000" aria-describedby="dialogo-motivo-ajuda dialogo-motivo-erro"></textarea>

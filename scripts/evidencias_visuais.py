@@ -75,9 +75,24 @@ def e_gaveta(pg, w):
     pg.wait_for_timeout(450)
 
 
-def e_lista_expandido(pg, w):
-    pg.locator("[data-expandir]").first.click()
-    pg.wait_for_selector(".registro--aberto .resumo")
+def e_lista_motivo(pg, w):
+    """Menu da linha → Cancelar → janela "pedir motivo" (D2/ciclo de vida)."""
+    pg.locator(".registro [data-menu-botao]").first.click()
+    pg.locator(".menu__painel:not([hidden]) [data-pedir-motivo]").first.click()
+    pg.wait_for_timeout(450)
+
+
+def e_lista_gaveta_filtros(pg, w):
+    pg.locator("#filtros-mais summary").click()
+    pg.wait_for_timeout(350)
+
+
+def e_editar_motorista_externo(pg, w):
+    """Bloco "Motorista de fora da equipe" aberto em "Pessoa não cadastrada" (sem disparar
+    autosave: só a opção marcada muda — o :has() do CSS mostra os campos)."""
+    pg.locator(".motorista-externo").scroll_into_view_if_needed()
+    pg.evaluate("""() => { const d = document.querySelector('.motorista-externo'); d.open = true;
+      document.getElementById('id_motorista_externo').value = 'manual'; }""")
     pg.wait_for_timeout(300)
 
 
@@ -122,8 +137,9 @@ def e_editar_relogio(pg, w):
 
 
 def e_editar_lista_combustivel(pg, w):
-    pg.locator("label.opcao").filter(has_text="Outro meio").click()
-    pg.get_by_role("combobox", name=re.compile("^Combustível")).click()
+    pg.locator("#id_tipo_transporte-gatilho").click()
+    pg.get_by_role("option", name="Outro meio").click()
+    pg.locator("#id_transporte_combustivel-gatilho").click()
     pg.wait_for_timeout(350)
 
 
@@ -132,22 +148,9 @@ def e_editar_menu(pg, w):
     pg.wait_for_timeout(350)
 
 
-def e_detalhe_menu(pg, w):
-    pg.get_by_role("button", name="Mais ações do ofício").click()
+def e_resumo_mais_acoes(pg, w):
+    pg.locator("#dialogo-resumo .dialogo__rodape [data-menu-botao]").click()
     pg.wait_for_timeout(350)
-
-
-def e_detalhe_dialogo_cancelar(pg, w):
-    pg.get_by_role("button", name="Mais ações do ofício").click()
-    pg.get_by_role("menuitem", name="Cancelar ofício").click()
-    pg.wait_for_timeout(450)
-
-
-def e_detalhe_historico(pg, w):
-    s = pg.locator("summary.linha-tempo__mais")
-    if s.count():
-        s.click()
-        pg.wait_for_timeout(300)
 
 
 def e_itin_calendario(pg, w):
@@ -239,18 +242,19 @@ CENARIOS = [
     # Viagens
     C("viagens-painel", "Painel do módulo Viagens", "/viagens/"),
     C("oficios-lista", "Lista de ofícios", "/viagens/oficios/"),
-    C("oficios-lista-expandido", "Lista — registro expandido", "/viagens/oficios/", "lista_expandido", POUCAS, False),
+    C("oficios-lista-motivo", "Lista — cancelar pede o motivo", "/viagens/oficios/", "lista_motivo", POUCAS, False),
+    C("oficios-lista-filtros", "Lista — Mais filtros (período de saída e data do ofício)", "/viagens/oficios/", "lista_gaveta_filtros", POUCAS, False),
+    C("oficios-lista-arquivados", "Lista — aba Arquivados", "/viagens/oficios/?situacao=arquivado", larguras=POUCAS),
     C("oficios-lista-menu", "Lista — menu de ações do registro", "/viagens/oficios/", "lista_menu_acoes", POUCAS, False),
     C("oficios-lista-foco", "Lista — foco por teclado no registro", "/viagens/oficios/", "lista_foco_registro", POUCAS, False),
     C("oficios-lista-rascunhos", "Lista — aba Rascunhos", "/viagens/oficios/?situacao=rascunho", larguras=POUCAS),
     C("oficios-lista-por-saida", "Lista — ordenada por saída", "/viagens/oficios/?ordem=saida&situacao=proximos", larguras=POUCAS),
     C("oficios-lista-vazia", "Lista — busca sem resultado", "/viagens/oficios/?q=nada-encontrado-xyz", larguras=POUCAS),
-    C("oficio-detalhe", "Detalhe de ofício emitido", "/viagens/oficios/{oficio_emitido}/"),
-    C("oficio-detalhe-menu", "Detalhe — mais ações", "/viagens/oficios/{oficio_emitido}/", "detalhe_menu", POUCAS, False),
-    C("oficio-detalhe-dialogo", "Detalhe — diálogo de cancelamento", "/viagens/oficios/{oficio_emitido}/", "detalhe_dialogo_cancelar", POUCAS, False),
-    C("oficio-detalhe-historico", "Detalhe — histórico completo", "/viagens/oficios/{oficio_emitido}/", "detalhe_historico", POUCAS),
-    C("oficio-detalhe-cancelado", "Detalhe de ofício cancelado", "/viagens/oficios/{oficio_cancelado}/", larguras=POUCAS),
-    C("oficio-detalhe-rascunho", "Detalhe de rascunho (próximos passos)", "/viagens/oficios/{oficio_rascunho}/", larguras=POUCAS),
+    # A leitura do ofício é a janela de resumo (ADR 0017): a página de detalhe não existe mais.
+    C("oficio-resumo", "Janela de resumo — emitido", "/viagens/oficios/?resumo={oficio_emitido}"),
+    C("oficio-resumo-acoes", "Janela de resumo — mais ações", "/viagens/oficios/?resumo={oficio_emitido}", "resumo_mais_acoes", POUCAS, False),
+    C("oficio-resumo-cancelado", "Janela de resumo — cancelado (motivo e reativar)", "/viagens/oficios/?situacao=cancelado&resumo={oficio_cancelado}", larguras=POUCAS),
+    C("oficio-resumo-rascunho", "Janela de resumo — rascunho com pendências", "/viagens/oficios/?resumo={oficio_rascunho}", larguras=POUCAS),
     C("oficio-editar", "Edição do ofício (rascunho)", "/viagens/oficios/{oficio_rascunho}/editar/", "mapa"),
     C("oficio-editar-erro", "Edição — erros de validação", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_erro", POUCAS),
     C("oficio-editar-foco", "Edição — campo em foco", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_foco", POUCAS, False),
@@ -259,7 +263,11 @@ CENARIOS = [
     C("oficio-editar-lista", "Edição — lista própria (combustível)", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_lista_combustivel", POUCAS, False),
     C("oficio-editar-menu", "Edição — mais ações", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_menu", POUCAS, False),
     C("oficio-editar-pronto", "Edição — ofício pronto para emitir", "/viagens/oficios/{oficio_pronto}/editar/", "mapa", POUCAS),
-    C("oficio-revisar", "Revisar e emitir", "/viagens/oficios/{oficio_pronto}/emitir/"),
+    C("oficio-revisar", "Revisar e emitir (janela sobre a folha)", "/viagens/oficios/{oficio_pronto}/editar/?revisar=1"),
+    C("oficio-motorista-externo", "Edição — motorista de fora da equipe", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_motorista_externo", POUCAS, False),
+    C("justificativas", "Justificativas", "/viagens/justificativas/"),
+    C("justificativas-pendentes", "Justificativas — pendentes", "/viagens/justificativas/?aba=pendentes", larguras=POUCAS),
+    C("numeracao", "Numeração dos ofícios", "/viagens/oficios/numeracao/", larguras=POUCAS),
     # Roteiros
     C("roteiros-lista", "Lista de roteiros", "/viagens/roteiros/"),
     C("roteiros-lista-cancelados", "Roteiros — aba Cancelados", "/viagens/roteiros/?aba=cancelados", larguras=POUCAS),
@@ -268,11 +276,12 @@ CENARIOS = [
     C("roteiro-calendario", "Roteiro — calendário único das saídas", "/viagens/roteiros/{roteiro}/editar/", "itin_calendario", POUCAS, False),
     C("roteiro-arrastando", "Roteiro — arrastando um destino", "/viagens/roteiros/{roteiro}/editar/", "itin_arrastando", POUCAS, False),
     C("roteiro-uf", "Roteiro — UF filtrando municípios", "/viagens/roteiros/{roteiro}/editar/", "itin_uf", POUCAS, False),
-    C("roteiro-cancelado", "Roteiro cancelado (só leitura)", "/viagens/roteiros/{roteiro_cancelado}/editar/", larguras=POUCAS),
     # Cadastros
     C("cadastros-servidores", "Servidores", "/cadastros/servidores/"),
     C("cadastros-viaturas", "Viaturas", "/cadastros/viaturas/", larguras=POUCAS),
     C("cadastros-diarias", "Tabela de diárias", "/cadastros/diarias/", larguras=POUCAS),
+    C("cadastros-textos", "Textos prontos", "/cadastros/textos-prontos/?tipo=motivo", larguras=POUCAS),
+    C("cadastros-textos-novo", "Textos prontos — janela de novo texto", "/cadastros/textos-prontos/?tipo=motivo&novo=1", larguras=POUCAS, inteira=False),
     # UI Lab
     C("ui-lab", "UI Lab (catálogo)", "/ui-lab/", larguras=POUCAS),
     C("ui-lab-toast", "UI Lab — toast", "/ui-lab/", "lab_toast", POUCAS, False),

@@ -1,86 +1,85 @@
 # Ficha de descoberta — Viagens · Ofícios
 
-Situação: **EM ANDAMENTO** (módulo 1 do [roadmap](roadmap.md)). Matriz detalhada de regras:
-[`docs/parity/oficio.md`](../parity/oficio.md) (revisão de 01/10/2026). Fontes da referência:
-`viagens_oficios/` (models, views, services, protocolo_services), fichas
-`docs/paridade/oficios-{lista,form,menus,detalhe,catalogos}.md` e
-`justificativas-lista.md`, `docs/EPROTOCOLO_PROTOCOLO_AUTOMATICO.md`,
-`docs/FASE_4_OFICIOS_JUSTIFICATIVAS_TERMOS.md`.
+Situação: **EM FECHAMENTO** — tudo o que não depende de terceiros está implementado e testado;
+**não concluído** enquanto faltar a comparação com a referência em execução (dependência
+externa). Decisões do dono do produto: [decisoes.md](decisoes.md). Regras finas:
+[`docs/parity/oficio.md`](../parity/oficio.md). Fontes da referência (lidas, não copiadas):
+`viagens_oficios/` (urls, views, services, models, forms, documents, protocolo_services),
+`core/models.py`, fichas `docs/paridade/oficios-*.md` e `justificativas-lista.md`.
 
-## Entidades
+**Legenda.** ✅ implementado e testado · 🟡 implementado, evidência parcial · ↔ divergente
+(intencional, justificado) · ⛔ bloqueado (dependência externa) · ❔ não investigado.
+Toda comparação abaixo foi feita **por leitura do código** da referência; a comparação lado a
+lado com a referência em execução está ⛔ (acesso autorizado pendente).
 
-| Referência | Novo | Observação |
-|---|---|---|
-| `Oficio` (37 campos) | `Oficio` (32) + `Viajante` + `Trecho` + `BateVolta` | Trechos embutidos + roteiro opcional; motorista é viajante marcado |
-| `protocolo_origem` / `protocolo_situacao` / `protocolo_criado_em` | — | Entra com a integração eProtocolo (I1) |
-| motorista manual (6 campos), `motorista_oficio_referencia`, `motorista_protocolo_ref` | — | **PENDENTE** (decisão D-OF-3) |
-| transporte manual (placa, modelo, combustível, tipo) | `transporte_placa/descricao/combustivel`, `tipo_transporte` | IGUAL em essência |
-| `servidores_termo_autorizacao` | — | Depende do módulo Termos |
-| `retificado_documento` / `complementar_documento` | `marcador` (Nenhum/Retificado/Complementar) | MELHORADO (um campo, regra no domínio) |
-| `assinante` | `ConfiguracaoInstitucional.chefia_*` | DIFERENÇA INTENCIONAL — assinante por unidade, sem substituições ainda |
-| `ConfiguracaoNumeracaoOficio` + `OficioNumeroLacuna` | `NumeracaoAnual` + `LacunaNumeracao` | IGUAL (algoritmo, D5); **tela do piso ausente** |
-| `ModeloMotivoOficio` (nome, texto, ordem, ativo, padrão único) | `ModeloTexto(tipo=motivo)` (nome, texto, ordem, ativo, padrão único por tipo no banco, padrao_sistema) | **IGUAL** (03/10/2026) — `test_textos_prontos.py::TestServico` |
-| `ModeloJustificativa` | `ModeloTexto(tipo=justificativa)` | **IGUAL** |
-| `Justificativa` (1:1, status, snapshots da regra) | campos no `Oficio` + documento `justificativa` | DIFERENÇA INTENCIONAL (sem entidade própria); lista de justificativas: **PENDENTE** |
-| status `RASCUNHO/GERADO/FINALIZADO/ARQUIVADO` + `cancelado` ortogonal | `rascunho/emitido/cancelado` | DIFERENÇA INTENCIONAL; arquivar/reativar **PENDENTE** |
+## Matriz por função da referência (rotas de `viagens_oficios/urls.py`)
 
-## Telas
-
-| Tela / função | Referência | Novo | Paridade |
+| Função da referência | Novo | Estado | Evidência |
 |---|---|---|---|
-| Lista: busca, situação (4 combináveis + contagem), ordenação (6), período da viagem, período da criação, paginação 20 | sim | abas de situação, **busca inteligente por leitura** (número/protocolo/placa/destino/servidor), filtros avançados (período, protocolo, veículo, faixa de diárias), ordenação | MELHORADO; período de **criação** e **ordenação por criação**: DESCONHECIDO se ainda necessários (ver D-OF-5) |
-| Cartão da lista com equipe, placa, trechos, valor, justificativa | cartão rico | linha compacta + **janela de resumo** com tudo isso (ADR 0017) | DIFERENÇA INTENCIONAL (pedido do usuário) |
-| Exportar | `exportar/` (XLSX, 14 colunas, recorte da lista) | `oficios/exportar/` (XLSX, mesmas 14 colunas, mesmo recorte: busca, situação, filtros avançados, ordem) | **IGUAL** — `test_views.py::TestExportarPlanilha` |
-| Novo (POST cria rascunho numerado) | sim | sim | IGUAL |
-| Editor: identidade, motivo (com modelo; ofício novo nasce com o padrão), custeio, equipe, termo por viajante, transporte, motorista externo, porte de arma, roteiro, prazo/justificativa, diárias | wizard de 6 páginas com autosave | uma folha em seções com autosave, roteiro cadastrado aplicável, prévia de diárias | MELHORADO; motorista externo e termo por viajante PENDENTES |
-| Conferência/resumo antes de emitir | etapa 5 | janela de resumo em modo revisão sobre a folha (`?revisar=1`), com destinatário, quem assina, justificativa e Emitir | **MELHORADO** — `test_views.py::test_revisar_e_emitir_pronto_vai_para_revisao`, e2e `test_operador_cria_preenche_e_emite_um_oficio` |
-| Ações: reabrir, cancelar, reativar, arquivar, retificar, complementar, excluir | sim | reabrir, cancelar, retificar (vira retificado ao editar emitido), excluir | reativar/arquivar/complementar PENDENTES |
-| Documentos: ofício, justificativa (visualizar, PDF, DOCX) | DOCX + PDF | PDF/A-2a versionado, minuta, visualizador em nova aba, editor de documento | MELHORADO; DOCX: DIFERENÇA INTENCIONAL (ADR 0008) — confirmar com o usuário |
-| Catálogos de motivo e de justificativa (CRUD, padrão, ordem, ativo) | sim | `/cadastros/textos-prontos/` (abas por tipo, busca, janela novo/editar, usar como padrão, desativar/reativar, excluir só gestor e nunca o do sistema) + seletor "Texto pronto" na folha que preenche o campo (confirma antes de substituir) + "Guardar como texto pronto" | **IGUAL + MELHORADO** — `test_textos_prontos.py` |
-| Numeração (piso anual) | tela do gestor (ano + piso) | `/viagens/oficios/numeracao/` (gestor): tabela por ano com piso, maior número, lacunas livres e próximo número + formulário do piso; nunca renumera | **MELHORADO** — `test_views.py::TestNumeracaoAnual`, a11y `test_telas_do_gestor_sem_violacoes_graves` |
-| Configuração institucional | tela | — (seed) | **PENDENTE** (pode ir com Cadastros) |
-| Justificativas (lista própria) | sim | — | PENDENTE — avaliar se a aba/filtro "justificativa pendente" na lista de ofícios resolve (D-OF-6) |
-| Ofícios do motorista | API para conflito | aviso de conflito de servidor/viatura | IGUAL em propósito |
-| Termos por ofício | sim | — | vai com o módulo Termos |
+| Lista: busca, situações com contagem, paginação 20 | abas (Todos, Rascunhos, Emitidos, Próximas, Cancelados, **Arquivados**) + busca por leituras + paginação 20 | ✅ | `test_views.py::TestListaEPainel`, e2e `test_fluxo_oficio`, `test_preview_demo` (base de 268) |
+| Ordenação (número, criação, viagem) | número, data de saída, **data do ofício** (D5) | ✅ | `TestFiltroPorDataDoOficio` |
+| Filtro período da viagem | período de saída na gaveta | ✅ | `TestListaEPainel` (filtros), e2e `test_gaveta_de_filtros_filtra_por_protocolo` |
+| Filtro período da criação (= data do ofício) | período "Data do ofício" na gaveta (D5) | ✅ | `TestFiltroPorDataDoOficio` (limites, inversão, data inválida, combinações, paginação) |
+| Cartão da lista (equipe, placa, trechos, valor, justificativa) | linha compacta + janela de resumo | ↔ pedido do usuário (ADR 0017) | `TestEmissaoEAcoes::test_resumo*`, e2e janela |
+| `exportar/` (XLSX, 14 colunas, recorte) | `oficios/exportar/` | ✅ | `TestExportarPlanilha` (consultas fixas: 11 para 268) |
+| `novo/` `criar/` (POST cria numerado) | idem; motivo padrão do catálogo | ✅ | `TestNovoEEdicao`, `TestNaFolhaDoOficio::test_oficio_novo_nasce_com_o_motivo_padrao` |
+| `editar/` + `autosalvar/` (wizard 6 etapas) | folha única com autosave | ✅ (↔ uma folha em vez de wizard) | `test_views.py::TestNovoEEdicao`, autosave ×3, e2e fluxo |
+| Motorista SERVIDOR fora da equipe / MANUAL | "Motorista de fora da equipe" (D3) | ✅ | `TestMotoristaExterno`, `TestMotoristaExternoNaFolha` |
+| Servidores com termo de autorização | — | ⛔ depende do módulo Termos | — |
+| Conferência (etapa 5) | janela de revisão sobre a folha (`?revisar=1`) | ✅ | `test_revisar_e_emitir_pronto_vai_para_revisao`, e2e emissão |
+| `acao/reabrir` (motivo) | `reabrir` (gestor, motivo) | 🟡 serviço testado; **sem botão** desde a saída da página de detalhe — o caminho da tela é "Editar (retificar)" | `test_servicos.py` (reabrir) |
+| `acao/cancelar` (motivo) | menu da linha/janela → pedir motivo | ✅ | `TestCicloDeVidaNaTela::test_cancelar_pela_tela_exige_motivo` |
+| `acao/reativar` | só gestor, com justificativa (D2) | ✅ (↔ guarda o cancelamento no histórico; a referência apagava o motivo) | `TestReativarCancelado`, `TestCicloDeVidaNaTela` |
+| `acao/arquivar` | arquivar/desarquivar (D1) | ✅ (↔ marca reversível; a referência não tinha volta nem tela) | `TestArquivar`, `test_arquivar_leva_para_a_aba_arquivados` |
+| `acao/retificar` (liga/desliga marca) | editar emitido → vira retificado; marcador na folha | ↔ decisão anterior do usuário | `test_views.py` (retificar) |
+| `acao/complementar` | marcador "Complementar" na folha | ✅ (por campo, não por ação) | `test_dominio_prazos.py` (assunto), folha |
+| `acao/excluir` (libera número) | "Excluir rascunho" na janela | ✅ | `test_servicos.py` (excluir/lacuna) |
+| `numeracao/` (piso) | tela do gestor com próximo número | ✅ | `TestNumeracaoAnual`, a11y gestor |
+| `justificativas/` (lista, nova, editar, excluir, baixar) | `/viagens/justificativas/` (D6) | ✅ | `TestListaDeJustificativas` |
+| `catalogos/<tipo>/` (motivos, modelos de justificativa) | `/cadastros/textos-prontos/` | ✅ | `test_textos_prontos.py` (14) |
+| `institucional/` (configuração) | — (seed) | ❔→ vai para o módulo 2 (Cadastros) | — |
+| `gerar/<tipo>/<formato>/` (DOCX/PDF) | PDF/A-2a na emissão + **DOCX** (D4) | ✅ | `TestEmissaoEAcoes`, `TestBaixarDocx` |
+| `visualizar/<tipo>/`, `documento/folha/` | visualizador/editor de documento (ADR 0018) | ✅ | `test_editor*.py`, e2e `test_editor.py` |
+| `documento/` (editor completo) | editor no visualizador | ✅ | idem |
+| `oficios-do-motorista/` | aviso de conflito de agenda | ✅ (↔ mesmo propósito) | `TestEquipeEViaturaSugerida`, conflitos |
+| `termos/…` (por servidor, lote, todos) | — | ⛔ módulo Termos | — |
+| `documentos/<uuid>/assinatura/`, `preview/` | — | ⛔ núcleo de Documentos (assinatura) | — |
+| Protocolo automático (eProtocolo) | camada simulada + `protocolo_origem` | ⛔ credenciamento (modo simulado não comprova integração) | `test_eprotocolo.py` (13) |
 
-## Fluxos
+## Entidades (referência × novo)
 
-- Principal: Novo → preencher (autosave) → pronto para emitir → revisar (janela) → emitir →
-  PDF/A pela outbox → baixar/visualizar.
-- Alternativos: editar emitido → vira **retificado** (rascunho + marcador, histórico REABERTO);
-  reabrir com motivo; cancelar com motivo; excluir rascunho (libera número como lacuna).
-- Exceções: conflito de versão no autosave/salvar (`ConflitoDeEdicao`); regra violada;
-  ano da data ≠ ano do número (bloqueia, D3).
-- Permissões: `policies.py` (`pode_editar`, `pode_emitir`, `pode_retificar`, `pode_cancelar`…),
-  escopo por unidade (lotação).
+| Referência | Novo | Estado |
+|---|---|---|
+| `Oficio` (37 campos) | `Oficio` + `Viajante` + `Trecho` + `BateVolta` | ✅ |
+| status RASCUNHO/GERADO/FINALIZADO/ARQUIVADO + `cancelado` | rascunho/emitido/cancelado + `arquivado_em` + `situacao_anterior` | ↔ GERADO/FINALIZADO → emitido (mapear na migração de dados) |
+| motorista manual + ofício/protocolo de origem | `motorista_externo*`, `motorista_oficio/protocolo_origem` | ✅ |
+| `protocolo_origem` | `protocolo_origem` (manual ao digitar) | ✅ (abertura automática ⛔) |
+| `ConfiguracaoNumeracaoOficio` + lacunas | `NumeracaoAnual` + `LacunaNumeracao` | ✅ |
+| `ModeloMotivoOficio`, `ModeloJustificativa` | `ModeloTexto` (ordem, ativo, padrão único) | ✅ |
+| `Justificativa` (1:1, status, snapshots) | campos do `Oficio` + regra anotada no banco | ↔ sem entidade própria (lista lê o ofício) |
+| `assinante` (+ substituições) | chefia da `ConfiguracaoInstitucional` | ❔ substituições: módulo 2 |
 
-## Documentos
+## Fluxos exercitados de ponta a ponta
 
-Ofício e justificativa: dados congelados no `Documento` (JSON), PDF/A-2a, SHA-256, versões
-imutáveis; edições do texto em `EdicaoDocumento` (ADR 0018). Termos: módulo próprio.
+- Criar → preencher (autosave) → revisar → emitir → PDF/A → baixar/DOCX — e2e
+  `test_operador_cria_preenche_e_emite_um_oficio`.
+- Emitido → editar (retificado) → emitir de novo — `test_views.py` (retificar).
+- Cancelar (motivo) → reativar (gestor, justificativa) → mesma situação e número.
+- Arquivar → aba Arquivados → desarquivar.
+- Justificativa pendente → escrever pela lista → preenchida → apagar → pendente.
+- Erros: conflito de versão (folha, autosave × Salvar, justificativa), regra violada, motivo
+  ausente, justificativa ausente, sem permissão (operador reativando, consulta escrevendo).
 
-## Integrações
+## Divergências e limitações restantes
 
-- **eProtocolo**: referência abre protocolo ao gravar quando o campo está vazio (simulado sem
-  credencial, treinamento marcado como não oficial, trava de somente leitura). Novo: nenhuma.
-  Plano em [`docs/integrations/eprotocolo.md`](../integrations/eprotocolo.md).
-- Central de Viagens: nenhuma em ambos (ver `docs/integrations/central-de-viagens.md`).
+1. ⛔ Comparação visual/funcional com a referência **em execução** (acesso autorizado).
+2. ⛔ eProtocolo real; ⛔ termos por servidor; ⛔ assinatura de documentos.
+3. 🟡 Reabrir formal (com motivo) sem botão: o caminho da tela é "Editar (retificar)".
+   Decidir se a reabertura formal ainda precisa de botão (pergunta ao usuário).
+4. ↔ Configuração institucional e substituições de assinante: módulo 2.
+5. D4: uso real do Word ainda sem evidência do usuário.
 
-## Decisões pendentes (dono do produto)
+## Critério de conclusão
 
-- **D-OF-1** Arquivar: precisa existir? (referência tem estado ARQUIVADO). Sugestão: aba
-  "Arquivados" via flag, sem novo estado.
-- **D-OF-2** Reativar cancelado: liberar para gestor? (referência permite).
-- **D-OF-3** Motorista externo (fora do cadastro) com ofício/protocolo de origem: migrar?
-- **D-OF-4** DOCX editável: o editor de documento (ADR 0018) substitui a necessidade?
-- **D-OF-5** Filtro por período de **criação** e ordenação por criação: ainda usados?
-- **D-OF-6** Lista própria de justificativas ou filtro na lista de ofícios?
-- **D-OF-7** Rótulo "Autorização" para marcador Nenhum conflita com o assunto
-  Autorização/Convalidação — manter ou "Documento original"?
-
-## Critério de conclusão deste módulo
-
-Itens PENDENTES sem decisão pendente implementados; decisões registradas; testes rápidos +
-navegador verdes; capturas 360/1440 e axe das telas tocadas; orçamento de consultas das
-listas com o DEMO populoso; paridade comparada com a referência **em execução** (exige
-`REF_USER`/`REF_PASS` ou sessão aberta pelo usuário no navegador do app).
+Todos os itens ✅/↔ com evidência; ⛔ documentados com o bloqueio exato; regressão completa
+verde; capturas antes × depois; desempenho medido; acessibilidade e segurança verificadas.

@@ -809,6 +809,13 @@ a.ficha:hover {
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
 }
 
+/* Período ("dd/mm/aaaa a dd/mm/aaaa") não cabe numa coluna de 11rem: ocupa duas, quando há. */
+@media (min-width: 768px) {
+  .filtros__campo--lg {
+    grid-column: span 2;
+  }
+}
+
 .filtros__limpar {
   justify-self: start;
   align-self: center;

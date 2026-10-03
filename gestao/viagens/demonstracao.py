@@ -441,6 +441,42 @@ class _Gerador:
             criados.remove(oficio)
         return criados
 
+    def ciclo_de_vida(self, oficios: list[Oficio]) -> None:
+        """Telas das decisões D1–D3 com o que avaliar no PREVIEW: arquivados, um cancelado
+        reativado e motoristas de fora da equipe (servidor de outro ofício e não cadastrado).
+        Tudo pelos serviços reais (histórico e auditoria iguais aos da operação)."""
+        gestor = self.gestores[0]
+        emitidos = sorted((o for o in oficios if o.situacao == Oficio.Situacao.EMITIDO),
+                          key=lambda o: (o.ano, o.numero))
+        for oficio in emitidos[:3]:  # os mais antigos vão para Arquivados
+            services.arquivar(oficio, self.operadores[oficio.unidade_id])
+        cancelados = [o for o in oficios if o.situacao == Oficio.Situacao.CANCELADO]
+        if cancelados:
+            alvo = Oficio.objects.get(pk=cancelados[0].pk)
+            services.reativar(alvo, gestor, "Evento remarcado para a mesma data; a viagem "
+                                            "voltou a ser necessária.")
+        rascunhos = [o for o in oficios if o.situacao == Oficio.Situacao.RASCUNHO
+                     and o.tipo_transporte == Oficio.TipoTransporte.VIATURA
+                     and o.viajantes.exists()][:2]
+        for i, oficio in enumerate(rascunhos):
+            atual = Oficio.objects.get(pk=oficio.pk)
+            autor = self.operadores[atual.unidade_id]
+            dados: dict[str, object]
+            if i == 0:
+                equipe = set(atual.viajantes.values_list("servidor_id", flat=True))
+                fora = (Servidor.objects.filter(ativo=True).exclude(pk__in=equipe)
+                        .order_by("pk").first())
+                dados = {"motorista_externo": Oficio.MotoristaExterno.SERVIDOR,
+                         "motorista_externo_servidor": fora}
+            else:
+                dados = {"motorista_externo": Oficio.MotoristaExterno.MANUAL,
+                         "motorista_externo_nome": "Rogério Antunes Vasconcellos",
+                         "motorista_externo_cargo": "Motorista terceirizado",
+                         "motorista_externo_unidade": "Prefeitura Municipal (cedido)"}
+            dados.update(motorista_oficio_origem=f"{40 + i}/{atual.ano}",
+                         motorista_protocolo_origem=f"22233344{i}")
+            services.salvar_dados(atual, autor, dados, versao=atual.versao)
+
     def _oficio(self, indice: int, data_oficio: date, unidade: Unidade, total: int) -> Oficio:
         rng = self.rng
         demo = self.demo
@@ -697,6 +733,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     atualizar_estatisticas()
     oficios = gerador.oficios()
     gerador.roteiros(oficios)
+    gerador.ciclo_de_vida(oficios)
     return resumo(len(oficios))
 
 

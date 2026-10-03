@@ -29,7 +29,7 @@ from gestao.cadastros.models import TabelaDiaria
 
 from .dominio import busca
 from .dominio.diarias import Faixa, ValorVigente
-from .models import Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
+from .models import Documento, Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
 
 
 def buscar_tabelas_vigentes(data_referencia: date) -> dict[Faixa, ValorVigente]:
@@ -74,7 +74,8 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
             Prefetch("trechos", queryset=Trecho.objects.select_related("origem", "destino")
                      .order_by("ordem")),
         )
-        .annotate(primeira_saida=Min("trechos__saida_em"))
+        .annotate(primeira_saida=Min("trechos__saida_em"),
+                  tem_documentos=Exists(Documento.objects.filter(oficio=OuterRef("pk"))))
     )
 
 

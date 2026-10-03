@@ -112,6 +112,10 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 
 ## Processo
 
+- **Checkpoint só com `scripts/checar_rapido.sh` verde** (para no primeiro erro). Encadear
+  `uv run ruff … | tail -1 && git commit` não falha: o `tail` sempre sai 0 — dois commits de
+  03/10 passaram assim e precisaram de correção.
+
 - O usuário prefere ver a tela funcionando no navegador do app antes do relatório.
 - Mudança de componente compartilhado: procurar todos os usos (`grep` no nome do elemento/
   classe) e rodar os testes das páginas afetadas.

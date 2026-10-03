@@ -57,12 +57,20 @@ def _justificativa(oficio: Oficio) -> str:
     return "Pendente" if exigida else ""
 
 
+def _texto_seguro(valor):
+    """Texto que começa com = + - @ (ou tabulação/CR) seria fórmula no Excel: vai como
+    texto literal (injeção de fórmula, revisão de segurança)."""
+    if isinstance(valor, str) and valor[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + valor
+    return valor
+
+
 def linha(oficio: Oficio) -> list:
     trechos = trechos_de(oficio)
     equipe = viajantes_de(oficio)
     assunto = services.assunto_do_oficio(oficio)
-    motorista = next((v.servidor.nome for v in equipe if v.motorista), "")
-    return [
+    motorista = services.nome_do_motorista(oficio, equipe)
+    return [_texto_seguro(v) for v in [
         oficio.numero_formatado,
         oficio.data_oficio,
         oficio.protocolo_formatado,
@@ -78,7 +86,7 @@ def linha(oficio: Oficio) -> list:
         oficio.diarias_total,
         oficio.diarias_resumo or "",
         _justificativa(oficio),
-    ]
+    ]]
 
 
 def planilha_de_oficios(oficios: Iterable[Oficio]) -> bytes:

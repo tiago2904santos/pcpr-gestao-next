@@ -100,7 +100,13 @@ document.addEventListener("click", (e) => {
   acao.classList.toggle("botao--primario", !perigo);
   janela.classList.toggle("dialogo--perigo", perigo);
   /** @type {HTMLElement} */ (janela.querySelector("#dialogo-motivo-erro")).hidden = true;
+  const contexto = /** @type {HTMLElement} */ (janela.querySelector("[data-motivo-contexto]"));
+  contexto.textContent = d.motivoContexto || "";
+  contexto.hidden = !d.motivoContexto;
   texto.removeAttribute("aria-invalid");
+  // O menu de onde veio não fica aberto por baixo da janela.
+  const menu = /** @type {any} */ (botao.closest("pc-menu"));
+  if (menu && typeof menu.fechar === "function") menu.fechar(false);
   janela.showModal();
   texto.focus();
 });

@@ -6,16 +6,12 @@ from django.db import migrations, models
 
 
 def preencher_situacao_anterior(apps, schema_editor):
-    """Cancelados de antes desta migração: a situação anterior sai do histórico — a última
-    transição antes do cancelamento (emitido → emitido; criado/reaberto → rascunho)."""
+    """Cancelados de antes desta migração: estava emitido se `emitido_em` está preenchido
+    (cancelar o mantém; reabrir e retificar o zeram) — mais confiável que o histórico."""
     Oficio = apps.get_model("viagens", "Oficio")
-    Historico = apps.get_model("viagens", "Historico")
-    for oficio in Oficio.objects.filter(situacao="cancelado", situacao_anterior=""):
-        ultima = (Historico.objects.filter(oficio=oficio, acao__in=["emitido", "reaberto", "criado"])
-                  .exclude(em__gt=oficio.cancelado_em or oficio.atualizado_em)
-                  .order_by("-em", "-pk").values_list("acao", flat=True).first())
-        anterior = "emitido" if ultima == "emitido" else "rascunho"
-        Oficio.objects.filter(pk=oficio.pk).update(situacao_anterior=anterior)
+    base = Oficio.objects.filter(situacao="cancelado", situacao_anterior="")
+    base.filter(emitido_em__isnull=False).update(situacao_anterior="emitido")
+    base.filter(emitido_em__isnull=True).update(situacao_anterior="rascunho")
 
 
 class Migration(migrations.Migration):
