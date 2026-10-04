@@ -85,6 +85,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "gestao.plataforma.middleware.LimiteDoCorpoMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -167,6 +168,8 @@ STATICFILES_DIRS = [
     ("documentos", BASE_DIR / "gestao" / "viagens" / "documentos_assets"),
 ]
 MEDIA_ROOT = BASE_DIR / "var" / "media"
+# Teto do corpo da requisição (via assinada: até 15 MB + formulário). Ver LimiteDoCorpoMiddleware.
+LIMITE_DO_CORPO_BYTES = 16 * 1024 * 1024
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     # WhiteNoise (hash + compressão) com CSS minificado (gestao/plataforma/estaticos.py).

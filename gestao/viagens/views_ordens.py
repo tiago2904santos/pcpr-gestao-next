@@ -9,8 +9,9 @@ from urllib.parse import urlsplit
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -19,9 +20,9 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros import policies as politicas_cadastros
 
-from . import linha_do_tempo, ordens, policies
+from . import assinados, linha_do_tempo, ordens, policies, views_assinados
 from .forms import FormularioOrdem
-from .models import Oficio, OrdemServico
+from .models import Oficio, OrdemServico, ViaAssinada
 from .views import POR_PAGINA, _migalhas
 from .views_editor import (
     moldura_da_folha,
@@ -81,7 +82,11 @@ def lista(request: HttpRequest) -> HttpResponse:
     if aba not in {a for a, _, _ in ABAS}:
         aba = ""
     busca = (request.GET.get("q") or "").strip()
-    qs = ordens.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-ano", "-numero"))
+    # A via assinada em vigor (selo e "Abrir via assinada" no menu), numa subconsulta.
+    via = (ViaAssinada.objects.filter(ordem=OuterRef("pk"), revogada_em__isnull=True)
+           .order_by("-enviado_em").values("pk")[:1])
+    qs = ordens.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-ano", "-numero")
+                          ).annotate(via_vigente=Subquery(via))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     linhas = [{"ordem": o, "periodo": ordens.periodo_curto(o), "faltando": ordens.faltando(o),
                "editavel": policies.pode_editar_ordem(request.user, o),
@@ -167,6 +172,11 @@ def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int =
                       else []),
         "pode_ver_documento": (ordem is not None
                                and policies.pode_ver_documento_ordem(request.user, ordem)),
+        "via": (views_assinados.cartao(
+            request, assinados.Alvo("ordem", ordem),
+            assinados.vigentes_do(ordem).get(("ordem", "")), titulo=str(ordem),
+            original_url=reverse("viagens:documento_ordem", args=[ordem.pk, "pdf"]))
+            if ordem is not None else None),
         "hoje": timezone.localdate(),
         "copia": _copia_prevista(form, ordem),
         "assinatura_prevista": ordens.assinatura_prevista(ordem, unidade),
@@ -294,7 +304,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
 
 @require_GET
 @moldura_do_pdf
-def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
+def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponseBase:
     ordem = _ordem_visivel(request, pk)
     policies.exigir(policies.pode_editar_ordem(request.user, ordem),
                     "Reative a Ordem de Serviço para gerar o documento.")

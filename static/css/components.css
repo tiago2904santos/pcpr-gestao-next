@@ -362,6 +362,35 @@
   cursor: default;
 }
 
+/* Campo de arquivo (via assinada): a caixa do campo com o botão de escolher no idioma do
+   sistema visual (o botão nativo do navegador destoava). O nome do arquivo escolhido fica
+   ao lado, como o navegador escreve. */
+.entrada--arquivo {
+  display: flex;
+  align-items: center;
+  padding: var(--esp-1);
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+
+.entrada--arquivo::file-selector-button {
+  min-height: calc(var(--altura-controle) - var(--esp-3));
+  margin-right: var(--esp-3);
+  padding: 0 var(--esp-3);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-sm);
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: var(--peso-semi);
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.entrada--arquivo:hover::file-selector-button {
+  background: var(--cor-superficie-realce);
+}
+
 .campo--erro .entrada,
 .campo--erro .selecao,
 .campo--erro .area-texto,

@@ -672,7 +672,30 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
         "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
                             and d.situacao == Documento.Situacao.PRONTO), None),
+        "vias": _vias_do_oficio(request, oficio, documentos),
     }
+
+
+def _vias_do_oficio(request: HttpRequest, oficio, documentos) -> list[dict]:
+    """A via assinada de cada documento emitido (o PDF pronto mais recente de cada tipo)."""
+    from . import assinados, views_assinados
+
+    prontos: dict[str, Documento] = {}
+    for d in documentos:  # já vêm do mais novo para o mais velho
+        if d.situacao == Documento.Situacao.PRONTO:
+            prontos.setdefault(d.tipo, d)
+    if not prontos:
+        return []
+    vias = assinados.vigentes_do(oficio)
+    # O resumo é um fragmento: remover volta para a lista com o resumo aberto.
+    voltar = f"{reverse('viagens:oficios')}?resumo={oficio.pk}"
+    ordem: list[str] = ["oficio", "justificativa"]  # o ofício primeiro
+    return [views_assinados.cartao(
+        request, assinados.Alvo(tipo, oficio), vias.get((tipo, "")),
+        titulo=(f"Ofício {oficio.numero_formatado} · v{doc.versao}" if tipo == "oficio"
+                else f"Justificativa do Ofício {oficio.numero_formatado} · v{doc.versao}"),
+        original_url=reverse("viagens:baixar_documento", args=[doc.pk]), voltar=voltar)
+        for tipo, doc in sorted(prontos.items(), key=lambda par: ordem.index(par[0]))]
 
 
 @require_GET
@@ -699,6 +722,11 @@ def baixar_documento(request: HttpRequest, documento_id: int) -> FileResponse:
         raise Http404
     if doc.situacao != Documento.Situacao.PRONTO:
         raise Http404("Documento ainda não gerado.")
+    if request.GET.get("versao") != "original":
+        via = doc.vias_assinadas.filter(revogada_em__isnull=True).order_by("-enviado_em").first()
+        if via is not None:
+            from .views_assinados import resposta_da_via
+            return resposta_da_via(via, baixar=request.GET.get("baixar") == "1")
     resposta = FileResponse(doc.arquivo.open("rb"), content_type="application/pdf",
                             as_attachment=request.GET.get("baixar") == "1",
                             filename=doc.nome_arquivo)

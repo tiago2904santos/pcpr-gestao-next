@@ -1,0 +1,37 @@
+{% comment %}
+A via assinada de um documento como um registro da lista (componente .registro): `c` vem
+de views_assinados.cartao; `vazio` é o texto quando ainda não há via e não se pode anexar;
+`menu_acima` abre o menu para cima (no rodapé de uma janela).
+{% endcomment %}
+<li class="registro">
+  <span class="registro__icone" aria-hidden="true">{% icone "file-signature" %}</span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      {% if c.s.via %}<a class="registro__link" href="{% url 'viagens:abrir_via_assinada' c.s.via.pk %}" target="_blank" rel="noopener">{{ c.titulo }}<span class="sr-only"> — abrir a via assinada (PDF, nova aba)</span></a>
+      {% else %}<span class="registro__link registro__link--estatico">{{ c.titulo }}</span>{% endif %}
+      {% if c.s.via %}{% include "viagens/assinados/_selo.html" with s=c.s %}{% else %}<span class="selo selo--neutro selo--sem-ponto">Sem via assinada</span>{% endif %}
+    </div>
+    {% if c.s.via %}
+      <div class="registro__meta">
+        <span class="registro__meta-item">{% icone "user" classe="icone--sm" %}Anexada por {{ c.s.via.enviado_por.nome }}</span>
+        <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ c.s.via.enviado_em|date:"d/m/Y H:i" }}</span>
+        <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ c.s.via.nome_original|truncatechars:48 }}</span>
+      </div>
+      {% if c.s.mudou %}<p class="registro__texto">Os dados mudaram depois que a via foi anexada: gere o documento atualizado e troque a via.</p>{% endif %}
+    {% elif not c.pode and vazio %}
+      <p class="registro__texto">{{ vazio }}</p>
+    {% endif %}
+  </div>
+  {% if c.s.via or c.pode %}
+  <div class="registro__acoes registro__acoes--fixas">
+    {% if c.s.via %}
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Ações da via assinada: {{ c.titulo }}">{% icone "ellipsis-vertical" %}Ações</button>
+        <div class="menu__painel{% if menu_acima %} menu__painel--acima{% endif %}" role="menu" hidden>{% include "viagens/assinados/_itens_menu.html" with s=c.s anexar_url=c.anexar_url titulo=c.titulo pode=c.pode original_url=c.original_url voltar=c.voltar %}</div>
+      </pc-menu>
+    {% else %}
+      <a class="botao botao--sm" href="{{ c.anexar_url }}" data-anexar-assinado="{{ c.anexar_url }}" data-assinado-titulo="{{ c.titulo }}" data-assinado-voltar="{{ c.voltar }}">{% icone "file-signature" %}Anexar via assinada</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</li>

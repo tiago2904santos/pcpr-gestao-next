@@ -39,7 +39,7 @@
         {% elif o.situacao == "emitido" and not o.arquivado and pode_editar_oficios %}
           {# Emitido se edita por retificação: a confirmação explica o que muda. #}
           <form method="post" action="{% url 'viagens:retificar' o.pk %}"
-                data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico."
+                data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."
                 data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
             {% csrf_token %}
             <button type="submit" class="menu__item" role="menuitem">{% icone "pencil" %}Editar (retificar)</button>

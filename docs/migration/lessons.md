@@ -173,6 +173,19 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   migração, pela semeadura e pelo cenário de testes.
 - **Autosave não pode gravar ao sair sem mudança**: a comparação parte do estado inicial do
   formulário (refeito no `load`), senão cada visita gera versão nova e evento vazio.
+- **Folha = um `<form>` só**: formulário de ação dentro dela é descartado pelo navegador
+  (aninhado) e o botão envia a folha. Ações por POST em menus da folha usam
+  `form="<id>"` com o `<form hidden>` fora dela (ex.: `assinados/_form_remover.html`).
+- **Rota genérica engole as específicas**: `assinados/<str:tipo>/<int:pk>/<str:chave>/`
+  capturava `assinados/via/7/remover/`; as rotas literais vêm antes.
+- **Teste que procura `<option value="N"` na página inteira** acerta outro seletor com o
+  mesmo id (depende da sequência do banco): procurar dentro do `<select>` certo.
+- **Fragmento HTMX não sabe para onde voltar**: `request.get_full_path` no resumo é o
+  endereço do fragmento; o `voltar` vem pronto da view (ou do link que abre a janela).
+- **Gerar ≠ consultar**: o botão "Gerar" nunca devolve a via assinada (risco de imprimir a
+  versão velha); a via abre pela rota própria e nos downloads de consulta.
+- **Orçamento de tempo sob `-n 4`**: TTFB/db de uma amostra só estouram por disputa de CPU;
+  mediana de 3 amostras, o número de consultas vale em todas (sinal determinístico).
 
 ## Processo
 

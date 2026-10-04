@@ -73,18 +73,47 @@ implementados e testados; o usuário pode pedir para mudar sem retrabalho grande
 | Nome do servidor único; RG e telefone únicos quando informados | constraints `viagens_servidor_*_unico` | constraints `servidor_nome_unico` (sem caixa), `servidor_rg_unico`, `servidor_telefone_unico` | `test_unicidade_vira_mensagem_no_campo` |
 | Diária mínima R$ 0,04 | `TabelaDiariaForm.clean_valor_24h` (P08) | idem | `test_valor_minimo_quatro_centavos` |
 
-## Plano de trabalho — comportamentos adotados (a confirmar; não bloqueiam)
+## Plano de trabalho — decisões do AGENTE, pendentes de confirmação do usuário
 
-| Comportamento | Referência | Aqui | Prova |
+Nenhuma destas foi decidida pelo usuário. Reavaliadas em 05/10/2026 contra (1) a referência,
+(2) as decisões já confirmadas (D1–D8 de Ofícios), (3) as ADRs, (4) a integridade documental
+e dos dados e (5) os testes. Ficam como estão até o usuário decidir; nenhuma bloqueia.
+
+| Decisão | Referência | Aqui | Confronto | Recomendação | Prova |
+|---|---|---|---|---|---|
+| Vínculo do plano | liga-se à viagem | liga-se aos ofícios até a viagem (módulo 8) existir | a viagem não existe ainda; os ofícios são o que a viagem agrupava → reversível quando o 8 entrar | manter até o módulo 8; então migrar o vínculo para a viagem | `TestCriacaoDoOficio` |
+| Número digitado à mão | editável; salto não vira lacuna | só automático | integridade: evita buraco não rastreado e colisão; coerente com a OS (também do agente) | manter; confirmar se há caso real de número imposto de fora | `TestNumeracao` |
+| Finalizar e gerar | dois passos; a lista gerava sem finalizar; a prévia já marcava GERADO | uma ação (POST) que confere, fixa a data e libera PDF/DOCX | integridade: impede gerar por GET/link externo e pular a conferência (achado de segurança) | manter (melhoria de segurança) | `test_finalizar_grava_o_que_esta_na_tela`, `test_documento_pdf_docx_e_previa` |
+| Tratamento do coordenador | gênero com padrão masculino | sem padrão; vazio é pendência | integridade do texto oficial (coordenadora saía como "designado") | manter (correção de texto oficial) | `test_tratamento_do_coordenador_e_pendencia` |
+| Excluir depois de gerado | permitido (número vira lacuna) | só antes da 1ª geração | integridade documental: o número já saiu num documento; igual à trava da OS | manter; confirmar | `test_depois_de_gerado_nao_exclui` |
+| Vários eventos | plano = rascunho do evento atual; efetivo e diárias por evento | evento 1 = campos do plano; demais numa janela; efetivo e deslocamento do plano; valor combinado | resolve 3 ambiguidades da referência (efetivo somado × máximo; diárias por evento frágeis; textos com "________") | manter; **confirmar** se há eventos com equipes diferentes no mesmo plano (aí o efetivo por evento voltaria) | `TestVariosEventos` |
+| Só o destino principal nas diárias | sim | mantido | igual à referência | — | `test_copia_das_diarias_ao_centavo` |
+| Ordem das seções | DOCX numa ordem, PDF noutra | a do PDF para os dois | um documento, uma ordem | manter | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
+| Aba "Finalizados" | depende das prestações da viagem | **não implementada** | depende dos módulos 8 e 9 | implementar com a prestação de contas, não antes | — |
+
+## Via assinada (módulo 7a) — o que segue a referência e o que é decisão do AGENTE
+
+Fonte: `documentos/services/persistence.py` (`anexar_arquivo_assinado`,
+`remover_arquivo_assinado`, `_validar_upload_assinado`), `viagens_oficios/views.py` e
+`viagens_ordens/views.py` (`assinatura_artefato`), `viagens_oficios/services.py`
+(`reabrir_oficio`), fichas `docs/paridade/termos-*.md` e `oficios-*.md` da referência.
+
+| Ponto | Referência | Aqui | Origem |
 |---|---|---|---|
-| Vínculo com a viagem | o plano liga-se à viagem | liga-se aos **ofícios** até a viagem (módulo 8) existir; deles vêm destino, datas, efetivo e deslocamento | `TestCriacaoDoOficio` |
-| Número digitado à mão | editável ("N° do Plano") | só automático (como a OS) | `TestNumeracao` |
-| Finalizar e gerar | dois passos (e a lista gerava sem finalizar) | uma ação: "Finalizar e gerar o plano" | `test_finalizar_grava_o_que_esta_na_tela` |
-| Tratamento do coordenador | gênero com padrão masculino | sem padrão; vazio é pendência; o padrão da configuração traz o seu | `test_tratamento_do_coordenador_e_pendencia` |
-| Excluir depois de gerado | permitido (o número vira lacuna) | só antes da primeira geração; depois, cancelar | `test_depois_de_gerado_nao_exclui` |
-| Só o destino principal nas diárias | sim | mantido | `test_copia_das_diarias_ao_centavo` |
-| Ordem das seções do documento | DOCX numa ordem, PDF noutra | a do PDF para os dois | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
-| Vários eventos | o plano é o "rascunho" do evento atual; efetivo e diárias por evento; valor por evento e combinado | evento 1 = campos do plano, demais numa janela; efetivo e deslocamento do plano; só o valor combinado | `TestVariosEventos` |
+| Documentos que recebem via | ofício, justificativa, termo (por servidor, genérico, viatura) e OS | os mesmos | referência |
+| Validação | `.pdf`, até 15 MB, começa com `%PDF-` (mensagens iguais) | igual, também no navegador | referência |
+| Anexar outra | versão nova; a anterior "permanece no histórico" | igual, e a anterior é **revogada** ("Substituída por uma via nova.") | agente (achado de segurança: remover a nova traria a antiga de volta; na referência remover limpa a via em vigor, então o efeito final é o mesmo) |
+| Remover | revoga, o arquivo fica; "O PDF gerado volta a valer." | igual; remover de novo avisa "já tinha sido removida" | referência + agente |
+| Via prevalece no PDF | em todo download | igual; `?versao=original` dá o gerado; DOCX segue gerado | referência |
+| Reabrir o ofício | revoga a via (tem de assinar de novo) | reabrir **e retificar** revogam, com o motivo | referência (retificação é a reabertura do sistema novo) |
+| OS sem PDF gerado | "Anexar assinado" inativo até haver PDF | só depois da primeira geração | referência |
+| Termo sem PDF gerado | idem | o termo é gerado na hora, sempre disponível; anexar vale com o termo ativo | **agente** (não há marca de geração no termo) — confirmar |
+| Plano de trabalho | sem rota de anexar assinado | sem via | referência (não inventar) |
+| "Assinado, mas os dados mudaram" | comparação do instantâneo | impressão SHA-256 dos dados do documento na hora do anexo (termo e OS) | referência (técnica do agente) |
+| Quem abre a via | quem baixa o artefato | ofício: quem vê o ofício; termo/OS: a régua do documento gerado (ativo, quem prepara) | agente (achado de segurança) |
+| Termo com via | — | não se exclui (cancelar) | agente (a via é prova; FK protegida) |
+| Conferência do PDF (assinatura digital, quem assinou, número) | lida e mostrada como aviso | **ainda não** (módulo 7b, pede ADR de leitura de PDF) | pendente |
+| Limite do corpo | — | 413 acima de 16 MB antes do CSRF; Nginx `client_max_body_size 16m` | agente (achado de segurança) |
 
 ## Pendências abertas
 
@@ -98,3 +127,4 @@ implementados e testados; o usuário pode pedir para mudar sem retrabalho grande
 | Uso real do DOCX fora do sistema (D4) | evidência do usuário |
 | Confirmar os comportamentos de Cadastros adotados da referência (tabela acima) | decisão do usuário (não bloqueia) |
 | Confirmar os comportamentos do Plano de trabalho adotados (tabela acima) | decisão do usuário (não bloqueia) |
+| Via assinada do termo sem exigir geração prévia (tabela "Via assinada") | decisão do usuário (não bloqueia) |

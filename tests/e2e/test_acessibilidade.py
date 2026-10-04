@@ -162,3 +162,34 @@ def test_ordem_com_funcoes_sem_violacoes(logado, dados_e2e, largura):
                              oficios=[Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])])
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/ordens/{ordem.pk}/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_via_assinada_sem_violacoes(logado, dados_e2e, largura):
+    """A via assinada nas três telas que a recebem (resumo do ofício, termo e OS), a janela
+    de anexar aberta e a página de anexar sem a janela."""
+    from gestao.identidade.models import Usuario
+    from gestao.plataforma import outbox
+    from gestao.viagens import assinados, ordens, termos
+    from gestao.viagens.models import Oficio
+
+    while outbox.processar_lote():
+        pass
+    operador = Usuario.objects.get(login="operador")
+    oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+    pdf = b"%PDF-1.7\n%%EOF\n"
+    assinados.anexar(operador, assinados.Alvo("oficio", oficio), nome="oficio.pdf", conteudo=pdf)
+    termo = termos.salvar(operador, oficio=oficio)
+    assinados.anexar(operador, assinados.Alvo("termo", termo, termos.GENERICO), nome="t.pdf",
+                     conteudo=pdf)
+    ordem, _ = ordens.salvar(operador, oficios=[oficio])
+    ordens.dados_do_documento(ordem, fixar=True)
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/oficios/?resumo={oficio.pk}")
+    _avaliar(logado, f"/viagens/termos/{termo.pk}/")
+
+    def abrir_janela(pg):
+        pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+        pg.get_by_role("dialog", name="Anexar via assinada").wait_for()
+    _avaliar(logado, f"/viagens/ordens/{ordem.pk}/", antes=abrir_janela)
+    _avaliar(logado, f"/viagens/assinados/ordem/{ordem.pk}/")

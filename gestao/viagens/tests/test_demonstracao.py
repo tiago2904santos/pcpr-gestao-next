@@ -146,3 +146,22 @@ def test_seed_atualiza_as_estatisticas_do_planejador(dataset):
         cur.execute("SELECT reltuples FROM pg_class WHERE relname = 'cadastros_municipio'")
         estimado = cur.fetchone()[0]
     assert estimado >= 0.9 * Municipio.objects.count()
+
+
+def test_vias_assinadas_de_exemplo_depois_dos_pdfs(dataset):
+    """O PREVIEW mostra as três situações da via: ofício, termo e uma OS cujos dados mudaram
+    depois de assinada."""
+    from gestao.plataforma import outbox
+    from gestao.plataforma.auditoria import contexto
+    from gestao.viagens import assinados
+    from gestao.viagens.models import ViaAssinada
+
+    with contexto(usuario_id=None, requisicao_id="teste-demo"):
+        while outbox.processar_lote():
+            pass
+        demonstracao.vias_assinadas_para_avaliar()
+    tipos = set(ViaAssinada.objects.values_list("tipo", flat=True))
+    assert tipos == {"oficio", "termo", "ordem"}
+    ordem = ViaAssinada.objects.get(tipo="ordem")
+    assert assinados.dados_mudaram(ordem)
+    assert not assinados.dados_mudaram(ViaAssinada.objects.get(tipo="termo"))

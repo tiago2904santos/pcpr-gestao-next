@@ -44,6 +44,7 @@ class Command(BaseCommand):
         inicio = time.perf_counter()
         if ambiente.atual() == "preview":  # nos testes a pasta de mídia é compartilhada
             shutil.rmtree(Path(settings.MEDIA_ROOT) / "documentos", ignore_errors=True)
+            shutil.rmtree(Path(settings.MEDIA_ROOT) / "assinados", ignore_errors=True)
         with contexto(usuario_id=None, requisicao_id="semear_demo"):
             demonstracao.semear(escala=escala)
         tempo_dados = time.perf_counter() - inicio
@@ -53,6 +54,7 @@ class Command(BaseCommand):
             self._gerar_documentos(processos)
             with contexto(usuario_id=None, requisicao_id="semear_demo"):
                 demonstracao.acertar_datas_dos_documentos()
+                demonstracao.vias_assinadas_para_avaliar()
             tempo_pdf = time.perf_counter() - inicio_pdf
         self._relatorio(demonstracao.resumo(), tempo_dados, tempo_pdf)
 

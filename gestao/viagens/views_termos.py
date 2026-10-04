@@ -10,9 +10,10 @@ from urllib.parse import urlsplit
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import CharField, DateField, Min, OuterRef, Q, Subquery
+from django.db.models import CharField, Count, DateField, Min, OuterRef, Q, Subquery
 from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -21,7 +22,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
-from . import linha_do_tempo, policies, termos
+from . import assinados, linha_do_tempo, policies, termos, views_assinados
 from .forms import FormularioTermo
 from .models import Oficio, TermoAutorizacao, Trecho
 from .views import POR_PAGINA, _migalhas
@@ -90,7 +91,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     if aba not in {chave for chave, _, _ in ABAS}:
         aba = ""
     busca = (request.GET.get("q") or "").strip()
-    qs = termos.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-criado_em"))
+    qs = termos.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-criado_em")).annotate(
+        # Vias assinadas: as em vigor (selo "N de M assinados") e se há alguma guardada
+        # (com via, o termo não se exclui) — numa consulta só para a página.
+        vias_vigentes=Count("vias_assinadas", filter=Q(vias_assinadas__revogada_em__isnull=True),
+                            distinct=True),
+        vias_total=Count("vias_assinadas", distinct=True))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     linhas = []
     for t in pagina.object_list:
@@ -153,6 +159,14 @@ def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int =
     # Qual documento o visualizador mostra: ?previa=<chave>, senão o primeiro da lista.
     pedida = request.GET.get("previa", "")
     previa = next((d for d in docs if d["chave"] == pedida), docs[0] if docs else None)
+    if termo is not None and policies.pode_ver_documento_termo(request.user, termo):
+        vias = assinados.vigentes_do(termo)
+        for d in docs:  # a via assinada de cada documento (selo e menu na lista)
+            d["via"] = views_assinados.cartao(
+                request, assinados.Alvo("termo", termo, d["chave"]),
+                vias.get(("termo", d["chave"])), titulo=d["titulo"],
+                original_url=reverse("viagens:documento_termo", args=[termo.pk, d["chave"],
+                                                                        "pdf"]))
     return render(request, "viagens/termos/editar.html", {
         "form": form, "termo": termo, "oficio": oficio, "ef": ef, "voltar": voltar,
         "heranca": termos.heranca_do_oficio(oficio),
@@ -260,7 +274,7 @@ def folha(request: HttpRequest, pk: int, chave: str) -> HttpResponse:
 
 @require_GET
 @moldura_do_pdf
-def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpResponse:
+def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpResponseBase:
     """Um documento do termo, gerado na hora: PDF (abre no navegador) ou DOCX (baixa)."""
     termo = _termo_visivel(request, pk)
     policies.exigir(policies.pode_editar_termo(request.user, termo),

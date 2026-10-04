@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Via assinada — {{ titulo }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Anexar a via assinada sem a janela (sem JS, link aberto direto, ou um erro que só o servidor
+vê — ex.: arquivo que não começa com %PDF-). O mesmo formulário da janela
+(componentes/dialogo_assinado.html) e a mesma regra no servidor; `voltar` guarda a página de
+onde se veio.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</h1>
+    <p class="frase-oficio">
+      <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{{ titulo }}</span>
+      {% include "viagens/assinados/_selo.html" %}
+    </p>
+  </div>
+</header>
+
+<form method="post" enctype="multipart/form-data" novalidate class="documento documento--cartoes">
+  {% csrf_token %}
+  <input type="hidden" name="voltar" value="{{ voltar_url }}">
+  <section class="secao" aria-labelledby="t-assinado">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-assinado"><span class="secao__numero">1</span>PDF assinado</h2>
+      <p class="secao__nota">O documento escaneado ou com assinatura digital, em PDF, até 15 MB. A via fica guardada com o documento; gerar o PDF continua gerando o documento atualizado.{% if s.via %} A via atual fica no histórico.{% endif %}</p>
+    </div>
+    <div class="campo{% if erro %} campo--erro{% endif %}">
+      <label class="campo__rotulo" for="arquivo-assinado">PDF assinado<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+      <input class="entrada entrada--arquivo" type="file" id="arquivo-assinado" name="arquivo" accept="application/pdf,.pdf" required{% if erro %} aria-invalid="true" aria-describedby="arquivo-assinado-erro"{% endif %}>
+      {% if erro %}<p class="campo__erro" id="arquivo-assinado-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+    </div>
+    <p class="texto-sm">
+      {% if original_url %}<a href="{{ original_url }}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}Conferir o PDF gerado</a>{% endif %}
+      {% if s.via %} · <a href="{% url 'viagens:abrir_via_assinada' s.via.pk %}" target="_blank" rel="noopener">{% icone "file-signature" classe="icone--sm" %}Abrir a via atual</a>{% endif %}
+    </p>
+  </section>
+  <div class="barra-acoes">
+    <a class="botao botao--texto" href="{{ voltar_url }}">{% icone "arrow-left" %}Voltar</a>
+    <button type="submit" class="botao botao--primario">{% icone "file-signature" %}{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

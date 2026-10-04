@@ -156,6 +156,8 @@ continua sendo a edição; aqui só se lê e se decide.
           {% endfor %}
         </ul>
       {% else %}<p class="vazio-inline">{% if prontidao %}Nenhum ainda — aparecem na emissão.{% else %}Nenhum documento.{% endif %}</p>{% endif %}
+      {% if vias %}<ul class="registros" aria-label="Vias assinadas">{% for c in vias %}{% include "viagens/assinados/_registro.html" with c=c vazio="Só o ofício emitido recebe a via assinada." menu_acima=True %}{% endfor %}</ul>
+        {% for c in vias %}{% if c.s.via and c.pode %}{% include "viagens/assinados/_form_remover.html" with s=c.s titulo=c.titulo voltar=c.voltar %}{% endif %}{% endfor %}{% endif %}
     </section>
   </div>
 </div>
@@ -220,7 +222,7 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
     retificado e ganha uma versão nova — é a retificação do mundo real.
     {% endcomment %}
     <form method="post" action="{% url 'viagens:retificar' oficio.pk %}"
-          data-confirmar="O Ofício {{ oficio.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico."
+          data-confirmar="O Ofício {{ oficio.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."
           data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
       {% csrf_token %}
       <button type="submit" class="botao botao--primario">{% icone "pencil" %}Editar ofício</button>

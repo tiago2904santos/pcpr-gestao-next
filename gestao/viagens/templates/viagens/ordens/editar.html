@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}{% if ordem %}{{ ordem }}{% else %}Nova ordem de serviço{% endif %} · Ordens{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% if ordem %}<link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endif %}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% if ordem %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endif %}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Folha da OS, na linguagem da folha do ofício: cabeçalho com placa, frase e ações; cartões
@@ -30,6 +30,7 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
       {% elif ordem.documento_gerado_em %}<span class="selo selo--sucesso">Gerada em {{ ordem.documento_gerado_em|date:"d/m" }}</span>
       {% elif faltando %}<span class="selo selo--aviso">{{ faltando|length|pluralizar:"pendência,pendências" }}</span>
       {% else %}<span class="selo selo--info">Pronta para gerar</span>{% endif %}
+      {% if via.s.via and pode_ver_documento %}{% include "viagens/assinados/_selo.html" with s=via.s %}{% endif %}
       {% if ordem.tipo != "padrao" %}<span class="frase-oficio__item">{% icone "layers" classe="icone--sm" %}{{ ordem.get_tipo_display }}</span>{% endif %}
       {% with n=ordem.servidores.all|length %}<span class="frase-oficio__item{% if not n %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>{% endwith %}
       <span class="frase-oficio__item{% if not ordem.destinos.all %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{% for d in ordem.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}sem destino{% endfor %}</span>
@@ -178,6 +179,25 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
     </div>
     {% endif %}
 
+    {% if via.s.mudou and pode_ver_documento %}
+    <div class="alerta alerta--aviso" role="status" id="via-desatualizada" data-vivo>
+      {% icone "alert-triangle" %}
+      <div class="alerta__corpo">
+        <p class="alerta__titulo">A via assinada é anterior à última alteração</p>
+        <p>Gere a OS atualizada, colha a assinatura de novo e troque a via.</p>
+      </div>
+      <a class="botao alerta__acao" href="#via-assinada">{% icone "file-signature" %}Ver a via</a>
+    </div>
+    {% endif %}
+    {% if via and pode_ver_documento %}
+    <div class="secao__bloco" id="via-assinada" aria-labelledby="t-via" data-vivo data-atualizar-ao-voltar>
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-via">{% icone "file-signature" classe="icone--sm" %}Via assinada</h3>
+      </div>
+      <ul class="registros">{% include "viagens/assinados/_registro.html" with c=via vazio="Gere a OS (PDF) para depois anexar a via assinada." %}</ul>
+    </div>
+    {% endif %}
+
     <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-text" classe="icone--sm" %}Como vai sair</h3>
@@ -236,4 +256,5 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
 </form>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% if ordem and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
+{% if via and editavel %}{% include "componentes/dialogo_assinado.html" %}{% if via.s.via %}{% include "viagens/assinados/_form_remover.html" with s=via.s titulo=via.titulo voltar=request.get_full_path %}{% endif %}{% endif %}
 {% endblock %}

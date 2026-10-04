@@ -31,6 +31,7 @@ const sobDemanda = [
   ["pc-multiescolha", () => import("./componentes/multiescolha.js")],
   ["pc-linhas", () => import("./componentes/linhas.js")],
   ["[data-esvaziar]", () => import("./componentes/esvaziar.js")],
+  ["#dialogo-assinado", () => import("./componentes/assinado.js")],
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
 ];

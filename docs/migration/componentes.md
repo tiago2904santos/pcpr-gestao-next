@@ -59,6 +59,18 @@ resposta `{"salvo", "em", "campos", "recarregar", "mensagem"}`; `mensagem` acend
 `.barra-acoes__status--erro` (visível no celular). Usos: ofício, roteiro, termo, OS. Usos: ofício e justificativa (editáveis), termo e OS (leitura). A
 moldura reserva a altura da folha antes de carregar (sem CLS).
 
+### Via assinada (módulo 7a)
+
+Janela única por página `componentes/dialogo_assinado.html` + `assinado.js` (como a de
+"pedir motivo"): um link `data-anexar-assinado="<url>" data-assinado-titulo="…"
+[data-assinado-troca]` abre; extensão e tamanho conferidos antes de enviar; sem JS o link
+leva à página `viagens/assinados/anexar.html`. Peças: `viagens/assinados/_registro.html`
+(a via como `.registro`), `_itens_menu.html` (itens para um `pc-menu`), `_selo.html`
+("Assinado" / "Assinado, mas os dados mudaram") e `_form_remover.html` (fora da folha, que
+é um `<form>` só; o item usa `form="remover-via-<pk>"`). Contexto pronto em
+`views_assinados.cartao`. Usos: resumo do ofício, folha do termo (lista de documentos),
+folha da OS. Vitrine no UI Lab, seção 8.
+
 ## A promover / extrair (com o primeiro módulo que precisar)
 
 | Candidato | Hoje | Por que promover | Quando |

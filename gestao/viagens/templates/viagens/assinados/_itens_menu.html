@@ -1,0 +1,18 @@
+{% comment %}
+Itens de menu da via assinada de um documento, dentro de um pc-menu já aberto pela tela:
+`s` (assinados.situacao), `anexar_url`, `titulo` (o documento, para a janela e os rótulos),
+`pode` (anexar/remover), `original_url` (o PDF gerado, opcional), `voltar` (para onde a
+janela volta). A página inclui
+_form_remover.html fora de qualquer outro formulário.
+{% endcomment %}
+{% if s.via %}
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:abrir_via_assinada' s.via.pk %}" target="_blank" rel="noopener">{% icone "file-signature" %}Abrir via assinada</a>
+  {% if original_url %}<a class="menu__item" role="menuitem" href="{{ original_url }}{% if '?' in original_url %}&{% else %}?{% endif %}versao=original" target="_blank" rel="noopener">{% icone "file-text" %}Abrir o PDF gerado (sem assinatura)</a>{% endif %}
+  {% if pode %}
+    <a class="menu__item" role="menuitem" href="{{ anexar_url }}" data-anexar-assinado="{{ anexar_url }}" data-assinado-titulo="{{ titulo }}" data-assinado-voltar="{{ voltar }}" data-assinado-troca>{% icone "file-input" %}Trocar via assinada</a>
+    {# O <form> fica fora da folha (viagens/assinados/_form_remover.html). #}
+    <button type="submit" form="remover-via-{{ s.via.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "file-x-2" %}Remover via assinada</button>
+  {% endif %}
+{% elif pode %}
+  <a class="menu__item" role="menuitem" href="{{ anexar_url }}" data-anexar-assinado="{{ anexar_url }}" data-assinado-titulo="{{ titulo }}" data-assinado-voltar="{{ voltar }}">{% icone "file-signature" %}Anexar via assinada</a>
+{% endif %}

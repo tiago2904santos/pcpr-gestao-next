@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import timedelta
 
 import pytest
@@ -216,9 +217,13 @@ class TestOficioUsaRoteiro:
         html = operador.get(reverse("viagens:editar", args=[cenario.ids["oficio_vazio"]]))
         html = html.content.decode()
         assert 'name="roteiro_modelo"' in html
-        assert f'<option value="{cenario.ids["roteiro"]}"' in html
-        assert f'<option value="{cenario.ids["roteiro_cancelado"]}"' not in html
-        assert f'<option value="{cenario.ids["roteiro_outra_unidade"]}"' not in html
+        # Só o <select> dos roteiros: outros seletores da folha (viatura…) têm ids próprios.
+        seletor = re.search(r'<select[^>]*name="roteiro_modelo".*?</select>', html, re.S)
+        assert seletor is not None
+        opcoes = seletor.group(0)
+        assert f'<option value="{cenario.ids["roteiro"]}"' in opcoes
+        assert f'<option value="{cenario.ids["roteiro_cancelado"]}"' not in opcoes
+        assert f'<option value="{cenario.ids["roteiro_outra_unidade"]}"' not in opcoes
 
     def test_usar_roteiro_preenche_sem_gravar_e_preserva_o_digitado(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])

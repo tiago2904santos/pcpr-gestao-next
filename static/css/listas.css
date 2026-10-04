@@ -210,6 +210,13 @@ a.ficha:hover {
   border-bottom: 0;
 }
 
+/* Menu aberto numa linha: a linha sobe sobre as vizinhas. Sem isso as ações da linha de
+   baixo (que criam contexto de empilhamento ao aparecer) cobriam o painel e o clique num
+   item caía no botão da outra linha. */
+.registro:has(.menu__painel:not([hidden])) {
+  z-index: var(--z-painel-campo);
+}
+
 /* Hover: superfície sutil + trilho dourado à esquerda (a mesma gramática das tabelas). */
 .registro:hover,
 .registro:focus-within {

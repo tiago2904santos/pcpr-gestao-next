@@ -57,6 +57,23 @@ OBSERVADORES = """() => {
 }"""
 
 
+# Tempo de servidor e de banco são tempo de relógio: com a suíte em paralelo (4 navegadores e
+# um Postgres na mesma máquina) uma amostra só estoura por disputa de CPU. Mede-se 3 vezes e
+# vale a mediana; o número de consultas (determinístico — o sinal de regressão de verdade)
+# vale em TODAS as amostras.
+AMOSTRAS = 3
+
+
+def _amostra_do_servidor(pg, url: str) -> tuple[float, float, int]:
+    resposta = pg.goto(url, wait_until="domcontentloaded")
+    timing = (resposta.headers.get("server-timing", "") if resposta else "") or ""
+    ttfb = pg.evaluate("() => { const n = performance.getEntriesByType('navigation')[0];"
+                       " return n.responseStart - n.requestStart; }")
+    db = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
+    sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
+    return ttfb, db, sql
+
+
 @pytest.mark.parametrize("rota", ROTAS)
 def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     pg = logado
@@ -113,9 +130,16 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
         "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
         "itinerario_requisicoes": len(itinerario),
     }
+    amostras = [(medido["ttfb_ms"], db_ms, sql)]
+    amostras += [_amostra_do_servidor(pg, url) for _ in range(AMOSTRAS - 1)]
+    medido["ttfb_ms"] = round(sorted(a[0] for a in amostras)[len(amostras) // 2])
+    medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
+    medido["sql"] = max(a[2] for a in amostras)
+    medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
     salvar_relatorio(f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json", medido)
     orcamento = dict(ORCAMENTO)
     if FOLHAS_DE_EDICAO.search(url):
         orcamento["requisicoes"] = REQUISICOES_FOLHA
-    estourados = {k: (v, orcamento[k]) for k, v in medido.items() if v > orcamento[k]}
+    estourados = {k: (v, orcamento[k]) for k, v in medido.items()
+                  if k in orcamento and v > orcamento[k]}
     assert not estourados, f"{url}: orçamento estourado {estourados}"

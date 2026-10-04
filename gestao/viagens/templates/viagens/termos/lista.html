@@ -53,6 +53,7 @@ chega com a prestação de contas.
             {% elif ef.fim >= hoje %}<span class="selo selo--info selo--sem-ponto">Em andamento</span>
             {% else %}<span class="selo selo--sucesso selo--sem-ponto">Realizado</span>{% endif %}
             {% if not t.oficio %}<span class="selo selo--neutro selo--sem-ponto">Avulso</span>{% endif %}
+            {% if t.vias_vigentes %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}{% if t.vias_vigentes >= l.docs|length %}Assinado{% else %}{{ t.vias_vigentes }} de {{ l.docs|length }} assinados{% endif %}</span>{% endif %}
           </div>
           <div class="registro__meta">
             {% if t.oficio %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Ofício {{ t.oficio.numero_formatado }}</span>{% endif %}
@@ -70,6 +71,7 @@ chega com a prestação de contas.
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>
                 {% if ef.viatura %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'viatura' 'pdf' %}" target="_blank" rel="noopener">{% icone "car" %}Termo da viatura (PDF)</a>{% endif %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "pencil" %}Abrir (documentos de cada servidor)</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}#lista-documentos">{% icone "file-signature" %}Anexar ou abrir termo assinado</a>
               {% else %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "eye" %}Abrir</a>
               {% endif %}

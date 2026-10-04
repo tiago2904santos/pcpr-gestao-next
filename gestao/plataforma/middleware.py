@@ -79,3 +79,23 @@ class MedicaoServidorMiddleware:
             log.warning("Orçamento SQL excedido em %s: %s consultas (limite %s)",
                         request.path, consultas, orcamento)
         return response
+
+
+class LimiteDoCorpoMiddleware:
+    """Recusa (413) a requisição cujo corpo declarado passa do limite, antes que o CSRF leia
+    o multipart e o Django grave o upload em disco. O maior envio legítimo é a via assinada
+    (até 15 MB) mais o formulário; o Nginx aplica o mesmo teto (`client_max_body_size`)."""
+
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
+        self.get_response = get_response
+        self.limite = int(getattr(settings, "LIMITE_DO_CORPO_BYTES", 16 * 1024 * 1024))
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        try:
+            tamanho = int(request.META.get("CONTENT_LENGTH") or 0)
+        except ValueError:
+            tamanho = 0
+        if tamanho > self.limite:
+            return HttpResponse("Arquivo grande demais: envie até 15 MB.", status=413,
+                                content_type="text/plain; charset=utf-8")
+        return self.get_response(request)

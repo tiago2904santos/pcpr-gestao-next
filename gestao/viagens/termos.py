@@ -284,6 +284,9 @@ def excluir(usuario, pk: int) -> str:
     termo = TermoAutorizacao.objects.select_for_update().get(pk=pk)
     policies.exigir(policies.pode_excluir_termo(usuario, termo),
                     "Você não pode excluir este termo.")
+    if termo.vias_assinadas.exists():
+        raise TermoInvalido("Este termo tem via assinada guardada: cancele-o em vez de "
+                            "excluir.")
     nome = str(termo)
     termo.delete()
     return nome

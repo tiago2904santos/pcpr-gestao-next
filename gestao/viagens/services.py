@@ -844,6 +844,9 @@ def reabrir(oficio: Oficio, usuario, motivo: str) -> Oficio:
     atual.save(update_fields=["situacao", "emitido_em", "versao", "atualizado_em"])
     _registrar(atual, Historico.Acao.REABERTO, f"Reaberto para correção: {motivo.strip()}",
                usuario)
+    # Referência: o ofício corrigido tem de ser assinado de novo (a via fica no histórico).
+    from . import assinados
+    assinados.revogar_do_oficio(usuario, atual, f"Reaberto para correção: {motivo.strip()}")
     return atual
 
 
@@ -863,6 +866,8 @@ def retificar(oficio: Oficio, usuario) -> Oficio:
     atual.save(update_fields=["situacao", "emitido_em", "marcador", "versao", "atualizado_em"])
     _registrar(atual, Historico.Acao.REABERTO,
                "Aberto para retificação: o ofício volta a rascunho como retificado.", usuario)
+    from . import assinados
+    assinados.revogar_do_oficio(usuario, atual, "Aberto para retificação")
     return atual
 
 

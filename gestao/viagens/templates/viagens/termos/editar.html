@@ -162,16 +162,23 @@ se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação.
           <li class="registro{% if d.chave == previa.chave and pode_ver_documento %} registro--atual{% endif %}">
             <span class="registro__icone" aria-hidden="true">{% if d.chave == "viatura" %}{% icone "car" %}{% elif d.chave == "generico" %}{% icone "file-text" %}{% else %}{% icone "user-round" %}{% endif %}</span>
             <div class="registro__corpo">
-              <div class="registro__titulo">{% if pode_ver_documento %}<a class="registro__link" href="?previa={{ d.chave }}#previa"{% if d.chave == previa.chave %} aria-current="true"{% endif %}>{{ d.titulo }}<span class="sr-only"> — mostrar em “Como vai sair”</span></a>{% else %}<span class="registro__link registro__link--estatico">{{ d.titulo }}</span>{% endif %}</div>
+              <div class="registro__titulo">{% if pode_ver_documento %}<a class="registro__link" href="?previa={{ d.chave }}#previa"{% if d.chave == previa.chave %} aria-current="true"{% endif %}>{{ d.titulo }}<span class="sr-only"> — mostrar em “Como vai sair”</span></a>{% else %}<span class="registro__link registro__link--estatico">{{ d.titulo }}</span>{% endif %}{% if d.via %} {% include "viagens/assinados/_selo.html" with s=d.via.s %}{% endif %}</div>
               <p class="registro__texto">{{ d.descricao }}</p>
+              {% if d.via.s.via %}<div class="registro__meta">
+                <span class="registro__meta-item">{% icone "file-signature" classe="icone--sm" %}Via anexada por {{ d.via.s.via.enviado_por.nome }}</span>
+                <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ d.via.s.via.enviado_em|date:"d/m/Y H:i" }}</span>
+              </div>{% endif %}
             </div>
             {% if editavel %}
             <div class="registro__acoes registro__acoes--fixas">
               <a class="botao botao--sm" href="{% url 'viagens:documento_termo' termo.pk d.chave 'pdf' %}" target="_blank" rel="noopener" aria-label="Gerar {{ d.titulo }} (PDF, nova aba)">{% icone "file-check-2" %}PDF</a>
+              {% if d.via.s.via %}<a class="botao botao--sm" href="{% url 'viagens:abrir_via_assinada' d.via.s.via.pk %}" target="_blank" rel="noopener" aria-label="Abrir a via assinada de {{ d.titulo }} (PDF, nova aba)">{% icone "file-signature" %}Assinado</a>
+              {% elif d.via.pode %}<a class="botao botao--sm" href="{{ d.via.anexar_url }}" data-anexar-assinado="{{ d.via.anexar_url }}" data-assinado-titulo="{{ d.via.titulo }}" data-assinado-voltar="{{ d.via.voltar }}" aria-label="Anexar via assinada de {{ d.titulo }}">{% icone "file-signature" %}Anexar via</a>{% endif %}
               <pc-menu class="menu">
-                <button type="button" class="botao botao--sm botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Mais formatos: {{ d.titulo }}">{% icone "ellipsis-vertical" %}</button>
+                <button type="button" class="botao botao--sm botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Mais ações: {{ d.titulo }}">{% icone "ellipsis-vertical" %}</button>
                 <div class="menu__painel" role="menu" hidden>
                   <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' termo.pk d.chave 'docx' %}">{% icone "download" %}Baixar em DOCX</a>
+                  {% if d.via %}{% include "viagens/assinados/_itens_menu.html" with s=d.via.s anexar_url=d.via.anexar_url titulo=d.via.titulo pode=d.via.pode original_url=d.via.original_url %}{% endif %}
                 </div>
               </pc-menu>
             </div>
@@ -238,4 +245,7 @@ se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação.
   {% endif %}
 </form>
 {% if termo and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
+{% if termo and editavel and pode_ver_documento %}{% include "componentes/dialogo_assinado.html" %}
+  {% for d in docs %}{% if d.via.s.via and d.via.pode %}{% include "viagens/assinados/_form_remover.html" with s=d.via.s titulo=d.via.titulo voltar=request.get_full_path %}{% endif %}{% endfor %}
+{% endif %}
 {% endblock %}

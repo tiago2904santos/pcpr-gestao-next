@@ -22,6 +22,7 @@ from .models import (
     PlanoTrabalho,
     TermoAutorizacao,
     TermoDestino,
+    ViaAssinada,
 )
 
 # Salvamentos seguidos da mesma pessoa (o autosave grava a cada pausa) viram uma linha só.
@@ -115,6 +116,21 @@ def _m2m(modelo, campo: str) -> tuple[str, str]:
 MARCOS = ("situacao", "documento_gerado_em", "cancelado")
 
 
+def _com_vias(eventos: list[Evento], vias, rotulo) -> list[Evento]:
+    """Acrescenta as vias assinadas (anexada; removida ou substituída, com o motivo), lidas
+    da própria via — que guarda quem e quando —, na ordem do histórico (mais novo antes)."""
+    extras = []
+    for v in vias:
+        nome = rotulo(v)
+        extras.append(Evento(v.enviado_em, "documento", v.enviado_por,
+                             f"Via assinada {nome} anexada ({v.nome_original})"))
+        if v.revogada_em is not None:
+            motivo = f" — {v.motivo_revogacao}" if v.motivo_revogacao else ""
+            extras.append(Evento(v.revogada_em, "alterado", v.revogada_por,
+                                 f"Via assinada {nome} removida{motivo}"))
+    return sorted(eventos + extras, key=lambda e: e.em, reverse=True)
+
+
 def da_ordem(ordem: OrdemServico) -> list[Evento]:
     oficios, servidores = _m2m(OrdemServico, "oficios"), _m2m(OrdemServico, "servidores")
     destinos = (OrdemServicoDestino._meta.db_table, "ordem_id")
@@ -124,8 +140,10 @@ def da_ordem(ordem: OrdemServico) -> list[Evento]:
               "assinante_id": "quem assina", "data_documento": "data do documento"}
     passos = passos_do_registro(OrdemServico._meta.db_table, ordem.pk,
                                 dict([oficios, destinos, servidores]), marcos=MARCOS)
-    return _eventos(passos, criado="Ordem de serviço criada", cancelado="Cancelada",
-                    reativado="Reativada", campos=campos, filhas=filhas)
+    eventos = _eventos(passos, criado="Ordem de serviço criada", cancelado="Cancelada",
+                       reativado="Reativada", campos=campos, filhas=filhas)
+    vias = ViaAssinada.objects.filter(ordem=ordem).select_related("enviado_por", "revogada_por")
+    return _com_vias(eventos, vias, lambda v: "da OS")
 
 
 def do_termo(termo: TermoAutorizacao) -> list[Evento]:
@@ -136,8 +154,15 @@ def do_termo(termo: TermoAutorizacao) -> list[Evento]:
               "data_fim": "período", "viatura_id": "viatura"}
     passos = passos_do_registro(TermoAutorizacao._meta.db_table, termo.pk,
                                 dict([destinos, servidores]), marcos=MARCOS)
-    return _eventos(passos, criado="Termo criado", cancelado="Cancelado",
-                    reativado="Reativado", campos=campos, filhas=filhas)
+    eventos = _eventos(passos, criado="Termo criado", cancelado="Cancelado",
+                       reativado="Reativado", campos=campos, filhas=filhas)
+    vias = ViaAssinada.objects.filter(termo=termo).select_related("enviado_por", "revogada_por")
+    from gestao.cadastros.models import Servidor
+    nomes = {"generico": "do termo genérico", "viatura": "do termo da viatura"}
+    ids = {int(v.chave) for v in vias if v.chave.isdecimal()}
+    nomes |= {str(pk): f"do termo de {nome}"
+              for pk, nome in Servidor.objects.filter(pk__in=ids).values_list("pk", "nome")}
+    return _com_vias(eventos, vias, lambda v: nomes.get(v.chave, "do termo"))
 
 
 def do_plano(plano: PlanoTrabalho) -> list[Evento]:

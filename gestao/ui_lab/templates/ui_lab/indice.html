@@ -427,6 +427,12 @@
           </div>
         </pc-menu>
         <button class="botao" type="button" data-abrir-comandos>{% icone "command" %}Paleta de comandos <kbd>Ctrl K</kbd></button>
+        <a class="botao" href="#sobreposicoes" data-anexar-assinado="#sobreposicoes" data-assinado-titulo="Ordem de Serviço 07/2026">{% icone "file-signature" %}Anexar via assinada</a>
+        <a class="botao" href="#sobreposicoes" data-anexar-assinado="#sobreposicoes" data-assinado-titulo="Ordem de Serviço 07/2026" data-assinado-troca>{% icone "file-input" %}Trocar via assinada</a>
+      </div>
+      <div class="cartao__corpo linha" aria-label="Selos da via assinada">
+        <span class="selo selo--sucesso">{% icone "file-signature" classe="icone--sm" %}Assinado</span>
+        <span class="selo selo--aviso">{% icone "alert-triangle" classe="icone--sm" %}Assinado, mas os dados mudaram</span>
       </div>
     </section>
 
@@ -584,6 +590,7 @@
   </div>
   <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Limpar</button><button class="botao botao--primario" type="button" data-fechar-dialogo>Aplicar</button></div>
 </dialog>
+{% include "componentes/dialogo_assinado.html" %}
 <script type="module" nonce="{{ csp_nonce }}">
   document.querySelectorAll("[data-lab-toast]").forEach((b) => b.addEventListener("click", () => {
     const nivel = b.getAttribute("data-lab-toast");

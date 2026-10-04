@@ -65,7 +65,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "viagens_historico", "viagens_documento", "viagens_edicaodocumento", "viagens_trecho",
+    "viagens_viaassinada", "viagens_historico", "viagens_documento",
+    "viagens_edicaodocumento", "viagens_trecho",
     "viagens_viajante",
     "viagens_oficio", "viagens_trechoroteiro", "viagens_roteiro", "viagens_numeracaoanual",
     "viagens_lacunanumeracao",
@@ -941,6 +942,44 @@ def acertar_datas_dos_documentos() -> None:
                   .order_by("pk").first())
         if evento:
             Historico.objects.filter(pk=evento.pk).update(em=gerado)
+
+
+def vias_assinadas_para_avaliar() -> None:
+    """Vias assinadas (módulo 7), depois dos PDFs gerados: a do ofício emitido mais recente
+    da ASCOM, a do termo genérico desse ofício e a de uma OS cujos dados mudaram depois
+    (selo "Assinado, mas os dados mudaram"). O "assinado" é o próprio PDF gerado — no DEMO
+    não há assinatura de verdade."""
+    from . import assinados, ordens, termos
+    from .models import TermoAutorizacao
+
+    autor = (Usuario.objects.filter(lotacao__unidade__sigla="ASCOM",
+                                    groups__name="OPERADOR_VIAGENS").order_by("pk").first())
+    oficio = (Oficio.objects.filter(unidade__sigla="ASCOM", situacao=Oficio.Situacao.EMITIDO,
+                                    arquivado_em__isnull=True,
+                                    documentos__situacao=Documento.Situacao.PRONTO)
+              .order_by("-ano", "-numero").first())
+    if autor is None or oficio is None:
+        return
+    doc = assinados.documento_emitido(oficio, Documento.Tipo.OFICIO)
+    if doc is not None:
+        with doc.arquivo.open("rb") as f:
+            assinados.anexar(autor, assinados.Alvo("oficio", oficio),
+                             nome=f"oficio-{oficio.numero}-assinado-DEMO.pdf", conteudo=f.read())
+    termo = TermoAutorizacao.objects.filter(oficio=oficio, situacao="ativo").first()
+    if termo is not None:
+        dados = termos.dados_do_documento(termo, termos.GENERICO)
+        assinados.anexar(autor, assinados.Alvo("termo", termo, termos.GENERICO),
+                         nome="termo-generico-assinado-DEMO.pdf",
+                         conteudo=termos.pdf_do_documento(dados))
+    ordem = (OrdemServico.objects.filter(unidade__sigla="ASCOM", situacao="ativa")
+             .order_by("-ano", "-numero").first())
+    if ordem is not None:
+        conteudo = ordens.pdf_do_documento(ordens.dados_do_documento(ordem, fixar=True))
+        ordem.refresh_from_db()
+        assinados.anexar(autor, assinados.Alvo("ordem", ordem), nome="os-assinada-DEMO.pdf",
+                         conteudo=conteudo)
+        OrdemServico.objects.filter(pk=ordem.pk).update(
+            motivo=f"{ordem.motivo} (ajustado depois da assinatura)")
 
 
 def resumo(total_oficios: int | None = None) -> Resultado:

@@ -236,8 +236,13 @@ def pode_cancelar_termo(usuario, termo: TermoAutorizacao) -> bool:
 
 
 def pode_excluir_termo(usuario, termo: TermoAutorizacao) -> bool:
-    return usuario.has_perm("viagens.delete_termoautorizacao") and pode_ver_termo(usuario,
-                                                                                  termo)
+    """Com via assinada guardada (mesmo removida) o termo é prova: cancela-se, não se exclui.
+    A lista anota `vias_total` (uma consulta para a página); senão, consulta."""
+    if not (usuario.has_perm("viagens.delete_termoautorizacao")
+            and pode_ver_termo(usuario, termo)):
+        return False
+    vias = getattr(termo, "vias_total", None)
+    return not (termo.vias_assinadas.exists() if vias is None else vias)
 
 
 # ---------------------------------------------------------------- ordens de serviço

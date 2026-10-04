@@ -476,6 +476,80 @@ class Documento(models.Model):
         return f"{base}-v{self.versao}.pdf".lower().replace("í", "i")
 
 
+class ViaAssinada(models.Model):
+    """A via assinada de um documento gerado (o PDF que voltou assinado). Nunca é alterada:
+    anexar outra cria uma versão nova; remover revoga (o arquivo fica como prova). Regra em
+    `assinados.py`."""
+
+    class Tipo(models.TextChoices):
+        OFICIO = "oficio", "Ofício"
+        JUSTIFICATIVA = "justificativa", "Justificativa"
+        TERMO = "termo", "Termo de autorização"
+        ORDEM = "ordem", "Ordem de serviço"
+
+    tipo = models.CharField(max_length=15, choices=Tipo.choices)
+    oficio = models.ForeignKey(Oficio, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="vias_assinadas")
+    termo = models.ForeignKey("TermoAutorizacao", on_delete=models.PROTECT, null=True,
+                              blank=True, related_name="vias_assinadas")
+    ordem = models.ForeignKey("OrdemServico", on_delete=models.PROTECT, null=True, blank=True,
+                              related_name="vias_assinadas")
+    # Qual documento do termo: o id do servidor, "generico" ou "viatura" (vazio nos demais).
+    chave = models.CharField(max_length=20, blank=True)
+    # A versão PDF/A do ofício que foi assinada (ofício e justificativa).
+    documento = models.ForeignKey(Documento, on_delete=models.PROTECT, null=True, blank=True,
+                                  related_name="vias_assinadas")
+    arquivo = models.FileField(upload_to="assinados/%Y/")
+    nome_original = models.CharField(max_length=255, blank=True)
+    sha256 = models.CharField(max_length=64)
+    tamanho = models.PositiveIntegerField()
+    # SHA-256 dos dados do documento quando a via foi anexada (termo e OS, gerados na hora):
+    # se mudarem, a tela avisa "Assinado, mas os dados mudaram".
+    impressao_dos_dados = models.CharField(max_length=64, blank=True)
+    conferencia = models.JSONField("o que se leu do PDF", default=dict, blank=True)
+    enviado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name="+")
+    enviado_em = models.DateTimeField(auto_now_add=True)
+    revogada_em = models.DateTimeField(null=True, blank=True)
+    revogada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                     null=True, blank=True, related_name="+")
+    motivo_revogacao = models.CharField(max_length=300, blank=True)
+
+    class Meta:
+        ordering = ["-enviado_em"]
+        verbose_name = "via assinada"
+        verbose_name_plural = "vias assinadas"
+        constraints = [
+            models.CheckConstraint(
+                condition=(Q(tipo__in=["oficio", "justificativa"], oficio__isnull=False,
+                             termo__isnull=True, ordem__isnull=True)
+                           | Q(tipo="termo", termo__isnull=False, oficio__isnull=True,
+                               ordem__isnull=True)
+                           | Q(tipo="ordem", ordem__isnull=False, oficio__isnull=True,
+                               termo__isnull=True)),
+                name="via_assinada_um_dono_do_tipo"),
+            models.CheckConstraint(condition=~Q(sha256=""), name="via_assinada_tem_hash"),
+            # No máximo uma via em vigor por documento (trocar revoga a anterior).
+            models.UniqueConstraint(
+                fields=["tipo", "oficio", "termo", "ordem", "chave"],
+                condition=Q(revogada_em__isnull=True), nulls_distinct=False,
+                name="via_assinada_uma_vigente"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Via assinada — {self.get_tipo_display()} ({self.enviado_em:%d/%m/%Y})"
+
+    @property
+    def nome_download(self) -> str:
+        if self.oficio is not None:
+            base = f"{self.tipo}-{self.oficio.numero:02d}-{self.oficio.ano}"
+        elif self.ordem is not None:
+            base = f"os-{self.ordem.numero:03d}-{self.ordem.ano}"
+        else:
+            base = f"termo-{self.termo_id}-{self.chave}"
+        return f"{base}-assinado.pdf"
+
+
 class EdicaoDocumento(models.Model):
     """Uma versão do texto editado de um documento do ofício (ADR 0018).
 
@@ -538,6 +612,7 @@ class Historico(models.Model):
         ARQUIVADO = "arquivado", "Ofício arquivado"
         DESARQUIVADO = "desarquivado", "Ofício desarquivado"
         TEXTO = "texto", "Texto do documento alterado"
+        ASSINADO = "assinado", "Via assinada"
 
     oficio = models.ForeignKey(Oficio, on_delete=models.CASCADE, related_name="historico")
     acao = models.CharField(max_length=12, choices=Acao.choices)

@@ -50,6 +50,7 @@ equipe e ofícios; busca (número, destino, servidor, motivo, ofício); abas de 
             {% elif o.data_inicio > hoje %}<span class="selo selo--neutro selo--sem-ponto">Prevista</span>
             {% elif o.data_fim >= hoje %}<span class="selo selo--info selo--sem-ponto">Em andamento</span>
             {% else %}<span class="selo selo--sucesso selo--sem-ponto">Realizada</span>{% endif %}
+            {% if o.via_vigente %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}Assinada</span>{% endif %}
           </div>
           <div class="registro__meta">
             {% if o.tipo != "padrao" %}<span class="registro__meta-item">{{ o.get_tipo_display }}</span>{% endif %}
@@ -62,6 +63,7 @@ equipe e ofícios; busca (número, destino, servidor, motivo, ofício); abas de 
             <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações da {{ o }}">{% icone "ellipsis-vertical" %}</button>
             <div class="menu__painel" role="menu" hidden>
               {% if l.editavel %}
+                {% if o.via_vigente %}<a class="menu__item" role="menuitem" href="{% url 'viagens:abrir_via_assinada' o.via_vigente %}" target="_blank" rel="noopener">{% icone "file-signature" %}Abrir via assinada</a>{% endif %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Documento (PDF)</a>
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'docx' %}">{% icone "download" %}Documento (DOCX)</a>
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "pencil" %}Abrir</a>
