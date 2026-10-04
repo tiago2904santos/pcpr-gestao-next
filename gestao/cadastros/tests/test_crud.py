@@ -572,3 +572,88 @@ class TestRevisoes:
                                     valor_24h=Decimal("999.00"))
         html = _cliente(base["gestor"]).get(reverse("cadastros:diarias")).content.decode()
         assert html.count(">Vigente</span>") == 1
+
+
+# ---------------------------------------------------------------- assinantes e substituições
+class TestAssinantes:
+    """Referência: substituto vigente na data do documento → titular do tipo → chefia."""
+
+    @pytest.fixture
+    def config(self, base):
+        garantir_municipios()
+        return ConfiguracaoInstitucional.objects.create(
+            unidade=base["ascom"], nome_extenso="Assessoria de Comunicação Social",
+            sede=Municipio.objects.get(nome="Curitiba", uf="PR"),
+            chefia_nome="Chefe Fictício", chefia_cargo="Chefe da Assessoria",
+            destinatario_nome="Destinatário", destinatario_cargo="Cargo",
+            destinatario_orgao="Órgão")
+
+    def test_ordem_de_quem_assina(self, base, config):
+        from gestao.cadastros.models import SubstituicaoAssinante
+        titular = Servidor.objects.create(nome="Titular Fictício", cargo=base["agente"])
+        subst = Servidor.objects.create(nome="Substituto Fictício")
+        dia = date(2026, 7, 10)
+        assert services.assinante(config, "oficio", dia) == ("Chefe Fictício",
+                                                             "Chefe da Assessoria")
+        config.assina_oficio = titular
+        config.save()
+        assert services.assinante(config, "oficio", dia) == ("Titular Fictício",
+                                                             "Agente de Polícia Judiciária")
+        assert services.assinante(config, "justificativa", dia)[0] == "Chefe Fictício"
+        SubstituicaoAssinante.objects.create(configuracao=config, servidor=subst,
+                                             tipo="todos", inicio=date(2026, 7, 1),
+                                             fim=date(2026, 7, 15))
+        assert services.assinante(config, "oficio", dia) == ("Substituto Fictício", "")
+        assert services.assinante(config, "justificativa", dia)[0] == "Substituto Fictício"
+        # Fora do período (e com a substituição encerrada) volta o titular.
+        assert services.assinante(config, "oficio", date(2026, 7, 16))[0] == "Titular Fictício"
+        config.substituicoes.update(ativo=False)
+        assert services.assinante(config, "oficio", dia)[0] == "Titular Fictício"
+
+    def test_rodape_montado_do_endereco(self, config):
+        config.endereco_rodape = ""
+        config.cep, config.logradouro, config.numero = "80230020", "Avenida Fictícia", "470"
+        config.cidade_endereco, config.uf, config.telefone = "Curitiba", "PR", "4130000000"
+        assert config.rodape == ("Assessoria de Comunicação Social - Avenida Fictícia, 470 - "
+                                 "Curitiba/PR - CEP 80230-020 - (41) 3000-0000")
+        config.endereco_rodape = "Texto escrito"
+        assert config.rodape == "Texto escrito"
+
+    def test_gestor_cadastra_e_encerra_substituicao(self, base, config):
+        subst = Servidor.objects.create(nome="Substituto Fictício")
+        c = _cliente(base["gestor"])
+        r = c.post(reverse("cadastros:salvar_substituicao"), {
+            "unidade": base["ascom"].pk, "servidor": subst.pk, "tipo": "oficio",
+            "inicio": "01/07/2026", "fim": "15/07/2026", "motivo": "Férias"})
+        assert r.status_code == 302
+        sub = config.substituicoes.get()
+        assert (sub.servidor, sub.tipo, sub.fim) == (subst, "oficio", date(2026, 7, 15))
+        c.post(reverse("cadastros:alternar_substituicao", args=[sub.pk]),
+               {"unidade": base["ascom"].pk})
+        sub.refresh_from_db()
+        assert not sub.ativo
+
+    def test_fim_antes_do_inicio_e_operador_nao_cadastra(self, base, config):
+        subst = Servidor.objects.create(nome="Substituto Fictício")
+        dados = {"unidade": base["ascom"].pk, "servidor": subst.pk, "tipo": "todos",
+                 "inicio": "10/07/2026", "fim": "01/07/2026"}
+        r = _cliente(base["gestor"]).post(reverse("cadastros:salvar_substituicao"), dados)
+        assert r.status_code == 422 and "antes do início" in r.content.decode()
+        dados["fim"] = ""
+        r = _cliente(base["operador"]).post(reverse("cadastros:salvar_substituicao"), dados)
+        assert r.status_code == 403 and not config.substituicoes.exists()
+
+    def test_configuracao_grava_assinantes_e_endereco(self, base, config):
+        titular = Servidor.objects.create(nome="Titular Fictício")
+        dados = {
+            "nome_extenso": config.nome_extenso, "sede": "Curitiba/PR",
+            "chefia_nome": "Chefe", "chefia_cargo": "Chefe", "destinatario_tratamento": "Exmo. Sr",
+            "destinatario_nome": "D", "destinatario_cargo": "C", "destinatario_orgao": "O",
+            "destinatario_cidade": "Curitiba", "prazo_justificativa_dias": "10",
+            "assina_justificativa": titular.pk, "cep": "80230-020", "uf": "pr",
+            "telefone": "(41) 3000-0000"}
+        r = _cliente(base["gestor"]).post(reverse("cadastros:configuracao"), dados)
+        assert r.status_code == 302
+        config.refresh_from_db()
+        assert config.assina_justificativa == titular and config.assina_oficio is None
+        assert (config.cep, config.uf, config.telefone) == ("80230020", "PR", "4130000000")

@@ -356,7 +356,7 @@ class ConfiguracaoInstitucional(models.Model):
     unidade = models.OneToOneField(Unidade, on_delete=models.PROTECT, related_name="configuracao")
     nome_extenso = models.CharField("nome da unidade no cabeçalho", max_length=160)
     sede = models.ForeignKey(Municipio, on_delete=models.PROTECT, verbose_name="cidade sede")
-    endereco_rodape = models.CharField("endereço no rodapé", max_length=255)
+    endereco_rodape = models.CharField("endereço no rodapé", max_length=255, blank=True)
     chefia_nome = models.CharField("nome da chefia (signatário)", max_length=150)
     chefia_cargo = models.CharField("cargo da chefia", max_length=150)
     destinatario_tratamento = models.CharField("tratamento", max_length=40, default="Exmo. Sr")
@@ -369,6 +369,25 @@ class ConfiguracaoInstitucional(models.Model):
         "antecedência mínima (dias)", default=10,
         help_text="Viagens com menos dias de antecedência exigem justificativa.",
     )
+    # Quem assina cada tipo de documento (referência: AssinaturaConfiguracao, um por tipo).
+    # Vazio: assina a chefia (nome e cargo escritos acima). P01: PT e OS ficaram de fora.
+    assina_oficio = models.ForeignKey(
+        "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="assina os ofícios")
+    assina_justificativa = models.ForeignKey(
+        "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="assina as justificativas")
+    # Endereço em campos (referência, P10: "alinhar, sem remover campos nossos"). O rodapé
+    # continua sendo o texto impresso; vazio, é montado a partir destes campos.
+    cep = models.CharField("CEP", max_length=8, blank=True)
+    logradouro = models.CharField("logradouro", max_length=160, blank=True)
+    numero = models.CharField("número", max_length=20, blank=True)
+    bairro = models.CharField("bairro", max_length=120, blank=True)
+    cidade_endereco = models.CharField("cidade", max_length=120, blank=True)
+    uf = models.CharField("UF", max_length=2, blank=True)
+    email = models.EmailField("e-mail", blank=True)
+    telefone = models.CharField("telefone", max_length=11, blank=True)
+    ramal = models.CharField("ramal", max_length=20, blank=True)
 
     class Meta:
         verbose_name = "configuração institucional"
@@ -376,3 +395,61 @@ class ConfiguracaoInstitucional(models.Model):
 
     def __str__(self) -> str:
         return f"Configuração de {self.unidade}"
+
+    @property
+    def rodape(self) -> str:
+        """O texto do rodapé: o escrito, ou o montado do endereço em campos."""
+        if self.endereco_rodape.strip():
+            return self.endereco_rodape.strip()
+        cep = f"CEP {self.cep[:5]}-{self.cep[5:]}" if len(self.cep) == 8 else ""
+        rua = ", ".join(p for p in (self.logradouro, self.numero) if p)
+        cidade = "/".join(p for p in (self.cidade_endereco, self.uf) if p)
+        fone = formatar_telefone(self.telefone)
+        if fone and self.ramal:
+            fone += f" ramal {self.ramal}"
+        partes = (self.nome_extenso, rua, self.bairro, cidade, cep, fone, self.email)
+        return " - ".join(p for p in partes if p)
+
+
+class SubstituicaoAssinante(models.Model):
+    """Quem assina no lugar do titular num período (férias, afastamento). Os documentos
+    datados dentro do período saem com o substituto, sem mexer na configuração (referência:
+    AssinaturaSubstituicao). Fim vazio: até ser encerrada."""
+
+    class Tipo(models.TextChoices):
+        TODOS = "todos", "Todos os documentos"
+        OFICIO = "oficio", "Ofício"
+        JUSTIFICATIVA = "justificativa", "Justificativa"
+
+    configuracao = models.ForeignKey(ConfiguracaoInstitucional, on_delete=models.CASCADE,
+                                     related_name="substituicoes")
+    tipo = models.CharField("documentos", max_length=20, choices=Tipo.choices,
+                            default=Tipo.TODOS)
+    servidor = models.ForeignKey(Servidor, on_delete=models.PROTECT, related_name="+",
+                                 verbose_name="substituto")
+    inicio = models.DateField("início")
+    fim = models.DateField("fim", null=True, blank=True)
+    motivo = models.CharField("motivo", max_length=120, blank=True)
+    ativo = models.BooleanField("ativa", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-inicio", "tipo"]
+        verbose_name = "substituição de assinante"
+        verbose_name_plural = "substituições de assinante"
+        constraints = [models.CheckConstraint(
+            condition=models.Q(fim__isnull=True) | models.Q(fim__gte=models.F("inicio")),
+            name="substituicao_periodo_ordenado")]
+
+    def __str__(self) -> str:
+        return f"{self.servidor} — {self.periodo}"
+
+    @property
+    def periodo(self) -> str:
+        if self.fim:
+            return f"{self.inicio:%d/%m/%Y} a {self.fim:%d/%m/%Y}"
+        return f"a partir de {self.inicio:%d/%m/%Y}"
+
+    def vale_em(self, tipo: str, data) -> bool:
+        return (self.ativo and data is not None and self.tipo in (self.Tipo.TODOS, tipo)
+                and self.inicio <= data and (self.fim is None or data <= self.fim))

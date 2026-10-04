@@ -37,6 +37,7 @@ from gestao.cadastros.models import (
     ModeloTexto,
     Municipio,
     Servidor,
+    SubstituicaoAssinante,
     TabelaDiaria,
     Unidade,
     Viatura,
@@ -688,6 +689,20 @@ class _Gerador:
         Viatura.objects.create(placa="ZZQ7B20", unidade=ascom)  # só a placa: incompleta
         Combustivel.objects.create(nome="Etanol", ativo=False)
         Cargo.objects.create(nome="Auxiliar Administrativo", ativo=False)
+        # Assinantes por tipo e substituição (ASCOM): a justificativa tem titular próprio e
+        # há um substituto valendo hoje para os ofícios; o endereço vem em campos.
+        config = ConfiguracaoInstitucional.objects.get(unidade=ascom)
+        equipe = Servidor.objects.filter(unidade=ascom, ativo=True,
+                                         cargo__isnull=False).order_by("pk")
+        titular, substituto = equipe[0], equipe[1]
+        ConfiguracaoInstitucional.objects.filter(pk=config.pk).update(
+            assina_justificativa=titular, cep="80230020", logradouro="Avenida Fictícia",
+            numero="470", bairro="Centro", cidade_endereco="Curitiba", uf="PR",
+            telefone="4130000000", email="ascom.demo@exemplo.invalid")
+        SubstituicaoAssinante.objects.create(
+            configuracao=config, tipo=SubstituicaoAssinante.Tipo.OFICIO, servidor=substituto,
+            inicio=self.hoje - timedelta(days=3), fim=self.hoje + timedelta(days=12),
+            motivo="Férias do titular (DEMO)")
 
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""

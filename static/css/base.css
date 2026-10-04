@@ -282,6 +282,13 @@ a:not([class]):focus-visible {
   flex-wrap: wrap;
 }
 
+/* Título à esquerda, ação à direita (quebra em telas estreitas). */
+.linha--entre {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--esp-3);
+}
+
 .cresce {
   flex: 1 1 auto;
   min-width: 0;

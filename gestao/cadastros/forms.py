@@ -23,6 +23,7 @@ from .models import (
     ModeloTexto,
     Municipio,
     Servidor,
+    SubstituicaoAssinante,
     TabelaDiaria,
     Unidade,
     Viatura,
@@ -33,6 +34,7 @@ from .validacoes import (
     RG_NAO_POSSUI,
     cpf_valido,
     espacos,
+    formatar_telefone,
     normalizar_placa,
     normalizar_rg,
     placa_valida,
@@ -328,6 +330,16 @@ class FormularioTexto(forms.Form):
 
 
 # ---------------------------------------------------------------- configuração da unidade
+class OpcaoServidor(forms.ModelChoiceField):
+    def label_from_instance(self, obj) -> str:
+        return f"{obj.nome} — {obj.descricao}" if obj.descricao else obj.nome
+
+
+def _servidores(*atuais: int | None):
+    return (Servidor.objects.filter(Q(ativo=True) | Q(pk__in=[a for a in atuais if a]))
+            .select_related("cargo", "unidade").order_by("nome"))
+
+
 class FormularioConfiguracao(forms.Form):
     """Dados da unidade emissora que entram nos documentos (cabeçalho, rodapé, quem assina,
     destinatário) e a antecedência que dispensa justificativa."""
@@ -336,13 +348,38 @@ class FormularioConfiguracao(forms.Form):
                                    widget=_entrada())
     sede = CampoMunicipio(label="Cidade sede",
                           help_text="Origem padrão das viagens e cidade da data do ofício.")
+    cep = forms.CharField(label="CEP", max_length=9, required=False,
+                          widget=_entrada(inputmode="numeric", placeholder="00000-000",
+                                          **{"data-mascara": "cep"}))
+    logradouro = forms.CharField(label="Logradouro", max_length=160, required=False,
+                                 widget=_entrada(placeholder="Rua, avenida…"))
+    numero = forms.CharField(label="Número", max_length=20, required=False, widget=_entrada())
+    bairro = forms.CharField(label="Bairro", max_length=120, required=False, widget=_entrada())
+    cidade_endereco = forms.CharField(label="Cidade", max_length=120, required=False,
+                                      widget=_entrada())
+    uf = forms.CharField(label="UF", max_length=2, required=False,
+                         widget=_entrada(placeholder="PR"))
+    email = forms.EmailField(label="E-mail", required=False,
+                             widget=forms.EmailInput(attrs={"class": "entrada",
+                                                            "autocomplete": "off"}))
+    telefone = forms.CharField(label="Telefone", max_length=20, required=False,
+                               widget=_entrada(inputmode="tel", placeholder="(00) 0000-0000",
+                                               **{"data-mascara": "telefone"}))
+    ramal = forms.CharField(label="Ramal", max_length=20, required=False, widget=_entrada())
     endereco_rodape = forms.CharField(
-        label="Endereço no rodapé", max_length=255,
-        help_text="Endereço, CEP, telefone e e-mail como devem sair no rodapé.",
+        label="Texto do rodapé", max_length=255, required=False,
+        help_text="Como deve sair no rodapé. Em branco, é montado a partir do endereço acima.",
         widget=_entrada())
-    chefia_nome = forms.CharField(label="Quem assina (chefia)", max_length=150,
+    assina_oficio = OpcaoServidor(
+        label="Assina os ofícios", queryset=Servidor.objects.none(), required=False,
+        empty_label="A chefia (abaixo)")
+    assina_justificativa = OpcaoServidor(
+        label="Assina as justificativas", queryset=Servidor.objects.none(), required=False,
+        empty_label="A chefia (abaixo)")
+    chefia_nome = forms.CharField(label="Chefia", max_length=150,
+                                  help_text="Assina quando não há assinante escolhido.",
                                   widget=_entrada())
-    chefia_cargo = forms.CharField(label="Cargo de quem assina", max_length=150,
+    chefia_cargo = forms.CharField(label="Cargo da chefia", max_length=150,
                                    widget=_entrada())
     destinatario_tratamento = forms.CharField(label="Tratamento", max_length=40,
                                               help_text="Ex.: Exmo. Sr, Exma. Sra.",
@@ -360,16 +397,71 @@ class FormularioConfiguracao(forms.Form):
         help_text="Viagem com esta antecedência ou menos exige justificativa.",
         widget=forms.NumberInput(attrs={"class": "entrada", "inputmode": "numeric"}))
 
+    def __init__(self, *args, config=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        atuais = (config.assina_oficio_id, config.assina_justificativa_id) if config else ()
+        for campo in ("assina_oficio", "assina_justificativa"):
+            cast(forms.ModelChoiceField, self.fields[campo]).queryset = _servidores(*atuais)
+
     @classmethod
     def de(cls, config) -> FormularioConfiguracao:
         from .services import CAMPOS_CONFIGURACAO
-        inicial = {c: getattr(config, c) for c in CAMPOS_CONFIGURACAO}
+        inicial = {c: getattr(config, c) for c in CAMPOS_CONFIGURACAO
+                   if c not in ("assina_oficio", "assina_justificativa")}
+        inicial["assina_oficio"] = config.assina_oficio_id
+        inicial["assina_justificativa"] = config.assina_justificativa_id
         inicial["sede"] = str(config.sede) if config.sede_id else ""
-        return cls(initial=inicial)
+        cep = config.cep
+        inicial["cep"] = f"{cep[:5]}-{cep[5:]}" if len(cep) == 8 else cep
+        inicial["telefone"] = formatar_telefone(config.telefone)
+        return cls(initial=inicial, config=config)
+
+    def clean_cep(self) -> str:
+        cep = somente_digitos(self.cleaned_data["cep"])
+        if cep and len(cep) != 8:
+            raise forms.ValidationError("O CEP tem 8 dígitos.")
+        return cep
+
+    def clean_telefone(self) -> str:
+        telefone = somente_digitos(self.cleaned_data["telefone"])
+        if telefone and len(telefone) not in (10, 11):
+            raise forms.ValidationError("Informe o telefone com DDD (10 ou 11 dígitos).")
+        return telefone
+
+    def clean_uf(self) -> str:
+        uf = espacos(self.cleaned_data["uf"]).upper()
+        if uf and not (len(uf) == 2 and uf.isascii() and uf.isalpha()):
+            raise forms.ValidationError("Informe a sigla do estado, ex.: PR.")
+        return uf
 
     def clean(self):
         dados = super().clean() or {}
         for campo, valor in list(dados.items()):
             if isinstance(valor, str):
                 dados[campo] = espacos(valor)
+        return dados
+
+
+class FormularioSubstituicao(forms.Form):
+    """Substituto por período (férias, afastamento do titular)."""
+
+    servidor = OpcaoServidor(label="Substituto", queryset=Servidor.objects.none(),
+                             empty_label="Escolha o servidor")
+    tipo = forms.ChoiceField(label="Documentos", widget=Selecao(),
+                             choices=SubstituicaoAssinante.Tipo.choices)
+    inicio = forms.DateField(label="Início", widget=EntradaData())
+    fim = forms.DateField(label="Fim", required=False, widget=EntradaData(),
+                          help_text="Em branco: até ser encerrada.")
+    motivo = forms.CharField(label="Motivo", max_length=120, required=False,
+                             widget=_entrada(placeholder="Ex.: férias do titular"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cast(forms.ModelChoiceField, self.fields["servidor"]).queryset = _servidores()
+
+    def clean(self):
+        dados = super().clean() or {}
+        inicio, fim = dados.get("inicio"), dados.get("fim")
+        if inicio and fim and fim < inicio:
+            self.add_error("fim", "O fim não pode ser antes do início.")
         return dados

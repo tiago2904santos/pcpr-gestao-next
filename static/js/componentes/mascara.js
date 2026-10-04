@@ -33,6 +33,8 @@ const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
     const meio = v.length > 10 ? 7 : 6;
     return `(${v.slice(0, 2)}) ${v.slice(2, meio)}${v.length > meio ? `-${v.slice(meio)}` : ""}`;
   },
+  // CEP: 00000-000.
+  cep: (d) => d.replace(/\D/g, "").slice(0, 8).replace(/^(\d{5})(\d)/, "$1-$2"),
   // Placa: só letras e números, em maiúsculas (antiga ABC1234 ou Mercosul ABC1D23).
   placa: (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7),
 });

@@ -1,9 +1,9 @@
 # Módulo 2 — Cadastros de Viagens (ficha)
 
-Atualizado em 03/10/2026. Situação: **EM ANDAMENTO** — CRUD em tela implementado e testado;
-faltam assinantes por tipo de documento (com substituições por período) e o endereço da
-configuração em campos separados. Não é marcado concluído sem a comparação com a referência
-em execução (dependência externa, como em Ofícios).
+Atualizado em 03/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO** — CRUD em tela,
+assinantes por tipo com substituições por período e endereço em campos implementados e
+testados. Não é marcado concluído sem a comparação com a referência em execução
+(dependência externa, como em Ofícios).
 
 Referência lida: `viagens_cadastros/{models,forms,views,permissions,normalizacao}.py` e as
 fichas `docs/paridade/cadastros-*.md` do repositório de referência (comparado por leitura).
@@ -40,9 +40,10 @@ Legenda: ✅ implementado e testado · 🟡 parcial · ↔ diferença intenciona
 | Diária: data de vigência escolhida | ↔ | aqui o gestor escolhe a data (o formulário da referência fixava "hoje"; a tela observada tinha calendário) | — |
 | Excluir vigência | ✅ ↔ | não deixa uma faixa sem vigência | `test_nao_exclui_a_unica_vigencia_da_faixa` |
 | Configuração institucional (por setor lá, por unidade aqui) | 🟡 | nome, sede, rodapé, chefia, destinatário, prazo; gestor escolhe a unidade | `TestConfiguracao` |
-| Configuração: endereço em campos (CEP, logradouro…) e consulta CEP (P10) | ⛔ pendente | P10 da referência: "alinhar, sem remover campos nossos" — próximo passo | — |
-| Assinantes por tipo de documento (Ofício, Justificativa) | ⛔ pendente | hoje um signatário (chefia) por unidade; P01 dispensa PT e OS | — |
-| Substituição de assinante por período | ⛔ pendente | depende dos assinantes por tipo | — |
+| Configuração: endereço em campos (CEP, logradouro, número, bairro, cidade, UF, e-mail, telefone, ramal) (P10) | ✅ ↔ | campos novos; o "texto do rodapé" continua (P10: sem remover os nossos) e, vazio, é montado do endereço | `TestAssinantes::test_rodape_montado_do_endereco`, `test_configuracao_grava_assinantes_e_endereco` |
+| Consulta de CEP (ViaCEP) | ⛔ | serviço externo: só pela camada de integrações e com aprovação (ADR 0019); o endereço é digitado | — |
+| Assinantes por tipo de documento (Ofício, Justificativa) | ✅ ↔ | "Assina os ofícios" / "Assina as justificativas" por unidade (na referência: globais); vazio = a chefia; P01 dispensa PT e OS | `TestAssinantes::test_ordem_de_quem_assina`, `test_documentos_saem_com_o_assinante_de_cada_tipo` |
+| Substituição de assinante por período | ✅ | tipo (todos/ofício/justificativa), início, fim opcional, motivo, encerrar/reativar; vale pela data do ofício | `TestAssinantes` |
 | Estados (cadastro interno) | ↔ | municípios e UFs são a lista oficial do IBGE, carregada; sem tela | — |
 
 ## Efeitos no ofício
@@ -89,7 +90,6 @@ viaturas, unidades, cargos, diárias, entrada: ≤ 20 consultas).
 
 | Item | Tipo |
 |---|---|
-| Assinantes por tipo + substituições por período | não bloqueante para os cadastros; bloqueante para fechar o módulo |
-| Endereço da configuração em campos + CEP (P10) | não bloqueante |
+| Consulta de CEP (serviço externo) | dependência (camada de integrações + aprovação) |
 | Comparação lado a lado com a referência em execução | dependência externa |
 | Confirmar: operador mantém cadastros; nome e telefone únicos (regras da referência) | decisão do usuário (não bloqueia: comportamento da referência adotado) |

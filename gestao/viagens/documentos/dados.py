@@ -11,6 +11,7 @@ from typing import Any
 
 from django.utils import timezone
 
+from gestao.cadastros.services import assinante
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from ..dominio.extenso import reais_por_extenso
@@ -79,9 +80,14 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
             "cargo": config.destinatario_cargo, "orgao": config.destinatario_orgao,
             "cidade": config.destinatario_cidade,
         },
-        "chefia": {"nome": config.chefia_nome, "cargo": config.chefia_cargo},
+        # Quem assina: substituto do período, titular do tipo ou a chefia (Cadastros).
+        "chefia": dict(zip(("nome", "cargo"),
+                           assinante(config, "oficio", oficio.data_oficio), strict=True)),
+        "assina_justificativa": dict(zip(
+            ("nome", "cargo"), assinante(config, "justificativa", oficio.data_oficio),
+            strict=True)),
         "cabecalho_unidade": config.nome_extenso.upper(),
-        "rodape": config.endereco_rodape,
+        "rodape": config.rodape,
         "viajantes": [
             {"nome": v.servidor.nome, "cpf": v.servidor.cpf_formatado,
              "rg": v.servidor.rg, "cargo": getattr(v.servidor.cargo, "nome", ""),

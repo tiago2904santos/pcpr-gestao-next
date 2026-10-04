@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}Configuração da unidade{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Dados da unidade emissora que entram nos documentos (paridade com "Configurações do
@@ -31,7 +31,7 @@ substituições por período (ficha docs/migration/cadastros.md).
 {% if not unidade %}
   <section class="cartao mt-4">{% include "componentes/vazio.html" with icone="landmark" titulo="Sem unidade" texto="Seu usuário não está lotado em uma unidade. Peça ao administrador para definir a lotação." %}</section>
 {% else %}
-<form method="post" action="{% url 'cadastros:configuracao' %}?unidade={{ unidade.pk }}" novalidate class="pilha-lg mt-4">
+<form method="post" action="{% url 'cadastros:configuracao' %}?unidade={{ unidade.pk }}" novalidate class="pilha-lg mt-4" id="form-configuracao">
   {% csrf_token %}
   <input type="hidden" name="unidade" value="{{ unidade.pk }}">
   {% include "componentes/resumo_erros.html" %}
@@ -44,7 +44,7 @@ substituições por período (ficha docs/migration/cadastros.md).
       <div class="campos">
         {% include "componentes/campo.html" with campo=form.nome_extenso classe="campo--lg" %}
         <div class="campo campo--md{% if form.sede.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="{{ form.sede.id_for_label }}">{{ form.sede.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+          <label class="campo__rotulo" for="{{ form.sede.id_for_label }}">{{ form.sede.label }}{% if form.sede.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% endif %}</label>
           <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
             <div class="entrada-composta">{{ form.sede|campo_acessivel:form.sede.help_text }}</div>
           </pc-combobox>
@@ -52,36 +52,65 @@ substituições por período (ficha docs/migration/cadastros.md).
           {% if form.sede.errors %}<p class="campo__erro" id="{{ form.sede.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.sede.errors|join:" " }}</span></p>{% endif %}
         </div>
       </div>
-      {% include "componentes/campo.html" with campo=form.endereco_rodape %}
+      <fieldset class="grupo-campos">
+        <legend>Endereço</legend>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.cep classe="campo--sm" %}
+          {% include "componentes/campo.html" with campo=form.logradouro classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.numero classe="campo--xs" %}
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.bairro classe="campo--md" %}
+          {% include "componentes/campo.html" with campo=form.cidade_endereco classe="campo--md" %}
+          {% include "componentes/campo.html" with campo=form.uf classe="campo--xs" %}
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.email classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.telefone classe="campo--sm" %}
+          {% include "componentes/campo.html" with campo=form.ramal classe="campo--xs" %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.endereco_rodape %}
+        {% if config %}<p class="texto-secundario texto-sm">Sai no rodapé: <span class="quebra-palavras">{{ config.rodape|default:"—" }}</span></p>{% endif %}
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="t-assinaturas">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-assinaturas">Quem assina</h2>
+      <div class="campos">
+        <div class="campo campo--lg">
+          <label class="campo__rotulo" for="{{ form.assina_oficio.id_for_label }}">{{ form.assina_oficio.label }}</label>
+          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_oficio|campo_acessivel:"" }}</pc-combobox>
+        </div>
+        <div class="campo campo--lg">
+          <label class="campo__rotulo" for="{{ form.assina_justificativa.id_for_label }}">{{ form.assina_justificativa.label }}</label>
+          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_justificativa|campo_acessivel:"" }}</pc-combobox>
+        </div>
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.chefia_nome classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.chefia_cargo classe="campo--lg" %}
+      </div>
+      <p class="texto-secundario texto-sm">Num período de férias ou afastamento, cadastre um substituto em <a href="#t-substituicoes">Substituições</a>: os documentos datados no período saem com ele.</p>
     </div>
   </section>
 
   <section class="cartao" aria-labelledby="t-oficio">
     <div class="cartao__corpo pilha">
-      <h2 class="peso-semi texto-lg" id="t-oficio">Ofício</h2>
-      <fieldset class="grupo-campos">
-        <legend>Quem assina</legend>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.chefia_nome classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form.chefia_cargo classe="campo--lg" %}
-        </div>
-      </fieldset>
-      <fieldset class="grupo-campos">
-        <legend>Destinatário</legend>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.destinatario_tratamento classe="campo--sm" ajuda_oculta=True %}
-          {% include "componentes/campo.html" with campo=form.destinatario_nome classe="campo--lg" %}
-        </div>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.destinatario_cargo classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form.destinatario_orgao classe="campo--lg" %}
-        </div>
-        <div class="campos">{% include "componentes/campo.html" with campo=form.destinatario_cidade classe="campo--md" %}</div>
-      </fieldset>
-      <fieldset class="grupo-campos">
-        <legend>Prazo</legend>
-        <div class="campos">{% include "componentes/campo.html" with campo=form.prazo_justificativa_dias classe="campo--md" %}</div>
-      </fieldset>
+      <h2 class="peso-semi texto-lg" id="t-oficio">Destinatário do ofício</h2>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.destinatario_tratamento classe="campo--sm" ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.destinatario_nome classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.destinatario_cargo classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.destinatario_orgao classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.destinatario_cidade classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.prazo_justificativa_dias classe="campo--md" %}
+      </div>
     </div>
   </section>
 
@@ -92,5 +121,79 @@ substituições por período (ficha docs/migration/cadastros.md).
   </div>
   {% endif %}
 </form>
+
+{% if config %}
+<section class="cartao mt-6" aria-labelledby="t-substituicoes">
+  <div class="cartao__corpo pilha">
+    <div class="linha linha--entre">
+      <h2 class="peso-semi texto-lg" id="t-substituicoes">Substituições</h2>
+      {% if pode_alterar %}<button type="button" class="botao" data-abrir-dialogo="dialogo-substituicao">{% icone "plus" %}Nova substituição</button>{% endif %}
+    </div>
+    {% if substituicoes %}
+      <ul class="registros" aria-labelledby="t-substituicoes">
+        {% for s in substituicoes %}
+          <li class="registro{% if not s.ativo %} registro--inativo{% endif %}">
+            <span class="avatar" aria-hidden="true">{{ s.servidor.iniciais }}</span>
+            <div class="registro__corpo">
+              <div class="registro__titulo">
+                <span class="registro__link registro__link--estatico">{{ s.servidor.nome }}</span>
+                {% if s.vigente %}<span class="selo selo--sucesso selo--sem-ponto">Valendo hoje</span>{% elif not s.ativo %}<span class="selo selo--neutro selo--sem-ponto">Encerrada</span>{% endif %}
+              </div>
+              <div class="registro__meta">
+                <span class="registro__meta-item">{{ s.get_tipo_display }}</span>
+                <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{{ s.periodo }}</span>
+                {% if s.motivo %}<span class="registro__meta-item">{{ s.motivo }}</span>{% endif %}
+              </div>
+            </div>
+            {% if pode_alterar %}
+            <div class="registro__acoes">
+              <form method="post" action="{% url 'cadastros:alternar_substituicao' s.pk %}">
+                {% csrf_token %}<input type="hidden" name="unidade" value="{{ unidade.pk }}">
+                <button type="submit" class="botao botao--sm">{% if s.ativo %}Encerrar{% else %}Reativar{% endif %}</button>
+              </form>
+            </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="texto-secundario">Nenhuma substituição. Os documentos saem com o titular escolhido acima (ou a chefia).</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if pode_alterar %}
+<dialog id="dialogo-substituicao" class="dialogo" aria-labelledby="dialogo-substituicao-titulo"{% if abrir_substituicao %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_substituicao' %}" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="unidade" value="{{ unidade.pk }}">
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="dialogo-substituicao-titulo">Nova substituição</h2>
+        <p class="texto-secundario texto-sm">Os documentos datados no período saem com o substituto.</p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form_sub.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_sub.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      <div class="campo{% if form_sub.servidor.errors %} campo--erro{% endif %}">
+        <label class="campo__rotulo" for="{{ form_sub.servidor.id_for_label }}">{{ form_sub.servidor.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form_sub.servidor|campo_acessivel:"" }}</pc-combobox>
+        {% if form_sub.servidor.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form_sub.servidor.errors|join:" " }}</span></p>{% endif %}
+      </div>
+      {% include "componentes/campo.html" with campo=form_sub.tipo %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form_sub.inicio classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form_sub.fim classe="campo--md" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form_sub.motivo %}
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Cadastrar substituição</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endif %}
 {% endif %}
 {% endblock %}

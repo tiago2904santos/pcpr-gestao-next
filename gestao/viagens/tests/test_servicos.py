@@ -522,3 +522,25 @@ def test_desativar_viatura_nao_trava_o_rascunho_que_a_usa():
     assert form.fields["viatura"].queryset.filter(pk=viatura.pk).exists()
     outra = Viatura.objects.filter(ativo=False).exclude(pk=viatura.pk)
     assert not form.fields["viatura"].queryset.filter(pk__in=outra).exists()
+
+
+def test_documentos_saem_com_o_assinante_de_cada_tipo():
+    """Módulo 2: ofício e justificativa podem ter assinantes diferentes; no período de uma
+    substituição, sai o substituto (data do ofício)."""
+    from gestao.cadastros.models import ConfiguracaoInstitucional, Servidor, SubstituicaoAssinante
+    from gestao.viagens.documentos.dados import dados_do_oficio
+
+    c = cenario_completo()
+    oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    config = ConfiguracaoInstitucional.objects.get(unidade=oficio.unidade)
+    titular, substituto = Servidor.objects.all()[:2]
+    config.assina_justificativa = titular
+    config.save()
+    dados = dados_do_oficio(oficio)
+    assert dados["chefia"]["nome"] == config.chefia_nome
+    assert dados["assina_justificativa"]["nome"] == titular.nome
+    SubstituicaoAssinante.objects.create(configuracao=config, servidor=substituto,
+                                         tipo="oficio", inicio=oficio.data_oficio)
+    dados = dados_do_oficio(oficio)
+    assert dados["chefia"]["nome"] == substituto.nome
+    assert dados["assina_justificativa"]["nome"] == titular.nome

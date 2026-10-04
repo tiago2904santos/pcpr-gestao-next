@@ -23,6 +23,7 @@ from .models import (
     Combustivel,
     ConfiguracaoInstitucional,
     Servidor,
+    SubstituicaoAssinante,
     TabelaDiaria,
     Unidade,
     Viatura,
@@ -248,6 +249,9 @@ CAMPOS_CONFIGURACAO = (
     "nome_extenso", "sede", "endereco_rodape", "chefia_nome", "chefia_cargo",
     "destinatario_tratamento", "destinatario_nome", "destinatario_cargo",
     "destinatario_orgao", "destinatario_cidade", "prazo_justificativa_dias",
+    "assina_oficio", "assina_justificativa",
+    "cep", "logradouro", "numero", "bairro", "cidade_endereco", "uf", "email", "telefone",
+    "ramal",
 )
 
 
@@ -262,6 +266,52 @@ def salvar_configuracao(usuario, unidade: Unidade, **dados) -> ConfiguracaoInsti
             setattr(config, campo, dados[campo])
     config.save()
     return config
+
+
+def assinante(config: ConfiguracaoInstitucional, tipo: str, data) -> tuple[str, str]:
+    """(nome, cargo) de quem assina o documento `tipo` ("oficio", "justificativa") datado em
+    `data`: o substituto vigente na data (do tipo ou de todos; dois valendo, o de início mais
+    recente); senão o titular escolhido para o tipo; senão a chefia escrita na configuração.
+    Paridade com `_assinatura_nome_cargo` da referência."""
+    for sub in config.substituicoes.all():  # ordem: início mais recente primeiro
+        if sub.vale_em(tipo, data):
+            return sub.servidor.nome, getattr(sub.servidor.cargo, "nome", "")
+    titular = {"oficio": config.assina_oficio,
+               "justificativa": config.assina_justificativa}.get(tipo)
+    if titular is not None:
+        return titular.nome, getattr(titular.cargo, "nome", "")
+    return config.chefia_nome, config.chefia_cargo
+
+
+@transaction.atomic
+def salvar_substituicao(usuario, unidade: Unidade, *, servidor: Servidor, tipo: str,
+                        inicio: date, fim: date | None = None, motivo: str = "",
+                        pk: int | None = None) -> SubstituicaoAssinante:
+    policies.exigir(policies.pode_alterar_configuracao(usuario, unidade),
+                    "Só o gestor define substituições de assinante.")
+    config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).first()
+    if config is None:
+        raise CadastroInvalido("Salve a configuração da unidade antes de cadastrar "
+                               "substituições.")
+    if fim is not None and fim < inicio:
+        raise CadastroInvalido("O fim não pode ser antes do início.")
+    sub = (SubstituicaoAssinante.objects.select_for_update().get(pk=pk, configuracao=config)
+           if pk else SubstituicaoAssinante(configuracao=config))
+    sub.servidor, sub.tipo, sub.inicio, sub.fim, sub.motivo = servidor, tipo, inicio, fim, motivo
+    sub.save()
+    return sub
+
+
+@transaction.atomic
+def encerrar_substituicao(usuario, unidade: Unidade, pk: int) -> SubstituicaoAssinante:
+    """Desativa (a história fica: documentos já emitidos citam quem assinou)."""
+    policies.exigir(policies.pode_alterar_configuracao(usuario, unidade),
+                    "Só o gestor define substituições de assinante.")
+    sub = SubstituicaoAssinante.objects.select_for_update().get(
+        pk=pk, configuracao__unidade=unidade)
+    sub.ativo = not sub.ativo
+    sub.save(update_fields=["ativo"])
+    return sub
 
 
 # ---------------------------------------------------------------- leitura de apoio

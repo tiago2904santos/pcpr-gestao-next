@@ -22,6 +22,7 @@ from django.db.models.functions import Coalesce
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
@@ -30,6 +31,7 @@ from .forms import (
     FormularioCatalogo,
     FormularioConfiguracao,
     FormularioServidor,
+    FormularioSubstituicao,
     FormularioUnidade,
     FormularioViatura,
     FormularioVigencia,
@@ -40,6 +42,7 @@ from .models import (
     ConfiguracaoInstitucional,
     Lotacao,
     Servidor,
+    SubstituicaoAssinante,
     TabelaDiaria,
     Unidade,
     Viatura,
@@ -572,7 +575,6 @@ def _lista_diarias(request: HttpRequest, *, form=None, editando=None,
                    status: int = 200) -> HttpResponse:
     policies.exigir(policies.pode_ver_cadastro(request.user, TabelaDiaria))
     acoes = policies.acoes_do_cadastro(request.user, TabelaDiaria)
-    from django.utils import timezone
     hoje = timezone.localdate()
     tabelas = list(TabelaDiaria.objects.order_by("-vigente_desde", "faixa"))
     vigentes: dict[str, int] = {}
@@ -656,7 +658,7 @@ def _configuracao_pedida(request: HttpRequest) -> tuple[Unidade | None, list[Uni
 
 
 def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
-                       status: int = 200) -> HttpResponse:
+                       form_sub=None, status: int = 200) -> HttpResponse:
     config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).select_related(
         "sede").first() if unidade else None
     pode = unidade is not None and policies.pode_alterar_configuracao(request.user, unidade)
@@ -665,10 +667,21 @@ def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
     if not pode:  # leitura: sem edição e sem a marca de obrigatório
         for campo in form.fields.values():
             campo.disabled, campo.required = True, False
+    substituicoes = (list(config.substituicoes.select_related("servidor__cargo"))
+                     if config else [])
+    hoje = timezone.localdate()
+    for sub in substituicoes:
+        setattr(sub, "vigente", sub.vale_em(sub.tipo, hoje))  # noqa: B010
     return render(request, "cadastros/configuracao.html", {
         "unidade": unidade, "unidades": unidades, "config": config, "form": form,
-        "pode_alterar": pode, "migalhas": _migalhas("Configuração da unidade")},
-        status=status)
+        "pode_alterar": pode, "substituicoes": substituicoes,
+        "form_sub": form_sub or FormularioSubstituicao(initial={"inicio": hoje}),
+        "abrir_substituicao": form_sub is not None,
+        "migalhas": _migalhas("Configuração da unidade")}, status=status)
+
+
+def _na_configuracao(unidade) -> str:
+    return f"{reverse('cadastros:configuracao')}?unidade={unidade.pk}"
 
 
 @require_http_methods(["GET", "POST"])
@@ -679,10 +692,48 @@ def configuracao(request: HttpRequest) -> HttpResponse:
         return _tela_configuracao(request, unidade, unidades)
     if unidade is None:
         raise Http404("Sem unidade para configurar.")
-    form = FormularioConfiguracao(request.POST)
+    config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).first()
+    form = FormularioConfiguracao(request.POST, config=config)
     if form.is_valid():
         services.salvar_configuracao(request.user, unidade, **form.cleaned_data)
         messages.success(request, f"Configuração de {unidade} salva. Vale para os próximos "
                                   "documentos; os já emitidos não mudam.")
-        return redirect(f"{reverse('cadastros:configuracao')}?unidade={unidade.pk}")
+        return redirect(_na_configuracao(unidade))
     return _tela_configuracao(request, unidade, unidades, form=form, status=422)
+
+
+@require_POST
+def salvar_substituicao(request: HttpRequest) -> HttpResponse:
+    policies.exigir(policies.pode_ver_configuracao(request.user))
+    unidade, unidades = _configuracao_pedida(request)
+    if unidade is None:
+        raise Http404("Sem unidade para configurar.")
+    form = FormularioSubstituicao(request.POST)
+    if form.is_valid():
+        try:
+            sub = services.salvar_substituicao(request.user, unidade, **form.cleaned_data)
+        except services.CadastroInvalido as exc:
+            form.add_error(None, str(exc))
+        else:
+            messages.success(request, f"{sub.servidor} assina {sub.get_tipo_display().lower()} "
+                                      f"{sub.periodo}.")
+            return redirect(_na_configuracao(unidade))
+    return _tela_configuracao(request, unidade, unidades, form_sub=form, status=422)
+
+
+@require_POST
+def alternar_substituicao(request: HttpRequest, pk: int) -> HttpResponse:
+    policies.exigir(policies.pode_ver_configuracao(request.user))
+    unidade, _ = _configuracao_pedida(request)
+    if unidade is None:
+        raise Http404
+    try:
+        sub = services.encerrar_substituicao(request.user, unidade, pk)
+    except SubstituicaoAssinante.DoesNotExist as exc:
+        raise Http404 from exc
+    if sub.ativo:
+        messages.success(request, f"Substituição de {sub.servidor} reativada.")
+    else:
+        messages.success(request, f"Substituição de {sub.servidor} encerrada: os documentos "
+                                  "voltam a sair com o titular.")
+    return redirect(_na_configuracao(unidade))
