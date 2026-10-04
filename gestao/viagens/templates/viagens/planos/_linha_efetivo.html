@@ -1,0 +1,22 @@
+{# Uma linha do efetivo: unidade (opcional), cargo e quantidade. `n` vira número (o modelo usa "__n__"). #}
+<li class="linhas__linha" data-linha>
+  <div class="campo">
+    <label class="campo__rotulo" for="efetivo-unidade-{{ n }}">Unidade <span class="campo__opcional">(opcional)</span></label>
+    <pc-select class="seletor"><select class="selecao" name="efetivo_unidade" id="efetivo-unidade-{{ n }}">
+      <option value="">Sem unidade</option>
+      {% for u in form.unidades %}<option value="{{ u.pk }}"{% if linha and linha.unidade == u.pk|stringformat:"s" %} selected{% endif %}>{{ u }}</option>{% endfor %}
+    </select></pc-select>
+  </div>
+  <div class="campo">
+    <label class="campo__rotulo" for="efetivo-cargo-{{ n }}">Cargo</label>
+    <pc-select class="seletor"><select class="selecao" name="efetivo_cargo" id="efetivo-cargo-{{ n }}">
+      <option value="">Selecione o cargo</option>
+      {% for c in form.cargos %}<option value="{{ c.pk }}"{% if linha and linha.cargo == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.nome }}</option>{% endfor %}
+    </select></pc-select>
+  </div>
+  <div class="campo linhas__curto">
+    <label class="campo__rotulo" for="efetivo-quantidade-{{ n }}">Quantidade</label>
+    <input class="entrada" type="number" min="1" max="999" inputmode="numeric" name="efetivo_quantidade" id="efetivo-quantidade-{{ n }}" value="{% if linha %}{{ linha.quantidade|default:'1' }}{% else %}1{% endif %}" data-padrao="1">
+  </div>
+  <button type="button" class="botao botao--icone botao--sutil linhas__remover" data-remover-linha aria-label="Remover a linha do efetivo {{ n }}">{% icone "trash-2" %}</button>
+</li>

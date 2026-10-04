@@ -45,6 +45,9 @@ ROTAS_AUTENTICADAS = [
     # Módulo 5 — ordens de serviço.
     "/viagens/ordens/",
     "/viagens/ordens/nova/?oficio={oficio_emitido}",
+    # Módulo 6 — planos de trabalho.
+    "/viagens/planos/",
+    "/viagens/planos/novo/?oficio={oficio_emitido}",
     "/ui-lab/",
     "/nao-existe/",
 ]

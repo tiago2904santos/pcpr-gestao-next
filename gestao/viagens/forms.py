@@ -4,18 +4,30 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import cast
+from typing import Any, cast
 
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
 
 from gestao.cadastros.forms import CampoMunicipio, resolver_municipio
-from gestao.cadastros.models import Combustivel, ModeloTexto, Servidor, Viatura
+from gestao.cadastros.models import (
+    AtividadePlano,
+    Cargo,
+    Combustivel,
+    HorarioAtendimento,
+    ModeloTexto,
+    PresetAtividades,
+    ProgramaSolicitante,
+    Servidor,
+    Unidade,
+    Viatura,
+)
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
 from gestao.plataforma.widgets import (
     FORMATOS_DATA,
     FORMATOS_DATA_HORA,
+    CaixasDeEscolha,
     EntradaData,
     EntradaDataHora,
     EntradaHora,
@@ -830,3 +842,244 @@ class FormularioOrdem(forms.Form):
             dados.pop(nome, None)
         dados["funcoes"] = funcoes if self.campos_de_funcao else None
         return dados
+
+
+# ---------------------------------------------------------------- planos de trabalho
+OUTRO_PROGRAMA = "outro"
+# Como o coordenador sai no documento (sem padrão: um padrão errado sairia sem aviso).
+GENEROS = (("", "Escolha…"), ("M", "o Coordenador"), ("F", "a Coordenadora"))
+MAX_LINHAS_EFETIVO = 50
+
+
+class FormularioPlano(forms.Form):
+    """Folha do plano de trabalho. O efetivo chega em linhas (`efetivo_unidade`,
+    `efetivo_cargo`, `efetivo_quantidade`, repetidos) e as atividades em caixas; os
+    marcadores `efetivo_presente`/`atividades_presente` dizem que o bloco estava na tela
+    (tudo removido = vazio, não "não mexer")."""
+
+    versao = forms.CharField(required=False, widget=forms.HiddenInput)
+    oficios = forms.ModelMultipleChoiceField(
+        label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False)
+    programa = forms.ChoiceField(label="Programa", required=False, widget=Selecao())
+    programa_outros = forms.CharField(
+        label="Outro programa", max_length=200, required=False,
+        widget=forms.TextInput(attrs=_attrs(placeholder="Informe o programa quando não estiver "
+                                                        "na lista")))
+    data_inicio = forms.DateField(label="Início do evento", required=False,
+                                  widget=EntradaData(), input_formats=FORMATOS_DATA)
+    data_fim = forms.DateField(label="Fim do evento", required=False, widget=EntradaData(),
+                               input_formats=FORMATOS_DATA,
+                               help_text="Um dia só: deixe em branco. O deslocamento fica no "
+                                         "cartão 2.")
+    horario = forms.ChoiceField(label="Horário de atendimento", required=False, widget=Selecao())
+    destinos = CampoMunicipios(label="Destinos", required=False,
+                               help_text="O primeiro é o principal (entra nas diárias).")
+    coordenador_adm = forms.ModelChoiceField(
+        label="Coordenador administrativo", queryset=Servidor.objects.none(), required=False,
+        widget=forms.HiddenInput(attrs={"data-valor-id": ""}))
+    coordenador_adm_nome = forms.CharField(label="Nome (fora do cadastro)", max_length=255,
+                                           required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_adm_cargo = forms.CharField(label="Cargo (fora do cadastro)", max_length=120,
+                                            required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_adm_genero = forms.ChoiceField(label="Como sai no documento", choices=GENEROS,
+                                               required=False, widget=Selecao())
+    coordenador_op = forms.ModelChoiceField(
+        label="Coordenador operacional", queryset=Servidor.objects.none(), required=False,
+        widget=forms.HiddenInput(attrs={"data-valor-id": ""}))
+    coordenador_op_nome = forms.CharField(label="Nome (fora do cadastro)", max_length=255,
+                                          required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_op_cargo = forms.CharField(label="Cargo (fora do cadastro)", max_length=120,
+                                           required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_op_genero = forms.ChoiceField(label="Como sai no documento", choices=GENEROS,
+                                              required=False, widget=Selecao())
+    saida_em = CampoDataHora(label="Saída da sede", required=False)
+    chegada_em = CampoDataHora(label="Chegada na sede", required=False)
+    atividades = forms.ModelMultipleChoiceField(
+        label="Atividades", queryset=AtividadePlano.objects.none(), required=False,
+        widget=CaixasDeEscolha())
+    contextualizacao = forms.CharField(
+        label="Breve contextualização", required=False, max_length=6000,
+        help_text="Apagar o texto volta ao automático (feito do programa e do destino).",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=6)))
+    coordenacao = forms.CharField(
+        label="Coordenador do evento", required=False, max_length=4000,
+        help_text="Apagar o texto volta ao automático (feito dos coordenadores).",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=5)))
+    consideracoes = forms.CharField(
+        label="Considerações finais", required=False, max_length=4000,
+        help_text="Apagar o texto volta ao automático (feito do destino).",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=4)))
+    # O texto como a tela o mostrou: igual ao enviado, a pessoa não mexeu (o automático
+    # segue se refazendo); diferente, vale a regra de "voltar ao automático" do serviço.
+    contextualizacao_original = forms.CharField(required=False, widget=forms.HiddenInput)
+    coordenacao_original = forms.CharField(required=False, widget=forms.HiddenInput)
+    consideracoes_original = forms.CharField(required=False, widget=forms.HiddenInput)
+    assinante = forms.ModelChoiceField(
+        label="Quem assina este plano", queryset=Servidor.objects.none(), required=False,
+        empty_label="O da configuração (substituto do período ou o assinante dos planos)")
+    data_documento = forms.DateField(label="Data do documento", required=False,
+                                     widget=EntradaData(), input_formats=FORMATOS_DATA)
+
+    def __init__(self, *args, plano=None, oficios=None, unidade=None, fonte_oficios: str = "",
+                 fonte_municipios: str = "", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.plano = plano
+        self.erros_do_efetivo: list[str] = []
+        unidade_id = plano.unidade_id if plano else getattr(unidade, "pk", None)
+        ligados = list(plano.oficios.values_list("pk", flat=True)) if plano else []
+        base = oficios if oficios is not None else Oficio.objects.none()
+        if plano is not None:
+            base = base.filter(unidade_id=plano.unidade_id)
+        campo_oficios = cast(forms.ModelMultipleChoiceField, self.fields["oficios"])
+        campo_oficios.queryset = (base | Oficio.objects.filter(pk__in=ligados)).distinct()
+        campo_oficios.widget = EscolhaMultiplaRemota(
+            fonte=fonte_oficios, rotulo_vazio="Nenhum ofício vinculado (plano avulso).",
+            placeholder="Número (12/2026), destino ou servidor…")
+        campo_oficios.widget.choices = campo_oficios.choices
+        self.fields["destinos"].widget.fonte = fonte_municipios
+        # Programa: os do catálogo (ativos e o atual), "Outro" e vazio.
+        atual = plano.programa_id if plano else None
+        programas = ProgramaSolicitante.objects.filter(Q(ativo=True) | Q(pk=atual))
+        cast(forms.ChoiceField, self.fields["programa"]).choices = [
+            ("", "Selecione um programa (opcional)"), (OUTRO_PROGRAMA, "Outro"),
+            *[(str(pr.pk), pr.nome) for pr in programas]]
+        # Horário: os do catálogo; o gravado entra mesmo que tenha saído do catálogo.
+        faixas = list(HorarioAtendimento.objects.filter(ativo=True).values_list("nome",
+                                                                                flat=True))
+        gravado = plano.horario if plano else ""
+        if gravado and gravado not in faixas:
+            faixas.insert(0, gravado)
+        cast(forms.ChoiceField, self.fields["horario"]).choices = [
+            ("", "Selecione um horário (opcional)"),
+                                          *[(f, f) for f in faixas]]
+        for campo in ("coordenador_adm", "coordenador_op"):
+            atual_id = getattr(plano, f"{campo}_id", None) if plano else None
+            cast(forms.ModelChoiceField, self.fields[campo]).queryset = (
+                Servidor.objects.filter(Q(ativo=True) | Q(pk=atual_id)).select_related("cargo"))
+        assinante = cast(forms.ModelChoiceField, self.fields["assinante"])
+        assinante.queryset = Servidor.objects.filter(
+            Q(ativo=True, unidade_id=unidade_id)
+            | Q(pk=plano.assinante_id if plano else None)).order_by("nome")
+        marcadas = list(plano.atividades.values_list("pk", flat=True)) if plano else []
+        cast(forms.ModelMultipleChoiceField, self.fields["atividades"]).queryset = (
+            AtividadePlano.objects.filter(Q(ativo=True) | Q(pk__in=marcadas)).order_by("nome"))
+        # Ativos e os já usados neste plano (desativar um cargo não pode sumir com a linha).
+        usadas = list(plano.efetivo.values_list("unidade_id", "cargo_id")) if plano else []
+        self.unidades = list(Unidade.objects.filter(
+            Q(ativo=True) | Q(pk__in=[u for u, _c in usadas if u])).order_by("sigla"))
+        self.cargos = list(Cargo.objects.filter(
+            Q(ativo=True) | Q(pk__in=[c for _u, c in usadas])).order_by("nome"))
+
+    # ------------------------------------------------------------ efetivo em linhas
+    def linhas_informadas(self) -> list[dict]:
+        """As linhas como vieram (para redesenhar a tela com erro)."""
+        if not self.is_bound:
+            return []
+        dados = cast(Any, self.data)  # QueryDict (vários valores por nome)
+        unidades = dados.getlist("efetivo_unidade")
+        cargos = dados.getlist("efetivo_cargo")
+        quantidades = dados.getlist("efetivo_quantidade")
+        total = min(max(len(unidades), len(cargos), len(quantidades)), MAX_LINHAS_EFETIVO + 1)
+        def item(lista, i):
+            return (lista[i] if i < len(lista) else "").strip()
+        return [{"unidade": item(unidades, i), "cargo": item(cargos, i),
+                 "quantidade": item(quantidades, i)} for i in range(total)]
+
+    def _efetivo(self):
+        from .planos import LinhaInformada
+        if not self.is_bound or "efetivo_presente" not in self.data:
+            return None  # o bloco não estava na tela: não mexe
+        cargos = {str(c.pk): c for c in self.cargos}
+        unidades = {str(u.pk): u for u in self.unidades}
+        informadas = self.linhas_informadas()
+        if len(informadas) > MAX_LINHAS_EFETIVO:
+            self.erros_do_efetivo.append(f"No máximo {MAX_LINHAS_EFETIVO} linhas.")
+            informadas = informadas[:MAX_LINHAS_EFETIVO]
+        linhas = []
+        for i, linha in enumerate(informadas, start=1):
+            if not linha["unidade"] and not linha["cargo"]:
+                continue  # linha em branco (a quantidade 1 que vem de fábrica não conta)
+            if not linha["cargo"]:
+                self.erros_do_efetivo.append(f"Linha {i}: selecione o cargo.")
+                continue
+            if linha["cargo"] not in cargos:
+                self.erros_do_efetivo.append(f"Linha {i}: cargo inválido.")
+                continue
+            if linha["unidade"] and linha["unidade"] not in unidades:
+                self.erros_do_efetivo.append(f"Linha {i}: unidade inválida.")
+                continue
+            qtd = linha["quantidade"]
+            if not (qtd.isascii() and qtd.isdecimal()) or not 1 <= int(qtd) <= 999:
+                self.erros_do_efetivo.append(f"Linha {i}: informe a quantidade (1 a 999).")
+                continue
+            linhas.append(LinhaInformada(cargo=cargos[linha["cargo"]], quantidade=int(qtd),
+                                         unidade=unidades.get(linha["unidade"])))
+        return linhas
+
+    def clean(self):
+        dados = super().clean() or {}
+        escolha = dados.pop("programa", "") or ""
+        outros = " ".join((dados.get("programa_outros") or "").split())
+        dados["programa"] = None
+        if escolha and escolha != OUTRO_PROGRAMA:
+            dados["programa"] = ProgramaSolicitante.objects.filter(pk=escolha).first()
+            if dados["programa"] is None:
+                self.add_error("programa", "Selecione um programa válido.")
+            dados["programa_outros"] = ""
+        elif escolha == OUTRO_PROGRAMA and not outros:
+            self.add_error("programa_outros", "Informe o outro programa.")
+        inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
+        if inicio and fim and fim < inicio:
+            self.add_error("data_fim", "A data final não pode ser anterior à data inicial.")
+        if fim and not inicio:
+            self.add_error("data_inicio", "Informe a data de ida.")
+        saida, chegada = dados.get("saida_em"), dados.get("chegada_em")
+        if saida and chegada and chegada <= saida:
+            self.add_error("chegada_em", "A chegada na sede deve ser depois da saída.")
+        dados["efetivo"] = self._efetivo()
+        if self.erros_do_efetivo:
+            self.add_error(None, "Efetivo: " + " ".join(self.erros_do_efetivo))
+        if self.is_bound and "atividades_presente" not in self.data:
+            dados["atividades"] = None  # as caixas não estavam na tela: não mexe
+        for campo in ("contextualizacao", "coordenacao", "consideracoes"):
+            original = dados.pop(f"{campo}_original", None)
+            if self.is_bound and campo not in self.data:
+                dados[campo] = None
+            elif original is not None and (dados.get(campo) or "").strip() == original.strip():
+                dados[campo] = None  # não mexeu: o automático continua valendo
+        return dados
+
+    @classmethod
+    def de(cls, plano, **kwargs):
+        from .planos import versao_de
+        programa = str(plano.programa_id) if plano.programa_id else (
+            OUTRO_PROGRAMA if plano.programa_outros else "")
+        inicial = {
+            "versao": versao_de(plano), "oficios": [o.pk for o in plano.oficios.all()],
+            "programa": programa, "programa_outros": plano.programa_outros,
+            "data_inicio": plano.data_inicio,
+            "data_fim": plano.data_fim if plano.data_fim != plano.data_inicio else None,
+            "horario": plano.horario,
+            "destinos": [str(d.municipio) for d in plano.destinos.all()],
+            "saida_em": timezone.localtime(plano.saida_em) if plano.saida_em else None,
+            "chegada_em": timezone.localtime(plano.chegada_em) if plano.chegada_em else None,
+            "atividades": [a.pk for a in plano.atividades.all()],
+            "contextualizacao": plano.contextualizacao, "coordenacao": plano.coordenacao,
+            "consideracoes": plano.consideracoes, "assinante": plano.assinante_id,
+            "contextualizacao_original": plano.contextualizacao,
+            "coordenacao_original": plano.coordenacao,
+            "consideracoes_original": plano.consideracoes,
+            "data_documento": plano.data_documento,
+        }
+        for qual in ("adm", "op"):
+            for sufixo in ("", "_nome", "_cargo", "_genero"):
+                valor = getattr(plano, f"coordenador_{qual}{sufixo}")
+                inicial[f"coordenador_{qual}{sufixo}"] = (
+                    valor.pk if sufixo == "" and valor is not None else valor)
+        return cls(plano=plano, initial=inicial, **kwargs)
+
+    @staticmethod
+    def conjunto_padrao() -> list[int]:
+        """As atividades do conjunto padrão (vêm marcadas no plano novo e são gravadas)."""
+        padrao = PresetAtividades.objects.filter(padrao=True, ativo=True).first()
+        return list(padrao.atividades.values_list("pk", flat=True)) if padrao else []

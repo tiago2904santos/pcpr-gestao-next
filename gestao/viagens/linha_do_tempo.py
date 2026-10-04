@@ -13,7 +13,15 @@ from datetime import datetime, timedelta
 
 from gestao.plataforma.auditoria import Passo, passos_do_registro
 
-from .models import OrdemServico, OrdemServicoDestino, TermoAutorizacao, TermoDestino
+from .models import (
+    EfetivoPlano,
+    OrdemServico,
+    OrdemServicoDestino,
+    PlanoDestino,
+    PlanoTrabalho,
+    TermoAutorizacao,
+    TermoDestino,
+)
 
 # Salvamentos seguidos da mesma pessoa (o autosave grava a cada pausa) viram uma linha só.
 JANELA = timedelta(minutes=20)
@@ -59,6 +67,21 @@ def _eventos(passos: list[Passo], *, criado: str, cancelado: str, reativado: str
             continue
         if p.operacao != "UPDATE":
             continue
+        if "cancelado" in p.campos:  # o plano cancela por um sim/não, não pela situação
+            if p.depois.get("cancelado"):
+                motivo = (p.depois.get("motivo_cancelamento") or "").strip()
+                texto = f"{cancelado} — {motivo}" if motivo else cancelado
+                eventos.append(Evento(p.em, "cancelado", p.usuario, texto))
+            else:
+                eventos.append(Evento(p.em, "reativado", p.usuario, reativado))
+            continue
+        if "situacao" in p.campos and p.depois.get("situacao") == "gerado":
+            if p.antes.get("situacao") != "gerado":
+                eventos.append(Evento(p.em, "documento", p.usuario,
+                                      "Finalizado: pronto para gerar o documento"
+                                      if "documento_gerado_em" not in p.campos
+                                      else "Documento gerado pela primeira vez"))
+            continue
         if "situacao" in p.campos:
             if p.depois.get("situacao") in ("cancelada", "cancelado"):
                 motivo = (p.depois.get("motivo_cancelamento") or "").strip()
@@ -88,7 +111,7 @@ def _m2m(modelo, campo: str) -> tuple[str, str]:
     return relacao._meta.db_table, f"{modelo._meta.model_name}_id"
 
 
-MARCOS = ("situacao", "documento_gerado_em")
+MARCOS = ("situacao", "documento_gerado_em", "cancelado")
 
 
 def da_ordem(ordem: OrdemServico) -> list[Evento]:
@@ -113,4 +136,27 @@ def do_termo(termo: TermoAutorizacao) -> list[Evento]:
     passos = passos_do_registro(TermoAutorizacao._meta.db_table, termo.pk,
                                 dict([destinos, servidores]), marcos=MARCOS)
     return _eventos(passos, criado="Termo criado", cancelado="Cancelado",
+                    reativado="Reativado", campos=campos, filhas=filhas)
+
+
+def do_plano(plano: PlanoTrabalho) -> list[Evento]:
+    oficios, atividades = _m2m(PlanoTrabalho, "oficios"), _m2m(PlanoTrabalho, "atividades")
+    destinos = (PlanoDestino._meta.db_table, "plano_id")
+    efetivo = (EfetivoPlano._meta.db_table, "plano_id")
+    filhas = {oficios[0]: "ofícios", destinos[0]: "destinos", efetivo[0]: "efetivo",
+              atividades[0]: "atividades"}
+    # Os textos e valores que se refazem sozinhos (contextualização automática, metas,
+    # diárias…) não entram: só o que a pessoa mudou.
+    campos = {"programa_id": "programa", "programa_outros": "programa",
+              "data_inicio": "período", "data_fim": "período", "horario": "horário",
+              "coordenador_adm_id": "coordenadores", "coordenador_adm_nome": "coordenadores",
+              "coordenador_op_id": "coordenadores", "coordenador_op_nome": "coordenadores",
+              "saida_em": "deslocamento", "chegada_em": "deslocamento",
+              "contextualizacao_auto": "textos do documento",
+              "coordenacao_auto": "textos do documento",
+              "consideracoes_auto": "textos do documento",
+              "assinante_id": "quem assina", "data_documento": "data do documento"}
+    passos = passos_do_registro(PlanoTrabalho._meta.db_table, plano.pk,
+                                dict([oficios, destinos, efetivo, atividades]), marcos=MARCOS)
+    return _eventos(passos, criado="Plano de trabalho criado", cancelado="Cancelado",
                     reativado="Reativado", campos=campos, filhas=filhas)

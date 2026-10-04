@@ -17,9 +17,12 @@ from django.db import models
 from django.db.models import Q
 
 from gestao.cadastros.models import (
+    AtividadePlano,
+    Cargo,
     Combustivel,
     ModeloTexto,
     Municipio,
+    ProgramaSolicitante,
     Servidor,
     Unidade,
     Viatura,
@@ -764,3 +767,191 @@ class LacunaOrdemServico(models.Model):
 
     def __str__(self) -> str:
         return f"{self.numero:03d}/{self.ano}"
+
+
+# ---------------------------------------------------------------- plano de trabalho
+class PlanoTrabalho(models.Model):
+    """Plano de Trabalho (paridade com `viagens_planos` da referência): planejamento
+    operacional e financeiro de uma ação itinerante — atuação (destinos, datas, horário),
+    efetivo e diárias, atividades com metas e recursos, coordenadores e os textos do
+    documento. Numeração anual própria com sufixo ("07/2026/ASCOM").
+
+    Na referência o plano liga-se à viagem (módulo 8, ainda não migrado); aqui, até ela
+    existir, liga-se aos ofícios de onde vêm destino, datas, efetivo e deslocamento."""
+
+    class Situacao(models.TextChoices):
+        RASCUNHO = "rascunho", "Rascunho"
+        GERADO = "gerado", "Gerado"
+
+    class Genero(models.TextChoices):
+        MASCULINO = "M", "o Coordenador"
+        FEMININO = "F", "a Coordenadora"
+
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="planos")
+    numero = models.PositiveIntegerField()
+    ano = models.PositiveSmallIntegerField()
+    sufixo = models.CharField("sufixo do número", max_length=20, blank=True)
+    oficios = models.ManyToManyField(Oficio, blank=True, related_name="planos")
+    situacao = models.CharField(max_length=10, choices=Situacao.choices,
+                                default=Situacao.RASCUNHO)
+    cancelado = models.BooleanField(default=False)
+    motivo_cancelamento = models.CharField("motivo do cancelamento", max_length=1000,
+                                           blank=True)
+    cancelado_em = models.DateTimeField(null=True, blank=True)
+    # A data que sai no documento nasce na primeira geração (e não muda sozinha).
+    data_documento = models.DateField("data do documento", null=True, blank=True)
+    documento_gerado_em = models.DateTimeField(null=True, blank=True)
+    assinante = models.ForeignKey(Servidor, on_delete=models.SET_NULL, null=True, blank=True,
+                                  related_name="+", verbose_name="assinante deste plano")
+
+    # 1. Identificação e atuação
+    programa = models.ForeignKey(ProgramaSolicitante, on_delete=models.SET_NULL, null=True,
+                                 blank=True, related_name="planos", verbose_name="programa")
+    programa_outros = models.CharField("outro programa", max_length=200, blank=True)
+    data_inicio = models.DateField("data de início", null=True, blank=True)
+    data_fim = models.DateField("data de fim", null=True, blank=True)
+    horario = models.CharField("horário de atendimento", max_length=60,
+                               default="09:00 até 17:00", blank=True)
+    coordenador_adm = models.ForeignKey(
+        Servidor, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="coordenador administrativo")
+    coordenador_adm_nome = models.CharField("nome (fora do cadastro)", max_length=255,
+                                            blank=True)
+    coordenador_adm_cargo = models.CharField("cargo (fora do cadastro)", max_length=120,
+                                             blank=True)
+    # Como sai no documento ("o Coordenador"/"a Coordenadora"); vazio = ainda não escolhido
+    # (pendência quando há coordenador — um padrão errado sairia no documento sem aviso).
+    coordenador_adm_genero = models.CharField(max_length=1, choices=Genero.choices, blank=True)
+    coordenador_op = models.ForeignKey(
+        Servidor, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="coordenador operacional")
+    coordenador_op_nome = models.CharField("nome (fora do cadastro)", max_length=255,
+                                           blank=True)
+    coordenador_op_cargo = models.CharField("cargo (fora do cadastro)", max_length=120,
+                                            blank=True)
+    coordenador_op_genero = models.CharField(max_length=1, choices=Genero.choices, blank=True)
+
+    # Textos do documento: gerados enquanto o interruptor está ligado; escrever um texto
+    # diferente do automático desliga, apagar (ou repetir o automático) religa.
+    contextualizacao = models.TextField(blank=True)
+    contextualizacao_auto = models.BooleanField(default=True)
+    coordenacao = models.TextField(blank=True)
+    coordenacao_auto = models.BooleanField(default=True)
+    consideracoes = models.TextField(blank=True)
+    consideracoes_auto = models.BooleanField(default=True)
+
+    # 2. Deslocamento e diárias (cópia do cálculo, refeita a cada gravação)
+    saida_em = models.DateTimeField("saída da sede", null=True, blank=True)
+    chegada_em = models.DateTimeField("chegada na sede", null=True, blank=True)
+    diarias_composicao = models.CharField(max_length=120, blank=True)
+    diarias_unitario = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+                                           blank=True)
+    diarias_total = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+                                        blank=True)
+
+    # 3. Atividades (e os textos que nascem delas)
+    atividades = models.ManyToManyField(AtividadePlano, blank=True, related_name="planos")
+    atividades_texto = models.TextField(blank=True)
+    metas = models.TextField(blank=True)
+    recursos = models.TextField(blank=True)
+    unidade_movel_texto = models.TextField(blank=True)
+
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-ano", "-numero"]
+        verbose_name = "plano de trabalho"
+        verbose_name_plural = "planos de trabalho"
+        constraints = [
+            models.UniqueConstraint(fields=["ano", "numero"], name="plano_numero_unico"),
+            models.CheckConstraint(condition=Q(numero__gt=0), name="plano_numero_positivo"),
+            models.CheckConstraint(
+                condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
+                                                       data_fim__gte=models.F("data_inicio")),
+                name="plano_periodo_ordenado"),
+            models.CheckConstraint(
+                condition=~Q(cancelado=True) | ~Q(motivo_cancelamento=""),
+                name="plano_cancelado_tem_motivo"),
+            models.CheckConstraint(
+                condition=(Q(diarias_unitario__isnull=True) | Q(diarias_unitario__gte=0))
+                & (Q(diarias_total__isnull=True) | Q(diarias_total__gte=0)),
+                name="plano_diarias_nao_negativas"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Plano de Trabalho {self.numero_formatado}"
+
+    @property
+    def numero_formatado(self) -> str:
+        sufixo = f"/{self.sufixo}" if self.sufixo else ""
+        return f"{self.numero:02d}/{self.ano}{sufixo}"
+
+    @property
+    def gerado(self) -> bool:
+        return self.situacao == self.Situacao.GERADO
+
+    @property
+    def programa_nome(self) -> str:
+        return self.programa.nome if self.programa is not None else self.programa_outros
+
+
+class PlanoDestino(models.Model):
+    """Destinos do plano na ordem informada; o primeiro é o principal (entra nas diárias)."""
+
+    plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="destinos")
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    posicao = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [models.UniqueConstraint(fields=["plano", "municipio"],
+                                               name="plano_destino_unico")]
+
+    def __str__(self) -> str:
+        return str(self.municipio)
+
+
+class EfetivoPlano(models.Model):
+    """Uma linha do efetivo: quantos de um cargo (de uma unidade). O mesmo cargo pode
+    repetir em linhas (referência)."""
+
+    plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="efetivo")
+    unidade = models.ForeignKey(Unidade, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name="+")
+    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT, related_name="+")
+    quantidade = models.PositiveSmallIntegerField(default=1)
+    posicao = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [models.CheckConstraint(condition=Q(quantidade__gte=1),
+                                              name="efetivo_quantidade_positiva")]
+
+    def __str__(self) -> str:
+        return f"{self.quantidade} {self.cargo}"
+
+
+class NumeracaoPlano(models.Model):
+    """Uma linha por ano: trava a numeração dos planos (select_for_update)."""
+
+    ano = models.PositiveSmallIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return str(self.ano)
+
+
+class LacunaPlano(models.Model):
+    """Número de plano liberado por exclusão (o próximo do ano o reaproveita)."""
+
+    ano = models.PositiveSmallIntegerField()
+    numero = models.PositiveIntegerField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["ano", "numero"],
+                                               name="plano_lacuna_unica")]
+
+    def __str__(self) -> str:
+        return f"{self.numero:02d}/{self.ano}"

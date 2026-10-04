@@ -164,6 +164,16 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **Hypothesis sob `-n auto`**: o prazo padrão de 200 ms por exemplo estoura com a máquina
   carregada; testes de propriedade usam `@settings(deadline=None)`.
 
+- **axe × barra de ações fixa**: o controle que calhar na borda da barra é acusado como
+  alvo pequeno (encoberto), e isso muda com a altura da janela. O axe mede com a barra em
+  repouso (posição estática via CSSOM — rolar até o fim só passa o problema para o cabeçalho
+  fixo); o foco já tira o campo de baixo da barra (protecao.js).
+- **Carga inicial por migração some no `flush`** (reset DEMO, testes transacionais): toda
+  carga de catálogo mora numa função idempotente em `cadastros/carga.py`, chamada pela
+  migração, pela semeadura e pelo cenário de testes.
+- **Autosave não pode gravar ao sair sem mudança**: a comparação parte do estado inicial do
+  formulário (refeito no `load`), senão cada visita gera versão nova e evento vazio.
+
 ## Processo
 
 - **Checkpoint só com `scripts/checar_rapido.sh` verde** (para no primeiro erro). Encadear

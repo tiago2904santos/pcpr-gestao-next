@@ -14,7 +14,7 @@ from decimal import Decimal
 from django.contrib.auth.models import Group
 from django.utils import timezone
 
-from gestao.cadastros.carga import garantir_municipios
+from gestao.cadastros.carga import garantir_catalogos_do_plano, garantir_municipios
 from gestao.cadastros.models import (
     Cargo,
     Combustivel,
@@ -66,6 +66,7 @@ def cenario_completo(senha: str = "senha-local-123", hoje: date | None = None) -
 
     hoje = hoje or timezone.localdate()
     garantir_municipios()
+    garantir_catalogos_do_plano()
     sincronizar_papeis()
     c = Cenario()
     ascom = Unidade.objects.create(sigla="ASCOM", nome="Assessoria de Comunicação Social")

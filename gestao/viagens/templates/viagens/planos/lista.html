@@ -1,0 +1,94 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Planos de trabalho{% endblock %}
+{% block titulo_lista %}Planos de trabalho{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Planejamento das ações itinerantes: atuação, efetivo e diárias, atividades com metas e recursos, coordenação. Numeração anual própria.</p>{% endblock %}
+{% block acoes_lista %}{% if pode_plano_do_oficio %}<form method="post" action="{% url 'viagens:criar_plano_do_oficio' oficio.pk %}" data-confirmar="Criar um plano de trabalho para o Ofício {{ oficio.numero_formatado }}? Ele recebe o próximo número do ano e, do ofício, destino, datas, efetivo e deslocamento." data-confirmar-titulo="Novo plano de trabalho?" data-confirmar-rotulo="Criar plano">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo plano de trabalho</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo_plano' %}">{% icone "plus" %}Novo plano de trabalho</a>{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista de planos da referência: título "Plano de Trabalho nº", selo da
+situação, fatos (período, destino, programa, coordenador, efetivo, valor) com o que falta
+nomeado em tom apagado; abas e busca (número, destino, programa). "Finalizados" (contas
+prestadas) chega com a prestação de contas.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if oficio_filtro %}oficio={{ oficio_filtro }}&amp;{% endif %}{% if chave %}aba={{ chave }}&amp;{% endif %}{% if busca %}q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:planos' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  {% if oficio_filtro %}<input type="hidden" name="oficio" value="{{ oficio_filtro }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-planos">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-planos" type="search" name="q" value="{{ busca }}" placeholder="Número (7/2026), destino ou programa" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% elif oficio %}Planos do Ofício {{ oficio.numero_formatado }}{% else %}Planos de trabalho{% endif %}</h2>
+  {% if oficio %}<a class="ficha ficha--ativa" href="{% url 'viagens:planos' %}" aria-label="Ver todos os planos (tirar o filtro do Ofício {{ oficio.numero_formatado }})">Ofício {{ oficio.numero_formatado }} <span class="ficha__remover" aria-hidden="true">{% icone "x" classe="icone--sm" %}</span></a>{% endif %}
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"plano,planos" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% with p=l.plano %}
+      <li class="registro{% if p.cancelado %} registro--inativo{% endif %}">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Plano{% if p.sufixo %} · {{ p.sufixo }}{% endif %}</span><span class="placa__numero">{{ p.numero|stringformat:"02d" }}/{{ p.ano }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <a class="registro__link" href="{% url 'viagens:editar_plano' p.pk %}"><span class="sr-only">{{ p }} · </span>{% for d in p.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if l.periodo %} · {{ l.periodo }}{% endif %}</a>
+            <span class="selo selo--{{ l.estado.1 }} selo--sem-ponto">{{ l.estado.0 }}</span>
+          </div>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{% if p.programa_nome %}{{ p.programa_nome }}{% else %}<span class="vazio-inline">Sem programa</span>{% endif %}</span>
+            <span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% if l.coordenador %}{{ l.coordenador.nome }}{% else %}<span class="vazio-inline">Sem coordenador</span>{% endif %}</span>
+            <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if l.efetivo %}{{ l.efetivo }} no efetivo{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>
+            {% if p.diarias_total is not None %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ p.diarias_total|moeda }}</span>{% endif %}
+            {% for of in p.oficios.all %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
+          </div>
+          {% if p.cancelado and p.motivo_cancelamento %}<p class="registro__texto">Motivo do cancelamento: {{ p.motivo_cancelamento }}</p>{% endif %}
+        </div>
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ p }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_plano' p.pk %}">{% if l.editavel %}{% icone "pencil" %}Abrir{% else %}{% icone "eye" %}Abrir{% endif %}</a>
+              {% if l.editavel and p.documento_gerado_em %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_plano' p.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Abrir o plano (PDF)</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_plano' p.pk 'docx' %}">{% icone "download" %}Baixar o plano (DOCX)</a>
+              {% endif %}
+              {% if l.cancelavel %}
+                <div class="menu__separador" role="separator"></div>
+                {% if p.cancelado %}<button type="submit" form="reativar-{{ p.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar</button>
+                {% else %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_plano' p.pk %}" data-motivo-titulo="Cancelar o {{ p }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar plano" data-motivo-ajuda="O plano continua na lista, em Cancelados, com o mesmo número; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar</button>{% endif %}
+              {% endif %}
+              {% if l.excluivel %}<button type="submit" form="excluir-{{ p.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>{% endif %}
+            </div>
+          </pc-menu>
+          {% if l.cancelavel and p.cancelado %}<form id="reativar-{{ p.pk }}" method="post" action="{% url 'viagens:reativar_plano' p.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+          {% if l.excluivel %}<form id="excluir-{{ p.pk }}" method="post" action="{% url 'viagens:excluir_plano' p.pk %}" hidden data-confirmar="O {{ p }} será excluído e o número volta a ficar livre para o próximo plano do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir plano de trabalho?" data-confirmar-rotulo="Excluir plano" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+        </div>
+      </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif busca or aba or oficio_filtro %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum plano de trabalho encontrado" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'viagens:novo_plano' as url_novo %}
+  {% include "componentes/vazio.html" with icone="list-checks" titulo="Nenhum plano de trabalho registrado ainda" texto="Crie um plano avulso ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_url=url_novo acao_rotulo="Novo plano de trabalho" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum plano para mostrar" texto="Quando houver planos da sua unidade, eles aparecerão aqui." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}{% include "componentes/dialogo_motivo.html" %}{% endblock %}

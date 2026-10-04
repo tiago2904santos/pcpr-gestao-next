@@ -73,6 +73,18 @@ implementados e testados; o usuário pode pedir para mudar sem retrabalho grande
 | Nome do servidor único; RG e telefone únicos quando informados | constraints `viagens_servidor_*_unico` | constraints `servidor_nome_unico` (sem caixa), `servidor_rg_unico`, `servidor_telefone_unico` | `test_unicidade_vira_mensagem_no_campo` |
 | Diária mínima R$ 0,04 | `TabelaDiariaForm.clean_valor_24h` (P08) | idem | `test_valor_minimo_quatro_centavos` |
 
+## Plano de trabalho — comportamentos adotados (a confirmar; não bloqueiam)
+
+| Comportamento | Referência | Aqui | Prova |
+|---|---|---|---|
+| Vínculo com a viagem | o plano liga-se à viagem | liga-se aos **ofícios** até a viagem (módulo 8) existir; deles vêm destino, datas, efetivo e deslocamento | `TestCriacaoDoOficio` |
+| Número digitado à mão | editável ("N° do Plano") | só automático (como a OS) | `TestNumeracao` |
+| Finalizar e gerar | dois passos (e a lista gerava sem finalizar) | uma ação: "Finalizar e gerar o plano" | `test_finalizar_grava_o_que_esta_na_tela` |
+| Tratamento do coordenador | gênero com padrão masculino | sem padrão; vazio é pendência; o padrão da configuração traz o seu | `test_tratamento_do_coordenador_e_pendencia` |
+| Excluir depois de gerado | permitido (o número vira lacuna) | só antes da primeira geração; depois, cancelar | `test_depois_de_gerado_nao_exclui` |
+| Só o destino principal nas diárias | sim | mantido | `test_copia_das_diarias_ao_centavo` |
+| Ordem das seções do documento | DOCX numa ordem, PDF noutra | a do PDF para os dois | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -84,3 +96,4 @@ implementados e testados; o usuário pode pedir para mudar sem retrabalho grande
 | Reabertura formal (emitido → rascunho com motivo, gestor) sem botão desde a saída da página de detalhe; hoje a tela oferece "Editar (retificar)" | **bloqueante** (decisão: manter só a retificação ou repor o botão de reabrir) |
 | Uso real do DOCX fora do sistema (D4) | evidência do usuário |
 | Confirmar os comportamentos de Cadastros adotados da referência (tabela acima) | decisão do usuário (não bloqueia) |
+| Confirmar os comportamentos do Plano de trabalho adotados (tabela acima) | decisão do usuário (não bloqueia) |

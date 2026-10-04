@@ -11,7 +11,13 @@ from django.db.models import QuerySet
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
-from .models import Oficio, OrdemServico, Roteiro, TermoAutorizacao
+from .models import (
+    Oficio,
+    OrdemServico,
+    PlanoTrabalho,
+    Roteiro,
+    TermoAutorizacao,
+)
 
 
 def unidade_do_usuario(usuario) -> Unidade | None:
@@ -292,3 +298,60 @@ def pode_criar_ordem_do_oficio(usuario, oficio: Oficio) -> bool:
 def exigir(condicao: bool, mensagem: str = "Você não tem permissão para esta ação.") -> None:
     if not condicao:
         raise PermissionDenied(mensagem)
+
+
+# ---------------------------------------------------------------- planos de trabalho
+def planos_visiveis(usuario) -> QuerySet[PlanoTrabalho]:
+    if not usuario.has_perm("viagens.view_planotrabalho"):
+        return PlanoTrabalho.objects.none()
+    if ve_todas_unidades(usuario):
+        return PlanoTrabalho.objects.all()
+    unidade = unidade_do_usuario(usuario)
+    return (PlanoTrabalho.objects.filter(unidade=unidade) if unidade
+            else PlanoTrabalho.objects.none())
+
+
+def pode_ver_plano(usuario, plano: PlanoTrabalho) -> bool:
+    if not usuario.has_perm("viagens.view_planotrabalho"):
+        return False
+    return ve_todas_unidades(usuario) or plano.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_criar_plano(usuario) -> bool:
+    return (usuario.has_perm("viagens.add_planotrabalho")
+            and unidade_do_usuario(usuario) is not None)
+
+
+def pode_criar_plano_do_oficio(usuario, oficio: Oficio) -> bool:
+    """O plano nasce na unidade de quem cria: o ofício precisa ser dela (e não cancelado)."""
+    unidade = unidade_do_usuario(usuario)
+    return (pode_criar_plano(usuario) and oficio.situacao != Oficio.Situacao.CANCELADO
+            and unidade is not None and oficio.unidade_id == unidade.pk)
+
+
+def pode_editar_plano(usuario, plano: PlanoTrabalho) -> bool:
+    """Editar, finalizar e gerar o documento: plano não cancelado, quem altera planos e o vê
+    (a referência só escondia os botões do cancelado; aqui o servidor recusa)."""
+    return (not plano.cancelado and usuario.has_perm("viagens.change_planotrabalho")
+            and pode_ver_plano(usuario, plano))
+
+
+def pode_cancelar_plano(usuario, plano: PlanoTrabalho) -> bool:
+    return usuario.has_perm("viagens.change_planotrabalho") and pode_ver_plano(usuario, plano)
+
+
+def pode_excluir_plano(usuario, plano: PlanoTrabalho) -> bool:
+    """Excluir libera o número: só enquanto o documento nunca foi gerado (depois, cancelar)."""
+    return (plano.documento_gerado_em is None
+            and usuario.has_perm("viagens.delete_planotrabalho")
+            and pode_ver_plano(usuario, plano))
+
+
+def pode_ver_documento_plano(usuario, plano: PlanoTrabalho) -> bool:
+    """A folha na tela mostra o plano como sai: mesma régua de gerar."""
+    return pode_editar_plano(usuario, plano)
+
+
+def pode_ver_historico_plano(usuario, plano: PlanoTrabalho) -> bool:
+    return pode_ver_plano(usuario, plano)

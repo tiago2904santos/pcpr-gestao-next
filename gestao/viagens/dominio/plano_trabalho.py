@@ -66,6 +66,8 @@ class DadosPlano:
     coordenador_op: Coordenador | None = None
     efetivo: list[LinhaEfetivo] = field(default_factory=list)
     diarias_total: Decimal | None = None
+    tem_deslocamento: bool = False  # saída e chegada na sede informadas
+    tem_atividades: bool = False
 
 
 # ---------------------------------------------------------------- períodos
@@ -198,22 +200,57 @@ def texto_do_efetivo(linhas: list[LinhaEfetivo]) -> str:
 class Pendencia:
     mensagem: str
     secao: str  # âncora do cartão onde se resolve
+    rotulo: str = ""  # curto, para o selo do cartão ("Falta destino")
+
+
+def _tratamento_falta(c: Coordenador | None) -> bool:
+    return bool(c and c.nome.strip() and c.genero not in (MASCULINO, FEMININO))
 
 
 def pendencias(d: DadosPlano) -> list[Pendencia]:
-    """O que impede finalizar e gerar o documento, na ordem da referência."""
+    """O que impede gerar o documento, na ordem da referência. A mais: o tratamento do
+    coordenador (um padrão "o Coordenador" sairia errado para uma coordenadora); e a
+    pendência de diárias só aparece quando é dela mesma (sem destino ou efetivo, já há a
+    pendência que a explica)."""
     falta = []
     if not (d.coordenador_adm and d.coordenador_adm.nome.strip()):
-        falta.append(Pendencia("Informe o coordenador administrativo.", "identificacao"))
+        falta.append(Pendencia("Informe o coordenador administrativo.", "identificacao",
+                               "Falta coordenador administrativo"))
+    elif _tratamento_falta(d.coordenador_adm):
+        falta.append(Pendencia("Diga se o administrativo sai como “o Coordenador” ou “a "
+                               "Coordenadora”.", "identificacao", "Falta o tratamento"))
+    if _tratamento_falta(d.coordenador_op):
+        falta.append(Pendencia("Diga se o operacional sai como “o Coordenador” ou “a "
+                               "Coordenadora”.", "identificacao", "Falta o tratamento"))
     if not d.destinos:
-        falta.append(Pendencia("Informe o destino (cidade/UF).", "identificacao"))
+        falta.append(Pendencia("Informe o destino (cidade/UF).", "identificacao",
+                               "Falta destino"))
     if not d.inicio:
-        falta.append(Pendencia("Informe a data do evento.", "identificacao"))
+        falta.append(Pendencia("Informe a data do evento.", "identificacao",
+                               "Falta data do evento"))
     if efetivo_total(d.efetivo) <= 0:
-        falta.append(Pendencia("Informe o efetivo (cargo e quantidade).", "efetivo"))
-    if d.diarias_total is None:
-        falta.append(Pendencia("Calcule as diárias (saída e chegada na sede).", "efetivo"))
+        falta.append(Pendencia("Informe o efetivo (cargo e quantidade).", "efetivo",
+                               "Falta efetivo"))
+    if d.diarias_total is None and d.destinos and efetivo_total(d.efetivo) > 0:
+        if not d.tem_deslocamento:
+            falta.append(Pendencia("Informe a saída e a chegada na sede.", "efetivo",
+                                   "Falta saída e chegada"))
+        else:
+            falta.append(Pendencia("As diárias não fecham: veja o cartão Efetivo e diárias.",
+                                   "efetivo", "Diárias não calculadas"))
     return falta
+
+
+def avisos(d: DadosPlano) -> list[Pendencia]:
+    """O que não impede gerar, mas sai em branco no documento."""
+    saida = []
+    if not d.programa.strip():
+        saida.append(Pendencia("Sem programa: a contextualização sai com “________”.",
+                               "identificacao", "Sem programa"))
+    if not d.tem_atividades:
+        saida.append(Pendencia("Nenhuma atividade marcada: atividades, metas e recursos saem "
+                               "em branco.", "atividades", "Sem atividades"))
+    return saida
 
 
 # ---------------------------------------------------------------- diárias

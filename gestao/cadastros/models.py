@@ -389,6 +389,9 @@ class ConfiguracaoInstitucional(models.Model):
     coordenador_plano = models.ForeignKey(
         "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
         verbose_name="coordenador administrativo padrão")
+    # Como o coordenador padrão sai no documento ("M": o Coordenador, "F": a Coordenadora).
+    coordenador_plano_genero = models.CharField("como sai no documento", max_length=1,
+                                                blank=True)
     sufixo_plano = models.CharField("sufixo da numeração do plano", max_length=20, blank=True)
     # Endereço em campos (referência, P10: "alinhar, sem remover campos nossos"). O rodapé
     # continua sendo o texto impresso; vazio, é montado a partir destes campos.

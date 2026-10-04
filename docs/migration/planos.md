@@ -1,7 +1,7 @@
 # Módulo 6 — Planos de trabalho (ficha)
 
 Atualizado em 04/10/2026. Situação: **EM ANDAMENTO** — 6a (catálogos e configuração)
-e 6b (domínio) implementados; 6c–6e pendentes. Comparado por leitura com `viagens_planos/` da referência
+6b (domínio) e 6c (plano de um evento) implementados; 6d–6e pendentes. Comparado por leitura com `viagens_planos/` da referência
 (modelos, formulários, serviços, telas, documento, testes); inventário funcional completo
 em `scratchpad` da sessão (não versionado) e resumido aqui.
 
@@ -11,7 +11,7 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 |---|---|---|
 | 6a | Catálogos (programas, horários, atividades com meta e recurso, conjuntos com padrão), carga inicial, configuração (assina, coordenador padrão, sufixo), substituto para o plano | ✅ |
 | 6b | Domínio puro: textos automáticos (contextualização, coordenação com gênero, considerações), pluralização do efetivo, metas/recursos, pendências, diárias do plano (motor do ofício) | ✅ |
-| 6c | Plano de um evento: numeração anual com lacuna e sufixo, folha (cartões), autosave, documento (PDF/DOCX), lista com abas, cancelar/reativar/excluir, histórico | PENDENTE |
+| 6c | Plano de um evento: numeração anual com lacuna e sufixo, folha (cartões), autosave, documento (PDF/DOCX), lista com abas, cancelar/reativar/excluir, histórico | ✅ |
 | 6d | Vários eventos (multievento) e diárias combinadas | PENDENTE |
 | 6e | Resultados por atividade e relatório final | PENDENTE |
 
@@ -45,6 +45,45 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 
 Os auxiliares de escrita (datas, listas, plural, capitalização, moeda) passaram a um módulo
 comum, `dominio/escrita.py`, usado também pela OS.
+
+## Matriz de paridade (6c — plano de um evento)
+
+| Função da referência | Situação | Aqui | Prova |
+|---|---|---|---|
+| Numeração anual "07/2026/ASCOM", menor lacuna da exclusão, sufixo da configuração | ✅ ↔ | número só automático; sufixo vazio vale a sigla da unidade | `test_planos.py::TestNumeracao` |
+| Criar a partir da viagem (destino, datas, efetivo dos ofícios, saída/chegada dos roteiros) | ✅ ↔ | a partir dos ofícios (a viagem é o módulo 8); "Novo plano de trabalho" na janela do ofício | `TestCriacaoDoOficio`, e2e `test_plano_a_partir_do_oficio` |
+| Coordenador administrativo padrão da configuração; coordenadores do cadastro ou à mão (maiúsculas) | ✅ MELHORADO | o tratamento ("o Coordenador"/"a Coordenadora") é escolhido — sem padrão masculino; vazio é pendência; o padrão da configuração traz o seu | `TestRevisoes::test_tratamento_do_coordenador_padrao_vem_da_configuracao` |
+| Textos automáticos (contextualização, coordenação, considerações) e "apagar volta ao automático" | ✅ MELHORADO | ajustáveis na folha (cartão 4); aviso quando o texto escrito à mão ficou para trás do automático; botão "Voltar ao texto automático" | `TestTextosEAtividades` |
+| Atividades → metas, atividades, recursos, unidade móvel; conjunto padrão | ✅ MELHORADO | o conjunto padrão é gravado no plano novo (na referência, só marcado na tela) | `test_conjunto_padrao_gravado_ao_criar_do_oficio` |
+| Efetivo em linhas (mesmo cargo pode repetir); diárias de um trecho com cópia gravada | ✅ | componente `pc-linhas`; cargo/unidade desativados continuam na linha; no máximo 50 linhas | `TestDiariasEPendencias`, `test_efetivo_em_linhas_com_erro_por_linha` |
+| Prévia das diárias ao vivo (rota calcular) | ↔ | a gravação automática refaz o quadro de diárias (mesmo bloco da folha do ofício) | e2e |
+| Pendências bloqueiam finalizar/gerar | ✅ MELHORADO | rótulo curto nos selos; diárias só quando a pendência é delas; avisos que não impedem (sem programa, sem atividade) | `test_dominio_plano_trabalho.py` |
+| Finalizar (GERADO) e gerar PDF/DOCX como passos separados; a lista gerava sem finalizar | ↔ | uma ação só: "Finalizar e gerar o plano" (grava a tela, confere, fixa a data, libera PDF/DOCX); o GET não gera antes dela | `test_finalizar_grava_o_que_esta_na_tela`, `test_documento_pdf_docx_e_previa` |
+| Documento: 8 seções na ordem do PDF da referência, cabeçalho e página em todas, assinatura na última página | ✅ | PDF/A e DOCX do mesmo HTML; prévia com MINUTA | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
+| Quem assina: o do plano, substituto do período, assinante dos planos — sem chefia | ✅ | | `TestConfiguracaoDoPlano` (6a) |
+| Lista: abas (sem data em "Que vão acontecer"), busca (número, N/AAAA, destino, programa) | ✅ | estado único com a folha (pendências / pronto para gerar / gerado em / cancelado) | `test_lista_abas_busca_e_permissoes` |
+| Aba "Finalizados" (contas prestadas) | ⛔ | módulo 9 | — |
+| Cancelar (motivo) / reativar / excluir (número volta) | ✅ MELHORADO | cancelado bloqueado no servidor; excluir só antes de gerar | `test_cancelado_nao_altera_e_reativa`, `test_depois_de_gerado_nao_exclui` |
+| Autosave (também depois de gerado) | ✅ MELHORADO | com versão (não grava por cima de outra pessoa); a geração toca a versão e não deixa "em branco" apagar a data fixada | `test_autosave_versao_e_cancelado`, `test_aba_velha_depois_de_gerar_nao_apaga_a_data` |
+| Histórico | ✅ MELHORADO | lido da trilha do banco | `test_historico` |
+| Resultados por atividade, relatório final | PENDENTE | etapa 6e | — |
+| Vários eventos | PENDENTE | etapa 6d | — |
+
+### Revisões (04/10/2026)
+
+- **Segurança**: Enter não finaliza (o 1º botão do formulário é Salvar); finalizar grava o que
+  está na tela (com versão) antes; geração só por "Finalizar e gerar" (POST) — o GET de
+  PDF/DOCX não gera antes, nem por link de fora; corrida excluir × gerar recusada (trava a
+  linha); aba velha não apaga a data fixada; linhas de efetivo limitadas e com ids validados;
+  cadastros desativados mantidos na linha; outra unidade recebe 403 em todas as rotas;
+  contexto da trilha restaurado ao sair de um bloco aninhado.
+- **UX**: tratamento do coordenador sem padrão (pendência); conjunto padrão gravado de
+  verdade; ação decisiva na barra; assinatura e textos antes de gerar; textos automáticos que
+  se refazem e aviso de texto manual desatualizado; selos com rótulo curto; estado único na
+  lista e na folha; "Outro programa" só com "Outro"; o plano novo diz o que vem do ofício;
+  total do efetivo; efetivo no celular em duas colunas; filtro de atividades só com catálogo
+  longo; "Desmarcar todas" com confirmação; metas e recursos recolhíveis; "Usar como padrão"
+  já na criação do conjunto.
 
 ## Decisões para as próximas etapas (adotadas; a confirmar)
 

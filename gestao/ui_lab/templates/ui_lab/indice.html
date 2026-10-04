@@ -213,6 +213,31 @@
           </pc-multiescolha>
           <p class="campo__ajuda" id="lab-multiescolha-ajuda">Escolher na busca acrescenta (sem repetir); “Remover” tira. Cada escolhido vai num campo oculto do mesmo nome.</p>
         </div>
+        {% comment %}Linhas repetidas (<pc-linhas>): adicionar e remover linhas de campos — ex.: o efetivo do plano.{% endcomment %}
+        <fieldset class="grupo-campos mt-4">
+          <legend>Efetivo (linhas repetidas)</legend>
+          <pc-linhas class="linhas" data-rotulo="linha de exemplo">
+            <input type="hidden" name="lab_linhas_presente" value="1">
+            <ol class="linhas__lista" data-lista aria-label="Linhas de exemplo">
+              <li class="linhas__linha" data-linha>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-unidade-1">Unidade</label><input class="entrada" id="lab-linha-unidade-1" name="lab_unidade" value="ASCOM"></div>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-cargo-1">Cargo</label><input class="entrada" id="lab-linha-cargo-1" name="lab_cargo" value="Agente de Polícia Judiciária"></div>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-qtd-1">Quantidade</label><input class="entrada" type="number" min="1" id="lab-linha-qtd-1" name="lab_qtd" value="6" data-padrao="1"></div>
+                <button type="button" class="botao botao--icone botao--sutil linhas__remover" data-remover-linha aria-label="Remover a linha de exemplo 1">{% icone "trash-2" %}</button>
+              </li>
+            </ol>
+            <template data-modelo>
+              <li class="linhas__linha" data-linha>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-unidade-__n__">Unidade</label><input class="entrada" id="lab-linha-unidade-__n__" name="lab_unidade"></div>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-cargo-__n__">Cargo</label><input class="entrada" id="lab-linha-cargo-__n__" name="lab_cargo"></div>
+                <div class="campo"><label class="campo__rotulo" for="lab-linha-qtd-__n__">Quantidade</label><input class="entrada" type="number" min="1" id="lab-linha-qtd-__n__" name="lab_qtd" value="1" data-padrao="1"></div>
+                <button type="button" class="botao botao--icone botao--sutil linhas__remover" data-remover-linha aria-label="Remover a linha de exemplo __n__">{% icone "trash-2" %}</button>
+              </li>
+            </template>
+            <button type="button" class="botao botao--sm" data-adicionar>{% icone "plus" classe="icone--sm" %}Adicionar linha</button>
+            <div class="sr-only" aria-live="polite" data-anuncio></div>
+          </pc-linhas>
+        </fieldset>
         {% comment %}Caixas de escolha em grade (widget CaixasDeEscolha): lista curta, várias escolhas — ex.: atividades do plano de trabalho.{% endcomment %}
         <fieldset class="grupo-campos mt-4">
           <legend>Atividades (caixas de escolha)</legend>

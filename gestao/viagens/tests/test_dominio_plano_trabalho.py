@@ -129,13 +129,34 @@ class TestAtividadesEEfetivo:
 
 
 class TestPendenciasEFormatos:
-    def test_plano_vazio_lista_as_cinco_na_ordem(self):
+    def test_plano_vazio_lista_na_ordem(self):
         falta = pt.pendencias(pt.DadosPlano())
         assert [p.mensagem for p in falta] == [
             "Informe o coordenador administrativo.", "Informe o destino (cidade/UF).",
-            "Informe a data do evento.", "Informe o efetivo (cargo e quantidade).",
-            "Calcule as diárias (saída e chegada na sede)."]
-        assert [p.secao for p in falta] == ["identificacao"] * 3 + ["efetivo"] * 2
+            "Informe a data do evento.", "Informe o efetivo (cargo e quantidade)."]
+        assert [p.secao for p in falta] == ["identificacao"] * 3 + ["efetivo"]
+        assert [p.rotulo for p in falta][1] == "Falta destino"
+
+    def test_diarias_so_quando_a_pendencia_e_delas(self):
+        base = {"destinos": ["Maringá/PR"], "inicio": date(2026, 6, 25),
+                "coordenador_adm": pt.Coordenador("ANA", genero=pt.FEMININO),
+                "efetivo": [pt.LinhaEfetivo(2, "Agente")]}
+        assert [p.mensagem for p in pt.pendencias(pt.DadosPlano(**base))] == [
+            "Informe a saída e a chegada na sede."]
+        assert [p.rotulo for p in pt.pendencias(pt.DadosPlano(**base, tem_deslocamento=True))
+                ] == ["Diárias não calculadas"]
+
+    def test_tratamento_do_coordenador_e_pendencia(self):
+        d = pt.DadosPlano(destinos=["Maringá/PR"], inicio=date(2026, 6, 25),
+                          coordenador_adm=pt.Coordenador("ANA", genero=""),
+                          coordenador_op=pt.Coordenador("BIA", genero=""),
+                          efetivo=[pt.LinhaEfetivo(2, "Agente")], diarias_total=Decimal("10"))
+        assert [p.rotulo for p in pt.pendencias(d)] == ["Falta o tratamento"] * 2
+
+    def test_avisos_que_nao_impedem(self):
+        assert [a.rotulo for a in pt.avisos(pt.DadosPlano())] == ["Sem programa",
+                                                                  "Sem atividades"]
+        assert pt.avisos(pt.DadosPlano(programa="X", tem_atividades=True)) == []
 
     def test_plano_completo_sem_pendencia(self):
         d = pt.DadosPlano(destinos=["Maringá/PR"], inicio=date(2026, 6, 25),

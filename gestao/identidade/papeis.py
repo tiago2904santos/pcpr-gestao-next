@@ -28,7 +28,7 @@ CADASTROS_DA_EQUIPE = [
 
 PAPEIS: dict[str, Papel] = {
     "OPERADOR_VIAGENS": {
-        "descricao": "Monta ofícios, roteiros e termos da sua unidade.",
+        "descricao": "Monta ofícios, roteiros, termos, ordens e planos da sua unidade.",
         "permissoes": [
             "viagens.view_oficio", "viagens.add_oficio", "viagens.change_oficio",
             "viagens.emitir_oficio", "viagens.delete_oficio", "viagens.arquivar_oficio",
@@ -38,6 +38,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.change_termoautorizacao", "viagens.delete_termoautorizacao",
             "viagens.view_ordemservico", "viagens.add_ordemservico",
             "viagens.change_ordemservico", "viagens.delete_ordemservico",
+            "viagens.view_planotrabalho", "viagens.add_planotrabalho",
+            "viagens.change_planotrabalho", "viagens.delete_planotrabalho",
             *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.view_configuracaoinstitucional",
             "cadastros.view_modelotexto", "cadastros.add_modelotexto",
@@ -60,6 +62,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.change_termoautorizacao", "viagens.delete_termoautorizacao",
             "viagens.view_ordemservico", "viagens.add_ordemservico",
             "viagens.change_ordemservico", "viagens.delete_ordemservico",
+            "viagens.view_planotrabalho", "viagens.add_planotrabalho",
+            "viagens.change_planotrabalho", "viagens.delete_planotrabalho",
             *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.add_tabeladiaria",
             "cadastros.change_tabeladiaria", "cadastros.delete_tabeladiaria",
@@ -72,6 +76,7 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.ver_todas_unidades", "viagens.view_roteiro",
             "viagens.view_termoautorizacao", "viagens.view_ordemservico",
+            "viagens.view_planotrabalho",
             "cadastros.view_servidor",
             "cadastros.view_viatura", "cadastros.view_unidade",
             "cadastros.view_cargo", "cadastros.view_combustivel",

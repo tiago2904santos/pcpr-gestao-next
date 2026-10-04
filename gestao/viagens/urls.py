@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_editor, views_ordens, views_roteiros, views_termos
+from . import views, views_editor, views_ordens, views_planos, views_roteiros, views_termos
 
 app_name = "viagens"
 
@@ -85,6 +85,19 @@ urlpatterns = [
     path("ordens/<int:pk>/cancelar/", views_ordens.cancelar, name="cancelar_ordem"),
     path("ordens/<int:pk>/reativar/", views_ordens.reativar, name="reativar_ordem"),
     path("ordens/<int:pk>/excluir/", views_ordens.excluir, name="excluir_ordem"),
+    path("planos/", views_planos.lista, name="planos"),
+    path("planos/novo/", views_planos.novo, name="novo_plano"),
+    path("planos/do-oficio/<int:oficio_pk>/", views_planos.criar_do_oficio,
+         name="criar_plano_do_oficio"),
+    path("planos/<int:pk>/", views_planos.editar, name="editar_plano"),
+    path("planos/<int:pk>/autosave/", views_planos.autosave, name="autosave_plano"),
+    path("planos/<int:pk>/finalizar/", views_planos.finalizar, name="finalizar_plano"),
+    path("planos/<int:pk>/folha/", views_planos.folha, name="folha_plano"),
+    path("planos/<int:pk>/documento.<str:formato>", views_planos.documento,
+         name="documento_plano"),
+    path("planos/<int:pk>/cancelar/", views_planos.cancelar, name="cancelar_plano"),
+    path("planos/<int:pk>/reativar/", views_planos.reativar, name="reativar_plano"),
+    path("planos/<int:pk>/excluir/", views_planos.excluir, name="excluir_plano"),
     path("roteiros/", views_roteiros.lista, name="roteiros"),
     path("roteiros/novo/", views_roteiros.novo, name="novo_roteiro"),
     path("roteiros/previa-diarias/", views_roteiros.previa_diarias,

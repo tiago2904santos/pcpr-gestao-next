@@ -73,6 +73,8 @@ export class PcMultiescolha extends HTMLElement {
 
   sincronizar() {
     if (this.vazio && this.lista) this.vazio.hidden = this.lista.children.length > 0;
+    // Acrescentar ou tirar não é digitação: avisa o formulário (autosave, proteção de saída).
+    this.entrada?.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   /** @param {string} texto */

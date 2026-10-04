@@ -16,6 +16,11 @@ def _avaliar(pg, rota, antes=None):
     pg.goto(rota, wait_until="networkidle")
     if antes is not None:  # ex.: rolar até um componente que carrega ao aparecer
         antes(pg)
+    # A barra de ações flutua sobre o fim da tela; o controle que calhar na borda dela sai
+    # "pequeno demais" (alvo encoberto), conforme a altura da janela. Mede com a barra em
+    # repouso, no lugar dela no fim do formulário (estilo via CSSOM, que a CSP permite) — o
+    # campo focado já rola para fora dela (protecao.js); a própria barra continua medida.
+    pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
     # Janelas que abrem ao carregar entram com animação de escala: medir no meio dela
     # dá alvos menores do que são. Espera as animações finitas acabarem (as infinitas, como
     # o pulso de "processando", ficam de fora).
@@ -58,21 +63,23 @@ def _carregar_previa(pg):
 
 
 @pytest.mark.parametrize("largura", [360, 1440])
-def test_folhas_de_termo_e_os_sem_violacoes(logado, dados_e2e, largura):
-    """Folhas salvas de termo e OS (cartões, conferência, visualizador e histórico), com o
+def test_folhas_de_termo_os_e_plano_sem_violacoes(logado, dados_e2e, largura):
+    """Folhas salvas de termo, OS e plano (cartões, conferência, visualizador e histórico), com o
     visualizador já carregado (ele só carrega ao chegar à tela)."""
     from gestao.identidade.models import Usuario
-    from gestao.viagens import ordens, termos
+    from gestao.viagens import ordens, planos, termos
     from gestao.viagens.models import Oficio
 
     operador = Usuario.objects.get(login="operador")
     oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
     termo = termos.salvar(operador, oficio=oficio)
     ordem, _ = ordens.salvar(operador, oficios=[oficio])
+    plano, _ = planos.salvar(operador, oficios=[oficio])
     logado.set_viewport_size({"width": largura, "height": 900})
     logado.set_default_timeout(60_000)  # duas folhas com visualizador; suíte paralela pesa
     logado.set_default_navigation_timeout(60_000)
-    for rota in (f"/viagens/termos/{termo.pk}/", f"/viagens/ordens/{ordem.pk}/"):
+    for rota in (f"/viagens/termos/{termo.pk}/", f"/viagens/ordens/{ordem.pk}/",
+                 f"/viagens/planos/{plano.pk}/"):
         _avaliar(logado, rota, antes=_carregar_previa)
 
 

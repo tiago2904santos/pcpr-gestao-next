@@ -29,6 +29,9 @@ const sobDemanda = [
   ["pc-transporte", () => import("./componentes/transporte.js")],
   ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
   ["pc-multiescolha", () => import("./componentes/multiescolha.js")],
+  ["pc-linhas", () => import("./componentes/linhas.js")],
+  ["[data-esvaziar]", () => import("./componentes/esvaziar.js")],
+  ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
 ];
 const carregados = new Set();

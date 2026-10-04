@@ -583,6 +583,14 @@
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
+/* Plano de trabalho: "Outro programa" só quando a escolha é "Outro" (com erro, sempre). */
+.programa-plano:has(select[name="programa"] option[value="outro"]:checked) .condicional--outro-programa,
+.programa-plano .condicional--outro-programa.campo--erro {
+  display: flex;
+  flex: 1 1 18rem;
+  animation: aparecer var(--duracao-media) var(--curva-padrao);
+}
+
 /* ---------- Conferência final (seção 7) ---------- */
 .conferencia {
   display: grid;
@@ -935,4 +943,77 @@
   display: inline-block; /* o reset deixa svg em bloco: aqui o ícone corre com o texto */
   margin-right: var(--esp-1);
   vertical-align: -0.15em;
+}
+
+/* Linhas repetidas (<pc-linhas>): ex.: o efetivo do plano — unidade, cargo, quantidade e
+   remover numa linha só; no celular, os campos empilham e o remover fica à direita. */
+.linhas {
+  display: grid;
+  gap: var(--esp-3);
+}
+
+.linhas__lista {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linhas__linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 7rem auto;
+  gap: var(--esp-3);
+  align-items: end;
+}
+
+.linhas > [data-adicionar] {
+  justify-self: start;
+}
+
+/* No desktop os rótulos aparecem só na primeira linha (as colunas já dizem o que é); para
+   o leitor de tela continuam em todas. */
+@media (min-width: 640px) {
+  .linhas__linha + .linhas__linha .campo__rotulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Celular: o cargo na linha toda; unidade e quantidade lado a lado; remover no pé. */
+@media (max-width: 639.98px) {
+  .linhas__linha {
+    grid-template-columns: minmax(0, 1fr) 6.5rem;
+    padding-bottom: var(--esp-3);
+    border-bottom: var(--borda-sutil);
+  }
+
+  .linhas__linha > .campo:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .linhas__remover {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+/* Atividades do plano: aplicar conjunto, filtrar e limpar numa linha só. */
+.ferramentas-atividades {
+  align-items: flex-end;
+}
+
+/* Textos que vêm em linhas ("• meta") e precisam manter as quebras. */
+.texto-pre {
+  white-space: pre-line;
+  margin: 0;
+}
+
+.metas-recursos > .secao__bloco {
+  flex: 1 1 18rem;
 }

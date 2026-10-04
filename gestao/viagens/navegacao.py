@@ -24,6 +24,8 @@ registrar_modulo(
                      requer="viagens.view_termoautorizacao"),
                 Item("Ordens de serviço", "viagens:ordens", "clipboard-list",
                      requer="viagens.view_ordemservico"),
+                Item("Planos de trabalho", "viagens:planos", "list-checks",
+                     requer="viagens.view_planotrabalho"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Todos os cadastros", "cadastros:indice", "layers",

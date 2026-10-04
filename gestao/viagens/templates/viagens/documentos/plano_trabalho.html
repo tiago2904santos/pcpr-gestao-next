@@ -1,0 +1,118 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ d.titulo }}</title>
+<meta name="author" content="{{ d.unidade_nome }}">
+{% comment %}
+Plano de Trabalho (paridade com o PDF da referência — a ordem das seções é a que lá foi
+pedida pelo usuário, e vale aqui também para o DOCX): capa e 1. Breve contextualização na
+primeira página; de 2. Atuação a 6. Valor total do plano a partir da segunda; 7.
+Coordenador do evento, 8. Considerações finais e a assinatura juntos na última. Cada seção
+não se divide entre páginas; cabeçalho institucional e número da página em todas.
+{% endcomment %}
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @page {
+    size: A4; margin: 34mm 20mm 26mm 20mm;
+    @top-center { content: element(timbre); }
+    @bottom-center { content: element(rodape); }
+    @bottom-right { content: counter(page); font-family: "Doc Serif", serif; font-size: 9pt; }
+  }
+  html { font-family: "Doc Serif", serif; font-size: 11.5pt; color: #000; line-height: 1.5; }
+  body { margin: 0; }
+  header.timbre { position: running(timbre); text-align: center; }
+  header.timbre img { height: 16mm; display: block; margin: 0 auto 1mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 9.5pt; text-align: center; }
+  .capa { text-align: center; margin: 4mm 0 10mm; }
+  .capa h1 { font-size: 14pt; margin: 0 0 2mm; letter-spacing: 0.04em; }
+  .capa p { margin: 0; font-weight: bold; }
+  section { break-inside: avoid; margin: 0 0 7mm; counter-increment: secao; }
+  section h2 { font-size: 11.5pt; margin: 0 0 3mm; text-transform: uppercase; }
+  section h2::before { content: counter(secao) ". "; }
+  p { margin: 0 0 3mm; text-align: justify; }
+  .lista p { margin: 0 0 1.5mm; text-align: left; }
+  .quebra { break-before: page; }
+  .local-data { margin-top: 10mm; text-align: right; }
+  .assinatura { text-align: center; margin-top: 16mm; break-inside: avoid; }
+  .assinatura p { margin: 0; text-align: center; }
+  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
+            color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
+  main { counter-reset: secao; }
+</style>
+</head>
+<body>
+  {# Prévia (tela e PDF do visualizador): não é o plano emitido e não pode circular como ele. #}
+  {% if d.previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
+  <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
+  <header class="timbre">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
+  </header>
+  <main>
+    <div class="capa">
+      <h1>PLANO DE TRABALHO Nº {{ d.numero }}</h1>
+      <p>{{ d.unidade_nome }}</p>
+    </div>
+
+    <section>
+      <h2>Breve contextualização</h2>
+      {{ d.contextualizacao|linebreaks }}
+    </section>
+
+    <section class="quebra">
+      <h2>Atuação</h2>
+      <p><strong>Datas:</strong> {{ d.datas|default:"________" }};</p>
+      <p><strong>Local:</strong> {{ d.local|default:"________" }};</p>
+      <p><strong>Horário de atendimento:</strong> {{ d.horario|default:"________" }};</p>
+      <p><strong>Efetivo total:</strong>{% if d.efetivo %}<br>{{ d.efetivo|linebreaksbr }}{% else %} ________{% endif %};</p>
+      {% if d.unidade_movel %}<p>{{ d.unidade_movel }}</p>{% endif %}
+    </section>
+
+    <section class="lista">
+      <h2>Atividades a serem desenvolvidas</h2>
+      {{ d.atividades|default:"________"|linebreaks }}
+    </section>
+
+    <section class="lista">
+      <h2>Metas estabelecidas</h2>
+      {{ d.metas|default:"________"|linebreaks }}
+    </section>
+
+    <section class="lista">
+      <h2>Recursos necessários</h2>
+      {{ d.recursos|default:"________"|linebreaks }}
+    </section>
+
+    <section>
+      <h2>Valor total do plano</h2>
+      {% if d.valor %}<p><strong>Valor total:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
+    </section>
+
+    <div class="quebra">
+      <section>
+        <h2>Coordenador do evento</h2>
+        {{ d.coordenacao|default:"________"|linebreaks }}
+      </section>
+
+      <section>
+        <h2>Considerações finais</h2>
+        {{ d.consideracoes|linebreaks }}
+      </section>
+
+      {% if d.local_data %}<p class="local-data">{{ d.local_data }}.</p>{% endif %}
+      <div class="assinatura">
+        {% if d.assina.nome %}<p><strong>{{ d.assina.nome }}</strong></p><p>{{ d.assina.cargo }}</p>{% endif %}
+      </div>
+    </div>
+  </main>
+</body>
+</html>

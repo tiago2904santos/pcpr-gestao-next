@@ -575,6 +575,8 @@ class FormularioPreset(forms.Form):
     atividades = forms.ModelMultipleChoiceField(
         label="Atividades", queryset=AtividadePlano.objects.none(), widget=CaixasDeEscolha(),
         error_messages={"required": "Selecione ao menos uma atividade."})
+    padrao = forms.BooleanField(label="Usar como padrão", required=False,
+                                help_text="Vem marcado em todo plano de trabalho novo.")
 
     def __init__(self, *args, atuais=(), **kwargs):
         super().__init__(*args, **kwargs)
@@ -593,4 +595,4 @@ class FormularioPreset(forms.Form):
     def de(cls, objeto) -> FormularioPreset:
         atuais = [a.pk for a in objeto.atividades.all()]
         return cls(atuais=atuais, initial={"nome": objeto.nome, "descricao": objeto.descricao,
-                                           "atividades": atuais})
+                                           "atividades": atuais, "padrao": objeto.padrao})

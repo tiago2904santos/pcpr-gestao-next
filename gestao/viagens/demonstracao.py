@@ -28,7 +28,7 @@ from django.contrib.auth.models import Group
 from django.db import connection, transaction
 from django.utils import timezone
 
-from gestao.cadastros.carga import garantir_municipios
+from gestao.cadastros.carga import garantir_catalogos_do_plano, garantir_municipios
 from gestao.cadastros.models import (
     Cargo,
     Combustivel,
@@ -243,6 +243,7 @@ class _Gerador:
     def cadastros(self) -> None:
         rng = self.rng
         garantir_municipios()
+        garantir_catalogos_do_plano()
         sincronizar_papeis()
         pr = list(Municipio.objects.filter(uf="PR").order_by("nome"))
         self.municipios_pr = pr
@@ -783,6 +784,65 @@ class _Gerador:
                                            municipio=Municipio.objects.get(nome="Cascavel",
                                                                            uf="PR"))
 
+    def planos_para_avaliar(self) -> None:
+        """Planos de trabalho (módulo 6): um completo a partir da viagem mais recente da
+        ASCOM (com atividades, efetivo e diárias), um finalizado, um avulso incompleto e um
+        cancelado. Coordenador padrão e assinante dos planos na configuração da ASCOM."""
+        from django.core.exceptions import PermissionDenied
+
+        from gestao.cadastros.models import AtividadePlano, PresetAtividades, ProgramaSolicitante
+
+        from . import planos
+        ascom = self.unidades[0]
+        equipe = self.servidores_por_unidade[ascom.pk]
+        autor = Usuario.objects.filter(lotacao__unidade=ascom, groups__name="OPERADOR_VIAGENS"
+                                       ).order_by("pk").first()
+        if autor is None or not equipe:
+            return
+        # Nomes fictícios: o tratamento do coordenador padrão segue o primeiro nome.
+        primeiro_nome = equipe[0].nome.split()[0].lower()
+        ConfiguracaoInstitucional.objects.filter(unidade=ascom).update(
+            coordenador_plano=equipe[0], assina_plano=equipe[-1],
+            coordenador_plano_genero="F" if primeiro_nome.endswith("a") else "M")
+        basicas = list(AtividadePlano.objects.filter(codigo__in=["CIN", "BO", "AAC", "PALESTRAS"]))
+        if basicas and not PresetAtividades.objects.exists():
+            conjunto = PresetAtividades.objects.create(nome="ATENDIMENTO BÁSICO", padrao=True,
+                                                       descricao="Documentos e orientação.")
+            conjunto.atividades.set(basicas)
+        programa = ProgramaSolicitante.objects.filter(nome__icontains="PARANÁ EM AÇÃO").first()
+        recentes = list(Oficio.objects.filter(unidade=ascom, trechos__isnull=False).exclude(
+            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:3])
+        import uuid
+
+        from gestao.plataforma.auditoria import contexto
+
+        def acao():
+            # Cada ação numa "requisição" própria da trilha (senão a linha do tempo junta tudo
+            # num passo só — a semeadura inteira roda com a mesma identificação).
+            return contexto(autor.pk, requisicao_id=uuid.uuid4().hex)
+
+        try:
+            criados = []
+            for i, o in enumerate(recentes):
+                with acao():
+                    plano, _ = planos.salvar(
+                        autor, oficios=[o], programa=programa if i != 1 else None,
+                        programa_outros="Feira de serviços (DEMO)" if i == 1 else "",
+                        atividades=basicas + list(AtividadePlano.objects.filter(
+                            codigo="UNIDADE_MOVEL")) if i == 0 else basicas)
+                criados.append(plano)
+            if criados and not planos.pendencias(criados[0]):
+                with acao():
+                    planos.finalizar(autor, criados[0].pk)
+            if len(criados) > 2:
+                with acao():
+                    planos.cancelar(autor, criados[-1].pk, "Ação adiada pelo município (DEMO).")
+            with acao():
+                planos.salvar(autor, programa_outros="Ação itinerante a definir (DEMO)",
+                              data_inicio=self.hoje + timedelta(days=40))
+        except (PermissionDenied, planos.PlanoInvalido):
+            return  # base sem os papéis (testes de unidade): os planos ficam de fora
+
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""
         return max(anterior + timedelta(seconds=30), min(desejado, self.agora))
@@ -851,6 +911,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.cadastros_para_avaliar()
     gerador.termos_para_avaliar()
     gerador.ordens_para_avaliar()
+    gerador.planos_para_avaliar()
     return resumo(len(oficios))
 
 

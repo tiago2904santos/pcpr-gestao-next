@@ -18,7 +18,13 @@ from django.urls import reverse
 
 from gestao.identidade.backends import LOGIN_DEMO
 from gestao.viagens import demonstracao, services
-from gestao.viagens.models import Oficio, OrdemServico, Roteiro, TermoAutorizacao
+from gestao.viagens.models import (
+    Oficio,
+    OrdemServico,
+    PlanoTrabalho,
+    Roteiro,
+    TermoAutorizacao,
+)
 
 CSS = Path(__file__).resolve().parents[1] / "static" / "css"
 PACOTES = ["formulario", "documento", "listas", "painel", "assistente", "itinerario", "editor"]
@@ -93,6 +99,9 @@ def paginas(settings):
         reverse("viagens:nova_ordem"),
         reverse("viagens:editar_ordem", args=[OrdemServico.objects.filter(
             tipo="caminhao").first().pk]),
+        reverse("viagens:planos"),
+        reverse("viagens:novo_plano"),
+        reverse("viagens:editar_plano", args=[PlanoTrabalho.objects.order_by("pk").first().pk]),
         reverse("painel:notificacoes"),
         reverse("identidade:alterar_senha"),
         "/busca/?q=ofi",

@@ -8,3 +8,4 @@
   {{ form.atividades }}
   {% if form.atividades.errors %}<p class="campo__erro" id="{{ form.atividades.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.atividades.errors|join:" " }}</span></p>{% endif %}
 </fieldset>
+<label class="escolha" for="{{ form.padrao.auto_id }}">{{ form.padrao }}<span>Usar como padrão <span class="texto-secundario texto-sm">— vem marcado em todo plano de trabalho novo</span></span></label>

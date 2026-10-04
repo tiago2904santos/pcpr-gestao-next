@@ -31,6 +31,8 @@ export class Autosave {
   emVoo = null;
   /** O formulário está sendo enviado pelo botão (Salvar, Usar roteiro…). */
   enviando = false;
+  /** A pessoa já mexeu em algo (até lá, o estado de partida pode ser reajustado). */
+  mexeu = false;
 
   /** @param {HTMLFormElement} form */
   constructor(form) {
@@ -47,6 +49,17 @@ export class Autosave {
     // a mesma versão seria acusado de conflito ("outra pessoa salvou…").
     window.addEventListener("pagehide", () => { if (!this.enviando) this.gravar(true); });
     form.addEventListener("submit", (e) => this.aoEnviar(/** @type {SubmitEvent} */ (e)));
+    // O estado de partida é o que a página trouxe: sair sem mexer não grava nada (antes, a
+    // saída gravava sempre — versão nova e evento vazio na trilha a cada visita). Os
+    // componentes que se montam depois (seleções, buscas) podem ajustar campos ao carregar:
+    // a partida é refeita no "load", se ninguém mexeu ainda.
+    this.ultima = this.assinatura();
+    window.addEventListener("load", () => { if (!this.mexeu) this.ultima = this.assinatura(); });
+  }
+
+  /** O formulário como texto (para saber se algo mudou desde a última gravação). */
+  assinatura() {
+    return new URLSearchParams(/** @type {any} */ (new FormData(this.form))).toString();
   }
 
   /** Envio pelo botão: cancela o que estava agendado e, se uma gravação automática está no
@@ -74,6 +87,7 @@ export class Autosave {
   }
 
   agendar() {
+    this.mexeu = true;
     window.clearTimeout(this.atraso);
     this.atraso = window.setTimeout(() => this.gravar(), ESPERA);
   }
@@ -81,7 +95,7 @@ export class Autosave {
   /** @param {boolean} saindo */
   async gravar(saindo = false) {
     const dados = new FormData(this.form);
-    const assinatura = new URLSearchParams(/** @type {any} */ (dados)).toString();
+    const assinatura = this.assinatura();
     if (assinatura === this.ultima) return;
     this.ultima = assinatura;
     if (saindo && navigator.sendBeacon) {

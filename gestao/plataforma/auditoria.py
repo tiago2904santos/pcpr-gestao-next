@@ -36,11 +36,18 @@ def limpar_contexto() -> None:
 @contextmanager
 def contexto(usuario_id: int | None, ip: str | None = None, requisicao_id: str | None = None
              ) -> Iterator[None]:
+    """Quem age durante o bloco; ao sair, volta o contexto de antes (um bloco aninhado —
+    ex.: uma ação da semeadura DEMO — não apaga o de fora)."""
+    with connection.cursor() as cur:
+        cur.execute("SELECT current_setting('app.usuario_id', true), "
+                    "current_setting('app.ip', true), current_setting('app.requisicao_id', true)")
+        antes = cur.fetchone() or ("", "", "")
     definir_contexto(usuario_id, ip, requisicao_id)
     try:
         yield
     finally:
-        limpar_contexto()
+        anterior_usuario = int(antes[0]) if antes[0] and str(antes[0]).isdecimal() else None
+        definir_contexto(anterior_usuario, antes[1] or None, antes[2] or None)
 
 
 def auditar_tabela(tabela: str) -> RunSQL:
