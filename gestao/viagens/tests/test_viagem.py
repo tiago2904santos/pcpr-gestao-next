@@ -238,19 +238,64 @@ def test_periodo_curto():
     assert viagem.periodo_curto(date(2030, 12, 30), date(2031, 1, 2)) == "30/12/2030 a 02/01/2031"
 
 
-def test_excluir_viagem_sem_documentos(c):
+def test_excluir_solta_os_documentos(c):
+    """Diferença intencional: excluir a viagem não apaga documento (eles ficam sem viagem)."""
     op = c.usuarios["operador"]
     v = viagem.criar(op)
+    oficio = viagem.novo_documento(op, v.pk, "oficio")
     cli = _cliente(op)
-    assert "Excluir viagem sem documentos" in cli.get(
-        reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
-    viagem.novo_documento(op, v.pk, "oficio")
     r = cli.post(reverse("viagens:excluir_viagem", args=[v.pk]), follow=True)
-    assert "Só a viagem sem documentos se exclui por aqui." in r.content.decode()
-    vazia = viagem.criar(c.usuarios["gestor"])
-    cli_g = _cliente(c.usuarios["gestor"])
-    r = cli_g.post(reverse("viagens:excluir_viagem", args=[vazia.pk]))
-    assert r.status_code == 302 and not Viagem.objects.filter(pk=vazia.pk).exists()
+    assert "1 documento(s) continuam existindo, sem viagem." in r.content.decode()
+    assert not Viagem.objects.filter(pk=v.pk).exists()
+    assert Oficio.objects.get(pk=oficio.pk).viagem_id is None
+
+
+def test_cancelar_e_reativar_em_cascata(c):
+    gestor = c.usuarios["gestor"]
+    v = viagem.criar(gestor)
+    hoje = timezone.localdate()
+    viagem.salvar_dados(gestor, v.pk, tipos=list(TipoViagem.objects.all()[:1]),
+                        data_inicio=hoje, destinos=[_londrina()])
+    oficio = viagem.novo_documento(gestor, v.pk, "oficio")
+    ordem = viagem.novo_documento(gestor, v.pk, "ordem")
+    avulsa, _ = ordens.salvar(gestor, destinos=[_londrina()], motivo="outra")
+    ordens.cancelar(gestor, avulsa.pk, "Cancelada antes, por outro motivo")
+    OrdemServico.objects.filter(pk=avulsa.pk).update(viagem=v)
+    with pytest.raises(viagem.ViagemInvalida, match="motivo"):
+        viagem.cancelar(gestor, v.pk, "  ")
+    viagem.cancelar(gestor, v.pk, "Evento adiado")
+    assert Oficio.objects.get(pk=oficio.pk).motivo_cancelamento == "Viagem cancelada: Evento adiado"
+    assert OrdemServico.objects.get(pk=ordem.pk).cancelada
+    viagem.reativar(gestor, v.pk)
+    v.refresh_from_db()
+    assert not v.cancelada
+    assert Oficio.objects.get(pk=oficio.pk).situacao == Oficio.Situacao.RASCUNHO
+    assert not OrdemServico.objects.get(pk=ordem.pk).cancelada
+    assert OrdemServico.objects.get(pk=avulsa.pk).cancelada  # não caiu junto: fica
+
+
+def test_operador_nao_cancela_viagem_com_oficio(c):
+    """Cancelar ofício é do gestor: a cascata não fica pela metade."""
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    oficio = viagem.novo_documento(op, v.pk, "oficio")
+    with pytest.raises(viagem.ViagemInvalida, match="Não foi possível cancelar"):
+        viagem.cancelar(op, v.pk, "Adiada")
+    assert not Viagem.objects.get(pk=v.pk).cancelada
+    assert Oficio.objects.get(pk=oficio.pk).situacao == Oficio.Situacao.RASCUNHO
+
+
+def test_cancelar_pela_tela(c):
+    gestor = c.usuarios["gestor"]
+    v = viagem.criar(gestor)
+    cli = _cliente(gestor)
+    html = cli.get(reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+    assert "Cancelar viagem" in html and 'id="dialogo-motivo"' in html
+    r = cli.post(reverse("viagens:cancelar_viagem", args=[v.pk]), {"motivo": "Adiada"},
+                 follow=True)
+    assert "Viagem cancelada." in r.content.decode() and "Reativar viagem" in r.content.decode()
+    r = cli.post(reverse("viagens:reativar_viagem", args=[v.pk]), follow=True)
+    assert "Viagem reativada." in r.content.decode()
 
 
 def test_consulta_ve_a_viagem_como_texto(c):

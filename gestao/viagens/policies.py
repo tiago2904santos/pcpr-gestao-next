@@ -384,6 +384,10 @@ def pode_criar_viagem(usuario) -> bool:
     return usuario.has_perm("viagens.add_viagem") and unidade_do_usuario(usuario) is not None
 
 
+def pode_reativar_viagem(usuario, viagem: Viagem) -> bool:
+    return usuario.has_perm("viagens.change_viagem") and pode_ver_viagem(usuario, viagem)
+
+
 def pode_excluir_viagem(usuario, viagem: Viagem) -> bool:
     return usuario.has_perm("viagens.delete_viagem") and pode_ver_viagem(usuario, viagem)
 

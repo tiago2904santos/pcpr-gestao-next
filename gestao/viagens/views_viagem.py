@@ -130,10 +130,19 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
         "destinos": [d.municipio for d in v.destinos.select_related("municipio")],
         "editavel": policies.pode_editar_viagem(request.user, v),
         "historico": da_viagem(v),
-        "pode_excluir": policies.pode_excluir_viagem(request.user, v) and not docs.total,
+        "pode_excluir": policies.pode_excluir_viagem(request.user, v),
+        "pode_cancelar": policies.pode_editar_viagem(request.user, v),
+        "pode_reativar": v.cancelada and policies.pode_reativar_viagem(request.user, v),
+        "pode_repetir": policies.pode_criar_viagem(request.user),
+        "form_repetir": _form_repetir(),
         "pode_semear": bool(v.data_inicio and v.destinos.exists()),
         "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
                               (str(v), ""))}, status=status)
+
+
+def _form_repetir():
+    from .forms import FormularioRepetir
+    return FormularioRepetir(auto_id="repetir_%s")
 
 
 @require_GET
@@ -190,13 +199,43 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
 @require_POST
 def excluir(request: HttpRequest, pk: int) -> HttpResponse:
     v = _viagem_visivel(request, pk)
+    titulo = str(v)
     try:
-        viagem.excluir_vazia(request.user, v.pk)
+        soltos = viagem.excluir(request.user, v.pk)
     except (viagem.ViagemInvalida, PermissionDenied) as exc:
         messages.error(request, str(exc))
         return redirect("viagens:editar_viagem", v.pk)
-    messages.success(request, "Viagem vazia excluída.")
+    texto = f"Viagem “{titulo}” excluída."
+    if soltos:
+        texto += f" {soltos} documento(s) continuam existindo, sem viagem."
+    messages.success(request, texto)
     return redirect("viagens:viagens")
+
+
+@require_POST
+def cancelar(request: HttpRequest, pk: int) -> HttpResponse:
+    v = _viagem_visivel(request, pk)
+    try:
+        viagem.cancelar(request.user, v.pk, request.POST.get("motivo", ""))
+    except (viagem.ViagemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Viagem cancelada. Todos os documentos vinculados também "
+                                  "foram cancelados.")
+    return redirect("viagens:editar_viagem", v.pk)
+
+
+@require_POST
+def reativar(request: HttpRequest, pk: int) -> HttpResponse:
+    v = _viagem_visivel(request, pk)
+    try:
+        viagem.reativar(request.user, v.pk)
+    except (viagem.ViagemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Viagem reativada. Os documentos cancelados junto com ela "
+                                  "também foram reativados.")
+    return redirect("viagens:editar_viagem", v.pk)
 
 
 @require_POST
@@ -304,3 +343,26 @@ def gerar_documentos(request: HttpRequest, pk: int) -> HttpResponse:
         "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
                               (str(v), reverse("viagens:editar_viagem", args=[v.pk])),
                               ("Gerar documentos", ""))}, status=422 if erros else 200)
+
+
+@require_POST
+def repetir(request: HttpRequest, pk: int) -> HttpResponse:
+    """A mesma viagem em outra data (referência): números novos, sem protocolo/assinatura."""
+    from . import viagem_repetir
+    from .forms import FormularioRepetir
+
+    v = _viagem_visivel(request, pk)
+    form = FormularioRepetir(request.POST)
+    if not form.is_valid():
+        messages.error(request, primeiro_erro(form))
+        return redirect("viagens:editar_viagem", v.pk)
+    try:
+        nova = viagem_repetir.repetir(request.user, v.pk, form.cleaned_data["nova_data"],
+                                      form.cleaned_data["nova_cidade"])
+    except (viagem.ViagemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_viagem", v.pk)
+    messages.success(request, "Viagem repetida em rascunho, com roteiro, ofícios, plano, ordem "
+                              "de serviço e termos. Números e protocolos são novos; confira os "
+                              "documentos antes de emitir.")
+    return redirect("viagens:editar_viagem", nova.pk)

@@ -169,6 +169,17 @@ Fonte: `accounts/views.py`, `accounts/forms.py`, `accounts/middleware.py` e
 | Esqueci a senha | 4 telas por e-mail | pendente (SMTP institucional) | credencial externa |
 | DEMO | — | o usuário demo também é administrador no PREVIEW (dados fictícios) | agente (avaliar a tela) |
 
+## Viagem (módulo 8) — decisões do AGENTE, pendentes de confirmação
+
+| Ponto | Referência | Aqui | Por quê |
+|---|---|---|---|
+| Excluir viagem com documentos | apaga os documentos só dela (CASCADE) | solta os documentos (ficam sem viagem) | número emitido ou via assinada nunca somem por efeito colateral |
+| Cancelar viagem com ofício | operador cancelava tudo | cada documento pelo serviço dele: sem permissão de cancelar ofício (operador), nada é cancelado e a tela explica | a regra de cancelar ofício (gestor) não pode ser contornada pela viagem |
+| Reativar em cascata | só os que caíram junto | igual (marca "Viagem cancelada"); roteiros, que não guardam motivo, voltam todos | — |
+| Etapas | 5 telas, etapa 1 grava ao avançar | uma folha com cartões; a etapa 1 grava sozinha | padrão das folhas |
+| Baixar plano/OS | gerava na hora se faltava | só depois de gerados na folha deles | o download não gera documento oficial |
+| Meta da DG, sugestões pelo histórico, anexos de solicitação | existiam | ficam para o módulo Solicitações | dependem dele |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -188,3 +199,4 @@ Fonte: `accounts/views.py`, `accounts/forms.py`, `accounts/middleware.py` e
 | SMTP institucional para notificações por e-mail (servidor, remetente, credenciais) | credencial externa |
 | Setor/Módulo (acesso por módulo) e vínculo Usuário↔Servidor da referência | decisão do usuário (não bloqueia) |
 | Hierarquia na gestão de usuários (só superusuário mexe em superusuário) | decisão do usuário (não bloqueia) |
+| Viagem: excluir solta os documentos; cancelar respeita a permissão de cada documento | decisão do usuário (não bloqueia) |

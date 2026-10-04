@@ -228,17 +228,6 @@ def _situacao_pelos_documentos(viagem: Viagem) -> None:
         viagem.situacao = nova
 
 
-@transaction.atomic
-def excluir_vazia(usuario, pk: int) -> None:
-    """Só a viagem sem documentos se exclui por aqui (com documentos, no 8d)."""
-    viagem = Viagem.objects.select_for_update().get(pk=pk)
-    policies.exigir(policies.pode_excluir_viagem(usuario, viagem),
-                    "Você não pode excluir esta viagem.")
-    if any(getattr(viagem, t).exists() for t in TIPOS_DE_DOCUMENTO):
-        raise ViagemInvalida("Só a viagem sem documentos se exclui por aqui.")
-    viagem.delete()
-
-
 def _sincronizar(viagem: Viagem, vinculos: dict) -> None:
     """Marca para vincular, desmarca para soltar (referência). Só o que é candidato, e só
     solta o que a tela mostrou (`(marcados, mostrados)`); uma lista simples solta tudo o que
@@ -298,3 +287,97 @@ def novo_documento(usuario, pk: int, tipo: str):
     doc.viagem = viagem
     _situacao_pelos_documentos(viagem)
     return doc
+
+
+# ---------------------------------------------------------------- cancelar, reativar, excluir (8d)
+PREFIXO_CASCATA = "Viagem cancelada"
+
+
+@transaction.atomic
+def cancelar(usuario, pk: int, motivo: str) -> Viagem:
+    """Cancela a viagem e os documentos dela com "Viagem cancelada: {motivo}" (referência).
+    Cada documento passa pelo serviço dele — quem não pode cancelar um ofício, por exemplo,
+    não cancela a viagem que o tem (nada fica pela metade: é tudo ou nada)."""
+    from django.core.exceptions import PermissionDenied
+
+    from . import ordens, planos, services, termos
+
+    viagem = Viagem.objects.select_for_update().get(pk=pk)
+    policies.exigir(policies.pode_editar_viagem(usuario, viagem),
+                    "Esta viagem já está cancelada ou você não pode alterá-la.")
+    motivo = (motivo or "").strip()
+    if not motivo:
+        raise ViagemInvalida("Informe o motivo do cancelamento.")
+    texto = f"{PREFIXO_CASCATA}: {motivo}"[:1000]
+    try:
+        for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO):
+            services.cancelar(o, usuario, texto)
+        for r in viagem.roteiros.exclude(situacao=Roteiro.Situacao.CANCELADO):
+            services.cancelar_roteiro(usuario, r)
+        for t in viagem.termos.exclude(situacao=TermoAutorizacao.Situacao.CANCELADO):
+            termos.cancelar(usuario, t.pk, texto)
+        for os_ in viagem.ordens.exclude(situacao=OrdemServico.Situacao.CANCELADA):
+            ordens.cancelar(usuario, os_.pk, texto)
+        for p in viagem.planos.filter(cancelado=False):
+            planos.cancelar(usuario, p.pk, texto)
+    except PermissionDenied as exc:
+        raise ViagemInvalida(f"Não foi possível cancelar todos os documentos da viagem: {exc} "
+                             "Peça a quem pode cancelá-los.") from None
+    viagem.situacao_anterior, viagem.situacao = viagem.situacao, Viagem.Situacao.CANCELADA
+    viagem.motivo_cancelamento, viagem.cancelado_em = motivo[:1000], timezone.now()
+    viagem.save(update_fields=["situacao", "situacao_anterior", "motivo_cancelamento",
+                               "cancelado_em", "atualizado_em"])
+    return viagem
+
+
+@transaction.atomic
+def reativar(usuario, pk: int) -> Viagem:
+    """Reativa a viagem e só os documentos cancelados junto com ela (o motivo começa com
+    "Viagem cancelada"; roteiros, que não guardam motivo, voltam todos)."""
+    from django.core.exceptions import PermissionDenied
+
+    from . import ordens, planos, services, termos
+
+    viagem = Viagem.objects.select_for_update().get(pk=pk)
+    policies.exigir(policies.pode_reativar_viagem(usuario, viagem),
+                    "Você não pode reativar esta viagem.")
+    if not viagem.cancelada:
+        raise ViagemInvalida("Esta viagem não está cancelada.")
+    try:
+        for o in viagem.oficios.filter(situacao=Oficio.Situacao.CANCELADO,
+                                       motivo_cancelamento__startswith=PREFIXO_CASCATA):
+            services.reativar(o, usuario, "Viagem reativada.")
+        for r in viagem.roteiros.filter(situacao=Roteiro.Situacao.CANCELADO):
+            services.reativar_roteiro(usuario, r)
+        for t in viagem.termos.filter(situacao=TermoAutorizacao.Situacao.CANCELADO,
+                                      motivo_cancelamento__startswith=PREFIXO_CASCATA):
+            termos.reativar(usuario, t.pk)
+        for os_ in viagem.ordens.filter(situacao=OrdemServico.Situacao.CANCELADA,
+                                        motivo_cancelamento__startswith=PREFIXO_CASCATA):
+            ordens.reativar(usuario, os_.pk)
+        for p in viagem.planos.filter(cancelado=True,
+                                      motivo_cancelamento__startswith=PREFIXO_CASCATA):
+            planos.reativar(usuario, p.pk)
+    except PermissionDenied as exc:
+        raise ViagemInvalida(f"Não foi possível reativar todos os documentos da viagem: {exc} "
+                             "Peça a quem pode reativá-los.") from None
+    viagem.situacao = viagem.situacao_anterior or Viagem.Situacao.RASCUNHO
+    viagem.situacao_anterior, viagem.motivo_cancelamento, viagem.cancelado_em = "", "", None
+    viagem.save(update_fields=["situacao", "situacao_anterior", "motivo_cancelamento",
+                               "cancelado_em", "atualizado_em"])
+    return viagem
+
+
+@transaction.atomic
+def excluir(usuario, pk: int) -> int:
+    """Exclui a viagem e **solta** os documentos (eles continuam existindo, sem viagem).
+    Diferença intencional: na referência, excluir apagava os documentos só dela — aqui um
+    número já emitido ou uma via assinada nunca somem por efeito colateral."""
+    viagem = Viagem.objects.select_for_update().get(pk=pk)
+    policies.exigir(policies.pode_excluir_viagem(usuario, viagem),
+                    "Você não pode excluir esta viagem.")
+    soltos = 0
+    for tipo in TIPOS_DE_DOCUMENTO:
+        soltos += getattr(viagem, tipo).update(viagem=None)
+    viagem.delete()
+    return soltos

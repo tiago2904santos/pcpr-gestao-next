@@ -77,6 +77,11 @@ outra data, cancelar/reativar em cascata, excluir.
   depois de gerados na folha deles (o download não gera documento oficial). A "meta da DG"
   e as sugestões pelo histórico ("costuma ir") chegam com Solicitações.
 
+- **8d feito**: cancelar em cascata ("Viagem cancelada: {motivo}" nos documentos, cada um
+  pelo serviço dele — tudo ou nada), reativar só o que caiu junto, excluir **soltando** os
+  documentos, repetir em outra data (datas deslocadas, cidade trocada, números novos, sem
+  protocolo/assinatura; cancelados ficam de fora).
+
 ## Ordem de implementação (sub-módulos)
 
 - **8a** modelo `Viagem` + `TipoViagem` + `ViagemDestino` + FK `viagem` nos documentos;

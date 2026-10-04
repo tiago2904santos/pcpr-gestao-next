@@ -1313,3 +1313,14 @@ class FormularioLote(forms.Form):
                                 motorista=motoristas[0] if motoristas else None,
                                 viatura=self.cleaned_data.get(f"viatura_{i}")))
         return saida
+
+
+class FormularioRepetir(forms.Form):
+    """Repetir viagem (referência): a data da nova edição e, se mudar, a cidade."""
+
+    nova_data = forms.DateField(label="Data da nova edição", widget=EntradaData(),
+                                input_formats=FORMATOS_DATA,
+                                error_messages={"required": "Informe a data da nova edição."})
+    nova_cidade = CampoMunicipio(label="Nova cidade (se mudar)", required=False,
+                                 help_text="Em branco, a mesma. Números, protocolos e "
+                                           "assinaturas não são copiados.")
