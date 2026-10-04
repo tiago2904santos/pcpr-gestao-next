@@ -158,7 +158,7 @@ class TestTelasDeRoteiros:
         for _ in range(5):
             services.salvar_roteiro(cenario.usuarios["operador"], None,
                                     {"quantidade_servidores": 2}, _trechos(cenario))
-        with django_assert_max_num_queries(16):
+        with django_assert_max_num_queries(17):  # 17: +1 do sino (avisos não lidos)
             assert operador.get(reverse("viagens:roteiros")).status_code == 200
 
     def test_outra_unidade_e_consulta(self, client, operador, cenario):

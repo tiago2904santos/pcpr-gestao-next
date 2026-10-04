@@ -245,6 +245,19 @@ INSTITUICAO = {
     "produto": "Gestão de Eventos e Viagens",
 }
 
+# Notificações por e-mail (desligadas por padrão). Sem EMAIL_HOST o backend é o console:
+# nada sai da máquina sem configuração explícita de SMTP (ambiente, nunca no Git).
+NOTIFICACOES_POR_EMAIL = env_bool("NOTIFICACOES_POR_EMAIL", False)
+EMAIL_HOST = env("EMAIL_HOST", "")
+EMAIL_BACKEND = ("django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST
+                 else "django.core.mail.backends.console.EmailBackend")
+EMAIL_PORT = int(env("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "gestao-viagens@localhost")
+URL_PUBLICA = env("URL_PUBLICA", "http://localhost:8000")
+
 # Domínio de e-mail institucional aceito no login (vazio = qualquer).
 DOMINIO_EMAIL_INSTITUCIONAL = env("DOMINIO_EMAIL_INSTITUCIONAL", "pc.pr.gov.br")
 

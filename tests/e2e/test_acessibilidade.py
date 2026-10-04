@@ -210,3 +210,18 @@ def test_janela_baixar_documentos_sem_violacoes(logado, dados_e2e, largura):
         pg.get_by_role("menuitem", name="Baixar documentos").press("Enter")
         pg.locator("#dialogo-baixar input[name=itens]").first.wait_for()
     _avaliar(logado, "/viagens/termos/", antes=abrir)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_central_de_notificacoes_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.identidade.models import Usuario
+    from gestao.plataforma.models import Notificacao
+    from gestao.plataforma.notificacoes import notificar
+
+    operador = Usuario.objects.get(login="operador")
+    notificar([operador], "Aviso novo de teste", "Mensagem do aviso.", "/viagens/")
+    [lido] = notificar([operador], "Aviso lido de teste")
+    Notificacao.objects.filter(pk=lido.pk).update(lida=True)
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, "/notificacoes/")
+    _avaliar(logado, "/notificacoes/?filtro=lidas")

@@ -1,3 +1,55 @@
-{% extends "base.html" %}
+{% extends "arquetipos/lista.html" %}
 {% block titulo %}Notificações{% endblock %}
-{% block conteudo %}{% include "componentes/vazio.html" with icone="bell" titulo="Nenhuma notificação" texto="Avisos sobre seus ofícios aparecem aqui." %}{% endblock %}
+{% block titulo_lista %}Notificações{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Avisos do sistema para você. Abrir leva ao registro e marca o aviso como lido.</p>{% endblock %}
+{% comment %}
+Central de notificações (paridade com a da referência): todas / não lidas / lidas, 25 por
+página; cada aviso com selo Nova/Lida, quando e a mensagem; "Abrir" vai ao registro e marca
+como lido; "Marcar todas como lidas" só aparece se houver não lidas.
+{% endcomment %}
+{% block acoes_lista %}
+{% if contagens|get_item:"nao-lidas" %}
+<form method="post" action="{% url 'painel:marcar_notificacoes_lidas' %}">
+  {% csrf_token %}
+  <button type="submit" class="botao">{% icone "check-circle-2" %}Marcar todas como lidas</button>
+</form>
+{% endif %}
+{% endblock %}
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação dos avisos">
+  {% for chave, rotulo, icone_aba in filtros %}
+    <a class="aba" href="?{% if chave %}filtro={{ chave }}{% endif %}"{% if chave == filtro %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:chave }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+{% block resultados %}
+<h2 class="sr-only" id="titulo-resultados">Avisos</h2>
+{% if page_obj.object_list %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for n in page_obj.object_list %}
+      <li class="registro{% if n.lida %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% if n.lida %}{% icone "check-circle-2" %}{% else %}{% icone "bell" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <a class="registro__link" href="{% url 'painel:abrir_notificacao' n.pk %}">{{ n.titulo }}</a>
+            {% if n.lida %}<span class="selo selo--neutro selo--sem-ponto">Lida</span>{% else %}<span class="selo selo--info selo--sem-ponto">Nova</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}<time datetime="{{ n.criada_em|date:'c' }}">{{ n.criada_em|date:"d/m/Y H:i" }}</time></span>
+          </div>
+          <p class="registro__texto">{{ n.mensagem|default:"Sem detalhes" }}</p>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif filtro == "nao-lidas" %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nada novo" texto="Você leu todos os avisos." %}
+{% elif filtro == "lidas" %}
+  {% include "componentes/vazio.html" with icone="bell" titulo="Nenhum aviso lido ainda" texto="Os avisos que você abrir ou marcar como lidos aparecem aqui." %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="bell" titulo="Nenhuma notificação" texto="Quando houver novidades, elas aparecem aqui." %}
+{% endif %}
+{% endblock %}

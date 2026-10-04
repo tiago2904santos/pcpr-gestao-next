@@ -26,6 +26,7 @@ from decimal import Decimal
 
 from django.contrib.auth.models import Group
 from django.db import connection, transaction
+from django.urls import reverse
 from django.utils import timezone
 
 from gestao.cadastros.carga import garantir_catalogos_do_plano, garantir_municipios
@@ -65,7 +66,7 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "viagens_viaassinada", "viagens_historico", "viagens_documento",
+    "plataforma_notificacao", "viagens_viaassinada", "viagens_historico", "viagens_documento",
     "viagens_edicaodocumento", "viagens_trecho",
     "viagens_viajante",
     "viagens_oficio", "viagens_trechoroteiro", "viagens_roteiro", "viagens_numeracaoanual",
@@ -942,6 +943,27 @@ def acertar_datas_dos_documentos() -> None:
                   .order_by("pk").first())
         if evento:
             Historico.objects.filter(pk=evento.pk).update(em=gerado)
+
+
+def notificacoes_para_avaliar() -> None:
+    """Avisos de exemplo no sino do usuário demo (o mecanismo é real; os eventos que os
+    geram chegam com a prestação de contas e as solicitações)."""
+    from gestao.plataforma.models import Notificacao
+    from gestao.plataforma.notificacoes import notificar
+
+    demo = Usuario.objects.filter(login=LOGIN_DEMO).first()
+    oficio = Oficio.objects.filter(situacao=Oficio.Situacao.EMITIDO).order_by("-ano",
+                                                                              "-numero").first()
+    if demo is None or oficio is None:
+        return
+    lista = reverse("viagens:oficios")
+    notificar([demo], f"Ofício {oficio.numero_formatado} emitido (DEMO)",
+              "Aviso de exemplo do preview: abra para ver o ofício.",
+              f"{lista}?resumo={oficio.pk}")
+    notificar([demo], "Bem-vindo ao preview (DEMO)",
+              "Os avisos do sistema aparecem aqui; abrir leva ao registro e marca como lido.")
+    [lido] = notificar([demo], "Aviso já lido (DEMO)", "Exemplo de aviso lido.")
+    Notificacao.objects.filter(pk=lido.pk).update(lida=True)
 
 
 def vias_assinadas_para_avaliar() -> None:

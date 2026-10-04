@@ -4,6 +4,7 @@ from typing import Any
 
 from django.conf import settings
 from django.http import HttpRequest
+from django.utils.functional import SimpleLazyObject
 
 from . import ambiente
 from .navegacao import navegacao_para
@@ -16,7 +17,15 @@ def plataforma(request: HttpRequest) -> dict[str, Any]:
         "app_env": ambiente.atual(),
         "demo_ativo": ambiente.demo_ativo(),
         "navegacao": navegacao_para(request),
+        # O ponto do sino: uma contagem (índice usuario+lida), só quando o cabeçalho a lê.
+        "notificacoes_nao_lidas": SimpleLazyObject(
+            lambda: _nao_lidas(getattr(request, "user", None))),
     }
+
+
+def _nao_lidas(usuario) -> int:
+    from .notificacoes import nao_lidas
+    return nao_lidas(usuario)
 
 
 ROTULOS_PAPEIS = {

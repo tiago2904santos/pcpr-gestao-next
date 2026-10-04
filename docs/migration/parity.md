@@ -8,7 +8,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 
 | Módulo | Situação | Funções da referência cobertas* | Evidência | Ficha |
 |---|---|---:|---|---|
-| Plataforma / identidade | Parcial | 9 / 19 | `gestao/identidade/tests`, `gestao/painel/tests` | — |
+| Plataforma / identidade | Parcial — notificações (sino, central, abrir, marcar lidas, e-mail pela outbox) feitas; faltam gestão de usuários em tela, esqueci a senha (SMTP), rotinas diárias | 12 / 19 | `gestao/identidade/tests`, `gestao/painel/tests` | — |
 | Viagens · Cadastros | **Implementado** (falta só a consulta de CEP, serviço externo) | 21 / 22 | `gestao/cadastros/tests/test_crud.py`, `tests/e2e/test_cadastros.py` | [cadastros.md](cadastros.md) |
 | Viagens · Ofícios | **Em fechamento** (falta comparação com a referência em execução) | 30 / 31 (+1 bloqueado: comparação) | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
 | Viagens · Roteiros | **Em paridade** (falta "Finalizados", que depende da prestação de contas) | 12 / 14 | `gestao/viagens/tests/test_roteiros*.py` | [roteiros.md](roteiros.md) |

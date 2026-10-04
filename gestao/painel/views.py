@@ -35,12 +35,6 @@ def inicio(request: HttpRequest) -> HttpResponse:
 
 
 @require_GET
-def notificacoes(request: HttpRequest) -> HttpResponse:
-    return render(request, "painel/notificacoes.html", {
-        "migalhas": [("Início", reverse("painel:inicio")), ("Notificações", "")]})
-
-
-@require_GET
 def busca(request: HttpRequest) -> JsonResponse:
     """Resultados da paleta de comandos: ofícios visíveis ao usuário."""
     termo = (request.GET.get("q") or "").strip()

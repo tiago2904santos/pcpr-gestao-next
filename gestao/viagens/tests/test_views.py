@@ -165,7 +165,7 @@ class TestListaEPainel:
         assert "Nenhum ofício encontrado" in r.content.decode()
 
     def test_lista_tem_orcamento_de_consultas(self, operador, django_assert_max_num_queries):
-        with django_assert_max_num_queries(15):
+        with django_assert_max_num_queries(16):  # 16: +1 do sino (avisos não lidos)
             operador.get(reverse("viagens:oficios"))
 
     def test_busca_global_json(self, operador, cenario):
@@ -609,7 +609,8 @@ class TestOrcamentoDeConsultas:
         # 23: as duas a mais são as viaturas que cada viajante dirige e os motoristas de cada
         # viatura (a equipe mostra, a lista de viaturas sugere); mais uma, constante, é a
         # lista de textos prontos do motivo. A revisão (janela) reaproveita a folha: mesmo teto.
-        with django_assert_max_num_queries(23):
+        # 24: +1 em toda página, a contagem de avisos não lidos do sino (índice usuario+lida).
+        with django_assert_max_num_queries(24):
             url = reverse("viagens:editar", args=[oficio.pk]) + ("?revisar=1" if revisar else "")
             assert operador.get(url).status_code == 200
 

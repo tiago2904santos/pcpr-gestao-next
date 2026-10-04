@@ -136,6 +136,22 @@ Fonte: `templates/components/v32/dialogo_baixar.html`, `static/js/baixar-documen
 | Lista dos documentos | embutida no botão (JSON na página) | pedida ao abrir (GET), para as listas não gerarem nada à toa | agente (desempenho) |
 | Via que não abre ao juntar | — | mensagem "baixe em arquivos separados" | agente |
 
+## Notificações (sino) — mecanismo
+
+Fonte: `core/models.py` (`Notificacao`), `core/notificacoes.py`, `core/views.py`
+(`lista_notificacoes`, `abrir_notificacao`, `marcar_notificacoes_lidas`),
+`core/context_processors.py` da referência.
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Modelo | uma linha por destinatário; título 150, mensagem 255, link, lida | igual (`plataforma.Notificacao`), fora da auditoria | referência |
+| `notificar` | tira repetidos, inativos e o autor; corta com "…" | igual | referência |
+| Central | todas/não lidas/lidas, 25 por página, Abrir (marca lida), Marcar todas | igual, no padrão de lista; link externo é ignorado | referência + agente (segurança) |
+| Sino | ponto quando há não lidas | igual (contagem preguiçosa, só quando o cabeçalho lê) | referência |
+| E-mail | um por aviso, depois do commit, "[Eventos Sociais]" | pela outbox, **desligado por padrão** (`NOTIFICACOES_POR_EMAIL`), backend console sem `EMAIL_HOST`; assunto "[PCPR]" | agente (nada sai sem SMTP configurado pelo usuário) |
+| Eventos de Viagens | prestação (diárias, saque, prestação vencida, documentos, devolução, véspera/chegada), solicitações, eProtocolo, resumo do dia | **ainda nenhum**: a referência não avisa emissão de ofício/termo/OS/plano; os eventos entram com os módulos 9 (prestação), solicitações e rotinas | referência (não inventar avisos) |
+| Rotinas diárias | middleware no primeiro acesso do dia | pendente (com a prestação) | — |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -152,3 +168,4 @@ Fonte: `templates/components/v32/dialogo_baixar.html`, `static/js/baixar-documen
 | Termo de vários servidores assinado num único PDF escaneado: hoje é uma via por documento; anexo único para todos? | decisão do usuário (não bloqueia) |
 | Validação jurídica de assinatura ICP-Brasil (cadeia/revogação) | decisão institucional |
 | Baixar documentos de ofício em rascunho como minuta (sem emitir) | decisão do usuário (não bloqueia) |
+| SMTP institucional para notificações por e-mail (servidor, remetente, credenciais) | credencial externa |

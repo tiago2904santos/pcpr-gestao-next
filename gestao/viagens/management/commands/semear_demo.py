@@ -55,6 +55,8 @@ class Command(BaseCommand):
             with contexto(usuario_id=None, requisicao_id="semear_demo"):
                 demonstracao.acertar_datas_dos_documentos()
                 demonstracao.vias_assinadas_para_avaliar()
+            with contexto(usuario_id=None, requisicao_id="semear_demo"):
+                demonstracao.notificacoes_para_avaliar()
             tempo_pdf = time.perf_counter() - inicio_pdf
         self._relatorio(demonstracao.resumo(), tempo_dados, tempo_pdf)
 

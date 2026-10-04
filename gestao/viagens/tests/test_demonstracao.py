@@ -165,3 +165,13 @@ def test_vias_assinadas_de_exemplo_depois_dos_pdfs(dataset):
     ordem = ViaAssinada.objects.get(tipo="ordem")
     assert assinados.dados_mudaram(ordem)
     assert not assinados.dados_mudaram(ViaAssinada.objects.get(tipo="termo"))
+
+
+def test_avisos_de_exemplo_no_sino_do_demo(dataset):
+    from gestao.plataforma.models import Notificacao
+
+    demonstracao.notificacoes_para_avaliar()
+    demo = Usuario.objects.get(login=LOGIN_DEMO)
+    avisos = Notificacao.objects.filter(usuario=demo)
+    assert avisos.count() == 3 and avisos.filter(lida=False).count() == 2
+    assert all("(DEMO)" in a.titulo for a in avisos)
