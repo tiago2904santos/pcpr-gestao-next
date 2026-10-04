@@ -672,9 +672,11 @@ def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
     hoje = timezone.localdate()
     for sub in substituicoes:
         setattr(sub, "vigente", sub.vale_em(sub.tipo, hoje))  # noqa: B010
+    hoje_assina = [(rotulo, services.quem_assina(config, tipo, hoje)) for tipo, rotulo in (
+        ("oficio", "Ofícios"), ("justificativa", "Justificativas"))] if config else []
     return render(request, "cadastros/configuracao.html", {
         "unidade": unidade, "unidades": unidades, "config": config, "form": form,
-        "pode_alterar": pode, "substituicoes": substituicoes,
+        "pode_alterar": pode, "substituicoes": substituicoes, "hoje_assina": hoje_assina,
         "form_sub": form_sub or FormularioSubstituicao(initial={"inicio": hoje}),
         "abrir_substituicao": form_sub is not None,
         "migalhas": _migalhas("Configuração da unidade")}, status=status)

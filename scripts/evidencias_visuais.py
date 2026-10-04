@@ -289,6 +289,9 @@ CENARIOS = [
     C("cadastros-diarias", "Tabela de diárias", "/cadastros/diarias/", larguras=POUCAS),
     C("cadastros-diaria-nova", "Tabela de diárias — janela de nova vigência", "/cadastros/diarias/?novo=1", larguras=POUCAS, inteira=False),
     C("cadastros-configuracao", "Configuração da unidade", "/cadastros/configuracao/", larguras=POUCAS),
+    C("termos-lista", "Termos de autorização", "/viagens/termos/"),
+    C("termos-novo", "Termos — novo (avulso)", "/viagens/termos/novo/", larguras=POUCAS),
+    C("termos-editar", "Termos — termo do ofício (documentos e herança)", "/viagens/termos/1/"),
     C("cadastros-textos", "Textos prontos", "/cadastros/textos-prontos/?tipo=motivo", larguras=POUCAS),
     C("cadastros-textos-novo", "Textos prontos — janela de novo texto", "/cadastros/textos-prontos/?tipo=motivo&novo=1", larguras=POUCAS, inteira=False),
     # UI Lab

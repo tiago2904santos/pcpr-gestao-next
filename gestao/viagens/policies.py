@@ -11,7 +11,7 @@ from django.db.models import QuerySet
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
-from .models import Oficio, Roteiro
+from .models import Oficio, Roteiro, TermoAutorizacao
 
 
 def unidade_do_usuario(usuario) -> Unidade | None:
@@ -180,6 +180,47 @@ def pode_cancelar_roteiro(usuario, roteiro: Roteiro) -> bool:
 
 def pode_excluir_roteiro(usuario, roteiro: Roteiro) -> bool:
     return usuario.has_perm("viagens.delete_roteiro") and pode_ver_roteiro(usuario, roteiro)
+
+
+# ---------------------------------------------------------------- termos de autorização
+def termos_visiveis(usuario) -> QuerySet[TermoAutorizacao]:
+    """Mesmo escopo dos ofícios: a unidade da lotação, ou todas para quem vê todas."""
+    if not usuario.has_perm("viagens.view_termoautorizacao"):
+        return TermoAutorizacao.objects.none()
+    if ve_todas_unidades(usuario):
+        return TermoAutorizacao.objects.all()
+    unidade = unidade_do_usuario(usuario)
+    return (TermoAutorizacao.objects.filter(unidade=unidade) if unidade
+            else TermoAutorizacao.objects.none())
+
+
+def pode_ver_termo(usuario, termo: TermoAutorizacao) -> bool:
+    if not usuario.has_perm("viagens.view_termoautorizacao"):
+        return False
+    return ve_todas_unidades(usuario) or termo.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_criar_termo(usuario) -> bool:
+    return (usuario.has_perm("viagens.add_termoautorizacao")
+            and unidade_do_usuario(usuario) is not None)
+
+
+def pode_editar_termo(usuario, termo: TermoAutorizacao) -> bool:
+    """Editar e gerar documentos: termo ativo, quem altera termos e o vê."""
+    return (not termo.cancelado and usuario.has_perm("viagens.change_termoautorizacao")
+            and pode_ver_termo(usuario, termo))
+
+
+def pode_cancelar_termo(usuario, termo: TermoAutorizacao) -> bool:
+    """Cancelar e reativar: quem altera termos (a referência não restringe mais que isso)."""
+    return usuario.has_perm("viagens.change_termoautorizacao") and pode_ver_termo(usuario,
+                                                                                  termo)
+
+
+def pode_excluir_termo(usuario, termo: TermoAutorizacao) -> bool:
+    return usuario.has_perm("viagens.delete_termoautorizacao") and pode_ver_termo(usuario,
+                                                                                  termo)
 
 
 def exigir(condicao: bool, mensagem: str = "Você não tem permissão para esta ação.") -> None:

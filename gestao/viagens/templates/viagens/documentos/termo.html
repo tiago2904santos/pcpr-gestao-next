@@ -1,0 +1,63 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ d.titulo }}</title>
+<meta name="author" content="{{ d.unidade_nome }}">
+{% comment %}
+Termo de autorização (paridade com os modelos da referência: genérico/semipreenchido,
+completo com viatura e completo sem viatura). O que não se sabe sai como linha em branco
+para preencher à mão. A unidade e o evento vêm do cadastro e do termo, não do texto fixo.
+{% endcomment %}
+<style>
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @page { size: A4; margin: 20mm 20mm 26mm 20mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Doc Serif", serif; font-size: 11.5pt; color: #000; line-height: 1.6; }
+  body { margin: 0; }
+  header.timbre { text-align: center; margin-bottom: 10mm; }
+  header.timbre img { height: 20mm; display: block; margin: 0 auto 2mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; text-align: center; }
+  h1 { font-size: 12pt; text-align: center; margin: 6mm 0 8mm; }
+  p { margin: 0 0 5mm; text-align: justify; }
+  .branco { display: inline-block; min-width: 60mm; border-bottom: 1px solid #000; }
+  .branco--curto { min-width: 30mm; }
+  .assinaturas { margin-top: 18mm; }
+  .assinaturas p { margin: 0 0 14mm; text-align: left; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
+</style>
+</head>
+<body>
+  <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
+  <header class="timbre">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
+  </header>
+  <main>
+    <h1>TERMO DE AUTORIZAÇÃO PARA PARTICIPAÇÃO EM EVENTOS DA {{ d.sigla|upper }}</h1>
+    {% with p=d.participante %}
+    <p>Eu {% if p %}<strong>{{ p.nome }}</strong>{% else %}<span class="branco"></span>{% endif %},
+      RG: {% if p and p.rg %}{{ p.rg }}{% else %}<span class="branco branco--curto"></span>{% endif %},
+      CPF: {% if p and p.cpf %}{{ p.cpf }}{% else %}<span class="branco branco--curto"></span>{% endif %},
+      telefone {% if p and p.telefone %}{{ p.telefone }}{% else %}(&nbsp;&nbsp;&nbsp;&nbsp;) <span class="branco branco--curto"></span>{% endif %},
+      lotado(a) na(o) {% if p and p.lotacao %}{{ p.lotacao }}{% else %}<span class="branco"></span>{% endif %},
+      manifesto o interesse em participar do evento “{{ d.evento }}”, {{ d.periodo|default:"________________" }},
+      {{ d.destinos_frase|default:"no município de ________________" }}, para execução de atividades
+      inerentes à {{ d.unidade_nome }} - {{ d.sigla|upper }}/PCPR.</p>
+    {% endwith %}
+    <p>Declaro que estou ciente da necessidade de estar na posse de cartão corporativo vigente e
+      apto para uso, no período do deslocamento.</p>
+    {% with v=d.viatura %}
+    <p>Viatura: {% if v %}{{ v.modelo|default:"—" }}{% else %}Modelo: <span class="branco"></span>{% endif %}<br>
+      Placa / Combustível: {% if v %}{{ v.placa }} / {{ v.combustivel|default:"—" }}{% else %}<span class="branco"></span>{% endif %}</p>
+    {% endwith %}
+    <div class="assinaturas">
+      <p>Assinatura servidor:</p>
+      <p>Autorização da Chefia:</p>
+    </div>
+  </main>
+</body>
+</html>

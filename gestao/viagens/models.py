@@ -577,3 +577,73 @@ class LacunaNumeracao(models.Model):
 
     def __str__(self) -> str:
         return f"{self.numero:02d}/{self.ano} (livre)"
+
+
+class TermoAutorizacao(models.Model):
+    """Termo de autorização para participar de um evento (um por servidor, mais o genérico
+    e o da viatura). Paridade com `viagens_termos` da referência: pode nascer de um ofício
+    — e então **herda** dele o que ficar em branco (destinos, período, servidores, viatura)
+    — ou ser avulso. Os documentos são gerados na hora, do estado atual."""
+
+    class Situacao(models.TextChoices):
+        ATIVO = "ativo", "Ativo"
+        CANCELADO = "cancelado", "Cancelado"
+
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="termos")
+    oficio = models.ForeignKey(Oficio, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name="termos", verbose_name="ofício vinculado")
+    # Como o termo nomeia a participação ("manifesto o interesse em participar do …").
+    # O valor inicial é o da referência.
+    evento = models.CharField("evento", max_length=160, default="PCPR na Comunidade")
+    data_inicio = models.DateField("data inicial", null=True, blank=True)
+    data_fim = models.DateField("data final", null=True, blank=True)
+    servidores = models.ManyToManyField(Servidor, blank=True, related_name="termos")
+    viatura = models.ForeignKey(Viatura, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name="termos")
+    situacao = models.CharField(max_length=10, choices=Situacao.choices,
+                                default=Situacao.ATIVO)
+    motivo_cancelamento = models.CharField("motivo do cancelamento", max_length=1000,
+                                           blank=True)
+    cancelado_em = models.DateTimeField(null=True, blank=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-criado_em"]
+        verbose_name = "termo de autorização"
+        verbose_name_plural = "termos de autorização"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
+                                                       data_fim__gte=models.F("data_inicio")),
+                name="termo_periodo_ordenado"),
+            models.CheckConstraint(
+                condition=~Q(situacao="cancelado") | ~Q(motivo_cancelamento=""),
+                name="termo_cancelado_tem_motivo"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Termo #{self.pk}"
+
+    @property
+    def cancelado(self) -> bool:
+        return self.situacao == self.Situacao.CANCELADO
+
+
+class TermoDestino(models.Model):
+    """Destinos próprios do termo, na ordem em que foram informados."""
+
+    termo = models.ForeignKey(TermoAutorizacao, on_delete=models.CASCADE,
+                              related_name="destinos")
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    ordem = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem", "id"]
+        constraints = [models.UniqueConstraint(fields=["termo", "municipio"],
+                                               name="termo_destino_unico")]
+
+    def __str__(self) -> str:
+        return str(self.municipio)

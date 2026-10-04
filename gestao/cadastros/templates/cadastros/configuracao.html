@@ -6,8 +6,7 @@
 {% comment %}
 Dados da unidade emissora que entram nos documentos (paridade com "Configurações do
 sistema" da referência, por unidade como lá é por setor). Quem não altera vê os dados.
-Pendentes: endereço em campos separados com CEP e assinantes por tipo de documento com
-substituições por período (ficha docs/migration/cadastros.md).
+Assinantes por tipo com substituições e endereço em campos: ficha docs/migration/cadastros.md.
 {% endcomment %}
 {% block conteudo %}
 {% include "componentes/pagina_cabecalho.html" with titulo="Configuração da unidade" icone="landmark" descricao="Cabeçalho, rodapé, quem assina e o destinatário dos ofícios da unidade. Vale para os próximos documentos; os já emitidos não mudam." %}
@@ -70,7 +69,8 @@ substituições por período (ficha docs/migration/cadastros.md).
           {% include "componentes/campo.html" with campo=form.ramal classe="campo--xs" %}
         </div>
         {% include "componentes/campo.html" with campo=form.endereco_rodape %}
-        {% if config %}<p class="texto-secundario texto-sm">Sai no rodapé: <span class="quebra-palavras">{{ config.rodape|default:"—" }}</span></p>{% endif %}
+        {% if config.endereco_rodape and config.logradouro %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>O rodapé usa o <strong>texto escrito</strong>, não o endereço acima. Para montar a partir do endereço, apague o texto do rodapé e salve.</p></div></div>
+        {% elif config and not config.endereco_rodape %}<p class="texto-secundario texto-sm">Sai no rodapé: <span class="quebra-palavras">{{ config.rodape|default:"—" }}</span></p>{% endif %}
       </fieldset>
     </div>
   </section>
@@ -78,6 +78,7 @@ substituições por período (ficha docs/migration/cadastros.md).
   <section class="cartao" aria-labelledby="t-assinaturas">
     <div class="cartao__corpo pilha">
       <h2 class="peso-semi texto-lg" id="t-assinaturas">Quem assina</h2>
+      {% if hoje_assina %}<ul class="hoje-assina">{% for rotulo, q in hoje_assina %}<li><span class="texto-secundario">{{ rotulo }} de hoje:</span> <strong>{{ q.0|default:"—" }}</strong>{% if q.1 %}, {{ q.1 }}{% endif %} <span class="texto-secundario">({{ q.2 }})</span></li>{% endfor %}</ul>{% endif %}
       <div class="campos">
         <div class="campo campo--lg">
           <label class="campo__rotulo" for="{{ form.assina_oficio.id_for_label }}">{{ form.assina_oficio.label }}</label>
@@ -146,7 +147,7 @@ substituições por período (ficha docs/migration/cadastros.md).
               </div>
             </div>
             {% if pode_alterar %}
-            <div class="registro__acoes">
+            <div class="registro__acoes registro__acoes--fixas">
               <form method="post" action="{% url 'cadastros:alternar_substituicao' s.pk %}">
                 {% csrf_token %}<input type="hidden" name="unidade" value="{{ unidade.pk }}">
                 <button type="submit" class="botao botao--sm">{% if s.ativo %}Encerrar{% else %}Reativar{% endif %}</button>

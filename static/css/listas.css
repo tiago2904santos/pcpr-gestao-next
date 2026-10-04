@@ -690,6 +690,12 @@ a.ficha:hover {
   opacity: 1;
 }
 
+/* Ações com texto (ex.: "PDF", "DOCX" nos documentos do termo) não esmaecem: o texto
+   precisa do contraste cheio o tempo todo. */
+.registro__acoes--fixas {
+  opacity: 1;
+}
+
 @media (max-width: 767.98px) {
   /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda. */
   .registro {
@@ -979,4 +985,15 @@ a.ficha:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-2);
+}
+
+/* Celular: linha sem placa e com ações de texto (documentos do termo, substituições):
+   o nome primeiro, as ações embaixo. */
+@media (max-width: 767.98px) {
+  .registro:has(> .registro__acoes--fixas):not(:has(> .placa)) {
+    grid-template-areas: "corpo corpo" "acoes acoes";
+  }
+  .registro:has(> .registro__acoes--fixas):not(:has(> .placa)) > .registro__acoes {
+    justify-self: start;
+  }
 }

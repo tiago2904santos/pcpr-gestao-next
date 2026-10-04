@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if termo %}{{ termo }}{% else %}Novo termo{% endif %} · Termos{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Cadastro do termo numa tela só (como na referência, que tirou o detalhe). Termo salvo: os
+documentos vêm primeiro (é o que se veio buscar); ao lado de cada campo em branco, o valor
+que vem do ofício — a herança fica à vista, não só no documento.
+{% endcomment %}
+{% block conteudo %}
+{% if termo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "file-signature" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="texto-secundario texto-sm">{{ termo }}{% if termo.oficio %} · Ofício {{ termo.oficio.numero_formatado }}{% else %} · avulso{% endif %}</p>
+    <h1 class="pagina-cabecalho__titulo">{{ ef.destino_texto|default:"Sem destino" }}{% if ef.periodo_curto %} · {{ ef.periodo_curto }}{% endif %}
+      {% if termo.cancelado %}<span class="selo selo--perigo selo--sem-ponto">Cancelado</span>{% elif not ef.completo %}<span class="selo selo--aviso selo--sem-ponto">Incompleto</span>{% endif %}</h1>
+  </div>
+  {% if pode_cancelar or pode_excluir %}
+  <div class="pagina-cabecalho__acoes">
+    <pc-menu class="menu">
+      <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
+      <div class="menu__painel" role="menu" hidden>
+        {% if pode_cancelar and not termo.cancelado %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_termo' termo.pk %}" data-motivo-titulo="Cancelar o {{ termo }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar termo" data-motivo-ajuda="O termo continua na lista, em Cancelados; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar termo</button>{% endif %}
+        {% if pode_excluir %}<button type="submit" form="excluir-termo" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir termo</button>{% endif %}
+      </div>
+    </pc-menu>
+    {% if pode_excluir %}<form id="excluir-termo" method="post" action="{% url 'viagens:excluir_termo' termo.pk %}" hidden data-confirmar="O {{ termo }} será excluído de vez. Para guardar o histórico, cancele em vez de excluir." data-confirmar-titulo="Excluir termo?" data-confirmar-rotulo="Excluir termo" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+  </div>
+  {% endif %}
+</header>
+{% else %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Novo termo de autorização" icone="file-signature" descricao="Ligado a um ofício, o termo usa dele o que ficar em branco (destinos, período, equipe e viatura). Sem ofício, informe destino e data." %}
+{% endif %}
+
+{% if termo.cancelado %}
+<div class="alerta alerta--perigo mt-4" role="status">{% icone "ban" %}<div class="alerta__corpo">
+  <p class="alerta__titulo">Termo cancelado</p><p>{{ termo.motivo_cancelamento }}</p>
+  {% if pode_cancelar %}<form method="post" action="{% url 'viagens:reativar_termo' termo.pk %}" class="mt-2">{% csrf_token %}<input type="hidden" name="voltar" value="{% url 'viagens:termos' %}"><button type="submit" class="botao botao--sm">{% icone "undo-2" %}Reativar para alterar e gerar documentos</button></form>{% endif %}
+</div></div>
+{% elif termo and not ef.completo %}
+<div class="alerta alerta--aviso mt-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo">
+  <p>{% if termo.oficio %}O Ofício {{ termo.oficio.numero_formatado }} não tem {% if not ef.destinos %}destino{% if not ef.inicio %} nem período{% endif %}{% else %}período{% endif %}: informe abaixo.{% else %}Falta {% if not ef.destinos %}destino{% else %}período{% endif %}.{% endif %} Sem isso, o documento sai com lacunas.</p></div></div>
+{% endif %}
+
+{% if termo %}
+<section class="cartao mt-4" aria-labelledby="t-documentos" id="t-documentos">
+  <div class="cartao__corpo pilha">
+    <div class="linha linha--entre">
+      <h2 class="peso-semi texto-lg">Documentos</h2>
+      {% if editavel %}<div class="linha">
+        <a class="botao botao--primario" href="{% url 'viagens:todos_termo' termo.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Todos em um PDF</a>
+        <a class="botao" href="{% url 'viagens:todos_termo' termo.pk 'zip' %}">{% icone "download" %}Todos em DOCX (ZIP)</a>
+      </div>{% endif %}
+    </div>
+    <p class="texto-secundario texto-sm">Gerados na hora, do que está salvo{% if editavel %} — mudou algo abaixo? Salve antes de baixar{% endif %}.{% if not ef.servidores %} Sem servidor, o termo sai só na versão genérica, para preencher à mão.{% endif %}</p>
+    <ul class="registros">
+      {% for d in docs %}
+        <li class="registro">
+          <span class="registro__icone" aria-hidden="true">{% if d.chave == "viatura" %}{% icone "car" %}{% elif d.chave == "generico" %}{% icone "file-text" %}{% else %}{% icone "user-round" %}{% endif %}</span>
+          <div class="registro__corpo">
+            <div class="registro__titulo"><span class="registro__link registro__link--estatico">{{ d.titulo }}</span></div>
+            <p class="registro__texto">{{ d.descricao }}</p>
+          </div>
+          {% if editavel %}
+          <div class="registro__acoes registro__acoes--fixas">
+            <a class="botao botao--sm" href="{% url 'viagens:documento_termo' termo.pk d.chave 'pdf' %}" target="_blank" rel="noopener" aria-label="Visualizar {{ d.titulo }} (PDF, nova aba)">{% icone "eye" %}PDF</a>
+            <a class="botao botao--sm" href="{% url 'viagens:documento_termo' termo.pk d.chave 'docx' %}" aria-label="Baixar {{ d.titulo }} (DOCX)">{% icone "download" %}DOCX</a>
+          </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+<form method="post" novalidate class="pilha-lg mt-4" id="form-termo" data-proteger>
+  {% csrf_token %}
+  {% include "componentes/resumo_erros.html" %}
+  <fieldset class="pilha-lg grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
+  <section class="cartao" aria-labelledby="t-oficio">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-oficio">Ofício e evento</h2>
+      <div class="campos">
+        <div class="campo campo--lg{% if form.oficio.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="busca-oficio">Ofício vinculado</label>
+          <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_oficios' %}?q=" data-minimo="1">
+            <div class="entrada-composta">{% icone "file-text" %}<input class="entrada" id="busca-oficio" type="text" role="combobox" placeholder="Número (12/2026), destino ou servidor…" value="{% if oficio %}Ofício {{ oficio.numero_formatado }}{% endif %}" aria-describedby="busca-oficio-ajuda" autocomplete="off">{{ form.oficio }}</div>
+          </pc-combobox>
+          <p class="campo__ajuda" id="busca-oficio-ajuda">Opcional. Ofícios cancelados não aparecem.</p>
+          {% if form.oficio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficio.errors|join:" " }}</span></p>{% endif %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.evento classe="campo--lg" %}
+      </div>
+      {% if heranca %}
+        <div class="alerta alerta--info">{% icone "info" %}<div class="alerta__corpo">
+          <p>Do Ofício {{ oficio.numero_formatado }} vem o que ficar em branco abaixo — o valor aparece sob cada campo. Escolher algo num campo troca o do ofício por completo.</p></div></div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="t-viagem">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-viagem">Destinos e período</h2>
+      {% include "componentes/campo.html" with campo=form.destinos rotulo="Destinos" %}
+      {% if heranca.destinos and not form.destinos.value %}<p class="heranca">{% icone "file-text" classe="icone--sm" %}Do ofício: <strong>{{ heranca.destinos }}</strong></p>{% endif %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data_inicio classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.data_fim classe="campo--md" %}
+      </div>
+      {% if heranca.periodo and not form.data_inicio.value %}<p class="heranca">{% icone "calendar" classe="icone--sm" %}Do ofício: <strong>{{ heranca.periodo }}</strong></p>{% endif %}
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="t-pessoas">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-pessoas">Servidores e viatura</h2>
+      {% include "componentes/campo.html" with campo=form.servidores rotulo="Servidores" %}
+      {% if heranca.servidores and not form.servidores.value %}<p class="heranca">{% icone "users" classe="icone--sm" %}Do ofício: <strong>{{ heranca.servidores }}</strong>. Escolher alguém aqui deixa só os escolhidos.</p>{% endif %}
+      <div class="campo campo--lg">
+        <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">{{ form.viatura.label }}</label>
+        <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
+      </div>
+      {% if heranca.viatura and not form.viatura.value %}<p class="heranca">{% icone "car" classe="icone--sm" %}Do ofício: <strong>{{ heranca.viatura }}</strong></p>{% endif %}
+    </div>
+  </section>
+  </fieldset>
+
+  {% if editavel %}
+  <div class="barra-acoes">
+    <p class="barra-acoes__status">{% if termo %}{{ termo }}{% else %}Novo termo{% endif %}</p>
+    <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar termo</button>
+  </div>
+  {% endif %}
+</form>
+{% if termo and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
+{% endblock %}

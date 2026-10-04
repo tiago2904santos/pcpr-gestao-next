@@ -2214,3 +2214,11 @@ kbd {
   font-weight: var(--peso-semi);
   font-variant-numeric: tabular-nums;
 }
+
+/* Fieldset que só agrupa para desabilitar tudo de uma vez (termo cancelado): sem moldura. */
+.grupo-campos--livre {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}

@@ -93,3 +93,16 @@ def test_foco_por_teclado_e_a_assinatura_do_sistema_nao_o_anel_do_navegador(loga
     azul = _rgb("--azul-600")
     for estilo in (botao, cabecalho, campo, registro):
         assert azul not in estilo["cor"] and azul not in estilo["sombra"] and azul not in estilo["borda"]
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_termo_salvo_com_documentos_sem_violacoes(logado, dados_e2e, largura):
+    """A tela de um termo já salvo (herança do ofício à vista e a lista de documentos)."""
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import termos
+    from gestao.viagens.models import Oficio
+
+    termo = termos.salvar(Usuario.objects.get(login="operador"),
+                          oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/termos/{termo.pk}/")

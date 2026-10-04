@@ -17,6 +17,8 @@ registrar_modulo(
                 Item("Roteiros", "viagens:roteiros", "route", requer="viagens.view_roteiro"),
                 Item("Justificativas", "viagens:justificativas", "file-pen-line",
                      requer="viagens.view_oficio"),
+                Item("Termos", "viagens:termos", "file-signature",
+                     requer="viagens.view_termoautorizacao"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Todos os cadastros", "cadastros:indice", "layers",

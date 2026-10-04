@@ -9,10 +9,10 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Módulo | Situação | Funções da referência cobertas* | Evidência | Ficha |
 |---|---|---:|---|---|
 | Plataforma / identidade | Parcial | 9 / 19 | `gestao/identidade/tests`, `gestao/painel/tests` | — |
-| Viagens · Cadastros | **Em andamento** (CRUD em tela pronto; faltam assinantes por tipo e endereço em campos) | 18 / 22 | `gestao/cadastros/tests/test_crud.py`, `tests/e2e/test_cadastros.py` | [cadastros.md](cadastros.md) |
+| Viagens · Cadastros | **Implementado** (falta só a consulta de CEP, serviço externo) | 21 / 22 | `gestao/cadastros/tests/test_crud.py`, `tests/e2e/test_cadastros.py` | [cadastros.md](cadastros.md) |
 | Viagens · Ofícios | **Em fechamento** (falta comparação com a referência em execução) | 29 / 31 (+2 bloqueados: termos, assinatura) | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
-| Viagens · Roteiros | Avançado | 11 / 14 | `gestao/viagens/tests/test_roteiros*.py` | (a criar) |
-| Viagens · Termos | Ausente | 0 / 12 | — | — |
+| Viagens · Roteiros | **Em paridade** (falta "Finalizados", que depende da prestação de contas) | 12 / 14 | `gestao/viagens/tests/test_roteiros*.py` | [roteiros.md](roteiros.md) |
+| Viagens · Termos | **Implementado** (faltam "Finalizados" e anexar assinado, de outros módulos) | 10 / 12 | `gestao/viagens/tests/test_termos.py`, `tests/e2e/test_termos.py` | [termos.md](termos.md) |
 | Viagens · Ordens de serviço | Ausente | 0 / 8 | — | — |
 | Viagens · Planos de trabalho | Ausente | 0 / 12 | — | — |
 | Viagens · Viagem (assistente) | Ausente | 0 / 13 | — | — |

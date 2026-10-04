@@ -58,10 +58,17 @@ def _unidades(atual: int | None = None):
 
 
 # ---------------------------------------------------------------- município
+TAMANHO_MAXIMO_MUNICIPIO = 120
+
+
 def resolver_municipio(texto: str) -> Municipio:
     """Aceita "Cidade/UF", "Cidade - UF" ou "Cidade, UF" (sem diferenciar acentos/caixa)."""
     texto = (texto or "").strip()
-    m = re.match(r"^(?P<nome>.+?)\s*[/,-]\s*(?P<uf>[A-Za-z]{2})$", texto)
+    if len(texto) > TAMANHO_MAXIMO_MUNICIPIO:  # nome de município não passa disso
+        raise forms.ValidationError("Informe a cidade e a UF, ex.: Arapongas/PR.",
+                                    code="formato_municipio")
+    # Linear (o ".+?" seguido de "\s*" era quadrático com muitos espaços).
+    m = re.match(r"^(?P<nome>.*\S)\s*[/,-]\s*(?P<uf>[A-Za-z]{2})$", texto)
     if not m:
         raise forms.ValidationError(
             "Informe a cidade e a UF, ex.: Arapongas/PR.", code="formato_municipio")
@@ -84,6 +91,7 @@ class CampoMunicipio(forms.CharField):
         kwargs.setdefault("widget", forms.TextInput(attrs={
             "class": "entrada", "placeholder": "Cidade/UF", "autocomplete": "off",
             "data-municipio": ""}))
+        kwargs.setdefault("max_length", TAMANHO_MAXIMO_MUNICIPIO)
         super().__init__(**kwargs)
 
     def clean(self, value):

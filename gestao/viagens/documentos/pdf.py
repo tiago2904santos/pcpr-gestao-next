@@ -32,6 +32,33 @@ FONTES = {"regular": "LiberationSerif-Regular.ttf", "negrito": "LiberationSerif-
           "negrito_italico": "LiberationSerif-BoldItalic.ttf"}
 
 
+def _so_recursos_dos_documentos():
+    """Buscador de recursos do WeasyPrint que só entrega arquivos da pasta dos documentos
+    (brasão, fontes). Nenhum dado do cadastro vira URL hoje; isto garante que nunca vire."""
+    from urllib.parse import urlsplit
+    from urllib.request import url2pathname
+
+    from weasyprint.urls import URLFetcher
+
+    class Buscador(URLFetcher):
+        def fetch(self, url, headers=None):
+            partes = urlsplit(url)
+            if partes.scheme != "file":
+                raise ValueError(f"Recurso externo recusado: {url[:80]}")
+            caminho = Path(url2pathname(partes.path)).resolve()
+            if not caminho.is_relative_to(ASSETS.resolve()):
+                raise ValueError(f"Recurso fora dos documentos recusado: {url[:80]}")
+            return super().fetch(url, headers)
+
+    return Buscador(allowed_protocols=("file",))
+
+
+def buscar_recurso():
+    """Um buscador novo por renderização (ele guarda estado da requisição: não se compartilha
+    entre threads)."""
+    return _so_recursos_dos_documentos()
+
+
 def _recursos(folha: bool) -> dict[str, Any]:
     if folha:
         return {"brasao": static("documentos/brasao-pcpr.png"),
@@ -80,7 +107,7 @@ def gerar_pdf(tipo: str, dados: dict[str, Any]) -> tuple[bytes, str]:
     identificador = hashlib.sha256(
         f"{tipo}:{dados['numero']}:{dados['emitido_em']}".encode()
     ).digest()[:16]
-    pdf = HTML(string=html, base_url=str(ASSETS)).write_pdf(
+    pdf = HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf(
         pdf_variant="pdf/a-2a",
         pdf_identifier=identificador,
         pdf_tags=True,
@@ -101,7 +128,7 @@ def paginas_do_documento(tipo: str, dados: dict[str, Any],
 
     html = html_do_documento(tipo, dados, previa=True, regioes=regioes)
     html = _BLOCO.sub(lambda m: f'<{m.group(1)} id="b-{m.group(3)}"{m.group(2)}>', html)
-    doc = HTML(string=html, base_url=str(ASSETS)).render()
+    doc = HTML(string=html, base_url=str(ASSETS), url_fetcher=buscar_recurso()).render()
     blocos: dict[str, int] = {}
     for numero, pagina in enumerate(doc.pages, start=1):
         for ancora in pagina.anchors:

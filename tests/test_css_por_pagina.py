@@ -18,7 +18,7 @@ from django.urls import reverse
 
 from gestao.identidade.backends import LOGIN_DEMO
 from gestao.viagens import demonstracao, services
-from gestao.viagens.models import Oficio, Roteiro
+from gestao.viagens.models import Oficio, Roteiro, TermoAutorizacao
 
 CSS = Path(__file__).resolve().parents[1] / "static" / "css"
 PACOTES = ["formulario", "documento", "listas", "painel", "assistente", "itinerario", "editor"]
@@ -83,6 +83,9 @@ def paginas(settings):
         reverse("cadastros:diarias"),
         reverse("cadastros:diarias") + "?novo=1",
         reverse("cadastros:configuracao"),
+        reverse("viagens:termos"),
+        reverse("viagens:novo_termo"),
+        reverse("viagens:editar_termo", args=[TermoAutorizacao.objects.first().pk]),
         reverse("painel:notificacoes"),
         reverse("identidade:alterar_senha"),
         "/busca/?q=ofi",

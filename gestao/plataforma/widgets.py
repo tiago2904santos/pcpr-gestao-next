@@ -139,16 +139,17 @@ class EscolhaMultiplaRemota(forms.SelectMultiple):
     def get_context(self, name, value, attrs):
         # forms.Widget (e não SelectMultiple): não percorre todas as opções do campo.
         contexto = forms.Widget.get_context(self, name, value, attrs)
-        valores = [v for v in contexto["widget"]["value"]
-                   if str(v).isascii() and str(v).isdecimal() and len(str(v)) <= 18]
         consulta = getattr(self.choices, "queryset", None)
-        escolhidos = list(consulta.filter(pk__in=valores)) if consulta is not None and valores \
-            else []
+        if consulta is None:  # modo texto: o próprio valor é o que se mostra (ex.: "Cidade/UF")
+            itens = [{"id": v, "titulo": v, "meta": ""} for v in contexto["widget"]["value"]]
+        else:
+            valores = [v for v in contexto["widget"]["value"]
+                       if str(v).isascii() and str(v).isdecimal() and len(str(v)) <= 18]
+            itens = [{"id": o.pk, "titulo": str(o), "meta": getattr(o, "descricao", "")}
+                     for o in (consulta.filter(pk__in=valores) if valores else [])]
         contexto["widget"].update({
             "fonte": self.fonte, "rotulo_vazio": self.rotulo_vazio,
-            "placeholder": self.placeholder,
-            "escolhidos": [{"id": o.pk, "titulo": str(o),
-                            "meta": getattr(o, "descricao", "")} for o in escolhidos]})
+            "placeholder": self.placeholder, "escolhidos": itens})
         return contexto
 
     def format_value(self, value):

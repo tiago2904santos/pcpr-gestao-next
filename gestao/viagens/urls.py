@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_editor, views_roteiros
+from . import views, views_editor, views_roteiros, views_termos
 
 app_name = "viagens"
 
@@ -59,6 +59,18 @@ urlpatterns = [
     path("documentos/<int:documento_id>/", views.baixar_documento, name="baixar_documento"),
     path("api/servidores/", views.buscar_servidores, name="buscar_servidores"),
     path("api/rota/", views.rota, name="rota"),
+    path("termos/", views_termos.lista, name="termos"),
+    path("termos/novo/", views_termos.novo, name="novo_termo"),
+    path("termos/do-oficio/<int:oficio_pk>/", views_termos.criar_do_oficio,
+         name="criar_termo_do_oficio"),
+    path("termos/<int:pk>/", views_termos.editar, name="editar_termo"),
+    path("termos/<int:pk>/documento/<str:chave>.<str:formato>", views_termos.documento,
+         name="documento_termo"),
+    path("termos/<int:pk>/todos.<str:formato>", views_termos.todos, name="todos_termo"),
+    path("termos/<int:pk>/cancelar/", views_termos.cancelar, name="cancelar_termo"),
+    path("termos/<int:pk>/reativar/", views_termos.reativar, name="reativar_termo"),
+    path("termos/<int:pk>/excluir/", views_termos.excluir, name="excluir_termo"),
+    path("api/oficios/", views_termos.buscar_oficios, name="buscar_oficios"),
     path("roteiros/", views_roteiros.lista, name="roteiros"),
     path("roteiros/novo/", views_roteiros.novo, name="novo_roteiro"),
     path("roteiros/previa-diarias/", views_roteiros.previa_diarias,

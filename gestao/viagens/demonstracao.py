@@ -704,6 +704,33 @@ class _Gerador:
             inicio=self.hoje - timedelta(days=3), fim=self.hoje + timedelta(days=12),
             motivo="Férias do titular (DEMO)")
 
+    def termos_para_avaliar(self) -> None:
+        """Termos de autorização (módulo 4): dos ofícios mais recentes de cada situação, um
+        avulso com destinos próprios, um com viatura própria e um cancelado."""
+        from .models import TermoAutorizacao, TermoDestino
+        ascom = self.unidades[0]
+        autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
+        if autor is None:
+            return
+        recentes = list(Oficio.objects.filter(unidade=ascom).exclude(
+            situacao=Oficio.Situacao.CANCELADO).order_by("-ano", "-numero")[:6])
+        criados = [TermoAutorizacao.objects.create(unidade=ascom, oficio=o, criado_por=autor)
+                   for o in recentes]
+        avulso = TermoAutorizacao.objects.create(
+            unidade=ascom, criado_por=autor, evento="Feira de Profissões (DEMO)",
+            data_inicio=self.hoje + timedelta(days=20), data_fim=self.hoje + timedelta(days=21))
+        for ordem, nome in enumerate(("Londrina", "Maringá")):
+            TermoDestino.objects.create(termo=avulso, ordem=ordem,
+                                        municipio=Municipio.objects.get(nome=nome, uf="PR"))
+        avulso.servidores.set(self.servidores_por_unidade[ascom.pk][:3])
+        if criados and self.viaturas_por_unidade[ascom.pk]:
+            TermoAutorizacao.objects.filter(pk=criados[0].pk).update(
+                viatura=self.viaturas_por_unidade[ascom.pk][0])
+        if len(criados) > 1:
+            TermoAutorizacao.objects.filter(pk=criados[-1].pk).update(
+                situacao=TermoAutorizacao.Situacao.CANCELADO, cancelado_em=timezone.now(),
+                motivo_cancelamento="Evento adiado pela organização (DEMO).")
+
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""
         return max(anterior + timedelta(seconds=30), min(desejado, self.agora))
@@ -770,6 +797,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.roteiros(oficios)
     gerador.ciclo_de_vida(oficios)
     gerador.cadastros_para_avaliar()
+    gerador.termos_para_avaliar()
     return resumo(len(oficios))
 
 

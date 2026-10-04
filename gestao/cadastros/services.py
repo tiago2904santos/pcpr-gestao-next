@@ -268,19 +268,27 @@ def salvar_configuracao(usuario, unidade: Unidade, **dados) -> ConfiguracaoInsti
     return config
 
 
-def assinante(config: ConfiguracaoInstitucional, tipo: str, data) -> tuple[str, str]:
-    """(nome, cargo) de quem assina o documento `tipo` ("oficio", "justificativa") datado em
-    `data`: o substituto vigente na data (do tipo ou de todos; dois valendo, o de início mais
-    recente); senão o titular escolhido para o tipo; senão a chefia escrita na configuração.
-    Paridade com `_assinatura_nome_cargo` da referência."""
+def quem_assina(config: ConfiguracaoInstitucional, tipo: str, data) -> tuple[str, str, str]:
+    """(nome, cargo, de onde vem) de quem assina o documento `tipo` ("oficio",
+    "justificativa") datado em `data`: o substituto vigente na data (do tipo ou de todos;
+    dois valendo, o de início mais recente); senão o titular escolhido para o tipo; senão a
+    chefia escrita na configuração. Paridade com `_assinatura_nome_cargo` da referência."""
     for sub in config.substituicoes.all():  # ordem: início mais recente primeiro
         if sub.vale_em(tipo, data):
-            return sub.servidor.nome, getattr(sub.servidor.cargo, "nome", "")
+            fim = f" até {sub.fim:%d/%m/%Y}" if sub.fim else ""
+            return (sub.servidor.nome, getattr(sub.servidor.cargo, "nome", ""),
+                    f"substituição{fim}")
     titular = {"oficio": config.assina_oficio,
                "justificativa": config.assina_justificativa}.get(tipo)
     if titular is not None:
-        return titular.nome, getattr(titular.cargo, "nome", "")
-    return config.chefia_nome, config.chefia_cargo
+        return titular.nome, getattr(titular.cargo, "nome", ""), "assinante escolhido"
+    return config.chefia_nome, config.chefia_cargo, "chefia"
+
+
+def assinante(config: ConfiguracaoInstitucional, tipo: str, data) -> tuple[str, str]:
+    """(nome, cargo) de quem assina — ver `quem_assina`."""
+    nome, cargo, _ = quem_assina(config, tipo, data)
+    return nome, cargo
 
 
 @transaction.atomic

@@ -35,6 +35,9 @@ ROTAS_AUTENTICADAS = [
     "/cadastros/combustiveis/?aba=inativos",
     "/cadastros/diarias/",
     "/cadastros/configuracao/",
+    # Módulo 4 — termos de autorização.
+    "/viagens/termos/",
+    "/viagens/termos/novo/?oficio={oficio_emitido}",
     "/ui-lab/",
     "/nao-existe/",
 ]

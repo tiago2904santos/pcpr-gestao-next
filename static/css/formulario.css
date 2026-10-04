@@ -911,3 +911,27 @@
 .escolha-unidade .campo {
   flex: 1 1 18rem;
 }
+
+/* "Do ofício: …" — o valor que um campo em branco do termo herda do ofício. */
+.heranca {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+/* Configuração: quem sai assinando hoje, por tipo de documento. */
+.hoje-assina {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding: var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  list-style: none;
+  font-size: var(--texto-sm);
+}
+
+.heranca > .icone {
+  margin-right: var(--esp-1);
+  vertical-align: -0.15em;
+}

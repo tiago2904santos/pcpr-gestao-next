@@ -1,0 +1,107 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Termos de autorização{% endblock %}
+{% block titulo_lista %}Termos de autorização{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Um termo por servidor para participar do evento, mais o genérico e o da viatura. Ligado a um ofício, o termo usa dele o que ficar em branco.</p>{% endblock %}
+{% block acoes_lista %}{% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo_termo' %}">{% icone "plus" %}Novo termo</a>{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista de termos da referência: título "DESTINO · período", selo de tempo,
+"Ofício N · servidores · viatura", busca (destino, ofício, protocolo, servidor, placa),
+abas de situação e o menu de documentos (PDF de todos, ZIP de DOCX, genérico, viatura,
+cada servidor), editar, cancelar/reativar e excluir. "Finalizados" (contas prestadas)
+chega com a prestação de contas.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if oficio_filtro %}oficio={{ oficio_filtro }}&amp;{% endif %}{% if chave %}aba={{ chave }}&amp;{% endif %}{% if termo_busca %}q={{ termo_busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:termos' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  {% if oficio_filtro %}<input type="hidden" name="oficio" value="{{ oficio_filtro }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-termos">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-termos" type="search" name="q" value="{{ termo_busca }}" placeholder="Destino, ofício (12/2026), protocolo, servidor ou placa" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo_busca %}Resultados para “{{ termo_busca }}”{% elif oficio %}Termos do Ofício {{ oficio.numero_formatado }}{% else %}Termos{% endif %}</h2>
+  {% if oficio %}<a class="ficha ficha--ativa" href="{% url 'viagens:termos' %}" aria-label="Ver todos os termos (tirar o filtro do Ofício {{ oficio.numero_formatado }})">Ofício {{ oficio.numero_formatado }} <span class="ficha__remover" aria-hidden="true">{% icone "x" classe="icone--sm" %}</span></a>{% endif %}
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"termo,termos" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% with t=l.termo ef=l.ef %}
+      <li class="registro{% if t.cancelado %} registro--inativo{% endif %}">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Termo</span><span class="placa__numero">#{{ t.pk }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <a class="registro__link" href="{% url 'viagens:editar_termo' t.pk %}"><span class="sr-only">{{ t }} · </span>{{ ef.destino_texto|default:"Sem destino" }}{% if ef.periodo_curto %} · {{ ef.periodo_curto }}{% endif %}</a>
+            {% if t.cancelado %}<span class="selo selo--perigo selo--sem-ponto">Cancelado</span>
+            {% elif not ef.inicio %}<span class="selo selo--neutro selo--sem-ponto">Sem período</span>
+            {% elif ef.inicio > hoje %}<span class="selo selo--neutro selo--sem-ponto">Previsto</span>
+            {% elif ef.fim >= hoje %}<span class="selo selo--info selo--sem-ponto">Em andamento</span>
+            {% else %}<span class="selo selo--sucesso selo--sem-ponto">Realizado</span>{% endif %}
+            {% if not t.oficio %}<span class="selo selo--neutro selo--sem-ponto">Avulso</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if t.oficio %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Ofício {{ t.oficio.numero_formatado }}</span>{% endif %}
+            <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% for s in ef.servidores|slice:":3" %}{{ s.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem servidor (só o genérico)</span>{% endfor %}{% if ef.servidores|length > 3 %} e mais {{ ef.servidores|length|add:"-3" }}{% endif %}</span>
+            {% if ef.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ ef.viatura }}</span>{% endif %}
+          </div>
+        </div>
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ t }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if l.editavel %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Todos em um PDF</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'zip' %}">{% icone "download" %}Todos em DOCX (ZIP)</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>
+                {% if ef.viatura %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'viatura' 'pdf' %}" target="_blank" rel="noopener">{% icone "car" %}Termo da viatura (PDF)</a>{% endif %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "pencil" %}Abrir (documentos de cada servidor)</a>
+              {% else %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "eye" %}Abrir</a>
+              {% endif %}
+              {% if l.cancelavel %}
+                <div class="menu__separador" role="separator"></div>
+                {% if t.cancelado %}<button type="submit" form="reativar-{{ t.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar</button>
+                {% else %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_termo' t.pk %}" data-motivo-titulo="Cancelar o {{ t }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar termo" data-motivo-ajuda="O termo continua na lista, em Cancelados; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar</button>{% endif %}
+              {% endif %}
+              {% if l.excluivel %}
+                <button type="submit" form="excluir-{{ t.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          {% if l.cancelavel and t.cancelado %}<form id="reativar-{{ t.pk }}" method="post" action="{% url 'viagens:reativar_termo' t.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+          {% if l.excluivel %}<form id="excluir-{{ t.pk }}" method="post" action="{% url 'viagens:excluir_termo' t.pk %}" hidden data-confirmar="O {{ t }} será excluído de vez. Para guardar o histórico, cancele em vez de excluir." data-confirmar-titulo="Excluir termo?" data-confirmar-rotulo="Excluir termo" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+        </div>
+      </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif oficio and not termo_busca and not aba %}
+  {% include "componentes/vazio.html" with icone="file-signature" titulo="Este ofício ainda não tem termo" texto="O termo do ofício usa os destinos, o período, a equipe e a viatura dele." acao_template="viagens/termos/_criar_do_oficio.html" %}
+{% elif termo_busca or aba or oficio_filtro %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum termo encontrado" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'viagens:novo_termo' as url_novo %}
+  {% include "componentes/vazio.html" with icone="file-signature" titulo="Nenhum termo de autorização ainda" texto="Crie um termo avulso ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_url=url_novo acao_rotulo="Novo termo" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum termo para mostrar" texto="Quando houver termos da sua unidade, eles aparecerão aqui." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% include "componentes/dialogo_motivo.html" %}
+{% endblock %}

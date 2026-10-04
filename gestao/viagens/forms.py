@@ -10,7 +10,7 @@ from django import forms
 from django.db.models import Q
 from django.utils import timezone
 
-from gestao.cadastros.forms import CampoMunicipio, resolver_municipio  # noqa: F401
+from gestao.cadastros.forms import CampoMunicipio, resolver_municipio
 from gestao.cadastros.models import Combustivel, ModeloTexto, Servidor, Viatura
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
 from gestao.plataforma.widgets import (
@@ -19,6 +19,7 @@ from gestao.plataforma.widgets import (
     EntradaData,
     EntradaDataHora,
     EntradaHora,
+    EscolhaMultiplaRemota,
     Selecao,
     SelecaoDeTexto,
 )
@@ -572,3 +573,107 @@ class FormularioJustificativa(forms.Form):
             dados["justificativa"] = dados["justificativa_modelo"].texto
         dados["justificativa"] = " ".join((dados.get("justificativa") or "").split(" ")).strip()
         return dados
+
+
+# ---------------------------------------------------------------- termos de autorização
+MAX_DESTINOS_TERMO = 30
+MAX_SERVIDORES_TERMO = 50
+
+
+class CampoMunicipios(forms.Field):
+    """Vários "Cidade/UF" (escolhidos por busca), resolvidos para Municipio na ordem."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("widget", EscolhaMultiplaRemota(
+            rotulo_vazio="Nenhum destino escolhido.", placeholder="Cidade…"))
+        super().__init__(**kwargs)
+
+    def to_python(self, value):
+        if not value:
+            return []
+        if isinstance(value, str):
+            value = [value]
+        textos = [str(v) for v in value if str(v).strip()]
+        if len(textos) > MAX_DESTINOS_TERMO:  # corta antes de consultar (cada um é uma busca)
+            raise forms.ValidationError(f"No máximo {MAX_DESTINOS_TERMO} destinos.")
+        return [resolver_municipio(v) for v in textos]
+
+    def prepare_value(self, value):
+        return [str(m) if hasattr(m, "uf") else m for m in (value or [])]
+
+
+class FormularioTermo(forms.Form):
+    """Cadastro do termo. Em branco, destinos, período, servidores e viatura vêm do ofício
+    (referência: "herdados"); sem ofício, destino e data são obrigatórios (o serviço confere)."""
+
+    oficio = forms.ModelChoiceField(
+        label="Ofício vinculado", queryset=Oficio.objects.none(), required=False,
+        widget=forms.HiddenInput(attrs={"data-valor-id": ""}))
+    evento = forms.CharField(
+        label="Evento", max_length=160, required=False, initial="PCPR na Comunidade",
+        help_text="Sai no documento: “manifesto o interesse em participar do …”.",
+        widget=forms.TextInput(attrs=_attrs(autocomplete="off")))
+    destinos = CampoMunicipios(label="Destinos", required=False,
+                               help_text="Em branco, valem os destinos do ofício.")
+    data_inicio = forms.DateField(label="Data inicial", required=False, widget=EntradaData(),
+                                  input_formats=FORMATOS_DATA)
+    data_fim = forms.DateField(label="Data final", required=False, widget=EntradaData(),
+                               input_formats=FORMATOS_DATA,
+                               help_text="Um dia só: deixe em branco.")
+    servidores = forms.ModelMultipleChoiceField(
+        label="Servidores", queryset=Servidor.objects.none(), required=False,
+        help_text="Um termo por servidor. Em branco, vale a equipe do ofício.")
+    viatura = forms.ModelChoiceField(label="Viatura", queryset=Viatura.objects.none(),
+                                     required=False, empty_label="A do ofício (ou nenhuma)")
+
+    def __init__(self, *args, oficios=None, fonte_servidores: str = "",
+                 fonte_municipios: str = "", termo=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if oficios is not None and termo is not None:  # sempre da unidade do termo
+            oficios = oficios.filter(unidade_id=termo.unidade_id)
+        cast(forms.ModelChoiceField, self.fields["oficio"]).queryset = (
+            oficios if oficios is not None else Oficio.objects.none())
+        atuais = list(termo.servidores.values_list("pk", flat=True)) if termo else []
+        servidores = cast(forms.ModelMultipleChoiceField, self.fields["servidores"])
+        servidores.queryset = Servidor.objects.filter(Q(ativo=True) | Q(pk__in=atuais))
+        servidores.widget = EscolhaMultiplaRemota(
+            fonte=fonte_servidores, rotulo_vazio="Nenhum servidor escolhido.",
+            placeholder="Nome, cargo ou CPF…")
+        servidores.widget.choices = servidores.choices
+        self.fields["destinos"].widget.fonte = fonte_municipios
+        viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
+        viatura.queryset = Viatura.objects.filter(
+            Q(ativo=True) | Q(pk=termo.viatura_id if termo else None)).order_by("placa")
+
+    def clean(self):
+        """As regras do serviço, com o erro no campo certo (todas de uma vez)."""
+        from .termos import _do_oficio
+        dados = super().clean() or {}
+        oficio = dados.get("oficio")
+        destinos_oficio, inicio_oficio, _ = _do_oficio(oficio) if oficio else ([], None, None)
+        if not dados.get("destinos") and not destinos_oficio and "destinos" not in self.errors:
+            self.add_error("destinos", "Informe o destino ou escolha um ofício com roteiro.")
+        inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
+        if not inicio and not inicio_oficio and "data_inicio" not in self.errors:
+            self.add_error("data_inicio", "Informe a data ou escolha um ofício com período.")
+        if inicio and fim and fim < inicio:
+            self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
+        if fim and not inicio:
+            self.add_error("data_inicio", "Informe a data inicial.")
+        return dados
+
+    def clean_servidores(self):
+        servidores = self.cleaned_data["servidores"]
+        if len(servidores) > MAX_SERVIDORES_TERMO:
+            raise forms.ValidationError(f"No máximo {MAX_SERVIDORES_TERMO} servidores por termo.")
+        return servidores
+
+    @classmethod
+    def de(cls, termo, **kwargs):
+        return cls(termo=termo, initial={
+            "oficio": termo.oficio_id, "evento": termo.evento,
+            "destinos": [str(d.municipio) for d in termo.destinos.all()],
+            "data_inicio": termo.data_inicio,
+            "data_fim": termo.data_fim if termo.data_fim != termo.data_inicio else None,
+            "servidores": [s.pk for s in termo.servidores.all()],
+            "viatura": termo.viatura_id}, **kwargs)

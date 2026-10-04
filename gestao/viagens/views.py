@@ -29,7 +29,7 @@ from gestao.plataforma.templatetags.ui import formatar_moeda
 
 from . import exportacao, itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
-from .documentos.pdf import ASSETS, html_do_documento
+from .documentos.pdf import ASSETS, buscar_recurso, html_do_documento
 from .dominio import busca as dominio_busca
 from .dominio.diarias import Faixa
 from .forms import (
@@ -660,6 +660,11 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
         "acoes": policies.acoes_do_oficio(request.user, oficio, com_exclusao=True),
+        # Termos de autorização (módulo 4): criar a partir deste ofício e ver os dele.
+        "pode_termo": (policies.pode_criar_termo(request.user)
+                       and oficio.situacao != Oficio.Situacao.CANCELADO),
+        # Sem contar (a janela tem orçamento de consultas): o link abre a lista filtrada.
+        "termos_do_oficio": request.user.has_perm("viagens.view_termoautorizacao"),
         # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
         "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
                             and d.situacao == Documento.Situacao.PRONTO), None),
@@ -713,7 +718,7 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
     from weasyprint import HTML
 
     pdf = HTML(string=html_do_documento(tipo, dados, previa=True),
-               base_url=str(ASSETS)).write_pdf()
+               base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf()
     resposta = HttpResponse(pdf, content_type="application/pdf")
     resposta["Content-Disposition"] = f'inline; filename="minuta-{oficio.numero}-{oficio.ano}.pdf"'
     return resposta

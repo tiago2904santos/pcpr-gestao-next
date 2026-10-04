@@ -125,6 +125,15 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **Teste de propriedade (Hypothesis) do domínio de diárias** falhou uma vez sob `-n auto`
   com a máquina carregada e passou sozinho: tratar como intermitente, conferir antes de culpar
   a mudança.
+- **`URLFetcher` do WeasyPrint 70**: `url_fetcher` passou a ser uma instância de
+  `weasyprint.urls.URLFetcher` (não mais função); um novo por renderização (guarda estado).
+- **Variáveis passadas uma a uma num `include`** (`_dialogo_resumo.html`): contexto novo na
+  view não chega ao template incluído — conferir os `with` ao acrescentar algo.
+- **Ações com texto numa linha de registro** esmaecem com `.registro__acoes` (opacidade) e
+  reprovam contraste: usar `.registro__acoes--fixas`.
+- **Orçamento de tempo (TTFB) na suíte de navegador com `-n 4`** estoura de vez em quando
+  (máquina carregada); rodado sozinho passa. Antes de culpar a mudança, rodar
+  `tests/e2e/test_desempenho.py` isolado.
 - **Vínculos que impedem excluir**: `_meta.related_objects` ignora relações com
   `related_name="+"`; usar `get_fields(include_hidden=True)`.
 
