@@ -3,7 +3,7 @@
 > Lido no início de cada sessão e atualizado a cada checkpoint. Se o código real divergir
 > deste arquivo, o código vence e este arquivo é corrigido.
 
-Atualizado em 05/10/2026 · ramo `migracao/loop-continuo` · último checkpoint `b4d92d4`.
+Atualizado em 05/10/2026 · ramo `migracao/loop-continuo` · último checkpoint `a320553`.
 
 ## Escopo global
 
@@ -39,16 +39,16 @@ Ver a fila abaixo (primeiro item não concluído).
 
 | # | Tarefa | Situação |
 |---|---|---|
-| A | Regressão de navegador completa (não rodava desde `80e3de0`) | feita: 342 ok, 3 falhas só sob `-n 4` (2 orçamento, 1 roteiro); isoladas passam |
+| A | Regressão de navegador completa | feita em `a320553`: **357 passaram, 0 falhas** (`-n 4`) |
 | B | Inventário global de lacunas | feito → [inventario-global.md](inventario-global.md) |
 | C | parity.md (Planos, Termos, OS) | feito |
-| D | Orçamento de desempenho sob carga: mediana de 3 amostras (TTFB/db) | implementado; a regressão A usou o código antigo — validar na próxima completa |
+| D | Orçamento de desempenho sob carga: mediana de 3 amostras (TTFB/db) | validado: passou sob `-n 4` na regressão completa |
 | 1+2 | Via assinada (ofício, justificativa, termo, OS): anexar, trocar, remover, histórico, "dados mudaram"; revisões de segurança e UX aplicadas. O artefato guardado do termo/OS virou a própria via (o gerado continua sob demanda) | feito (7a) |
 | 3 | Conferência do assinado + ADR 0022 (`pypdf`) | feito (7b); prévia antes de anexar pendente |
 | 4 | Janela "Baixar documentos" (ofício, justificativa, termo; viagem no 8) | feito (7c) |
 | 5 | Notificações: mecanismo (modelo, notificar, sino, central, e-mail pela outbox desligado) | feito; eventos entram com prestação/solicitações |
 | 6 | Gestão de usuários em tela + troca de senha obrigatória | feito |
-| 7–9 | Viagem: base/etapas; gerar em lote e baixar tudo; coerência, repetir, anexos | próximo (módulo 8) |
+| 7–9 | Viagem: 8a base/etapas → 8b prontidão e coerência → 8c lote e baixar tudo → 8d repetir e cascata ([viagem.md](viagem.md)) | 8a em andamento |
 | 10–13 | Prestação de contas: base; diário; RT; documentos e assinados | pendente |
 | 14 | Abas "Finalizados" (só depois da prestação real) | bloqueado por 10–13 |
 | 15 | Agenda com fontes de Viagens | pendente |
@@ -71,7 +71,7 @@ Nenhum (árvore limpa em `b4d92d4`).
 
 ## Falhas conhecidas
 
-- Orçamento de desempenho (TTFB/db_ms) estoura com `-n 4`; passa isolado. Investigar (fila #4).
+- Nenhuma conhecida (regressão completa verde em `a320553`).
 
 ## Bloqueios externos
 
