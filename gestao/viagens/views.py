@@ -673,6 +673,8 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
                             and d.situacao == Documento.Situacao.PRONTO), None),
         "vias": _vias_do_oficio(request, oficio, documentos),
+        "pode_baixar": (policies.edita_oficios(request.user)
+                        and oficio.situacao != Oficio.Situacao.CANCELADO),
     }
 
 
@@ -921,6 +923,7 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
         "form": form, "editando": editando,
         "pode_gerir_textos": policies.pode_gerir_textos_prontos(request.user),
+        "pode_baixar": policies.edita_oficios(request.user),
         "migalhas": _migalhas(("Justificativas", "")),
     }, status=status)
 

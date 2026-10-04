@@ -17,7 +17,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Viagens · Planos de trabalho | **Implementado** (falta "Finalizados", dos módulos 8 e 9; decisões do agente pendentes em [decisoes.md](decisoes.md)) | 11 / 12 | `gestao/viagens/tests/test_planos.py`, `test_dominio_plano_trabalho.py`, `gestao/cadastros/tests/test_catalogos_plano.py`, `tests/e2e/test_planos.py` | [planos.md](planos.md) |
 | Viagens · Viagem (assistente) | Ausente | 0 / 13 | — | — |
 | Viagens · Prestação de contas | Ausente | 0 / 68 | — | — |
-| Documentos (núcleo) | Parcial — via assinada (anexar, trocar, remover, dados mudaram) e conferência do PDF feitas; faltam prévia da conferência, modal "Baixar documentos", editor de termo/OS/plano | 12 / 23 | ADR 0018, `test_editor_documento*`, `gestao/viagens/tests/test_assinados.py`, `tests/e2e/test_assinados.py` | [decisoes.md](decisoes.md#via-assinada-módulo-7a--o-que-segue-a-referência-e-o-que-é-decisão-do-agente) |
+| Documentos (núcleo) | Parcial — via assinada, conferência do PDF e janela "Baixar documentos" feitas; faltam prévia da conferência, "Baixar tudo" da viagem (módulo 8), editor de termo/OS/plano | 14 / 23 | ADR 0018, `test_editor_documento*`, `gestao/viagens/tests/test_assinados.py`, `tests/e2e/test_assinados.py` | [decisoes.md](decisoes.md#via-assinada-módulo-7a--o-que-segue-a-referência-e-o-que-é-decisão-do-agente) |
 | Eventos Sociais | Ausente | 0 / 27 | — | — |
 | ASCOM (3 submódulos) | Ausente | 0 / 43 | — | — |
 | Coffee Break | Ausente | 0 / 61 | — | — |

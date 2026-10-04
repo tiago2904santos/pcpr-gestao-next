@@ -1,5 +1,6 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Termos de autorização{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Termos de autorização{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Um termo por servidor para participar do evento, mais o genérico e o da viatura. Ligado a um ofício, o termo usa dele o que ficar em branco.</p>{% endblock %}
 {% block acoes_lista %}{% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo_termo' %}">{% icone "plus" %}Novo termo</a>{% endif %}{% endblock %}
@@ -66,6 +67,7 @@ chega com a prestação de contas.
             <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ t }}">{% icone "ellipsis-vertical" %}</button>
             <div class="menu__painel" role="menu" hidden>
               {% if l.editavel %}
+                <button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_termo' t.pk %}" data-baixar-titulo="{{ t }}">{% icone "download" %}Baixar documentos</button>
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Todos em um PDF</a>
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'zip' %}">{% icone "download" %}Todos em DOCX (ZIP)</a>
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>
@@ -106,4 +108,5 @@ chega com a prestação de contas.
 
 {% block depois_lista %}
 {% include "componentes/dialogo_motivo.html" %}
+{% include "componentes/dialogo_baixar.html" %}
 {% endblock %}

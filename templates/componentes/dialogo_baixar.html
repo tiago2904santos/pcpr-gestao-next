@@ -1,0 +1,48 @@
+{% comment %}
+Janela "Baixar documentos" — uma por página. Quem aciona é um botão com:
+  data-baixar-documentos="<url>"   data-baixar-titulo="Ofício 12/2026"
+baixar.js pede a lista (GET na url, JSON) ao abrir, marca todos, e envia (POST) pelo fetch:
+o arquivo baixa sozinho; um erro do servidor volta como mensagem na página. Regras da
+referência: "um PDF só" com 2 ou mais em PDF; a versão (assinada/original) só aparece com
+PDF e algum documento assinado. As escolhas de formato/versão/saída ficam lembradas.
+{% endcomment %}
+<dialog id="dialogo-baixar" class="dialogo" aria-labelledby="dialogo-baixar-titulo" aria-describedby="dialogo-baixar-subtitulo">
+  <form method="post" action="" novalidate data-baixar-form>
+    {% csrf_token %}
+    <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
+    <div class="dialogo__cabecalho">
+      <div>
+        <h2 class="dialogo__titulo" id="dialogo-baixar-titulo">Baixar documentos</h2>
+        <p class="texto-secundario texto-sm" id="dialogo-baixar-subtitulo" data-baixar-subtitulo></p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <fieldset class="pilha" data-baixar-lista>
+        <legend class="campo__rotulo">Marque o que você quer baixar <button type="button" class="botao botao--texto botao--sm" data-baixar-todos>Desmarcar todos</button></legend>
+        <p class="texto-secundario texto-sm" data-baixar-carregando role="status">{% icone "loader-circle" classe="icone--sm girando" %}Carregando os documentos…</p>
+        <div class="caixas" data-baixar-itens></div>
+      </fieldset>
+      <fieldset class="opcoes" data-baixar-formato>
+        <legend>Formato</legend>
+        <label class="opcao" for="baixar-pdf"><input type="radio" name="formato" id="baixar-pdf" value="pdf" checked><span class="opcao__texto"><span class="opcao__titulo">PDF</span><span class="opcao__descricao">Para ler, imprimir e assinar</span></span></label>
+        <label class="opcao" for="baixar-docx"><input type="radio" name="formato" id="baixar-docx" value="docx"><span class="opcao__texto"><span class="opcao__titulo">DOCX</span><span class="opcao__descricao">Editável no Word</span></span></label>
+      </fieldset>
+      <fieldset class="opcoes" data-baixar-versao hidden>
+        <legend>Versão</legend>
+        <label class="opcao" for="baixar-assinado"><input type="radio" name="versao" id="baixar-assinado" value="assinado" checked><span class="opcao__texto"><span class="opcao__titulo">Assinada</span><span class="opcao__descricao">A via assinada, onde houver</span></span></label>
+        <label class="opcao" for="baixar-original"><input type="radio" name="versao" id="baixar-original" value="original"><span class="opcao__texto"><span class="opcao__titulo">Arquivo original</span><span class="opcao__descricao">O PDF gerado, sem assinatura</span></span></label>
+      </fieldset>
+      <fieldset class="opcoes" data-baixar-saida>
+        <legend>Saída</legend>
+        <label class="opcao" for="baixar-separados"><input type="radio" name="saida" id="baixar-separados" value="separados" checked><span class="opcao__texto"><span class="opcao__titulo">Arquivos separados</span><span class="opcao__descricao">Num ZIP, se for mais de um</span></span></label>
+        <label class="opcao" for="baixar-unico"><input type="radio" name="saida" id="baixar-unico" value="unico"><span class="opcao__texto"><span class="opcao__titulo">Um PDF só</span><span class="opcao__descricao">Todos juntos, na ordem da lista</span></span></label>
+      </fieldset>
+      <p class="alerta alerta--info" data-baixar-gerando hidden role="status">{% icone "loader-circle" classe="girando" %}<span>Os documentos estão sendo gerados. O download começa sozinho quando ficarem prontos.</span></p>
+      <p class="campo__erro" data-baixar-erro hidden role="alert"></p>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Fechar</button>
+      <button type="submit" class="botao botao--primario" data-baixar-enviar>{% icone "download" %}<span>Baixar</span></button>
+    </div>
+  </form>
+</dialog>

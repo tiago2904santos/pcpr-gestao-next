@@ -155,7 +155,7 @@ se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação.
     <div class="secao__bloco" id="lista-documentos" aria-labelledby="t-lista-docs" data-vivo>
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-lista-docs">{% icone "files" classe="icone--sm" %}O que o termo emite</h3>
-        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ docs|length|pluralizar:"documento,documentos" }}</span></div>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ docs|length|pluralizar:"documento,documentos" }}</span>{% if editavel and pode_ver_documento %} <button type="button" class="botao botao--sm" data-baixar-documentos="{% url 'viagens:baixar_termo' termo.pk %}" data-baixar-titulo="{{ termo }}">{% icone "download" %}Baixar documentos</button>{% endif %}</div>
       </div>
       <ul class="registros">
         {% for d in docs %}
@@ -245,7 +245,7 @@ se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação.
   {% endif %}
 </form>
 {% if termo and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
-{% if termo and editavel and pode_ver_documento %}{% include "componentes/dialogo_assinado.html" %}
+{% if termo and editavel and pode_ver_documento %}{% include "componentes/dialogo_assinado.html" %}{% include "componentes/dialogo_baixar.html" %}
   {% for d in docs %}{% if d.via.s.via and d.via.pode %}{% include "viagens/assinados/_form_remover.html" with s=d.via.s titulo=d.via.titulo voltar=request.get_full_path %}{% endif %}{% endfor %}
 {% endif %}
 {% endblock %}

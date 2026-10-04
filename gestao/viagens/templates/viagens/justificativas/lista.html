@@ -1,6 +1,7 @@
 {% extends "arquetipos/lista.html" %}
 {% load viagens %}
 {% block titulo %}Justificativas{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Justificativas{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios que pedem justificativa de prazo (saída com antecedência igual ou menor que a da unidade, ou antes da data do ofício) e os que já têm uma. O texto é o do próprio ofício.</p>{% endblock %}
 {% comment %}
@@ -70,6 +71,9 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
               {% for d in o.docs_justificativa|slice:":1" %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Ver a justificativa (PDF)</a>
               {% endfor %}
+              {% if o.justificativa and pode_baixar and o.situacao != "cancelado" %}
+                <button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_justificativa' o.pk %}" data-baixar-titulo="Justificativa do Ofício {{ o.numero_formatado }}">{% icone "download" %}Baixar documentos</button>
+              {% endif %}
               {% if o.editavel_aqui and o.justificativa %}
                 <div class="menu__separador" role="separator"></div>
                 <form method="post" action="{% url 'viagens:salvar_justificativa' o.pk %}"
@@ -98,6 +102,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% endblock %}
 
 {% block depois_lista %}
+{% if pode_baixar %}{% include "componentes/dialogo_baixar.html" %}{% endif %}
 {% if editando and form %}
 <dialog id="dialogo-justificativa" class="dialogo" aria-labelledby="dialogo-justificativa-titulo" data-abrir-ao-carregar open>
   <form method="post" action="{% url 'viagens:salvar_justificativa' editando.pk %}" novalidate>

@@ -193,3 +193,20 @@ def test_via_assinada_sem_violacoes(logado, dados_e2e, largura):
         pg.get_by_role("dialog", name="Anexar via assinada").wait_for()
     _avaliar(logado, f"/viagens/ordens/{ordem.pk}/", antes=abrir_janela)
     _avaliar(logado, f"/viagens/assinados/ordem/{ordem.pk}/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_janela_baixar_documentos_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import termos
+    from gestao.viagens.models import Oficio
+
+    termo = termos.salvar(Usuario.objects.get(login="operador"),
+                          oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
+    logado.set_viewport_size({"width": largura, "height": 900})
+
+    def abrir(pg):
+        pg.get_by_role("button", name=f"Ações do {termo}").click()
+        pg.get_by_role("menuitem", name="Baixar documentos").press("Enter")
+        pg.locator("#dialogo-baixar input[name=itens]").first.wait_for()
+    _avaliar(logado, "/viagens/termos/", antes=abrir)

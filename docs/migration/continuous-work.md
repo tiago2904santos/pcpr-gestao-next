@@ -45,8 +45,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | D | Orçamento de desempenho sob carga: mediana de 3 amostras (TTFB/db) | implementado; a regressão A usou o código antigo — validar na próxima completa |
 | 1+2 | Via assinada (ofício, justificativa, termo, OS): anexar, trocar, remover, histórico, "dados mudaram"; revisões de segurança e UX aplicadas. O artefato guardado do termo/OS virou a própria via (o gerado continua sob demanda) | feito (7a) |
 | 3 | Conferência do assinado + ADR 0022 (`pypdf`) | feito (7b); prévia antes de anexar pendente |
-| 4 | Modal "Baixar documentos" reaproveitável (marcados, PDF/DOCX, ZIP/PDF único) | próximo (7c) |
-| 5 | Notificações no sistema (sino) a partir da outbox | pendente |
+| 4 | Janela "Baixar documentos" (ofício, justificativa, termo; viagem no 8) | feito (7c) |
+| 5 | Notificações no sistema (sino) a partir da outbox | próximo |
 | 6 | Gestão de usuários em tela | pendente |
 | 7–9 | Viagem: base/etapas; gerar em lote e baixar tudo; coerência, repetir, anexos | pendente |
 | 10–13 | Prestação de contas: base; diário; RT; documentos e assinados | pendente |

@@ -204,3 +204,23 @@ def folha_exemplo(request: HttpRequest) -> HttpResponse:
     nonce = str(preguicoso) if preguicoso is not None else ""
     return HttpResponse(html_do_documento("oficio", DADOS_FOLHA_EXEMPLO, previa=True,
                                           folha=True, nonce=nonce))
+
+
+def baixar_exemplo(request: HttpRequest) -> HttpResponse:
+    """Vitrine da janela "Baixar documentos": itens fictícios (GET) e um arquivo de texto
+    no lugar do pacote (POST) — nada é gerado nem lido do banco."""
+    from django.http import JsonResponse
+
+    if request.method == "GET":
+        return JsonResponse({"itens": [
+            {"valor": "oficio", "nome": "Ofício", "detalhe": "Ofício 131/2026",
+             "estado": "Assinado", "assinado": True},
+            {"valor": "justificativa", "nome": "Justificativa", "detalhe": "Justificativa de prazo",
+             "estado": "PDF emitido · v1", "assinado": False},
+            {"valor": "termo-1", "nome": "Termo · Servidora Fictícia", "detalhe": "Termo #1",
+             "estado": "Gerado na hora", "assinado": False},
+        ]})
+    resposta = HttpResponse("Vitrine do UI Lab: nenhum documento foi gerado.\n",
+                            content_type="text/plain; charset=utf-8")
+    resposta["Content-Disposition"] = 'attachment; filename="ui-lab-exemplo.txt"'
+    return resposta

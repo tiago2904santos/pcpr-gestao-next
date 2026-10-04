@@ -71,6 +71,15 @@ leva à página `viagens/assinados/anexar.html`. Peças: `viagens/assinados/_reg
 `views_assinados.cartao`. Usos: resumo do ofício, folha do termo (lista de documentos),
 folha da OS. Vitrine no UI Lab, seção 8.
 
+### Baixar documentos (módulo 7c)
+
+Janela única `componentes/dialogo_baixar.html` + `baixar.js`: um botão
+`data-baixar-documentos="<url>" data-baixar-titulo="…"` abre; a lista vem de um GET na url
+(JSON `{"itens": [{valor, nome, detalhe, estado, assinado}]}`) e o POST devolve o arquivo
+(um documento, um PDF só ou ZIP). Serviço genérico em `viagens/pacotes.py` (`Item`, `montar`);
+views em `views_pacotes.py`. Usos: resumo do ofício, justificativas, lista e folha do termo;
+a viagem (módulo 8) e a prestação reaproveitam. Vitrine no UI Lab, seção 8.
+
 ## A promover / extrair (com o primeiro módulo que precisar)
 
 | Candidato | Hoje | Por que promover | Quando |

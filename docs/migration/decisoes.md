@@ -117,6 +117,25 @@ Fonte: `documentos/services/persistence.py` (`anexar_arquivo_assinado`,
 | Prévia da conferência antes de anexar (modal) | existe (`conferir-assinado`) | ainda não: o resultado aparece depois de anexar | pendente (melhoria; não bloqueia) |
 | Limite do corpo | — | 413 acima de 16 MB antes do CSRF; Nginx `client_max_body_size 16m` | agente (achado de segurança) |
 
+## Baixar documentos (módulo 7c)
+
+Fonte: `templates/components/v32/dialogo_baixar.html`, `static/js/baixar-documentos.js`,
+`viagens_oficios/views.py` (`baixar`), `viagens_termos/views.py` (`baixar`),
+`viagens_oficios/justificativas_views.py` da referência.
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Onde aparece | listas de ofícios, justificativas e termos; painel da viagem | resumo do ofício, lista de justificativas, lista e folha do termo; viagem com o módulo 8 | referência |
+| OS e plano | sem janela (só botões de PDF); entram pela viagem | iguais | referência |
+| Opções | todos marcados; PDF/DOCX; assinada/original (com PDF e algum assinado); separados/um PDF só (≥2 em PDF); escolhas lembradas | iguais | referência |
+| Ordem | a da tela | igual | referência |
+| Falha de um documento | aborta o lote com a mensagem | igual | referência |
+| Ofício sem PDF | gera e **emite** (reserva número, muda o status) | rascunho sai como **minuta** (marca d'água); emitir continua sendo a ação da folha, com a conferência | **agente** (não emitir por efeito colateral de um download) — confirmar |
+| Nome do arquivo único | `<tipo>_sem_referencia_<data>` (defeito) | o nome do documento (`oficio-12-2026.pdf`, `termo-5-generico.pdf`) | agente (correção) |
+| Nomes repetidos no ZIP | só a viagem tratava | sempre " (2)", " (3)" | agente |
+| Lista dos documentos | embutida no botão (JSON na página) | pedida ao abrir (GET), para as listas não gerarem nada à toa | agente (desempenho) |
+| Via que não abre ao juntar | — | mensagem "baixe em arquivos separados" | agente |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -132,3 +151,4 @@ Fonte: `documentos/services/persistence.py` (`anexar_arquivo_assinado`,
 | Via assinada do termo sem exigir geração prévia (tabela "Via assinada") | decisão do usuário (não bloqueia) |
 | Termo de vários servidores assinado num único PDF escaneado: hoje é uma via por documento; anexo único para todos? | decisão do usuário (não bloqueia) |
 | Validação jurídica de assinatura ICP-Brasil (cadeia/revogação) | decisão institucional |
+| Baixar documentos de ofício em rascunho como minuta (sem emitir) | decisão do usuário (não bloqueia) |
