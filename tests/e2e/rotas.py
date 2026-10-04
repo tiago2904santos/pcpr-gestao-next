@@ -38,6 +38,9 @@ ROTAS_AUTENTICADAS = [
     # Módulo 4 — termos de autorização.
     "/viagens/termos/",
     "/viagens/termos/novo/?oficio={oficio_emitido}",
+    # Módulo 5 — ordens de serviço.
+    "/viagens/ordens/",
+    "/viagens/ordens/nova/?oficio={oficio_emitido}",
     "/ui-lab/",
     "/nao-existe/",
 ]

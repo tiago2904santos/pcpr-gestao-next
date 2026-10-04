@@ -11,7 +11,7 @@ from django.db.models import QuerySet
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
-from .models import Oficio, Roteiro, TermoAutorizacao
+from .models import Oficio, OrdemServico, Roteiro, TermoAutorizacao
 
 
 def unidade_do_usuario(usuario) -> Unidade | None:
@@ -221,6 +221,52 @@ def pode_cancelar_termo(usuario, termo: TermoAutorizacao) -> bool:
 def pode_excluir_termo(usuario, termo: TermoAutorizacao) -> bool:
     return usuario.has_perm("viagens.delete_termoautorizacao") and pode_ver_termo(usuario,
                                                                                   termo)
+
+
+# ---------------------------------------------------------------- ordens de serviço
+def ordens_visiveis(usuario) -> QuerySet[OrdemServico]:
+    if not usuario.has_perm("viagens.view_ordemservico"):
+        return OrdemServico.objects.none()
+    if ve_todas_unidades(usuario):
+        return OrdemServico.objects.all()
+    unidade = unidade_do_usuario(usuario)
+    return (OrdemServico.objects.filter(unidade=unidade) if unidade
+            else OrdemServico.objects.none())
+
+
+def pode_ver_ordem(usuario, ordem: OrdemServico) -> bool:
+    if not usuario.has_perm("viagens.view_ordemservico"):
+        return False
+    return ve_todas_unidades(usuario) or ordem.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_criar_ordem(usuario) -> bool:
+    return (usuario.has_perm("viagens.add_ordemservico")
+            and unidade_do_usuario(usuario) is not None)
+
+
+def pode_editar_ordem(usuario, ordem: OrdemServico) -> bool:
+    """Editar e gerar documentos: OS ativa, quem altera OS e a vê."""
+    return (not ordem.cancelada and usuario.has_perm("viagens.change_ordemservico")
+            and pode_ver_ordem(usuario, ordem))
+
+
+def pode_cancelar_ordem(usuario, ordem: OrdemServico) -> bool:
+    return usuario.has_perm("viagens.change_ordemservico") and pode_ver_ordem(usuario, ordem)
+
+
+def pode_excluir_ordem(usuario, ordem: OrdemServico) -> bool:
+    """Excluir libera o número: só enquanto o documento nunca foi gerado (depois, cancelar)."""
+    return (ordem.documento_gerado_em is None
+            and usuario.has_perm("viagens.delete_ordemservico") and pode_ver_ordem(usuario, ordem))
+
+
+def pode_criar_ordem_do_oficio(usuario, oficio: Oficio) -> bool:
+    """A OS nasce na unidade de quem cria: o ofício precisa ser dela (e não cancelado)."""
+    unidade = unidade_do_usuario(usuario)
+    return (pode_criar_ordem(usuario) and oficio.situacao != Oficio.Situacao.CANCELADO
+            and unidade is not None and oficio.unidade_id == unidade.pk)
 
 
 def exigir(condicao: bool, mensagem: str = "Você não tem permissão para esta ação.") -> None:

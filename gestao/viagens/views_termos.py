@@ -227,6 +227,7 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
         resposta = HttpResponse(termos.docx_do_documento(dados), content_type=(
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
         resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    resposta["Cache-Control"] = "no-store"  # dados pessoais da equipe (RG, CPF, telefone)
     return resposta
 
 
@@ -246,6 +247,7 @@ def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
                                                'docx.zip"')
         else:
             raise Http404
+        resposta["Cache-Control"] = "no-store"
     except termos.TermoInvalido as exc:
         messages.error(request, str(exc))
         return redirect("viagens:editar_termo", termo.pk)

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_editor, views_roteiros, views_termos
+from . import views, views_editor, views_ordens, views_roteiros, views_termos
 
 app_name = "viagens"
 
@@ -71,6 +71,16 @@ urlpatterns = [
     path("termos/<int:pk>/reativar/", views_termos.reativar, name="reativar_termo"),
     path("termos/<int:pk>/excluir/", views_termos.excluir, name="excluir_termo"),
     path("api/oficios/", views_termos.buscar_oficios, name="buscar_oficios"),
+    path("ordens/", views_ordens.lista, name="ordens"),
+    path("ordens/nova/", views_ordens.nova, name="nova_ordem"),
+    path("ordens/do-oficio/<int:oficio_pk>/", views_ordens.criar_do_oficio,
+         name="criar_ordem_do_oficio"),
+    path("ordens/<int:pk>/", views_ordens.editar, name="editar_ordem"),
+    path("ordens/<int:pk>/documento.<str:formato>", views_ordens.documento,
+         name="documento_ordem"),
+    path("ordens/<int:pk>/cancelar/", views_ordens.cancelar, name="cancelar_ordem"),
+    path("ordens/<int:pk>/reativar/", views_ordens.reativar, name="reativar_ordem"),
+    path("ordens/<int:pk>/excluir/", views_ordens.excluir, name="excluir_ordem"),
     path("roteiros/", views_roteiros.lista, name="roteiros"),
     path("roteiros/novo/", views_roteiros.novo, name="novo_roteiro"),
     path("roteiros/previa-diarias/", views_roteiros.previa_diarias,

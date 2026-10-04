@@ -193,18 +193,21 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
     {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
     <a class="botao" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
   {% endif %}{% endfor %}
-  {% if acoes.alguma or pode_termo or termos_do_oficio %}
+  {% if acoes.alguma or pode_termo or termos_do_oficio or pode_os or ordens_do_oficio %}
     {# Termos do ofício e ciclo de vida (cancelar, reativar, arquivar, excluir). #}
     <pc-menu class="menu">
       <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
       <div class="menu__painel menu__painel--acima" role="menu" hidden>
         {% if pode_termo %}<button type="submit" form="termo-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "file-signature" %}Novo termo de autorização</button>{% endif %}
         {% if termos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:termos' %}?oficio={{ oficio.pk }}">{% icone "files" %}Termos deste ofício</a>{% endif %}
-        {% if acoes.alguma %}{% if pode_termo or termos_do_oficio %}<div class="menu__separador" role="separator"></div>{% endif %}
+        {% if pode_os %}<button type="submit" form="os-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "clipboard-list" %}Nova ordem de serviço</button>{% endif %}
+        {% if ordens_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:ordens' %}?oficio={{ oficio.pk }}">{% icone "files" %}Ordens de serviço deste ofício</a>{% endif %}
+        {% if acoes.alguma %}{% if pode_termo or termos_do_oficio or pode_os or ordens_do_oficio %}<div class="menu__separador" role="separator"></div>{% endif %}
         {% include "viagens/oficios/_acoes_ciclo.html" with o=oficio %}{% endif %}
       </div>
     </pc-menu>
     {% if pode_termo %}<form id="termo-do-oficio-{{ oficio.pk }}" method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}" hidden>{% csrf_token %}</form>{% endif %}
+    {% if pode_os %}<form id="os-do-oficio-{{ oficio.pk }}" method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}" hidden data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ oficio.numero_formatado }}? Ela recebe o próximo número do ano e copia do ofício destinos, período, equipe e motivo. Se o ofício já tem OS, veja antes em “Ordens de serviço deste ofício”." data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">{% csrf_token %}</form>{% endif %}
   {% endif %}
   {% if pode_editar %}
     <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>

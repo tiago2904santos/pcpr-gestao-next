@@ -665,6 +665,8 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
                        and oficio.situacao != Oficio.Situacao.CANCELADO),
         # Sem contar (a janela tem orçamento de consultas): o link abre a lista filtrada.
         "termos_do_oficio": request.user.has_perm("viagens.view_termoautorizacao"),
+        "pode_os": policies.pode_criar_ordem_do_oficio(request.user, oficio),
+        "ordens_do_oficio": request.user.has_perm("viagens.view_ordemservico"),
         # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
         "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
                             and d.situacao == Documento.Situacao.PRONTO), None),

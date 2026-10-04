@@ -197,6 +197,11 @@ class Oficio(models.Model):
         return f"Ofício {self.numero_formatado}"
 
     @property
+    def descricao(self) -> str:
+        """Segunda linha nas escolhas de ofício (ex.: ofícios ligados a uma OS)."""
+        return self.get_situacao_display()
+
+    @property
     def numero_formatado(self) -> str:
         return formatar_numero(self.numero, self.ano)
 
@@ -647,3 +652,115 @@ class TermoDestino(models.Model):
 
     def __str__(self) -> str:
         return str(self.municipio)
+
+
+class OrdemServico(models.Model):
+    """Ordem de Serviço (paridade com `viagens_ordens` da referência): determina o
+    deslocamento de uma equipe — destinos, período, motivo — com o texto do tipo de
+    necessidade (`dominio.ordem_servico`). Não tem viatura, roteiro nem protocolo próprios:
+    liga-se aos ofícios. Numeração anual própria: menor lacuna liberada por exclusão, senão
+    o maior número + 1 ("OS 001/2026")."""
+
+    class Situacao(models.TextChoices):
+        ATIVA = "ativa", "Ativa"
+        CANCELADA = "cancelada", "Cancelada"
+
+    TIPOS = (("padrao", "Padrão / texto livre"),
+             ("operacao_retorno_posterior", "Operação policial - um dia posterior"),
+             ("caminhao", "Caminhão - dois dias antes e depois"),
+             ("microonibus", "Micro-ônibus"),
+             ("cerimonial_antecipado", "Cerimonial - ida antecipada"))
+
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="ordens")
+    numero = models.PositiveIntegerField()
+    ano = models.PositiveSmallIntegerField()
+    oficios = models.ManyToManyField(Oficio, blank=True, related_name="ordens")
+    tipo = models.CharField("tipo de necessidade", max_length=40, choices=TIPOS,
+                            default="padrao")
+    data_inicio = models.DateField("data inicial", null=True, blank=True)
+    data_fim = models.DateField("data final", null=True, blank=True)
+    # A data que sai no documento: nasce na primeira geração e não muda sozinha (todas as
+    # vias saem com a mesma data); ajusta-se na tela.
+    data_documento = models.DateField("data do documento", null=True, blank=True)
+    # Primeira geração do documento: depois dela a OS não se exclui (o número já saiu num
+    # documento oficial) — só se cancela.
+    documento_gerado_em = models.DateTimeField(null=True, blank=True)
+    servidores = models.ManyToManyField(Servidor, blank=True, related_name="ordens")
+    # {"<id do servidor>": "<função>"} nos tipos com função (caminhão, micro-ônibus, cerimonial).
+    funcoes = models.JSONField("funções da equipe", default=dict, blank=True)
+    motivo = models.TextField("motivo", blank=True)
+    # Quem assina só esta OS; vazio, vale a configuração (substituto do período ou chefia).
+    assinante = models.ForeignKey(Servidor, on_delete=models.SET_NULL, null=True, blank=True,
+                                  related_name="+", verbose_name="assinante desta OS")
+    situacao = models.CharField(max_length=10, choices=Situacao.choices,
+                                default=Situacao.ATIVA)
+    motivo_cancelamento = models.CharField(max_length=1000, blank=True)
+    cancelado_em = models.DateTimeField(null=True, blank=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-ano", "-numero"]
+        verbose_name = "ordem de serviço"
+        verbose_name_plural = "ordens de serviço"
+        constraints = [
+            models.UniqueConstraint(fields=["ano", "numero"], name="os_numero_unico"),
+            models.CheckConstraint(condition=Q(numero__gt=0), name="os_numero_positivo"),
+            models.CheckConstraint(
+                condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
+                                                       data_fim__gte=models.F("data_inicio")),
+                name="os_periodo_ordenado"),
+            models.CheckConstraint(
+                condition=~Q(situacao="cancelada") | ~Q(motivo_cancelamento=""),
+                name="os_cancelada_tem_motivo"),
+        ]
+
+    def __str__(self) -> str:
+        return f"OS {self.numero_formatado}"
+
+    @property
+    def numero_formatado(self) -> str:
+        return f"{self.numero:03d}/{self.ano}"
+
+    @property
+    def cancelada(self) -> bool:
+        return self.situacao == self.Situacao.CANCELADA
+
+
+class OrdemServicoDestino(models.Model):
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="destinos")
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    posicao = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [models.UniqueConstraint(fields=["ordem", "municipio"],
+                                               name="os_destino_unico")]
+
+    def __str__(self) -> str:
+        return str(self.municipio)
+
+
+class NumeracaoOrdemServico(models.Model):
+    """Uma linha por ano: trava a numeração das OS (select_for_update)."""
+
+    ano = models.PositiveSmallIntegerField(unique=True)
+
+    def __str__(self) -> str:
+        return str(self.ano)
+
+
+class LacunaOrdemServico(models.Model):
+    """Número de OS liberado por exclusão (o próximo do ano o reaproveita)."""
+
+    ano = models.PositiveSmallIntegerField()
+    numero = models.PositiveIntegerField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["ano", "numero"],
+                                               name="os_lacuna_unica")]
+
+    def __str__(self) -> str:
+        return f"{self.numero:03d}/{self.ano}"

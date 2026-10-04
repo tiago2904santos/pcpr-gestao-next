@@ -249,7 +249,7 @@ CAMPOS_CONFIGURACAO = (
     "nome_extenso", "sede", "endereco_rodape", "chefia_nome", "chefia_cargo",
     "destinatario_tratamento", "destinatario_nome", "destinatario_cargo",
     "destinatario_orgao", "destinatario_cidade", "prazo_justificativa_dias",
-    "assina_oficio", "assina_justificativa",
+    "assina_oficio", "assina_justificativa", "delegado_geral_nome",
     "cep", "logradouro", "numero", "bairro", "cidade_endereco", "uf", "email", "telefone",
     "ramal",
 )

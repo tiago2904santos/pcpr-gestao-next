@@ -2222,3 +2222,8 @@ kbd {
   padding: 0;
   border: 0;
 }
+
+/* Grupo que vem logo depois de uma lista (funções da equipe sob os escolhidos). */
+.grupo-campos--afastado {
+  margin-top: var(--esp-4);
+}

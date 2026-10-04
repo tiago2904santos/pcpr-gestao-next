@@ -13,7 +13,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Viagens · Ofícios | **Em fechamento** (falta comparação com a referência em execução) | 29 / 31 (+2 bloqueados: termos, assinatura) | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
 | Viagens · Roteiros | **Em paridade** (falta "Finalizados", que depende da prestação de contas) | 12 / 14 | `gestao/viagens/tests/test_roteiros*.py` | [roteiros.md](roteiros.md) |
 | Viagens · Termos | **Implementado** (faltam "Finalizados" e anexar assinado, de outros módulos) | 10 / 12 | `gestao/viagens/tests/test_termos.py`, `tests/e2e/test_termos.py` | [termos.md](termos.md) |
-| Viagens · Ordens de serviço | Ausente | 0 / 8 | — | — |
+| Viagens · Ordens de serviço | **Implementado** (faltam "Finalizadas" e anexar assinado, de outros módulos) | 6 / 8 | `gestao/viagens/tests/test_ordens.py`, `test_dominio_ordem_servico.py`, `tests/e2e/test_ordens.py` | [ordens.md](ordens.md) |
 | Viagens · Planos de trabalho | Ausente | 0 / 12 | — | — |
 | Viagens · Viagem (assistente) | Ausente | 0 / 13 | — | — |
 | Viagens · Prestação de contas | Ausente | 0 / 68 | — | — |

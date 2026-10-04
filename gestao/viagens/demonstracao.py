@@ -48,7 +48,16 @@ from gestao.identidade.models import Usuario
 from gestao.identidade.papeis import sincronizar_papeis
 
 from . import rotas, services
-from .models import Documento, Historico, Oficio, Roteiro, Trecho, Viajante
+from .models import (
+    Documento,
+    Historico,
+    Oficio,
+    OrdemServico,
+    OrdemServicoDestino,
+    Roteiro,
+    Trecho,
+    Viajante,
+)
 
 SEMENTE = 20_261_001
 OFICIOS_BASE = 260
@@ -731,6 +740,49 @@ class _Gerador:
                 situacao=TermoAutorizacao.Situacao.CANCELADO, cancelado_em=timezone.now(),
                 motivo_cancelamento="Evento adiado pela organização (DEMO).")
 
+    def ordens_para_avaliar(self) -> None:
+        """Ordens de serviço (módulo 5): das últimas viagens da ASCOM (uma de caminhão, com as
+        funções da equipe), uma avulsa e uma cancelada; nome do Delegado-Geral fictício."""
+        from . import ordens
+        ConfiguracaoInstitucional.objects.update(delegado_geral_nome="Delegado-Geral (DEMO)")
+        ascom = self.unidades[0]
+        autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
+        if autor is None:
+            return
+        recentes = list(Oficio.objects.filter(unidade=ascom, trechos__isnull=False).exclude(
+            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:4])
+        criadas = []
+        for i, o in enumerate(recentes):
+            dados = ordens.dados_dos_oficios([o])
+            ano = self.hoje.year
+            ordem = OrdemServico.objects.create(
+                unidade=ascom, ano=ano, numero=ordens.reservar_numero(ano), criado_por=autor,
+                tipo="caminhao" if i == 0 else "padrao", data_inicio=dados["inicio"],
+                data_fim=dados["fim"], motivo=dados["motivo"])
+            ordem.oficios.set([o])
+            ordem.servidores.set(dados["servidores"])
+            for posicao, m in enumerate(dados["destinos"]):
+                OrdemServicoDestino.objects.create(ordem=ordem, municipio=m, posicao=posicao)
+            if i == 0:
+                funcoes = ("conducao", "apoio", "tecnico")
+                ordem.funcoes = {str(s.pk): funcoes[k % 3]
+                                 for k, s in enumerate(dados["servidores"])}
+                ordem.save(update_fields=["funcoes"])
+            criadas.append(ordem)
+        if len(criadas) > 1:
+            OrdemServico.objects.filter(pk=criadas[-1].pk).update(
+                situacao=OrdemServico.Situacao.CANCELADA, cancelado_em=timezone.now(),
+                motivo_cancelamento="Viagem cancelada pela organização (DEMO).")
+        avulsa = OrdemServico.objects.create(
+            unidade=ascom, ano=self.hoje.year, numero=ordens.reservar_numero(self.hoje.year),
+            criado_por=autor, tipo="operacao_retorno_posterior",
+            data_inicio=self.hoje + timedelta(days=12), data_fim=self.hoje + timedelta(days=13),
+            motivo="cobertura da operação (DEMO)")
+        avulsa.servidores.set(self.servidores_por_unidade[ascom.pk][:2])
+        OrdemServicoDestino.objects.create(ordem=avulsa, posicao=0,
+                                           municipio=Municipio.objects.get(nome="Cascavel",
+                                                                           uf="PR"))
+
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""
         return max(anterior + timedelta(seconds=30), min(desejado, self.agora))
@@ -798,6 +850,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.ciclo_de_vida(oficios)
     gerador.cadastros_para_avaliar()
     gerador.termos_para_avaliar()
+    gerador.ordens_para_avaliar()
     return resumo(len(oficios))
 
 

@@ -1,0 +1,98 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Ordens de serviço{% endblock %}
+{% block titulo_lista %}Ordens de serviço{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Determinam o deslocamento da equipe — destinos, período e motivo — com o texto do tipo de necessidade. Numeração anual própria.</p>{% endblock %}
+{% block acoes_lista %}{% if pode_os_do_oficio %}<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}" data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ oficio.numero_formatado }}? Ela recebe o próximo número do ano." data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova ordem de serviço</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:nova_ordem' %}">{% icone "plus" %}Nova ordem de serviço</a>{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista de OS da referência: número, destinos · período, selo de tempo,
+equipe e ofícios; busca (número, destino, servidor, motivo, ofício); abas de situação.
+"Finalizadas" (contas prestadas) chega com a prestação de contas.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if oficio_filtro %}oficio={{ oficio_filtro }}&amp;{% endif %}{% if chave %}aba={{ chave }}&amp;{% endif %}{% if busca %}q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:ordens' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  {% if oficio_filtro %}<input type="hidden" name="oficio" value="{{ oficio_filtro }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-ordens">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-ordens" type="search" name="q" value="{{ busca }}" placeholder="Número (7/2026), destino, servidor, motivo ou ofício" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% elif oficio %}Ordens do Ofício {{ oficio.numero_formatado }}{% else %}Ordens de serviço{% endif %}</h2>
+  {% if oficio %}<a class="ficha ficha--ativa" href="{% url 'viagens:ordens' %}" aria-label="Ver todas as ordens (tirar o filtro do Ofício {{ oficio.numero_formatado }})">Ofício {{ oficio.numero_formatado }} <span class="ficha__remover" aria-hidden="true">{% icone "x" classe="icone--sm" %}</span></a>{% endif %}
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ordem,ordens" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% with o=l.ordem %}
+      <li class="registro{% if o.cancelada %} registro--inativo{% endif %}">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ o.numero_formatado }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            <a class="registro__link" href="{% url 'viagens:editar_ordem' o.pk %}"><span class="sr-only">{{ o }} · </span>{% for d in o.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}Sem destino{% endfor %}{% if l.periodo %} · {{ l.periodo }}{% endif %}</a>
+            {% if o.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>
+            {% elif l.faltando %}<span class="selo selo--aviso selo--sem-ponto">Falta {{ l.faltando|join:", " }}</span>
+            {% elif o.data_inicio > hoje %}<span class="selo selo--neutro selo--sem-ponto">Prevista</span>
+            {% elif o.data_fim >= hoje %}<span class="selo selo--info selo--sem-ponto">Em andamento</span>
+            {% else %}<span class="selo selo--sucesso selo--sem-ponto">Realizada</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if o.tipo != "padrao" %}<span class="registro__meta-item">{{ o.get_tipo_display }}</span>{% endif %}
+            <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% for s in o.servidores.all|slice:":3" %}{{ s.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem equipe</span>{% endfor %}{% if o.servidores.all|length > 3 %} e mais {{ o.servidores.all|length|add:"-3" }}{% endif %}</span>
+            {% for of in o.oficios.all %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
+          </div>
+        </div>
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações da {{ o }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if l.editavel %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Documento (PDF)</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' o.pk 'docx' %}">{% icone "download" %}Documento (DOCX)</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "pencil" %}Abrir</a>
+              {% else %}
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_ordem' o.pk %}">{% icone "eye" %}Abrir</a>
+              {% endif %}
+              {% if l.cancelavel %}
+                <div class="menu__separador" role="separator"></div>
+                {% if o.cancelada %}<button type="submit" form="reativar-{{ o.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar</button>
+                {% else %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_ordem' o.pk %}" data-motivo-titulo="Cancelar a {{ o }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar OS" data-motivo-ajuda="A OS continua na lista, em Canceladas, com o mesmo número; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar</button>{% endif %}
+              {% endif %}
+              {% if l.excluivel %}<button type="submit" form="excluir-{{ o.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>{% endif %}
+            </div>
+          </pc-menu>
+          {% if l.cancelavel and o.cancelada %}<form id="reativar-{{ o.pk }}" method="post" action="{% url 'viagens:reativar_ordem' o.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+          {% if l.excluivel %}<form id="excluir-{{ o.pk }}" method="post" action="{% url 'viagens:excluir_ordem' o.pk %}" hidden data-confirmar="A {{ o }} será excluída e o número {{ o.numero_formatado }} volta a ficar livre para a próxima OS do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir ordem de serviço?" data-confirmar-rotulo="Excluir OS" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+        </div>
+      </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif oficio and not busca and not aba %}
+  {% include "componentes/vazio.html" with icone="clipboard-list" titulo="Este ofício ainda não tem ordem de serviço" texto="A OS do ofício copia dele destinos, período, equipe e motivo." acao_template="viagens/ordens/_criar_do_oficio.html" %}
+{% elif busca or aba or oficio_filtro %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma ordem encontrada" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'viagens:nova_ordem' as url_nova %}
+  {% include "componentes/vazio.html" with icone="clipboard-list" titulo="Nenhuma ordem de serviço ainda" texto="Crie uma OS avulsa ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_url=url_nova acao_rotulo="Nova ordem de serviço" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhuma ordem para mostrar" texto="Quando houver ordens da sua unidade, elas aparecerão aqui." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}{% include "componentes/dialogo_motivo.html" %}{% endblock %}

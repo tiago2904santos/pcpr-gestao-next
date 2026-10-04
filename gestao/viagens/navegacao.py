@@ -15,10 +15,15 @@ registrar_modulo(
                 Item("Painel", "viagens:painel", "layout-dashboard"),
                 Item("Ofícios", "viagens:oficios", "file-text", requer="viagens.view_oficio"),
                 Item("Roteiros", "viagens:roteiros", "route", requer="viagens.view_roteiro"),
+            )),
+            # Os documentos que saem dos ofícios (menu, para a barra caber no tablet).
+            Grupo("Documentos", em_menu=True, itens=(
                 Item("Justificativas", "viagens:justificativas", "file-pen-line",
                      requer="viagens.view_oficio"),
-                Item("Termos", "viagens:termos", "file-signature",
+                Item("Termos de autorização", "viagens:termos", "file-signature",
                      requer="viagens.view_termoautorizacao"),
+                Item("Ordens de serviço", "viagens:ordens", "clipboard-list",
+                     requer="viagens.view_ordemservico"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Todos os cadastros", "cadastros:indice", "layers",

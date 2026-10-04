@@ -30,8 +30,9 @@ TIPOS = (
 
 CONDUCAO, TECNICO, APOIO, COORDENACAO, PREPARACAO = (
     "conducao", "tecnico", "apoio", "coordenacao", "preparacao")
-FUNCOES = ((CONDUCAO, "Condução"), (TECNICO, "Técnico"), (APOIO, "Apoio"),
-           (COORDENACAO, "Coordenação"), (PREPARACAO, "Preparação"))
+FUNCOES = ((CONDUCAO, "Condução (motorista)"), (TECNICO, "Técnico"),
+           (APOIO, "Apoio (montagem, escolta)"), (COORDENACAO, "Coordenação (cerimonial)"),
+           (PREPARACAO, "Preparação"))
 
 # Tipos em que cada um da equipe recebe uma função, e quais funções cada um usa.
 FUNCOES_DO_TIPO = {
@@ -164,15 +165,62 @@ def _competencias(dados: DadosOS, textos: dict[str, str]) -> list[str]:
     return [c for c in (_competencia(_por_funcao(dados, f), t) for f, t in textos.items()) if c]
 
 
+def motivo_no_texto(motivo: str) -> str:
+    """O motivo entra no meio da frase ("… para realizar ___."): sem o ponto final e com a
+    inicial minúscula (o do ofício costuma ser uma frase solta). Sigla fica como está."""
+    texto = " ".join((motivo or "").split()).rstrip(" .;")
+    if not texto:
+        return ""
+    primeira = texto.split()[0]
+    if not _sigla(primeira) and not (len(primeira) > 1 and primeira[1].isupper()):
+        texto = texto[0].lower() + texto[1:]
+    return texto
+
+
+def municipios_no_texto(destinos: list[str]) -> str:
+    """"o município de A" / "os municípios de A e B" (depois de "para")."""
+    if len(destinos) > 1:
+        return f"os municípios de {lista_com_e(destinos)}"
+    return f"o município de {destinos[0] if destinos else 'destino informado'}"
+
+
+def faltam_funcoes(dados: DadosOS) -> bool:
+    """Tipo com função e ninguém da equipe com função: o texto sairia sem atribuições."""
+    return dados.tipo in FUNCOES_DO_TIPO and bool(dados.equipe) and not any(
+        dados.funcoes.get(p.id) for p in dados.equipe)
+
+
+# Como cada tipo continua a frase depois do motivo (ajuda do campo na tela).
+FRASE_DO_MOTIVO = {
+    PADRAO: "… para realizar ___.",
+    OPERACAO_RETORNO_POSTERIOR: "… para atuação em operação policial relacionada a ___.",
+    CAMINHAO: "… para apoio logístico com caminhão em ___.",
+    MICROONIBUS: "… para apoio logístico com micro-ônibus em ___.",
+    CERIMONIAL_ANTECIPADO: "… para atuação na organização e realização de ___.",
+}
+
+# O que cada tipo faz com o documento (ajuda do campo "Tipo de necessidade").
+EFEITO_DO_TIPO = {
+    PADRAO: "Texto simples: quem vai, para onde, quando e para quê.",
+    OPERACAO_RETORNO_POSTERIOR: "Justifica um dia a mais depois da operação. Confira se o "
+                                "período inclui esse dia.",
+    CAMINHAO: "Atribuições por função (condução, técnico, apoio) e justificativa de dois dias "
+              "antes e dois depois do evento. Confira se o período cobre isso.",
+    MICROONIBUS: "Atribuições por função (condução, técnico, apoio).",
+    CERIMONIAL_ANTECIPADO: "Atribuições por função (coordenação, apoio, preparação) e "
+                           "justificativa da ida antecipada. Confira o período.",
+}
+
+
 def textos_da_os(dados: DadosOS) -> dict:
     """Referência, determinação, competências da equipe, justificativas e finalidade."""
-    destino = lista_com_e(dados.destinos) or "destino informado"
-    motivo = dados.motivo.strip() or "atuação na atividade institucional designada"
+    municipios = municipios_no_texto(dados.destinos)
+    motivo = motivo_no_texto(dados.motivo) or "atuação na atividade institucional designada"
     periodo = periodo_por_extenso(dados.inicio, dados.fim)
     equipe = equipe_no_texto(dados.equipe)
     textos: dict = {
         "referencia": "Diligências",
-        "determinacao": (f"O deslocamento {equipe} para o município de {destino}, {periodo}, "
+        "determinacao": (f"O deslocamento {equipe} para {municipios}, {periodo}, "
                          f"para realizar {motivo}."),
         "competencias": [],
         "justificativas": [],
@@ -183,7 +231,7 @@ def textos_da_os(dados: DadosOS) -> dict:
     if dados.tipo == OPERACAO_RETORNO_POSTERIOR:
         textos.update({
             "referencia": "Deslocamento - Operação policial com um dia posterior",
-            "determinacao": (f"O deslocamento {equipe} para o município de {destino}, "
+            "determinacao": (f"O deslocamento {equipe} para {municipios}, "
                              f"{periodo}, para atuação em operação policial relacionada a "
                              f"{motivo}."),
             "justificativas": [
@@ -228,8 +276,8 @@ def textos_da_os(dados: DadosOS) -> dict:
             return textos
         textos.update({
             "referencia": "Deslocamento - Caminhão de apoio",
-            "determinacao": (f"O deslocamento da equipe abaixo relacionada para o município de "
-                             f"{destino}, {periodo}, para apoio logístico com caminhão em "
+            "determinacao": (f"O deslocamento da equipe abaixo relacionada para "
+                             f"{municipios}, {periodo}, para apoio logístico com caminhão em "
                              f"{motivo}, observadas as atribuições a seguir:"),
             "competencias": competencias,
             "justificativas": [
@@ -248,8 +296,8 @@ def textos_da_os(dados: DadosOS) -> dict:
     elif dados.tipo == MICROONIBUS:
         textos.update({
             "referencia": "Deslocamento - Micro-ônibus",
-            "determinacao": (f"O deslocamento da equipe abaixo relacionada para o município de "
-                             f"{destino}, {periodo}, para apoio logístico com micro-ônibus em "
+            "determinacao": (f"O deslocamento da equipe abaixo relacionada para "
+                             f"{municipios}, {periodo}, para apoio logístico com micro-ônibus em "
                              f"{motivo}, observadas as atribuições a seguir:"),
             "competencias": _competencias(dados, {
                 CONDUCAO: ("conduzir o micro-ônibus oficial durante os deslocamentos de ida e "
@@ -272,8 +320,8 @@ def textos_da_os(dados: DadosOS) -> dict:
     elif dados.tipo == CERIMONIAL_ANTECIPADO:
         textos.update({
             "referencia": "Deslocamento - Equipe de Cerimonial",
-            "determinacao": (f"O deslocamento da equipe abaixo relacionada para o município de "
-                             f"{destino}, {periodo}, para atuação na organização e realização "
+            "determinacao": (f"O deslocamento da equipe abaixo relacionada para "
+                             f"{municipios}, {periodo}, para atuação na organização e realização "
                              f"de {motivo}, observadas as atribuições a seguir:"),
             "competencias": _competencias(dados, {
                 COORDENACAO: (

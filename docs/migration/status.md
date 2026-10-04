@@ -4,6 +4,12 @@ Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
 
 ## Agora
 
+**Módulo 5 — Ordens de serviço: IMPLEMENTADO** (ficha [ordens.md](ordens.md)): numeração
+anual, OS avulsa ou a partir do ofício (copiando destinos, período, equipe e motivo), os
+cinco tipos de necessidade com os textos da referência, funções da equipe, PDF/DOCX,
+cancelar/reativar/excluir. O menu de Viagens ganhou o grupo "Documentos" (Justificativas,
+Termos, Ordens de serviço).
+
 **Módulo 4 — Termos de autorização: IMPLEMENTADO** (ficha [termos.md](termos.md)): termo
 avulso ou a partir do ofício (herdando destinos, período, equipe e viatura), documento por
 servidor, genérico e da viatura, PDF único e ZIP de DOCX, cancelar/reativar/excluir.
@@ -44,8 +50,8 @@ decisão sobre o botão de reabrir). Ficha: [oficios.md](oficios.md).
 
 ## Próximo passo
 
-**Módulo 5 — Ordens de serviço** (saem de ofícios; numeração anual própria).
+**Módulo 6 — Planos de trabalho** (multievento, efetivo, atividades, diárias combinadas).
 
 Checkpoints: `fae9abf` (descoberta), `957f3aa`, `cb32c8c`, `f78250a`, `a447f80`, `0118be7`,
 `6209156` (D1/D2/D5), `9cc2df6` (D6), `43dad01` (D3), `2bcf751` (D8), `e59ae99` (D4),
-`3e2e094` (revisões), módulo 2 CRUD (este commit).
+`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens (este commit).

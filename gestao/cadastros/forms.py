@@ -404,6 +404,10 @@ class FormularioConfiguracao(forms.Form):
         label="Antecedência mínima (dias)", min_value=0, max_value=365,
         help_text="Viagem com esta antecedência ou menos exige justificativa.",
         widget=forms.NumberInput(attrs={"class": "entrada", "inputmode": "numeric"}))
+    delegado_geral_nome = forms.CharField(
+        label="Delegado-Geral", max_length=120, required=False,
+        help_text="Sai na Ordem de Serviço: “atribuições conferidas pelo Delegado-Geral …”.",
+        widget=_entrada())
 
     def __init__(self, *args, config=None, **kwargs):
         super().__init__(*args, **kwargs)

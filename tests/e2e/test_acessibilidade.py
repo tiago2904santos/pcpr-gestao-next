@@ -106,3 +106,16 @@ def test_termo_salvo_com_documentos_sem_violacoes(logado, dados_e2e, largura):
                           oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/termos/{termo.pk}/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_ordem_com_funcoes_sem_violacoes(logado, dados_e2e, largura):
+    """A tela de uma OS salva de tipo com funções (campos de função da equipe à vista)."""
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import ordens
+    from gestao.viagens.models import Oficio
+
+    ordem, _ = ordens.salvar(Usuario.objects.get(login="operador"), tipo="caminhao",
+                             oficios=[Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])])
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/ordens/{ordem.pk}/")

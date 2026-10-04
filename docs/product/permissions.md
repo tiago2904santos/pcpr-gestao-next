@@ -50,6 +50,9 @@ Observações:
   (`cadastros/policies.pode_alterar_configuracao`).
 - A descrição do papel ADMINISTRADOR cita "configurações institucionais", mas não há
   permissão de configuração listada em `papeis.py` — **a confirmar**.
+- Ordens de serviço (`viagens.*_ordemservico`): operador e gestor criam, editam, geram,
+  cancelam/reativam e excluem enquanto o documento nunca foi gerado (escopo da unidade);
+  consulta vê.
 - Termos de autorização (`viagens.*_termoautorizacao`): operador e gestor criam, editam,
   geram documentos, cancelam/reativam e excluem (escopo da unidade, como os ofícios);
   consulta vê. Excluir de vez pelo operador é paridade com a referência — a confirmar.

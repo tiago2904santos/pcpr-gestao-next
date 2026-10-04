@@ -369,6 +369,9 @@ class ConfiguracaoInstitucional(models.Model):
         "antecedência mínima (dias)", default=10,
         help_text="Viagens com menos dias de antecedência exigem justificativa.",
     )
+    # Nome que sai na Ordem de Serviço ("atribuições conferidas pelo Delegado-Geral …").
+    # Na referência era texto da configuração (m115); vazio, a OS avisa e sai em branco.
+    delegado_geral_nome = models.CharField("Delegado-Geral", max_length=120, blank=True)
     # Quem assina cada tipo de documento (referência: AssinaturaConfiguracao, um por tipo).
     # Vazio: assina a chefia (nome e cargo escritos acima). P01: PT e OS ficaram de fora.
     assina_oficio = models.ForeignKey(

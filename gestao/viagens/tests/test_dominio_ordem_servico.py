@@ -95,3 +95,25 @@ class TestTextosPorTipo:
         t = os_.textos_da_os(os_.DadosOS())
         assert "destino informado" in t["determinacao"]
         assert "atuação na atividade institucional designada" in t["determinacao"]
+
+
+class TestRevisaoDeUX:
+    @pytest.mark.parametrize("motivo,texto", [
+        ("Capacitação de equipes em São Paulo.", "capacitação de equipes em São Paulo"),
+        ("PCPR na Comunidade.", "PCPR na Comunidade"),
+        ("  cobertura do evento ;", "cobertura do evento"),
+        ("", ""),
+    ])
+    def test_motivo_entra_no_meio_da_frase(self, motivo, texto):
+        assert os_.motivo_no_texto(motivo) == texto
+
+    def test_varios_destinos_no_plural(self):
+        t = os_.textos_da_os(os_.DadosOS(destinos=["Londrina/PR", "Maringá/PR"],
+                                         motivo="X", equipe=[A]))
+        assert "para os municípios de Londrina/PR e Maringá/PR" in t["determinacao"]
+
+    def test_faltam_funcoes(self):
+        assert os_.faltam_funcoes(os_.DadosOS(tipo=os_.MICROONIBUS, equipe=[A]))
+        assert not os_.faltam_funcoes(os_.DadosOS(tipo=os_.MICROONIBUS, equipe=[A],
+                                                  funcoes={1: os_.CONDUCAO}))
+        assert not os_.faltam_funcoes(os_.DadosOS(tipo=os_.PADRAO, equipe=[A]))

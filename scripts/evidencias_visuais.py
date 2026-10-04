@@ -292,6 +292,9 @@ CENARIOS = [
     C("termos-lista", "Termos de autorização", "/viagens/termos/"),
     C("termos-novo", "Termos — novo (avulso)", "/viagens/termos/novo/", larguras=POUCAS),
     C("termos-editar", "Termos — termo do ofício (documentos e herança)", "/viagens/termos/1/"),
+    C("ordens-lista", "Ordens de serviço", "/viagens/ordens/"),
+    C("ordens-editar", "Ordens de serviço — OS de caminhão com funções", "/viagens/ordens/1/"),
+    C("ordens-nova", "Ordens de serviço — nova", "/viagens/ordens/nova/", larguras=POUCAS),
     C("cadastros-textos", "Textos prontos", "/cadastros/textos-prontos/?tipo=motivo", larguras=POUCAS),
     C("cadastros-textos-novo", "Textos prontos — janela de novo texto", "/cadastros/textos-prontos/?tipo=motivo&novo=1", larguras=POUCAS, inteira=False),
     # UI Lab

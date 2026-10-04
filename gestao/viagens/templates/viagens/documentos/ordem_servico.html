@@ -1,0 +1,59 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ d.titulo }}</title>
+<meta name="author" content="{{ d.unidade_nome }}">
+{% comment %}
+Ordem de Serviço (paridade com os modelos da referência: o padrão e o "de modelos", com
+competências da equipe e justificativas por tipo de necessidade). Os textos vêm de
+dominio/ordem_servico.py; aqui só a composição.
+{% endcomment %}
+<style>
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @page { size: A4; margin: 20mm 20mm 26mm 20mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Doc Serif", serif; font-size: 11.5pt; color: #000; line-height: 1.55; }
+  body { margin: 0; }
+  header.timbre { text-align: center; margin-bottom: 8mm; }
+  header.timbre img { height: 20mm; display: block; margin: 0 auto 2mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; text-align: center; }
+  h1 { font-size: 12pt; text-align: center; margin: 4mm 0 4mm; }
+  .referencia { margin: 0 0 6mm; }
+  p { margin: 0 0 4mm; text-align: justify; }
+  .determino { text-align: center; font-weight: bold; margin: 6mm 0; letter-spacing: 0.05em; }
+  ul.competencias { margin: 0 0 4mm 6mm; padding-left: 4mm; }
+  ul.competencias li { margin-bottom: 2mm; text-align: justify; }
+  .local-data { margin-top: 8mm; text-align: right; }
+  .assinatura { text-align: center; margin-top: 16mm; }
+  .assinatura p { margin: 0; text-align: center; }
+  .branco { display: inline-block; min-width: 50mm; border-bottom: 1px solid #000; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
+  .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
+</style>
+</head>
+<body>
+  <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
+  <header class="timbre">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.cabecalho_unidade }}</p>
+  </header>
+  <main>
+    <h1>ORDEM DE SERVIÇO {{ d.numero }} - {{ d.sigla|upper }}</h1>
+    <p class="referencia"><strong>Ref.:</strong> {{ d.referencia }}</p>
+    <p>Eu, {{ d.assina.nome|default:"________________" }}, {{ d.assina.cargo|default:"________________" }} da Polícia Civil do Paraná, no uso das atribuições que me foram conferidas pelo Delegado-Geral {% if d.delegado_geral %}{{ d.delegado_geral }}{% else %}<span class="branco"></span>{% endif %}, bem como pelo Conselho da Polícia Civil,</p>
+    <p class="determino">DETERMINO</p>
+    <p>{{ d.determinacao }}</p>
+    {% if d.competencias %}<ul class="competencias">{% for c in d.competencias %}<li>{{ c }};</li>{% endfor %}</ul>{% endif %}
+    {% for j in d.justificativas %}<p>{{ j }}</p>{% endfor %}
+    <p>{{ d.finalidade }}</p>
+    <p class="local-data">{{ d.sede|default:"Curitiba" }}, {{ d.data_extenso }}.</p>
+    <div class="assinatura">
+      <p><strong>{{ d.assina.nome }}</strong></p>
+      <p>{{ d.assina.cargo }}</p>
+    </div>
+  </main>
+</body>
+</html>

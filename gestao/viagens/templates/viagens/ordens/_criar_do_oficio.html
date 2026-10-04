@@ -1,0 +1,1 @@
+{% if pode_os_do_oficio %}<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova ordem de serviço</button></form>{% endif %}

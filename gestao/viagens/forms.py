@@ -24,7 +24,7 @@ from gestao.plataforma.widgets import (
     SelecaoDeTexto,
 )
 
-from .models import Oficio, Roteiro
+from .models import Oficio, OrdemServico, Roteiro
 from .queries import trechos_de
 
 FORM_ID = "form-oficio"
@@ -677,3 +677,134 @@ class FormularioTermo(forms.Form):
             "data_fim": termo.data_fim if termo.data_fim != termo.data_inicio else None,
             "servidores": [s.pk for s in termo.servidores.all()],
             "viatura": termo.viatura_id}, **kwargs)
+
+
+# ---------------------------------------------------------------- ordens de serviço
+class FormularioOrdem(forms.Form):
+    """Cadastro da OS. Ligada a ofícios, a OS copia deles o que ficar em branco (destinos,
+    período, equipe, motivo); nos tipos com função, cada um da equipe recebe a sua."""
+
+    oficios = forms.ModelMultipleChoiceField(
+        label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False,
+        help_text="Os campos que você deixar vazios abaixo são preenchidos com os dados dos "
+                  "ofícios ao salvar.")
+    tipo = forms.ChoiceField(label="Tipo de necessidade", choices=OrdemServico.TIPOS,
+                             widget=Selecao(),
+                             help_text="Muda o texto do documento (referência, justificativas "
+                                       "e atribuições da equipe).")
+    destinos = CampoMunicipios(label="Destinos", required=False)
+    data_inicio = forms.DateField(label="Data inicial", required=False, widget=EntradaData(),
+                                  input_formats=FORMATOS_DATA)
+    data_fim = forms.DateField(label="Data final", required=False, widget=EntradaData(),
+                               input_formats=FORMATOS_DATA,
+                               help_text="Um dia só: deixe em branco.")
+    servidores = forms.ModelMultipleChoiceField(label="Equipe", queryset=Servidor.objects.none(),
+                                                required=False)
+    motivo_modelo = forms.ModelChoiceField(
+        queryset=ModeloTexto.objects.none(), required=False, label="Texto pronto do motivo",
+        empty_label="Escrever do zero", widget=SelecaoDeTexto())
+    motivo = forms.CharField(
+        label="Motivo", required=False, max_length=4000,
+        help_text="Completa a frase “… para realizar ___.”",
+        widget=forms.Textarea(attrs=_attrs("area-texto", rows=3)))
+    assinante = forms.ModelChoiceField(
+        label="Quem assina esta OS", queryset=Servidor.objects.none(), required=False,
+        empty_label="O da configuração (substituto do período ou chefia)")
+    data_documento = forms.DateField(
+        label="Data do documento", required=False, widget=EntradaData(),
+        input_formats=FORMATOS_DATA,
+        help_text="Em branco, fica a data em que o documento for gerado (e não muda mais "
+                  "sozinha).")
+
+    def __init__(self, *args, oficios=None, ordem=None, fonte_oficios: str = "",
+                 fonte_servidores: str = "", fonte_municipios: str = "", unidade=None,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ordem = ordem
+        unidade_id = ordem.unidade_id if ordem else getattr(unidade, "pk", None)
+        ligados = list(ordem.oficios.values_list("pk", flat=True)) if ordem else []
+        base = oficios if oficios is not None else Oficio.objects.none()
+        if ordem is not None:
+            base = base.filter(unidade_id=ordem.unidade_id)
+        campo_oficios = cast(forms.ModelMultipleChoiceField, self.fields["oficios"])
+        campo_oficios.queryset = (base | Oficio.objects.filter(pk__in=ligados)).distinct()
+        campo_oficios.widget = EscolhaMultiplaRemota(
+            fonte=fonte_oficios, rotulo_vazio="Nenhum ofício vinculado.",
+            placeholder="Número (12/2026), destino ou servidor…")
+        campo_oficios.widget.choices = campo_oficios.choices
+        atuais = list(ordem.servidores.values_list("pk", flat=True)) if ordem else []
+        equipe = cast(forms.ModelMultipleChoiceField, self.fields["servidores"])
+        equipe.queryset = Servidor.objects.filter(Q(ativo=True) | Q(pk__in=atuais))
+        equipe.widget = EscolhaMultiplaRemota(fonte=fonte_servidores,
+                                              rotulo_vazio="Nenhum servidor na equipe.",
+                                              placeholder="Nome, cargo ou CPF…")
+        equipe.widget.choices = equipe.choices
+        self.fields["destinos"].widget.fonte = fonte_municipios
+        cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
+            ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
+        # Quem assina: servidores ativos da unidade da OS (o assinante atual continua).
+        assinante = cast(forms.ModelChoiceField, self.fields["assinante"])
+        assinante.queryset = Servidor.objects.filter(
+            Q(ativo=True, unidade_id=unidade_id)
+            | Q(pk=ordem.assinante_id if ordem else None)).order_by("nome")
+        # Funções da equipe (tipos com função): um campo por servidor já gravado na OS.
+        self.campos_de_funcao: list[tuple[Servidor, str]] = []
+        tipo = (self.data.get("tipo") if self.is_bound else None) or (
+            ordem.tipo if ordem else "padrao")
+        from .dominio.ordem_servico import (
+            EFEITO_DO_TIPO,
+            FRASE_DO_MOTIVO,
+            FUNCOES,
+            FUNCOES_DO_TIPO,
+        )
+        self.fields["tipo"].help_text = EFEITO_DO_TIPO.get(tipo, "")
+        self.fields["motivo"].help_text = (f"Completa a frase “{FRASE_DO_MOTIVO.get(tipo, '')}” "
+                                           "(sem ponto final; a inicial vira minúscula).")
+        permitidas = FUNCOES_DO_TIPO.get(tipo)
+        if ordem is not None and permitidas:
+            opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
+            for s in ordem.servidores.select_related("cargo").order_by("nome"):
+                nome = f"funcao_{s.pk}"
+                rotulo = f"{s.nome} ({s.cargo.nome})" if s.cargo_id else s.nome
+                self.fields[nome] = forms.ChoiceField(
+                    label=rotulo, choices=opcoes, required=False, widget=Selecao(),
+                    initial=(ordem.funcoes or {}).get(str(s.pk), ""))
+                self.campos_de_funcao.append((s, nome))
+
+    @property
+    def funcoes_da_equipe(self):
+        """Os campos de função já ligados ao formulário (para o template)."""
+        return [self[nome] for _s, nome in self.campos_de_funcao]
+
+    @property
+    def tipo_com_funcao(self) -> bool:
+        from .dominio.ordem_servico import FUNCOES_DO_TIPO
+        return (self["tipo"].value() or "padrao") in FUNCOES_DO_TIPO
+
+    @classmethod
+    def de(cls, ordem, **kwargs):
+        return cls(ordem=ordem, initial={
+            "oficios": [o.pk for o in ordem.oficios.all()], "tipo": ordem.tipo,
+            "destinos": [str(d.municipio) for d in ordem.destinos.all()],
+            "data_inicio": ordem.data_inicio,
+            "data_fim": ordem.data_fim if ordem.data_fim != ordem.data_inicio else None,
+            "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo,
+            "assinante": ordem.assinante_id, "data_documento": ordem.data_documento}, **kwargs)
+
+    def clean(self):
+        dados = super().clean() or {}
+        inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
+        if inicio and fim and fim < inicio:
+            self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
+        if fim and not inicio:
+            self.add_error("data_inicio", "Informe a data inicial.")
+        if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
+            dados["motivo"] = dados["motivo_modelo"].texto
+        dados.pop("motivo_modelo", None)
+        # Sem campos de função na tela (OS nova, tipo sem função), as gravadas ficam.
+        funcoes = {str(s.pk): dados.get(nome) for s, nome in self.campos_de_funcao
+                   if dados.get(nome)}
+        for _s, nome in self.campos_de_funcao:
+            dados.pop(nome, None)
+        dados["funcoes"] = funcoes if self.campos_de_funcao else None
+        return dados
