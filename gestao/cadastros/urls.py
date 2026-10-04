@@ -1,11 +1,15 @@
 from django.urls import path
 
-from . import views, views_crud
+from . import views, views_crud, views_usuarios
 
 app_name = "cadastros"
 
 urlpatterns = [
     path("", views_crud.indice, name="indice"),
+    path("usuarios/", views_usuarios.usuarios, name="usuarios"),
+    path("usuarios/salvar/", views_usuarios.salvar_usuario, name="salvar_usuario"),
+    path("usuarios/<int:pk>/ativo/", views_usuarios.alternar_ativo_usuario,
+         name="alternar_ativo_usuario"),
     path("servidores/", views_crud.servidores, name="servidores"),
     path("servidores/salvar/", views_crud.salvar_servidor, name="salvar_servidor"),
     path("viaturas/", views_crud.viaturas, name="viaturas"),

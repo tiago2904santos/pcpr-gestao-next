@@ -2,7 +2,11 @@
 {% block titulo %}Alterar senha{% endblock %}
 {% block classe_conteudo %}conteudo__interno--estreito{% endblock %}
 {% block cabecalho_pagina %}
+  {% if user.deve_trocar_senha %}
+  {% include "componentes/pagina_cabecalho.html" with titulo="Defina sua senha" icone="lock" descricao="A senha atual foi cadastrada por outra pessoa: escolha uma que só você conheça para continuar. Use ao menos 10 caracteres." %}
+  {% else %}
   {% include "componentes/pagina_cabecalho.html" with titulo="Alterar senha" icone="lock" descricao="Use ao menos 10 caracteres. Evite datas, nomes e sequências." %}
+  {% endif %}
 {% endblock %}
 {% block conteudo %}
 <form method="post" class="cartao" novalidate>
@@ -12,7 +16,7 @@
     {% for campo in form %}{% include "componentes/campo_senha.html" with campo=campo %}{% endfor %}
   </div>
   <div class="cartao__rodape">
-    <a class="botao" href="{% url 'painel:inicio' %}">Cancelar</a>
+    {% if not user.deve_trocar_senha %}<a class="botao" href="{% url 'painel:inicio' %}">Cancelar</a>{% endif %}
     <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar nova senha</button>
   </div>
 </form>

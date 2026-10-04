@@ -225,3 +225,19 @@ def test_central_de_notificacoes_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/notificacoes/")
     _avaliar(logado, "/notificacoes/?filtro=lidas")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_usuarios_e_perfis_sem_violacoes(pagina, dados_e2e, largura):
+    """Gestão de usuários (só o administrador): lista e a janela de novo usuário aberta."""
+    from django.contrib.auth.models import Group
+
+    from gestao.identidade.models import Usuario
+
+    from .conftest import SENHA
+    admin = Usuario.objects.create_user("admin", "admin@pc.pr.gov.br", SENHA, nome="Admin E2E")
+    admin.groups.add(Group.objects.get(name="ADMINISTRADOR"))
+    entrar(pagina, "admin")
+    pagina.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(pagina, "/cadastros/usuarios/")
+    _avaliar(pagina, "/cadastros/usuarios/?novo=1")

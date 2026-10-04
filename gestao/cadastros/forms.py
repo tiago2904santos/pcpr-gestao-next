@@ -596,3 +596,109 @@ class FormularioPreset(forms.Form):
         atuais = [a.pk for a in objeto.atividades.all()]
         return cls(atuais=atuais, initial={"nome": objeto.nome, "descricao": objeto.descricao,
                                            "atividades": atuais, "padrao": objeto.padrao})
+
+
+# ---------------------------------------------------------------- usuários do sistema
+class FormularioUsuario(forms.Form):
+    """Usuário do sistema (paridade com o cadastro de usuários da referência): nome, login,
+    e-mail institucional, perfis, lotação e senha inicial (troca obrigatória no 1º acesso)."""
+
+    nome = forms.CharField(label="Nome completo", max_length=150,
+                           widget=_entrada(autocomplete="off"))
+    login = forms.CharField(label="Usuário", max_length=60,
+                            help_text="Usado para entrar no sistema (o e-mail também serve).",
+                            widget=_entrada(autocapitalize="none", spellcheck="false"))
+    email = forms.EmailField(label="E-mail institucional",
+                             widget=forms.EmailInput(attrs={"class": "entrada",
+                                                            "autocomplete": "off"}))
+    papeis = forms.MultipleChoiceField(label="Perfis de acesso", required=False,
+                                       widget=CaixasDeEscolha())
+    unidade = OpcaoUnidade(label="Unidade de lotação", queryset=Unidade.objects.none(),
+                           required=False, empty_label="Selecione",
+                           help_text="Define os ofícios e documentos que a pessoa vê.")
+    senha = forms.CharField(label="Senha inicial", required=False, strip=False,
+                            widget=forms.PasswordInput(attrs={"class": "entrada",
+                                                              "autocomplete": "new-password"}))
+    confirmacao = forms.CharField(label="Confirmação da senha", required=False, strip=False,
+                                  widget=forms.PasswordInput(attrs={
+                                      "class": "entrada", "autocomplete": "new-password"}))
+
+    def __init__(self, *args, instancia=None, **kwargs):
+        from django.conf import settings
+
+        from gestao.identidade.papeis import PAPEIS
+        super().__init__(*args, **kwargs)
+        self.instancia = instancia
+        papeis = cast(forms.MultipleChoiceField, self.fields["papeis"])
+        rotulos = {"OPERADOR_VIAGENS": "Operador de viagens",
+                   "GESTOR_VIAGENS": "Gestor de viagens", "CONSULTA": "Consulta",
+                   "ADMINISTRADOR": "Administrador"}
+        papeis.choices = [(nome, rotulos.get(nome, nome)) for nome in PAPEIS]
+        papeis.help_text = " · ".join(f"{rotulos.get(n, n)}: {p['descricao']}"
+                                      for n, p in PAPEIS.items())
+        lotacao = getattr(instancia, "lotacao", None) if instancia else None
+        unidade = cast(forms.ModelChoiceField, self.fields["unidade"])
+        unidade.queryset = _unidades(lotacao.unidade_id if lotacao else None)
+        senha = self.fields["senha"]
+        if instancia is not None:
+            senha.label = "Nova senha"
+            senha.help_text = "Deixe em branco para manter a senha atual."
+        else:
+            validadores = cast(list[dict], settings.AUTH_PASSWORD_VALIDATORS)
+            minimo = next((v.get("OPTIONS", {}).get("min_length", 8) for v in validadores
+                           if str(v["NAME"]).endswith("MinimumLengthValidator")), 8)
+            senha.help_text = (f"Mínimo de {minimo} caracteres. A pessoa troca por uma só "
+                               "dela no primeiro acesso.")
+
+    @classmethod
+    def de(cls, usuario) -> FormularioUsuario:
+        lotacao = getattr(usuario, "lotacao", None)
+        return cls(instancia=usuario, initial={
+            "nome": usuario.nome, "login": usuario.login, "email": usuario.email,
+            "papeis": list(usuario.groups.values_list("name", flat=True)),
+            "unidade": lotacao.unidade_id if lotacao else None})
+
+    def clean_login(self) -> str:
+        from gestao.identidade.models import Usuario
+        login = self.cleaned_data["login"].strip()
+        if not re.fullmatch(r"[\w.@+-]+", login):
+            raise forms.ValidationError("Use só letras, números e . @ + - _ (sem espaços).")
+        repetido = Usuario.objects.filter(login__iexact=login)
+        if self.instancia is not None:
+            repetido = repetido.exclude(pk=self.instancia.pk)
+        if repetido.exists():
+            raise forms.ValidationError("Já existe um usuário com este login.")
+        return login
+
+    def clean_email(self) -> str:
+        from django.conf import settings
+
+        from gestao.identidade.models import Usuario
+        email = self.cleaned_data["email"].strip().lower()
+        dominio = getattr(settings, "DOMINIO_EMAIL_INSTITUCIONAL", "")
+        mantido = self.instancia is not None and self.instancia.email.lower() == email
+        if dominio and not mantido and not email.endswith("@" + dominio):
+            raise forms.ValidationError(f"Use o e-mail institucional (@{dominio}).")
+        repetido = Usuario.objects.filter(email__iexact=email)
+        if self.instancia is not None:
+            repetido = repetido.exclude(pk=self.instancia.pk)
+        if repetido.exists():
+            raise forms.ValidationError("Já existe um usuário com este e-mail.")
+        return email
+
+    def clean(self):
+        from django.contrib.auth import password_validation
+
+        dados = super().clean() or {}
+        senha, confirmacao = dados.get("senha") or "", dados.get("confirmacao") or ""
+        if self.instancia is None and not senha:
+            self.add_error("senha", "Defina a senha inicial do usuário.")
+        elif senha or confirmacao:
+            if senha != confirmacao:
+                self.add_error("confirmacao", "As senhas não conferem.")
+            else:
+                try:
+                    password_validation.validate_password(senha, self.instancia)
+                except forms.ValidationError as exc:
+                    self.add_error("senha", exc)
+        return dados

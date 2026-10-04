@@ -349,6 +349,9 @@ class _Gerador:
         ascom = self.unidades[0]
         self.demo = criar(LOGIN_DEMO, "Operador de Demonstração", gestor, ascom)
         self.demo.groups.add(operador)
+        # No PREVIEW o demo também administra usuários (dados fictícios), para a tela de
+        # usuários e perfis poder ser avaliada.
+        self.demo.groups.add(Group.objects.get(name="ADMINISTRADOR"))
         for i, unidade in enumerate(self.unidades):
             nome = f"{PRENOMES[(i * 11 + 3) % len(PRENOMES)]} {SOBRENOMES[(i * 3 + 1) % 46]}"
             self.operadores[unidade.pk] = criar(f"op.{unidade.sigla.lower()}", nome, operador,

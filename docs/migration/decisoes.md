@@ -152,6 +152,23 @@ Fonte: `core/models.py` (`Notificacao`), `core/notificacoes.py`, `core/views.py`
 | Eventos de Viagens | prestação (diárias, saque, prestação vencida, documentos, devolução, véspera/chegada), solicitações, eProtocolo, resumo do dia | **ainda nenhum**: a referência não avisa emissão de ofício/termo/OS/plano; os eventos entram com os módulos 9 (prestação), solicitações e rotinas | referência (não inventar avisos) |
 | Rotinas diárias | middleware no primeiro acesso do dia | pendente (com a prestação) | — |
 
+## Gestão de usuários
+
+Fonte: `accounts/views.py`, `accounts/forms.py`, `accounts/middleware.py` e
+`solicitacoes/permissions.py` da referência.
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quem gerencia | ADMINISTRADOR, GESTOR_DG e superusuário | ADMINISTRADOR e superusuário (`docs/product/permissions.md`) | regra do projeto |
+| Hierarquia | nenhuma (gestor promovia a administrador, editava superusuário) | quem não é superusuário não edita nem inativa superusuário; ninguém tira o próprio perfil de administrador | **agente** (segurança) — confirmar |
+| Inativar a si mesmo | bloqueado ("Você não pode inativar o seu próprio usuário.") | igual | referência |
+| Campos | nome, sobrenome, usuário, e-mail, perfil (um), setores, servidor | nome completo, usuário, e-mail institucional, perfis (vários, como os papéis do sistema), lotação | referência + modelo novo (papéis + lotação; setor/módulo e vínculo com servidor pendentes) |
+| E-mail | obrigatório | obrigatório, único e do domínio institucional (`DOMINIO_EMAIL_INSTITUCIONAL`) quando muda | agente (o domínio já estava configurado e sem uso) |
+| Senha | quem cadastra digita; troca obrigatória no próximo acesso | igual (mínimo 10, validadores do Django); "Defina sua senha" sem Cancelar | referência |
+| Exclusão | não há | não há (inativar) | referência |
+| Esqueci a senha | 4 telas por e-mail | pendente (SMTP institucional) | credencial externa |
+| DEMO | — | o usuário demo também é administrador no PREVIEW (dados fictícios) | agente (avaliar a tela) |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -169,3 +186,5 @@ Fonte: `core/models.py` (`Notificacao`), `core/notificacoes.py`, `core/views.py`
 | Validação jurídica de assinatura ICP-Brasil (cadeia/revogação) | decisão institucional |
 | Baixar documentos de ofício em rascunho como minuta (sem emitir) | decisão do usuário (não bloqueia) |
 | SMTP institucional para notificações por e-mail (servidor, remetente, credenciais) | credencial externa |
+| Setor/Módulo (acesso por módulo) e vínculo Usuário↔Servidor da referência | decisão do usuário (não bloqueia) |
+| Hierarquia na gestão de usuários (só superusuário mexe em superusuário) | decisão do usuário (não bloqueia) |

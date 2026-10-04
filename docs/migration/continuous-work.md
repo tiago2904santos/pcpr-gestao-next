@@ -47,8 +47,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 3 | Conferência do assinado + ADR 0022 (`pypdf`) | feito (7b); prévia antes de anexar pendente |
 | 4 | Janela "Baixar documentos" (ofício, justificativa, termo; viagem no 8) | feito (7c) |
 | 5 | Notificações: mecanismo (modelo, notificar, sino, central, e-mail pela outbox desligado) | feito; eventos entram com prestação/solicitações |
-| 6 | Gestão de usuários em tela | próximo |
-| 7–9 | Viagem: base/etapas; gerar em lote e baixar tudo; coerência, repetir, anexos | pendente |
+| 6 | Gestão de usuários em tela + troca de senha obrigatória | feito |
+| 7–9 | Viagem: base/etapas; gerar em lote e baixar tudo; coerência, repetir, anexos | próximo (módulo 8) |
 | 10–13 | Prestação de contas: base; diário; RT; documentos e assinados | pendente |
 | 14 | Abas "Finalizados" (só depois da prestação real) | bloqueado por 10–13 |
 | 15 | Agenda com fontes de Viagens | pendente |

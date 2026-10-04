@@ -186,6 +186,13 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   versão velha); a via abre pela rota própria e nos downloads de consulta.
 - **Orçamento de tempo sob `-n 4`**: TTFB/db de uma amostra só estouram por disputa de CPU;
   mediana de 3 amostras, o número de consultas vale em todas (sinal determinístico).
+- **Arquivo novo? Confira antes**: `identidade/middleware.py` já existia (entrada DEMO) e
+  foi sobrescrito por engano; restaurado do Git e o middleware novo acrescentado. Antes de
+  criar um arquivo, `ls`/`git ls-files` no caminho.
+- **Middleware que usa `messages` vem depois do `MessageMiddleware`** (a troca de senha
+  obrigatória quebrou ao ficar antes).
+- **Contador no cabeçalho custa 1 consulta em toda página**: os orçamentos de consultas
+  sobem 1, com o motivo escrito no teste.
 
 ## Processo
 
