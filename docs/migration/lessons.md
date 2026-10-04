@@ -193,6 +193,13 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   obrigatória quebrou ao ficar antes).
 - **Contador no cabeçalho custa 1 consulta em toda página**: os orçamentos de consultas
   sobem 1, com o motivo escrito no teste.
+- **Lista de vínculos numa folha que grava sozinha**: a gravação ao sair manda os vínculos
+  de quando a tela abriu e soltava um documento criado depois ("Novo …"). Solta-se só o que
+  a tela mostrou (`conhecidos`).
+- **`EMAIL_*` estão depreciados no Django 6.1**: configurar `MAILERS`.
+- **Não filtrar a saída do estático com `grep | tail`**: uma quebra de fronteira passou um
+  commit inteiro escondida. Conferir o código de saída de `scripts/checar_rapido.sh`
+  (0 = verde) e só então ler o log.
 
 ## Processo
 

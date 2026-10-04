@@ -100,6 +100,9 @@ name = "Cadastros não dependem de Viagens"
 type = "forbidden"
 source_modules = ["gestao.cadastros"]
 forbidden_modules = ["gestao.viagens", "gestao.painel"]
+# Testes de integração montam o cenário completo (usuários, unidades, ofícios) de Viagens;
+# o código de Cadastros continua proibido de importar Viagens.
+ignore_imports = ["gestao.cadastros.tests.** -> gestao.viagens.**"]
 
 [[tool.importlinter.contracts]]
 name = "Integrações externas não dependem de contextos de negócio (ADR 0019)"

@@ -1,0 +1,21 @@
+{% comment %}Um tipo de documento da viagem: a lista (link para a folha de cada um) e "Novo".{% endcomment %}
+<div class="secao__bloco" aria-labelledby="t-bloco-{{ tipo }}">
+  <div class="secao__bloco-cabecalho">
+    <h3 class="secao__bloco-titulo" id="t-bloco-{{ tipo }}">{% icone icone classe="icone--sm" %}{{ titulo }}</h3>
+    <div class="secao__estado"><span class="texto-terciario texto-xs">{{ lista|length }}</span>{% if editavel %} <button type="submit" form="novo-{{ tipo }}" class="botao botao--sm">{% icone "plus" %}Novo</button>{% endif %}</div>
+  </div>
+  {% if lista %}
+    <ul class="registros">
+      {% for d in lista %}
+        <li class="registro">
+          <span class="registro__icone" aria-hidden="true">{% icone icone %}</span>
+          <div class="registro__corpo">
+            <div class="registro__titulo"><a class="registro__link" href="{% url rota d.pk %}">{{ d }}</a>{% if d.viagem_id != v.pk %} <span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}</div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="vazio-inline">{% icone icone classe="icone--sm" %}{{ vazio }}</p>
+  {% endif %}
+</div>

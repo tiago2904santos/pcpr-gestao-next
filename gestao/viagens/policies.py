@@ -17,6 +17,7 @@ from .models import (
     PlanoTrabalho,
     Roteiro,
     TermoAutorizacao,
+    Viagem,
 )
 
 
@@ -360,3 +361,30 @@ def pode_ver_documento_plano(usuario, plano: PlanoTrabalho) -> bool:
 
 def pode_ver_historico_plano(usuario, plano: PlanoTrabalho) -> bool:
     return pode_ver_plano(usuario, plano)
+
+
+# ---------------------------------------------------------------- viagens (módulo 8)
+def viagens_visiveis(usuario) -> QuerySet[Viagem]:
+    if not usuario.has_perm("viagens.view_viagem"):
+        return Viagem.objects.none()
+    if ve_todas_unidades(usuario):
+        return Viagem.objects.all()
+    unidade = unidade_do_usuario(usuario)
+    return Viagem.objects.filter(unidade=unidade) if unidade else Viagem.objects.none()
+
+
+def pode_ver_viagem(usuario, viagem: Viagem) -> bool:
+    if not usuario.has_perm("viagens.view_viagem"):
+        return False
+    return ve_todas_unidades(usuario) or viagem.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_criar_viagem(usuario) -> bool:
+    return usuario.has_perm("viagens.add_viagem") and unidade_do_usuario(usuario) is not None
+
+
+def pode_editar_viagem(usuario, viagem: Viagem) -> bool:
+    """Editar a viagem e o que ela agrupa: ativa, quem altera viagens e a vê."""
+    return (not viagem.cancelada and usuario.has_perm("viagens.change_viagem")
+            and pode_ver_viagem(usuario, viagem))

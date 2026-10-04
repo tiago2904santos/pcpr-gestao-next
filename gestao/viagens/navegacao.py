@@ -13,6 +13,8 @@ registrar_modulo(
         grupos=(
             Grupo("Operação", (
                 Item("Painel", "viagens:painel", "layout-dashboard"),
+                Item("Viagens", "viagens:viagens", "map", requer="viagens.view_viagem",
+                     ativo_em=("/viagens/viagens/",)),
                 Item("Ofícios", "viagens:oficios", "file-text", requer="viagens.view_oficio"),
                 Item("Roteiros", "viagens:roteiros", "route", requer="viagens.view_roteiro"),
             )),
@@ -40,6 +42,8 @@ registrar_modulo(
                      requer="cadastros.view_combustivel"),
                 Item("Tabela de diárias", "cadastros:diarias", "banknote",
                      requer="cadastros.view_tabeladiaria"),
+                Item("Tipos de viagem", "cadastros:tipos", "route",
+                     requer="cadastros.view_tipoviagem"),
                 Item("Configuração da unidade", "cadastros:configuracao", "landmark",
                      requer="cadastros.view_configuracaoinstitucional"),
                 Item("Textos prontos", "cadastros:textos", "text-quote",

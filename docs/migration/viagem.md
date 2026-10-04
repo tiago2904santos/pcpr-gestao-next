@@ -46,6 +46,16 @@ outra data, cancelar/reativar em cascata, excluir.
   os cancelados junto. **Decisão a tomar aqui**: o ofício novo exige `reativar_oficio` com
   justificativa — a cascata precisa de uma marca própria e da regra de permissão.
 
+## Estado
+
+- **8a feito**: `Viagem`, `ViagemDestino`, `TipoViagem` (catálogo em Cadastros), FK `viagem`
+  (PROTECT) nos cinco documentos; lista (abas, busca por título/destino/servidor/placa/ofício);
+  nova viagem (reaproveita a vazia esquecida); folha com tipos e motivo, período e destinos,
+  vínculos (marcar/desmarcar) — gravação automática —, documentos da viagem por tipo com
+  "Novo" já vinculado e semeado, histórico da trilha; DEMO com 3 viagens.
+  Diferença intencional: as etapas 2–5 da referência são um cartão "Documentos da viagem"
+  na mesma folha (padrão das folhas); a etapa 1 grava sozinha (a referência gravava ao avançar).
+
 ## Ordem de implementação (sub-módulos)
 
 - **8a** modelo `Viagem` + `TipoViagem` + `ViagemDestino` + FK `viagem` nos documentos;

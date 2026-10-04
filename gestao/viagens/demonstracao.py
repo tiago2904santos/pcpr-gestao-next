@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "plataforma_notificacao", "viagens_viaassinada", "viagens_historico", "viagens_documento",
+    "plataforma_notificacao", "viagens_viagemdestino", "viagens_viagem",
+    "cadastros_tipoviagem", "viagens_viaassinada", "viagens_historico", "viagens_documento",
     "viagens_edicaodocumento", "viagens_trecho",
     "viagens_viajante",
     "viagens_oficio", "viagens_trechoroteiro", "viagens_roteiro", "viagens_numeracaoanual",
@@ -789,6 +790,49 @@ class _Gerador:
                                            municipio=Municipio.objects.get(nome="Cascavel",
                                                                            uf="PR"))
 
+    def viagens_para_avaliar(self) -> None:
+        """Viagens (módulo 8): tipos de exemplo; uma viagem que junta o ofício mais recente
+        da ASCOM, a OS e o plano dele; uma futura só com dados; uma cancelada."""
+        from gestao.cadastros.models import TipoViagem
+
+        from .models import PlanoTrabalho, Viagem, ViagemDestino
+        tipos = [TipoViagem.objects.get_or_create(nome=n)[0]
+                 for n in ("PCPR na Comunidade", "Unidade Móvel", "Operação (DEMO)")]
+        ascom = self.unidades[0]
+        autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
+        oficio = (Oficio.objects.filter(unidade=ascom, trechos__isnull=False)
+                  .exclude(situacao=Oficio.Situacao.CANCELADO).distinct()
+                  .order_by("-ano", "-numero").first())
+        if autor is None or oficio is None:
+            return
+        trechos = list(oficio.trechos.select_related("destino").order_by("ordem"))
+        inicio = (timezone.localtime(trechos[0].saida_em).date() if trechos
+                  else self.hoje + timedelta(days=10))
+        cheia = Viagem.objects.create(unidade=ascom, criado_por=autor,
+                                      titulo=f"{tipos[0].nome} / {tipos[1].nome}",
+                                      motivo=oficio.motivo, data_inicio=inicio,
+                                      data_fim=inicio + timedelta(days=2),
+                                      situacao=Viagem.Situacao.PREPARACAO)
+        cheia.tipos.set(tipos[:2])
+        destinos = list(dict.fromkeys(t.destino for t in trechos if t.destino != oficio.sede))
+        for i, m in enumerate(destinos[:3]):
+            ViagemDestino.objects.create(viagem=cheia, municipio=m, ordem=i)
+        Oficio.objects.filter(pk=oficio.pk).update(viagem=cheia)
+        OrdemServico.objects.filter(oficios=oficio, viagem__isnull=True).update(viagem=cheia)
+        PlanoTrabalho.objects.filter(oficios=oficio, viagem__isnull=True).update(viagem=cheia)
+        futura = Viagem.objects.create(unidade=ascom, criado_por=autor, titulo=tipos[1].nome,
+                                       motivo="Atendimento itinerante (DEMO)",
+                                       data_inicio=self.hoje + timedelta(days=30))
+        futura.tipos.set([tipos[1]])
+        ViagemDestino.objects.create(viagem=futura, ordem=0,
+                                     municipio=Municipio.objects.get(nome="Cascavel", uf="PR"))
+        cancelada = Viagem.objects.create(
+            unidade=ascom, criado_por=autor, titulo=tipos[2].nome,
+            data_inicio=self.hoje + timedelta(days=15), situacao=Viagem.Situacao.CANCELADA,
+            motivo_cancelamento="Ação adiada pela organização (DEMO).",
+            cancelado_em=timezone.now())
+        cancelada.tipos.set([tipos[2]])
+
     def planos_para_avaliar(self) -> None:
         """Planos de trabalho (módulo 6): um completo a partir da viagem mais recente da
         ASCOM (com atividades, efetivo e diárias), um finalizado, um avulso incompleto e um
@@ -930,6 +974,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.termos_para_avaliar()
     gerador.ordens_para_avaliar()
     gerador.planos_para_avaliar()
+    gerador.viagens_para_avaliar()
     return resumo(len(oficios))
 
 

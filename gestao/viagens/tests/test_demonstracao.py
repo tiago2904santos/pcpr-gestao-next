@@ -175,3 +175,11 @@ def test_avisos_de_exemplo_no_sino_do_demo(dataset):
     avisos = Notificacao.objects.filter(usuario=demo)
     assert avisos.count() == 3 and avisos.filter(lida=False).count() == 2
     assert all("(DEMO)" in a.titulo for a in avisos)
+
+
+def test_viagens_de_exemplo(dataset):
+    from gestao.viagens.models import Viagem
+
+    assert Viagem.objects.filter(situacao=Viagem.Situacao.CANCELADA).count() == 1
+    cheia = Viagem.objects.filter(oficios__isnull=False).distinct().get()
+    assert cheia.titulo and cheia.destinos.exists() and cheia.tipos.count() == 2

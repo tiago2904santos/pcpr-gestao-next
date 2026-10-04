@@ -23,6 +23,8 @@ from .models import (
     TermoAutorizacao,
     TermoDestino,
     ViaAssinada,
+    Viagem,
+    ViagemDestino,
 )
 
 # Salvamentos seguidos da mesma pessoa (o autosave grava a cada pausa) viram uma linha só.
@@ -163,6 +165,18 @@ def do_termo(termo: TermoAutorizacao) -> list[Evento]:
     nomes |= {str(pk): f"do termo de {nome}"
               for pk, nome in Servidor.objects.filter(pk__in=ids).values_list("pk", "nome")}
     return _com_vias(eventos, vias, lambda v: nomes.get(v.chave, "do termo"))
+
+
+def da_viagem(viagem: Viagem) -> list[Evento]:
+    destinos = (ViagemDestino._meta.db_table, "viagem_id")
+    tipos = _m2m(Viagem, "tipos")
+    filhas = {destinos[0]: "destinos", tipos[0]: "tipos"}
+    campos = {"motivo": "motivo", "descricao": "descrição", "data_inicio": "período",
+              "data_fim": "período", "situacao": "situação"}
+    passos = passos_do_registro(Viagem._meta.db_table, viagem.pk, dict([destinos, tipos]),
+                                marcos=("cancelado_em",))
+    return _eventos(passos, criado="Viagem criada", cancelado="Cancelada",
+                    reativado="Reativada", campos=campos, filhas=filhas)
 
 
 def do_plano(plano: PlanoTrabalho) -> list[Evento]:

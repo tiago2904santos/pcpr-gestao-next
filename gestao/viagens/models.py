@@ -31,6 +31,68 @@ from gestao.cadastros.models import (
 from .dominio.numeracao import formatar_numero
 
 
+class Viagem(models.Model):
+    """O agrupador de uma ação: roteiro, ofícios (com justificativa e termos), OS e plano
+    (paridade com `viagens_viagem` da referência). Sem numeração própria: o título nasce
+    dos tipos. "Em execução" e "finalizada" não se gravam — saem das datas e da prestação."""
+
+    class Situacao(models.TextChoices):
+        RASCUNHO = "rascunho", "Rascunho"
+        PREPARACAO = "preparacao", "Em preparação"
+        GERADOS = "gerados", "Documentos gerados"
+        CANCELADA = "cancelada", "Cancelada"
+
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="viagens")
+    titulo = models.CharField("título", max_length=255, blank=True)
+    descricao = models.TextField("descrição/objetivo", blank=True)
+    motivo = models.TextField("motivo", blank=True)
+    tipos = models.ManyToManyField("cadastros.TipoViagem", blank=True, related_name="viagens")
+    data_inicio = models.DateField("início", null=True, blank=True)
+    data_fim = models.DateField("fim", null=True, blank=True)
+    situacao = models.CharField(max_length=12, choices=Situacao.choices,
+                                default=Situacao.RASCUNHO)
+    situacao_anterior = models.CharField(max_length=12, choices=Situacao.choices, blank=True)
+    motivo_cancelamento = models.CharField("motivo do cancelamento", max_length=1000,
+                                           blank=True)
+    cancelado_em = models.DateTimeField(null=True, blank=True)
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-criado_em", "-pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=True)
+                | Q(data_fim__gte=models.F("data_inicio")),
+                name="viagem_periodo_ordenado"),
+        ]
+
+    def __str__(self) -> str:
+        return self.titulo or f"Viagem #{self.pk}"
+
+    @property
+    def cancelada(self) -> bool:
+        return self.situacao == self.Situacao.CANCELADA
+
+
+class ViagemDestino(models.Model):
+    """Destinos da viagem na ordem da visita (o primeiro é o principal)."""
+
+    viagem = models.ForeignKey(Viagem, on_delete=models.CASCADE, related_name="destinos")
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    ordem = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem"]
+        constraints = [models.UniqueConstraint(fields=["viagem", "ordem"],
+                                               name="viagem_destino_ordem_unica")]
+
+    def __str__(self) -> str:
+        return str(self.municipio)
+
+
 class Oficio(models.Model):
     class Situacao(models.TextChoices):
         RASCUNHO = "rascunho", "Rascunho"
@@ -53,6 +115,9 @@ class Oficio(models.Model):
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="oficios",
                                 verbose_name="unidade emissora")
+    # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
+    viagem = models.ForeignKey(Viagem, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="oficios")
     ano = models.PositiveSmallIntegerField("ano")
     numero = models.PositiveIntegerField("número")
     data_oficio = models.DateField("data do ofício")
@@ -284,6 +349,9 @@ class Roteiro(models.Model):
         CANCELADO = "cancelado", "Cancelado"
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="roteiros")
+    # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
+    viagem = models.ForeignKey(Viagem, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="roteiros")
     sede = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+",
                              verbose_name="sede (origem da viagem)")
     quantidade_servidores = models.PositiveSmallIntegerField(
@@ -673,6 +741,9 @@ class TermoAutorizacao(models.Model):
         CANCELADO = "cancelado", "Cancelado"
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="termos")
+    # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
+    viagem = models.ForeignKey(Viagem, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="termos")
     oficio = models.ForeignKey(Oficio, on_delete=models.SET_NULL, null=True, blank=True,
                                related_name="termos", verbose_name="ofício vinculado")
     # Como o termo nomeia a participação ("manifesto o interesse em participar do …").
@@ -750,6 +821,9 @@ class OrdemServico(models.Model):
              ("cerimonial_antecipado", "Cerimonial - ida antecipada"))
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="ordens")
+    # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
+    viagem = models.ForeignKey(Viagem, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="ordens")
     numero = models.PositiveIntegerField()
     ano = models.PositiveSmallIntegerField()
     oficios = models.ManyToManyField(Oficio, blank=True, related_name="ordens")
@@ -863,6 +937,9 @@ class PlanoTrabalho(models.Model):
         FEMININO = "F", "a Coordenadora"
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="planos")
+    # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
+    viagem = models.ForeignKey(Viagem, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="planos")
     numero = models.PositiveIntegerField()
     ano = models.PositiveSmallIntegerField()
     sufixo = models.CharField("sufixo do número", max_length=20, blank=True)

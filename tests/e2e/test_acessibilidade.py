@@ -241,3 +241,21 @@ def test_usuarios_e_perfis_sem_violacoes(pagina, dados_e2e, largura):
     pagina.set_viewport_size({"width": largura, "height": 900})
     _avaliar(pagina, "/cadastros/usuarios/")
     _avaliar(pagina, "/cadastros/usuarios/?novo=1")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_viagem_lista_e_folha_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.cadastros.models import TipoViagem
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import viagem
+    from gestao.viagens.models import Oficio
+
+    operador = Usuario.objects.get(login="operador")
+    TipoViagem.objects.create(nome="PCPR na Comunidade")
+    v = viagem.criar(operador)
+    oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+    viagem.salvar_dados(operador, v.pk, tipos=list(TipoViagem.objects.all()),
+                        vinculos={"oficios": [oficio]})
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, "/viagens/viagens/")
+    _avaliar(logado, f"/viagens/viagens/{v.pk}/")

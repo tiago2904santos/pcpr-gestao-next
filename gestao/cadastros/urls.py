@@ -34,6 +34,7 @@ urlpatterns = [
     path("cargos/", views_crud.catalogo, {"slug": "cargos"}, name="cargos"),
     path("combustiveis/", views_crud.catalogo, {"slug": "combustiveis"}, name="combustiveis"),
     # Catálogos do plano de trabalho.
+    path("tipos-de-viagem/", views_crud.catalogo, {"slug": "tipos"}, name="tipos"),
     path("programas/", views_crud.catalogo, {"slug": "programas"}, name="programas"),
     path("horarios/", views_crud.catalogo, {"slug": "horarios"}, name="horarios"),
     path("atividades/", views_crud.catalogo, {"slug": "atividades"}, name="atividades"),

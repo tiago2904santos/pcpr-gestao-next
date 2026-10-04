@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from datetime import datetime
 from typing import Any, cast
@@ -20,6 +21,7 @@ from gestao.cadastros.models import (
     PresetAtividades,
     ProgramaSolicitante,
     Servidor,
+    TipoViagem,
     Unidade,
     Viatura,
 )
@@ -36,7 +38,7 @@ from gestao.plataforma.widgets import (
     SelecaoDeTexto,
 )
 
-from .models import Oficio, OrdemServico, Roteiro
+from .models import Oficio, OrdemServico, PlanoTrabalho, Roteiro, TermoAutorizacao
 from .queries import trechos_de
 
 FORM_ID = "form-oficio"
@@ -1162,3 +1164,93 @@ class FormularioEvento(forms.Form):
             "coordenador_op_cargo": evento.coordenador_op_cargo,
             "coordenador_op_genero": evento.coordenador_op_genero,
             "atividades": [a.pk for a in evento.atividades.all()]}, **kwargs)
+
+
+# ---------------------------------------------------------------- viagem (módulo 8)
+class _OpcaoDocumento(forms.ModelMultipleChoiceField):
+    """Um documento para vincular: o nome dele e o que ajuda a reconhecer (período)."""
+
+    def label_from_instance(self, obj) -> str:
+        from .viagem import resumo_do_documento
+        return resumo_do_documento(obj)
+
+
+class FormularioViagem(forms.Form):
+    """Etapa 1 da viagem (referência): tipos (o título nasce deles), motivo, período,
+    destinos na ordem da visita e os documentos vinculados (marcar vincula, desmarcar solta)."""
+
+    versao = forms.CharField(required=False, widget=forms.HiddenInput)
+    tipos = forms.ModelMultipleChoiceField(
+        label="Tipo da viagem", queryset=TipoViagem.objects.none(), required=False,
+        widget=CaixasDeEscolha(), help_text="O título da viagem nasce deles.")
+    motivo = forms.CharField(
+        label="Motivo", required=False, max_length=4000,
+        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 3,
+                                     "placeholder": "Contextualize a atividade…"}),
+        help_text="Vai para os documentos criados daqui (ofício, OS).")
+    descricao = forms.CharField(
+        label="Descrição/objetivo", required=False, max_length=4000,
+        widget=forms.Textarea(attrs={"class": "area-texto", "rows": 2}))
+    data_inicio = forms.DateField(label="Início", required=False, widget=EntradaData(),
+                                  input_formats=FORMATOS_DATA)
+    data_fim = forms.DateField(label="Fim", required=False, widget=EntradaData(),
+                               input_formats=FORMATOS_DATA, help_text="Um dia só: em branco.")
+    destinos = CampoMunicipios(label="Destinos", required=False,
+                               help_text="Na ordem da visita; o primeiro é o principal.")
+    roteiros = _OpcaoDocumento(label="Roteiros", queryset=Roteiro.objects.none(),
+                               required=False, widget=CaixasDeEscolha())
+    oficios = _OpcaoDocumento(label="Ofícios", queryset=Oficio.objects.none(),
+                              required=False, widget=CaixasDeEscolha())
+    planos = _OpcaoDocumento(label="Planos de trabalho", queryset=PlanoTrabalho.objects.none(),
+                             required=False, widget=CaixasDeEscolha())
+    ordens = _OpcaoDocumento(label="Ordens de serviço", queryset=OrdemServico.objects.none(),
+                             required=False, widget=CaixasDeEscolha())
+    termos = _OpcaoDocumento(label="Termos de autorização",
+                             queryset=TermoAutorizacao.objects.none(), required=False,
+                             widget=CaixasDeEscolha())
+    # Só grava os vínculos quando a seção veio no formulário (a lista pode estar fechada).
+    vinculos_presentes = forms.BooleanField(required=False, widget=forms.HiddenInput)
+    # Os documentos que a tela mostrou (por tipo): desmarcar solta só estes. Um documento
+    # vinculado depois que a tela abriu (outra aba, "Novo …") não é solto por engano.
+    conhecidos = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    def __init__(self, *args, viagem, fonte_municipios: str = "", **kwargs):
+        from .viagem import candidatos
+        super().__init__(*args, **kwargs)
+        self._mostrados: dict[str, list[int]] = {}
+        atuais = list(viagem.tipos.values_list("pk", flat=True))
+        cast(forms.ModelMultipleChoiceField, self.fields["tipos"]).queryset = (
+            TipoViagem.objects.filter(Q(ativo=True) | Q(pk__in=atuais)).order_by("nome"))
+        self.fields["destinos"].widget.fonte = fonte_municipios
+        for tipo, qs in candidatos(viagem).items():
+            # Os desta viagem sempre; dos livres, os 40 mais recentes (lista curta, legível).
+            ids = list(qs.filter(viagem=viagem).values_list("pk", flat=True))
+            ids += list(qs.filter(viagem__isnull=True).values_list("pk", flat=True)[:40])
+            campo = cast(forms.ModelMultipleChoiceField, self.fields[tipo])
+            campo.queryset = qs.model.objects.filter(pk__in=ids).order_by(*qs.query.order_by)
+            self._mostrados[tipo] = ids
+        if not self.is_bound:
+            self.initial["conhecidos"] = json.dumps(self._mostrados, separators=(",", ":"))
+
+    def clean(self):
+        dados = super().clean() or {}
+        inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
+        if inicio and fim and fim < inicio:
+            self.add_error("data_fim", "A data final não pode ser anterior à data inicial.")
+        return dados
+
+    def vinculos(self) -> dict | None:
+        """{tipo: (marcados, ids que a tela mostrou)} — ou None sem a seção."""
+        if not self.cleaned_data.get("vinculos_presentes"):
+            return None
+        try:
+            conhecidos = json.loads(self.cleaned_data.get("conhecidos") or "{}")
+        except ValueError:
+            conhecidos = {}
+        saida = {}
+        for t in ("roteiros", "oficios", "planos", "ordens", "termos"):
+            ids = conhecidos.get(t) if isinstance(conhecidos, dict) else None
+            lista = ids if isinstance(ids, list) else []
+            mostrados = {int(i) for i in lista if str(i).isdecimal()}
+            saida[t] = (list(self.cleaned_data.get(t) or []), mostrados)
+        return saida

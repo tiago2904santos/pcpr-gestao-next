@@ -249,13 +249,15 @@ INSTITUICAO = {
 # Notificações por e-mail (desligadas por padrão). Sem EMAIL_HOST o backend é o console:
 # nada sai da máquina sem configuração explícita de SMTP (ambiente, nunca no Git).
 NOTIFICACOES_POR_EMAIL = env_bool("NOTIFICACOES_POR_EMAIL", False)
-EMAIL_HOST = env("EMAIL_HOST", "")
-EMAIL_BACKEND = ("django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST
-                 else "django.core.mail.backends.console.EmailBackend")
-EMAIL_PORT = int(env("EMAIL_PORT", "587"))
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_HOST_SMTP = env("EMAIL_HOST", "")
+# Django 6.1: MAILERS (as EMAIL_* antigas saem no Django 7).
+MAILERS = {"default": (
+    {"BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+     "OPTIONS": {"host": EMAIL_HOST_SMTP, "port": int(env("EMAIL_PORT", "587")),
+                 "username": env("EMAIL_HOST_USER", ""),
+                 "password": env("EMAIL_HOST_PASSWORD", ""),
+                 "use_tls": env_bool("EMAIL_USE_TLS", True)}}
+    if EMAIL_HOST_SMTP else {"BACKEND": "django.core.mail.backends.console.EmailBackend"})}
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "gestao-viagens@localhost")
 URL_PUBLICA = env("URL_PUBLICA", "http://localhost:8000")
 

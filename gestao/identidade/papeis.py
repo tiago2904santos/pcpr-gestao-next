@@ -22,7 +22,7 @@ CADASTROS_DA_EQUIPE = [
     f"cadastros.{acao}_{modelo}"
     for modelo in ("servidor", "viatura", "unidade", "cargo", "combustivel",
                    "programasolicitante", "horarioatendimento", "atividadeplano",
-                   "presetatividades")
+                   "presetatividades", "tipoviagem")
     for acao in ("view", "add", "change", "delete")
 ]
 
@@ -40,6 +40,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.change_ordemservico", "viagens.delete_ordemservico",
             "viagens.view_planotrabalho", "viagens.add_planotrabalho",
             "viagens.change_planotrabalho", "viagens.delete_planotrabalho",
+            "viagens.view_viagem", "viagens.add_viagem", "viagens.change_viagem",
+            "viagens.delete_viagem",
             *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.view_configuracaoinstitucional",
             "cadastros.view_modelotexto", "cadastros.add_modelotexto",
@@ -64,6 +66,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.change_ordemservico", "viagens.delete_ordemservico",
             "viagens.view_planotrabalho", "viagens.add_planotrabalho",
             "viagens.change_planotrabalho", "viagens.delete_planotrabalho",
+            "viagens.view_viagem", "viagens.add_viagem", "viagens.change_viagem",
+            "viagens.delete_viagem",
             *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.add_tabeladiaria",
             "cadastros.change_tabeladiaria", "cadastros.delete_tabeladiaria",
@@ -76,7 +80,7 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.ver_todas_unidades", "viagens.view_roteiro",
             "viagens.view_termoautorizacao", "viagens.view_ordemservico",
-            "viagens.view_planotrabalho",
+            "viagens.view_planotrabalho", "viagens.view_viagem",
             "cadastros.view_servidor",
             "cadastros.view_viatura", "cadastros.view_unidade",
             "cadastros.view_cargo", "cadastros.view_combustivel",

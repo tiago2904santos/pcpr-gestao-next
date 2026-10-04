@@ -52,6 +52,7 @@ from .models import (
     Servidor,
     SubstituicaoAssinante,
     TabelaDiaria,
+    TipoViagem,
     Unidade,
     Viatura,
 )
@@ -118,6 +119,11 @@ CATALOGOS: dict[str, Catalogo] = {
         vazio="Nenhum combustível cadastrado ainda.",
         contar=(("viaturas", "viatura,viaturas"),)),
     # Plano de trabalho (referência: viagens_planos/catalogos).
+    "tipos": Catalogo(
+        TipoViagem, "Tipos de viagem", "tipo de viagem", "o", "route",
+        "Nome do tipo; uma viagem pode ter mais de um, e o título dela nasce deles.",
+        FormularioCatalogo, vazio="Nenhum tipo de viagem cadastrado ainda.",
+        contar=(("viagens", "viagem,viagens"),)),
     "programas": Catalogo(
         ProgramaSolicitante, "Programas solicitantes", "programa", "o", "landmark",
         "Quem pede a ação itinerante; sai na contextualização do plano de trabalho "
@@ -236,6 +242,8 @@ def indice(request: HttpRequest) -> HttpResponse:
          "cadastros:combustiveis", Combustivel),
         ("Tabela de diárias", "Valor da diária de 24 h por faixa e vigência.", "banknote",
          "cadastros:diarias", TabelaDiaria),
+        ("Tipos de viagem", "O título da viagem nasce deles.", "route",
+         "cadastros:tipos", TipoViagem),
     ]
     # Catálogos do plano de trabalho: um grupo próprio na entrada.
     textos = {"programas": "Quem pede a ação (sai na contextualização).",

@@ -90,8 +90,10 @@ def test_vazio_e_paginacao(c):
     assert "Mostrando 1–25 de 30" in html
 
 
-@override_settings(NOTIFICACOES_POR_EMAIL=True,
-                   EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+LOCMEM = {"default": {"BACKEND": "django.core.mail.backends.locmem.EmailBackend"}}
+
+
+@override_settings(NOTIFICACOES_POR_EMAIL=True, MAILERS=LOCMEM)
 def test_email_sai_pela_outbox_depois_do_commit(c):
     notificacoes.notificar([c.usuarios["operador"], c.usuarios["gestor"]], "Com e-mail",
                            "Corpo", "/viagens/")

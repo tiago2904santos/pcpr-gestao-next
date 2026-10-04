@@ -475,6 +475,22 @@ class SubstituicaoAssinante(models.Model):
 # ---------------------------------------------------------------- plano de trabalho
 # Catálogos do plano de trabalho (referência: viagens_planos). A mais que na referência:
 # "ativo" — o que já foi usado sai das escolhas sem ser apagado (como cargos e combustíveis).
+class TipoViagem(Ativavel):
+    """Tipo de viagem (referência: "uma viagem pode ter mais de um, e o título dela nasce
+    deles" — ex.: PCPR na Comunidade)."""
+
+    nome = models.CharField("nome", max_length=120)
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "tipo de viagem"
+        verbose_name_plural = "tipos de viagem"
+        constraints = [models.UniqueConstraint(Lower("nome"), name="tipo_viagem_nome_unico")]
+
+    def __str__(self) -> str:
+        return self.nome
+
+
 class ProgramaSolicitante(Ativavel):
     """Quem pede a ação (sai na contextualização do plano: "solicitação formulada pelo …")."""
 

@@ -9,6 +9,7 @@ from . import (
     views_planos,
     views_roteiros,
     views_termos,
+    views_viagem,
 )
 
 app_name = "viagens"
@@ -66,6 +67,13 @@ urlpatterns = [
     path("oficios/<int:pk>/documento/<str:tipo>/textos/<int:texto_id>/remover/",
          views_editor.remover_texto, name="editor_remover_texto"),
     path("documentos/<int:documento_id>/", views.baixar_documento, name="baixar_documento"),
+    path("viagens/", views_viagem.lista, name="viagens"),
+    path("viagens/nova/", views_viagem.criar, name="nova_viagem"),
+    path("viagens/<int:pk>/", views_viagem.editar, name="editar_viagem"),
+    path("viagens/<int:pk>/salvar/", views_viagem.salvar, name="salvar_viagem"),
+    path("viagens/<int:pk>/autosave/", views_viagem.autosave, name="autosave_viagem"),
+    path("viagens/<int:pk>/novo/<str:tipo>/", views_viagem.novo_documento,
+         name="novo_documento_viagem"),
     path("oficios/<int:pk>/baixar/", views_pacotes.baixar_oficio, name="baixar_oficio"),
     path("justificativas/<int:pk>/baixar/", views_pacotes.baixar_justificativa,
          name="baixar_justificativa"),

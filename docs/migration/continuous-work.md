@@ -48,7 +48,7 @@ Ver a fila abaixo (primeiro item não concluído).
 | 4 | Janela "Baixar documentos" (ofício, justificativa, termo; viagem no 8) | feito (7c) |
 | 5 | Notificações: mecanismo (modelo, notificar, sino, central, e-mail pela outbox desligado) | feito; eventos entram com prestação/solicitações |
 | 6 | Gestão de usuários em tela + troca de senha obrigatória | feito |
-| 7–9 | Viagem: 8a base/etapas → 8b prontidão e coerência → 8c lote e baixar tudo → 8d repetir e cascata ([viagem.md](viagem.md)) | 8a em andamento |
+| 7–9 | Viagem: 8a base/etapas → 8b prontidão e coerência → 8c lote e baixar tudo → 8d repetir e cascata ([viagem.md](viagem.md)) | 8a feito; próximo 8b |
 | 10–13 | Prestação de contas: base; diário; RT; documentos e assinados | pendente |
 | 14 | Abas "Finalizados" (só depois da prestação real) | bloqueado por 10–13 |
 | 15 | Agenda com fontes de Viagens | pendente |
