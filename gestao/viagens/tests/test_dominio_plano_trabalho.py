@@ -169,3 +169,25 @@ class TestPendenciasEFormatos:
         assert pt.numero_formatado(None, 2026) == "—"
         assert moeda(Decimal("1205.78")) == "1.205,78"
         assert legivel("PCPR NA COMUNIDADE") == "PCPR na Comunidade"
+
+
+
+class TestVariosEventos:
+    def test_cabecalho_e_rotulo_do_total(self):
+        assert pt.cabecalho_do_evento(date(2026, 10, 6), None) == "Dia 06 de outubro de 2026"
+        assert pt.cabecalho_do_evento(date(2026, 10, 8), date(2026, 10, 9)) == (
+            "Dias 08 a 09 de outubro de 2026")
+        assert pt.rotulo_do_total(date(2026, 6, 17), None) == (
+            "Valor total do evento dia: 17/06/2026")
+        assert pt.rotulo_do_total(date(2026, 10, 6), date(2026, 10, 9)) == (
+            "Valor total do evento dias: 06 a 09/10/2026")
+        assert pt.rotulo_do_total(date(2026, 6, 30), date(2026, 7, 2)) == (
+            "Valor total do evento dias: 30/06/2026 a 02/07/2026")
+
+    def test_pendencias_de_cada_evento_extra(self):
+        d = pt.DadosPlano(destinos=["Maringá/PR"], inicio=date(2026, 6, 25),
+                          coordenador_adm=pt.Coordenador("ANA", genero="F"),
+                          efetivo=[pt.LinhaEfetivo(2, "Agente")], diarias_total=Decimal("1"),
+                          eventos_extras=[(2, False, True), (3, True, False)])
+        assert [p.mensagem for p in pt.pendencias(d)] == [
+            "Informe o destino do evento 2.", "Informe a data do evento 3."]

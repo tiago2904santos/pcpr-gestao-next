@@ -440,3 +440,72 @@ class TestRevisoes:
         plano, _ = planos.salvar(c.usuarios["operador"])
         assert plano.coordenador_adm_genero == "F"
         assert "Coordenadora Administrativa" in plano.coordenacao
+
+
+
+class TestVariosEventos:
+    def _sarandi(self):
+        return Municipio.objects.get(nome="Sarandi", uf="PR")
+
+    def test_evento_adicional_entra_nos_textos_e_no_documento(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)
+        bo = AtividadePlano.objects.get(codigo="BO")
+        outro = ProgramaSolicitante.objects.get(nome="PROGRAMA JUSTIÇA NO BAIRRO")
+        planos.salvar_evento(op, plano.pk, programa=outro, data_inicio=date(2030, 6, 27),
+                             destinos=[self._sarandi()], atividades=[bo])
+        plano = PlanoTrabalho.objects.get(pk=plano.pk)
+        assert "Maringá/PR, Sarandi/PR" in plano.contextualizacao
+        assert "Programa Justiça no Bairro" in plano.contextualizacao
+        assert plano.coordenacao.count("Fica designad") == 1  # só o administrativo
+        assert planos.periodo_geral(plano) == (date(2030, 6, 25), date(2030, 6, 27))
+        evento = plano.eventos.get()
+        assert evento.atividades_texto == "• Registro de Boletins de Ocorrência"
+        planos.finalizar(op, plano.pk)
+        plano.refresh_from_db()
+        html = planos.html_do_documento(planos.dados_do_documento(plano))
+        assert "Dias 25 a 27 de junho de 2030 - PROGRAMA PARANÁ EM AÇÃO:" in html
+        assert "Dia 27 de junho de 2030 - PROGRAMA JUSTIÇA NO BAIRRO:" in html
+        assert "Valor total do evento dias: 25 a 27/06/2030:" in html
+        assert "<strong>Datas:</strong>" not in html  # a data vai no título de cada evento
+
+    def test_pendencias_do_evento_e_remover_volta_a_um_evento(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)
+        evento = planos.salvar_evento(op, plano.pk)
+        plano = PlanoTrabalho.objects.get(pk=plano.pk)
+        assert [p.mensagem for p in planos.pendencias(plano)] == [
+            "Informe o destino do evento 2.", "Informe a data do evento 2."]
+        planos.remover_evento(op, plano.pk, evento.pk)
+        plano = PlanoTrabalho.objects.get(pk=plano.pk)
+        assert planos.pendencias(plano) == [] and not plano.eventos.exists()
+        assert "Coordenador Administrativo" in plano.coordenacao
+
+    def test_janela_do_evento_pela_tela(self, c):
+        plano = _completo(c)
+        cli = _cliente(c.usuarios["operador"])
+        url = reverse("viagens:editar_plano", args=[plano.pk])
+        html = cli.get(url + "?evento=novo").content.decode()
+        assert 'id="dialogo-evento"' in html and 'id="evento_data_inicio"' in html
+        r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
+            "programa": "outro", "programa_outros": "Feira fictícia", "data_inicio": "28/06/2030",
+            "destinos": ["Sarandi/PR"], "horario": "09:00 até 17:00"})
+        assert r["Location"].endswith("#eventos")
+        evento = plano.eventos.get()
+        assert evento.programa_outros == "Feira fictícia"
+        html = cli.get(url).content.decode()
+        assert "Evento" in html and "Sarandi/PR" in html and "2 eventos" in html
+        r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
+            "evento": str(evento.pk), "data_inicio": "29/06/2030", "data_fim": "28/06/2030"})
+        assert r.status_code == 422 and "anterior à data inicial" in r.content.decode()
+        cli.post(reverse("viagens:remover_evento_plano", args=[plano.pk, evento.pk]))
+        assert not plano.eventos.exists()
+
+    def test_evento_de_outra_unidade_nem_cancelado(self, c):
+        plano = _completo(c)
+        r = _cliente(c.usuarios["outra"]).post(
+            reverse("viagens:salvar_evento_plano", args=[plano.pk]), {})
+        assert r.status_code == 403
+        planos.cancelar(c.usuarios["operador"], plano.pk, "Adiado")
+        with pytest.raises(PermissionDenied):
+            planos.salvar_evento(c.usuarios["operador"], plano.pk)

@@ -84,6 +84,7 @@ implementados e testados; o usuário pode pedir para mudar sem retrabalho grande
 | Excluir depois de gerado | permitido (o número vira lacuna) | só antes da primeira geração; depois, cancelar | `test_depois_de_gerado_nao_exclui` |
 | Só o destino principal nas diárias | sim | mantido | `test_copia_das_diarias_ao_centavo` |
 | Ordem das seções do documento | DOCX numa ordem, PDF noutra | a do PDF para os dois | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
+| Vários eventos | o plano é o "rascunho" do evento atual; efetivo e diárias por evento; valor por evento e combinado | evento 1 = campos do plano, demais numa janela; efetivo e deslocamento do plano; só o valor combinado | `TestVariosEventos` |
 
 ## Pendências abertas
 

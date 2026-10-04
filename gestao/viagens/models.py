@@ -934,6 +934,64 @@ class EfetivoPlano(models.Model):
         return f"{self.quantidade} {self.cargo}"
 
 
+class EventoPlano(models.Model):
+    """Evento adicional de um plano de vários eventos (o evento 1 são os campos do próprio
+    plano). Na referência o plano servia de "rascunho do evento atual"; aqui cada evento é
+    um registro editado à parte. Efetivo e deslocamento são do plano: a mesma equipe numa
+    viagem só (as diárias saem combinadas)."""
+
+    plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="eventos")
+    posicao = models.PositiveSmallIntegerField(default=0)
+    programa = models.ForeignKey(ProgramaSolicitante, on_delete=models.SET_NULL, null=True,
+                                 blank=True, related_name="+")
+    programa_outros = models.CharField("outro programa", max_length=200, blank=True)
+    data_inicio = models.DateField("início do evento", null=True, blank=True)
+    data_fim = models.DateField("fim do evento", null=True, blank=True)
+    horario = models.CharField("horário de atendimento", max_length=60, blank=True)
+    coordenador_op = models.ForeignKey(Servidor, on_delete=models.SET_NULL, null=True,
+                                       blank=True, related_name="+")
+    coordenador_op_nome = models.CharField(max_length=255, blank=True)
+    coordenador_op_cargo = models.CharField(max_length=120, blank=True)
+    coordenador_op_genero = models.CharField(max_length=1, blank=True)
+    atividades = models.ManyToManyField(AtividadePlano, blank=True, related_name="+")
+    atividades_texto = models.TextField(blank=True)
+    metas = models.TextField(blank=True)
+    recursos = models.TextField(blank=True)
+    unidade_movel_texto = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
+                                                       data_fim__gte=models.F("data_inicio")),
+                name="evento_plano_periodo_ordenado"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Evento {self.posicao + 2} do {self.plano}"
+
+    @property
+    def programa_nome(self) -> str:
+        return self.programa.nome if self.programa is not None else self.programa_outros
+
+
+class EventoDestino(models.Model):
+    evento = models.ForeignKey(EventoPlano, on_delete=models.CASCADE, related_name="destinos")
+    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    posicao = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [models.UniqueConstraint(fields=["evento", "municipio"],
+                                               name="evento_destino_unico")]
+
+    def __str__(self) -> str:
+        return str(self.municipio)
+
+
 class NumeracaoPlano(models.Model):
     """Uma linha por ano: trava a numeração dos planos (select_for_update)."""
 

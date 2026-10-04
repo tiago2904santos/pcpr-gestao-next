@@ -23,7 +23,7 @@ from gestao.cadastros.models import PresetAtividades
 
 from . import linha_do_tempo, planos, policies
 from .dominio import plano_trabalho as dominio
-from .forms import FormularioPlano
+from .forms import FormularioEvento, FormularioPlano
 from .models import Oficio, PlanoTrabalho
 from .views import POR_PAGINA, _migalhas
 from .views_editor import (
@@ -85,7 +85,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     busca = (request.GET.get("q") or "").strip()
     qs = planos.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-ano", "-numero"))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    linhas = [{"plano": p, "periodo": dominio.periodo_curto(p.data_inicio, p.data_fim),
+    linhas = [{"plano": p, "periodo": dominio.periodo_curto(*planos.periodo_geral(p)),
+               "eventos": len(p.eventos.all()) + 1 if p.eventos.all() else 0,
                "efetivo": dominio.efetivo_total(planos.linhas_do_efetivo(p)),
                "coordenador": planos.coordenador(p, "adm"),
                "estado": planos.estado(p),
@@ -186,10 +187,35 @@ def _servidor_escolhido(form: FormularioPlano, campo: str):
     return opcoes.filter(pk=valor).first() if opcoes is not None else None
 
 
-def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int = 200):
+def _form_evento(request: HttpRequest, plano, *args, evento=None) -> FormularioEvento:
+    fonte = reverse("cadastros:buscar_municipios")
+    if evento is not None and not args:
+        return FormularioEvento.de(evento, fonte_municipios=fonte)
+    return FormularioEvento(*args, evento=evento, fonte_municipios=fonte)
+
+
+def _evento_pedido(request: HttpRequest, plano):
+    """?evento=novo abre a janela vazia; ?evento=<id>, a do evento (para editar)."""
+    pedido = request.GET.get("evento") or ""
+    if pedido == "novo":  # o evento novo começa como o plano novo: horário e conjunto padrão
+        form = FormularioEvento(fonte_municipios=reverse("cadastros:buscar_municipios"),
+                                initial={"horario": dominio.HORARIO_PADRAO,
+                                         "atividades": FormularioPlano.conjunto_padrao()})
+        return form, None
+    if pedido.isascii() and pedido.isdecimal():
+        evento = plano.eventos.filter(pk=int(pedido)).first()
+        if evento is not None:
+            return _form_evento(request, plano, evento=evento), evento
+    return None, None
+
+
+def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int = 200,
+          form_evento=None, evento_editando=None):
     editavel = plano is None or policies.pode_editar_plano(request.user, plano)
     calculo, mensagens_calculo = (planos.calculo(plano) if plano else (None, []))
     pend = planos.pendencias(plano) if plano else []
+    if plano is not None and form_evento is None and request.method == "GET":
+        form_evento, evento_editando = _evento_pedido(request, plano)
     # No cartão 2, só o que é do cálculo (destino e efetivo já têm pendência própria).
     mensagens_calculo = [m for m in mensagens_calculo
                          if not m.startswith(("Informe o destino", "Informe o efetivo"))]
@@ -199,6 +225,9 @@ def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int =
         "linhas_efetivo": _linhas_para_tela(form, plano),
         "atividades_marcadas": _atividades_na_tela(form),
         "estado": planos.estado(plano, pend) if plano else None,
+        "eventos": list(plano.eventos.all()) if plano else [],
+        "form_evento": form_evento, "evento_editando": evento_editando,
+        "periodo_geral": dominio.periodo_curto(*planos.periodo_geral(plano)) if plano else "",
         "avisos": planos.avisos(plano) if plano else [],
         "textos_desatualizados": _textos_desatualizados(plano),
         "vem_do_oficio": _vem_do_oficio(form, plano),
@@ -310,6 +339,47 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     return JsonResponse({"salvo": True, "recarregar": bool(copiados),
                          "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": planos.versao_de(salvo)}})
+
+
+@require_POST
+def salvar_evento(request: HttpRequest, pk: int) -> HttpResponse:
+    """A janela do evento adicional: cria ou altera e volta ao bloco dos eventos."""
+    plano = _plano_visivel(request, pk)
+    policies.exigir(policies.pode_editar_plano(request.user, plano),
+                    "Este plano de trabalho não pode ser alterado.")
+    pedido = request.POST.get("evento") or ""
+    evento = None
+    if pedido:
+        if not (pedido.isascii() and pedido.isdecimal()):
+            raise Http404
+        evento = get_object_or_404(plano.eventos, pk=int(pedido))
+    form = _form_evento(request, plano, request.POST, evento=evento)
+    if form.is_valid():
+        try:
+            salvo = planos.salvar_evento(request.user, plano.pk,
+                                         evento_pk=evento.pk if evento else None,
+                                         **form.cleaned_data)
+        except planos.PlanoInvalido as exc:
+            form.add_error(None, str(exc))
+        else:
+            numero = list(plano.eventos.values_list("pk", flat=True)).index(salvo.pk) + 2
+            messages.success(request, f"Evento {numero} {'salvo' if evento else 'acrescentado'}"
+                                      " — o plano agora tem vários eventos.")
+            return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#eventos")
+    return _tela(request, _formulario(request, plano=plano), plano, status=422,
+                 form_evento=form, evento_editando=evento)
+
+
+@require_POST
+def remover_evento(request: HttpRequest, pk: int, evento_pk: int) -> HttpResponse:
+    plano = _plano_visivel(request, pk)
+    try:
+        planos.remover_evento(request.user, plano.pk, evento_pk)
+    except (planos.PlanoInvalido, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Evento removido do plano.")
+    return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#eventos")
 
 
 @require_POST

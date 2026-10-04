@@ -49,6 +49,7 @@ prestadas) chega com a prestação de contas.
             <span class="selo selo--{{ l.estado.1 }} selo--sem-ponto">{{ l.estado.0 }}</span>
           </div>
           <div class="registro__meta">
+            {% if l.eventos %}<span class="registro__meta-item">{% icone "calendar-days" classe="icone--sm" %}{{ l.eventos }} eventos</span>{% endif %}
             <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{% if p.programa_nome %}{{ p.programa_nome }}{% else %}<span class="vazio-inline">Sem programa</span>{% endif %}</span>
             <span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% if l.coordenador %}{{ l.coordenador.nome }}{% else %}<span class="vazio-inline">Sem coordenador</span>{% endif %}</span>
             <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if l.efetivo %}{{ l.efetivo }} no efetivo{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>

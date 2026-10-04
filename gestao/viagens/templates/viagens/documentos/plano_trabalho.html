@@ -37,6 +37,7 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
   p { margin: 0 0 3mm; text-align: justify; }
   .lista p { margin: 0 0 1.5mm; text-align: left; }
   .quebra { break-before: page; }
+  .evento { break-inside: avoid; margin: 0 0 4mm; }
   .local-data { margin-top: 10mm; text-align: right; }
   .assinatura { text-align: center; margin-top: 16mm; break-inside: avoid; }
   .assinatura p { margin: 0; text-align: center; }
@@ -68,6 +69,37 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
       {{ d.contextualizacao|linebreaks }}
     </section>
 
+    {% if d.eventos %}
+    {# Vários eventos: a data vai no título de cada evento (sem a linha "Datas"). #}
+    <section class="quebra">
+      <h2>Atuação</h2>
+      {% for e in d.eventos %}
+        <div class="evento">
+          <p><strong>{{ e.cabecalho }}{% if e.programa %} - {{ e.programa }}{% endif %}:</strong></p>
+          <p><strong>Local:</strong> {{ e.local|default:"________" }};</p>
+          <p><strong>Horário de atendimento:</strong> {{ e.horario|default:"________" }};</p>
+          {% if e.unidade_movel %}<p>{{ e.unidade_movel }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <p><strong>Efetivo total:</strong>{% if d.efetivo %}<br>{{ d.efetivo|linebreaksbr }}{% else %} ________{% endif %};</p>
+    </section>
+    <section class="lista">
+      <h2>Atividades a serem desenvolvidas</h2>
+      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.atividades|default:"________"|linebreaks }}{% endfor %}
+    </section>
+    <section class="lista">
+      <h2>Metas estabelecidas</h2>
+      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.metas|default:"________"|linebreaks }}{% endfor %}
+    </section>
+    <section class="lista">
+      <h2>Recursos necessários</h2>
+      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.recursos|default:"________"|linebreaks }}{% endfor %}
+    </section>
+    <section>
+      <h2>Valor total do plano</h2>
+      {% if d.valor %}<p><strong>{{ d.valor_rotulo }}:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
+    </section>
+    {% else %}
     <section class="quebra">
       <h2>Atuação</h2>
       <p><strong>Datas:</strong> {{ d.datas|default:"________" }};</p>
@@ -96,6 +128,7 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
       <h2>Valor total do plano</h2>
       {% if d.valor %}<p><strong>Valor total:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
     </section>
+    {% endif %}
 
     <div class="quebra">
       <section>

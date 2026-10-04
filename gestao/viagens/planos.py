@@ -33,6 +33,8 @@ from .dominio.escrita import data_por_extenso, legivel
 from .dominio.numeracao import proximo_numero
 from .models import (
     EfetivoPlano,
+    EventoDestino,
+    EventoPlano,
     LacunaPlano,
     NumeracaoPlano,
     Oficio,
@@ -43,7 +45,7 @@ from .models import (
 )
 from .queries import buscar_tabelas_vigentes
 
-MAX_OFICIOS, MAX_DESTINOS, MAX_LINHAS = 20, 30, 50
+MAX_OFICIOS, MAX_DESTINOS, MAX_LINHAS, MAX_EVENTOS = 20, 30, 50, 20
 
 
 class PlanoInvalido(Exception):
@@ -62,6 +64,10 @@ PREFETCH_PLANOS = (
     Prefetch("efetivo", queryset=EfetivoPlano.objects.select_related("cargo", "unidade")),
     Prefetch("atividades", queryset=AtividadePlano.objects.order_by("nome")),
     Prefetch("oficios", queryset=Oficio.objects.order_by("-ano", "-numero")),
+    Prefetch("eventos", queryset=EventoPlano.objects.select_related(
+        "programa", "coordenador_op__cargo").prefetch_related(
+        Prefetch("destinos", queryset=EventoDestino.objects.select_related("municipio")),
+        Prefetch("atividades", queryset=AtividadePlano.objects.order_by("nome")))),
 )
 
 
@@ -154,8 +160,9 @@ def dados_dos_oficios(oficios: list[Oficio]) -> dict:
 
 
 # ---------------------------------------------------------------- leitura para as regras
-def coordenador(plano: PlanoTrabalho, qual: str) -> dominio.Coordenador | None:
-    """O coordenador ("adm" ou "op"): o do cadastro (nome e cargo de lá) ou o escrito à mão."""
+def coordenador(plano, qual: str) -> dominio.Coordenador | None:
+    """O coordenador ("adm" ou "op") do plano ou de um evento: o do cadastro (nome e cargo de
+    lá) ou o escrito à mão."""
     servidor = getattr(plano, f"coordenador_{qual}")
     genero = getattr(plano, f"coordenador_{qual}_genero")  # vazio: ainda não escolhido
     if servidor is not None:
@@ -169,6 +176,34 @@ def coordenador(plano: PlanoTrabalho, qual: str) -> dominio.Coordenador | None:
 def destinos_texto(plano: PlanoTrabalho) -> list[str]:
     carregar(plano)
     return [f"{d.municipio.nome}/{d.municipio.uf}" for d in plano.destinos.all()]
+
+
+def _destinos_do_evento(evento: EventoPlano) -> list[str]:
+    return [f"{d.municipio.nome}/{d.municipio.uf}" for d in evento.destinos.all()]
+
+
+def todos_os_destinos(plano: PlanoTrabalho) -> list[str]:
+    """Os destinos do evento 1 e dos demais, sem repetir (na ordem dos eventos)."""
+    carregar(plano)
+    saida = destinos_texto(plano)
+    for e in plano.eventos.all():
+        saida += _destinos_do_evento(e)
+    return list(dict.fromkeys(saida))
+
+
+def todos_os_programas(plano: PlanoTrabalho) -> list[str]:
+    carregar(plano)
+    return [p for p in [plano.programa_nome, *[e.programa_nome for e in plano.eventos.all()]] if p]
+
+
+def periodo_geral(plano: PlanoTrabalho):
+    """Do início mais cedo ao fim mais tarde entre os eventos."""
+    carregar(plano)
+    inicios = [d for d in [plano.data_inicio, *[e.data_inicio for e in plano.eventos.all()]] if d]
+    fins = [e.data_fim or e.data_inicio for e in plano.eventos.all() if e.data_inicio]
+    if plano.data_inicio:
+        fins.append(plano.data_fim or plano.data_inicio)
+    return (min(inicios) if inicios else None, max(fins) if fins else None)
 
 
 def linhas_do_efetivo(plano: PlanoTrabalho) -> list[dominio.LinhaEfetivo]:
@@ -185,7 +220,10 @@ def dados_do_dominio(plano: PlanoTrabalho) -> dominio.DadosPlano:
         coordenador_op=coordenador(plano, "op"), efetivo=linhas_do_efetivo(plano),
         diarias_total=plano.diarias_total,
         tem_deslocamento=bool(plano.saida_em and plano.chegada_em),
-        tem_atividades=bool(plano.atividades.all()))
+        tem_atividades=bool(plano.atividades.all()) or any(
+            e.atividades.all() for e in plano.eventos.all()),
+        eventos_extras=[(i + 2, bool(e.destinos.all()), bool(e.data_inicio))
+                        for i, e in enumerate(plano.eventos.all())])
 
 
 def pendencias(plano: PlanoTrabalho) -> list[dominio.Pendencia]:
@@ -236,12 +274,21 @@ def calculo(plano: PlanoTrabalho):
 
 
 def textos_automaticos(plano: PlanoTrabalho) -> dict[str, str]:
-    destinos = destinos_texto(plano)
+    """Com vários eventos: todos os destinos e programas (na referência, só os do rascunho —
+    que podia sair com "________"), e só o coordenador administrativo é designado."""
+    destinos = todos_os_destinos(plano)
+    varios = bool(plano.eventos.all())
     return {
-        "contextualizacao": dominio.contextualizacao(destinos, [plano.programa_nome]),
-        "coordenacao": dominio.coordenacao(coordenador(plano, "adm"), coordenador(plano, "op")),
+        "contextualizacao": dominio.contextualizacao(destinos, todos_os_programas(plano)),
+        "coordenacao": dominio.coordenacao(coordenador(plano, "adm"), coordenador(plano, "op"),
+                                           varios_eventos=varios),
         "consideracoes": dominio.consideracoes_finais(destinos),
     }
+
+
+def _textos_das_atividades(atividades) -> dict[str, str]:
+    return dominio.textos_das_atividades(
+        [dominio.Atividade(a.codigo, a.nome, a.meta, a.recurso) for a in atividades])
 
 
 def _refazer(plano: PlanoTrabalho) -> None:
@@ -250,11 +297,18 @@ def _refazer(plano: PlanoTrabalho) -> None:
     for campo, texto in textos_automaticos(plano).items():
         if getattr(plano, f"{campo}_auto"):
             setattr(plano, campo, texto)
-    atividades = [dominio.Atividade(a.codigo, a.nome, a.meta, a.recurso)
-                  for a in plano.atividades.all()]
-    textos = dominio.textos_das_atividades(atividades)
+    textos = _textos_das_atividades(plano.atividades.all())
     plano.atividades_texto, plano.metas = textos["atividades"], textos["metas"]
     plano.recursos, plano.unidade_movel_texto = textos["recursos"], textos["unidade_movel"]
+    for evento in plano.eventos.all():
+        t = _textos_das_atividades(evento.atividades.all())
+        novos = (t["atividades"], t["metas"], t["recursos"], t["unidade_movel"])
+        if novos != (evento.atividades_texto, evento.metas, evento.recursos,
+                     evento.unidade_movel_texto):
+            (evento.atividades_texto, evento.metas, evento.recursos,
+             evento.unidade_movel_texto) = novos
+            evento.save(update_fields=["atividades_texto", "metas", "recursos",
+                                       "unidade_movel_texto", "atualizado_em"])
     resultado, _ = calculo(plano)
     if resultado is None:  # cálculo inválido apaga a cópia (vira pendência de diárias)
         plano.diarias_composicao, plano.diarias_unitario, plano.diarias_total = "", None, None
@@ -414,6 +468,69 @@ def _gravar_efetivo(plano: PlanoTrabalho, linhas: list[LinhaInformada]) -> None:
 
 
 @transaction.atomic
+def salvar_evento(usuario, plano_pk: int, *, evento_pk: int | None = None,
+                  programa: ProgramaSolicitante | None = None, programa_outros: str = "",
+                  data_inicio: date | None = None, data_fim: date | None = None,
+                  horario: str = "", destinos=(), coordenador_op: Servidor | None = None,
+                  coordenador_op_nome: str = "", coordenador_op_cargo: str = "",
+                  coordenador_op_genero: str = "", atividades=()) -> EventoPlano:
+    """Cria ou altera um evento adicional e refaz o plano (textos, metas, diárias)."""
+    plano = PlanoTrabalho.objects.select_for_update().get(pk=plano_pk)
+    policies.exigir(policies.pode_editar_plano(usuario, plano),
+                    "Este plano de trabalho não pode ser alterado.")
+    destinos = list(dict.fromkeys(destinos))
+    if len(destinos) > MAX_DESTINOS:
+        raise PlanoInvalido(f"No máximo {MAX_DESTINOS} destinos por evento.")
+    if data_inicio and data_fim and data_fim < data_inicio:
+        raise PlanoInvalido("A data final não pode ser anterior à data inicial.")
+    if evento_pk:
+        evento = plano.eventos.get(pk=evento_pk)
+    else:
+        if plano.eventos.count() >= MAX_EVENTOS - 1:
+            raise PlanoInvalido(f"No máximo {MAX_EVENTOS} eventos por plano.")
+        ultima = plano.eventos.order_by("-posicao").values_list("posicao", flat=True).first()
+        evento = EventoPlano(plano=plano, posicao=(ultima + 1) if ultima is not None else 0)
+    evento.programa = programa
+    evento.programa_outros = "" if programa else " ".join(programa_outros.split())
+    evento.data_inicio, evento.data_fim = data_inicio, (data_fim or data_inicio)
+    evento.horario = horario or dominio.HORARIO_PADRAO
+    evento.coordenador_op = coordenador_op
+    evento.coordenador_op_nome = "" if coordenador_op else coordenador_op_nome.strip().upper()
+    evento.coordenador_op_cargo = "" if coordenador_op else coordenador_op_cargo.strip()
+    evento.coordenador_op_genero = coordenador_op_genero if coordenador_op_genero in (
+        "M", "F") else ""
+    evento.save()
+    atuais = [d.municipio_id for d in evento.destinos.order_by("posicao", "id")]
+    if atuais != [m.pk for m in destinos]:
+        evento.destinos.all().delete()
+        EventoDestino.objects.bulk_create(
+            [EventoDestino(evento=evento, municipio=m, posicao=i) for i, m in enumerate(destinos)])
+    evento.atividades.set(list(atividades))
+    _refazer_e_gravar(plano)
+    return evento
+
+
+@transaction.atomic
+def remover_evento(usuario, plano_pk: int, evento_pk: int) -> PlanoTrabalho:
+    plano = PlanoTrabalho.objects.select_for_update().get(pk=plano_pk)
+    policies.exigir(policies.pode_editar_plano(usuario, plano),
+                    "Este plano de trabalho não pode ser alterado.")
+    plano.eventos.filter(pk=evento_pk).delete()
+    _refazer_e_gravar(plano)
+    return plano
+
+
+def _refazer_e_gravar(plano: PlanoTrabalho) -> None:
+    """Relê as relações e refaz textos automáticos, metas e diárias (toca a versão: a folha
+    aberta noutra aba fica sabendo)."""
+    if hasattr(plano, "_prefetched_objects_cache"):
+        del plano._prefetched_objects_cache
+    carregar(plano)
+    _refazer(plano)
+    plano.save()
+
+
+@transaction.atomic
 def finalizar(usuario, pk: int) -> PlanoTrabalho:
     """Finalizar e gerar (uma ação só — ↔ referência, onde finalizar e gerar eram dois
     passos e a lista pulava o primeiro): só sem pendências; marca GERADO, fixa a data do
@@ -534,6 +651,8 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
     sede = config.sede
     local = (f"{config.cidade_endereco}/{config.uf}" if config.cidade_endereco and config.uf
              else f"{sede.nome}/{sede.uf}" if sede else "")
+    inicio, fim = periodo_geral(plano)
+    eventos = eventos_para_documento(plano)
     return {
         "titulo": str(plano),
         "numero": plano.numero_formatado,
@@ -542,8 +661,12 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         "rodape": config.rodape,
         "previa": not fixar,
         "contextualizacao": plano.contextualizacao,
-        "datas": dominio.periodo_por_extenso(plano.data_inicio, plano.data_fim),
-        "local": ", ".join(destinos_texto(plano)),
+        "datas": dominio.periodo_por_extenso(inicio, fim),
+        "local": ", ".join(todos_os_destinos(plano)),
+        # Vários eventos: atuação, atividades, metas e recursos por evento; o valor é o
+        # combinado da viagem (um trecho, a mesma equipe), com o rótulo do período todo.
+        "eventos": eventos if len(eventos) > 1 else [],
+        "valor_rotulo": dominio.rotulo_do_total(inicio, fim) if len(eventos) > 1 else "",
         "horario": plano.horario,
         "efetivo": dominio.texto_do_efetivo(linhas_do_efetivo(plano)),
         "unidade_movel": plano.unidade_movel_texto,
@@ -557,6 +680,22 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         "local_data": f"{local}, {data_por_extenso(data_doc)}" if local else "",
         "assina": {"nome": legivel(nome) if nome else "", "cargo": legivel(cargo) if cargo else ""},
     }
+
+
+def eventos_para_documento(plano: PlanoTrabalho) -> list[dict]:
+    """O evento 1 (os campos do plano) e os demais, no formato do documento."""
+    carregar(plano)
+    saida = [{"cabecalho": dominio.cabecalho_do_evento(plano.data_inicio, plano.data_fim),
+              "programa": plano.programa_nome, "local": ", ".join(destinos_texto(plano)),
+              "horario": plano.horario, "atividades": plano.atividades_texto,
+              "metas": plano.metas, "recursos": plano.recursos,
+              "unidade_movel": plano.unidade_movel_texto}]
+    for e in plano.eventos.all():
+        saida.append({"cabecalho": dominio.cabecalho_do_evento(e.data_inicio, e.data_fim),
+                      "programa": e.programa_nome, "local": ", ".join(_destinos_do_evento(e)),
+                      "horario": e.horario, "atividades": e.atividades_texto, "metas": e.metas,
+                      "recursos": e.recursos, "unidade_movel": e.unidade_movel_texto})
+    return saida
 
 
 def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:

@@ -81,6 +81,7 @@ def test_folhas_de_termo_os_e_plano_sem_violacoes(logado, dados_e2e, largura):
     for rota in (f"/viagens/termos/{termo.pk}/", f"/viagens/ordens/{ordem.pk}/",
                  f"/viagens/planos/{plano.pk}/"):
         _avaliar(logado, rota, antes=_carregar_previa)
+    _avaliar(logado, f"/viagens/planos/{plano.pk}/?evento=novo")  # janela do evento aberta
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

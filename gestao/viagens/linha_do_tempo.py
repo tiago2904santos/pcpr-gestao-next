@@ -15,6 +15,7 @@ from gestao.plataforma.auditoria import Passo, passos_do_registro
 
 from .models import (
     EfetivoPlano,
+    EventoPlano,
     OrdemServico,
     OrdemServicoDestino,
     PlanoDestino,
@@ -143,8 +144,9 @@ def do_plano(plano: PlanoTrabalho) -> list[Evento]:
     oficios, atividades = _m2m(PlanoTrabalho, "oficios"), _m2m(PlanoTrabalho, "atividades")
     destinos = (PlanoDestino._meta.db_table, "plano_id")
     efetivo = (EfetivoPlano._meta.db_table, "plano_id")
+    eventos = (EventoPlano._meta.db_table, "plano_id")
     filhas = {oficios[0]: "ofícios", destinos[0]: "destinos", efetivo[0]: "efetivo",
-              atividades[0]: "atividades"}
+              atividades[0]: "atividades", eventos[0]: "eventos"}
     # Os textos e valores que se refazem sozinhos (contextualização automática, metas,
     # diárias…) não entram: só o que a pessoa mudou.
     campos = {"programa_id": "programa", "programa_outros": "programa",
@@ -157,6 +159,7 @@ def do_plano(plano: PlanoTrabalho) -> list[Evento]:
               "consideracoes_auto": "textos do documento",
               "assinante_id": "quem assina", "data_documento": "data do documento"}
     passos = passos_do_registro(PlanoTrabalho._meta.db_table, plano.pk,
-                                dict([oficios, destinos, efetivo, atividades]), marcos=MARCOS)
+                                dict([oficios, destinos, efetivo, atividades, eventos]),
+                                marcos=MARCOS)
     return _eventos(passos, criado="Plano de trabalho criado", cancelado="Cancelado",
                     reativado="Reativado", campos=campos, filhas=filhas)

@@ -27,7 +27,8 @@ links de pendência.
       {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#conferencia">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
       <span class="frase-oficio__item{% if not plano.programa_nome %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
       <span class="frase-oficio__item{% if not destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
-      <span class="frase-oficio__item{% if not periodo %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo|default:"sem datas" }}</span>
+      <span class="frase-oficio__item{% if not periodo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
+      {% if eventos %}<span class="frase-oficio__item">{% icone "calendar-days" classe="icone--sm" %}{{ eventos|length|add:1 }} eventos</span>{% endif %}
       <span class="frase-oficio__item{% if not efetivo_total %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if efetivo_total %}{{ efetivo_total|pluralizar:"servidor,servidores" }}{% else %}sem efetivo{% endif %}</span>
       {% if plano.diarias_total is not None %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ plano.diarias_total|moeda }}</span>{% endif %}
       {% for of in plano.oficios.all %}<span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
@@ -95,6 +96,43 @@ links de pendência.
         {% include "componentes/campo.html" with campo=form.horario classe="campo--md" %}
       </div>
       {% include "componentes/campo.html" with campo=form.destinos rotulo="Destinos" %}
+
+      {% if plano %}
+      <div class="secao__bloco" id="eventos" aria-labelledby="t-eventos">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-eventos">{% icone "calendar-days" classe="icone--sm" %}Eventos</h3>
+          <div class="secao__estado" id="estado-eventos" data-vivo>{% for p in pendencias %}{% if p.secao == "eventos" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
+        </div>
+        {% if eventos %}
+          <p class="texto-secundario texto-sm">Programa, datas, horário e destinos acima são o <strong>evento 1</strong>. Efetivo e deslocamento valem para todos (a mesma equipe numa viagem só) e as diárias saem combinadas.</p>
+          <ul class="registros eventos-plano" aria-label="Outros eventos">
+            {% for e in eventos %}
+              <li class="registro">
+                <span class="placa" aria-hidden="true"><span class="placa__rotulo">Evento</span><span class="placa__numero">{{ forloop.counter|add:1 }}</span></span>
+                <div class="registro__corpo">
+                  <div class="registro__titulo">{% if editavel %}<a class="registro__link" href="?evento={{ e.pk }}#eventos">{% else %}<span class="registro__link registro__link--estatico">{% endif %}{% for d in e.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if e.data_inicio %} · {{ e.data_inicio|date:"d/m/Y" }}{% if e.data_fim and e.data_fim != e.data_inicio %} a {{ e.data_fim|date:"d/m/Y" }}{% endif %}{% endif %}{% if editavel %}</a>{% else %}</span>{% endif %}</div>
+                  <div class="registro__meta">
+                    <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{{ e.programa_nome|default:"Sem programa" }}</span>
+                    <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ e.horario }}</span>
+                    {% if e.coordenador_op or e.coordenador_op_nome %}<span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% if e.coordenador_op %}{{ e.coordenador_op.nome }}{% else %}{{ e.coordenador_op_nome }}{% endif %}</span>{% endif %}
+                    <span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ e.atividades.all|length|pluralizar:"atividade,atividades" }}</span>
+                  </div>
+                </div>
+                {% if editavel %}
+                <div class="registro__acoes registro__acoes--fixas">
+                  <a class="botao botao--sm" href="?evento={{ e.pk }}#eventos" aria-label="Editar o evento {{ forloop.counter|add:1 }}">{% icone "pencil" %}Editar</a>
+                  <button type="submit" form="remover-evento-{{ e.pk }}" class="botao botao--sm botao--icone botao--sutil" aria-label="Remover o evento {{ forloop.counter|add:1 }}">{% icone "trash-2" %}</button>
+                </div>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="texto-secundario texto-sm">Um evento só. Ação com mais de um evento (datas e lugares diferentes, a mesma equipe)? Acrescente os outros.</p>
+        {% endif %}
+        {% if editavel %}<a class="botao botao--sm" href="?evento=novo#eventos">{% icone "plus" classe="icone--sm" %}Acrescentar evento</a>{% endif %}
+      </div>
+      {% endif %}
 
       <div class="secao__bloco" aria-labelledby="t-coord">
         <div class="secao__bloco-cabecalho">
@@ -183,7 +221,7 @@ links de pendência.
   <section class="secao{% if plano and plano.atividades.all %} secao--ok{% endif %}" id="atividades" aria-labelledby="t-atividades">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-atividades"><span class="secao__numero">3</span>Atividades, metas e recursos</h2>
-      <p class="secao__nota">A meta e o recurso de cada atividade marcada compõem o plano; o conjunto padrão já vem marcado no plano novo.</p>
+      <p class="secao__nota">A meta e o recurso de cada atividade marcada compõem o plano; o conjunto padrão já vem marcado no plano novo.{% if eventos %} Estas são as do evento 1; as dos outros eventos ficam na janela de cada um.{% endif %}</p>
     </div>
     <div class="pilha" data-conjuntos>
       <input type="hidden" name="atividades_presente" value="1">
@@ -349,5 +387,7 @@ links de pendência.
   </div>
   {% endif %}
 </form>
+{% for e in eventos %}<form id="remover-evento-{{ e.pk }}" method="post" action="{% url 'viagens:remover_evento_plano' plano.pk e.pk %}" hidden data-confirmar="O evento {{ forloop.counter|add:1 }} sai do plano (com as atividades dele)." data-confirmar-titulo="Remover evento?" data-confirmar-rotulo="Remover evento" data-confirmar-perigo>{% csrf_token %}</form>{% endfor %}
+{% if form_evento %}{% include "viagens/planos/_dialogo_evento.html" %}{% endif %}
 {% if plano and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
 {% endblock %}

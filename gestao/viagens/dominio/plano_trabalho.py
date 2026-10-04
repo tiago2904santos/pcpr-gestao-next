@@ -68,6 +68,8 @@ class DadosPlano:
     diarias_total: Decimal | None = None
     tem_deslocamento: bool = False  # saída e chegada na sede informadas
     tem_atividades: bool = False
+    # Eventos adicionais (o 1 são os campos do plano): (número, tem destino, tem data).
+    eventos_extras: list[tuple[int, bool, bool]] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------- períodos
@@ -90,6 +92,27 @@ def periodo_por_extenso(inicio: date | None, fim: date | None) -> str:
                 f"{MESES[fim.month - 1]} de {fim.year}")
     return (f"{_dia(inicio)} de {MESES[inicio.month - 1]} de {inicio.year} a {_dia(fim)} de "
             f"{MESES[fim.month - 1]} de {fim.year}")
+
+
+def cabecalho_do_evento(inicio: date | None, fim: date | None) -> str:
+    """"Dia 06 de outubro de 2026" / "Dias 08 a 09 de outubro de 2026" (vários eventos)."""
+    if not inicio:
+        return "Data a definir"
+    prefixo = "Dia" if not fim or fim == inicio else "Dias"
+    return f"{prefixo} {periodo_por_extenso(inicio, fim)}"
+
+
+def rotulo_do_total(inicio: date | None, fim: date | None) -> str:
+    """"Valor total do evento dia: 17/06/2026" / "… dias: 06 a 09/10/2026" / "… dias:
+    30/06/2026 a 02/07/2026" (referência)."""
+    if not inicio:
+        return "Valor total"
+    fim = fim or inicio
+    if fim == inicio:
+        return f"Valor total do evento dia: {inicio:%d/%m/%Y}"
+    if (inicio.month, inicio.year) == (fim.month, fim.year):
+        return f"Valor total do evento dias: {inicio:%d} a {fim:%d/%m/%Y}"
+    return f"Valor total do evento dias: {inicio:%d/%m/%Y} a {fim:%d/%m/%Y}"
 
 
 def periodo_curto(inicio: date | None, fim: date | None) -> str:
@@ -228,6 +251,13 @@ def pendencias(d: DadosPlano) -> list[Pendencia]:
     if not d.inicio:
         falta.append(Pendencia("Informe a data do evento.", "identificacao",
                                "Falta data do evento"))
+    for numero, tem_destino, tem_data in d.eventos_extras:
+        if not tem_destino:
+            falta.append(Pendencia(f"Informe o destino do evento {numero}.", "eventos",
+                                   f"Falta destino do evento {numero}"))
+        if not tem_data:
+            falta.append(Pendencia(f"Informe a data do evento {numero}.", "eventos",
+                                   f"Falta data do evento {numero}"))
     if efetivo_total(d.efetivo) <= 0:
         falta.append(Pendencia("Informe o efetivo (cargo e quantidade).", "efetivo",
                                "Falta efetivo"))

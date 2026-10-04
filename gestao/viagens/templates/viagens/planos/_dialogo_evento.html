@@ -1,0 +1,52 @@
+{# Janela de um evento adicional do plano (abre por ?evento=novo ou ?evento=<id>). #}
+<dialog id="dialogo-evento" class="dialogo dialogo--largo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
+  <form method="post" action="{% url 'viagens:salvar_evento_plano' plano.pk %}" novalidate>
+    {% csrf_token %}
+    {% if evento_editando %}<input type="hidden" name="evento" value="{{ evento_editando.pk }}">{% endif %}
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__icone">{% icone "calendar-days" %}</div>
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="t-dialogo-evento">{% if evento_editando %}Editar evento{% else %}Novo evento{% endif %}</h2>
+        <p class="texto-secundario texto-sm">O que muda de um evento para outro. Efetivo e deslocamento ficam no plano.</p>
+      </div>
+      <a class="botao botao--icone dialogo__fechar" href="?#eventos" aria-label="Fechar">{% icone "x" %}</a>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form_evento.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_evento.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      <div class="campos programa-plano">
+        {% include "componentes/campo.html" with campo=form_evento.programa classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form_evento.programa_outros classe="campo--lg condicional condicional--outro-programa" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form_evento.data_inicio classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form_evento.data_fim classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form_evento.horario classe="campo--md" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form_evento.destinos rotulo="Destinos" %}
+      <div class="campos">
+        <div class="campo campo--lg">
+          <label class="campo__rotulo" for="busca-coord-op-evento">Coordenador operacional <span class="campo__opcional">(opcional)</span></label>
+          <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2">
+            <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-op-evento" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if evento_editando.coordenador_op %}{{ evento_editando.coordenador_op.nome }}{% endif %}" autocomplete="off">{{ form_evento.coordenador_op }}</div>
+          </pc-combobox>
+        </div>
+        {% include "componentes/campo.html" with campo=form_evento.coordenador_op_genero classe="campo--md" %}
+      </div>
+      <details class="divulgacao"{% if form_evento.coordenador_op_nome.value %} open{% endif %}>
+        <summary>{% icone "plus" classe="icone--sm" %}Operacional de fora do cadastro</summary>
+        <div class="divulgacao__corpo campos">
+          {% include "componentes/campo.html" with campo=form_evento.coordenador_op_nome classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form_evento.coordenador_op_cargo classe="campo--lg" %}
+        </div>
+      </details>
+      <fieldset class="grupo-campos">
+        <legend>Atividades do evento</legend>
+        {{ form_evento.atividades }}
+      </fieldset>
+    </div>
+    <div class="dialogo__rodape">
+      <a class="botao botao--texto" href="?#eventos">Cancelar</a>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if evento_editando %}Salvar evento{% else %}Acrescentar evento{% endif %}</button>
+    </div>
+  </form>
+</dialog>

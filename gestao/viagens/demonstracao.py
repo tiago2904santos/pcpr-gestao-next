@@ -834,6 +834,14 @@ class _Gerador:
             if criados and not planos.pendencias(criados[0]):
                 with acao():
                     planos.finalizar(autor, criados[0].pk)
+            if len(criados) > 1:  # o segundo vira um plano de vários eventos
+                segundo = criados[1]
+                inicio = (segundo.data_fim or self.hoje) + timedelta(days=1)
+                with acao():
+                    planos.salvar_evento(
+                        autor, segundo.pk, programa=programa, data_inicio=inicio,
+                        destinos=list(Municipio.objects.filter(nome="Cascavel", uf="PR")),
+                        atividades=basicas[:2])
             if len(criados) > 2:
                 with acao():
                     planos.cancelar(autor, criados[-1].pk, "Ação adiada pelo município (DEMO).")

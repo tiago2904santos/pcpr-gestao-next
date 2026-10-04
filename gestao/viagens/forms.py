@@ -851,6 +851,35 @@ GENEROS = (("", "Escolha…"), ("M", "o Coordenador"), ("F", "a Coordenadora"))
 MAX_LINHAS_EFETIVO = 50
 
 
+def _opcoes_de_programa(atual_id) -> list[tuple[str, str]]:
+    """Programa: os do catálogo (ativos e o atual), "Outro" e vazio."""
+    programas = ProgramaSolicitante.objects.filter(Q(ativo=True) | Q(pk=atual_id))
+    return [("", "Selecione um programa (opcional)"), (OUTRO_PROGRAMA, "Outro"),
+            *[(str(pr.pk), pr.nome) for pr in programas]]
+
+
+def _opcoes_de_horario(gravado: str) -> list[tuple[str, str]]:
+    """Horário: os do catálogo; o gravado entra mesmo que tenha saído do catálogo."""
+    faixas = list(HorarioAtendimento.objects.filter(ativo=True).values_list("nome", flat=True))
+    if gravado and gravado not in faixas:
+        faixas.insert(0, gravado)
+    return [("", "Selecione um horário (opcional)"), *[(f, f) for f in faixas]]
+
+
+def _limpar_programa(form: forms.Form, dados: dict) -> None:
+    """Programa do catálogo, "Outro" (com o texto) ou nenhum — as mensagens da referência."""
+    escolha = dados.pop("programa", "") or ""
+    outros = " ".join((dados.get("programa_outros") or "").split())
+    dados["programa"] = None
+    if escolha and escolha != OUTRO_PROGRAMA:
+        dados["programa"] = ProgramaSolicitante.objects.filter(pk=escolha).first()
+        if dados["programa"] is None:
+            form.add_error("programa", "Selecione um programa válido.")
+        dados["programa_outros"] = ""
+    elif escolha == OUTRO_PROGRAMA and not outros:
+        form.add_error("programa_outros", "Informe o outro programa.")
+
+
 class FormularioPlano(forms.Form):
     """Folha do plano de trabalho. O efetivo chega em linhas (`efetivo_unidade`,
     `efetivo_cargo`, `efetivo_quantidade`, repetidos) e as atividades em caixas; os
@@ -937,21 +966,10 @@ class FormularioPlano(forms.Form):
             placeholder="Número (12/2026), destino ou servidor…")
         campo_oficios.widget.choices = campo_oficios.choices
         self.fields["destinos"].widget.fonte = fonte_municipios
-        # Programa: os do catálogo (ativos e o atual), "Outro" e vazio.
-        atual = plano.programa_id if plano else None
-        programas = ProgramaSolicitante.objects.filter(Q(ativo=True) | Q(pk=atual))
-        cast(forms.ChoiceField, self.fields["programa"]).choices = [
-            ("", "Selecione um programa (opcional)"), (OUTRO_PROGRAMA, "Outro"),
-            *[(str(pr.pk), pr.nome) for pr in programas]]
-        # Horário: os do catálogo; o gravado entra mesmo que tenha saído do catálogo.
-        faixas = list(HorarioAtendimento.objects.filter(ativo=True).values_list("nome",
-                                                                                flat=True))
-        gravado = plano.horario if plano else ""
-        if gravado and gravado not in faixas:
-            faixas.insert(0, gravado)
-        cast(forms.ChoiceField, self.fields["horario"]).choices = [
-            ("", "Selecione um horário (opcional)"),
-                                          *[(f, f) for f in faixas]]
+        cast(forms.ChoiceField, self.fields["programa"]).choices = _opcoes_de_programa(
+            plano.programa_id if plano else None)
+        cast(forms.ChoiceField, self.fields["horario"]).choices = _opcoes_de_horario(
+            plano.horario if plano else "")
         for campo in ("coordenador_adm", "coordenador_op"):
             atual_id = getattr(plano, f"{campo}_id", None) if plano else None
             cast(forms.ModelChoiceField, self.fields[campo]).queryset = (
@@ -1018,16 +1036,7 @@ class FormularioPlano(forms.Form):
 
     def clean(self):
         dados = super().clean() or {}
-        escolha = dados.pop("programa", "") or ""
-        outros = " ".join((dados.get("programa_outros") or "").split())
-        dados["programa"] = None
-        if escolha and escolha != OUTRO_PROGRAMA:
-            dados["programa"] = ProgramaSolicitante.objects.filter(pk=escolha).first()
-            if dados["programa"] is None:
-                self.add_error("programa", "Selecione um programa válido.")
-            dados["programa_outros"] = ""
-        elif escolha == OUTRO_PROGRAMA and not outros:
-            self.add_error("programa_outros", "Informe o outro programa.")
+        _limpar_programa(self, dados)
         inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
         if inicio and fim and fim < inicio:
             self.add_error("data_fim", "A data final não pode ser anterior à data inicial.")
@@ -1083,3 +1092,73 @@ class FormularioPlano(forms.Form):
         """As atividades do conjunto padrão (vêm marcadas no plano novo e são gravadas)."""
         padrao = PresetAtividades.objects.filter(padrao=True, ativo=True).first()
         return list(padrao.atividades.values_list("pk", flat=True)) if padrao else []
+
+
+class FormularioEvento(forms.Form):
+    """Um evento adicional do plano (a janela "Evento N"): o que muda de evento para evento —
+    programa, período, horário, destinos, coordenador operacional e atividades."""
+
+    programa = forms.ChoiceField(label="Programa", required=False, widget=Selecao())
+    programa_outros = forms.CharField(label="Outro programa", max_length=200, required=False,
+                                      widget=forms.TextInput(attrs=_attrs()))
+    data_inicio = forms.DateField(label="Início do evento", required=False,
+                                  widget=EntradaData(), input_formats=FORMATOS_DATA)
+    data_fim = forms.DateField(label="Fim do evento", required=False, widget=EntradaData(),
+                               input_formats=FORMATOS_DATA, help_text="Um dia só: deixe em branco.")
+    horario = forms.ChoiceField(label="Horário de atendimento", required=False, widget=Selecao())
+    destinos = CampoMunicipios(label="Destinos", required=False)
+    coordenador_op = forms.ModelChoiceField(
+        label="Coordenador operacional", queryset=Servidor.objects.none(), required=False,
+        widget=forms.HiddenInput(attrs={"data-valor-id": ""}))
+    coordenador_op_nome = forms.CharField(label="Nome (fora do cadastro)", max_length=255,
+                                          required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_op_cargo = forms.CharField(label="Cargo (fora do cadastro)", max_length=120,
+                                           required=False, widget=forms.TextInput(attrs=_attrs()))
+    coordenador_op_genero = forms.ChoiceField(label="Como sai no documento", choices=GENEROS,
+                                              required=False, widget=Selecao())
+    atividades = forms.ModelMultipleChoiceField(
+        label="Atividades", queryset=AtividadePlano.objects.none(), required=False,
+        widget=CaixasDeEscolha())
+
+    def __init__(self, *args, evento=None, fonte_municipios: str = "", **kwargs):
+        # Ids próprios da janela (a folha também tem destinos, datas e programa).
+        kwargs.setdefault("auto_id", "evento_%s")
+        super().__init__(*args, **kwargs)
+        self.evento = evento
+        cast(forms.ChoiceField, self.fields["programa"]).choices = _opcoes_de_programa(
+            evento.programa_id if evento else None)
+        cast(forms.ChoiceField, self.fields["horario"]).choices = _opcoes_de_horario(
+            evento.horario if evento else "")
+        self.fields["destinos"].widget.fonte = fonte_municipios
+        atual = evento.coordenador_op_id if evento else None
+        cast(forms.ModelChoiceField, self.fields["coordenador_op"]).queryset = (
+            Servidor.objects.filter(Q(ativo=True) | Q(pk=atual)).select_related("cargo"))
+        marcadas = list(evento.atividades.values_list("pk", flat=True)) if evento else []
+        cast(forms.ModelMultipleChoiceField, self.fields["atividades"]).queryset = (
+            AtividadePlano.objects.filter(Q(ativo=True) | Q(pk__in=marcadas)).order_by("nome"))
+
+    def clean(self):
+        dados = super().clean() or {}
+        _limpar_programa(self, dados)
+        inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
+        if inicio and fim and fim < inicio:
+            self.add_error("data_fim", "A data final não pode ser anterior à data inicial.")
+        if fim and not inicio:
+            self.add_error("data_inicio", "Informe o início do evento.")
+        return dados
+
+    @classmethod
+    def de(cls, evento, **kwargs):
+        programa = str(evento.programa_id) if evento.programa_id else (
+            OUTRO_PROGRAMA if evento.programa_outros else "")
+        return cls(evento=evento, initial={
+            "programa": programa, "programa_outros": evento.programa_outros,
+            "data_inicio": evento.data_inicio,
+            "data_fim": evento.data_fim if evento.data_fim != evento.data_inicio else None,
+            "horario": evento.horario,
+            "destinos": [str(d.municipio) for d in evento.destinos.all()],
+            "coordenador_op": evento.coordenador_op_id,
+            "coordenador_op_nome": evento.coordenador_op_nome,
+            "coordenador_op_cargo": evento.coordenador_op_cargo,
+            "coordenador_op_genero": evento.coordenador_op_genero,
+            "atividades": [a.pk for a in evento.atividades.all()]}, **kwargs)
