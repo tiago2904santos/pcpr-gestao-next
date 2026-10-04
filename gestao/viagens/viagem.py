@@ -77,18 +77,33 @@ def documentos(viagem: Viagem) -> Documentos:
                       ordens=list(viagem.ordens.order_by("ano", "numero")), termos=termos)
 
 
-def resumo_do_documento(doc) -> str:
-    """Como o documento aparece para vincular: o nome e o que ajuda a reconhecê-lo."""
-    from .templatetags.viagens import formatar_periodo
+def periodo_curto(inicio: date | None, fim: date | None) -> str:
+    """"08/10 a 12/10/2026" ou "08/10/2026" (datas, sem hora)."""
+    if not inicio:
+        return ""
+    fim = fim or inicio
+    if fim == inicio:
+        return f"{inicio:%d/%m/%Y}"
+    return f"{inicio:%d/%m} a {fim:%d/%m/%Y}" if inicio.year == fim.year else (
+        f"{inicio:%d/%m/%Y} a {fim:%d/%m/%Y}")
 
+
+def resumo_do_documento(doc) -> str:
+    """Como o documento aparece para vincular: número, destino e período — como o operador
+    o reconhece (referência)."""
     if isinstance(doc, Oficio):
-        extra = doc.motivo[:60] if doc.motivo else ""
+        trechos = list(doc.trechos.all())
+        destino = trechos[0].destino if trechos else None
+        periodo = (periodo_curto(timezone.localtime(trechos[0].saida_em).date(),
+                                 timezone.localtime(trechos[-1].chegada_em).date())
+                   if trechos else "")
+        partes = [str(destino) if destino else "", periodo]
     elif isinstance(doc, Roteiro):
-        extra = (doc.observacoes or "")[:60]
+        partes = [(doc.observacoes or "")[:60]]
     else:
         inicio = getattr(doc, "data_inicio", None)
-        fim = getattr(doc, "data_fim", None) or inicio
-        extra = formatar_periodo(inicio, fim) if inicio else ""
+        partes = [periodo_curto(inicio, getattr(doc, "data_fim", None))]
+    extra = " · ".join(p for p in partes if p)
     return f"{doc} · {extra}" if extra else str(doc)
 
 

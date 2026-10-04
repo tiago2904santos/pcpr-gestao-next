@@ -214,3 +214,19 @@ def test_gravacao_da_tela_nao_solta_documento_vinculado_depois(c):
         "conhecidos": form_aberto})
     assert r.json()["salvo"]
     assert OrdemServico.objects.get(pk=ordem.pk).viagem_id == v.pk
+
+
+def test_folha_abre_com_candidatos_datados(c):
+    """Regressão: plano/OS/termo livres com data na unidade derrubavam a folha (500)."""
+    op = c.usuarios["operador"]
+    ordens.salvar(op, destinos=[_londrina()], data_inicio=date(2030, 3, 1),
+                  data_fim=date(2030, 3, 3), motivo="livre")
+    termos.salvar(op, destinos=[_londrina()], data_inicio=date(2030, 3, 1))
+    v = viagem.criar(op)
+    r = _cliente(op).get(reverse("viagens:editar_viagem", args=[v.pk]))
+    assert r.status_code == 200 and "01/03 a 03/03/2030" in r.content.decode()
+
+
+def test_periodo_curto():
+    assert viagem.periodo_curto(date(2030, 3, 1), None) == "01/03/2030"
+    assert viagem.periodo_curto(date(2030, 12, 30), date(2031, 1, 2)) == "30/12/2030 a 02/01/2031"
