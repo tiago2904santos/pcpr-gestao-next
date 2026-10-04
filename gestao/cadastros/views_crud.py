@@ -28,8 +28,12 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from . import policies, services
 from .forms import (
+    FormularioAtividade,
     FormularioCatalogo,
     FormularioConfiguracao,
+    FormularioHorario,
+    FormularioPreset,
+    FormularioPrograma,
     FormularioServidor,
     FormularioSubstituicao,
     FormularioUnidade,
@@ -37,10 +41,14 @@ from .forms import (
     FormularioVigencia,
 )
 from .models import (
+    AtividadePlano,
     Cargo,
     Combustivel,
     ConfiguracaoInstitucional,
+    HorarioAtendimento,
     Lotacao,
+    PresetAtividades,
+    ProgramaSolicitante,
     Servidor,
     SubstituicaoAssinante,
     TabelaDiaria,
@@ -71,6 +79,14 @@ class Catalogo:
     vazio: str = ""
     por_pagina: int = 25
     contar: tuple[tuple[str, str], ...] = field(default=())  # (relação, rótulo)
+    # Para catálogos com mais que o nome (atividades, conjuntos, horários):
+    salvar: Any = None  # serviço (usuario, pk=…, **dados); padrão: services.salvar_catalogo
+    campos: str = ""  # parcial com os campos da janela; padrão: só o nome
+    detalhe: Any = None  # obj → texto da linha (ex.: o código, as atividades)
+    prefetch: tuple[str, ...] = ()
+    extras: Any = None  # obj em edição → kwargs do formulário (ex.: as atividades atuais)
+    placeholder: str = "Nome"
+    grupo: str = ""  # onde o cadastro mora na entrada (ex.: "plano")
 
     @property
     def novo(self) -> str:
@@ -101,13 +117,48 @@ CATALOGOS: dict[str, Catalogo] = {
         nota_padrao="O combustível padrão já vem escolhido em toda viatura nova.",
         vazio="Nenhum combustível cadastrado ainda.",
         contar=(("viaturas", "viatura,viaturas"),)),
-
+    # Plano de trabalho (referência: viagens_planos/catalogos).
+    "programas": Catalogo(
+        ProgramaSolicitante, "Programas solicitantes", "programa", "o", "landmark",
+        "Quem pede a ação itinerante; sai na contextualização do plano de trabalho "
+        "(“solicitação formulada pelo …”).", FormularioPrograma,
+        vazio="Nenhum programa cadastrado ainda.", grupo="plano"),
+    "horarios": Catalogo(
+        HorarioAtendimento, "Horários de atendimento", "horário", "o", "clock",
+        "Faixas de atendimento ao público nos eventos do plano de trabalho.",
+        FormularioHorario, campos="cadastros/_campos_horario.html",
+        vazio="Nenhum horário cadastrado ainda.", grupo="plano"),
+    "atividades": Catalogo(
+        AtividadePlano, "Atividades do plano", "atividade", "a", "list-checks",
+        "Serviços oferecidos nas ações. A meta e o recurso de cada atividade marcada compõem "
+        "o plano de trabalho; planos já criados não mudam.", FormularioAtividade,
+        busca=("nome", "codigo", "meta"), salvar=services.salvar_atividade,
+        campos="cadastros/_campos_atividade.html", placeholder="Nome, código ou meta",
+        detalhe=lambda o: o.codigo, vazio="Nenhuma atividade cadastrada ainda.",
+        contar=(("presets", "conjunto,conjuntos"),), grupo="plano"),
+    "conjuntos": Catalogo(
+        PresetAtividades, "Conjuntos de atividades", "conjunto", "o", "layers",
+        "Atividades que se aplicam de uma vez no plano de trabalho.", FormularioPreset,
+        com_padrao=True, nota_padrao="O conjunto padrão já vem marcado em todo plano novo.",
+        salvar=services.salvar_preset, campos="cadastros/_campos_conjunto.html",
+        prefetch=("atividades",), detalhe=lambda o: _atividades_do_conjunto(o),
+        extras=lambda e: {"atuais": [a.pk for a in e.atividades.all()] if e else []},
+        vazio="Nenhum conjunto cadastrado ainda.", grupo="plano"),
 }
+
+
+def _atividades_do_conjunto(conjunto) -> str:
+    nomes = [a.nome for a in conjunto.atividades.all()]
+    if len(nomes) <= 3:
+        return ", ".join(nomes)
+    return f"{', '.join(nomes[:3])} e mais {len(nomes) - 3}"
+
 
 # O que as ações comuns (ativar, excluir) alcançam, por endereço.
 MODELOS: dict[str, Any] = {
     "unidades": Unidade, "cargos": Cargo, "combustiveis": Combustivel,
     "servidores": Servidor, "viaturas": Viatura,
+    **{slug: cat.modelo for slug, cat in CATALOGOS.items()},
 }
 
 ABAS_ATIVOS = [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")]
@@ -186,6 +237,15 @@ def indice(request: HttpRequest) -> HttpResponse:
         ("Tabela de diárias", "Valor da diária de 24 h por faixa e vigência.", "banknote",
          "cadastros:diarias", TabelaDiaria),
     ]
+    # Catálogos do plano de trabalho: um grupo próprio na entrada.
+    textos = {"programas": "Quem pede a ação (sai na contextualização).",
+              "horarios": "Faixas de atendimento ao público nos eventos.",
+              "atividades": "Serviços da ação, com a meta e o recurso de cada um.",
+              "conjuntos": "Atividades aplicadas de uma vez; o padrão vem marcado."}
+    plano = [{"titulo": cat.titulo, "texto": textos.get(slug, ""), "icone": cat.icone,
+              "url": reverse(f"cadastros:{slug}")}
+             for slug, cat in CATALOGOS.items()
+             if cat.grupo == "plano" and policies.pode_ver_cadastro(usuario, cat.modelo)]
     pendencias = _pendencias_dos_cadastros()
     visiveis = []
     for titulo, texto, icone, rota, modelo in cartoes:
@@ -206,10 +266,10 @@ def indice(request: HttpRequest) -> HttpResponse:
         apoio.append({"titulo": "Numeração dos ofícios", "icone": "list-ordered",
                       "texto": "Número inicial do ano e lacunas livres.",
                       "url": reverse("viagens:numeracao")})
-    if not visiveis and not apoio:
+    if not visiveis and not apoio and not plano:
         raise PermissionDenied
     return render(request, "cadastros/indice.html", {
-        "cartoes": visiveis, "apoio": apoio,
+        "cartoes": visiveis, "apoio": apoio, "plano": plano,
         "migalhas": [("Início", reverse("painel:inicio")), ("Viagens", reverse("viagens:painel")),
                      ("Cadastros", "")]})
 
@@ -275,18 +335,21 @@ def _lista_catalogo(request: HttpRequest, slug: str, *, form=None, editando=None
     qs = _busca(todos.filter(ativo=(aba != "inativos")), termo, cat.busca)
     for relacao, _rotulo in cat.contar:
         qs = qs.annotate(**{f"n_{relacao}": _contagem(cat.modelo, relacao)})
+    if cat.prefetch:
+        qs = qs.prefetch_related(*cat.prefetch)
     pagina = Paginator(qs.order_by(*cat.modelo._meta.ordering), cat.por_pagina).get_page(
         request.GET.get("pagina"))
     for obj in pagina.object_list:
         obj.usos = [(getattr(obj, f"n_{rel}"), rotulo) for rel, rotulo in cat.contar
                     if getattr(obj, f"n_{rel}")]
+        obj.detalhe = cat.detalhe(obj) if cat.detalhe else ""
     pk, novo = _abrir(request, acoes["alterar"] or acoes["criar"])
     if form is None and pk and acoes["alterar"]:
         editando = cat.modelo.objects.filter(pk=pk).first()
         form = cat.formulario.de(editando) if editando else None
     abrir = form is not None or (novo and acoes["criar"])
     if form is None:
-        form = cat.formulario()
+        form = cat.formulario(**(cat.extras(None) if cat.extras else {}))
     return render(request, "cadastros/catalogo.html", {
         "cat": cat, "slug": slug, "page_obj": pagina, "termo": termo, "aba": aba,
         "abas": ABAS_ATIVOS, "contagens": contagens, "acoes": acoes,
@@ -313,16 +376,18 @@ def salvar_catalogo(request: HttpRequest, slug: str) -> HttpResponse:
     cat = _catalogo_ou_404(slug)
     pk = _pk_do_post(request)
     editando = get_object_or_404(cat.modelo, pk=pk) if pk else None
-    form = cat.formulario(request.POST)
+    form = cat.formulario(request.POST, **(cat.extras(editando) if cat.extras else {}))
     if form.is_valid():
+        dados = getattr(form, "cleaned_para_salvar", form.cleaned_data)
         try:
             if cat.modelo is Unidade:
-                obj = services.salvar_unidade(request.user, pk=pk, **form.cleaned_data)
+                obj = services.salvar_unidade(request.user, pk=pk, **dados)
+            elif cat.salvar is not None:
+                obj = cat.salvar(request.user, pk=pk, **dados)
             else:
-                obj = services.salvar_catalogo(request.user, cat.modelo, pk=pk,
-                                               **form.cleaned_data)
+                obj = services.salvar_catalogo(request.user, cat.modelo, pk=pk, **dados)
         except services.CadastroInvalido as exc:
-            form.add_error("nome", str(exc))
+            form.add_error("nome" if "nome" in form.fields else None, str(exc))
         else:
             feito = ("atualizad" if pk else "criad") + cat.artigo
             messages.success(request, f"{cat.singular.capitalize()} “{obj}” {feito}.")
@@ -673,7 +738,8 @@ def _tela_configuracao(request: HttpRequest, unidade, unidades, *, form=None,
     for sub in substituicoes:
         setattr(sub, "vigente", sub.vale_em(sub.tipo, hoje))  # noqa: B010
     hoje_assina = [(rotulo, services.quem_assina(config, tipo, hoje)) for tipo, rotulo in (
-        ("oficio", "Ofícios"), ("justificativa", "Justificativas"))] if config else []
+        ("oficio", "Ofícios"), ("justificativa", "Justificativas"),
+        ("plano_trabalho", "Planos de trabalho"))] if config else []
     return render(request, "cadastros/configuracao.html", {
         "unidade": unidade, "unidades": unidades, "config": config, "form": form,
         "pode_alterar": pode, "substituicoes": substituicoes, "hoje_assina": hoje_assina,

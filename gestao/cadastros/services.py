@@ -9,6 +9,7 @@ desativar (o registro sai das escolhas, a história fica).
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -19,9 +20,11 @@ from django.db.models import Count
 
 from . import policies
 from .models import (
+    AtividadePlano,
     Cargo,
     Combustivel,
     ConfiguracaoInstitucional,
+    PresetAtividades,
     Servidor,
     SubstituicaoAssinante,
     TabelaDiaria,
@@ -95,10 +98,10 @@ def salvar_unidade(usuario, *, nome: str, sigla: str = "", pk: int | None = None
 
 
 @transaction.atomic
-def salvar_catalogo(usuario, modelo: type[Cargo] | type[Combustivel], *, nome: str,
+def salvar_catalogo(usuario, modelo, *, nome: str,
                     padrao: bool | None = None, pk: int | None = None):
-    """Cargo ou combustível. `padrao=None` preserva o que está gravado (a edição do nome
-    não desmarca o padrão — referência, P05)."""
+    """Catálogo só de nome (cargo, combustível, programa, horário). `padrao=None` preserva
+    o que está gravado (a edição do nome não desmarca o padrão — referência, P05)."""
     if pk:
         _exigir_alterar(usuario, modelo)
         objeto = modelo.objects.select_for_update().get(pk=pk)
@@ -115,7 +118,7 @@ def salvar_catalogo(usuario, modelo: type[Cargo] | type[Combustivel], *, nome: s
 
 
 @transaction.atomic
-def definir_padrao(usuario, modelo: type[Cargo] | type[Combustivel], pk: int, *,
+def definir_padrao(usuario, modelo, pk: int, *,
                    padrao: bool = True):
     """Um padrão por cadastro: marcar um novo desmarca o anterior na mesma transação."""
     _exigir_alterar(usuario, modelo)
@@ -250,6 +253,7 @@ CAMPOS_CONFIGURACAO = (
     "destinatario_tratamento", "destinatario_nome", "destinatario_cargo",
     "destinatario_orgao", "destinatario_cidade", "prazo_justificativa_dias",
     "assina_oficio", "assina_justificativa", "delegado_geral_nome",
+    "assina_plano", "coordenador_plano", "sufixo_plano",
     "cep", "logradouro", "numero", "bairro", "cidade_endereco", "uf", "email", "telefone",
     "ramal",
 )
@@ -279,9 +283,13 @@ def quem_assina(config: ConfiguracaoInstitucional, tipo: str, data) -> tuple[str
             return (sub.servidor.nome, getattr(sub.servidor.cargo, "nome", ""),
                     f"substituição{fim}")
     titular = {"oficio": config.assina_oficio,
-               "justificativa": config.assina_justificativa}.get(tipo)
+               "justificativa": config.assina_justificativa,
+               "plano_trabalho": config.assina_plano}.get(tipo)
     if titular is not None:
         return titular.nome, getattr(titular.cargo, "nome", ""), "assinante escolhido"
+    if tipo == "plano_trabalho":
+        # Referência: o plano não cai na chefia — sem assinante, sai sem nome no fim.
+        return "", "", "sem assinante"
     return config.chefia_nome, config.chefia_cargo, "chefia"
 
 
@@ -327,3 +335,57 @@ def contagem_por(qs, campo: str) -> dict[int, int]:
     """{pk: total} para os filtros com contagem (ex.: servidores por cargo)."""
     return dict(qs.exclude(**{f"{campo}__isnull": True}).values(campo)
                 .annotate(n=Count("id")).values_list(campo, "n"))
+
+
+# ---------------------------------------------------------------- plano de trabalho
+def codigo_da_atividade(nome: str, existentes: set[str]) -> str:
+    """Código estável nascido do nome: sem acento, maiúsculas, "_" entre as palavras; se já
+    existir, "_2", "_3"… (referência). Sem nome, "ATIVIDADE"."""
+    import unicodedata
+    sem_acento = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode()
+    base = re.sub(r"[^A-Z0-9]+", "_", sem_acento.upper()).strip("_")[:34] or "ATIVIDADE"
+    codigo, n = base, 2
+    while codigo in existentes:
+        codigo, n = f"{base}_{n}", n + 1
+    return codigo
+
+
+@transaction.atomic
+def salvar_atividade(usuario, *, nome: str, meta: str, recurso: str = "",
+                     pk: int | None = None) -> AtividadePlano:
+    """Atividade do plano. O código nasce na criação e não muda com o nome (planos e
+    conjuntos se referem a ele)."""
+    if pk:
+        _exigir_alterar(usuario, AtividadePlano)
+        atividade = AtividadePlano.objects.select_for_update().get(pk=pk)
+    else:
+        policies.exigir(policies.pode_criar_cadastro(usuario, AtividadePlano))
+        existentes = set(AtividadePlano.objects.values_list("codigo", flat=True))
+        atividade = AtividadePlano(codigo=codigo_da_atividade(nome, existentes))
+    if not meta.strip():
+        raise CadastroInvalido("Informe a meta da atividade.")
+    atividade.nome, atividade.meta, atividade.recurso = nome, meta.strip(), recurso.strip()
+    _gravar(atividade, f"Já existe uma atividade com o código {atividade.codigo}.")
+    return atividade
+
+
+@transaction.atomic
+def salvar_preset(usuario, *, nome: str, atividades, descricao: str = "",
+                  padrao: bool | None = None, pk: int | None = None) -> PresetAtividades:
+    """Conjunto de atividades (ao menos uma). `padrao=None` preserva o gravado."""
+    atividades = list(atividades)
+    if not atividades:
+        raise CadastroInvalido("Selecione ao menos uma atividade.")
+    if pk:
+        _exigir_alterar(usuario, PresetAtividades)
+        preset = PresetAtividades.objects.select_for_update().get(pk=pk)
+    else:
+        policies.exigir(policies.pode_criar_cadastro(usuario, PresetAtividades))
+        preset = PresetAtividades()
+    preset.nome, preset.descricao = nome, descricao.strip()
+    _gravar(preset, f"Já existe um conjunto de atividades chamado “{nome}”.")
+    preset.atividades.set(atividades)
+    if padrao is not None and padrao != preset.padrao:
+        definir_padrao(usuario, PresetAtividades, preset.pk, padrao=padrao)
+        preset.refresh_from_db()
+    return preset

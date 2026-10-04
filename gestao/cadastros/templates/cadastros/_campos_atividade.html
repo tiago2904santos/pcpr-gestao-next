@@ -1,0 +1,5 @@
+{# Atividade do plano: o código nasce do nome na criação e não muda depois. #}
+{% include "componentes/campo.html" with campo=form.nome %}
+{% if editando %}<p class="texto-secundario texto-sm">Código: <strong>{{ editando.codigo }}</strong> (não muda com o nome).</p>{% endif %}
+{% include "componentes/campo.html" with campo=form.meta %}
+{% include "componentes/campo.html" with campo=form.recurso %}

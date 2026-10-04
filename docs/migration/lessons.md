@@ -158,6 +158,12 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **Prévia de documento numerado** precisa de marca (MINUTA): sem ela, a prévia é o
   documento oficial por outro caminho.
 
+- **Alvo de toque "pequeno" no axe pode ser CSS que faltou**: o botão do relógio media
+  32×22 porque a lista genérica de catálogos não carregava `formulario.css` (o pacote do
+  seletor). Toda tela nova com `pc-data`/`pc-hora` entra em `tests/test_css_por_pagina.py`.
+- **Hypothesis sob `-n auto`**: o prazo padrão de 200 ms por exemplo estoura com a máquina
+  carregada; testes de propriedade usam `@settings(deadline=None)`.
+
 ## Processo
 
 - **Checkpoint só com `scripts/checar_rapido.sh` verde** (para no primeiro erro). Encadear

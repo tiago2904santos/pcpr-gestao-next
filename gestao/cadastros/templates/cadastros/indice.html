@@ -32,6 +32,23 @@ prontos). Cada perfil vê só o que pode abrir.
 </section>
 {% endif %}
 
+{% if plano %}
+<section class="cartao mt-4" aria-labelledby="t-plano">
+  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-plano">Plano de trabalho</h2></div>
+  <ul class="registros" aria-labelledby="t-plano">
+    {% for c in plano %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
+          <p class="registro__texto">{{ c.texto }}</p>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 {% if apoio %}
 <section class="cartao mt-4" aria-labelledby="t-apoio">
   <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-apoio">Configuração e textos</h2></div>

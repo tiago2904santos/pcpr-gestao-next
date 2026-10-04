@@ -20,7 +20,9 @@ class Papel(TypedDict):
 # a tabela de diárias (dinheiro) e a configuração da unidade são só do gestor.
 CADASTROS_DA_EQUIPE = [
     f"cadastros.{acao}_{modelo}"
-    for modelo in ("servidor", "viatura", "unidade", "cargo", "combustivel")
+    for modelo in ("servidor", "viatura", "unidade", "cargo", "combustivel",
+                   "programasolicitante", "horarioatendimento", "atividadeplano",
+                   "presetatividades")
     for acao in ("view", "add", "change", "delete")
 ]
 

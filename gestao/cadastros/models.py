@@ -380,6 +380,16 @@ class ConfiguracaoInstitucional(models.Model):
     assina_justificativa = models.ForeignKey(
         "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
         verbose_name="assina as justificativas")
+    # Plano de trabalho (referência: "Assina os planos de trabalho"; sem ele, o plano sai
+    # sem nome — não cai na chefia), o coordenador administrativo sugerido em todo plano
+    # novo e o sufixo da numeração ("07/2026/ASCOM"; vazio, vale a sigla da unidade).
+    assina_plano = models.ForeignKey(
+        "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="assina os planos de trabalho")
+    coordenador_plano = models.ForeignKey(
+        "Servidor", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="coordenador administrativo padrão")
+    sufixo_plano = models.CharField("sufixo da numeração do plano", max_length=20, blank=True)
     # Endereço em campos (referência, P10: "alinhar, sem remover campos nossos"). O rodapé
     # continua sendo o texto impresso; vazio, é montado a partir destes campos.
     cep = models.CharField("CEP", max_length=8, blank=True)
@@ -423,6 +433,7 @@ class SubstituicaoAssinante(models.Model):
         TODOS = "todos", "Todos os documentos"
         OFICIO = "oficio", "Ofício"
         JUSTIFICATIVA = "justificativa", "Justificativa"
+        PLANO = "plano_trabalho", "Plano de trabalho"
 
     configuracao = models.ForeignKey(ConfiguracaoInstitucional, on_delete=models.CASCADE,
                                      related_name="substituicoes")
@@ -456,3 +467,83 @@ class SubstituicaoAssinante(models.Model):
     def vale_em(self, tipo: str, data) -> bool:
         return (self.ativo and data is not None and self.tipo in (self.Tipo.TODOS, tipo)
                 and self.inicio <= data and (self.fim is None or data <= self.fim))
+
+
+# ---------------------------------------------------------------- plano de trabalho
+# Catálogos do plano de trabalho (referência: viagens_planos). A mais que na referência:
+# "ativo" — o que já foi usado sai das escolhas sem ser apagado (como cargos e combustíveis).
+class ProgramaSolicitante(Ativavel):
+    """Quem pede a ação (sai na contextualização do plano: "solicitação formulada pelo …")."""
+
+    nome = models.CharField("nome", max_length=200)
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "programa solicitante"
+        verbose_name_plural = "programas solicitantes"
+        constraints = [models.UniqueConstraint(Lower("nome"), name="programa_nome_unico")]
+
+    def __str__(self) -> str:
+        return self.nome
+
+
+class HorarioAtendimento(Ativavel):
+    """Faixa de atendimento ao público no evento, no formato "09:00 até 17:00"."""
+
+    nome = models.CharField("faixa", max_length=60)
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "horário de atendimento"
+        verbose_name_plural = "horários de atendimento"
+        constraints = [models.UniqueConstraint(Lower("nome"), name="horario_nome_unico")]
+
+    def __str__(self) -> str:
+        return self.nome
+
+
+class AtividadePlano(Ativavel):
+    """Serviço oferecido na ação. A meta e o recurso de cada atividade marcada compõem as
+    seções "Metas estabelecidas" e "Recursos necessários" do plano."""
+
+    # Identificador estável, nascido do nome (sem acento, maiúsculas, "_"). UNIDADE_MOVEL tem
+    # efeito no documento (estrutura de unidade móvel e o recurso associado).
+    codigo = models.CharField("código", max_length=40, unique=True)
+    nome = models.CharField("atividade", max_length=255)
+    meta = models.TextField("meta")
+    recurso = models.TextField("recursos necessários", blank=True)
+
+    UNIDADE_MOVEL = "UNIDADE_MOVEL"
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "atividade do plano"
+        verbose_name_plural = "atividades do plano"
+
+    def __str__(self) -> str:
+        return self.nome
+
+
+class PresetAtividades(Ativavel):
+    """Conjunto de atividades aplicado de uma vez no plano; o padrão já vem marcado no novo."""
+
+    nome = models.CharField("nome", max_length=200)
+    descricao = models.CharField("descrição", max_length=255, blank=True)
+    padrao = models.BooleanField("padrão", default=False)
+    atividades = models.ManyToManyField(AtividadePlano, related_name="presets",
+                                        verbose_name="atividades")
+
+    class Meta:
+        ordering = ["nome"]
+        verbose_name = "conjunto de atividades"
+        verbose_name_plural = "conjuntos de atividades"
+        constraints = [
+            models.UniqueConstraint(Lower("nome"), name="preset_nome_unico"),
+            models.UniqueConstraint(fields=["padrao"], condition=models.Q(padrao=True),
+                                    name="preset_um_padrao"),
+            models.CheckConstraint(condition=~models.Q(padrao=True, ativo=False),
+                                   name="preset_padrao_ativo"),
+        ]
+
+    def __str__(self) -> str:
+        return self.nome

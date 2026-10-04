@@ -94,6 +94,21 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
         {% include "componentes/campo.html" with campo=form.chefia_cargo classe="campo--lg" %}
       </div>
       <div class="campos">{% include "componentes/campo.html" with campo=form.delegado_geral_nome classe="campo--lg" %}</div>
+      <fieldset class="grupo-campos grupo-campos--afastado">
+        <legend>Plano de trabalho</legend>
+        <div class="campos">
+          <div class="campo campo--lg">
+            <label class="campo__rotulo" for="{{ form.assina_plano.id_for_label }}">{{ form.assina_plano.label }}</label>
+            <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assina_plano|campo_acessivel:"" }}</pc-combobox>
+          </div>
+          <div class="campo campo--lg">
+            <label class="campo__rotulo" for="{{ form.coordenador_plano.id_for_label }}">{{ form.coordenador_plano.label }}</label>
+            <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.coordenador_plano|campo_acessivel:True }}</pc-combobox>
+            <p class="campo__ajuda" id="{{ form.coordenador_plano.auto_id }}-ajuda">{{ form.coordenador_plano.help_text }}</p>
+          </div>
+          {% include "componentes/campo.html" with campo=form.sufixo_plano classe="campo--md" %}
+        </div>
+      </fieldset>
       <p class="texto-secundario texto-sm">Num período de férias ou afastamento, cadastre um substituto em <a href="#t-substituicoes">Substituições</a>: os documentos datados no período saem com ele.</p>
     </div>
   </section>

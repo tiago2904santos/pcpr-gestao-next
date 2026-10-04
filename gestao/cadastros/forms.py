@@ -15,9 +15,16 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Q, Value
 from django.db.models.functions import Lower
 
-from gestao.plataforma.widgets import EntradaData, EscolhaMultiplaRemota, Selecao
+from gestao.plataforma.widgets import (
+    CaixasDeEscolha,
+    EntradaData,
+    EntradaHora,
+    EscolhaMultiplaRemota,
+    Selecao,
+)
 
 from .models import (
+    AtividadePlano,
     Cargo,
     Combustivel,
     ModeloTexto,
@@ -408,20 +415,36 @@ class FormularioConfiguracao(forms.Form):
         label="Delegado-Geral", max_length=120, required=False,
         help_text="Sai na Ordem de Serviço: “atribuições conferidas pelo Delegado-Geral …”.",
         widget=_entrada())
+    # Plano de trabalho (referência: sem assinante, o plano sai sem nome — não cai na chefia).
+    assina_plano = OpcaoServidor(
+        label="Assina os planos de trabalho", queryset=Servidor.objects.none(), required=False,
+        empty_label="Ninguém (o plano sai sem nome)")
+    coordenador_plano = OpcaoServidor(
+        label="Coordenador administrativo padrão", queryset=Servidor.objects.none(),
+        required=False, empty_label="Nenhum",
+        help_text="Sugerido em todo plano de trabalho novo.")
+    sufixo_plano = forms.CharField(
+        label="Sufixo da numeração do plano", max_length=20, required=False,
+        help_text="Ex.: 07/2026/ASCOM. Em branco, vale a sigla da unidade.", widget=_entrada())
+
+    SERVIDORES = ("assina_oficio", "assina_justificativa", "assina_plano", "coordenador_plano")
 
     def __init__(self, *args, config=None, **kwargs):
         super().__init__(*args, **kwargs)
-        atuais = (config.assina_oficio_id, config.assina_justificativa_id) if config else ()
-        for campo in ("assina_oficio", "assina_justificativa"):
+        atuais = [getattr(config, f"{c}_id") for c in self.SERVIDORES] if config else []
+        for campo in self.SERVIDORES:
             cast(forms.ModelChoiceField, self.fields[campo]).queryset = _servidores(*atuais)
+
+    def clean_sufixo_plano(self) -> str:
+        return espacos(self.cleaned_data["sufixo_plano"]).upper()
 
     @classmethod
     def de(cls, config) -> FormularioConfiguracao:
         from .services import CAMPOS_CONFIGURACAO
         inicial = {c: getattr(config, c) for c in CAMPOS_CONFIGURACAO
-                   if c not in ("assina_oficio", "assina_justificativa")}
-        inicial["assina_oficio"] = config.assina_oficio_id
-        inicial["assina_justificativa"] = config.assina_justificativa_id
+                   if c not in cls.SERVIDORES}
+        for campo in cls.SERVIDORES:
+            inicial[campo] = getattr(config, f"{campo}_id")
         inicial["sede"] = str(config.sede) if config.sede_id else ""
         cep = config.cep
         inicial["cep"] = f"{cep[:5]}-{cep[5:]}" if len(cep) == 8 else cep
@@ -477,3 +500,97 @@ class FormularioSubstituicao(forms.Form):
         if inicio and fim and fim < inicio:
             self.add_error("fim", "O fim não pode ser antes do início.")
         return dados
+
+
+# ---------------------------------------------------------------- plano de trabalho
+class FormularioPrograma(FormularioCatalogo):
+    """Programa solicitante: gravado em maiúsculas, como na referência."""
+
+    nome = forms.CharField(label="Programa", max_length=200, widget=_entrada())
+
+    def clean_nome(self) -> str:
+        return espacos(self.cleaned_data["nome"]).upper()
+
+
+class FormularioHorario(forms.Form):
+    """Horário de atendimento: início e fim digitados; grava "HH:MM até HH:MM"."""
+
+    inicio = forms.TimeField(label="Horário de início", widget=EntradaHora(),
+                             input_formats=["%H:%M"])
+    fim = forms.TimeField(label="Horário de fim", widget=EntradaHora(), input_formats=["%H:%M"])
+
+    def clean(self):
+        dados = super().clean() or {}
+        inicio, fim = dados.get("inicio"), dados.get("fim")
+        if inicio and fim:
+            if fim <= inicio:
+                self.add_error("fim", "O fim precisa ser depois do início.")
+            else:
+                dados["nome"] = f"{inicio:%H:%M} até {fim:%H:%M}"
+        return dados
+
+    @property
+    def cleaned_para_salvar(self) -> dict:
+        return {"nome": self.cleaned_data["nome"]}
+
+    @classmethod
+    def de(cls, objeto) -> FormularioHorario:
+        partes = objeto.nome.split(" até ")
+        inicial = {"inicio": partes[0], "fim": partes[1]} if len(partes) == 2 else {}
+        return cls(initial=inicial)
+
+
+class FormularioAtividade(forms.Form):
+    nome = forms.CharField(label="Atividade", max_length=255, widget=_entrada())
+    meta = forms.CharField(label="Meta", widget=forms.Textarea(attrs={
+        "class": "entrada area-texto", "rows": 3}),
+        help_text="Sai em “Metas estabelecidas” de todo plano que marcar esta atividade.")
+    recurso = forms.CharField(label="Recursos necessários", required=False,
+                              widget=forms.Textarea(attrs={"class": "entrada area-texto",
+                                                           "rows": 3}),
+                              help_text="Opcional. Sai em “Recursos necessários”.")
+
+    def clean_nome(self) -> str:
+        return espacos(self.cleaned_data["nome"])
+
+    def clean_meta(self) -> str:
+        return self.cleaned_data["meta"].strip()
+
+    def clean_recurso(self) -> str:
+        return self.cleaned_data["recurso"].strip()
+
+    @property
+    def cleaned_para_salvar(self) -> dict:
+        return dict(self.cleaned_data)
+
+    @classmethod
+    def de(cls, objeto) -> FormularioAtividade:
+        return cls(initial={"nome": objeto.nome, "meta": objeto.meta, "recurso": objeto.recurso})
+
+
+class FormularioPreset(forms.Form):
+    nome = forms.CharField(label="Nome do conjunto", max_length=200, widget=_entrada())
+    descricao = forms.CharField(label="Descrição", max_length=255, required=False,
+                                widget=_entrada())
+    atividades = forms.ModelMultipleChoiceField(
+        label="Atividades", queryset=AtividadePlano.objects.none(), widget=CaixasDeEscolha(),
+        error_messages={"required": "Selecione ao menos uma atividade."})
+
+    def __init__(self, *args, atuais=(), **kwargs):
+        super().__init__(*args, **kwargs)
+        campo = cast(forms.ModelMultipleChoiceField, self.fields["atividades"])
+        campo.queryset = AtividadePlano.objects.filter(
+            Q(ativo=True) | Q(pk__in=list(atuais))).order_by("nome")
+
+    def clean_nome(self) -> str:
+        return espacos(self.cleaned_data["nome"]).upper()
+
+    @property
+    def cleaned_para_salvar(self) -> dict:
+        return dict(self.cleaned_data)
+
+    @classmethod
+    def de(cls, objeto) -> FormularioPreset:
+        atuais = [a.pk for a in objeto.atividades.all()]
+        return cls(atuais=atuais, initial={"nome": objeto.nome, "descricao": objeto.descricao,
+                                           "atividades": atuais})

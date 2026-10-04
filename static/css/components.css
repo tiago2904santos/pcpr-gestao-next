@@ -2245,3 +2245,28 @@ kbd {
 .grupo-campos--afastado {
   margin-top: var(--esp-4);
 }
+
+/* Caixas de escolha em grade (widget CaixasDeEscolha): várias escolhas de uma lista
+   curta — atividades de um conjunto, atividades do plano. Linhas sempre cheias. */
+.caixas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.caixas__item {
+  padding: var(--esp-2) var(--esp-3);
+  border: var(--borda-sutil);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+
+.caixas__item:has(input:checked) {
+  border-color: var(--grafite-900);
+  background: var(--cor-superficie-sutil);
+}
+
+.caixas__item:has(input:focus-visible) {
+  outline: 2px solid var(--grafite-900);
+  outline-offset: 2px;
+}

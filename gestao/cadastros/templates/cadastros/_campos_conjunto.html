@@ -1,0 +1,10 @@
+{# Conjunto de atividades: nome, descrição e as atividades (ao menos uma). #}
+<div class="campos">
+  {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+  {% include "componentes/campo.html" with campo=form.descricao classe="campo--lg" %}
+</div>
+<fieldset class="grupo-campos{% if form.atividades.errors %} campo--erro{% endif %}" aria-describedby="{% if form.atividades.errors %}{{ form.atividades.auto_id }}-erro{% endif %}">
+  <legend>Atividades</legend>
+  {{ form.atividades }}
+  {% if form.atividades.errors %}<p class="campo__erro" id="{{ form.atividades.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.atividades.errors|join:" " }}</span></p>{% endif %}
+</fieldset>

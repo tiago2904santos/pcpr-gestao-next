@@ -29,6 +29,11 @@ urlpatterns = [
     path("unidades/", views_crud.catalogo, {"slug": "unidades"}, name="unidades"),
     path("cargos/", views_crud.catalogo, {"slug": "cargos"}, name="cargos"),
     path("combustiveis/", views_crud.catalogo, {"slug": "combustiveis"}, name="combustiveis"),
+    # Catálogos do plano de trabalho.
+    path("programas/", views_crud.catalogo, {"slug": "programas"}, name="programas"),
+    path("horarios/", views_crud.catalogo, {"slug": "horarios"}, name="horarios"),
+    path("atividades/", views_crud.catalogo, {"slug": "atividades"}, name="atividades"),
+    path("conjuntos/", views_crud.catalogo, {"slug": "conjuntos"}, name="conjuntos"),
     path("<slug:slug>/salvar/", views_crud.salvar_catalogo, name="salvar_catalogo"),
     path("<slug:slug>/<int:pk>/ativo/", views_crud.alternar_ativo, name="alternar_ativo"),
     path("<slug:slug>/<int:pk>/padrao/", views_crud.definir_padrao, name="definir_padrao"),

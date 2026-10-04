@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from gestao.viagens.dominio.diarias import (
@@ -203,6 +203,9 @@ class TestErrosVisiveis:
                  datetime(2026, 1, 2, 18))
 
 
+# Sem prazo por exemplo: o teste é de propriedades, e sob a suíte paralela um exemplo
+# passava dos 200 ms padrão do Hypothesis (falha intermitente, não regra quebrada).
+@settings(deadline=None)
 @given(
     horas=st.lists(st.integers(min_value=1, max_value=96), min_size=1, max_size=5),
     servidores=st.integers(min_value=0, max_value=10),

@@ -35,6 +35,10 @@ ROTAS_AUTENTICADAS = [
     "/cadastros/combustiveis/?aba=inativos",
     "/cadastros/diarias/",
     "/cadastros/configuracao/",
+    # Módulo 6a — catálogos do plano de trabalho.
+    "/cadastros/atividades/",
+    "/cadastros/conjuntos/?novo=1",  # janela com as caixas de escolha
+    "/cadastros/horarios/?novo=1",
     # Módulo 4 — termos de autorização.
     "/viagens/termos/",
     "/viagens/termos/novo/?oficio={oficio_emitido}",

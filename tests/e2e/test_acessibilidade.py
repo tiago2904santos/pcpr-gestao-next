@@ -16,6 +16,11 @@ def _avaliar(pg, rota, antes=None):
     pg.goto(rota, wait_until="networkidle")
     if antes is not None:  # ex.: rolar até um componente que carrega ao aparecer
         antes(pg)
+    # Janelas que abrem ao carregar entram com animação de escala: medir no meio dela
+    # dá alvos menores do que são. Espera as animações finitas acabarem (as infinitas, como
+    # o pulso de "processando", ficam de fora).
+    pg.wait_for_function("() => document.getAnimations().every(a => a.playState !== 'running'"
+                         " || a.effect.getTiming().iterations === Infinity)")
     violacoes = rodar_axe(pg)
     graves = [v for v in violacoes if v["impact"] in GRAVES]
     salvar_relatorio(f"axe-{rota.strip('/').replace('/', '_') or 'raiz'}.json", violacoes)

@@ -158,3 +158,10 @@ class EscolhaMultiplaRemota(forms.SelectMultiple):
         if not isinstance(value, (list, tuple)):
             value = [value]
         return [str(getattr(v, "pk", v)) for v in value if v not in (None, "")]
+
+
+class CaixasDeEscolha(forms.CheckboxSelectMultiple):
+    """Vários itens de uma lista curta por caixas de seleção em grade (`.caixas`), com o
+    desenho das caixas do design system. O rótulo do grupo é a `<legend>` de quem usa."""
+
+    template_name = "plataforma/widgets/caixas.html"

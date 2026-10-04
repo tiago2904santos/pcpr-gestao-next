@@ -213,6 +213,16 @@
           </pc-multiescolha>
           <p class="campo__ajuda" id="lab-multiescolha-ajuda">Escolher na busca acrescenta (sem repetir); “Remover” tira. Cada escolhido vai num campo oculto do mesmo nome.</p>
         </div>
+        {% comment %}Caixas de escolha em grade (widget CaixasDeEscolha): lista curta, várias escolhas — ex.: atividades do plano de trabalho.{% endcomment %}
+        <fieldset class="grupo-campos mt-4">
+          <legend>Atividades (caixas de escolha)</legend>
+          <div class="caixas">
+            <label class="escolha caixas__item" for="lab-caixa-1"><input type="checkbox" id="lab-caixa-1" name="lab_atividades" value="1" checked><span>Confecção da Carteira de Identidade Nacional (CIN)</span></label>
+            <label class="escolha caixas__item" for="lab-caixa-2"><input type="checkbox" id="lab-caixa-2" name="lab_atividades" value="2"><span>Registro de Boletins de Ocorrência</span></label>
+            <label class="escolha caixas__item" for="lab-caixa-3"><input type="checkbox" id="lab-caixa-3" name="lab_atividades" value="3"><span>Palestras e orientações preventivas</span></label>
+            <label class="escolha caixas__item" for="lab-caixa-4"><input type="checkbox" id="lab-caixa-4" name="lab_atividades" value="4" disabled><span>Unidade móvel (indisponível)</span></label>
+          </div>
+        </fieldset>
       </div>
     </section>
 

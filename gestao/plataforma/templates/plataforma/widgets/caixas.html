@@ -1,0 +1,4 @@
+<div class="caixas"{% if widget.attrs.id %} id="{{ widget.attrs.id }}"{% endif %}>{% for group, options, index in widget.optgroups %}{% for option in options %}
+  <label class="escolha caixas__item" for="{{ option.attrs.id }}"><input type="checkbox" name="{{ widget.name }}" value="{{ option.value|stringformat:'s' }}" id="{{ option.attrs.id }}"{% if option.selected %} checked{% endif %}{% if widget.attrs.disabled %} disabled{% endif %}><span>{{ option.label }}</span></label>{% endfor %}{% empty %}
+  <p class="vazio-inline">Nada para escolher.</p>{% endfor %}
+</div>
