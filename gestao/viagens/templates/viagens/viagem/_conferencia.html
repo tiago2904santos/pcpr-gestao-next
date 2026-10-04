@@ -1,0 +1,35 @@
+{% comment %}
+Conferência da viagem (módulo 8b): o que falta para ficar pronta, etapa por etapa, com o
+link para onde se resolve; e os documentos que não batem com a viagem (período, destinos,
+equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe.
+{% endcomment %}
+<section class="secao{% if quadro.pronta and not diferencas %} secao--ok{% endif %}" id="conferencia" aria-labelledby="t-conferencia" data-vivo>
+  <div class="secao__cabecalho">
+    <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">4</span>Conferência</h2>
+    <div class="secao__estado">{% if quadro.pronta %}<span class="selo selo--sucesso selo--sem-ponto">Pronta</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas</span>{% endif %}</div>
+    <p class="secao__nota">{% if quadro.pronta %}Nada falta: roteiro, documentos, assinaturas e protocolo em dia.{% else %}O que falta para a viagem ficar pronta: {{ quadro.pendencias|pluralizar:"item,itens" }}.{% endif %}</p>
+  </div>
+  {% if not quadro.pronta %}
+  <ul class="checklist">
+    {% for e in quadro.etapas %}{% if e.itens %}
+      <li class="checklist__item"><strong>{{ e.titulo }}</strong>
+        <ul class="checklist__sub">{% for i in e.itens %}<li>{% if i.link %}<a href="{{ i.link }}">{{ i.mensagem }}</a>{% else %}{{ i.mensagem }}{% endif %}</li>{% endfor %}</ul>
+      </li>
+    {% endif %}{% endfor %}
+  </ul>
+  {% endif %}
+  {% if diferencas %}
+  <div class="secao__bloco" id="coerencia" aria-labelledby="t-coerencia">
+    <div class="secao__bloco-cabecalho">
+      <h3 class="secao__bloco-titulo" id="t-coerencia">{% icone "alert-triangle" classe="icone--sm" %}{{ diferencas|length|pluralizar:"documento não bate,documentos não batem" }} com a viagem</h3>
+      {% if editavel %}<div class="secao__estado"><form method="post" action="{% url 'viagens:aplicar_coerencia_viagem' v.pk %}" data-confirmar="Levar o período, os destinos e a equipe da viagem para os documentos ainda sem assinatura?" data-confirmar-titulo="Aplicar em todos?" data-confirmar-rotulo="Aplicar">{% csrf_token %}<button type="submit" class="botao botao--sm">{% icone "check-circle-2" %}Aplicar em todos</button></form></div>{% endif %}
+    </div>
+    <p class="texto-secundario texto-sm">A referência é o período e os destinos daqui e a equipe dos ofícios.</p>
+    <ul class="checklist">
+      {% for d in diferencas %}
+        <li class="checklist__item"><a href="{{ d.link }}"><strong>{{ d.documento }}</strong></a> · {{ d.campo }}: está <em>{{ d.atual }}</em>, a viagem diz <em>{{ d.esperado }}</em>{% if not d.aplicavel %} (corrija no próprio documento){% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>

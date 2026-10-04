@@ -1,0 +1,5 @@
+{% comment %}Selo de situação de qualquer documento da viagem (cada modelo tem a sua).{% endcomment %}
+{% if d.cancelado or d.cancelada or d.situacao == "cancelado" %}<span class="selo selo--perigo selo--sem-ponto">Cancelado</span>
+{% elif d.situacao == "rascunho" %}<span class="selo selo--aviso selo--sem-ponto">Rascunho</span>
+{% elif d.situacao == "emitido" or d.situacao == "gerado" or d.documento_gerado_em %}<span class="selo selo--sucesso selo--sem-ponto">{% if d.situacao == "emitido" %}Emitido{% else %}Gerado{% endif %}</span>
+{% endif %}

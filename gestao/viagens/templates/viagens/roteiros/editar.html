@@ -22,6 +22,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
     <h1 class="sr-only">{% if roteiro %}Roteiro #{{ roteiro.pk }}{% else %}Novo roteiro{% endif %}</h1>
     {% if roteiro %}
     <p class="frase-oficio">
+      {% if roteiro.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' roteiro.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ roteiro.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do roteiro: </span>
       {% with d=roteiro|destinos %}<span class="frase-oficio__item{% if not d %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ roteiro.sede.nome }}/{{ roteiro.sede.uf }}{% if d %} → {{ d }}{% endif %}</span>{% endwith %}
       {% with p=roteiro.trechos.all|periodo %}<span class="frase-oficio__item{% if not p %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ p|default:"sem datas" }}</span>{% endwith %}

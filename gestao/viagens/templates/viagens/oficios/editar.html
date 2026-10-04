@@ -28,6 +28,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     {% endcomment %}
     <h1 class="sr-only">Ofício {{ oficio.numero_formatado }} — {{ oficio.get_situacao_display }}</h1>
     <p class="frase-oficio">
+      {% if oficio.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' oficio.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ oficio.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do ofício: </span>
       <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}

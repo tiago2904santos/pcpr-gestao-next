@@ -588,6 +588,18 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 .checklist__item--bloqueia > .icone { color: var(--cor-perigo); }
 .checklist__item--aviso > .icone { color: var(--cor-aviso); }
 
+/* Itens de uma etapa (conferência da viagem): um por linha, com alvo de toque de 24px. */
+.checklist__sub {
+  margin: var(--esp-1) 0 0;
+  padding-left: var(--esp-4);
+}
+
+.checklist__sub > li {
+  display: flex;
+  align-items: center;
+  min-height: var(--alvo-minimo);
+}
+
 /* Dentro do aviso de conferência a lista não leva marcador nem recuo: cada linha já é um
    atalho para o cartão. */
 .alerta__corpo .checklist {

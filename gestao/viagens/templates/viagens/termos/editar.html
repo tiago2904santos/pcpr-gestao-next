@@ -22,6 +22,7 @@ se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação.
     <h1 class="sr-only">{% if termo %}{{ termo }}{% if termo.cancelado %} — cancelado{% endif %}{% else %}Novo termo de autorização{% endif %}</h1>
     {% if termo %}
     <p class="frase-oficio" id="frase-termo" data-vivo>
+      {% if termo.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' termo.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ termo.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do termo: </span>
       {% if termo.cancelado %}<span class="selo selo--perigo">Cancelado</span>{% elif not ef.completo %}<span class="selo selo--aviso">Incompleto</span>{% else %}<span class="selo selo--sucesso">Completo</span>{% endif %}
       <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{% if termo.oficio %}{{ termo.oficio }}{% else %}avulso{% endif %}</span>

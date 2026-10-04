@@ -1,8 +1,22 @@
-{% comment %}Um tipo de documento da viagem: a lista (link para a folha de cada um) e "Novo".{% endcomment %}
+{% comment %}
+Um tipo de documento da viagem: cada um com situação e período, link para a folha dele e
+"Novo …" (já vinculado). Termo, OS e plano nascem com período e destinos: sem eles, o botão
+fica parado e diz por quê.
+{% endcomment %}
 <div class="secao__bloco" aria-labelledby="t-bloco-{{ tipo }}">
   <div class="secao__bloco-cabecalho">
     <h3 class="secao__bloco-titulo" id="t-bloco-{{ tipo }}">{% icone icone classe="icone--sm" %}{{ titulo }}</h3>
-    <div class="secao__estado"><span class="texto-terciario texto-xs">{{ lista|length }}</span>{% if editavel %} <button type="submit" form="novo-{{ tipo }}" class="botao botao--sm">{% icone "plus" %}Novo</button>{% endif %}</div>
+    <div class="secao__estado">
+      <span class="texto-terciario texto-xs">{{ lista|length }}</span>
+      {% if editavel %}
+        {% if precisa_semente and not pode_semear %}
+          <button type="button" class="botao botao--sm" disabled aria-describedby="sem-semente-{{ tipo }}">{% icone "plus" %}{{ rotulo_novo }}</button>
+          <span class="texto-terciario texto-xs" id="sem-semente-{{ tipo }}"><a href="#periodo">informe período e destino</a></span>
+        {% else %}
+          <button type="submit" form="novo-{{ tipo }}" class="botao botao--sm">{% icone "plus" %}{{ rotulo_novo }}</button>
+        {% endif %}
+      {% endif %}
+    </div>
   </div>
   {% if lista %}
     <ul class="registros">
@@ -10,7 +24,12 @@
         <li class="registro">
           <span class="registro__icone" aria-hidden="true">{% icone icone %}</span>
           <div class="registro__corpo">
-            <div class="registro__titulo"><a class="registro__link" href="{% url rota d.pk %}">{{ d }}</a>{% if d.viagem_id != v.pk %} <span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}</div>
+            <div class="registro__titulo">
+              <a class="registro__link" href="{% url rota d.pk %}">{{ d }}</a>
+              {% include "viagens/viagem/_situacao_doc.html" %}
+              {% if d.viagem_id != v.pk %}<span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}
+            </div>
+            {% if d.data_inicio %}<div class="registro__meta"><span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{{ d.data_inicio|date:"d/m/Y" }}{% if d.data_fim and d.data_fim != d.data_inicio %} a {{ d.data_fim|date:"d/m/Y" }}{% endif %}</span></div>{% endif %}
           </div>
         </li>
       {% endfor %}

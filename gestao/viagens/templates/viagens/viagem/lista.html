@@ -43,7 +43,7 @@ destinos, quantos ofícios e documentos tem e o selo de quando.
         <span class="registro__icone" aria-hidden="true">{% icone "map" %}</span>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}">{{ v.titulo|default:"Nova viagem" }}{% if l.destinos %} · {{ l.destinos }}{% endif %}</a>
+            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}">{{ v.titulo|default:"Viagem sem tipo" }}{% if l.destinos %} · {{ l.destinos }}{% endif %}</a>
             {% if v.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>
             {% else %}<span class="selo selo--neutro selo--sem-ponto">{{ v.get_situacao_display }}</span>{% endif %}
             {% if l.quando %}<span class="selo selo--info selo--sem-ponto">{{ l.quando }}</span>{% endif %}
@@ -51,7 +51,7 @@ destinos, quantos ofícios e documentos tem e o selo de quando.
           <div class="registro__meta">
             <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}<span class="vazio-inline">Período não informado</span>{% endif %}</span>
             <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.n_oficios %}{{ v.n_oficios|pluralizar:"ofício,ofícios" }}{% else %}<span class="vazio-inline">Nenhum ofício vinculado</span>{% endif %}</span>
-            {% if v.n_docs %}<span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{{ v.n_docs|pluralizar:"plano ou OS,planos ou OS" }}</span>{% endif %}
+            {% if v.n_ordens or v.n_planos %}<span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{% if v.n_ordens %}{{ v.n_ordens|pluralizar:"OS,OS" }}{% endif %}{% if v.n_ordens and v.n_planos %} · {% endif %}{% if v.n_planos %}{{ v.n_planos|pluralizar:"plano,planos" }}{% endif %}</span>{% endif %}
             <span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}{{ v.unidade.sigla|default:v.unidade.nome }}</span>
           </div>
         </div>

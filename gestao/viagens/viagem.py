@@ -112,8 +112,10 @@ def candidatos(viagem: Viagem) -> dict[str, QuerySet]:
     def livres(qs):
         return qs.filter(unidade_id=viagem.unidade_id).filter(
             Q(viagem__isnull=True) | Q(viagem=viagem))
+    oficios_dela = viagem.oficios.values("pk")
     return {
         "roteiros": livres(Roteiro.objects.exclude(situacao=Roteiro.Situacao.CANCELADO))
+        .exclude(Q(viagem__isnull=True) & Q(oficios__pk__in=oficios_dela)).distinct()
         .order_by("-pk"),
         "oficios": livres(Oficio.objects.exclude(situacao=Oficio.Situacao.CANCELADO))
         .order_by("-ano", "-numero"),
@@ -122,7 +124,8 @@ def candidatos(viagem: Viagem) -> dict[str, QuerySet]:
         "ordens": livres(OrdemServico.objects.exclude(
             situacao=OrdemServico.Situacao.CANCELADA)).order_by("-ano", "-numero"),
         "termos": livres(TermoAutorizacao.objects.exclude(
-            situacao=TermoAutorizacao.Situacao.CANCELADO)).order_by("-pk"),
+            situacao=TermoAutorizacao.Situacao.CANCELADO))
+        .exclude(Q(viagem__isnull=True) & Q(oficio_id__in=oficios_dela)).order_by("-pk"),
     }
 
 
@@ -166,8 +169,9 @@ def criar(usuario, *, data_inicio: date | None = None,
         raise ViagemInvalida("Seu usuário não está lotado em nenhuma unidade.")
     limite = timezone.now() - ESQUECIDA
     for antiga in (Viagem.objects.select_for_update()
-                   .filter(unidade=unidade, situacao=Viagem.Situacao.RASCUNHO,
-                           atualizado_em__lt=limite).order_by("pk")[:5]):
+                   .filter(unidade=unidade, situacao=Viagem.Situacao.RASCUNHO)
+                   .filter(Q(criado_por=usuario) | Q(atualizado_em__lt=limite))
+                   .order_by("pk")[:5]):
         if _vazia(antiga):
             antiga.data_inicio, antiga.data_fim = data_inicio, data_fim
             antiga.save(update_fields=["data_inicio", "data_fim", "atualizado_em"])
@@ -208,7 +212,31 @@ def salvar_dados(usuario, pk: int, *, tipos: list[TipoViagem], motivo: str = "",
                                       for i, m in enumerate(destinos))
     if vinculos is not None:
         _sincronizar(viagem, vinculos)
+    _situacao_pelos_documentos(viagem)
     return viagem
+
+
+def _situacao_pelos_documentos(viagem: Viagem) -> None:
+    """Com documento, a viagem está em preparação; sem nenhum, rascunho (os demais estados
+    vêm de ações próprias: gerar em lote, cancelar)."""
+    if viagem.situacao not in (Viagem.Situacao.RASCUNHO, Viagem.Situacao.PREPARACAO):
+        return
+    tem = any(getattr(viagem, t).exists() for t in TIPOS_DE_DOCUMENTO)
+    nova = Viagem.Situacao.PREPARACAO if tem else Viagem.Situacao.RASCUNHO
+    if nova != viagem.situacao:
+        Viagem.objects.filter(pk=viagem.pk).update(situacao=nova)
+        viagem.situacao = nova
+
+
+@transaction.atomic
+def excluir_vazia(usuario, pk: int) -> None:
+    """Só a viagem sem documentos se exclui por aqui (com documentos, no 8d)."""
+    viagem = Viagem.objects.select_for_update().get(pk=pk)
+    policies.exigir(policies.pode_excluir_viagem(usuario, viagem),
+                    "Você não pode excluir esta viagem.")
+    if any(getattr(viagem, t).exists() for t in TIPOS_DE_DOCUMENTO):
+        raise ViagemInvalida("Só a viagem sem documentos se exclui por aqui.")
+    viagem.delete()
 
 
 def _sincronizar(viagem: Viagem, vinculos: dict) -> None:
@@ -252,10 +280,10 @@ def novo_documento(usuario, pk: int, tipo: str):
         if viagem.motivo:
             Oficio.objects.filter(pk=doc.pk).update(motivo=viagem.motivo)
     elif tipo == "termo":
-        if not destinos or not inicio:
-            raise ViagemInvalida("Informe o período e o destino da viagem (etapa 1) antes de "
-                                 "criar o termo: ele nasce com eles.")
-        doc = termos.salvar(usuario, evento=viagem.titulo or "PCPR na Comunidade",
+        if not destinos or not inicio or not viagem.titulo:
+            raise ViagemInvalida("Informe o tipo, o período e o destino da viagem antes de "
+                                 "criar o termo: o evento, as datas e o local nascem deles.")
+        doc = termos.salvar(usuario, evento=viagem.titulo,
                             data_inicio=inicio, data_fim=fim if fim != inicio else None,
                             destinos=destinos)
     elif tipo == "ordem":
@@ -268,4 +296,5 @@ def novo_documento(usuario, pk: int, tipo: str):
         raise ViagemInvalida("Documento desconhecido.")
     type(doc).objects.filter(pk=doc.pk).update(viagem=viagem)
     doc.viagem = viagem
+    _situacao_pelos_documentos(viagem)
     return doc

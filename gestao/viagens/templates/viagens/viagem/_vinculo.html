@@ -1,8 +1,12 @@
-{% comment %}Um tipo de documento para vincular (caixas), recolhido quando nada está marcado.{% endcomment %}
+{% comment %}Um tipo de documento para vincular (caixas com nome acessível do grupo), recolhido quando nada está marcado.{% endcomment %}
 <details class="divulgacao"{% if campo.value %} open{% endif %}>
   <summary>{% icone "plus" classe="icone--sm" %}{{ campo.label }} <span class="texto-terciario texto-xs">· {{ campo.field.queryset.count|pluralizar:"disponível,disponíveis" }}{% if campo.value %} · {{ campo.value|length|pluralizar:"marcado,marcados" }}{% endif %}</span></summary>
   <div class="divulgacao__corpo">
-    {% if campo.field.queryset %}{% include "componentes/campo.html" with campo=campo rotulo=campo.label %}
+    {% if campo.field.queryset %}
+      <fieldset class="campo">
+        <legend class="sr-only">{{ campo.label }} para vincular</legend>
+        {{ campo }}
+      </fieldset>
     {% else %}<p class="vazio-inline">Nada disponível agora.</p>{% endif %}
   </div>
 </details>

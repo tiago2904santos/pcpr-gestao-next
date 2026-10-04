@@ -30,7 +30,10 @@ def test_viagem_do_zero(logado, dados_e2e):
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     expect(pg.locator("#documentos")).not_to_contain_text("Nenhum ofício vinculado")
 
-    # Nova OS já vinculada.
-    pg.locator("button[form=novo-ordem]").click()
+    # Sem período e destino, "Nova OS" fica parada e diz por quê; "Novo roteiro" cria já
+    # vinculado e a folha dele tem o caminho de volta.
+    expect(pg.get_by_role("button", name="Nova OS")).to_be_disabled()
+    pg.locator("button[form=novo-roteiro]").click()
     expect(pg.locator(".toast")).to_contain_text("criado já vinculado à viagem")
-    assert OrdemServico.objects.get(viagem=v)
+    expect(pg.get_by_role("link", name="Viagem: Unidade Móvel")).to_be_visible()
+    assert not OrdemServico.objects.filter(viagem=v).exists()

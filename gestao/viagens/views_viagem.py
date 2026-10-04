@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import policies, viagem
+from . import policies, viagem, viagem_conferencia
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
 from .models import Viagem
@@ -81,9 +81,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     qs = (_filtrar(buscadas, aba).select_related("unidade")
           .prefetch_related("destinos__municipio", "tipos")
           .annotate(n_oficios=Count("oficios", distinct=True),
-                    n_docs=Count("planos", distinct=True) + Count("ordens", distinct=True)))
-    pagina = Paginator(qs.order_by("-criado_em", "-pk"), POR_PAGINA).get_page(
-        request.GET.get("pagina"))
+                    n_ordens=Count("ordens", distinct=True),
+                    n_planos=Count("planos", distinct=True)))
+    from django.db.models import F
+    ordem = ([F("data_inicio").asc(nulls_last=True), "pk"] if aba == "futuras"
+             else ["-criado_em", "-pk"])
+    pagina = Paginator(qs.order_by(*ordem), POR_PAGINA).get_page(request.GET.get("pagina"))
     hoje = timezone.localdate()
     linhas = [{"v": v, "quando": viagem.dias_para(v, hoje),
                "destinos": ", ".join(str(d.municipio) for d in v.destinos.all())}
@@ -94,7 +97,7 @@ def lista(request: HttpRequest) -> HttpResponse:
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
         "contagens": contagens, "pode_criar": policies.pode_criar_viagem(request.user),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
-        "migalhas": _migalhas(("Viagens (agrupador)", ""))})
+        "migalhas": _migalhas(("Todas as viagens", ""))})
 
 
 @require_POST
@@ -122,10 +125,14 @@ def _tela(request: HttpRequest, v: Viagem, form: FormularioViagem, status: int =
     docs = viagem.documentos(v)
     return render(request, "viagens/viagem/editar.html", {
         "v": v, "form": form, "docs": docs, "quando": viagem.dias_para(v),
+        "quadro": None if v.cancelada else viagem_conferencia.quadro(v),
+        "diferencas": [] if v.cancelada else viagem_conferencia.coerencia(v),
         "destinos": [d.municipio for d in v.destinos.select_related("municipio")],
         "editavel": policies.pode_editar_viagem(request.user, v),
         "historico": da_viagem(v),
-        "migalhas": _migalhas(("Viagens (agrupador)", reverse("viagens:viagens")),
+        "pode_excluir": policies.pode_excluir_viagem(request.user, v) and not docs.total,
+        "pode_semear": bool(v.data_inicio and v.destinos.exists()),
+        "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
                               (str(v), ""))}, status=status)
 
 
@@ -169,16 +176,48 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     form = _formulario(request, v, request.POST)
     if not form.is_valid():
         return JsonResponse({"salvo": False, "mensagem": primeiro_erro(form)})
-    titulo_antes = v.titulo
     try:
         salva = _gravar(request, v, form)
     except viagem.ViagemInvalida as exc:
         return JsonResponse({"salvo": False, "mensagem": f"Não salvo: {exc}"})
     except PermissionDenied:
         return JsonResponse({"salvo": False, "mensagem": "Esta viagem não pode mais ser alterada."})
-    return JsonResponse({"salvo": True, "recarregar": salva.titulo != titulo_antes,
+    return JsonResponse({"salvo": True, "recarregar": False,
                          "em": timezone.localtime(salva.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": viagem.versao_de(salva)}})
+
+
+@require_POST
+def excluir(request: HttpRequest, pk: int) -> HttpResponse:
+    v = _viagem_visivel(request, pk)
+    try:
+        viagem.excluir_vazia(request.user, v.pk)
+    except (viagem.ViagemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_viagem", v.pk)
+    messages.success(request, "Viagem vazia excluída.")
+    return redirect("viagens:viagens")
+
+
+@require_POST
+def aplicar_coerencia(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Aplicar em todos": período, destinos e equipe da viagem nos documentos sem via
+    assinada (referência)."""
+    v = _viagem_visivel(request, pk)
+    try:
+        r = viagem_conferencia.aplicar(request.user, v.pk, request.POST.getlist("chave") or None)
+    except PermissionDenied as exc:
+        messages.error(request, str(exc))
+    else:
+        if r.atualizados:
+            messages.success(request, "Documentos atualizados com os dados da viagem: "
+                                      f"{', '.join(r.atualizados)}.")
+        for documento, campo in r.pulados:
+            messages.warning(request, f"{documento} já tem versão assinada e não foi alterado "
+                                      f"({campo}). Corrija e assine de novo, se for o caso.")
+        if not r.atualizados and not r.pulados:
+            messages.info(request, "Nada a corrigir: os documentos já batem com a viagem.")
+    return redirect(reverse("viagens:editar_viagem", args=[v.pk]) + "#conferencia")
 
 
 @require_http_methods(["POST"])

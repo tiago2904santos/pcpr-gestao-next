@@ -1,0 +1,11 @@
+{% comment %}Dados da viagem como texto (consulta ou cancelada): sem formulário desabilitado.{% endcomment %}
+  {# Só leitura (consulta ou cancelada): os dados como texto. #}
+  <section class="secao" id="dados" aria-labelledby="t-dados">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados da viagem</h2></div>
+    <div class="campos">
+      <div class="campo campo--md"><p class="campo__rotulo">Tipo</p><p>{{ v.titulo|default:"—" }}</p></div>
+      <div class="campo campo--md"><p class="campo__rotulo">Período</p><p>{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}—{% endif %}</p></div>
+      <div class="campo campo--lg"><p class="campo__rotulo">Destinos</p><p>{% for m in destinos %}{{ m }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</p></div>
+    </div>
+    <div class="campo"><p class="campo__rotulo">Motivo</p><p>{{ v.motivo|default:"—"|linebreaksbr }}</p></div>
+  </section>

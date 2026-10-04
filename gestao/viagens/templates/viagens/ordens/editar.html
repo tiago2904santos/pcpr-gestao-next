@@ -25,6 +25,7 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
     {% if ordem %}
     {# Primeiro o que o operador precisa saber (o documento); depois o resto da frase. #}
     <p class="frase-oficio" id="frase-ordem" data-vivo>
+      {% if ordem.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' ordem.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ ordem.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo da ordem: </span>
       {% if ordem.cancelada %}<span class="selo selo--perigo">Cancelada</span>
       {% elif ordem.documento_gerado_em %}<span class="selo selo--sucesso">Gerada em {{ ordem.documento_gerado_em|date:"d/m" }}</span>

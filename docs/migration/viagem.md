@@ -56,6 +56,19 @@ outra data, cancelar/reativar em cascata, excluir.
   Diferença intencional: as etapas 2–5 da referência são um cartão "Documentos da viagem"
   na mesma folha (padrão das folhas); a etapa 1 grava sozinha (a referência gravava ao avançar).
 
+- **8b feito**: conferência na folha — quadro de prontidão (9 etapas, com links; "meta da
+  DG" chega com Solicitações) e coerência (OS, plano de um evento, termo, roteiro × viagem)
+  com "Aplicar em todos" que poupa o que tem via assinada.
+- **Revisão de UX aplicada (8a)**: erro 500 com candidatos datados (corrigido em
+  `358958f`); caminho de volta à viagem nas cinco folhas; o que chega pelo ofício não aparece
+  para vincular; rótulos com destino e período; grupos com `legend`; nota honesta sobre o
+  que cada "Novo" recebe; termo exige o tipo (sem evento inventado); documentos com situação
+  e período; situação rascunho ↔ em preparação automática; "Nova OS/plano/termo" parados
+  sem período e destino; excluir viagem sem documentos; consulta/cancelada como texto; marcar
+  o tipo não recarrega; barra no fim; migalhas sem jargão; "Que vão acontecer" pelo início.
+  **Ainda pendente da revisão**: "Vincular existente" com busca no lugar das caixas, histórico
+  de vínculos (via serviços de cada documento), placa com data de exibição.
+
 ## Ordem de implementação (sub-módulos)
 
 - **8a** modelo `Viagem` + `TipoViagem` + `ViagemDestino` + FK `viagem` nos documentos;

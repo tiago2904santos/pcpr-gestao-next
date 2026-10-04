@@ -45,13 +45,16 @@ def test_titulo_nasce_dos_tipos():
     assert viagem.titulo_dos_tipos([]) == ""
 
 
-def test_criar_reaproveita_a_vazia_esquecida(c):
-    op = c.usuarios["operador"]
+def test_criar_reaproveita_a_vazia(c):
+    """A vazia da mesma pessoa volta na hora (dois cliques não deixam lixo); a de outra
+    pessoa da unidade, só depois de 30 minutos esquecida (referência)."""
+    op, gestor = c.usuarios["operador"], c.usuarios["gestor"]
     primeira = viagem.criar(op)
-    assert viagem.criar(op).pk != primeira.pk  # recente: não reaproveita
+    assert viagem.criar(op).pk == primeira.pk
+    assert viagem.criar(gestor).pk != primeira.pk
     Viagem.objects.filter(pk=primeira.pk).update(
         atualizado_em=timezone.now() - timedelta(hours=1))
-    assert viagem.criar(op).pk == primeira.pk
+    assert viagem.criar(gestor).pk == primeira.pk
 
 
 def test_salvar_dados_titulo_destinos_e_vinculos(c):
@@ -110,8 +113,8 @@ def test_novo_documento_ja_vinculado_e_semeado(c):
     op = c.usuarios["operador"]
     v = viagem.criar(op)
     hoje = timezone.localdate()
-    viagem.salvar_dados(op, v.pk, tipos=[], motivo="cobertura da feira", data_inicio=hoje,
-                        destinos=[_londrina()])
+    viagem.salvar_dados(op, v.pk, tipos=list(TipoViagem.objects.filter(nome="Unidade Móvel")),
+                        motivo="cobertura da feira", data_inicio=hoje, destinos=[_londrina()])
     ordem = viagem.novo_documento(op, v.pk, "ordem")
     assert isinstance(ordem, OrdemServico)
     ordem = OrdemServico.objects.get(pk=ordem.pk)
@@ -123,12 +126,15 @@ def test_novo_documento_ja_vinculado_e_semeado(c):
     assert Oficio.objects.get(pk=oficio.pk).motivo == "cobertura da feira"
     assert viagem.novo_documento(op, v.pk, "roteiro").viagem_id == v.pk
     assert viagem.novo_documento(op, v.pk, "plano").viagem_id == v.pk
-    assert viagem.documentos(Viagem.objects.get(pk=v.pk)).total == 5
+    salva = Viagem.objects.get(pk=v.pk)
+    assert viagem.documentos(salva).total == 5
+    assert salva.situacao == Viagem.Situacao.PREPARACAO  # com documentos
+    assert TermoAutorizacao.objects.get(pk=termo.pk).evento == "Unidade Móvel"
 
 
 def test_termo_sem_periodo_ou_destino_avisa(c):
     v = viagem.criar(c.usuarios["operador"])
-    with pytest.raises(viagem.ViagemInvalida, match="Informe o período e o destino"):
+    with pytest.raises(viagem.ViagemInvalida, match="Informe o tipo, o período e o destino"):
         viagem.novo_documento(c.usuarios["operador"], v.pk, "termo")
 
 
@@ -157,7 +163,7 @@ def test_criar_pela_tela_e_folha(c):
     assert "Falta o tipo" in html and "Nenhum ofício vinculado a esta viagem." in html
 
 
-def test_autosave_grava_e_recarrega_quando_o_titulo_muda(c):
+def test_autosave_grava_sem_recarregar(c):
     op = c.usuarios["operador"]
     v = viagem.criar(op)
     tipo = TipoViagem.objects.get(nome="Unidade Móvel")
@@ -165,7 +171,7 @@ def test_autosave_grava_e_recarrega_quando_o_titulo_muda(c):
         "versao": viagem.versao_de(v), "tipos": [tipo.pk], "motivo": "x",
         "data_inicio": "10/10/2030", "destinos": ["Londrina/PR"]})
     dados = r.json()
-    assert dados["salvo"] and dados["recarregar"]
+    assert dados["salvo"] and not dados["recarregar"]  # o título está nas regiões vivas
     v.refresh_from_db()
     assert v.titulo == "Unidade Móvel" and v.data_inicio == date(2030, 10, 10)
 
@@ -178,7 +184,7 @@ def test_novo_documento_pela_tela_abre_a_folha(c):
     assert r["Location"] == reverse("viagens:editar_ordem", args=[ordem.pk])
     r = _cliente(op).post(reverse("viagens:novo_documento_viagem", args=[v.pk, "termo"]),
                           follow=True)
-    assert "Informe o período e o destino" in r.content.decode()
+    assert "Informe o tipo, o período e o destino" in r.content.decode()
     assert _cliente(op).post(reverse("viagens:novo_documento_viagem",
                                      args=[v.pk, "nada"])).status_code == 404
 
@@ -230,3 +236,33 @@ def test_folha_abre_com_candidatos_datados(c):
 def test_periodo_curto():
     assert viagem.periodo_curto(date(2030, 3, 1), None) == "01/03/2030"
     assert viagem.periodo_curto(date(2030, 12, 30), date(2031, 1, 2)) == "30/12/2030 a 02/01/2031"
+
+
+def test_excluir_viagem_sem_documentos(c):
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    cli = _cliente(op)
+    assert "Excluir viagem sem documentos" in cli.get(
+        reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+    viagem.novo_documento(op, v.pk, "oficio")
+    r = cli.post(reverse("viagens:excluir_viagem", args=[v.pk]), follow=True)
+    assert "Só a viagem sem documentos se exclui por aqui." in r.content.decode()
+    vazia = viagem.criar(c.usuarios["gestor"])
+    cli_g = _cliente(c.usuarios["gestor"])
+    r = cli_g.post(reverse("viagens:excluir_viagem", args=[vazia.pk]))
+    assert r.status_code == 302 and not Viagem.objects.filter(pk=vazia.pk).exists()
+
+
+def test_consulta_ve_a_viagem_como_texto(c):
+    v = viagem.criar(c.usuarios["operador"])
+    html = _cliente(c.usuarios["consulta"]).get(
+        reverse("viagens:editar_viagem", args=[v.pk])).content.decode()
+    assert 'id="form-viagem"' not in html and "Dados da viagem" in html
+
+
+def test_documento_mostra_o_caminho_de_volta_para_a_viagem(c):
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    ordem = viagem.novo_documento(op, v.pk, "ordem")
+    html = _cliente(op).get(reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
+    assert reverse("viagens:editar_viagem", args=[v.pk]) in html and "Viagem:" in html

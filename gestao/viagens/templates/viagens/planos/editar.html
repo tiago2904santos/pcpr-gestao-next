@@ -23,6 +23,7 @@ links de pendência.
     <h1 class="sr-only">{% if plano %}{{ plano }}{% if plano.cancelado %} — cancelado{% endif %}{% else %}Novo plano de trabalho{% endif %}</h1>
     {% if plano %}
     <p class="frase-oficio" id="frase-plano" data-vivo>
+      {% if plano.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' plano.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ plano.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do plano: </span>
       {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#conferencia">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
       <span class="frase-oficio__item{% if not plano.programa_nome %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
