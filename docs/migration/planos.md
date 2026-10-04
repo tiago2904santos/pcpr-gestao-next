@@ -1,7 +1,7 @@
 # Módulo 6 — Planos de trabalho (ficha)
 
-Atualizado em 04/10/2026. Situação: **EM ANDAMENTO** — 6a (catálogos e configuração)
-6b (domínio), 6c (plano de um evento) e 6d (vários eventos) implementados; 6e pendente. Comparado por leitura com `viagens_planos/` da referência
+Atualizado em 04/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO** — 6a (catálogos e configuração)
+6a–6e implementados (catálogos, domínio, plano de um evento, vários eventos, resultados); falta só a aba "Finalizados", que depende da prestação de contas (módulo 9). Comparado por leitura com `viagens_planos/` da referência
 (modelos, formulários, serviços, telas, documento, testes); inventário funcional completo
 em `scratchpad` da sessão (não versionado) e resumido aqui.
 
@@ -13,7 +13,7 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 | 6b | Domínio puro: textos automáticos (contextualização, coordenação com gênero, considerações), pluralização do efetivo, metas/recursos, pendências, diárias do plano (motor do ofício) | ✅ |
 | 6c | Plano de um evento: numeração anual com lacuna e sufixo, folha (cartões), autosave, documento (PDF/DOCX), lista com abas, cancelar/reativar/excluir, histórico | ✅ |
 | 6d | Vários eventos (multievento) e diárias combinadas | ✅ |
-| 6e | Resultados por atividade e relatório final | PENDENTE |
+| 6e | Resultados por atividade e relatório final | ✅ |
 
 ## Matriz de paridade (6a)
 
@@ -66,7 +66,8 @@ comum, `dominio/escrita.py`, usado também pela OS.
 | Cancelar (motivo) / reativar / excluir (número volta) | ✅ MELHORADO | cancelado bloqueado no servidor; excluir só antes de gerar | `test_cancelado_nao_altera_e_reativa`, `test_depois_de_gerado_nao_exclui` |
 | Autosave (também depois de gerado) | ✅ MELHORADO | com versão (não grava por cima de outra pessoa); a geração toca a versão e não deixa "em branco" apagar a data fixada | `test_autosave_versao_e_cancelado`, `test_aba_velha_depois_de_gerar_nao_apaga_a_data` |
 | Histórico | ✅ MELHORADO | lido da trilha do banco | `test_historico` |
-| Resultados por atividade, relatório final | PENDENTE | etapa 6e | — |
+| Resultados por atividade (realizado ≥ 0 com ponto de milhar, observação até 500, linha vazia apaga; previstas de todos os eventos + as que saíram do plano com resultado) | ✅ | página própria na linguagem das folhas, ligada do cartão Documento depois de gerado; cancelado só leitura **e** bloqueado no servidor (a referência só escondia) | `test_planos.py::TestResultados`, `test_dominio_plano_trabalho.py::TestResultados` |
+| Relatório final e sugestão para o Relatório Técnico | ✅ | `resultados.relatorio_final`, `resultados.sugestao_para_rt` (usada quando a prestação de contas chegar) | `test_salvar_listar_apagar_e_relatorio` |
 | Vários eventos | ✅ ↔ | o evento 1 são os campos do plano; os demais, registros editados numa janela (na referência o plano era o "rascunho do evento atual", com adicionar/editar/remover que limpavam e recarregavam o rascunho); efetivo e deslocamento do plano (a mesma equipe numa viagem — resolve a ambiguidade 1: o texto e as diárias usam o mesmo efetivo); diárias combinadas num trecho só; contextualização e considerações com os destinos de todos os eventos (a referência usava só o rascunho e podia sair com "________"); só o coordenador administrativo designado; documento com atuação, atividades, metas e recursos por evento e o valor com "Valor total do evento dias: …" | `test_planos.py::TestVariosEventos`, `test_dominio_plano_trabalho.py::TestVariosEventos` |
 | Valor por evento ("Valor do evento dia: …") | ↔ | não há: com a mesma equipe numa viagem só, o valor é o combinado (a referência copiava as diárias do rascunho no momento em que o evento era gravado — frágil, ambiguidade 3) | — |
 

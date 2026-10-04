@@ -191,3 +191,28 @@ class TestVariosEventos:
                           eventos_extras=[(2, False, True), (3, True, False)])
         assert [p.mensagem for p in pt.pendencias(d)] == [
             "Informe o destino do evento 2.", "Informe a data do evento 3."]
+
+
+class TestResultados:
+    def test_ler_realizado(self):
+        assert pt.ler_realizado("1.234", "CIN") == 1234
+        assert pt.ler_realizado("  ", "CIN") is None
+        with pytest.raises(pt.RealizadoInvalido, match="CIN: O realizado não pode ser negativo"):
+            pt.ler_realizado("-3", "CIN")
+        with pytest.raises(pt.RealizadoInvalido, match="não é um número inteiro"):
+            pt.ler_realizado("doze", "CIN")
+
+    def test_relatorio_final(self):
+        texto = pt.relatorio_final(
+            numero="07/2026/ASCOM", programa="Programa Paraná em Ação",
+            municipios=["Maringá/PR"], periodo="25/06/2026 a 27/06/2026",
+            resultados=[pt.Resultado("Confecção da CIN", 120, "RGs emitidos"),
+                        pt.Resultado("Palestras", 3), pt.Resultado("Boletins", None)],
+            consideracoes="A ação reforça o compromisso.")
+        assert texto.splitlines() == [
+            "Plano de Trabalho 07/2026/ASCOM — Programa Paraná em Ação",
+            "Local: Maringá/PR. Período: 25/06/2026 a 27/06/2026.", "",
+            "Resultados alcançados:", "• Confecção da CIN: 120 (RGs emitidos)", "• Palestras: 3",
+            "Total de atendimentos registrados: 123.", "", "A ação reforça o compromisso."]
+        assert pt.relatorio_final(numero="1", programa="", municipios=[], periodo="",
+                                  resultados=[pt.Resultado("X", None)], consideracoes="") == ""

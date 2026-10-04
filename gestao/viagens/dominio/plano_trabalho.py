@@ -332,3 +332,50 @@ def numero_formatado(numero: int | None, ano: int | None, sufixo: str = "") -> s
     if not numero or not ano:
         return "—"
     return f"{numero:02d}/{ano}" + (f"/{sufixo}" if sufixo else "")
+
+
+# ---------------------------------------------------------------- resultados (6e)
+class RealizadoInvalido(ValueError):
+    """O que foi digitado em "Realizado" não é um inteiro ≥ 0 (mensagem pronta)."""
+
+
+def ler_realizado(texto: str, atividade: str) -> int | None:
+    """"1.234" -> 1234 (ponto como milhar); vazio -> None; o resto é recusado com a
+    mensagem da referência."""
+    limpo = (texto or "").strip().replace(".", "")
+    if not limpo:
+        return None
+    if limpo.startswith("-") and limpo[1:].isascii() and limpo[1:].isdecimal():
+        raise RealizadoInvalido(f"{atividade}: O realizado não pode ser negativo.")
+    if not (limpo.isascii() and limpo.isdecimal()) or len(limpo) > 9:
+        raise RealizadoInvalido(f"{atividade}: \u201c{texto.strip()}\u201d não é um número "
+                                "inteiro.")
+    return int(limpo)
+
+
+@dataclass(frozen=True)
+class Resultado:
+    atividade: str
+    realizado: int | None
+    observacao: str = ""
+
+
+def relatorio_final(*, numero: str, programa: str, municipios: list[str], periodo: str,
+                    resultados: list[Resultado], consideracoes: str) -> str:
+    """O relatório final do plano, montado dos lançamentos (vazio sem lançamento)."""
+    lancados = [r for r in resultados if r.realizado is not None or r.observacao.strip()]
+    if not lancados:
+        return ""
+    linhas = [f"Plano de Trabalho {numero}" + (f" \u2014 {programa}" if programa else ""),
+              f"Local: {', '.join(municipios) or VAZIO}. Período: {periodo or VAZIO}.", "",
+              "Resultados alcançados:"]
+    for r in lancados:
+        valor = str(r.realizado) if r.realizado is not None else "—"
+        obs = f" ({r.observacao.strip()})" if r.observacao.strip() else ""
+        linhas.append(f"• {r.atividade}: {valor}{obs}")
+    soma = sum(r.realizado or 0 for r in lancados)
+    if soma > 0:
+        linhas.append(f"Total de atendimentos registrados: {soma}.")
+    if consideracoes.strip():
+        linhas += ["", consideracoes.strip()]
+    return "\n".join(linhas)

@@ -21,7 +21,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.models import PresetAtividades
 
-from . import linha_do_tempo, planos, policies
+from . import linha_do_tempo, planos, policies, resultados
 from .dominio import plano_trabalho as dominio
 from .forms import FormularioEvento, FormularioPlano
 from .models import Oficio, PlanoTrabalho
@@ -380,6 +380,40 @@ def remover_evento(request: HttpRequest, pk: int, evento_pk: int) -> HttpRespons
     else:
         messages.success(request, "Evento removido do plano.")
     return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#eventos")
+
+
+@require_http_methods(["GET", "POST"])
+def resultados_do_plano(request: HttpRequest, pk: int) -> HttpResponse:
+    """Realizado por atividade (depois da ação) e o relatório final montado dele."""
+    plano = _plano_visivel(request, pk)
+    editavel = policies.pode_editar_plano(request.user, plano)
+    erros: list[str] = []
+    digitados: dict[int, tuple[str, str]] = {}
+    if request.method == "POST":
+        policies.exigir(editavel, "Este plano de trabalho não pode ser alterado.")
+        for linha in resultados.linhas(plano):
+            chave = linha.atividade.pk
+            digitados[chave] = (request.POST.get(f"realizado_{chave}", ""),
+                                request.POST.get(f"observacao_{chave}", ""))
+        try:
+            resultados.salvar(request.user, plano.pk, digitados)
+        except resultados.ResultadosInvalidos as exc:
+            erros = exc.erros
+        else:
+            messages.success(request, "Resultados salvos.")
+            return redirect("viagens:resultados_plano", plano.pk)
+    linhas = resultados.linhas(plano)
+    for linha in linhas:  # depois de um erro, volta o que foi digitado
+        if linha.atividade.pk in digitados:
+            linha.digitado, linha.observacao = digitados[linha.atividade.pk]
+    return render(request, "viagens/planos/resultados.html", {
+        "plano": plano, "linhas": linhas, "erros": erros, "editavel": editavel,
+        "relatorio": resultados.relatorio_final(plano),
+        "periodo_geral": dominio.periodo_curto(*planos.periodo_geral(plano)),
+        "destinos": planos.todos_os_destinos(plano),
+        "migalhas": _migalhas(("Planos de trabalho", reverse("viagens:planos")),
+                              (str(plano), reverse("viagens:editar_plano", args=[plano.pk])),
+                              ("Resultados", ""))}, status=422 if erros else 200)
 
 
 @require_POST

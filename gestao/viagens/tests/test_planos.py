@@ -509,3 +509,57 @@ class TestVariosEventos:
         planos.cancelar(c.usuarios["operador"], plano.pk, "Adiado")
         with pytest.raises(PermissionDenied):
             planos.salvar_evento(c.usuarios["operador"], plano.pk)
+
+
+
+class TestResultados:
+    def test_salvar_listar_apagar_e_relatorio(self, c):
+        from gestao.viagens import resultados
+        op = c.usuarios["operador"]
+        plano = _completo(c)  # CIN e Unidade móvel
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        movel = AtividadePlano.objects.get(codigo="UNIDADE_MOVEL")
+        resultados.salvar(op, plano.pk, {cin.pk: ("1.234", "RGs emitidos"), movel.pk: ("", "")})
+        texto = resultados.relatorio_final(PlanoTrabalho.objects.get(pk=plano.pk))
+        assert "• Confecção da Carteira de Identidade Nacional (CIN): 1234 (RGs emitidos)" in texto
+        assert "Total de atendimentos registrados: 1234." in texto
+        sugestao = resultados.sugestao_para_rt(PlanoTrabalho.objects.get(pk=plano.pk))
+        assert sugestao["conclusao"].startswith("Foram realizados: Confecção da Carteira")
+        resultados.salvar(op, plano.pk, {cin.pk: ("", "")})  # linha vazia apaga
+        assert not plano.resultados.exists()
+
+    def test_erros_todos_de_uma_vez(self, c):
+        from gestao.viagens import resultados
+        plano = _completo(c)
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        movel = AtividadePlano.objects.get(codigo="UNIDADE_MOVEL")
+        with pytest.raises(resultados.ResultadosInvalidos) as erro:
+            resultados.salvar(c.usuarios["operador"], plano.pk,
+                              {cin.pk: ("doze", ""), movel.pk: ("-1", "")})
+        assert len(erro.value.erros) == 2
+
+    def test_atividade_que_saiu_do_plano_continua_com_resultado(self, c):
+        from gestao.viagens import resultados
+        plano = _completo(c)
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        resultados.salvar(c.usuarios["operador"], plano.pk, {cin.pk: ("10", "")})
+        plano.atividades.remove(cin)
+        linhas = resultados.linhas(PlanoTrabalho.objects.get(pk=plano.pk))
+        fora = [linha for linha in linhas if linha.atividade == cin]
+        assert fora and not fora[0].prevista and fora[0].realizado == 10
+
+    def test_tela_e_permissoes(self, c):
+        plano = _completo(c)
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        cli = _cliente(c.usuarios["operador"])
+        url = reverse("viagens:resultados_plano", args=[plano.pk])
+        html = cli.get(url).content.decode()
+        assert "Realizado por atividade" in html and f'name="realizado_{cin.pk}"' in html
+        r = cli.post(url, {f"realizado_{cin.pk}": "abc"})
+        assert r.status_code == 422 and "não é um número inteiro" in r.content.decode()
+        r = cli.post(url, {f"realizado_{cin.pk}": "7", f"observacao_{cin.pk}": "RGs"})
+        assert r.status_code == 302 and plano.resultados.get().realizado == 7
+        assert _cliente(c.usuarios["outra"]).get(url).status_code == 403
+        assert _cliente(c.usuarios["consulta"]).post(url, {}).status_code == 403
+        planos.cancelar(c.usuarios["operador"], plano.pk, "Adiado")
+        assert cli.post(url, {f"realizado_{cin.pk}": "8"}).status_code == 403

@@ -331,6 +331,8 @@ links de pendência.
     </div>
     {% endif %}
 
+    {% if plano.documento_gerado_em %}<p class="heranca">{% icone "list-checks" classe="icone--sm" %}Depois da ação: <a href="{% url 'viagens:resultados_plano' plano.pk %}">lançar os resultados por atividade</a> (e o relatório final).</p>{% endif %}
+
     <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-text" classe="icone--sm" %}Como vai sair</h3>

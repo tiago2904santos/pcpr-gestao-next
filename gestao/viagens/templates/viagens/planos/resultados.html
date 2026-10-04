@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Resultados — {{ plano }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Resultados do plano (paridade com a tela de resultados da referência), na linguagem das
+folhas: cabeçalho com a placa do plano; 1. Realizado por atividade (as previstas — de todos
+os eventos — e as que já tinham resultado e saíram do plano); 2. Relatório final, montado
+dos lançamentos. Linha vazia apaga o resultado. Plano cancelado: só leitura.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Plano{% if plano.sufixo %} · {{ plano.sufixo }}{% endif %}</span>
+    <span class="placa__numero">{{ plano.numero|stringformat:"02d" }}/{{ plano.ano }}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="sr-only">Resultados do {{ plano }}</h1>
+    <p class="frase-oficio">
+      <span class="selo selo--info">Resultados</span>
+      <span class="frase-oficio__item{% if not plano.programa_nome %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
+      <span class="frase-oficio__item{% if not destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
+      <span class="frase-oficio__item{% if not periodo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
+    </p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'viagens:editar_plano' plano.pk %}">{% icone "arrow-left" %}Voltar ao plano</a>
+  </div>
+</header>
+
+{% if plano.cancelado %}<div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Plano cancelado</p><p>Os resultados ficam só para leitura; reative o plano para lançar.</p></div></div>{% endif %}
+{% if erros %}<div class="alerta alerta--perigo mb-4" role="alert" tabindex="-1" id="erros-resultados">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Os resultados não foram salvos</p><ul>{% for e in erros %}<li>{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
+
+<form method="post" novalidate id="form-resultados" data-proteger>
+  {% csrf_token %}
+  <fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
+  <legend class="sr-only">Resultados por atividade</legend>
+  <div class="documento documento--cartoes">
+    <section class="secao" id="realizado" aria-labelledby="t-realizado">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo" id="t-realizado"><span class="secao__numero">1</span>Realizado por atividade</h2>
+        <p class="secao__nota">Depois da ação: quanto se fez de cada atividade prevista. Pontos valem como milhar (1.234); deixar a linha vazia apaga o resultado.</p>
+      </div>
+      {% if linhas %}
+      <div class="tabela-rolagem">
+        <table class="tabela tabela--resultados">
+          <caption class="sr-only">Realizado por atividade</caption>
+          <thead><tr><th scope="col">Atividade</th><th scope="col">Meta prevista</th><th scope="col">Realizado</th><th scope="col">Observação</th></tr></thead>
+          <tbody>
+            {% for l in linhas %}
+              <tr>
+                <th scope="row">{{ l.atividade.nome }}{% if not l.prevista %} <span class="selo selo--neutro selo--sem-ponto">fora do plano</span>{% endif %}</th>
+                <td class="texto-secundario texto-sm">{{ l.atividade.meta }}</td>
+                <td><label class="sr-only" for="realizado-{{ l.atividade.pk }}">Realizado — {{ l.atividade.nome }}</label><input class="entrada" id="realizado-{{ l.atividade.pk }}" name="realizado_{{ l.atividade.pk }}" inputmode="numeric" autocomplete="off" value="{% if l.digitado is not None %}{{ l.digitado }}{% elif l.realizado is not None %}{{ l.realizado }}{% endif %}"></td>
+                <td><label class="sr-only" for="observacao-{{ l.atividade.pk }}">Observação — {{ l.atividade.nome }}</label><input class="entrada" id="observacao-{{ l.atividade.pk }}" name="observacao_{{ l.atividade.pk }}" maxlength="500" placeholder="Ex.: RGs emitidos, orientações" value="{{ l.observacao }}"></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="vazio-inline">{% icone "list-checks" classe="icone--sm" %}Marque as atividades previstas no plano para lançar os resultados. <a href="{% url 'viagens:editar_plano' plano.pk %}#atividades">Abrir as atividades do plano</a>.</p>
+      {% endif %}
+    </section>
+
+    <section class="secao" id="relatorio" aria-labelledby="t-relatorio">
+      <div class="secao__cabecalho">
+        <h2 class="secao__titulo" id="t-relatorio"><span class="secao__numero">2</span>Relatório final</h2>
+        <p class="secao__nota">Gerado dos resultados acima. O Relatório Técnico da prestação de contas (quando chegar ao sistema) abre com o objetivo e a conclusão sugeridos a partir dele.</p>
+      </div>
+      {% if relatorio %}<div class="relatorio-final texto-pre">{{ relatorio }}</div>
+      {% else %}<p class="vazio-inline">{% icone "file-text" classe="icone--sm" %}Aparece aqui assim que houver um resultado lançado.</p>{% endif %}
+    </section>
+  </div>
+  </fieldset>
+
+  {% if editavel and linhas %}
+  <div class="barra-acoes">
+    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">Resultados do {{ plano }}</div>
+    <a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">Voltar</a>
+    <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar resultados</button>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}

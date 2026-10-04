@@ -709,3 +709,28 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   color: inherit;
 }
 
+/* Resultados do plano: a tabela do realizado e o relatório final montado dela. */
+.tabela--resultados th[scope="row"] {
+  min-width: 14rem;
+  font-weight: var(--peso-semi);
+}
+
+.tabela--resultados td:nth-child(3) {
+  width: 8rem;
+}
+
+.tabela--resultados td:nth-child(2) {
+  max-width: 24rem;
+}
+
+.tabela--resultados td:nth-child(4) {
+  min-width: 22rem;
+}
+
+.relatorio-final {
+  padding: var(--esp-4);
+  border: var(--borda-sutil);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-md);
+}

@@ -102,6 +102,8 @@ def paginas(settings):
         reverse("viagens:planos"),
         reverse("viagens:novo_plano"),
         reverse("viagens:editar_plano", args=[PlanoTrabalho.objects.order_by("pk").first().pk]),
+        reverse("viagens:resultados_plano",
+                args=[PlanoTrabalho.objects.order_by("pk").first().pk]),
         reverse("painel:notificacoes"),
         reverse("identidade:alterar_senha"),
         "/busca/?q=ofi",

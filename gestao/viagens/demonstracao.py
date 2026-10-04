@@ -834,6 +834,11 @@ class _Gerador:
             if criados and not planos.pendencias(criados[0]):
                 with acao():
                     planos.finalizar(autor, criados[0].pk)
+                from . import resultados  # o gerado já tem resultados lançados
+                feitos = {a.pk: (str(40 + 15 * i), "atendimentos registrados (DEMO)")
+                          for i, a in enumerate(basicas[:3])}
+                with acao():
+                    resultados.salvar(autor, criados[0].pk, feitos)
             if len(criados) > 1:  # o segundo vira um plano de vários eventos
                 segundo = criados[1]
                 inicio = (segundo.data_fim or self.hoje) + timedelta(days=1)

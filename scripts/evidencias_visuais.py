@@ -300,6 +300,8 @@ CENARIOS = [
     C("planos-incompleto", "Planos de trabalho — avulso incompleto", "/viagens/planos/4/",
       larguras=POUCAS),
     C("planos-novo", "Planos de trabalho — novo", "/viagens/planos/novo/", larguras=POUCAS),
+    C("planos-resultados", "Planos de trabalho — resultados e relatório final",
+      "/viagens/planos/1/resultados/"),
     C("planos-varios-eventos", "Planos de trabalho — vários eventos", "/viagens/planos/2/",
       larguras=POUCAS),
     C("planos-evento-janela", "Planos de trabalho — janela do evento",

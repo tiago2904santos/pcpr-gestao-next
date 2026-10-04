@@ -4,7 +4,7 @@ Atualizado em 04/10/2026 (ramo `migracao/loop-continuo`).
 
 ## Agora
 
-**Módulo 6 — Planos de trabalho: em andamento** (6a catálogos e configuração prontos; ficha [planos.md](planos.md)).
+**Módulo 6 — Planos de trabalho: implementado** (catálogos, plano de um e de vários eventos, documento, resultados; ficha [planos.md](planos.md)). Próximo: módulo 7 (núcleo de Documentos).
 
 **Termos e Ordens de serviço: folhas refeitas** na linguagem da folha do ofício (placa e
 frase, cartões numerados com selos de falta, conferência, documento como vai sair,
@@ -26,8 +26,8 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 | 3 | Roteiros | EM PARIDADE | falta "Finalizados" ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
 | 4 | Termos de autorização | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado e "Finalizados" | 33 + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | anexar assinado (7), "Finalizados" (9) | com 7 e 9 |
 | 5 | Ordens de serviço | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado, "Finalizadas", conflito de agenda | 24 + 23 domínio + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | idem + conflito de agenda | com 7 e 9 |
-| 6 | Planos de trabalho | EM ANDAMENTO (6a ✅, 6b ✅, 6c ✅, 6d vários eventos ✅) | matriz em [planos.md](planos.md) | 17 catálogos + 21 domínio + 36 plano, e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | 6e resultados, "Finalizados" (9) | **6e** |
-| 7 | Documentos (núcleo: anexar assinado, conferência) | PENDENTE | — | — | — | — | `documentos` (23 rotas) | depois do 6 |
+| 6 | Planos de trabalho | IMPLEMENTADO (6a–6e) | matriz em [planos.md](planos.md) | 17 catálogos + 23 domínio + 40 plano, e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | "Finalizados" (9), integração com viagem (8) | com 8 e 9 |
+| 7 | Documentos (núcleo: anexar assinado, conferência) | PENDENTE | — | — | — | — | `documentos` (23 rotas) | **próximo** |
 | 8 | Viagem (assistente) | PENDENTE | — | — | — | — | `viagens_viagem` (13) | depois do 7 |
 | 9 | Prestação de contas (+ abas "Finalizados") | PENDENTE | — | — | — | — | `viagens_prestacoes` (10) | depois do 8 |
 | 10 | Plataforma (usuários/setores, notificações, agenda, relatórios, painel) | PARCIAL | entrada, notificações (vazio) e painel existem | — | — | — | `accounts`, `config`, `agenda`, `relatorios`, `dashboard` | depois do 9 |
@@ -68,4 +68,4 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 
 Checkpoints: `fae9abf` (descoberta), `957f3aa`, `cb32c8c`, `f78250a`, `a447f80`, `0118be7`,
 `6209156` (D1/D2/D5), `9cc2df6` (D6), `43dad01` (D3), `2bcf751` (D8), `e59ae99` (D4),
-`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens `e4994fa`, folhas de termo e OS `d62e1b1`, catálogos do plano `b883809`, domínio do plano `afd630a`, plano de um evento `80e3de0`, vários eventos (este commit).
+`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens `e4994fa`, folhas de termo e OS `d62e1b1`, catálogos do plano `b883809`, domínio do plano `afd630a`, plano de um evento `80e3de0`, vários eventos `a632ab6`, resultados (este commit).

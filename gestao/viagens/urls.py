@@ -92,6 +92,8 @@ urlpatterns = [
     path("planos/<int:pk>/", views_planos.editar, name="editar_plano"),
     path("planos/<int:pk>/autosave/", views_planos.autosave, name="autosave_plano"),
     path("planos/<int:pk>/finalizar/", views_planos.finalizar, name="finalizar_plano"),
+    path("planos/<int:pk>/resultados/", views_planos.resultados_do_plano,
+         name="resultados_plano"),
     path("planos/<int:pk>/eventos/salvar/", views_planos.salvar_evento,
          name="salvar_evento_plano"),
     path("planos/<int:pk>/eventos/<int:evento_pk>/remover/", views_planos.remover_evento,

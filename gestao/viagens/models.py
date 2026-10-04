@@ -992,6 +992,24 @@ class EventoDestino(models.Model):
         return str(self.municipio)
 
 
+class ResultadoAtividade(models.Model):
+    """O realizado de uma atividade do plano, lançado depois da ação (referência)."""
+
+    plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="resultados")
+    atividade = models.ForeignKey(AtividadePlano, on_delete=models.PROTECT, related_name="+")
+    realizado = models.PositiveIntegerField(null=True, blank=True)
+    observacao = models.CharField("observação", max_length=500, blank=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["atividade__nome"]
+        constraints = [models.UniqueConstraint(fields=["plano", "atividade"],
+                                               name="resultado_atividade_unico")]
+
+    def __str__(self) -> str:
+        return f"{self.atividade}: {self.realizado}"
+
+
 class NumeracaoPlano(models.Model):
     """Uma linha por ano: trava a numeração dos planos (select_for_update)."""
 
