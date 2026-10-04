@@ -137,6 +137,27 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **Vínculos que impedem excluir**: `_meta.related_objects` ignora relações com
   `related_name="+"`; usar `get_fields(include_hidden=True)`.
 
+- **O reset deixa `svg` em bloco**: ícone dentro de parágrafo (`.heranca`) precisa de
+  `display: inline-block`, senão cai numa linha sozinho.
+- **Trilha de auditoria × id reaproveitado**: a base DEMO reinicia as sequências; eventos de
+  um registro excluído com o mesmo id apareciam no histórico do novo. A linha do tempo para
+  no INSERT mais recente.
+- **Visualizador preguiçoso**: o iframe só ganha `src` quando entra na tela. E2E e axe que
+  olham a folha precisam rolar até `#previa` e esperar o iframe visível; capturas de página
+  inteira mostram a moldura vazia (por isso ela reserva a altura).
+- **Página refeita = conferir a régua**: Termos e OS nasceram como "título + cartões +
+  salvar" e foram reprovados pela régua da missão; a referência de composição é a folha do
+  ofício (placa + frase, cartões numerados com nota e selo, conferência, documento,
+  histórico, barra com gravação automática).
+
+- **Autosave muda o contrato da tela**: se a página só se refaz no visualizador, selos,
+  conferência e listas mentem depois da primeira gravação. Contrato adotado: regiões
+  `[data-vivo][id]` trocadas pela página refeita (menos a que tem o foco), `recarregar`
+  quando a gravação muda *campos*, `campos.versao` de volta ao formulário, e o serviço
+  recusando versão velha. Cópias "ao salvar" (OS ← ofícios) viram "na criação/ao ligar".
+- **Prévia de documento numerado** precisa de marca (MINUTA): sem ela, a prévia é o
+  documento oficial por outro caminho.
+
 ## Processo
 
 - **Checkpoint só com `scripts/checar_rapido.sh` verde** (para no primeiro erro). Encadear

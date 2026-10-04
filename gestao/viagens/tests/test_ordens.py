@@ -152,7 +152,7 @@ class TestTelas:
         um = Servidor.objects.first()
         cli = _cliente(c.usuarios["operador"])
         html = cli.get(reverse("viagens:nova_ordem")).content.decode()
-        assert "Receberá o número" in html
+        assert "Recebe o número" in html
         r = cli.post(reverse("viagens:nova_ordem"), {
             "tipo": "padrao", "destinos": ["Londrina/PR"], "data_inicio": "10/03/2030",
             "servidores": [um.pk], "motivo": "a feira fictícia"})

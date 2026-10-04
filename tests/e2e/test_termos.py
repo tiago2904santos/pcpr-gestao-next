@@ -24,8 +24,18 @@ def test_termo_a_partir_do_oficio(logado, dados_e2e):
     termo = TermoAutorizacao.objects.get()
     expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
     # Um link de PDF por servidor da equipe + o genérico; a herança aparece sob os campos.
-    assert pg.get_by_role("link", name=re.compile(r"^Visualizar .*\(PDF")).count() >= 2
+    assert pg.get_by_role("link", name=re.compile(r"^Gerar .*\(PDF")).count() >= 2
     expect(pg.locator(".heranca").first).to_contain_text("Do ofício")
+    # O primeiro documento aparece como vai sair; o evento editado grava sozinho e a
+    # prévia se refaz.
+    pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
+    folha = pg.frame_locator("#folha-termo")
+    expect(folha.locator("body")).to_contain_text("TERMO DE AUTORIZAÇÃO")
+    pg.get_by_role("textbox", name="Evento").fill("Feira Fictícia")
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
+    expect(folha.locator("body")).to_contain_text("Feira Fictícia")
+    termo.refresh_from_db()
+    assert termo.evento == "Feira Fictícia"
     resposta = pg.request.get(f"/viagens/termos/{termo.pk}/documento/generico.pdf")
     assert resposta.ok and resposta.body().startswith(b"%PDF")
     pg.goto("/viagens/termos/")

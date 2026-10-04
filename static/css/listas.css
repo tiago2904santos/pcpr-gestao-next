@@ -997,3 +997,9 @@ a.ficha:hover {
     justify-self: start;
   }
 }
+
+/* O registro que está aberto ao lado (ex.: o documento do termo mostrado na prévia). */
+.registro--atual {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset var(--filete) 0 0 var(--cor-marca);
+}

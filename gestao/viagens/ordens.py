@@ -134,13 +134,23 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
            servidores=(), motivo: str = "", funcoes: dict | None = None,
            assinante: Servidor | None = None,
-           data_documento: date | None = None) -> tuple[OrdemServico, list[str]]:
-    """Cria (numera) ou altera. Devolve a OS e o que foi copiado dos ofícios."""
+           data_documento: date | None = None,
+           versao: str = "") -> tuple[OrdemServico, list[str]]:
+    """Cria (numera) ou altera. Devolve a OS e o que foi copiado dos ofícios.
+
+    `versao` (o `atualizado_em` que a tela abriu) recusa gravar por cima de quem salvou
+    depois. Os campos vazios recebem dos ofícios na criação e quando um ofício é ligado
+    agora — não a cada gravação (com o autosave, apagar o motivo para reescrevê-lo não pode
+    trazer de volta o do ofício)."""
     oficios, destinos, servidores = list(oficios), list(dict.fromkeys(destinos)), list(servidores)
     if pk:
         ordem = OrdemServico.objects.select_for_update().get(pk=pk)
         policies.exigir(policies.pode_editar_ordem(usuario, ordem),
                         "Esta Ordem de Serviço não pode ser alterada.")
+        if versao and versao != versao_de(ordem):
+            raise OrdemInvalida("Outra pessoa alterou esta OS depois que você abriu a tela. "
+                         "Recarregue a página para ver a versão atual (o que você "
+                         "digitou continua na tela até lá).")
     else:
         policies.exigir(policies.pode_criar_ordem(usuario),
                         "Você não pode criar Ordens de Serviço.")
@@ -168,7 +178,7 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
     if data_fim and not data_inicio:
         raise OrdemInvalida("Informe a data inicial.")
     copiados: list[str] = []
-    if oficios:
+    if oficios and (not pk or any(o.pk not in ja_ligados for o in oficios)):
         base = dados_dos_oficios(oficios)
         if not destinos and base["destinos"]:
             destinos = base["destinos"]
@@ -206,6 +216,11 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
     return ordem, copiados
 
 
+def versao_de(ordem: OrdemServico) -> str:
+    """A versão que a tela guarda para não gravar por cima de outra pessoa."""
+    return ordem.atualizado_em.isoformat() if ordem.atualizado_em else ""
+
+
 def assinatura_prevista(ordem: OrdemServico | None, unidade) -> str:
     """Quem assina se o campo ficar em branco (para a tela dizer antes de gerar)."""
     config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).first()
@@ -213,7 +228,7 @@ def assinatura_prevista(ordem: OrdemServico | None, unidade) -> str:
         return ""
     data = (ordem.data_documento if ordem and ordem.data_documento else timezone.localdate())
     nome, cargo, origem = quem_assina(config, "ordem_servico", data)
-    return f"{nome}{', ' + cargo if cargo else ''} ({origem})" if nome else ""
+    return f"{nome}{', ' + cargo if cargo else ''} — {origem}" if nome else ""
 
 
 @transaction.atomic
@@ -318,13 +333,18 @@ def fixar_data_do_documento(ordem: OrdemServico) -> date:
     return ordem.data_documento
 
 
-def dados_do_documento(ordem: OrdemServico) -> dict:
+def dados_do_documento(ordem: OrdemServico, *, fixar: bool = True) -> dict:
+    """Dados do documento. `fixar=False` (a prévia na tela) não fixa a data do documento
+    nem conta como geração: mostra a data que sairia hoje."""
     config = ConfiguracaoInstitucional.objects.filter(unidade=ordem.unidade).select_related(
         "sede").first()
     if config is None:
         raise OrdemInvalida("A unidade ainda não tem configuração (cabeçalho, quem assina): "
                             "peça ao gestor para cadastrá-la.")
-    data_doc = fixar_data_do_documento(ordem)
+    if fixar:
+        data_doc = fixar_data_do_documento(ordem)
+    else:
+        data_doc = ordem.data_documento or timezone.localdate()
     if ordem.assinante is not None:
         nome, cargo = ordem.assinante.nome, getattr(ordem.assinante.cargo, "nome", "")
     else:
@@ -341,16 +361,20 @@ def dados_do_documento(ordem: OrdemServico) -> dict:
         "delegado_geral": config.delegado_geral_nome,
         "sede": config.sede.nome if config.sede_id else "",
         "data_extenso": dominio.data_por_extenso(data_doc),
+        # Prévia (tela, PDF com ?previa=1): sai com a marca MINUTA — não é a OS emitida e
+        # não pode circular como se fosse (a trava de exclusão só conta a geração real).
+        "previa": not fixar,
         **textos,
     }
 
 
-def html_do_documento(dados: dict) -> str:
+def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+    """HTML do documento; `folha=True` é a versão de tela (dentro do visualizador)."""
     from django.template.loader import render_to_string
 
     from .documentos.pdf import _recursos
     return render_to_string("viagens/documentos/ordem_servico.html",
-                            {"d": dados, **_recursos(False)})
+                            {"d": dados, "folha": folha, "nonce": nonce, **_recursos(folha)})
 
 
 def pdf_do_documento(dados: dict) -> bytes:

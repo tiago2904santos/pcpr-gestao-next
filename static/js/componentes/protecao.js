@@ -16,7 +16,9 @@ function proteger(form) {
     if (sujo) return;
     sujo = true;
     if (status) {
-      status.textContent = status.dataset.textoSujo || "Alterações não salvas.";
+      // Com [data-anuncio], só o anúncio muda (o resto do status — ex.: pendências — fica).
+      const alvo = /** @type {HTMLElement} */ (status.querySelector("[data-anuncio]") || status);
+      alvo.textContent = status.dataset.textoSujo || "Alterações não salvas.";
       status.classList.add("barra-acoes__status--sujo");
     }
   };
@@ -31,6 +33,11 @@ function proteger(form) {
     if (campo.form === form) marcar();
   });
   form.addEventListener("submit", () => {
+    sujo = false;
+  });
+  // O autosave gravou (autosave.js): sair já não perde nada. Uma digitação depois disso
+  // marca de novo — e o autosave agenda outra gravação.
+  document.addEventListener("pcpr:dados-salvos", () => {
     sujo = false;
   });
   window.addEventListener("beforeunload", (e) => {

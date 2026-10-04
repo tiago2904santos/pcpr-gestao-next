@@ -1,0 +1,14 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documento indisponível</title>
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">
+</head>
+<body class="folha-aviso">
+  {% comment %}O visualizador não fica em branco: diz por que o documento não sai.{% endcomment %}
+  <main><p class="folha-aviso__texto">{{ mensagem }}</p></main>
+</body>
+</html>

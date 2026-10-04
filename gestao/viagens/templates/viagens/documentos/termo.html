@@ -9,7 +9,10 @@ Termo de autorização (paridade com os modelos da referência: genérico/semipr
 completo com viatura e completo sem viatura). O que não se sabe sai como linha em branco
 para preencher à mão. A unidade e o evento vêm do cadastro e do termo, não do texto fixo.
 {% endcomment %}
-<style>
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
   @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
   @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
   @page { size: A4; margin: 20mm 20mm 26mm 20mm; @bottom-center { content: element(rodape); } }

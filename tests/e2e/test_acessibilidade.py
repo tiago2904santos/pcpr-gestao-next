@@ -12,8 +12,10 @@ pytestmark = pytest.mark.a11y
 GRAVES = {"serious", "critical"}
 
 
-def _avaliar(pg, rota):
+def _avaliar(pg, rota, antes=None):
     pg.goto(rota, wait_until="networkidle")
+    if antes is not None:  # ex.: rolar até um componente que carrega ao aparecer
+        antes(pg)
     violacoes = rodar_axe(pg)
     graves = [v for v in violacoes if v["impact"] in GRAVES]
     salvar_relatorio(f"axe-{rota.strip('/').replace('/', '_') or 'raiz'}.json", violacoes)
@@ -40,6 +42,33 @@ def test_telas_do_gestor_sem_violacoes_graves(pagina, dados_e2e, rota):
     diária; configuração da unidade editável)."""
     entrar(pagina, "gestor")
     _avaliar(pagina, rota)
+
+
+def _carregar_previa(pg):
+    pg.locator("#previa").scroll_into_view_if_needed()
+    # Espera o conteúdo da folha (não a rede ociosa): com a suíte inteira em paralelo a
+    # máquina fica carregada e o visualizador demora a carregar.
+    pg.locator("iframe[data-quadro='texto']:not([hidden])").wait_for()
+    pg.frame_locator("iframe[data-quadro='texto']").locator("body main").wait_for()
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_folhas_de_termo_e_os_sem_violacoes(logado, dados_e2e, largura):
+    """Folhas salvas de termo e OS (cartões, conferência, visualizador e histórico), com o
+    visualizador já carregado (ele só carrega ao chegar à tela)."""
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import ordens, termos
+    from gestao.viagens.models import Oficio
+
+    operador = Usuario.objects.get(login="operador")
+    oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+    termo = termos.salvar(operador, oficio=oficio)
+    ordem, _ = ordens.salvar(operador, oficios=[oficio])
+    logado.set_viewport_size({"width": largura, "height": 900})
+    logado.set_default_timeout(60_000)  # duas folhas com visualizador; suíte paralela pesa
+    logado.set_default_navigation_timeout(60_000)
+    for rota in (f"/viagens/termos/{termo.pk}/", f"/viagens/ordens/{ordem.pk}/"):
+        _avaliar(logado, rota, antes=_carregar_previa)
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

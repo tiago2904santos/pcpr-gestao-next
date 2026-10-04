@@ -161,6 +161,9 @@
 }
 
 .editor__folha {
+  /* A folha só carrega quando chega à tela: até lá a moldura já tem a altura dela, para
+     a página não pular quando o documento aparece (CLS). */
+  min-height: max(24rem, 72vh);
   border: 1px solid var(--cor-borda);
   border-radius: 0 0 var(--raio-md) var(--raio-md);
 }
@@ -259,6 +262,10 @@
 
   .editor__quadro {
     height: 60vh;
+  }
+
+  .editor__folha {
+    min-height: max(24rem, 60vh);
   }
 
   .editor__versao {

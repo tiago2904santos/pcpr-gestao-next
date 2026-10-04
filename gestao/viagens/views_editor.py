@@ -17,8 +17,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.middleware.csp import get_nonce
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.csp import CSP
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csp import csp_override
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
@@ -132,11 +134,25 @@ ROTULOS = {
 
 
 # ---------------------------------------------------------------- folha (iframe)
-@require_GET
 # Mesma exceção da minuta em PDF: só a própria origem pode emoldurar a folha; e o estilo do
-# documento (o mesmo que vai ao PDF) entra com o nonce da requisição.
-@csp_override({**settings.SECURE_CSP, "frame-ancestors": [CSP.SELF],
-               "style-src": [CSP.SELF, CSP.NONCE]})
+# documento (o mesmo que vai ao PDF) entra com o nonce da requisição. Vale para toda folha
+# de documento num visualizador (ofício, justificativa, termo, OS).
+def _moldura(politica: dict):
+    """CSP com a moldura da própria origem — e o X-Frame-Options coerente com ela (os
+    navegadores atuais seguem o CSP, mas os dois cabeçalhos não devem se contradizer)."""
+    def decorar(view):
+        return xframe_options_sameorigin(csp_override(politica)(view))
+    return decorar
+
+
+moldura_da_folha = _moldura({**settings.SECURE_CSP, "frame-ancestors": [CSP.SELF],
+                             "style-src": [CSP.SELF, CSP.NONCE]})
+# O PDF que o visualizador mostra no modo "PDF" (termos, OS): só a moldura muda.
+moldura_do_pdf = _moldura({**settings.SECURE_CSP, "frame-ancestors": [CSP.SELF]})
+
+
+@require_GET
+@moldura_da_folha
 def folha(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     """O documento como HTML, com o texto editado em vigor (ou a versão pedida em ?versao=)."""
     oficio = _documento(request, pk, tipo)
@@ -164,6 +180,34 @@ def folha(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     resposta = HttpResponse(html)
     resposta["Cache-Control"] = "no-store"
     return resposta
+
+
+def resposta_de_folha(request: HttpRequest, gerar, erros: tuple[type[Exception], ...] = (),
+                      erro: Exception | None = None) -> HttpResponse:
+    """Folha de documento para o iframe do visualizador (termos, OS): `gerar(nonce)` devolve
+    o HTML. Um erro esperado (ex.: unidade sem configuração) vira uma folha com o aviso, no
+    lugar do documento — o visualizador nunca fica em branco."""
+    preguicoso = get_nonce(request)
+    nonce = str(preguicoso) if preguicoso is not None else ""
+    try:
+        if erro is not None:  # o erro já aconteceu (ex.: no PDF do visualizador)
+            raise erro
+        html = gerar(nonce)
+    except erros as exc:
+        html = render_to_string("viagens/documentos/_sem_folha.html", {"mensagem": str(exc)})
+    resposta = HttpResponse(html)
+    resposta["Cache-Control"] = "no-store"
+    return resposta
+
+
+def primeiro_erro(form) -> str:
+    """O primeiro erro do formulário, com o nome do campo, para a linha de status do
+    autosave (a tela mostra todos quando se salva pelo botão)."""
+    for nome, erros in form.errors.items():
+        rotulo = form.fields[nome].label if nome in form.fields else ""
+        texto = erros[0] if erros else ""
+        return f"Não salvo: {rotulo} — {texto}" if rotulo else f"Não salvo: {texto}"
+    return "Não salvo."
 
 
 # ---------------------------------------------------------------- estado e escrita (JSON)

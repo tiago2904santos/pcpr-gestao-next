@@ -2,14 +2,16 @@
 {% comment %}
 Editor dentro do visualizador (ADR 0018). Variáveis: `tipo` ("oficio" | "justificativa"),
 `rotulo` (nome do documento), `titulo_doc` (ex.: "Ofício 12/2026"), `folha_url`, `pdf_url`,
-`estado_url` (vazio no UI Lab: vitrine, nada é salvo), `pode_editar_texto`.
+`estado_url` (vazio no UI Lab: vitrine, nada é salvo), `pode_editar_texto`; opcional
+`estado_leitura` (o selo quando não se escreve na folha — termos e OS usam o visualizador só
+para ver o documento como vai sair).
 Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica oculta.
 {% endcomment %}
 <pc-editor-documento class="editor" id="editor-{{ tipo }}"
     data-folha="{{ folha_url }}"{% if estado_url %} data-base="{{ estado_url }}"{% endif %}
     data-pdf="{{ pdf_url }}"
     {% if pode_editar_texto %}data-editavel{% endif %}>
-  <div class="editor__barra" role="toolbar" aria-label="Ferramentas d{% if tipo == 'oficio' %}o ofício{% else %}a justificativa{% endif %}" aria-controls="folha-{{ tipo }}" hidden>
+  <div class="editor__barra" role="toolbar" aria-label="Ferramentas {% if tipo == 'oficio' %}do ofício{% elif tipo == 'justificativa' %}da justificativa{% else %}— {{ rotulo }}{% endif %}" aria-controls="folha-{{ tipo }}" hidden>
     <div class="editor__linha">
       <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
         <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
@@ -18,7 +20,7 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
       <div class="editor__estado">
         <span class="editor__paginas" data-paginas hidden></span>
         <span class="editor__presenca" data-presenca hidden></span>
-        <output class="editor__salvo selo selo--sem-ponto" data-salvo aria-live="polite">{% if pode_editar_texto %}Carregando…{% else %}Somente leitura{% endif %}</output>
+        <output class="editor__salvo selo selo--sem-ponto" data-salvo aria-live="polite">{% if pode_editar_texto %}Carregando…{% else %}{{ estado_leitura|default:"Somente leitura" }}{% endif %}</output>
       </div>
     </div>
     {% if pode_editar_texto %}

@@ -1,28 +1,40 @@
 # Status da migração
 
-Atualizado em 03/10/2026 (ramo `migracao/loop-continuo`).
+Atualizado em 04/10/2026 (ramo `migracao/loop-continuo`).
 
 ## Agora
 
-**Módulo 5 — Ordens de serviço: IMPLEMENTADO** (ficha [ordens.md](ordens.md)): numeração
-anual, OS avulsa ou a partir do ofício (copiando destinos, período, equipe e motivo), os
-cinco tipos de necessidade com os textos da referência, funções da equipe, PDF/DOCX,
-cancelar/reativar/excluir. O menu de Viagens ganhou o grupo "Documentos" (Justificativas,
-Termos, Ordens de serviço).
+**Termos e Ordens de serviço: folhas refeitas** na linguagem da folha do ofício (placa e
+frase, cartões numerados com selos de falta, conferência, documento como vai sair,
+histórico da trilha do banco, gravação automática). Fichas: [termos.md](termos.md),
+[ordens.md](ordens.md).
 
-**Módulo 4 — Termos de autorização: IMPLEMENTADO** (ficha [termos.md](termos.md)): termo
-avulso ou a partir do ofício (herdando destinos, período, equipe e viatura), documento por
-servidor, genérico e da viatura, PDF único e ZIP de DOCX, cancelar/reativar/excluir.
+## Módulos
 
-**Módulo 3 — Roteiros: EM PARIDADE** (ficha [roteiros.md](roteiros.md)); falta "Finalizados",
-que depende da prestação de contas.
+Inventário da referência (rotas por app): accounts 11, agenda 7, atendimento_imprensa 12,
+cadastros 8, coffee_break 60, config 25, core 8, dashboard 1, demandas_eventos 16,
+documentos 23, publicacoes 12, relatorios 2, solicitacoes 19, viagens_cadastros 11,
+viagens_oficios 29, viagens_ordens 8, viagens_planos 12, viagens_prestacoes 10,
+viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 
-**Módulo 2 — Cadastros: IMPLEMENTADO** (ficha [cadastros.md](cadastros.md)): CRUD em tela,
-assinantes por tipo com substituições e endereço em campos. Comportamentos adotados da
-referência a confirmar: [decisoes.md](decisoes.md).
+| # | Módulo | Status | Paridade | Testes | Performance | Visual | Pendências | Próximo passo |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Ofícios (+ justificativas) | EM FECHAMENTO | matriz completa por leitura ([oficios.md](oficios.md)) | unit, e2e, axe | teto 32 req., TTFB/LCP no orçamento | 6 larguras | comparação com a referência em execução; botão de reabrir | aguarda decisão/acesso |
+| 2 | Cadastros | IMPLEMENTADO | completa por leitura ([cadastros.md](cadastros.md)) | ~84 unit, e2e, axe | listas sem N+1 | 6 larguras | comportamentos adotados a confirmar | — |
+| 3 | Roteiros | EM PARIDADE | falta "Finalizados" ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
+| 4 | Termos de autorização | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado e "Finalizados" | 33 + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | anexar assinado (7), "Finalizados" (9) | com 7 e 9 |
+| 5 | Ordens de serviço | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado, "Finalizadas", conflito de agenda | 24 + 23 domínio + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | idem + conflito de agenda | com 7 e 9 |
+| 6 | Planos de trabalho | PENDENTE | — | — | — | — | inventário de `viagens_planos` (12 rotas) | **próximo** |
+| 7 | Documentos (núcleo: anexar assinado, conferência) | PENDENTE | — | — | — | — | `documentos` (23 rotas) | depois do 6 |
+| 8 | Viagem (assistente) | PENDENTE | — | — | — | — | `viagens_viagem` (13) | depois do 7 |
+| 9 | Prestação de contas (+ abas "Finalizados") | PENDENTE | — | — | — | — | `viagens_prestacoes` (10) | depois do 8 |
+| 10 | Plataforma (usuários/setores, notificações, agenda, relatórios, painel) | PARCIAL | entrada, notificações (vazio) e painel existem | — | — | — | `accounts`, `config`, `agenda`, `relatorios`, `dashboard` | depois do 9 |
+| 11 | Eventos sociais (solicitações, demandas, cadastros de eventos) | PENDENTE | — | — | — | — | `solicitacoes` (19), `demandas_eventos` (16), `cadastros` (8) | — |
+| 12 | ASCOM (atendimento à imprensa, publicações) | PENDENTE | — | — | — | — | 12 + 12 rotas | — |
+| 13 | Coffee Break | PENDENTE | — | — | — | — | 60 rotas | — |
+| 14 | ETL (dados da referência) | BLOQUEADO EXTERNAMENTE | — | — | — | — | acesso aos dados | — |
 
-**Módulo 1 — Ofícios: EM FECHAMENTO** (falta a comparação com a referência em execução e a
-decisão sobre o botão de reabrir). Ficha: [oficios.md](oficios.md).
+## Decisões de Ofícios
 
 | Decisão (Ofícios) | Situação |
 |---|---|
@@ -54,4 +66,4 @@ decisão sobre o botão de reabrir). Ficha: [oficios.md](oficios.md).
 
 Checkpoints: `fae9abf` (descoberta), `957f3aa`, `cb32c8c`, `f78250a`, `a447f80`, `0118be7`,
 `6209156` (D1/D2/D5), `9cc2df6` (D6), `43dad01` (D3), `2bcf751` (D8), `e59ae99` (D4),
-`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens (este commit).
+`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens `e4994fa`, folhas de termo e OS (este commit).

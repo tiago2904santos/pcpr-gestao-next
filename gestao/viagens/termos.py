@@ -186,12 +186,18 @@ def efetivo(termo: TermoAutorizacao) -> Efetivo:
 def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
            evento: str = "", data_inicio: date | None = None, data_fim: date | None = None,
            destinos: list[Municipio] | None = None, servidores=(),
-           viatura: Viatura | None = None) -> TermoAutorizacao:
+           viatura: Viatura | None = None, versao: str = "") -> TermoAutorizacao:
+    """Cria ou altera. `versao` (o `atualizado_em` que a tela abriu) recusa gravar por cima
+    de quem salvou depois (a tela grava sozinha a cada pausa)."""
     destinos = list(dict.fromkeys(destinos or []))  # sem repetir, na ordem informada
     if pk:
         termo = TermoAutorizacao.objects.select_for_update().get(pk=pk)
         policies.exigir(policies.pode_editar_termo(usuario, termo),
                         "Você não pode alterar este termo.")
+        if versao and versao != versao_de(termo):
+            raise TermoInvalido("Outra pessoa alterou este termo depois que você abriu a tela. "
+                         "Recarregue a página para ver a versão atual (o que você "
+                         "digitou continua na tela até lá).")
     else:
         policies.exigir(policies.pode_criar_termo(usuario),
                         "Você não pode criar termos de autorização.")
@@ -234,6 +240,10 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         TermoDestino.objects.bulk_create(
             [TermoDestino(termo=termo, municipio=m, ordem=i) for i, m in enumerate(destinos)])
     return termo
+
+
+def versao_de(termo: TermoAutorizacao) -> str:
+    return termo.atualizado_em.isoformat() if termo.atualizado_em else ""
 
 
 @transaction.atomic
@@ -338,12 +348,13 @@ def nome_do_arquivo(termo: TermoAutorizacao, chave: str, extensao: str) -> str:
     return f"termo-{termo.pk}-{sufixo}.{extensao}"
 
 
-def html_do_documento(dados: dict, *, folha: bool = False) -> str:
+def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+    """HTML do documento; `folha=True` é a versão de tela (dentro do visualizador)."""
     from django.template.loader import render_to_string
 
     from .documentos.pdf import _recursos
     return render_to_string("viagens/documentos/termo.html",
-                            {"d": dados, "folha": folha, **_recursos(folha)})
+                            {"d": dados, "folha": folha, "nonce": nonce, **_recursos(folha)})
 
 
 def pdf_do_documento(dados: dict) -> bytes:

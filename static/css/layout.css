@@ -658,6 +658,12 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
   font-weight: var(--peso-semi);
 }
 
+/* A gravação automática não pôde gravar: o motivo fica à vista (também no celular). */
+.barra-acoes__status--erro {
+  color: var(--cor-perigo);
+  font-weight: var(--peso-semi);
+}
+
 .barra-acoes__status--sujo::before {
   content: "";
   width: 0.5rem;
@@ -834,7 +840,7 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
     margin-right: calc(-1 * var(--esp-2));
     padding: var(--esp-2);
   }
-  .barra-acoes__status:not(.barra-acoes__status--sujo) { display: none; }
+  .barra-acoes__status:not(.barra-acoes__status--sujo):not(.barra-acoes__status--erro) { display: none; }
   /* O aviso de "não salvo" flutua acima da barra: aparecer não pode mover os botões
      (o aviso surge ao sair do campo — exatamente quando o dedo vai para "Salvar"). */
   .barra-acoes__status--sujo {
@@ -846,6 +852,15 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
     background: var(--cor-aviso-fundo);
     box-shadow: var(--sombra-2);
     animation: aparecer var(--duracao-media) var(--curva-padrao) backwards;
+  }
+  .barra-acoes__status--erro {
+    position: absolute;
+    inset: auto var(--esp-2) calc(100% + var(--esp-1)) var(--esp-2);
+    padding: var(--esp-1) var(--esp-3);
+    border: 1px solid var(--cor-perigo-borda);
+    border-radius: var(--raio-md);
+    background: var(--cor-perigo-fundo);
+    box-shadow: var(--sombra-2);
   }
   .barra-acoes__status { font-size: var(--texto-xs); }
   .barra-acoes__extra { display: none; }

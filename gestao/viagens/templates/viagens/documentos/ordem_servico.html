@@ -9,7 +9,10 @@ Ordem de Serviço (paridade com os modelos da referência: o padrão e o "de mod
 competências da equipe e justificativas por tipo de necessidade). Os textos vêm de
 dominio/ordem_servico.py; aqui só a composição.
 {% endcomment %}
-<style>
+{% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'css/folha.css' %}">{% endif %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
   @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
   @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
   @page { size: A4; margin: 20mm 20mm 26mm 20mm; @bottom-center { content: element(rodape); } }
@@ -28,11 +31,15 @@ dominio/ordem_servico.py; aqui só a composição.
   .assinatura { text-align: center; margin-top: 16mm; }
   .assinatura p { margin: 0; text-align: center; }
   .branco { display: inline-block; min-width: 50mm; border-bottom: 1px solid #000; }
+  .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
+            color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
   .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
   .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
 </style>
 </head>
 <body>
+  {# Prévia (tela e PDF do visualizador): não é a OS emitida e não pode circular como ela. #}
+  {% if d.previa %}<div class="minuta" aria-hidden="true">MINUTA</div>{% endif %}
   <div class="rodape"><strong>PCPR</strong>{{ d.rodape }}</div>
   <header class="timbre">
     <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">

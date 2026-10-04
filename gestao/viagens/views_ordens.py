@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -19,10 +19,16 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros import policies as politicas_cadastros
 
-from . import ordens, policies
+from . import linha_do_tempo, ordens, policies
 from .forms import FormularioOrdem
 from .models import Oficio, OrdemServico
 from .views import POR_PAGINA, _migalhas
+from .views_editor import (
+    moldura_da_folha,
+    moldura_do_pdf,
+    primeiro_erro,
+    resposta_de_folha,
+)
 
 ABAS = [("", "Todas", "todas"), ("futuras", "Que vão acontecer", "futuras"),
         ("andamento", "Em andamento e realizadas", "andamento"),
@@ -120,12 +126,12 @@ def _formulario(request: HttpRequest, *args, ordem=None, **kwargs) -> Formulario
 
 
 def _copia_prevista(form: FormularioOrdem, ordem) -> dict:
-    """O que os ofícios ligados preencheriam nos campos vazios (mostrado sob cada campo)."""
+    """O que os ofícios preencheriam nos campos vazios ao criar a OS (sob cada campo). Na
+    OS já criada a cópia só acontece ao ligar um ofício novo — e a tela se redesenha."""
     if ordem is not None:
-        oficios = list(ordem.oficios.all())
-    else:
-        pks = form.initial.get("oficios") or []
-        oficios = list(Oficio.objects.filter(pk__in=pks))
+        return {}
+    pks = form.initial.get("oficios") or []
+    oficios = list(Oficio.objects.filter(pk__in=pks))
     if not oficios:
         return {}
     base = ordens.dados_dos_oficios(oficios)
@@ -142,12 +148,26 @@ def _copia_prevista(form: FormularioOrdem, ordem) -> dict:
     }.items() if v}
 
 
+# Cada falta leva ao cartão onde se resolve (conferência e selos dos cartões).
+SECAO_DA_FALTA = {"período": "destinos", "destino": "destinos", "equipe": "equipe",
+                  "função da equipe": "equipe", "motivo": "motivo"}
+
+
 def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int = 200):
     editavel = ordem is None or policies.pode_editar_ordem(request.user, ordem)
     unidade = ordem.unidade if ordem else policies.unidade_do_usuario(request.user)
+    faltando = ordens.faltando(ordem) if ordem else []
     return render(request, "viagens/ordens/editar.html", {
         "form": form, "ordem": ordem, "editavel": editavel,
-        "faltando": ordens.faltando(ordem) if ordem else [],
+        "faltando": faltando,
+        "pendencias": [{"mensagem": f"Falta {f}", "secao": SECAO_DA_FALTA.get(f, "documento")}
+                       for f in faltando],
+        "historico": (linha_do_tempo.da_ordem(ordem)
+                      if ordem and policies.pode_ver_historico_ordem(request.user, ordem)
+                      else []),
+        "pode_ver_documento": (ordem is not None
+                               and policies.pode_ver_documento_ordem(request.user, ordem)),
+        "hoje": timezone.localdate(),
         "copia": _copia_prevista(form, ordem),
         "assinatura_prevista": ordens.assinatura_prevista(ordem, unidade),
         "periodo": ordens.periodo_curto(ordem) if ordem else "",
@@ -223,19 +243,75 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
     return _tela(request, _formulario(request, ordem=ordem), ordem)
 
 
+@require_POST
+def autosave(request: HttpRequest, pk: int) -> JsonResponse:
+    """Grava a OS a cada pausa na digitação (componentes/autosave.js). Só grava o que passa
+    na validação inteira — a OS não tem rascunho parcial; o que impede fica no status da
+    barra. Os campos vazios recebem dos ofícios, como no botão Salvar."""
+    ordem = _ordem_visivel(request, pk)
+    if not policies.pode_editar_ordem(request.user, ordem):
+        return JsonResponse({"salvo": False, "mensagem": "Esta OS não pode ser alterada."})
+    form = _formulario(request, request.POST, ordem=ordem)
+    if not form.is_valid():
+        return JsonResponse({"salvo": False, "mensagem": primeiro_erro(form)})
+    try:
+        salva, copiados = ordens.salvar(request.user, pk=ordem.pk, **form.cleaned_data)
+    except ordens.OrdemInvalida as exc:
+        return JsonResponse({"salvo": False, "mensagem": f"Não salvo: {exc}"})
+    except PermissionDenied:  # cancelada por outra pessoa no meio do caminho
+        return JsonResponse({"salvo": False, "mensagem": "Esta OS não pode mais ser alterada."})
+    except OrdemServico.DoesNotExist:
+        return JsonResponse({"salvo": False, "mensagem": "Esta OS foi excluída."})
+    # A tela precisa ser redesenhada quando a gravação muda CAMPOS (não só valores): veio
+    # algo dos ofícios recém-ligados, ou as funções a escolher mudaram (tipo ou equipe).
+    na_tela = {k for k in request.POST if k.startswith("funcao_")}
+    recarregar = bool(copiados) or na_tela != _campos_de_funcao(salva)
+    return JsonResponse({"salvo": True, "recarregar": recarregar,
+                         "em": timezone.localtime(salva.atualizado_em).strftime("%H:%M"),
+                         "campos": {"versao": ordens.versao_de(salva)}})
+
+
+def _campos_de_funcao(ordem: OrdemServico) -> set[str]:
+    """Os campos de função que a tela da OS mostra no estado gravado."""
+    from .dominio.ordem_servico import FUNCOES_DO_TIPO
+    if not FUNCOES_DO_TIPO.get(ordem.tipo):
+        return set()
+    return {f"funcao_{s.pk}" for s in ordem.servidores.all()}
+
+
 @require_GET
+@moldura_da_folha
+def folha(request: HttpRequest, pk: int) -> HttpResponse:
+    """O documento como vai sair, em HTML, para o visualizador da tela. Não fixa a data do
+    documento nem conta como geração (isso é do PDF/DOCX)."""
+    ordem = _ordem_visivel(request, pk)
+    policies.exigir(policies.pode_ver_documento_ordem(request.user, ordem),
+                    "Reative a Ordem de Serviço para ver o documento.")
+    return resposta_de_folha(request, lambda nonce: ordens.html_do_documento(
+        ordens.dados_do_documento(ordem, fixar=False), folha=True, nonce=nonce),
+        erros=(ordens.OrdemInvalida,))
+
+
+@require_GET
+@moldura_do_pdf
 def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
     ordem = _ordem_visivel(request, pk)
     policies.exigir(policies.pode_editar_ordem(request.user, ordem),
                     "Reative a Ordem de Serviço para gerar o documento.")
     if formato not in ("pdf", "docx"):
         raise Http404
+    # ?previa=1: o PDF do visualizador da tela — não fixa a data nem conta como geração.
+    previa = formato == "pdf" and request.GET.get("previa") == "1"
     try:
-        dados = ordens.dados_do_documento(ordem)
+        dados = ordens.dados_do_documento(ordem, fixar=not previa)
     except ordens.OrdemInvalida as exc:
+        if previa:  # dentro do visualizador: o aviso no lugar da folha
+            return resposta_de_folha(request, lambda nonce: "", erros=(ordens.OrdemInvalida,),
+                                     erro=exc)
         messages.error(request, str(exc))
         return redirect("viagens:editar_ordem", ordem.pk)
-    nome = f"os-{ordem.numero:03d}-{ordem.ano}.{formato}"
+    sufixo = "-previa" if previa else ""
+    nome = f"os-{ordem.numero:03d}-{ordem.ano}{sufixo}.{formato}"
     if formato == "pdf":
         resposta = HttpResponse(ordens.pdf_do_documento(dados), content_type="application/pdf")
         resposta["Content-Disposition"] = f'inline; filename="{nome}"'

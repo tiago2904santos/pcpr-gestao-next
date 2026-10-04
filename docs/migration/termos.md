@@ -1,6 +1,6 @@
 # Módulo 4 — Termos de autorização (ficha)
 
-Atualizado em 03/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO**. Comparado por
+Atualizado em 04/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO**. Comparado por
 leitura com `viagens_termos/{models,forms,services,views,abas}.py`, os modelos de documento
 (`documentos/tests/golden/termo_autorizacao*.txt`) e `docs/paridade/termos-*.md` da
 referência.
@@ -27,7 +27,9 @@ referência.
 | Criar termo a partir do ofício | ✅ | "Mais ações" da janela do ofício → "Novo termo de autorização" (e "Termos deste ofício") | e2e `test_termo_a_partir_do_oficio` |
 | Marcar no ofício quem precisa de termo (`servidores_termo_autorizacao`) | ↔ | sem marcação no ofício: o termo do ofício vale para toda a equipe; para só alguns, escolha os servidores no termo | — |
 | Anexar termo assinado | ⛔ | chega com o núcleo de Documentos (módulo 7: conferência de assinado) | — |
-| Prévia em tela | ↔ | o PDF abre na aba (é a prévia) | — |
+| Prévia em tela | ✅ MELHORADO | o documento escolhido aparece na própria folha, como vai sair (visualizador do ofício em modo leitura, Texto/PDF), refeito a cada gravação; "Prévia" em cada documento troca qual se vê | `test_folha_termo_os.py::TestFolhaDoTermo`, e2e `test_termo_a_partir_do_oficio` |
+| Gravação | ✅ MELHORADO | o termo salvo grava sozinho a cada pausa (autosave); o que impede aparece na barra ("Não salvo: …") | `test_autosave_e_historico`, e2e |
+| Histórico | ✅ MELHORADO | criação, alterações (juntas por pessoa em 20 min), cancelamento e reativação, lidos da trilha de auditoria do banco | `test_autosave_e_historico` |
 
 ## Revisões (03/10/2026)
 
@@ -46,6 +48,30 @@ referência.
   vazio; busca de ofício pelo começo do número; documento com "participar do evento “…”" e
   "nos municípios de A e B"; configuração mostra quem assina hoje (e por quê) e avisa quando
   o texto do rodapé ignora o endereço.
+
+## Folha (04/10/2026)
+
+A tela foi refeita na linguagem da folha do ofício (a primeira versão era "título + cartões +
+salvar", reprovada pela régua de qualidade): placa "Termo #N" e frase-resumo em chips
+(situação, ofício, servidores, destino, período, viatura); cartões numerados — 1 Ofício e
+evento, 2 Destinos e período, 3 Servidores e viatura, 4 Documentos — com nota e selo do que
+falta; no cartão 4, a conferência (cada falta leva ao cartão), o que o termo emite (PDF/DOCX
+e "Prévia" por documento), o visualizador e o histórico. "Todos em um PDF" no cabeçalho; ZIP,
+histórico, cancelar e excluir no menu. Capturas em `artifacts/visual-refinement-v2/depois/
+termos-editar-*.png`; axe sem violações em 360 e 1440 com o visualizador carregado.
+
+## Revisões da folha (04/10/2026)
+
+- **Segurança**: a folha exige a régua de gerar (`pode_ver_documento_termo`: termo ativo,
+  quem altera termos) — Consulta não vê RG/CPF/telefone dos servidores pela folha, e termo
+  cancelado não mostra documento; autosave com versão (não grava por cima de quem salvou
+  depois); corridas viram mensagem; histórico com política explícita e marcos garantidos.
+- **UX**: a tela acompanha cada gravação (frase, selos, conferência, lista de documentos e
+  pendências da barra se refazem); trocar o ofício recarrega a tela (a herança sob cada
+  campo muda); a conferência traz "Gerar os termos (PDF)" e a barra também; cada linha da
+  lista abre o documento em "Como vai sair" pelo nome e tem PDF + menu (DOCX); sem ofício,
+  "Obrigatório sem ofício vinculado"; com ofício, o vazio diz "valem os do ofício" (sem a
+  ajuda fixa que contradizia o cabeçalho); reativar volta ao próprio termo.
 
 ## Perfis
 

@@ -932,6 +932,7 @@
 }
 
 .heranca > .icone {
+  display: inline-block; /* o reset deixa svg em bloco: aqui o ícone corre com o texto */
   margin-right: var(--esp-1);
   vertical-align: -0.15em;
 }

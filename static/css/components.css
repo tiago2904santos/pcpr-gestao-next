@@ -821,6 +821,11 @@ a.resumo__documento:hover {
 .campos > .campo--lg { flex: 1 1 18rem; }
 .campos > .campo--cresce { flex-grow: 1; }
 
+/* Abaixo de ~420px duas datas lado a lado cortam "dd/mm/aaaa": cada uma na sua linha. */
+@media (max-width: 419.98px) {
+  .campos > :is(.campo--sm, .campo--md):has(pc-data) { flex-basis: 100%; }
+}
+
 @media (max-width: 767.98px) {
   .campos > :is(.campo--xs, .campo--sm, .campo--md) { flex: 1 1 calc(50% - var(--esp-4)); }
   .campos > .campo--auto { flex-basis: 100%; }
@@ -1293,6 +1298,13 @@ a.resumo__documento:hover {
   flex: none;
 }
 
+/* Celular estreito: a ação desce para uma linha só dela, na largura toda — ao lado, o
+   texto ficava espremido em quatro linhas. */
+@media (max-width: 479.98px) {
+  .alerta:has(.alerta__acao) { flex-wrap: wrap; }
+  .alerta__acao { flex: 1 1 100%; margin-left: 0; justify-content: center; }
+}
+
 .alerta__corpo ul {
   margin: var(--esp-1) 0 0;
   padding-left: var(--esp-5);
@@ -1724,6 +1736,12 @@ dialog.dialogo--largo {
 /* "Sem sigla", "Ainda não usado": valor ausente dito em voz baixa. */
 .vazio-inline {
   color: var(--cor-texto-terciario);
+}
+
+.vazio-inline > .icone {
+  display: inline-block; /* corre com o texto (o reset deixa svg em bloco) */
+  margin-right: var(--esp-1);
+  vertical-align: -0.15em;
 }
 
 /* Revisão: o sobretítulo diz que esta é a etapa de emissão; a nota lembra a retificação. */

@@ -41,6 +41,24 @@ cadastros (`cadastros/catalogo.html` + `views_crud.Catalogo`) é o molde para os
 próximos módulos (tipos de evento, serviços, órgãos…). Arquétipos: assistente, busca, calendário, configurações,
 detalhe, documento, formulário, lista, painel, relatório.
 
+## Visualizador de documento em modo leitura
+
+`viagens/oficios/_editor.html` (`pc-editor-documento`) sem `estado_url` e com
+`pode_editar_texto=False` é o **DocumentPreview** do sistema: folha HTML num iframe que só
+carrega ao chegar à tela, modos Texto/PDF, refeito no evento `pcpr:dados-salvos` (autosave).
+Rota da folha: `resposta_de_folha` + `@moldura_da_folha` (views_editor); o PDF emoldurado
+usa `@moldura_do_pdf` (com `?previa=1`, erro vira aviso na folha). A folha passa pela mesma
+policy de gerar o documento (`pode_ver_documento_*`); sem ela, o visualizador nem é
+desenhado.
+
+## Gravação automática com tela viva
+
+`form[data-autosave]` (`autosave.js`) + `[data-status-salvamento]` com `[data-anuncio]`
+(o texto do autosave) e regiões `[data-vivo][id]` (refeitas depois de cada gravação). A
+resposta `{"salvo", "em", "campos", "recarregar", "mensagem"}`; `mensagem` acende
+`.barra-acoes__status--erro` (visível no celular). Usos: ofício, roteiro, termo, OS. Usos: ofício e justificativa (editáveis), termo e OS (leitura). A
+moldura reserva a altura da folha antes de carregar (sem CLS).
+
 ## A promover / extrair (com o primeiro módulo que precisar)
 
 | Candidato | Hoje | Por que promover | Quando |
@@ -52,5 +70,5 @@ detalhe, documento, formulário, lista, painel, relatório.
 | **Catálogo de textos prontos** (seletor + "guardar como modelo") | editor de documento tem "guardar texto pronto" | Motivo, justificativa, RT, despacho, resposta padrão (ASCOM) | Módulo 1 (agora) |
 | **CRUD de cadastro em janela** (lista + janela de novo/editar + definir padrão + ativo) | não existe | Todos os catálogos (cargos, combustíveis, motivos, modelos…) | Módulo 2 (o catálogo de motivos é o primeiro) |
 | **Numeração anual com lacunas** | domínio do ofício | OS e PT usam o mesmo livro com lacunas na referência | Módulo 5 |
-| **Linha do tempo (histórico)** | seção histórico do ofício | Todo processo | Módulo 4 |
+| **Linha do tempo (histórico)** | ✅ promovida (04/10): `plataforma.auditoria.passos_do_registro` lê a trilha do banco (agrupa por requisição, junta tabelas filhas, ignora eventos de id reaproveitado) e `viagens/linha_do_tempo.py` escreve as frases; marcação `oficios/_evento.html` | Termos e OS já usam; PT, prestação, eventos seguem o mesmo par | — |
 | **Selo temporal** ("faltam N dias", "em andamento") | ofício/roteiro | Termos, OS, PT, prestação | já reutilizável — conferir nome único |

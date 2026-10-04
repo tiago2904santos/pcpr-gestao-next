@@ -606,6 +606,9 @@ class FormularioTermo(forms.Form):
     """Cadastro do termo. Em branco, destinos, período, servidores e viatura vêm do ofício
     (referência: "herdados"); sem ofício, destino e data são obrigatórios (o serviço confere)."""
 
+    # Versão que a tela abriu (gravar por cima de outra pessoa é recusado).
+    versao = forms.CharField(required=False, widget=forms.HiddenInput)
+
     oficio = forms.ModelChoiceField(
         label="Ofício vinculado", queryset=Oficio.objects.none(), required=False,
         widget=forms.HiddenInput(attrs={"data-valor-id": ""}))
@@ -644,6 +647,21 @@ class FormularioTermo(forms.Form):
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
         viatura.queryset = Viatura.objects.filter(
             Q(ativo=True) | Q(pk=termo.viatura_id if termo else None)).order_by("placa")
+        # Com ofício, o que vem dele aparece sob cada campo ("Do ofício: …"): o vazio diz
+        # isso, sem ajuda fixa que repita. Sem ofício, destino e data são obrigatórios.
+        if self.is_bound:
+            com_oficio = bool(self.data.get("oficio"))
+        else:
+            com_oficio = bool(self.initial.get("oficio") or (termo and termo.oficio_id))
+        destinos = self.fields["destinos"]
+        if com_oficio:
+            destinos.help_text = ""
+            destinos.widget.rotulo_vazio = "Nenhum escolhido aqui: valem os do ofício."
+            servidores.help_text = "Um termo por servidor."
+            servidores.widget.rotulo_vazio = "Nenhum escolhido aqui: vale a equipe do ofício."
+        else:
+            destinos.help_text = "Obrigatório sem ofício vinculado."
+            servidores.help_text = "Um termo por servidor; sem servidor, sai só o genérico."
 
     def clean(self):
         """As regras do serviço, com o erro no campo certo (todas de uma vez)."""
@@ -670,7 +688,9 @@ class FormularioTermo(forms.Form):
 
     @classmethod
     def de(cls, termo, **kwargs):
+        from .termos import versao_de
         return cls(termo=termo, initial={
+            "versao": versao_de(termo),
             "oficio": termo.oficio_id, "evento": termo.evento,
             "destinos": [str(d.municipio) for d in termo.destinos.all()],
             "data_inicio": termo.data_inicio,
@@ -684,10 +704,11 @@ class FormularioOrdem(forms.Form):
     """Cadastro da OS. Ligada a ofícios, a OS copia deles o que ficar em branco (destinos,
     período, equipe, motivo); nos tipos com função, cada um da equipe recebe a sua."""
 
+    versao = forms.CharField(required=False, widget=forms.HiddenInput)
+
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False,
-        help_text="Os campos que você deixar vazios abaixo são preenchidos com os dados dos "
-                  "ofícios ao salvar.")
+        help_text="")  # a nota do cartão explica o que vem dos ofícios
     tipo = forms.ChoiceField(label="Tipo de necessidade", choices=OrdemServico.TIPOS,
                              widget=Selecao(),
                              help_text="Muda o texto do documento (referência, justificativas "
@@ -713,8 +734,7 @@ class FormularioOrdem(forms.Form):
     data_documento = forms.DateField(
         label="Data do documento", required=False, widget=EntradaData(),
         input_formats=FORMATOS_DATA,
-        help_text="Em branco, fica a data em que o documento for gerado (e não muda mais "
-                  "sozinha).")
+        help_text="Em branco, a da primeira geração.")
 
     def __init__(self, *args, oficios=None, ordem=None, fonte_oficios: str = "",
                  fonte_servidores: str = "", fonte_municipios: str = "", unidade=None,
@@ -765,7 +785,7 @@ class FormularioOrdem(forms.Form):
             opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
             for s in ordem.servidores.select_related("cargo").order_by("nome"):
                 nome = f"funcao_{s.pk}"
-                rotulo = f"{s.nome} ({s.cargo.nome})" if s.cargo_id else s.nome
+                rotulo = s.nome  # o cargo já está no cartão da pessoa, logo acima
                 self.fields[nome] = forms.ChoiceField(
                     label=rotulo, choices=opcoes, required=False, widget=Selecao(),
                     initial=(ordem.funcoes or {}).get(str(s.pk), ""))
@@ -783,7 +803,9 @@ class FormularioOrdem(forms.Form):
 
     @classmethod
     def de(cls, ordem, **kwargs):
+        from .ordens import versao_de
         return cls(ordem=ordem, initial={
+            "versao": versao_de(ordem),
             "oficios": [o.pk for o in ordem.oficios.all()], "tipo": ordem.tipo,
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,

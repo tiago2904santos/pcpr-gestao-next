@@ -21,10 +21,16 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
-from . import policies, termos
+from . import linha_do_tempo, policies, termos
 from .forms import FormularioTermo
 from .models import Oficio, TermoAutorizacao, Trecho
 from .views import POR_PAGINA, _migalhas
+from .views_editor import (
+    moldura_da_folha,
+    moldura_do_pdf,
+    primeiro_erro,
+    resposta_de_folha,
+)
 
 ABAS = [("", "Todos", "todos"), ("futuros", "Que vão acontecer", "futuros"),
         ("andamento", "Em andamento e realizados", "andamento"),
@@ -143,10 +149,19 @@ def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int =
     voltar = reverse("viagens:termos")
     if termo is None and oficio is not None:  # veio da janela do ofício: volta para ela
         voltar = f"{reverse('viagens:oficios')}?resumo={oficio.pk}"
+    docs = termos.documentos_do_termo(termo, ef) if termo is not None else []
+    # Qual documento o visualizador mostra: ?previa=<chave>, senão o primeiro da lista.
+    pedida = request.GET.get("previa", "")
+    previa = next((d for d in docs if d["chave"] == pedida), docs[0] if docs else None)
     return render(request, "viagens/termos/editar.html", {
         "form": form, "termo": termo, "oficio": oficio, "ef": ef, "voltar": voltar,
         "heranca": termos.heranca_do_oficio(oficio),
-        "docs": termos.documentos_do_termo(termo, ef) if termo is not None else [],
+        "docs": docs, "previa": previa,
+        "historico": (linha_do_tempo.do_termo(termo)
+                      if termo is not None and policies.pode_ver_historico_termo(
+                          request.user, termo) else []),
+        "pode_ver_documento": (termo is not None
+                               and policies.pode_ver_documento_termo(request.user, termo)),
         "editavel": termo is None or policies.pode_editar_termo(request.user, termo),
         "pode_cancelar": termo is not None and policies.pode_cancelar_termo(request.user, termo),
         "pode_excluir": termo is not None and policies.pode_excluir_termo(request.user, termo),
@@ -206,7 +221,45 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
     return _tela(request, _formulario(request, termo=termo), termo)
 
 
+@require_POST
+def autosave(request: HttpRequest, pk: int) -> JsonResponse:
+    """Grava o termo a cada pausa na digitação (componentes/autosave.js), quando o
+    formulário inteiro é válido; senão diz o que impede, no status da barra."""
+    termo = _termo_visivel(request, pk)
+    if not policies.pode_editar_termo(request.user, termo):
+        return JsonResponse({"salvo": False, "mensagem": "Este termo não pode ser alterado."})
+    form = _formulario(request, request.POST, termo=termo)
+    if not form.is_valid():
+        return JsonResponse({"salvo": False, "mensagem": primeiro_erro(form)})
+    oficio_antes = termo.oficio_id
+    try:
+        salvo = termos.salvar(request.user, pk=termo.pk, **form.cleaned_data)
+    except termos.TermoInvalido as exc:
+        return JsonResponse({"salvo": False, "mensagem": f"Não salvo: {exc}"})
+    except PermissionDenied:  # cancelado por outra pessoa no meio do caminho
+        return JsonResponse({"salvo": False, "mensagem": "Este termo não pode mais ser alterado."})
+    except TermoAutorizacao.DoesNotExist:
+        return JsonResponse({"salvo": False, "mensagem": "Este termo foi excluído."})
+    # Trocar o ofício muda o que vem dele sob cada campo: a tela é redesenhada.
+    return JsonResponse({"salvo": True, "recarregar": salvo.oficio_id != oficio_antes,
+                         "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
+                         "campos": {"versao": termos.versao_de(salvo)}})
+
+
 @require_GET
+@moldura_da_folha
+def folha(request: HttpRequest, pk: int, chave: str) -> HttpResponse:
+    """Um documento do termo em HTML, para o visualizador da tela."""
+    termo = _termo_visivel(request, pk)
+    policies.exigir(policies.pode_ver_documento_termo(request.user, termo),
+                    "Reative o termo para ver os documentos.")
+    return resposta_de_folha(request, lambda nonce: termos.html_do_documento(
+        termos.dados_do_documento(termo, chave), folha=True, nonce=nonce),
+        erros=(termos.TermoInvalido,))
+
+
+@require_GET
+@moldura_do_pdf
 def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpResponse:
     """Um documento do termo, gerado na hora: PDF (abre no navegador) ou DOCX (baixa)."""
     termo = _termo_visivel(request, pk)
@@ -217,6 +270,9 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
     try:
         dados = termos.dados_do_documento(termo, chave)
     except termos.TermoInvalido as exc:
+        if request.GET.get("previa") == "1":  # dentro do visualizador: o aviso na folha
+            return resposta_de_folha(request, lambda nonce: "", erros=(termos.TermoInvalido,),
+                                     erro=exc)
         messages.error(request, str(exc))
         return redirect("viagens:editar_termo", termo.pk)
     nome = termos.nome_do_arquivo(termo, chave, formato)
@@ -232,6 +288,7 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
 
 
 @require_GET
+@moldura_do_pdf
 def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
     """Todos os documentos do termo: um PDF só ou um ZIP de DOCX (referência)."""
     termo = _termo_visivel(request, pk)
@@ -254,9 +311,13 @@ def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
     return resposta
 
 
-def _voltar(request: HttpRequest, padrao: str) -> str:
+def _voltar(request: HttpRequest, padrao: str, termo_pk: int | None = None) -> str:
+    """A lista como estava, ou o próprio termo (quando a ação veio dele)."""
     voltar = request.POST.get("voltar") or ""
-    if (urlsplit(voltar).path == reverse("viagens:termos")
+    caminhos = {reverse("viagens:termos")}
+    if termo_pk is not None:
+        caminhos.add(reverse("viagens:editar_termo", args=[termo_pk]))
+    if (urlsplit(voltar).path in caminhos
             and url_has_allowed_host_and_scheme(voltar, allowed_hosts={request.get_host()})):
         return voltar
     return padrao
@@ -270,7 +331,7 @@ def _acao(request: HttpRequest, pk: int, executar, padrao: str | None = None):
         messages.error(request, str(exc))
     else:
         messages.success(request, mensagem)
-    return redirect(_voltar(request, padrao or reverse("viagens:termos")))
+    return redirect(_voltar(request, padrao or reverse("viagens:termos"), termo_pk=pk))
 
 
 @require_POST

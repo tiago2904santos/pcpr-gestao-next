@@ -203,3 +203,19 @@ html.folha--leitura body {
     right: -8mm;
   }
 }
+
+/* ---- Folha sem documento (ex.: unidade sem configuração): o aviso no lugar do texto ---- */
+.folha-aviso main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.folha-aviso__texto {
+  max-width: 60ch;
+  font-family: var(--fonte-base);
+  font-size: var(--texto-lg);
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}

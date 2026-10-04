@@ -212,6 +212,17 @@ def pode_editar_termo(usuario, termo: TermoAutorizacao) -> bool:
             and pode_ver_termo(usuario, termo))
 
 
+def pode_ver_documento_termo(usuario, termo: TermoAutorizacao) -> bool:
+    """A folha na tela mostra o documento como sai (RG, CPF, telefone de cada servidor):
+    mesma régua de gerar — termo ativo e quem altera termos."""
+    return pode_editar_termo(usuario, termo)
+
+
+def pode_ver_historico_termo(usuario, termo: TermoAutorizacao) -> bool:
+    """Quem vê o termo vê quem o criou, alterou e cancelou (lido da trilha do banco)."""
+    return pode_ver_termo(usuario, termo)
+
+
 def pode_cancelar_termo(usuario, termo: TermoAutorizacao) -> bool:
     """Cancelar e reativar: quem altera termos (a referência não restringe mais que isso)."""
     return usuario.has_perm("viagens.change_termoautorizacao") and pode_ver_termo(usuario,
@@ -250,6 +261,15 @@ def pode_editar_ordem(usuario, ordem: OrdemServico) -> bool:
     """Editar e gerar documentos: OS ativa, quem altera OS e a vê."""
     return (not ordem.cancelada and usuario.has_perm("viagens.change_ordemservico")
             and pode_ver_ordem(usuario, ordem))
+
+
+def pode_ver_documento_ordem(usuario, ordem: OrdemServico) -> bool:
+    """A folha na tela mostra a OS como sai: mesma régua de gerar (OS ativa, quem altera)."""
+    return pode_editar_ordem(usuario, ordem)
+
+
+def pode_ver_historico_ordem(usuario, ordem: OrdemServico) -> bool:
+    return pode_ver_ordem(usuario, ordem)
 
 
 def pode_cancelar_ordem(usuario, ordem: OrdemServico) -> bool:

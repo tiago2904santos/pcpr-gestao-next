@@ -8,7 +8,14 @@
  * Sem JavaScript nada muda — o botão "Salvar" continua sendo o caminho.
  *
  * Marcação: <form data-autosave="<url>"> com <input name="roteiro_id" data-roteiro-id>.
- * O status aparece em [data-status-salvamento].
+ * O status aparece em [data-status-salvamento] (no [data-anuncio] dele, se houver).
+ *
+ * Depois de gravar, a tela acompanha o que foi gravado:
+ *  - `campos` da resposta voltam ao formulário (ex.: a versão nova);
+ *  - as regiões `[data-vivo][id]` (selos, conferência, listas que dependem dos dados) são
+ *    trocadas pelas da página refeita no servidor — menos a que tem o foco;
+ *  - `recarregar: true` (a gravação mudou CAMPOS, não só valores — ex.: funções da equipe
+ *    a escolher) recarrega a página, já com tudo gravado.
  */
 
 const ESPERA = 1200;
@@ -95,7 +102,8 @@ export class Autosave {
       const corpo = await resposta.json();
       if (!corpo.salvo) {
         this.ultima = "";  // tentar de novo na próxima mudança
-        this.anunciar("Ainda não dá para salvar — complete a origem e um destino.");
+        // `mensagem` é o texto para a pessoa (termos, OS); sem ele, o aviso do roteiro.
+        this.anunciar(corpo.mensagem || "Ainda não dá para salvar — complete a origem e um destino.", false, Boolean(corpo.mensagem));
         return;
       }
       const campoId = /** @type {HTMLInputElement | null} */ (this.form.querySelector("[data-roteiro-id]"));
@@ -108,10 +116,17 @@ export class Autosave {
         );
         if (campo) campo.value = String(valor);
       }
+      if (corpo.recarregar) {
+        this.enviando = true;  // nada mais a gravar: a página volta já com tudo
+        this.anunciar("Salvo — atualizando a tela…", true);
+        window.location.reload();
+        return;
+      }
       this.anunciar(`Salvo automaticamente às ${corpo.em}`, true);
       // Quem mostra o documento pode se refazer com os dados novos (editor-documento.js).
       document.documentElement.dataset.dadosSalvos = "1"; // para quem carregar depois
       document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
+      this.atualizarRegioes();
     } catch (erro) {
       if (/** @type {Error} */ (erro).name === "AbortError") return;
       this.ultima = "";
@@ -123,11 +138,31 @@ export class Autosave {
     }
   }
 
-  /** @param {string} texto @param {boolean} ok */
-  anunciar(texto, ok = false) {
+  /** Troca as regiões `[data-vivo][id]` pelas da página refeita no servidor. */
+  async atualizarRegioes() {
+    const vivas = [...document.querySelectorAll("[data-vivo][id]")];
+    if (!vivas.length) return;
+    try {
+      const r = await fetch(window.location.pathname + window.location.search,
+        { headers: { Accept: "text/html" } });
+      if (!r.ok) return;
+      const nova = new DOMParser().parseFromString(await r.text(), "text/html");
+      for (const atual of vivas) {
+        const outra = nova.getElementById(atual.id);
+        // Quem está sendo usado não muda debaixo da mão (volta na próxima gravação).
+        if (!outra || atual.contains(document.activeElement)) continue;
+        atual.replaceWith(document.adoptNode(outra));
+      }
+    } catch { /* informativo: a tela continua válida, só menos atual */ }
+  }
+
+  /** @param {string} texto @param {boolean} ok @param {boolean} erro */
+  anunciar(texto, ok = false, erro = false) {
     if (!this.status) return;
-    this.status.textContent = texto;
+    const alvo = /** @type {HTMLElement} */ (this.status.querySelector("[data-anuncio]") || this.status);
+    alvo.textContent = texto;
     this.status.classList.toggle("barra-acoes__status--salvo", ok);
+    this.status.classList.toggle("barra-acoes__status--erro", erro);
     this.status.classList.remove("barra-acoes__status--sujo");
   }
 }
