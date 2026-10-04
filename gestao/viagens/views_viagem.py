@@ -240,3 +240,67 @@ def novo_documento(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
         return redirect(reverse("viagens:editar_viagem", args=[v.pk]) + "#documentos")
     messages.success(request, f"{doc} criado já vinculado à viagem.")
     return redirect(ROTAS_NOVO[tipo], doc.pk)
+
+
+@require_http_methods(["GET", "POST"])
+def gerar_documentos(request: HttpRequest, pk: int) -> HttpResponse:
+    """Gerar documentos em lote (referência): um ofício por equipe e, se pedidos e ainda
+    inexistentes, termos, OS e plano. "Adicionar/Remover ofício" reenviam sem gravar."""
+    from . import viagem_lote
+    from .forms import FormularioLote
+
+    v = _viagem_visivel(request, pk)
+    if not policies.pode_editar_viagem(request.user, v):
+        messages.error(request, "Reative a viagem antes de gerar documentos.")
+        return redirect("viagens:editar_viagem", v.pk)
+    fonte = reverse("cadastros:buscar_servidores")
+    acao = request.POST.get("acao", "")
+    try:
+        quantidade = int(request.POST.get("quantidade") or 1)
+    except ValueError:
+        quantidade = 1
+    erros: list[str] = []
+    if request.method == "POST" and acao in ("adicionar", "remover"):
+        dados = request.POST.copy()
+        if acao == "adicionar":
+            quantidade = min(quantidade + 1, viagem_lote.MAX_OFICIOS)
+        elif quantidade > 1:
+            quantidade -= 1
+        form = FormularioLote(dados, quantidade=quantidade, fonte_servidores=fonte)
+        form.is_valid()
+        form.errors.clear()
+    elif request.method == "POST":
+        form = FormularioLote(request.POST, quantidade=quantidade, fonte_servidores=fonte)
+        if form.is_valid():
+            try:
+                r = viagem_lote.gerar(request.user, v.pk, form.equipes(),
+                                      com_termos=form.cleaned_data["termos"],
+                                      com_ordem=form.cleaned_data["ordem"],
+                                      com_plano=form.cleaned_data["plano"])
+            except viagem_lote.LoteInvalido as exc:
+                erros = exc.erros
+            else:
+                numeros = ", ".join(o.numero_formatado for o in r.oficios)
+                partes = [f"{len(r.oficios)} ofício(s) ({numeros})"]
+                if r.termos:
+                    partes.append(f"{r.termos} termo(s)")
+                if r.ordem:
+                    partes.append(str(r.ordem))
+                if r.plano:
+                    partes.append(str(r.plano))
+                messages.success(request, "Documentos gerados em rascunho: " + ", ".join(partes)
+                                 + ". Revise e emita cada um na folha dele.")
+                for aviso in r.avisos:
+                    messages.warning(request, aviso)
+                return redirect(reverse("viagens:editar_viagem", args=[v.pk]) + "#documentos")
+    else:
+        form = FormularioLote(quantidade=1, fonte_servidores=fonte)
+    docs = viagem.documentos(v)
+    return render(request, "viagens/viagem/lote.html", {
+        "v": v, "form": form, "erros": erros, "docs": docs,
+        "tem_ordem": any(not o.cancelada for o in docs.ordens),
+        "tem_plano": any(not p.cancelado for p in docs.planos),
+        "roteiro": next((r for r in reversed(docs.roteiros) if r.editavel), None),
+        "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
+                              (str(v), reverse("viagens:editar_viagem", args=[v.pk])),
+                              ("Gerar documentos", ""))}, status=422 if erros else 200)

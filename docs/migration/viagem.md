@@ -69,6 +69,14 @@ outra data, cancelar/reativar em cascata, excluir.
   **Ainda pendente da revisão**: "Vincular existente" com busca no lugar das caixas, histórico
   de vínculos (via serviços de cada documento), placa com data de exibição.
 
+- **8c feito**: gerar documentos em lote (um ofício por equipe com roteiro e motivo;
+  motorista entra na equipe; termos menos a unidade emissora; OS e plano só se faltarem;
+  validações da referência; adicionar/remover ofício sem gravar); "Baixar documentos" da
+  viagem (janela única, na ordem do processo) e "Baixar tudo (ZIP)" com PDFs numerados e
+  LEIA-ME (sem via assinada; o que não entrou). Diferença: plano e OS só entram no pacote
+  depois de gerados na folha deles (o download não gera documento oficial). A "meta da DG"
+  e as sugestões pelo histórico ("costuma ir") chegam com Solicitações.
+
 ## Ordem de implementação (sub-módulos)
 
 - **8a** modelo `Viagem` + `TipoViagem` + `ViagemDestino` + FK `viagem` nos documentos;

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Gerar documentos · {{ v }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Gerar documentos em lote (paridade com a referência): um cartão por ofício — a equipe, quem
+dirige e em qual viatura —; o que a viagem já tem; o que sai junto (termos, OS, plano). Tudo
+nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam sem gravar.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Viagem</span>
+    <span class="placa__numero">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m" }}{% else %}#{{ v.pk }}{% endif %}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Gerar documentos</h1>
+    <p class="frase-oficio">
+      <span class="frase-oficio__item">{% icone "route" classe="icone--sm" %}{{ v.titulo|default:"sem tipo" }}</span>
+      <span class="frase-oficio__item{% if not roteiro %} frase-oficio__item--vazio{% endif %}">{% icone "map" classe="icone--sm" %}{% if roteiro %}{{ roteiro }}{% else %}sem roteiro{% endif %}</span>
+    </p>
+  </div>
+  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'viagens:editar_viagem' v.pk %}">{% icone "arrow-left" %}Voltar para a viagem</a></div>
+</header>
+
+{% if erros %}<div class="alerta alerta--perigo mb-4" role="alert" tabindex="-1" id="erros-lote">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Não foi possível gerar os documentos</p><ul>{% for e in erros %}<li>{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
+
+<form method="post" novalidate id="form-lote" class="documento documento--cartoes" data-proteger>
+  {% csrf_token %}
+  <input type="hidden" name="quantidade" value="{{ form.quantidade }}">
+
+  <section class="secao" id="ja-tem" aria-labelledby="t-ja">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-ja"><span class="secao__numero">1</span>O que a viagem já tem</h2>
+      <p class="secao__nota">{% if docs.oficios %}A viagem já tem: {% for o in docs.oficios %}{{ o }}{% if not forloop.last %}; {% endif %}{% endfor %}. Os ofícios abaixo são novos.{% else %}Nenhum ofício ainda: os ofícios abaixo serão os primeiros.{% endif %}</p>
+    </div>
+    {% if not roteiro %}<p class="alerta alerta--aviso">{% icone "alert-triangle" %}<span>A viagem ainda não tem roteiro: os ofícios sairão sem roteiro e sem diárias. <a href="{% url 'viagens:editar_viagem' v.pk %}#documentos">Criar o roteiro primeiro</a>.</span></p>{% endif %}
+  </section>
+
+  {% for c in form.cartoes %}
+  <section class="secao" id="oficio-{{ c.n }}" aria-labelledby="t-oficio-{{ c.n }}">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-oficio-{{ c.n }}"><span class="secao__numero">{{ forloop.counter|add:1 }}</span>Ofício {{ c.n }}</h2>
+      {% if form.quantidade > 1 and forloop.last %}<div class="secao__estado"><button type="submit" name="acao" value="remover" class="botao botao--sm botao--texto">{% icone "trash-2" %}Remover este ofício</button></div>{% endif %}
+      <p class="secao__nota">A equipe que viaja neste ofício, quem dirige e em qual viatura.</p>
+    </div>
+    <div class="pilha">
+      {% include "componentes/campo.html" with campo=c.equipe %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=c.motorista classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=c.viatura classe="campo--md" %}
+      </div>
+    </div>
+  </section>
+  {% endfor %}
+  <p><button type="submit" name="acao" value="adicionar" class="botao">{% icone "plus" %}Adicionar ofício</button></p>
+
+  <section class="secao" id="gerar-junto" aria-labelledby="t-junto">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-junto"><span class="secao__numero">{{ form.quantidade|add:2 }}</span>Documentos a gerar</h2>
+      <p class="secao__nota">Tudo sai em rascunho, já vinculado à viagem, para revisar e emitir. Nada é protocolado. Um ofício para cada equipe acima, com o roteiro e o motivo da viagem.</p>
+    </div>
+    <fieldset class="campo">
+      <legend class="campo__rotulo">Gerar também</legend>
+      <label class="escolha" for="{{ form.termos.id_for_label }}">{{ form.termos }}<span>{{ form.termos.label }}<span class="escolha__descricao">{{ form.termos.help_text }}</span></span></label>
+      {% if not tem_ordem %}<label class="escolha" for="{{ form.ordem.id_for_label }}">{{ form.ordem }}<span>{{ form.ordem.label }}<span class="escolha__descricao">{{ form.ordem.help_text }}</span></span></label>{% endif %}
+      {% if not tem_plano %}<label class="escolha" for="{{ form.plano.id_for_label }}">{{ form.plano }}<span>{{ form.plano.label }}<span class="escolha__descricao">{{ form.plano.help_text }}</span></span></label>{% endif %}
+      {% if tem_ordem or tem_plano %}<p class="campo__ajuda">A viagem já tem {% if tem_ordem %}a OS{% endif %}{% if tem_ordem and tem_plano %} e {% endif %}{% if tem_plano %}o plano de trabalho{% endif %}: não são alterados.</p>{% endif %}
+    </fieldset>
+  </section>
+
+  <div class="barra-acoes">
+    <div class="barra-acoes__status" role="status">{{ form.quantidade|pluralizar:"ofício,ofícios" }} para gerar</div>
+    <a class="botao botao--texto" href="{% url 'viagens:editar_viagem' v.pk %}">Voltar</a>
+    <button type="submit" name="acao" value="gerar" class="botao botao--primario">{% icone "files" %}Gerar documentos</button>
+  </div>
+</form>
+{% endblock %}

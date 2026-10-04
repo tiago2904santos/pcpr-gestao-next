@@ -208,3 +208,111 @@ def montar(itens: list[Item], marcados: list[str], *, formato: str, versao: str,
             pacote.writestr(re.sub(r"[\\/]", "-", nome), conteudo)
     return buffer.getvalue(), f"{nome_base}-documentos.zip", "application/zip"
 
+
+
+# ---------------------------------------------------------------- viagem (módulo 8c)
+def itens_da_viagem(viagem) -> list[Item]:
+    """Na ordem do processo (referência): por ofício, o ofício, a justificativa e os termos
+    dele; os planos já gerados; as OS já geradas; os termos sem ofício. Cancelados ficam
+    de fora; plano e OS ainda não gerados também (gerar é a ação da folha deles)."""
+    from . import ordens, planos
+    from .viagem import documentos
+
+    docs = documentos(viagem)
+    saida: list[Item] = []
+    for oficio in docs.oficios:
+        if oficio.situacao == Oficio.Situacao.CANCELADO:
+            continue
+        for item in _itens_do_oficio_proprio(oficio):
+            item.valor = f"oficio-{oficio.pk}:{item.valor}"
+            item.nome = f"{item.nome} {oficio.numero_formatado}" if item.nome == "Ofício" else (
+                f"{item.nome} · Ofício {oficio.numero_formatado}")
+            saida.append(item)
+        ligados = [t for t in docs.termos if t.oficio_id == oficio.pk and not t.cancelado]
+        saida += _itens_dos_termos(ligados, prefixo=True)
+    for plano in docs.planos:
+        if plano.cancelado or not plano.documento_gerado_em:
+            continue
+
+        def pdf_plano(plano=plano) -> bytes:
+            return planos.pdf_do_documento(planos.dados_do_documento(plano, fixar=True))
+
+        def docx_plano(plano=plano) -> bytes:
+            return planos.docx_do_documento(planos.dados_do_documento(plano, fixar=True))
+
+        saida.append(Item(valor=f"plano-{plano.pk}", nome=str(plano), detalhe="Plano de trabalho",
+                          estado="Gerado", arquivo=f"plano-{plano.numero:02d}-{plano.ano}",
+                          pdf=pdf_plano, docx=docx_plano))
+    for ordem in docs.ordens:
+        if ordem.cancelada or not ordem.documento_gerado_em:
+            continue
+        via = assinados.vigentes_do(ordem).get(("ordem", ""))
+
+        def pdf_os(ordem=ordem) -> bytes:
+            return ordens.pdf_do_documento(ordens.dados_do_documento(ordem, fixar=True))
+
+        def docx_os(ordem=ordem) -> bytes:
+            return ordens.docx_do_documento(ordens.dados_do_documento(ordem, fixar=True))
+
+        saida.append(Item(valor=f"os-{ordem.pk}", nome=str(ordem), detalhe="Ordem de serviço",
+                          estado="Assinado" if via else "Gerado",
+                          arquivo=f"os-{ordem.numero:03d}-{ordem.ano}", pdf=pdf_os,
+                          docx=docx_os, via=via))
+    avulsos = [t for t in docs.termos if t.oficio_id is None and not t.cancelado]
+    saida += _itens_dos_termos(avulsos, prefixo=True)
+    return saida
+
+
+def _seguro(nome: str) -> str:
+    return " ".join(re.sub(r"[\/:*?\"<>|]", "-", nome).split())[:120]
+
+
+def baixar_tudo(viagem) -> tuple[bytes, str, list[str]]:
+    """O processo inteiro em PDF, um arquivo por documento, numerado na ordem do processo,
+    com o LEIA-ME (referência): a via assinada onde houver; o que falhar não derruba o
+    pacote — vai para "Não entraram"."""
+    from . import ordens, planos
+    falhas_conhecidas = (PacoteInvalido, ordens.OrdemInvalida, planos.PlanoInvalido,
+                         services.RegraViolada)
+    itens = itens_da_viagem(viagem)
+    if not itens:
+        raise PacoteInvalido("Nenhum documento pronto para baixar ainda.")
+    arquivos: list[tuple[str, bytes]] = []
+    sem_via: list[str] = []
+    falhas: list[str] = []
+    largura = max(2, len(str(len(itens))))
+    for item in itens:
+        rotulo = item.nome if item.detalhe in item.nome else f"{item.detalhe} · {item.nome}"
+        try:
+            if item.via is not None:
+                with item.via.arquivo.open("rb") as f:
+                    conteudo = f.read()
+            else:
+                conteudo = item.pdf()
+                sem_via.append(rotulo)
+        except falhas_conhecidas as exc:
+            falhas.append(f"{rotulo}: {exc}")
+            continue
+        numero = str(len(arquivos) + 1).zfill(largura)
+        arquivos.append((f"{numero} - {_seguro(rotulo)}.pdf", conteudo))
+    if not arquivos:
+        raise PacoteInvalido("Nenhum documento pronto para baixar ainda.")
+    destinos = ", ".join(str(d.municipio) for d in viagem.destinos.select_related("municipio"))
+    inicio, fim = viagem.data_inicio, viagem.data_fim or viagem.data_inicio
+    periodo = (f"{inicio:%d/%m/%Y}" + (f" a {fim:%d/%m/%Y}" if fim and fim != inicio else "")
+               if inicio else "não informado")
+    linhas = [f"Viagem: {viagem}", f"Período: {periodo}", f"Destino: {destinos or '—'}", "",
+              "Cada documento está num arquivo, na ordem do processo, para subir e assinar no "
+              "eProtocolo.", "", *[nome for nome, _ in arquivos]]
+    if sem_via:
+        linhas += ["", "Ainda sem a versão assinada anexada no sistema:",
+                   *[f"- {r}" for r in sem_via]]
+    if falhas:
+        linhas += ["", "Não entraram (complete o documento e baixe de novo):",
+                   *[f"- {f}" for f in falhas]]
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as pacote:
+        pacote.writestr("00 - LEIA-ME.txt", "\r\n".join(linhas) + "\r\n")
+        for nome, conteudo in arquivos:
+            pacote.writestr(nome, conteudo)
+    return buffer.getvalue(), f"viagem-{viagem.pk}-processo.zip", falhas

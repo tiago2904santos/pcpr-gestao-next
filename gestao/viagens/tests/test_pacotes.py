@@ -162,3 +162,54 @@ def test_via_que_nao_abre_nao_junta_e_avisa(c):
                           {"itens": ["oficio", f"termo-{termo.pk}-generico"], "formato": "pdf",
                            "saida": "unico", "voltar": "/viagens/"}, follow=True)
     assert "baixe em arquivos separados" in r.content.decode()
+
+
+def test_viagem_baixar_documentos_e_baixar_tudo(c):
+    from gestao.cadastros.models import Municipio, TipoViagem
+    from gestao.viagens import ordens, viagem
+    from gestao.viagens.models import OrdemServico
+
+    op = c.usuarios["operador"]
+    oficio = _emitido(c)
+    TipoViagem.objects.create(nome="Unidade Móvel")
+    v = viagem.criar(op)
+    viagem.salvar_dados(op, v.pk, tipos=list(TipoViagem.objects.all()),
+                        data_inicio=oficio.trechos.first().saida_em.date(),
+                        destinos=[Municipio.objects.get(nome="Londrina", uf="PR")],
+                        vinculos={"oficios": [oficio]})
+    ordem = viagem.novo_documento(op, v.pk, "ordem")
+    termo = termos.salvar(op, oficio=oficio)
+    cli = _cliente(op)
+    url = reverse("viagens:baixar_viagem", args=[v.pk])
+    valores = [i["valor"] for i in cli.get(url).json()["itens"]]
+    assert valores[0] == f"oficio-{oficio.pk}:oficio"
+    assert f"termo-{termo.pk}-generico" in valores
+    assert f"os-{ordem.pk}" not in valores  # OS ainda não gerada não entra
+    ordens.dados_do_documento(OrdemServico.objects.get(pk=ordem.pk), fixar=True)
+    assert f"os-{ordem.pk}" in [i["valor"] for i in cli.get(url).json()["itens"]]
+    # Baixar tudo: PDFs numerados na ordem do processo + LEIA-ME.
+    r = cli.post(reverse("viagens:baixar_tudo_viagem", args=[v.pk]))
+    assert r["Content-Type"] == "application/zip" and r["Cache-Control"] == "no-store"
+    pacote = zipfile.ZipFile(io.BytesIO(r.content))
+    nomes = pacote.namelist()
+    assert nomes[0] == "00 - LEIA-ME.txt" and nomes[1].startswith("01 - ")
+    leia = pacote.read("00 - LEIA-ME.txt").decode()
+    from gestao.viagens.models import Viagem
+    assert f"Viagem: {Viagem.objects.get(pk=v.pk)}" in leia
+    assert "Ainda sem a versão assinada anexada no sistema:" in leia
+
+
+def test_viagem_sem_documentos_e_cancelada(c):
+    from gestao.viagens import viagem
+    from gestao.viagens.models import Viagem
+
+    op = c.usuarios["operador"]
+    v = viagem.criar(op)
+    cli = _cliente(op)
+    r = cli.post(reverse("viagens:baixar_tudo_viagem", args=[v.pk]), follow=True)
+    assert "Nenhum documento pronto para baixar ainda." in r.content.decode()
+    Viagem.objects.filter(pk=v.pk).update(situacao=Viagem.Situacao.CANCELADA)
+    r = cli.get(reverse("viagens:baixar_viagem", args=[v.pk]), follow=True)
+    assert "Reative a viagem antes de baixar documentos." in r.content.decode()
+    assert _cliente(c.usuarios["outra"]).get(
+        reverse("viagens:baixar_viagem", args=[v.pk])).status_code == 404

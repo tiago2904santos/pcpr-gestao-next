@@ -259,3 +259,13 @@ def test_viagem_lista_e_folha_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/viagens/viagens/")
     _avaliar(logado, f"/viagens/viagens/{v.pk}/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_gerar_documentos_da_viagem_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import viagem
+
+    v = viagem.criar(Usuario.objects.get(login="operador"))
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/viagens/{v.pk}/gerar-documentos/")

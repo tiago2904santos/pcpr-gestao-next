@@ -99,3 +99,45 @@ def baixar_termo(request: HttpRequest, pk: int) -> HttpResponse:
                     "Você não tem permissão para baixar estes documentos.")
     return _responder(request, lambda: pacotes.itens_do_termo(termo),
                       nome_base=f"termo-{termo.pk}", padrao=padrao)
+
+
+def _viagem(request: HttpRequest, pk: int):
+    from .models import Viagem
+    v = get_object_or_404(Viagem, pk=pk)
+    if not policies.pode_ver_viagem(request.user, v):
+        raise Http404
+    return v
+
+
+@require_http_methods(["GET", "POST"])
+def baixar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
+    v = _viagem(request, pk)
+    padrao = reverse("viagens:editar_viagem", args=[v.pk])
+    if v.cancelada:
+        messages.error(request, "Reative a viagem antes de baixar documentos.")
+        return redirect(_voltar(request, padrao))
+    policies.exigir(policies.pode_editar_viagem(request.user, v),
+                    "Você não tem permissão para baixar estes documentos.")
+    return _responder(request, lambda: pacotes.itens_da_viagem(v), nome_base=f"viagem-{v.pk}",
+                      padrao=padrao)
+
+
+@require_http_methods(["POST"])
+def baixar_tudo_viagem(request: HttpRequest, pk: int) -> HttpResponse:
+    """O processo inteiro (PDFs numerados + LEIA-ME), para subir no eProtocolo."""
+    v = _viagem(request, pk)
+    padrao = reverse("viagens:editar_viagem", args=[v.pk])
+    if v.cancelada:
+        messages.error(request, "Reative a viagem antes de baixar documentos.")
+        return redirect(padrao)
+    policies.exigir(policies.pode_editar_viagem(request.user, v),
+                    "Você não tem permissão para baixar estes documentos.")
+    try:
+        conteudo, nome, _ = pacotes.baixar_tudo(v)
+    except pacotes.PacoteInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect(padrao)
+    resposta = HttpResponse(conteudo, content_type="application/zip")
+    resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
+    resposta["Cache-Control"] = "no-store"
+    return resposta

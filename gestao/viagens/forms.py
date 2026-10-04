@@ -1254,3 +1254,62 @@ class FormularioViagem(forms.Form):
             mostrados = {int(i) for i in lista if str(i).isdecimal()}
             saida[t] = (list(self.cleaned_data.get(t) or []), mostrados)
         return saida
+
+
+# ---------------------------------------------------------------- gerar documentos em lote
+class FormularioLote(forms.Form):
+    """Gerar documentos (referência): um cartão por ofício — equipe, quem dirige e em qual
+    viatura — e o que sai junto (termos, OS, plano)."""
+
+    termos = forms.BooleanField(label="Termos de autorização", required=False, initial=True,
+                                help_text="Um por servidor, menos quem é da unidade emissora.")
+    ordem = forms.BooleanField(label="Ordem de serviço", required=False, initial=True,
+                               help_text="Com toda a equipe e os ofícios.")
+    plano = forms.BooleanField(label="Plano de trabalho", required=False, initial=True,
+                               help_text="Com o efetivo e os destinos dos ofícios.")
+
+    def __init__(self, *args, quantidade: int = 1, fonte_servidores: str = "", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.quantidade = max(1, min(quantidade, 20))
+        ativos = Servidor.objects.filter(ativo=True)
+        viaturas = Viatura.objects.filter(ativo=True).order_by("placa")
+        for i in range(self.quantidade):
+            equipe = forms.ModelMultipleChoiceField(
+                label="Equipe", queryset=ativos, required=False,
+                widget=EscolhaMultiplaRemota(fonte=fonte_servidores,
+                                             rotulo_vazio="Ninguém escolhido ainda.",
+                                             placeholder="Nome, CPF, cargo ou unidade…"))
+            equipe.widget.choices = equipe.choices
+            motorista = forms.ModelMultipleChoiceField(
+                label="Quem dirige (opcional)", queryset=ativos, required=False,
+                help_text="Fora da equipe, entra na deste ofício.",
+                widget=EscolhaMultiplaRemota(fonte=fonte_servidores,
+                                             rotulo_vazio="Ninguém escolhido.",
+                                             placeholder="Nome do motorista…"))
+            motorista.widget.choices = motorista.choices
+            self.fields[f"equipe_{i}"] = equipe
+            self.fields[f"motorista_{i}"] = motorista
+            self.fields[f"viatura_{i}"] = forms.ModelChoiceField(
+                label="Viatura", queryset=viaturas, required=False,
+                empty_label="Sem viatura", widget=Selecao())
+
+    def cartoes(self) -> list[dict]:
+        return [{"n": i + 1, "equipe": self[f"equipe_{i}"], "motorista": self[f"motorista_{i}"],
+                 "viatura": self[f"viatura_{i}"]} for i in range(self.quantidade)]
+
+    def clean(self):
+        dados = super().clean() or {}
+        for i in range(self.quantidade):
+            if len(dados.get(f"motorista_{i}") or []) > 1:
+                self.add_error(f"motorista_{i}", "Escolha um motorista só.")
+        return dados
+
+    def equipes(self):
+        from .viagem_lote import Equipe
+        saida = []
+        for i in range(self.quantidade):
+            motoristas = list(self.cleaned_data.get(f"motorista_{i}") or [])
+            saida.append(Equipe(servidores=list(self.cleaned_data.get(f"equipe_{i}") or []),
+                                motorista=motoristas[0] if motoristas else None,
+                                viatura=self.cleaned_data.get(f"viatura_{i}")))
+        return saida

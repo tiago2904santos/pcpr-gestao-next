@@ -29,7 +29,13 @@ editar (consulta) ou cancelada, os dados aparecem como texto, sem formulário.
     </p>
   </div>
   <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="#documentos">{% icone "files" %}Documentos da viagem</a>
+    {% if editavel %}<a class="botao{% if not docs.oficios %} botao--primario{% endif %}" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "file-plus-2" %}Gerar documentos</a>{% endif %}
+    {% if editavel and docs.total %}
+      <button type="button" class="botao" data-baixar-documentos="{% url 'viagens:baixar_viagem' v.pk %}" data-baixar-titulo="{{ v }}">{% icone "download" %}Baixar documentos</button>
+      <button type="submit" form="baixar-tudo" class="botao" title="Um .zip com cada documento da viagem em PDF, numerado na ordem do processo, com um LEIA-ME">{% icone "files" %}Baixar tudo (ZIP)</button>
+    {% else %}
+      <a class="botao" href="#documentos">{% icone "files" %}Documentos da viagem</a>
+    {% endif %}
     {% if pode_excluir %}
     <pc-menu class="menu">
       <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da viagem">{% icone "ellipsis-vertical" %}</button>
@@ -139,6 +145,8 @@ editar (consulta) ou cancelada, os dados aparecem como texto, sem formulário.
   <a class="botao botao--texto" href="{% url 'viagens:viagens' %}">Voltar</a>
   <button type="submit" form="form-viagem" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
 </div>
+<form id="baixar-tudo" method="post" action="{% url 'viagens:baixar_tudo_viagem' v.pk %}" hidden>{% csrf_token %}</form>
+{% include "componentes/dialogo_baixar.html" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="roteiro" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="oficio" %}
 {% include "viagens/viagem/_form_novo.html" with tipo="plano" %}
