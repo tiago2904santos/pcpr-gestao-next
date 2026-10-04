@@ -26,7 +26,7 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 | 3 | Roteiros | EM PARIDADE | falta "Finalizados" ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
 | 4 | Termos de autorização | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado e "Finalizados" | 33 + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | anexar assinado (7), "Finalizados" (9) | com 7 e 9 |
 | 5 | Ordens de serviço | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado, "Finalizadas", conflito de agenda | 24 + 23 domínio + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | idem + conflito de agenda | com 7 e 9 |
-| 6 | Planos de trabalho | EM ANDAMENTO (6a catálogos ✅) | inventário completo; matriz em [planos.md](planos.md) | 17 (catálogos) | — | — | 6b domínio, 6c plano de um evento, 6d multievento, 6e resultados | **6b** |
+| 6 | Planos de trabalho | EM ANDAMENTO (6a catálogos ✅, 6b domínio ✅) | inventário completo; matriz em [planos.md](planos.md) | 17 catálogos + 16 domínio | — | — | 6c plano de um evento, 6d multievento, 6e resultados | **6c** |
 | 7 | Documentos (núcleo: anexar assinado, conferência) | PENDENTE | — | — | — | — | `documentos` (23 rotas) | depois do 6 |
 | 8 | Viagem (assistente) | PENDENTE | — | — | — | — | `viagens_viagem` (13) | depois do 7 |
 | 9 | Prestação de contas (+ abas "Finalizados") | PENDENTE | — | — | — | — | `viagens_prestacoes` (10) | depois do 8 |
@@ -68,4 +68,4 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 
 Checkpoints: `fae9abf` (descoberta), `957f3aa`, `cb32c8c`, `f78250a`, `a447f80`, `0118be7`,
 `6209156` (D1/D2/D5), `9cc2df6` (D6), `43dad01` (D3), `2bcf751` (D8), `e59ae99` (D4),
-`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens `e4994fa`, folhas de termo e OS `d62e1b1`, catálogos do plano (este commit).
+`3e2e094` (revisões), módulo 2 CRUD `5310817`, assinantes `b6a6375`, termos `50f79d0`, ordens `e4994fa`, folhas de termo e OS `d62e1b1`, catálogos do plano `b883809`, domínio do plano (este commit).

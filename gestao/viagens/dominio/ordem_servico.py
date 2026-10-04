@@ -11,8 +11,9 @@ from dataclasses import dataclass, field
 from datetime import date
 from itertools import groupby
 
-MESES = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
-         "setembro", "outubro", "novembro", "dezembro")
+from .escrita import MESES, data_por_extenso, lista_com_e
+from .escrita import eh_sigla as _sigla
+from .escrita import plural_palavra as _plural
 
 PADRAO = "padrao"
 OPERACAO_RETORNO_POSTERIOR = "operacao_retorno_posterior"
@@ -60,8 +61,6 @@ class DadosOS:
     funcoes: dict[int, str] = field(default_factory=dict)  # id da pessoa -> função
 
 
-def data_por_extenso(d: date) -> str:
-    return f"{d.day} de {MESES[d.month - 1]} de {d.year}"
 
 
 def periodo_por_extenso(inicio: date | None, fim: date | None) -> str:
@@ -73,48 +72,6 @@ def periodo_por_extenso(inicio: date | None, fim: date | None) -> str:
     if (inicio.month, inicio.year) == (fim.month, fim.year):
         return f"nos dias {inicio.day} a {fim.day} de {MESES[inicio.month - 1]} de {inicio.year}"
     return f"nos dias {data_por_extenso(inicio)} a {data_por_extenso(fim)}"
-
-
-def lista_com_e(itens: list[str]) -> str:
-    if not itens:
-        return ""
-    if len(itens) == 1:
-        return itens[0]
-    return f"{', '.join(itens[:-1])} e {itens[-1]}"
-
-
-_PREPOSICOES = {"de", "da", "do", "das", "dos", "e"}
-
-
-def _sigla(palavra: str) -> bool:
-    letras = "".join(c for c in palavra if c.isalpha())
-    return (bool(letras) and letras.lower() not in _PREPOSICOES and letras.isascii()
-            and letras.isupper() and len(letras) <= 5)
-
-
-# Plurais em "-ães" de cargos (a regra simples daria "escrivões").
-_PLURAIS_ESPECIAIS = {"escrivão": "escrivães", "capitão": "capitães", "tabelião": "tabeliães"}
-
-
-def _plural(palavra: str) -> str:
-    if not palavra:
-        return palavra
-    if palavra in _PLURAIS_ESPECIAIS:
-        return _PLURAIS_ESPECIAIS[palavra]
-    if palavra.endswith("ão"):
-        return palavra[:-2] + "ões"
-    ultima = palavra[-1]
-    if ultima in "aeiouáéíóúàâêîôûãõ":
-        return palavra + "s"
-    if ultima == "l" and len(palavra) >= 2:
-        return palavra[:-1] + ("is" if palavra[-2] in "aeiouáéíóúàâêîôûãõ" else "eis")
-    if ultima in "rzn":
-        return palavra + "es"
-    if ultima == "m":
-        return palavra[:-1] + "ns"
-    if ultima == "s":
-        return palavra
-    return palavra + "s"
 
 
 def cargo_no_texto(nome: str, *, plural: bool) -> str:

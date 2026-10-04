@@ -1,7 +1,7 @@
 # Módulo 6 — Planos de trabalho (ficha)
 
 Atualizado em 04/10/2026. Situação: **EM ANDAMENTO** — 6a (catálogos e configuração)
-implementado; 6b–6e pendentes. Comparado por leitura com `viagens_planos/` da referência
+e 6b (domínio) implementados; 6c–6e pendentes. Comparado por leitura com `viagens_planos/` da referência
 (modelos, formulários, serviços, telas, documento, testes); inventário funcional completo
 em `scratchpad` da sessão (não versionado) e resumido aqui.
 
@@ -10,7 +10,7 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 | Etapa | Conteúdo | Situação |
 |---|---|---|
 | 6a | Catálogos (programas, horários, atividades com meta e recurso, conjuntos com padrão), carga inicial, configuração (assina, coordenador padrão, sufixo), substituto para o plano | ✅ |
-| 6b | Domínio puro: textos automáticos (contextualização, coordenação com gênero, considerações), pluralização do efetivo, metas/recursos, pendências, diárias do plano (motor do ofício) | PENDENTE |
+| 6b | Domínio puro: textos automáticos (contextualização, coordenação com gênero, considerações), pluralização do efetivo, metas/recursos, pendências, diárias do plano (motor do ofício) | ✅ |
 | 6c | Plano de um evento: numeração anual com lacuna e sufixo, folha (cartões), autosave, documento (PDF/DOCX), lista com abas, cancelar/reativar/excluir, histórico | PENDENTE |
 | 6d | Vários eventos (multievento) e diárias combinadas | PENDENTE |
 | 6e | Resultados por atividade e relatório final | PENDENTE |
@@ -28,6 +28,23 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 | Configuração: "Assina os planos de trabalho", coordenador administrativo padrão, sufixo da numeração | ✅ ↔ | por unidade; sufixo vazio vale a sigla da unidade | `TestConfiguracaoDoPlano` |
 | Sem assinante, o plano sai sem nome (não cai na chefia) | ✅ | `quem_assina(…, "plano_trabalho", …)` | `test_plano_sem_assinante_sai_sem_nome_nao_cai_na_chefia` |
 | Substituto por período para o plano | ✅ | tipo "Plano de trabalho" na substituição | `test_substituto_do_plano_no_periodo` |
+
+## Matriz de paridade (6b — domínio, `dominio/plano_trabalho.py`)
+
+| Regra da referência | Situação | Prova |
+|---|---|---|
+| Contextualização em três parágrafos (municípios sem repetir, programa legível, "________" na falta) | ✅ | `test_dominio_plano_trabalho.py::TestTextos` |
+| Considerações finais com os municípios | ✅ | `test_considera_varios_municipios_sem_repetir` |
+| Designação dos coordenadores com gênero; no de vários eventos, só o administrativo | ✅ | `test_coordenacao_com_genero_e_capitalizacao` |
+| Período por extenso ("30 de junho a 02 de julho de 2026"…) | ✅ | `test_periodos_por_extenso` |
+| Atividades, metas e recursos ("• …", sem repetir, ordem alfabética, unidade móvel) | ✅ | `test_metas_e_recursos_sem_repetir_e_unidade_movel` |
+| Efetivo "6 Policiais Civis (ASCOM)" por unidade e cargo | ✅ MELHORADO | plural só do núcleo do cargo ("Agentes de Polícia Judiciária", "Escrivães de Polícia"); a referência pluralizava palavra por palavra | `test_efetivo_no_plural_com_sigla` |
+| Diárias: um trecho sede → destino principal → sede; faltas juntas; sem tabela vigente recusa | ✅ | Maringá e Sarandi ao centavo (`TestDiarias`) |
+| Texto do valor ("Valor total: R$7.234,68 (…). Valor correspondente a …") | ✅ ↔ | extenso no padrão do sistema (sem vírgula entre milhar e centena) | `test_texto_do_valor_como_na_referencia` |
+| Pendências na ordem (coordenador, destino, data, efetivo, diárias) | ✅ | `test_plano_vazio_lista_as_cinco_na_ordem` |
+
+Os auxiliares de escrita (datas, listas, plural, capitalização, moeda) passaram a um módulo
+comum, `dominio/escrita.py`, usado também pela OS.
 
 ## Decisões para as próximas etapas (adotadas; a confirmar)
 
