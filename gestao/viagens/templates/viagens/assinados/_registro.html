@@ -17,6 +17,10 @@ de views_assinados.cartao; `vazio` é o texto quando ainda não há via e não s
         <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ c.s.via.enviado_em|date:"d/m/Y H:i" }}</span>
         <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ c.s.via.nome_original|truncatechars:48 }}</span>
       </div>
+      {% with conf=c.s.via.conferencia %}{% if conf.resumo %}
+      <p class="registro__texto">{% if conf.assinado %}{% icone "shield-check" classe="icone--sm" %}{% else %}{% icone "alert-triangle" classe="icone--sm" %}{% endif %}{{ conf.resumo }}</p>
+      {% for aviso in conf.avisos %}<p class="registro__texto">{% icone "alert-triangle" classe="icone--sm" %}{{ aviso }}</p>{% endfor %}
+      {% endif %}{% endwith %}
       {% if c.s.mudou %}<p class="registro__texto">Os dados mudaram depois que a via foi anexada: gere o documento atualizado e troque a via.</p>{% endif %}
     {% elif not c.pode and vazio %}
       <p class="registro__texto">{{ vazio }}</p>

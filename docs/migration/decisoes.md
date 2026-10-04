@@ -112,7 +112,9 @@ Fonte: `documentos/services/persistence.py` (`anexar_arquivo_assinado`,
 | "Assinado, mas os dados mudaram" | comparação do instantâneo | impressão SHA-256 dos dados do documento na hora do anexo (termo e OS) | referência (técnica do agente) |
 | Quem abre a via | quem baixa o artefato | ofício: quem vê o ofício; termo/OS: a régua do documento gerado (ativo, quem prepara) | agente (achado de segurança) |
 | Termo com via | — | não se exclui (cancelar) | agente (a via é prova; FK protegida) |
-| Conferência do PDF (assinatura digital, quem assinou, número) | lida e mostrada como aviso | **ainda não** (módulo 7b, pede ADR de leitura de PDF) | pendente |
+| Conferência do PDF (assinatura digital, quem assinou, número, protocolo, nomes) | lida ao anexar e mostrada como aviso, nunca bloqueia | igual (7b, `pypdf`, ADR 0022): campos `/Sig` e carimbos eProtocolo/ICP/gov.br nas 4 primeiras páginas; fica na via e no registro | referência |
+| Validação jurídica da assinatura (cadeia ICP-Brasil, revogação) | não faz | não faz: o resultado é aviso, não prova | decisão institucional pendente (exigiria repositório de ACs) |
+| Prévia da conferência antes de anexar (modal) | existe (`conferir-assinado`) | ainda não: o resultado aparece depois de anexar | pendente (melhoria; não bloqueia) |
 | Limite do corpo | — | 413 acima de 16 MB antes do CSRF; Nginx `client_max_body_size 16m` | agente (achado de segurança) |
 
 ## Pendências abertas
@@ -128,3 +130,5 @@ Fonte: `documentos/services/persistence.py` (`anexar_arquivo_assinado`,
 | Confirmar os comportamentos de Cadastros adotados da referência (tabela acima) | decisão do usuário (não bloqueia) |
 | Confirmar os comportamentos do Plano de trabalho adotados (tabela acima) | decisão do usuário (não bloqueia) |
 | Via assinada do termo sem exigir geração prévia (tabela "Via assinada") | decisão do usuário (não bloqueia) |
+| Termo de vários servidores assinado num único PDF escaneado: hoje é uma via por documento; anexo único para todos? | decisão do usuário (não bloqueia) |
+| Validação jurídica de assinatura ICP-Brasil (cadeia/revogação) | decisão institucional |

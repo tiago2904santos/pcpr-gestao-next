@@ -115,6 +115,30 @@ def impressao_atual(alvo: Alvo) -> str:
     return ""
 
 
+def esperado(alvo: Alvo):
+    """O que o PDF assinado deste documento tem de trazer (número, protocolo, nomes)."""
+    from .dominio.conferencia import Esperado
+    dono = alvo.dono
+    if isinstance(dono, Oficio):
+        return Esperado(numero=dono.numero_formatado, protocolo=dono.protocolo or "",
+                        rotulo="ofício")
+    if isinstance(dono, OrdemServico):
+        return Esperado(numero=f"{dono.numero}/{dono.ano}", rotulo="ordem de serviço")
+    nomes = []
+    if alvo.chave.isdecimal():
+        from gestao.cadastros.models import Servidor
+        nomes = list(Servidor.objects.filter(pk=int(alvo.chave)).values_list("nome", flat=True))
+    oficio = dono.oficio  # type: ignore[union-attr]
+    return Esperado(protocolo=(oficio.protocolo or "") if oficio else "", nomes=nomes,
+                    rotulo="termo")
+
+
+def conferir(alvo: Alvo, conteudo: bytes):
+    """A conferência do PDF (ADR 0022): assinatura, quem assinou, se é o documento certo."""
+    from .documentos import leitura
+    return leitura.conferir(conteudo, esperado(alvo))
+
+
 # ---------------------------------------------------------------- permissões
 def pode_anexar(usuario, alvo: Alvo) -> bool:
     dono = alvo.dono
@@ -201,7 +225,8 @@ def anexar(usuario, alvo: Alvo, *, nome: str, conteudo: bytes) -> ViaAssinada:
         impressao_dos_dados = impressao_atual(alvo)
     via = ViaAssinada(**alvo.filtro, documento=documento, nome_original=(nome or "")[:255],
                       sha256=hashlib.sha256(conteudo).hexdigest(), tamanho=len(conteudo),
-                      impressao_dos_dados=impressao_dos_dados, enviado_por=usuario)
+                      impressao_dos_dados=impressao_dos_dados, enviado_por=usuario,
+                      conferencia=conferir(alvo, conteudo).como_json())
     anteriores = list(ViaAssinada.objects.select_for_update()
                       .filter(**alvo.filtro, revogada_em__isnull=True))
     via.arquivo.save(f"assinado-{alvo.tipo}-{alvo.dono.pk}.pdf", ContentFile(conteudo),

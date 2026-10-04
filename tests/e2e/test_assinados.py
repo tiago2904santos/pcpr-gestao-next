@@ -47,7 +47,9 @@ def test_anexar_e_remover_a_via_da_os(logado, dados_e2e, tmp_path):
     certo.write_bytes(PDF)
     janela.get_by_label("PDF assinado").set_input_files(str(certo))
     janela.get_by_role("button", name="Anexar via assinada").click()
-    expect(pg.locator(".toast")).to_contain_text("Via assinada anexada")
+    expect(pg.locator(".toast").first).to_contain_text("Via assinada anexada")
+    # A conferência do PDF (ADR 0022) avisa, sem bloquear: este PDF de teste não tem assinatura.
+    expect(pg.locator(".toast--aviso").first).to_contain_text("não tem assinatura digital")
     expect(pg.locator("#via-assinada")).to_contain_text("os-assinada.pdf")
     expect(pg.locator("#via-assinada .selo")).to_have_text("Assinado")
     via = ViaAssinada.objects.get()

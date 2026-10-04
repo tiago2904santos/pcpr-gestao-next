@@ -75,13 +75,20 @@ def anexar(request: HttpRequest, tipo: str, pk: int, chave: str = "") -> HttpRes
             try:
                 assinados.validar(arquivo.name or "", arquivo.size or 0, arquivo.read(5))
                 arquivo.seek(0)
-                assinados.anexar(request.user, alvo, nome=arquivo.name or "",
-                                 conteudo=arquivo.read())
+                via = assinados.anexar(request.user, alvo, nome=arquivo.name or "",
+                                       conteudo=arquivo.read())
             except assinados.ArquivoAssinadoInvalido as exc:
                 erro = str(exc)
             else:
                 messages.success(request, "Via assinada trocada; a anterior ficou no histórico."
                                  if havia else "Via assinada anexada.")
+                # O que se leu do PDF (referência m112): quem assinou, ou os avisos.
+                conferencia = via.conferencia or {}
+                if conferencia:
+                    (messages.info if conferencia.get("assinado") else messages.warning)(
+                        request, conferencia.get("resumo", ""))
+                for aviso in conferencia.get("avisos", []):
+                    messages.warning(request, aviso)
                 return redirect(voltar)
     # Erro (inclusive vindo da janela): a página de anexar com o erro no campo e o caminho
     # de volta guardado — sem perder o contexto nem reabrir a janela.

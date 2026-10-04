@@ -309,3 +309,71 @@ def test_corpo_acima_do_limite_e_recusado_antes_do_upload(c):
                     CONTENT_LENGTH=str(17 * 1024 * 1024))
     assert r.status_code == 413 and "até 15 MB" in r.content.decode()
     assert not ViaAssinada.objects.exists()
+
+
+def _pdf_com_texto(texto: str) -> bytes:
+    from weasyprint import HTML
+    return HTML(string=f"<p>{texto}</p>").write_pdf()
+
+
+def _pdf_com_campo_de_assinatura(nome: str) -> bytes:
+    import io
+
+    import pikepdf
+    pdf = pikepdf.open(io.BytesIO(_pdf_com_texto("documento")))
+    valor = pdf.make_indirect(pikepdf.Dictionary(
+        Type=pikepdf.Name.Sig, Name=pikepdf.String(nome),
+        M=pikepdf.String("D:20260924103000-03'00'")))
+    campo = pdf.make_indirect(pikepdf.Dictionary(FT=pikepdf.Name.Sig,
+                                                 T=pikepdf.String("Assinatura1"), V=valor))
+    pdf.Root.AcroForm = pikepdf.Dictionary(Fields=pikepdf.Array([campo]))
+    saida = io.BytesIO()
+    pdf.save(saida)
+    return saida.getvalue()
+
+
+class TestConferencia:
+    def test_carimbo_e_numero_errado_viram_avisos(self, c):
+        oficio = _emitido(c)
+        outro = oficio.numero + 1
+        pdf = _pdf_com_texto(
+            f"Ofício nº {outro}/{oficio.ano} — Assinatura Avançada realizada por: Maria "
+            "Exemplo (XXX.033.259-XX) em 24/09/2026 11:13")
+        cli = _cliente(c.usuarios["operador"])
+        url = reverse("viagens:anexar_assinado", args=["oficio", oficio.pk])
+        r = cli.post(url, {"arquivo": _upload(pdf), "voltar": "/viagens/"}, follow=True)
+        html = r.content.decode()
+        assert "Assinado digitalmente por Maria Exemplo em 24/09/2026 11:13." in html
+        assert f"O número neste PDF é {outro:03d}/{oficio.ano}" in html
+        via = ViaAssinada.objects.get()
+        assert via.conferencia["assinado"] and via.conferencia["avisos"]
+
+    def test_campo_de_assinatura_do_pdf(self, c):
+        oficio = _emitido(c)
+        via = assinados.anexar(c.usuarios["operador"], assinados.Alvo("oficio", oficio),
+                               nome="a.pdf", conteudo=_pdf_com_campo_de_assinatura("FULANO"))
+        assert via.conferencia["assinantes"][0]["nome"] == "FULANO"
+        assert via.conferencia["resumo"].startswith("Assinado digitalmente por FULANO em 24/09")
+
+    def test_pdf_sem_assinatura_avisa_e_nao_bloqueia(self, c):
+        oficio = _emitido(c)
+        via = assinados.anexar(c.usuarios["operador"], assinados.Alvo("oficio", oficio),
+                               nome="a.pdf", conteudo=_pdf_com_texto("sem nada"))
+        assert via.pk and not via.conferencia["assinado"]
+        html = _cliente(c.usuarios["operador"]).get(
+            reverse("viagens:resumo", args=[oficio.pk])).content.decode()
+        assert "Este PDF não tem assinatura digital reconhecível." in html
+
+    def test_pdf_quebrado_nao_derruba_o_anexo(self, c):
+        oficio = _emitido(c)
+        via = assinados.anexar(c.usuarios["operador"], assinados.Alvo("oficio", oficio),
+                               nome="a.pdf", conteudo=PDF)
+        assert via.pk and isinstance(via.conferencia, dict)
+
+    def test_termo_confere_o_nome_do_servidor(self, c):
+        op = c.usuarios["operador"]
+        termo = termos.salvar(op, oficio=Oficio.objects.get(pk=c.ids["oficio_emitido"]))
+        servidor = termos.efetivo(termo).servidores[0]
+        via = assinados.anexar(op, assinados.Alvo("termo", termo, str(servidor.pk)),
+                               nome="t.pdf", conteudo=_pdf_com_texto("Termo de outra pessoa"))
+        assert f"O nome {servidor.nome} não aparece neste PDF." in via.conferencia["avisos"]
