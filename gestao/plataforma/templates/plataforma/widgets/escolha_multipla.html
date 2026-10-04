@@ -1,0 +1,16 @@
+{% load ui %}<pc-multiescolha class="multiescolha" data-nome="{{ widget.name }}">
+  <pc-combobox class="combobox" data-fonte="{{ widget.fonte }}?q=" data-minimo="2">
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" type="text" role="combobox" placeholder="{{ widget.placeholder }}"{% include "django/forms/widgets/attrs.html" %}></div>
+  </pc-combobox>
+  <ul class="multiescolha__lista" role="list" aria-label="Escolhidos">
+    {% for e in widget.escolhidos %}
+      <li class="pessoa multiescolha__item" data-id="{{ e.id }}">
+        <input type="hidden" name="{{ widget.name }}" value="{{ e.id }}">
+        <span class="pessoa__texto"><span class="pessoa__nome">{{ e.titulo }}</span>{% if e.meta %}<span class="pessoa__meta">{{ e.meta }}</span>{% endif %}</span>
+        <button type="button" class="botao botao--icone botao--sutil botao--sm" data-remover aria-label="Remover {{ e.titulo }}">{% icone "x" classe="icone--sm" %}</button>
+      </li>
+    {% endfor %}
+  </ul>
+  <p class="multiescolha__vazio texto-secundario texto-sm"{% if widget.escolhidos %} hidden{% endif %}>{{ widget.rotulo_vazio }}</p>
+  <div class="sr-only" aria-live="polite" data-anuncio></div>
+</pc-multiescolha>

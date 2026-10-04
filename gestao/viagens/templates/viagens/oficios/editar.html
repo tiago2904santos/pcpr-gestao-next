@@ -34,7 +34,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
       <span class="frase-oficio__item{% if not viajantes %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if viajantes %}{{ viajantes|length|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>
       {% with d=oficio|destinos %}<span class="frase-oficio__item{% if not d %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ d|default:"sem destino" }}</span>{% endwith %}
       {% with p=trechos|periodo %}<span class="frase-oficio__item{% if not p %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ p|default:"sem datas" }}</span>{% endwith %}
-      {% if oficio.viatura %}<span class="frase-oficio__item">{% icone "car" classe="icone--sm" %}{{ oficio.viatura.modelo }} · {{ oficio.viatura.placa_formatada }}</span>
+      {% if oficio.viatura %}<span class="frase-oficio__item">{% icone "car" classe="icone--sm" %}{{ oficio.viatura }}</span>
       {% elif oficio.transporte_descricao %}<span class="frase-oficio__item">{% icone "bus" classe="icone--sm" %}{{ oficio.transporte_descricao }}</span>
       {% else %}<span class="frase-oficio__item frase-oficio__item--vazio">{% icone "car" classe="icone--sm" %}sem transporte</span>{% endif %}
       {% if oficio.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ oficio.diarias_total|moeda }}</span>{% endif %}

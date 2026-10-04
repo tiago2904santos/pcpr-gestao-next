@@ -1,29 +1,162 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Servidores{% endblock %}
 {% block titulo_lista %}Servidores{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Servidores que podem compor equipes de viagem. A edição chega com o módulo de Cadastros.</p>{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pessoas que compõem as equipes de viagem, dirigem as viaturas e assinam os documentos.</p>{% endblock %}
+{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo servidor</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-servidor">{% icone "plus" %}Novo servidor</button>{% endif %}{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista e o cadastro de servidores da referência: busca sem acento (nome,
+cargo, unidade, CPF, RG), filtro por cargo com contagem que respeita a busca, dados na
+ordem cargo · CPF · RG · telefone · unidade, editar e excluir (bloqueado com vínculos);
+só o nome é obrigatório e o cadastro incompleto é sinalizado. A mais: abas Ativos /
+Incompletos / Inativos e "Desativar".
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação do cadastro">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if termo %}{% if chave %}&amp;{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
 {% block filtros %}
-<form class="filtros" role="search" method="get">
-  <div class="campo filtros__busca"><label class="campo__rotulo" for="q-serv">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="q-serv" type="search" name="q" value="{{ termo }}" placeholder="Nome, CPF ou RG"></div></div>
+<form class="filtros" role="search" method="get" action="{% url 'cadastros:servidores' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-servidores">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-servidores" type="search" name="q" value="{{ termo }}" placeholder="Nome, cargo, unidade, CPF ou RG" autocomplete="off"></div>
+  </div>
+  <div class="campo">
+    <label class="campo__rotulo" for="filtro-cargo">Cargo</label>
+    <pc-select class="seletor">
+      <select class="selecao" id="filtro-cargo" name="cargo">
+        <option value="">Todos ({{ total_filtro }})</option>
+        {% for c, n in cargos %}<option value="{{ c.pk }}"{% if cargo == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.nome }} ({{ n }})</option>{% endfor %}
+      </select>
+    </pc-select>
+  </div>
   <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
 </form>
 {% endblock %}
+
 {% block resultados %}
-<div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="titulo-resultados">Servidores</h2><span class="lista-cabecalho__total">{{ page_obj.paginator.count|pluralizar:"servidor,servidores" }}</span></div>
-{% if page_obj.object_list %}
-<div class="tabela-rolagem">
-  <table class="tabela tabela--responsiva">
-    <caption class="sr-only">Servidores cadastrados</caption>
-    <thead><tr><th scope="col">Nome</th><th scope="col">Cargo</th><th scope="col">Unidade</th><th scope="col">CPF</th><th scope="col">Situação</th></tr></thead>
-    <tbody>
-      {% for s in page_obj.object_list %}
-      <tr><td class="tabela__celula-principal" data-rotulo="Nome"><span class="tabela__principal quebra-palavras">{{ s.nome }}</span></td><td data-rotulo="Cargo">{{ s.cargo }}</td><td data-rotulo="Unidade">{{ s.unidade.sigla }}</td><td data-rotulo="CPF" class="num">{{ s.cpf_formatado|default:"—" }}</td><td data-rotulo="Situação"><span class="selo selo--{{ s.ativo|yesno:'sucesso,neutro' }}">{{ s.ativo|yesno:"Ativo,Inativo" }}</span></td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% elif aba == "incompletos" %}Cadastros incompletos{% else %}Servidores{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"servidor,servidores" }}</span>
 </div>
-{% include "componentes/paginacao.html" %}
+{% if aba == "incompletos" %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}Sem cargo ou sem CPF o servidor ainda entra na equipe, mas o documento sai sem esses dados.</p>{% endif %}
+{% if page_obj.object_list %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for s in page_obj.object_list %}
+      <li class="registro{% if not s.ativo %} registro--inativo{% endif %}">
+        <span class="avatar" aria-hidden="true">{{ s.iniciais }}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            {% if acoes.alterar %}<a class="registro__link" href="?{{ querystring_base }}editar={{ s.pk }}">{{ s.nome }}</a>
+            {% else %}<span class="registro__link registro__link--estatico">{{ s.nome }}</span>{% endif %}
+            {% if not s.completo %}<span class="selo selo--aviso selo--sem-ponto">{% icone "alert-triangle" classe="icone--sm" %}Falta {{ s.faltando|join:" e " }}</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if s.cargo %}<span class="registro__meta-item">{{ s.cargo.nome }}</span>{% endif %}
+            {% if s.cpf %}<span class="registro__meta-item num">CPF {{ s.cpf_formatado }}</span>{% endif %}
+            {% if s.sem_rg %}<span class="registro__meta-item vazio-inline">Sem RG</span>{% elif s.rg %}<span class="registro__meta-item num">RG {{ s.rg_formatado }}</span>{% endif %}
+            {% if s.telefone %}<span class="registro__meta-item num">{{ s.telefone_formatado }}</span>{% endif %}
+            {% if s.unidade %}<span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}{{ s.unidade.sigla|default:s.unidade.nome }}</span>{% endif %}
+            {% if s.n_oficios %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Em {{ s.n_oficios|pluralizar:"ofício,ofícios" }}</span>{% endif %}
+          </div>
+        </div>
+        {% if acoes.alguma %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações de {{ s.nome }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if acoes.alterar %}
+                <a class="menu__item" role="menuitem" href="?{{ querystring_base }}editar={{ s.pk }}">{% icone "pencil" %}Editar</a>
+                <button type="submit" form="ativo-{{ s.pk }}" class="menu__item" role="menuitem">{% if s.ativo %}{% icone "eye-off" %}Desativar{% else %}{% icone "undo-2" %}Reativar{% endif %}</button>
+              {% endif %}
+              {% if acoes.excluir and not s.n_oficios %}
+                <div class="menu__separador" role="separator"></div>
+                <button type="submit" form="excluir-{{ s.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          {% if acoes.alterar %}<form id="ativo-{{ s.pk }}" method="post" action="{% url 'cadastros:alternar_ativo' 'servidores' s.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+          {% if acoes.excluir and not s.n_oficios %}
+            <form id="excluir-{{ s.pk }}" method="post" action="{% url 'cadastros:excluir' 'servidores' s.pk %}" hidden
+                  data-confirmar="{{ s.nome }} será excluído de vez. Para só tirá-lo das escolhas, use Desativar."
+                  data-confirmar-titulo="Excluir servidor?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif termo or cargo %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum servidor encontrado" texto="Confira a grafia, busque pelo CPF ou troque o cargo." limpar_url=request.path %}
+{% elif aba == "incompletos" %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhum cadastro incompleto" texto="Todos os servidores ativos têm cargo e CPF." %}
+{% elif aba == "inativos" %}
+  {% include "componentes/vazio.html" with icone="eye-off" titulo="Nenhum servidor inativo" texto="Quem for desativado aparece aqui e pode ser reativado." %}
 {% else %}
-{% include "componentes/vazio.html" with icone="search" titulo="Nenhum servidor encontrado" texto="Confira a grafia ou busque pelo CPF." limpar_url=request.path %}
+  {% if acoes.criar %}{% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor cadastrado ainda" texto="Cadastre quem compõe as equipes de viagem." acao_url="?novo=1" acao_rotulo="Novo servidor" %}
+  {% else %}{% include "componentes/vazio.html" with icone="users" titulo="Nenhum servidor cadastrado ainda" texto="Quem mantém os cadastros é a equipe de viagens." %}{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if acoes.criar %}
+<div class="barra-acoes barra-acoes--rodape">
+  <p class="barra-acoes__status">Cadastro rápido: só o nome é obrigatório.</p>
+  {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo servidor</a>
+  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-servidor">{% icone "plus" %}Novo servidor</button>{% endif %}
+</div>
+{% endif %}
+{% if acoes.criar or editando %}
+<dialog id="dialogo-servidor" class="dialogo dialogo--largo" aria-labelledby="dialogo-servidor-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_servidor' %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <input type="hidden" name="voltar" value="{{ request.path }}?{{ querystring_base }}">
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="dialogo-servidor-titulo">{% if editando %}Editar {{ editando.nome }}{% else %}Novo servidor{% endif %}</h2>
+        <p class="texto-secundario texto-sm">Só o nome é obrigatório; os demais campos podem ser completados depois.</p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      {% if editando and not editando.completo %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Falta {{ editando.faltando|join:" e " }} para o documento sair completo.</p></div></div>{% endif %}
+      <fieldset class="grupo-campos">
+        <legend>Identificação funcional</legend>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.cargo classe="campo--md" %}
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.cpf classe="campo--sm" %}
+          {% include "componentes/campo.html" with campo=form.rg classe="campo--md campo--cresce" %}
+          {% include "componentes/campo.html" with campo=form.telefone classe="campo--sm" %}
+        </div>
+      </fieldset>
+      <fieldset class="grupo-campos">
+        <legend>Lotação</legend>
+        <div class="campo{% if form.unidade.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.unidade.id_for_label }}">{{ form.unidade.label }}</label>
+          <pc-combobox class="combobox" data-placeholder="Sigla ou nome da unidade…">{{ form.unidade|campo_acessivel:"" }}</pc-combobox>
+          {% if form.unidade.errors %}<p class="campo__erro" id="{{ form.unidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.unidade.errors|join:" " }}</span></p>{% endif %}
+        </div>
+      </fieldset>
+    </div>
+    <div class="dialogo__rodape">
+      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
+      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
+      {% if not editando %}<button type="submit" class="botao" name="outro" value="1">Cadastrar e incluir outro</button>{% endif %}
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar servidor{% endif %}</button>
+    </div>
+  </form>
+</dialog>
 {% endif %}
 {% endblock %}

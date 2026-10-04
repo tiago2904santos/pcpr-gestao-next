@@ -7,12 +7,11 @@ from datetime import datetime
 from typing import cast
 
 from django import forms
-from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Value
-from django.db.models.functions import Lower
+from django.db.models import Q
 from django.utils import timezone
 
-from gestao.cadastros.models import Combustivel, ModeloTexto, Municipio, Servidor, Viatura
+from gestao.cadastros.forms import CampoMunicipio, resolver_municipio  # noqa: F401
+from gestao.cadastros.models import Combustivel, ModeloTexto, Servidor, Viatura
 from gestao.cadastros.validacoes import normalizar_placa, placa_valida, somente_digitos
 from gestao.plataforma.widgets import (
     FORMATOS_DATA,
@@ -132,40 +131,6 @@ class AssociadoAoFormularioDoOficio:
             campo.widget.attrs["form"] = self.form_id
 
 
-def resolver_municipio(texto: str) -> Municipio:
-    """Aceita "Cidade/UF", "Cidade - UF" ou "Cidade, UF" (sem diferenciar acentos/caixa)."""
-    texto = (texto or "").strip()
-    m = re.match(r"^(?P<nome>.+?)\s*[/,-]\s*(?P<uf>[A-Za-z]{2})$", texto)
-    if not m:
-        raise forms.ValidationError(
-            "Informe a cidade e a UF, ex.: Arapongas/PR.", code="formato_municipio")
-    nome, uf = m.group("nome").strip(), m.group("uf").upper()
-    candidatos = list(
-        Municipio.objects.annotate(n=Unaccent(Lower("nome")))
-        .filter(uf=uf, n=Unaccent(Lower(Value(nome))))[:2]
-    )
-    if len(candidatos) != 1:
-        raise forms.ValidationError(
-            f"Não encontramos “{nome}/{uf}” na lista oficial de municípios. Confira a grafia.",
-            code="municipio_inexistente")
-    return candidatos[0]
-
-
-class CampoMunicipio(forms.CharField):
-    """Texto "Cidade/UF" resolvido para Municipio (funciona sem JavaScript)."""
-
-    def __init__(self, **kwargs):
-        kwargs.setdefault("widget", forms.TextInput(attrs=_attrs(
-            placeholder="Cidade/UF", autocomplete="off", **{"data-municipio": ""})))
-        super().__init__(**kwargs)
-
-    def clean(self, value):
-        value = super().clean(value)
-        if not value:
-            return None
-        return resolver_municipio(value)
-
-
 class CampoDataHora(forms.DateTimeField):
     def __init__(self, **kwargs):
         kwargs.setdefault("widget", EntradaDataHora())
@@ -192,7 +157,8 @@ class SelecaoDeViatura(forms.Select):
                 "data-motoristas": " ".join(str(m.pk) for m in viatura.motoristas.all()),
                 "data-nomes": "|".join(m.nome.split()[0] for m in viatura.motoristas.all()),
                 "data-meta": " · ".join(p for p in (
-                    str(viatura.combustivel), viatura.get_tipo_display(), sigla) if p),
+                    getattr(viatura.combustivel, "nome", ""),
+                    viatura.get_tipo_display(), sigla) if p),
             })
         return opcao
 
@@ -302,19 +268,24 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             (Oficio.MotoristaExterno.MANUAL, "Pessoa não cadastrada"),
         ]
         servidor_externo = cast(forms.ModelChoiceField, self.fields["motorista_externo_servidor"])
-        servidor_externo.queryset = Servidor.objects.filter(ativo=True)
+        # Ativos, mais o que o rascunho já usa: desativar um cadastro (em Cadastros) não
+        # pode travar a gravação de quem já o escolheu.
+        inst = self.instance
+        servidor_externo.queryset = Servidor.objects.filter(
+            Q(ativo=True) | Q(pk=inst.motorista_externo_servidor_id))
         servidor_externo.required = False
         cast(forms.ChoiceField, self.fields["tipo_transporte"]).choices = [
             (Oficio.TipoTransporte.VIATURA, "Viatura oficial"),
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
         ]
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
-        viatura.queryset = (Viatura.objects.filter(ativo=True)
+        viatura.queryset = (Viatura.objects.filter(Q(ativo=True) | Q(pk=inst.viatura_id))
                             .select_related("combustivel", "unidade")
                             .prefetch_related("motoristas"))
         viatura.empty_label = "Selecione a viatura…"
         combustivel = cast(forms.ModelChoiceField, self.fields["transporte_combustivel"])
-        combustivel.queryset = Combustivel.objects.filter(ativo=True)
+        combustivel.queryset = Combustivel.objects.filter(
+            Q(ativo=True) | Q(pk=inst.transporte_combustivel_id))
         combustivel.required = False
         combustivel.empty_label = "Selecione…"
         modelo = cast(forms.ModelChoiceField, self.fields["justificativa_modelo"])

@@ -118,3 +118,42 @@ class SelecaoDeTexto(Selecao):
         if texto:
             opcao["attrs"]["data-texto"] = texto
         return opcao
+
+
+class EscolhaMultiplaRemota(forms.SelectMultiple):
+    """Vários registros escolhidos por busca (<pc-multiescolha>): cada escolhido vira uma
+    linha com um <input type="hidden"> do mesmo nome, e a busca consulta `fonte`
+    (JSON [{id, titulo, meta}], o mesmo do <pc-combobox> remoto).
+
+    Só os já escolhidos são desenhados (nunca a lista inteira de opções). Sem JavaScript, os
+    escolhidos continuam sendo enviados; acrescentar pede JavaScript.
+    """
+
+    template_name = "plataforma/widgets/escolha_multipla.html"
+
+    def __init__(self, *, fonte: str = "", rotulo_vazio: str = "Nada escolhido.",
+                 placeholder: str = "", attrs: dict[str, Any] | None = None):
+        super().__init__(attrs=attrs)
+        self.fonte, self.rotulo_vazio, self.placeholder = fonte, rotulo_vazio, placeholder
+
+    def get_context(self, name, value, attrs):
+        # forms.Widget (e não SelectMultiple): não percorre todas as opções do campo.
+        contexto = forms.Widget.get_context(self, name, value, attrs)
+        valores = [v for v in contexto["widget"]["value"]
+                   if str(v).isascii() and str(v).isdecimal() and len(str(v)) <= 18]
+        consulta = getattr(self.choices, "queryset", None)
+        escolhidos = list(consulta.filter(pk__in=valores)) if consulta is not None and valores \
+            else []
+        contexto["widget"].update({
+            "fonte": self.fonte, "rotulo_vazio": self.rotulo_vazio,
+            "placeholder": self.placeholder,
+            "escolhidos": [{"id": o.pk, "titulo": str(o),
+                            "meta": getattr(o, "descricao", "")} for o in escolhidos]})
+        return contexto
+
+    def format_value(self, value):
+        if value is None:
+            return []
+        if not isinstance(value, (list, tuple)):
+            value = [value]
+        return [str(getattr(v, "pk", v)) for v in value if v not in (None, "")]

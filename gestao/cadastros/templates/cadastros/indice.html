@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Cadastros{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Entrada dos cadastros (paridade com a entrada da referência: Servidores, Cargos, Viaturas,
+Combustíveis, Unidades e Configurações; aqui também a tabela de diárias e os textos
+prontos). Cada perfil vê só o que pode abrir.
+{% endcomment %}
+{% block conteudo %}
+{% include "componentes/pagina_cabecalho.html" with titulo="Cadastros" icone="layers" descricao="Dados-base compartilhados pelos ofícios, roteiros e documentos de viagem." %}
+
+{% if cartoes %}
+<section class="cartao mt-4" aria-labelledby="t-principais">
+  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-principais">Cadastros principais</h2></div>
+  <ul class="registros" aria-labelledby="t-principais">
+    {% for c in cartoes %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
+          <p class="registro__texto">{{ c.texto }}</p>
+          {% if c.resumo or c.pendencia %}<div class="registro__meta">
+            {% if c.resumo %}<span class="registro__meta-item">{{ c.resumo }}</span>{% endif %}
+            {% if c.pendencia %}<a class="registro__meta-item registro__meta-item--acao registro__meta-item--alvo" href="{{ c.pendencia.1 }}">{% icone "alert-triangle" classe="icone--sm" %}{{ c.pendencia.0 }}</a>{% endif %}
+          </div>{% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if apoio %}
+<section class="cartao mt-4" aria-labelledby="t-apoio">
+  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-apoio">Configuração e textos</h2></div>
+  <ul class="registros" aria-labelledby="t-apoio">
+    {% for c in apoio %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
+          <p class="registro__texto">{{ c.texto }}</p>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

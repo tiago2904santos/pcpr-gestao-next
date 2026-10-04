@@ -61,6 +61,18 @@ ciclo de vida voltaram no menu da linha e no "Mais ações" da janela de resumo
 ### D8 — Requisições
 - O teto 40 só vale depois da validação descrita em `docs/quality/performance-budgets.md`.
 
+## Cadastros (módulo 2) — comportamentos adotados da referência, a confirmar
+
+Não são regras inventadas: são o que a referência faz (`viagens_cadastros`). Ficaram
+implementados e testados; o usuário pode pedir para mudar sem retrabalho grande.
+
+| Comportamento | Na referência | Aqui | Teste |
+|---|---|---|---|
+| Operador mantém servidores, viaturas, unidades, cargos e combustíveis | `pode_editar_cadastros` = gestor **ou** operador | permissões `add/change/delete` desses modelos no papel OPERADOR_VIAGENS (antes: só consulta) | `test_crud.py::TestPerfis` |
+| Servidor só com o nome; viatura só com a placa | campos opcionais + status RASCUNHO | `cargo`, `unidade`, `combustivel`, `modelo`, `tipo` opcionais; "Falta …" sinalizado; ofício **avisa** sem bloquear | `TestServidor`, `TestViatura`, `TestCadastroIncompletoNoOficio` |
+| Nome do servidor único; RG e telefone únicos quando informados | constraints `viagens_servidor_*_unico` | constraints `servidor_nome_unico` (sem caixa), `servidor_rg_unico`, `servidor_telefone_unico` | `test_unicidade_vira_mensagem_no_campo` |
+| Diária mínima R$ 0,04 | `TabelaDiariaForm.clean_valor_24h` (P08) | idem | `test_valor_minimo_quatro_centavos` |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -71,3 +83,4 @@ ciclo de vida voltaram no menu da linha e no "Mais ações" da janela de resumo
 | Hospedagem/IA/n8n (plano, recursos, backups, custos) | dependência externa |
 | Reabertura formal (emitido → rascunho com motivo, gestor) sem botão desde a saída da página de detalhe; hoje a tela oferece "Editar (retificar)" | **bloqueante** (decisão: manter só a retificação ou repor o botão de reabrir) |
 | Uso real do DOCX fora do sistema (D4) | evidência do usuário |
+| Confirmar os comportamentos de Cadastros adotados da referência (tabela acima) | decisão do usuário (não bloqueia) |

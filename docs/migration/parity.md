@@ -9,7 +9,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Módulo | Situação | Funções da referência cobertas* | Evidência | Ficha |
 |---|---|---:|---|---|
 | Plataforma / identidade | Parcial | 9 / 19 | `gestao/identidade/tests`, `gestao/painel/tests` | — |
-| Viagens · Cadastros | Parcial (só consulta) | 4 / 22 | `gestao/cadastros/tests` | (a criar) |
+| Viagens · Cadastros | **Em andamento** (CRUD em tela pronto; faltam assinantes por tipo e endereço em campos) | 18 / 22 | `gestao/cadastros/tests/test_crud.py`, `tests/e2e/test_cadastros.py` | [cadastros.md](cadastros.md) |
 | Viagens · Ofícios | **Em fechamento** (falta comparação com a referência em execução) | 29 / 31 (+2 bloqueados: termos, assinatura) | `gestao/viagens/tests/test_views.py`, `test_dominio_*`, `tests/e2e/` | [oficios.md](oficios.md) · [regras](../parity/oficio.md) |
 | Viagens · Roteiros | Avançado | 11 / 14 | `gestao/viagens/tests/test_roteiros*.py` | (a criar) |
 | Viagens · Termos | Ausente | 0 / 12 | — | — |

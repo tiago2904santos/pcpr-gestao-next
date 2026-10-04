@@ -40,7 +40,7 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
             <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
             <span class="pessoa__texto">
               <span class="pessoa__nome">{{ v.servidor.nome }}</span>
-              <span class="pessoa__meta">{{ v.servidor.cargo }} · {{ v.servidor.unidade.sigla }}</span>
+              <span class="pessoa__meta">{{ v.servidor.descricao|default:"Cadastro incompleto" }}</span>
             </span>
             <span class="equipe__acoes">
               <form method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">

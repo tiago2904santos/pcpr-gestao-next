@@ -758,7 +758,7 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
     servidores = (Servidor.objects.filter(ativo=True).filter(filtro)
                   .select_related("cargo", "unidade").order_by("nome")[:15])
     return JsonResponse({"resultados": [
-        {"id": str(s.pk), "titulo": s.nome, "meta": f"{s.cargo} • {s.unidade.sigla}"}
+        {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao}
         for s in servidores]})
 
 

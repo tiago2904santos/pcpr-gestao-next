@@ -30,18 +30,24 @@ bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.
 | Ver roteiros (`view_roteiro`) | ✓ (só da unidade) | ✓ | ✓ | — |
 | Criar/alterar/cancelar roteiros (`add_roteiro`, `change_roteiro`) | ✓ | ✓ | — | — |
 | Excluir roteiro não usado (`delete_roteiro`) | ✓ | ✓ | — | — |
-| Ver servidores, viaturas, unidades | ✓ | ✓ | ✓ | — |
-| Criar/alterar servidores, viaturas, unidades | — | ✓ | — | — |
-| Ver tabela de diárias | ✓ | ✓ | — | — |
+| Ver servidores, viaturas, unidades, cargos, combustíveis | ✓ | ✓ | ✓ | — |
+| Criar/alterar/desativar/excluir (sem vínculos) servidores, viaturas, unidades, cargos, combustíveis | ✓ (referência; a confirmar) | ✓ | — | — |
+| Ver tabela de diárias e configuração da unidade | ✓ | ✓ | — | — |
+| Alterar configuração da unidade (`change_configuracaoinstitucional`) | — | ✓ | — | — |
 | Editar o texto dos documentos do rascunho (`change_oficio`, ADR 0018) | ✓ | ✓ | — | — |
 | Guardar/remover textos prontos (`add_modelotexto`, `change_modelotexto`) | ✓ | ✓ | — | — |
 | Excluir texto pronto de vez (`delete_modelotexto`; nunca os do sistema) | — | ✓ | — | — |
-| Criar/alterar tabela de diárias | — | ✓ | — | — |
+| Criar/alterar/excluir vigência da tabela de diárias | — | ✓ | — | — |
 | Ver modelos de texto | ✓ | ✓ | — | — |
 | Usuários (ver/criar/alterar) | — | — | — | ✓ |
 | Ver trilha de auditoria (`view_eventoauditoria`) | — | — | — | ✓ |
 
 Observações:
+- Cadastros (servidores, viaturas, unidades, cargos, combustíveis) são **globais, sem escopo
+  por unidade**, como na referência: o operador mantém os de qualquer unidade (registrado em
+  `docs/migration/decisoes.md` como adotado da referência, a confirmar). A configuração da
+  unidade só se altera na própria unidade, ou em qualquer uma com `ver_todas_unidades`
+  (`cadastros/policies.pode_alterar_configuracao`).
 - A descrição do papel ADMINISTRADOR cita "configurações institucionais", mas não há
   permissão de configuração listada em `papeis.py` — **a confirmar**.
 - A descrição do OPERADOR cita "termos", que ainda não existem no novo.

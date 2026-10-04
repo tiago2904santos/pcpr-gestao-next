@@ -12,7 +12,13 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.functions import Lower
 
-from .validacoes import formatar_cpf, formatar_placa
+from .validacoes import (
+    RG_NAO_POSSUI,
+    formatar_cpf,
+    formatar_placa,
+    formatar_rg,
+    formatar_telefone,
+)
 
 
 class Ativavel(models.Model):
@@ -25,7 +31,8 @@ class Ativavel(models.Model):
 
 
 class Unidade(Ativavel):
-    sigla = models.CharField("sigla", max_length=40)
+    # Sigla opcional e até 50 caracteres, como na referência; o nome é o que identifica.
+    sigla = models.CharField("sigla", max_length=50, blank=True)
     nome = models.CharField("nome", max_length=255)
 
     class Meta:
@@ -38,43 +45,78 @@ class Unidade(Ativavel):
 
 class Cargo(Ativavel):
     nome = models.CharField("nome", max_length=120)
+    # O cargo padrão já vem escolhido no servidor novo (referência: "cargo padrão"). Um só.
+    padrao = models.BooleanField("padrão", default=False)
 
     class Meta:
         ordering = ["nome"]
-        constraints = [models.UniqueConstraint(Lower("nome"), name="cargo_nome_unico")]
+        constraints = [
+            models.UniqueConstraint(Lower("nome"), name="cargo_nome_unico"),
+            models.UniqueConstraint(fields=["padrao"], condition=models.Q(padrao=True),
+                                    name="cargo_um_padrao"),
+            models.CheckConstraint(condition=~models.Q(padrao=True, ativo=False),
+                                   name="cargo_padrao_ativo"),
+        ]
 
     def __str__(self) -> str:
         return self.nome
 
 
 class Combustivel(Ativavel):
-    nome = models.CharField("nome", max_length=60)
+    nome = models.CharField("nome", max_length=120)
+    # O combustível padrão já vem escolhido na viatura nova. Um só.
+    padrao = models.BooleanField("padrão", default=False)
 
     class Meta:
         ordering = ["nome"]
         verbose_name = "combustível"
         verbose_name_plural = "combustíveis"
+        constraints = [
+            models.UniqueConstraint(Lower("nome"), name="combustivel_nome_unico"),
+            models.UniqueConstraint(fields=["padrao"], condition=models.Q(padrao=True),
+                                    name="combustivel_um_padrao"),
+            models.CheckConstraint(condition=~models.Q(padrao=True, ativo=False),
+                                   name="combustivel_padrao_ativo"),
+        ]
 
     def __str__(self) -> str:
         return self.nome
 
 
 class Servidor(Ativavel):
-    """Servidor público que viaja (viajante, motorista ou signatário)."""
+    """Servidor público que viaja (viajante, motorista ou signatário).
+
+    Como na referência, só o nome é obrigatório: o cadastro pode nascer incompleto e ser
+    completado depois (`faltando` diz o quê; as telas sinalizam). CPF e telefone são
+    guardados só com dígitos, o RG só com letras e números; os três são únicos quando
+    informados.
+    """
 
     nome = models.CharField("nome completo", max_length=255)
     cpf = models.CharField("CPF", max_length=11, blank=True)
+    # Vazio = não informado; a marca RG_NAO_POSSUI = a pessoa não tem RG.
     rg = models.CharField("RG", max_length=30, blank=True)
-    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT, related_name="servidores")
-    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="servidores")
+    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT, related_name="servidores",
+                              null=True, blank=True)
+    unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="servidores",
+                                null=True, blank=True)
     telefone = models.CharField("telefone", max_length=11, blank=True)
 
     class Meta:
         ordering = ["nome"]
         verbose_name_plural = "servidores"
         constraints = [
+            models.UniqueConstraint(Lower("nome"), name="servidor_nome_unico"),
             models.UniqueConstraint(
                 fields=["cpf"], condition=~models.Q(cpf=""), name="servidor_cpf_unico"
+            ),
+            models.UniqueConstraint(
+                fields=["rg"], condition=~models.Q(rg="") & ~models.Q(rg=RG_NAO_POSSUI),
+                name="servidor_rg_unico",
+            ),
+            models.UniqueConstraint(
+                fields=["telefone"], condition=~models.Q(telefone=""),
+                name="servidor_telefone_unico",
             ),
             models.CheckConstraint(
                 condition=models.Q(cpf="") | models.Q(cpf__regex=r"^\d{11}$"),
@@ -91,6 +133,46 @@ class Servidor(Ativavel):
         return formatar_cpf(self.cpf)
 
     @property
+    def rg_formatado(self) -> str:
+        return "" if self.sem_rg else formatar_rg(self.rg)
+
+    @property
+    def sem_rg(self) -> bool:
+        return self.rg == RG_NAO_POSSUI
+
+    @property
+    def telefone_formatado(self) -> str:
+        return formatar_telefone(self.telefone)
+
+    @property
+    def faltando(self) -> list[str]:
+        """O que falta para o cadastro sair completo num documento (regra da referência:
+        nome, cargo e CPF com 11 dígitos). Não impede nada: só sinaliza."""
+        falta = []
+        if not self.cargo_id:
+            falta.append("cargo")
+        if len(self.cpf or "") != 11:
+            falta.append("CPF")
+        return falta
+
+    @property
+    def completo(self) -> bool:
+        return not self.faltando
+
+    @property
+    def faltando_texto(self) -> str:
+        """"modelo, combustível e tipo"."""
+        f = self.faltando
+        return " e ".join([", ".join(f[:-1]), f[-1]]) if len(f) > 1 else "".join(f)
+
+    @property
+    def descricao(self) -> str:
+        """"Cargo · SIGLA" para as escolhas e cartões (sem o que não foi informado)."""
+        u, c = self.unidade, self.cargo
+        partes = (c.nome if c is not None else "", (u.sigla or u.nome) if u is not None else "")
+        return " · ".join(p for p in partes if p)
+
+    @property
     def iniciais(self) -> str:
         partes = [p for p in self.nome.split() if len(p) > 2] or self.nome.split()
         return (partes[0][0] + (partes[-1][0] if len(partes) > 1 else "")).upper()
@@ -101,10 +183,12 @@ class Viatura(Ativavel):
         CARACTERIZADA = "caracterizada", "Caracterizada"
         DESCARACTERIZADA = "descaracterizada", "Descaracterizada"
 
+    # Como na referência, só a placa é obrigatória; o resto pode ser completado depois.
     placa = models.CharField("placa", max_length=7, unique=True)
-    modelo = models.CharField("modelo", max_length=120)
-    combustivel = models.ForeignKey(Combustivel, on_delete=models.PROTECT)
-    tipo = models.CharField("tipo", max_length=20, choices=Tipo.choices)
+    modelo = models.CharField("modelo", max_length=120, blank=True)
+    combustivel = models.ForeignKey(Combustivel, on_delete=models.PROTECT, null=True,
+                                    blank=True, related_name="viaturas")
+    tipo = models.CharField("tipo", max_length=20, choices=Tipo.choices, blank=True)
     unidade = models.ForeignKey(
         Unidade, on_delete=models.PROTECT, null=True, blank=True, related_name="viaturas"
     )
@@ -125,11 +209,28 @@ class Viatura(Ativavel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.placa_formatada} · {self.modelo}"
+        return f"{self.placa_formatada} · {self.modelo}" if self.modelo else self.placa_formatada
 
     @property
     def placa_formatada(self) -> str:
         return formatar_placa(self.placa)
+
+    @property
+    def faltando(self) -> list[str]:
+        """O que falta para a viatura sair completa (referência: modelo, combustível, tipo)."""
+        return [rotulo for rotulo, valor in (("modelo", self.modelo.strip()),
+                                             ("combustível", self.combustivel_id),
+                                             ("tipo", self.tipo)) if not valor]
+
+    @property
+    def completo(self) -> bool:
+        return not self.faltando
+
+    @property
+    def faltando_texto(self) -> str:
+        """"modelo, combustível e tipo"."""
+        f = self.faltando
+        return " e ".join([", ".join(f[:-1]), f[-1]]) if len(f) > 1 else "".join(f)
 
 
 class Municipio(models.Model):

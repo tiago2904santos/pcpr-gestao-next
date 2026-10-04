@@ -16,6 +16,14 @@ class Papel(TypedDict):
     permissoes: list[str]
 
 
+# Como na referência, a equipe de viagens (gestor e operador) mantém os cadastros de apoio;
+# a tabela de diárias (dinheiro) e a configuração da unidade são só do gestor.
+CADASTROS_DA_EQUIPE = [
+    f"cadastros.{acao}_{modelo}"
+    for modelo in ("servidor", "viatura", "unidade", "cargo", "combustivel")
+    for acao in ("view", "add", "change", "delete")
+]
+
 PAPEIS: dict[str, Papel] = {
     "OPERADOR_VIAGENS": {
         "descricao": "Monta ofícios, roteiros e termos da sua unidade.",
@@ -24,9 +32,10 @@ PAPEIS: dict[str, Papel] = {
             "viagens.emitir_oficio", "viagens.delete_oficio", "viagens.arquivar_oficio",
             "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
             "viagens.delete_roteiro",
-            "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
-            "cadastros.view_tabeladiaria", "cadastros.view_modelotexto",
-            "cadastros.add_modelotexto", "cadastros.change_modelotexto",
+            *CADASTROS_DA_EQUIPE,
+            "cadastros.view_tabeladiaria", "cadastros.view_configuracaoinstitucional",
+            "cadastros.view_modelotexto", "cadastros.add_modelotexto",
+            "cadastros.change_modelotexto",
         ],
     },
     "GESTOR_VIAGENS": {
@@ -38,14 +47,14 @@ PAPEIS: dict[str, Papel] = {
             "viagens.delete_oficio", "cadastros.view_modelotexto", "cadastros.add_modelotexto",
             "cadastros.change_modelotexto", "cadastros.delete_modelotexto",
             "cadastros.gerir_padrao_texto",
-            "cadastros.change_tabeladiaria",
             "viagens.view_roteiro", "viagens.add_roteiro", "viagens.change_roteiro",
             "viagens.delete_roteiro",
             "viagens.ver_todas_unidades", "viagens.gerir_numeracao",
-            "cadastros.view_servidor", "cadastros.add_servidor", "cadastros.change_servidor",
-            "cadastros.view_viatura", "cadastros.add_viatura", "cadastros.change_viatura",
-            "cadastros.view_unidade", "cadastros.add_unidade", "cadastros.change_unidade",
+            *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.add_tabeladiaria",
+            "cadastros.change_tabeladiaria", "cadastros.delete_tabeladiaria",
+            "cadastros.view_configuracaoinstitucional",
+            "cadastros.change_configuracaoinstitucional",
         ],
     },
     "CONSULTA": {
@@ -53,6 +62,7 @@ PAPEIS: dict[str, Papel] = {
         "permissoes": [
             "viagens.view_oficio", "viagens.ver_todas_unidades", "viagens.view_roteiro",
             "cadastros.view_servidor", "cadastros.view_viatura", "cadastros.view_unidade",
+            "cadastros.view_cargo", "cadastros.view_combustivel",
         ],
     },
     "ADMINISTRADOR": {

@@ -88,7 +88,7 @@ escrito quando o campo nasce vazio — um por tipo.
 {% endblock %}
 
 {% block depois_lista %}
-<div class="barra-acoes">
+<div class="barra-acoes barra-acoes--rodape">
   <p class="barra-acoes__status" role="status">{{ ativos|pluralizar:"texto ativo,textos ativos" }}</p>
   {% if pode_gerir %}
     {% comment %}Com a janela já preenchida por uma edição, "Novo" pede uma janela limpa ao servidor.{% endcomment %}

@@ -1,17 +1,32 @@
 from django.urls import path
 
-from . import views
+from . import views, views_crud
 
 app_name = "cadastros"
 
 urlpatterns = [
-    path("servidores/", views.servidores, name="servidores"),
-    path("viaturas/", views.viaturas, name="viaturas"),
-    path("diarias/", views.diarias, name="diarias"),
+    path("", views_crud.indice, name="indice"),
+    path("servidores/", views_crud.servidores, name="servidores"),
+    path("servidores/salvar/", views_crud.salvar_servidor, name="salvar_servidor"),
+    path("viaturas/", views_crud.viaturas, name="viaturas"),
+    path("viaturas/salvar/", views_crud.salvar_viatura, name="salvar_viatura"),
+    path("diarias/", views_crud.diarias, name="diarias"),
+    path("diarias/salvar/", views_crud.salvar_vigencia, name="salvar_vigencia"),
+    path("diarias/<int:pk>/excluir/", views_crud.excluir_vigencia, name="excluir_vigencia"),
+    path("configuracao/", views_crud.configuracao, name="configuracao"),
     path("api/municipios/", views.buscar_municipios, name="buscar_municipios"),
+    path("api/servidores/", views_crud.buscar_servidores, name="buscar_servidores"),
     path("textos-prontos/", views.textos_prontos, name="textos"),
     path("textos-prontos/salvar/", views.salvar_texto, name="salvar_texto"),
     path("textos-prontos/<int:pk>/padrao/", views.texto_padrao, name="texto_padrao"),
     path("textos-prontos/<int:pk>/ativo/", views.texto_ativo, name="texto_ativo"),
     path("textos-prontos/<int:pk>/excluir/", views.texto_excluir, name="texto_excluir"),
+    # Cadastros simples (unidades, cargos, combustíveis) e as ações comuns a todos.
+    path("unidades/", views_crud.catalogo, {"slug": "unidades"}, name="unidades"),
+    path("cargos/", views_crud.catalogo, {"slug": "cargos"}, name="cargos"),
+    path("combustiveis/", views_crud.catalogo, {"slug": "combustiveis"}, name="combustiveis"),
+    path("<slug:slug>/salvar/", views_crud.salvar_catalogo, name="salvar_catalogo"),
+    path("<slug:slug>/<int:pk>/ativo/", views_crud.alternar_ativo, name="alternar_ativo"),
+    path("<slug:slug>/<int:pk>/padrao/", views_crud.definir_padrao, name="definir_padrao"),
+    path("<slug:slug>/<int:pk>/excluir/", views_crud.excluir, name="excluir"),
 ]

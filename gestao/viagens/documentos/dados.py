@@ -47,7 +47,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     if oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA and oficio.viatura:
         transporte = {
             "meio": oficio.viatura.modelo, "placa": oficio.viatura.placa_formatada,
-            "combustivel": str(oficio.viatura.combustivel),
+            "combustivel": getattr(oficio.viatura.combustivel, "nome", ""),
             "viatura": oficio.viatura.get_tipo_display(), "oficial": True,
         }
     else:
@@ -73,7 +73,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "assunto_rotulo": assunto.rotulo,
         "assunto_termo": assunto.termo,
         "origem": config.nome_extenso,
-        "unidade_sigla": oficio.unidade.sigla,
+        "unidade_sigla": oficio.unidade.sigla or oficio.unidade.nome,
         "destinatario": {
             "tratamento": config.destinatario_tratamento, "nome": config.destinatario_nome,
             "cargo": config.destinatario_cargo, "orgao": config.destinatario_orgao,
@@ -84,7 +84,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "rodape": config.endereco_rodape,
         "viajantes": [
             {"nome": v.servidor.nome, "cpf": v.servidor.cpf_formatado,
-             "rg": v.servidor.rg, "cargo": str(v.servidor.cargo),
+             "rg": v.servidor.rg, "cargo": getattr(v.servidor.cargo, "nome", ""),
              "motorista": v.motorista}
             for v in viajantes
         ],

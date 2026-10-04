@@ -224,6 +224,9 @@ class Viajante(models.Model):
 
     class Meta:
         ordering = ["ordem", "id"]
+        # Como aparece quando um cadastro não pode ser excluído ("ligado a 3 participações…").
+        verbose_name = "participação em ofício"
+        verbose_name_plural = "participações em ofícios"
         constraints = [
             models.UniqueConstraint(fields=["oficio", "servidor"], name="viajante_unico"),
             models.UniqueConstraint(fields=["oficio"], condition=Q(motorista=True),

@@ -5,6 +5,20 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
 
 ## Abertas
 
+- `[MÓDULO][CADASTROS][ALTA]` Assinantes por tipo de documento (Ofício, Justificativa) e
+  substituição por período (férias do titular) — referência `AssinaturaConfiguracao` /
+  `AssinaturaSubstituicao`; hoje um signatário por unidade.
+- `[MÓDULO][CADASTROS][MÉDIA]` Endereço da configuração em campos (CEP, logradouro, número,
+  bairro, cidade, UF, e-mail, telefone, ramal) com consulta de CEP (P10 da referência).
+- `[MÓDULO][CADASTROS][MÉDIA]` "Cadastrar cargo/unidade" de dentro da janela do servidor
+  (a referência levava a outra tela com retorno).
+- `[MÓDULO][CADASTROS][BAIXA]` Configuração: trocar de unidade ao mudar o seletor (hoje
+  "Abrir") e avisar se houver alterações não salvas.
+- `[MÓDULO][CADASTROS][BAIXA]` Ao abrir um cadastro incompleto, levar o foco ao primeiro
+  campo que falta (hoje: aviso no topo da janela).
+- `[MÓDULO][CADASTROS][BAIXA]` A 360 px o exemplo do CPF fica cortado (CPF e RG dividem a
+  linha); avaliar CPF e telefone em linha própria no celular.
+
 - `[MÓDULO][UX][MÉDIA]` Motorista de fora "servidor de outro ofício": sugerir os ofícios dele no
   mesmo período e preencher ofício/protocolo de origem (a referência tinha
   `oficios-do-motorista`).
@@ -17,8 +31,6 @@ PERFORMANCE, UX, SEGURANÇA. Marque `✅ feito (data, commit)` ao concluir.
   do ADR 0021 (proposto). Peso e tempo já no orçamento.
 - `[GLOBAL][COMPONENTE][ALTA]` **Janela de resumo genérica** extraída do ofício para Termos,
   OS, PT e roteiros (cabeçalho com placa/chips, grade de cartões equilibrada, rodapé de ações).
-- `[GLOBAL][COMPONENTE][ALTA]` **CRUD de cadastro em janela** (lista + janela novo/editar +
-  ativo + definir padrão + exclusão bloqueada por vínculo) para todos os catálogos.
 - `[GLOBAL][COMPONENTE][MÉDIA]` **Busca por leituras** generalizada (registrar leituras por
   lista: termos, OS, PT, protocolos).
 - `[GLOBAL][COMPONENTE][MÉDIA]` **Linha do tempo de processo** a partir do histórico do ofício.

@@ -114,7 +114,7 @@ continua sendo a edição; aqui só se lê e se decide.
               <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
               <span class="pessoa__texto">
                 <span class="pessoa__nome">{{ v.servidor.nome }}</span>
-                <span class="pessoa__meta">{% if v.motorista %}Motorista{% else %}{{ v.servidor.cargo }}{% endif %}</span>
+                <span class="pessoa__meta">{% if v.motorista %}Motorista{% else %}{{ v.servidor.cargo.nome|default:"Sem cargo" }}{% endif %}</span>
               </span>
             </li>
           {% endfor %}
@@ -122,8 +122,8 @@ continua sendo a edição; aqui só se lê e se decide.
             <span class="avatar" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
             <span class="pessoa__texto">
               {% if oficio.viatura %}
-                <span class="pessoa__nome">{{ oficio.viatura.modelo }}</span>
-                <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }} · {{ oficio.viatura.get_tipo_display|lower }}</span>
+                <span class="pessoa__nome">{{ oficio.viatura.modelo|default:"Viatura" }}</span>
+                <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }}{% if oficio.viatura.tipo %} · {{ oficio.viatura.get_tipo_display|lower }}{% endif %}</span>
                 {% if oficio.motorista_externo %}<span class="pessoa__meta">Motorista: {% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% else %}{{ oficio.motorista_externo_nome }}{% endif %} (de outro ofício)</span>{% endif %}
               {% elif oficio.transporte_descricao %}
                 <span class="pessoa__nome">{{ oficio.transporte_descricao }}</span>

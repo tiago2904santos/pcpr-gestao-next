@@ -109,6 +109,24 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
 - **A janela de revisão é a confirmação**: sem segunda janela "Tem certeza?" por cima; avisos
   não bloqueantes (conflito de agenda) aparecem nela.
 - **Detector de sobreposição dos testes ignora o que está sob uma janela modal** (inerte).
+- **Barra flutuante × axe `target-size`**: numa lista longa, a barra "Novo…" fixa no pé cobre
+  o menu da linha que está embaixo dela e o axe reprova. Em lista, a ação vai no fim
+  (`barra-acoes--rodape`, como na referência); barra flutuante só em formulário.
+- **Trocar o widget de um `ModelMultipleChoiceField` depois de criado** perde as opções:
+  `campo.widget.choices = campo.choices` (senão o widget não acha os escolhidos).
+- **`%` em `error_messages`** de campo: a mensagem passa por `%`-formatação (`%(limit_value)s`);
+  "15% ficaria" quebra com TypeError → escrever `15%%`.
+- **Template de widget** usa o renderizador de formulários, sem os `builtins`: precisa de
+  `{% load ui %}` para `{% icone %}`.
+- **`isdigit()` aceita "²"** e `int("²")` estoura: parâmetro numérico com
+  `isascii() and isdecimal()`; `\D` em regex aceita dígitos de outros alfabetos → `[^0-9]`.
+- **Contagem de várias relações reversas**: vários `Count()` juntos multiplicam as linhas do
+  JOIN; usar uma subconsulta por relação (`views_crud._contagem`).
+- **Teste de propriedade (Hypothesis) do domínio de diárias** falhou uma vez sob `-n auto`
+  com a máquina carregada e passou sozinho: tratar como intermitente, conferir antes de culpar
+  a mudança.
+- **Vínculos que impedem excluir**: `_meta.related_objects` ignora relações com
+  `related_name="+"`; usar `get_fields(include_hidden=True)`.
 
 ## Processo
 

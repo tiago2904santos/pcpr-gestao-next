@@ -593,7 +593,7 @@
 
 /* Barra de ações fixa no rodapé de formulários longos. O scroll-padding garante que
    o campo focado nunca fique escondido atrás dela (WCAG 2.4.11). */
-html:has(.barra-acoes) {
+html:has(.barra-acoes:not(.barra-acoes--rodape)) {
   scroll-padding-bottom: 7rem;
 }
 
@@ -603,7 +603,7 @@ html:has(.progresso--fixo) {
 }
 
 /* O fim da página nunca fica atrás da barra flutuante. */
-html:has(.barra-acoes) .conteudo__interno {
+html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
   padding-bottom: var(--esp-12);
 }
 
@@ -623,6 +623,12 @@ html:has(.barra-acoes) .conteudo__interno {
 }
 
 /* Base 0: o texto do status quebra linha antes de empurrar os botões para baixo. */
+/* Rodapé de lista (cadastros): a ação "Novo…" fica no fim da lista, como na referência, e
+   não flutua por cima das linhas (a barra fixa cobriria o menu da última linha visível). */
+.barra-acoes--rodape {
+  position: static;
+}
+
 .barra-acoes__status {
   flex: 1 1 0;
   min-width: 0;

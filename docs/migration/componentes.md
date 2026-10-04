@@ -25,14 +25,20 @@ pelo nome. "Usos" = número de templates que referenciam (03/10/2026).
 | `limpar.js` | botão × em campos | 6 | automático em `input[type=search]` e `[data-limpavel]` |
 | `dialogo.js` | janelas; janela aberta pelo servidor; **pedir motivo** (`data-pedir-motivo` + `componentes/dialogo_motivo.html`) | 11 | confirmação, resumo, qualquer ação que exige texto (cancelar, reativar, reabrir; roteiros e próximos módulos) |
 | `acao.js` | ações com confirmação | 32 | global |
-| `mascara.js` | CPF, RG, protocolo, placa | 2 | cadastros |
+| `mascara.js` | CPF, telefone, placa, protocolo, data, hora | 4 | cadastros, termos |
+| `pc-multiescolha` (`multiescolha.js`, widget `EscolhaMultiplaRemota`) | **vários** registros por busca remota: escolhidos em linhas com campo oculto do mesmo nome, sem repetir, remover, anúncio para leitor de tela; só os escolhidos são desenhados | 1 (motoristas da viatura) + UI Lab | servidores de um termo em lote, equipe da OS/PT, participantes |
+| `diaria.js` | prévia dos percentuais (15%/30%) ao digitar o valor de 24 h | 1 | prestação de contas (valores derivados) |
 | `progresso.js`, `protecao.js`, `guia.js` | barra de progresso, aviso de saída sem salvar, guia | — | global |
 | `menu.js` (exporta `icone`, `abrirEspaco`, `limiteInferior`) | utilitários de toda página: ícone do sprite e espaço acima da barra flutuante | — | global (sem requisição extra) |
 
 ## Partes de template (`templates/componentes/`, `templates/arquetipos/`)
 
 `campo.html`, `campo_senha.html`, `migalhas.html`, `pagina_cabecalho.html`, `paginacao.html`,
-`resumo_erros.html`, `vazio.html`. Arquétipos: assistente, busca, calendário, configurações,
+`resumo_erros.html`, `vazio.html`. CSS de apoio novo (módulo 2): `dialog.dialogo--largo`
+(cadastro com mais campos), `.grupo-campos` (fieldset com título), `.barra-acoes--rodape`
+(ação "Novo…" no fim da lista, sem flutuar), `.vazio-inline`. O **CRUD em janela** dos
+cadastros (`cadastros/catalogo.html` + `views_crud.Catalogo`) é o molde para os catálogos dos
+próximos módulos (tipos de evento, serviços, órgãos…). Arquétipos: assistente, busca, calendário, configurações,
 detalhe, documento, formulário, lista, painel, relatório.
 
 ## A promover / extrair (com o primeiro módulo que precisar)

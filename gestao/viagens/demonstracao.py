@@ -41,6 +41,7 @@ from gestao.cadastros.models import (
     Unidade,
     Viatura,
 )
+from gestao.cadastros.validacoes import RG_NAO_POSSUI
 from gestao.identidade.backends import LOGIN_DEMO
 from gestao.identidade.models import Usuario
 from gestao.identidade.papeis import sincronizar_papeis
@@ -298,7 +299,7 @@ class _Gerador:
                 n += 1
                 self.servidores_por_unidade[unidade.pk].append(Servidor.objects.create(
                     nome=nome, cpf=cpf_invalido(900_000_000 + n * 7919),
-                    rg=f"{20_000_000 + n * 37}-{n % 9}", cargo=rng.choice(cargos),
+                    rg=f"{20_000_000 + n * 37}{n % 9}", cargo=rng.choice(cargos),
                     unidade=unidade, telefone=f"419{n:08d}"[:11],
                 ))
         # Viaturas (série ZZ*): unidades com mais peso têm mais.
@@ -669,6 +670,25 @@ class _Gerador:
                     []))
         services.cancelar_roteiro(autor, avulsos[-1])
 
+    def cadastros_para_avaliar(self) -> None:
+        """Estados do módulo de Cadastros que a base gerada não teria sozinha (feito depois
+        dos ofícios, para não mudar o que já foi sorteado): cargo e combustível padrão,
+        cadastros incompletos (referência: só o nome / a placa são obrigatórios) e inativos."""
+        Cargo.objects.filter(nome="Agente de Polícia Judiciária").update(padrao=True)
+        Combustivel.objects.filter(nome="Flex").update(padrao=True)
+        ascom = self.unidades[0]
+        for nome, extra in (("Ronaldo Teixeira Brandão", {}),
+                            ("Vera Lúcia Andrade", {"unidade": ascom}),
+                            ("Márcio Fontana Leite",
+                             {"cargo": Cargo.objects.get(nome="Papiloscopista"),
+                              "rg": RG_NAO_POSSUI})):
+            Servidor.objects.create(nome=nome, **extra)  # sem CPF (e sem cargo): incompletos
+        Servidor.objects.create(nome="Joana Prates Vieira", ativo=False, unidade=ascom,
+                                cargo=Cargo.objects.get(nome="Escrivão de Polícia"))
+        Viatura.objects.create(placa="ZZQ7B20", unidade=ascom)  # só a placa: incompleta
+        Combustivel.objects.create(nome="Etanol", ativo=False)
+        Cargo.objects.create(nome="Auxiliar Administrativo", ativo=False)
+
     def _depois(self, anterior: datetime, desejado: datetime) -> datetime:
         """Próximo instante da linha do tempo: depois do anterior e nunca no futuro."""
         return max(anterior + timedelta(seconds=30), min(desejado, self.agora))
@@ -734,6 +754,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     oficios = gerador.oficios()
     gerador.roteiros(oficios)
     gerador.ciclo_de_vida(oficios)
+    gerador.cadastros_para_avaliar()
     return resumo(len(oficios))
 
 

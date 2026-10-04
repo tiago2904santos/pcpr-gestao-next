@@ -1,13 +1,163 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Viaturas{% endblock %}
 {% block titulo_lista %}Viaturas{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Veículos oficiais que podem ser designados a uma viagem, com os servidores que costumam dirigi-los.</p>{% endblock %}
+{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Nova viatura</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-viatura">{% icone "plus" %}Nova viatura</button>{% endif %}{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista e o cadastro de viaturas da referência: busca (placa, modelo, unidade,
+motorista), filtro por combustível com contagem, dados na ordem placa · unidade ·
+combustível · tipo · motoristas; só a placa é obrigatória (tipo inicial
+"Descaracterizada", combustível padrão já escolhido); motoristas por busca. A mais: abas
+Ativas / Incompletas / Inativas e "Desativar".
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação do cadastro">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if termo %}{% if chave %}&amp;{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'cadastros:viaturas' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-viaturas">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-viaturas" type="search" name="q" value="{{ termo }}" placeholder="Placa, modelo, unidade ou motorista" autocomplete="off"></div>
+  </div>
+  <div class="campo">
+    <label class="campo__rotulo" for="filtro-combustivel">Combustível</label>
+    <pc-select class="seletor">
+      <select class="selecao" id="filtro-combustivel" name="combustivel">
+        <option value="">Todos ({{ total_filtro }})</option>
+        {% for c, n in combustiveis %}<option value="{{ c.pk }}"{% if combustivel == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.nome }} ({{ n }})</option>{% endfor %}
+      </select>
+    </pc-select>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
 {% block resultados %}
-<div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="titulo-resultados">Viaturas</h2><span class="lista-cabecalho__total">{{ viaturas|length|pluralizar:"viatura,viaturas" }}</span></div>
-{% if viaturas %}
-<div class="tabela-rolagem"><table class="tabela tabela--responsiva">
-  <caption class="sr-only">Viaturas cadastradas</caption>
-  <thead><tr><th scope="col">Placa</th><th scope="col">Modelo</th><th scope="col">Combustível</th><th scope="col">Tipo</th><th scope="col">Unidade</th><th scope="col">Motoristas habituais</th></tr></thead>
-  <tbody>{% for v in viaturas %}<tr><td class="tabela__celula-principal" data-rotulo="Placa"><span class="tabela__principal">{{ v.placa_formatada }}</span></td><td data-rotulo="Modelo">{{ v.modelo }}</td><td data-rotulo="Combustível">{{ v.combustivel }}</td><td data-rotulo="Tipo">{{ v.get_tipo_display }}</td><td data-rotulo="Unidade">{{ v.unidade.sigla|default:"—" }}</td><td data-rotulo="Motoristas habituais">{% for m in v.motoristas.all %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td></tr>{% endfor %}</tbody>
-</table></div>
-{% else %}{% include "componentes/vazio.html" with icone="car" titulo="Nenhuma viatura cadastrada" %}{% endif %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% elif aba == "incompletas" %}Cadastros incompletos{% else %}Viaturas{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"viatura,viaturas" }}</span>
+</div>
+{% if aba == "incompletas" %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}Sem modelo, combustível ou tipo a viatura ainda pode ser usada, mas o ofício sai sem esses dados.</p>{% endif %}
+{% if page_obj.object_list %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for v in page_obj.object_list %}
+      <li class="registro{% if not v.ativo %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% icone "car" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            {% if acoes.alterar %}<a class="registro__link" href="?{{ querystring_base }}editar={{ v.pk }}">{% else %}<span class="registro__link registro__link--estatico">{% endif %}<span class="num">{{ v.placa_formatada }}</span>{% if v.modelo %} · {{ v.modelo }}{% endif %}{% if acoes.alterar %}</a>{% else %}</span>{% endif %}
+            {% if not v.completo %}<span class="selo selo--aviso selo--sem-ponto">{% icone "alert-triangle" classe="icone--sm" %}Falta {{ v.faltando_texto }}</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if v.unidade %}<span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}{{ v.unidade.sigla|default:v.unidade.nome }}</span>{% endif %}
+            {% if v.combustivel %}<span class="registro__meta-item">{% icone "fuel" classe="icone--sm" %}{{ v.combustivel.nome }}</span>{% endif %}
+            {% if v.tipo %}<span class="registro__meta-item">{{ v.get_tipo_display }}</span>{% endif %}
+            {% if v.n_oficios %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Em {{ v.n_oficios|pluralizar:"ofício,ofícios" }}</span>{% endif %}
+            <span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% for m in v.motoristas.all %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem motorista habitual</span>{% endfor %}</span>
+          </div>
+        </div>
+        {% if acoes.alguma %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações da viatura {{ v.placa_formatada }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if acoes.alterar %}
+                <a class="menu__item" role="menuitem" href="?{{ querystring_base }}editar={{ v.pk }}">{% icone "pencil" %}Editar</a>
+                <button type="submit" form="ativo-{{ v.pk }}" class="menu__item" role="menuitem">{% if v.ativo %}{% icone "eye-off" %}Desativar{% else %}{% icone "undo-2" %}Reativar{% endif %}</button>
+              {% endif %}
+              {% if acoes.excluir and not v.n_oficios %}
+                <div class="menu__separador" role="separator"></div>
+                <button type="submit" form="excluir-{{ v.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          {% if acoes.alterar %}<form id="ativo-{{ v.pk }}" method="post" action="{% url 'cadastros:alternar_ativo' 'viaturas' v.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+          {% if acoes.excluir and not v.n_oficios %}
+            <form id="excluir-{{ v.pk }}" method="post" action="{% url 'cadastros:excluir' 'viaturas' v.pk %}" hidden
+                  data-confirmar="A viatura {{ v.placa_formatada }} será excluída de vez. Para só tirá-la das escolhas, use Desativar."
+                  data-confirmar-titulo="Excluir viatura?" data-confirmar-rotulo="Excluir viatura" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif termo or combustivel %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma viatura encontrada" texto="Confira a placa ou troque o combustível." limpar_url=request.path %}
+{% elif aba == "incompletas" %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhum cadastro incompleto" texto="Todas as viaturas ativas têm modelo, combustível e tipo." %}
+{% elif aba == "inativas" %}
+  {% include "componentes/vazio.html" with icone="eye-off" titulo="Nenhuma viatura inativa" texto="A viatura desativada aparece aqui e pode ser reativada." %}
+{% else %}
+  {% if acoes.criar %}{% include "componentes/vazio.html" with icone="car" titulo="Nenhuma viatura cadastrada ainda" texto="Cadastre os veículos oficiais da unidade." acao_url="?novo=1" acao_rotulo="Nova viatura" %}
+  {% else %}{% include "componentes/vazio.html" with icone="car" titulo="Nenhuma viatura cadastrada ainda" texto="Quem mantém os cadastros é a equipe de viagens." %}{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if acoes.criar %}
+<div class="barra-acoes barra-acoes--rodape">
+  <p class="barra-acoes__status">Cadastro rápido: só a placa é obrigatória.</p>
+  {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Nova viatura</a>
+  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-viatura">{% icone "plus" %}Nova viatura</button>{% endif %}
+</div>
+{% endif %}
+{% if acoes.criar or editando %}
+<dialog id="dialogo-viatura" class="dialogo dialogo--largo" aria-labelledby="dialogo-viatura-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_viatura' %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <input type="hidden" name="voltar" value="{{ request.path }}?{{ querystring_base }}">
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="dialogo-viatura-titulo">{% if editando %}Editar viatura {{ editando.placa_formatada }}{% else %}Nova viatura{% endif %}</h2>
+        <p class="texto-secundario texto-sm">Só a placa é obrigatória; os demais campos podem ser completados depois.</p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      {% if editando and not editando.completo %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Falta {{ editando.faltando_texto }} para o ofício sair completo.</p></div></div>{% endif %}
+      <fieldset class="grupo-campos">
+        <legend>Identificação</legend>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.placa classe="campo--md" ajuda_oculta=True %}
+          {% include "componentes/campo.html" with campo=form.modelo classe="campo--lg" %}
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.tipo classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.combustivel classe="campo--lg" %}
+        </div>
+      </fieldset>
+      <fieldset class="grupo-campos">
+        <legend>Lotação</legend>
+        <div class="campo{% if form.unidade.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.unidade.id_for_label }}">{{ form.unidade.label }}</label>
+          <pc-combobox class="combobox" data-placeholder="Sigla ou nome da unidade…">{{ form.unidade|campo_acessivel:"" }}</pc-combobox>
+          {% if form.unidade.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.unidade.errors|join:" " }}</span></p>{% endif %}
+        </div>
+      </fieldset>
+      <fieldset class="grupo-campos">
+        <legend>Motoristas habituais</legend>
+        {% include "componentes/campo.html" with campo=form.motoristas rotulo="Buscar servidor" %}
+      </fieldset>
+    </div>
+    <div class="dialogo__rodape">
+      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
+      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
+      {% if not editando %}<button type="submit" class="botao" name="outro" value="1">Cadastrar e incluir outra</button>{% endif %}
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar viatura{% endif %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
 {% endblock %}

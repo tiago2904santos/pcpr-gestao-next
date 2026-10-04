@@ -39,6 +39,8 @@ ICONES = sorted({
     "align-right", "align-justify", "table", "redo-2", "separator-horizontal", "text-quote",
     "rotate-ccw", "file-x-2", "file-input", "book-open-text", "bookmark-plus", "columns-2",
     "file-search", "pilcrow", "remove-formatting",
+    # Cadastros
+    "fuel", "id-card",
 })
 
 

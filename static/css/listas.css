@@ -106,6 +106,14 @@
   color: var(--cor-texto);
 }
 
+/* Link de meta numa linha que já é clicável (entrada dos cadastros: "3 incompletos"):
+   fica por cima do link esticado do título e com o alvo mínimo de toque. */
+.registro__meta-item--alvo {
+  position: relative;
+  z-index: 1;
+  min-height: var(--alvo-minimo);
+}
+
 /* =============== Refino da busca (fichas) =============== */
 /* A tela diz como entendeu o termo e deixa escolher: "Ofício 26/2026 (1)" ou
    "Protocolo com 26 (12)". Fica entre os filtros e o cabeçalho dos resultados. */

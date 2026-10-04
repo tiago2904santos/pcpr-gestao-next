@@ -24,7 +24,7 @@
         {% if vs %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="quebra-palavras">{% for v in vs|slice:":3" %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if vs|length > 3 %} <span class="registro__mais">+{{ vs|length|add:"-3" }}</span>{% endif %}</span></span>
         {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span>{% endif %}
       {% endwith %}
-      {% if o.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ o.viatura.modelo }} · {{ o.viatura.placa_formatada }}</span>
+      {% if o.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ o.viatura }}</span>
       {% elif o.transporte_descricao %}<span class="registro__meta-item">{% icone "bus" classe="icone--sm" %}{{ o.transporte_descricao }}</span>
       {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}Sem transporte</span>{% endif %}
       {% if o.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ o.diarias_total|moeda }} · {{ o.diarias_resumo }}</span>

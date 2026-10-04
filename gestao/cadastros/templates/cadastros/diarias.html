@@ -1,14 +1,87 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Tabela de diárias{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Tabela de diárias{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Valor da diária de 24 horas por faixa e vigência. Os valores de 15% e 30% são calculados a partir dele (arredondamento ao centavo).</p>{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Valor da diária de 24 horas por faixa e vigência. Os valores de 15% e 30% são calculados a partir dele (arredondamento ao centavo). Uma vigência nova não muda os valores das anteriores.</p>{% endblock %}
+{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?novo=1">{% icone "plus" %}Nova vigência</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-vigencia">{% icone "plus" %}Nova vigência</button>{% endif %}{% endif %}{% endblock %}
+{% comment %}
+Paridade com a tela de diárias da referência: histórico da mais recente para a mais antiga
+(faixa, vigente a partir de, 24 h, 15%, 30%), nova vigência e edição numa janela com a
+prévia dos percentuais ao digitar; só o gestor escreve (dinheiro). Excluir não deixa uma
+faixa sem nenhuma vigência.
+{% endcomment %}
 {% block resultados %}
-<div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="titulo-resultados">Vigências</h2></div>
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">Vigências cadastradas</h2>
+  <span class="lista-cabecalho__total">Da mais recente para a mais antiga</span>
+</div>
 {% if linhas %}
 <div class="tabela-rolagem"><table class="tabela tabela--responsiva">
   <caption class="sr-only">Vigências da tabela de diárias</caption>
-  <thead><tr><th scope="col">Faixa</th><th scope="col">Vigente a partir de</th><th scope="col" class="coluna-num">24 horas</th><th scope="col" class="coluna-num">15%</th><th scope="col" class="coluna-num">30%</th><th scope="col">Norma</th></tr></thead>
-  <tbody>{% for l in linhas %}<tr><td class="tabela__celula-principal" data-rotulo="Faixa"><span class="tabela__principal">{{ l.tabela.get_faixa_display }}</span></td><td data-rotulo="Vigente a partir de">{{ l.tabela.vigente_desde|date:"d/m/Y" }}</td><td data-rotulo="24 horas" class="num">{{ l.tabela.valor_24h|moeda }}</td><td data-rotulo="15%" class="num">{{ l.p15|moeda }}</td><td data-rotulo="30%" class="num">{{ l.p30|moeda }}</td><td data-rotulo="Norma">{{ l.tabela.norma|default:"—" }}</td></tr>{% endfor %}</tbody>
+  <thead><tr><th scope="col">Faixa</th><th scope="col">Vigente a partir de</th><th scope="col" class="coluna-num">24 horas</th><th scope="col" class="coluna-num">15%</th><th scope="col" class="coluna-num">30%</th><th scope="col">Norma</th>{% if acoes.alguma %}<th scope="col"><span class="sr-only">Ações</span></th>{% endif %}</tr></thead>
+  <tbody>{% for l in linhas %}<tr>
+    <td class="tabela__celula-principal" data-rotulo="Faixa"><span class="tabela__principal">{{ l.tabela.get_faixa_display }}</span>{% if l.vigente %} <span class="selo selo--sucesso selo--sem-ponto">Vigente</span>{% endif %}</td>
+    <td data-rotulo="Vigente a partir de">{{ l.tabela.vigente_desde|date:"d/m/Y" }}</td>
+    <td data-rotulo="24 horas" class="num">{{ l.tabela.valor_24h|moeda }}</td>
+    <td data-rotulo="15%" class="num">{{ l.p15|moeda }}</td>
+    <td data-rotulo="30%" class="num">{{ l.p30|moeda }}</td>
+    <td data-rotulo="Norma">{{ l.tabela.norma|default:"—" }}</td>
+    {% if acoes.alguma %}<td class="tabela__acoes">
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações da vigência {{ l.tabela }}">{% icone "ellipsis-vertical" %}</button>
+        <div class="menu__painel" role="menu" hidden>
+          {% if acoes.alterar %}<a class="menu__item" role="menuitem" href="?editar={{ l.tabela.pk }}">{% icone "pencil" %}Editar</a>{% endif %}
+          {% if acoes.excluir %}
+            <div class="menu__separador" role="separator"></div>
+            <button type="submit" form="excluir-{{ l.tabela.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+          {% endif %}
+        </div>
+      </pc-menu>
+      {% if acoes.excluir %}<form id="excluir-{{ l.tabela.pk }}" method="post" action="{% url 'cadastros:excluir_vigencia' l.tabela.pk %}" hidden
+            data-confirmar="A vigência {{ l.tabela }} será excluída. Rascunhos recalculados daqui em diante usam a vigência anterior da faixa; documentos já emitidos não mudam."
+            data-confirmar-titulo="Excluir vigência?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+    </td>{% endif %}
+  </tr>{% endfor %}</tbody>
 </table></div>
 {% else %}{% include "componentes/vazio.html" with icone="banknote" titulo="Nenhuma vigência cadastrada" texto="Sem vigência o cálculo de diárias é recusado (nunca usa valores embutidos no código)." %}{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if acoes.criar %}
+<div class="barra-acoes barra-acoes--rodape">
+  <p class="barra-acoes__status">Reajuste? Cadastre uma nova vigência: as anteriores ficam como estavam.</p>
+  {% if editando %}<a class="botao botao--primario" href="?novo=1">{% icone "plus" %}Nova vigência</a>
+  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-vigencia">{% icone "plus" %}Nova vigência</button>{% endif %}
+</div>
+{% endif %}
+{% if acoes.criar or editando %}
+<dialog id="dialogo-vigencia" class="dialogo" aria-labelledby="dialogo-vigencia-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_vigencia' %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-vigencia-titulo">{% if editando %}Editar vigência{% else %}Nova vigência{% endif %}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.faixa classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.vigente_desde classe="campo--md" %}
+      </div>
+      {% if editando %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Rascunhos recalculados passam a usar o valor novo; documentos emitidos não mudam. Para um reajuste, prefira <b>Nova vigência</b>.</p></div></div>{% endif %}
+      {% include "componentes/campo.html" with campo=form.valor_24h texto_fixo_antes="R$" %}
+      <dl class="previa-diaria" aria-live="polite">
+        <div><dt>15% (calculado)</dt><dd data-diaria-percentual="15">—</dd></div>
+        <div><dt>30% (calculado)</dt><dd data-diaria-percentual="30">—</dd></div>
+      </dl>
+      {% include "componentes/campo.html" with campo=form.norma %}
+    </div>
+    <div class="dialogo__rodape">
+      {% if editando %}<a class="botao botao--texto" href="{{ request.path }}">Cancelar</a>
+      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar vigência{% endif %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
 {% endblock %}

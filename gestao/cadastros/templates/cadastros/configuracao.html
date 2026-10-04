@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Configuração da unidade{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Dados da unidade emissora que entram nos documentos (paridade com "Configurações do
+sistema" da referência, por unidade como lá é por setor). Quem não altera vê os dados.
+Pendentes: endereço em campos separados com CEP e assinantes por tipo de documento com
+substituições por período (ficha docs/migration/cadastros.md).
+{% endcomment %}
+{% block conteudo %}
+{% include "componentes/pagina_cabecalho.html" with titulo="Configuração da unidade" icone="landmark" descricao="Cabeçalho, rodapé, quem assina e o destinatário dos ofícios da unidade. Vale para os próximos documentos; os já emitidos não mudam." %}
+
+{% if unidades %}
+<form class="cartao mt-4" method="get" action="{% url 'cadastros:configuracao' %}">
+  <div class="cartao__corpo escolha-unidade">
+  <div class="campo campo--lg">
+    <label class="campo__rotulo" for="escolha-unidade">Unidade</label>
+    <pc-select class="seletor">
+      <select class="selecao" id="escolha-unidade" name="unidade">
+        {% for u in unidades %}<option value="{{ u.pk }}"{% if u.pk == unidade.pk %} selected{% endif %}>{% if u.sigla %}{{ u.sigla }} — {% endif %}{{ u.nome }}</option>{% endfor %}
+      </select>
+    </pc-select>
+  </div>
+  <button class="botao" type="submit">{% icone "arrow-right" %}Abrir</button>
+  </div>
+</form>
+{% endif %}
+
+{% if not unidade %}
+  <section class="cartao mt-4">{% include "componentes/vazio.html" with icone="landmark" titulo="Sem unidade" texto="Seu usuário não está lotado em uma unidade. Peça ao administrador para definir a lotação." %}</section>
+{% else %}
+<form method="post" action="{% url 'cadastros:configuracao' %}?unidade={{ unidade.pk }}" novalidate class="pilha-lg mt-4">
+  {% csrf_token %}
+  <input type="hidden" name="unidade" value="{{ unidade.pk }}">
+  {% include "componentes/resumo_erros.html" %}
+  {% if not pode_alterar %}<div class="alerta alerta--info">{% icone "info" %}<div class="alerta__corpo"><p>Só o gestor altera a configuração da unidade. Viu algo errado? Peça a correção ao gestor de viagens.</p></div></div>{% endif %}
+  {% if not config %}<div class="alerta alerta--aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ unidade }} ainda não tem configuração: os ofícios desta unidade não podem ser emitidos até ela ser salva.</p></div></div>{% endif %}
+
+  <section class="cartao" aria-labelledby="t-instituicao">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-instituicao">Instituição</h2>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.nome_extenso classe="campo--lg" %}
+        <div class="campo campo--md{% if form.sede.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.sede.id_for_label }}">{{ form.sede.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+          <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
+            <div class="entrada-composta">{{ form.sede|campo_acessivel:form.sede.help_text }}</div>
+          </pc-combobox>
+          <p class="campo__ajuda" id="{{ form.sede.auto_id }}-ajuda">{{ form.sede.help_text }}</p>
+          {% if form.sede.errors %}<p class="campo__erro" id="{{ form.sede.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.sede.errors|join:" " }}</span></p>{% endif %}
+        </div>
+      </div>
+      {% include "componentes/campo.html" with campo=form.endereco_rodape %}
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="t-oficio">
+    <div class="cartao__corpo pilha">
+      <h2 class="peso-semi texto-lg" id="t-oficio">Ofício</h2>
+      <fieldset class="grupo-campos">
+        <legend>Quem assina</legend>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.chefia_nome classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.chefia_cargo classe="campo--lg" %}
+        </div>
+      </fieldset>
+      <fieldset class="grupo-campos">
+        <legend>Destinatário</legend>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.destinatario_tratamento classe="campo--sm" ajuda_oculta=True %}
+          {% include "componentes/campo.html" with campo=form.destinatario_nome classe="campo--lg" %}
+        </div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.destinatario_cargo classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.destinatario_orgao classe="campo--lg" %}
+        </div>
+        <div class="campos">{% include "componentes/campo.html" with campo=form.destinatario_cidade classe="campo--md" %}</div>
+      </fieldset>
+      <fieldset class="grupo-campos">
+        <legend>Prazo</legend>
+        <div class="campos">{% include "componentes/campo.html" with campo=form.prazo_justificativa_dias classe="campo--md" %}</div>
+      </fieldset>
+    </div>
+  </section>
+
+  {% if pode_alterar %}
+  <div class="barra-acoes">
+    <p class="barra-acoes__status">Configuração de {{ unidade }}</p>
+    <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button>
+  </div>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

@@ -23,6 +23,18 @@ ROTAS_AUTENTICADAS = [
     "/viagens/oficios/?situacao=arquivado",
     "/cadastros/textos-prontos/",
     "/cadastros/textos-prontos/?tipo=justificativa&novo=1",  # janela de novo texto aberta
+    # Módulo 2 — cadastros em tela (o operador mantém; diárias e configuração ele só vê).
+    "/cadastros/",
+    "/cadastros/servidores/",
+    "/cadastros/servidores/?novo=1",
+    "/cadastros/servidores/?aba=incompletos",
+    "/cadastros/viaturas/",
+    "/cadastros/viaturas/?novo=1",
+    "/cadastros/unidades/?novo=1",
+    "/cadastros/cargos/",
+    "/cadastros/combustiveis/?aba=inativos",
+    "/cadastros/diarias/",
+    "/cadastros/configuracao/",
     "/ui-lab/",
     "/nao-existe/",
 ]

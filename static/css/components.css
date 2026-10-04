@@ -1690,6 +1690,42 @@ dialog.dialogo--resumo[open] {
   overflow-y: auto;
 }
 
+/* Cadastro com mais campos (servidor, viatura): janela mais larga, para duas ou três
+   colunas de campos lado a lado. */
+dialog.dialogo--largo {
+  width: min(44rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+/* Grupo de campos com título (fieldset): "Identificação", "Lotação"… */
+.grupo-campos {
+  display: grid;
+  gap: var(--esp-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.grupo-campos + .grupo-campos {
+  padding-top: var(--esp-4);
+  border-top: var(--borda-sutil);
+}
+
+/* float: a legenda deixa de ficar presa na borda do fieldset e vira um item comum da grade. */
+.grupo-campos > legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* "Sem sigla", "Ainda não usado": valor ausente dito em voz baixa. */
+.vazio-inline {
+  color: var(--cor-texto-terciario);
+}
+
 /* Revisão: o sobretítulo diz que esta é a etapa de emissão; a nota lembra a retificação. */
 .dialogo__sobretitulo {
   margin: 0 0 var(--esp-05);
@@ -2121,4 +2157,60 @@ kbd {
   pointer-events: none;
   box-shadow: var(--sombra-3);
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+/* =============== Escolha múltipla por busca (pc-multiescolha) =============== */
+/* Ex.: motoristas habituais da viatura — a busca em cima, os escolhidos embaixo. */
+.multiescolha {
+  display: grid;
+  gap: var(--esp-2);
+}
+
+.multiescolha__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.multiescolha__lista:empty {
+  display: none;
+}
+
+.multiescolha__item {
+  flex-wrap: nowrap;
+  padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3);
+}
+
+.multiescolha__vazio {
+  margin: 0;
+}
+
+/* Prévia dos percentuais da diária (cadastro de vigência): dois valores lado a lado. */
+.previa-diaria {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-3);
+  margin: 0;
+}
+
+.previa-diaria > div {
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+}
+
+.previa-diaria dt {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+}
+
+.previa-diaria dd {
+  margin: 0;
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
 }

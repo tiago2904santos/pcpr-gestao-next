@@ -7,9 +7,13 @@ import unicodedata
 
 PLACA = re.compile(r"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$")  # antiga (AAA9999) e Mercosul (AAA9A99)
 
+# Marca de "a pessoa não tem RG" (diferente de vazio, que é "não informado").
+RG_NAO_POSSUI = "NÃO POSSUI RG"
+_RG_NAO_POSSUI_VARIANTES = {"NAO POSSUI RG", "NÃO POSSUI RG", "NAO POSSUI", "NÃO POSSUI"}
+
 
 def somente_digitos(valor: str | None) -> str:
-    return re.sub(r"\D", "", valor or "")
+    return re.sub(r"[^0-9]", "", valor or "")  # \D aceitaria dígitos de outros alfabetos
 
 
 def cpf_valido(valor: str | None) -> bool:
@@ -49,3 +53,40 @@ def formatar_placa(valor: str | None) -> str:
 def sem_acentos(texto: str) -> str:
     decomposto = unicodedata.normalize("NFD", texto)
     return "".join(c for c in decomposto if unicodedata.category(c) != "Mn")
+
+
+def espacos(texto: str | None) -> str:
+    """Tira as pontas e junta espaços repetidos."""
+    return " ".join((texto or "").split())
+
+
+def normalizar_rg(valor: str | None) -> str:
+    """RG não tem formato único no país: guarda só letras e números, em maiúsculas.
+    "não possui RG" (com ou sem acento) vira a marca RG_NAO_POSSUI."""
+    texto = espacos(valor).upper()
+    if not texto:
+        return ""
+    if texto in _RG_NAO_POSSUI_VARIANTES:
+        return RG_NAO_POSSUI
+    return re.sub(r"[^A-Z0-9]", "", sem_acentos(texto))
+
+
+def formatar_rg(valor: str | None) -> str:
+    texto = (valor or "").strip()
+    digitos = somente_digitos(texto)
+    if texto == RG_NAO_POSSUI or not texto.isalnum():
+        return texto
+    if len(digitos) == len(texto) == 8:
+        return f"{texto[0]}.{texto[1:4]}.{texto[4:7]}-{texto[7]}"
+    if len(digitos) == len(texto) == 9:
+        return f"{texto[:2]}.{texto[2:5]}.{texto[5:8]}-{texto[8]}"
+    return texto
+
+
+def formatar_telefone(valor: str | None) -> str:
+    digitos = somente_digitos(valor)
+    if len(digitos) == 10:
+        return f"({digitos[:2]}) {digitos[2:6]}-{digitos[6:]}"
+    if len(digitos) == 11:
+        return f"({digitos[:2]}) {digitos[2:7]}-{digitos[7:]}"
+    return valor or ""

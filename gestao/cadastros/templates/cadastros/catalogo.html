@@ -1,0 +1,132 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}{{ cat.titulo }}{% endblock %}
+{% block titulo_lista %}{{ cat.titulo }}{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">{{ cat.descricao }}</p>{% endblock %}
+{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ cat.novo }}</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ cat.novo }}</button>{% endif %}{% endif %}{% endblock %}
+{% comment %}
+Lista genérica dos cadastros simples (unidades, cargos, combustíveis). Paridade com os
+catálogos da referência: busca sem acento, um registro por linha com editar e excluir,
+"usar como padrão" (cargo, combustível) e novo/editar numa janela. A mais: abas
+Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem vínculos).
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação">
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if termo %}{% if chave %}&amp;{% endif %}q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{{ request.path }}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-cadastro">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-cadastro" type="search" name="q" value="{{ termo }}" placeholder="{% if slug == 'unidades' %}Nome ou sigla{% else %}Nome{% endif %}" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{{ cat.titulo }}{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"registro,registros" }}</span>
+</div>
+{% if cat.com_padrao and aba != "inativos" %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}{{ cat.nota_padrao }}</p>{% endif %}
+{% if page_obj.object_list %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for o in page_obj.object_list %}
+      <li class="registro{% if not o.ativo %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% icone cat.icone %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            {% if acoes.alterar %}<a class="registro__link" href="?{{ querystring_base }}editar={{ o.pk }}">{{ o.nome }}</a>
+            {% else %}<span class="registro__link registro__link--estatico">{{ o.nome }}</span>{% endif %}
+            {% if o.padrao %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Padrão</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if slug == "unidades" %}<span class="registro__meta-item">{% if o.sigla %}{{ o.sigla }}{% else %}<span class="vazio-inline">Sem sigla</span>{% endif %}</span>{% endif %}
+            {% for total, rotulo in o.usos %}<span class="registro__meta-item">{{ total|pluralizar:rotulo }}</span>{% empty %}<span class="registro__meta-item vazio-inline">Ainda não usado</span>{% endfor %}
+          </div>
+        </div>
+        {% if acoes.alguma %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações de “{{ o.nome }}”">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% if acoes.alterar %}
+                <a class="menu__item" role="menuitem" href="?{{ querystring_base }}editar={{ o.pk }}">{% icone "pencil" %}Editar</a>
+                {% if cat.com_padrao and o.ativo %}<button type="submit" form="padrao-{{ o.pk }}" class="menu__item" role="menuitem">{% if o.padrao %}{% icone "x" %}Deixar de ser o padrão{% else %}{% icone "check" %}Usar como padrão{% endif %}</button>{% endif %}
+                <button type="submit" form="ativo-{{ o.pk }}" class="menu__item" role="menuitem">{% if o.ativo %}{% icone "eye-off" %}Desativar{% else %}{% icone "undo-2" %}Reativar{% endif %}</button>
+              {% endif %}
+              {% if acoes.excluir and not o.usos %}
+                <div class="menu__separador" role="separator"></div>
+                <button type="submit" form="excluir-{{ o.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          {% if acoes.alterar %}
+            {% if cat.com_padrao %}<form id="padrao-{{ o.pk }}" method="post" action="{% url 'cadastros:definir_padrao' slug o.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>{% endif %}
+            <form id="ativo-{{ o.pk }}" method="post" action="{% url 'cadastros:alternar_ativo' slug o.pk %}" hidden>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>
+          {% endif %}
+          {% if acoes.excluir and not o.usos %}
+            <form id="excluir-{{ o.pk }}" method="post" action="{% url 'cadastros:excluir' slug o.pk %}" hidden
+                  data-confirmar="“{{ o.nome }}” será excluído de vez. Para só tirá-lo das escolhas, use Desativar."
+                  data-confirmar-titulo="Excluir {{ cat.singular }}?" data-confirmar-rotulo="Excluir {{ cat.singular }}" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="voltar" value="{{ voltar }}"></form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif termo %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum registro encontrado" texto="Confira a grafia ou busque de outro jeito." limpar_url=request.path %}
+{% elif aba == "inativos" %}
+  {% include "componentes/vazio.html" with icone="eye-off" titulo="Nenhum inativo" texto="O que for desativado aparece aqui e pode ser reativado." %}
+{% else %}
+  {% include "componentes/vazio.html" with icone=cat.icone titulo="Nada cadastrado" texto=cat.vazio %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if acoes.criar %}
+<div class="barra-acoes barra-acoes--rodape">
+  <p class="barra-acoes__status">Excluir só vale para o que ainda não foi usado; o resto se desativa.</p>
+  {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ cat.novo }}</a>
+  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ cat.novo }}</button>{% endif %}
+</div>
+{% endif %}
+{% if acoes.criar or editando %}
+<dialog id="dialogo-cadastro" class="dialogo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'cadastros:salvar_catalogo' slug %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <input type="hidden" name="voltar" value="{{ request.path }}?{{ querystring_base }}">
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-cadastro-titulo">{% if editando %}Editar “{{ editando.nome }}”{% else %}{{ cat.novo|capfirst }}{% endif %}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      {% if slug == "unidades" %}
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.sigla classe="campo--sm" %}
+        </div>
+      {% else %}
+        {% include "componentes/campo.html" with campo=form.nome rotulo=cat.singular|capfirst %}
+      {% endif %}
+    </div>
+    <div class="dialogo__rodape">
+      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
+      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar {{ cat.singular }}{% endif %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}

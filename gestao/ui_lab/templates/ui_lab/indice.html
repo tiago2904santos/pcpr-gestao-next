@@ -194,6 +194,25 @@
           {% include "componentes/campo.html" with campo=form_seletores.saida classe="campo--lg" ajuda="Data e hora lado a lado, como nos trechos do roteiro." %}
           {% include "componentes/campo.html" with campo=form_seletores_erro.retorno classe="campo--lg" %}
         </div>
+        {% comment %}Escolha múltipla por busca (widget EscolhaMultiplaRemota): ex.: motoristas habituais da viatura.{% endcomment %}
+        <div class="campo mt-4">
+          <label class="campo__rotulo" for="lab-multiescolha">Vários servidores (escolha múltipla por busca)</label>
+          <pc-multiescolha class="multiescolha" data-nome="lab_servidores">
+            <pc-combobox class="combobox" data-fonte="{% url 'ui_lab:busca_exemplo' %}?q=" data-minimo="1">
+              <div class="entrada-composta">{% icone "search" %}<input class="entrada" type="text" role="combobox" id="lab-multiescolha" placeholder="Nome, cargo ou CPF…" aria-describedby="lab-multiescolha-ajuda"></div>
+            </pc-combobox>
+            <ul class="multiescolha__lista" role="list" aria-label="Escolhidos">
+              <li class="pessoa multiescolha__item" data-id="0">
+                <input type="hidden" name="lab_servidores" value="0">
+                <span class="pessoa__texto"><span class="pessoa__nome">ANA BEATRIZ CORREIA LIMA</span><span class="pessoa__meta">Agente de Polícia Judiciária • DM</span></span>
+                <button type="button" class="botao botao--icone botao--sutil botao--sm" data-remover aria-label="Remover ANA BEATRIZ CORREIA LIMA">{% icone "x" classe="icone--sm" %}</button>
+              </li>
+            </ul>
+            <p class="multiescolha__vazio texto-secundario texto-sm" hidden>Nenhum servidor escolhido.</p>
+            <div class="sr-only" aria-live="polite" data-anuncio></div>
+          </pc-multiescolha>
+          <p class="campo__ajuda" id="lab-multiescolha-ajuda">Escolher na busca acrescenta (sem repetir); “Remover” tira. Cada escolhido vai num campo oculto do mesmo nome.</p>
+        </div>
       </div>
     </section>
 

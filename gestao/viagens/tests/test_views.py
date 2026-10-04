@@ -804,7 +804,7 @@ class TestEquipeEViaturaSugerida:
 
     def test_viaturas_do_cadastro_listam_os_motoristas(self, operador, cenario):
         html = operador.get(reverse("cadastros:viaturas")).content.decode()
-        assert "Motoristas habituais" in html and "Isabela Prado Cavalcanti" in html
+        assert "Isabela Prado Cavalcanti" in html  # na linha da viatura, ao lado do ícone
 
 
 class TestExportarPlanilha:

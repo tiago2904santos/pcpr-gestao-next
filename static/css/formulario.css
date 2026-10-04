@@ -899,3 +899,15 @@
   font-size: var(--texto-sm);
   color: var(--cor-texto-secundario);
 }
+
+/* Configuração da unidade: escolher de qual unidade (gestor) — campo e botão na mesma linha. */
+.escolha-unidade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--esp-3);
+}
+
+.escolha-unidade .campo {
+  flex: 1 1 18rem;
+}

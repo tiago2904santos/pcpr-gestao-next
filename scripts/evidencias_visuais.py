@@ -277,9 +277,18 @@ CENARIOS = [
     C("roteiro-arrastando", "Roteiro — arrastando um destino", "/viagens/roteiros/{roteiro}/editar/", "itin_arrastando", POUCAS, False),
     C("roteiro-uf", "Roteiro — UF filtrando municípios", "/viagens/roteiros/{roteiro}/editar/", "itin_uf", POUCAS, False),
     # Cadastros
+    C("cadastros-indice", "Cadastros — entrada", "/cadastros/", larguras=POUCAS),
     C("cadastros-servidores", "Servidores", "/cadastros/servidores/"),
+    C("cadastros-servidores-incompletos", "Servidores — cadastros incompletos", "/cadastros/servidores/?aba=incompletos", larguras=POUCAS),
+    C("cadastros-servidor-novo", "Servidores — janela de novo servidor", "/cadastros/servidores/?novo=1", inteira=False),
     C("cadastros-viaturas", "Viaturas", "/cadastros/viaturas/", larguras=POUCAS),
+    C("cadastros-viatura-novo", "Viaturas — janela de nova viatura", "/cadastros/viaturas/?novo=1", inteira=False),
+    C("cadastros-unidades", "Unidades", "/cadastros/unidades/", larguras=POUCAS),
+    C("cadastros-cargos", "Cargos (com o padrão)", "/cadastros/cargos/", larguras=POUCAS),
+    C("cadastros-combustiveis-inativos", "Combustíveis — inativos", "/cadastros/combustiveis/?aba=inativos", larguras=POUCAS),
     C("cadastros-diarias", "Tabela de diárias", "/cadastros/diarias/", larguras=POUCAS),
+    C("cadastros-diaria-nova", "Tabela de diárias — janela de nova vigência", "/cadastros/diarias/?novo=1", larguras=POUCAS, inteira=False),
+    C("cadastros-configuracao", "Configuração da unidade", "/cadastros/configuracao/", larguras=POUCAS),
     C("cadastros-textos", "Textos prontos", "/cadastros/textos-prontos/?tipo=motivo", larguras=POUCAS),
     C("cadastros-textos-novo", "Textos prontos — janela de novo texto", "/cadastros/textos-prontos/?tipo=motivo&novo=1", larguras=POUCAS, inteira=False),
     # UI Lab

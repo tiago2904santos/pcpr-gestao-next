@@ -497,7 +497,24 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
         p.append(Pendencia("justificativa", prazo.mensagem))
     conflitos = conflitos_de_agenda(oficio)
     p.extend(Pendencia("equipe", c, False) for c in conflitos)
+    p.extend(avisos_de_cadastro(oficio, viajantes))
     return Prontidao(p)
+
+
+def avisos_de_cadastro(oficio: Oficio, viajantes) -> list[Pendencia]:
+    """Cadastro incompleto não impede emitir (como na referência), mas o documento sai sem
+    o dado: o aviso aparece antes, para quem quiser completar."""
+    avisos = [Pendencia("equipe", f"O cadastro de {v.servidor} está incompleto (falta "
+                                  f"{' e '.join(v.servidor.faltando)}): o documento sai sem "
+                                  "esse dado.", False)
+              for v in viajantes if not v.servidor.completo]
+    if (oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA and oficio.viatura is not None
+            and not oficio.viatura.completo):
+        avisos.append(Pendencia("transporte", f"O cadastro da viatura "
+                                              f"{oficio.viatura.placa_formatada} está "
+                                              f"incompleto (falta "
+                                              f"{', '.join(oficio.viatura.faltando)}).", False))
+    return avisos
 
 
 def pendencias_do_motorista_externo(oficio: Oficio, viajantes) -> list[Pendencia]:

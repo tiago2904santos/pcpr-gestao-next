@@ -455,3 +455,70 @@ class TestEndurecimentoDaRevisao:
         gestor = c.usuarios["gestor"]
         vazio = services.arquivar(Oficio.objects.get(pk=c.ids["oficio_vazio"]), gestor)
         assert not policies.pode_excluir(gestor, vazio)
+
+
+class TestCadastroIncompletoNoOficio:
+    """Módulo 2: servidor e viatura podem ter cadastro incompleto (referência: só o nome /
+    a placa são obrigatórios). Não impede emitir — o ofício avisa e o documento sai sem o
+    dado (nunca "None")."""
+
+    def test_aviso_nao_bloqueia_e_documento_sai_sem_o_cargo(self):
+        from gestao.viagens.documentos.dados import dados_do_oficio
+
+        c = cenario_completo()
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        antes = services.verificar_prontidao(oficio)
+        viajante = oficio.viajantes.select_related("servidor").first()
+        servidor = viajante.servidor
+        servidor.cargo = None
+        servidor.save()
+        oficio.refresh_from_db()
+        depois = services.verificar_prontidao(oficio)
+        avisos = [p.mensagem for p in depois.avisos]
+        assert any(f"O cadastro de {servidor.nome} está incompleto (falta cargo)" in a
+                   for a in avisos)
+        assert depois.pode_emitir == antes.pode_emitir  # aviso, não bloqueio
+        linha = next(v for v in dados_do_oficio(oficio)["viajantes"]
+                     if v["nome"] == servidor.nome)
+        assert linha["cargo"] == ""
+
+    def test_viatura_incompleta_avisa(self):
+        from gestao.cadastros.models import Viatura
+
+        c = cenario_completo()
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        viatura = Viatura.objects.create(placa="ZZT1A23")
+        oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
+            "tipo_transporte": Oficio.TipoTransporte.VIATURA, "viatura": viatura},
+            versao=oficio.versao)
+        avisos = [p.mensagem for p in services.verificar_prontidao(oficio).avisos]
+        assert ("O cadastro da viatura ZZT1A23 está incompleto (falta modelo, combustível, "
+                "tipo).") in avisos
+
+    def test_servidor_em_oficio_nao_se_exclui(self):
+        from gestao.cadastros import services as cadastros
+        from gestao.cadastros.models import Servidor
+
+        c = cenario_completo()
+        viajante = Viajante.objects.select_related("servidor").first()
+        with pytest.raises(cadastros.CadastroInvalido, match="participaç"):
+            cadastros.excluir(c.usuarios["gestor"], Servidor, viajante.servidor_id)
+        assert Servidor.objects.filter(pk=viajante.servidor_id).exists()
+
+
+def test_desativar_viatura_nao_trava_o_rascunho_que_a_usa():
+    """Segurança M2: o formulário do ofício mantém o valor gravado mesmo inativo."""
+    from gestao.cadastros.models import Viatura
+    from gestao.viagens.forms import FormularioOficio
+
+    c = cenario_completo()
+    oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    viatura = Viatura.objects.filter(ativo=True).first()
+    oficio = services.salvar_dados(oficio, c.usuarios["operador"], {
+        "tipo_transporte": Oficio.TipoTransporte.VIATURA, "viatura": viatura},
+        versao=oficio.versao)
+    Viatura.objects.filter(pk=viatura.pk).update(ativo=False)
+    form = FormularioOficio(instance=oficio)
+    assert form.fields["viatura"].queryset.filter(pk=viatura.pk).exists()
+    outra = Viatura.objects.filter(ativo=False).exclude(pk=viatura.pk)
+    assert not form.fields["viatura"].queryset.filter(pk__in=outra).exists()

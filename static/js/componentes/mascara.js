@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Máscaras leves por atributo: `data-mascara="protocolo|cpf|data|hora"`.
+ * Máscaras leves por atributo: `data-mascara="protocolo|cpf|telefone|placa|data|hora"`.
  * O servidor valida e normaliza de novo — a máscara é só conforto de digitação.
  */
 const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
@@ -26,6 +26,15 @@ const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
       .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
       .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
   },
+  // Telefone com DDD: (41) 3000-0000 ou (41) 99999-0000.
+  telefone: (d) => {
+    const v = d.replace(/\D/g, "").slice(0, 11);
+    if (v.length <= 2) return v.replace(/^(\d+)/, "($1");
+    const meio = v.length > 10 ? 7 : 6;
+    return `(${v.slice(0, 2)}) ${v.slice(2, meio)}${v.length > meio ? `-${v.slice(meio)}` : ""}`;
+  },
+  // Placa: só letras e números, em maiúsculas (antiga ABC1234 ou Mercosul ABC1D23).
+  placa: (v) => v.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7),
 });
 
 document.addEventListener("input", (e) => {

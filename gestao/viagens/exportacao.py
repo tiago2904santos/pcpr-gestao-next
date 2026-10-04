@@ -42,7 +42,7 @@ def _local(momento):
 
 def _transporte(oficio: Oficio) -> str:
     if oficio.viatura_id and oficio.viatura:
-        return f"{oficio.viatura.modelo} · {oficio.viatura.placa_formatada}"
+        return str(oficio.viatura)
     partes = [oficio.transporte_descricao, oficio.transporte_placa]
     return " · ".join(p for p in partes if p)
 
