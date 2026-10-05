@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ cat.titulo }} · Cadastros de Eventos{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Um catálogo de Eventos Sociais (paridade com a lista de cadastros da referência): incluir no
+topo; busca e situação (ativos/inativos); em cada linha, editar (nome e, no texto pronto do
+despacho, o texto), ativar/inativar e excluir — o que está em uso não sai ("use Inativar").
+No tipo de evento, o atalho para o modelo da solicitação.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone cat.icone classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">{{ cat.titulo }}</h1>
+    <p class="pagina-cabecalho__descricao">Informe {% if cat.com_texto %}os dados{% else %}o nome{% endif %} {{ cat.genitivo }} que {% if cat.com_texto %}poderão{% else %}poderá{% endif %} ser utilizado{% if cat.com_texto %}s{% endif %} nas solicitações. O inativo sai dos formulários novos e continua nas solicitações que já o usam.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes"><a class="botao botao--sutil" href="{% url 'eventos:cadastros' %}">{% icone "layers" %}Todos os cadastros</a></div>
+</header>
+
+{% if erro and not editando %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+
+<section class="cartao" aria-labelledby="t-novo">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">Incluir {{ cat.singular }}</h2></div>
+  <form method="post" class="cartao__corpo pilha" novalidate>
+    {% csrf_token %}
+    <div class="campo campo--lg">
+      <label class="campo__rotulo" for="novo-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+      {% if cat.com_texto %}<input class="entrada" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" placeholder="Rótulo do botão (ex.: Deferir com ressalva)" value="{% if not editando %}{{ valores.nome }}{% endif %}">
+      {% else %}<div class="linha"><input class="entrada cresce" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" value="{% if not editando %}{{ valores.nome }}{% endif %}"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>{% endif %}
+    </div>
+    {% if cat.com_texto %}
+    <div class="campo"><label class="campo__rotulo" for="novo-texto">Texto<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="novo-texto" name="texto" rows="4" required placeholder="O que entra na observação do despacho.">{% if not editando %}{{ valores.texto }}{% endif %}</textarea></div>
+    <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
+    {% endif %}
+  </form>
+</section>
+
+<section class="cartao mt-4" aria-labelledby="titulo-resultados">
+  <form class="filtros" role="search" method="get" action="">
+    <div class="campo filtros__busca"><label class="campo__rotulo" for="busca">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca" type="search" name="q" value="{{ q }}" autocomplete="off" placeholder="Nome"></div></div>
+    <div class="campo filtros__campo"><label class="campo__rotulo" for="situacao">Situação</label><pc-select class="seletor"><select class="selecao" id="situacao" name="situacao"><option value="">Todos</option><option value="ativos"{% if situacao == "ativos" %} selected{% endif %}>Ativos</option><option value="inativos"{% if situacao == "inativos" %} selected{% endif %}>Inativos</option></select></pc-select></div>
+    <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  </form>
+  <div class="lista-cabecalho">
+    <h2 class="peso-semi texto-lg" id="titulo-resultados">{{ cat.titulo }}</h2>
+    <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count }} cadastrado{{ page_obj.paginator.count|pluralize }}</span>
+  </div>
+  {% if registros %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for r in registros %}
+    <li class="registro{% if not r.ativo %} registro--inativo{% endif %}">
+      <span class="registro__icone" aria-hidden="true">{% icone cat.icone %}</span>
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__texto peso-semi">{{ r.nome }}</span>{% if not r.ativo %}<span class="selo selo--sem-ponto">Inativo</span>{% endif %}</div>
+        <div class="registro__meta">
+          {% if cat.com_texto %}<span class="registro__meta-item">{{ r.texto|truncatechars:110 }}</span>{% endif %}
+          <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}Atualizado em {{ r.atualizado_em|date:"d/m/Y" }}</span>
+          {% if cat.slug == "tipos-evento" %}<a class="registro__meta-item" href="{% url 'eventos:modelo_do_tipo' r.pk %}">{% icone "file-text" classe="icone--sm" %}{% if r.tem_modelo %}Modelo da solicitação{% else %}Definir o modelo da solicitação{% endif %}</a>{% endif %}
+        </div>
+        <details class="mt-2"{% if editando == r.pk %} open{% endif %}>
+          <summary class="botao botao--sm botao--sutil">{% icone "pencil" %}Editar<span class="sr-only"> {{ r.nome }}</span></summary>
+          <form method="post" class="pilha mt-2" novalidate>
+            {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}">
+            {% if editando == r.pk %}<p class="campo__erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+            <div class="campo campo--lg"><label class="campo__rotulo" for="nome-{{ r.pk }}">Nome</label><input class="entrada" id="nome-{{ r.pk }}" name="nome" required maxlength="150" autocomplete="off" value="{% if editando == r.pk %}{{ valores.nome }}{% else %}{{ r.nome }}{% endif %}"></div>
+            {% if cat.com_texto %}<div class="campo"><label class="campo__rotulo" for="texto-{{ r.pk }}">Texto</label><textarea class="entrada" id="texto-{{ r.pk }}" name="texto" rows="4" required>{% if editando == r.pk %}{{ valores.texto }}{% else %}{{ r.texto }}{% endif %}</textarea></div>{% endif %}
+            <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar</button></div>
+          </form>
+        </details>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        <form method="post">{% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}"><input type="hidden" name="acao" value="ativo"><button type="submit" class="botao botao--sm botao--sutil">{% if r.ativo %}{% icone "ban" %}Inativar{% else %}{% icone "undo-2" %}Ativar{% endif %}<span class="sr-only"> {{ r.nome }}</span></button></form>
+        <form method="post" data-confirmar="“{{ r.nome }}” sai do cadastro. Se estiver em uso, não sai: use Inativar." data-confirmar-titulo="Confirmar exclusão?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}"><input type="hidden" name="acao" value="excluir"><button type="submit" class="botao botao--sm botao--sutil" aria-label="Excluir {{ r.nome }}">{% icone "trash-2" %}</button></form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+  {% elif q or situacao %}
+    {% include "componentes/vazio.html" with icone="search" titulo="Nenhum registro encontrado" texto="Ajuste a busca ou a situação." limpar_url=request.path %}
+  {% else %}
+    {% include "componentes/vazio.html" with icone=cat.icone titulo="Nada cadastrado ainda" texto="Inclua o primeiro no formulário acima." %}
+  {% endif %}
+</section>
+{% endblock %}

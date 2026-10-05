@@ -30,6 +30,8 @@ def _palestras(usuario, inicio: date, fim: date) -> list[Compromisso]:
             fim=p.data_fim_evento, hora=f"{p.hora_inicio:%H:%M}" if p.hora_inicio else "",
             situacao=p.get_status_display(), tom=p.tom,
             encerrado=p.status == Palestra.Status.CANCELADA,
+            meu=p.criado_por_id == getattr(usuario, "pk", None),
+            pessoas=tuple(x.nome for x in p.palestrantes.all()),
             url=reverse("palestras:palestra", args=[p.pk]),
             detalhes=(("Solicitante", p.solicitante), ("Local", p.local),
                       ("Palestrantes", ", ".join(x.nome for x in p.palestrantes.all())),

@@ -121,3 +121,65 @@ def test_tela_semana_dia_e_navegacao(c):
     r = cliente.get(reverse("painel:agenda"), {"vista": "semana", "dia": "lixo"})
     assert r.status_code == 200  # dia inválido: hoje
     assert domingo <= hoje
+
+
+def test_so_os_que_eu_registrei(c):
+    hoje = timezone.localdate()
+    minha = _viagem(c, hoje)
+    outra = _viagem(c, hoje)
+    Viagem.objects.filter(pk=outra.pk).update(criado_por=c.usuarios["gestor"])
+    cliente = Client()
+    cliente.force_login(c.usuarios["operador"])
+    html = cliente.get(reverse("painel:agenda"), {"meus": "1", "vista": "lista"}).content.decode()
+    assert f"viagens/{minha.pk}/" in html and f"viagens/{outra.pk}/" not in html
+    html = cliente.get(reverse("painel:agenda"), {"vista": "lista"}).content.decode()
+    assert f"viagens/{outra.pk}/" in html
+
+
+def test_pauta_da_semana(c):
+    from gestao.painel import pauta
+
+    hoje = timezone.localdate()
+    _viagem(c, hoje, hoje + timedelta(days=1))
+    segunda, domingo = pauta.semana_de(hoje)
+    ctx = pauta.montar(c.usuarios["operador"], segunda, domingo, hoje=hoje)
+    assert ctx["titulo"] == "Pauta da semana" and len(ctx["dias"]) == 7
+    dia = next(d for d in ctx["dias"] if d.data == hoje)
+    assert dia.itens and not dia.itens[0].continua
+    if hoje + timedelta(days=1) <= domingo:
+        seguinte = next(d for d in ctx["dias"] if d.data == hoje + timedelta(days=1))
+        assert seguinte.itens[0].continua
+    cliente = Client()
+    cliente.force_login(c.usuarios["operador"])
+    r = cliente.get(reverse("painel:pauta"))
+    assert r.status_code == 200 and r["Content-Type"] == "application/pdf"
+    assert r.content.startswith(b"%PDF")
+    r = cliente.get(reverse("painel:pauta"), {"formato": "html", "inicio": "2026-12-21",
+                                              "fim": "2026-12-27"})
+    html = r.content.decode()
+    assert "Pauta da semana" in html and "Natal" in html
+    r = cliente.get(reverse("painel:pauta"), {"formato": "html", "inicio": "2026-01-01",
+                                              "fim": "2026-12-31"})
+    assert "01/01 a 03/03/2026" in r.content.decode()  # teto de 62 dias
+
+
+def test_escala_pessoa_por_dia(c):
+    from gestao.painel import escala
+    from gestao.viagens.models import Oficio
+
+    hoje = timezone.localdate()
+    v = _viagem(c, hoje, hoje + timedelta(days=1))
+    oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+    Oficio.objects.filter(pk=oficio.pk).update(viagem=v)
+    nome = oficio.viajantes.first().servidor.nome
+    quadro = escala.montar(c.usuarios["operador"], hoje, 7, hoje=hoje)
+    linha = next(x for x in quadro["linhas"] if x.nome == nome)
+    assert linha.celulas[0] and linha.celulas[1] and not linha.celulas[2]
+    assert linha.dias_fora == 2
+    assert escala.montar(c.usuarios["operador"], hoje, 7, pessoa="zzz-ninguem")["linhas"] == []
+    cliente = Client()
+    cliente.force_login(c.usuarios["operador"])
+    html = cliente.get(reverse("painel:escala"), {"inicio": hoje.isoformat()}).content.decode()
+    assert nome in html and "2 dias fora" in html
+    r = cliente.get(reverse("painel:escala"), {"dias": "999", "inicio": "lixo"})
+    assert r.status_code == 200

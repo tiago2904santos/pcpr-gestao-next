@@ -48,3 +48,19 @@ Fonte de comportamento, não de código.
   folha da palestra mostra os avisos dela.
 - Ainda não: "meus", dossiê em janela, escala pessoa × dia, pauta semanal em PDF, assinatura
   ICS, e as fontes de termos/OS/solicitações nos conflitos.
+
+## A2b — "só os meus", pauta e escala (05/10/2026)
+
+- **Só os que eu registrei** (`?meus=1`): compromissos cujo registro de origem foi criado
+  por quem está vendo (viagem, atendimento, pauta, palestra); feriados continuam. A
+  referência soma "estou escalado" pelo vínculo usuário ↔ servidor, que ainda não existe
+  aqui (decisão do agente: só "registrei" por ora).
+- **Pauta em PDF** (`/agenda/pauta/`, botão "Baixar pauta" com o período e os filtros da
+  tela): um bloco por dia, horário, título, situação, fonte e detalhes; vários dias marcados
+  "continua"; cancelados fora; teto de 62 dias; `?formato=html` mostra na tela. O envio
+  semanal por e-mail depende do SMTP institucional (pendência externa).
+- **Escala** (`/agenda/escala/`): pessoa × dia (7, 14 ou 31 dias), com filtro por pessoa e
+  por fonte; `Compromisso.pessoas` vem das fontes (equipe e motorista dos ofícios da viagem,
+  palestrantes, jornalista da pauta, responsáveis do atendimento); "N dias fora" por pessoa.
+- Ainda não: dossiê em janela, assinatura ICS (link público por token), conflitos de
+  termos/OS.

@@ -13,6 +13,7 @@
 
 .agenda-barra__mes {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--esp-2);
 }
@@ -264,4 +265,70 @@
     min-height: 2.25rem;
     font-size: var(--texto-sm);
   }
+}
+
+/* ---------------- escala: pessoa × dia ---------------- */
+.escala {
+  overflow-x: auto;
+  padding: 0 var(--esp-4) var(--esp-4);
+}
+
+.escala:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: var(--foco-offset);
+}
+
+.escala__tabela {
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-xs);
+}
+
+.escala__tabela th,
+.escala__tabela td {
+  min-width: 7rem;
+  padding: var(--esp-1) var(--esp-2);
+  border: var(--borda-sutil);
+  text-align: left;
+  vertical-align: top;
+}
+
+.escala__tabela thead th {
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+}
+
+.escala__semana {
+  color: var(--cor-texto-secundario);
+}
+
+.escala__nome {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 10rem;
+  background: var(--cor-superficie);
+  font-weight: var(--peso-semi);
+}
+
+.escala__fora {
+  display: block;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-normal);
+}
+
+.escala__fds {
+  background: var(--cor-superficie-sutil);
+}
+
+.escala__hoje {
+  box-shadow: inset 0 -2px 0 var(--cor-marca);
+}
+
+.escala__ocupada {
+  background: var(--cor-superficie-sutil);
+}
+
+.escala__tabela .agenda-item {
+  margin-bottom: var(--esp-05);
 }

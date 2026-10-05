@@ -19,13 +19,17 @@ def _deadlines(usuario, inicio: date, fim: date) -> list[Compromisso]:
     hoje = timezone.localdate()
     saida = []
     for a in (Atendimento.objects.filter(deadline__gte=inicio, deadline__lte=fim)
-              .select_related("veiculo", "responsavel").order_by("deadline", "pk")):
+              .select_related("veiculo", "responsavel", "responsavel_resposta")
+              .order_by("deadline", "pk")):
         if a.deadline is None:  # filtrado acima
             continue
         selo = dominio.selo_do_deadline(a.deadline, a.situacao, hoje)
         saida.append(Compromisso(
             fonte="imprensa", chave=f"imprensa-{a.pk}", titulo=f"Deadline — {a.titulo}",
             inicio=a.deadline, prazo=True, encerrado=not a.aberto,
+            meu=a.criado_por_id == getattr(usuario, "pk", None),
+            pessoas=tuple(dict.fromkeys(x.nome for x in (a.responsavel, a.responsavel_resposta)
+                                        if x is not None)),
             situacao=a.get_situacao_display() if not a.aberto or selo is None
             else ("Vencido" if selo.tom == "perigo" else a.get_situacao_display()),
             tom=selo.tom if selo else a.tom,

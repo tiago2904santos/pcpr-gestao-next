@@ -68,6 +68,7 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
     fontes = agenda.fontes_de(request.user)
     escolhidas = [s for s in request.GET.getlist("fonte") if any(f.slug == s for f in fontes)]
     mostrar_encerrados = request.GET.get("encerrados") == "1"
+    so_meus = request.GET.get("meus") == "1"
 
     if vista == "lista":
         inicio = date(ano, mes, 1)
@@ -80,10 +81,11 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
         inicio, fim = agenda.periodo_da_grade(ano, mes)
     todos = agenda.compromissos_de(request.user, inicio, fim, escolhidas or None)
     encerrados = sum(1 for c in todos if c.encerrado)
-    visiveis = [c for c in todos if mostrar_encerrados or not c.encerrado]
+    visiveis = [c for c in todos if (mostrar_encerrados or not c.encerrado)
+                and (not so_meus or c.meu or c.faixa)]
 
-    filtros = "".join(f"&fonte={s}" for s in escolhidas) + ("&encerrados=1"
-                                                             if mostrar_encerrados else "")
+    filtros = ("".join(f"&fonte={s}" for s in escolhidas)
+               + ("&encerrados=1" if mostrar_encerrados else "") + ("&meus=1" if so_meus else ""))
 
     def url(vista_: str, d: date | None = None, mes_: tuple[int, int] | None = None) -> str:
         if vista_ in ("mes", "lista"):
@@ -124,7 +126,7 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
         "semanas": agenda.semanas_do_mes(ano, mes, visiveis, hoje) if vista == "mes" else [],
         "dias": agenda.dias_entre(inicio, fim, visiveis, hoje) if vista == "semana" else [],
         "por_dia": por_dia, "fontes": fontes, "escolhidas": escolhidas,
-        "mostrar_encerrados": mostrar_encerrados, "encerrados": encerrados,
+        "mostrar_encerrados": mostrar_encerrados, "encerrados": encerrados, "so_meus": so_meus,
         "total": sum(1 for c in visiveis if not c.faixa),
         "url_anterior": anterior, "url_seguinte": seguinte,
         "rotulo_anterior": rotulos[0], "rotulo_seguinte": rotulos[1],
@@ -132,4 +134,7 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
         "urls_vistas": {"mes": url("mes"), "semana": url("semana"), "dia": url("dia"),
                         "lista": url("lista")},
         "mes_param": f"{ano}-{mes:02d}", "dia_param": dia.isoformat(),
+        # A pauta em PDF do período que está na tela, com os mesmos filtros.
+        "url_pauta": (reverse("painel:pauta") + f"?inicio={inicio.isoformat()}"
+                      f"&fim={fim.isoformat()}{filtros}"),
         "migalhas": [("Início", reverse("painel:inicio")), ("Agenda", "")]})

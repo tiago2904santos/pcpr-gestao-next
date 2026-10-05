@@ -28,12 +28,25 @@ def _pode_viagens(usuario) -> bool:
     return usuario.has_perm("viagens.view_viagem")
 
 
+def _pessoas_da_viagem(v: Viagem) -> tuple[str, ...]:
+    nomes: list[str] = []
+    for o in v.oficios.all():
+        if o.situacao == Oficio.Situacao.CANCELADO:
+            continue
+        nomes.extend(x.servidor.nome for x in o.viajantes.all())
+        if o.motorista_externo_servidor is not None:
+            nomes.append(o.motorista_externo_servidor.nome)
+    return tuple(dict.fromkeys(nomes))
+
+
 def _viagens(usuario, inicio: date, fim: date) -> list[Compromisso]:
     consulta = (policies.viagens_visiveis(usuario)
                 .filter(data_inicio__isnull=False, data_inicio__lte=fim)
                 .filter(Q(data_fim__gte=inicio) | Q(data_fim__isnull=True,
                                                      data_inicio__gte=inicio))
-                .select_related("unidade").prefetch_related("destinos__municipio")
+                .select_related("unidade")
+                .prefetch_related("destinos__municipio", "oficios__viajantes__servidor",
+                                  "oficios__motorista_externo_servidor")
                 .order_by("data_inicio", "pk"))
     saida = []
     for v in consulta:
@@ -50,6 +63,8 @@ def _viagens(usuario, inicio: date, fim: date) -> list[Compromisso]:
             fim=v.data_fim, url=reverse("viagens:editar_viagem", args=[v.pk]),
             situacao="Cancelada" if cancelada else v.get_situacao_display(),
             tom="perigo" if cancelada else "info", encerrado=cancelada,
+            meu=v.criado_por_id == getattr(usuario, "pk", None),
+            pessoas=_pessoas_da_viagem(v),
             detalhes=(("Destino", ", ".join(destinos)),
                       ("Período", periodo_curto(v.data_inicio, v.data_fim)),
                       ("Tipo", v.titulo), ("Motivo", motivo),

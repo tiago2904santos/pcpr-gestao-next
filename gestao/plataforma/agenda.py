@@ -32,6 +32,8 @@ class Compromisso:
     encerrado: bool = False  # cancelado/finalizado: escondido por padrão
     prazo: bool = False
     faixa: bool = False  # feriado: fundo do dia, não um compromisso
+    meu: bool = False  # registrado por quem está vendo (filtro "Só os que eu registrei")
+    pessoas: tuple[str, ...] = ()  # quem está no compromisso (escala pessoa × dia)
 
     @property
     def ultimo_dia(self) -> date:

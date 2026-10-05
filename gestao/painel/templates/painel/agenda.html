@@ -25,6 +25,8 @@ grade e a semana viram listas de dias (CSS).
       <h2 class="agenda-barra__titulo" id="titulo-mes">{{ titulo_mes|capfirst }}</h2>
       <a class="botao botao--icone botao--sutil" href="{{ url_seguinte }}" aria-label="{{ rotulo_seguinte }}">{% icone "chevron-right" %}</a>
       {% if not e_mes_atual %}<a class="botao botao--sm botao--sutil" href="{{ url_hoje }}">Hoje</a>{% endif %}
+      <a class="botao botao--sm" href="{{ url_pauta }}">{% icone "download" %}Baixar pauta<span class="sr-only"> (PDF do período na tela)</span></a>
+      <a class="botao botao--sm botao--sutil" href="{% url 'painel:escala' %}">{% icone "users" %}Escala</a>
     </div>
     <nav class="abas agenda-barra__vistas" aria-label="Como ver">
       <a class="aba" href="{{ urls_vistas.mes }}"{% if vista == "mes" %} aria-current="page"{% endif %}>Mês</a>
@@ -44,6 +46,7 @@ grade e a semana viram listas de dias (CSS).
       {% empty %}<p class="texto-secundario texto-sm">Nenhuma fonte de agenda no seu acesso.</p>
       {% endfor %}
       <label class="agenda-filtros__opcao"><input type="checkbox" name="encerrados" value="1"{% if mostrar_encerrados %} checked{% endif %}><span>Cancelados{% if encerrados %} ({{ encerrados }}){% endif %}</span></label>
+      <label class="agenda-filtros__opcao"><input type="checkbox" name="meus" value="1"{% if so_meus %} checked{% endif %}><span>Só os que eu registrei</span></label>
     </fieldset>
     <button class="botao botao--sm" type="submit">{% icone "filter" %}Aplicar</button>
   </form>
@@ -77,7 +80,7 @@ grade e a semana viram listas de dias (CSS).
   <ol class="agenda-semana" aria-labelledby="titulo-mes">
     {% for dia in dias %}
     <li class="agenda-semana__dia{% if dia.hoje %} agenda-semana__dia--hoje{% endif %}{% if dia.faixas %} agenda-dia--feriado{% endif %}{% if not dia.compromissos and not dia.faixas %} agenda-dia--vazio{% endif %}">
-      <h3 class="agenda-semana__data"><a href="?vista=dia&amp;dia={{ dia.data|date:'Y-m-d' }}{% for s in escolhidas %}&amp;fonte={{ s }}{% endfor %}{% if mostrar_encerrados %}&amp;encerrados=1{% endif %}"><span class="agenda-semana__nome">{{ dia.data|date:"D" }}</span> <span class="agenda-dia__numero">{{ dia.data.day }}</span><span class="sr-only"> de {{ dia.data|date:"F" }}{% if dia.hoje %} (hoje){% endif %}</span></a></h3>
+      <h3 class="agenda-semana__data"><a href="?vista=dia&amp;dia={{ dia.data|date:'Y-m-d' }}{% for s in escolhidas %}&amp;fonte={{ s }}{% endfor %}{% if mostrar_encerrados %}&amp;encerrados=1{% endif %}{% if so_meus %}&amp;meus=1{% endif %}"><span class="agenda-semana__nome">{{ dia.data|date:"D" }}</span> <span class="agenda-dia__numero">{{ dia.data.day }}</span><span class="sr-only"> de {{ dia.data|date:"F" }}{% if dia.hoje %} (hoje){% endif %}</span></a></h3>
       {% for f in dia.faixas %}<span class="agenda-faixa">{{ f.titulo }}</span>{% endfor %}
       {% if dia.compromissos %}
       <ul class="agenda-dia__lista">

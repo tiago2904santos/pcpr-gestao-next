@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Modelo — {{ tipo.nome }} · Cadastros de Eventos{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Modelo da solicitação do tipo de evento (paridade com a referência): o que a solicitação
+nova desse tipo já traz — solicitante, cargo/unidade e órgão padrão, serviços sugeridos e
+equipes com a quantidade de servidores. Só os ativos aparecem, mais os já escolhidos.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "calendar-days" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Modelo da solicitação — {{ tipo.nome }}</h1>
+    <p class="pagina-cabecalho__descricao">O que uma solicitação nova deste tipo já traz preenchido. Quem preenche pode trocar tudo.</p>
+  </div>
+</header>
+{% if erros %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
+<form method="post" class="documento documento--cartoes" novalidate>
+  {% csrf_token %}
+  <section class="secao" aria-labelledby="t-quem">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-quem"><span class="secao__numero">1</span>Quem pede</h2></div>
+    <div class="campos">
+      <div class="campo campo--lg"><label class="campo__rotulo" for="solicitante">Solicitante padrão</label><input class="entrada" id="solicitante" name="solicitante" maxlength="150" value="{{ tipo.solicitante_padrao }}" autocomplete="off"></div>
+      <div class="campo campo--lg"><label class="campo__rotulo" for="cargo">Cargo / unidade padrão</label><input class="entrada" id="cargo" name="cargo" maxlength="255" value="{{ tipo.cargo_padrao }}" autocomplete="off"></div>
+      <div class="campo campo--lg"><label class="campo__rotulo" for="orgao">Órgão padrão</label><pc-select class="seletor"><select class="selecao" id="orgao" name="orgao"><option value="">Nenhum</option>{% for o in orgaos %}<option value="{{ o.pk }}"{% if o.pk == tipo.orgao_padrao_id %} selected{% endif %}>{{ o.nome }}{% if not o.ativo %} (inativo){% endif %}</option>{% endfor %}</select></pc-select></div>
+    </div>
+  </section>
+  <section class="secao" aria-labelledby="t-servicos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-servicos"><span class="secao__numero">2</span>Serviços sugeridos</h2></div>
+    <fieldset class="grupo-campos--livre"><legend class="sr-only">Serviços sugeridos</legend>
+      <div class="caixas">{% for s in servicos %}<label class="escolha caixas__item"><input type="checkbox" name="servicos" value="{{ s.pk }}"{% if s.pk in escolhidos %} checked{% endif %}><span>{{ s.nome }}{% if not s.ativo %} (inativo){% endif %}</span></label>{% empty %}<p class="vazio-inline">Nenhum serviço cadastrado.</p>{% endfor %}</div>
+    </fieldset>
+  </section>
+  <section class="secao" aria-labelledby="t-equipes">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-equipes"><span class="secao__numero">3</span>Equipes</h2><p class="secao__nota">Marque as equipes e, se quiser, quantos servidores de cada.</p></div>
+    <ul class="pilha">
+      {% for e, marcada, quantidade in equipes %}
+      <li class="campos">
+        <label class="escolha campo--lg"><input type="checkbox" name="equipe_{{ e.pk }}" value="1"{% if marcada %} checked{% endif %}><span>{{ e.nome }}{% if not e.ativo %} (inativa){% endif %}</span></label>
+        <div class="campo campo--sm"><label class="campo__rotulo" for="quantidade-{{ e.pk }}">Servidores de {{ e.nome }}</label><input class="entrada" id="quantidade-{{ e.pk }}" name="quantidade_{{ e.pk }}" inputmode="numeric" value="{{ quantidade|default_if_none:'' }}" autocomplete="off"></div>
+      </li>
+      {% empty %}<li class="vazio-inline">Nenhuma equipe cadastrada.</li>{% endfor %}
+    </ul>
+  </section>
+  <div class="linha"><a class="botao botao--texto" href="{% url 'eventos:tipos-evento' %}">Voltar</a><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar modelo</button></div>
+</form>
+{% endblock %}

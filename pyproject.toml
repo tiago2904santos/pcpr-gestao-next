@@ -86,7 +86,8 @@ name = "Plataforma não depende de contextos de negócio"
 type = "forbidden"
 source_modules = ["gestao.plataforma"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
-                     "gestao.imprensa", "gestao.publicacoes", "gestao.palestras"]
+                     "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
+                     "gestao.eventos"]
 ignore_imports = ["gestao.plataforma.tests.** -> gestao.**"]
 
 [[tool.importlinter.contracts]]
@@ -110,7 +111,8 @@ name = "Integrações externas não dependem de contextos de negócio (ADR 0019)
 type = "forbidden"
 source_modules = ["gestao.integracoes"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
-                     "gestao.imprensa", "gestao.publicacoes", "gestao.palestras"]
+                     "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
+                     "gestao.eventos"]
 
 [[tool.importlinter.contracts]]
 name = "Domínio puro não conhece integrações externas (ADR 0019)"
@@ -156,6 +158,20 @@ forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gest
 name = "Regras das palestras são puras (sem Django)"
 type = "forbidden"
 source_modules = ["gestao.palestras.dominio"]
+forbidden_modules = ["django"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4)"
+type = "forbidden"
+source_modules = ["gestao.eventos"]
+forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gestao.publicacoes",
+                     "gestao.palestras"]
+
+[[tool.importlinter.contracts]]
+name = "Regras de Eventos Sociais são puras (sem Django)"
+type = "forbidden"
+source_modules = ["gestao.eventos.dominio"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Cadastros de Eventos Sociais{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}Índice dos catálogos de Eventos Sociais (paridade com o índice de cadastros da referência): um cartão por catálogo, com o total e os inativos.{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "layers" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Cadastros de Eventos Sociais</h1>
+    <p class="pagina-cabecalho__descricao">O que as solicitações de evento usam: tipos (com o modelo da solicitação), serviços, equipes, órgãos, unidades móveis e os textos prontos do despacho.</p>
+  </div>
+</header>
+<div class="modulos">
+  {% for cat, total, inativos in cartoes %}
+  <section class="cartao modulo" aria-labelledby="cat-{{ cat.slug }}">
+    <div class="modulo__corpo">
+      <div class="modulo__intro">
+        <span class="modulo__icone" aria-hidden="true">{% icone cat.icone classe="icone--lg" %}</span>
+        <div class="cresce"><h2 class="modulo__titulo" id="cat-{{ cat.slug }}">{{ cat.titulo }}</h2></div>
+      </div>
+      <dl class="modulo__numeros" aria-label="Situação de {{ cat.titulo }}">
+        <div><dd>{{ total }}</dd><dt>cadastrados</dt></div>
+        <div><dd>{{ inativos }}</dd><dt>inativos</dt></div>
+      </dl>
+      <div class="modulo__acoes"><a class="botao botao--primario" href="{% url cat.url_name %}">Abrir {% icone "arrow-right" classe="icone--seta" %}</a></div>
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

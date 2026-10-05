@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ titulo }} — {{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}</title>
+{% comment %}
+Pauta da semana (painel/pauta.py): documento próprio, sem o App Shell, para o PDF
+(WeasyPrint) e para a tela imprimível (?formato=html, com o nonce da CSP). Cores do
+documento impresso: preto e cinza, como os documentos oficiais.
+{% endcomment %}
+<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+  @page { size: A4; margin: 16mm 14mm; @bottom-right { content: "página " counter(page) " de " counter(pages); font-size: 8pt; color: #555; } }
+  body { font-family: "Inter", "Helvetica", "Arial", sans-serif; font-size: 10pt; color: #111; margin: 0; }
+  .tela body, body.tela { max-width: 52rem; margin: 1.5rem auto; padding: 0 1rem; }
+  h1 { font-size: 15pt; margin: 0 0 2mm; }
+  .sub { color: #444; margin: 0 0 6mm; font-size: 9pt; }
+  .dia { break-inside: avoid; margin: 0 0 5mm; border-top: 1px solid #999; padding-top: 2mm; }
+  .dia h2 { font-size: 11pt; margin: 0 0 1.5mm; text-transform: capitalize; }
+  .faixa { font-weight: 600; color: #333; margin: 0 0 1mm; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { margin: 0 0 2mm; padding-left: 3mm; border-left: 2px solid #bbb; }
+  .hora { font-weight: 700; margin-right: 2mm; }
+  .fonte { color: #555; font-size: 8.5pt; }
+  .det { color: #333; font-size: 8.5pt; margin-top: .5mm; }
+  .vazio { color: #666; font-style: italic; }
+  .aviso { border: 1px solid #999; padding: 2mm 3mm; margin-bottom: 4mm; }
+</style>
+</head>
+<body{% if tela %} class="tela"{% endif %}>
+<h1>{{ titulo }} — {{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}</h1>
+<p class="sub">Gerada em {{ gerada_em|date:"d/m/Y H:i" }} por {{ usuario.nome }} · {{ total }} compromisso{{ total|pluralize }} · só o que você tem acesso.</p>
+{% for dia in dias %}
+<section class="dia">
+  <h2>{{ dia.nome }}, {{ dia.data|date:"d/m" }}{% if dia.hoje %} (hoje){% endif %}</h2>
+  {% for f in dia.faixas %}<p class="faixa">{{ f }}</p>{% endfor %}
+  {% if dia.itens %}
+  <ul>
+    {% for i in dia.itens %}{% with c=i.compromisso %}
+    <li><span class="hora">{{ c.hora|default:"—" }}</span><strong>{{ c.titulo }}</strong>{% if c.situacao %} · {{ c.situacao }}{% endif %}{% if i.continua %} (continua){% endif %}{% if i.ate %} — até {{ i.ate|date:"d/m" }}{% endif %}
+      <div class="fonte">{{ i.rotulo_fonte }}</div>
+      {% if c.detalhes %}<div class="det">{% for rotulo, valor in c.detalhes %}{% if valor %}{{ rotulo }}: {{ valor }}{% if not forloop.last %} · {% endif %}{% endif %}{% endfor %}</div>{% endif %}
+    </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% elif not dia.faixas %}<p class="vazio">Nada marcado.</p>{% endif %}
+</section>
+{% endfor %}
+</body>
+</html>

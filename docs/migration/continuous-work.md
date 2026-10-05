@@ -66,7 +66,9 @@ Ver a fila abaixo (primeiro item não concluído).
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
 | 15b | Agenda A2a: semana/dia, conflitos entre módulos (ofício × palestra), busca global ([busca.md](busca.md)) | feito (A2a) |
-| 15c | Agenda A2b: "meus", dossiê, escala pessoa × dia, pauta semanal PDF, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
+| 15c | Agenda A2b: "só os meus", pauta em PDF, escala pessoa × dia | feito (A2b) |
+| 15d | Agenda A2c: dossiê, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
+| 17 | Eventos Sociais E1–E4 (catálogos, solicitação com despacho da DG, painel e lembretes, gerar viagem) — ver [eventos-sociais.md](eventos-sociais.md) | pendente |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |

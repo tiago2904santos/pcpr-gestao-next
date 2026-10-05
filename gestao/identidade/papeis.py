@@ -123,6 +123,14 @@ PAPEIS: dict[str, Papel] = {
               for acao in ("view", "add", "change", "delete")),
         ],
     },
+    # Eventos Sociais (referência: grupo GESTOR_DG) — despacha as solicitações e mantém os
+    # textos prontos do despacho. As solicitações entram na fatia E2.
+    "GESTOR_DG": {
+        "descricao": "Diretoria-Geral: despacha as solicitações de evento social.",
+        "permissoes": [
+            *(f"eventos.{acao}_textodespacho" for acao in ("view", "add", "change", "delete")),
+        ],
+    },
     "ADMINISTRADOR": {
         "descricao": "Gestão de usuários, papéis e configurações institucionais.",
         "permissoes": [
@@ -130,6 +138,11 @@ PAPEIS: dict[str, Papel] = {
             "plataforma.view_eventoauditoria",
             # Cadastros de apoio da imprensa (equipe e veículos), como na referência.
             *(f"imprensa.{acao}_{modelo}" for modelo in ("integrante", "veiculo")
+              for acao in ("view", "add", "change", "delete")),
+            # Os catálogos de Eventos Sociais, como na referência.
+            *(f"eventos.{acao}_{modelo}" for modelo in (
+                "tipoevento", "servico", "equipe", "orgaoresponsavel", "unidademovel",
+                "textodespacho", "tipoeventoequipe")
               for acao in ("view", "add", "change", "delete")),
             # E os de Publicações (equipe e unidades responsáveis).
             *(f"publicacoes.{acao}_{modelo}" for modelo in ("integrante", "unidaderesponsavel")

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Escala · Agenda{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Escala pessoa × dia (paridade com a escala da agenda da referência): uma linha por pessoa
+que aparece nos compromissos que a pessoa logada pode ver, uma coluna por dia (7, 14 ou 31);
+em cada célula, os compromissos daquele dia (cancelado riscado). A tabela rola na
+horizontal dentro do cartão no celular, com a primeira coluna (nome) fixa.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Escala</h1>
+    <p class="pagina-cabecalho__descricao">Quem está em qual compromisso, dia a dia: viagens, palestras, pautas e atendimentos que você acompanha.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'painel:agenda' %}">{% icone "calendar-days" %}Voltar à agenda</a></div>
+</header>
+
+<section class="cartao" aria-labelledby="titulo-escala">
+  <div class="agenda-barra">
+    <div class="agenda-barra__mes">
+      <a class="botao botao--icone botao--sutil" href="{{ url_anterior }}" aria-label="Período anterior">{% icone "chevron-left" %}</a>
+      <h2 class="agenda-barra__titulo" id="titulo-escala">{{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}</h2>
+      <a class="botao botao--icone botao--sutil" href="{{ url_seguinte }}" aria-label="Próximo período">{% icone "chevron-right" %}</a>
+      <a class="botao botao--sm botao--sutil" href="{{ url_hoje }}">Esta semana</a>
+    </div>
+    <nav class="abas agenda-barra__vistas" aria-label="Quantos dias">
+      {% for n, u in urls_dias %}<a class="aba" href="{{ u }}"{% if n == dias %} aria-current="page"{% endif %}>{{ n }} dias</a>{% endfor %}
+    </nav>
+  </div>
+  <form class="agenda-filtros" method="get" action="">
+    <input type="hidden" name="inicio" value="{{ inicio|date:'Y-m-d' }}"><input type="hidden" name="dias" value="{{ dias }}">
+    <div class="campo">
+      <label class="campo__rotulo" for="filtro-pessoa">Pessoa</label>
+      <input class="entrada" id="filtro-pessoa" type="search" name="pessoa" value="{{ pessoa }}" placeholder="Parte do nome" autocomplete="off">
+    </div>
+    <fieldset class="agenda-filtros__fontes">
+      <legend class="campo__rotulo">Mostrar</legend>
+      {% for f in fontes %}<label class="agenda-filtros__opcao"><input type="checkbox" name="fonte" value="{{ f.slug }}"{% if not escolhidas or f.slug in escolhidas %} checked{% endif %}><span>{{ f.rotulo }}</span></label>{% endfor %}
+    </fieldset>
+    <button class="botao botao--sm" type="submit">{% icone "filter" %}Aplicar</button>
+  </form>
+  {% if linhas %}
+  <div class="escala" role="region" aria-labelledby="titulo-escala" tabindex="0">
+    <table class="escala__tabela">
+      <caption class="sr-only">Escala de {{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}: uma linha por pessoa, uma coluna por dia</caption>
+      <thead><tr><th scope="col" class="escala__nome">Pessoa</th>{% for c in colunas %}<th scope="col" class="{% if c.fim_de_semana %}escala__fds{% endif %}{% if c.hoje %} escala__hoje{% endif %}"><span class="escala__semana">{{ c.semana }}</span> {{ c.data|date:"d/m" }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for l in linhas %}
+        <tr>
+          <th scope="row" class="escala__nome">{{ l.nome }}<span class="escala__fora">{{ l.dias_fora|pluralizar:"dia fora,dias fora" }}</span></th>
+          {% for cel in l.celulas %}
+          <td class="{% if cel %}escala__ocupada{% endif %}">
+            {% for c in cel %}<a class="agenda-item agenda-item--{{ c.tom }}{% if c.encerrado %} agenda-item--encerrado{% endif %}" href="{{ c.url }}" title="{{ c.titulo }}"><span>{{ c.titulo }}</span></a>{% endfor %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    {% include "componentes/vazio.html" with icone="users" titulo="Ninguém na escala neste período" texto="Troque o período, a pessoa ou as fontes." %}
+  {% endif %}
+</section>
+{% endblock %}

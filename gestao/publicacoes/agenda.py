@@ -23,6 +23,8 @@ def _pautas(usuario, inicio: date, fim: date) -> list[Compromisso]:
             hora=f"{p.inicio_pauta:%H:%M}" if p.inicio_pauta else "",
             situacao=p.get_status_display(), tom=p.tom,
             encerrado=p.status == Publicacao.Status.CANCELADA,
+            meu=p.criado_por_id == getattr(usuario, "pk", None),
+            pessoas=(p.jornalista.nome,),
             url=reverse("publicacoes:pauta", args=[p.pk]),
             detalhes=(("Jornalista", p.jornalista.nome),
                       ("Unidade", p.unidade.nome if p.unidade else ""),

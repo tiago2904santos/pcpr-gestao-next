@@ -36,7 +36,8 @@ ROTULOS = {"OPERADOR_VIAGENS": "Operador de viagens", "GESTOR_VIAGENS": "Gestor 
            "CONSULTA": "Consulta", "ADMINISTRADOR": "Administrador",
            "ASCOM_IMPRENSA": "Atendimento à imprensa (ASCOM)",
            "ASCOM_PUBLICACOES": "Publicações (ASCOM)",
-           "ASCOM_PALESTRAS": "Palestras e eventos (ASCOM)"}
+           "ASCOM_PALESTRAS": "Palestras e eventos (ASCOM)",
+           "GESTOR_DG": "Diretoria-Geral (despacho de eventos)"}
 
 
 def _voltar(request: HttpRequest) -> str:

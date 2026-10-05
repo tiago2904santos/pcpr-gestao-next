@@ -451,3 +451,20 @@ def test_palestras_sem_violacoes(logado, dados_e2e, largura):
                  "/palestras/pedidos/nova/", "/palestras/cadastros/palestrantes/",
                  "/palestras/cadastros/respostas/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_eventos_cadastros_e_agenda_a2b_sem_violacoes(logado, dados_e2e, largura):
+    from django.contrib.auth.models import Group
+
+    from gestao.eventos.models import TipoEvento
+    from gestao.identidade.models import Usuario
+
+    Usuario.objects.get(login="operador").groups.add(Group.objects.get(name="ADMINISTRADOR"))
+    # O banco do navegador é limpo a cada teste: a carga inicial não está lá.
+    tipo = TipoEvento.objects.create(nome="Palestra (axe)")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/eventos/cadastros/", "/eventos/cadastros/tipos-evento/",
+                 "/eventos/cadastros/textos-despacho/", f"/eventos/cadastros/tipos-evento/{tipo.pk}/modelo/",
+                 "/agenda/escala/", "/agenda/pauta/?formato=html"):
+        _avaliar(logado, rota)
