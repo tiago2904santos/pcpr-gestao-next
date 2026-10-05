@@ -54,3 +54,10 @@ def test_selos_da_prestacao():
     s = p.selo_da_prestacao(date(2026, 10, 2), finalizada=False, hoje=date(2026, 10, 6))
     assert s.texto == "Prestar contas até 07/10 — falta 1 dia útil" and s.tom == "alerta"
     assert p.selo_da_prestacao(date(2026, 10, 2), finalizada=True, hoje=date(2026, 10, 9)) is None
+
+
+def test_feriados_com_nome_iguais_aos_que_contam_nos_prazos():
+    nomes = p.feriados_nacionais_com_nome(2026)
+    assert set(nomes) == p.feriados_nacionais(2026)
+    assert nomes[date(2026, 6, 4)] == "Corpus Christi"
+    assert nomes[date(2026, 10, 12)] == "Nossa Senhora Aparecida"

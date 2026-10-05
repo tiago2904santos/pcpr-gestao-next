@@ -43,6 +43,23 @@ def feriados_nacionais(ano: int) -> set[date]:
     return {date(ano, m, d) for m, d in FIXOS} | moveis
 
 
+NOMES_FIXOS = {(1, 1): "Confraternização Universal", (4, 21): "Tiradentes",
+               (5, 1): "Dia do Trabalho", (9, 7): "Independência do Brasil",
+               (10, 12): "Nossa Senhora Aparecida", (11, 2): "Finados",
+               (11, 15): "Proclamação da República", (11, 20): "Dia da Consciência Negra",
+               (12, 25): "Natal"}
+
+
+def feriados_nacionais_com_nome(ano: int) -> dict[date, str]:
+    """Os mesmos dias de `feriados_nacionais`, com o nome (a agenda mostra)."""
+    p = pascoa(ano)
+    nomes = {date(ano, m, d): nome for (m, d), nome in NOMES_FIXOS.items()}
+    nomes.update({p - timedelta(days=48): "Carnaval", p - timedelta(days=47): "Carnaval",
+                  p - timedelta(days=2): "Sexta-feira Santa",
+                  p + timedelta(days=60): "Corpus Christi"})
+    return nomes
+
+
 def dia_util(dia: date, extras: Iterable[date] = ()) -> bool:
     return (dia.weekday() < 5 and dia not in feriados_nacionais(dia.year)
             and dia not in set(extras))

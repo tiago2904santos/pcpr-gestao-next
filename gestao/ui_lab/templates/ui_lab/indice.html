@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -26,6 +26,7 @@
       <li class="etapas__item"><a href="#equipe-prestacao"><span class="etapas__marcador">14</span>Equipe da prestação</a></li>
       <li class="etapas__item"><a href="#diario-bordo"><span class="etapas__marcador">15</span>Diário de bordo</a></li>
       <li class="etapas__item"><a href="#copiar-textos"><span class="etapas__marcador">16</span>Sugerir e copiar texto</a></li>
+      <li class="etapas__item"><a href="#agenda-lab"><span class="etapas__marcador">17</span>Agenda do mês</a></li>
     </ol>
   </nav>
 
@@ -654,6 +655,23 @@
         <div class="campo"><label class="campo__rotulo" for="lab-rt-conclusao">Conclusão</label><textarea class="area-texto" id="lab-rt-conclusao" rows="2"></textarea></div>
         <div class="campo"><label class="campo__rotulo" for="lab-rt-medidas">Medidas a serem adotadas pelo órgão</label><textarea class="area-texto" id="lab-rt-medidas" rows="2">Texto já escrito (copiar pergunta antes de trocar).</textarea></div>
       </div>
+    </section>
+
+    <!-- 17. AGENDA DO MÊS -->
+    <section class="cartao" id="agenda-lab" aria-labelledby="t-agenda-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-agenda-lab"><span class="cartao__numero">17</span>Agenda do mês</h2><span class="texto-secundario texto-sm">Grade montada no servidor (domingo a sábado); cor da borda pelo tom (info, aviso, perigo); prazo com relógio; feriado como faixa do dia; cancelado riscado. No celular, vira lista dos dias com algo.</span></div>
+      <table class="agenda-mes" aria-label="Exemplo de semana">
+        <thead><tr><th scope="col">Dom</th><th scope="col">Seg</th><th scope="col">Ter</th><th scope="col">Qua</th><th scope="col">Qui</th><th scope="col">Sex</th><th scope="col">Sáb</th></tr></thead>
+        <tbody><tr>
+          <td class="agenda-dia agenda-dia--fora agenda-dia--vazio"><span class="agenda-dia__numero">4</span></td>
+          <td class="agenda-dia"><span class="agenda-dia__numero">5</span><ul class="agenda-dia__lista"><li><a class="agenda-item agenda-item--info" href="#agenda-lab"><span>Londrina/PR — Feira</span></a></li></ul></td>
+          <td class="agenda-dia agenda-dia--hoje"><span class="agenda-dia__numero">6</span><ul class="agenda-dia__lista"><li><a class="agenda-item agenda-item--info" href="#agenda-lab"><span>Londrina/PR — Feira</span></a></li><li><a class="agenda-item agenda-item--aviso agenda-item--prazo" href="#agenda-lab">{% icone "clock" classe="icone--sm" %}<span>Saque das diárias — Ana</span></a></li></ul></td>
+          <td class="agenda-dia agenda-dia--vazio"><span class="agenda-dia__numero">7</span></td>
+          <td class="agenda-dia"><span class="agenda-dia__numero">8</span><ul class="agenda-dia__lista"><li><a class="agenda-item agenda-item--perigo agenda-item--encerrado" href="#agenda-lab"><span>Cascavel/PR — cancelada</span></a></li></ul></td>
+          <td class="agenda-dia agenda-dia--vazio"><span class="agenda-dia__numero">9</span></td>
+          <td class="agenda-dia agenda-dia--feriado"><span class="agenda-dia__numero">10</span><span class="agenda-faixa">Feriado (exemplo)</span></td>
+        </tr></tbody>
+      </table>
     </section>
 </div>
 </div>

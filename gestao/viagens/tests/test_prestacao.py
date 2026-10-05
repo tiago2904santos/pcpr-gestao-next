@@ -477,3 +477,17 @@ def test_abas_de_quando_excluem_as_contas_prestadas(c):
     oficios = cliente.get(reverse("viagens:oficios"), {"situacao": "prestadas"})
     assert Oficio.objects.get(pk=c.ids["oficio_emitido"]).numero_formatado in (
         oficios.content.decode())
+
+
+def test_termo_avulso_segue_nas_abas_de_quando(c):
+    from gestao.cadastros.models import Municipio
+    from gestao.viagens import termos
+    from gestao.viagens.models import TermoAutorizacao
+    from gestao.viagens.views_termos import _com_inicio, _filtrar
+
+    londrina = [Municipio.objects.get(nome="Londrina", uf="PR")]
+    avulso = termos.salvar(c.usuarios["operador"], evento="Avulso (teste)", destinos=londrina,
+                           data_inicio=timezone.localdate() + timedelta(days=10))
+    base = _com_inicio(TermoAutorizacao.objects.all())
+    assert _filtrar(base, "futuros").filter(pk=avulso.pk).exists()
+    assert not _filtrar(base, "finalizados").filter(pk=avulso.pk).exists()

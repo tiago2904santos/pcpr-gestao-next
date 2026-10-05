@@ -64,7 +64,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 13d | Revisão página a página do pacote (ordem/giro/ocultar) | pendente |
 | 14b | Rotina diária (plataforma.rotinas: registro por contexto, uma rodada por dia pela marca no banco, middleware no primeiro acesso + comando para cron) e avisos da prestação (saque vencido/vencendo sem comprovante, prestação vencida, documentos gerados/assinados, equipe chegou) | feito (sem "amanhã sai", que fala do PWA) |
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
-| 15 | Agenda com fontes de Viagens | pendente |
+| 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
+| 15b | Agenda A2: semana/dia, conflitos (mesma pessoa/viatura), "meus", ICS, pauta semanal | pendente |
 | P | Trilhas paralelas: catálogos de Eventos Sociais; ASCOM; busca global; histórico de roteiros | pendente |
 
 ## Concluído (com evidência)

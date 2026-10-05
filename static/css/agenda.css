@@ -1,0 +1,209 @@
+/* Agenda: grade do mês montada no servidor (domingo a sábado) e lista do mês. No celular a
+   grade vira uma lista de dias (só os dias com algo). Cores só por tokens. */
+
+.agenda-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-4);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda);
+}
+
+.agenda-barra__mes {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.agenda-barra__titulo {
+  margin: 0;
+  min-width: 11rem;
+  font-size: var(--texto-lg);
+  font-weight: var(--peso-semi);
+  text-align: center;
+}
+
+.agenda-barra__vistas {
+  border-bottom: 0;
+}
+
+.agenda-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--esp-2) var(--esp-4);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda);
+}
+
+.agenda-filtros__fontes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.agenda-filtros__fontes > legend {
+  float: left;
+  margin-right: var(--esp-2);
+}
+
+.agenda-filtros__opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 2rem;
+  font-size: var(--texto-sm);
+}
+
+/* ---------------- grade do mês ---------------- */
+.agenda-mes {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.agenda-mes th {
+  padding: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: left;
+  border-bottom: var(--borda);
+}
+
+.agenda-dia {
+  height: 7rem;
+  padding: var(--esp-1) var(--esp-2);
+  vertical-align: top;
+  border: var(--borda-sutil);
+}
+
+.agenda-dia--fora {
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto-terciario);
+}
+
+.agenda-dia--feriado {
+  background: var(--cor-marca-fundo);
+}
+
+.agenda-dia__numero {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--raio-pilula);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+.agenda-dia--hoje .agenda-dia__numero {
+  background: var(--cor-marca);
+  color: var(--cor-texto-inverso);
+}
+
+.agenda-faixa {
+  display: block;
+  color: var(--cor-marca-texto);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+
+.agenda-dia__lista {
+  display: grid;
+  gap: var(--esp-05);
+  margin: var(--esp-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-1);
+  min-height: 1.5rem;
+  padding: 0 var(--esp-2);
+  border-radius: var(--raio-sm);
+  border-left: var(--filete) solid var(--cor-borda-forte);
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto);
+  font-size: var(--texto-xs);
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.agenda-item > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-item:hover {
+  background: var(--cor-superficie-realce);
+}
+
+.agenda-item--info { border-left-color: var(--cor-info-borda); }
+.agenda-item--sucesso { border-left-color: var(--cor-sucesso-borda); }
+.agenda-item--aviso { border-left-color: var(--cor-aviso-borda); }
+.agenda-item--perigo { border-left-color: var(--cor-perigo-borda); }
+
+.agenda-item--encerrado > span {
+  text-decoration: line-through;
+  color: var(--cor-texto-secundario);
+}
+
+/* ---------------- lista do mês ---------------- */
+.agenda-lista {
+  margin: 0;
+  padding: var(--esp-2) var(--esp-4) var(--esp-4);
+  list-style: none;
+}
+
+.agenda-lista__data {
+  margin: var(--esp-4) 0 var(--esp-2);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* ---------------- celular: a grade vira lista de dias ---------------- */
+@media (max-width: 767.98px) {
+  .agenda-mes thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .agenda-mes,
+  .agenda-mes tbody,
+  .agenda-mes tr,
+  .agenda-dia {
+    display: block;
+    width: 100%;
+  }
+
+  .agenda-dia {
+    height: auto;
+    padding: var(--esp-2) var(--esp-4);
+    border: 0;
+    border-bottom: var(--borda-sutil);
+  }
+
+  .agenda-dia--vazio,
+  .agenda-dia--fora {
+    display: none;
+  }
+
+  .agenda-item {
+    min-height: 2.25rem;
+    font-size: var(--texto-sm);
+  }
+}

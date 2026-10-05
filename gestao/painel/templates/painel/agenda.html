@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Agenda · {{ titulo_mes }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Agenda (paridade com a agenda da referência, com as fontes que já existem aqui: viagens,
+prazos de saque das diárias e feriados nacionais). Grade do mês montada no servidor
+(domingo a sábado) ou lista do mês; filtro por fonte (só as que a pessoa pode ver) e os
+encerrados (cancelados) escondidos por padrão. Cada compromisso leva ao registro dele.
+No celular a grade vira uma lista de dias (CSS).
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Agenda</h1>
+    <p class="pagina-cabecalho__descricao">O que acontece no mês, de todos os módulos que você acompanha: viagens, prazos de saque das diárias e feriados.</p>
+  </div>
+</header>
+
+<section class="cartao" aria-labelledby="titulo-mes">
+  <div class="agenda-barra">
+    <div class="agenda-barra__mes">
+      <a class="botao botao--icone botao--sutil" href="{{ url_anterior }}" aria-label="Mês anterior">{% icone "chevron-left" %}</a>
+      <h2 class="agenda-barra__titulo" id="titulo-mes">{{ titulo_mes|capfirst }}</h2>
+      <a class="botao botao--icone botao--sutil" href="{{ url_seguinte }}" aria-label="Próximo mês">{% icone "chevron-right" %}</a>
+      {% if not e_mes_atual %}<a class="botao botao--sm botao--sutil" href="{{ url_hoje }}">Hoje</a>{% endif %}
+    </div>
+    <nav class="abas agenda-barra__vistas" aria-label="Como ver">
+      <a class="aba" href="?mes={{ mes_param }}{% for s in escolhidas %}&amp;fonte={{ s }}{% endfor %}{% if mostrar_encerrados %}&amp;encerrados=1{% endif %}"{% if vista == "mes" %} aria-current="page"{% endif %}>Mês</a>
+      <a class="aba" href="?mes={{ mes_param }}&amp;vista=lista{% for s in escolhidas %}&amp;fonte={{ s }}{% endfor %}{% if mostrar_encerrados %}&amp;encerrados=1{% endif %}"{% if vista == "lista" %} aria-current="page"{% endif %}>Lista</a>
+    </nav>
+  </div>
+
+  <form class="agenda-filtros" method="get" action="">
+    <input type="hidden" name="mes" value="{{ mes_param }}">
+    {% if vista == "lista" %}<input type="hidden" name="vista" value="lista">{% endif %}
+    <fieldset class="agenda-filtros__fontes">
+      <legend class="campo__rotulo">Mostrar</legend>
+      {% for f in fontes %}
+      <label class="agenda-filtros__opcao agenda-fonte--{{ f.slug }}"><input type="checkbox" name="fonte" value="{{ f.slug }}"{% if not escolhidas or f.slug in escolhidas %} checked{% endif %}><span>{{ f.rotulo }}</span></label>
+      {% empty %}<p class="texto-secundario texto-sm">Nenhuma fonte de agenda no seu acesso.</p>
+      {% endfor %}
+      <label class="agenda-filtros__opcao"><input type="checkbox" name="encerrados" value="1"{% if mostrar_encerrados %} checked{% endif %}><span>Cancelados{% if encerrados %} ({{ encerrados }}){% endif %}</span></label>
+    </fieldset>
+    <button class="botao botao--sm" type="submit">{% icone "filter" %}Aplicar</button>
+  </form>
+
+  <p class="sr-only" role="status">{{ total|pluralizar:"compromisso,compromissos" }} em {{ titulo_mes }}.</p>
+
+  {% if vista == "mes" %}
+  <table class="agenda-mes" aria-labelledby="titulo-mes">
+    <thead><tr>{% for d in dias_da_semana %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for semana in semanas %}
+      <tr>
+        {% for dia in semana %}
+        <td class="agenda-dia{% if not dia.do_mes %} agenda-dia--fora{% endif %}{% if dia.hoje %} agenda-dia--hoje{% endif %}{% if dia.faixas %} agenda-dia--feriado{% endif %}{% if not dia.compromissos and not dia.faixas %} agenda-dia--vazio{% endif %}">
+          <span class="agenda-dia__numero"><span class="sr-only">{{ dia.data|date:"l, j \d\e F" }}</span><span aria-hidden="true">{{ dia.data.day }}</span>{% if dia.hoje %}<span class="sr-only"> (hoje)</span>{% endif %}</span>
+          {% for f in dia.faixas %}<span class="agenda-faixa">{{ f.titulo }}</span>{% endfor %}
+          {% if dia.compromissos %}
+          <ul class="agenda-dia__lista">
+            {% for c in dia.compromissos %}
+            <li><a class="agenda-item agenda-item--{{ c.tom }}{% if c.prazo %} agenda-item--prazo{% endif %}{% if c.encerrado %} agenda-item--encerrado{% endif %} agenda-fonte--{{ c.fonte }}" href="{{ c.url }}" title="{{ c.titulo }}{% if c.situacao %} · {{ c.situacao }}{% endif %}">{% if c.prazo %}{% icone "clock" classe="icone--sm" %}{% endif %}<span>{{ c.titulo }}</span>{% if c.situacao %}<span class="sr-only"> · {{ c.situacao }}</span>{% endif %}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    {% if por_dia %}
+    <ol class="agenda-lista">
+      {% for dia, itens in por_dia %}
+      <li class="agenda-lista__dia">
+        <h3 class="agenda-lista__data">{{ dia|date:"l, j \d\e F"|capfirst }}</h3>
+        <ul class="registros">
+          {% for c in itens %}
+          <li class="registro{% if c.encerrado %} registro--inativo{% endif %}">
+            <span class="registro__icone" aria-hidden="true">{% if c.faixa %}{% icone "flag" %}{% elif c.prazo %}{% icone "clock" %}{% else %}{% icone "route" %}{% endif %}</span>
+            <div class="registro__corpo">
+              <div class="registro__titulo">{% if c.url %}<a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a>{% else %}<span class="registro__texto">{{ c.titulo }}</span>{% endif %}{% if c.situacao %}<span class="selo selo--{% if c.tom == 'perigo' %}perigo{% elif c.tom == 'aviso' %}aviso{% elif c.tom == 'sucesso' %}sucesso{% else %}info{% endif %} selo--sem-ponto">{{ c.situacao }}</span>{% endif %}</div>
+              {% if c.detalhes %}<div class="registro__meta">{% for rotulo, valor in c.detalhes %}{% if valor %}<span class="registro__meta-item">{{ rotulo }}: {{ valor }}</span>{% endif %}{% endfor %}</div>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+      {% include "componentes/vazio.html" with icone="calendar" titulo="Nada na agenda neste mês" texto="Troque de mês ou mostre mais fontes." %}
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

@@ -16,3 +16,6 @@ class ViagensConfig(AppConfig):
         )
         registrar_rotina("avisos da prestação de contas", avisos.avisar_prazos)
         registrar_rotina("chegadas de viagem", avisos.avisar_chegadas)
+
+        from . import agenda
+        agenda.registrar()

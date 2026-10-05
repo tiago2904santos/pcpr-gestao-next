@@ -61,29 +61,48 @@ def sincronizar(oficio: Oficio) -> PrestacaoContas | None:
 
 
 # ---------------------------------------------------------------- abas dos outros módulos
-def contas_prestadas(**ligacao):
-    """Expressão "contas prestadas" para as abas Finalizados/Contas prestadas das outras
-    listas (referência: `*/abas.py`): existe prestação de servidor ligada e nenhuma em
-    aberto; arquivar não conta; ofício cancelado e quem saiu da equipe ficam de fora.
-    `ligacao` liga a linha da prestação ao registro da lista, com OuterRef — ex.:
-    `prestacao__oficio__roteiro=OuterRef("pk")`."""
-    ligadas = ativos(PrestacaoServidor.objects.filter(**ligacao)).exclude(
-        prestacao__oficio__situacao=Oficio.Situacao.CANCELADO)
-    return Exists(ligadas) & ~Exists(ligadas.filter(finalizada_em__isnull=True))
+def _oficios(pendentes: bool):
+    """Ofícios (não cancelados) com prestação de servidor ativa; `pendentes`: só os que ainda
+    têm alguma em aberto (arquivar não conta)."""
+    linhas = ativos(PrestacaoServidor.objects.exclude(
+        prestacao__oficio__situacao=Oficio.Situacao.CANCELADO))
+    if pendentes:
+        linhas = linhas.filter(finalizada_em__isnull=True)
+    return linhas.values("prestacao__oficio")
 
 
-LIGACOES = {
-    "roteiro": {"prestacao__oficio__roteiro": OuterRef("pk")},
-    "oficio": {"prestacao__oficio": OuterRef("pk")},
-    "termo": {"prestacao__oficio": OuterRef("oficio_id")},  # avulso (sem ofício) nunca
-    "ordem": {"prestacao__oficio__ordens": OuterRef("pk")},
-    "plano": {"prestacao__oficio__viagem": OuterRef("viagem_id")},  # pela viagem (referência)
-    "viagem": {"prestacao__oficio__viagem": OuterRef("pk")},
-}
+def _ligados(tipo: str, oficios):
+    """Os registros do tipo ligados aos ofícios dados (subconsulta, sem nulos — um NOT IN
+    com nulo excluiria tudo)."""
+    from .models import OrdemServico
+    if tipo == "oficio":
+        return oficios
+    if tipo == "roteiro":
+        return (Oficio.objects.filter(pk__in=oficios, roteiro__isnull=False)
+                .values("roteiro"))
+    if tipo == "ordem":
+        return OrdemServico.objects.filter(oficios__in=oficios).values("pk")
+    # termo: pelo ofício dele (avulso nunca); plano e viagem: pelos ofícios da viagem.
+    return Oficio.objects.filter(pk__in=oficios, viagem__isnull=False).values("viagem")
 
 
-def prestadas(tipo: str):
-    return contas_prestadas(**LIGACOES[tipo])
+CAMPO = {"oficio": "pk", "roteiro": "pk", "ordem": "pk", "termo": "oficio_id",
+         "plano": "viagem_id", "viagem": "pk"}
+
+
+def prestadas(tipo: str) -> Q:
+    """Filtro "contas prestadas" das abas Finalizados/Contas prestadas das outras listas
+    (referência: `*/abas.py`): existe prestação de servidor ligada e nenhuma em aberto;
+    arquivar não conta; ofício cancelado e quem saiu da equipe ficam de fora. Ligação:
+    roteiro → ofícios do roteiro; ofício → a própria; termo → o ofício dele (avulso nunca);
+    OS → ofícios dela; plano e viagem → ofícios da viagem. Subconsultas não correlacionadas
+    (a versão com EXISTS por linha pesava na contagem das abas)."""
+    campo = CAMPO[tipo]
+    if tipo == "termo":
+        com, pendentes = _oficios(False), _oficios(True)
+    else:
+        com, pendentes = _ligados(tipo, _oficios(False)), _ligados(tipo, _oficios(True))
+    return Q(**{f"{campo}__in": com}) & ~Q(**{f"{campo}__in": pendentes})
 
 
 # ---------------------------------------------------------------- leitura

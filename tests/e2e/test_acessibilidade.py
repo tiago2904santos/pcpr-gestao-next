@@ -350,3 +350,19 @@ def test_documentos_com_carimbo_sem_violacoes(logado, dados_e2e, largura):
     prestacao.salvar_solicitacao(operador, a.pk, numero="2030/1", liberacao=None, prazo=None)
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_agenda_sem_violacoes(logado, dados_e2e, largura):
+    from django.utils import timezone
+
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import viagem
+    from gestao.viagens.models import Viagem
+
+    v = viagem.criar(Usuario.objects.get(login="operador"))
+    Viagem.objects.filter(pk=v.pk).update(data_inicio=timezone.localdate(), titulo="Feira",
+                                          motivo="Apoio (axe)")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, "/agenda/")
+    _avaliar(logado, "/agenda/?vista=lista")

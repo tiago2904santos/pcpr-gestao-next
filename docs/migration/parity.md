@@ -21,7 +21,7 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Eventos Sociais | Ausente | 0 / 27 | — | — |
 | ASCOM (3 submódulos) | Ausente | 0 / 43 | — | — |
 | Coffee Break | Ausente | 0 / 61 | — | — |
-| Agenda / relatórios / painel | Ausente (só conflito) | 1 / 10 | — | — |
+| Agenda / relatórios / painel | **Em andamento** — agenda A1 (mês/lista, viagens, prazos de saque das diárias, feriados nacionais, filtro por fonte, cancelados escondidos); faltam semana/dia, conflitos, "meus", ICS, pauta, relatórios | 3 / 10 | `gestao/viagens/tests/test_agenda.py`, `tests/e2e/test_agenda.py` | [agenda.md](agenda.md) |
 | Integração eProtocolo | Simulada (E1/E2) | 0 / 4 operações reais | `gestao/integracoes/tests` | [eprotocolo.md](../integrations/eprotocolo.md) |
 
 \* Contagem aproximada por rota da referência com função equivalente no novo (uma tela nova
