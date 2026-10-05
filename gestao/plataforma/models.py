@@ -97,3 +97,19 @@ class Notificacao(models.Model):
 
     def __str__(self) -> str:
         return self.titulo
+
+
+class RotinaDoDia(models.Model):
+    """Marca de que as rotinas diárias já rodaram neste dia. A chave única no dia garante
+    uma rodada só entre processos (sem cache compartilhado configurado)."""
+
+    dia = models.DateField(unique=True)
+    iniciada_em = models.DateTimeField(auto_now_add=True)
+    resultado = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        verbose_name = "rotina do dia"
+        verbose_name_plural = "rotinas do dia"
+
+    def __str__(self) -> str:
+        return f"Rotinas de {self.dia:%d/%m/%Y}"

@@ -19,3 +19,8 @@ ROTAS_PROVEDOR = "estimativa"
 MAPA_TILES_URL = ""
 _SEM_MOSAICO = [v for v in SECURE_CSP["img-src"] if not v.startswith("http")]  # noqa: F405
 SECURE_CSP = {**SECURE_CSP, "img-src": _SEM_MOSAICO}  # noqa: F405
+
+# As rotinas diárias (avisos) não rodam no primeiro acesso durante os testes: mudariam os
+# orçamentos de consultas de quem calhar de ser a primeira requisição do processo. Os testes
+# delas chamam as funções direto.
+ROTINAS_DIARIAS_NO_ACESSO = False

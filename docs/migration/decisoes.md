@@ -201,7 +201,8 @@ da referência ([prestacao.md](prestacao.md)).
 | Quem aprova/devolve | qualquer usuário do módulo (sem separação) | igual (quem altera prestação) | referência — **confirmar** se a aprovação deve ser só da gestão |
 | Lista com campos | salvamento automático por campo | autosave por cartão (status no cartão); Enter grava; ação do cartão grava o digitado antes | referência + revisão de UX |
 | Ofício reaberto (rascunho) | prestação continuava visível | some da lista até a nova emissão (dados guardados); quem saiu da equipe não se altera pelo pk antigo | agente (coerente com "nasce na emissão") |
-| Rotina diária (saque vencendo, prestação vencida, véspera) | middleware no primeiro acesso do dia | pendente | — |
+| Rotina diária (saque vencendo, prestação vencida, documentos, chegada) | middleware no primeiro acesso do dia; uma vez por dia pelo cache compartilhado | middleware + comando `rodar_rotinas_diarias`; uma vez por dia pela marca única no banco (`RotinaDoDia`), já que não há cache compartilhado configurado; desligado nos testes (`ROTINAS_DIARIAS_NO_ACESSO`) | referência + agente (mecanismo) |
+| "Amanhã sai a viagem" | aviso para mandar o link do diário no celular | não sai (o PWA de campo não existe aqui) | agente |
 | Abas Finalizados/Contas prestadas | exclusivas com "vão acontecer"/"em andamento"; roteiro pelos ofícios dele, termo pelo ofício (avulso nunca), OS pelos ofícios, plano e viagem pelos ofícios da viagem | iguais; rótulo "Finalizadas" na OS (as abas dela são no feminino) | referência |
 | Ofícios: "Contas prestadas" | aba entre as de quando | as abas daqui são da situação do documento (D1): o emitido de contas prestadas continua também em "Emitidos" | agente (mantém D1) |
 

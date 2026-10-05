@@ -99,3 +99,25 @@ class LimiteDoCorpoMiddleware:
             return HttpResponse("Arquivo grande demais: envie até 15 MB.", status=413,
                                 content_type="text/plain; charset=utf-8")
         return self.get_response(request)
+
+
+class RotinasDiariasMiddleware:
+    """Dispara as rotinas diárias no primeiro acesso de usuário logado do dia (referência:
+    `RotinasDiariasMiddleware`). Depois da resposta pronta não dá (WSGI): roda antes, uma vez
+    por dia e protegida — uma falha não derruba a página."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.conf import settings
+        usuario = getattr(request, "user", None)
+        if (getattr(settings, "ROTINAS_DIARIAS_NO_ACESSO", True) and usuario is not None
+                and usuario.is_authenticated):
+            from .rotinas import rodar_se_for_hora
+            try:
+                rodar_se_for_hora()
+            except Exception:  # nunca derruba a página de quem abriu
+                import logging
+                logging.getLogger(__name__).exception("Rotinas diárias falharam.")
+        return self.get_response(request)

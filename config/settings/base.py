@@ -97,6 +97,8 @@ MIDDLEWARE = [
     "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "gestao.plataforma.middleware.ContextoAuditoriaMiddleware",
+    # Depois do contexto de auditoria: os avisos gravados saem com o usuário da requisição.
+    "gestao.plataforma.middleware.RotinasDiariasMiddleware",
     "gestao.plataforma.middleware.MedicaoServidorMiddleware",
 ]
 
