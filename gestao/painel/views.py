@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.urls import reverse
 from django.views.decorators.http import require_GET
 
+from gestao.plataforma import busca as busca_global
 from gestao.plataforma.navegacao import navegacao_para
 from gestao.viagens import policies as viagens_policies
 from gestao.viagens import queries as viagens_queries
-from gestao.viagens.services import buscar_por_texto
 
 # Módulos do sistema de referência ainda não migrados (Fase 19: um módulo por vez).
 FUTUROS = [
@@ -34,21 +33,9 @@ def inicio(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def busca(request: HttpRequest) -> JsonResponse:
-    """Resultados da paleta de comandos: ofícios visíveis ao usuário."""
-    termo = (request.GET.get("q") or "").strip()
-    resultados = []
-    if len(termo) >= 2:
-        qs = buscar_por_texto(viagens_policies.oficios_visiveis(request.user), termo)
-        for o in qs.select_related("unidade").order_by("-ano", "-numero")[:8]:
-            resultados.append({
-                "titulo": f"Ofício {o.numero_formatado}",
-                "meta": f"{o.get_situacao_display()} · {o.motivo[:60]}",
-                # Emitido ou cancelado não tem folha para abrir: a busca leva à lista
-                # filtrada nele, onde a janela de resumo mostra tudo.
-                "url": (reverse("viagens:editar", args=[o.pk]) if o.editavel
-                        else f"{reverse('viagens:oficios')}?q={o.numero_formatado}"),
-                "grupo": "Ofícios", "icone": "file-text",
-            })
-    return JsonResponse({"resultados": resultados})
+    """Resultados da paleta de comandos: as fontes que cada módulo registrou
+    (`plataforma.busca`), só as que a pessoa pode ver."""
+    return JsonResponse({"resultados": busca_global.buscar(request.user,
+                                                           request.GET.get("q") or "")})
 
 

@@ -159,6 +159,53 @@
   color: var(--cor-texto-secundario);
 }
 
+.agenda-item__hora {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--peso-semi);
+}
+
+/* ---------------- semana: sete colunas ---------------- */
+.agenda-semana {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-semana__dia {
+  min-height: 14rem;
+  padding: var(--esp-2);
+  border: var(--borda-sutil);
+}
+
+.agenda-semana__dia--hoje .agenda-dia__numero {
+  background: var(--cor-marca);
+  color: var(--cor-texto-inverso);
+}
+
+.agenda-semana__data {
+  margin: 0 0 var(--esp-1);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+.agenda-semana__data > a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  min-height: 1.75rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.agenda-semana__nome {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  text-transform: capitalize;
+}
+
 /* ---------------- lista do mês ---------------- */
 .agenda-lista {
   margin: 0;
@@ -200,6 +247,17 @@
   .agenda-dia--vazio,
   .agenda-dia--fora {
     display: none;
+  }
+
+  .agenda-semana {
+    display: block;
+  }
+
+  .agenda-semana__dia {
+    min-height: 0;
+    padding: var(--esp-2) var(--esp-4);
+    border: 0;
+    border-bottom: var(--borda-sutil);
   }
 
   .agenda-item {

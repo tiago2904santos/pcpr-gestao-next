@@ -23,7 +23,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import dominio, historico, policies, queries, services
+from . import conflitos, dominio, historico, policies, queries, services
 from .forms import (
     FORM_ID,
     FormularioAndamento,
@@ -182,6 +182,9 @@ def _contexto_folha(request: HttpRequest, form: FormularioPalestra, p: Palestra 
                                                             services.valores_dos_marcadores(p)))
                              for r in RespostaPadrao.objects.order_by("tipo")],
         "historico": historico.da_palestra(p),
+        # Aviso, não bloqueio: palestrante ocupado (outra palestra ou ofício) e pedido
+        # repetido para o mesmo município e data.
+        "avisos_agenda": conflitos.avisos_da_palestra(p),
         "migalhas": _migalhas(("Palestras e eventos", reverse("palestras:lista")), (str(p), "")),
     })
     return contexto

@@ -366,6 +366,8 @@ def test_agenda_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/agenda/")
     _avaliar(logado, "/agenda/?vista=lista")
+    _avaliar(logado, "/agenda/?vista=semana")
+    _avaliar(logado, "/agenda/?vista=dia")
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

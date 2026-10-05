@@ -90,3 +90,34 @@ def test_tela_mes_lista_filtros_e_cancelados(c):
     assert "Natal" in r.content.decode() and "dezembro de 2026" in r.content.decode().lower()
     r = cliente.get(reverse("painel:agenda"), {"mes": "2026-13"})  # mês inválido: o atual
     assert r.status_code == 200
+
+
+def test_semana_e_dia():
+    assert agenda.semana_de(date(2026, 10, 7)) == (date(2026, 10, 4), date(2026, 10, 10))
+    assert agenda.semana_de(date(2026, 10, 4)) == (date(2026, 10, 4), date(2026, 10, 10))
+    c1 = agenda.Compromisso("x", "1", "Dois dias", date(2026, 10, 9), date(2026, 10, 10))
+    dias = agenda.dias_entre(date(2026, 10, 4), date(2026, 10, 10), [c1], date(2026, 10, 9))
+    assert [d.data.day for d in dias if d.compromissos] == [9, 10]
+    assert next(d for d in dias if d.hoje).data == date(2026, 10, 9)
+
+
+def test_tela_semana_dia_e_navegacao(c):
+    hoje = timezone.localdate()
+    _viagem(c, hoje)
+    cliente = Client()
+    cliente.force_login(c.usuarios["operador"])
+    r = cliente.get(reverse("painel:agenda"), {"vista": "semana", "dia": hoje.isoformat()})
+    html = r.content.decode()
+    assert r.status_code == 200 and "Apoio à feira (teste)" in html
+    assert 'aria-label="Semana anterior"' in html and 'class="agenda-semana"' in html
+    domingo, _sabado = agenda.semana_de(hoje)
+    assert f"dia={(hoje - timedelta(days=7)).isoformat()}" in html
+    r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": hoje.isoformat()})
+    html = r.content.decode()
+    assert "Apoio à feira (teste)" in html and 'aria-label="Próximo dia"' in html
+    amanha = (hoje + timedelta(days=400)).isoformat()
+    r = cliente.get(reverse("painel:agenda"), {"vista": "dia", "dia": amanha})
+    assert "Nada na agenda neste dia" in r.content.decode()
+    r = cliente.get(reverse("painel:agenda"), {"vista": "semana", "dia": "lixo"})
+    assert r.status_code == 200  # dia inválido: hoje
+    assert domingo <= hoje

@@ -197,7 +197,8 @@ def test_conflito_de_agenda_e_aviso_nao_bloqueante(cenario):
                                                                 x.saida_em, x.chegada_em)
                                        for x in t])
     avisos = [p for p in services.verificar_prontidao(novo).pendencias if not p.bloqueia]
-    assert any("também está no Ofício" in p.mensagem for p in avisos)
+    assert any(f"já está no Ofício {base.numero_formatado}" in p.mensagem for p in avisos)
+    assert any(p.mensagem.startswith("Viatura ") for p in avisos)
 
 
 def test_trilha_de_auditoria_registra_autor_das_mudancas(cenario):

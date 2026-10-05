@@ -552,26 +552,10 @@ def nome_do_motorista(oficio: Oficio, viajantes=None) -> str:
 
 
 def conflitos_de_agenda(oficio: Oficio) -> list[str]:
-    """Avisos (não bloqueiam): servidor ou viatura em outro ofício no mesmo período."""
-    trechos = trechos_de(oficio)
-    if not trechos:
-        return []
-    inicio, fim = trechos[0].saida_em, trechos[-1].chegada_em
-    sobrepostos = (
-        Oficio.objects.exclude(pk=oficio.pk).exclude(situacao=Oficio.Situacao.CANCELADO)
-        .filter(trechos__saida_em__lt=fim, trechos__chegada_em__gt=inicio).distinct()
-    )
-    servidores = {v.servidor_id for v in viajantes_de(oficio)}
-    avisos = []
-    for outro in sobrepostos.prefetch_related("viajantes__servidor"):
-        for v in outro.viajantes.all():
-            if v.servidor_id in servidores:
-                avisos.append(f"{v.servidor} também está no Ofício {outro.numero_formatado} "
-                              "no mesmo período.")
-        if oficio.viatura is not None and outro.viatura_id == oficio.viatura_id:
-            avisos.append(f"A viatura {oficio.viatura.placa_formatada} também está no Ofício "
-                          f"{outro.numero_formatado} no mesmo período.")
-    return avisos
+    """Avisos (não bloqueiam): equipe, motorista ou viatura ocupados no mesmo período — em
+    outro ofício ou numa palestra (serviço de conflitos da plataforma, `conflitos.py`)."""
+    from .conflitos import avisos_do_oficio
+    return avisos_do_oficio(oficio)
 
 
 # ---------------------------------------------------------------- texto dos documentos (ADR 0018)

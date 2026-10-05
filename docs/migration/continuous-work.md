@@ -65,12 +65,13 @@ Ver a fila abaixo (primeiro item não concluído).
 | 14b | Rotina diária (plataforma.rotinas: registro por contexto, uma rodada por dia pela marca no banco, middleware no primeiro acesso + comando para cron) e avisos da prestação (saque vencido/vencendo sem comprovante, prestação vencida, documentos gerados/assinados, equipe chegou) | feito (sem "amanhã sai", que fala do PWA) |
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
-| 15b | Agenda A2: semana/dia, conflitos (mesma pessoa/viatura), "meus", ICS, pauta semanal | pendente |
+| 15b | Agenda A2a: semana/dia, conflitos entre módulos (ofício × palestra), busca global ([busca.md](busca.md)) | feito (A2a) |
+| 15c | Agenda A2b: "meus", dossiê, escala pessoa × dia, pauta semanal PDF, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
 | 16d | Palestras PL2: pedido público com acompanhamento (revisão de segurança), choque palestrante × viagem | pendente |
-| P | Trilhas paralelas: catálogos de Eventos Sociais; busca global; histórico de roteiros | pendente |
+| P | Trilhas paralelas: catálogos de Eventos Sociais; histórico de roteiros | pendente |
 
 ## Concluído (com evidência)
 

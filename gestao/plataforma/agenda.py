@@ -105,6 +105,28 @@ def semanas_do_mes(ano: int, mes: int, compromissos: list[Compromisso],
     return semanas
 
 
+def semana_de(dia: date) -> tuple[date, date]:
+    """Domingo e sábado da semana do dia (a semana da grade, como na referência)."""
+    domingo = dia - timedelta(days=(dia.weekday() + 1) % 7)
+    return domingo, domingo + timedelta(days=6)
+
+
+def dias_entre(inicio: date, fim: date, compromissos: list[Compromisso],
+               hoje: date) -> list[Dia]:
+    """Os dias de [inicio, fim] (visões de semana e de dia), cada um com os seus
+    compromissos na ordem recebida (por hora) e as faixas (feriados)."""
+    dias = []
+    d = inicio
+    while d <= fim:
+        dia = Dia(d, True, d == hoje)
+        for c in compromissos:
+            if c.toca(d):
+                (dia.faixas if c.faixa else dia.compromissos).append(c)
+        dias.append(dia)
+        d += timedelta(days=1)
+    return dias
+
+
 def periodo_da_grade(ano: int, mes: int) -> tuple[date, date]:
     grade = calendar.Calendar(firstweekday=calendar.SUNDAY).monthdatescalendar(ano, mes)
     return grade[0][0], grade[-1][-1]

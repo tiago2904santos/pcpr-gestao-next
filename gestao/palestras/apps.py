@@ -7,5 +7,7 @@ class PalestrasConfig(AppConfig):
     verbose_name = "Palestras e eventos"
 
     def ready(self) -> None:
-        from . import agenda, navegacao  # noqa: F401  (registra o módulo no menu)
+        from . import agenda, busca, conflitos, navegacao  # noqa: F401  (menu)
         agenda.registrar()
+        busca.registrar()
+        conflitos.registrar()

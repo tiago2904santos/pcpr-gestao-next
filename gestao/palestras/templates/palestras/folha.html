@@ -113,6 +113,13 @@ com o seu formulário.
       <h2 class="secao__titulo" id="t-palestra"><span class="secao__numero">3</span>Palestra</h2>
       <p class="secao__nota">Os temas e quem vai falar.{% if pode_gerir_cadastros %} <a href="{% url 'palestras:palestrantes' %}">Cadastrar palestrantes</a>{% endif %}</p>
     </div>
+    {% if avisos_agenda %}
+    <div class="alerta alerta--aviso" role="status" id="avisos-agenda">{% icone "alert-triangle" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">{{ avisos_agenda|length|pluralizar:"aviso de agenda,avisos de agenda" }}</p>
+      <ul class="checklist">{% for a in avisos_agenda %}<li class="checklist__item">{% if a.url %}<a href="{{ a.url }}">{{ a.mensagem }}</a>{% else %}{{ a.mensagem }}{% endif %}</li>{% endfor %}</ul>
+      <p class="texto-secundario texto-sm">É só um aviso: confira antes de confirmar a data.</p>
+    </div></div>
+    {% endif %}
     <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
       <legend class="sr-only">Temas e palestrantes</legend>
       <fieldset class="grupo-campos--livre">

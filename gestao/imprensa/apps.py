@@ -7,5 +7,6 @@ class ImprensaConfig(AppConfig):
     verbose_name = "Atendimento à imprensa"
 
     def ready(self) -> None:
-        from . import agenda, navegacao  # noqa: F401  (registra o módulo no menu)
+        from . import agenda, busca, navegacao  # noqa: F401  (registra o módulo no menu)
         agenda.registrar()
+        busca.registrar()
