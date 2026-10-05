@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, assinados, diario, policies
+from . import anexos, assinados, diario, pacote_prestacao, policies
 from . import prestacao as servico
 from .dominio import relatorio as dominio_rt
 from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, ViaAssinada
@@ -80,6 +80,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                         and a.tipo == AnexoPrestacao.Tipo.RT_ASSINADO), None),
             "esperado": dominio_rt.moeda(esperado) if esperado else "",
             "divergencia": (dominio_rt.moeda(div[0]), dominio_rt.moeda(div[1])) if div else None,
+            "falta_pacote": pacote_prestacao.pendencias_do_pacote(ps),
             "editavel": pode and not ps.finalizada})
     via = assinados.vigente(assinados.Alvo(ViaAssinada.Tipo.OFICIO, oficio))
     return render(request, "viagens/anexos/folha.html", {
@@ -130,6 +131,36 @@ def abrir(request: HttpRequest, anexo_pk: int) -> FileResponse:
                             filename=a.nome_original or f"{a.tipo}{ext}")
     resposta["Cache-Control"] = "no-store"
     resposta["X-Content-Type-Options"] = "nosniff"
+    return resposta
+
+
+@require_GET
+def pacote_servidor(request: HttpRequest, ps_pk: int) -> HttpResponse:
+    ps = get_object_or_404(servico.ativos(PrestacaoServidor.objects.select_related(
+        "servidor", "prestacao__oficio")), pk=ps_pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, ps.prestacao):
+        raise Http404
+    try:
+        conteudo = pacote_prestacao.pdf(ps)
+    except pacote_prestacao.PacoteIncompleto as exc:
+        messages.error(request, f"{ps.servidor.nome}: {exc}")
+        return redirect(_voltar(ps.prestacao, f"ps-{ps.pk}"))
+    resposta = HttpResponse(conteudo, content_type="application/pdf")
+    resposta["Content-Disposition"] = (
+        f'attachment; filename="{pacote_prestacao.nome_do_pdf(ps)}"')
+    return resposta
+
+
+@require_GET
+def pacote_equipe(request: HttpRequest, pk: int) -> HttpResponse:
+    p = _prestacao(request, pk)
+    conteudo, gerados = pacote_prestacao.zip_da_equipe(p)
+    if not gerados:
+        messages.error(request, "Nenhum servidor está com o pacote pronto: veja o que falta "
+                                "em cada um.")
+        return redirect(_voltar(p, "servidores"))
+    resposta = HttpResponse(conteudo, content_type="application/zip")
+    resposta["Content-Disposition"] = f'attachment; filename="{pacote_prestacao.nome_do_zip(p)}"'
     return resposta
 
 

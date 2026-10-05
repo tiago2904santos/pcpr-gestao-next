@@ -66,6 +66,7 @@ do servidor, com ele finalizado.
   <section class="secao" id="servidores" aria-labelledby="t-servidores">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-servidores"><span class="secao__numero">4</span>Por servidor</h2>
+      <div class="secao__estado"><a class="botao botao--sm" href="{% url 'viagens:pacote_equipe' p.pk %}">{% icone "files" %}Pacotes da equipe (ZIP)</a></div>
       <p class="secao__nota">Comprovantes de saque/transferência (a soma é conferida com a diária dele) e o relatório técnico assinado (sem ele, o <a href="{% url 'viagens:relatorio' p.pk %}">RT preenchido</a> vale).</p>
     </div>
     {% for s in servidores %}
@@ -73,6 +74,7 @@ do servidor, com ele finalizado.
       <header class="prestacao-equipe__cabecalho">
         <h3 class="prestacao-equipe__titulo" id="ps-{{ s.ps.pk }}-titulo">{{ s.ps.servidor.nome }}</h3>
         <div class="prestacao-equipe__meta"><span>Diária esperada: {{ s.esperado|default:"—" }}</span>{% if s.ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}</div>
+        <div class="prestacao-equipe__acoes">{% if s.falta_pacote %}<span class="texto-secundario texto-xs">Pacote final: {{ s.falta_pacote|join:" " }}</span>{% else %}<a class="botao botao--sm" href="{% url 'viagens:pacote_servidor' s.ps.pk %}">{% icone "download" %}Pacote final (PDF)<span class="sr-only"> de {{ s.ps.servidor.nome }}</span></a>{% endif %}</div>
       </header>
       <div class="pilha prestacao-servidor">
         {% if s.divergencia %}<p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Os comprovantes somam {{ s.divergencia.0 }}, e a diária deste servidor é {{ s.divergencia.1 }}.</span></p>{% endif %}

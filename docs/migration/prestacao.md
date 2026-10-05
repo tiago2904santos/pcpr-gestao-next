@@ -76,6 +76,16 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
   ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
 
+## 9d-2 — pacote final (05/10/2026)
+
+- `gestao/viagens/pacote_prestacao.py`: por servidor, na ordem oficial da referência —
+  ofício (via assinada; sem ela, o PDF emitido) → despacho(s) → RT (assinado; senão o
+  gerado) → diário (assinado; senão o gerado) → comprovante(s) pela data; imagens viram
+  página (Pillow). Sem nº, despacho ou comprovante não há pacote (`pendencias_consolidado`).
+  Nome "Prestação solicitação <nº> Ofício <n-ano> <primeiro nome> <destino> <data>.pdf" sem
+  acentos; ZIP da equipe com PENDENCIAS.txt de quem não está pronto.
+- Fora por agora: revisão página a página (ordem/giro/ocultas) e carimbo do número (9d-3).
+
 ## 9d-1 — anexos (05/10/2026)
 
 - `gestao/viagens/{anexos,views_anexos}.py`, folha `viagens/anexos/folha.html` (1 ofício
