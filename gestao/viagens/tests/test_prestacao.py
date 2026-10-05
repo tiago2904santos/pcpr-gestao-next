@@ -39,8 +39,21 @@ def _cliente(c, login: str) -> Client:
     return cliente
 
 
+def _preencher_diario(c, ps):
+    """O diário da equipe com km em todos os trechos (a finalização cobra)."""
+    from gestao.viagens import diario
+    d = diario.obter(ps.prestacao)
+    km = 10000
+    valores = {}
+    for linha in diario.linhas(d):
+        valores[linha.pk] = {"km_inicial": km, "km_final": km + 300}
+        km += 300
+    diario.salvar_linhas(c.usuarios["operador"], d.pk, valores)
+
+
 def _preencher(c, ps, numero="2026/0001", liberacao=date(2030, 1, 6),
                prazo=date(2030, 1, 9)):
+    _preencher_diario(c, ps)
     return prestacao.salvar_solicitacao(c.usuarios["operador"], ps.pk, numero=numero,
                                         liberacao=liberacao, prazo=prazo)
 
@@ -272,6 +285,7 @@ def test_anonimo_vai_para_a_entrada(client):
 # ------------------------------------------------------------------ tela
 def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
     a, b = _linhas(c)
+    _preencher_diario(c, a)
     op = _cliente(c, "operador")
     with django_assert_max_num_queries(30):
         r = op.get(reverse("viagens:prestacoes"))

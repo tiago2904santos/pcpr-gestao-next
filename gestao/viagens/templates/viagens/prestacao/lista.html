@@ -55,8 +55,9 @@ esperam as gravações pendentes (data-esperar-salvamento).
         <span>{{ b.linhas|length|pluralizar:"servidor,servidores" }}</span>
         {% if b.todas_finalizadas %}<span class="selo selo--sucesso selo--sem-ponto">Equipe finalizada</span>{% endif %}
       </div>
-      {% if b.editavel %}
       <div class="prestacao-equipe__acoes">
+        <a class="botao botao--sm botao--sutil" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}Diário de bordo</a>
+      {% if b.editavel %}
         {% if not b.todas_finalizadas %}
           <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button>
         {% elif b.por_enviar %}
@@ -70,8 +71,8 @@ esperam as gravações pendentes (data-esperar-salvamento).
             {% if b.alguma_arquivada %}<button type="submit" form="equipe-{{ p.pk }}-desarquivar" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar equipe</button>{% endif %}
           </div>
         </pc-menu>
-      </div>
       {% endif %}
+      </div>
     </header>
     <ul class="prestacao-equipe__servidores">
       {% for l in b.linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}

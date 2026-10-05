@@ -121,8 +121,11 @@ COLUNAS_PRESTACAO = ["Servidor", "Ofício", "Protocolo", "Solicitação", "Liber
 
 def planilha_de_prestacoes(linhas) -> bytes:
     """Prestações (referência: aba "Prestações", mesmas colunas)."""
-    from . import prestacao
+    from . import diario, prestacao
     from .dominio.prestacao import prazo_para_prestar
+
+    linhas = list(linhas)
+    com_diario = diario.preenchidos({ps.prestacao_id for ps in linhas})
 
     livro = Workbook()
     aba = livro.active or livro.create_sheet()
@@ -139,7 +142,7 @@ def planilha_de_prestacoes(linhas) -> bytes:
             ps.servidor.nome, oficio.numero_formatado, oficio.protocolo_formatado,
             ps.numero_solicitacao, ps.data_liberacao_diarias, ps.prazo_limite_saque,
             prazo_para_prestar(ps.prazo_limite_saque), prestacao.diaria_liberada(ps), situacao,
-            "; ".join(prestacao.pendencias(ps))]])
+            "; ".join(prestacao.pendencias(ps, ps.prestacao_id in com_diario))]])
     for linha_planilha in aba.iter_rows(min_row=2):
         for i in (4, 5, 6):
             linha_planilha[i].number_format = "DD/MM/YYYY"

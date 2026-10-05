@@ -1017,3 +1017,87 @@
 .metas-recursos > .secao__bloco {
   flex: 1 1 18rem;
 }
+
+/* Modos com campos próprios (diário de bordo: motorista e viatura). Só aparecem os campos
+   do modo marcado; sem :has, aparecem todos (o servidor limpa os que não valem). */
+.modos {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.modos__campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--esp-3);
+}
+
+@supports selector(:has(*)) {
+  .modos__campos { display: none; }
+  .modos:has(input[value="servidor"]:checked) .modos__campos[data-modo="servidor"],
+  .modos:has(input[value="outro_oficio"]:checked) .modos__campos[data-modo="outro_oficio"],
+  .modos:has(input[value="cadastro"]:checked) .modos__campos[data-modo="cadastro"],
+  .modos:has(input[value="manual"]:checked) .modos__campos[data-modo="manual"] {
+    display: grid;
+  }
+}
+
+/* Linhas do diário de bordo: a rota (com o número do trecho) e os três campos. */
+.diario-linhas {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diario-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-2) var(--esp-4);
+  padding: var(--esp-3) 0;
+  border-top: var(--borda-sutil);
+}
+
+.diario-linha:first-child {
+  border-top: 0;
+}
+
+.diario-linha__rota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+}
+
+.diario-linha__rota p {
+  margin: 0;
+}
+
+.diario-linha__numero {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-sutil);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+
+.diario-linha__campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: var(--esp-2) var(--esp-3);
+}
+
+@media (min-width: 1024px) {
+  .diario-linha {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: center;
+  }
+}

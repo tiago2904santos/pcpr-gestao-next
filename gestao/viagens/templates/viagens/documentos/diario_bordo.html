@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ d.titulo }}</title>
+{% comment %}
+Diário de bordo da viatura (paridade com o documento da referência: cabeçalho com ofício e
+protocolo do motorista, viatura, placa, combustível, motorista e CPF; uma linha por trecho com
+datas, horas, km e necessidade de abastecimento). Dados em diario.dados_do_documento.
+{% endcomment %}
+<style>
+  @font-face { font-family: "Doc Serif"; src: url("{{ fontes.regular }}"); }
+  @font-face { font-family: "Doc Serif"; font-weight: bold; src: url("{{ fontes.negrito }}"); }
+  @page { size: A4 landscape; margin: 14mm 14mm 18mm 14mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Doc Serif", serif; font-size: 10pt; color: #000; }
+  body { margin: 0; }
+  header.timbre { text-align: center; margin-bottom: 4mm; }
+  header.timbre img { height: 15mm; display: block; margin: 0 auto 1mm; }
+  header.timbre p { margin: 0; font-weight: bold; font-size: 9pt; }
+  h1 { font-size: 13pt; text-align: center; margin: 2mm 0 4mm; letter-spacing: 0.08em; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 0.6pt solid #000; padding: 1.6mm 2mm; vertical-align: middle; }
+  th { background: #e8e8e8; font-size: 8.5pt; }
+  table.cabecalho { margin-bottom: 4mm; }
+  table.cabecalho th { text-align: left; width: 18%; }
+  table.trechos td { text-align: center; font-size: 9pt; }
+  table.trechos td.cidade { text-align: left; }
+  .assinatura { margin-top: 14mm; text-align: center; }
+  .assinatura p { margin: 0; }
+  .linha-assinatura { display: inline-block; min-width: 90mm; border-top: 0.6pt solid #000; padding-top: 1mm; }
+  .rodape { position: running(rodape); text-align: center; font-size: 7pt; font-style: italic; }
+</style>
+</head>
+<body>
+  <div class="rodape">{{ d.rodape }}</div>
+  <header class="timbre">
+    <img src="{{ brasao }}" alt="Brasão da Polícia Civil do Paraná">
+    <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+    <p>POLÍCIA CIVIL DO PARANÁ</p>
+    <p>{{ d.unidade }}</p>
+  </header>
+  <main>
+    <h1>DIÁRIO DE BORDO</h1>
+    <table class="cabecalho">
+      <tr><th scope="row">Ofício do motorista</th><td>{{ d.oficio_motorista }}{% if d.ano %}/{{ d.ano }}{% endif %}</td><th scope="row">Protocolo</th><td>{{ d.protocolo }}</td></tr>
+      <tr><th scope="row">Viatura</th><td>{{ d.viatura }}</td><th scope="row">Placa</th><td>{{ d.placa }}</td></tr>
+      <tr><th scope="row">Combustível</th><td>{{ d.combustivel }}</td><th scope="row">Placa reservada</th><td></td></tr>
+      <tr><th scope="row">Motorista</th><td>{{ d.motorista }}</td><th scope="row">CPF</th><td>{{ d.cpf }}</td></tr>
+    </table>
+    <table class="trechos">
+      <thead>
+        <tr><th scope="col">Data saída</th><th scope="col">Hora saída</th><th scope="col">Km inicial</th><th scope="col">Data chegada</th><th scope="col">Hora chegada</th><th scope="col">Km final</th><th scope="col">Origem</th><th scope="col">Destino</th><th scope="col">Abastecimento</th></tr>
+      </thead>
+      <tbody>
+        {% for l in d.linhas %}<tr><td>{{ l.data_saida }}</td><td>{{ l.hora_saida }}</td><td>{{ l.km_inicial }}</td><td>{{ l.data_chegada }}</td><td>{{ l.hora_chegada }}</td><td>{{ l.km_final }}</td><td class="cidade">{{ l.origem }}</td><td class="cidade">{{ l.destino }}</td><td>{{ l.abastecimento }}</td></tr>
+        {% empty %}<tr><td colspan="9">Sem trechos no ofício.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    <div class="assinatura"><p><span class="linha-assinatura">{{ d.motorista|default:"Motorista" }}</span></p><p>Motorista</p></div>
+  </main>
+</body>
+</html>

@@ -24,6 +24,7 @@
       <li class="etapas__item"><a href="#pecas-formulario"><span class="etapas__marcador">12</span>Peças do formulário</a></li>
       <li class="etapas__item"><a href="#editor"><span class="etapas__marcador">13</span>Editor de documento</a></li>
       <li class="etapas__item"><a href="#equipe-prestacao"><span class="etapas__marcador">14</span>Equipe da prestação</a></li>
+      <li class="etapas__item"><a href="#diario-bordo"><span class="etapas__marcador">15</span>Diário de bordo</a></li>
     </ol>
   </nav>
 
@@ -607,6 +608,35 @@
             </li>
           </ul>
         </article>
+      </div>
+    </section>
+
+    <!-- 15. DIÁRIO DE BORDO: MODOS E LINHAS -->
+    <section class="cartao" id="diario-bordo" aria-labelledby="t-diario-bordo">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-diario-bordo"><span class="cartao__numero">15</span>Diário de bordo: modos e linhas</h2><span class="texto-secundario texto-sm">Modos com campos próprios (só aparecem os do modo marcado) e uma linha por trecho com rota, horários, previsto e os três campos.</span></div>
+      <div class="cartao__corpo pilha-lg">
+        <fieldset class="modos">
+          <legend class="campo__rotulo">Motorista</legend>
+          <div class="opcoes">
+            <label class="opcao"><input type="radio" name="lab-modo" value="oficio" checked><span>Manter o motorista do ofício</span></label>
+            <label class="opcao"><input type="radio" name="lab-modo" value="outro_oficio"><span>Motorista de outro ofício</span></label>
+          </div>
+          <div class="modos__campos" data-modo="outro_oficio">
+            <div class="campo"><label class="campo__rotulo" for="lab-mot-nome">Nome do motorista</label><input class="entrada" id="lab-mot-nome"></div>
+            <div class="campo"><label class="campo__rotulo" for="lab-mot-oficio">Ofício do motorista</label><input class="entrada" id="lab-mot-oficio" placeholder="15/2026"></div>
+          </div>
+        </fieldset>
+        <ol class="diario-linhas">
+          <li class="diario-linha">
+            <div class="diario-linha__rota"><span class="diario-linha__numero" aria-hidden="true">1</span><div><p class="peso-semi">Curitiba/PR → Londrina/PR</p><p class="texto-secundario texto-xs">07/10/2026 08:00 → 07/10/2026 13:30 · previsto 380 km</p></div></div>
+            <div class="diario-linha__campos">
+              <div class="campo"><label class="campo__rotulo" for="lab-km-i">Km de saída</label><input class="entrada" id="lab-km-i" value="40000" inputmode="numeric"></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-km-f">Km de chegada</label><input class="entrada" id="lab-km-f" value="40385" inputmode="numeric"></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-abast">Abastecimento</label><select class="selecao" id="lab-abast"><option>Sim</option><option>Não</option></select></div>
+            </div>
+          </li>
+        </ol>
+        <p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Londrina/PR → Curitiba/PR: o km de saída (40.300) é menor que o de chegada do trecho anterior (40.385) — o hodômetro voltou para trás.</span></p>
       </div>
     </section>
 </div>

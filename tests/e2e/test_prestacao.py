@@ -11,10 +11,17 @@ pytestmark = pytest.mark.e2e
 
 
 def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import diario
     from gestao.viagens.models import PrestacaoServidor
 
     a, b = PrestacaoServidor.objects.filter(
         prestacao__oficio_id=dados_e2e.ids["oficio_emitido"]).order_by("servidor__nome")
+    # O diário de bordo da equipe preenchido (a finalização também cobra).
+    d = diario.obter(a.prestacao)
+    diario.salvar_linhas(Usuario.objects.get(login="operador"), d.pk, {
+        linha.pk: {"km_inicial": 10000 + i * 400, "km_final": 10300 + i * 400}
+        for i, linha in enumerate(diario.linhas(d))})
     pg = logado
     pg.goto("/viagens/prestacoes/")
     cartao = pg.locator(f"#ps-{a.pk}")

@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "plataforma_notificacao", "viagens_prestacaoservidor", "viagens_prestacaocontas",
+    "plataforma_notificacao", "viagens_diariobordotrecho", "viagens_diariobordo",
+    "viagens_prestacaoservidor", "viagens_prestacaocontas",
     "viagens_viagemdestino", "viagens_viagem",
     "cadastros_tipoviagem", "viagens_viaassinada", "viagens_historico", "viagens_documento",
     "viagens_edicaodocumento", "viagens_trecho",
@@ -840,7 +841,7 @@ class _Gerador:
         vencendo, prestação vencida, equipe finalizada, enviada, devolvida e arquivada."""
         from django.core.exceptions import PermissionDenied
 
-        from . import prestacao
+        from . import diario, prestacao
         from .models import PrestacaoServidor
 
         ascom = self.unidades[0]
@@ -863,8 +864,20 @@ class _Gerador:
             prestacao.salvar_solicitacao(autor, ps.pk, numero=f"{h.year}/{n:04d}",
                                          liberacao=liberacao, prazo=prazo)
 
+        def diario_preenchido(ps, inicio):
+            d = diario.obter(ps.prestacao)
+            km = inicio
+            valores = {}
+            for linha in diario.linhas(d):
+                rodado = diario.prevista(linha) or 120
+                valores[linha.pk] = {"km_inicial": km, "km_final": km + rodado}
+                km += rodado + 4
+            diario.salvar_linhas(autor, d.pk, valores)
+
         try:
             for i, linhas in enumerate(equipes.values()):
+                if i in (0, 2, 3, 4):  # diário preenchido (as finalizadas exigem)
+                    diario_preenchido(linhas[0], 40_000 + i * 3_000)
                 for j, ps in enumerate(linhas):
                     n = 100 + i * 10 + j
                     if i == 0:  # saque vencendo
@@ -882,7 +895,7 @@ class _Gerador:
                 if i == 4:
                     prestacao.devolver(autor, linhas[0].pk,
                                        "Comprovante do saque ilegível; anexe de novo (DEMO).")
-        except (PermissionDenied, prestacao.PrestacaoInvalida):
+        except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido):
             return  # base sem os papéis (testes de unidade)
 
     def planos_para_avaliar(self) -> None:

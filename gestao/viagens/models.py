@@ -1264,3 +1264,78 @@ class PrestacaoServidor(models.Model):
     @property
     def arquivada(self) -> bool:
         return self.arquivada_em is not None
+
+
+class DiarioBordo(models.Model):
+    """Diário de bordo da viatura, um por prestação (a equipe compartilha). As linhas
+    espelham os trechos do ofício; motorista e viatura podem ser trocados só aqui (o ofício
+    não muda). Paridade: `DiarioBordo` da referência (docs/migration/prestacao.md)."""
+
+    class Motorista(models.TextChoices):
+        OFICIO = "oficio", "Manter o motorista do ofício"
+        SERVIDOR = "servidor", "Outro servidor deste ofício"
+        OUTRO = "outro_oficio", "Motorista de outro ofício"
+
+    class ViaturaModo(models.TextChoices):
+        OFICIO = "oficio", "Manter a viatura do ofício"
+        CADASTRO = "cadastro", "Escolher do cadastro"
+        MANUAL = "manual", "Preencher à mão"
+
+    prestacao = models.OneToOneField(PrestacaoContas, on_delete=models.PROTECT,
+                                     related_name="diario")
+    motorista_modo = models.CharField(max_length=12, choices=Motorista.choices,
+                                      default=Motorista.OFICIO)
+    motorista_servidor = models.ForeignKey(Servidor, on_delete=models.PROTECT, null=True,
+                                           blank=True, related_name="+")
+    motorista_nome = models.CharField("nome do motorista", max_length=255, blank=True)
+    motorista_cpf = models.CharField("CPF do motorista", max_length=11, blank=True)
+    motorista_oficio = models.CharField("ofício do motorista", max_length=16, blank=True)
+    motorista_protocolo = models.CharField("protocolo do motorista", max_length=30,
+                                           blank=True)
+    viatura_modo = models.CharField(max_length=10, choices=ViaturaModo.choices,
+                                    default=ViaturaModo.OFICIO)
+    viatura = models.ForeignKey(Viatura, on_delete=models.PROTECT, null=True, blank=True,
+                                related_name="+")
+    viatura_modelo = models.CharField("modelo", max_length=120, blank=True)
+    viatura_placa = models.CharField("placa", max_length=8, blank=True)
+    viatura_tipo = models.CharField("tipo", max_length=20, choices=Viatura.Tipo.choices,
+                                    blank=True)
+    viatura_combustivel = models.CharField("combustível", max_length=60, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "diário de bordo"
+        verbose_name_plural = "diários de bordo"
+
+    def __str__(self) -> str:
+        return f"Diário de bordo — {self.prestacao.oficio}"
+
+
+class DiarioBordoTrecho(models.Model):
+    diario = models.ForeignKey(DiarioBordo, on_delete=models.CASCADE, related_name="linhas")
+    # Trecho refeito no ofício: a linha fica (guarda os km) e o diário a reaproveita.
+    trecho = models.ForeignKey(Trecho, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name="+")
+    ordem = models.PositiveIntegerField(default=0)
+    km_inicial = models.PositiveIntegerField("km inicial", null=True, blank=True)
+    km_final = models.PositiveIntegerField("km final", null=True, blank=True)
+    abastecimento = models.BooleanField("necessidade de abastecimento", null=True,
+                                        blank=True, default=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["diario", "ordem", "pk"]
+        verbose_name = "trecho do diário de bordo"
+        verbose_name_plural = "trechos do diário de bordo"
+        constraints = [
+            models.UniqueConstraint(fields=["diario", "ordem"], name="diario_linha_ordem_unica"),
+            models.CheckConstraint(
+                condition=Q(km_inicial__isnull=True) | Q(km_final__isnull=True)
+                | Q(km_final__gte=models.F("km_inicial")),
+                name="diario_km_final_depois_do_inicial",
+                violation_error_message="O km final não pode ser menor que o km inicial."),
+        ]
+
+    def __str__(self) -> str:
+        return f"Trecho {self.ordem + 1} — {self.diario}"

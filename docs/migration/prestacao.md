@@ -62,6 +62,20 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
   devolvida): a trilha do banco já guarda; a linha do tempo na tela fica para a página do
   servidor (9d). Até lá, a justificativa da última finalização aparece no cartão.
 
+## 9b — diário de bordo (05/10/2026)
+
+- `gestao/viagens/{diario,views_diario}.py`, `dominio/diario.py`, folha
+  `viagens/diario/folha.html` (placa, frase-resumo, 1 motorista e viatura, 2 trechos com
+  autosave, 3 conferência), documento `documentos/diario_bordo.html` (A4 paisagem) e
+  planilha; UI Lab §15. Da referência: uma linha por trecho (guarda o digitado quando o
+  trecho é refeito), abastecimento padrão "Sim", km final ≥ inicial (única regra que
+  impede), avisos do hodômetro (voltou para trás; fora de 20%/mín. 10 km; menor que o último
+  km da viatura), troca de motorista (3 modos) e viatura (3 modos) só no diário, trava com a
+  equipe toda finalizada, pendência "Preencha o km de todos os trechos do diário de bordo, ou
+  anexe o diário assinado." Exigido mesmo sem viatura no ofício (como a referência).
+- Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
+  ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
+
 ## Fora ou simulado
 
 eProtocolo (consulta de andamento: simulada), importação do processo em PDF/OCR, posição
