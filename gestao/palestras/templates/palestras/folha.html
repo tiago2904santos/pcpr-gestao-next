@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if palestra %}{{ palestra }} · {{ palestra.solicitante|truncatechars:40 }}{% else %}Nova palestra{% endif %} · Palestras{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha da palestra ou evento (paridade com a tela da referência), na linguagem da folha do
+ofício: placa e frase no cabeçalho; cartões 1 Pedido, 2 Evento e 3 Palestra no formulário
+que se grava sozinho (o próprio <form> é a pilha de cartões); depois 4 Resposta ao
+solicitante (resposta padrão com os dados da palestra; a última enviada abre no e-mail ou
+no WhatsApp) e 5 Andamento (etapas, novo status com o que ele pede e o histórico), cada um
+com o seu formulário.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">{% if palestra %}{{ palestra.get_evento_display|truncatechars:12 }}{% else %}Palestra{% endif %}</span>
+    <span class="placa__numero">{% if palestra %}#{{ palestra.pk }}{% else %}nova{% endif %}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="{% if palestra %}pagina-cabecalho__titulo{% else %}sr-only{% endif %}">{% if palestra %}{{ palestra.solicitante }}{% else %}Nova palestra ou evento{% endif %}</h1>
+    {% if palestra %}
+    <p class="frase-oficio" id="frase-palestra">
+      <span class="sr-only">Resumo: </span>
+      <span class="selo selo--{{ palestra.tom }}">{{ palestra.get_status_display }}</span>
+      {% if quando %}<span class="selo selo--{{ quando.tom }} selo--sem-ponto">{{ quando.texto }}</span>{% endif %}
+      <span class="frase-oficio__item">{% icone "presentation" classe="icone--sm" %}{{ palestra.get_evento_display }}</span>
+      <span class="frase-oficio__item{% if not palestra.periodo %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ palestra.periodo|default:"data à definir" }}</span>
+      <span class="frase-oficio__item{% if not palestra.municipio %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{% if palestra.municipio %}{{ palestra.municipio.nome }}/{{ palestra.municipio.uf }}{% else %}sem município{% endif %}</span>
+      {% with n=palestra.palestrantes.all|length %}<span class="frase-oficio__item{% if not n %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"palestrante,palestrantes" }}{% else %}sem palestrante{% endif %}</span>{% endwith %}
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">Registre o pedido como chegou. Depois de criada, a palestra se grava sozinha; a resposta ao solicitante e o status ficam nos cartões de baixo.</p>
+    {% endif %}
+  </div>
+  {% if palestra %}
+  <div class="pagina-cabecalho__acoes">
+    {% if editavel %}<a class="botao" href="#resposta">{% icone "mail" %}Responder</a><a class="botao" href="#andamento">{% icone "activity" %}Andamento</a>{% endif %}
+  </div>
+  {% endif %}
+</header>
+
+{% include "componentes/resumo_erros.html" %}
+<datalist id="solicitantes">{% for s in solicitantes %}<option value="{{ s }}">{% endfor %}</datalist>
+
+<form method="post" novalidate id="{{ form_id }}" class="documento documento--cartoes" data-proteger{% if palestra and editavel %} data-autosave="{% url 'palestras:autosave' palestra.pk %}"{% endif %} action="{% if palestra %}{% url 'palestras:palestra' palestra.pk %}{% else %}{% url 'palestras:nova' %}{% endif %}">
+  {% csrf_token %}
+
+  {# 1. Pedido. #}
+  <section class="secao{% if palestra %} secao--ok{% endif %}" id="pedido" aria-labelledby="t-pedido">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-pedido"><span class="secao__numero">1</span>Pedido</h2>
+      <p class="secao__nota">Quem pediu, como chegou e o que pediu.</p>
+    </div>
+    <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
+      <legend class="sr-only">Pedido</legend>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data_solicitacao classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.canal_solicitacao classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.solicitante %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.telefone classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.email classe="campo--lg" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.assunto_email %}
+      {% include "componentes/campo.html" with campo=form.pedido_contato %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.informacoes_previas classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.descricao classe="campo--lg" %}
+      </div>
+    </fieldset>
+  </section>
+
+  {# 2. Evento. #}
+  <section class="secao{% if palestra.data_inicio_evento and palestra.municipio %} secao--ok{% endif %}" id="evento" aria-labelledby="t-evento">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-evento"><span class="secao__numero">2</span>Evento</h2>
+      <div class="secao__estado">{% if palestra and not palestra.data_inicio_evento %}<span class="selo selo--aviso selo--sem-ponto">Data à definir</span>{% endif %}</div>
+      <p class="secao__nota">Quando, onde e para quantas pessoas.</p>
+    </div>
+    <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
+      <legend class="sr-only">Evento</legend>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.evento classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.data_inicio_evento classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.data_fim_evento classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.hora_inicio classe="campo--sm" %}
+      </div>
+      <div class="campos">
+        <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}</label>
+          <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
+            <div class="entrada-composta">{{ form.municipio|campo_acessivel:"" }}</div>
+          </pc-combobox>
+          {% if form.municipio.errors %}<p class="campo__erro" id="{{ form.municipio.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.municipio.errors|join:" " }}</span></p>{% endif %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.local classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.endereco classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.bairro classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.cep classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.quantidade_publico classe="campo--sm" %}
+      </div>
+    </fieldset>
+  </section>
+
+  {# 3. Palestra. #}
+  <section class="secao{% if palestra.palestrantes.all %} secao--ok{% endif %}" id="palestra" aria-labelledby="t-palestra">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-palestra"><span class="secao__numero">3</span>Palestra</h2>
+      <p class="secao__nota">Os temas e quem vai falar.{% if pode_gerir_cadastros %} <a href="{% url 'palestras:palestrantes' %}">Cadastrar palestrantes</a>{% endif %}</p>
+    </div>
+    <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
+      <legend class="sr-only">Temas e palestrantes</legend>
+      <fieldset class="grupo-campos--livre">
+        <legend class="campo__rotulo">Temas</legend>
+        {{ form.temas }}
+      </fieldset>
+      <div class="campo">
+        <label class="campo__rotulo" for="{{ form.palestrantes.id_for_label }}">Palestrantes</label>
+        {{ form.palestrantes }}
+        {% if form.palestrantes.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.palestrantes.errors|join:" " }}</span></p>{% endif %}
+      </div>
+    </fieldset>
+  </section>
+</form>
+
+{% if palestra %}
+<div class="documento documento--cartoes mt-6">
+  {# 4. Resposta ao solicitante. #}
+  <section class="secao{% if palestra.respostas.all %} secao--ok{% endif %}" id="resposta" aria-labelledby="t-resposta">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-resposta"><span class="secao__numero">4</span>Resposta ao solicitante</h2>
+      <p class="secao__nota">A resposta padrão já vem com os dados desta palestra (solicitante, data, horário, município, palestrante, tema). Ajuste se precisar e registre; depois é só abrir no e-mail ou no WhatsApp.</p>
+    </div>
+    {% with ultima=palestra.respostas.all|first %}
+    {% if ultima %}
+    <div class="alerta alerta--sucesso" role="status">{% icone "send" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">Última resposta registrada: {{ ultima.tipo }} ({{ ultima.em|date:"d/m/Y H:i" }})</p>
+      <div class="linha mt-2">
+        {% if palestra.email %}<a class="botao botao--sm" href="mailto:{{ palestra.email }}?subject={{ palestra.assunto_email|default:'Palestra — PCPR'|urlencode }}&amp;body={{ ultima.texto|urlencode }}">{% icone "mail" %}Abrir no e-mail</a>{% endif %}
+        {% if palestra.telefone %}<a class="botao botao--sm" href="https://wa.me/55{{ palestra.telefone|cut:'('|cut:')'|cut:' '|cut:'-' }}?text={{ ultima.texto|urlencode }}" target="_blank" rel="noopener noreferrer">{% icone "phone" %}Abrir no WhatsApp<span class="sr-only"> (nova aba)</span></a>{% endif %}
+        {% if not palestra.email and not palestra.telefone %}<span class="texto-secundario texto-sm">Sem e-mail ou telefone no pedido: copie o texto.</span>{% endif %}
+      </div>
+    </div></div>
+    {% endif %}
+    {% endwith %}
+    {% if editavel %}
+      {% if respostas_padrao %}
+      <form method="post" action="{% url 'palestras:responder' palestra.pk %}" class="pilha mt-4" novalidate>
+        {% csrf_token %}
+        <div class="texto-pronto" data-texto-pronto data-alvo="id_texto">
+          <div class="campo campo--lg{% if resposta.resposta.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="id_resposta">Resposta padrão</label>
+            <pc-select class="seletor"><select class="selecao" id="id_resposta" name="resposta" required>
+              <option value="">Escolha a resposta</option>
+              {% for r, texto in respostas_padrao %}<option value="{{ r.pk }}" data-texto="{{ texto }}"{% if resposta.resposta.value|stringformat:'s' == r.pk|stringformat:'s' %} selected{% endif %}>{{ r.tipo }}</option>{% endfor %}
+            </select></pc-select>
+            {% if resposta.resposta.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ resposta.resposta.errors|join:" " }}</span></p>{% endif %}
+          </div>
+        </div>
+        {% include "componentes/campo.html" with campo=resposta.texto %}
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=resposta.novo_status classe="campo--md" %}
+          <div class="campo campo--auto"><span class="campo__rotulo" aria-hidden="true">&nbsp;</span><button type="submit" class="botao botao--primario">{% icone "send" %}Registrar resposta</button></div>
+        </div>
+      </form>
+      {% else %}
+      <p class="vazio-inline">{% icone "mail" classe="icone--sm" %}Nenhuma resposta padrão cadastrada.{% if pode_gerir_cadastros %} <a href="{% url 'palestras:respostas' %}">Cadastrar respostas padrão</a>{% endif %}</p>
+      {% endif %}
+    {% endif %}
+  </section>
+
+  {# 5. Andamento. #}
+  <section class="secao{% if not palestra.aberta %} secao--ok{% endif %}" id="andamento" aria-labelledby="t-andamento">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-andamento"><span class="secao__numero">5</span>Andamento</h2>
+      <div class="secao__estado"><span class="selo selo--{{ palestra.tom }} selo--sem-ponto">{{ palestra.get_status_display }}</span></div>
+      <p class="secao__nota">{{ dica_atual }}.{% if ultima_anotacao %} Última anotação: “{{ ultima_anotacao }}”.{% endif %}</p>
+    </div>
+    <ol class="etapas-progresso" aria-label="Etapas da palestra">
+      {% for e in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ e.estado }}"{% if e.estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if e.estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ e.titulo }}</span>{% if e.estado == "concluido" %}<span class="sr-only"> (concluída)</span>{% endif %}</li>{% endfor %}
+    </ol>
+    {% if editavel %}
+    <form method="post" action="{% url 'palestras:andamento' palestra.pk %}" class="pilha mt-4" novalidate>
+      {% csrf_token %}
+      <fieldset class="opcoes"{% if andamento.novo_status.errors %} aria-describedby="andamento-erro"{% endif %}>
+        <legend>Novo status</legend>
+        {% for valor, rotulo, dica in opcoes_status %}
+        <label class="opcao"><input type="radio" name="novo_status" value="{{ valor }}"{% if andamento.novo_status.value == valor %} checked{% endif %}><span class="opcao__texto"><span class="opcao__titulo">{{ rotulo }}</span><span class="opcao__descricao">{{ dica }}</span></span></label>
+        {% endfor %}
+      </fieldset>
+      {% if andamento.novo_status.errors %}<p class="campo__erro" id="andamento-erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ andamento.novo_status.errors|join:" " }}</span></p>{% endif %}
+      {% if faltas.data or faltas.palestrante or faltas.publico %}
+      <div class="campos">
+        {% if faltas.data %}{% include "componentes/campo.html" with campo=andamento.data_evento classe="campo--md" ajuda="Para Agendada ou Atendida." %}{% endif %}
+        {% if faltas.palestrante %}{% include "componentes/campo.html" with campo=andamento.palestrante classe="campo--lg" ajuda="Para Agendada." %}{% endif %}
+        {% if faltas.publico %}{% include "componentes/campo.html" with campo=andamento.quantidade_publico classe="campo--sm" ajuda="Para Atendida." %}{% endif %}
+      </div>
+      {% endif %}
+      {% include "componentes/campo.html" with campo=andamento.anotacao ajuda="Vai para o histórico." %}
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "activity" %}Registrar andamento</button></div>
+    </form>
+    {% endif %}
+
+    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
+        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+      </div>
+      <ol class="historico__linhas" aria-label="Eventos da palestra">
+        {% for h in historico %}
+        <li class="historico__linha{% if h.acao == 'andamento' or h.acao == 'resposta' %} historico__linha--marca{% endif %}">
+          <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+          <span class="historico__texto">{{ h.descricao }}</span>
+          <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>
+        </li>
+        {% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+      </ol>
+    </div>
+  </section>
+</div>
+{% endif %}
+
+{% if editavel %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if palestra %}Gravando as alterações…{% else %}Alterações não salvas — registre a palestra antes de sair.{% endif %}" role="status">
+    {% if palestra %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
+    {% else %}<span data-anuncio>Para registrar: data da solicitação e solicitante.</span>{% endif %}
+  </div>
+  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+  {% if palestra %}
+    <button type="submit" form="{{ form_id }}" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
+  {% else %}
+    <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar palestra</button>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

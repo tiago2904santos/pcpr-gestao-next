@@ -69,6 +69,9 @@ TABELAS = (
     "imprensa_andamento", "imprensa_atendimento", "imprensa_integrante", "imprensa_veiculo",
     "publicacoes_andamento", "publicacoes_publicacao", "publicacoes_integrante",
     "publicacoes_unidaderesponsavel",
+    "palestras_respostaenviada", "palestras_andamento", "palestras_palestra_temas",
+    "palestras_palestra_palestrantes", "palestras_palestra", "palestras_palestrante",
+    "palestras_tema", "palestras_respostapadrao",
     "plataforma_notificacao", "viagens_trechorealizado", "viagens_anexoprestacao",
     "viagens_relatoriotecnico",
     "viagens_diariobordotrecho", "viagens_diariobordo",
@@ -363,6 +366,7 @@ class _Gerador:
         # E atende a imprensa (módulo da ASCOM), para as telas dele poderem ser avaliadas.
         self.demo.groups.add(Group.objects.get(name="ASCOM_IMPRENSA"))
         self.demo.groups.add(Group.objects.get(name="ASCOM_PUBLICACOES"))
+        self.demo.groups.add(Group.objects.get(name="ASCOM_PALESTRAS"))
         for i, unidade in enumerate(self.unidades):
             nome = f"{PRENOMES[(i * 11 + 3) % len(PRENOMES)]} {SOBRENOMES[(i * 3 + 1) % 46]}"
             self.operadores[unidade.pk] = criar(f"op.{unidade.sigla.lower()}", nome, operador,
@@ -1084,6 +1088,8 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     imprensa_demo.semear(gerador.demo, gerador.hoje)
     from gestao.publicacoes import demonstracao as publicacoes_demo
     publicacoes_demo.semear(gerador.demo, gerador.hoje)
+    from gestao.palestras import demonstracao as palestras_demo
+    palestras_demo.semear(gerador.demo, gerador.hoje)
     return resumo(len(oficios))
 
 

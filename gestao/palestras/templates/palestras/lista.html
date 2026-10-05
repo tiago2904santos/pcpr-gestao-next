@@ -1,0 +1,80 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Palestras e eventos{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block titulo_lista %}Palestras e eventos{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos de palestras, da PCPR na Comunidade e de eventos: quando, onde, quem fala e como está.</p>{% endblock %}
+{% block acoes_lista %}
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+{% if pode_criar %}<a class="botao botao--primario" href="{% url 'palestras:nova' %}">{% icone "plus" %}Nova palestra</a>{% endif %}
+{% endblock %}
+{% comment %}
+Paridade com a lista da referência: status como abas (com contagens que respeitam a busca e
+os filtros), tipo de evento, tema e período da solicitação; busca em solicitante,
+descrição, pedido, assunto, palestrante, protocolo, telefone, e-mail, município, tema e
+local; exportação CSV com as colunas da planilha.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Status">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}status={{ chave }}{% if qs_sem_status %}&amp;{% endif %}{% endif %}{{ qs_sem_status }}"{% if chave == filtros.status %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'palestras:lista' %}">
+  {% if filtros.status %}<input type="hidden" name="status" value="{{ filtros.status }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-palestras">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-palestras" type="search" name="q" value="{{ filtros.q }}" placeholder="Solicitante, município, palestrante, tema, protocolo…" autocomplete="off"></div>
+  </div>
+  <div class="campo filtros__campo">
+    <label class="campo__rotulo" for="filtro-evento">Tipo de evento</label>
+    <pc-select class="seletor"><select class="selecao" id="filtro-evento" name="evento"><option value="">Todos</option>{% for valor, rotulo in tipos_evento %}<option value="{{ valor }}"{% if filtros.evento == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <details class="filtros__mais" id="filtros-mais"{% if filtros.ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if filtros.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ filtros.ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-tema">Tema</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-tema" name="tema"><option value="">Todos</option>{% for t in temas %}<option value="{{ t.pk }}"{% if filtros.tema == t.pk %} selected{% endif %}>{{ t.nome }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-inicio">Pedidos a partir de</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-inicio" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-fim">Pedidos até</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-fim" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if filtros.ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'palestras:lista' %}">Limpar filtros</a>{% endif %}</div>
+    </div>
+  </details>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”{% else %}Palestras e eventos{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"pedido,pedidos" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% include "palestras/_registro.html" %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif filtros.q or filtros.ativos or filtros.status or filtros.evento %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum pedido encontrado" texto="Ajuste a busca, os filtros ou troque de status." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'palestras:nova' as url_nova %}
+  {% include "componentes/vazio.html" with icone="presentation" titulo="Nenhuma palestra ainda" texto="Registre o primeiro pedido que chegou à ASCOM." acao_url=url_nova acao_rotulo="Nova palestra" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum pedido para mostrar" texto="Quando houver pedidos de palestras, eles aparecerão aqui." %}
+{% endif %}
+{% endblock %}

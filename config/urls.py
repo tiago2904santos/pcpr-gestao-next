@@ -8,6 +8,7 @@ urlpatterns = [
     path("cadastros/", include("gestao.cadastros.urls")),
     path("imprensa/", include("gestao.imprensa.urls")),
     path("publicacoes/", include("gestao.publicacoes.urls")),
+    path("palestras/", include("gestao.palestras.urls")),
     path("ui-lab/", include("gestao.ui_lab.urls")),
     path("saude/", plataforma.saude, name="saude"),
     path("", include("gestao.painel.urls")),

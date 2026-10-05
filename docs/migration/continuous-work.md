@@ -68,7 +68,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 15b | Agenda A2: semana/dia, conflitos (mesma pessoa/viatura), "meus", ICS, pauta semanal | pendente |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
-| 16c | ASCOM · Palestras | pendente |
+| 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
+| 16d | Palestras PL2: pedido público com acompanhamento (revisão de segurança), choque palestrante × viagem | pendente |
 | P | Trilhas paralelas: catálogos de Eventos Sociais; busca global; histórico de roteiros | pendente |
 
 ## Concluído (com evidência)

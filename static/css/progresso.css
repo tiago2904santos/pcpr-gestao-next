@@ -1,0 +1,71 @@
+/* Etapas de um fluxo (.etapas-progresso): uma linha de marcos numerados — concluídos com ✓,
+   o atual em grafite (aria-current="step"), os que faltam apagados. No celular, os marcos
+   se empilham. Cores só por tokens. Ver UI Lab §19. */
+
+.etapas-progresso {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etapas-progresso__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.etapas-progresso__item + .etapas-progresso__item::before {
+  content: "";
+  width: var(--esp-6);
+  height: 1px;
+  margin-right: var(--esp-2);
+  background: var(--cor-borda-forte);
+}
+
+.etapas-progresso__marca {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+}
+
+.etapas-progresso__item--concluido {
+  color: var(--cor-texto);
+}
+
+.etapas-progresso__item--concluido .etapas-progresso__marca {
+  border-color: var(--cor-sucesso-borda);
+  background: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso);
+}
+
+.etapas-progresso__item--atual {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+.etapas-progresso__item--atual .etapas-progresso__marca {
+  border-color: var(--cor-primaria);
+  background: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+}
+
+@media (max-width: 479.98px) {
+  .etapas-progresso {
+    flex-direction: column;
+  }
+
+  .etapas-progresso__item + .etapas-progresso__item::before {
+    display: none;
+  }
+}

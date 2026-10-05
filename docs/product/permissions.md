@@ -84,6 +84,16 @@ decisão do agente, a confirmar ([decisoes.md](../migration/decisoes.md#atendime
 Regras em `gestao/publicacoes/policies.py`; o módulo só aparece para quem tem
 `view_publicacao`.
 
+## Matriz — Palestras e eventos (ASCOM)
+
+| Permissão | ASCOM_PALESTRAS | demais |
+|---|:-:|:-:|
+| Ver painel, lista, folha e exportar CSV (`palestras.view_palestra`) | ✓ (todas) | — |
+| Registrar, editar, andamento e resposta (`add_palestra`, `change_palestra`) | ✓ | — |
+| Cadastros: palestrantes, temas, respostas padrão (`*_palestrante`, `*_tema`, `*_respostapadrao`) | ✓ | — |
+
+Regras em `gestao/palestras/policies.py`.
+
 ## Regras por objeto (Ofício)
 
 | Ação | Condição (`policies.py`) |

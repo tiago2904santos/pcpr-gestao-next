@@ -1,0 +1,19 @@
+{% comment %}Uma linha de palestra (lista e painel). Requer `l` (queries.Linha).{% endcomment %}
+{% with p=l.palestra %}
+<li class="registro{% if p.status == 'cancelada' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">{{ p.get_evento_display|truncatechars:10 }}</span><span class="placa__numero">#{{ p.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'palestras:palestra' p.pk %}"><span class="sr-only">{{ p }} · </span>{{ p.titulo }}</a>
+      <span class="selo selo--{{ p.tom }} selo--sem-ponto">{{ p.get_status_display }}</span>
+      {% if l.quando %}<span class="selo selo--{{ l.quando.tom }} selo--sem-ponto">{{ l.quando.texto }}</span>{% endif %}
+    </div>
+    <div class="registro__meta">
+      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+    </div>
+  </div>
+  <div class="registro__acoes registro__acoes--fixas">
+    <a class="botao botao--sm botao--sutil" href="{% url 'palestras:palestra' p.pk %}#andamento" aria-label="Andamento da {{ p }} ({{ p.solicitante }})">{% icone "activity" %}Andamento</a>
+  </div>
+</li>
+{% endwith %}

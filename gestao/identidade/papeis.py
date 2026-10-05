@@ -111,6 +111,18 @@ PAPEIS: dict[str, Papel] = {
             "publicacoes.view_unidaderesponsavel", "publicacoes.add_unidaderesponsavel",
         ],
     },
+    # Decisão do agente — a confirmar: na referência, o módulo ASCOM_DEMANDAS_EVENTOS, com a
+    # palestra visível só aos setores de quem a registrou (aqui não há setores: vê todas).
+    # Os cadastros de apoio (temas, palestrantes, respostas padrão) são do próprio módulo.
+    "ASCOM_PALESTRAS": {
+        "descricao": "Palestras e eventos da ASCOM: pedidos, agenda, palestrantes e respostas.",
+        "permissoes": [
+            "palestras.view_palestra", "palestras.add_palestra", "palestras.change_palestra",
+            *(f"palestras.{acao}_{modelo}" for modelo in ("tema", "palestrante",
+                                                          "respostapadrao")
+              for acao in ("view", "add", "change", "delete")),
+        ],
+    },
     "ADMINISTRADOR": {
         "descricao": "Gestão de usuários, papéis e configurações institucionais.",
         "permissoes": [

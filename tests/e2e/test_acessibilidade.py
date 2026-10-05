@@ -420,3 +420,32 @@ def test_publicacoes_sem_violacoes(logado, dados_e2e, largura):
     for rota in ("/publicacoes/", "/publicacoes/pautas/", f"/publicacoes/pautas/{p.pk}/",
                  "/publicacoes/pautas/nova/", "/publicacoes/cadastros/equipe/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_palestras_sem_violacoes(logado, dados_e2e, largura):
+    from datetime import time, timedelta
+
+    from django.contrib.auth.models import Group
+    from django.utils import timezone
+
+    from gestao.identidade.models import Usuario
+    from gestao.palestras import services
+    from gestao.palestras.models import Palestrante, RespostaPadrao, Tema
+
+    u = Usuario.objects.get(login="operador")
+    u.groups.add(Group.objects.get(name="ASCOM_PALESTRAS"))
+    hoje = timezone.localdate()
+    ana = Palestrante.objects.create(nome="Ana (axe)", lotacao="DPCAP")
+    RespostaPadrao.objects.create(tipo="Confirmação", mensagem="Olá, {solicitante}!")
+    p = services.criar(u, {"data_solicitacao": hoje, "solicitante": "Escola (axe)",
+                           "telefone": "41999998888", "email": "x@example.invalid",
+                           "temas": [Tema.objects.create(nome="Golpes")]})
+    services.registrar_andamento(u, p.pk, "agendada", "ok",
+                                 data_evento=hoje + timedelta(days=3), palestrante=ana)
+    services.salvar(u, p.pk, {"hora_inicio": time(14)})
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/palestras/", "/palestras/pedidos/", f"/palestras/pedidos/{p.pk}/",
+                 "/palestras/pedidos/nova/", "/palestras/cadastros/palestrantes/",
+                 "/palestras/cadastros/respostas/"):
+        _avaliar(logado, rota)

@@ -43,8 +43,8 @@ ICONES = sorted({
     "fuel", "id-card",
     # Atendimento à imprensa (ASCOM)
     "megaphone", "messages-square", "radio", "phone", "mail", "hourglass", "activity",
-    # Publicações (ASCOM)
-    "newspaper",
+    # Publicações e Palestras (ASCOM)
+    "newspaper", "presentation",
 })
 
 

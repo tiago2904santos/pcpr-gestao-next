@@ -35,7 +35,8 @@ ABAS = [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")]
 ROTULOS = {"OPERADOR_VIAGENS": "Operador de viagens", "GESTOR_VIAGENS": "Gestor de viagens",
            "CONSULTA": "Consulta", "ADMINISTRADOR": "Administrador",
            "ASCOM_IMPRENSA": "Atendimento à imprensa (ASCOM)",
-           "ASCOM_PUBLICACOES": "Publicações (ASCOM)"}
+           "ASCOM_PUBLICACOES": "Publicações (ASCOM)",
+           "ASCOM_PALESTRAS": "Palestras e eventos (ASCOM)"}
 
 
 def _voltar(request: HttpRequest) -> str:

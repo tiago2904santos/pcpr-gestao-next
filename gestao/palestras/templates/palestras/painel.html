@@ -1,0 +1,64 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Palestras{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/graficos.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel das palestras (paridade com o da referência): em aberto, agendadas, atendidas no ano
+(pelo ano do evento ou, sem data, da solicitação) e aguardando retorno — cada um leva à
+lista filtrada; as próximas; os pedidos recentes; temas do ano e o público atendido.
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "presentation" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Palestras e eventos</h1>
+    <p class="pagina-cabecalho__descricao">Os pedidos à ASCOM: o que está para acontecer, o que espera retorno e quem foi atendido.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'palestras:lista' %}">{% icone "presentation" %}Ver pedidos</a>
+    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'palestras:nova' %}">{% icone "plus" %}Nova palestra</a>{% endif %}
+  </div>
+</header>
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador{% if ind.abertas %} indicador--atencao{% endif %}" href="{% url 'palestras:lista' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Em aberto</span><span class="indicador__valor">{{ ind.abertas }}</span><span class="indicador__nota">Sem atender nem cancelar</span></a>
+  <a class="indicador" href="{% url 'palestras:lista' %}?status=agendada"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Agendadas</span><span class="indicador__valor">{{ ind.agendadas }}</span><span class="indicador__nota">Data e palestrante confirmados</span></a>
+  <a class="indicador" href="{% url 'palestras:lista' %}?status=atendida"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "check-circle-2" classe="icone--sm" %}Atendidas em {{ ano }}</span><span class="indicador__valor">{{ ind.atendidas_ano }}</span><span class="indicador__nota">{% if publico %}{{ publico }} pessoas de público{% else %}Público ainda não informado{% endif %}</span></a>
+  <a class="indicador" href="{% url 'palestras:lista' %}?status=aguardando_retorno"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "clock" classe="icone--sm" %}Aguardando retorno</span><span class="indicador__valor">{{ ind.aguardando }}</span><span class="indicador__nota">Esperando o solicitante</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-proximas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-proximas">Próximas</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'painel:agenda' %}?fonte=palestra">Ver na agenda</a></div></div>
+  {% if proximas %}<ul class="registros">{% for l in proximas %}{% include "palestras/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="calendar" titulo="Nada marcado" texto="Palestras com data a partir de hoje aparecem aqui." %}{% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Pedidos recentes</h2></div>
+  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "palestras/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum pedido registrado" texto="Os pedidos de palestras aparecem aqui." %}{% endif %}
+</section>
+{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-temas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-temas">Temas mais pedidos em {{ ano }}</h2></div>
+  <div class="cartao__corpo">
+  {% if por_tema %}
+    <ol class="ranking">
+      {% for t in por_tema %}
+      <li class="ranking__item"><a class="ranking__nome" href="{% url 'palestras:lista' %}?tema={{ t.pk }}">{{ t.nome }}</a><span class="ranking__total">{{ t.total }}</span><progress class="ranking__barra" max="{{ maior_tema }}" value="{{ t.total }}" aria-label="{{ t.nome }}: {{ t.total }} de {{ maior_tema }}"></progress></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">{% icone "list-checks" classe="icone--sm" %}Nenhum pedido com tema neste ano.</p>{% endif %}
+  </div>
+</section>
+{% if pode_gerir_cadastros %}
+<section class="cartao" aria-labelledby="t-cadastros">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cadastros">Cadastros de apoio</h2></div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'palestras:palestrantes' %}">{% icone "users" %}Palestrantes{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'palestras:temas' %}">{% icone "list-checks" %}Temas{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'palestras:respostas' %}">{% icone "mail" %}Respostas padrão{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

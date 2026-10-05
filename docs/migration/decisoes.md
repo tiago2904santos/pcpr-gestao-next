@@ -239,6 +239,20 @@ Fonte: `publicacoes/{models,services,forms,views,permissions,presenters}.py` da 
 | Unidade da pauta | cadastro próprio da ASCOM | igual (não é o cadastro de unidades de Viagens) | referência |
 | Histórico de edições | tabela própria | trilha de auditoria do banco; a publicação automática aparece só no andamento | agente (regra do projeto) |
 
+## Palestras e eventos
+
+Fonte: `demandas_eventos/{models,services,forms,views,permissions,presenters}.py` da
+referência ([palestras.md](palestras.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quem acessa | módulo `ASCOM_DEMANDAS_EVENTOS`; cada palestra visível aos setores de quem a registrou | papel `ASCOM_PALESTRAS`, vê todas (não há setores) | **agente** — confirmar |
+| Cadastros de apoio | quem tem o módulo | o próprio papel | referência |
+| Status | só pelo andamento; Agendada pede data e palestrante; Atendida pede público e só depois do dia | igual | referência |
+| Resposta padrão | marcadores {solicitante} {data} {horario} {municipio} {palestrante} {tema}; registro no histórico | igual; a resposta enviada fica guardada à parte, com o texto | referência + agente |
+| Protocolo | só no canal Protocolo, 9 dígitos | igual | referência |
+| Pedido público, encaminhar à DG, consultar protocolo | existem | fora da PL1 (segurança; Solicitações; integração simulada) | pendente |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -266,3 +280,4 @@ Fonte: `publicacoes/{models,services,forms,views,permissions,presenters}.py` da 
 | Imprensa: papel `ASCOM_IMPRENSA` no lugar do módulo da referência; a quem dar | decisão do usuário (não bloqueia) |
 | Imprensa: "preencher com e-mail" e importador da planilha (origem dos e-mails/planilhas) | decisão do usuário (não bloqueia) |
 | Publicações: papel `ASCOM_PUBLICACOES`; "preencher com e-mail" e importador | decisão do usuário (não bloqueia) |
+| Palestras: papel `ASCOM_PALESTRAS` (sem setores); pedido público sem login (PL2) | decisão do usuário (não bloqueia) |

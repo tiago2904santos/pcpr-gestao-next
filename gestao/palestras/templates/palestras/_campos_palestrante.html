@@ -1,0 +1,21 @@
+{% comment %}Campos do palestrante (incluir e editar). Requer `form` (FormularioPalestrante, com prefixo na edição).{% endcomment %}
+<div class="campos">
+  {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+  {% include "componentes/campo.html" with campo=form.servidor classe="campo--lg" %}
+</div>
+<div class="campos">
+  <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
+    <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}</label>
+    <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto>
+      <div class="entrada-composta">{{ form.municipio|campo_acessivel:"" }}</div>
+    </pc-combobox>
+    {% if form.municipio.errors %}<p class="campo__erro" id="{{ form.municipio.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.municipio.errors|join:" " }}</span></p>{% endif %}
+  </div>
+  {% include "componentes/campo.html" with campo=form.divisao classe="campo--md" %}
+  {% include "componentes/campo.html" with campo=form.lotacao classe="campo--md" %}
+</div>
+<div class="campos">
+  {% include "componentes/campo.html" with campo=form.contato classe="campo--md" %}
+  {% include "componentes/campo.html" with campo=form.email classe="campo--lg" %}
+  {% include "componentes/campo.html" with campo=form.tema_abordagem classe="campo--lg" %}
+</div>

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ titulo }} · Palestras{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Cadastros de apoio das palestras (paridade com a referência): palestrantes (nome, vínculo com
+o cadastro de servidores, município, divisão, lotação, contato, e-mail, tema de abordagem),
+temas (só o nome; arquétipo de nomes) e respostas padrão (tipo e mensagem com marcadores).
+Incluir no topo; editar na própria linha (<details>, sem JavaScript); tema e palestrante só
+saem quando nenhuma palestra os usa.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone icone classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">{{ titulo }}</h1>
+    <p class="pagina-cabecalho__descricao">{% if tipo == "palestrantes" %}Quem fala em nome da PCPR. Ligado ao cadastro de servidores, a Agenda pode avisar choque com viagens.{% elif tipo == "temas" %}Os temas que a ASCOM oferece nas palestras.{% else %}Mensagens prontas para o solicitante. Marcadores que viram os dados da palestra: {% for m in marcadores %}<code>{{ "{" }}{{ m }}{{ "}" }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}.{% endif %}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    {% for t, c in outros %}<a class="botao botao--sutil" href="{% url c.2 %}">{% icone c.1 %}{{ c.0 }}</a>{% endfor %}
+  </div>
+</header>
+
+{% if erro and not editando %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>{% endif %}
+
+<section class="cartao" aria-labelledby="t-novo">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">{% if tipo == "palestrantes" %}Novo palestrante{% elif tipo == "temas" %}Novo tema{% else %}Nova resposta padrão{% endif %}</h2></div>
+  <form method="post" class="cartao__corpo pilha" novalidate>
+    {% csrf_token %}
+    {% if tipo == "palestrantes" %}
+      {% include "palestras/_campos_palestrante.html" %}
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
+    {% elif tipo == "temas" %}
+      <div class="campo campo--lg">
+        <label class="campo__rotulo" for="novo-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <div class="linha"><input class="entrada cresce" id="novo-nome" name="nome" required maxlength="200" autocomplete="off" placeholder="Ex.: Golpes pela internet" value="{% if not editando %}{{ valores.nome }}{% endif %}"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
+      </div>
+    {% else %}
+      <div class="campo campo--lg">
+        <label class="campo__rotulo" for="novo-tipo">Tipo<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <input class="entrada" id="novo-tipo" name="tipo" required maxlength="200" autocomplete="off" placeholder="Ex.: Confirmação de agenda" value="{% if not editando %}{{ valores.tipo }}{% endif %}">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="nova-mensagem">Mensagem<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <textarea class="entrada" id="nova-mensagem" name="mensagem" rows="5" required placeholder="Olá, {solicitante}! Confirmamos a palestra em {data}, às {horario}…">{% if not editando %}{{ valores.mensagem }}{% endif %}</textarea>
+      </div>
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
+    {% endif %}
+  </form>
+</section>
+
+<section class="cartao mt-4" aria-labelledby="t-lista">
+  <div class="lista-cabecalho">
+    <h2 class="peso-semi texto-lg" id="t-lista">{{ titulo }}</h2>
+    <span class="lista-cabecalho__total" role="status">{{ registros|length }} cadastrado{{ registros|length|pluralize }}</span>
+  </div>
+  {% if registros %}
+  <ul class="registros" aria-labelledby="t-lista">
+    {% for r in registros %}
+    <li class="registro">
+      <span class="registro__icone" aria-hidden="true">{% icone icone %}</span>
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__texto peso-semi">{% if tipo == "respostas" %}{{ r.tipo }}{% else %}{{ r.nome }}{% endif %}</span></div>
+        <div class="registro__meta">
+          {% if tipo == "respostas" %}<span class="registro__meta-item">{{ r.mensagem|truncatechars:120 }}</span>
+          {% else %}
+            {% if tipo == "palestrantes" %}{% if r.lotacao or r.divisao %}<span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{{ r.divisao }}{% if r.divisao and r.lotacao %} · {% endif %}{{ r.lotacao }}</span>{% endif %}{% if r.tema_abordagem %}<span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ r.tema_abordagem }}</span>{% endif %}{% if r.servidor_id %}<span class="registro__meta-item">{% icone "id-card" classe="icone--sm" %}Ligado ao cadastro</span>{% endif %}{% endif %}
+            <span class="registro__meta-item">{% icone "presentation" classe="icone--sm" %}{% if r.usos %}{{ r.usos|pluralizar:"palestra,palestras" }}{% else %}sem uso{% endif %}</span>
+          {% endif %}
+        </div>
+        <details class="mt-2"{% if editando == r.pk %} open{% endif %}>
+          <summary class="botao botao--sm botao--sutil">{% icone "pencil" %}Editar<span class="sr-only"> {% if tipo == "respostas" %}{{ r.tipo }}{% else %}{{ r.nome }}{% endif %}</span></summary>
+          <form method="post" class="pilha mt-2" novalidate>
+            {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}">
+            {% if editando == r.pk %}<p class="campo__erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+            {% if tipo == "palestrantes" %}
+              {% include "palestras/_campos_palestrante.html" with form=r.form %}
+            {% elif tipo == "temas" %}
+              <div class="campo campo--lg"><label class="campo__rotulo" for="nome-{{ r.pk }}">Nome</label><input class="entrada" id="nome-{{ r.pk }}" name="nome" required maxlength="200" autocomplete="off" value="{% if editando == r.pk %}{{ valores.nome }}{% else %}{{ r.nome }}{% endif %}"></div>
+            {% else %}
+              <div class="campo campo--lg"><label class="campo__rotulo" for="tipo-{{ r.pk }}">Tipo</label><input class="entrada" id="tipo-{{ r.pk }}" name="tipo" required maxlength="200" autocomplete="off" value="{% if editando == r.pk %}{{ valores.tipo }}{% else %}{{ r.tipo }}{% endif %}"></div>
+              <div class="campo"><label class="campo__rotulo" for="mensagem-{{ r.pk }}">Mensagem</label><textarea class="entrada" id="mensagem-{{ r.pk }}" name="mensagem" rows="5" required>{% if editando == r.pk %}{{ valores.mensagem }}{% else %}{{ r.mensagem }}{% endif %}</textarea></div>
+            {% endif %}
+            <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar</button></div>
+          </form>
+        </details>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        {% if not r.usos %}
+        <form method="post" data-confirmar="“{% if tipo == 'respostas' %}{{ r.tipo }}{% else %}{{ r.nome }}{% endif %}” sai do cadastro." data-confirmar-titulo="Excluir?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>
+          {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}"><input type="hidden" name="acao" value="excluir">
+          <button type="submit" class="botao botao--sm botao--sutil" aria-label="Excluir {% if tipo == 'respostas' %}{{ r.tipo }}{% else %}{{ r.nome }}{% endif %}">{% icone "trash-2" %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {% include "componentes/vazio.html" with icone=icone titulo="Nada cadastrado ainda" texto="Inclua o primeiro no formulário acima." %}
+  {% endif %}
+</section>
+{% endblock %}

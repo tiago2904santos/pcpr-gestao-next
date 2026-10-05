@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -28,6 +28,7 @@
       <li class="etapas__item"><a href="#copiar-textos"><span class="etapas__marcador">16</span>Sugerir e copiar texto</a></li>
       <li class="etapas__item"><a href="#agenda-lab"><span class="etapas__marcador">17</span>Agenda do mês</a></li>
       <li class="etapas__item"><a href="#graficos-lab"><span class="etapas__marcador">18</span>Gráficos simples</a></li>
+      <li class="etapas__item"><a href="#progresso-lab"><span class="etapas__marcador">19</span>Etapas de um fluxo</a></li>
     </ol>
   </nav>
 
@@ -687,6 +688,19 @@
         <ol class="ranking" aria-label="Ranking (exemplo)">
           <li class="ranking__item"><span class="ranking__nome">RPC</span><span class="ranking__total">12</span><progress class="ranking__barra" max="12" value="12" aria-label="RPC: 12 de 12"></progress></li>
           <li class="ranking__item"><span class="ranking__nome">Banda B</span><span class="ranking__total">5 <span class="ranking__nota">· 4 atendidos</span></span><progress class="ranking__barra" max="12" value="5" aria-label="Banda B: 5 de 12"></progress></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 19. ETAPAS DE UM FLUXO -->
+    <section class="cartao" id="progresso-lab" aria-labelledby="t-progresso-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-progresso-lab"><span class="cartao__numero">19</span>Etapas de um fluxo</h2><span class="texto-secundario texto-sm">Marcos numerados: concluídos com ✓ (verde), o atual em grafite com aria-current="step", os que faltam apagados. No celular, empilham. Usado no andamento das palestras.</span></div>
+      <div class="cartao__corpo">
+        <ol class="etapas-progresso" aria-label="Etapas (exemplo)">
+          <li class="etapas-progresso__item etapas-progresso__item--concluido"><span class="etapas-progresso__marca" aria-hidden="true">{% icone "check" classe="icone--sm" %}</span><span>Recebida</span><span class="sr-only"> (concluída)</span></li>
+          <li class="etapas-progresso__item etapas-progresso__item--atual" aria-current="step"><span class="etapas-progresso__marca" aria-hidden="true">2</span><span>Aguardando retorno</span></li>
+          <li class="etapas-progresso__item etapas-progresso__item--pendente"><span class="etapas-progresso__marca" aria-hidden="true">3</span><span>Agendada</span></li>
+          <li class="etapas-progresso__item etapas-progresso__item--pendente"><span class="etapas-progresso__marca" aria-hidden="true">4</span><span>Atendida</span></li>
         </ol>
       </div>
     </section>
