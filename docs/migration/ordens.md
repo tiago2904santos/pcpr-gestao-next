@@ -23,7 +23,7 @@ modelos de documento (`documentos/tests/golden/ordem_servico*.txt`) da referênc
 | Documento PDF e DOCX | ✅ | PDF/A, sem cache | `TestTelas::test_nova_pela_tela_e_documento` |
 | Cancelar / reativar / excluir (libera o número) | ✅ ↔ | excluir só enquanto o documento nunca foi gerado (depois, cancelar) — a referência liberava sempre | `TestCicloDeVida`, `test_depois_de_gerado_nao_exclui_so_cancela` |
 | Lista: abas, busca (número, destino, servidor, motivo, ofício) | ✅ | "OS 7/2026" procura só a OS | `test_lista_abas_busca_e_filtro_por_oficio` |
-| Aba "Finalizadas" (contas prestadas) | ⛔ | depende da prestação de contas (módulo 9) | — |
+| Aba "Finalizadas" (contas prestadas) | ✅ | prestações dos ofícios da OS todas finalizadas; sai de "vão acontecer"/"em andamento" | `gestao/viagens/tests/test_prestacao.py::test_contas_prestadas_nos_outros_modulos`, `test_abas_de_quando_excluem_as_contas_prestadas` |
 | Gravação automática | ✅ | a OS salva grava sozinha a cada pausa (autosave), quando o formulário inteiro é válido; o que impede aparece na barra | `test_folha_termo_os.py::TestAutosaveDaOS`, e2e `test_os_a_partir_do_oficio_com_funcoes` |
 | Prévia do documento | ✅ MELHORADO | o documento como vai sair, na própria folha (visualizador do ofício em modo leitura, Texto/PDF), refeito a cada gravação; a prévia **não** fixa a data nem conta como geração (`?previa=1` no PDF) | `TestFolhaDaOS` |
 | Histórico | ✅ MELHORADO | criação, alterações (destinos, equipe, ofícios vêm das tabelas filhas), primeira geração, cancelamento e reativação, lidos da trilha do banco | `TestHistoricoDaOS` |

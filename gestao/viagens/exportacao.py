@@ -112,3 +112,42 @@ def planilha_de_oficios(oficios: Iterable[Oficio]) -> bytes:
     saida = BytesIO()
     livro.save(saida)
     return saida.getvalue()
+
+
+COLUNAS_PRESTACAO = ["Servidor", "Ofício", "Protocolo", "Solicitação", "Liberação das diárias",
+                     "Prazo limite de saque", "Prestar contas até", "Diária liberada",
+                     "Situação", "O que falta"]
+
+
+def planilha_de_prestacoes(linhas) -> bytes:
+    """Prestações (referência: aba "Prestações", mesmas colunas)."""
+    from . import prestacao
+    from .dominio.prestacao import prazo_para_prestar
+
+    livro = Workbook()
+    aba = livro.active or livro.create_sheet()
+    aba.title = "Prestações"
+    aba.append(COLUNAS_PRESTACAO)
+    for celula in aba[1]:
+        celula.font = Font(bold=True)
+        celula.fill = CABECALHO
+    for ps in linhas:
+        oficio = ps.prestacao.oficio
+        situacao = ("Finalizada" if ps.finalizada and ps.situacao in ("pendente", "preenchimento")
+                    else "Arquivada" if ps.arquivada else ps.get_situacao_display())
+        aba.append([_texto_seguro(v) for v in [
+            ps.servidor.nome, oficio.numero_formatado, oficio.protocolo_formatado,
+            ps.numero_solicitacao, ps.data_liberacao_diarias, ps.prazo_limite_saque,
+            prazo_para_prestar(ps.prazo_limite_saque), prestacao.diaria_liberada(ps), situacao,
+            "; ".join(prestacao.pendencias(ps))]])
+    for linha_planilha in aba.iter_rows(min_row=2):
+        for i in (4, 5, 6):
+            linha_planilha[i].number_format = "DD/MM/YYYY"
+        linha_planilha[7].number_format = "#,##0.00"
+    for indice, largura in enumerate((32, 12, 16, 16, 14, 14, 14, 14, 16, 60), start=1):
+        aba.column_dimensions[get_column_letter(indice)].width = largura
+    aba.freeze_panes = "A2"
+    aba.auto_filter.ref = aba.dimensions
+    saida = BytesIO()
+    livro.save(saida)
+    return saida.getvalue()

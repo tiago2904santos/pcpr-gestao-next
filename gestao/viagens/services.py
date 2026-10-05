@@ -828,6 +828,9 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
                usuario, total=str(atual.diarias_total), resumo=atual.diarias_resumo)
     outbox.publicar("viagens.oficio.emitido", {"oficio_id": atual.pk},
                     chave=f"oficio-emitido:{atual.pk}:{documentos[0].versao}")
+    # A prestação de contas nasce (ou acompanha a equipe) na emissão (módulo 9).
+    from . import prestacao
+    prestacao.sincronizar(atual)
     return documentos[0]
 
 

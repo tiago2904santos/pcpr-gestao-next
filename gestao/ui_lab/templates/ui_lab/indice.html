@@ -23,6 +23,7 @@
       <li class="etapas__item"><a href="#conceitos"><span class="etapas__marcador">11</span>Laboratório de conceitos</a></li>
       <li class="etapas__item"><a href="#pecas-formulario"><span class="etapas__marcador">12</span>Peças do formulário</a></li>
       <li class="etapas__item"><a href="#editor"><span class="etapas__marcador">13</span>Editor de documento</a></li>
+      <li class="etapas__item"><a href="#equipe-prestacao"><span class="etapas__marcador">14</span>Equipe da prestação</a></li>
     </ol>
   </nav>
 
@@ -571,6 +572,41 @@
       <div class="cartao__corpo">
         {% url 'ui_lab:folha_exemplo' as folha_exemplo %}
         {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True %}
+      </div>
+    </section>
+
+    <!-- 14. EQUIPE DA PRESTAÇÃO DE CONTAS -->
+    <section class="cartao" id="equipe-prestacao" aria-labelledby="t-equipe-prestacao">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe-prestacao"><span class="cartao__numero">14</span>Equipe da prestação de contas</h2><span class="texto-secundario texto-sm">Um bloco por ofício, um cartão (formulário) por servidor: os campos gravam sozinhos e o estado aparece no próprio cartão; as ações vêm depois dos campos.</span></div>
+      <div class="cartao__corpo">
+        <article class="prestacao-equipe" aria-labelledby="lab-equipe-t">
+          <header class="prestacao-equipe__cabecalho">
+            <h3 class="prestacao-equipe__titulo" id="lab-equipe-t">Ofício 12/2026 · Londrina/PR</h3>
+            <div class="prestacao-equipe__meta"><span>07/10 a 09/10/2026</span><span>R$ 1.240,00 em diárias</span><span>2 servidores</span></div>
+            <div class="prestacao-equipe__acoes"><button type="button" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button></div>
+          </header>
+          <ul class="prestacao-equipe__servidores">
+            <li class="prestacao-servidor">
+              <div class="pilha-sm">
+                <div class="prestacao-servidor__topo"><span class="prestacao-servidor__nome">Ana Exemplo</span><span class="prestacao-servidor__selos"><span class="selo selo--aviso selo--sem-ponto">Saque vence em 2 dias</span></span><p class="prestacao-servidor__status barra-acoes__status barra-acoes__status--salvo">Salvo automaticamente às 14:32</p></div>
+                <div class="prestacao-servidor__campos">
+                  <div class="campo"><label class="campo__rotulo" for="lab-ps-n">Nº da solicitação</label><input class="entrada" id="lab-ps-n" value="2026/0412"></div>
+                  <div class="campo"><label class="campo__rotulo" for="lab-ps-l">Liberação das diárias</label><input class="entrada" id="lab-ps-l" value="06/10/2026" inputmode="numeric" data-mascara="data"></div>
+                  <div class="campo"><label class="campo__rotulo" for="lab-ps-p">Prazo limite de saque</label><input class="entrada" id="lab-ps-p" value="09/10/2026" inputmode="numeric" data-mascara="data"></div>
+                </div>
+                <div class="prestacao-servidor__notas"><p class="prestacao-servidor__nota">Diária liberada: R$ 620,00 · prestar contas até 14/10/2026.</p></div>
+                <div class="prestacao-servidor__acoes"><button type="button" class="botao botao--sm">{% icone "check" %}Finalizar</button></div>
+              </div>
+            </li>
+            <li class="prestacao-servidor prestacao-servidor--fechado">
+              <div class="pilha-sm">
+                <div class="prestacao-servidor__topo"><span class="prestacao-servidor__nome">Bruno Exemplo</span><span class="prestacao-servidor__selos"><span class="selo selo--sucesso selo--sem-ponto">Finalizada</span></span></div>
+                <div class="prestacao-servidor__notas"><p class="prestacao-servidor__nota">Diária liberada: R$ 620,00 · Nº 2026/0413 · liberada em 06/10 · saque até 09/10.</p></div>
+                <div class="prestacao-servidor__acoes"><button type="button" class="botao botao--sm">{% icone "send" %}Registrar envio</button><button type="button" class="botao botao--sm botao--sutil">{% icone "undo-2" %}Reabrir</button></div>
+              </div>
+            </li>
+          </ul>
+        </article>
       </div>
     </section>
 </div>

@@ -180,6 +180,31 @@ Fonte: `accounts/views.py`, `accounts/forms.py`, `accounts/middleware.py` e
 | Baixar plano/OS | gerava na hora se faltava | só depois de gerados na folha deles | o download não gera documento oficial |
 | Meta da DG, sugestões pelo histórico, anexos de solicitação | existiam | ficam para o módulo Solicitações | dependem dele |
 
+## Prestação de contas 9a
+
+Fonte: `viagens_prestacoes/{signals,services,prazos,models,forms}.py` e `core/feriados.py`
+da referência ([prestacao.md](prestacao.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quando nasce | a cada gravação do ofício com equipe (sinal), menos cancelado | na **emissão** (e a cada nova emissão/retificação); rascunho não tem prestação | **agente** — rascunho ainda muda de equipe e não deve aparecer para prestar contas; confirmar |
+| Quem sai da equipe | sem dados: apagado; com dados: marcado e volta inteiro | igual | referência |
+| Prazo para prestar | prazo de saque + 3 dias úteis (fim de semana, feriados nacionais fixos e móveis, feriados cadastrados) | igual, sem feriados cadastrados (o cadastro não existe aqui ainda) | referência; cadastro de feriados pendente |
+| Diária liberada | por servidor do roteiro efetivo (teto); "recebida" (override) só quando diferente | por servidor do cálculo do ofício; recebida (override) entra com o RT (9c) | referência |
+| Abas | não liberadas, liberadas, devolvidas, arquivados, finalizados (ninguém em aberto), saque vencendo, prestação vencida + pendências | iguais; "pendências" que dependem de anexos (despacho, comprovante) entram com 9d | referência |
+| Finalizar com pendência | só com justificativa (registrada) | igual; equipe toda pula quem tem pendência e diz quem | referência |
+| Finalizada trava a edição | "Prestação finalizada — reabra para editar." | igual (lote ignora as finalizadas e avisa) | referência |
+| Envio ao financeiro | registra data e protocolo; devolução reabre com motivo | igual; **só registra** — nada é enviado a sistema externo | referência + regra do projeto |
+| Avisos (sino) | equipe de viagens | equipe de viagens **da unidade do ofício**, menos quem fez a ação | **agente** (quem é de outra unidade nem vê a prestação); confirmar |
+| Reabrir enviada/aprovada | permitido (a situação ficava "aprovada" com dados reabertos) | recusado: "para corrigir, devolva com o motivo" | **agente** (revisão de segurança: aprovação não pode ser desfeita por baixo) |
+| Reenviar | reenviava todas as finalizadas, inclusive aprovadas | aprovada não volta a "enviada"; pela equipe, só as finalizadas ainda não enviadas | **agente** (mesmo motivo) |
+| Quem aprova/devolve | qualquer usuário do módulo (sem separação) | igual (quem altera prestação) | referência — **confirmar** se a aprovação deve ser só da gestão |
+| Lista com campos | salvamento automático por campo | autosave por cartão (status no cartão); Enter grava; ação do cartão grava o digitado antes | referência + revisão de UX |
+| Ofício reaberto (rascunho) | prestação continuava visível | some da lista até a nova emissão (dados guardados); quem saiu da equipe não se altera pelo pk antigo | agente (coerente com "nasce na emissão") |
+| Rotina diária (saque vencendo, prestação vencida, véspera) | middleware no primeiro acesso do dia | pendente | — |
+| Abas Finalizados/Contas prestadas | exclusivas com "vão acontecer"/"em andamento"; roteiro pelos ofícios dele, termo pelo ofício (avulso nunca), OS pelos ofícios, plano e viagem pelos ofícios da viagem | iguais; rótulo "Finalizadas" na OS (as abas dela são no feminino) | referência |
+| Ofícios: "Contas prestadas" | aba entre as de quando | as abas daqui são da situação do documento (D1): o emitido de contas prestadas continua também em "Emitidos" | agente (mantém D1) |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -200,3 +225,6 @@ Fonte: `accounts/views.py`, `accounts/forms.py`, `accounts/middleware.py` e
 | Setor/Módulo (acesso por módulo) e vínculo Usuário↔Servidor da referência | decisão do usuário (não bloqueia) |
 | Hierarquia na gestão de usuários (só superusuário mexe em superusuário) | decisão do usuário (não bloqueia) |
 | Viagem: excluir solta os documentos; cancelar respeita a permissão de cada documento | decisão do usuário (não bloqueia) |
+| Prestação: nascer na emissão (não no rascunho); avisos só para a unidade do ofício | decisão do usuário (não bloqueia) |
+| Prestação: aprovar/devolver só pela gestão (a referência não separa) | decisão do usuário (não bloqueia) |
+| Cadastro de feriados (estaduais/municipais/ponto facultativo) para os prazos em dias úteis | decisão do usuário (não bloqueia) |

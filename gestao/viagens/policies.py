@@ -15,6 +15,7 @@ from .models import (
     Oficio,
     OrdemServico,
     PlanoTrabalho,
+    PrestacaoServidor,
     Roteiro,
     TermoAutorizacao,
     Viagem,
@@ -396,3 +397,48 @@ def pode_editar_viagem(usuario, viagem: Viagem) -> bool:
     """Editar a viagem e o que ela agrupa: ativa, quem altera viagens e a vê."""
     return (not viagem.cancelada and usuario.has_perm("viagens.change_viagem")
             and pode_ver_viagem(usuario, viagem))
+
+
+# ---------------------------------------------------------------- prestação de contas (módulo 9)
+def prestacoes_visiveis(usuario) -> QuerySet[PrestacaoServidor]:
+    if not usuario.has_perm("viagens.view_prestacaoservidor"):
+        return PrestacaoServidor.objects.none()
+    # Só ofício emitido: o reaberto (rascunho) some até a nova emissão, com os dados guardados.
+    qs = PrestacaoServidor.objects.filter(removida_em__isnull=True,
+                                          prestacao__oficio__situacao=Oficio.Situacao.EMITIDO)
+    if ve_todas_unidades(usuario):
+        return qs
+    unidade = unidade_do_usuario(usuario)
+    return qs.filter(prestacao__oficio__unidade=unidade) if unidade else qs.none()
+
+
+def pode_ver_prestacao(usuario, ps: PrestacaoServidor) -> bool:
+    if not usuario.has_perm("viagens.view_prestacaoservidor"):
+        return False
+    return ve_todas_unidades(usuario) or ps.prestacao.oficio.unidade_id == getattr(
+        unidade_do_usuario(usuario), "pk", None)
+
+
+def pode_editar_prestacao(usuario, ps: PrestacaoServidor) -> bool:
+    """Quem saiu da equipe (linha guardada) e ofício fora de "emitido" não se alteram."""
+    return (usuario.has_perm("viagens.change_prestacaoservidor") and ps.removida_em is None
+            and ps.prestacao.oficio.situacao == Oficio.Situacao.EMITIDO
+            and pode_ver_prestacao(usuario, ps))
+
+
+def pode_listar_prestacoes(usuario) -> bool:
+    return usuario.has_perm("viagens.view_prestacaoservidor")
+
+
+def altera_prestacoes(usuario) -> bool:
+    return usuario.has_perm("viagens.change_prestacaoservidor")
+
+
+def pode_ver_equipe_prestacao(usuario, prestacao) -> bool:
+    return pode_listar_prestacoes(usuario) and (ve_todas_unidades(usuario) or (
+        prestacao.oficio.unidade_id == getattr(unidade_do_usuario(usuario), "pk", None)))
+
+
+def pode_editar_equipe_prestacao(usuario, prestacao) -> bool:
+    return (altera_prestacoes(usuario) and prestacao.oficio.situacao == Oficio.Situacao.EMITIDO
+            and pode_ver_equipe_prestacao(usuario, prestacao))

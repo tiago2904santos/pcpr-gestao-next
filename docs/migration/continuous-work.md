@@ -3,7 +3,7 @@
 > Lido no início de cada sessão e atualizado a cada checkpoint. Se o código real divergir
 > deste arquivo, o código vence e este arquivo é corrigido.
 
-Atualizado em 05/10/2026 · ramo `migracao/loop-continuo` · último checkpoint `a320553`.
+Atualizado em 05/10/2026 · ramo `migracao/loop-continuo` · último checkpoint: ver `git log`.
 
 ## Escopo global
 
@@ -28,8 +28,10 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 
 ## Módulo atual
 
-**Módulo 7 — núcleo de Documentos.** 7a (via assinada) implementado; próximo: 7b conferência
-do PDF assinado (ADR da biblioteca de leitura), depois 7c modal "Baixar documentos".
+**Módulo 9 — Prestação de contas** ([prestacao.md](prestacao.md)). 9a (base) implementado:
+nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
+finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
+9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito. Próximo: 9b diário de bordo.
 
 ## Próxima tarefa concreta
 
@@ -49,8 +51,10 @@ Ver a fila abaixo (primeiro item não concluído).
 | 5 | Notificações: mecanismo (modelo, notificar, sino, central, e-mail pela outbox desligado) | feito; eventos entram com prestação/solicitações |
 | 6 | Gestão de usuários em tela + troca de senha obrigatória | feito |
 | 7–9 | Viagem: 8a base/etapas → 8b prontidão e coerência → 8c lote e baixar tudo → 8d repetir e cascata ([viagem.md](viagem.md)) | feito (8a–8d) |
-| 10–13 | Prestação de contas: base; diário; RT; documentos e assinados | próximo (módulo 9) |
-| 14 | Abas "Finalizados" (só depois da prestação real) | bloqueado por 10–13 |
+| 10 | Prestação 9a: base (modelos, nascimento, prazos, lista, lote, finalizar, envio) | feito (9a) |
+| 10b | 9a-2: abas "Finalizados"/"Contas prestadas" em roteiros, ofícios, termos, OS, planos, viagens | feito (exclusivas com as abas de quando; ofícios: além de Emitidos) |
+| 11–13 | Prestação 9b diário de bordo; 9c relatório técnico; 9d anexos, carimbo, pacote | pendente |
+| 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens | pendente |
 | P | Trilhas paralelas: catálogos de Eventos Sociais; ASCOM; busca global; histórico de roteiros | pendente |
 
@@ -67,11 +71,17 @@ Ver a fila abaixo (primeiro item não concluído).
 
 ## Iniciado e incompleto
 
-Nenhum (árvore limpa em `b4d92d4`).
+- Prestação 9a: pendências para finalizar só conhecem nº de solicitação e prazo de saque
+  (despacho, comprovante, diário e RT chegam com 9b–9d); selo de saque ignora comprovante
+  até 9d. Rotina diária de avisos (saque vencendo etc.) ainda não existe.
 
 ## Falhas conhecidas
 
-- Nenhuma conhecida (regressão completa verde em `a320553`).
+- 05/10: a suíte rápida completa depois das correções das revisões da 9a **não terminou**:
+  o disco C: encheu (98%, "No space left on device"), o Postgres de teste (porta 55433)
+  caiu e o Docker parou de responder. Validado antes disso: suíte rápida completa da 9a
+  (1196 passaram), testes da prestação/listas afetadas, e2e e axe da prestação, estático
+  verde. Falta: suíte rápida completa e regressão de navegador depois das correções.
 
 ## Bloqueios externos
 

@@ -1010,3 +1010,172 @@ a.ficha:hover {
   background: var(--cor-superficie-sutil);
   box-shadow: inset var(--filete) 0 0 var(--cor-marca);
 }
+
+/* Prestação de contas: um bloco por ofício (a equipe) com um cartão por servidor; o lote
+   (nº da solicitação, liberação, prazo de saque) fica nos campos do próprio cartão. */
+.prestacao-equipe {
+  margin: 0 0 var(--esp-4);
+  border: var(--borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+}
+
+.prestacao-equipe__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda);
+  background: var(--cor-superficie-sutil);
+  border-radius: var(--raio-lg) var(--raio-lg) 0 0;
+}
+
+.prestacao-equipe__titulo {
+  margin: 0;
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.prestacao-equipe__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1) var(--esp-3);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+}
+
+.prestacao-equipe__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  margin-inline-start: auto;
+}
+
+.prestacao-equipe__servidores {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prestacao-servidor {
+  display: grid;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-4);
+}
+
+.prestacao-servidor + .prestacao-servidor {
+  border-top: var(--borda-sutil);
+}
+
+.prestacao-servidor--fechado {
+  background: var(--cor-superficie-sutil);
+}
+
+.prestacao-servidor__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+}
+
+.prestacao-servidor__nome {
+  font-weight: var(--peso-semi);
+}
+
+.prestacao-servidor__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.prestacao-servidor__campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--esp-2) var(--esp-3);
+}
+
+.prestacao-servidor__nota {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+}
+
+.prestacao-servidor__status {
+  flex: 0 1 auto;
+  margin: 0 0 0 auto;
+  font-size: var(--texto-xs);
+}
+
+.prestacao-servidor__status:empty {
+  display: none;
+}
+
+.prestacao-servidor__justificar > summary {
+  cursor: pointer;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.prestacao-servidor__justificar[open] {
+  display: grid;
+  gap: var(--esp-2);
+  flex-basis: 100%;
+}
+
+/* Atalhos "pedem atenção" da prestação: filtros de uma aba só, mais discretos que as abas. */
+.atalhos-atencao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-top: var(--esp-3);
+}
+
+.atalhos-atencao__rotulo {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+/* Com algo a ver, o atalho chama atenção; zerado, fica discreto. */
+.atalhos-atencao__item--alerta {
+  border-color: var(--cor-aviso-borda);
+  color: var(--cor-texto);
+}
+
+.atalhos-atencao__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  min-height: 2rem;
+  padding: 0 var(--esp-3);
+  border: var(--borda);
+  border-radius: var(--raio-pilula);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  text-decoration: none;
+}
+
+.atalhos-atencao__item:hover {
+  color: var(--cor-texto);
+  background: var(--cor-superficie-sutil);
+}
+
+.atalhos-atencao__item[aria-current="page"] {
+  border-color: var(--cor-marca-borda);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+  font-weight: var(--peso-semi);
+}
+
+.prestacao-servidor__selos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+.prestacao-servidor__notas {
+  display: grid;
+  gap: var(--esp-05);
+}

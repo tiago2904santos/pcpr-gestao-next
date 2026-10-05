@@ -8,7 +8,7 @@ models,abas}.py` e `docs/paridade/roteiros-{lista,editor}.md` da referência.
 |---|---|---|---|
 | Lista com busca (sede, destino, observações) | ✅ | `/viagens/roteiros/` | `test_roteiros.py::TestTelasDeRoteiros` |
 | Abas "Que vão acontecer", "Em andamento e realizados", "Cancelados" | ✅ ↔ | uma aba por vez (lá: combináveis por caixa de seleção) | idem |
-| Aba "Finalizados" (prestação de contas encerrada) | ⛔ | depende do módulo 9 (Prestação de contas) | — |
+| Aba "Finalizados" (prestação de contas encerrada) | ✅ | pelos ofícios do roteiro; exclusiva com as abas de quando | `gestao/viagens/tests/test_prestacao.py::test_contas_prestadas_nos_outros_modulos`, `test_abas_de_quando_excluem_as_contas_prestadas` |
 | Selos de tempo ("faltam N dias", "em andamento"…), período, trechos, valor | ✅ | | captura `roteiros-lista` |
 | Novo/editar numa tela só (sem detalhe; o endereço antigo de detalhe não existe aqui) | ✅ | | e2e `test_roteiros.py` |
 | Gravação automática do rascunho | ✅ | `autosave` cria na primeira gravação | `TestServicosDoRoteiro` |

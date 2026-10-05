@@ -183,3 +183,14 @@ def test_viagens_de_exemplo(dataset):
     assert Viagem.objects.filter(situacao=Viagem.Situacao.CANCELADA).count() == 1
     cheia = Viagem.objects.filter(oficios__isnull=False).distinct().get()
     assert cheia.titulo and cheia.destinos.exists() and cheia.tipos.count() == 2
+
+
+def test_prestacoes_de_exemplo_cobrem_as_abas(dataset):
+    from gestao.viagens import prestacao
+
+    todas = prestacao.ativos()
+    assert todas.exists()  # nasceram na emissão dos ofícios do seed
+    for aba in ("nao_liberadas", "liberadas", "devolvidas", "arquivados", "finalizados",
+                "saque_vencendo", "prestacao_vencida"):
+        assert prestacao.filtrar(todas, aba, hoje=HOJE).exists(), aba
+    assert todas.filter(situacao="enviada").exists()

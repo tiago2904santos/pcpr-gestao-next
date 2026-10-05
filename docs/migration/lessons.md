@@ -215,3 +215,17 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   por operador) e vazamento potencial de credencial em redirecionamento.
 - Testes de navegador demoram ~17 min: rodar a suíte rápida primeiro e o navegador sem editar
   código durante a execução.
+
+## Prestação de contas 9a (05/10/2026)
+
+- **Lista com campos editáveis: um formulário por cartão, não um formulário da página.**
+  A primeira versão era um lote único com as ações por `formaction`: Enter acionava o
+  primeiro botão de envio (finalizava a equipe do primeiro ofício) e qualquer ação descartava
+  o que estava digitado nos outros cartões. Cartão = formulário com autosave; ação do cartão
+  grava o digitado antes de agir; ações fora do cartão usam `data-esperar-salvamento`.
+- **Nome de classe CSS de componente novo: procurar antes (`grep -n "\.nome" static/css`).**
+  `.equipe__acoes` já existia em `formulario.css` com `opacity: 0` (só aparecia no hover de
+  outro componente) e escondeu as ações da equipe no desktop. Prefixar pelo contexto
+  (`.prestacao-equipe__*`).
+- Item novo solto na barra de navegação estoura 768px (o teste responsivo pega): o grupo
+  "Documentos" em menu existe para isso.

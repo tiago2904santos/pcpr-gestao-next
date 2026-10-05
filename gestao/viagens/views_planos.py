@@ -21,7 +21,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.models import PresetAtividades
 
-from . import linha_do_tempo, planos, policies, resultados
+from . import linha_do_tempo, planos, policies, prestacao, resultados
 from .dominio import plano_trabalho as dominio
 from .forms import FormularioEvento, FormularioPlano
 from .models import Oficio, PlanoTrabalho
@@ -35,18 +35,22 @@ from .views_editor import (
 
 ABAS = [("", "Todos", "todos"), ("futuros", "Que vão acontecer", "futuros"),
         ("andamento", "Em andamento e realizados", "andamento"),
+        ("finalizados", "Finalizados", "finalizados"),
         ("cancelados", "Cancelados", "cancelados")]
 
 
 def _filtrar(qs, aba: str):
-    """Abas da referência; sem data, o plano ainda "vai acontecer". "Finalizados" (contas
-    prestadas) chega com a prestação de contas."""
+    """Abas da referência; sem data, o plano ainda "vai acontecer". "Finalizados": as
+    contas dos ofícios da viagem do plano estão prestadas (referência)."""
     hoje = timezone.localdate()
     ativos = qs.filter(cancelado=False)
+    prestadas = prestacao.prestadas("plano")
+    if aba == "finalizados":
+        return ativos.filter(prestadas)
     if aba == "futuros":
-        return ativos.filter(Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
+        return ativos.filter(~prestadas, Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
     if aba == "andamento":
-        return ativos.filter(data_inicio__lte=hoje)
+        return ativos.filter(~prestadas, data_inicio__lte=hoje)
     if aba == "cancelados":
         return qs.filter(cancelado=True)
     return qs

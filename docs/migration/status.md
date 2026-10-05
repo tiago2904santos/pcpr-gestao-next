@@ -23,7 +23,7 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 |---|---|---|---|---|---|---|---|---|
 | 1 | Ofícios (+ justificativas) | EM FECHAMENTO | matriz completa por leitura ([oficios.md](oficios.md)) | unit, e2e, axe | teto 32 req., TTFB/LCP no orçamento | 6 larguras | comparação com a referência em execução; botão de reabrir | aguarda decisão/acesso |
 | 2 | Cadastros | IMPLEMENTADO | completa por leitura ([cadastros.md](cadastros.md)) | ~84 unit, e2e, axe | listas sem N+1 | 6 larguras | comportamentos adotados a confirmar | — |
-| 3 | Roteiros | EM PARIDADE | falta "Finalizados" ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
+| 3 | Roteiros | EM PARIDADE | "Finalizados" feito com a prestação 9a ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
 | 4 | Termos de autorização | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado e "Finalizados" | 33 + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | anexar assinado (7), "Finalizados" (9) | com 7 e 9 |
 | 5 | Ordens de serviço | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado, "Finalizadas", conflito de agenda | 24 + 23 domínio + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | idem + conflito de agenda | com 7 e 9 |
 | 6 | Planos de trabalho | IMPLEMENTADO (6a–6e) | matriz em [planos.md](planos.md) | 17 catálogos + 23 domínio + 40 plano, e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | "Finalizados" (9), integração com viagem (8) | com 8 e 9 |

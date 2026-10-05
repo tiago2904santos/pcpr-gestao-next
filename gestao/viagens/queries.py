@@ -27,6 +27,7 @@ from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
 
+from . import prestacao
 from .dominio import busca
 from .dominio.diarias import Faixa, ValorVigente
 from .models import Documento, Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
@@ -83,6 +84,10 @@ FILTROS_SITUACAO = {
     "rascunho": ("Rascunhos", Q(situacao=Oficio.Situacao.RASCUNHO)),
     "emitido": ("Emitidos", Q(situacao=Oficio.Situacao.EMITIDO)),
     "proximos": ("Próximas viagens", Q(situacao__in=["rascunho", "emitido"])),
+    # Prestação de contas de todos da equipe finalizada (referência: "Contas prestadas").
+    # As abas daqui são da situação do documento: o emitido continua em Emitidos.
+    "prestadas": ("Contas prestadas", Q(situacao=Oficio.Situacao.EMITIDO)
+                  & prestacao.prestadas("oficio")),
     "cancelado": ("Cancelados", Q(situacao=Oficio.Situacao.CANCELADO)),
     # D1: arquivados saem de todas as outras abas e moram só aqui.
     "arquivado": ("Arquivados", Q(arquivado_em__isnull=False)),
@@ -98,6 +103,7 @@ def contagens(qs: QuerySet[Oficio]) -> dict[str, int]:
         todos=Count("pk", filter=NAO_ARQUIVADO),
         rascunho=Count("pk", filter=FILTROS_SITUACAO["rascunho"][1] & NAO_ARQUIVADO),
         emitido=Count("pk", filter=FILTROS_SITUACAO["emitido"][1] & NAO_ARQUIVADO),
+        prestadas=Count("pk", filter=FILTROS_SITUACAO["prestadas"][1] & NAO_ARQUIVADO),
         cancelado=Count("pk", filter=FILTROS_SITUACAO["cancelado"][1] & NAO_ARQUIVADO),
         arquivado=Count("pk", filter=FILTROS_SITUACAO["arquivado"][1]),
     )
@@ -249,6 +255,7 @@ def roteiros_de_lista(qs: QuerySet[Roteiro]) -> QuerySet[Roteiro]:
 FILTROS_ROTEIRO = {
     "futuros": "Que vão acontecer",
     "andamento": "Em andamento e realizados",
+    "finalizados": "Finalizados",
     "cancelados": "Cancelados",
 }
 
@@ -256,10 +263,14 @@ FILTROS_ROTEIRO = {
 def filtrar_roteiros(qs: QuerySet[Roteiro], aba: str | None) -> QuerySet[Roteiro]:
     agora = timezone.now()
     ativos = qs.filter(situacao=Roteiro.Situacao.ATIVO)
+    prestadas = prestacao.prestadas("roteiro")
+    if aba == "finalizados":
+        return ativos.filter(prestadas)
     if aba == "futuros":
-        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(_ini__gt=agora)
+        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(~prestadas, _ini__gt=agora)
     if aba == "andamento":
-        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(_ini__lte=agora)
+        return ativos.annotate(_ini=Min("trechos__saida_em")).filter(~prestadas,
+                                                                     _ini__lte=agora)
     if aba == "cancelados":
         return qs.filter(situacao=Roteiro.Situacao.CANCELADO)
     return qs

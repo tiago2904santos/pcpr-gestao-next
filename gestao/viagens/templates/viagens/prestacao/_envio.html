@@ -1,0 +1,29 @@
+{% comment %}
+Registrar o envio ao financeiro (referência: data do envio e protocolo). Uma janela por
+servidor finalizado e uma da equipe (`equipe`), quando todos estão finalizados.
+{% endcomment %}
+<dialog id="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}" class="dialogo" aria-labelledby="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-titulo">
+  <form method="post" action="{% url 'viagens:acao_prestacao' ps.pk 'enviar' %}" novalidate data-esperar-salvamento>
+    {% csrf_token %}
+    <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
+    {% if equipe %}<input type="hidden" name="equipe" value="1">{% endif %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-titulo">{% if equipe %}Registrar o envio da equipe do {{ ps.prestacao.oficio }}{% else %}Registrar o envio de {{ ps.servidor.nome }}{% endif %}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <div class="campo">
+        <label class="campo__rotulo" for="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-data">Enviada em</label>
+        <pc-data class="seletor"><input class="entrada" id="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-data" name="enviada_em" value="{% now 'd/m/Y' %}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-protocolo">Protocolo do envio</label>
+        <input class="entrada" id="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-protocolo" name="protocolo" maxlength="120" autocomplete="off" aria-describedby="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-ajuda">
+        <p class="campo__ajuda" id="envio-{{ ps.pk }}{% if equipe %}-equipe{% endif %}-ajuda">Opcional. O envio é registrado aqui; o sistema não manda nada ao financeiro.</p>
+      </div>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Voltar</button>
+      <button type="submit" class="botao botao--primario">{% icone "send" %}Registrar envio</button>
+    </div>
+  </form>
+</dialog>

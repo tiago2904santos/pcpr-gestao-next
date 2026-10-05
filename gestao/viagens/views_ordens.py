@@ -20,7 +20,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros import policies as politicas_cadastros
 
-from . import assinados, linha_do_tempo, ordens, policies, views_assinados
+from . import assinados, linha_do_tempo, ordens, policies, prestacao, views_assinados
 from .forms import FormularioOrdem
 from .models import Oficio, OrdemServico, ViaAssinada
 from .views import POR_PAGINA, _migalhas
@@ -33,16 +33,20 @@ from .views_editor import (
 
 ABAS = [("", "Todas", "todas"), ("futuras", "Que vão acontecer", "futuras"),
         ("andamento", "Em andamento e realizadas", "andamento"),
+        ("finalizadas", "Finalizadas", "finalizadas"),
         ("canceladas", "Canceladas", "canceladas")]
 
 
 def _filtrar(qs, aba: str):
     hoje = timezone.localdate()
     ativas = qs.filter(situacao=OrdemServico.Situacao.ATIVA)
+    prestadas = prestacao.prestadas("ordem")
+    if aba == "finalizadas":
+        return ativas.filter(prestadas)
     if aba == "futuras":  # sem data, a OS ainda "vai acontecer" (referência)
-        return ativas.filter(Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
+        return ativas.filter(~prestadas, Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
     if aba == "andamento":
-        return ativas.filter(data_inicio__lte=hoje)
+        return ativas.filter(~prestadas, data_inicio__lte=hoje)
     if aba == "canceladas":
         return qs.filter(situacao=OrdemServico.Situacao.CANCELADA)
     return qs

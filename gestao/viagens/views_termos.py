@@ -22,7 +22,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
-from . import assinados, linha_do_tempo, policies, termos, views_assinados
+from . import assinados, linha_do_tempo, policies, prestacao, termos, views_assinados
 from .forms import FormularioTermo
 from .models import Oficio, TermoAutorizacao, Trecho
 from .views import POR_PAGINA, _migalhas
@@ -35,6 +35,7 @@ from .views_editor import (
 
 ABAS = [("", "Todos", "todos"), ("futuros", "Que vão acontecer", "futuros"),
         ("andamento", "Em andamento e realizados", "andamento"),
+        ("finalizados", "Finalizados", "finalizados"),
         ("cancelados", "Cancelados", "cancelados")]
 
 
@@ -49,10 +50,13 @@ def _com_inicio(qs):
 def _filtrar(qs, aba: str):
     hoje = timezone.localdate()
     ativos = qs.filter(situacao=TermoAutorizacao.Situacao.ATIVO)
+    prestadas = prestacao.prestadas("termo")  # termo avulso nunca finaliza
+    if aba == "finalizados":
+        return ativos.filter(prestadas)
     if aba == "futuros":
-        return ativos.filter(inicio_efetivo__gt=hoje)
+        return ativos.filter(~prestadas, inicio_efetivo__gt=hoje)
     if aba == "andamento":
-        return ativos.filter(inicio_efetivo__lte=hoje)
+        return ativos.filter(~prestadas, inicio_efetivo__lte=hoje)
     if aba == "cancelados":
         return qs.filter(situacao=TermoAutorizacao.Situacao.CANCELADO)
     return qs

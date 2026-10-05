@@ -144,7 +144,8 @@ class TestTelasDeRoteiros:
         assert f'data-destaque="roteiro:{cenario.ids["roteiro"]}"' in html
         assert f'data-destaque="roteiro:{cenario.ids["roteiro_outra_unidade"]}"' not in html
         contagens = r.context["contagens"]
-        assert contagens == {"todos": 2, "futuros": 1, "andamento": 0, "cancelados": 1}
+        assert contagens == {"todos": 2, "futuros": 1, "andamento": 0, "finalizados": 0,
+                             "cancelados": 1}
         busca = operador.get(reverse("viagens:roteiros"), {"q": "ponta"}).context["roteiros"]
         assert [x.pk for x in busca] == [cenario.ids["roteiro"]]
         por_numero = operador.get(reverse("viagens:roteiros"),
@@ -158,7 +159,7 @@ class TestTelasDeRoteiros:
         for _ in range(5):
             services.salvar_roteiro(cenario.usuarios["operador"], None,
                                     {"quantidade_servidores": 2}, _trechos(cenario))
-        with django_assert_max_num_queries(17):  # 17: +1 do sino (avisos não lidos)
+        with django_assert_max_num_queries(18):  # +1 do sino, +1 da aba Finalizados
             assert operador.get(reverse("viagens:roteiros")).status_code == 200
 
     def test_outra_unidade_e_consulta(self, client, operador, cenario):

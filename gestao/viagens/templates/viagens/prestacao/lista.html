@@ -1,0 +1,98 @@
+{% extends "arquetipos/lista.html" %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block titulo %}Prestação de contas{% endblock %}
+{% block titulo_lista %}Prestação de contas{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Lance a solicitação, a liberação e o prazo de saque de cada servidor (grava sozinho); finalize e registre o envio ao financeiro.</p>{% endblock %}
+{% block acoes_lista %}<a class="botao" href="{% url 'viagens:exportar_prestacoes' %}{% if querystring_base %}?{{ querystring_base }}{% endif %}">{% icone "download" %}Exportar planilha</a>{% endblock %}
+{% comment %}
+Paridade com a lista de prestações da referência (docs/migration/prestacao.md): abas de
+situação e atalhos "pedem atenção" (aceitam várias, juntas por OU, pela URL), busca por
+servidor, ofício (12/2026), protocolo ou nº de solicitação, 25 ofícios por página (a equipe
+não se parte). Um bloco por ofício e um formulário por servidor: os campos gravam sozinhos
+(autosave.js, como a referência) e as ações do cartão levam o que está digitado; as da equipe
+esperam as gravações pendentes (data-esperar-salvamento).
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação das prestações">
+  <a class="aba" href="?{% if busca %}q={{ busca|urlencode }}{% endif %}"{% if not aba %} aria-current="page"{% endif %}>Todas <span class="aba__contagem">{{ contagens.todas }}</span></a>
+  {% for chave, rotulo in abas_situacao %}
+    <a class="aba" href="?aba={{ chave }}{% if busca %}&amp;q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:chave }}</span></a>
+  {% endfor %}
+</nav>
+<nav class="atalhos-atencao" aria-labelledby="atalhos-atencao-rotulo">
+  <span class="atalhos-atencao__rotulo" id="atalhos-atencao-rotulo">Pedem atenção:</span>
+  {% for chave, rotulo in abas_atencao %}{% with n=contagens|get_item:chave %}
+    <a class="atalhos-atencao__item{% if n and chave != 'finalizadas_mes' %} atalhos-atencao__item--alerta{% endif %}" href="?aba={{ chave }}{% if busca %}&amp;q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ n }}</span></a>
+  {% endwith %}{% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:prestacoes' %}">
+  {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-prestacoes">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-prestacoes" type="search" name="q" value="{{ busca }}" placeholder="Servidor, ofício, protocolo…" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Prestações por ofício{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ total_servidores|pluralizar:"servidor,servidores" }} em {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
+</div>
+{% if blocos %}
+  {% for b in blocos %}{% with p=b.p o=b.p.oficio %}
+  <article class="prestacao-equipe" id="equipe-{{ p.pk }}" aria-labelledby="equipe-{{ p.pk }}-titulo">
+    <header class="prestacao-equipe__cabecalho">
+      <h3 class="prestacao-equipe__titulo" id="equipe-{{ p.pk }}-titulo"><a href="{% url 'viagens:editar' o.pk %}">{{ o }}</a>{% if b.destinos %} · {{ b.destinos }}{% endif %}</h3>
+      <div class="prestacao-equipe__meta">
+        {% if b.periodo %}<span>{{ b.periodo }}</span>{% endif %}
+        <span>{% if o.diarias_total %}{{ o.diarias_total|moeda }} em diárias{% else %}Sem diárias calculadas{% endif %}</span>
+        <span>{{ b.linhas|length|pluralizar:"servidor,servidores" }}</span>
+        {% if b.todas_finalizadas %}<span class="selo selo--sucesso selo--sem-ponto">Equipe finalizada</span>{% endif %}
+      </div>
+      {% if b.editavel %}
+      <div class="prestacao-equipe__acoes">
+        {% if not b.todas_finalizadas %}
+          <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button>
+        {% elif b.por_enviar %}
+          <button type="button" class="botao botao--sm" data-abrir-dialogo="envio-{{ b.por_enviar.0.ps.pk }}-equipe">{% icone "send" %}Registrar envio da equipe</button>
+        {% endif %}
+        <pc-menu class="menu">
+          <button type="button" class="botao botao--icone botao--sutil botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da equipe do {{ o }}">{% icone "ellipsis-vertical" %}</button>
+          <div class="menu__painel" role="menu" hidden>
+            {% if b.reabrivel %}<button type="submit" form="equipe-{{ p.pk }}-reabrir" class="menu__item" role="menuitem">{% icone "undo-2" %}Reabrir as finalizadas</button>{% endif %}
+            <button type="submit" form="equipe-{{ p.pk }}-arquivar" class="menu__item" role="menuitem">{% icone "inbox" %}Arquivar equipe</button>
+            {% if b.alguma_arquivada %}<button type="submit" form="equipe-{{ p.pk }}-desarquivar" class="menu__item" role="menuitem">{% icone "folder-open" %}Desarquivar equipe</button>{% endif %}
+          </div>
+        </pc-menu>
+      </div>
+      {% endif %}
+    </header>
+    <ul class="prestacao-equipe__servidores">
+      {% for l in b.linhas %}{% include "viagens/prestacao/_cartao.html" %}{% endfor %}
+    </ul>
+  </article>
+  {% if b.editavel %}{% for acao in acoes_equipe %}
+  <form id="equipe-{{ p.pk }}-{{ acao }}" method="post" action="{% url 'viagens:acao_equipe_prestacao' p.pk acao %}" hidden data-esperar-salvamento>{% csrf_token %}<input type="hidden" name="voltar" value="{{ request.get_full_path }}"></form>
+  {% endfor %}{% endif %}
+  {% endwith %}{% endfor %}
+  {% include "componentes/paginacao.html" %}
+{% elif busca or aba %}
+  {% include "componentes/vazio.html" with icone="search" titulo=vazio texto="Ajuste a busca ou troque de aba." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma prestação de contas ainda" texto="Ela nasce sozinha quando um ofício com equipe é emitido." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% include "componentes/dialogo_motivo.html" %}
+{% for b in blocos %}
+  {% for l in b.linhas %}{% if l.editavel and l.ps.finalizada and l.ps.situacao != "enviada" and l.ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=l.ps equipe=False %}{% endif %}{% endfor %}
+  {% if b.editavel and b.todas_finalizadas and b.por_enviar %}{% include "viagens/prestacao/_envio.html" with ps=b.por_enviar.0.ps equipe=True %}{% endif %}
+{% endfor %}
+{% endblock %}

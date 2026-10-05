@@ -1,0 +1,84 @@
+{% comment %}
+Cartão de um servidor na prestação (lista.html). Um formulário por cartão: os três campos
+gravam sozinhos (autosave por cartão); Enter grava pelo botão padrão escondido; as ações
+(Finalizar, Arquivar…) enviam o mesmo formulário e gravam o digitado antes de agir.
+As regiões [data-vivo] se refazem depois de cada gravação (selos, pendências, ações).
+{% endcomment %}
+{% with ps=l.ps %}
+<li class="prestacao-servidor{% if ps.finalizada or ps.arquivada %} prestacao-servidor--fechado{% endif %}" id="ps-{{ ps.pk }}">
+  <form method="post" action="{% url 'viagens:salvar_prestacao' ps.pk %}" id="form-ps-{{ ps.pk }}"{% if l.editavel and not ps.finalizada and not ps.arquivada %} data-autosave="{% url 'viagens:autosave_prestacao' ps.pk %}"{% endif %} class="pilha-sm">
+    {% csrf_token %}
+    <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
+    {% if l.editavel and not ps.finalizada and not ps.arquivada %}<button type="submit" hidden>Salvar</button>{% endif %}
+    <div class="prestacao-servidor__topo">
+      <span class="prestacao-servidor__nome">{{ ps.servidor.nome }}</span>
+      <span class="prestacao-servidor__selos" id="estado-ps-{{ ps.pk }}" data-vivo>
+        {% if ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}
+        {% if ps.situacao == "enviada" %}<span class="selo selo--info selo--sem-ponto">Enviada em {{ ps.enviada_em|date:"d/m/Y" }}{% if l.editavel %}, aguardando a decisão{% endif %}</span>
+        {% elif ps.situacao == "aprovada" %}<span class="selo selo--sucesso selo--sem-ponto">Aprovada</span>
+        {% elif ps.situacao == "devolvida" %}<span class="selo selo--perigo selo--sem-ponto">Devolvida</span>{% endif %}
+        {% if ps.arquivada %}<span class="selo selo--sem-ponto">Arquivada</span>{% endif %}
+        {% for s in l.selos %}<span class="selo {% if s.tom == 'vencido' %}selo--perigo{% elif s.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %} selo--sem-ponto" title="{{ s.detalhe }}">{{ s.texto }}</span>{% endfor %}
+      </span>
+      {% if l.editavel and not ps.finalizada and not ps.arquivada %}<p class="prestacao-servidor__status barra-acoes__status" data-status-salvamento aria-live="polite"></p>{% endif %}
+    </div>
+    {% if ps.situacao == "devolvida" and ps.motivo_devolucao %}<p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Devolvida{% if ps.decidida_em %} em {{ ps.decidida_em|date:"d/m/Y" }}{% endif %}: {{ ps.motivo_devolucao }}</span></p>{% endif %}
+    {% if l.editavel and not ps.finalizada and not ps.arquivada %}
+    <div class="prestacao-servidor__campos">
+      <div class="campo">
+        <label class="campo__rotulo" for="ps-{{ ps.pk }}-numero">Nº da solicitação</label>
+        <input class="entrada" id="ps-{{ ps.pk }}-numero" name="numero" value="{{ ps.numero_solicitacao }}" maxlength="60" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="ps-{{ ps.pk }}-liberacao">Liberação das diárias</label>
+        <pc-data class="seletor"><input class="entrada" id="ps-{{ ps.pk }}-liberacao" name="liberacao" value="{{ ps.data_liberacao_diarias|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="ps-{{ ps.pk }}-prazo">Prazo limite de saque</label>
+        <pc-data class="seletor"><input class="entrada" id="ps-{{ ps.pk }}-prazo" name="prazo" value="{{ ps.prazo_limite_saque|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+    </div>
+    {% endif %}
+    <div class="prestacao-servidor__notas" id="nota-ps-{{ ps.pk }}" data-vivo>
+      <p class="prestacao-servidor__nota">{% if not l.diaria %}Diária ainda não calculada{% elif ps.data_liberacao_diarias %}Diária liberada: {{ l.diaria|moeda }}{% else %}Diária prevista: {{ l.diaria|moeda }}{% endif %}{% if ps.finalizada or ps.arquivada or not l.editavel %} · {% if ps.numero_solicitacao %}Nº {{ ps.numero_solicitacao }}{% else %}sem nº de solicitação{% endif %}{% if ps.data_liberacao_diarias %} · liberada em {{ ps.data_liberacao_diarias|date:"d/m/Y" }}{% endif %}{% if ps.prazo_limite_saque %} · saque até {{ ps.prazo_limite_saque|date:"d/m/Y" }}{% endif %}{% endif %}{% if l.prestar_ate and not ps.finalizada and not l.selos %} · prestar contas até {{ l.prestar_ate|date:"d/m/Y" }}{% endif %}{% if ps.protocolo_envio %} · protocolo {{ ps.protocolo_envio }}{% endif %}</p>
+      {% if ps.justificativa_finalizacao %}<p class="prestacao-servidor__nota">Finalizada com pendência. Justificativa: “{{ ps.justificativa_finalizacao }}”</p>{% endif %}
+      {% if l.pendencias and not ps.finalizada %}<p class="prestacao-servidor__nota">Falta para finalizar: {{ l.pendencias|join:" " }}</p>{% endif %}
+    </div>
+    {% if l.editavel %}
+    <div class="prestacao-servidor__acoes" id="acoes-ps-{{ ps.pk }}" data-vivo>
+      {% if ps.finalizada %}
+        {% if ps.situacao == "enviada" %}
+          <button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'aprovar' %}">{% icone "badge-check" %}Aprovar</button>
+        {% endif %}
+        {% if ps.situacao == "enviada" or ps.situacao == "aprovada" %}
+          <button type="button" class="botao botao--sm botao--sutil" data-pedir-motivo="{% url 'viagens:acao_prestacao' ps.pk 'devolver' %}" data-motivo-titulo="Devolver a prestação de {{ ps.servidor.nome }}?" data-motivo-rotulo="Motivo da devolução" data-motivo-acao="Devolver" data-motivo-ajuda="A prestação volta a ficar aberta para correção e a equipe de viagens da unidade é avisada." data-motivo-perigo>{% icone "undo-2" %}Devolver</button>
+        {% else %}
+          <button type="button" class="botao botao--sm" data-abrir-dialogo="envio-{{ ps.pk }}">{% icone "send" %}Registrar envio</button>
+          <button type="submit" class="botao botao--sm botao--sutil" formaction="{% url 'viagens:acao_prestacao' ps.pk 'reabrir' %}">{% icone "undo-2" %}Reabrir</button>
+        {% endif %}
+      {% elif ps.arquivada %}
+        <button type="submit" class="botao botao--sm botao--sutil" formaction="{% url 'viagens:acao_prestacao' ps.pk 'desarquivar' %}">{% icone "folder-open" %}Desarquivar</button>
+      {% else %}
+        <button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar</button>
+        {% if l.pendencias %}
+        <details class="prestacao-servidor__justificar">
+          <summary>Finalizar com pendência…</summary>
+          <div class="campo">
+            <label class="campo__rotulo" for="ps-{{ ps.pk }}-justificativa">Justificativa (fica registrada)</label>
+            <textarea class="area-texto" id="ps-{{ ps.pk }}-justificativa" name="justificativa" rows="2" maxlength="1000"></textarea>
+          </div>
+          <div><button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar com justificativa</button></div>
+        </details>
+        {% endif %}
+        <pc-menu class="menu">
+          <button type="button" class="botao botao--icone botao--sutil botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Mais ações de {{ ps.servidor.nome }}">{% icone "ellipsis-vertical" %}</button>
+          <div class="menu__painel" role="menu" hidden>
+            <button type="submit" class="menu__item" role="menuitem" formaction="{% url 'viagens:acao_prestacao' ps.pk 'arquivar' %}">{% icone "inbox" %}Arquivar (sai das abas de trabalho)</button>
+          </div>
+        </pc-menu>
+      {% endif %}
+    </div>
+    {% endif %}
+  </form>
+</li>
+{% endwith %}

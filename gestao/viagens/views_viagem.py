@@ -16,7 +16,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import policies, viagem, viagem_conferencia
+from . import policies, prestacao, viagem, viagem_conferencia
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
 from .models import Viagem
@@ -25,6 +25,7 @@ from .views_editor import primeiro_erro
 
 ABAS = [("", "Todas", "todas"), ("futuras", "Que vão acontecer", "futuras"),
         ("atuais", "Em andamento e realizadas", "atuais"),
+        ("prestadas", "Contas prestadas", "prestadas"),
         ("canceladas", "Canceladas", "canceladas")]
 NUMERO_OFICIO = re.compile(r"^\s*(\d{1,5})\s*(?:/\s*(\d{4}))?\s*$")
 ROTAS_NOVO = {"roteiro": "viagens:editar_roteiro", "oficio": "viagens:editar",
@@ -42,12 +43,16 @@ def _viagem_visivel(request: HttpRequest, pk: int) -> Viagem:
 def _filtrar(qs, aba: str):
     hoje = timezone.localdate()
     ativas = qs.exclude(situacao=Viagem.Situacao.CANCELADA)
+    prestadas = prestacao.prestadas("viagem")
     if aba == "canceladas":
         return qs.filter(situacao=Viagem.Situacao.CANCELADA)
+    if aba == "prestadas":
+        return ativas.filter(prestadas)
+    # As de contas prestadas saem das abas de quando (abas exclusivas, referência).
     if aba == "futuras":
-        return ativas.filter(Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
+        return ativas.filter(~prestadas, Q(data_inicio__gt=hoje) | Q(data_inicio__isnull=True))
     if aba == "atuais":
-        return ativas.filter(data_inicio__lte=hoje)
+        return ativas.filter(~prestadas, data_inicio__lte=hoje)
     return qs
 
 

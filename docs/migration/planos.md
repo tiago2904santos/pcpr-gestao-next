@@ -62,7 +62,7 @@ comum, `dominio/escrita.py`, usado também pela OS.
 | Documento: 8 seções na ordem do PDF da referência, cabeçalho e página em todas, assinatura na última página | ✅ | PDF/A e DOCX do mesmo HTML; prévia com MINUTA | `test_geracao_fixa_data_e_marca_gerado_previa_nao` |
 | Quem assina: o do plano, substituto do período, assinante dos planos — sem chefia | ✅ | | `TestConfiguracaoDoPlano` (6a) |
 | Lista: abas (sem data em "Que vão acontecer"), busca (número, N/AAAA, destino, programa) | ✅ | estado único com a folha (pendências / pronto para gerar / gerado em / cancelado) | `test_lista_abas_busca_e_permissoes` |
-| Aba "Finalizados" (contas prestadas) | ⛔ | módulo 9 | — |
+| Aba "Finalizados" (contas prestadas) | ✅ | pelos ofícios da viagem do plano (referência) | `gestao/viagens/tests/test_prestacao.py::test_contas_prestadas_nos_outros_modulos`, `test_abas_de_quando_excluem_as_contas_prestadas` |
 | Cancelar (motivo) / reativar / excluir (número volta) | ✅ MELHORADO | cancelado bloqueado no servidor; excluir só antes de gerar | `test_cancelado_nao_altera_e_reativa`, `test_depois_de_gerado_nao_exclui` |
 | Autosave (também depois de gerado) | ✅ MELHORADO | com versão (não grava por cima de outra pessoa); a geração toca a versão e não deixa "em branco" apagar a data fixada | `test_autosave_versao_e_cancelado`, `test_aba_velha_depois_de_gerar_nao_apaga_a_data` |
 | Histórico | ✅ MELHORADO | lido da trilha do banco | `test_historico` |

@@ -28,6 +28,10 @@ registrar_modulo(
                      requer="viagens.view_ordemservico"),
                 Item("Planos de trabalho", "viagens:planos", "list-checks",
                      requer="viagens.view_planotrabalho"),
+                # Nasce do ofício emitido; no menu porque a barra não cabe no tablet (768px)
+                # com mais um item solto.
+                Item("Prestação de contas", "viagens:prestacoes", "receipt",
+                     requer="viagens.view_prestacaoservidor"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Todos os cadastros", "cadastros:indice", "layers",

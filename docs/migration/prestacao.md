@@ -47,6 +47,21 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - **9c relatório técnico** (com modelos de texto e sugestões do plano).
 - **9d documentos**: anexos com versões, carimbo (ajuste manual), pacote final, baixar.
 
+## Estado
+
+- **9a feito** (05/10/2026): `gestao/viagens/{prestacao,views_prestacao}.py`,
+  `dominio/prestacao.py`, tela `viagens/prestacao/lista.html` (bloco por ofício, cartão por
+  servidor, lote no cartão, atalhos "pedem atenção"), DEMO em
+  `demonstracao.prestacoes_para_avaliar`. Decisões em [decisoes.md](decisoes.md#prestação-de-contas-9a).
+- Revisões de segurança e UX (05/10) aplicadas: cartão-formulário com autosave, ação grava o
+  digitado, reabrir/reenviar não desfazem aprovação, linha removida e ofício reaberto não se
+  alteram, permissão da equipe antes do laço, classes renomeadas (colisão de CSS), âncoras.
+- Pendências de 9a que dependem de 9b–9d: despacho, comprovante (e o selo de saque que o
+  considera), diário e RT nas pendências de finalizar; rotina diária de avisos.
+- Histórico em tela da prestação (finalizada com justificativa, reaberta, enviada,
+  devolvida): a trilha do banco já guarda; a linha do tempo na tela fica para a página do
+  servidor (9d). Até lá, a justificativa da última finalização aparece no cartão.
+
 ## Fora ou simulado
 
 eProtocolo (consulta de andamento: simulada), importação do processo em PDF/OCR, posição

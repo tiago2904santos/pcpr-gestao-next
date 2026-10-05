@@ -8,7 +8,13 @@
  * Sem JavaScript nada muda — o botão "Salvar" continua sendo o caminho.
  *
  * Marcação: <form data-autosave="<url>"> com <input name="roteiro_id" data-roteiro-id>.
- * O status aparece em [data-status-salvamento] (no [data-anuncio] dele, se houver).
+ * O status aparece em [data-status-salvamento] (no [data-anuncio] dele, se houver): o de
+ * dentro do formulário, quando a página tem vários (um por cartão, como na prestação de
+ * contas), senão o da página.
+ *
+ * <form data-esperar-salvamento> (ações que não são do formulário, ex.: "Finalizar equipe")
+ * espera as gravações pendentes de todos os formulários antes de enviar — sem isso, o envio
+ * correria com o que ainda está para gravar.
  *
  * Depois de gravar, a tela acompanha o que foi gravado:
  *  - `campos` da resposta voltam ao formulário (ex.: a versão nova);
@@ -21,6 +27,8 @@
 const ESPERA = 1200;
 
 export class Autosave {
+  /** @type {Autosave[]} todos os formulários da página que gravam sozinhos */
+  static todos = [];
   /** @type {number | undefined} */
   atraso = undefined;
   /** @type {AbortController | null} */
@@ -38,7 +46,9 @@ export class Autosave {
   constructor(form) {
     this.form = form;
     this.url = form.dataset.autosave || "";
-    this.status = /** @type {HTMLElement | null} */ (document.querySelector("[data-status-salvamento]"));
+    this.status = /** @type {HTMLElement | null} */ (
+      form.querySelector("[data-status-salvamento]") || document.querySelector("[data-status-salvamento]"));
+    Autosave.todos.push(this);
     for (const evento of ["input", "change"]) {
       document.addEventListener(evento, (e) => {
         if (this.doFormulario(/** @type {Element} */ (e.target))) this.agendar();
@@ -77,6 +87,13 @@ export class Autosave {
       this.enviando = true;
       this.form.requestSubmit(/** @type {HTMLElement | null} */ (quem) ?? undefined);
     });
+  }
+
+  /** Grava agora o que está pendente e espera terminar (para quem vai enviar outra coisa). */
+  async descarregar() {
+    window.clearTimeout(this.atraso);
+    await this.gravar();
+    if (this.emVoo) await this.emVoo;
   }
 
   /** @param {Element} alvo */
@@ -183,4 +200,16 @@ export class Autosave {
 
 document.querySelectorAll("form[data-autosave]").forEach((f) => {
   new Autosave(/** @type {HTMLFormElement} */ (f));
+});
+
+document.addEventListener("submit", (e) => {
+  const form = /** @type {HTMLFormElement} */ (e.target);
+  if (!form.matches("[data-esperar-salvamento]") || form.dataset.descarregado) return;
+  if (!Autosave.todos.length) return;
+  e.preventDefault();
+  const quem = /** @type {HTMLElement | null} */ (e.submitter);
+  Promise.all(Autosave.todos.map((a) => a.descarregar())).finally(() => {
+    form.dataset.descarregado = "1";
+    form.requestSubmit(quem ?? undefined);
+  });
 });

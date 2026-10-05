@@ -269,3 +269,19 @@ def test_gerar_documentos_da_viagem_sem_violacoes(logado, dados_e2e, largura):
     v = viagem.criar(Usuario.objects.get(login="operador"))
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/viagens/{v.pk}/gerar-documentos/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_prestacao_de_contas_sem_violacoes(logado, dados_e2e, largura):
+    """Lista da prestação com um servidor em aberto (campos do lote) e um finalizado."""
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import prestacao
+    from gestao.viagens.models import PrestacaoServidor
+
+    operador = Usuario.objects.get(login="operador")
+    a = PrestacaoServidor.objects.filter(
+        prestacao__oficio_id=dados_e2e.ids["oficio_emitido"]).order_by("servidor__nome").first()
+    prestacao.finalizar(operador, a.pk, "Exemplo de justificativa (teste).")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, "/viagens/prestacoes/")
+    _avaliar(logado, "/viagens/prestacoes/?aba=finalizados")

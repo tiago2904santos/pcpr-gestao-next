@@ -1183,3 +1183,84 @@ class LacunaPlano(models.Model):
 
     def __str__(self) -> str:
         return f"{self.numero:02d}/{self.ano}"
+
+
+class PrestacaoContas(models.Model):
+    """Prestação de contas de um ofício (referência: uma por ofício), com uma prestação por
+    servidor da equipe. Nasce quando o ofício é emitido. Regra em `prestacao.py`."""
+
+    oficio = models.OneToOneField(Oficio, on_delete=models.PROTECT, related_name="prestacao")
+    observacoes = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "prestação de contas"
+        verbose_name_plural = "prestações de contas"
+
+    def __str__(self) -> str:
+        return f"Prestação do {self.oficio}"
+
+
+class PrestacaoServidor(models.Model):
+    """A prestação de um servidor do ofício: solicitação, diárias, prazo de saque,
+    finalização e envio ao financeiro (referência: PrestacaoServidor)."""
+
+    class Situacao(models.TextChoices):
+        PENDENTE = "pendente", "Pendente"
+        PREENCHIMENTO = "preenchimento", "Em preenchimento"
+        ENVIADA = "enviada", "Enviada"
+        APROVADA = "aprovada", "Aprovada"
+        DEVOLVIDA = "devolvida", "Devolvida"
+
+    prestacao = models.ForeignKey(PrestacaoContas, on_delete=models.CASCADE,
+                                  related_name="servidores")
+    servidor = models.ForeignKey(Servidor, on_delete=models.PROTECT, related_name="prestacoes")
+    numero_solicitacao = models.CharField("nº da solicitação", max_length=60, blank=True)
+    data_liberacao_diarias = models.DateField("liberação das diárias", null=True, blank=True)
+    prazo_limite_saque = models.DateField("prazo limite de saque", null=True, blank=True)
+    diaria_valor_override = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+                                                blank=True)
+    diaria_valor_override_observacao = models.CharField(max_length=255, blank=True)
+    situacao = models.CharField(max_length=14, choices=Situacao.choices,
+                                default=Situacao.PENDENTE)
+    arquivada_em = models.DateTimeField(null=True, blank=True)
+    finalizada_em = models.DateTimeField(null=True, blank=True)
+    justificativa_finalizacao = models.TextField(blank=True)
+    enviada_em = models.DateField(null=True, blank=True)
+    protocolo_envio = models.CharField("protocolo ou e-mail do envio", max_length=120,
+                                       blank=True)
+    decidida_em = models.DateTimeField(null=True, blank=True)
+    motivo_devolucao = models.TextField(blank=True)
+    # Saiu da equipe com dados já lançados: some das listas, mas não se perde.
+    removida_em = models.DateTimeField(null=True, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["servidor__nome"]
+        verbose_name = "prestação de servidor"
+        verbose_name_plural = "prestações de servidor"
+        constraints = [
+            models.UniqueConstraint(fields=["prestacao", "servidor"],
+                                    name="prestacao_servidor_unica"),
+            models.CheckConstraint(
+                condition=Q(prazo_limite_saque__isnull=True)
+                | Q(data_liberacao_diarias__isnull=True)
+                | Q(prazo_limite_saque__gte=models.F("data_liberacao_diarias")),
+                name="prestacao_prazo_depois_da_liberacao"),
+            models.CheckConstraint(condition=Q(diaria_valor_override__isnull=True)
+                                   | Q(diaria_valor_override__gt=0),
+                                   name="prestacao_diaria_positiva"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.servidor} — {self.prestacao.oficio}"
+
+    @property
+    def finalizada(self) -> bool:
+        return self.finalizada_em is not None
+
+    @property
+    def arquivada(self) -> bool:
+        return self.arquivada_em is not None

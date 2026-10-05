@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "plataforma_notificacao", "viagens_viagemdestino", "viagens_viagem",
+    "plataforma_notificacao", "viagens_prestacaoservidor", "viagens_prestacaocontas",
+    "viagens_viagemdestino", "viagens_viagem",
     "cadastros_tipoviagem", "viagens_viaassinada", "viagens_historico", "viagens_documento",
     "viagens_edicaodocumento", "viagens_trecho",
     "viagens_viajante",
@@ -833,6 +834,57 @@ class _Gerador:
             cancelado_em=timezone.now())
         cancelada.tipos.set([tipos[2]])
 
+    def prestacoes_para_avaliar(self) -> None:
+        """Prestação de contas (módulo 9a): as prestações nascem sozinhas na emissão; aqui
+        as seis mais recentes da ASCOM ganham estados para avaliar cada aba — saque
+        vencendo, prestação vencida, equipe finalizada, enviada, devolvida e arquivada."""
+        from django.core.exceptions import PermissionDenied
+
+        from . import prestacao
+        from .models import PrestacaoServidor
+
+        ascom = self.unidades[0]
+        autor = (Usuario.objects.filter(lotacao__unidade=ascom, groups__name="OPERADOR_VIAGENS")
+                 .order_by("pk").first())
+        if autor is None:
+            return
+        equipes: dict[int, list[PrestacaoServidor]] = {}
+        for ps in (prestacao.ativos().filter(prestacao__oficio__unidade=ascom)
+                   .exclude(prestacao__oficio__situacao=Oficio.Situacao.CANCELADO)
+                   .select_related("servidor")
+                   .order_by("-prestacao__oficio__ano", "-prestacao__oficio__numero",
+                             "servidor__nome")):
+            if len(equipes) == 6 and ps.prestacao_id not in equipes:
+                break
+            equipes.setdefault(ps.prestacao_id, []).append(ps)
+        h = self.hoje
+
+        def lancar(ps, n, liberacao, prazo):
+            prestacao.salvar_solicitacao(autor, ps.pk, numero=f"{h.year}/{n:04d}",
+                                         liberacao=liberacao, prazo=prazo)
+
+        try:
+            for i, linhas in enumerate(equipes.values()):
+                for j, ps in enumerate(linhas):
+                    n = 100 + i * 10 + j
+                    if i == 0:  # saque vencendo
+                        lancar(ps, n, h - timedelta(days=1), h + timedelta(days=2))
+                    elif i == 1:  # prestação vencida
+                        lancar(ps, n, h - timedelta(days=20), h - timedelta(days=10))
+                    elif i in (2, 3, 4):  # finalizadas (3 enviada, 4 devolvida)
+                        lancar(ps, n, h - timedelta(days=15), h - timedelta(days=12))
+                        prestacao.finalizar(autor, ps.pk)
+                    elif i == 5 and j == 0:
+                        prestacao.arquivar(autor, ps.pk)
+                if i in (3, 4):
+                    prestacao.enviar(autor, linhas[0].pk, enviada_em=h - timedelta(days=5),
+                                     protocolo=f"DEMO-{h.year}-{i}", equipe=True)
+                if i == 4:
+                    prestacao.devolver(autor, linhas[0].pk,
+                                       "Comprovante do saque ilegível; anexe de novo (DEMO).")
+        except (PermissionDenied, prestacao.PrestacaoInvalida):
+            return  # base sem os papéis (testes de unidade)
+
     def planos_para_avaliar(self) -> None:
         """Planos de trabalho (módulo 6): um completo a partir da viagem mais recente da
         ASCOM (com atividades, efetivo e diárias), um finalizado, um avulso incompleto e um
@@ -975,6 +1027,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.ordens_para_avaliar()
     gerador.planos_para_avaliar()
     gerador.viagens_para_avaliar()
+    gerador.prestacoes_para_avaliar()
     return resumo(len(oficios))
 
 
