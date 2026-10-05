@@ -1,0 +1,90 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Imprensa{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/graficos.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel do atendimento à imprensa (paridade com o painel da referência): pedidos e
+atendidos no mês, em aberto e deadline vencido (cada um leva à lista filtrada); o que está
+em aberto por deadline e os mais recentes; quem atendeu e quais veículos pediram no mês;
+os últimos seis meses.
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "megaphone" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Atendimento à imprensa</h1>
+    <p class="pagina-cabecalho__descricao">Pedidos dos jornalistas à ASCOM: o que está em aberto, os prazos e quem respondeu.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'imprensa:lista' %}">{% icone "messages-square" %}Ver atendimentos</a>
+    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
+  </div>
+</header>
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador" href="{% url 'imprensa:lista' %}?inicio={{ inicio|date:'Y-m-d' }}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "mail" classe="icone--sm" %}Pedidos no mês</span><span class="indicador__valor">{{ mes.total }}</span><span class="indicador__nota">{{ mes_rotulo|capfirst }}</span></a>
+  <a class="indicador" href="{% url 'imprensa:lista' %}?fila=atendidos&amp;inicio={{ inicio|date:'Y-m-d' }}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "check-circle-2" classe="icone--sm" %}Atendidos no mês</span><span class="indicador__valor">{{ mes.atendidos }}</span><span class="indicador__nota">{% if mes.total %}{{ percentual }}% dos pedidos{% else %}Nenhum pedido ainda{% endif %}</span></a>
+  <a class="indicador{% if abertos %} indicador--atencao{% endif %}" href="{% url 'imprensa:lista' %}?fila=abertos"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Em aberto</span><span class="indicador__valor">{{ abertos }}</span><span class="indicador__nota">Em andamento ou aguardando</span></a>
+  <a class="indicador{% if vencidos %} indicador--atencao{% endif %}" href="{% url 'imprensa:lista' %}?vencidos=1"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "alert-triangle" classe="icone--sm" %}Deadline vencido</span><span class="indicador__valor">{{ vencidos }}</span><span class="indicador__nota">Em aberto com prazo já passado</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-pendentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pendentes">Em aberto, pelo deadline</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'imprensa:lista' %}?fila=abertos">Ver todos</a></div></div>
+  {% if pendentes %}<ul class="registros">{% for l in pendentes %}{% include "imprensa/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nada em aberto" texto="Todos os pedidos foram atendidos ou encerrados." %}{% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Pedidos recentes</h2></div>
+  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "imprensa/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum pedido registrado" texto="Os pedidos dos jornalistas aparecem aqui." %}{% endif %}
+</section>
+{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-serie">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-serie">Pedidos por mês</h2></div>
+  <div class="cartao__corpo">
+    <ol class="serie" aria-labelledby="t-serie">
+      {% for b in grafico %}
+      <li class="serie__item{% if forloop.last %} serie__item--atual{% endif %}">
+        <span class="serie__valor">{{ b.valor }}<span class="sr-only"> em {{ b.titulo }}</span></span>
+        <svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect x="0" y="{{ b.topo }}" width="10" height="{{ b.altura }}"></rect></svg>
+        <span class="serie__rotulo" aria-hidden="true">{{ b.rotulo }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-equipe">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-equipe">Quem atendeu no mês</h2></div>
+  <div class="cartao__corpo">
+  {% if por_responsavel %}
+    <ol class="ranking">
+      {% for r in por_responsavel %}
+      <li class="ranking__item"><a class="ranking__nome" href="{% url 'imprensa:lista' %}?responsavel={{ r.chave }}&amp;inicio={{ inicio|date:'Y-m-d' }}">{{ r.nome }}</a><span class="ranking__total">{{ r.total }} <span class="ranking__nota">· {{ r.atendidos }} atendido{{ r.atendidos|pluralize }}</span></span><progress class="ranking__barra" max="{{ maior_responsavel }}" value="{{ r.total }}" aria-label="{{ r.nome }}: {{ r.total }} de {{ maior_responsavel }}"></progress></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">{% icone "users" classe="icone--sm" %}Nenhum pedido com responsável neste mês.</p>{% endif %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-veiculos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-veiculos">Veículos que mais pediram no mês</h2></div>
+  <div class="cartao__corpo">
+  {% if por_veiculo %}
+    <ol class="ranking">
+      {% for v in por_veiculo %}
+      <li class="ranking__item"><a class="ranking__nome" href="{% url 'imprensa:lista' %}?veiculo={{ v.chave }}&amp;inicio={{ inicio|date:'Y-m-d' }}">{{ v.nome }}</a><span class="ranking__total">{{ v.total }}</span><progress class="ranking__barra" max="{{ maior_veiculo }}" value="{{ v.total }}" aria-label="{{ v.nome }}: {{ v.total }} de {{ maior_veiculo }}"></progress></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">{% icone "radio" classe="icone--sm" %}Nenhum pedido com veículo neste mês.</p>{% endif %}
+  </div>
+</section>
+{% if pode_gerir_cadastros %}
+<section class="cartao" aria-labelledby="t-cadastros">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cadastros">Cadastros de apoio</h2></div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'imprensa:equipe' %}">{% icone "users" %}Equipe{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'imprensa:veiculos' %}">{% icone "radio" %}Veículos de imprensa{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

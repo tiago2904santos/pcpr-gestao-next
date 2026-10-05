@@ -41,6 +41,8 @@ ICONES = sorted({
     "file-search", "pilcrow", "remove-formatting",
     # Cadastros
     "fuel", "id-card",
+    # Atendimento à imprensa (ASCOM)
+    "megaphone", "messages-square", "radio", "phone", "mail", "hourglass", "activity",
 })
 
 

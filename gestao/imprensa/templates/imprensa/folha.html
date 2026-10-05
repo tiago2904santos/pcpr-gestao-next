@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if atendimento %}{{ atendimento }} · {{ atendimento.jornalista }}{% else %}Novo atendimento{% endif %} · Imprensa{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha do atendimento à imprensa (paridade com a tela única da referência), na linguagem da
+folha do ofício: cabeçalho com placa e frase; cartões numerados — Pedido, Fontes
+consultadas, Resposta e Andamento (a situação anda só por aqui, com a anotação, e o
+histórico fica no fim). Os campos dos três primeiros cartões pertencem ao formulário
+`form-atendimento` (atributo form), que se grava sozinho depois de criado; o andamento tem
+o seu próprio formulário.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Pedido</span>
+    <span class="placa__numero">{% if atendimento %}#{{ atendimento.pk }}{% else %}novo{% endif %}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="sr-only">{% if atendimento %}{{ atendimento }} — {{ atendimento.titulo }}{% else %}Novo atendimento à imprensa{% endif %}</h1>
+    {% if atendimento %}
+    <p class="frase-oficio" id="frase-atendimento">
+      <span class="sr-only">Resumo do atendimento: </span>
+      <span class="selo selo--{{ atendimento.tom }}">{{ atendimento.get_situacao_display }}</span>
+      {% if prazo %}<span class="selo selo--{{ prazo.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ prazo.texto }}</span>{% endif %}
+      <span class="frase-oficio__item">{% icone "user-round" classe="icone--sm" %}{{ atendimento.jornalista }}</span>
+      <span class="frase-oficio__item{% if not atendimento.veiculo %} frase-oficio__item--vazio{% endif %}">{% icone "radio" classe="icone--sm" %}{{ atendimento.veiculo.nome|default:"sem veículo" }}</span>
+      <span class="frase-oficio__item">{% icone "calendar" classe="icone--sm" %}{{ atendimento.data|date:"d/m/Y" }}{% if atendimento.horario %} às {{ atendimento.horario|time:"H:i" }}{% endif %}</span>
+      <span class="frase-oficio__item{% if not atendimento.responsavel %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{{ atendimento.responsavel.nome|default:"sem responsável" }}</span>
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">Registre o pedido do jornalista. Depois de criado, o atendimento se grava sozinho e a situação anda pelo cartão Andamento.</p>
+    {% endif %}
+  </div>
+  {% if atendimento %}
+  <div class="pagina-cabecalho__acoes">
+    {% if editavel %}<a class="botao" href="#andamento">{% icone "activity" %}Registrar andamento</a>{% endif %}
+    <a class="botao botao--sutil" href="#historico">{% icone "history" %}Histórico</a>
+  </div>
+  {% endif %}
+</header>
+
+{% include "componentes/resumo_erros.html" %}
+
+<form method="post" novalidate id="{{ form_id }}" data-proteger{% if atendimento and editavel %} data-autosave="{% url 'imprensa:autosave' atendimento.pk %}"{% endif %}{% if atendimento %} action="{% url 'imprensa:atendimento' atendimento.pk %}"{% else %} action="{% url 'imprensa:novo' %}"{% endif %}>{% csrf_token %}</form>
+<datalist id="jornalistas">{% for j in jornalistas %}<option value="{{ j }}">{% endfor %}</datalist>
+
+<fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
+<legend class="sr-only">Dados do atendimento</legend>
+<div class="documento documento--cartoes">
+
+  {# 1. Pedido. #}
+  <section class="secao{% if atendimento %} secao--ok{% endif %}" id="pedido" aria-labelledby="t-pedido">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-pedido"><span class="secao__numero">1</span>Pedido</h2>
+      <p class="secao__nota">Quem pediu, por qual veículo, o quê e até quando.</p>
+    </div>
+    <div class="pilha">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.horario classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.deadline classe="campo--md" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.jornalista classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.contato classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.veiculo classe="campo--lg" rotulo="Veículo" %}
+        {% include "componentes/campo.html" with campo=form.veiculo_novo classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.responsavel classe="campo--lg" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.pedido %}
+    </div>
+  </section>
+
+  {# 2. Fontes consultadas. #}
+  <section class="secao{% if fontes %} secao--ok{% endif %}" id="fontes" aria-labelledby="t-fontes">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-fontes"><span class="secao__numero">2</span>Fontes consultadas</h2>
+      <p class="secao__nota">Como na planilha: um bloco por fonte, separado por linha em branco, na mesma ordem nas três colunas.</p>
+    </div>
+    <div class="pilha">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.fonte classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.inicio_pedido classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.final_pedido classe="campo--lg" %}
+      </div>
+      {% if fontes %}
+      <div class="tabela-rolagem" role="region" aria-labelledby="t-fontes-salvas" tabindex="0">
+        <table class="tabela">
+          <caption class="sr-only" id="t-fontes-salvas">Fontes salvas, com acionamento e retorno</caption>
+          <thead><tr><th scope="col">Fonte</th><th scope="col">Acionada</th><th scope="col">Respondeu</th></tr></thead>
+          <tbody>{% for f in fontes %}<tr><td>{{ f.fonte }}</td><td>{{ f.inicio|default:"—" }}</td><td>{{ f.fim|default:"—" }}</td></tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# 3. Resposta. #}
+  <section class="secao{% if atendimento.resposta %} secao--ok{% endif %}" id="resposta" aria-labelledby="t-resposta">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-resposta"><span class="secao__numero">3</span>Resposta</h2>
+      <p class="secao__nota">O que foi enviado ao jornalista, quando e por quem.</p>
+    </div>
+    <div class="pilha">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.horario_resposta classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.responsavel_resposta classe="campo--lg" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.resposta %}
+    </div>
+  </section>
+
+  {# 4. Andamento — a situação, a anotação e o histórico. #}
+  <section class="secao{% if atendimento and not atendimento.aberto %} secao--ok{% endif %}" id="andamento" aria-labelledby="t-andamento">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-andamento"><span class="secao__numero">4</span>Andamento</h2>
+      {% if atendimento %}<div class="secao__estado"><span class="selo selo--{{ atendimento.tom }} selo--sem-ponto">{{ atendimento.get_situacao_display }}</span></div>{% endif %}
+      <p class="secao__nota">{% if atendimento %}{{ dica_atual }}.{% if ultima_anotacao %} Última anotação: “{{ ultima_anotacao }}”.{% endif %}{% else %}Todo atendimento começa “Em andamento”; a situação muda aqui, depois de criado.{% endif %}</p>
+    </div>
+    {% if atendimento %}
+      {% if editavel %}
+      <form method="post" action="{% url 'imprensa:andamento' atendimento.pk %}" class="pilha" novalidate>
+        {% csrf_token %}
+        <fieldset class="opcoes"{% if andamento.nova_situacao.errors %} aria-describedby="andamento-erro"{% endif %}>
+          <legend>Nova situação</legend>
+          {% for valor, rotulo, dica, atual in situacoes %}
+          <label class="opcao"><input type="radio" name="nova_situacao" value="{{ valor }}"{% if atual %} disabled{% elif andamento.nova_situacao.value == valor %} checked{% endif %}><span class="opcao__texto"><span class="opcao__titulo">{{ rotulo }}{% if atual %} <span class="texto-terciario">(atual)</span>{% endif %}</span><span class="opcao__descricao">{{ dica }}</span></span></label>
+          {% endfor %}
+        </fieldset>
+        {% if andamento.nova_situacao.errors %}<p class="campo__erro" id="andamento-erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ andamento.nova_situacao.errors|join:" " }}</span></p>{% endif %}
+        {% include "componentes/campo.html" with campo=andamento.anotacao ajuda="Vai para o histórico. Para marcar como atendido, escreva aqui ou registre a resposta enviada." %}
+        <div class="linha"><button type="submit" class="botao botao--primario">{% icone "activity" %}Registrar andamento</button></div>
+      </form>
+      {% endif %}
+
+      <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
+          <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+        </div>
+        <ol class="historico__linhas" aria-label="Eventos do atendimento">
+          {% for h in historico %}
+          <li class="historico__linha{% if h.acao == 'andamento' %} historico__linha--marca{% endif %}">
+            <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+            <span class="historico__texto">{{ h.descricao }}</span>
+            <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>
+          </li>
+          {% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+        </ol>
+      </div>
+    {% else %}
+      <p class="vazio-inline">{% icone "activity" classe="icone--sm" %}Situações: em andamento, aguardando fonte ou produtora, próximo mês, atendido ou não responder.</p>
+    {% endif %}
+  </section>
+</div>
+</fieldset>
+
+{% if editavel %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if atendimento %}Gravando as alterações…{% else %}Alterações não salvas — registre o atendimento antes de sair.{% endif %}" role="status">
+    {% if atendimento %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
+    {% else %}<span data-anuncio>Para registrar: data, jornalista e pedido.</span>{% endif %}
+  </div>
+  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+  {% if atendimento %}
+    <button type="submit" form="{{ form_id }}" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
+  {% else %}
+    <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar atendimento</button>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

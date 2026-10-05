@@ -1,0 +1,110 @@
+/* Gráficos simples montados no servidor, sem biblioteca e sem estilo inline (CSP):
+   - .serie: barras verticais (uma por mês); a altura vem do <rect> de um SVG com viewBox
+     de 100 de altura, e o número fica escrito sobre a barra (o gráfico se lê sem cor);
+   - .ranking: lista com o nome, o total e uma barra <progress> (valor/máximo nativos).
+   Cores só por tokens. Ver UI Lab §18. */
+
+.serie {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  align-items: end;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: var(--esp-2) 0 0;
+  list-style: none;
+}
+
+.serie__item {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-1);
+  min-width: 0;
+}
+
+.serie__valor {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+.serie__barra {
+  display: block;
+  width: min(100%, 2.5rem);
+  height: 7rem;
+  overflow: visible;
+}
+
+.serie__barra rect {
+  fill: var(--cor-borda-forte);
+}
+
+.serie__item--atual .serie__barra rect {
+  fill: var(--cor-marca);
+}
+
+.serie__rotulo {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  white-space: nowrap;
+}
+
+.ranking {
+  display: grid;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranking__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-1) var(--esp-3);
+  align-items: baseline;
+}
+
+.ranking__nome {
+  overflow: hidden;
+  font-size: var(--texto-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking__total {
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking__nota {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-normal);
+}
+
+.ranking__barra {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: var(--esp-2);
+  border: 0;
+  border-radius: var(--raio-pilula);
+  overflow: hidden;
+  appearance: none;
+  background: var(--cor-superficie-realce);
+}
+
+.ranking__barra::-webkit-progress-bar {
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+}
+
+.ranking__barra::-webkit-progress-value {
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca);
+}
+
+.ranking__barra::-moz-progress-bar {
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca);
+}

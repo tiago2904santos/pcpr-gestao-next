@@ -206,6 +206,24 @@ da referência ([prestacao.md](prestacao.md)).
 | Abas Finalizados/Contas prestadas | exclusivas com "vão acontecer"/"em andamento"; roteiro pelos ofícios dele, termo pelo ofício (avulso nunca), OS pelos ofícios, plano e viagem pelos ofícios da viagem | iguais; rótulo "Finalizadas" na OS (as abas dela são no feminino) | referência |
 | Ofícios: "Contas prestadas" | aba entre as de quando | as abas daqui são da situação do documento (D1): o emitido de contas prestadas continua também em "Emitidos" | agente (mantém D1) |
 
+## Atendimento à imprensa
+
+Fonte: `atendimento_imprensa/{models,services,forms,views,permissions,presenters}.py` da
+referência ([imprensa.md](imprensa.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quem acessa | quem tem o módulo `ASCOM_ATENDIMENTO_IMPRENSA` | papel novo `ASCOM_IMPRENSA` (o acesso por módulo não existe aqui) | **agente** — confirmar o nome e a quem dar o papel |
+| Escopo | todos os atendimentos, sem unidade | igual | referência |
+| Cadastros de apoio (equipe, veículos) | só o administrador | papel ADMINISTRADOR | referência (mapeada ao papel daqui) |
+| Veículo novo pelo atendimento | "outro veículo" cria o cadastro | igual, sem diferença de maiúsculas | referência |
+| Situação | só pelo registro de andamento; Atendido exige anotação, resposta ou andamento anterior | igual; cada mudança vira um `Andamento` | referência |
+| Atendido sem resposta | a edição recusa apagar a resposta de um atendido sem andamento | igual | referência |
+| Histórico de edições | tabela própria ("Campos atualizados: …") | lido da trilha de auditoria do banco, edições seguidas juntas (20 min) | agente (regra do projeto: auditoria é do banco) |
+| Deadline antes do pedido | recusado no formulário | recusado no formulário e por restrição no banco | referência + agente |
+| Excluir atendimento | não existe | não existe | referência |
+| Preencher com e-mail; importar planilha | existe | fica para depois (depende de definir a origem dos e-mails/planilhas) | pendente |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -230,3 +248,5 @@ da referência ([prestacao.md](prestacao.md)).
 | Prestação: aprovar/devolver só pela gestão (a referência não separa) | decisão do usuário (não bloqueia) |
 | Prestação: o ofício assinado é a via do próprio ofício (módulo 7), não um anexo separado | decisão do usuário (não bloqueia) |
 | Cadastro de feriados (estaduais/municipais/ponto facultativo) para os prazos em dias úteis | decisão do usuário (não bloqueia) |
+| Imprensa: papel `ASCOM_IMPRENSA` no lugar do módulo da referência; a quem dar | decisão do usuário (não bloqueia) |
+| Imprensa: "preencher com e-mail" e importador da planilha (origem dos e-mails/planilhas) | decisão do usuário (não bloqueia) |

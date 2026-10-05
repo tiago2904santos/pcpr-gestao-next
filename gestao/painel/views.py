@@ -17,7 +17,7 @@ FUTUROS = [
     {"rotulo": "Coffee Break", "icone": "receipt",
      "descricao": "Lotes contratados, solicitações e fluxo de pagamento."},
     {"rotulo": "ASCOM", "icone": "send",
-     "descricao": "Palestras, publicações e atendimento à imprensa."},
+     "descricao": "Palestras e publicações (o atendimento à imprensa já está no sistema)."},
 ]
 
 

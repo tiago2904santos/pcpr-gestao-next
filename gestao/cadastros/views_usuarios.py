@@ -33,7 +33,8 @@ from .views_crud import _abrir, _inteiro, _migalhas, _parametros, _querystring
 
 ABAS = [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")]
 ROTULOS = {"OPERADOR_VIAGENS": "Operador de viagens", "GESTOR_VIAGENS": "Gestor de viagens",
-           "CONSULTA": "Consulta", "ADMINISTRADOR": "Administrador"}
+           "CONSULTA": "Consulta", "ADMINISTRADOR": "Administrador",
+           "ASCOM_IMPRENSA": "Atendimento à imprensa (ASCOM)"}
 
 
 def _voltar(request: HttpRequest) -> str:

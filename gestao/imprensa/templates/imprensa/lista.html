@@ -1,0 +1,87 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Atendimentos · Imprensa{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block titulo_lista %}Atendimentos à imprensa{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos dos jornalistas, com quem atendeu, as fontes e a resposta. As filas separam o que ainda está em aberto.</p>{% endblock %}
+{% block acoes_lista %}
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+{% if pode_criar %}<a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
+{% endblock %}
+{% comment %}
+Paridade com a lista da referência: filas (Em aberto, Aguardando fonte, Atendidos, Não
+responder) com contagens que respeitam a busca e os filtros; busca em jornalista, pedido,
+contato, fontes, resposta e veículo; filtros de situação, veículo, responsável e período;
+exportação CSV do que está filtrado. Cada linha: jornalista · veículo, situação, deadline e
+os fatos (entrada, responsável, contato), com o pedido em uma linha.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Filas">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}fila={{ chave }}{% if qs_sem_fila %}&amp;{% endif %}{% endif %}{{ qs_sem_fila }}"{% if chave == fila %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'imprensa:lista' %}" id="filtros-imprensa">
+  {% if fila %}<input type="hidden" name="fila" value="{{ fila }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-atendimentos">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-atendimentos" type="search" name="q" value="{{ filtros.q }}" placeholder="Jornalista, veículo, pedido, contato, fonte ou resposta" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <details class="filtros__mais" id="filtros-mais"{% if filtros.ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if filtros.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ filtros.ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-situacao">Situação</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-situacao" name="situacao"><option value="">Todas</option>{% for valor, rotulo in situacoes %}<option value="{{ valor }}"{% if filtros.situacao == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-veiculo">Veículo</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-veiculo" name="veiculo"><option value="">Todos</option>{% for v in veiculos %}<option value="{{ v.pk }}"{% if filtros.veiculo == v.pk %} selected{% endif %}>{{ v.nome }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-responsavel">Responsável</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-responsavel" name="responsavel" aria-describedby="filtro-responsavel-ajuda"><option value="">Todos</option>{% for p in equipe %}<option value="{{ p.pk }}"{% if filtros.responsavel == p.pk %} selected{% endif %}>{{ p.nome }}</option>{% endfor %}</select></pc-select>
+        <p class="campo__ajuda" id="filtro-responsavel-ajuda">Pelo atendimento ou pela resposta.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-inicio">Pedidos a partir de</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-inicio" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-fim">Pedidos até</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-fim" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <label class="escolha"><input type="checkbox" name="vencidos" value="1"{% if filtros.vencidos %} checked{% endif %}><span>Só com deadline vencido</span></label>
+      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if filtros.ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'imprensa:lista' %}{% if fila %}?fila={{ fila }}{% endif %}">Limpar filtros</a>{% endif %}</div>
+    </div>
+  </details>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”{% else %}Atendimentos{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"atendimento,atendimentos" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% include "imprensa/_registro.html" %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif filtros.q or filtros.ativos or fila %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum atendimento encontrado" texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'imprensa:novo' as url_novo %}
+  {% include "componentes/vazio.html" with icone="megaphone" titulo="Nenhum atendimento ainda" texto="Registre o primeiro pedido de um jornalista." acao_url=url_novo acao_rotulo="Novo atendimento" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum atendimento para mostrar" texto="Quando houver pedidos da imprensa, eles aparecerão aqui." %}
+{% endif %}
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
-{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
 {% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
@@ -27,6 +27,7 @@
       <li class="etapas__item"><a href="#diario-bordo"><span class="etapas__marcador">15</span>Diário de bordo</a></li>
       <li class="etapas__item"><a href="#copiar-textos"><span class="etapas__marcador">16</span>Sugerir e copiar texto</a></li>
       <li class="etapas__item"><a href="#agenda-lab"><span class="etapas__marcador">17</span>Agenda do mês</a></li>
+      <li class="etapas__item"><a href="#graficos-lab"><span class="etapas__marcador">18</span>Gráficos simples</a></li>
     </ol>
   </nav>
 
@@ -672,6 +673,22 @@
           <td class="agenda-dia agenda-dia--feriado"><span class="agenda-dia__numero">10</span><span class="agenda-faixa">Feriado (exemplo)</span></td>
         </tr></tbody>
       </table>
+    </section>
+
+    <!-- 18. GRÁFICOS SIMPLES -->
+    <section class="cartao" id="graficos-lab" aria-labelledby="t-graficos-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-graficos-lab"><span class="cartao__numero">18</span>Gráficos simples</h2><span class="texto-secundario texto-sm">Sem biblioteca e sem estilo inline (CSP): a série usa a altura do &lt;rect&gt; de um SVG (viewBox de 100) com o número escrito sobre a barra; o ranking usa &lt;progress&gt; nativo. O mês atual em dourado.</span></div>
+      <div class="cartao__corpo layout-detalhe">
+        <ol class="serie" aria-label="Pedidos por mês (exemplo)">
+          <li class="serie__item"><span class="serie__valor">8<span class="sr-only"> em maio</span></span><svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect x="0" y="50" width="10" height="50"></rect></svg><span class="serie__rotulo" aria-hidden="true">mai/26</span></li>
+          <li class="serie__item"><span class="serie__valor">16<span class="sr-only"> em junho</span></span><svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect x="0" y="0" width="10" height="100"></rect></svg><span class="serie__rotulo" aria-hidden="true">jun/26</span></li>
+          <li class="serie__item serie__item--atual"><span class="serie__valor">4<span class="sr-only"> em julho</span></span><svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect x="0" y="75" width="10" height="25"></rect></svg><span class="serie__rotulo" aria-hidden="true">jul/26</span></li>
+        </ol>
+        <ol class="ranking" aria-label="Ranking (exemplo)">
+          <li class="ranking__item"><span class="ranking__nome">RPC</span><span class="ranking__total">12</span><progress class="ranking__barra" max="12" value="12" aria-label="RPC: 12 de 12"></progress></li>
+          <li class="ranking__item"><span class="ranking__nome">Banda B</span><span class="ranking__total">5 <span class="ranking__nota">· 4 atendidos</span></span><progress class="ranking__barra" max="12" value="5" aria-label="Banda B: 5 de 12"></progress></li>
+        </ol>
+      </div>
     </section>
 </div>
 </div>

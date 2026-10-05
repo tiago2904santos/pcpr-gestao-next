@@ -66,7 +66,10 @@ Ver a fila abaixo (primeiro item não concluído).
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
 | 15b | Agenda A2: semana/dia, conflitos (mesma pessoa/viatura), "meus", ICS, pauta semanal | pendente |
-| P | Trilhas paralelas: catálogos de Eventos Sociais; ASCOM; busca global; histórico de roteiros | pendente |
+| 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
+| 16b | ASCOM · Publicações | pendente |
+| 16c | ASCOM · Palestras | pendente |
+| P | Trilhas paralelas: catálogos de Eventos Sociais; busca global; histórico de roteiros | pendente |
 
 ## Concluído (com evidência)
 

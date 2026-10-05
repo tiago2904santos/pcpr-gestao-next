@@ -45,6 +45,8 @@ class Modulo:
     descricao: str = ""
     grupos: tuple[Grupo, ...] = field(default_factory=tuple)
     ordem: int = 100
+    # Permissão para o módulo aparecer (no menu e na central de módulos).
+    requer: str | None = None
 
 
 _MODULOS: dict[str, Modulo] = {}
@@ -86,6 +88,8 @@ def navegacao_para(request: HttpRequest) -> dict[str, Any]:
     visiveis: list[dict[str, Any]] = []
     atual: dict[str, Any] | None = None
     for modulo in modulos():
+        if modulo.requer and not usuario.has_perm(modulo.requer):
+            continue
         grupos: list[dict[str, Any]] = []
         for grupo in modulo.grupos:
             itens: list[dict[str, Any]] = []

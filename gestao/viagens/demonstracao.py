@@ -66,6 +66,7 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
+    "imprensa_andamento", "imprensa_atendimento", "imprensa_integrante", "imprensa_veiculo",
     "plataforma_notificacao", "viagens_trechorealizado", "viagens_anexoprestacao",
     "viagens_relatoriotecnico",
     "viagens_diariobordotrecho", "viagens_diariobordo",
@@ -357,6 +358,8 @@ class _Gerador:
         # No PREVIEW o demo também administra usuários (dados fictícios), para a tela de
         # usuários e perfis poder ser avaliada.
         self.demo.groups.add(Group.objects.get(name="ADMINISTRADOR"))
+        # E atende a imprensa (módulo da ASCOM), para as telas dele poderem ser avaliadas.
+        self.demo.groups.add(Group.objects.get(name="ASCOM_IMPRENSA"))
         for i, unidade in enumerate(self.unidades):
             nome = f"{PRENOMES[(i * 11 + 3) % len(PRENOMES)]} {SOBRENOMES[(i * 3 + 1) % 46]}"
             self.operadores[unidade.pk] = criar(f"op.{unidade.sigla.lower()}", nome, operador,
@@ -1074,6 +1077,8 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     gerador.planos_para_avaliar()
     gerador.viagens_para_avaliar()
     gerador.prestacoes_para_avaliar()
+    from gestao.imprensa import demonstracao as imprensa_demo
+    imprensa_demo.semear(gerador.demo, gerador.hoje)
     return resumo(len(oficios))
 
 

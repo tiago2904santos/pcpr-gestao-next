@@ -366,3 +366,31 @@ def test_agenda_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, "/agenda/")
     _avaliar(logado, "/agenda/?vista=lista")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_imprensa_sem_violacoes(logado, dados_e2e, largura):
+    from datetime import timedelta
+
+    from django.contrib.auth.models import Group
+    from django.utils import timezone
+
+    from gestao.identidade.models import Usuario
+    from gestao.imprensa import services
+    from gestao.imprensa.models import Integrante, Veiculo
+
+    u = Usuario.objects.get(login="operador")
+    for papel in ("ASCOM_IMPRENSA", "ADMINISTRADOR"):
+        u.groups.add(Group.objects.get(name=papel))
+    hoje = timezone.localdate()
+    rpc = Veiculo.objects.create(nome="RPC")
+    mariana = Integrante.objects.create(nome="Mariana")
+    a = services.criar(u, {"data": hoje, "jornalista": "Ana (axe)", "pedido": "Dados (axe)",
+                           "veiculo": rpc, "responsavel": mariana,
+                           "deadline": hoje + timedelta(days=1), "fonte": "Del. A\n\nIML",
+                           "inicio_pedido": "09h\n\n10h", "resposta": "Nota"})
+    services.registrar_andamento(u, a.pk, "aguardando_fonte", "Fonte acionada")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/imprensa/", "/imprensa/atendimentos/", f"/imprensa/atendimentos/{a.pk}/",
+                 "/imprensa/atendimentos/novo/", "/imprensa/cadastros/equipe/"):
+        _avaliar(logado, rota)

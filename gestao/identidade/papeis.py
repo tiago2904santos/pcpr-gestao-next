@@ -89,11 +89,26 @@ PAPEIS: dict[str, Papel] = {
             "cadastros.view_cargo", "cadastros.view_combustivel",
         ],
     },
+    # Decisão do agente — a confirmar (docs/migration/decisoes.md): na referência o acesso é
+    # pelo módulo ASCOM_ATENDIMENTO_IMPRENSA; aqui vira um papel. Quem tem o papel vê e edita
+    # todos os atendimentos e pode incluir um veículo novo pelo próprio atendimento.
+    "ASCOM_IMPRENSA": {
+        "descricao": "Atendimento à imprensa da ASCOM: registra pedidos, fontes, respostas e "
+                     "andamentos.",
+        "permissoes": [
+            "imprensa.view_atendimento", "imprensa.add_atendimento",
+            "imprensa.change_atendimento", "imprensa.view_integrante",
+            "imprensa.view_veiculo", "imprensa.add_veiculo",
+        ],
+    },
     "ADMINISTRADOR": {
         "descricao": "Gestão de usuários, papéis e configurações institucionais.",
         "permissoes": [
             "identidade.view_usuario", "identidade.add_usuario", "identidade.change_usuario",
             "plataforma.view_eventoauditoria",
+            # Cadastros de apoio da imprensa (equipe e veículos), como na referência.
+            *(f"imprensa.{acao}_{modelo}" for modelo in ("integrante", "veiculo")
+              for acao in ("view", "add", "change", "delete")),
         ],
     },
 }

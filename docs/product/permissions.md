@@ -57,6 +57,20 @@ Observações:
   geram documentos, cancelam/reativam e excluem (escopo da unidade, como os ofícios);
   consulta vê. Excluir de vez pelo operador é paridade com a referência — a confirmar.
 
+## Matriz — Atendimento à imprensa (ASCOM)
+
+| Permissão | ASCOM_IMPRENSA | ADMINISTRADOR | demais |
+|---|:-:|:-:|:-:|
+| Ver painel, lista, folha e exportar CSV (`imprensa.view_atendimento`) | ✓ (todos, sem unidade) | — | — |
+| Registrar atendimento (`add_atendimento`) | ✓ | — | — |
+| Editar e registrar andamento (`change_atendimento`) | ✓ | — | — |
+| Incluir veículo pelo "outro veículo" do atendimento (`add_veiculo`) | ✓ | ✓ | — |
+| Cadastros de apoio: equipe e veículos (`*_integrante`, `*_veiculo`) | ver | ✓ | — |
+
+Regras em `gestao/imprensa/policies.py`; o módulo só aparece no menu para quem tem
+`view_atendimento` (`Modulo.requer`). O papel substitui o "módulo" da referência —
+decisão do agente, a confirmar ([decisoes.md](../migration/decisoes.md#atendimento-à-imprensa)).
+
 ## Regras por objeto (Ofício)
 
 | Ação | Condição (`policies.py`) |

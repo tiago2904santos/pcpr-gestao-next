@@ -128,7 +128,7 @@
   display: flex;
   align-items: center;
   gap: var(--esp-1);
-  min-height: 1.5rem;
+  min-height: 1.75rem; /* alvo de toque ≥ 24px mesmo empilhado (WCAG 2.5.8) */
   padding: 0 var(--esp-2);
   border-radius: var(--raio-sm);
   border-left: var(--filete) solid var(--cor-borda-forte);

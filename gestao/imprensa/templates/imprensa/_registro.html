@@ -1,0 +1,20 @@
+{% comment %}Uma linha de atendimento (lista e painel). Requer `l` (queries.Linha).{% endcomment %}
+{% with a=l.atendimento %}
+<li class="registro{% if a.situacao == 'nao_responder' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Pedido</span><span class="placa__numero">#{{ a.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'imprensa:atendimento' a.pk %}"><span class="sr-only">{{ a }} · </span>{{ a.titulo }}</a>
+      <span class="selo selo--{{ a.tom }} selo--sem-ponto">{{ a.get_situacao_display }}</span>
+      {% if l.prazo %}<span class="selo selo--{{ l.prazo.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ l.prazo.texto }}</span>{% endif %}
+    </div>
+    <p class="registro__texto">{{ a.pedido_resumo }}</p>
+    <div class="registro__meta">
+      {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+    </div>
+  </div>
+  <div class="registro__acoes registro__acoes--fixas">
+    <a class="botao botao--sm botao--sutil" href="{% url 'imprensa:atendimento' a.pk %}#andamento" aria-label="Andamento do {{ a }} ({{ a.jornalista }})">{% icone "activity" %}Andamento</a>
+  </div>
+</li>
+{% endwith %}

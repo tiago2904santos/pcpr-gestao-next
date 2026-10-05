@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "gestao.identidade",
     "gestao.cadastros",
     "gestao.viagens",
+    "gestao.imprensa",
     "gestao.painel",
     "gestao.ui_lab",
     # Integrações externas (ADR 0019)

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ meta.titulo }} · {{ meta.modulo }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Arquétipo CADASTRO DE NOMES: cadastro de apoio que só tem o nome (equipe, veículos,
+unidades da ASCOM), como na referência. Incluir no topo; renomear na própria linha (um
+<details> por registro, sem JavaScript); excluir só o que nada usa — a contagem aparece na
+linha. Contexto: meta (titulo, modulo, intro, icone, novo, exemplo, singular, uso_icone,
+uso — "pauta,pautas"), registros (com .usos), erro, valor, editando, outros, migalhas.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone meta.icone classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">{{ meta.titulo }}</h1>
+    <p class="pagina-cabecalho__descricao">{{ meta.intro }}</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    {% for t, m in outros %}<a class="botao botao--sutil" href="{% url m.url %}">{% icone m.icone %}{{ m.titulo }}</a>{% endfor %}
+  </div>
+</header>
+
+<section class="cartao" aria-labelledby="t-novo">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-novo">{{ meta.novo }}</h2></div>
+  <form method="post" class="cartao__corpo" novalidate>
+    {% csrf_token %}
+    <div class="campos">
+      <div class="campo campo--lg{% if erro and not editando %} campo--erro{% endif %}">
+        <label class="campo__rotulo" for="novo-nome">Nome<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <div class="linha"><input class="entrada cresce" id="novo-nome" name="nome" required maxlength="150" autocomplete="off" placeholder="{{ meta.exemplo }}" value="{% if not editando %}{{ valor }}{% endif %}"{% if erro and not editando %} aria-invalid="true" aria-describedby="novo-erro"{% endif %}><button type="submit" class="botao botao--primario">{% icone "plus" %}Incluir</button></div>
+        {% if erro and not editando %}<p class="campo__erro" id="novo-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="cartao mt-4" aria-labelledby="t-lista">
+  <div class="lista-cabecalho">
+    <h2 class="peso-semi texto-lg" id="t-lista">{{ meta.titulo }}</h2>
+    <span class="lista-cabecalho__total" role="status">{{ registros|length }} cadastrado{{ registros|length|pluralize }}</span>
+  </div>
+  {% if registros %}
+  <ul class="registros" aria-labelledby="t-lista">
+    {% for r in registros %}
+    <li class="registro">
+      <span class="registro__icone" aria-hidden="true">{% icone meta.icone %}</span>
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__texto peso-semi">{{ r.nome }}</span></div>
+        <div class="registro__meta"><span class="registro__meta-item">{% icone meta.uso_icone classe="icone--sm" %}{% if r.usos %}{{ r.usos|pluralizar:meta.uso }}{% else %}sem uso{% endif %}</span></div>
+        <details class="mt-2"{% if editando == r.pk %} open{% endif %}>
+          <summary class="botao botao--sm botao--sutil">{% icone "pencil" %}Renomear<span class="sr-only"> {{ r.nome }}</span></summary>
+          <form method="post" class="campos mt-2" novalidate>
+            {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}">
+            <div class="campo campo--lg{% if editando == r.pk %} campo--erro{% endif %}">
+              <label class="campo__rotulo" for="nome-{{ r.pk }}">Novo nome</label>
+              <div class="linha"><input class="entrada cresce" id="nome-{{ r.pk }}" name="nome" required maxlength="150" autocomplete="off" value="{% if editando == r.pk %}{{ valor }}{% else %}{{ r.nome }}{% endif %}"{% if editando == r.pk %} aria-invalid="true" aria-describedby="erro-{{ r.pk }}"{% endif %}><button type="submit" class="botao">{% icone "save" %}Salvar</button></div>
+              {% if editando == r.pk %}<p class="campo__erro" id="erro-{{ r.pk }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
+            </div>
+          </form>
+        </details>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        {% if not r.usos %}
+        <form method="post" data-confirmar="“{{ r.nome }}” sai do cadastro." data-confirmar-titulo="Excluir {{ meta.singular }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>
+          {% csrf_token %}<input type="hidden" name="pk" value="{{ r.pk }}"><input type="hidden" name="acao" value="excluir">
+          <button type="submit" class="botao botao--sm botao--sutil" aria-label="Excluir {{ r.nome }}">{% icone "trash-2" %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    {% include "componentes/vazio.html" with icone=meta.icone titulo="Nada cadastrado ainda" texto="Inclua o primeiro no formulário acima." %}
+  {% endif %}
+</section>
+{% endblock %}

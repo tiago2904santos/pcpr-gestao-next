@@ -85,7 +85,8 @@ include_external_packages = true
 name = "Plataforma não depende de contextos de negócio"
 type = "forbidden"
 source_modules = ["gestao.plataforma"]
-forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
+                     "gestao.imprensa"]
 ignore_imports = ["gestao.plataforma.tests.** -> gestao.**"]
 
 [[tool.importlinter.contracts]]
@@ -108,7 +109,8 @@ ignore_imports = ["gestao.cadastros.tests.** -> gestao.viagens.**"]
 name = "Integrações externas não dependem de contextos de negócio (ADR 0019)"
 type = "forbidden"
 source_modules = ["gestao.integracoes"]
-forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
+                     "gestao.imprensa"]
 
 [[tool.importlinter.contracts]]
 name = "Domínio puro não conhece integrações externas (ADR 0019)"
@@ -117,7 +119,20 @@ source_modules = ["gestao.viagens.dominio"]
 forbidden_modules = ["gestao.integracoes"]
 
 [[tool.importlinter.contracts]]
+name = "Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de Cadastros"
+type = "forbidden"
+source_modules = ["gestao.imprensa"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel"]
+
+[[tool.importlinter.contracts]]
+name = "Regras do atendimento à imprensa são puras (sem Django)"
+type = "forbidden"
+source_modules = ["gestao.imprensa.dominio"]
+forbidden_modules = ["django"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
 name = "Identidade é base: não depende de outros contextos"
 type = "forbidden"
 source_modules = ["gestao.identidade"]
-forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel"]
+forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.imprensa"]
