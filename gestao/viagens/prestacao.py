@@ -102,22 +102,32 @@ def diaria_liberada(ps: PrestacaoServidor, equipe: int | None = None) -> Decimal
     return (Decimal(oficio.diarias_total) / n).quantize(Decimal("0.01"), ROUND_HALF_UP)
 
 
-def pendencias(ps: PrestacaoServidor, diario_preenchido: bool | None = None,
-               rt_preenchido: bool | None = None) -> list[str]:
-    """O que falta para finalizar (9a: o que esta base conhece; despacho, comprovante,
-    diário e relatório entram com 9b–9d)."""
-    from . import diario
+def pendencias(ps: PrestacaoServidor, situacao=None) -> list[str]:
+    """O que falta para finalizar, na ordem e com os textos da referência
+    (`pendencias_para_finalizar`): nº da solicitação, despacho, comprovante, diário (ou o
+    assinado), RT (ou o assinado) e a soma dos comprovantes igual à diária. `situacao`
+    (anexos.Situacao) vem pronta da lista; sem ela, é calculada para esta prestação.
+    O carimbo do número no ofício assinado entra com 9d-3."""
+    from . import anexos, diario, relatorio
+    s = situacao if situacao is not None else anexos.situacao([ps.prestacao_id])
+    p = ps.prestacao_id
     falta = []
     if not ps.numero_solicitacao.strip():
         falta.append("Informe o número da solicitação deste servidor.")
-    if not ps.prazo_limite_saque:
-        falta.append("Informe o prazo limite de saque.")
-    if not (diario.preenchido(ps.prestacao) if diario_preenchido is None
-            else diario_preenchido):
+    if p not in s.despachos:
+        falta.append("Anexe o despacho assinado do ofício.")
+    valores = s.comprovantes.get(ps.pk, [])
+    if not valores:
+        falta.append("Anexe o comprovante de saque/transferência deste servidor.")
+    if p not in s.diarios and p not in s.db_assinados:
         falta.append(diario.PENDENCIA)
-    from . import relatorio
-    if not (relatorio.preenchido(ps.prestacao) if rt_preenchido is None else rt_preenchido):
+    if p not in s.relatorios and ps.pk not in s.rt_assinados:
         falta.append(relatorio.PENDENCIA)
+    if (d := anexos.divergencia(ps, valores, diaria_liberada(
+            ps, getattr(ps.prestacao, "equipe", None)))):
+        from .dominio.relatorio import moeda
+        falta.append(f"Os comprovantes somam {moeda(d[0])}, e a diária deste servidor é "
+                     f"{moeda(d[1])}.")
     return falta
 
 
@@ -172,12 +182,12 @@ def _dias(n: int):
     return timedelta(days=n)
 
 
-def selos(ps: PrestacaoServidor, hoje: date | None = None) -> list[dominio.Selo]:
+def selos(ps: PrestacaoServidor, hoje: date | None = None,
+          tem_comprovante: bool = False) -> list[dominio.Selo]:
     hoje = hoje or timezone.localdate()
     saida = []
-    # 9a: sem comprovante ainda (chega com os anexos, 9d).
     if (s := dominio.selo_do_saque(ps.prazo_limite_saque, finalizada=ps.finalizada,
-                                   tem_comprovante=False, hoje=hoje)):
+                                   tem_comprovante=tem_comprovante, hoje=hoje)):
         saida.append(s)
     if (s := dominio.selo_da_prestacao(ps.prazo_limite_saque, finalizada=ps.finalizada,
                                        hoje=hoje)):

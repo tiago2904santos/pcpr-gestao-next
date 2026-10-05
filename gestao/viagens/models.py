@@ -1366,3 +1366,71 @@ class RelatorioTecnico(models.Model):
 
     def __str__(self) -> str:
         return f"Relatório técnico — {self.prestacao.oficio}"
+
+
+class AnexoPrestacao(models.Model):
+    """Documento anexado à prestação (paridade com `PrestacaoDocumentoAnexo` da referência):
+    da equipe (despacho, diário assinado) ou de um servidor (comprovante, RT assinado).
+    Despacho e comprovante somam; os assinados têm um só (anexar de novo substitui). Remover
+    ou substituir só marca: o arquivo fica 30 dias em "versões anteriores" e dá para voltar.
+    O ofício assinado é a via assinada do próprio ofício (módulo 7)."""
+
+    class Tipo(models.TextChoices):
+        DESPACHO = "despacho", "Despacho assinado do ofício"
+        COMPROVANTE = "comprovante", "Comprovante de saque/transferência"
+        RT_ASSINADO = "rt_assinado", "Relatório técnico assinado"
+        DB_ASSINADO = "db_assinado", "Diário de bordo assinado"
+
+    class Operacao(models.TextChoices):
+        SAQUE = "saque", "Saque"
+        TRANSFERENCIA = "transferencia", "Transferência"
+        PIX = "pix", "Pix"
+        TED = "ted", "TED"
+        DOC = "doc", "DOC"
+        DEPOSITO = "deposito", "Depósito"
+
+    class Removido(models.TextChoices):
+        EXCLUIDO = "excluido", "Removido"
+        SUBSTITUIDO = "substituido", "Substituído"
+
+    prestacao = models.ForeignKey(PrestacaoContas, on_delete=models.PROTECT,
+                                  related_name="anexos")
+    servidor = models.ForeignKey(PrestacaoServidor, on_delete=models.PROTECT, null=True,
+                                 blank=True, related_name="anexos")
+    tipo = models.CharField(max_length=15, choices=Tipo.choices)
+    arquivo = models.FileField(upload_to="prestacao/%Y/")
+    nome_original = models.CharField(max_length=255, blank=True)
+    sha256 = models.CharField(max_length=64)
+    tamanho = models.PositiveIntegerField()
+    valor = models.DecimalField("valor da operação", max_digits=10, decimal_places=2,
+                                null=True, blank=True)
+    data_operacao = models.DateField("data da operação", null=True, blank=True)
+    operacao = models.CharField("operação", max_length=15, choices=Operacao.choices,
+                                blank=True)
+    enviado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name="+")
+    enviado_em = models.DateTimeField(auto_now_add=True)
+    removido_em = models.DateTimeField(null=True, blank=True)
+    removido_motivo = models.CharField(max_length=12, choices=Removido.choices, blank=True)
+
+    class Meta:
+        ordering = ["tipo", "enviado_em", "pk"]
+        verbose_name = "anexo da prestação"
+        verbose_name_plural = "anexos da prestação"
+        constraints = [
+            models.CheckConstraint(condition=Q(valor__isnull=True) | Q(valor__gt=0),
+                                   name="anexo_prestacao_valor_positivo"),
+            models.CheckConstraint(condition=~Q(sha256=""), name="anexo_prestacao_tem_hash"),
+            # Do servidor: comprovante e RT assinado; da equipe: despacho e diário assinado.
+            models.CheckConstraint(
+                condition=(Q(tipo__in=["comprovante", "rt_assinado"], servidor__isnull=False)
+                           | Q(tipo__in=["despacho", "db_assinado"], servidor__isnull=True)),
+                name="anexo_prestacao_dono_do_tipo"),
+        ]
+
+    def __str__(self) -> str:
+        return self.nome_original or self.get_tipo_display()
+
+    @property
+    def removido(self) -> bool:
+        return self.removido_em is not None

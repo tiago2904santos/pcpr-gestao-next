@@ -26,6 +26,12 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     rt = relatorio.obter(a.prestacao)
     relatorio.salvar(Usuario.objects.get(login="operador"), rt.pk, {
         "motivo": "Evento (teste).", "atividade": "Apoio (teste).", "conclusao": "Feito."})
+    from gestao.viagens import anexos
+    operador = Usuario.objects.get(login="operador")
+    anexos.anexar(operador, a.prestacao_id, "despacho", nome="d.pdf", conteudo=b"%PDF-1.4 t")
+    # Só o primeiro tem comprovante: o segundo fica com pendência (finalizar pede justificativa).
+    anexos.anexar(operador, a.prestacao_id, "comprovante", servidor_pk=a.pk,
+                  nome="c.pdf", conteudo=b"%PDF-1.4 t")
     pg = logado
     pg.goto("/viagens/prestacoes/")
     cartao = pg.locator(f"#ps-{a.pk}")
@@ -53,7 +59,7 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     pg.locator(f"#ps-{a.pk}").get_by_role("button", name="Finalizar", exact=True).click()
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Finalizada")
 
-    # Com pendência (sem prazo de saque): explica e oferece finalizar com justificativa.
+    # Com pendência (sem comprovante): explica e oferece finalizar com justificativa.
     outro = pg.locator(f"#ps-{b.pk}")
     outro.get_by_role("button", name="Finalizar", exact=True).click()
     expect(pg.locator(".toast").first).to_contain_text("pendências")

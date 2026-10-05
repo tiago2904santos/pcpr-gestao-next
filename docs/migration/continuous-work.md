@@ -32,7 +32,7 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
 finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
 9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito; 9b (diário de bordo)
-feito; 9c (relatório técnico) feito. Próximo: 9d anexos e pacote.
+feito; 9c (relatório técnico) feito; 9d-1 (anexos) feito. Próximo: 9d-2 pacote final.
 
 ## Próxima tarefa concreta
 
@@ -58,7 +58,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 11b | 9b-2: roteiro ajustado (o realizado) editável no diário | pendente |
 | 12 | Prestação 9c: relatório técnico (texto da equipe, custeio, diária recebida ≤ liberada, sugestões, textos prontos por campo com marcadores, PDF/DOCX por servidor, pendência, trava) | feito (sem copiar de outro RT e sem "Sugerir texto") |
 | 12b | 9c-2: copiar de outro RT (mesmo evento/destino) e "Sugerir texto" (regra local) | pendente |
-| 13 | Prestação 9d: anexos (ofício/despacho/RT/DB assinados, comprovantes), carimbo, pacote final | próximo |
+| 13 | Prestação 9d-1: anexos (despacho, comprovantes com valor/data/operação, RT e diário assinados; ofício assinado = via do módulo 7), versões 30 dias, pendências da referência (soma dos comprovantes = diária), selo de saque com comprovante | feito |
+| 13b | 9d-2: pacote final por servidor (PDF na ordem oficial) e ZIP da equipe; 9d-3: carimbo do nº da solicitação no ofício assinado | próximo |
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens | pendente |
 | P | Trilhas paralelas: catálogos de Eventos Sociais; ASCOM; busca global; histórico de roteiros | pendente |

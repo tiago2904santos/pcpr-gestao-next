@@ -60,12 +60,29 @@ def _preencher_relatorio(c, ps):
         "conclusao": "Concluído (teste)."})
 
 
+PDF = b"%PDF-1.4 teste"
+
+
+def _anexar_documentos(c, ps):
+    """Despacho da equipe (uma vez) e o comprovante deste servidor (sem valor lido)."""
+    from gestao.viagens import anexos
+    from gestao.viagens.models import AnexoPrestacao
+    op = c.usuarios["operador"]
+    if not anexos.ativos(AnexoPrestacao.objects.filter(prestacao_id=ps.prestacao_id,
+                                                       tipo="despacho")).exists():
+        anexos.anexar(op, ps.prestacao_id, "despacho", nome="despacho.pdf", conteudo=PDF)
+    anexos.anexar(op, ps.prestacao_id, "comprovante", servidor_pk=ps.pk,
+                  nome="comprovante.pdf", conteudo=PDF)
+
+
 def _preencher(c, ps, numero="2026/0001", liberacao=date(2030, 1, 6),
                prazo=date(2030, 1, 9)):
+    salvo = prestacao.salvar_solicitacao(c.usuarios["operador"], ps.pk, numero=numero,
+                                         liberacao=liberacao, prazo=prazo)
     _preencher_diario(c, ps)
     _preencher_relatorio(c, ps)
-    return prestacao.salvar_solicitacao(c.usuarios["operador"], ps.pk, numero=numero,
-                                        liberacao=liberacao, prazo=prazo)
+    _anexar_documentos(c, ps)
+    return salvo
 
 
 # ------------------------------------------------------------------ nascimento
@@ -297,6 +314,8 @@ def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
     a, b = _linhas(c)
     _preencher_diario(c, a)
     _preencher_relatorio(c, a)
+    _anexar_documentos(c, a)
+    _anexar_documentos(c, b)
     op = _cliente(c, "operador")
     with django_assert_max_num_queries(30):
         r = op.get(reverse("viagens:prestacoes"))
@@ -317,19 +336,19 @@ def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
                         "mensagem": "Data de liberação inválida: 31/02/2030. Use dd/mm/aaaa."}
     # Sem JavaScript (Enter): grava e volta para o cartão.
     r = op.post(reverse("viagens:salvar_prestacao", args=[b.pk]),
-                {"numero": "2026/0100", "liberacao": "", "prazo": "",
+                {"numero": "", "liberacao": "", "prazo": "09/01/2030",
                  "voltar": "/viagens/prestacoes/?aba=liberadas"})
     assert r["Location"] == f"/viagens/prestacoes/?aba=liberadas#ps-{b.pk}"
     b.refresh_from_db()
-    assert b.numero_solicitacao == "2026/0100"
-    # A ação leva o que está digitado: o prazo entra e a pendência some antes de finalizar.
+    assert b.prazo_limite_saque == date(2030, 1, 9)
+    # A ação leva o que está digitado: o número entra e a pendência some antes de finalizar.
     op.post(reverse("viagens:acao_prestacao", args=[b.pk, "finalizar"]),
             {"numero": "2026/0100", "liberacao": "", "prazo": "09/01/2030"})
     b.refresh_from_db()
-    assert b.finalizada and b.prazo_limite_saque == date(2030, 1, 9)
+    assert b.finalizada and b.numero_solicitacao == "2026/0100"
     assert b.justificativa_finalizacao == ""
     prestacao.reabrir(c.usuarios["operador"], b.pk)
-    PrestacaoServidor.objects.filter(pk=b.pk).update(prazo_limite_saque=None)
+    PrestacaoServidor.objects.filter(pk=b.pk).update(numero_solicitacao="")
     b.refresh_from_db()
     # Finalizar pela tela; a aba Liberadas mostra só quem tem liberação.
     op.post(reverse("viagens:acao_prestacao", args=[a.pk, "finalizar"]))

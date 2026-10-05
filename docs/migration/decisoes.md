@@ -227,4 +227,5 @@ da referência ([prestacao.md](prestacao.md)).
 | Viagem: excluir solta os documentos; cancelar respeita a permissão de cada documento | decisão do usuário (não bloqueia) |
 | Prestação: nascer na emissão (não no rascunho); avisos só para a unidade do ofício | decisão do usuário (não bloqueia) |
 | Prestação: aprovar/devolver só pela gestão (a referência não separa) | decisão do usuário (não bloqueia) |
+| Prestação: o ofício assinado é a via do próprio ofício (módulo 7), não um anexo separado | decisão do usuário (não bloqueia) |
 | Cadastro de feriados (estaduais/municipais/ponto facultativo) para os prazos em dias úteis | decisão do usuário (não bloqueia) |

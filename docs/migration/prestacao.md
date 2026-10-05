@@ -76,6 +76,21 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
   ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
 
+## 9d-1 — anexos (05/10/2026)
+
+- `gestao/viagens/{anexos,views_anexos}.py`, folha `viagens/anexos/folha.html` (1 ofício
+  assinado, 2 despacho, 3 diário assinado, 4 por servidor: comprovantes e RT assinado,
+  5 versões anteriores). Da referência: PDF/PNG/JPG até 10 MB (conferido pelo conteúdo),
+  despacho e comprovante somam, assinados substituem, remover/substituir marca e guarda 30
+  dias, valor/data/operação do comprovante, trava (servidor × equipe), pendências na ordem e
+  com os textos de `pendencias_para_finalizar` (nº, despacho, comprovante, diário ou
+  assinado, RT ou assinado, soma ≠ diária).
+- **Correção da 9a**: a pendência "Informe o prazo limite de saque" saiu — a referência não
+  a cobra (era invenção minha).
+- **Decisão do agente**: o ofício assinado da prestação é a via assinada do próprio ofício
+  (módulo 7), não um segundo arquivo. A conferir com o usuário.
+- Fora: purga física após 30 dias (comando de limpeza), importação do processo (OCR).
+
 ## 9c — estado (05/10/2026)
 
 - **Feito**: `gestao/viagens/{relatorio,views_relatorio}.py`, `dominio/relatorio.py`, folha

@@ -1,0 +1,30 @@
+{% comment %}
+Um documento anexado: nome, quando e quem; abrir, baixar e remover (fica 30 dias em versões
+anteriores). Comprovante mostra valor, data e operação e deixa corrigir.
+{% endcomment %}
+<li class="registro">
+  <span class="registro__icone" aria-hidden="true">{% if a.tipo == "comprovante" %}{% icone "receipt" %}{% else %}{% icone "file-signature" %}{% endif %}</span>
+  <div class="registro__corpo">
+    <div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_anexo' a.pk %}" target="_blank" rel="noopener">{{ a.nome_original|default:a.get_tipo_display }}</a></div>
+    <div class="registro__meta">
+      {% if a.tipo == "comprovante" %}<span class="registro__meta-item">{% if a.valor %}{{ a.valor|moeda }}{% else %}<span class="vazio-inline">sem valor</span>{% endif %}{% if a.data_operacao %} · {{ a.data_operacao|date:"d/m/Y" }}{% endif %}{% if a.operacao %} · {{ a.get_operacao_display }}{% endif %}</span>{% endif %}
+      <span class="registro__meta-item">{{ a.enviado_em|date:"d/m/Y H:i" }} · {{ a.tamanho|filesizeformat }}</span>
+    </div>
+    {% if editavel and a.tipo == "comprovante" %}
+    <details class="divulgacao mt-2">
+      <summary>{% icone "pencil" classe="icone--sm" %}Corrigir valor, data ou operação</summary>
+      <form method="post" action="{% url 'viagens:acao_anexo' a.pk 'comprovante' %}" class="anexo-campos mt-2" novalidate>
+        {% csrf_token %}
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-valor">Valor</label><input class="entrada" id="a{{ a.pk }}-valor" name="valor" value="{% if a.valor %}{{ a.valor|moeda }}{% endif %}" inputmode="decimal" autocomplete="off"></div>
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-data">Data da operação</label><input class="entrada" id="a{{ a.pk }}-data" name="data_operacao" value="{{ a.data_operacao|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" data-mascara="data" autocomplete="off"></div>
+        <div class="campo"><label class="campo__rotulo" for="a{{ a.pk }}-operacao">Operação</label><select class="selecao" id="a{{ a.pk }}-operacao" name="operacao"><option value="">—</option>{% for v, r in operacoes %}<option value="{{ v }}"{% if a.operacao == v %} selected{% endif %}>{{ r }}</option>{% endfor %}</select></div>
+        <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "save" %}Salvar</button></div>
+      </form>
+    </details>
+    {% endif %}
+  </div>
+  <div class="registro__acoes registro__acoes--fixas">
+    <a class="botao botao--sm botao--sutil" href="{% url 'viagens:abrir_anexo' a.pk %}?baixar=1">{% icone "download" %}<span class="sr-only">Baixar {{ a.nome_original|default:a.get_tipo_display }}</span></a>
+    {% if editavel %}<form method="post" action="{% url 'viagens:acao_anexo' a.pk 'remover' %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "trash-2" %}<span class="sr-only">Remover {{ a.nome_original|default:a.get_tipo_display }}</span></button></form>{% endif %}
+  </div>
+</li>

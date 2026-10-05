@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "plataforma_notificacao", "viagens_diariobordotrecho", "viagens_diariobordo",
+    "plataforma_notificacao", "viagens_anexoprestacao", "viagens_relatoriotecnico",
+    "viagens_diariobordotrecho", "viagens_diariobordo",
     "viagens_prestacaoservidor", "viagens_prestacaocontas",
     "viagens_viagemdestino", "viagens_viagem",
     "cadastros_tipoviagem", "viagens_viaassinada", "viagens_historico", "viagens_documento",
@@ -840,9 +841,14 @@ class _Gerador:
         as seis mais recentes da ASCOM ganham estados para avaliar cada aba — saque
         vencendo, prestação vencida, equipe finalizada, enviada, devolvida e arquivada."""
         from django.core.exceptions import PermissionDenied
+        from weasyprint import HTML
 
-        from . import diario, prestacao, relatorio
-        from .models import PrestacaoServidor
+        from . import anexos, diario, prestacao, relatorio
+        from .models import AnexoPrestacao, PrestacaoServidor
+
+        def pdf_demo(titulo):
+            return HTML(string=f"<h1>{titulo}</h1><p>Documento fictício do preview "
+                               "(DEMO) — não tem valor.</p>").write_pdf()
 
         ascom = self.unidades[0]
         autor = (Usuario.objects.filter(lotacao__unidade=ascom, groups__name="OPERADOR_VIAGENS")
@@ -876,7 +882,17 @@ class _Gerador:
 
         try:
             for i, linhas in enumerate(equipes.values()):
-                if i in (0, 2, 3, 4):  # diário e RT preenchidos (as finalizadas exigem)
+                if i in (0, 2, 3, 4):  # despacho, comprovantes, diário e RT (finalizar exige)
+                    anexos.anexar(autor, linhas[0].prestacao_id, AnexoPrestacao.Tipo.DESPACHO,
+                                  nome="despacho-DEMO.pdf", conteudo=pdf_demo("Despacho"))
+                    for ps in linhas:
+                        ps.prestacao = linhas[0].prestacao
+                        anexos.anexar(autor, ps.prestacao_id, AnexoPrestacao.Tipo.COMPROVANTE,
+                                      servidor_pk=ps.pk, nome="comprovante-DEMO.pdf",
+                                      conteudo=pdf_demo("Comprovante de saque"),
+                                      valor=prestacao.diaria_liberada(ps),
+                                      data_operacao=h - timedelta(days=13),
+                                      operacao=AnexoPrestacao.Operacao.SAQUE)
                     diario_preenchido(linhas[0], 40_000 + i * 3_000)
                     rt = relatorio.obter(linhas[0].prestacao)
                     sugestao = relatorio.sugestoes(linhas[0].prestacao)
@@ -904,7 +920,7 @@ class _Gerador:
                     prestacao.devolver(autor, linhas[0].pk,
                                        "Comprovante do saque ilegível; anexe de novo (DEMO).")
         except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido,
-                relatorio.RelatorioInvalido):
+                relatorio.RelatorioInvalido, anexos.AnexoInvalido):
             return  # base sem os papéis (testes de unidade)
 
     def planos_para_avaliar(self) -> None:

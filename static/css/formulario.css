@@ -1102,3 +1102,21 @@
     align-items: center;
   }
 }
+
+/* Anexar documento da prestação: o arquivo, os dados do comprovante e o botão numa linha
+   que quebra (360px: um embaixo do outro). */
+.anexo-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  align-items: end;
+  gap: var(--esp-2) var(--esp-3);
+}
+
+.anexo-campos__arquivo {
+  grid-column: 1 / -1;
+}
+
+.anexo-campos__acao {
+  display: flex;
+  align-items: flex-end;
+}

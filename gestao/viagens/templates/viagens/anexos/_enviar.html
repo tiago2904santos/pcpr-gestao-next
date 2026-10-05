@@ -1,0 +1,16 @@
+{% comment %}
+Anexar um documento: `tipo` e, para o do servidor, `servidor`. Comprovante pede valor, data
+e operação (opcionais; a soma é conferida com a diária).
+{% endcomment %}
+<form method="post" action="{% url 'viagens:anexar_prestacao' p.pk %}" enctype="multipart/form-data" class="anexo-campos" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="tipo" value="{{ tipo }}">
+  {% if servidor %}<input type="hidden" name="servidor" value="{{ servidor }}">{% endif %}
+  <div class="campo anexo-campos__arquivo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}">{{ rotulo }}</label><input class="entrada entrada--arquivo" id="{{ id }}{{ servidor|default:'' }}" type="file" name="arquivo" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" aria-describedby="{{ id }}{{ servidor|default:'' }}-ajuda"><p class="campo__ajuda" id="{{ id }}{{ servidor|default:'' }}-ajuda">PDF, PNG ou JPG até 10 MB.{% if substitui %} Anexar de novo substitui o atual (ele fica em versões anteriores).{% endif %}</p></div>
+  {% if tipo == "comprovante" %}
+  <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-valor">Valor</label><input class="entrada" id="{{ id }}{{ servidor|default:'' }}-valor" name="valor" inputmode="decimal" placeholder="R$ 0,00" autocomplete="off"></div>
+  <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-data">Data da operação</label><input class="entrada" id="{{ id }}{{ servidor|default:'' }}-data" name="data_operacao" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" data-mascara="data" autocomplete="off"></div>
+  <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-operacao">Operação</label><select class="selecao" id="{{ id }}{{ servidor|default:'' }}-operacao" name="operacao"><option value="">—</option>{% for v, r in operacoes %}<option value="{{ v }}">{{ r }}</option>{% endfor %}</select></div>
+  {% endif %}
+  <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "file-input" %}Anexar</button></div>
+</form>

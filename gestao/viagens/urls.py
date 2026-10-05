@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import (
     views,
+    views_anexos,
     views_assinados,
     views_diario,
     views_editor,
@@ -81,6 +82,12 @@ urlpatterns = [
          name="motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
+    path("prestacoes/equipe/<int:pk>/documentos/", views_anexos.folha,
+         name="documentos_prestacao"),
+    path("prestacoes/equipe/<int:pk>/documentos/anexar/", views_anexos.anexar,
+         name="anexar_prestacao"),
+    path("prestacoes/anexos/<int:anexo_pk>/", views_anexos.abrir, name="abrir_anexo"),
+    path("prestacoes/anexos/<int:anexo_pk>/<str:nome>/", views_anexos.acao, name="acao_anexo"),
     path("prestacoes/equipe/<int:pk>/relatorio/", views_relatorio.folha, name="relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/salvar/", views_relatorio.salvar,
          name="salvar_relatorio"),
