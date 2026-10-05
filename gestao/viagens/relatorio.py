@@ -91,6 +91,74 @@ def sugestoes(prestacao: PrestacaoContas) -> dict[str, str]:
     return {campo: texto for campo, texto in s.items() if texto}
 
 
+def contexto_da_viagem(prestacao: PrestacaoContas) -> dominio.Contexto:
+    """Evento, motivo, destino, período, atividades e resultados do plano (o "Sugerir
+    texto")."""
+    from . import resultados
+
+    oficio = prestacao.oficio
+    viagem = oficio.viagem if oficio.viagem_id else None
+    trechos = _trechos(prestacao)
+    destinos = list(dict.fromkeys(str(t.destino) for t in trechos if t.destino != oficio.sede))
+    destino = (", ".join(destinos[:3]) + f" e mais {len(destinos) - 3}" if len(destinos) > 3
+               else dominio.listar(destinos))
+    periodo = (periodo_curto(timezone.localtime(trechos[0].saida_em).date(),
+                             timezone.localtime(trechos[-1].chegada_em).date())
+               if trechos else "")
+    atividades, realizados = [], []
+    plano = plano_da_viagem(prestacao)
+    if plano is not None:
+        for linha in resultados.linhas(plano):
+            atividades.append(linha.atividade.nome)
+            if linha.realizado is not None:
+                realizados.append(f"{linha.atividade.nome}: {linha.realizado}")
+    return dominio.Contexto(evento=dominio.espacos(viagem.titulo if viagem else ""),
+                            motivo=dominio.espacos(oficio.motivo), destino=destino,
+                            periodo=periodo, atividades=tuple(atividades),
+                            realizados=tuple(realizados))
+
+
+def sugerir(prestacao: PrestacaoContas, campo: str, rascunho: dict[str, str]) -> str:
+    """Conclusão ou medidas montadas por regra local (nunca grava). `rascunho` é o que está
+    na tela agora; sem ele, vale o gravado."""
+    rt = RelatorioTecnico.objects.filter(prestacao=prestacao).first()
+    textos = {c: (getattr(rt, c) if rt else "") for c in dominio.CAMPOS_TEXTO}
+    textos.update({c: v for c, v in rascunho.items() if c in textos and v is not None})
+    return dominio.sugerir(campo, contexto_da_viagem(prestacao), textos)
+
+
+def para_copiar(prestacao: PrestacaoContas, limite: int = 10) -> list[dict]:
+    """RTs de outras prestações do mesmo evento (viagem) primeiro, depois dos que dividem um
+    destino; só os com texto, mais recentes antes (referência: `rts_para_copiar`)."""
+    oficio = prestacao.oficio
+    filtro = Q()
+    if oficio.viagem_id:
+        filtro |= Q(prestacao__oficio__viagem_id=oficio.viagem_id)
+    destinos = [t.destino_id for t in _trechos(prestacao) if t.destino_id != oficio.sede_id]
+    if destinos:
+        filtro |= Q(prestacao__oficio__trechos__destino_id__in=destinos)
+    if not filtro:
+        return []
+    tem_texto = Q()
+    for campo in dominio.CAMPOS_TEXTO:
+        tem_texto |= ~Q(**{campo: ""})
+    candidatos = (RelatorioTecnico.objects.filter(filtro).filter(tem_texto)
+                  .filter(prestacao__oficio__unidade_id=oficio.unidade_id)
+                  .exclude(prestacao=prestacao).select_related("prestacao__oficio")
+                  .distinct().order_by("-atualizado_em", "-pk")[: limite * 3])
+    mesmo_evento: list[dict] = []
+    mesmo_destino: list[dict] = []
+    for rt in candidatos:
+        outro = rt.prestacao.oficio
+        mesmo = bool(oficio.viagem_id) and outro.viagem_id == oficio.viagem_id
+        item = {"id": rt.pk,
+                "rotulo": f"Ofício {outro.numero_formatado} · "
+                          f"{'mesmo evento' if mesmo else 'mesmo destino'}",
+                "textos": {c: getattr(rt, c) for c in dominio.CAMPOS_TEXTO}}
+        (mesmo_evento if mesmo else mesmo_destino).append(item)
+    return (mesmo_evento + mesmo_destino)[:limite]
+
+
 def textos_prontos(prestacao: PrestacaoContas) -> dict[str, list[tuple[int, str, str]]]:
     """Por campo, os textos prontos ativos (id, nome, texto com os marcadores trocados)."""
     valores = valores_dos_marcadores(prestacao)

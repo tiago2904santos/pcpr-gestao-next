@@ -35,6 +35,7 @@ const sobDemanda = [
   ["#dialogo-baixar", () => import("./componentes/baixar.js")],
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
+  ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
 ];
 const carregados = new Set();
 function carregarSobDemanda() {

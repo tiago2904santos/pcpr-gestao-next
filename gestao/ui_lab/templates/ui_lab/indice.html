@@ -25,6 +25,7 @@
       <li class="etapas__item"><a href="#editor"><span class="etapas__marcador">13</span>Editor de documento</a></li>
       <li class="etapas__item"><a href="#equipe-prestacao"><span class="etapas__marcador">14</span>Equipe da prestação</a></li>
       <li class="etapas__item"><a href="#diario-bordo"><span class="etapas__marcador">15</span>Diário de bordo</a></li>
+      <li class="etapas__item"><a href="#copiar-textos"><span class="etapas__marcador">16</span>Sugerir e copiar texto</a></li>
     </ol>
   </nav>
 
@@ -637,6 +638,21 @@
           </li>
         </ol>
         <p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Londrina/PR → Curitiba/PR: o km de saída (40.300) é menor que o de chegada do trecho anterior (40.385) — o hodômetro voltou para trás.</span></p>
+      </div>
+    </section>
+
+    <!-- 16. SUGERIR E COPIAR TEXTO -->
+    <section class="cartao" id="copiar-textos" aria-labelledby="t-copiar-textos">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-copiar-textos"><span class="cartao__numero">16</span>Sugerir e copiar texto</h2><span class="texto-secundario texto-sm">Preenche os campos sem gravar (o autosave grava ao receber o texto); com texto no campo, pergunta antes de substituir. "Sugerir texto" pede ao servidor (regra local); "Copiar textos" copia de outro registro.</span></div>
+      <div class="cartao__corpo pilha">
+        <div class="texto-pronto" data-copiar-de="lab-copiar-dados" data-prefixo="lab-rt-">
+          <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="lab-copiar">Copiar de outro relatório técnico</label>
+            <pc-select class="seletor"><select class="selecao" id="lab-copiar"><option value="">Escolha um relatório</option><option value="1">Ofício 12/2026 · mesmo evento</option></select></pc-select></div>
+          <div class="texto-pronto__acoes"><button type="button" class="botao botao--sutil" data-copiar>{% icone "copy" %}Copiar textos</button></div>
+        </div>
+        <script type="application/json" id="lab-copiar-dados" nonce="{{ csp_nonce }}">[{"id": 1, "textos": {"conclusao": "A participação no evento foi realizada conforme o planejado.", "medidas": "Recomenda-se ao órgão: registrar e divulgar internamente os resultados."}}]</script>
+        <div class="campo"><label class="campo__rotulo" for="lab-rt-conclusao">Conclusão</label><textarea class="area-texto" id="lab-rt-conclusao" rows="2"></textarea></div>
+        <div class="campo"><label class="campo__rotulo" for="lab-rt-medidas">Medidas a serem adotadas pelo órgão</label><textarea class="area-texto" id="lab-rt-medidas" rows="2">Texto já escrito (copiar pergunta antes de trocar).</textarea></div>
       </div>
     </section>
 </div>

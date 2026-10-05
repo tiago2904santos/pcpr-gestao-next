@@ -64,12 +64,14 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
                     if ps.diaria_valor_override else "")
         servidores.append({"ps": ps, "liberada": dominio.moeda(liberada) if liberada else "",
                            "recebida": recebida})
+    copiar = relatorio.para_copiar(p) if editavel else []
     preenchido = bool(rt) and dominio.preenchido(
         {c: getattr(rt, c) for c in dominio.CAMPOS_TEXTO})
     return render(request, "viagens/relatorio/folha.html", {
         "p": p, "oficio": p.oficio, "rt": rt, "campos": campos, "custeio": custeio,
         "servidores": servidores, "editavel": editavel, "equipe_finalizada": finalizada,
-        "preenchido": preenchido, "outro": dominio.OUTRO,
+        "preenchido": preenchido, "outro": dominio.OUTRO, "para_copiar": copiar,
+        "sugeriveis": dominio.CAMPOS_SUGERIR,
         "pode_gerir_textos": politicas_cadastros.pode_gerir_textos(request.user),
         "migalhas": _migalhas(("Prestação de contas", reverse("viagens:prestacoes")),
                               (f"Relatório técnico · {p.oficio}", ""))})
@@ -107,6 +109,19 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         return JsonResponse({"salvo": False, "mensagem": " ".join(erros.values())})
     return JsonResponse({"salvo": True, "em": f"{timezone.localtime():%H:%M}", "campos": {},
                          "recarregar": False})
+
+
+@require_POST
+def sugerir(request: HttpRequest, pk: int, campo: str) -> JsonResponse:
+    """"Sugerir texto" da conclusão e das medidas (regra local; nunca grava)."""
+    p = _prestacao(request, pk)
+    if not diario.pode_editar(request.user, p):
+        return JsonResponse({"erro": "Você não pode alterar este relatório."}, status=403)
+    if campo not in dominio.CAMPOS_SUGERIR:
+        raise Http404
+    rascunho = {c: str(request.POST.get(c, "")) for c in dominio.CAMPOS_TEXTO
+                if c in request.POST}
+    return JsonResponse({"texto": relatorio.sugerir(p, campo, rascunho)})
 
 
 @require_GET

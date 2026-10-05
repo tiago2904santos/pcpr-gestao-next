@@ -49,3 +49,22 @@ def test_marcadores_e_preenchido():
         "Evento em Londrina/PR, 07 a 09/10. {x}")
     assert not r.preenchido({"motivo": "a", "atividade": " ", "conclusao": "c"})
     assert r.preenchido({"motivo": "a", "atividade": "b", "conclusao": "c"})
+
+
+def test_sugerir_conclusao_e_medidas():
+    ctx = r.Contexto(evento="PCPR na Comunidade", destino="Londrina/PR",
+                     periodo="07/10 a 09/10/2026", atividades=("Palestra", "Atendimento"))
+    conclusao = r.sugerir("conclusao", ctx, {"atividade": "Apoiar a ação"})
+    assert conclusao.startswith("A participação no evento “PCPR na Comunidade”, em "
+                                "Londrina/PR, no período de 07/10 a 09/10/2026, foi realizada")
+    assert "(Palestra e Atendimento) foram desenvolvidas." in conclusao
+    assert "O objetivo da participação — Apoiar a ação — foi atingido." in conclusao
+    medidas = r.sugerir("medidas", ctx, {"conclusao": "Houve uma pendência com o local."})
+    assert medidas.startswith("Recomenda-se ao órgão: registrar e divulgar internamente os "
+                              "resultados do evento “PCPR na Comunidade”")
+    assert "acompanhar a pendência apontada na conclusão" in medidas
+    sem_nada = r.sugerir("conclusao", r.Contexto(), {})
+    assert sem_nada.startswith("A viagem, foi") is False and sem_nada.startswith("A viagem foi")
+    with pytest.raises(ValueError):
+        r.sugerir("motivo", ctx, {})
+    assert r.listar(["a", "b", "c", "d", "e", "f"]) == "a, b, c, d e outras 2"

@@ -97,6 +97,8 @@ urlpatterns = [
          name="salvar_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/autosave/", views_relatorio.autosave,
          name="autosave_relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/sugerir/<str:campo>/", views_relatorio.sugerir,
+         name="sugerir_relatorio"),
     path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/<str:formato>/",
          views_relatorio.documento, name="documento_relatorio"),
     # Depois das rotas literais do diário e do RT: <acao> capturaria "diario".

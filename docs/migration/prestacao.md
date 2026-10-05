@@ -109,8 +109,10 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
   (PDF e DOCX por servidor), tipos `rt_*` no catálogo de textos prontos (um padrão por campo,
   marcadores `{destino}` `{periodo}` `{motivo}` `{servidores}` `{atividades}` `{metas}`),
   pendência e trava, link na lista, DEMO.
-- **Pendente (9c-2)**: copiar de outro RT, "Sugerir texto" (regra local), "salvar como
-  modelo" com nome repetido numerado (hoje o catálogo recusa o nome repetido).
+- **9c-2 feito**: "Copiar de outro relatório técnico" (mesmo evento, depois mesmo destino;
+  restrito à unidade — decisão do agente) e "Sugerir texto" da conclusão e das medidas com
+  as frases da referência (sem a vírgula sobrando de "A viagem, foi…"). Pendente: "salvar
+  como modelo" com nome repetido numerado (hoje o catálogo recusa o nome repetido).
 
 ## 9c — relatório técnico (ficha levantada em 05/10/2026)
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
@@ -111,3 +112,109 @@ def aplicar_marcadores(texto: str, valores: Mapping[str, str]) -> str:
 def preenchido(textos: Mapping[str, str]) -> bool:
     """Descrição, objetivo e conclusão escritos (o que a finalização cobra)."""
     return all(espacos(textos.get(c)) for c in ("motivo", "atividade", "conclusao"))
+
+
+# ---------------------------------------------------------------- "Sugerir texto" (9c-2)
+# Regra local, sem serviço externo (referência m103): o rascunho sai de modelos de frase com
+# o que o sistema já sabe — evento, destino, período, atividades e resultados do plano — e o
+# que já está escrito no próprio RT. Só volta para a tela; quem grava é a pessoa.
+CAMPOS_SUGERIR = ("conclusao", "medidas")
+SINAIS_DE_PENDENCIA = ("pendên", "pendente", "não foi possível", "não pôde", "faltou",
+                       "faltaram", "intercorrência", "problema", "dificuldade")
+
+
+@dataclass(frozen=True)
+class Contexto:
+    evento: str = ""
+    motivo: str = ""
+    destino: str = ""
+    periodo: str = ""
+    atividades: tuple[str, ...] = ()
+    realizados: tuple[str, ...] = ()
+
+
+def listar(itens: Iterable[str], maximo: int = 4) -> str:
+    """"a, b e c" — e "a, b, c, d e outras 2" quando a lista é longa."""
+    itens = [espacos(i) for i in itens if espacos(i)]
+    if not itens:
+        return ""
+    if len(itens) > maximo:
+        return ", ".join(itens[:maximo]) + f" e outras {len(itens) - maximo}"
+    if len(itens) == 1:
+        return itens[0]
+    return ", ".join(itens[:-1]) + f" e {itens[-1]}"
+
+
+def frase(texto: str) -> str:
+    """Primeira letra maiúscula e ponto final, sem dobrar a pontuação."""
+    texto = espacos(texto)
+    if not texto:
+        return ""
+    texto = texto[0].upper() + texto[1:]
+    return texto if texto[-1] in ".!?" else texto + "."
+
+
+def _onde_e_quando(ctx: Contexto) -> str:
+    partes = []
+    if ctx.destino:
+        partes.append(f"em {ctx.destino}")
+    if ctx.periodo:
+        partes.append(("no período de " if " a " in ctx.periodo else "no dia ") + ctx.periodo)
+    return ", ".join(partes)
+
+
+def sugerir_conclusao(ctx: Contexto, textos: Mapping[str, str]) -> str:
+    if ctx.evento:
+        abertura = f"a participação no evento “{ctx.evento}”"
+    elif ctx.motivo:
+        abertura = f"a viagem para {ctx.motivo[0].lower() + ctx.motivo[1:]}"
+    else:
+        abertura = "a viagem"
+    onde = _onde_e_quando(ctx)
+    # Sem destino nem período, sem a vírgula (a referência deixava "A viagem, foi…").
+    frases = [frase(f"{abertura}{', ' + onde + ',' if onde else ''} foi realizada conforme "
+                    "o planejado")]
+    if ctx.realizados:
+        frases.append(frase(f"foram realizados: {'; '.join(ctx.realizados)}"))
+    elif ctx.atividades:
+        frases.append(frase(f"as atividades previstas no plano de trabalho "
+                            f"({listar(ctx.atividades)}) foram desenvolvidas"))
+    objetivo = espacos(textos.get("atividade"))
+    if objetivo and len(objetivo) <= 160 and not ctx.realizados:
+        frases.append(frase(f"o objetivo da participação — {objetivo.rstrip('.')} — foi "
+                            "atingido"))
+    elif objetivo:
+        frases.append("O objetivo da participação foi atingido.")
+    frases.append("Não houve intercorrências que comprometessem os resultados.")
+    return " ".join(frases)
+
+
+def sugerir_medidas(ctx: Contexto, textos: Mapping[str, str]) -> str:
+    if ctx.evento:
+        referencia = f"do evento “{ctx.evento}”"
+    else:
+        referencia = "da viagem" + (f" a {ctx.destino}" if ctx.destino else "")
+    itens = [f"registrar e divulgar internamente os resultados {referencia}"]
+    if ctx.atividades:
+        itens.append("dar seguimento às demandas identificadas durante as atividades "
+                     f"({listar(ctx.atividades, maximo=3)})")
+    else:
+        itens.append("dar seguimento às demandas identificadas durante a viagem")
+    conclusao = espacos(textos.get("conclusao")).lower()
+    if any(sinal in conclusao for sinal in SINAIS_DE_PENDENCIA):
+        itens.append("acompanhar a pendência apontada na conclusão até a sua solução")
+    if ctx.destino:
+        itens.append(f"avaliar a necessidade de novas ações em {ctx.destino}, conforme a "
+                     "demanda da unidade")
+    else:
+        itens.append("avaliar a necessidade de novas ações, conforme a demanda da unidade")
+    return (f"Recomenda-se ao órgão: {'; '.join(itens)}. Não há outras medidas a adotar além "
+            "da prestação de contas das diárias.")
+
+
+def sugerir(campo: str, ctx: Contexto, textos: Mapping[str, str]) -> str:
+    if campo == "conclusao":
+        return sugerir_conclusao(ctx, textos)
+    if campo == "medidas":
+        return sugerir_medidas(ctx, textos)
+    raise ValueError("Este campo não tem sugestão de texto.")

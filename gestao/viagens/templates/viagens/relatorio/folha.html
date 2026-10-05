@@ -41,6 +41,14 @@ toda finalizada.
       <h2 class="secao__titulo" id="t-relato"><span class="secao__numero">1</span>Relato</h2>
       <p class="secao__nota">O texto vale para a equipe toda. Campos vazios já vêm com uma sugestão do ofício, da viagem ou do plano de trabalho — revise antes de usar.</p>
     </div>
+    {% if editavel and para_copiar %}
+    <div class="texto-pronto mb-4" data-copiar-de="rts-para-copiar" data-prefixo="rt-">
+      <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="copiar-rt">Copiar de outro relatório técnico</label>
+        <pc-select class="seletor"><select class="selecao" id="copiar-rt"><option value="">Escolha um relatório</option>{% for r in para_copiar %}<option value="{{ r.id }}">{{ r.rotulo }}</option>{% endfor %}</select></pc-select></div>
+      <div class="texto-pronto__acoes"><button type="button" class="botao botao--sutil" data-copiar>{% icone "copy" %}Copiar textos</button></div>
+    </div>
+    {{ para_copiar|json_script:"rts-para-copiar" }}
+    {% endif %}
     <div class="pilha-lg">
     {% for c in campos %}
       <div class="pilha-sm">
@@ -56,6 +64,7 @@ toda finalizada.
           {% if editavel %}
           <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="4"{% if c.sugerido %} aria-describedby="rt-{{ c.nome }}-sugestao"{% endif %}>{{ c.valor }}</textarea>
           {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
+          {% if c.nome in sugeriveis %}<div><button type="button" class="botao botao--sm botao--sutil" data-sugerir="{% url 'viagens:sugerir_relatorio' p.pk c.nome %}" data-alvo="rt-{{ c.nome }}" data-form="form-rt">{% icone "text-quote" %}Sugerir texto<span class="sr-only"> para {{ c.rotulo|lower }}</span></button></div>{% endif %}
           {% else %}
           <p class="texto-sm">{{ c.valor|default:"—"|linebreaksbr }}</p>
           {% endif %}

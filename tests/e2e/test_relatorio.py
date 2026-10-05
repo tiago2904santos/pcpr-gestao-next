@@ -35,3 +35,26 @@ def test_relatorio_do_texto_ao_documento(logado, dados_e2e):
     href = pg.get_by_role("link", name=f"PDF do RT de {a.servidor.nome}").get_attribute("href")
     resposta = pg.request.get(href)
     assert resposta.ok and resposta.headers["content-type"] == "application/pdf"
+
+
+def test_sugerir_e_copiar_textos(logado, dados_e2e):
+    from gestao.viagens.models import Oficio, PrestacaoContas, RelatorioTecnico, Trecho
+
+    p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+    outro = Oficio.objects.get(pk=dados_e2e.ids["oficio_rascunho"])
+    Trecho.objects.filter(oficio=outro, ordem=1).update(
+        destino=Trecho.objects.get(oficio=p.oficio, ordem=1).destino)
+    RelatorioTecnico.objects.create(prestacao=PrestacaoContas.objects.create(oficio=outro),
+                                    medidas="Medidas copiadas do outro ofício.")
+    pg = logado
+    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/relatorio/")
+    pg.get_by_role("button", name="Sugerir texto para conclusão").click()
+    expect(pg.locator("#rt-conclusao")).to_have_value(
+        __import__("re").compile("foi realizada conforme o planejado"))
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
+    assert "conforme o planejado" in RelatorioTecnico.objects.get(prestacao=p).conclusao
+
+    pg.get_by_role("combobox", name="Copiar de outro relatório técnico").click()
+    pg.get_by_role("option", name=f"Ofício {outro.numero_formatado} · mesmo destino").click()
+    pg.get_by_role("button", name="Copiar textos").click()
+    expect(pg.locator("#rt-medidas")).to_have_value("Medidas copiadas do outro ofício.")

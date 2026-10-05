@@ -154,3 +154,41 @@ def test_textos_prontos_por_campo_com_marcadores(c):
     prontos = relatorio.textos_prontos(p)
     assert prontos["conclusao"][0][2] == "Feito em Arapongas/PR."
     assert prontos["motivo"] == []
+
+
+def test_sugerir_texto_pela_tela(c):
+    p = _p(c)
+    relatorio.obter(p)
+    op = _cliente(c, "operador")
+    r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "conclusao"]),
+                {"atividade": "Apoiar a ação"})
+    texto = r.json()["texto"]
+    assert "foi realizada conforme o planejado" in texto and "Apoiar a ação" in texto
+    assert "Arapongas/PR" in texto
+    r = op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "medidas"]))
+    assert r.json()["texto"].startswith("Recomenda-se ao órgão:")
+    assert op.post(reverse("viagens:sugerir_relatorio", args=[p.pk, "motivo"])).status_code == 404
+    consulta = _cliente(c, "consulta")
+    assert consulta.post(reverse("viagens:sugerir_relatorio",
+                                 args=[p.pk, "conclusao"])).status_code == 403
+    assert RelatorioTecnico.objects.get(prestacao=p).conclusao == ""  # nunca grava
+
+
+def test_copiar_de_outro_rt_do_mesmo_destino(c):
+    from gestao.viagens.models import Oficio, Trecho
+
+    p = _p(c)
+    # Outro ofício da unidade com o mesmo destino e um RT escrito.
+    outro = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    Trecho.objects.filter(oficio=outro, ordem=1).update(
+        destino=Trecho.objects.get(oficio=p.oficio, ordem=1).destino)
+    p2 = PrestacaoContas.objects.create(oficio=outro)
+    RelatorioTecnico.objects.create(prestacao=p2, conclusao="Conclusão do outro ofício.")
+    RelatorioTecnico.objects.create(prestacao=PrestacaoContas.objects.create(
+        oficio=Oficio.objects.get(pk=c.ids["oficio_vazio"])), conclusao="Sem destino comum.")
+    lista = relatorio.para_copiar(p)
+    assert [item["rotulo"] for item in lista] == [
+        f"Ofício {outro.numero_formatado} · mesmo destino"]
+    assert lista[0]["textos"]["conclusao"] == "Conclusão do outro ofício."
+    html = _cliente(c, "operador").get(reverse("viagens:relatorio", args=[p.pk])).content.decode()
+    assert "Copiar de outro relatório técnico" in html and 'id="rts-para-copiar"' in html
