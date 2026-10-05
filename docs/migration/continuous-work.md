@@ -85,11 +85,9 @@ Ver a fila abaixo (primeiro item não concluído).
 
 ## Falhas conhecidas
 
-- Nenhuma conhecida: suíte rápida completa verde depois do 9b (1221 passaram, 05/10).
-  Regressão de navegador completa em `cc007ca`: 367 passaram, 1 falha — orçamento de
-  desempenho de `/viagens/oficios/?resumo=` sob 4 workers (db 96,8 ms/80; INP 208/200);
-  isolado passa (6/6). Reconferir na próxima regressão (suspeita: carga; a contagem nova de
-  "Contas prestadas" na lista de ofícios também entra na conta).
+- Nenhuma conhecida (05/10): em `85d58d4`, suíte rápida 1264 passaram e regressão de
+  navegador completa 375 passaram, 0 falhas (o orçamento de desempenho que falhou sob
+  carga em `cc007ca` passou desta vez — segue em observação).
 
 ## Bloqueios externos
 

@@ -76,6 +76,20 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
   ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
 
+## 9b-2 — roteiro ajustado (o realizado): desenho
+
+Na referência, a prestação guarda uma cópia editável do roteiro do ofício
+(`roteiro_ajustado`, clonada no primeiro uso e editada no editor de roteiros); o diário segue
+os trechos dela, a diária do RT sai dela e as mudanças de saída/chegada viram texto nas
+informações complementares do RT ("saída (A → B) de … para …").
+
+Aqui o ofício guarda os próprios trechos (não depende de um roteiro). **Decisão do agente**
+(a confirmar): os trechos realizados ficam na própria prestação (`TrechoRealizado`, cópia
+dos trechos do ofício no primeiro uso, com saída/chegada editáveis na folha do diário); as
+diárias se recalculam com o mesmo domínio do ofício (`dominio/diarias.py`); o diário passa
+a seguir os realizados quando existem; o RT usa a diária recalculada e lista as mudanças de
+horário. Assim nada aparece na lista de roteiros e o ofício emitido não muda.
+
 ## 9d-2 — pacote final (05/10/2026)
 
 - `gestao/viagens/pacote_prestacao.py`: por servidor, na ordem oficial da referência —
