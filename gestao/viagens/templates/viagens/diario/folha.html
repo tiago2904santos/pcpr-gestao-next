@@ -91,17 +91,56 @@ quando todos estão finalizados. Consulta vê tudo como texto.
     {% endif %}
   </section>
 
-  {# 2. Trechos: km e abastecimento (gravam sozinhos). #}
+  {# 2. Viagem realizada (9b-2): o que de fato aconteceu, sem mudar o ofício. #}
+  <section class="secao{% if realizados %} secao--ok{% endif %}" id="realizada" aria-labelledby="t-realizada">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-realizada"><span class="secao__numero">2</span>Viagem realizada</h2>
+      <div class="secao__estado">{% if realizados %}<span class="selo selo--info selo--sem-ponto">Ajustada</span>{% endif %}</div>
+      <p class="secao__nota">Se os horários de saída ou chegada mudaram, ajuste aqui o que de fato aconteceu: as diárias se recalculam, o diário segue os horários realizados e o relatório técnico registra a mudança. O ofício emitido não muda.</p>
+    </div>
+    {% if realizados %}
+      {% if diaria_realizada and diaria_oficio and diaria_realizada != diaria_oficio %}<p class="alerta alerta--aviso">{% icone "banknote" classe="icone--sm" %}<span>Diária por servidor: {{ diaria_oficio }} no ofício → {{ diaria_realizada }} na viagem realizada.</span></p>{% endif %}
+      {% if p.diarias_realizadas_erro %}<p class="alerta alerta--perigo">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ p.diarias_realizadas_erro }}</span></p>{% endif %}
+      {% if editavel %}
+      <form method="post" action="{% url 'viagens:viagem_realizada' p.pk 'salvar' %}" class="pilha" novalidate>
+        {% csrf_token %}
+        <ol class="diario-linhas">
+          {% for r in realizados %}
+          <li class="diario-linha">
+            <div class="diario-linha__rota"><span class="diario-linha__numero" aria-hidden="true">{{ forloop.counter }}</span><div><p class="peso-semi">{{ r.origem }} → {{ r.destino }}</p></div></div>
+            <div class="diario-linha__campos">
+              <div class="campo"><label class="campo__rotulo" for="r-{{ r.pk }}-saida_data">Saída · data</label><pc-data class="seletor"><input class="entrada" id="r-{{ r.pk }}-saida_data" name="r-{{ r.pk }}-saida_data" value="{{ r.saida_em|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+              <div class="campo"><label class="campo__rotulo" for="r-{{ r.pk }}-saida_hora">Saída · hora</label><pc-hora class="seletor"><input class="entrada" id="r-{{ r.pk }}-saida_hora" name="r-{{ r.pk }}-saida_hora" value="{{ r.saida_em|date:'H:i' }}" inputmode="numeric" placeholder="hh:mm" maxlength="5" autocomplete="off" data-mascara="hora"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "clock" %}<span class="sr-only">Abrir relógio</span></button></pc-hora></div>
+              <div class="campo"><label class="campo__rotulo" for="r-{{ r.pk }}-chegada_data">Chegada · data</label><pc-data class="seletor"><input class="entrada" id="r-{{ r.pk }}-chegada_data" name="r-{{ r.pk }}-chegada_data" value="{{ r.chegada_em|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data></div>
+              <div class="campo"><label class="campo__rotulo" for="r-{{ r.pk }}-chegada_hora">Chegada · hora</label><pc-hora class="seletor"><input class="entrada" id="r-{{ r.pk }}-chegada_hora" name="r-{{ r.pk }}-chegada_hora" value="{{ r.chegada_em|date:'H:i' }}" inputmode="numeric" placeholder="hh:mm" maxlength="5" autocomplete="off" data-mascara="hora"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "clock" %}<span class="sr-only">Abrir relógio</span></button></pc-hora></div>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar horários e recalcular</button><button type="submit" form="desfazer-realizada" class="botao botao--texto">{% icone "undo-2" %}Voltar à viagem do ofício</button></div>
+      </form>
+      <form id="desfazer-realizada" method="post" action="{% url 'viagens:viagem_realizada' p.pk 'desfazer' %}" hidden data-confirmar="Os horários ajustados são apagados e vale de novo a viagem do ofício (os km do diário ficam)." data-confirmar-titulo="Voltar à viagem do ofício?" data-confirmar-rotulo="Voltar ao do ofício">{% csrf_token %}</form>
+      {% else %}
+      <ul class="pilha-sm">{% for r in realizados %}<li class="texto-sm">{{ r.origem }} → {{ r.destino }}: {{ r.saida_em|date:"d/m/Y H:i" }} → {{ r.chegada_em|date:"d/m/Y H:i" }}</li>{% endfor %}</ul>
+      {% endif %}
+      {% if alteracoes_horario %}<p class="texto-secundario texto-sm mt-2">Mudanças em relação ao ofício: {% for a in alteracoes_horario %}{{ a }}{% if not forloop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+    {% else %}
+      <p class="texto-secundario texto-sm">Igual à viagem do ofício.</p>
+      {% if editavel %}<form method="post" action="{% url 'viagens:viagem_realizada' p.pk 'ajustar' %}">{% csrf_token %}<button type="submit" class="botao botao--sm">{% icone "pencil" %}Ajustar horários do que aconteceu</button></form>{% endif %}
+    {% endif %}
+  </section>
+
+  {# 3. Trechos: km e abastecimento (gravam sozinhos). #}
   <section class="secao{% if completo %} secao--ok{% endif %}" id="trechos" aria-labelledby="t-trechos">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">2</span>Trechos</h2>
+      <h2 class="secao__titulo" id="t-trechos"><span class="secao__numero">3</span>Trechos</h2>
       <div class="secao__estado" id="estado-trechos" data-vivo>{% if not completo and linhas %}<span class="selo selo--aviso selo--sem-ponto">Falta km em {{ faltam|pluralizar:"trecho,trechos" }}</span>{% endif %}</div>
       <p class="secao__nota">Um por trecho do ofício, na ordem. Digite o km do hodômetro na saída e na chegada; a distância prevista ajuda a conferir.</p>
     </div>
     {% if linhas %}
     {% if editavel %}<form method="post" action="{% url 'viagens:salvar_diario' p.pk %}" id="form-diario" novalidate data-autosave="{% url 'viagens:autosave_diario' p.pk %}">{% csrf_token %}{% endif %}
     <ol class="diario-linhas">
-      {% for item in linhas %}{% with l=item.l t=item.l.trecho %}
+      {% for item in linhas %}{% with l=item.l t=item.fonte %}
       <li class="diario-linha" id="linha-{{ l.pk }}">
         <div class="diario-linha__rota">
           <span class="diario-linha__numero" aria-hidden="true">{{ forloop.counter }}</span>
@@ -129,10 +168,10 @@ quando todos estão finalizados. Consulta vê tudo como texto.
     {% endif %}
   </section>
 
-  {# 3. Conferência do hodômetro. #}
+  {# 4. Conferência do hodômetro. #}
   <section class="secao{% if conf and not conf.avisos and completo %} secao--ok{% endif %}" id="conferencia" aria-labelledby="t-conferencia" data-vivo>
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">3</span>Conferência do hodômetro</h2>
+      <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">4</span>Conferência do hodômetro</h2>
       <p class="secao__nota">Avisos, não bloqueios: o hodômetro que volta para trás e o rodado longe da distância prevista (mais de 20%, mínimo 10 km).</p>
     </div>
     {% if conf %}

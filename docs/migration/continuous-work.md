@@ -32,7 +32,7 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
 finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
 9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito; 9b (diário de bordo)
-feito; 9c (relatório técnico) feito; 9d-1 (anexos) e 9d-2 (pacote final) feitos; rotina diária de avisos feita. 9c-2 feito. Próximo: 9b-2 (roteiro ajustado), 9d-3 (carimbo); regressão de navegador completa.
+feito; 9c (relatório técnico) feito; 9d-1 (anexos) e 9d-2 (pacote final) feitos; rotina diária de avisos feita. 9c-2 e 9b-2 feitos. Próximo: 9d-3 (carimbo do nº no ofício assinado) e revisão do pacote; depois trilhas paralelas (Agenda, Eventos, ASCOM).
 
 ## Próxima tarefa concreta
 
@@ -55,7 +55,7 @@ Ver a fila abaixo (primeiro item não concluído).
 | 10 | Prestação 9a: base (modelos, nascimento, prazos, lista, lote, finalizar, envio) | feito (9a) |
 | 10b | 9a-2: abas "Finalizados"/"Contas prestadas" em roteiros, ofícios, termos, OS, planos, viagens | feito (exclusivas com as abas de quando; ofícios: além de Emitidos) |
 | 11 | Prestação 9b: diário de bordo (linhas pelos trechos, km com validação, conferência do hodômetro, motorista/viatura só no diário, PDF/XLSX, pendência na finalização, trava pela equipe) | feito (sem roteiro ajustado e sem PWA) |
-| 11b | 9b-2: roteiro ajustado (o realizado) editável no diário | pendente |
+| 11b | 9b-2: viagem realizada (trechos realizados na prestação, horários corrigidos, diárias recalculadas sem mudar o ofício; diário segue os realizados; RT com a diária nova e o texto das mudanças) | feito (decisão do agente: sem roteiro à parte) |
 | 12 | Prestação 9c: relatório técnico (texto da equipe, custeio, diária recebida ≤ liberada, sugestões, textos prontos por campo com marcadores, PDF/DOCX por servidor, pendência, trava) | feito (sem copiar de outro RT e sem "Sugerir texto") |
 | 12b | 9c-2: copiar de outro RT (mesmo evento, depois mesmo destino; só da unidade) e "Sugerir texto" da conclusão e das medidas (regra local) | feito (componente `sugerir.js`, UI Lab §16) |
 | 13 | Prestação 9d-1: anexos (despacho, comprovantes com valor/data/operação, RT e diário assinados; ofício assinado = via do módulo 7), versões 30 dias, pendências da referência (soma dos comprovantes = diária), selo de saque com comprovante | feito |

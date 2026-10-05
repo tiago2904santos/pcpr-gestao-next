@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Q
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from . import policies
@@ -26,6 +27,7 @@ from .models import (
     PrestacaoContas,
     PrestacaoServidor,
     Trecho,
+    TrechoRealizado,
     Viajante,
 )
 
@@ -67,21 +69,41 @@ def obter(prestacao: PrestacaoContas) -> DiarioBordo:
 def sincronizar(diario: DiarioBordo) -> list[DiarioBordoTrecho]:
     """Uma linha por trecho, na ordem; reaproveita a linha do trecho (ou, se o trecho foi
     refeito, a que sobrou na mesma posição) para não perder km digitado."""
-    trechos = trechos_do_oficio(diario.prestacao.oficio)
+    from . import realizado as viagem_realizada
+    realizados = viagem_realizada.trechos(diario.prestacao)
+    # Com a viagem ajustada (9b-2), as linhas seguem os realizados (referência: o diário
+    # segue o roteiro efetivo); a chave de cada linha diz de qual trecho ela é.
+    fontes: list[tuple[tuple[str, int], int | None, TrechoRealizado | None]]
+    if realizados:
+        fontes = [(("r", r.pk), r.trecho_oficio_id, r) for r in realizados]
+    else:
+        fontes = [(("t", t.pk), t.pk, None) for t in trechos_do_oficio(diario.prestacao.oficio)]
+
+    def chave(lin: DiarioBordoTrecho):
+        return ("r", lin.realizado_id) if lin.realizado_id else ("t", lin.trecho_id)
+
     atuais = list(diario.linhas.order_by("ordem", "pk"))
-    if [(lin.trecho_id, lin.ordem) for lin in atuais] == [(t.pk, i) for i, t in enumerate(trechos)]:
+    if [(chave(lin), lin.ordem) for lin in atuais] == [(f[0], i) for i, f in enumerate(fontes)]:
         return atuais
     diario.linhas.update(ordem=F("ordem") + DESLOCAMENTO)
     existentes = list(diario.linhas.order_by("ordem", "pk"))
+    por_chave = {chave(lin): lin for lin in existentes}
     por_trecho = {lin.trecho_id: lin for lin in existentes if lin.trecho_id}
-    ids = {t.pk for t in trechos}
-    sobrando = [lin for lin in existentes if lin.trecho_id not in ids]
+    chaves = {f[0] for f in fontes}
     usados = []
-    for i, trecho in enumerate(trechos):
-        linha = por_trecho.get(trecho.pk) or (sobrando.pop(0) if sobrando else None)
+    sobrando = [lin for lin in existentes if chave(lin) not in chaves]
+    for i, (k, trecho_id, real) in enumerate(fontes):
+        # A mesma chave; senão a linha do mesmo trecho do ofício (ao ajustar ou desfazer o
+        # ajuste os km ficam); senão a que sobrou na posição.
+        linha = por_chave.get(k)
+        if linha is None and trecho_id and por_trecho.get(trecho_id) in sobrando:
+            linha = por_trecho[trecho_id]
+            sobrando.remove(linha)
+        if linha is None and sobrando:
+            linha = sobrando.pop(0)
         if linha is None:
             linha = DiarioBordoTrecho(diario=diario, abastecimento=True)
-        linha.trecho, linha.ordem = trecho, i
+        linha.trecho_id, linha.realizado, linha.ordem = trecho_id, real, i
         linha.save()
         usados.append(linha.pk)
     diario.linhas.exclude(pk__in=usados).delete()
@@ -89,17 +111,23 @@ def sincronizar(diario: DiarioBordo) -> list[DiarioBordoTrecho]:
 
 
 def linhas(diario: DiarioBordo) -> list[DiarioBordoTrecho]:
-    return list(diario.linhas.select_related("trecho__origem", "trecho__destino")
+    return list(diario.linhas.select_related("trecho__origem", "trecho__destino",
+                                             "realizado__origem", "realizado__destino")
                 .order_by("ordem", "pk"))
 
 
+def fonte(linha: DiarioBordoTrecho):
+    """De onde vêm rota, horários e distância da linha: o trecho realizado ou o do ofício."""
+    return linha.realizado or linha.trecho
+
+
 def rota(linha: DiarioBordoTrecho) -> str:
-    t = linha.trecho
+    t = fonte(linha)
     return f"{t.origem} → {t.destino}" if t else f"trecho {linha.ordem + 1}"
 
 
 def prevista(linha: DiarioBordoTrecho) -> int | None:
-    t = linha.trecho
+    t = fonte(linha)
     return round(t.distancia_km) if t and t.distancia_km else None
 
 
@@ -148,17 +176,21 @@ def ultimo_km_da_viatura(diario: DiarioBordo) -> dominio.UltimoKm | None:
                             diario__viatura_id=vid)
                           | Q(diario__viatura_modo=DiarioBordo.ViaturaModo.OFICIO,
                               diario__prestacao__oficio__viatura_id=vid)))
-    saida = (diario.linhas.filter(trecho__isnull=False).order_by("trecho__saida_em")
-             .values_list("trecho__saida_em", flat=True).first())
+    # Os horários da linha: os realizados quando a viagem foi ajustada, senão os do ofício.
+    candidatas = candidatas.annotate(
+        _chegada=Coalesce("realizado__chegada_em", "trecho__chegada_em"))
+    saida = (diario.linhas.annotate(_saida=Coalesce("realizado__saida_em", "trecho__saida_em"))
+             .filter(_saida__isnull=False).order_by("_saida")
+             .values_list("_saida", flat=True).first())
     if saida is not None:
-        candidatas = candidatas.filter(Q(trecho__chegada_em__lte=saida)
-                                       | Q(trecho__chegada_em__isnull=True))
-    linha = (candidatas.select_related("trecho", "diario__prestacao__oficio")
-             .order_by(F("trecho__chegada_em").desc(nulls_last=True), "-km_final", "-pk")
+        candidatas = candidatas.filter(Q(_chegada__lte=saida) | Q(_chegada__isnull=True))
+    linha = (candidatas.select_related("trecho", "realizado", "diario__prestacao__oficio")
+             .order_by(F("_chegada").desc(nulls_last=True), "-km_final", "-pk")
              .first())
     if linha is None:
         return None
-    quando = linha.trecho.chegada_em if linha.trecho else linha.diario.atualizado_em
+    origem = fonte(linha)
+    quando = origem.chegada_em if origem else linha.diario.atualizado_em
     return dominio.UltimoKm(linha.km_final or 0, f"{timezone.localtime(quando):%d/%m/%Y}",
                             linha.diario.prestacao.oficio.numero_formatado)
 
@@ -342,6 +374,8 @@ def trocar_motorista_e_viatura(usuario, diario_pk: int, *, motorista_modo: str,
     diario.viatura_combustivel = (" ".join((viatura_combustivel or "").split())[:60]
                                   if manual else "")
     diario.save()
+    from . import relatorio  # a troca explica-se no RT (só se o campo estiver vazio)
+    relatorio.preencher_informacoes_complementares(diario.prestacao)
     return diario
 
 
@@ -368,7 +402,7 @@ def dados_do_documento(diario: DiarioBordo) -> dict:
         protocolo = f"{protocolo[:2]}.{protocolo[2:5]}.{protocolo[5:8]}-{protocolo[8]}"
     itens = []
     for lin in linhas(diario):
-        t = lin.trecho
+        t = fonte(lin)
         saida = timezone.localtime(t.saida_em) if t else None
         chegada = timezone.localtime(t.chegada_em) if t else None
         itens.append({

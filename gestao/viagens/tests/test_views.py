@@ -616,8 +616,9 @@ class TestOrcamentoDeConsultas:
 
     def test_salvar_edicao(self, operador, cenario, django_assert_max_num_queries):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
-        # 26: +1 ao refazer os trechos — solta as linhas do diário de bordo (SET_NULL).
-        with django_assert_max_num_queries(26):
+        # 27: +2 ao refazer os trechos — soltam as linhas do diário de bordo e os trechos
+        # realizados da prestação (SET_NULL).
+        with django_assert_max_num_queries(27):
             r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
         assert r.status_code == 302
 

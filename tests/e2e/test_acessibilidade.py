@@ -317,3 +317,15 @@ def test_documentos_da_prestacao_sem_violacoes(logado, dados_e2e, largura):
                   nome="comprovante.pdf", conteudo=b"%PDF-1.4 t")
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_diario_com_viagem_realizada_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import realizado
+    from gestao.viagens.models import PrestacaoContas
+
+    p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+    realizado.ajustar(Usuario.objects.get(login="operador"), p.pk)
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/diario/")

@@ -80,6 +80,8 @@ urlpatterns = [
          name="autosave_diario"),
     path("prestacoes/equipe/<int:pk>/diario/motorista/", views_diario.motorista,
          name="motorista_diario"),
+    path("prestacoes/equipe/<int:pk>/diario/realizada/<str:acao>/",
+         views_diario.viagem_realizada, name="viagem_realizada"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
     path("prestacoes/equipe/<int:pk>/documentos/", views_anexos.folha,

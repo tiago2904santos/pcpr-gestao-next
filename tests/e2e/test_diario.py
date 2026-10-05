@@ -36,3 +36,18 @@ def test_diario_do_km_a_troca_de_viatura(logado, dados_e2e):
     pg.get_by_role("button", name="Aplicar motorista e viatura").click()
     expect(pg.locator(".toast").first).to_contain_text("o ofício não muda")
     expect(pg.locator("#motorista")).to_contain_text("Trocado só neste diário")
+
+
+def test_viagem_realizada_ajusta_e_recalcula(logado, dados_e2e):
+    from gestao.viagens.models import PrestacaoContas
+
+    p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+    pg = logado
+    pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+    pg.get_by_role("button", name="Ajustar horários do que aconteceu").click()
+    expect(pg.locator("#realizada")).to_contain_text("Ajustada")
+    volta = p.trechos_realizados.order_by("-ordem").first()
+    pg.locator(f"#r-{volta.pk}-chegada_hora").fill("23:30")
+    pg.get_by_role("button", name="Salvar horários e recalcular").click()
+    expect(pg.locator(".toast").first).to_contain_text("diárias foram recalculadas")
+    expect(pg.locator("#realizada")).to_contain_text("Mudanças em relação ao ofício")

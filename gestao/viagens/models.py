@@ -1191,6 +1191,12 @@ class PrestacaoContas(models.Model):
 
     oficio = models.OneToOneField(Oficio, on_delete=models.PROTECT, related_name="prestacao")
     observacoes = models.TextField(blank=True)
+    # Diárias recalculadas pelos trechos realizados (9b-2), quando a viagem foi ajustada.
+    diarias_realizadas_total = models.DecimalField(max_digits=12, decimal_places=2,
+                                                   null=True, blank=True)
+    diarias_realizadas_resumo = models.CharField(max_length=120, blank=True)
+    diarias_realizadas_calculo = models.JSONField(default=dict, blank=True)
+    diarias_realizadas_erro = models.CharField(max_length=300, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -1317,6 +1323,9 @@ class DiarioBordoTrecho(models.Model):
     # Trecho refeito no ofício: a linha fica (guarda os km) e o diário a reaproveita.
     trecho = models.ForeignKey(Trecho, on_delete=models.SET_NULL, null=True, blank=True,
                                related_name="+")
+    # Com a viagem ajustada (9b-2), a linha segue o trecho realizado.
+    realizado = models.ForeignKey("TrechoRealizado", on_delete=models.SET_NULL, null=True,
+                                  blank=True, related_name="+")
     ordem = models.PositiveIntegerField(default=0)
     km_inicial = models.PositiveIntegerField("km inicial", null=True, blank=True)
     km_final = models.PositiveIntegerField("km final", null=True, blank=True)
@@ -1434,3 +1443,37 @@ class AnexoPrestacao(models.Model):
     @property
     def removido(self) -> bool:
         return self.removido_em is not None
+
+
+class TrechoRealizado(models.Model):
+    """O que de fato aconteceu (9b-2): cópia dos trechos do ofício na prestação, com saída e
+    chegada corrigidas. O ofício emitido não muda; o diário e o RT seguem os realizados
+    (referência: `PrestacaoContas.roteiro_ajustado`; aqui sem um roteiro à parte — decisão
+    do agente, docs/migration/prestacao.md)."""
+
+    prestacao = models.ForeignKey(PrestacaoContas, on_delete=models.CASCADE,
+                                  related_name="trechos_realizados")
+    trecho_oficio = models.ForeignKey(Trecho, on_delete=models.SET_NULL, null=True, blank=True,
+                                      related_name="+")
+    ordem = models.PositiveSmallIntegerField()
+    origem = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    destino = models.ForeignKey(Municipio, on_delete=models.PROTECT, related_name="+")
+    saida_em = models.DateTimeField("saída")
+    chegada_em = models.DateTimeField("chegada")
+    distancia_km = models.DecimalField("distância (km)", max_digits=8, decimal_places=1,
+                                       null=True, blank=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["prestacao", "ordem"]
+        verbose_name = "trecho realizado"
+        verbose_name_plural = "trechos realizados"
+        constraints = [
+            models.UniqueConstraint(fields=["prestacao", "ordem"],
+                                    name="trecho_realizado_ordem_unica"),
+            models.CheckConstraint(condition=Q(chegada_em__gt=models.F("saida_em")),
+                                   name="trecho_realizado_chega_depois"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.origem} → {self.destino}"

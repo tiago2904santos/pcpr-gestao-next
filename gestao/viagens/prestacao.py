@@ -92,6 +92,9 @@ def diaria_liberada(ps: PrestacaoServidor, equipe: int | None = None) -> Decimal
     (referência: `valor_diaria_liberado`): o "por servidor" do cálculo do ofício; sem ele,
     o total ÷ a equipe (`equipe` = tamanho já contado, para a lista não contar de novo).
     A diária recebida (override, quando o saque difere) entra com o relatório técnico."""
+    from . import realizado
+    if (valor := realizado.por_servidor(ps.prestacao)) is not None:
+        return valor  # a viagem foi ajustada: vale o realizado (referência: roteiro efetivo)
     oficio = ps.prestacao.oficio
     por_servidor = (oficio.diarias_calculo or {}).get("por_servidor")
     if por_servidor and Decimal(por_servidor) > 0:

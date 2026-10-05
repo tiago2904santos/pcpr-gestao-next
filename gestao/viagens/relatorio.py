@@ -189,6 +189,40 @@ def diaria_padrao(prestacao: PrestacaoContas) -> str:
     return dominio.moeda(valor) if valor else ""
 
 
+def texto_dos_ajustes(prestacao: PrestacaoContas) -> str:
+    """O que a viagem teve de diferente do ofício, em texto objetivo (referência:
+    `descricao_ajustes_prestacao`): trocas de motorista/viatura no diário, mudanças de saída e
+    chegada na viagem realizada e a diária por servidor que mudou com elas."""
+    from decimal import Decimal
+
+    from . import realizado
+    d = diario.DiarioBordo.objects.filter(prestacao=prestacao).first()
+    itens = (diario.alteracoes(d) if d else []) + realizado.alteracoes(prestacao)
+    nova = realizado.por_servidor(prestacao)
+    antiga = (prestacao.oficio.diarias_calculo or {}).get("por_servidor")
+    if nova is not None and antiga and Decimal(antiga).quantize(Decimal("0.01")) != nova:
+        itens.append(f"a diária (por servidor) passou de "
+                     f"{dominio.moeda(Decimal(antiga).quantize(Decimal('0.01')))} para "
+                     f"{dominio.moeda(nova)}")
+    if not itens:
+        return ""
+    texto = "; ".join(itens)
+    return texto[:1].upper() + texto[1:] + "."
+
+
+def preencher_informacoes_complementares(prestacao: PrestacaoContas) -> bool:
+    """Põe o texto dos ajustes nas informações complementares só se estiverem vazias (o que a
+    equipe escreveu não é sobrescrito — referência). Devolve se gravou."""
+    rt = RelatorioTecnico.objects.filter(prestacao=prestacao).first()
+    if rt is None or rt.info_complementares.strip():
+        return False
+    texto = texto_dos_ajustes(prestacao)
+    if not texto:
+        return False
+    RelatorioTecnico.objects.filter(pk=rt.pk).update(info_complementares=texto)
+    return True
+
+
 def diaria_do_servidor(rt: RelatorioTecnico, ps: PrestacaoServidor) -> str:
     """A recebida (com a observação) quando informada; senão a do relatório; senão a
     liberada."""
@@ -211,11 +245,7 @@ def obter(prestacao: PrestacaoContas) -> RelatorioTecnico:
     for campo, (_, _, padrao) in dominio.CUSTEIO.items():
         setattr(rt, campo, padrao)
     rt.diaria = diaria_padrao(prestacao)
-    d = diario.DiarioBordo.objects.filter(prestacao=prestacao).first()
-    trocas = diario.alteracoes(d) if d else []
-    if trocas:
-        texto = "; ".join(trocas)
-        rt.info_complementares = texto[:1].upper() + texto[1:] + "."
+    rt.info_complementares = texto_dos_ajustes(prestacao)
     valores = valores_dos_marcadores(prestacao)
     padroes = {m.tipo: m.texto for m in ModeloTexto.objects.filter(
         tipo__in=dominio.TIPO_DO_CAMPO.values(), padrao=True, ativo=True)}

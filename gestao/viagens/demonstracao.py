@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "plataforma_notificacao", "viagens_anexoprestacao", "viagens_relatoriotecnico",
+    "plataforma_notificacao", "viagens_trechorealizado", "viagens_anexoprestacao",
+    "viagens_relatoriotecnico",
     "viagens_diariobordotrecho", "viagens_diariobordo",
     "viagens_prestacaoservidor", "viagens_prestacaocontas",
     "viagens_viagemdestino", "viagens_viagem",
@@ -843,7 +844,7 @@ class _Gerador:
         from django.core.exceptions import PermissionDenied
         from weasyprint import HTML
 
-        from . import anexos, diario, prestacao, relatorio
+        from . import anexos, diario, prestacao, realizado, relatorio
         from .models import AnexoPrestacao, PrestacaoServidor
 
         def pdf_demo(titulo):
@@ -882,11 +883,18 @@ class _Gerador:
 
         try:
             for i, linhas in enumerate(equipes.values()):
+                if i == 2:  # viagem realizada: a volta atrasou um dia (diárias recalculadas)
+                    realizado.ajustar(autor, linhas[0].prestacao_id)
+                    volta = realizado.trechos(linhas[0].prestacao)[-1]
+                    realizado.salvar(autor, linhas[0].prestacao_id, {volta.pk: (
+                        volta.saida_em + timedelta(days=1), volta.chegada_em + timedelta(days=1))})
                 if i in (0, 2, 3, 4):  # despacho, comprovantes, diário e RT (finalizar exige)
                     anexos.anexar(autor, linhas[0].prestacao_id, AnexoPrestacao.Tipo.DESPACHO,
                                   nome="despacho-DEMO.pdf", conteudo=pdf_demo("Despacho"))
                     for ps in linhas:
-                        ps.prestacao = linhas[0].prestacao
+                        # Relida: com a viagem ajustada, a diária liberada é a recalculada.
+                        ps = PrestacaoServidor.objects.select_related("prestacao__oficio").get(
+                            pk=ps.pk)
                         anexos.anexar(autor, ps.prestacao_id, AnexoPrestacao.Tipo.COMPROVANTE,
                                       servidor_pk=ps.pk, nome="comprovante-DEMO.pdf",
                                       conteudo=pdf_demo("Comprovante de saque"),
@@ -920,7 +928,7 @@ class _Gerador:
                     prestacao.devolver(autor, linhas[0].pk,
                                        "Comprovante do saque ilegível; anexe de novo (DEMO).")
         except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido,
-                relatorio.RelatorioInvalido, anexos.AnexoInvalido):
+                relatorio.RelatorioInvalido, anexos.AnexoInvalido, realizado.AjusteInvalido):
             return  # base sem os papéis (testes de unidade)
 
     def planos_para_avaliar(self) -> None:

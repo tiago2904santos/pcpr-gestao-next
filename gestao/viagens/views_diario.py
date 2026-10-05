@@ -5,6 +5,7 @@ abastecimento, conferência do hodômetro, documento) e o documento em PDF/XLSX.
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -16,7 +17,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from gestao.cadastros.models import Viatura
 
-from . import diario, policies
+from . import diario, policies, realizado
 from .dominio.diario import km as dominio_km
 from .models import DiarioBordo, PrestacaoContas
 from .views import _migalhas
@@ -59,11 +60,19 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
 
     linhas = [{"l": linha, "rota": diario.rota(linha), "prevista": diario.prevista(linha),
                "rodado": conf.rodados[i] if conf else None,
-               "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final)}
+               "km_inicial": km(linha.km_inicial), "km_final": km(linha.km_final),
+               "fonte": diario.fonte(linha)}
               for i, linha in enumerate(lista)]
     preenchidas = sum(1 for linha in lista
                       if linha.km_inicial is not None and linha.km_final is not None)
+    realizados = realizado.trechos(p)
+    from .dominio.relatorio import moeda
+    por_servidor_oficio = (oficio.diarias_calculo or {}).get("por_servidor")
+    nova = realizado.por_servidor(p)
     return render(request, "viagens/diario/folha.html", {
+        "realizados": realizados, "alteracoes_horario": realizado.alteracoes(p),
+        "diaria_oficio": moeda(Decimal(por_servidor_oficio)) if por_servidor_oficio else "",
+        "diaria_realizada": moeda(nova) if nova is not None else "",
         "p": p, "oficio": oficio, "d": d, "linhas": linhas, "conf": conf,
         "editavel": editavel, "equipe_finalizada": finalizada,
         "preenchidas": preenchidas, "completo": bool(lista) and preenchidas == len(lista),
@@ -132,6 +141,47 @@ def motorista(request: HttpRequest, pk: int) -> HttpResponse:
         messages.success(request, "Motorista e viatura deste diário atualizados (o ofício não "
                                   "muda).")
     return redirect(reverse("viagens:diario", args=[p.pk]) + "#motorista")
+
+
+def _momento(data: str, hora: str, rotulo: str):
+    from datetime import datetime
+    try:
+        ingenuo = datetime.strptime(f"{data.strip()} {hora.strip()}", "%d/%m/%Y %H:%M")
+    except ValueError:
+        raise realizado.AjusteInvalido(
+            f"{rotulo}: informe data (dd/mm/aaaa) e hora (hh:mm).") from None
+    return timezone.make_aware(ingenuo)
+
+
+@require_POST
+def viagem_realizada(request: HttpRequest, pk: int, acao: str) -> HttpResponse:
+    """Ajustar (copia os trechos do ofício), salvar os horários ou voltar ao do ofício."""
+    p = _prestacao(request, pk)
+    try:
+        if acao == "ajustar":
+            realizado.ajustar(request.user, p.pk)
+            messages.success(request, "Viagem pronta para ajustar: corrija os horários do que "
+                                      "de fato aconteceu.")
+        elif acao == "salvar":
+            horarios = {}
+            for t in realizado.trechos(p):
+                g = request.POST.get
+                horarios[t.pk] = (
+                    _momento(g(f"r-{t.pk}-saida_data", ""), g(f"r-{t.pk}-saida_hora", ""),
+                             f"Saída de {t}"),
+                    _momento(g(f"r-{t.pk}-chegada_data", ""), g(f"r-{t.pk}-chegada_hora", ""),
+                             f"Chegada de {t}"))
+            realizado.salvar(request.user, p.pk, horarios)
+            messages.success(request, "Horários da viagem realizada salvos; as diárias foram "
+                                      "recalculadas.")
+        elif acao == "desfazer":
+            realizado.desfazer(request.user, p.pk)
+            messages.success(request, "Ajuste desfeito: vale de novo a viagem do ofício.")
+        else:
+            raise Http404
+    except (realizado.AjusteInvalido, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+    return redirect(reverse("viagens:diario", args=[p.pk]) + "#realizada")
 
 
 @require_GET
