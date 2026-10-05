@@ -316,6 +316,12 @@ class ModeloTexto(Ativavel):
         MOTIVO = "motivo", "Motivo do ofício"
         JUSTIFICATIVA = "justificativa", "Justificativa de prazo"
         OFICIO = "oficio", "Trecho para o texto do ofício"
+        # Relatório técnico da prestação de contas (um tipo por campo, como na referência).
+        RT_MOTIVO = "rt_motivo", "RT · Descrição do evento"
+        RT_ATIVIDADE = "rt_atividade", "RT · Objetivo da participação"
+        RT_CONCLUSAO = "rt_conclusao", "RT · Conclusão"
+        RT_MEDIDAS = "rt_medidas", "RT · Medidas a serem adotadas"
+        RT_INFO = "rt_info", "RT · Informações complementares"
 
     tipo = models.CharField(max_length=20, choices=Tipo.choices)
     nome = models.CharField("nome", max_length=120)

@@ -19,7 +19,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 
-from . import diario, exportacao, policies, prestacao
+from . import diario, exportacao, policies, prestacao, relatorio
 from .dominio.prestacao import prazo_para_prestar
 from .models import PrestacaoContas, PrestacaoServidor, Trecho
 from .viagem import periodo_curto
@@ -110,11 +110,12 @@ def lista(request: HttpRequest) -> HttpResponse:
     da_pagina = {p.pk: p for p in pagina.object_list}
     por_prestacao: dict[int, list] = {}
     hoje = timezone.localdate()
-    com_diario = diario.preenchidos(da_pagina)
+    com_diario, com_rt = diario.preenchidos(da_pagina), relatorio.preenchidos(da_pagina)
     for ps in qs.filter(prestacao__in=list(da_pagina)).order_by("servidor__nome"):
         ps.prestacao = da_pagina[ps.prestacao_id]
         por_prestacao.setdefault(ps.prestacao_id, []).append(
-            _linha(request, ps, hoje, ps.prestacao_id in com_diario))
+            _linha(request, ps, hoje, ps.prestacao_id in com_diario,
+                   ps.prestacao_id in com_rt))
     blocos = [_bloco(request, p, por_prestacao.get(p.pk, [])) for p in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
@@ -131,10 +132,10 @@ def lista(request: HttpRequest) -> HttpResponse:
 
 
 def _linha(request: HttpRequest, ps: PrestacaoServidor, hoje: date,
-           diario_preenchido: bool) -> dict:
+           diario_preenchido: bool, rt_preenchido: bool) -> dict:
     selos = prestacao.selos(ps, hoje)
     return {"ps": ps, "selos": selos,
-            "pendencias": prestacao.pendencias(ps, diario_preenchido),
+            "pendencias": prestacao.pendencias(ps, diario_preenchido, rt_preenchido),
             "diaria": prestacao.diaria_liberada(ps, getattr(ps.prestacao, "equipe", None)),
             "prestar_ate": prazo_para_prestar(ps.prazo_limite_saque),
             "editavel": policies.pode_editar_prestacao(request.user, ps)}

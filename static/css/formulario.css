@@ -1040,7 +1040,8 @@
   .modos:has(input[value="servidor"]:checked) .modos__campos[data-modo="servidor"],
   .modos:has(input[value="outro_oficio"]:checked) .modos__campos[data-modo="outro_oficio"],
   .modos:has(input[value="cadastro"]:checked) .modos__campos[data-modo="cadastro"],
-  .modos:has(input[value="manual"]:checked) .modos__campos[data-modo="manual"] {
+  .modos:has(input[value="manual"]:checked) .modos__campos[data-modo="manual"],
+  .modos:has(input[value="__outro__"]:checked) .modos__campos[data-modo="outro"] {
     display: grid;
   }
 }

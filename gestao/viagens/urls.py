@@ -9,6 +9,7 @@ from . import (
     views_pacotes,
     views_planos,
     views_prestacao,
+    views_relatorio,
     views_roteiros,
     views_termos,
     views_viagem,
@@ -80,7 +81,14 @@ urlpatterns = [
          name="motorista_diario"),
     path("prestacoes/equipe/<int:pk>/diario/<str:formato>/", views_diario.documento,
          name="documento_diario"),
-    # Depois das rotas literais do diário: <acao> capturaria "diario".
+    path("prestacoes/equipe/<int:pk>/relatorio/", views_relatorio.folha, name="relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/salvar/", views_relatorio.salvar,
+         name="salvar_relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/autosave/", views_relatorio.autosave,
+         name="autosave_relatorio"),
+    path("prestacoes/equipe/<int:pk>/relatorio/<int:ps_pk>/<str:formato>/",
+         views_relatorio.documento, name="documento_relatorio"),
+    # Depois das rotas literais do diário e do RT: <acao> capturaria "diario".
     path("prestacoes/equipe/<int:pk>/<str:acao>/", views_prestacao.acao_equipe,
          name="acao_equipe_prestacao"),
     path("prestacoes/<int:pk>/salvar/", views_prestacao.salvar, name="salvar_prestacao"),

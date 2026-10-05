@@ -1339,3 +1339,30 @@ class DiarioBordoTrecho(models.Model):
 
     def __str__(self) -> str:
         return f"Trecho {self.ordem + 1} — {self.diario}"
+
+
+class RelatorioTecnico(models.Model):
+    """Relatório técnico da prestação: o texto é da equipe (um por prestação) e o documento
+    sai por servidor (nome, CPF e a diária dele). Paridade: `RelatorioTecnico` da
+    referência (docs/migration/prestacao.md, 9c)."""
+
+    prestacao = models.OneToOneField(PrestacaoContas, on_delete=models.PROTECT,
+                                     related_name="relatorio")
+    motivo = models.TextField("descrição do evento", blank=True)
+    diaria = models.CharField("diária", max_length=255, blank=True)
+    translado = models.CharField("translado", max_length=255, blank=True)
+    combustivel = models.CharField("combustível", max_length=255, blank=True)
+    passagem = models.CharField("passagem", max_length=255, blank=True)
+    atividade = models.TextField("objetivo da participação", blank=True)
+    conclusao = models.TextField("conclusão", blank=True)
+    medidas = models.TextField("medidas a serem adotadas pelo órgão", blank=True)
+    info_complementares = models.TextField("informações complementares", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "relatório técnico"
+        verbose_name_plural = "relatórios técnicos"
+
+    def __str__(self) -> str:
+        return f"Relatório técnico — {self.prestacao.oficio}"

@@ -57,6 +57,7 @@ esperam as gravações pendentes (data-esperar-salvamento).
       </div>
       <div class="prestacao-equipe__acoes">
         <a class="botao botao--sm botao--sutil" href="{% url 'viagens:diario' p.pk %}">{% icone "gauge" %}Diário de bordo</a>
+        <a class="botao botao--sm botao--sutil" href="{% url 'viagens:relatorio' p.pk %}">{% icone "file-pen-line" %}Relatório técnico</a>
       {% if b.editavel %}
         {% if not b.todas_finalizadas %}
           <button type="submit" form="equipe-{{ p.pk }}-finalizar" class="botao botao--sm">{% icone "list-checks" %}Finalizar equipe</button>

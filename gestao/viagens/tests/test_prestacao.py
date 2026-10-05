@@ -51,9 +51,19 @@ def _preencher_diario(c, ps):
     diario.salvar_linhas(c.usuarios["operador"], d.pk, valores)
 
 
+def _preencher_relatorio(c, ps):
+    """O relatório técnico da equipe com descrição, objetivo e conclusão."""
+    from gestao.viagens import relatorio
+    rt = relatorio.obter(ps.prestacao)
+    relatorio.salvar(c.usuarios["operador"], rt.pk, {
+        "motivo": "Evento (teste).", "atividade": "Apoio (teste).",
+        "conclusao": "Concluído (teste)."})
+
+
 def _preencher(c, ps, numero="2026/0001", liberacao=date(2030, 1, 6),
                prazo=date(2030, 1, 9)):
     _preencher_diario(c, ps)
+    _preencher_relatorio(c, ps)
     return prestacao.salvar_solicitacao(c.usuarios["operador"], ps.pk, numero=numero,
                                         liberacao=liberacao, prazo=prazo)
 
@@ -286,6 +296,7 @@ def test_anonimo_vai_para_a_entrada(client):
 def test_lista_cartao_e_acoes(c, django_assert_max_num_queries):
     a, b = _linhas(c)
     _preencher_diario(c, a)
+    _preencher_relatorio(c, a)
     op = _cliente(c, "operador")
     with django_assert_max_num_queries(30):
         r = op.get(reverse("viagens:prestacoes"))

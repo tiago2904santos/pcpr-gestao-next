@@ -22,6 +22,10 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     diario.salvar_linhas(Usuario.objects.get(login="operador"), d.pk, {
         linha.pk: {"km_inicial": 10000 + i * 400, "km_final": 10300 + i * 400}
         for i, linha in enumerate(diario.linhas(d))})
+    from gestao.viagens import relatorio
+    rt = relatorio.obter(a.prestacao)
+    relatorio.salvar(Usuario.objects.get(login="operador"), rt.pk, {
+        "motivo": "Evento (teste).", "atividade": "Apoio (teste).", "conclusao": "Feito."})
     pg = logado
     pg.goto("/viagens/prestacoes/")
     cartao = pg.locator(f"#ps-{a.pk}")

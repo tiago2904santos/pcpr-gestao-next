@@ -102,7 +102,8 @@ def diaria_liberada(ps: PrestacaoServidor, equipe: int | None = None) -> Decimal
     return (Decimal(oficio.diarias_total) / n).quantize(Decimal("0.01"), ROUND_HALF_UP)
 
 
-def pendencias(ps: PrestacaoServidor, diario_preenchido: bool | None = None) -> list[str]:
+def pendencias(ps: PrestacaoServidor, diario_preenchido: bool | None = None,
+               rt_preenchido: bool | None = None) -> list[str]:
     """O que falta para finalizar (9a: o que esta base conhece; despacho, comprovante,
     diário e relatório entram com 9b–9d)."""
     from . import diario
@@ -114,6 +115,9 @@ def pendencias(ps: PrestacaoServidor, diario_preenchido: bool | None = None) -> 
     if not (diario.preenchido(ps.prestacao) if diario_preenchido is None
             else diario_preenchido):
         falta.append(diario.PENDENCIA)
+    from . import relatorio
+    if not (relatorio.preenchido(ps.prestacao) if rt_preenchido is None else rt_preenchido):
+        falta.append(relatorio.PENDENCIA)
     return falta
 
 

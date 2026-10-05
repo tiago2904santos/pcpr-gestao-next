@@ -76,6 +76,47 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
   ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
 
+## 9c — estado (05/10/2026)
+
+- **Feito**: `gestao/viagens/{relatorio,views_relatorio}.py`, `dominio/relatorio.py`, folha
+  `viagens/relatorio/folha.html` (1 relato com textos prontos e sugestões, 2 valores usados,
+  3 diária de cada servidor, 4 documentos), documento `documentos/relatorio_tecnico.html`
+  (PDF e DOCX por servidor), tipos `rt_*` no catálogo de textos prontos (um padrão por campo,
+  marcadores `{destino}` `{periodo}` `{motivo}` `{servidores}` `{atividades}` `{metas}`),
+  pendência e trava, link na lista, DEMO.
+- **Pendente (9c-2)**: copiar de outro RT, "Sugerir texto" (regra local), "salvar como
+  modelo" com nome repetido numerado (hoje o catálogo recusa o nome repetido).
+
+## 9c — relatório técnico (ficha levantada em 05/10/2026)
+
+Fonte: `viagens_prestacoes/rt_services.py`, `services.py` (`build_relatorio_tecnico_context`,
+`relatorio_tecnico_default_values`, `aplicar_diaria_recebida`), `forms.py` (custeio),
+`core/utils/dinheiro.py`, `documentos/services/document_context.py`.
+
+- **Um RT por prestação** (texto da equipe), **documento por servidor** (nome, CPF, diária
+  dele). Campos: descrição do evento (`motivo`), diária, translado, combustível, passagem,
+  objetivo da participação (`atividade`), conclusão, medidas a serem adotadas pelo órgão,
+  informações complementares.
+- **Custeio**: translado "Não houve"/Outro; combustível "Cartão Prime"/Outro; passagem "Não
+  houve"/Outro (padrões: Não houve, Cartão Prime, Não houve); "Outro" abre texto livre.
+- **Diária recebida por servidor** (o override): um campo "R$ 87,00 (saque)" → valor +
+  observação; > 0; **nunca acima do liberado** (mensagem da referência); vazio = usa o
+  liberado. Erro de um servidor não derruba o resto.
+- **Sugestões iniciais** (só valor inicial dos vazios, nada gravado): descrição = motivo do
+  ofício (sem ele, contextualização do plano); objetivo = descrição da viagem (sem ela, metas
+  + atividades do plano); conclusão = considerações finais do plano (aqui:
+  `resultados.sugestao_para_rt`). Informações complementares = as trocas do diário (motorista,
+  viatura) — só preenche se vazio.
+- **Copiar de outro RT**: do mesmo evento (viagem) primeiro, depois do mesmo destino; até 10.
+- **Modelos de texto por campo** (com um padrão por campo e marcadores `{destino}`,
+  `{periodo}`, `{motivo}`, `{servidores}`, `{atividades}`, `{metas}`); "salvar como modelo"
+  (nome repetido ganha número). **Sugerir texto** (regra local, sem IA) para conclusão e
+  medidas.
+- **Data do documento**: hoje, mas não antes do retorno e no máximo retorno + 3 dias úteis.
+- **Pendência**: "Escreva a descrição, o objetivo e a conclusão do relatório técnico, ou
+  anexe o RT assinado." Trava com a equipe toda finalizada (texto compartilhado).
+- Documento: PDF e DOCX; nome `RT_<NOME>_OFICIO_<n-ano>` sem acentos.
+
 ## Fora ou simulado
 
 eProtocolo (consulta de andamento: simulada), importação do processo em PDF/OCR, posição

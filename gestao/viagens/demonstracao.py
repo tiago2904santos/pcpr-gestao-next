@@ -841,7 +841,7 @@ class _Gerador:
         vencendo, prestação vencida, equipe finalizada, enviada, devolvida e arquivada."""
         from django.core.exceptions import PermissionDenied
 
-        from . import diario, prestacao
+        from . import diario, prestacao, relatorio
         from .models import PrestacaoServidor
 
         ascom = self.unidades[0]
@@ -876,8 +876,16 @@ class _Gerador:
 
         try:
             for i, linhas in enumerate(equipes.values()):
-                if i in (0, 2, 3, 4):  # diário preenchido (as finalizadas exigem)
+                if i in (0, 2, 3, 4):  # diário e RT preenchidos (as finalizadas exigem)
                     diario_preenchido(linhas[0], 40_000 + i * 3_000)
+                    rt = relatorio.obter(linhas[0].prestacao)
+                    sugestao = relatorio.sugestoes(linhas[0].prestacao)
+                    relatorio.salvar(autor, rt.pk, {
+                        "motivo": sugestao.get("motivo") or "Apoio ao evento (DEMO).",
+                        "atividade": sugestao.get("atividade")
+                        or "Atendimento ao público e apoio à equipe local (DEMO).",
+                        "conclusao": sugestao.get("conclusao")
+                        or "A ação foi realizada conforme o planejado (DEMO)."})
                 for j, ps in enumerate(linhas):
                     n = 100 + i * 10 + j
                     if i == 0:  # saque vencendo
@@ -895,7 +903,8 @@ class _Gerador:
                 if i == 4:
                     prestacao.devolver(autor, linhas[0].pk,
                                        "Comprovante do saque ilegível; anexe de novo (DEMO).")
-        except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido):
+        except (PermissionDenied, prestacao.PrestacaoInvalida, diario.DiarioInvalido,
+                relatorio.RelatorioInvalido):
             return  # base sem os papéis (testes de unidade)
 
     def planos_para_avaliar(self) -> None:

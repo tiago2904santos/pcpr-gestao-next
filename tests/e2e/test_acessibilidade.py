@@ -294,3 +294,12 @@ def test_diario_de_bordo_sem_violacoes(logado, dados_e2e, largura):
     p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_relatorio_tecnico_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.viagens.models import PrestacaoContas
+
+    p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/relatorio/")

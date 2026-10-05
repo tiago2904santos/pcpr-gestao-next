@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Relatório técnico · {{ oficio }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha do relatório técnico (módulo 9c), na linguagem das folhas: placa, frase-resumo e
+cartões numerados. O texto é da equipe; o documento sai por servidor (4). 1 o relato (com
+textos prontos por campo e as sugestões do ofício, da viagem e do plano como valor inicial
+dos vazios); 2 o custeio (translado, combustível, passagem); 3 a diária de cada servidor
+(a recebida, nunca acima da liberada); 4 os documentos. Grava sozinho; trava com a equipe
+toda finalizada.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">RT</span>
+    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="sr-only">Relatório técnico do {{ oficio }}</h1>
+    <p class="frase-oficio" id="frase-rt" data-vivo>
+      <span class="sr-only">Resumo do relatório: </span>
+      {% if preenchido %}<span class="selo selo--sucesso">Preenchido</span>{% else %}<span class="selo selo--aviso">Falta descrição, objetivo ou conclusão</span>{% endif %}
+      <span class="frase-oficio__item">{% icone "users" classe="icone--sm" %}{{ servidores|length|pluralizar:"servidor,servidores" }}</span>
+      <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}um documento por servidor</span>
+    </p>
+  </div>
+</header>
+
+{% if equipe_finalizada %}
+<div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar. O relatório é da equipe e trava quando todos estão finalizados.</p></div></div>
+{% endif %}
+
+<div class="documento documento--cartoes">
+{% if editavel %}<form method="post" action="{% url 'viagens:salvar_relatorio' p.pk %}" id="form-rt" novalidate data-autosave="{% url 'viagens:autosave_relatorio' p.pk %}">{% csrf_token %}{% endif %}
+
+  {# 1. O relato. #}
+  <section class="secao{% if preenchido %} secao--ok{% endif %}" id="relato" aria-labelledby="t-relato">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-relato"><span class="secao__numero">1</span>Relato</h2>
+      <p class="secao__nota">O texto vale para a equipe toda. Campos vazios já vêm com uma sugestão do ofício, da viagem ou do plano de trabalho — revise antes de usar.</p>
+    </div>
+    <div class="pilha-lg">
+    {% for c in campos %}
+      <div class="pilha-sm">
+        {% if editavel and c.prontos %}
+        <div class="texto-pronto" data-texto-pronto data-alvo="rt-{{ c.nome }}" data-tipo="{{ c.tipo }}">
+          <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="rt-{{ c.nome }}-pronto">Texto pronto para “{{ c.rotulo|lower }}”</label>
+            <pc-select class="seletor"><select class="selecao" id="rt-{{ c.nome }}-pronto"><option value="">Escrever do zero</option>{% for pk, nome, texto in c.prontos %}<option value="{{ pk }}" data-texto="{{ texto }}">{{ nome }}</option>{% endfor %}</select></pc-select></div>
+          {% if pode_gerir_textos %}<div class="texto-pronto__acoes"><button type="button" class="botao botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" %}Guardar como texto pronto</button></div>{% endif %}
+        </div>
+        {% endif %}
+        <div class="campo">
+          <label class="campo__rotulo" for="rt-{{ c.nome }}">{{ c.rotulo }}{% if c.obrigatorio %}<span class="campo__opcional">(para finalizar)</span>{% endif %}</label>
+          {% if editavel %}
+          <textarea class="area-texto" id="rt-{{ c.nome }}" name="{{ c.nome }}" rows="4"{% if c.sugerido %} aria-describedby="rt-{{ c.nome }}-sugestao"{% endif %}>{{ c.valor }}</textarea>
+          {% if c.sugerido %}<p class="campo__ajuda" id="rt-{{ c.nome }}-sugestao">{% icone "info" classe="icone--sm" %}Sugestão — ainda não gravada; vale quando você salvar ou editar.</p>{% endif %}
+          {% else %}
+          <p class="texto-sm">{{ c.valor|default:"—"|linebreaksbr }}</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  </section>
+
+  {# 2. Custeio. #}
+  <section class="secao secao--ok" id="custeio" aria-labelledby="t-custeio">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-custeio"><span class="secao__numero">2</span>Valores usados</h2>
+      <p class="secao__nota">Translado, combustível e passagem como saem no documento. "Outro" abre o texto livre.</p>
+    </div>
+    <div class="grade grade--3">
+      {% for c in custeio %}
+      <fieldset class="modos">
+        <legend class="campo__rotulo">{{ c.rotulo }}</legend>
+        {% if editavel %}
+        <div class="opcoes">
+          {% for f in c.fixas %}<label class="opcao"><input type="radio" name="{{ c.nome }}" value="{{ f }}"{% if c.valor == f %} checked{% endif %}><span>{{ f }}</span></label>{% endfor %}
+          <label class="opcao"><input type="radio" name="{{ c.nome }}" value="{{ outro }}"{% if c.outro %} checked{% endif %}><span>Outro</span></label>
+        </div>
+        <div class="modos__campos" data-modo="outro">
+          <div class="campo"><label class="campo__rotulo" for="rt-{{ c.nome }}-outro">{{ c.rotulo }} (outro)</label><input class="entrada" id="rt-{{ c.nome }}-outro" name="{{ c.nome }}_outro" value="{% if c.outro %}{{ c.valor }}{% endif %}" maxlength="255" autocomplete="off"></div>
+        </div>
+        {% else %}<p class="texto-sm">{{ c.valor|default:"—" }}</p>{% endif %}
+      </fieldset>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# 3. Diária de cada servidor. #}
+  <section class="secao" id="diarias" aria-labelledby="t-diarias">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">3</span>Diária de cada servidor</h2>
+      <p class="secao__nota">Vazio usa a liberada. Preencha só quando o servidor recebeu valor diferente (no saque o caixa não entrega centavos) — ex.: “R$ 87,00 (saque)”. Nunca acima da liberada.</p>
+    </div>
+    <ul class="pilha">
+      {% for s in servidores %}
+      <li class="campo">
+        <label class="campo__rotulo" for="ps-{{ s.ps.pk }}-diaria">{{ s.ps.servidor.nome }} · liberada {{ s.liberada|default:"—" }}</label>
+        {% if editavel and not s.ps.finalizada %}
+        <input class="entrada" id="ps-{{ s.ps.pk }}-diaria" name="ps-{{ s.ps.pk }}-diaria" value="{{ s.recebida }}" placeholder="{{ s.liberada|default:'Usar a liberada' }}" maxlength="120" autocomplete="off">
+        {% else %}
+        <p class="texto-sm">{{ s.recebida|default:s.liberada|default:"—" }}{% if s.ps.finalizada %} · prestação dele finalizada{% endif %}</p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% if editavel %}</form>{% endif %}
+
+  {# 4. Documentos. #}
+  <section class="secao" id="documentos" aria-labelledby="t-documentos">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-documentos"><span class="secao__numero">4</span>Documentos</h2>
+      <p class="secao__nota">Um relatório por servidor, com o nome, o CPF e a diária dele.</p>
+    </div>
+    {% if rt %}
+    <ul class="registros">
+      {% for s in servidores %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone "file-text" %}</span>
+        <div class="registro__corpo"><div class="registro__titulo"><span class="registro__texto">{{ s.ps.servidor.nome }}</span></div></div>
+        <div class="registro__acoes registro__acoes--fixas">
+          <a class="botao botao--sm" href="{% url 'viagens:documento_relatorio' p.pk s.ps.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}PDF<span class="sr-only"> do RT de {{ s.ps.servidor.nome }}</span></a>
+          <a class="botao botao--sm botao--sutil" href="{% url 'viagens:documento_relatorio' p.pk s.ps.pk 'docx' %}">{% icone "download" %}DOCX<span class="sr-only"> do RT de {{ s.ps.servidor.nome }}</span></a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="texto-secundario texto-sm">O relatório ainda não foi aberto pela equipe.</p>
+    {% endif %}
+  </section>
+</div>
+
+{% if editavel %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Grava sozinho enquanto você escreve.</span></div>
+  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
+  <button type="submit" form="form-rt" class="botao">{% icone "save" %}Salvar</button>
+</div>
+{% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
+{% endif %}
+{% endblock %}

@@ -32,7 +32,7 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
 finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
 9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito; 9b (diário de bordo)
-feito. Próximo: 9c relatório técnico.
+feito; 9c (relatório técnico) feito. Próximo: 9d anexos e pacote.
 
 ## Próxima tarefa concreta
 
@@ -56,7 +56,9 @@ Ver a fila abaixo (primeiro item não concluído).
 | 10b | 9a-2: abas "Finalizados"/"Contas prestadas" em roteiros, ofícios, termos, OS, planos, viagens | feito (exclusivas com as abas de quando; ofícios: além de Emitidos) |
 | 11 | Prestação 9b: diário de bordo (linhas pelos trechos, km com validação, conferência do hodômetro, motorista/viatura só no diário, PDF/XLSX, pendência na finalização, trava pela equipe) | feito (sem roteiro ajustado e sem PWA) |
 | 11b | 9b-2: roteiro ajustado (o realizado) editável no diário | pendente |
-| 12–13 | Prestação 9c relatório técnico; 9d anexos, carimbo, pacote | próximo: 9c |
+| 12 | Prestação 9c: relatório técnico (texto da equipe, custeio, diária recebida ≤ liberada, sugestões, textos prontos por campo com marcadores, PDF/DOCX por servidor, pendência, trava) | feito (sem copiar de outro RT e sem "Sugerir texto") |
+| 12b | 9c-2: copiar de outro RT (mesmo evento/destino) e "Sugerir texto" (regra local) | pendente |
+| 13 | Prestação 9d: anexos (ofício/despacho/RT/DB assinados, comprovantes), carimbo, pacote final | próximo |
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens | pendente |
 | P | Trilhas paralelas: catálogos de Eventos Sociais; ASCOM; busca global; histórico de roteiros | pendente |
@@ -81,7 +83,10 @@ Ver a fila abaixo (primeiro item não concluído).
 ## Falhas conhecidas
 
 - Nenhuma conhecida: suíte rápida completa verde depois do 9b (1221 passaram, 05/10).
-  Regressão de navegador completa: pendente (última verde em `a320553`).
+  Regressão de navegador completa em `cc007ca`: 367 passaram, 1 falha — orçamento de
+  desempenho de `/viagens/oficios/?resumo=` sob 4 workers (db 96,8 ms/80; INP 208/200);
+  isolado passa (6/6). Reconferir na próxima regressão (suspeita: carga; a contagem nova de
+  "Contas prestadas" na lista de ofícios também entra na conta).
 
 ## Bloqueios externos
 
