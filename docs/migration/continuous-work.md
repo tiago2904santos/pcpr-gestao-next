@@ -32,7 +32,7 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
 finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
 9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito; 9b (diário de bordo)
-feito; 9c (relatório técnico) feito; 9d-1 (anexos) e 9d-2 (pacote final) feitos; rotina diária de avisos feita. 9c-2 e 9b-2 feitos. Próximo: 9d-3 (carimbo do nº no ofício assinado) e revisão do pacote; depois trilhas paralelas (Agenda, Eventos, ASCOM).
+feito; 9c (relatório técnico) feito; 9d-1 (anexos) e 9d-2 (pacote final) feitos; rotina diária de avisos feita. 9c-2, 9b-2 e 9d-3 feitos. Próximo: revisão do pacote ou trilhas paralelas (Agenda com fontes de Viagens, Eventos, ASCOM).
 
 ## Próxima tarefa concreta
 
@@ -60,7 +60,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 12b | 9c-2: copiar de outro RT (mesmo evento, depois mesmo destino; só da unidade) e "Sugerir texto" da conclusão e das medidas (regra local) | feito (componente `sugerir.js`, UI Lab §16) |
 | 13 | Prestação 9d-1: anexos (despacho, comprovantes com valor/data/operação, RT e diário assinados; ofício assinado = via do módulo 7), versões 30 dias, pendências da referência (soma dos comprovantes = diária), selo de saque com comprovante | feito |
 | 13b | 9d-2: pacote final por servidor (ordem oficial, assinados no lugar dos gerados, imagem vira página) e ZIP da equipe com PENDENCIAS.txt | feito |
-| 13c | 9d-3: carimbo do nº da solicitação no ofício assinado (ajuste manual); revisão página a página do pacote | pendente |
+| 13c | 9d-3: carimbo do nº da solicitação no ofício assinado (posição manual por servidor, prévia, aplicado no pacote sem alterar a via; pendência da referência) | feito (sem posição automática) |
+| 13d | Revisão página a página do pacote (ordem/giro/ocultar) | pendente |
 | 14b | Rotina diária (plataforma.rotinas: registro por contexto, uma rodada por dia pela marca no banco, middleware no primeiro acesso + comando para cron) e avisos da prestação (saque vencido/vencendo sem comprovante, prestação vencida, documentos gerados/assinados, equipe chegou) | feito (sem "amanhã sai", que fala do PWA) |
 | 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
 | 15 | Agenda com fontes de Viagens | pendente |

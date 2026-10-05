@@ -67,6 +67,8 @@ class Situacao:
     db_assinados: set[int] = field(default_factory=set)
     rt_assinados: set[int] = field(default_factory=set)  # ps
     comprovantes: dict[int, list[Decimal | None]] = field(default_factory=dict)  # ps → valores
+    vias: set[int] = field(default_factory=set)  # prestações com o ofício assinado
+    carimbados: set[int] = field(default_factory=set)  # ps com o número carimbado na via
 
 
 def situacao(prestacao_ids) -> Situacao:
@@ -84,6 +86,13 @@ def situacao(prestacao_ids) -> Situacao:
             s.rt_assinados.add(servidor_id)
         else:
             s.comprovantes.setdefault(servidor_id, []).append(valor)
+    from .models import CarimboSolicitacao, ViaAssinada
+    via_de = dict(ViaAssinada.objects.filter(
+        tipo=ViaAssinada.Tipo.OFICIO, revogada_em__isnull=True,
+        oficio__prestacao__in=ids).values_list("oficio__prestacao", "pk"))
+    s.vias = set(via_de)
+    s.carimbados = set(CarimboSolicitacao.objects.filter(via_id__in=via_de.values())
+                       .values_list("servidor_id", flat=True))
     return s
 
 

@@ -67,9 +67,9 @@ def partes(ps: PrestacaoServidor) -> list[tuple[str, bytes]]:
     do_servidor = AnexoPrestacao.objects.filter(servidor=ps)
     saida: list[tuple[str, bytes]] = []
     via = assinados.vigente(assinados.Alvo(ViaAssinada.Tipo.OFICIO, oficio))
-    if via is not None:
-        with via.arquivo.open("rb") as f:
-            saida.append(("ofício assinado", f.read()))
+    if via is not None:  # com os números de solicitação carimbados (9d-3), se houver
+        from . import carimbo
+        saida.append(("ofício assinado", carimbo.carimbado(via)))
     else:
         doc = assinados.documento_emitido(oficio, "oficio")
         if doc is None or not doc.arquivo:

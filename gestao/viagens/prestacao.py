@@ -108,9 +108,9 @@ def diaria_liberada(ps: PrestacaoServidor, equipe: int | None = None) -> Decimal
 def pendencias(ps: PrestacaoServidor, situacao=None) -> list[str]:
     """O que falta para finalizar, na ordem e com os textos da referência
     (`pendencias_para_finalizar`): nº da solicitação, despacho, comprovante, diário (ou o
-    assinado), RT (ou o assinado) e a soma dos comprovantes igual à diária. `situacao`
-    (anexos.Situacao) vem pronta da lista; sem ela, é calculada para esta prestação.
-    O carimbo do número no ofício assinado entra com 9d-3."""
+    assinado), RT (ou o assinado), o número carimbado no ofício assinado e a soma dos
+    comprovantes igual à diária. `situacao` (anexos.Situacao) vem pronta da lista; sem ela,
+    é calculada para esta prestação."""
     from . import anexos, diario, relatorio
     s = situacao if situacao is not None else anexos.situacao([ps.prestacao_id])
     p = ps.prestacao_id
@@ -126,6 +126,9 @@ def pendencias(ps: PrestacaoServidor, situacao=None) -> list[str]:
         falta.append(diario.PENDENCIA)
     if p not in s.relatorios and ps.pk not in s.rt_assinados:
         falta.append(relatorio.PENDENCIA)
+    if p in s.vias and ps.numero_solicitacao.strip() and ps.pk not in s.carimbados:
+        from .carimbo import PENDENCIA as SEM_CARIMBO
+        falta.append(SEM_CARIMBO)
     if (d := anexos.divergencia(ps, valores, diaria_liberada(
             ps, getattr(ps.prestacao, "equipe", None)))):
         from .dominio.relatorio import moeda

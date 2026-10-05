@@ -329,3 +329,24 @@ def test_diario_com_viagem_realizada_sem_violacoes(logado, dados_e2e, largura):
     realizado.ajustar(Usuario.objects.get(login="operador"), p.pk)
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/diario/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_documentos_com_carimbo_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.identidade.models import Usuario
+    from gestao.plataforma import outbox
+    from gestao.viagens import assinados, prestacao
+    from gestao.viagens.models import Oficio, PrestacaoContas, ViaAssinada
+
+    while outbox.processar_lote():
+        pass
+    operador = Usuario.objects.get(login="operador")
+    p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+    oficio = Oficio.objects.get(pk=p.oficio_id)
+    with assinados.documento_emitido(oficio, "oficio").arquivo.open("rb") as f:
+        assinados.anexar(operador, assinados.Alvo(ViaAssinada.Tipo.OFICIO, oficio),
+                         nome="oficio-assinado.pdf", conteudo=f.read())
+    a = prestacao.ativos().filter(prestacao=p).order_by("servidor__nome").first()
+    prestacao.salvar_solicitacao(operador, a.pk, numero="2030/1", liberacao=None, prazo=None)
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/viagens/prestacoes/equipe/{p.pk}/documentos/")

@@ -1477,3 +1477,32 @@ class TrechoRealizado(models.Model):
 
     def __str__(self) -> str:
         return f"{self.origem} → {self.destino}"
+
+
+class CarimboSolicitacao(models.Model):
+    """Onde o número de solicitação de um servidor é desenhado no ofício assinado (referência:
+    `CarimboSolicitacao`). Guarda só o LUGAR (frações da página, origem no topo-esquerdo); o
+    texto é sempre o número atual da prestação do servidor, lido na hora de desenhar. O
+    arquivo da via não é alterado: o carimbo é aplicado ao montar o pacote e na prévia."""
+
+    via = models.ForeignKey(ViaAssinada, on_delete=models.CASCADE, related_name="carimbos")
+    servidor = models.ForeignKey(PrestacaoServidor, on_delete=models.CASCADE,
+                                 related_name="carimbos")
+    pagina = models.PositiveSmallIntegerField("página", default=0)  # 0 = primeira
+    x = models.FloatField(help_text="Fração da largura, 0 = borda esquerda.")
+    y = models.FloatField(help_text="Fração da altura, 0 = topo da página.")
+    tamanho = models.FloatField(default=0.012, help_text="Altura da letra, fração da página.")
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["pagina", "y", "x", "pk"]
+        verbose_name = "carimbo do número de solicitação"
+        verbose_name_plural = "carimbos do número de solicitação"
+        constraints = [
+            models.UniqueConstraint(fields=["via", "servidor"], name="carimbo_unico_na_via"),
+            models.CheckConstraint(condition=Q(x__gte=0, x__lte=1, y__gte=0, y__lte=1),
+                                   name="carimbo_dentro_da_pagina"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Carimbo p{self.pagina + 1} de {self.servidor_id}"

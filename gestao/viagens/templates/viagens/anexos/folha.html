@@ -39,6 +39,26 @@ do servidor, com ele finalizado.
     </div>
     {% if via %}
       <ul class="registros"><li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "file-signature" %}</span><div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ via.enviado_em|date:"d/m/Y H:i" }}</span></div></div></li></ul>
+      <h3 class="peso-semi texto-sm mt-4">Número da solicitação no ofício assinado</h3>
+      <p class="texto-secundario texto-sm">O ofício volta assinado com a coluna da solicitação em branco. Diga onde desenhar o número de cada servidor (página e posição, em % da página a partir do canto de cima à esquerda) e confira na prévia. O arquivo assinado não é alterado: o número entra na prévia e no pacote final.</p>
+      <p><a class="botao botao--sm" href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Prévia do ofício carimbado (PDF)</a></p>
+      <ul class="pilha">
+        {% for s in servidores %}
+        <li>
+          {% if not s.ps.numero_solicitacao %}<p class="texto-sm"><span class="peso-semi">{{ s.ps.servidor.nome }}</span> · sem número de solicitação ainda.</p>
+          {% elif s.editavel %}
+          <form method="post" action="{% url 'viagens:carimbar_numero' s.ps.pk %}" class="anexo-campos" novalidate>
+            {% csrf_token %}
+            <p class="anexo-campos__arquivo texto-sm"><span class="peso-semi">{{ s.ps.servidor.nome }}</span> · nº {{ s.ps.numero_solicitacao }}{% if not s.carimbo %} · <span class="selo selo--aviso selo--sem-ponto">sem posição</span>{% endif %}</p>
+            <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-pagina">Página</label><select class="selecao" id="c{{ s.ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+            <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-x">Horizontal (%)</label><input class="entrada" id="c{{ s.ps.pk }}-x" name="x" value="{{ s.carimbo_x }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+            <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-y">Vertical (%)</label><input class="entrada" id="c{{ s.ps.pk }}-y" name="y" value="{{ s.carimbo_y }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
+            <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "stamp" %}Salvar posição<span class="sr-only"> do número de {{ s.ps.servidor.nome }}</span></button></div>
+          </form>
+          {% else %}<p class="texto-sm"><span class="peso-semi">{{ s.ps.servidor.nome }}</span> · nº {{ s.ps.numero_solicitacao }}{% if s.carimbo %} · página {{ s.carimbo.pagina|add:1 }}{% else %} · sem posição{% endif %}</p>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
     {% else %}
       <p class="texto-secundario texto-sm">Nenhuma via assinada ainda. <a href="{% url 'viagens:editar' oficio.pk %}#assinados">Anexar na folha do ofício</a>.</p>
     {% endif %}

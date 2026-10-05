@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -15,7 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
-from . import anexos, assinados, diario, pacote_prestacao, policies
+from . import anexos, assinados, carimbo, diario, pacote_prestacao, policies
 from . import prestacao as servico
 from .dominio import relatorio as dominio_rt
 from .models import AnexoPrestacao, PrestacaoContas, PrestacaoServidor, ViaAssinada
@@ -63,7 +64,7 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     da_equipe: dict[str, list[AnexoPrestacao]] = {
         str(t): [a for a in todos if a.tipo == t and a.servidor_id is None]
         for t in (AnexoPrestacao.Tipo.DESPACHO, AnexoPrestacao.Tipo.DB_ASSINADO)}
-    servidores = []
+    servidores: list[dict[str, Any]] = []
     for ps in servico.ativos(PrestacaoServidor.objects.filter(prestacao=p)
                              .select_related("servidor").order_by("servidor__nome")):
         ps.prestacao = p
@@ -83,7 +84,14 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
             "falta_pacote": pacote_prestacao.pendencias_do_pacote(ps),
             "editavel": pode and not ps.finalizada})
     via = assinados.vigente(assinados.Alvo(ViaAssinada.Tipo.OFICIO, oficio))
+    carimbos = {c.servidor_id: c for c in carimbo.carimbos(via)} if via else {}
+    for s in servidores:
+        c = carimbos.get(s["ps"].pk)
+        s["carimbo"] = c
+        s["carimbo_x"] = round(c.x * 100, 1) if c else ""
+        s["carimbo_y"] = round(c.y * 100, 1) if c else ""
     return render(request, "viagens/anexos/folha.html", {
+        "paginas_via": range(1, carimbo.numero_de_paginas(via) + 1) if via else range(0),
         "p": p, "oficio": oficio, "via": via, "despachos": da_equipe["despacho"],
         "db": next(iter(da_equipe["db_assinado"]), None), "servidores": servidores,
         "editavel_equipe": pode and not equipe_travada, "equipe_finalizada": equipe_travada,
@@ -161,6 +169,45 @@ def pacote_equipe(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect(_voltar(p, "servidores"))
     resposta = HttpResponse(conteudo, content_type="application/zip")
     resposta["Content-Disposition"] = f'attachment; filename="{pacote_prestacao.nome_do_zip(p)}"'
+    return resposta
+
+
+def _fracao(texto: str, rotulo: str) -> float:
+    try:
+        valor = float((texto or "").replace(",", ".").replace("%", "").strip())
+    except ValueError:
+        raise carimbo.CarimboInvalido(f"{rotulo}: informe um número de 0 a 100.") from None
+    return valor / 100
+
+
+@require_POST
+def carimbar(request: HttpRequest, ps_pk: int) -> HttpResponse:
+    """Onde desenhar o número de solicitação deste servidor no ofício assinado."""
+    ps = get_object_or_404(servico.ativos(PrestacaoServidor.objects.select_related(
+        "prestacao__oficio")), pk=ps_pk)
+    if not policies.pode_ver_equipe_prestacao(request.user, ps.prestacao):
+        raise Http404
+    try:
+        pagina = int(request.POST.get("pagina") or "1") - 1
+        carimbo.posicionar(request.user, ps.pk, pagina=pagina,
+                           x=_fracao(request.POST.get("x", ""), "Posição horizontal"),
+                           y=_fracao(request.POST.get("y", ""), "Posição vertical"))
+    except (carimbo.CarimboInvalido, ValueError, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Posição do número salva — confira na prévia.")
+    return redirect(_voltar(ps.prestacao, "oficio_assinado"))
+
+
+@require_GET
+def previa_carimbo(request: HttpRequest, pk: int) -> HttpResponse:
+    p = _prestacao(request, pk)
+    via = carimbo.via_do_oficio(p)
+    if via is None:
+        raise Http404
+    resposta = HttpResponse(carimbo.carimbado(via), content_type="application/pdf")
+    resposta["Content-Disposition"] = 'inline; filename="oficio-carimbado-previa.pdf"'
+    resposta["Cache-Control"] = "no-store"
     return resposta
 
 

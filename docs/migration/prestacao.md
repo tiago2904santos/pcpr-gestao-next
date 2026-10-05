@@ -76,6 +76,18 @@ termo → o ofício dele (avulso nunca); OS → ofícios dela; plano e viagem �
 - Fora por agora: roteiro ajustado (o realizado) editável — as linhas seguem os trechos do
   ofício; PWA do celular; diário assinado (9d); correção da distância na tabela permanente.
 
+## 9d-3 — carimbo do número de solicitação (05/10/2026)
+
+- `gestao/viagens/carimbo.py`, `CarimboSolicitacao` (via assinada do ofício × servidor,
+  página e posição em frações). Da referência: guarda só o LUGAR; o texto é sempre o número
+  atual; pendência "O número de solicitação não está carimbado no ofício assinado…" quando
+  há via e número sem carimbo. O desenho é aplicado na prévia e no pacote final; a via no
+  disco não muda (a referência guardava o PDF cru e o carimbado).
+- **Fora**: a posição automática (a referência lia o texto do PDF para achar a linha do
+  servidor) e o ajuste arrastando sobre a imagem da página — aqui não há biblioteca para
+  rasterizar PDF; a posição é informada em % (página, horizontal, vertical) e conferida na
+  prévia. Adicionar um rasterizador seria decisão de arquitetura (a registrar se pedido).
+
 ## 9b-2 — viagem realizada: feito (05/10/2026)
 
 Implementado como desenhado abaixo: `gestao/viagens/realizado.py`, `TrechoRealizado`,
