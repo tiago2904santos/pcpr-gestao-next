@@ -20,7 +20,8 @@ Classificação dos itens: `IGUAL` · `MELHORADO` · `DIFERENÇA INTENCIONAL` ·
 | Documentos (núcleo) | Parcial — via assinada, conferência do PDF e janela "Baixar documentos" feitas; faltam prévia da conferência, "Baixar tudo" da viagem (módulo 8), editor de termo/OS/plano | 14 / 23 | ADR 0018, `test_editor_documento*`, `gestao/viagens/tests/test_assinados.py`, `tests/e2e/test_assinados.py` | [decisoes.md](decisoes.md#via-assinada-módulo-7a--o-que-segue-a-referência-e-o-que-é-decisão-do-agente) |
 | Eventos Sociais | Ausente | 0 / 27 | — | — |
 | ASCOM · Atendimento à imprensa | **Implementado** (I1: painel, lista com filas/filtros, CSV, folha com autosave, andamento com histórico, cadastros de apoio, deadlines na agenda); faltam "preencher com e-mail" e o importador da planilha | ~12 / 14 | `gestao/imprensa/tests/`, `tests/e2e/test_imprensa.py` | [imprensa.md](imprensa.md) |
-| ASCOM · Palestras e Publicações | Ausente | 0 / 29 | — | — |
+| ASCOM · Publicações | **Implementado** (P1: painel com tempo médio, lista com filas/filtros, CSV, folha com autosave, andamento com publicação automática, cadastros, pautas na agenda); faltam "preencher com e-mail" e o importador | ~12 / 14 | `gestao/publicacoes/tests/`, `tests/e2e/test_publicacoes.py` | [publicacoes.md](publicacoes.md) |
+| ASCOM · Palestras | Ausente | 0 / 15 | — | — |
 | Coffee Break | Ausente | 0 / 61 | — | — |
 | Agenda / relatórios / painel | **Em andamento** — agenda A1 (mês/lista, viagens, prazos de saque das diárias, feriados nacionais, filtro por fonte, cancelados escondidos); faltam semana/dia, conflitos, "meus", ICS, pauta, relatórios | 3 / 10 | `gestao/viagens/tests/test_agenda.py`, `tests/e2e/test_agenda.py` | [agenda.md](agenda.md) |
 | Integração eProtocolo | Simulada (E1/E2) | 0 / 4 operações reais | `gestao/integracoes/tests` | [eprotocolo.md](../integrations/eprotocolo.md) |

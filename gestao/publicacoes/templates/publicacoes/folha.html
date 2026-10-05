@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if pauta %}{{ pauta }} · {{ pauta.titulo|truncatechars:40 }}{% else %}Nova pauta{% endif %} · Publicações{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha da pauta (paridade com a tela única da referência), na linguagem da folha do ofício:
+cabeçalho com placa e frase; cartões numerados — Pauta, Edição e publicação, Divulgação e
+Andamento (o status anda só por aqui, com a anotação; publicar sem data usa o agora) e o
+histórico no fim. Os campos dos três primeiros cartões pertencem ao formulário `form-pauta`
+(atributo form), que se grava sozinho depois de criado; o andamento tem o seu próprio
+formulário.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">Pauta</span>
+    <span class="placa__numero">{% if pauta %}#{{ pauta.pk }}{% else %}nova{% endif %}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="{% if pauta %}pagina-cabecalho__titulo{% else %}sr-only{% endif %}">{% if pauta %}{{ pauta.titulo }}{% else %}Nova pauta{% endif %}</h1>
+    {% if pauta %}
+    <p class="frase-oficio" id="frase-pauta">
+      <span class="sr-only">Resumo da pauta: </span>
+      <span class="selo selo--{{ pauta.tom }}">{{ pauta.get_status_display }}</span>
+      {% if pauta.quando_publicada %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}{{ pauta.quando_publicada }}</span>{% endif %}
+      <span class="frase-oficio__item">{% icone "user-round" classe="icone--sm" %}{{ pauta.jornalista.nome }}</span>
+      <span class="frase-oficio__item{% if not pauta.unidade %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ pauta.unidade.nome|default:"sem unidade" }}</span>
+      <span class="frase-oficio__item">{% icone "calendar" classe="icone--sm" %}{{ pauta.data|date:"d/m/Y" }}{% if pauta.inicio_pauta %} às {{ pauta.inicio_pauta|time:"H:i" }}{% endif %}</span>
+      {% if pauta.tempo_ate_publicar_texto %}<span class="frase-oficio__item">{% icone "clock" classe="icone--sm" %}{{ pauta.tempo_ate_publicar_texto }} até publicar</span>{% endif %}
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">Registre a pauta que chegou à assessoria. Depois de criada, ela se grava sozinha e o status anda pelo cartão Andamento.</p>
+    {% endif %}
+  </div>
+  {% if pauta %}
+  <div class="pagina-cabecalho__acoes">
+    {% if editavel %}<a class="botao" href="#andamento">{% icone "activity" %}Registrar andamento</a>{% endif %}
+    <a class="botao botao--sutil" href="#historico">{% icone "history" %}Histórico</a>
+  </div>
+  {% endif %}
+</header>
+
+{% include "componentes/resumo_erros.html" %}
+
+<form method="post" novalidate id="{{ form_id }}" data-proteger{% if pauta and editavel %} data-autosave="{% url 'publicacoes:autosave' pauta.pk %}"{% endif %}{% if pauta %} action="{% url 'publicacoes:pauta' pauta.pk %}"{% else %} action="{% url 'publicacoes:nova' %}"{% endif %}>{% csrf_token %}</form>
+
+<fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
+<legend class="sr-only">Dados da pauta</legend>
+<div class="documento documento--cartoes">
+
+  {# 1. Pauta. #}
+  <section class="secao{% if pauta %} secao--ok{% endif %}" id="dados-pauta" aria-labelledby="t-pauta">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-pauta"><span class="secao__numero">1</span>Pauta</h2>
+      <p class="secao__nota">O que vai sair, de qual unidade, quem passou e quem escreve.</p>
+    </div>
+    <div class="pilha">
+      {% include "componentes/campo.html" with campo=form.titulo %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.inicio_pauta classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.jornalista classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.unidade classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.unidade_nova classe="campo--lg" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.fonte %}
+    </div>
+  </section>
+
+  {# 2. Edição e publicação. #}
+  <section class="secao{% if pauta.data_publicacao %} secao--ok{% endif %}" id="edicao" aria-labelledby="t-edicao">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-edicao"><span class="secao__numero">2</span>Edição e publicação</h2>
+      {% if pauta.tempo_ate_publicar_texto %}<div class="secao__estado"><span class="selo selo--sucesso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ pauta.tempo_ate_publicar_texto }} até publicar</span></div>{% endif %}
+      <p class="secao__nota">Do texto pronto para a edição até a matéria no ar. Ao marcar como publicada sem data, fica a data e a hora do registro.</p>
+    </div>
+    <div class="pilha">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.colocada_edicao classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.data_publicacao classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.horario_publicacao classe="campo--sm" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.revisao classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.galeria_fotos classe="campo--lg" %}
+      </div>
+    </div>
+  </section>
+
+  {# 3. Divulgação. #}
+  <section class="secao{% if pauta.link_site %} secao--ok{% endif %}" id="divulgacao" aria-labelledby="t-divulgacao">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-divulgacao"><span class="secao__numero">3</span>Divulgação</h2>
+      <p class="secao__nota">Onde a matéria foi parar: grupos, SESP, AEN e os links.</p>
+    </div>
+    <div class="pilha">
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.bitly_grupos classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.enviado_sesp classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.publicado_aen classe="campo--md" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.link_site classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.link_aen classe="campo--lg" %}
+      </div>
+      {% if pauta.link_site or pauta.link_aen %}<div class="linha">{% if pauta.link_site %}<a class="botao botao--sm botao--sutil" href="{{ pauta.link_site }}" target="_blank" rel="noopener noreferrer">{% icone "external-link" %}Abrir no site da PCPR<span class="sr-only"> (nova aba)</span></a>{% endif %}{% if pauta.link_aen %}<a class="botao botao--sm botao--sutil" href="{{ pauta.link_aen }}" target="_blank" rel="noopener noreferrer">{% icone "external-link" %}Abrir na AEN<span class="sr-only"> (nova aba)</span></a>{% endif %}</div>{% endif %}
+    </div>
+  </section>
+
+  {# 4. Andamento — o status, a anotação e o histórico. #}
+  <section class="secao{% if pauta and not pauta.aberta %} secao--ok{% endif %}" id="andamento" aria-labelledby="t-andamento">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-andamento"><span class="secao__numero">4</span>Andamento</h2>
+      {% if pauta %}<div class="secao__estado"><span class="selo selo--{{ pauta.tom }} selo--sem-ponto">{{ pauta.get_status_display }}</span></div>{% endif %}
+      <p class="secao__nota">{% if pauta %}{{ dica_atual }}.{% if ultima_anotacao %} Última anotação: “{{ ultima_anotacao }}”.{% endif %}{% else %}Toda pauta começa “Pendente”; o status muda aqui, depois de criada.{% endif %}</p>
+    </div>
+    {% if pauta %}
+      {% if editavel %}
+      <form method="post" action="{% url 'publicacoes:andamento' pauta.pk %}" class="pilha" novalidate>
+        {% csrf_token %}
+        <fieldset class="opcoes"{% if andamento.novo_status.errors %} aria-describedby="andamento-erro"{% endif %}>
+          <legend>Novo status</legend>
+          {% for valor, rotulo, dica, atual in opcoes_status %}
+          <label class="opcao"><input type="radio" name="novo_status" value="{{ valor }}"{% if atual %} disabled{% elif andamento.novo_status.value == valor %} checked{% endif %}><span class="opcao__texto"><span class="opcao__titulo">{{ rotulo }}{% if atual %} <span class="texto-terciario">(atual)</span>{% endif %}</span><span class="opcao__descricao">{{ dica }}</span></span></label>
+          {% endfor %}
+        </fieldset>
+        {% if andamento.novo_status.errors %}<p class="campo__erro" id="andamento-erro" role="alert">{% icone "alert-circle" classe="icone--sm" %}<span>{{ andamento.novo_status.errors|join:" " }}</span></p>{% endif %}
+        {% include "componentes/campo.html" with campo=andamento.anotacao ajuda="Vai para o histórico." %}
+        <div class="linha"><button type="submit" class="botao botao--primario">{% icone "activity" %}Registrar andamento</button></div>
+      </form>
+      {% endif %}
+
+      <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
+          <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
+        </div>
+        <ol class="historico__linhas" aria-label="Eventos da pauta">
+          {% for h in historico %}
+          <li class="historico__linha{% if h.acao == 'andamento' %} historico__linha--marca{% endif %}">
+            <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+            <span class="historico__texto">{{ h.descricao }}</span>
+            <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>
+          </li>
+          {% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+        </ol>
+      </div>
+    {% else %}
+      <p class="vazio-inline">{% icone "activity" classe="icone--sm" %}Status: pendente, em andamento, publicada ou cancelada.</p>
+    {% endif %}
+  </section>
+</div>
+</fieldset>
+
+{% if editavel %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if pauta %}Gravando as alterações…{% else %}Alterações não salvas — registre a pauta antes de sair.{% endif %}" role="status">
+    {% if pauta %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
+    {% else %}<span data-anuncio>Para registrar: título, data, jornalista e unidade.</span>{% endif %}
+  </div>
+  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+  {% if pauta %}
+    <button type="submit" form="{{ form_id }}" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
+  {% else %}
+    <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar pauta</button>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

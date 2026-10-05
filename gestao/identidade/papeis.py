@@ -101,6 +101,16 @@ PAPEIS: dict[str, Papel] = {
             "imprensa.view_veiculo", "imprensa.add_veiculo",
         ],
     },
+    # Decisão do agente — a confirmar: na referência, o módulo ASCOM_PUBLICACOES.
+    "ASCOM_PUBLICACOES": {
+        "descricao": "Publicações da ASCOM: registra pautas, a edição, a publicação e a "
+                     "divulgação.",
+        "permissoes": [
+            "publicacoes.view_publicacao", "publicacoes.add_publicacao",
+            "publicacoes.change_publicacao", "publicacoes.view_integrante",
+            "publicacoes.view_unidaderesponsavel", "publicacoes.add_unidaderesponsavel",
+        ],
+    },
     "ADMINISTRADOR": {
         "descricao": "Gestão de usuários, papéis e configurações institucionais.",
         "permissoes": [
@@ -108,6 +118,9 @@ PAPEIS: dict[str, Papel] = {
             "plataforma.view_eventoauditoria",
             # Cadastros de apoio da imprensa (equipe e veículos), como na referência.
             *(f"imprensa.{acao}_{modelo}" for modelo in ("integrante", "veiculo")
+              for acao in ("view", "add", "change", "delete")),
+            # E os de Publicações (equipe e unidades responsáveis).
+            *(f"publicacoes.{acao}_{modelo}" for modelo in ("integrante", "unidaderesponsavel")
               for acao in ("view", "add", "change", "delete")),
         ],
     },

@@ -71,6 +71,19 @@ Regras em `gestao/imprensa/policies.py`; o módulo só aparece no menu para quem
 `view_atendimento` (`Modulo.requer`). O papel substitui o "módulo" da referência —
 decisão do agente, a confirmar ([decisoes.md](../migration/decisoes.md#atendimento-à-imprensa)).
 
+## Matriz — Publicações (ASCOM)
+
+| Permissão | ASCOM_PUBLICACOES | ADMINISTRADOR | demais |
+|---|:-:|:-:|:-:|
+| Ver painel, lista, folha e exportar CSV (`publicacoes.view_publicacao`) | ✓ (todas) | — | — |
+| Registrar pauta (`add_publicacao`) | ✓ | — | — |
+| Editar e registrar andamento (`change_publicacao`) | ✓ | — | — |
+| Incluir unidade pelo "outra unidade" da pauta (`add_unidaderesponsavel`) | ✓ | ✓ | — |
+| Cadastros de apoio: equipe e unidades (`*_integrante`, `*_unidaderesponsavel`) | ver | ✓ | — |
+
+Regras em `gestao/publicacoes/policies.py`; o módulo só aparece para quem tem
+`view_publicacao`.
+
 ## Regras por objeto (Ofício)
 
 | Ação | Condição (`policies.py`) |

@@ -1,0 +1,89 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Publicações{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/graficos.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel das publicações (paridade com o painel da referência): pautas e publicadas no mês,
+em aberto e o tempo médio até publicar (cada um leva à lista filtrada); o que está em
+aberto e as mais recentes; jornalistas e unidades do mês; os últimos seis meses.
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "newspaper" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Publicações</h1>
+    <p class="pagina-cabecalho__descricao">Pautas da ASCOM: o que está para sair, quanto tempo leva até o site e quem escreveu.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'publicacoes:lista' %}">{% icone "newspaper" %}Ver pautas</a>
+    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
+  </div>
+</header>
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador" href="{% url 'publicacoes:lista' %}?inicio={{ inicio|date:'Y-m-d' }}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-text" classe="icone--sm" %}Pautas no mês</span><span class="indicador__valor">{{ mes.total }}</span><span class="indicador__nota">{{ mes_rotulo|capfirst }}</span></a>
+  <a class="indicador" href="{% url 'publicacoes:lista' %}?fila=publicadas&amp;inicio={{ inicio|date:'Y-m-d' }}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "check-circle-2" classe="icone--sm" %}Publicadas no mês</span><span class="indicador__valor">{{ mes.publicadas }}</span><span class="indicador__nota">{% if mes.total %}{{ percentual }}% das pautas · {{ mes.aen }} na AEN{% else %}Nenhuma pauta ainda{% endif %}</span></a>
+  <a class="indicador{% if abertas_total %} indicador--atencao{% endif %}" href="{% url 'publicacoes:lista' %}?fila=pendentes"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Em aberto</span><span class="indicador__valor">{{ abertas_total }}</span><span class="indicador__nota">Pendentes ou em andamento</span></a>
+  <a class="indicador" href="{% url 'publicacoes:lista' %}?fila=publicadas"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "clock" classe="icone--sm" %}Tempo médio até publicar</span><span class="indicador__valor">{{ tempo }}</span><span class="indicador__nota">{% if amostra %}{{ amostra|pluralizar:"pauta,pautas" }} com horários no mês{% else %}Sem horários registrados no mês{% endif %}</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-abertas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-abertas">Para sair</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'publicacoes:lista' %}?fila=pendentes">Ver pendentes</a></div></div>
+  {% if abertas %}<ul class="registros">{% for l in abertas %}{% include "publicacoes/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nada em aberto" texto="Todas as pautas foram publicadas ou canceladas." %}{% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Pautas recentes</h2></div>
+  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "publicacoes/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% include "componentes/vazio.html" with icone="inbox" titulo="Nenhuma pauta registrada" texto="As pautas que chegam à assessoria aparecem aqui." %}{% endif %}
+</section>
+{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-serie">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-serie">Pautas por mês</h2></div>
+  <div class="cartao__corpo">
+    <ol class="serie" aria-labelledby="t-serie">
+      {% for b in grafico %}
+      <li class="serie__item{% if forloop.last %} serie__item--atual{% endif %}">
+        <span class="serie__valor">{{ b.valor }}<span class="sr-only"> em {{ b.titulo }}</span></span>
+        <svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect x="0" y="{{ b.topo }}" width="10" height="{{ b.altura }}"></rect></svg>
+        <span class="serie__rotulo" aria-hidden="true">{{ b.rotulo }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-jornalistas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-jornalistas">Jornalistas no mês</h2></div>
+  <div class="cartao__corpo">
+  {% if por_jornalista %}
+    <ol class="ranking">
+      {% for j in por_jornalista %}
+      <li class="ranking__item"><a class="ranking__nome" href="{% url 'publicacoes:lista' %}?jornalista={{ j.chave }}&amp;inicio={{ inicio|date:'Y-m-d' }}">{{ j.nome }}</a><span class="ranking__total">{{ j.total }} <span class="ranking__nota">· {{ j.publicadas }} publicada{{ j.publicadas|pluralize }}</span></span><progress class="ranking__barra" max="{{ maior_jornalista }}" value="{{ j.total }}" aria-label="{{ j.nome }}: {{ j.total }} de {{ maior_jornalista }}"></progress></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">{% icone "users" classe="icone--sm" %}Nenhuma pauta neste mês.</p>{% endif %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-unidades">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-unidades">Unidades com mais pautas no mês</h2></div>
+  <div class="cartao__corpo">
+  {% if por_unidade %}
+    <ol class="ranking">
+      {% for u in por_unidade %}
+      <li class="ranking__item"><a class="ranking__nome" href="{% url 'publicacoes:lista' %}?unidade={{ u.chave }}&amp;inicio={{ inicio|date:'Y-m-d' }}">{{ u.nome }}</a><span class="ranking__total">{{ u.total }}</span><progress class="ranking__barra" max="{{ maior_unidade }}" value="{{ u.total }}" aria-label="{{ u.nome }}: {{ u.total }} de {{ maior_unidade }}"></progress></li>
+      {% endfor %}
+    </ol>
+  {% else %}<p class="vazio-inline">{% icone "landmark" classe="icone--sm" %}Nenhuma pauta com unidade neste mês.</p>{% endif %}
+  </div>
+</section>
+{% if pode_gerir_cadastros %}
+<section class="cartao" aria-labelledby="t-cadastros">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cadastros">Cadastros de apoio</h2></div>
+  <ul class="atalhos">
+    <li><a class="atalho" href="{% url 'publicacoes:equipe' %}">{% icone "users" %}Equipe{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+    <li><a class="atalho" href="{% url 'publicacoes:unidades' %}">{% icone "landmark" %}Unidades responsáveis{% icone "chevron-right" classe="icone--sm atalho__seta" %}</a></li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

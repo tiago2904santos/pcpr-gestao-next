@@ -224,6 +224,21 @@ referência ([imprensa.md](imprensa.md)).
 | Excluir atendimento | não existe | não existe | referência |
 | Preencher com e-mail; importar planilha | existe | fica para depois (depende de definir a origem dos e-mails/planilhas) | pendente |
 
+## Publicações
+
+Fonte: `publicacoes/{models,services,forms,views,permissions,presenters}.py` da referência
+([publicacoes.md](publicacoes.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quem acessa | módulo `ASCOM_PUBLICACOES` | papel novo `ASCOM_PUBLICACOES` | **agente** — confirmar |
+| Escopo | todas as pautas | igual | referência |
+| Cadastros de apoio (equipe, unidades) | só o administrador | papel ADMINISTRADOR | referência |
+| Unidade responsável | obrigatória (da lista ou "outra unidade", que cria o cadastro) | igual | referência |
+| Publicar pelo andamento sem data | data e hora do registro (nunca antes da pauta) | igual | referência |
+| Unidade da pauta | cadastro próprio da ASCOM | igual (não é o cadastro de unidades de Viagens) | referência |
+| Histórico de edições | tabela própria | trilha de auditoria do banco; a publicação automática aparece só no andamento | agente (regra do projeto) |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -250,3 +265,4 @@ referência ([imprensa.md](imprensa.md)).
 | Cadastro de feriados (estaduais/municipais/ponto facultativo) para os prazos em dias úteis | decisão do usuário (não bloqueia) |
 | Imprensa: papel `ASCOM_IMPRENSA` no lugar do módulo da referência; a quem dar | decisão do usuário (não bloqueia) |
 | Imprensa: "preencher com e-mail" e importador da planilha (origem dos e-mails/planilhas) | decisão do usuário (não bloqueia) |
+| Publicações: papel `ASCOM_PUBLICACOES`; "preencher com e-mail" e importador | decisão do usuário (não bloqueia) |

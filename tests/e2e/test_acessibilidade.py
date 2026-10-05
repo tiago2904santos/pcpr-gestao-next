@@ -394,3 +394,29 @@ def test_imprensa_sem_violacoes(logado, dados_e2e, largura):
     for rota in ("/imprensa/", "/imprensa/atendimentos/", f"/imprensa/atendimentos/{a.pk}/",
                  "/imprensa/atendimentos/novo/", "/imprensa/cadastros/equipe/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_publicacoes_sem_violacoes(logado, dados_e2e, largura):
+    from datetime import time
+
+    from django.contrib.auth.models import Group
+    from django.utils import timezone
+
+    from gestao.identidade.models import Usuario
+    from gestao.publicacoes import services
+    from gestao.publicacoes.models import Integrante, UnidadeResponsavel
+
+    u = Usuario.objects.get(login="operador")
+    for papel in ("ASCOM_PUBLICACOES", "ADMINISTRADOR"):
+        u.groups.add(Group.objects.get(name=papel))
+    hoje = timezone.localdate()
+    p = services.criar(u, {"data": hoje, "titulo": "Pauta (axe)", "inicio_pauta": time(9),
+                           "jornalista": Integrante.objects.create(nome="Gabriela"),
+                           "unidade": UnidadeResponsavel.objects.create(nome="DP (axe)"),
+                           "link_site": "https://example.invalid/x"})
+    services.registrar_andamento(u, p.pk, "publicada", "No ar")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/publicacoes/", "/publicacoes/pautas/", f"/publicacoes/pautas/{p.pk}/",
+                 "/publicacoes/pautas/nova/", "/publicacoes/cadastros/equipe/"):
+        _avaliar(logado, rota)

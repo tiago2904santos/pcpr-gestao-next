@@ -1,0 +1,85 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Pautas · Publicações{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block titulo_lista %}Pautas{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada pauta da ASCOM, da entrada até a publicação no site e na AEN. As filas separam o que ainda vai sair.</p>{% endblock %}
+{% block acoes_lista %}
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+{% if pode_criar %}<a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
+{% endblock %}
+{% comment %}
+Paridade com a lista da referência: filas (Pendentes, Em andamento, Publicadas,
+Canceladas) com contagens que respeitam a busca e os filtros; busca em título, fonte,
+unidade, andamento e link; filtros de status, jornalista, unidade e período; exportação CSV
+do que está filtrado. Cada linha: título, status, quando saiu e os fatos (entrada, unidade,
+jornalista, fonte, andamento da pauta aberta).
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Filas">
+  {% for chave, rotulo, total in abas %}
+    <a class="aba" href="?{% if chave %}fila={{ chave }}{% if qs_sem_fila %}&amp;{% endif %}{% endif %}{{ qs_sem_fila }}"{% if chave == fila %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'publicacoes:lista' %}" id="filtros-publicacoes">
+  {% if fila %}<input type="hidden" name="fila" value="{{ fila }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-pautas">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-pautas" type="search" name="q" value="{{ filtros.q }}" placeholder="Título, fonte, unidade, andamento ou link" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <details class="filtros__mais" id="filtros-mais"{% if filtros.ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if filtros.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ filtros.ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-status">Status</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-status" name="status"><option value="">Todos</option>{% for valor, rotulo in status %}<option value="{{ valor }}"{% if filtros.status == valor %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-jornalista">Jornalista</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-jornalista" name="jornalista"><option value="">Todos</option>{% for p in equipe %}<option value="{{ p.pk }}"{% if filtros.jornalista == p.pk %} selected{% endif %}>{{ p.nome }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-unidade">Unidade</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-unidade" name="unidade"><option value="">Todas</option>{% for u in unidades %}<option value="{{ u.pk }}"{% if filtros.unidade == u.pk %} selected{% endif %}>{{ u.nome }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-inicio">Pautas a partir de</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-inicio" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-fim">Pautas até</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-fim" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if filtros.ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'publicacoes:lista' %}{% if fila %}?fila={{ fila }}{% endif %}">Limpar filtros</a>{% endif %}</div>
+    </div>
+  </details>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”{% else %}Pautas{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"pauta,pautas" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% include "publicacoes/_registro.html" %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif filtros.q or filtros.ativos or fila %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma pauta encontrada" texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
+{% elif pode_criar %}
+  {% url 'publicacoes:nova' as url_nova %}
+  {% include "componentes/vazio.html" with icone="newspaper" titulo="Nenhuma pauta ainda" texto="Registre a primeira pauta que chegou à assessoria." acao_url=url_nova acao_rotulo="Nova pauta" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhuma pauta para mostrar" texto="Quando houver pautas, elas aparecerão aqui." %}
+{% endif %}
+{% endblock %}

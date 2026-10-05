@@ -1,0 +1,19 @@
+{% comment %}Uma linha de pauta (lista e painel). Requer `l` (queries.Linha).{% endcomment %}
+{% with p=l.pauta %}
+<li class="registro{% if p.status == 'cancelada' %} registro--inativo{% endif %}">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">Pauta</span><span class="placa__numero">#{{ p.pk }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo">
+      <a class="registro__link" href="{% url 'publicacoes:pauta' p.pk %}"><span class="sr-only">{{ p }} · </span>{{ p.titulo }}</a>
+      <span class="selo selo--{{ p.tom }} selo--sem-ponto">{{ p.get_status_display }}</span>
+      {% if p.quando_publicada %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}{{ p.quando_publicada }}</span>{% endif %}
+    </div>
+    <div class="registro__meta">
+      {% for f in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ f.rotulo }}: </span>{% icone f.icone classe="icone--sm" %}{% if f.ausente %}<span class="vazio-inline">{{ f.texto }}</span>{% else %}{{ f.texto }}{% endif %}</span>{% endfor %}
+    </div>
+  </div>
+  <div class="registro__acoes registro__acoes--fixas">
+    <a class="botao botao--sm botao--sutil" href="{% url 'publicacoes:pauta' p.pk %}#andamento" aria-label="Andamento da {{ p }} ({{ p.titulo }})">{% icone "activity" %}Andamento</a>
+  </div>
+</li>
+{% endwith %}
