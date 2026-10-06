@@ -116,6 +116,7 @@ para a própria unidade (`gestao/viagens/de_eventos.py`).
 | Entrar no módulo (`coffee.acessar_coffee`) | ✓ (vê tudo) | ✓ | — |
 | Cadastros contratuais: fornecedores, contratos, termos aditivos, lotes, ofício e protocolo | ver | ✓ | — |
 | Baixar o PDF do contrato/aditivo | ✓ | ✓ | — |
+| Solicitações (registrar, editar a etapa 1, cancelar, reativar, excluir antes da nota, duplicar), lista, CSV e lotes | ✓ | ✓ | — |
 
 `ADMINISTRADOR` sem o papel do módulo não entra (como na referência: o administrador do
 módulo é o módulo + o perfil). Regras em `gestao/coffee/policies.py`.

@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "coffee_lote_municipios", "coffee_lote", "coffee_termoaditivo", "coffee_contrato",
+    "coffee_movimento", "coffee_solicitacao", "coffee_lote_municipios", "coffee_lote",
+    "coffee_termoaditivo", "coffee_contrato",
     "coffee_fornecedor", "coffee_configuracaooficio",
     "eventos_movimento", "eventos_anexosolicitacao", "eventos_solicitacaoequipe",
     "eventos_solicitacaoservico", "eventos_solicitacao",
@@ -1099,7 +1100,7 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     from gestao.palestras import demonstracao as palestras_demo
     palestras_demo.semear(gerador.demo, gerador.hoje)
     from gestao.coffee import demonstracao as coffee_demo
-    coffee_demo.semear(gerador.hoje)
+    coffee_demo.semear(gerador.hoje, gerador.demo)
     from gestao.eventos import demonstracao as eventos_demo
     eventos_demo.semear(gerador.demo, gerador.hoje, tuple(gerador.operadores.values())[:3])
     return resumo(len(oficios))

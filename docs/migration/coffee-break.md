@@ -682,6 +682,41 @@ como histórico.
 - Fora da CB1: anexar contrato/aditivo lendo o PDF (CB5); a regra "capacidade não abaixo do
   consumido" (precisa das solicitações, CB2); textos-base dos documentos (CB4).
 
+## CB2 — o que foi feito (05/10/2026)
+
+- `Solicitacao` (a OS) e `Movimento` (`gestao/coffee/models_pedido.py`), auditados; regras
+  puras em `dominio_pedido.py` (escolha do lote, valor, situação, vigência, retroativo,
+  antecedência, número), leituras em `queries.py`, escritas em `pedidos.py`.
+- Lote pelo município: os ativos que o listam (não vencido na data → exercício do ano →
+  maior saldo); senão a cidade listada mais perto em linha reta (coordenadas do cadastro de
+  municípios), com "Cidade, a N km"; nenhum: a mensagem da referência. Registro existente só
+  troca de lote quando o município muda; o valor unitário é congelado na criação ou na troca.
+- Saldo = Σ quantidade efetiva (faturada, senão pedida) das não canceladas; conferido com a
+  linha do lote travada ("Quantidade acima do saldo do lote: restam R de T unidades.");
+  cancelar devolve, reativar revalida. Vigência (só pedido novo ou mudança de município/
+  data), retroativo com justificativa no histórico, aviso de antecedência (não bloqueia).
+- Nº da OS "NN/AAAA" (sequência digitada, em branco = próxima; repetido recusado com a
+  próxima livre) — **numeração própria do módulo por ora**; a conjunta com Viagens depende
+  de decisão do usuário.
+- Folha (padrão das folhas): placa "OS", frase-resumo (situação, selo temporal, data,
+  município, pessoas, lote, valor), 1 Evento e pedido com o lote consultado ao digitar o
+  município (htmx), 2 Entrega, 3 Situação (cancelar com motivo, reativar, excluir só antes da
+  nota/protocolo) e histórico; duplicar (sem datas, número ou pagamento); travas: financeiro
+  iniciado bloqueia os dados do pedido; cancelada/concluída só consulta; trava de versão.
+- Lista com a trilha da situação financeira (derivada, contagens sobre o recorte), busca,
+  lote, fornecedor, eventos de/até; CSV com as 21 colunas da referência. Lotes com "R de T
+  unidades" e o selo de consumo (< 70 / ≥ 70 / ≥ 90%).
+- DEMO: 18 solicitações em todas as situações. O Coffee Break saiu da lista "Próximos
+  módulos" da página inicial.
+- Revisão de segurança (CB1+CB2) aplicada: o PDF trocado sai do disco (o nome antigo é lido
+  antes da validação), trava de versão conferida de novo sob a trava da linha (cadastros e
+  solicitação; com financeiro iniciado, os campos travados vêm da linha travada), número
+  em branco tenta de novo quando outro pedido acabou de usar o número, permissão por tabela
+  nos cadastros, capacidade do lote não abaixo do consumido, CSV em fluxo, nome do PDF
+  baixado saneado, só erros de validação viram mensagem no trecho do lote.
+- Fora da CB2: etapas 2 e 3 (nota, ofício, protocolo, OB) e reabrir para correção (CB3);
+  "parada há N dias" (CB6); sugestão de locais já usados; "criar aqui" da agenda (CB7).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

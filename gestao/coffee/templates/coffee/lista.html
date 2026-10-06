@@ -1,0 +1,94 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Solicitações de coffee break{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break</p>{% endblock %}
+{% block titulo_lista %}Solicitações{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada solicitação é a ordem de serviço ao fornecedor do lote do município, até a ordem bancária enviada à empresa.</p>{% endblock %}
+{% block acoes_lista %}
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+<a class="botao botao--primario" href="{% url 'coffee:nova' %}">{% icone "plus" %}Nova solicitação</a>
+{% endblock %}
+{% comment %}
+Paridade com a lista da referência: trilha da situação financeira (derivada) com a
+contagem de cada uma sobre o recorte, busca (evento, nº, nota fiscal, protocolo), lote,
+fornecedor e eventos de/até; linha "nº · evento", situação, selo temporal e os fatos.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Situação financeira">
+  <a class="aba" href="?{{ qs_sem_situacao }}"{% if not f.situacao and not f.pendentes %} aria-current="page"{% endif %}>Todas <span class="aba__contagem">{{ total }}</span></a>
+  {% for chave, rotulo, n in situacoes %}<a class="aba" href="?situacao={{ chave }}{% if qs_sem_situacao %}&amp;{{ qs_sem_situacao }}{% endif %}"{% if chave == f.situacao %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'coffee:solicitacoes' %}">
+  {% if f.situacao %}<input type="hidden" name="situacao" value="{{ f.situacao }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-coffee">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-coffee" type="search" name="q" value="{{ f.q }}" placeholder="Evento, nº da OS, nota fiscal ou protocolo…" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <details class="filtros__mais" id="filtros-mais"{% if ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if ativos %}<span class="selo selo--forte selo--sem-ponto">{{ ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-lote">Lote</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-lote" name="lote"><option value="">Todos</option>{% for l in lotes %}<option value="{{ l.pk }}"{% if f.lote == l.pk %} selected{% endif %}>{{ l }} · Contrato {{ l.contrato.numero }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-fornecedor">Fornecedor</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-fornecedor" name="fornecedor"><option value="">Todos</option>{% for fo in fornecedores %}<option value="{{ fo.pk }}"{% if f.fornecedor == fo.pk %} selected{% endif %}>{{ fo.razao_social }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-de">Eventos a partir de</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-de" name="de" value="{{ f.de|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-ate">Eventos até</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-ate" name="ate" value="{{ f.ate|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'coffee:solicitacoes' %}">Limpar filtros</a>{% endif %}</div>
+    </div>
+  </details>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if f.q %}Resultados para “{{ f.q }}”{% else %}Solicitações{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"solicitação,solicitações" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% with s=l.s %}
+    <li class="registro{% if s.cancelada %} registro--inativo{% endif %}">
+      <span class="placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
+      <div class="registro__corpo">
+        <div class="registro__titulo">
+          <a class="registro__link" href="{% url 'coffee:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{{ s.descricao|truncatechars:90 }}</a>
+          <span class="selo selo--{{ s.situacao_tom }} selo--sem-ponto">{{ s.situacao_rotulo }}</span>
+          {% if l.tempo %}<span class="selo selo--{{ l.tempo.1 }} selo--sem-ponto">{{ l.tempo.0 }}</span>{% endif %}
+        </div>
+        <div class="registro__meta">
+          {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        <a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacao' s.pk %}">{% if s.bloqueada %}{% icone "eye" %}Ver{% else %}{% icone "pencil" %}Abrir{% endif %}<span class="sr-only"> {{ s }}</span></a>
+      </div>
+    </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif f.q or ativos or f.situacao %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma solicitação encontrada com os filtros aplicados." texto="Ajuste a busca, os filtros ou troque de situação." limpar_url=request.path %}
+{% else %}
+  {% url 'coffee:nova' as url_nova %}
+  {% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma solicitação registrada ainda." texto="Registre o primeiro pedido de coffee break: o lote vem do município." acao_url=url_nova acao_rotulo="Nova solicitação" %}
+{% endif %}
+{% endblock %}

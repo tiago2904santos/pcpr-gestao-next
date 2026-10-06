@@ -209,3 +209,10 @@ class ConfiguracaoOficio(Carimbos):
     def atual(cls) -> ConfiguracaoOficio:
         obj = cls.objects.order_by("pk").first()
         return obj if obj is not None else cls.objects.create()
+
+
+# A solicitação mora em models_pedido.py; importada aqui para o Django registrar os modelos.
+from .models_pedido import Movimento, Solicitacao  # noqa: E402
+
+__all__ = ["Carimbos", "ConfiguracaoOficio", "Contrato", "Fornecedor", "Lote", "Movimento",
+           "Solicitacao", "TermoAditivo"]

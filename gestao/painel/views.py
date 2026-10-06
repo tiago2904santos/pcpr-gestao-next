@@ -10,10 +10,8 @@ from gestao.viagens import policies as viagens_policies
 from gestao.viagens import queries as viagens_queries
 
 # Módulos do sistema de referência ainda não migrados (Fase 19: um módulo por vez).
-FUTUROS = [
-    {"rotulo": "Coffee Break", "icone": "receipt",
-     "descricao": "Lotes contratados, solicitações e fluxo de pagamento."},
-]
+# Todos os módulos da referência já têm entrada aqui (o Coffee Break desde a CB2).
+FUTUROS: list[dict[str, str]] = []
 
 
 @require_GET

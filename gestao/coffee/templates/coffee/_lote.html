@@ -1,0 +1,18 @@
+{% comment %}
+O lote que o município recebe (consulta ao escolher o município) ou o lote atual da
+solicitação: lote, fornecedor, contrato e aditivo, "R de T unidades", empenho e vigência.
+Variáveis: lote, sal, fim, proximidade, vencido, erro.
+{% endcomment %}
+{% if erro %}
+<div class="alerta alerta--aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ erro }}</p></div></div>
+{% elif lote %}
+<div class="alerta alerta--info" role="group" aria-label="Lote que atende o município">{% icone "layers" %}<div class="alerta__corpo">
+  <p class="alerta__titulo">{{ lote }} · {{ lote.contrato.fornecedor }}{% if proximidade %} (pela cidade mais perto: {{ proximidade }}){% endif %}</p>
+  <p class="registro__meta">
+    <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Contrato {{ lote.contrato.referencia_documental }}</span>
+    <span class="registro__meta-item"><span class="selo selo--{{ sal.tom }} selo--sem-ponto">{{ sal.percentual }}% consumido</span> {{ sal.restante }} de {{ sal.total }} unidades</span>
+    {% if lote.empenho %}<span class="registro__meta-item">{% icone "receipt" classe="icone--sm" %}Empenho {{ lote.empenho }}</span>{% endif %}
+    {% if fim %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if vencido %}Vencido em{% else %}Vigente até{% endif %} {{ fim|date:"d/m/Y" }}</span>{% endif %}
+  </p>
+</div></div>
+{% endif %}

@@ -209,6 +209,13 @@ class FormularioLote(ComVersao):
                 contrato=contrato, numero=numero, exercicio=exercicio).exclude(
                 pk=self.instance.pk).exists():
             self.add_error("numero", f"O Lote {numero} ({exercicio}) deste contrato já existe.")
+        total = dados.get("quantidade_total")
+        if self.instance.pk and total:
+            from .queries import consumido_por_lote
+            consumido = consumido_por_lote([self.instance.pk]).get(self.instance.pk, 0)
+            if total < consumido:
+                self.add_error("quantidade_total", f"O lote já consumiu {consumido} unidades; "
+                                                   "a capacidade não pode ficar abaixo disso.")
         return dados
 
 

@@ -14,15 +14,26 @@ class CadastroEmUso(Exception):
     pass
 
 
-def _exigir(usuario) -> None:
-    if not policies.pode_gerir_cadastros(usuario):
+def _exigir(usuario, tabela: str = "") -> None:
+    if not policies.pode_gerir_cadastros(usuario, tabela):
         raise PermissionDenied
 
 
+def _conferir_versao(modelo, pk, versao: str) -> None:
+    """Sob a trava da linha: alguém gravou depois que a tela abriu?"""
+    atual = modelo.objects.select_for_update().filter(pk=pk).values_list(
+        "atualizado_em", flat=True).first()
+    if atual is not None and atual.isoformat() != versao:
+        raise CadastroEmUso(dominio.MSG_VERSAO)
+
+
 @transaction.atomic
-def salvar(usuario, form):
+def salvar(usuario, form, tabela: str = ""):
     """Grava o formulário já validado (o do lote também acerta os municípios)."""
-    _exigir(usuario)
+    _exigir(usuario, tabela)
+    if form.instance.pk:
+        _conferir_versao(type(form.instance), form.instance.pk,
+                         form.cleaned_data.get("versao", ""))
     obj = form.save(commit=False)
     if hasattr(obj, "razao_social"):
         obj.razao_social = " ".join(obj.razao_social.split())
@@ -36,9 +47,9 @@ def salvar(usuario, form):
 
 
 @transaction.atomic
-def excluir(usuario, obj, singular: str) -> None:
+def excluir(usuario, obj, singular: str, tabela: str = "") -> None:
     """Excluir o que está em uso é recusado (as chaves protegem)."""
-    _exigir(usuario)
+    _exigir(usuario, tabela)
     arquivo = getattr(obj, "arquivo", None)
     try:
         with transaction.atomic():
@@ -55,8 +66,10 @@ def configuracao() -> ConfiguracaoOficio:
 
 
 @transaction.atomic
-def salvar_configuracao(usuario, form) -> ConfiguracaoOficio:
-    _exigir(usuario)
+def salvar_configuracao(usuario, form, versao: str = "") -> ConfiguracaoOficio:
+    _exigir(usuario, "configuracao")
+    if form.instance.pk:
+        _conferir_versao(ConfiguracaoOficio, form.instance.pk, versao)
     return form.save()
 
 

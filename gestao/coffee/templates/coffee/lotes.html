@@ -1,0 +1,47 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Lotes · Coffee Break{% endblock %}
+{% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break</p>{% endblock %}
+{% block titulo_lista %}Lotes{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Quanto cada lote contratado já consumiu e quanto resta: o pedido cai no lote que atende o município do evento.</p>{% endblock %}
+{% block acoes_lista %}{% if pode_gerir %}<a class="botao" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}Cadastro de lotes</a>{% endif %}{% endblock %}
+{% comment %}
+Paridade com a lista de lotes da referência: "Lote N · FORNECEDOR", vigente/encerrado, selo
+de consumo (verde < 70%, âmbar ≥ 70%, vermelho ≥ 90%), exercício, contrato, "R de T
+unidades" e os municípios.
+{% endcomment %}
+{% block abas_filtro %}
+<nav class="abas" aria-label="Situação do lote">
+  {% for chave, rotulo in situacoes %}<a class="aba" href="?situacao={{ chave }}"{% if chave == situacao %} aria-current="page"{% endif %}>{{ rotulo }}</a>{% endfor %}
+</nav>
+{% endblock %}
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">Lotes</h2>
+  <span class="lista-cabecalho__total" role="status">{{ linhas|length|pluralizar:"lote,lotes" }}</span>
+</div>
+{% if linhas %}
+<ul class="registros" aria-labelledby="titulo-resultados">
+  {% for l in linhas %}{% with lote=l.lote %}
+  <li class="registro{% if not lote.ativo %} registro--inativo{% endif %}">
+    <span class="registro__icone" aria-hidden="true">{% icone "layers" %}</span>
+    <div class="registro__corpo">
+      <div class="registro__titulo">
+        <a class="registro__link" href="{% url 'coffee:solicitacoes' %}?lote={{ lote.pk }}">{{ lote }} · {{ lote.contrato.fornecedor }}</a>
+        <span class="selo selo--{% if lote.ativo %}sucesso{% else %}neutro{% endif %} selo--sem-ponto">{% if lote.ativo %}Vigente{% else %}Encerrado{% endif %}</span>
+        <span class="selo selo--{{ l.saldo.tom }} selo--sem-ponto">{{ l.saldo.percentual }}% consumido</span>
+        {% if l.vencido %}<span class="selo selo--perigo selo--sem-ponto">Contrato vencido</span>{% endif %}
+      </div>
+      <div class="registro__meta">
+        <span class="registro__meta-item"><span class="sr-only">Saldo: </span>{% icone "layers" classe="icone--sm" %}{{ l.saldo.restante }} de {{ l.saldo.total }} unidades</span>
+        <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Contrato {{ lote.contrato.numero }}</span>
+        {% if l.fim %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if l.vencido %}Vencido em{% else %}Vigente até{% endif %} {{ l.fim|date:"d/m/Y" }}</span>{% endif %}
+        <span class="registro__meta-item"><span class="sr-only">Municípios: </span>{% icone "map-pin" classe="icone--sm" %}{% for m in lote.municipios.all|slice:":5" %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Nenhum município</span>{% endfor %}{% if lote.municipios.all|length > 5 %} e mais {{ lote.municipios.all|length|add:"-5" }}{% endif %}</span>
+      </div>
+    </div>
+  </li>
+  {% endwith %}{% endfor %}
+</ul>
+{% else %}
+{% include "componentes/vazio.html" with icone="layers" titulo="Nenhum lote nesta situação" texto="Os lotes são cadastrados pelo administrador do módulo." %}
+{% endif %}
+{% endblock %}

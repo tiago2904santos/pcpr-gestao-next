@@ -180,3 +180,46 @@ def test_telas_de_todas_as_tabelas_e_janelas(admin):
     pk = Lote.objects.get().pk
     assert admin.get(reverse("coffee:cadastros", args=["lotes"]),
                      {"editar": pk}).status_code == 200
+
+
+def test_trocar_o_pdf_apaga_o_antigo_e_capacidade_nao_abaixo_do_consumido(
+        admin, settings, tmp_path, django_capture_on_commit_callbacks):
+    """Revisão de segurança da CB1/CB2: o PDF trocado sai do disco (e só ele); o lote não
+    fica com capacidade abaixo do que já consumiu; a permissão vale por tabela."""
+    from pathlib import Path
+
+    from gestao.coffee import pedidos
+
+    settings.MEDIA_ROOT = tmp_path
+    f = _fornecedor()
+    url = reverse("coffee:salvar", args=["contratos"])
+    base = {"fornecedor": f.pk, "numero": "1/2026", "antecedencia_minima_dias": "2"}
+    admin.post(url, {**base, "arquivo": _pdf("primeiro.pdf")})
+    c = Contrato.objects.get(numero="1/2026")
+    antigo = Path(c.arquivo.path)
+    assert antigo.exists()
+    with django_capture_on_commit_callbacks(execute=True):
+        r = admin.post(url, {**base, "pk": c.pk, "versao": versao_de(c),
+                             "arquivo": _pdf("segundo.pdf")})
+    assert r.status_code == 302
+    c.refresh_from_db()
+    assert not antigo.exists() and Path(c.arquivo.path).exists()
+
+    curitiba = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                               defaults={"nome": "Curitiba", "uf": "PR"})[0]
+    lote = Lote.objects.create(contrato=c, numero=1, exercicio="2026", quantidade_total=100)
+    lote.municipios.set([curitiba])
+    u = _usuario("op", "ASCOM_COFFEE_BREAK")
+    pedidos.salvar(u, {"municipio": curitiba, "data_solicitacao": date(2026, 1, 5),
+                       "numero": "", "descricao": "Evento", "quantidade": 60})
+    r = admin.post(reverse("coffee:salvar", args=["lotes"]), {
+        "pk": lote.pk, "versao": versao_de(lote), "contrato": c.pk, "numero": "1",
+        "exercicio": "2026", "quantidade_total": "50", "lista_municipios": "Curitiba"})
+    assert "O lote já consumiu 60 unidades" in r.content.decode()
+
+    so_fornecedor = _usuario("sf", "ASCOM_COFFEE_BREAK")
+    from django.contrib.auth.models import Permission
+    so_fornecedor.user_permissions.add(Permission.objects.get(codename="change_fornecedor"))
+    cli = _cliente(so_fornecedor)
+    assert cli.get(reverse("coffee:cadastros", args=["fornecedores"])).status_code == 200
+    assert cli.get(reverse("coffee:cadastros", args=["lotes"])).status_code == 403

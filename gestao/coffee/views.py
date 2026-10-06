@@ -5,6 +5,7 @@ do ofício e do protocolo (registro único). Como na referência, só o administ
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -102,10 +103,10 @@ TABELAS = {t.chave: t for t in (
 )}
 
 
-def _exigir(usuario) -> None:
+def _exigir(usuario, tabela: str = "") -> None:
     if not policies.pode_acessar(usuario):
         raise PermissionDenied
-    if not policies.pode_gerir_cadastros(usuario):
+    if not policies.pode_gerir_cadastros(usuario, tabela):
         raise PermissionDenied("Só o administrador do módulo mantém os cadastros.")
 
 
@@ -116,8 +117,7 @@ def _tabela(chave: str) -> Tabela:
 
 
 def _migalhas(*fim: tuple[str, str]) -> list[tuple[str, str]]:
-    return [("Início", reverse("painel:inicio")), ("Coffee Break", reverse("coffee:cadastros",
-                                                                          args=["fornecedores"])),
+    return [("Início", reverse("painel:inicio")), ("Coffee Break", reverse("coffee:solicitacoes")),
             *fim]
 
 
@@ -184,7 +184,7 @@ def _consulta(t: Tabela):
 
 @require_GET
 def cadastros(request: HttpRequest, tabela: str) -> HttpResponse:
-    _exigir(request.user)
+    _exigir(request.user, tabela)
     t = _tabela(tabela)
     termo = " ".join((request.GET.get("q") or "").split())[:100]
     qs = _consulta(t)
@@ -225,16 +225,21 @@ def _render(request, t: Tabela, pagina, termo: str, form, editando, status: int 
 
 @require_POST
 def salvar(request: HttpRequest, tabela: str) -> HttpResponse:
-    _exigir(request.user)
+    _exigir(request.user, tabela)
     t = _tabela(tabela)
     editando = None
     if (pk := request.POST.get("pk") or "").isdecimal():
         editando = get_object_or_404(t.modelo, pk=int(pk))
+    antigo = (t.modelo.objects.filter(pk=editando.pk).values_list("arquivo", flat=True)
+              .first() or "") if editando is not None and hasattr(editando, "arquivo") else ""
     form = t.formulario(request.POST, request.FILES, instance=editando)
+    obj = None
     if form.is_valid():
-        antigo = editando.arquivo.name if editando is not None and hasattr(editando, "arquivo") \
-            else ""
-        obj = services.salvar(request.user, form)
+        try:
+            obj = services.salvar(request.user, form, t.chave)
+        except services.CadastroEmUso as exc:  # versão conferida de novo sob a trava
+            form.add_error(None, str(exc))
+    if obj is not None:
         if antigo and getattr(obj, "arquivo", None) is not None and obj.arquivo.name != antigo:
             services.apagar_arquivo_depois(t.modelo, antigo)
         messages.success(request, f"{t.singular.capitalize()} salvo com sucesso.")
@@ -246,11 +251,11 @@ def salvar(request: HttpRequest, tabela: str) -> HttpResponse:
 
 @require_POST
 def excluir(request: HttpRequest, tabela: str, pk: int) -> HttpResponse:
-    _exigir(request.user)
+    _exigir(request.user, tabela)
     t = _tabela(tabela)
     obj = get_object_or_404(t.modelo, pk=pk)
     try:
-        services.excluir(request.user, obj, t.singular)
+        services.excluir(request.user, obj, t.singular, t.chave)
     except services.CadastroEmUso as exc:
         messages.error(request, str(exc))
     else:
@@ -268,7 +273,8 @@ def arquivo(request: HttpRequest, tabela: str, pk: int) -> FileResponse:
     obj = get_object_or_404(TABELAS[tabela].modelo, pk=pk)
     if not obj.arquivo:
         raise Http404
-    nome = f"{TABELAS[tabela].singular.capitalize()} {obj.numero}.pdf".replace("/", "-")
+    seguro = re.sub(r"[^\w .-]", "-", f"{TABELAS[tabela].singular.capitalize()} {obj.numero}")
+    nome = f"{seguro[:80]}.pdf"
     resposta = FileResponse(obj.arquivo.open("rb"), as_attachment=True, filename=nome,
                             content_type="application/pdf")
     resposta["X-Content-Type-Options"] = "nosniff"
@@ -278,11 +284,11 @@ def arquivo(request: HttpRequest, tabela: str, pk: int) -> FileResponse:
 
 @require_http_methods(["GET", "POST"])
 def configuracao(request: HttpRequest) -> HttpResponse:
-    _exigir(request.user)
+    _exigir(request.user, "configuracao")
     obj = services.configuracao()
     form = FormularioConfiguracao(request.POST or None, instance=obj)
     if request.method == "POST" and form.is_valid():
-        services.salvar_configuracao(request.user, form)
+        services.salvar_configuracao(request.user, form, form.cleaned_data.get("versao", ""))
         messages.success(request, "Configuração do ofício salva com sucesso.")
         return redirect("coffee:configuracao")
     return render(request, "coffee/configuracao.html", {

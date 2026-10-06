@@ -10,5 +10,12 @@ def pode_acessar(usuario) -> bool:
                 and usuario.has_perm("coffee.acessar_coffee"))
 
 
-def pode_gerir_cadastros(usuario) -> bool:
-    return pode_acessar(usuario) and usuario.has_perm("coffee.change_fornecedor")
+MODELO_DA_TABELA = {"fornecedores": "fornecedor", "contratos": "contrato",
+                    "aditivos": "termoaditivo", "lotes": "lote",
+                    "configuracao": "configuracaooficio"}
+
+
+def pode_gerir_cadastros(usuario, tabela: str = "") -> bool:
+    """O administrador do módulo; por tabela, a permissão de alterar aquele cadastro."""
+    modelo = MODELO_DA_TABELA.get(tabela, "fornecedor")
+    return pode_acessar(usuario) and usuario.has_perm(f"coffee.change_{modelo}")

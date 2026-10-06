@@ -74,3 +74,87 @@ def test_sem_rolagem_horizontal(logado, dados_e2e, largura):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"
+
+
+def _lote_de_curitiba():
+    from datetime import timedelta
+    from decimal import Decimal
+
+    from django.utils import timezone
+
+    from gestao.cadastros.models import Municipio
+    from gestao.coffee.models import Contrato, Fornecedor, Lote
+
+    hoje = timezone.localdate()
+    curitiba = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                               defaults={"nome": "Curitiba", "uf": "PR"})[0]
+    f = Fornecedor.objects.create(razao_social="Buffet do Lote (e2e)", cnpj="11222333000181")
+    c = Contrato.objects.create(fornecedor=f, numero="5/2026", valor_unitario=Decimal("20"),
+                                vigencia_fim=hoje + timedelta(days=300))
+    lote = Lote.objects.create(contrato=c, numero=1, exercicio=str(hoje.year),
+                               quantidade_total=500)
+    lote.municipios.set([curitiba])
+    return lote
+
+
+def _operador_do_modulo() -> None:
+    from django.contrib.auth.models import Group
+
+    from gestao.identidade.models import Usuario
+
+    Usuario.objects.get(login="operador").groups.add(Group.objects.get(name="ASCOM_COFFEE_BREAK"))
+
+
+def test_pedir_coffee_break_e_cancelar(logado, dados_e2e):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from gestao.coffee.models import Solicitacao
+
+    _operador_do_modulo()
+    _lote_de_curitiba()
+    data = timezone.localdate() + timedelta(days=15)
+    pg = logado
+    pg.goto("/coffee/nova/")
+    pg.locator("#id_municipio").fill("Curitiba/PR")
+    pg.locator("#id_municipio").press("Tab")
+    expect(pg.locator("#lote-do-municipio")).to_contain_text("Lote 1")
+    expect(pg.locator("#lote-do-municipio")).to_contain_text("500 de 500 unidades")
+    pg.locator("#id_descricao").fill("Posse da diretoria (e2e)")
+    pg.locator("#id_quantidade").fill("40")
+    pg.locator("#id_data_evento").fill(f"{data:%d/%m/%Y}")
+    pg.get_by_role("button", name="Registrar solicitação").click()
+    expect(pg.locator(".registros")).to_contain_text("Posse da diretoria (e2e)")
+    s = Solicitacao.objects.get()
+    assert s.quantidade == 40 and s.lote.numero == 1
+
+    pg.goto(f"/coffee/solicitacoes/{s.pk}/")
+    expect(pg.locator("#lote-do-municipio")).to_contain_text("460 de 500 unidades")
+    pg.get_by_role("button", name="Cancelar", exact=True).click()
+    pg.locator("#dialogo-motivo-texto").fill("Evento adiado (e2e)")
+    pg.locator("#dialogo-motivo").get_by_role("button", name="Cancelar solicitação").click()
+    expect(pg.locator(".alerta--perigo")).to_contain_text("Solicitação cancelada")
+    s.refresh_from_db()
+    assert s.cancelada and s.motivo_cancelamento == "Evento adiado (e2e)"
+    assert not pg.erros_console  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
+    from gestao.coffee import pedidos
+    from gestao.identidade.models import Usuario
+
+    _operador_do_modulo()
+    lote = _lote_de_curitiba()
+    from django.utils import timezone
+    s = pedidos.salvar(Usuario.objects.get(login="operador"), {
+        "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
+        "numero": "", "descricao": "Evento com uma descrição bem comprida para testar a quebra "
+        "de linha no cabeçalho da folha (e2e)", "quantidade": 30}).solicitacao
+    pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/"):
+        pg.goto(rota)
+        excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+        assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"

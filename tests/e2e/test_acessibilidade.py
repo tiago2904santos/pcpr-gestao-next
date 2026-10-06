@@ -503,3 +503,22 @@ def test_coffee_break_cadastros_sem_violacoes(logado, dados_e2e, largura):
     for rota in ("/coffee/cadastros/fornecedores/", "/coffee/cadastros/contratos/?novo=1",
                  "/coffee/cadastros/lotes/?novo=1", "/coffee/cadastros/oficio/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
+    from django.utils import timezone
+
+    from gestao.coffee import pedidos
+    from gestao.identidade.models import Usuario
+
+    from .test_coffee import _lote_de_curitiba, _operador_do_modulo
+
+    _operador_do_modulo()
+    lote = _lote_de_curitiba()
+    s = pedidos.salvar(Usuario.objects.get(login="operador"), {
+        "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
+        "numero": "", "descricao": "Evento (axe)", "quantidade": 30}).solicitacao
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/"):
+        _avaliar(logado, rota)

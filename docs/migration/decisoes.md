@@ -281,7 +281,8 @@ Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffe
 | Perfis | módulo ASCOM_COFFEE_BREAK por setor; admin = módulo + grupo ADMINISTRADOR | papel `ASCOM_COFFEE_BREAK` (vê tudo); admin = o papel + `ADMINISTRADOR` | **agente** — confirmar |
 | Municípios do lote | N:N escolhido em tela + texto original da planilha | lista de nomes digitada, validada contra os municípios do Paraná; o texto fica guardado | **agente** — confirmar |
 | Configuração do ofício | nasce com nomes reais de pessoas | nasce com valores neutros (vocativo, textos dos e-mails); assinante e destinatário em branco | **agente** (dados pessoais) |
-| Numeração da OS e do ofício | livro único com Viagens | ainda não implementada (CB2/CB3) | **pendente — decisão do usuário** |
+| Numeração da OS e do ofício | livro único com Viagens | OS com sequência anual própria do módulo (CB2), atrás de `queries.proximo_numero`; ofício na CB3 | **pendente — decisão do usuário** |
+| Selo de tempo e abas da lista | trilha na ordem dos marcos | trilha na ordem do fluxo (aguardando nota → … → concluídas, canceladas) com rótulos curtos | agente (UX) |
 
 ## Pendências abertas
 

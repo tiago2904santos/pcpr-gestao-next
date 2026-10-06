@@ -218,3 +218,7 @@ def test_cadastros_do_coffee_break_de_exemplo(dataset):
     assert demo.has_perm("coffee.acessar_coffee") and demo.has_perm("coffee.change_lote")
     assert Contrato.objects.count() == 3 and Lote.objects.filter(ativo=True).count() == 3
     assert all(lote.municipios.exists() for lote in Lote.objects.all())
+    from gestao.coffee.dominio_pedido import SITUACOES
+    from gestao.coffee.models import Solicitacao
+    vistas = {s.situacao for s in Solicitacao.objects.all()}
+    assert vistas == {c for c, _r, _t in SITUACOES}  # todas as situações para avaliar

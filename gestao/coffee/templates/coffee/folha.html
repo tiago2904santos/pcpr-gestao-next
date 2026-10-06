@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if s %}{{ s }} · {{ s.descricao|truncatechars:40 }}{% else %}Nova solicitação{% endif %} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha da solicitação de coffee break (a ordem de serviço), etapa 1, na linguagem da folha do
+ofício: placa e frase no cabeçalho; 1 Evento e pedido (com o lote que o município recebe,
+consultado ao escolher o município), 2 Entrega, 3 Situação (cancelar, reativar, excluir,
+duplicar) e o histórico. As etapas 2 e 3 (nota, ofício, protocolo, pagamento) vêm na CB3.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{% if s %}{{ s.numero|default:"—" }}{% else %}nova{% endif %}</span></span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="{% if s %}pagina-cabecalho__titulo{% else %}sr-only{% endif %}">{% if s %}{{ s.descricao|truncatechars:120 }}{% else %}Nova solicitação de coffee break{% endif %}</h1>
+    {% if s %}
+    <p class="frase-oficio" id="frase-coffee">
+      <span class="sr-only">Resumo: </span>
+      <span class="selo selo--{{ s.situacao_tom }}">{{ s.situacao_rotulo }}</span>
+      {% if linha.tempo %}<span class="selo selo--{{ linha.tempo.1 }} selo--sem-ponto">{{ linha.tempo.0 }}</span>{% endif %}
+      <span class="frase-oficio__item{% if not s.data_evento %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{% if s.data_evento %}{{ s.data_evento|date:"d/m/Y" }}{% if s.horario %} às {{ s.horario|time:"H:i" }}{% endif %}{% else %}sem data do evento{% endif %}</span>
+      <span class="frase-oficio__item">{% icone "map-pin" classe="icone--sm" %}{{ s.municipio.nome }}/{{ s.municipio.uf }}</span>
+      <span class="frase-oficio__item">{% icone "users" classe="icone--sm" %}{{ s.quantidade }} pessoas</span>
+      <span class="frase-oficio__item">{% icone "layers" classe="icone--sm" %}{{ s.lote }} · {{ s.lote.contrato.fornecedor }}</span>
+      {% if s.valor is not None %}<span class="frase-oficio__item">{% icone "banknote" classe="icone--sm" %}R$ {{ s.valor|floatformat:2 }}</span>{% endif %}
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">O pedido vira a ordem de serviço ao fornecedor do lote que atende o município. Informe o evento; local e responsável podem vir depois.</p>
+    {% endif %}
+  </div>
+  {% if s and not s.bloqueada %}<div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'coffee:nova' %}?duplicar={{ s.pk }}">{% icone "copy" %}Duplicar</a></div>{% endif %}
+</header>
+
+{% include "componentes/resumo_erros.html" %}
+{% if duplicada %}<div class="alerta alerta--info mb-4" role="status">{% icone "copy" %}<div class="alerta__corpo"><p>Copiada de {{ duplicada }} ({{ duplicada.descricao|truncatechars:60 }}): datas, número e pagamento não vêm junto.</p></div></div>{% endif %}
+{% if s and s.cancelada %}<div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Solicitação cancelada</p><p>{{ s.motivo_cancelamento }}{% if s.cancelada_por %} — {{ s.cancelada_por.nome }}, {{ s.cancelada_em|date:"d/m/Y H:i" }}{% endif %}</p></div></div>
+{% elif s and s.concluida %}<div class="alerta alerta--sucesso mb-4" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p>Fluxo financeiro concluído: a solicitação fica só para consulta.</p></div></div>{% endif %}
+{% if msg_travados %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>{{ msg_travados }}</p></div></div>{% endif %}
+{% if aviso_antecedencia %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ aviso_antecedencia }}</p></div></div>{% endif %}
+
+<form method="post" novalidate id="{{ form_id }}" class="documento documento--cartoes" data-proteger action="{% if s %}{% url 'coffee:solicitacao' s.pk %}{% else %}{% url 'coffee:nova' %}{% endif %}">
+  {% csrf_token %}
+  {{ form.versao }}{{ form.duplicada_de }}
+  <section class="secao{% if s %} secao--ok{% endif %}" id="evento" aria-labelledby="t-evento">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-evento"><span class="secao__numero">1</span>Evento e pedido</h2><p class="secao__nota">O município define o lote e o fornecedor; a quantidade sai do saldo do lote.</p></div>
+    <div class="campos">
+      <div class="campo campo--lg{% if form.municipio.errors %} campo--erro{% endif %}">
+        <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <input class="entrada" type="text" id="{{ form.municipio.id_for_label }}" name="municipio" value="{{ form.municipio.value|default_if_none:'' }}" placeholder="Cidade/PR" autocomplete="off" maxlength="80" data-municipio form="{{ form_id }}"{% if form.municipio.field.disabled %} disabled{% endif %} required aria-describedby="ajuda-municipio{% if form.municipio.errors %} erro-municipio{% endif %}"{% if form.municipio.errors %} aria-invalid="true"{% endif %}
+               hx-get="{% url 'coffee:lote_do_municipio' %}" hx-trigger="change, keyup changed delay:600ms" hx-target="#lote-do-municipio" hx-include="[name=data_evento],[name=data_solicitacao]">
+        <p class="campo__ajuda" id="ajuda-municipio">{{ form.municipio.help_text }}</p>
+        {% if form.municipio.errors %}<p class="campo__erro" id="erro-municipio">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.municipio.errors|join:" " }}</span></p>{% endif %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.data_solicitacao classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.numero classe="campo--sm" texto_fixo=numero_ano ajuda_oculta=True %}
+    </div>
+    <div id="lote-do-municipio" aria-live="polite">{% if s %}{% include "coffee/_lote.html" with lote=s.lote sal=saldo fim=fim_vigencia proximidade="" vencido=False erro="" %}{% endif %}</div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.descricao classe="campo--cresce" %}
+    </div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.quantidade classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.data_evento classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.horario classe="campo--sm" %}
+    </div>
+    <div class="mt-4">{% include "componentes/campo.html" with campo=form.retroativo %}</div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.justificativa classe="campo--cresce" %}
+    </div>
+  </section>
+
+  <section class="secao" id="entrega" aria-labelledby="t-entrega">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-entrega"><span class="secao__numero">2</span>Entrega</h2><p class="secao__nota">Local e responsável são exigidos para a ordem de serviço sair.</p></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.local_entrega classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.responsavel classe="campo--lg" %}
+    </div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.endereco classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.bairro classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.cep classe="campo--sm" %}
+    </div>
+  </section>
+</form>
+
+{% if s %}
+<div class="documento documento--cartoes mt-4">
+  <section class="secao" id="situacao" aria-labelledby="t-situacao">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">3</span>Situação da solicitação</h2><p class="secao__nota">Cancelar devolve a quantidade ao saldo do lote; excluir só antes da nota e do protocolo.</p></div>
+    <div class="linha">
+      {% if s.cancelada %}
+        <form method="post" action="{% url 'coffee:reativar' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "undo-2" %}Reativar</button></form>
+      {% elif not s.concluida %}
+        <button type="button" class="botao botao--perigo" data-pedir-motivo="{% url 'coffee:cancelar' s.pk %}" data-motivo-titulo="Cancelar {{ s }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar solicitação" data-motivo-ajuda="Fica no histórico; a quantidade volta ao saldo do lote." data-motivo-perigo>{% icone "ban" %}Cancelar</button>
+      {% endif %}
+      {% if not s.financeiro_iniciado %}
+        <form method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "trash-2" %}Excluir</button></form>
+      {% endif %}
+    </div>
+    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3><div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div></div>
+      <ol class="historico__linhas" aria-label="Eventos da solicitação">
+        {% for h in historico %}
+        <li class="historico__linha{% if h.acao != 'atualizada' %} historico__linha--marca{% endif %}">
+          <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+          <span class="historico__texto"><b>{{ h.get_acao_display }}</b>{% if h.texto %} — {{ h.texto }}{% endif %}</span>
+          <span class="historico__quem">{{ h.usuario.nome }}</span>
+        </li>
+        {% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+      </ol>
+    </div>
+  </section>
+</div>
+{% include "componentes/dialogo_motivo.html" %}
+{% endif %}
+
+{% if not s or not s.bloqueada %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>{% if s %}Salve para gravar as alterações.{% else %}Para registrar: município, data, descrição e quantidade.{% endif %}</span></div>
+  <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
+  <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}{% if s %}Salvar{% else %}Registrar solicitação{% endif %}</button>
+</div>
+{% endif %}
+{% endblock %}
