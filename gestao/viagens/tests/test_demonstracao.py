@@ -209,3 +209,12 @@ def test_solicitacoes_de_evento_de_exemplo_cobrem_as_filas(dataset):
     assert todas.exclude(criado_por=demo).exists()  # a fila "todas" tem outros responsáveis
     for fila, _rotulo in queries.filas_visiveis(demo):
         assert queries.aplicar_fila(todas, fila, demo, hoje=HOJE).exists(), fila
+
+
+def test_cadastros_do_coffee_break_de_exemplo(dataset):
+    from gestao.coffee.models import Contrato, Lote
+
+    demo = Usuario.objects.get(login=LOGIN_DEMO)
+    assert demo.has_perm("coffee.acessar_coffee") and demo.has_perm("coffee.change_lote")
+    assert Contrato.objects.count() == 3 and Lote.objects.filter(ativo=True).count() == 3
+    assert all(lote.municipios.exists() for lote in Lote.objects.all())

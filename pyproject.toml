@@ -87,7 +87,7 @@ type = "forbidden"
 source_modules = ["gestao.plataforma"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
                      "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
-                     "gestao.eventos"]
+                     "gestao.eventos", "gestao.coffee"]
 ignore_imports = ["gestao.plataforma.tests.** -> gestao.**"]
 
 [[tool.importlinter.contracts]]
@@ -112,7 +112,7 @@ type = "forbidden"
 source_modules = ["gestao.integracoes"]
 forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "gestao.identidade",
                      "gestao.imprensa", "gestao.publicacoes", "gestao.palestras",
-                     "gestao.eventos"]
+                     "gestao.eventos", "gestao.coffee"]
 
 [[tool.importlinter.contracts]]
 name = "Domínio puro não conhece integrações externas (ADR 0019)"
@@ -167,6 +167,20 @@ type = "forbidden"
 source_modules = ["gestao.eventos"]
 forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gestao.publicacoes",
                      "gestao.palestras"]
+
+[[tool.importlinter.contracts]]
+name = "Coffee Break usa só os cadastros de base (Eventos e Palestras entram por ganchos)"
+type = "forbidden"
+source_modules = ["gestao.coffee"]
+forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gestao.publicacoes",
+                     "gestao.palestras", "gestao.eventos"]
+
+[[tool.importlinter.contracts]]
+name = "Regras do Coffee Break são puras (sem Django)"
+type = "forbidden"
+source_modules = ["gestao.coffee.dominio"]
+forbidden_modules = ["django"]
+allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
 name = "Regras de Eventos Sociais são puras (sem Django)"

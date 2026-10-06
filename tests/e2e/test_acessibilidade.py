@@ -492,3 +492,14 @@ def test_viagem_da_solicitacao_sem_violacoes(logado, dados_e2e, largura):
     solicitacoes.despachar(u, s.pk, "atender")
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/eventos/solicitacoes/{s.pk}/")
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_coffee_break_cadastros_sem_violacoes(logado, dados_e2e, largura):
+    from .test_coffee import _admin_do_modulo
+
+    _admin_do_modulo()
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/coffee/cadastros/fornecedores/", "/coffee/cadastros/contratos/?novo=1",
+                 "/coffee/cadastros/lotes/?novo=1", "/coffee/cadastros/oficio/"):
+        _avaliar(logado, rota)

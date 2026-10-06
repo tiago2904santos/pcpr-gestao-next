@@ -272,6 +272,17 @@ Fonte: `solicitacoes/{models,services,permissions,views}.py` da referência
 | Painel, lembretes | existem | E3 (sino; sem e-mail) | referência |
 | Consultar protocolo | eProtocolo | segue simulado | pendente (dependência externa) |
 
+## Coffee Break — CB1 (cadastros)
+
+Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffee-break.md](coffee-break.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Perfis | módulo ASCOM_COFFEE_BREAK por setor; admin = módulo + grupo ADMINISTRADOR | papel `ASCOM_COFFEE_BREAK` (vê tudo); admin = o papel + `ADMINISTRADOR` | **agente** — confirmar |
+| Municípios do lote | N:N escolhido em tela + texto original da planilha | lista de nomes digitada, validada contra os municípios do Paraná; o texto fica guardado | **agente** — confirmar |
+| Configuração do ofício | nasce com nomes reais de pessoas | nasce com valores neutros (vocativo, textos dos e-mails); assinante e destinatário em branco | **agente** (dados pessoais) |
+| Numeração da OS e do ofício | livro único com Viagens | ainda não implementada (CB2/CB3) | **pendente — decisão do usuário** |
+
 ## Pendências abertas
 
 | Pendência | Tipo |
@@ -292,6 +303,8 @@ Fonte: `solicitacoes/{models,services,permissions,views}.py` da referência
 | Setor/Módulo (acesso por módulo) e vínculo Usuário↔Servidor da referência | decisão do usuário (não bloqueia) |
 | Hierarquia na gestão de usuários (só superusuário mexe em superusuário) | decisão do usuário (não bloqueia) |
 | Viagem: excluir solta os documentos; cancelar respeita a permissão de cada documento | decisão do usuário (não bloqueia) |
+| Coffee Break: numeração da OS e do ofício conjunta com Viagens (como na referência) ou própria | decisão do usuário (bloqueia só a numeração da CB2/CB3; o resto segue) |
+| Coffee Break: rota pública do fornecedor (sem login) e carga histórica (planilha × ETL) | decisão institucional / do usuário (CB8/CB9) |
 | Prestação: nascer na emissão (não no rascunho); avisos só para a unidade do ofício | decisão do usuário (não bloqueia) |
 | Prestação: aprovar/devolver só pela gestão (a referência não separa) | decisão do usuário (não bloqueia) |
 | Prestação: o ofício assinado é a via do próprio ofício (módulo 7), não um anexo separado | decisão do usuário (não bloqueia) |

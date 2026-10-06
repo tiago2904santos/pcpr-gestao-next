@@ -1,0 +1,104 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}{{ t.titulo }} · Cadastros do Coffee Break{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break · Cadastros</p>{% endblock %}
+{% block titulo_lista %}{{ t.titulo }}{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">{{ t.descricao }}</p>{% endblock %}
+{% block acoes_lista %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ novo_rotulo|capfirst }}</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ novo_rotulo|capfirst }}</button>{% endif %}{% endblock %}
+{% comment %}
+Cadastros contratuais do Coffee Break (paridade com a tela de cadastros da referência): uma
+aba por tabela com o total, busca, lista paginada e novo/editar numa janela; excluir o que
+está em uso é recusado; a configuração do ofício e do protocolo é um registro único.
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" aria-label="Cadastros do Coffee Break">
+  {% for chave, titulo, icone_aba, n in tabelas %}<a class="aba" href="{% url 'coffee:cadastros' chave %}"{% if chave == t.chave %} aria-current="page"{% endif %}>{{ titulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
+  <a class="aba" href="{% url 'coffee:configuracao' %}">Ofício e protocolo</a>
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'coffee:cadastros' t.chave %}">
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-cadastro">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-cadastro" type="search" name="q" value="{{ termo }}" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{{ t.titulo }}{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count }} {% if page_obj.paginator.count == 1 %}registro{% else %}registros{% endif %}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for obj, l in linhas %}
+    <li class="registro">
+      <span class="registro__icone" aria-hidden="true">{% icone t.icone %}</span>
+      <div class="registro__corpo">
+        <div class="registro__titulo">
+          <a class="registro__link" href="?{{ querystring_base }}editar={{ obj.pk }}">{{ l.titulo }}</a>
+          {% for texto, tom in l.selos %}<span class="selo selo--{{ tom }} selo--sem-ponto">{{ texto }}</span>{% endfor %}
+        </div>
+        <div class="registro__meta">
+          {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="registro__acoes">
+        <pc-menu class="menu">
+          <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações: {{ l.titulo }}">{% icone "ellipsis-vertical" %}</button>
+          <div class="menu__painel" role="menu" hidden>
+            <a class="menu__item" role="menuitem" href="?{{ querystring_base }}editar={{ obj.pk }}">{% icone "pencil" %}Editar</a>
+            {% if obj.arquivo %}<a class="menu__item" role="menuitem" href="{% url 'coffee:arquivo' t.chave obj.pk %}">{% icone "download" %}Baixar o PDF</a>{% endif %}
+            <div class="menu__separador" role="separator"></div>
+            <button type="submit" form="excluir-{{ obj.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+          </div>
+        </pc-menu>
+        <form id="excluir-{{ obj.pk }}" method="post" action="{% url 'coffee:excluir' t.chave obj.pk %}" hidden
+              data-confirmar="{{ l.titulo }} será excluído de vez. Se estiver em uso, o sistema recusa."
+              data-confirmar-titulo="Excluir {{ t.singular }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif termo %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nada encontrado" texto="Confira o termo da busca." limpar_url=request.path %}
+{% else %}
+  {% include "componentes/vazio.html" with icone=t.icone titulo="Nenhum registro ainda" texto=t.descricao acao_url="?novo=1" acao_rotulo=novo_rotulo|capfirst %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+<dialog id="dialogo-cadastro" class="dialogo dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'coffee:salvar' t.chave %}" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    {{ form.versao }}
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="dialogo-cadastro-titulo">{% if editando %}Editar {{ t.singular }}{% else %}{{ novo_rotulo|capfirst }}{% endif %}</h2>
+        <p class="texto-secundario texto-sm">{{ t.descricao }}</p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      {% for legenda, campos in grupos %}
+      <fieldset class="grupo-campos">
+        <legend>{{ legenda }}</legend>
+        <div class="campos">{% for campo, classe in campos %}{% include "componentes/campo.html" with campo=campo classe=classe %}{% endfor %}</div>
+      </fieldset>
+      {% endfor %}
+    </div>
+    <div class="dialogo__rodape">
+      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
+      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao" name="outro" value="1">Salvar e incluir outro</button>{% endif %}
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Salvar</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}

@@ -75,7 +75,9 @@ Ver a fila abaixo (primeiro item não concluído).
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
 | 16d | Palestras PL2: pedido público com acompanhamento (revisão de segurança), choque palestrante × viagem | pendente |
 | P | Trilhas paralelas: histórico de roteiros | pendente (telas de roteiros em mudança pela sessão paralela de correção visual) |
-| 18 | Coffee Break (lotes contratados, solicitações, fluxo de pagamento; 0/61 rotas) — levantar a especificação na referência e fatiar | pendente |
+| 18 | Coffee Break — especificação levantada ([coffee-break.md](coffee-break.md)); CB1 acesso e cadastros contratuais | feito (CB1) |
+| 18b | Coffee Break CB2 (solicitação/etapa 1 e lista: lote pelo município, saldo com trava, vigência, retroativo, antecedência, duplicar, cancelar/reativar/excluir, CSV) | pendente |
+| 18c | Coffee Break CB3–CB8 (fluxo financeiro, documentos, certidões e leitura de PDFs, entregas/painel/relatório/virada, integrações, fornecedor) | pendente |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)

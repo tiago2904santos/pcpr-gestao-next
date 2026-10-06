@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Ofício e protocolo · Cadastros do Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Configuração do ofício ao GAF, do protocolo e dos e-mails ao fornecedor (registro único, como
+na referência: não se cria nem se exclui, só se edita). Nasce com valores neutros.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Coffee Break · Cadastros</p>
+    <h1 class="pagina-cabecalho__titulo">Ofício e protocolo</h1>
+    <p class="pagina-cabecalho__descricao">O que o ofício ao GAF, o protocolo de pagamento e os e-mails ao fornecedor usam. Nos e-mails, os campos entre chaves são trocados pelos dados da ordem de serviço.</p>
+  </div>
+</header>
+<nav class="abas" aria-label="Cadastros do Coffee Break">
+  {% for chave, titulo, icone_aba, n in tabelas %}<a class="aba" href="{% url 'coffee:cadastros' chave %}">{{ titulo }} <span class="aba__contagem">{{ n }}</span></a>{% endfor %}
+  <a class="aba" href="{% url 'coffee:configuracao' %}" aria-current="page">Ofício e protocolo</a>
+</nav>
+{% if form.non_field_errors %}<div class="alerta alerta--perigo mt-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+<form method="post" class="documento documento--cartoes mt-4" novalidate>
+  {% csrf_token %}
+  {{ form.versao }}
+  <section class="secao" aria-labelledby="t-oficio">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-oficio"><span class="secao__numero">1</span>Ofício ao GAF</h2></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.vocativo classe="campo--lg" %}
+      {% include "componentes/campo.html" with campo=form.assinante classe="campo--lg" %}
+      {% include "componentes/campo.html" with campo=form.cargo_assinante classe="campo--lg" %}
+      {% include "componentes/campo.html" with campo=form.destinatario classe="campo--cresce" %}
+    </div>
+  </section>
+  <section class="secao" aria-labelledby="t-protocolo">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-protocolo"><span class="secao__numero">2</span>Protocolo de pagamento</h2></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.destino_despacho classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.assunto_protocolo classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form.palavras_chave classe="campo--lg" %}
+    </div>
+  </section>
+  <section class="secao" aria-labelledby="t-emails">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-emails"><span class="secao__numero">3</span>E-mails ao fornecedor</h2><p class="secao__nota">Campos: {numero} {evento} {data} {horario} {local} {responsavel} {quantidade} {fornecedor}; na ordem bancária também {nota} {ordem_bancaria} {data_ordem_bancaria}.</p></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form.emails_ascom classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.assunto_email_os classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.texto_email_os classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.assunto_email_ob classe="campo--cresce" %}
+      {% include "componentes/campo.html" with campo=form.texto_email_ob classe="campo--cresce" %}
+    </div>
+  </section>
+  <div class="linha"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar configuração</button></div>
+</form>
+{% endblock %}

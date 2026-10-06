@@ -109,6 +109,17 @@ Solicitação que a pessoa não vê → 404. Regras em `gestao/eventos/policies.
 viagens (`viagens.add_viagem`, lotado) também gera a viagem de uma solicitação que vê, só
 para a própria unidade (`gestao/viagens/de_eventos.py`).
 
+## Matriz — Coffee Break (ASCOM)
+
+| Ação | ASCOM_COFFEE_BREAK | + ADMINISTRADOR | demais |
+|---|:-:|:-:|:-:|
+| Entrar no módulo (`coffee.acessar_coffee`) | ✓ (vê tudo) | ✓ | — |
+| Cadastros contratuais: fornecedores, contratos, termos aditivos, lotes, ofício e protocolo | ver | ✓ | — |
+| Baixar o PDF do contrato/aditivo | ✓ | ✓ | — |
+
+`ADMINISTRADOR` sem o papel do módulo não entra (como na referência: o administrador do
+módulo é o módulo + o perfil). Regras em `gestao/coffee/policies.py`.
+
 ## Regras por objeto (Ofício)
 
 | Ação | Condição (`policies.py`) |
@@ -145,7 +156,7 @@ namespace) e grupo dentro do módulo; superusuário passa por tudo.
 | GESTOR_DG | Eventos | único que despacha; ajusta quantidades; gerencia usuários; gera viagem | `GESTOR_DG` (despacha e vê todas; usuários ficam com ADMINISTRADOR; gerar viagem no E4) |
 | ADMINISTRADOR | Plataforma | usuários e cadastros; visão transversal; **não despacha** | `ADMINISTRADOR` (parcial) |
 | ANALISTA | legado | migrado para SOLICITANTE | — |
-| Admin do módulo | Coffee Break / Publicações / Imprensa | cadastros contratuais/de apoio; operação aberta a todos do módulo | Planejado |
+| Admin do módulo | Coffee Break / Publicações / Imprensa | cadastros contratuais/de apoio; operação aberta a todos do módulo | Coffee Break: `ASCOM_COFFEE_BREAK` + `ADMINISTRADOR` (CB1); Imprensa/Publicações: ver as matrizes acima |
 
 Regras por objeto da referência a preservar quando os módulos vierem:
 - **Eventos**: ver = criador, DG, admin; editar só em RASCUNHO/DEVOLVIDA pelo autor (travado

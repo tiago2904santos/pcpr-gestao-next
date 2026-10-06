@@ -114,6 +114,16 @@ PAPEIS: dict[str, Papel] = {
     # Decisão do agente — a confirmar: na referência, o módulo ASCOM_DEMANDAS_EVENTOS, com a
     # palestra visível só aos setores de quem a registrou (aqui não há setores: vê todas).
     # Os cadastros de apoio (temas, palestrantes, respostas padrão) são do próprio módulo.
+    # Coffee Break (referência: módulo ASCOM_COFFEE_BREAK) — quem tem o módulo vê tudo; os
+    # cadastros são do administrador do módulo (este papel + ADMINISTRADOR).
+    "ASCOM_COFFEE_BREAK": {
+        "descricao": "Coffee Break da ASCOM: lotes, ordens de serviço e o fluxo de pagamento.",
+        "permissoes": [
+            "coffee.acessar_coffee",
+            *(f"coffee.view_{modelo}" for modelo in (
+                "fornecedor", "contrato", "termoaditivo", "lote", "configuracaooficio")),
+        ],
+    },
     "ASCOM_PALESTRAS": {
         "descricao": "Palestras e eventos da ASCOM: pedidos, agenda, palestrantes e respostas.",
         "permissoes": [
@@ -149,6 +159,11 @@ PAPEIS: dict[str, Papel] = {
               for acao in ("view", "add", "change", "delete")),
             # E os de Publicações (equipe e unidades responsáveis).
             *(f"publicacoes.{acao}_{modelo}" for modelo in ("integrante", "unidaderesponsavel")
+              for acao in ("view", "add", "change", "delete")),
+            # Os cadastros contratuais do Coffee Break (com o papel do módulo, como na
+            # referência: administrador do módulo = módulo + ADMINISTRADOR).
+            *(f"coffee.{acao}_{modelo}" for modelo in (
+                "fornecedor", "contrato", "termoaditivo", "lote", "configuracaooficio")
               for acao in ("view", "add", "change", "delete")),
         ],
     },
