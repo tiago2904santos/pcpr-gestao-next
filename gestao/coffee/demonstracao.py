@@ -87,6 +87,7 @@ def _solicitacoes(hoje: date, usuario) -> None:
     lotes = list(Lote.objects.filter(ativo=True).select_related("contrato").prefetch_related(
         "municipios").order_by("numero"))
     seq = 0
+    criadas: list[Solicitacao] = []
     for i, (dias, situacao, qtd) in enumerate(PLANO):
         lote = lotes[i % len(lotes)]
         municipio = lote.municipios.order_by("nome").first()
@@ -125,3 +126,7 @@ def _solicitacoes(hoje: date, usuario) -> None:
             Solicitacao.objects.filter(pk=s.pk).update(**marcos)
         Movimento.objects.create(solicitacao=s, acao=Movimento.Acao.CRIADA, usuario=usuario,
                                  texto=f"Solicitação {s.numero} registrada no {lote} (DEMO).")
+        criadas.append(s)
+    # Um pagamento conjunto: duas OS do mesmo lote (1ª e 4ª), ainda sem protocolo.
+    if len(criadas) > 3 and criadas[0].lote_id == criadas[3].lote_id:
+        Solicitacao.objects.filter(pk=criadas[3].pk).update(pagamento_com=criadas[0])

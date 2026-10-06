@@ -52,13 +52,16 @@ def _travar(usuario, pk: int, versao: str | None) -> Solicitacao:
 
 
 def _numero_oficio(s: Solicitacao, digitado: str, ano: int) -> str:
+    """O mesmo número vale para todas as OS do pagamento conjunto."""
+    from . import conjunto
     try:
         numero = regras.formatar_numero(digitado, ano)
     except ValueError:
         raise PedidoInvalido("O número do ofício deve ser 1 ou mais.", "numero_oficio") from None
     if not numero:
         return queries.proximo_oficio(ano)
-    if Solicitacao.objects.filter(numero_oficio=numero).exclude(pk=s.pk).exists():
+    grupo = [x.pk for x in conjunto.membros(s)]
+    if Solicitacao.objects.filter(numero_oficio=numero).exclude(pk__in=grupo).exists():
         raise PedidoInvalido(f"O ofício {numero} já existe. O próximo livre é "
                              f"{queries.proximo_oficio(ano)}.", "numero_oficio")
     return numero
@@ -98,6 +101,10 @@ def salvar_financeiro(usuario, pk: int, dados: dict[str, Any], *, versao: str | 
                                                (novo["data_oficio"] or hoje).year)
     if novo["protocolo_pagamento"] and not novo["protocolo_pcpr"]:
         novo["protocolo_pcpr"] = novo["protocolo_pagamento"]
+    from . import conjunto
+    for campo in ("protocolo_pagamento", "atesto_em"):
+        if novo[campo] and not antes[campo]:
+            conjunto.conferir_notas(s, campo)
     if novo["quantidade_faturada"] is not None and novo["quantidade_faturada"] < 1:
         raise PedidoInvalido(regras.MSG_QUANTIDADE, "quantidade_faturada")
     for c in CAMPOS:
@@ -110,6 +117,7 @@ def salvar_financeiro(usuario, pk: int, dados: dict[str, Any], *, versao: str | 
                                  "quantidade_faturada")
     s.save()
     mudancas = [c for c in CAMPOS if antes[c] != novo[c]]
+    conjunto.espelhar(s, usuario, mudancas)
     if s.em_correcao:
         for c in mudancas:
             _mover(s, usuario, Movimento.Acao.CORRECAO,
@@ -149,6 +157,8 @@ def registrar_marco(usuario, pk: int, valor: str, anotacao: str = "", *,
             dado = regras.formatar_protocolo(valor)
         except ValueError as exc:
             raise PedidoInvalido(str(exc)) from None
+    from . import conjunto
+    conjunto.conferir_notas(s, campo)
     valores = {**s.valores_dos_marcos, campo: dado}
     erros = regras.erros_dos_marcos(valores["nota_fiscal"], valores["protocolo_pagamento"],
                                     valores["atesto_em"], valores["ordem_bancaria_em"],
@@ -159,6 +169,7 @@ def registrar_marco(usuario, pk: int, valor: str, anotacao: str = "", *,
     if campo == "protocolo_pagamento" and not s.protocolo_pcpr:
         s.protocolo_pcpr = dado
     s.save()
+    conjunto.espelhar(s, usuario, [campo, "protocolo_pcpr"])
     texto = f"{rotulo}: {_fmt(dado)}"
     anotacao = (anotacao or "").strip()
     _mover(s, usuario, Movimento.Acao.ANDAMENTO, f"{texto} — {anotacao}" if anotacao else texto)

@@ -734,6 +734,22 @@ como histórico.
 - Fora da CB3a (CB3b): pagamento conjunto (várias OS num ofício e num protocolo, campos
   espelhados); PDFs da nota e da OB e a leitura deles (CB4/CB5).
 
+## CB3b — pagamento conjunto (06/10/2026)
+
+- Várias OS do mesmo lote num só ofício e num só protocolo (`conjunto.py`): a principal e as
+  que apontam para ela (`pagamento_com`). Candidatas: mesmo lote, não canceladas, não
+  concluídas, sem protocolo de pagamento e fora de outro grupo (mensagem da referência);
+  marcar e desmarcar pela seção "Pagamento conjunto" da folha.
+- Espelhados em todas, com "Copiado da OS N (pagamento conjunto) — campo: valor." no
+  histórico: nº/data do ofício e PCPR protocolo; protocolo de pagamento, atesto, OB e envio
+  só nas que já têm nota. O número do ofício é um só no grupo.
+- Protocolo de pagamento e atesto só entram quando todas as OS do grupo têm a nota (texto do
+  agente: "…só entra quando todas as OS têm a nota fiscal: falta a nota da OS N."). Com
+  protocolo, o grupo não muda.
+- Cancelar ou excluir a principal: a próxima pelo número assume; as outras recebem "A OS N
+  foi cancelada|excluída e saiu do pagamento conjunto."
+- Fora: o ofício com um item por OS e as notas no plural (CB4, documentos).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

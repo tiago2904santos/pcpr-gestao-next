@@ -104,6 +104,7 @@ reativar, excluir, reabrir para correção) e o histórico.
       {% include "componentes/campo.html" with campo=form_fin.data_oficio classe="campo--md" %}
       {% include "componentes/campo.html" with campo=form_fin.protocolo_pcpr classe="campo--lg" %}
     </div>
+    {% if grupo %}<div class="alerta alerta--info" id="conjunto-resumo">{% icone "layers" %}<div class="alerta__corpo"><p>Pagamento conjunto ({{ grupo|length }} OS, um só ofício e um só protocolo): {% for x in grupo %}{% if x.pk == s.pk %}<b>{{ x }}</b>{% else %}<a href="{% url 'coffee:solicitacao' x.pk %}">{{ x }}</a>{% endif %}{% if x.pk == principal.pk %} (principal){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}.</p></div></div>{% endif %}
   </section>
   <section class="secao{% if s.concluida %} secao--ok{% endif %}" id="pagamento" aria-labelledby="t-pagamento">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pagamento"><span class="secao__numero">4</span>Protocolo e pagamento</h2><p class="secao__nota">Na ordem: protocolo, atesto e envio ao GAF, ordem bancária e o envio dela à empresa.</p></div>
@@ -117,6 +118,19 @@ reativar, excluir, reabrir para correção) e o histórico.
     {% if not s.bloqueada %}<div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar nota, ofício e pagamento</button></div>{% endif %}
   </section>
 </form>
+
+{% if candidatas %}
+<form method="post" action="{% url 'coffee:conjunto' s.pk %}" class="documento documento--cartoes mt-4" novalidate>
+  {% csrf_token %}
+  <section class="secao" id="conjunto" aria-labelledby="t-conjunto">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-conjunto">{% icone "layers" classe="icone--sm" %}Pagamento conjunto</h2><p class="secao__nota">OS do mesmo lote, sem protocolo de pagamento, que vão no mesmo ofício e no mesmo protocolo: ofício, protocolo, atesto e ordem bancária passam a valer para todas.</p></div>
+    <fieldset class="grupo-campos--livre"><legend class="sr-only">OS do pagamento conjunto</legend>
+      <div class="caixas">{% for c in candidatas %}<label class="escolha caixas__item"><input type="checkbox" name="juntas" value="{{ c.pk }}"{% if c.pagamento_com_id == principal.pk %} checked{% endif %}><span>{{ c }} · {{ c.descricao|truncatechars:50 }}{% if c.data_evento %} · {{ c.data_evento|date:"d/m/Y" }}{% endif %}{% if not c.nota_fiscal %} <span class="texto-secundario">(sem nota)</span>{% endif %}</span></label>{% endfor %}</div>
+    </fieldset>
+    <div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar pagamento conjunto</button></div>
+  </section>
+</form>
+{% endif %}
 
 <div class="documento documento--cartoes mt-4">
   <section class="secao" id="situacao" aria-labelledby="t-situacao">

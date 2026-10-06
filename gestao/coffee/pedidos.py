@@ -183,6 +183,8 @@ def cancelar(usuario, pk: int, motivo: str) -> Solicitacao:
     s.save(update_fields=["cancelada", "cancelada_em", "cancelada_por", "motivo_cancelamento",
                           "atualizado_em"])
     _mover(s, usuario, Movimento.Acao.CANCELADA, motivo)
+    from . import conjunto
+    conjunto.ao_sair(s, usuario, "cancelada")
     return s
 
 
@@ -213,6 +215,8 @@ def excluir(usuario, pk: int) -> str:
     if s.financeiro_iniciado:
         raise PedidoInvalido(regras.MSG_EXCLUIR.format(numero=s.numero or f"#{s.pk}"))
     numero = s.numero or f"#{s.pk}"
+    from . import conjunto
+    conjunto.ao_sair(s, usuario, "excluída")
     s.delete()
     return numero
 

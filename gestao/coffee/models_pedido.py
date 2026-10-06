@@ -47,6 +47,11 @@ class Solicitacao(Carimbos):
                                         blank=True)
     observacoes = models.TextField("observações", blank=True)
     em_correcao = models.BooleanField("aberta para correção", default=False)
+    # Pagamento conjunto: as OS do mesmo lote que vão num só ofício e num só protocolo
+    # apontam para a principal (a principal não aponta para ninguém).
+    pagamento_com = models.ForeignKey("self", verbose_name="pagamento junto com",
+                                      on_delete=models.SET_NULL, null=True, blank=True,
+                                      related_name="conjuntas")
     cancelada = models.BooleanField("cancelada", default=False)
     cancelada_em = models.DateTimeField(null=True, blank=True)
     cancelada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
@@ -138,6 +143,7 @@ class Movimento(models.Model):
         CANCELADA = "cancelada", "Solicitação cancelada"
         REATIVADA = "reativada", "Solicitação reativada"
         ANDAMENTO = "andamento", "Andamento registrado"
+        CONJUNTO = "conjunto", "Pagamento conjunto"
         CORRECAO = "correcao", "Correção"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,

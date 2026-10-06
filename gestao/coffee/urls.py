@@ -13,6 +13,7 @@ urlpatterns = [
     path("solicitacoes/<int:pk>/", vp.solicitacao, name="solicitacao"),
     path("solicitacoes/<int:pk>/financeiro/", vp.salvar_financeiro, name="financeiro"),
     path("solicitacoes/<int:pk>/andamento/", vp.andamento, name="andamento"),
+    path("solicitacoes/<int:pk>/conjunto/", vp.pagamento_conjunto, name="conjunto"),
     path("solicitacoes/<int:pk>/reabrir/", vp.reabrir, name="reabrir"),
     path("solicitacoes/<int:pk>/encerrar-correcao/", vp.encerrar_correcao,
          name="encerrar_correcao"),

@@ -19,8 +19,8 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import resolver_municipio
 
+from . import conjunto, financeiro, pedidos, policies, queries
 from . import dominio_pedido as regras
-from . import financeiro, pedidos, policies, queries
 from .forms_pedido import (
     FORM_FINANCEIRO,
     FORM_ID,
@@ -183,6 +183,10 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
             "proximo_oficio": queries.proximo_oficio(timezone.localdate().year),
             "pode_reabrir": admin and s.concluida and not s.em_correcao and not s.cancelada,
             "pode_encerrar": admin and s.em_correcao,
+            "grupo": conjunto.membros(s) if conjunto.em_grupo(s) else [],
+            "principal": conjunto.principal_de(s),
+            "candidatas": (list(conjunto.candidatas(s)) if not s.bloqueada
+                           and not conjunto.principal_de(s).protocolo_pagamento else []),
             "saldo": sal, "fim_vigencia": s.lote.contrato.fim_efetivo(),
             "historico": _historico(s), "linha": _linha(s, hoje),
             "aviso_antecedencia": regras.aviso_antecedencia(
@@ -315,6 +319,14 @@ def salvar_financeiro(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "coffee/folha.html",
                   _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin),
                   status=422)
+
+
+@require_POST
+def pagamento_conjunto(request: HttpRequest, pk: int) -> HttpResponse:
+    """Marca as OS do mesmo lote que vão no mesmo ofício e no mesmo protocolo."""
+    ids = [int(x) for x in request.POST.getlist("juntas") if x.isdecimal() and len(x) <= 9]
+    return _acao(request, pk, lambda: conjunto.definir(request.user, pk, ids),
+                 "Pagamento conjunto atualizado.")
 
 
 @require_POST
