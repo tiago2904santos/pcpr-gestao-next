@@ -424,7 +424,7 @@ def test_publicacoes_sem_violacoes(logado, dados_e2e, largura):
     services.registrar_andamento(u, p.pk, "publicada", "No ar")
     logado.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/publicacoes/", "/publicacoes/pautas/", f"/publicacoes/pautas/{p.pk}/",
-                 "/publicacoes/pautas/nova/", "/publicacoes/cadastros/equipe/"):
+                 "/publicacoes/pautas/nova/", "/publicacoes/pautas/nova/email/", "/publicacoes/cadastros/equipe/"):
         _avaliar(logado, rota)
 
 

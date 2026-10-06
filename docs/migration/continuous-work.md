@@ -73,6 +73,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 17d | Eventos Sociais E5: exportação em XLSX (mesmas colunas e recorte do CSV) | feito (E5) |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16f | Imprensa I2: preencher com um e-mail (texto colado; sugestões pela sessão; nada grava) | feito (I2) |
+| 16g | Publicações P2: preencher com um e-mail (release colado; peças comuns em `plataforma/leitura_email.py`) | feito (P2) |
+| 20 | Pedido do usuário (repassado pela sessão de correção visual em 06/10): o mesmo rodapé de documento (Voltar · Finalizar · Ações: Duplicar/Cancelar/Excluir, `templates/componentes/rodape_documento.html`) nas folhas do Coffee Break, das solicitações de evento e das palestras, com `duplicar` por service | pendente (depende de a outra sessão commitar o componente e o `autosave.js`) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
 | 16d | Palestras PL2a: encaminhar à DG (rascunho da solicitação de evento ligado, retorno da DG no histórico); o choque palestrante × viagem já veio com a A2a | feito (PL2a) |

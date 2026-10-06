@@ -324,5 +324,5 @@ Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffe
 | Cadastro de feriados (estaduais/municipais/ponto facultativo) para os prazos em dias úteis | decisão do usuário (não bloqueia) |
 | Imprensa: papel `ASCOM_IMPRENSA` no lugar do módulo da referência; a quem dar | decisão do usuário (não bloqueia) |
 | Imprensa: importador da planilha (origem das planilhas); "preencher com e-mail" feito colando o texto (I2) | decisão do usuário (não bloqueia) |
-| Publicações: papel `ASCOM_PUBLICACOES`; "preencher com e-mail" e importador | decisão do usuário (não bloqueia) |
+| Publicações: papel `ASCOM_PUBLICACOES`; importador da planilha ("preencher com e-mail" feito colando o texto, P2) | decisão do usuário (não bloqueia) |
 | Palestras: papel `ASCOM_PALESTRAS` (sem setores); pedido público sem login (PL2) | decisão do usuário (não bloqueia) |

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Preencher com um e-mail · Publicações{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+"Preencher com um e-mail" (paridade com a referência): cola-se o release ou o pedido de
+divulgação; a pauta nova abre com data e início, título, unidade (só sugestão), fonte e o
+jornalista responsável. Nada é gravado até registrar.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "mail" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Publicações · Nova pauta</p>
+    <h1 class="pagina-cabecalho__titulo">Preencher com um e-mail</h1>
+    <p class="pagina-cabecalho__descricao">Cole o e-mail inteiro do release (com os cabeçalhos De/Enviado em/Assunto). O sistema sugere data, início, título, unidade, fonte e o jornalista responsável; você confere tudo antes de registrar.</p>
+  </div>
+</header>
+<form method="post" class="documento documento--cartoes" novalidate>
+  {% csrf_token %}
+  <section class="secao" aria-labelledby="t-email">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-email"><span class="secao__numero">1</span>O release</h2><p class="secao__nota">A unidade é sempre uma sugestão: se não estiver no cadastro, o nome lido vai para "Outra unidade" — que só entra no cadastro se você registrar.</p></div>
+    <div class="campo"><label class="campo__rotulo" for="preencher-email">E-mail do release<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="preencher-email" name="email" rows="14" maxlength="20000" required>{{ texto }}</textarea></div>
+    <div class="linha"><button type="submit" class="botao botao--primario">{% icone "file-search" %}Ler e abrir a pauta</button><a class="botao botao--sutil" href="{% url 'publicacoes:nova' %}">Preencher à mão</a></div>
+  </section>
+</form>
+{% endblock %}

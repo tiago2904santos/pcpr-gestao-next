@@ -16,7 +16,7 @@ aberto e as mais recentes; jornalistas e unidades do mês; os últimos seis mese
   </div>
   <div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'publicacoes:lista' %}">{% icone "newspaper" %}Ver pautas</a>
-    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
+    {% if pode_criar %}<a class="botao" href="{% url 'publicacoes:preencher' %}">{% icone "mail" %}Preencher com um e-mail</a><a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
   </div>
 </header>
 {% endblock %}

@@ -32,3 +32,16 @@ reimplementado no padrão das folhas, sem copiar código. As regras vêm de `mod
 - `gestao/publicacoes/tests/test_dominio.py`, `gestao/publicacoes/tests/test_publicacoes.py`;
 - `tests/e2e/test_publicacoes.py` (registrar, gravar sozinho, publicar; 360 e 1440 px) e
   axe em `tests/e2e/test_acessibilidade.py`.
+
+## P2 — preencher com um e-mail (06/10/2026)
+
+- "Preencher com um e-mail" no painel e na lista (`/publicacoes/pautas/nova/email/`): cola-se
+  o release; a leitura própria (`dominio_email.py`, sobre as peças comuns de
+  `plataforma/leitura_email.py`, que a imprensa também passou a usar) sugere data e início
+  (os do envio), o título ("Sugestão de título:", a linha em CAIXA ALTA que abre o texto, o
+  assunto sem "RES:"/"Release -"/"Para divulgação:", ou a primeira frase), a unidade (a
+  cadastrada citada; sem cadastro, o remetente vai para "Outra unidade"), a fonte (quem
+  assina: "Del. Fulano", "Informações: escrivão Fulano") e o jornalista responsável (quem
+  registra, quando o nome casa com a equipe). Sugestões pela sessão; nada grava.
+- Fora: a leitura de conversas do WhatsApp e o aviso das fotos anexadas (o texto colado não
+  traz anexos); o importador da planilha (decisão do usuário).

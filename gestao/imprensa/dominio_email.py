@@ -12,9 +12,11 @@ valerem no original."""
 from __future__ import annotations
 
 import re
-import unicodedata
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
+
+from gestao.plataforma import leitura_email as le
+from gestao.plataforma.leitura_email import dobrar
 
 LIMITE_PEDIDO = 6000
 DOMINIOS_GENERICOS = frozenset({
@@ -24,14 +26,7 @@ DOMINIOS_GENERICOS = frozenset({
     "proton.me"})
 DIAS_DA_SEMANA = {"segunda": 0, "terca": 1, "quarta": 2, "quinta": 3, "sexta": 4,
                   "sabado": 5, "domingo": 6}
-CABECALHOS = ("de", "from", "para", "to", "cc", "cco", "bcc", "enviado em", "enviada em",
-              "sent", "date", "data", "assunto", "subject")
-DESPEDIDAS = ("att", "atenciosamente", "abs", "abraco", "abracos", "obrigad", "grat",
-              "cordialmente", "sds", "saudacoes", "--")
-
-
-def dobrar(texto: str) -> str:
-    return "".join(unicodedata.normalize("NFD", c)[0].lower() for c in texto)
+cabecalhos = le.cabecalhos  # reexportado (as telas e os testes leem daqui)
 
 
 @dataclass(frozen=True)
@@ -59,68 +54,10 @@ class Leitura:
         return not any((self.jornalista, self.contato, self.prazo)) and len(self.pedido) < 20
 
 
-# ---------------------------------------------------------------- cabeçalhos
-_R_CABECALHO = re.compile(r"^\s*(" + "|".join(re.escape(c) for c in CABECALHOS)
-                          + r")\s*:\s*(.*)$")
-_R_EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
-_R_TELEFONE = re.compile(r"(?:\+?55\s?)?\(?\b\d{2}\)?\s?9?\d{4}[-.\s]?\d{4}\b")
-_R_DATA_HORA = re.compile(r"(\d{1,2})/(\d{1,2})/(\d{2,4})(?:\D{1,8}(\d{1,2})[:h](\d{2}))?")
-_R_DATA_EXT = re.compile(r"(\d{1,2})\s+de\s+([a-z]+)\s+de\s+(\d{4})"
-                         r"(?:\D{1,8}(\d{1,2})[:h](\d{2}))?")
-MESES = {"janeiro": 1, "fevereiro": 2, "marco": 3, "abril": 4, "maio": 5, "junho": 6,
-         "julho": 7, "agosto": 8, "setembro": 9, "outubro": 10, "novembro": 11,
-         "dezembro": 12}
-
-
-def cabecalhos(texto: str) -> dict[str, str]:
-    """Os cabeçalhos do primeiro bloco de e-mail colado (De, Enviado em, Assunto…)."""
-    saida: dict[str, str] = {}
-    for linha in texto.splitlines()[:30]:
-        m = _R_CABECALHO.match(dobrar(linha))
-        if m:
-            chave = m.group(1)
-            if chave not in saida:
-                saida[chave] = linha[m.start(2):].strip()
-    return saida
-
-
-def _quando(valor: str) -> datetime | None:
-    d = dobrar(valor)
-    m = _R_DATA_HORA.search(d)
-    if m:
-        dia, mes, ano = int(m.group(1)), int(m.group(2)), int(m.group(3))
-    else:
-        m = _R_DATA_EXT.search(d)
-        if not m or m.group(2) not in MESES:
-            return None
-        dia, mes, ano = int(m.group(1)), MESES[m.group(2)], int(m.group(3))
-    ano = ano + 2000 if ano < 100 else ano
-    try:
-        return datetime(ano, mes, dia, int(m.group(4) or 0), int(m.group(5) or 0))
-    except ValueError:
-        return None
-
-
-def _corpo(texto: str) -> str:
-    """O texto sem as linhas de cabeçalho e sem a despedida/assinatura."""
-    linhas = [linha for linha in texto.splitlines() if not _R_CABECALHO.match(dobrar(linha))]
-    for i, linha in enumerate(linhas):
-        d = dobrar(linha).strip()
-        if i > 0 and any(d.startswith(x) for x in DESPEDIDAS):
-            linhas = linhas[:i]
-            break
-    return "\n".join(linhas).strip()
-
-
 # ---------------------------------------------------------------- quem pede e veículo
 _R_APRESENTACAO = re.compile(
     r"\b(?:sou|meu nome e|aqui e|quem fala e)\s+(?:o\s+|a\s+)?([a-z][a-z]+(?:\s+[a-z][a-z]+){0,3})"
     r"(?:\s*,\s*|\s+)(?:reporter|produtor[a]?|jornalista|editor[a]?|da|do|de)\b")
-
-
-def _nome_do_remetente(de: str) -> str:
-    nome = _R_EMAIL.sub("", de).replace("<", "").replace(">", "").replace('"', "").strip(" ,;")
-    return " ".join(nome.split())[:150]
 
 
 def _limpar_nome(nome: str) -> str:
@@ -134,7 +71,7 @@ def quem_pede(texto: str, cab: dict[str, str]) -> str:
     if m:
         return _limpar_nome(texto[m.start(1):m.end(1)])[:150]
     if (de := cab.get("de") or cab.get("from")):
-        nome = _nome_do_remetente(de)
+        nome = le.nome_do_remetente(de)
         if nome and dobrar(nome) not in ("redacao", "producao"):
             return nome
     return ""
@@ -150,7 +87,7 @@ def veiculo(texto: str, cab: dict[str, str],
     if achados:
         return max(achados)[1], ""
     de = cab.get("de") or cab.get("from") or ""
-    if (m := _R_EMAIL.search(de)):
+    if (m := le.R_EMAIL.search(de)):
         dominio = m.group(0).split("@", 1)[1].lower()
         if dominio not in DOMINIOS_GENERICOS:
             raiz = dominio.split(".")[0]
@@ -163,9 +100,9 @@ def veiculo(texto: str, cab: dict[str, str],
 
 def contato(texto: str, cab: dict[str, str]) -> str:
     de = cab.get("de") or cab.get("from") or ""
-    emails = [m.group(0) for m in _R_EMAIL.finditer(de)] or [m.group(0) for m in
-                                                               _R_EMAIL.finditer(texto)]
-    fones = [m.group(0).strip() for m in _R_TELEFONE.finditer(texto)]
+    emails = [m.group(0) for m in le.R_EMAIL.finditer(de)] or [m.group(0) for m in
+                                                               le.R_EMAIL.finditer(texto)]
+    fones = [m.group(0).strip() for m in le.R_TELEFONE.finditer(texto)]
     partes = list(dict.fromkeys([*fones[:1], *emails[:1]]))
     return " · ".join(partes)[:150]
 
@@ -215,13 +152,11 @@ def prazo(texto: str, referencia: date) -> Prazo | None:
 # ---------------------------------------------------------------- tudo
 def ler(texto: str, agora: datetime, veiculos: list[tuple[int, str]]) -> Leitura:
     texto = (texto or "")[:20000]
-    cab = cabecalhos(texto)
-    enviado = _quando(cab.get("enviado em") or cab.get("enviada em") or cab.get("sent")
-                      or cab.get("date") or cab.get("data") or "")
+    cab = le.cabecalhos(texto)
+    enviado = le.enviado_em(cab)
     referencia = enviado.date() if enviado else agora.date()
-    corpo = _corpo(texto)
-    assunto = re.sub(r"^(?:re|res|fw|fwd|enc)\s*:\s*", "",
-                     cab.get("assunto") or cab.get("subject") or "", flags=re.I).strip()
+    corpo = le.corpo(texto)
+    assunto = le.assunto(cab)
     p = prazo(f"{assunto}\n{corpo}", referencia)
     partes = [f"Assunto: {assunto}"] if assunto else []
     if corpo:

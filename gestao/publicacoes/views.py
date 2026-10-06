@@ -6,7 +6,7 @@ se grava sozinha), o registro de andamento e os cadastros de apoio.
 from __future__ import annotations
 
 import csv
-from datetime import time
+from datetime import date, time
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import dominio, historico, policies, queries, services
+from . import dominio, historico, policies, preenchimento, queries, services
 from .forms import FORM_ID, FormularioAndamento, FormularioPauta
 from .models import Integrante, Publicacao, UnidadeResponsavel
 
@@ -186,10 +186,50 @@ def nova(request: HttpRequest) -> HttpResponse:
         messages.error(request, "Corrija os campos destacados para registrar.")
     else:
         agora = timezone.localtime()
-        form = FormularioPauta(initial={
-            "data": agora.date(), "inicio_pauta": agora.time().replace(second=0,
-                                                                       microsecond=0)})
+        inicial: dict = {"data": agora.date(),
+                         "inicio_pauta": agora.time().replace(second=0, microsecond=0)}
+        if request.GET.get("de_email") == "1":  # sugestões do "Preencher com um e-mail"
+            inicial.update(_do_email(request.session.pop(SESSAO_EMAIL, {})))
+        form = FormularioPauta(initial=inicial)
     return render(request, "publicacoes/folha.html", _contexto_folha(request, form, None))
+
+
+SESSAO_EMAIL = "publicacoes_preenchido"
+
+
+def _para_sessao(iniciais: dict) -> dict:
+    return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in iniciais.items()}
+
+
+def _do_email(dados: dict) -> dict:
+    saida = dict(dados)
+    if isinstance(saida.get("data"), str):
+        saida["data"] = date.fromisoformat(saida["data"])
+    if isinstance(saida.get("inicio_pauta"), str):
+        saida["inicio_pauta"] = time.fromisoformat(saida["inicio_pauta"])
+    return saida
+
+
+@require_http_methods(["GET", "POST"])
+def preencher(request: HttpRequest) -> HttpResponse:
+    """"Preencher com um e-mail": cola-se o release; as sugestões vão para a pauta nova
+    (pela sessão — nada do e-mail na URL) e o que foi lido aparece no aviso. Nada grava."""
+    _exigir(policies.pode_criar(request.user))
+    if request.method == "POST":
+        texto = (request.POST.get("email") or "")[:20000]
+        s = preenchimento.sugerir(request.user, texto)
+        for aviso in s.avisos:
+            messages.warning(request, aviso)
+        if not s.lidos:
+            return render(request, "publicacoes/preencher.html", {
+                "texto": texto, "migalhas": _migalhas(("Preencher com um e-mail", ""))},
+                status=422)
+        request.session[SESSAO_EMAIL] = _para_sessao(s.iniciais)
+        messages.info(request, "Lido do e-mail — confira cada campo antes de registrar: "
+                      + "; ".join(f"{rotulo}: {valor}" for rotulo, valor in s.lidos) + ".")
+        return redirect(reverse("publicacoes:nova") + "?de_email=1")
+    return render(request, "publicacoes/preencher.html", {
+        "texto": "", "migalhas": _migalhas(("Preencher com um e-mail", ""))})
 
 
 @require_http_methods(["GET", "POST"])

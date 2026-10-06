@@ -5,7 +5,7 @@
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada pauta da ASCOM, da entrada até a publicação no site e na AEN. As filas separam o que ainda vai sair.</p>{% endblock %}
 {% block acoes_lista %}
 <a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
-{% if pode_criar %}<a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
+{% if pode_criar %}<a class="botao" href="{% url 'publicacoes:preencher' %}">{% icone "mail" %}Preencher com um e-mail</a><a class="botao botao--primario" href="{% url 'publicacoes:nova' %}">{% icone "plus" %}Nova pauta</a>{% endif %}
 {% endblock %}
 {% comment %}
 Paridade com a lista da referência: filas (Pendentes, Em andamento, Publicadas,
