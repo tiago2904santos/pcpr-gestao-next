@@ -70,6 +70,8 @@ def lista(request: HttpRequest) -> HttpResponse:
         ).order_by("nome"),
         "tipos": TipoEvento.objects.order_by("nome"),
         "url_exportar": reverse("eventos:exportar") + (f"?{base}" if base else ""),
+        "url_exportar_xlsx": (reverse("eventos:exportar")
+                              + f"?{base}{'&' if base else ''}formato=xlsx"),
         "pode_despachar": policies.pode_despachar(request.user),
         "migalhas": [("Início", reverse("painel:inicio")), ("Solicitações de evento", "")],
     })
@@ -87,9 +89,55 @@ def _d(valor) -> str:
     return f"{valor:%d/%m/%Y}" if valor else ""
 
 
+def _linha_exportada(s) -> list:
+    return [_celula(v) for v in (
+        s.pk, s.get_status_display(), _d(s.data_solicitacao), _d(s.data_inicio_evento),
+        _d(s.data_fim_evento), s.municipio.nome if s.municipio else "",
+        s.tipo_evento.nome if s.tipo_evento else "", s.local_evento,
+        s.endereco, s.bairro, s.cep, s.protocolo, s.solicitante_nome,
+        s.solicitante_cargo_unidade, s.contato,
+        s.orgao_responsavel.nome if s.orgao_responsavel else "",
+        "; ".join(x.servico.nome for x in s.servicos.all()),
+        "; ".join(f"{x.equipe.nome} ({x.quantidade_servidores or 0})" for x in s.equipes.all()),
+        s.quantidade_servidores, s.get_tipo_operacao_display(),
+        "Sim" if s.unidade_movel else "Não", s.quantidade_cin or "",
+        s.motorista.nome if s.motorista else "", s.get_decisao_dg_display(),
+        s.observacoes_dg, s.decidido_por.nome if s.decidido_por else "",
+        timezone.localtime(s.decidido_em).strftime("%d/%m/%Y %H:%M") if s.decidido_em else "",
+        s.criado_por.nome)]
+
+
+def _planilha(linhas) -> bytes:
+    """A mesma exportação em XLSX: cabeçalho em negrito, congelado e com filtro."""
+    from io import BytesIO
+
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+    from openpyxl.utils import get_column_letter
+
+    livro = Workbook()
+    aba = livro.active if livro.active is not None else livro.create_sheet()
+    aba.title = "Solicitações"
+    aba.append(list(COLUNAS))
+    for celula in aba[1]:
+        celula.font = Font(bold=True)
+    larguras = [len(c) for c in COLUNAS]
+    for linha in linhas:
+        aba.append(linha)
+        larguras = [max(a, len(str(v))) for a, v in zip(larguras, linha, strict=False)]
+    for i, largura in enumerate(larguras, start=1):
+        aba.column_dimensions[get_column_letter(i)].width = min(max(10, largura + 2), 60)
+    aba.freeze_panes = "A2"
+    aba.auto_filter.ref = aba.dimensions
+    saida = BytesIO()
+    livro.save(saida)
+    return saida.getvalue()
+
+
 @require_GET
 def exportar(request: HttpRequest) -> HttpResponse:
-    """A lista filtrada em CSV (";" e BOM) com as colunas da referência."""
+    """A lista filtrada em CSV (";" e BOM) ou XLSX (`?formato=xlsx`), com as colunas da
+    referência."""
     if not policies.pode_criar(request.user):
         raise PermissionDenied
     hoje = timezone.localdate()
@@ -97,27 +145,20 @@ def exportar(request: HttpRequest) -> HttpResponse:
           .select_related("motorista", "decidido_por")
           .prefetch_related("servicos__servico", "equipes__equipe")
           .order_by("-data_solicitacao", "-criado_em"))
+    linhas = (_linha_exportada(s) for s in qs)
+    if request.GET.get("formato") == "xlsx":
+        resposta = HttpResponse(_planilha(linhas), content_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        resposta["Content-Disposition"] = (
+            f'attachment; filename="solicitacoes-{hoje:%Y-%m-%d}.xlsx"')
+        return resposta
     resposta = HttpResponse(content_type="text/csv; charset=utf-8")
     resposta["Content-Disposition"] = f'attachment; filename="solicitacoes-{hoje:%Y-%m-%d}.csv"'
     resposta.write("\ufeff")
     escritor = csv.writer(resposta, delimiter=";", lineterminator="\r\n")
     escritor.writerow(COLUNAS)
-    for s in qs:
-        escritor.writerow([_celula(v) for v in (
-            s.pk, s.get_status_display(), _d(s.data_solicitacao), _d(s.data_inicio_evento),
-            _d(s.data_fim_evento), s.municipio.nome if s.municipio else "",
-            s.tipo_evento.nome if s.tipo_evento else "", s.local_evento,
-            s.endereco, s.bairro, s.cep, s.protocolo, s.solicitante_nome,
-            s.solicitante_cargo_unidade, s.contato,
-            s.orgao_responsavel.nome if s.orgao_responsavel else "",
-            "; ".join(x.servico.nome for x in s.servicos.all()),
-            "; ".join(f"{x.equipe.nome} ({x.quantidade_servidores or 0})" for x in s.equipes.all()),
-            s.quantidade_servidores, s.get_tipo_operacao_display(),
-            "Sim" if s.unidade_movel else "Não", s.quantidade_cin or "",
-            s.motorista.nome if s.motorista else "", s.get_decisao_dg_display(),
-            s.observacoes_dg, s.decidido_por.nome if s.decidido_por else "",
-            timezone.localtime(s.decidido_em).strftime("%d/%m/%Y %H:%M") if s.decidido_em else "",
-            s.criado_por.nome)])
+    for linha in linhas:
+        escritor.writerow(linha)
     return resposta
 
 

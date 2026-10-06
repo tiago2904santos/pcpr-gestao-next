@@ -4,7 +4,7 @@
 {% block titulo_lista %}Solicitações de evento{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos de eventos sociais à PCPR, do rascunho ao atendimento, com o despacho da Diretoria-Geral.</p>{% endblock %}
 {% block acoes_lista %}
-<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a><a class="botao" href="{{ url_exportar_xlsx }}">{% icone "table" %}Planilha (XLSX)</a>
 <a class="botao botao--primario" href="{% url 'eventos:nova' %}">{% icone "plus" %}Nova solicitação</a>
 {% endblock %}
 {% comment %}

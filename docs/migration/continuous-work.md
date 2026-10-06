@@ -70,6 +70,7 @@ Ver a fila abaixo (primeiro item não concluído).
 | 17 | Eventos Sociais E1 (catálogos e modelo do tipo) e E2 (solicitação: folha, envio, despacho da DG, devolução, reenvio, concluir, cancelar, transferir, duplicar, excluir, anexos, lista, CSV, avisos, agenda, conflitos) — ver [eventos-sociais.md](eventos-sociais.md) | feito (E1, E2) |
 | 17b | Eventos Sociais E3 (painel com os indicadores da referência, série 6/12/24, despacho da DG; lembretes diários pela rotina) | feito (E3) |
 | 17c | Eventos Sociais E4 (gerar viagem da deferida pela folha, com a unidade; cancelar/avisar quando não atendida ou cancelada) | feito (E4 — sem automático, roteiro, anexos, multieventos e sincronização; ver decisoes.md) |
+| 17d | Eventos Sociais E5: exportação em XLSX (mesmas colunas e recorte do CSV) | feito (E5) |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |

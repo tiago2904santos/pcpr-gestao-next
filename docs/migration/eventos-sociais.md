@@ -160,3 +160,10 @@ Solicitações no mês (vs. mês anterior), Aguardando despacho, Deferidas no an
   sincronizar a viagem num novo deferimento e o aviso "viagem desatualizada" na folha da
   viagem. Ver decisoes.md.
 
+
+## E5 — exportação em XLSX (06/10/2026)
+
+- "Planilha (XLSX)" ao lado do CSV na lista: o mesmo recorte e as mesmas colunas
+  (`?formato=xlsx`), cabeçalho em negrito, congelado e com filtro; células que começariam
+  uma fórmula vão como texto. A coluna "Região" da referência continua fora (não há região
+  no cadastro de municípios).

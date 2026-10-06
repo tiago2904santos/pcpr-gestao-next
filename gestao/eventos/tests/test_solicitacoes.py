@@ -242,6 +242,13 @@ def test_lista_filas_busca_e_exportacao(ana, dg):
     r = c.get(reverse("eventos:exportar"))
     linhas = list(csv.reader(io.StringIO(r.content.decode().lstrip("﻿")), delimiter=";"))
     assert linhas[0][0] == "Nº" and len(linhas) == 3
+    # A mesma exportação em XLSX (E5): mesmas colunas e linhas, fórmula neutralizada.
+    from openpyxl import load_workbook
+    r = c.get(reverse("eventos:exportar"), {"formato": "xlsx"})
+    assert r["Content-Type"].startswith("application/vnd.openxmlformats")
+    aba = load_workbook(io.BytesIO(r.content)).active
+    assert aba["A1"].value == "Nº" and aba.max_row == 3
+    assert "formato=xlsx" in c.get(reverse("eventos:solicitacoes")).content.decode()
 
 
 def test_agenda_e_conflitos(ana, dg):
