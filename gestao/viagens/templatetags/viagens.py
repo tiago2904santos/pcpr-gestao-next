@@ -87,14 +87,52 @@ def formatar_periodo(saida: datetime | None, chegada: datetime | None) -> str:
 
 
 @register.filter
-def destinos(oficio) -> str:
+def lista_destinos(oficio) -> list[str]:
+    """Destinos do ofício (ou roteiro), na ordem, sem repetir e sem a volta à sede."""
     vistos: list[str] = []
     for t in oficio.trechos.all():
         if t.destino_id != oficio.sede_id:
             rotulo = f"{t.destino.nome}/{t.destino.uf}"
             if rotulo not in vistos:
                 vistos.append(rotulo)
-    return ", ".join(vistos)
+    return vistos
+
+
+@register.filter
+def destinos(oficio) -> str:
+    return ", ".join(lista_destinos(oficio))
+
+
+@register.filter
+def resumir(itens, maximo: int = 3) -> dict:
+    """Até `maximo` itens à vista + quantos sobram (o "+N" da linha) + a lista inteira para
+    o `title`. Aceita textos ou objetos (Municipio vira "Cidade/UF" pelo __str__)."""
+    rotulos = [str(i) for i in (itens or [])]
+    return {"visiveis": ", ".join(rotulos[:maximo]), "mais": max(0, len(rotulos) - maximo),
+            "completo": ", ".join(rotulos)}
+
+
+ICONE_MEIO = {"aereo": "plane", "onibus_linha": "bus", "onibus_fretado": "bus"}
+
+
+@register.filter
+def icone_transporte(oficio) -> str:
+    """Ícone pelo modal: avião, ônibus ou carro (viatura e os demais rodoviários)."""
+    if oficio.viatura_id:
+        return "car"
+    return ICONE_MEIO.get(oficio.transporte_meio, "car" if oficio.transporte_meio else "bus")
+
+
+@register.filter
+def motorista_de_fora(oficio) -> str:
+    """Nome do motorista que não é da equipe deste ofício (servidor de outro ofício ou
+    pessoa não cadastrada) — a lista precisa mostrá-lo, senão parece que ninguém dirige."""
+    if oficio.motorista_externo == "servidor":
+        servidor = oficio.motorista_externo_servidor
+        return servidor.nome if servidor else ""
+    if oficio.motorista_externo == "manual":
+        return oficio.motorista_externo_nome.strip()
+    return ""
 
 
 @register.filter

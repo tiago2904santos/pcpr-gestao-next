@@ -1284,3 +1284,50 @@ class TestSelosDasListas:
         html = operador.get(reverse("viagens:termos")).content.decode()
         assert f"em andamento · até {hoje + timedelta(days=2):%d/%m}" in html
         assert "Previsto" not in html and "Realizado" not in html
+
+
+class TestLinhaDaLista:
+    """LP-08/LP-09: título = destinos (até três + "+N"), período 1º item do meta, colunas
+    fixas com o texto inteiro no title, motorista marcado e motorista de fora da equipe."""
+
+    def test_titulo_com_mais_n_e_lista_inteira_no_title(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        usuario = cenario.usuarios["operador"]
+        sede, agora = oficio.sede, timezone.now()
+        cidades = list(Municipio.objects.filter(uf="PR").exclude(pk=sede.pk).order_by("nome")[:4])
+        paradas = [sede, *cidades, sede]
+        services.salvar_trechos(oficio, usuario, [
+            services.TrechoInformado(a.pk, b.pk, agora + timedelta(days=20, hours=10 * i),
+                                     agora + timedelta(days=20, hours=10 * i + 3))
+            for i, (a, b) in enumerate(pairwise(paradas))])
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        inicio = html.index(f"Ofício {oficio.numero_formatado} · ")
+        linha = html[inicio:html.index("</li>", inicio)]
+        rotulos = [f"{c.nome}/{c.uf}" for c in cidades]
+        assert f'title="{", ".join(rotulos)}"' in html  # a lista inteira no title do link
+        assert ", ".join(rotulos[:3]) in linha and rotulos[3] not in linha.split("title=")[0]
+        assert ">+1</span>" in linha and "e mais 1 destino<" in linha
+        assert "registro__meta-item--periodo" in linha and "registro__meta--colunas" in linha
+
+    def test_motorista_marcado_e_motorista_de_fora_aparece(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        inicio = html.index(f"Ofício {emitido.numero_formatado} · ")
+        linha = html[inicio:html.index("</li>", inicio)]
+        assert "registro__motorista" in linha and '<span class="sr-only"> (motorista)</span>' in linha
+        assert "(motorista)" in linha.split("registro__meta-item--equipe")[1]  # no title também
+        Oficio.objects.filter(pk=emitido.pk).update(
+            motorista_externo="manual", motorista_externo_nome="Fulano de Fora")
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "Fulano de Fora" in html and "(motorista de fora da equipe)" in html
+
+    def test_termo_com_periodo_no_meta_e_destinos_no_titulo(self, operador, cenario):
+        from gestao.viagens import termos
+        hoje = timezone.localdate()
+        cidades = list(Municipio.objects.filter(uf="PR").order_by("nome")[:5])
+        termos.salvar(cenario.usuarios["operador"], evento="Feira", data_inicio=hoje,
+                      data_fim=hoje + timedelta(days=2), destinos=cidades)
+        html = operador.get(reverse("viagens:termos")).content.decode()
+        assert ">+2</span>" in html and "começa hoje" in html
+        assert f"{hoje:%d/%m} a {hoje + timedelta(days=2):%d/%m/%Y}" in html
+        assert "registro__meta--termo" in html and ">Avulso<" in html

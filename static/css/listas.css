@@ -669,6 +669,164 @@ a.ficha:hover {
   font-style: italic;
 }
 
+/* --- Título e metadados de uma linha só (LP-08/LP-09) ---------------------------------
+   O texto que pode crescer (destinos, equipe, transporte) fica num span que corta com
+   reticências; o texto inteiro vai no `title` do item. O "+N" fica fora do corte, sempre
+   à vista. Nada aqui tem overflow no item em si: a caixa de "pousar" (Usado em N ofícios)
+   precisa escapar da célula. */
+.registro__link-texto,
+.registro__meta-texto {
+  /* relative: o texto só para leitor de tela (absoluto) que mora dentro do corte fica
+     preso nele — senão, no celular, ele empurrava a página para o lado. */
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.registro__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--esp-1);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.registro__link > .registro__mais,
+.registro__meta-item > .registro__mais {
+  flex: none;
+}
+
+/* Selos do título num grupo: no celular o grupo desce inteiro para a 2ª linha. */
+.registro__selos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-1) var(--esp-2);
+}
+
+.registro__selos:not(:has(> *)) {
+  display: none;
+}
+
+/* Diárias: o valor é o que se compara de uma linha para a outra — algarismos de mesma
+   largura e a cor do texto principal; o detalhe (2 × 100%) vem depois, mais apagado. */
+.registro__valor {
+  color: var(--cor-texto);
+  font-weight: var(--peso-medio);
+  font-variant-numeric: tabular-nums;
+}
+
+.registro__meta-item--protocolo .registro__meta-texto,
+.registro__meta-item--periodo .registro__meta-texto {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Motorista: um volante (círculo com o cubo) antes do nome; o leitor de tela ouve
+   "(motorista)". O ícone herda a cor do texto para não sumir ao lado do nome. */
+.registro__motorista {
+  display: inline-block; /* o reset deixa svg em bloco: aqui ele corre com o texto */
+  margin-right: var(--esp-05);
+  vertical-align: -0.15em;
+  color: var(--cor-texto-secundario);
+}
+
+/* Cada item no seu lugar da grade (as listas declaram as colunas abaixo). */
+.registro__meta-item--periodo { grid-area: periodo; }
+.registro__meta-item--protocolo { grid-area: protocolo; }
+.registro__meta-item--oficio { grid-area: oficio; }
+.registro__meta-item--equipe { grid-area: equipe; }
+.registro__meta-item--transporte { grid-area: transporte; }
+.registro__meta-item--diarias { grid-area: diarias; }
+.registro__meta-item--trechos { grid-area: trechos; }
+.registro__meta-item--uso { grid-area: uso; min-width: 0; }
+.registro__meta-item--notas { grid-area: notas; }
+
+.registro__meta-item--uso > .registro__meta-item--acao {
+  max-width: 100%;
+  padding: 0; /* o botão "Usado em N ofícios" não pode deixar a linha 2px mais alta */
+}
+
+/* ≥ 768px: título numa linha só (reticências no texto, selos inteiros ao lado). */
+@media (min-width: 768px) {
+  .registro__titulo {
+    flex-wrap: nowrap;
+  }
+
+  .registro__titulo > .selo,
+  .registro__titulo > .registro__selos {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+
+  .registro__meta--colunas {
+    display: grid;
+    gap: var(--esp-1) var(--esp-4);
+    align-items: center;
+  }
+
+  /* 768–1023px: duas faixas. A 1ª coluna (datas, números) e a do valor ficam fixas. */
+  .registro__meta--oficio {
+    grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
+    grid-template-areas:
+      "periodo equipe diarias"
+      "protocolo transporte transporte";
+  }
+
+  .registro__meta--termo {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    grid-template-areas:
+      "periodo equipe"
+      "oficio transporte";
+  }
+
+  .registro__meta--roteiro {
+    grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
+    grid-template-areas:
+      "periodo uso diarias"
+      "trechos notas notas";
+  }
+}
+
+/* Abaixo de 1280px a coluna das diárias mostra só o valor (o detalhe "2 × 100%" fica no
+   title e no resumo) e cede a sobra para a equipe e o transporte. */
+@media (max-width: 1279.98px) {
+  .registro__meta--colunas .registro__meta-detalhe {
+    display: none;
+  }
+}
+
+/* ≥ 1024px: uma faixa só, em colunas de largura fixa — a mesma coluna em todas as
+   linhas, para ler de cima para baixo ("qual viatura?", "quanto?"). Linha de 72px. */
+@media (min-width: 1024px) {
+  .registro__meta--oficio {
+    grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 11rem;
+    grid-template-areas: "periodo protocolo equipe transporte diarias";
+  }
+
+  .registro__meta--termo {
+    grid-template-columns: 9.5rem 8.75rem minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-areas: "periodo oficio equipe transporte";
+  }
+
+  .registro__meta--roteiro {
+    grid-template-columns: 9.5rem 6.5rem 10rem 11rem minmax(0, 1fr);
+    grid-template-areas: "periodo trechos uso diarias notas";
+  }
+}
+
+/* 1024–1279px: a coluna das diárias, só com o valor, fica estreita. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .registro__meta--oficio {
+    grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 7.5rem;
+  }
+
+  .registro__meta--roteiro {
+    grid-template-columns: 9.5rem 6.5rem 10rem 7.5rem minmax(0, 1fr);
+  }
+}
+
 /* Ações: sempre com o contraste cheio (WCAG 1.4.11 — o ⋮ é o único caminho para
    cancelar, arquivar ou excluir). Antes esmaeciam a 60% até o ponteiro chegar (≈2,6:1).
    O hover da linha só dá ao botão o fundo de "pronto para clicar". */
@@ -684,7 +842,8 @@ a.ficha:hover {
 }
 
 @media (max-width: 767.98px) {
-  /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda. */
+  /* Celular: a placa vira um selo em linha acima do título; o corpo usa a largura toda.
+     (Linhas sem placa — ícone ou só texto — continuam assim.) */
   .registro {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "placa acoes" "corpo corpo";
@@ -705,7 +864,67 @@ a.ficha:hover {
   .registro > .placa .placa__numero { font-size: var(--texto-sm); }
   .registro__corpo { grid-area: corpo; }
   .registro__acoes { grid-area: acoes; }
-  .registro__meta { gap: var(--esp-05) var(--esp-3); font-size: var(--texto-xs); }
+  /* Metadados legíveis no celular: texto-sm (11,7px), não xs. */
+  .registro__meta { gap: var(--esp-05) var(--esp-3); }
+
+  /* LP-10 — linha com metadados em colunas (Ofícios, Roteiros, Termos, painel de Viagens;
+     as demais listas aderem ao trocar a meta para --colunas): placa, título e ⋮ na MESMA linha; os metadados embaixo, em
+     no máximo duas faixas. O corpo "se desfaz" (display: contents) para o título e os
+     metadados entrarem na grade da linha; o resto do corpo (notas, texto) ocupa a largura
+     toda. Antes a placa e o ⋮ gastavam uma linha só deles (~36px por registro). */
+  .registro:has(> .registro__corpo > .registro__meta--colunas) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: none;
+    column-gap: var(--esp-2);
+    row-gap: var(--esp-1);
+  }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .placa { grid-area: 1 / 1; margin-top: var(--esp-05); }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .registro__corpo { display: contents; }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .registro__corpo > * { grid-column: 1 / -1; }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .registro__corpo > .registro__titulo { grid-area: 1 / 2; }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .registro__acoes {
+    grid-area: 1 / 3;
+    align-self: start;
+    /* o botão de 36px não estica a 1ª linha: sobe até a borda do respiro */
+    margin-block: calc(-1 * var(--esp-2));
+    margin-right: calc(-1 * var(--esp-2));
+  }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) .registro__meta { margin-top: 0; }
+
+  /* Título com grupo de selos: o link fica na 1ª linha (entre a placa e o ⋮, cortando
+     com reticências) e os selos descem juntos para a 2ª, na largura toda. */
+  .registro:has(> .registro__corpo > .registro__meta--colunas) > .registro__corpo > .registro__titulo:has(> .registro__selos) {
+    display: contents;
+  }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) .registro__titulo > .registro__link {
+    grid-area: 1 / 2;
+    align-self: center;
+    justify-self: start;
+  }
+  .registro:has(> .registro__corpo > .registro__meta--colunas) .registro__titulo > .registro__selos { grid-column: 1 / -1; }
+  .registro__titulo { row-gap: var(--esp-1); }
+  .registro__titulo > .registro__link { flex: 0 1 auto; }
+
+  /* Metadados: duas faixas, duas colunas. O protocolo fica no resumo e na busca. */
+  .registro__meta--colunas {
+    display: grid;
+    gap: var(--esp-05) var(--esp-3);
+    align-items: center;
+  }
+  .registro__meta--oficio {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: "periodo diarias" "equipe transporte";
+  }
+  .registro__meta--oficio .registro__meta-item--protocolo { display: none; }
+  .registro__meta--termo {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: "periodo oficio" "equipe transporte";
+  }
+  .registro__meta--roteiro {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: "periodo diarias" "trechos uso";
+  }
+  .registro__meta--roteiro .registro__meta-item--notas { display: none; }
 }
 
 /* =============== Barra de filtros =============== */

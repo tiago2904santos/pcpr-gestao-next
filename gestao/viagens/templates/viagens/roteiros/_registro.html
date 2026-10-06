@@ -6,22 +6,23 @@
   </span>
   <div class="registro__corpo">
     <div class="registro__titulo">
+      {# Roteiro mantém "Sede → destinos" (D5): é o caminho que ele descreve. Uma linha, com reticências; tudo no title. #}
       {% with d=r|destinos %}
       {% if r.situacao == "ativo" and pode_editar_roteiros %}
-        <a class="registro__link" href="{% url 'viagens:editar_roteiro' r.pk %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span>{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</a>
+        <a class="registro__link" href="{% url 'viagens:editar_roteiro' r.pk %}" title="{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span><span class="registro__link-texto">{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span></a>
       {% else %}
-        <span class="registro__link registro__link--estatico"><span class="sr-only">Roteiro #{{ r.pk }} · </span>{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span>
+        <span class="registro__link registro__link--estatico" title="{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span><span class="registro__link-texto">{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span></span>
       {% endif %}
       {% endwith %}
-      {% if r.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>
-      {% else %}{% selo_tempo r.primeira_saida r.ultima_chegada %}{% endif %}
+      <span class="registro__selos">{% if r.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>{% else %}{% selo_tempo r.primeira_saida r.ultima_chegada %}{% endif %}</span>
     </div>
-    <div class="registro__meta">
+    {# Mesmas colunas das listas de ofícios e termos: Período · Trechos · Uso · Diárias · Observações. #}
+    <div class="registro__meta registro__meta--colunas registro__meta--roteiro">
       {% with p=r.trechos.all|periodo %}
-      {% if p %}<span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{{ p }}</span>
-      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}Sem período</span>{% endif %}
+      {% if p %}<span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ p }}</span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Sem período</span></span>{% endif %}
       {% endwith %}
-      <span class="registro__meta-item">{% icone "route" classe="icone--sm" %}{{ r.total_trechos|pluralizar:"trecho,trechos" }}</span>
+      <span class="registro__meta-item registro__meta-item--trechos">{% icone "route" classe="icone--sm" %}<span class="registro__meta-texto">{{ r.total_trechos|pluralizar:"trecho,trechos" }}</span></span>
       {% comment %}
       O cálculo do roteiro é sempre para um servidor (o ofício é que tem equipe), então a
       quantidade não diz nada aqui. O que interessa é onde este roteiro já foi usado.
@@ -31,11 +32,11 @@
         Caixa de ações que abre ao pousar o mouse (ou ao focar pelo teclado): é só CSS —
         :hover/:focus-within no bloco. O conteúdo vem por HTMX na primeira vez.
         {% endcomment %}
-        <span class="menu menu--pousar">
+        <span class="menu menu--pousar registro__meta-item--uso">
           <button type="button" class="registro__meta-item registro__meta-item--acao" aria-controls="oficios-roteiro-{{ r.pk }}"
                   hx-get="{% url 'viagens:oficios_do_roteiro' r.pk %}" hx-trigger="mouseenter once, focus once"
                   hx-target="#oficios-roteiro-{{ r.pk }} [data-corpo-pop]" hx-swap="innerHTML">
-            {% icone "file-text" classe="icone--sm" %}Usado em {{ r.total_oficios|pluralizar:"ofício,ofícios" }}
+            {% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Usado em {{ r.total_oficios|pluralizar:"ofício,ofícios" }}</span>
           </button>
           <div class="menu__painel menu__painel--esquerda" id="oficios-roteiro-{{ r.pk }}" role="group"
                aria-label="Ofícios com o roteiro #{{ r.pk }}">
@@ -44,11 +45,11 @@
           </div>
         </span>
       {% else %}
-        <span class="registro__meta-item registro__meta-item--vazio">{% icone "file-text" classe="icone--sm" %}Ainda não usado</span>
+        <span class="registro__meta-item registro__meta-item--uso registro__meta-item--vazio">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Ainda não usado</span></span>
       {% endif %}
-      {% if r.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}</span>
-      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}Sem diárias calculadas</span>{% endif %}
-      {% if r.observacoes %}<span class="registro__meta-item quebra-palavras">{% icone "info" classe="icone--sm" %}{{ r.observacoes|truncatechars:80 }}</span>{% endif %}
+      {% if r.diarias_resumo %}<span class="registro__meta-item registro__meta-item--diarias" title="Diárias: {{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">{{ r.diarias_total|moeda }}</span><span class="registro__meta-detalhe"> · {{ r.diarias_resumo }}</span></span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias calculadas</span></span>{% endif %}
+      {% if r.observacoes %}<span class="registro__meta-item registro__meta-item--notas" title="{{ r.observacoes }}">{% icone "info" classe="icone--sm" %}<span class="sr-only">Observações: </span><span class="registro__meta-texto">{{ r.observacoes }}</span></span>{% endif %}
     </div>
   </div>
   {% if pode_editar_roteiros %}

@@ -69,7 +69,8 @@ def viajantes_de(oficio: Oficio) -> list[Viajante]:
 def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
     """Tudo que a lista de ofícios exibe, em número fixo de consultas."""
     return (
-        qs.select_related("unidade__configuracao", "viatura", "viatura__combustivel", "sede")
+        qs.select_related("unidade__configuracao", "viatura", "viatura__combustivel", "sede",
+                          "motorista_externo_servidor")
         .prefetch_related(
             Prefetch("viajantes", queryset=Viajante.objects.select_related("servidor")),
             Prefetch("trechos", queryset=Trecho.objects.select_related("origem", "destino")

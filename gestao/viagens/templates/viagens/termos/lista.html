@@ -53,17 +53,23 @@ chega com a prestação de contas.
         <span class="placa{% if t.cancelado %} placa--cancelada{% endif %}" aria-hidden="true"><span class="placa__rotulo">Termo</span><span class="placa__numero">#{{ t.pk }}</span></span>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <a class="registro__link" href="{% url 'viagens:editar_termo' t.pk %}"><span class="sr-only">{{ t }} · </span>{{ ef.destino_texto|default:"Sem destino" }}{% if ef.periodo_curto %} · {{ ef.periodo_curto }}{% endif %}</a>
+            {# Título = destinos (até três e "+N"); o período vai para a 1ª coluna dos metadados (D5). #}
+            {% with d=ef.destinos|resumir:3 %}
+            <a class="registro__link" href="{% url 'viagens:editar_termo' t.pk %}"{% if d.completo %} title="{{ d.completo }}"{% endif %}><span class="sr-only">{{ t }} · </span><span class="registro__link-texto">{{ d.visiveis|default:"Sem destino" }}</span>{% if d.mais %}<span class="registro__mais" aria-hidden="true">+{{ d.mais }}</span><span class="sr-only"> e mais {{ d.mais }} destino{{ d.mais|pluralize }}</span>{% endif %}</a>
+            {% endwith %}
             {# Tempo no vocabulário único das listas (D3); cancelado com a gramática de Roteiros. #}
-            {% if t.cancelado %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>
-            {% else %}{% selo_tempo ef.inicio ef.fim hoje=hoje %}{% endif %}
-            {% if not t.oficio %}<span class="selo selo--neutro selo--sem-ponto">Avulso</span>{% endif %}
-            {% if t.vias_vigentes %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}{% if t.vias_vigentes >= l.docs|length %}Assinado{% else %}{{ t.vias_vigentes }} de {{ l.docs|length }} assinados{% endif %}</span>{% endif %}
+            <span class="registro__selos">{% if t.cancelado %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>{% else %}{% selo_tempo ef.inicio ef.fim hoje=hoje %}{% endif %}{% if t.vias_vigentes %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}{% if t.vias_vigentes >= l.docs|length %}Assinado{% else %}{{ t.vias_vigentes }} de {{ l.docs|length }} assinados{% endif %}</span>{% endif %}</span>
           </div>
-          <div class="registro__meta">
-            {% if t.oficio %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Ofício {{ t.oficio.numero_formatado }}</span>{% endif %}
-            <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% for s in ef.servidores|slice:":3" %}{{ s.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem servidor (só o genérico)</span>{% endfor %}{% if ef.servidores|length > 3 %} e mais {{ ef.servidores|length|add:"-3" }}{% endif %}</span>
-            {% if ef.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ ef.viatura }}</span>{% endif %}
+          {# Mesmas colunas da lista de ofícios: Período · Ofício · Equipe · Viatura. #}
+          <div class="registro__meta registro__meta--colunas registro__meta--termo">
+            {% if ef.periodo_curto %}<span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ ef.periodo_curto }}</span></span>
+            {% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Sem período</span></span>{% endif %}
+            {% if t.oficio %}<span class="registro__meta-item registro__meta-item--oficio">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Ofício {{ t.oficio.numero_formatado }}</span></span>
+            {% else %}<span class="registro__meta-item registro__meta-item--oficio registro__meta-item--vazio" title="Termo avulso: não está ligado a um ofício">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Avulso</span></span>{% endif %}
+            {% if ef.servidores %}<span class="registro__meta-item registro__meta-item--equipe" title="{{ ef.servidores|join:', ' }}">{% icone "users" classe="icone--sm" %}<span class="sr-only">Servidores: </span><span class="registro__meta-texto">{{ ef.servidores|slice:":3"|join:", " }}</span>{% if ef.servidores|length > 3 %}<span class="registro__mais" aria-hidden="true">+{{ ef.servidores|length|add:"-3" }}</span><span class="sr-only"> e mais {{ ef.servidores|length|add:"-3" }}</span>{% endif %}</span>
+            {% else %}<span class="registro__meta-item registro__meta-item--equipe registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">Sem servidor (só o genérico)</span></span>{% endif %}
+            {% if ef.viatura %}<span class="registro__meta-item registro__meta-item--transporte" title="{{ ef.viatura }}">{% icone "car" classe="icone--sm" %}<span class="sr-only">Viatura: </span><span class="registro__meta-texto">{{ ef.viatura }}</span></span>
+            {% else %}<span class="registro__meta-item registro__meta-item--transporte registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">Sem viatura</span></span>{% endif %}
           </div>
         </div>
         <div class="registro__acoes">

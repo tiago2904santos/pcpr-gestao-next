@@ -8,26 +8,46 @@
   </span>
   <div class="registro__corpo">
     <div class="registro__titulo">
-      {# Clicar abre o resumo numa janela, sobre a lista; sem JavaScript, vai para o ofício. #}
-      <a class="registro__link" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo"
+      {% comment %}
+      Título = destinos (D5): até três à vista e "+N"; a lista inteira no title e no resumo.
+      O período é o primeiro item dos metadados, na mesma coluna em todas as linhas.
+      Clicar abre o resumo numa janela, sobre a lista; sem JavaScript, vai para o ofício.
+      {% endcomment %}
+      {% with d=o|lista_destinos|resumir:3 %}
+      <a class="registro__link" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo"{% if d.completo %} title="{{ d.completo }}"{% endif %}
          hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">
-        <span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
+        <span class="sr-only">Ofício {{ o.numero_formatado }} · </span><span class="registro__link-texto">{{ d.visiveis|default:"Sem destino" }}</span>{% if d.mais %}<span class="registro__mais" aria-hidden="true">+{{ d.mais }}</span><span class="sr-only"> e mais {{ d.mais }} destino{{ d.mais|pluralize }}</span>{% endif %}
       </a>
-      <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>
-      {# Orçamento de selos (D4): situação + tipo só se incomum + no máximo um alerta. #}
-      {% selo_tipo o %}{% alerta_oficio o %}
-    </div>
-    <div class="registro__meta">
-      {% if o.protocolo %}<span class="registro__meta-item">{% icone "stamp" classe="icone--sm" %}Protocolo {{ o.protocolo_formatado }}</span>{% endif %}
-      {% with vs=o.viajantes.all %}
-        {% if vs %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="quebra-palavras">{% for v in vs|slice:":3" %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if vs|length > 3 %} <span class="registro__mais">+{{ vs|length|add:"-3" }}</span>{% endif %}</span></span>
-        {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}Sem servidores</span>{% endif %}
       {% endwith %}
-      {% if o.viatura %}<span class="registro__meta-item">{% icone "car" classe="icone--sm" %}{{ o.viatura }}</span>
-      {% elif o.transporte_descricao %}<span class="registro__meta-item">{% icone "bus" classe="icone--sm" %}{{ o.transporte_descricao }}</span>
-      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}Sem transporte</span>{% endif %}
-      {% if o.diarias_resumo %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ o.diarias_total|moeda }} · {{ o.diarias_resumo }}</span>
-      {% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}Sem diárias calculadas</span>{% endif %}
+      {# Orçamento de selos (D4): situação + tipo só se incomum + no máximo um alerta. #}
+      <span class="registro__selos"><span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>{% selo_tipo o %}{% alerta_oficio o %}</span>
+    </div>
+    {% comment %}
+    Metadados em colunas fixas (≥1024px) — Período · Protocolo · Equipe · Transporte ·
+    Diárias —, uma linha cada, com reticências e o texto inteiro no title. O item ausente
+    continua no lugar (em itálico), para a coluna não pular.
+    {% endcomment %}
+    <div class="registro__meta registro__meta--colunas registro__meta--oficio">
+      {% with p=o.trechos.all|periodo %}
+      {% if p %}<span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ p }}</span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Sem período</span></span>{% endif %}
+      {% endwith %}
+      {% if o.protocolo %}<span class="registro__meta-item registro__meta-item--protocolo" title="Protocolo {{ o.protocolo_formatado }}">{% icone "stamp" classe="icone--sm" %}<span class="sr-only">Protocolo </span><span class="registro__meta-texto">{{ o.protocolo_formatado }}</span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--protocolo registro__meta-item--vazio">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">Sem protocolo</span></span>{% endif %}
+      {% with vs=o.viajantes.all externo=o|motorista_de_fora %}
+        {% if vs or externo %}
+          <span class="registro__meta-item registro__meta-item--equipe" title="{% for v in vs %}{{ v.servidor.nome }}{% if v.motorista %} (motorista){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if externo %}{% if vs %}, {% endif %}{{ externo }} (motorista de fora da equipe){% endif %}">
+            {% icone "users" classe="icone--sm" %}<span class="sr-only">Equipe: </span>
+            <span class="registro__meta-texto">{% for v in vs|slice:":3" %}{% if v.motorista %}{% icone "circle-dot" classe="icone--sm registro__motorista" %}{% endif %}{{ v.servidor.nome }}{% if v.motorista %}<span class="sr-only"> (motorista)</span>{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if externo %}{% if vs %}, {% endif %}{% icone "circle-dot" classe="icone--sm registro__motorista" %}{{ externo }}<span class="sr-only"> (motorista de fora da equipe)</span>{% endif %}</span>
+            {% if vs|length > 3 %}<span class="registro__mais" aria-hidden="true">+{{ vs|length|add:"-3" }}</span><span class="sr-only"> e mais {{ vs|length|add:"-3" }}</span>{% endif %}
+          </span>
+        {% else %}<span class="registro__meta-item registro__meta-item--equipe registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">Sem servidores</span></span>{% endif %}
+      {% endwith %}
+      {% if o.viatura %}<span class="registro__meta-item registro__meta-item--transporte" title="{{ o.viatura }}">{% icone "car" classe="icone--sm" %}<span class="sr-only">Transporte: </span><span class="registro__meta-texto">{{ o.viatura }}</span></span>
+      {% elif o.transporte_descricao %}<span class="registro__meta-item registro__meta-item--transporte" title="{{ o.transporte_descricao }}">{% icone o|icone_transporte classe="icone--sm" %}<span class="sr-only">Transporte: </span><span class="registro__meta-texto">{{ o.transporte_descricao }}</span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--transporte registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">Sem transporte</span></span>{% endif %}
+      {% if o.diarias_resumo %}<span class="registro__meta-item registro__meta-item--diarias" title="Diárias: {{ o.diarias_total|moeda }} · {{ o.diarias_resumo }}">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">{{ o.diarias_total|moeda }}</span><span class="registro__meta-detalhe"> · {{ o.diarias_resumo }}</span></span></span>
+      {% else %}<span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias calculadas</span></span>{% endif %}
     </div>
   </div>
   <div class="registro__acoes">
