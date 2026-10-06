@@ -487,8 +487,9 @@ class TestEmissaoEAcoes:
         assert "<html" not in html  # fragmento, não página inteira
 
     # Rascunho 17: +1 dos conflitos de agenda com as palestras (aviso da prontidão); 18: +1
-    # dos conflitos com as solicitações de evento (motorista escalado no período).
-    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 18), ("oficio_emitido", 14)])
+    # dos conflitos com as solicitações de evento (motorista escalado no período); 19: +1
+    # dos conflitos com termos e ordens de serviço (A2c).
+    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 19), ("oficio_emitido", 14)])
     def test_resumo_tem_orcamento_de_consultas(self, operador, cenario, chave, limite,
                                                django_assert_max_num_queries):
         with django_assert_max_num_queries(limite):
@@ -616,7 +617,9 @@ class TestOrcamentoDeConsultas:
         # mesmo período) — uma consulta só quando não há conflito.
         # 26: +1 dos conflitos com as solicitações de evento (servidor escalado como motorista
         # de um evento no período) — também uma consulta só quando não há conflito.
-        with django_assert_max_num_queries(26):
+        # 27: +1 dos conflitos com termos de autorização e ordens de serviço com datas
+        # próprias (A2c) — constante, não cresce com o ofício.
+        with django_assert_max_num_queries(27):
             url = reverse("viagens:editar", args=[oficio.pk]) + ("?revisar=1" if revisar else "")
             assert operador.get(url).status_code == 200
 

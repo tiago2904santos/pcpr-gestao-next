@@ -368,6 +368,9 @@ def test_agenda_sem_violacoes(logado, dados_e2e, largura):
     _avaliar(logado, "/agenda/?vista=lista")
     _avaliar(logado, "/agenda/?vista=semana")
     _avaliar(logado, "/agenda/?vista=dia")
+    _avaliar(logado, f"/agenda/?detalhe=viagem-{v.pk}")  # o dossiê aberto (A2c)
+    _avaliar(logado, "/agenda/", antes=lambda pg: pg.get_by_text(
+        "Assinar a agenda no Outlook, Google Agenda ou celular").click())
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

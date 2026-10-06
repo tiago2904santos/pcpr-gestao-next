@@ -14,6 +14,8 @@ urlpatterns = [
     path("agenda/", views_agenda.agenda_view, name="agenda"),
     path("agenda/pauta/", pauta.baixar, name="pauta"),
     path("agenda/escala/", escala.escala, name="escala"),
+    path("agenda/assinatura/", views_agenda.assinar, name="assinar_agenda"),
+    path("agenda/ics/<str:token>.ics", views_agenda.feed_ics, name="feed_ics"),
     path("relatorios/", views_relatorios.relatorios, name="relatorios"),
     path("relatorios/planilha/", views_relatorios.exportar_relatorio,
          name="exportar_relatorio"),

@@ -7,15 +7,22 @@ que funcionam sem JavaScript e são lidos pelo leitor de tela)."""
 from __future__ import annotations
 
 import re
-from datetime import date, timedelta
+from datetime import UTC, date, timedelta
+from urllib.parse import urlsplit
 
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_not_required
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
-from gestao.plataforma import agenda
+from gestao.plataforma import agenda, assinatura, ics
+
+from . import policies
 
 MES = re.compile(r"^(\d{4})-(\d{2})$")
 NOMES_DOS_MESES = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
@@ -112,6 +119,12 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
         no_atual = dia == hoje
         rotulos = ("Dia anterior", "Próximo dia")
 
+    # O dossiê (A2c): o compromisso pedido por `?detalhe=<chave>`, só entre os que a pessoa
+    # vê neste período (pedir a chave de outro não abre nada).
+    pedido = (request.GET.get("detalhe") or "")[:120]
+    detalhe = next((c for c in todos if c.chave == pedido and not c.faixa), None)
+    rotulos_das_fontes = {f.slug: f.rotulo for f in fontes}
+
     por_dia: list[tuple[date, list[agenda.Compromisso]]] = []
     if vista in ("lista", "dia"):
         for c in visiveis:
@@ -120,7 +133,8 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
                 por_dia[-1][1].append(c)
             else:
                 por_dia.append((d, [c]))
-    return render(request, "painel/agenda.html", {
+    ass = contexto_assinatura(request)
+    resposta = render(request, "painel/agenda.html", {
         "ano": ano, "mes": mes, "titulo_mes": titulo, "vista": vista,
         "dias_da_semana": DIAS_DA_SEMANA,
         "semanas": agenda.semanas_do_mes(ano, mes, visiveis, hoje) if vista == "mes" else [],
@@ -134,7 +148,74 @@ def agenda_view(request: HttpRequest) -> HttpResponse:
         "urls_vistas": {"mes": url("mes"), "semana": url("semana"), "dia": url("dia"),
                         "lista": url("lista")},
         "mes_param": f"{ano}-{mes:02d}", "dia_param": dia.isoformat(),
+        "detalhe": detalhe, "fonte_do_detalhe": rotulos_das_fontes.get(detalhe.fonte, "")
+        if detalhe else "", "url_detalhe": url(vista) + "&detalhe=", "url_sem_detalhe": url(vista),
         # A pauta em PDF do período que está na tela, com os mesmos filtros.
         "url_pauta": (reverse("painel:pauta") + f"?inicio={inicio.isoformat()}"
                       f"&fim={fim.isoformat()}{filtros}"),
+        **ass,
         "migalhas": [("Início", reverse("painel:inicio")), ("Agenda", "")]})
+    if ass["link_novo"]:  # o link em claro não fica no cache do navegador
+        resposta["Cache-Control"] = "no-store"
+    return resposta
+
+
+# ---------------------------------------------------------------- assinatura ICS (A2c)
+SESSAO_LINK = "agenda_link_novo"
+
+
+@login_not_required
+@require_GET
+def feed_ics(request: HttpRequest, token: str) -> HttpResponse:
+    """O feed da pessoa dona do token (rota pública: o Outlook e o Google buscam sem sessão;
+    o token é a única credencial; desconhecido é 404 seco)."""
+    usuario = assinatura.dono(token)
+    if usuario is None:
+        raise Http404
+    hoje = timezone.localdate()
+    inicio = hoje - timedelta(days=ics.DIAS_PARA_TRAS)
+    fim = hoje + timedelta(days=ics.DIAS_PARA_FRENTE)
+    rotulos = {f.slug: f.rotulo for f in agenda.fontes_de(usuario)}
+    texto = ics.montar(agenda.compromissos_de(usuario, inicio, fim), rotulos,
+                       base_url=_base_publica(), dominio=_dominio(),
+                       agora=timezone.now().astimezone(UTC))
+    resposta = HttpResponse(texto, content_type="text/calendar; charset=utf-8")
+    resposta["Content-Disposition"] = 'inline; filename="agenda.ics"'
+    resposta["Cache-Control"] = "private, max-age=300"
+    resposta["X-Robots-Tag"] = "noindex"
+    return resposta
+
+
+def _base_publica() -> str:
+    """O endereço público do sistema (não o cabeçalho Host da requisição)."""
+    return settings.URL_PUBLICA.rstrip("/")
+
+
+def _dominio() -> str:
+    return urlsplit(settings.URL_PUBLICA).hostname or "agenda"
+
+
+@require_POST
+def assinar(request: HttpRequest) -> HttpResponse:
+    """Gerar (ou trocar) e revogar o link pessoal; o link novo aparece uma vez na agenda."""
+    if not policies.pode_assinar_agenda(request.user):
+        raise PermissionDenied
+    if request.POST.get("acao") == "revogar":
+        messages.success(request, "Link de assinatura revogado: o calendário externo para de "
+                                  "receber a agenda." if assinatura.revogar(request.user)
+                         else "Não havia link para revogar.")
+    else:
+        existia = assinatura.da_pessoa(request.user) is not None
+        token = assinatura.gerar(request.user)
+        request.session[SESSAO_LINK] = _base_publica() + reverse("painel:feed_ics",
+                                                                 args=[token])
+        messages.success(request, "Novo link gerado; o anterior deixou de valer." if existia
+                         else "Link de assinatura gerado.")
+    return redirect(reverse("painel:agenda") + "#assinar")
+
+
+def contexto_assinatura(request: HttpRequest) -> dict:
+    a = assinatura.da_pessoa(request.user)
+    return {"link_novo": request.session.pop(SESSAO_LINK, ""),
+            "assinatura_gerada_em": a.gerada_em if a else None,
+            "assinatura_usada_em": a.usada_em if a else None}

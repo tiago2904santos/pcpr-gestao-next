@@ -41,3 +41,9 @@ def test_agenda_mes_filtro_e_lista(logado, dados_e2e):
     expect(pg.locator(".agenda-lista")).to_contain_text("Motivo: Apoio à feira (e2e)")
     pg.get_by_role("link", name="Apoio à feira (e2e)").first.click()
     expect(pg).to_have_url(re.compile(rf"/viagens/viagens/{v.pk}/$"))
+    # No mês, o compromisso abre o dossiê (A2c), que leva ao registro.
+    pg.goto("/agenda/")
+    pg.locator(".agenda-item", has_text="Apoio à feira (e2e)").first.click()
+    expect(pg.locator("#dossie")).to_be_visible()
+    pg.get_by_role("link", name="Abrir no sistema").click()
+    expect(pg).to_have_url(re.compile(rf"/viagens/viagens/{v.pk}/$"))

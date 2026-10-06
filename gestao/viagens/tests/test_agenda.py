@@ -80,10 +80,11 @@ def test_tela_mes_lista_filtros_e_cancelados(c):
     r = cliente.get(reverse("painel:agenda"))
     html = r.content.decode()
     assert r.status_code == 200 and "Apoio à feira (teste)" in html
-    assert f"viagens/{cancelada.pk}/" not in html  # cancelado escondido por padrão
+    # No mês, o compromisso abre o dossiê (`detalhe=<chave>`).
+    assert f"detalhe=viagem-{cancelada.pk}" not in html  # cancelado escondido por padrão
     assert "Cancelados (1)" in html
     html = cliente.get(reverse("painel:agenda"), {"encerrados": "1"}).content.decode()
-    assert f"viagens/{cancelada.pk}/" in html
+    assert f"detalhe=viagem-{cancelada.pk}" in html
     html = cliente.get(reverse("painel:agenda"), {"fonte": "feriados"}).content.decode()
     assert "Apoio à feira (teste)" not in html
     r = cliente.get(reverse("painel:agenda"), {"vista": "lista", "mes": "2026-12"})
@@ -183,3 +184,18 @@ def test_escala_pessoa_por_dia(c):
     assert nome in html and "2 dias fora" in html
     r = cliente.get(reverse("painel:escala"), {"dias": "999", "inicio": "lixo"})
     assert r.status_code == 200
+
+
+def test_dossie_do_compromisso(c):
+    """A2c: o compromisso do mês abre o dossiê (detalhes e "Abrir no sistema"); chave de
+    fora do que a pessoa vê não abre nada."""
+    hoje = timezone.localdate()
+    v = _viagem(c, hoje)
+    cliente = Client()
+    cliente.force_login(c.usuarios["operador"])
+    html = cliente.get(reverse("painel:agenda"), {"detalhe": f"viagem-{v.pk}"}).content.decode()
+    assert 'id="dossie"' in html and "Abrir no sistema" in html
+    assert reverse("viagens:editar_viagem", args=[v.pk]) in html
+    assert "Motivo" in html and "Apoio à feira (teste)" in html
+    html = cliente.get(reverse("painel:agenda"), {"detalhe": "viagem-999999"}).content.decode()
+    assert 'id="dossie"' not in html

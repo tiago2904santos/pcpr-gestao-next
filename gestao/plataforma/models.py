@@ -113,3 +113,24 @@ class RotinaDoDia(models.Model):
 
     def __str__(self) -> str:
         return f"Rotinas de {self.dia:%d/%m/%Y}"
+
+
+class AssinaturaAgenda(models.Model):
+    """O link pessoal do feed iCalendar da agenda (A2c). Guarda só o hash do token: o link
+    aparece uma vez, ao gerar; gerar de novo invalida o anterior; revogar apaga; trocar a
+    senha também invalida (selo)."""
+
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                   related_name="assinatura_agenda")
+    token_hash = models.CharField(max_length=64, unique=True)
+    # Impressão da senha na hora de gerar: trocou a senha, o link deixa de valer.
+    selo = models.CharField(max_length=32)
+    gerada_em = models.DateTimeField()
+    usada_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "assinatura da agenda"
+        verbose_name_plural = "assinaturas da agenda"
+
+    def __str__(self) -> str:
+        return f"Assinatura da agenda de {self.usuario}"

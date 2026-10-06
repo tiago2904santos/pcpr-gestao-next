@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}Agenda · {{ titulo_mes }}{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/copiar.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Agenda (paridade com a agenda da referência, com as fontes que cada módulo registra).
 Visões montadas no servidor: mês (grade domingo a sábado), semana (sete colunas, por
 hora), dia e lista do mês; filtro por fonte (só as que a pessoa pode ver) e os encerrados
-(cancelados) escondidos por padrão. Cada compromisso leva ao registro dele. No celular a
+(cancelados) escondidos por padrão. No mês e na semana, o compromisso abre o dossiê (janela
+com os detalhes e "Abrir no sistema"); na lista e no dia, leva direto ao registro. No celular a
 grade e a semana viram listas de dias (CSS).
 {% endcomment %}
 {% block conteudo %}
@@ -66,7 +68,7 @@ grade e a semana viram listas de dias (CSS).
           {% if dia.compromissos %}
           <ul class="agenda-dia__lista">
             {% for c in dia.compromissos %}
-            <li><a class="agenda-item agenda-item--{{ c.tom }}{% if c.prazo %} agenda-item--prazo{% endif %}{% if c.encerrado %} agenda-item--encerrado{% endif %} agenda-fonte--{{ c.fonte }}" href="{{ c.url }}" title="{{ c.titulo }}{% if c.situacao %} · {{ c.situacao }}{% endif %}">{% if c.prazo %}{% icone "clock" classe="icone--sm" %}{% endif %}<span>{{ c.titulo }}</span>{% if c.situacao %}<span class="sr-only"> · {{ c.situacao }}</span>{% endif %}</a></li>
+            <li><a class="agenda-item agenda-item--{{ c.tom }}{% if c.prazo %} agenda-item--prazo{% endif %}{% if c.encerrado %} agenda-item--encerrado{% endif %} agenda-fonte--{{ c.fonte }}" href="{{ url_detalhe }}{{ c.chave|urlencode }}" title="{{ c.titulo }}{% if c.situacao %} · {{ c.situacao }}{% endif %}">{% if c.prazo %}{% icone "clock" classe="icone--sm" %}{% endif %}<span>{{ c.titulo }}</span>{% if c.situacao %}<span class="sr-only"> · {{ c.situacao }}</span>{% endif %}</a></li>
             {% endfor %}
           </ul>
           {% endif %}
@@ -85,7 +87,7 @@ grade e a semana viram listas de dias (CSS).
       {% if dia.compromissos %}
       <ul class="agenda-dia__lista">
         {% for c in dia.compromissos %}
-        <li><a class="agenda-item agenda-item--{{ c.tom }}{% if c.encerrado %} agenda-item--encerrado{% endif %} agenda-fonte--{{ c.fonte }}" href="{{ c.url }}" title="{{ c.titulo }}{% if c.situacao %} · {{ c.situacao }}{% endif %}">{% if c.hora %}<b class="agenda-item__hora">{{ c.hora }}</b>{% elif c.prazo %}{% icone "clock" classe="icone--sm" %}{% endif %}<span>{{ c.titulo }}</span>{% if c.situacao %}<span class="sr-only"> · {{ c.situacao }}</span>{% endif %}</a></li>
+        <li><a class="agenda-item agenda-item--{{ c.tom }}{% if c.encerrado %} agenda-item--encerrado{% endif %} agenda-fonte--{{ c.fonte }}" href="{{ url_detalhe }}{{ c.chave|urlencode }}" title="{{ c.titulo }}{% if c.situacao %} · {{ c.situacao }}{% endif %}">{% if c.hora %}<b class="agenda-item__hora">{{ c.hora }}</b>{% elif c.prazo %}{% icone "clock" classe="icone--sm" %}{% endif %}<span>{{ c.titulo }}</span>{% if c.situacao %}<span class="sr-only"> · {{ c.situacao }}</span>{% endif %}</a></li>
         {% endfor %}
       </ul>
       {% endif %}
@@ -118,4 +120,34 @@ grade e a semana viram listas de dias (CSS).
     {% endif %}
   {% endif %}
 </section>
+<details class="sanfona mt-6" id="assinar"{% if link_novo %} open{% endif %}>
+  <summary>Assinar a agenda no Outlook, Google Agenda ou celular</summary>
+  <div class="sanfona__corpo pilha">
+    <p class="texto-sm">O link pessoal faz os seus compromissos aparecerem no calendário de fora e acompanharem as mudanças. Vão só o título, o período, a situação e o link de volta — os detalhes ficam no sistema, com senha. Quem tiver o link vê a sua agenda: não o compartilhe; se vazar, gere outro.</p>
+    {% if link_novo %}
+    <div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p><strong>Copie o link agora:</strong> por segurança ele não aparece de novo (o sistema guarda só uma impressão dele).</p></div></div>
+    <div class="linha"><input class="entrada cresce" type="text" id="link-assinatura" value="{{ link_novo }}" readonly aria-label="Link de assinatura da agenda"><button type="button" class="botao" data-copiar-alvo="link-assinatura" aria-live="polite">{% icone "copy" %}<span data-copiar-rotulo>Copiar</span></button></div>
+    {% elif assinatura_gerada_em %}
+    <p class="texto-secundario texto-sm">Link gerado em {{ assinatura_gerada_em|date:"d/m/Y H:i" }}{% if assinatura_usada_em %}; o calendário buscou a agenda pela última vez em {{ assinatura_usada_em|date:"d/m/Y H:i" }}{% endif %}.</p>
+    {% endif %}
+    <div class="linha">
+      <form method="post" action="{% url 'painel:assinar_agenda' %}">{% csrf_token %}<input type="hidden" name="acao" value="gerar"><button type="submit" class="botao">{% icone "rotate-ccw" %}{% if assinatura_gerada_em %}Gerar um novo link{% else %}Gerar o link{% endif %}</button></form>
+      {% if assinatura_gerada_em %}<form method="post" action="{% url 'painel:assinar_agenda' %}">{% csrf_token %}<input type="hidden" name="acao" value="revogar"><button type="submit" class="botao botao--sutil">{% icone "x" %}Revogar o link</button></form>{% endif %}
+    </div>
+  </div>
+</details>
+
+{% if detalhe %}
+<dialog id="dossie" class="dialogo" aria-labelledby="dossie-titulo" data-abrir-ao-carregar open>
+  <a class="botao botao--icone botao--sutil dialogo__fechar" href="{{ url_sem_detalhe }}" aria-label="Fechar o dossiê">{% icone "x" %}</a>
+  <div class="dialogo__conteudo pilha">
+    <p class="rotulo-caixa-alta">{{ fonte_do_detalhe }}</p>
+    <h2 class="dialogo__titulo" id="dossie-titulo">{{ detalhe.titulo }}</h2>
+    <p class="texto-secundario">{% icone "calendar" classe="icone--sm" %} {{ detalhe.inicio|date:"d/m/Y" }}{% if detalhe.fim and detalhe.fim != detalhe.inicio %} a {{ detalhe.fim|date:"d/m/Y" }}{% endif %}{% if detalhe.hora %} · {{ detalhe.hora }}{% endif %}{% if detalhe.situacao %} · <span class="selo selo--{% if detalhe.tom == 'perigo' %}perigo{% elif detalhe.tom == 'aviso' %}aviso{% elif detalhe.tom == 'sucesso' %}sucesso{% else %}info{% endif %} selo--sem-ponto">{{ detalhe.situacao }}</span>{% endif %}</p>
+    {% if detalhe.detalhes %}<dl class="resumo__definicoes">{% for rotulo, valor in detalhe.detalhes %}{% if valor %}<div><dt>{{ rotulo }}</dt><dd>{{ valor }}</dd></div>{% endif %}{% endfor %}</dl>{% endif %}
+    {% if detalhe.pessoas %}<p class="texto-sm"><strong>Quem está:</strong> {{ detalhe.pessoas|join:", " }}</p>{% endif %}
+    <div class="linha">{% if detalhe.url %}<a class="botao botao--primario" href="{{ detalhe.url }}">{% icone "external-link" %}Abrir no sistema</a>{% endif %}<a class="botao botao--sutil" href="{{ url_sem_detalhe }}">Voltar à agenda</a></div>
+  </div>
+</dialog>
+{% endif %}
 {% endblock %}

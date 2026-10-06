@@ -34,6 +34,9 @@ class Compromisso:
     faixa: bool = False  # feriado: fundo do dia, não um compromisso
     meu: bool = False  # registrado por quem está vendo (filtro "Só os que eu registrei")
     pessoas: tuple[str, ...] = ()  # quem está no compromisso (escala pessoa × dia)
+    # O título que pode sair do sistema (feed ICS): sem nomes nem texto livre. Vazio, o
+    # feed usa o rótulo da fonte.
+    titulo_externo: str = ""
 
     @property
     def ultimo_dia(self) -> date:

@@ -83,3 +83,41 @@ def test_pedido_repetido_e_viatura():
                                        for x in base.trechos.order_by("ordem")])
     textos = conflitos_viagens.avisos_do_oficio(novo)
     assert any(t.startswith(f"Viatura {base.viatura.placa_formatada}") for t in textos)
+
+
+def test_termo_e_os_com_datas_proprias():
+    """A2c: o servidor (e a viatura) num termo ou numa OS com datas próprias acusa no ofício
+    sobreposto; quem já está no ofício vinculado não acusa de novo; cancelado não conta."""
+    from gestao.viagens.models import OrdemServico, TermoAutorizacao
+
+    c = cenario_completo()
+    oficio = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+    servidor = oficio.viajantes.first().servidor
+    dia = timezone.localtime(oficio.trechos.order_by("ordem").first().saida_em).date()
+    op = c.usuarios["operador"]
+    termo = TermoAutorizacao.objects.create(unidade=oficio.unidade, data_inicio=dia,
+                                            data_fim=dia, viatura=oficio.viatura,
+                                            criado_por=op)
+    termo.servidores.add(servidor)
+    ordem = OrdemServico.objects.create(unidade=oficio.unidade, numero=901, ano=dia.year,
+                                        data_inicio=dia, data_fim=dia, criado_por=op)
+    ordem.servidores.add(servidor)
+    textos = conflitos_viagens.avisos_do_oficio(oficio)
+    assert any(f"no Termo de autorização #{termo.pk}" in t and t.startswith(servidor.nome)
+               for t in textos)
+    assert any(f"na OS {ordem.numero_formatado}" in t for t in textos)
+    if oficio.viatura is not None:
+        assert any(t.startswith(f"Viatura {oficio.viatura.placa_formatada}")
+                   and "Termo" in t for t in textos)
+    # Vinculados ao próprio ofício: só acrescentam o que não está nele.
+    termo.oficio = oficio
+    termo.save()
+    ordem.oficios.add(oficio)
+    textos = conflitos_viagens.avisos_do_oficio(oficio)
+    assert not any("Termo de autorização" in t or "na OS" in t for t in textos)
+    termo.oficio = None
+    termo.situacao = TermoAutorizacao.Situacao.CANCELADO
+    termo.motivo_cancelamento, termo.cancelado_em = "Desmarcado", timezone.now()
+    termo.save()
+    assert not any("Termo de autorização" in t
+                   for t in conflitos_viagens.avisos_do_oficio(oficio))

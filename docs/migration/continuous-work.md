@@ -66,7 +66,7 @@ Ver a fila abaixo (primeiro item não concluído).
 | 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
 | 15b | Agenda A2a: semana/dia, conflitos entre módulos (ofício × palestra), busca global ([busca.md](busca.md)) | feito (A2a) |
 | 15c | Agenda A2b: "só os meus", pauta em PDF, escala pessoa × dia | feito (A2b) |
-| 15d | Agenda A2c: dossiê, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
+| 15d | Agenda A2c: dossiê (janela no mês/semana), assinatura ICS (link público por token, só o hash no banco — revisão de segurança), conflitos de termos/OS | feito (A2c) |
 | 17 | Eventos Sociais E1 (catálogos e modelo do tipo) e E2 (solicitação: folha, envio, despacho da DG, devolução, reenvio, concluir, cancelar, transferir, duplicar, excluir, anexos, lista, CSV, avisos, agenda, conflitos) — ver [eventos-sociais.md](eventos-sociais.md) | feito (E1, E2) |
 | 17b | Eventos Sociais E3 (painel com os indicadores da referência, série 6/12/24, despacho da DG; lembretes diários pela rotina) | feito (E3) |
 | 17c | Eventos Sociais E4 (gerar viagem da deferida pela folha, com a unidade; cancelar/avisar quando não atendida ou cancelada) | feito (E4 — sem automático, roteiro, anexos, multieventos e sincronização; ver decisoes.md) |

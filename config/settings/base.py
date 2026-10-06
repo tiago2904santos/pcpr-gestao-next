@@ -237,7 +237,10 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {"simples": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}},
-    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simples"}},
+    # O filtro tira o token do feed ICS da agenda dos caminhos logados (A2c).
+    "filters": {"segredos": {"()": "gestao.plataforma.logs.MascararSegredos"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simples",
+                             "filters": ["segredos"]}},
     "root": {"handlers": ["console"], "level": "INFO"},
     "loggers": {
         "django.db.backends": {"level": "WARNING"},

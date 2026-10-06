@@ -76,3 +76,28 @@ Fonte de comportamento, não de código.
   Atendimento à imprensa e Viagens (só as viagens e os ofícios que a pessoa vê — a referência
   contava todos). Cada seção só para quem tem o módulo. Planilha XLSX com as mesmas abas
   (células protegidas contra fórmula). Tabelas largas roláveis por teclado.
+
+## A2c — dossiê, assinatura ICS e conflitos de termos/OS (06/10/2026)
+
+- **Dossiê**: no mês e na semana, o compromisso abre uma janela (`?detalhe=<chave>`, só
+  entre os compromissos que a pessoa vê no período) com fonte, período, horário, situação,
+  os detalhes da fonte, quem está e "Abrir no sistema"; na lista e no dia, o título leva
+  direto ao registro. (A referência monta um dossiê bem maior — pessoas com CPF/RG,
+  documentos, prestação; aqui fica o que as fontes já expõem: decisão do agente.)
+- **Assinatura ICS** (`/agenda/ics/<token>.ics`, rota pública; `plataforma/ics.py`,
+  `plataforma/assinatura.py`, modelo `AssinaturaAgenda` auditado): "Assinar a agenda" na
+  própria agenda gera o link pessoal (token de 256 bits; o banco guarda só o SHA-256, então
+  o link aparece uma vez, com "Copiar", numa página `no-store`); gerar de novo invalida o
+  anterior; revogar desliga; trocar a senha ou desativar a conta derruba o link (selo da
+  senha); token desconhecido é 404 seco. O feed (RFC 5545 à mão, controles e CR solto
+  removidos) vai de 60 dias atrás a 365 à frente e leva **só o título externo da fonte**
+  (`Compromisso.titulo_externo`, sem nomes nem texto livre; na falta, o rótulo da fonte —
+  "Viagens", "Palestras e eventos"…), o período, a situação e o link de volta (montado com
+  `URL_PUBLICA`, não com o cabeçalho Host). Cancelado vai como `STATUS:CANCELLED`; feriados
+  ficam fora. O token sai dos logs (`plataforma/logs.MascararSegredos` no handler) e a
+  "última busca" é gravada no máximo de hora em hora (a tabela é auditada). Revisão de
+  segurança feita; pendente de ops: mascarar `/agenda/ics/` também no log do Nginx.
+- **Conflitos de termos e OS** (`viagens/conflitos.py`, fonte `termos_e_ordens`: uma consulta UNION acha os candidatos; detalhes só se houver): termos de autorização (servidores e
+  viatura) e ordens de serviço (equipe) com datas próprias entram nos conflitos — só o que
+  acrescentam aos ofícios vinculados; cancelados não contam. Aparecem nos avisos do ofício e
+  da palestra.
