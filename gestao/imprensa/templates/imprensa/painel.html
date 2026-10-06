@@ -17,7 +17,7 @@ os últimos seis meses.
   </div>
   <div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'imprensa:lista' %}">{% icone "messages-square" %}Ver atendimentos</a>
-    {% if pode_criar %}<a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
+    {% if pode_criar %}<a class="botao" href="{% url 'imprensa:preencher' %}">{% icone "mail" %}Preencher com um e-mail</a><a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
   </div>
 </header>
 {% endblock %}

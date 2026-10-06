@@ -9,6 +9,7 @@ urlpatterns = [
     path("atendimentos/", views.lista, name="lista"),
     path("atendimentos/exportar/", views.exportar, name="exportar"),
     path("atendimentos/novo/", views.novo, name="novo"),
+    path("atendimentos/novo/email/", views.preencher, name="preencher"),
     path("atendimentos/<int:pk>/", views.atendimento, name="atendimento"),
     path("atendimentos/<int:pk>/autosave/", views.autosave, name="autosave"),
     path("atendimentos/<int:pk>/andamento/", views.andamento, name="andamento"),

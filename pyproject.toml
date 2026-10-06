@@ -130,7 +130,7 @@ forbidden_modules = ["gestao.viagens", "gestao.cadastros", "gestao.painel", "ges
 [[tool.importlinter.contracts]]
 name = "Regras do atendimento à imprensa são puras (sem Django)"
 type = "forbidden"
-source_modules = ["gestao.imprensa.dominio"]
+source_modules = ["gestao.imprensa.dominio", "gestao.imprensa.dominio_email"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

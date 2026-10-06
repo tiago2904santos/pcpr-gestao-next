@@ -397,7 +397,8 @@ def test_imprensa_sem_violacoes(logado, dados_e2e, largura):
     services.registrar_andamento(u, a.pk, "aguardando_fonte", "Fonte acionada")
     logado.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/imprensa/", "/imprensa/atendimentos/", f"/imprensa/atendimentos/{a.pk}/",
-                 "/imprensa/atendimentos/novo/", "/imprensa/cadastros/equipe/"):
+                 "/imprensa/atendimentos/novo/", "/imprensa/cadastros/equipe/",
+                 "/imprensa/atendimentos/novo/email/"):
         _avaliar(logado, rota)
 
 

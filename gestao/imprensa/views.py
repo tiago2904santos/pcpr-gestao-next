@@ -6,7 +6,7 @@ referência): painel, lista com filas e filtros, exportação CSV, a folha do at
 from __future__ import annotations
 
 import csv
-from datetime import time
+from datetime import date, time
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import dominio, historico, policies, queries, services
+from . import dominio, historico, policies, preenchimento, queries, services
 from .forms import FORM_ID, FormularioAndamento, FormularioAtendimento
 from .models import Atendimento, Integrante, Veiculo
 
@@ -197,9 +197,52 @@ def novo(request: HttpRequest) -> HttpResponse:
         messages.error(request, "Corrija os campos destacados para registrar.")
     else:
         agora = timezone.localtime()
-        form = FormularioAtendimento(initial={
-            "data": agora.date(), "horario": agora.time().replace(second=0, microsecond=0)})
+        inicial: dict = {"data": agora.date(),
+                         "horario": agora.time().replace(second=0, microsecond=0)}
+        if request.GET.get("de_email") == "1":  # sugestões do "Preencher com um e-mail"
+            inicial.update(_do_email(request.session.pop(SESSAO_EMAIL, {})))
+        form = FormularioAtendimento(initial=inicial)
     return render(request, "imprensa/folha.html", _contexto_folha(request, form, None))
+
+
+SESSAO_EMAIL = "imprensa_preenchido"
+
+
+def _para_sessao(iniciais: dict) -> dict:
+    return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in iniciais.items()}
+
+
+def _do_email(dados: dict) -> dict:
+    saida = dict(dados)
+    for chave in ("data", "deadline"):
+        if isinstance(saida.get(chave), str):
+            saida[chave] = date.fromisoformat(saida[chave])
+    if isinstance(saida.get("horario"), str):
+        saida["horario"] = time.fromisoformat(saida["horario"])
+    return saida
+
+
+@require_http_methods(["GET", "POST"])
+def preencher(request: HttpRequest) -> HttpResponse:
+    """"Preencher com um e-mail": cola-se o texto; as sugestões vão para o atendimento novo
+    (pela sessão — nada do e-mail vai na URL) e o que foi lido aparece no aviso. Nada grava."""
+    _exigir(policies.pode_criar(request.user))
+    if request.method == "POST":
+        texto = (request.POST.get("email") or "")[:20000]
+        s = preenchimento.sugerir(request.user, texto)
+        for aviso in s.avisos:
+            messages.warning(request, aviso)
+        if not s.lidos:
+            return render(request, "imprensa/preencher.html", {
+                "texto": texto, "migalhas": _migalhas(("Preencher com um e-mail", ""))},
+                status=422)
+        request.session[SESSAO_EMAIL] = _para_sessao(s.iniciais)
+        messages.info(request, "Lido do e-mail — confira cada campo antes de registrar: "
+                      + "; ".join(f"{rotulo}: {valor}" for rotulo, valor in s.lidos
+                                  if rotulo != "Pedido") + ".")
+        return redirect(reverse("imprensa:novo") + "?de_email=1")
+    return render(request, "imprensa/preencher.html", {
+        "texto": "", "migalhas": _migalhas(("Preencher com um e-mail", ""))})
 
 
 @require_http_methods(["GET", "POST"])

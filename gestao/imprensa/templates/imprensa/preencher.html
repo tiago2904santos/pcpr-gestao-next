@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Preencher com um e-mail · Imprensa{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+"Preencher com um e-mail" (paridade com a referência): cola-se o e-mail ou a mensagem do
+jornalista; o atendimento novo abre com data e hora do envio, jornalista, veículo (só
+sugestão), contato, pedido e deadline. Nada é gravado até registrar.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "mail" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Imprensa · Novo atendimento</p>
+    <h1 class="pagina-cabecalho__titulo">Preencher com um e-mail</h1>
+    <p class="pagina-cabecalho__descricao">Cole o e-mail inteiro (com os cabeçalhos De/Enviado em/Assunto) ou a mensagem do WhatsApp. O sistema sugere data, horário, jornalista, veículo, contato, pedido e prazo; você confere tudo antes de registrar.</p>
+  </div>
+</header>
+<form method="post" class="documento documento--cartoes" novalidate>
+  {% csrf_token %}
+  <section class="secao" aria-labelledby="t-email">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-email"><span class="secao__numero">1</span>O texto do pedido</h2><p class="secao__nota">O veículo é sempre uma sugestão: se não estiver no cadastro, o nome lido vai para "Outro veículo" — que só entra no cadastro se você registrar.</p></div>
+    <div class="campo"><label class="campo__rotulo" for="preencher-email">E-mail ou mensagem<span class="campo__obrigatorio" aria-hidden="true">*</span></label><textarea class="entrada" id="preencher-email" name="email" rows="14" maxlength="20000" required>{{ texto }}</textarea></div>
+    <div class="linha"><button type="submit" class="botao botao--primario">{% icone "file-search" %}Ler e abrir o atendimento</button><a class="botao botao--sutil" href="{% url 'imprensa:novo' %}">Preencher à mão</a></div>
+  </section>
+</form>
+{% endblock %}

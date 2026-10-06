@@ -5,7 +5,7 @@
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos dos jornalistas, com quem atendeu, as fontes e a resposta. As filas separam o que ainda está em aberto.</p>{% endblock %}
 {% block acoes_lista %}
 <a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
-{% if pode_criar %}<a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
+{% if pode_criar %}<a class="botao" href="{% url 'imprensa:preencher' %}">{% icone "mail" %}Preencher com um e-mail</a><a class="botao botao--primario" href="{% url 'imprensa:novo' %}">{% icone "plus" %}Novo atendimento</a>{% endif %}
 {% endblock %}
 {% comment %}
 Paridade com a lista da referência: filas (Em aberto, Aguardando fonte, Atendidos, Não

@@ -22,8 +22,7 @@ seguidas da mesma pessoa em até 20 min viram uma linha) com cada andamento.
 
 ## Fora deste módulo (da referência)
 
-- "Preencher com um e-mail" (leitura de e-mail e sugestões) e o importador da planilha:
-  dependem de decidir de onde vêm os e-mails e as planilhas; ficam para depois.
+- O importador da planilha: depende de decidir de onde vêm as planilhas; fica para depois.
 - Palestras e Publicações (os outros submódulos da ASCOM): trilhas próprias.
 
 ## Decisões (do agente — a confirmar)
@@ -43,3 +42,18 @@ Registradas em [decisoes.md](decisoes.md#atendimento-à-imprensa):
   a restrição do banco.
 - `tests/e2e/test_imprensa.py`: registrar, gravar sozinho, andamento, filas; sem papel não
   vê; 360 e 1440 px sem rolagem horizontal. Axe em `tests/e2e/test_acessibilidade.py`.
+
+## I2 — preencher com um e-mail (06/10/2026)
+
+- "Preencher com um e-mail" no painel e na lista (`/imprensa/atendimentos/novo/email/`):
+  cola-se o e-mail (com De/Enviado em/Assunto) ou a mensagem; a leitura própria
+  (`dominio_email.py`, Python puro) sugere data e hora do envio, quem pede (a apresentação
+  "Sou X, repórter da Y" ganha do nome do remetente; o nome já usado no histórico mantém a
+  grafia), o veículo (o cadastrado citado no texto, ou o do domínio do remetente — que, sem
+  cadastro, vai para "Outro veículo" como sugestão), o contato (telefone e e-mail), o pedido
+  (assunto + corpo, sem cabeçalhos nem a despedida) e o deadline ("até as 17h de hoje",
+  "amanhã", "sexta", "dia 14/10" — a hora vai no texto do pedido, que não tem campo). As
+  sugestões vão pela sessão para o atendimento novo (nada do e-mail na URL); o que foi lido
+  aparece no aviso; prazo vencido avisa. Nada grava até registrar.
+- Fora: a memória por remetente e a leitura de conversas do WhatsApp fala a fala da
+  referência (decisão do agente).

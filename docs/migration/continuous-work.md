@@ -72,6 +72,7 @@ Ver a fila abaixo (primeiro item não concluído).
 | 17c | Eventos Sociais E4 (gerar viagem da deferida pela folha, com a unidade; cancelar/avisar quando não atendida ou cancelada) | feito (E4 — sem automático, roteiro, anexos, multieventos e sincronização; ver decisoes.md) |
 | 17d | Eventos Sociais E5: exportação em XLSX (mesmas colunas e recorte do CSV) | feito (E5) |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
+| 16f | Imprensa I2: preencher com um e-mail (texto colado; sugestões pela sessão; nada grava) | feito (I2) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
 | 16d | Palestras PL2a: encaminhar à DG (rascunho da solicitação de evento ligado, retorno da DG no histórico); o choque palestrante × viagem já veio com a A2a | feito (PL2a) |
@@ -124,6 +125,12 @@ Ver a fila abaixo (primeiro item não concluído).
   suíte rápida, 1 teste falhou com `Timeout em Locator.click` (o nome do teste não ficou no
   registro filtrado); o lote repetido logo depois passou 13/13 e o teste novo passou
   sozinho. Mesma família do item acima (clique sob carga). Em observação.
+- Herdadas do commit `afcf0dd` (sessão de correção visual), presentes no HEAD desde então,
+  sem relação com I2/E5: `tests/test_design_tokens.py::test_todos_os_tokens_usados_existem`
+  (tokens `--altura-barra`, `--filtros-colunas`, `--largura-indice` usados e não definidos)
+  e `gestao/viagens/tests/test_folha_termo_os.py::TestFolhaDoTermo::test_tela_com_previa_escolhida_e_conferencia`
+  (a folha do termo não mostra mais "Como vai sair — Termo genérico"). A outra sessão foi
+  avisada; a área (termos, CSS) é dela.
 
 ## Bloqueios externos
 
