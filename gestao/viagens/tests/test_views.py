@@ -877,36 +877,22 @@ class TestExportarPlanilha:
 
 
 class TestNumeracaoAnual:
-    """Piso da numeração (paridade com "Numeração" da referência; regra D5)."""
+    """Piso da numeração (regra D5). A tela "Numeração dos ofícios" saiu; o serviço fica."""
 
-    def test_so_gestor_ve_e_define(self, cenario):
-        from django.test import Client
-
-        operador, gestor = Client(), Client()
-        operador.force_login(cenario.usuarios["operador"])
-        gestor.force_login(cenario.usuarios["gestor"])
-        assert operador.get(reverse("viagens:numeracao")).status_code == 403
-        r = gestor.get(reverse("viagens:numeracao"))
-        assert r.status_code == 200 and "Próximo número" in r.content.decode()
-
-    def test_piso_acima_do_maior_muda_o_proximo_sem_renumerar(self, gestor, cenario):
+    def test_piso_acima_do_maior_muda_o_proximo_sem_renumerar(self, cenario):
         from gestao.viagens.models import NumeracaoAnual
 
         ano = timezone.localdate().year
         antes = list(Oficio.objects.filter(ano=ano).values_list("pk", "numero"))
-        r = gestor.post(reverse("viagens:numeracao"), {"ano": ano, "piso": 500})
-        assert r.status_code == 302
+        services.definir_piso(cenario.usuarios["gestor"], ano, 500)
         assert NumeracaoAnual.objects.get(ano=ano).piso == 500
         assert list(Oficio.objects.filter(ano=ano).values_list("pk", "numero")) == antes
         proximo = next(a for a in services.resumo_numeracao() if a.ano == ano).proximo
         assert proximo == 500
         assert services.criar_rascunho(cenario.usuarios["operador"]).numero == 500
 
-    def test_valores_invalidos_voltam_com_mensagem(self, gestor):
-        r = gestor.post(reverse("viagens:numeracao"), {"ano": "2026", "piso": "0"})
-        assert r.status_code == 422 and "1 a 99999" in r.content.decode()
-        r = gestor.post(reverse("viagens:numeracao"), {"ano": "abc", "piso": "1"})
-        assert r.status_code == 422 and "em números" in r.content.decode()
+    def test_a_tela_de_numeracao_nao_existe_mais(self, gestor):
+        assert gestor.get("/viagens/oficios/numeracao/").status_code == 404
 
 
 class TestFiltroPorDataDoOficio:

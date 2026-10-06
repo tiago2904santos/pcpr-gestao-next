@@ -879,8 +879,6 @@ a.resumo__documento:hover {
 .campos > .campo--xs { flex: 0 1 6.5rem; }
 .campos > .campo--sm { flex: 0 1 10rem; }
 .campos > .campo--md { flex: 0 1 14rem; }
-/* Botão na linha dos campos (ex.: "Salvar piso"): do tamanho dele, alinhado à base. */
-.campos > .campo--acao { flex: 0 0 auto; align-self: flex-end; }
 .campos > .campo--lg { flex: 1 1 18rem; }
 .campos > .campo--cresce { flex-grow: 1; }
 

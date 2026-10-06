@@ -52,8 +52,6 @@ registrar_modulo(
                      requer="cadastros.view_configuracaoinstitucional"),
                 Item("Textos prontos", "cadastros:textos", "text-quote",
                      requer="cadastros.view_modelotexto"),
-                Item("Numeração dos ofícios", "viagens:numeracao", "list-ordered",
-                     requer="viagens.gerir_numeracao"),
                 Item("Usuários e perfis", "cadastros:usuarios", "user-round",
                      requer="identidade.view_usuario"),
             )),

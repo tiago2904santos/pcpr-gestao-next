@@ -24,7 +24,6 @@ urlpatterns = [
     path("oficios/", views.lista, name="oficios"),
     path("oficios/novo/", views.novo, name="novo"),
     path("oficios/exportar/", views.exportar, name="exportar_oficios"),
-    path("oficios/numeracao/", views.numeracao, name="numeracao"),
     path("justificativas/", views.justificativas, name="justificativas"),
     path("justificativas/<int:pk>/salvar/", views.salvar_justificativa,
          name="salvar_justificativa"),

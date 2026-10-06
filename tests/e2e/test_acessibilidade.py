@@ -43,12 +43,11 @@ def test_paginas_autenticadas_sem_violacoes_graves(logado, dados_e2e, rota):
     _avaliar(logado, resolver(rota, dados_e2e.ids))
 
 
-@pytest.mark.parametrize("rota", ["/viagens/oficios/numeracao/",
-                                  "/cadastros/textos-prontos/?tipo=motivo",
+@pytest.mark.parametrize("rota", ["/cadastros/textos-prontos/?tipo=motivo",
                                   "/cadastros/diarias/?novo=1",
                                   "/cadastros/configuracao/"])
 def test_telas_do_gestor_sem_violacoes_graves(pagina, dados_e2e, rota):
-    """Telas que só o gestor abre (numeração; padrão dos textos prontos; nova vigência de
+    """Telas que só o gestor abre (padrão dos textos prontos; nova vigência de
     diária; configuração da unidade editável)."""
     entrar(pagina, "gestor")
     _avaliar(pagina, rota)

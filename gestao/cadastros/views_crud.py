@@ -270,10 +270,6 @@ def indice(request: HttpRequest) -> HttpResponse:
         apoio.append({"titulo": "Textos prontos", "icone": "text-quote",
                       "texto": "Motivos, justificativas e trechos reaproveitados.",
                       "url": reverse("cadastros:textos")})
-    if usuario.has_perm("viagens.gerir_numeracao"):
-        apoio.append({"titulo": "Numeração dos ofícios", "icone": "list-ordered",
-                      "texto": "Número inicial do ano e lacunas livres.",
-                      "url": reverse("viagens:numeracao")})
     if not visiveis and not apoio and not plano:
         raise PermissionDenied
     return render(request, "cadastros/indice.html", {

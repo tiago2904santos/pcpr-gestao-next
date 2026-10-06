@@ -20,7 +20,7 @@ Retomar daqui: ler "Em andamento" e "Próximos passos".
 | Viagens | `viagem/lista.html` | concluída |
 | Ofícios | `oficios/lista.html` | revisada — já no padrão (busca, ordem, filtros, barra) |
 | Justificativas | `justificativas/lista.html` | concluída |
-| Numeração | `numeracao.html` | concluída |
+| Numeração | (excluída a pedido — a regra de numeração e o piso continuam no serviço) | removida |
 | Prestação de contas | `prestacao/lista.html` | concluída |
 | Termos de autorização | `termos/lista.html` | referência — alinhada a Roteiros |
 | Ordens de serviço | `ordens/lista.html` | concluída |
@@ -57,7 +57,7 @@ Retomar daqui: ler "Em andamento" e "Próximos passos".
 - **Prestação de contas:** cartão do servidor numa linha (quem · 3 campos · ações), diária em
   destaque, pendências recolhidas ("N pendências para finalizar", com o "finalizar mesmo
   assim" dentro), "Exportar planilha" na barra do rodapé; 360/768/1440 sem rolagem lateral.
-- **Numeração:** Ano, Piso e Salvar numa linha (`.campo--acao`, novo, compartilhado).
+- **Numeração:** página excluída a pedido (rota, view, template, menu e cartão em Cadastros).
 
 ## Em andamento
 - Folhas: Viagem → Ofício → OS → Resultados → Diário → Relatório → Anexos → Via assinada.
@@ -70,7 +70,6 @@ Retomar daqui: ler "Em andamento" e "Próximos passos".
 
 ## Componentes compartilhados melhorados
 - `.alerta:focus` sem contorno (qualquer alerta, não só `tabindex=-1`).
-- `.campos > .campo--acao` (botão na linha dos campos, alinhado à base).
 - (rodada anterior) `pc-escolhas` (várias escolhas num campo), `campo--escolhas`,
   `entrada-composta__meta`, botão Atualizar do editor, cadastro rápido com `data-sem-escolher`.
 
