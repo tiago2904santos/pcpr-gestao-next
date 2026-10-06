@@ -35,6 +35,7 @@ com o seu formulário.
   </div>
   {% if palestra %}
   <div class="pagina-cabecalho__acoes">
+    {% if pedir_coffee %}<a class="botao" href="{{ pedir_coffee }}">{% icone "receipt" %}Pedir coffee break</a>{% endif %}
     {% if editavel %}<a class="botao" href="#resposta">{% icone "mail" %}Responder</a><a class="botao" href="#andamento">{% icone "activity" %}Andamento</a>{% endif %}
   </div>
   {% endif %}

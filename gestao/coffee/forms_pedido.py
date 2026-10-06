@@ -70,6 +70,8 @@ class FormularioSolicitacao(forms.Form):
     versao = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"form": FORM_ID}))
     duplicada_de = forms.IntegerField(required=False,
                                       widget=forms.HiddenInput(attrs={"form": FORM_ID}))
+    origem = forms.CharField(required=False, max_length=30,
+                             widget=forms.HiddenInput(attrs={"form": FORM_ID}))
 
     def __init__(self, *args, solicitacao=None, **kwargs):
         super().__init__(*args, **kwargs)

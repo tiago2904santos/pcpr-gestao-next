@@ -71,6 +71,10 @@ class Solicitacao(Carimbos):
                                            blank=True)
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                    related_name="+")
+    # De onde veio o pedido (CB7b): a chave registrada em `ganchos` ("evento", "palestra")
+    # e o id lá — sem chave estrangeira, o Coffee Break não conhece os outros contextos.
+    origem_tipo = models.CharField("origem do pedido", max_length=20, blank=True)
+    origem_id = models.PositiveIntegerField("id na origem", null=True, blank=True)
 
     class Meta:
         app_label = "coffee"

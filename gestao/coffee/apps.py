@@ -7,4 +7,11 @@ class CoffeeConfig(AppConfig):
     verbose_name = "Coffee Break"
 
     def ready(self) -> None:
-        from . import navegacao  # noqa: F401  (registra o módulo no menu)
+        from . import (
+            agenda,
+            busca,
+            navegacao,  # noqa: F401  (registra o módulo no menu)
+        )
+
+        agenda.registrar()
+        busca.registrar()

@@ -245,3 +245,9 @@ def test_relatorio_e_virada_do_coffee_break_de_exemplo(dataset):
     assert r.meses and r.municipios and r.capacidade == 3000
     origem = virada.exercicio_de_origem()
     assert origem is not None and virada.lotes_de_origem(origem)  # "Abrir exercício N+1"
+
+
+def test_coffee_pedido_a_partir_de_um_evento_de_exemplo(dataset):
+    from gestao.coffee.models import Solicitacao as OrdemCoffee
+
+    assert OrdemCoffee.objects.filter(origem_tipo="evento", origem_id__isnull=False).exists()

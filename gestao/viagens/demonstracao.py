@@ -1104,7 +1104,23 @@ def semear(hoje: date | None = None, escala: float = 1.0) -> Resultado:
     coffee_demo.semear(gerador.hoje, gerador.demo)
     from gestao.eventos import demonstracao as eventos_demo
     eventos_demo.semear(gerador.demo, gerador.hoje, tuple(gerador.operadores.values())[:3])
+    _coffee_pedido_do_evento()
     return resumo(len(oficios))
+
+
+def _coffee_pedido_do_evento() -> None:
+    """Uma OS de coffee break pedida a partir de uma solicitação de evento (CB7b), para a
+    ligação e o aviso de remarcação aparecerem no PREVIEW."""
+    from gestao.coffee.models import Solicitacao as OrdemCoffee
+    from gestao.eventos.models import Solicitacao as Evento
+
+    evento = (Evento.objects.filter(data_inicio_evento__isnull=False)
+              .order_by("data_inicio_evento", "pk").first())
+    ordem = (OrdemCoffee.objects.filter(cancelada=False, data_evento__isnull=False)
+             .order_by("-data_evento", "pk").first())
+    if evento is not None and ordem is not None:
+        OrdemCoffee.objects.filter(pk=ordem.pk).update(origem_tipo="evento",
+                                                       origem_id=evento.pk)
 
 
 def acertar_datas_dos_documentos() -> None:

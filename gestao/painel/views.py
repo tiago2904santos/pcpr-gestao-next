@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.decorators.http import require_GET
 
+from gestao.coffee import painel as coffee_painel
 from gestao.plataforma import busca as busca_global
 from gestao.plataforma.navegacao import navegacao_para
 from gestao.viagens import policies as viagens_policies
@@ -24,6 +26,8 @@ def inicio(request: HttpRequest) -> HttpResponse:
             m["indicadores"] = [("No mês", ind["oficios_mes"], False),
                                 ("Rascunhos", ind["rascunhos"], bool(ind["rascunhos"])),
                                 ("Em 30 dias", ind["viagens_30_dias"], False)]
+        elif m["chave"] == "coffee":
+            m["indicadores"] = coffee_painel.indicadores_do_inicio(timezone.localdate())
     return render(request, "painel/inicio.html", {"modulos": modulos, "futuros": FUTUROS})
 
 

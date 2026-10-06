@@ -85,7 +85,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 18h | Coffee Break CB5c (anexo do protocolo: lista ordenada, quatro arquivos, PDF único/ZIP, atesto ao baixar; textos do eProtocolo com "Copiar") | feito (CB5c) |
 | 18i | Coffee Break CB6a (entregas e ocorrências; painel com indicadores, alerta de saldo pela projeção, vigência, certidões, "O que fazer hoje"; "parada há N dias" na lista; resumo das entregas por fornecedor) | feito (CB6a) |
 | 18j | Coffee Break CB6b (relatório do contrato em tela/PDF/CSV; virada de exercício com cópia dos lotes, impedimentos e encerrar) | feito (CB6b) |
-| 18k | Coffee Break CB7 (integrações: pedir de Eventos/Palestras, agenda, início, busca), CB5d (contrato lido do PDF), CB8 (fornecedor — depende de SMTP/decisão), CB9 (importações) | pendente |
+| 18k | Coffee Break CB7a/b (Agenda: OS, vigência e certidões; busca global; cartão da página inicial; "Pedir coffee break" de Eventos e de Palestras com a OS ligada à origem e o aviso de remarcação) | feito (CB7a/b) |
+| 18m | Coffee Break CB7c ("Preencher com um e-mail" e locais já usados), CB5d (contrato lido do PDF), relatórios consolidados (com o item 19), CB8 (fornecedor — depende de SMTP/decisão), CB9 (importações) | pendente |
 | 18l | Painel do Coffee Break: rótulo da coluna lateral "Alertas e lotes" (o bloco `rotulo_lateral` já está no template; falta o arquétipo `arquetipos/painel.html` aceitá-lo — o arquivo tem mudança não commitada da sessão de correção visual) | pendente (depende da outra sessão) |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 

@@ -23,7 +23,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.models import Municipio
 
-from . import conflitos, dominio, ganchos, policies, queries, solicitacoes
+from . import conflitos, dominio, ganchos, pedir_coffee, policies, queries, solicitacoes
 from .forms import FORM_ID, FormularioSolicitacao, estrutura_do_post, quantidade
 from .models import AnexoSolicitacao, Equipe, Servico, Solicitacao, TextoDespacho, TipoEvento
 
@@ -194,6 +194,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         ctx["migalhas"] = _migalhas(("Nova solicitação", ""))
         return ctx
     ctx.update({
+        "pedir_coffee": pedir_coffee.url(request.user, s),
         "titulo": queries.titulo(s), "etapas": dominio.etapas(s.status),
         "selo": dominio.selo_de_tempo(s.data_inicio_evento, s.data_fim_evento, s.status, hoje),
         "em_cima": dominio.em_cima_da_hora(s.data_solicitacao, s.data_inicio_evento),

@@ -23,7 +23,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import conflitos, dominio, historico, policies, queries, services
+from . import conflitos, dominio, historico, pedir_coffee, policies, queries, services
 from .forms import (
     FORM_ID,
     FormularioAndamento,
@@ -165,6 +165,7 @@ def _contexto_folha(request: HttpRequest, form: FormularioPalestra, p: Palestra 
     tem_palestrante = p.palestrantes.exists()
     possiveis = dominio.opcoes_de_status(p.status, p.data_inicio_evento, hoje)
     contexto.update({
+        "pedir_coffee": pedir_coffee.url(request.user, p),
         "quando": dominio.quando(p.data_inicio_evento, p.data_fim_evento, hoje),
         "etapas": dominio.etapas(p.status),
         "andamento": andamento or FormularioAndamento(),

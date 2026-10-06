@@ -190,6 +190,17 @@ def o_que_fazer(hoje: date) -> list[Grupo]:
     return [g for g in grupos.values() if g.itens]
 
 
+def indicadores_do_inicio(hoje: date) -> list[tuple[str, int, bool]]:
+    """Os números do cartão do módulo na página inicial: saldo dos lotes, pendências
+    financeiras e lotes em alerta (paridade com `core/views.py` da referência)."""
+    lotes = _lotes_ativos(hoje)
+    pendencias = Solicitacao.objects.filter(queries.PENDENTES).count()
+    alerta = sum(1 for la in lotes if la.alerta)
+    return [("Saldo dos lotes", sum(la.saldo.restante for la in lotes), False),
+            ("Pendências", pendencias, bool(pendencias)),
+            ("Lotes em alerta", alerta, bool(alerta))]
+
+
 def montar(hoje: date) -> Painel:
     lotes = _lotes_ativos(hoje)
     gasto, pago = _gasto_do_ano(hoje.year)

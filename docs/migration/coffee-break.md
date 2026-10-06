@@ -867,6 +867,27 @@ como histórico.
   encerrar os de origem; mensagens da referência; recusa tudo se uma linha marcada tiver
   erro (com o erro na linha).
 
+## CB7a/b — integrações internas (06/10/2026)
+
+- **Agenda** (`coffee/agenda.py`): fonte "Coffee break" (OS com data: "<descrição> (N)",
+  Ativa/Cancelada — cancelada encerrada; detalhes evento, local, endereço, município,
+  quantidade, número, lote); prazos "Fim da vigência — Contrato/Termo aditivo …" e
+  "Certidão X vence — <fornecedor>" (só a vigente de cada tipo), com o tom do prazo. Só para
+  quem tem o módulo.
+- **Busca global** (`coffee/busca.py`): OS pelo número, evento, nota ou protocolo.
+- **Página inicial**: o cartão do módulo mostra Saldo dos lotes, Pendências e Lotes em
+  alerta (`painel.indicadores_do_inicio`).
+- **Origem do pedido** (`coffee/ganchos.py`; `eventos/pedir_coffee.py`,
+  `palestras/pedir_coffee.py` registram as origens — o Coffee Break não importa os outros
+  contextos): "Pedir coffee break" na folha da solicitação de evento e da palestra, só para
+  quem tem o módulo; a nova OS abre preenchida (município, data, horário, descrição no
+  formato da referência, local, quem recebe, público, endereço), só com origem que quem pede
+  enxerga (revalidada no POST); a OS guarda `origem_tipo`/`origem_id`, o histórico diz
+  "Pedido a partir de …", a folha mostra o link (ou só o rótulo, para quem não vê a origem)
+  e o aviso de remarcação da referência.
+- Fora: "criar aqui" da agenda (a agenda nova não tem esse atalho para nenhum módulo),
+  relatórios consolidados (item 19), "Preencher com um e-mail" e locais já usados (CB7c).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

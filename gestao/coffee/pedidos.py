@@ -73,7 +73,8 @@ def _numero(s: Solicitacao, digitado: str, ano: int) -> str:
 def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = None, *,
            retroativo: bool = False, justificativa: str = "",
            duplicada_de: Solicitacao | None = None, hoje: date | None = None,
-           versao: str | None = None) -> Resultado:
+           versao: str | None = None,
+           origem: tuple[str, int, str] | None = None) -> Resultado:
     """Grava a etapa 1. O lote vem do município (registro existente só troca de lote se o
     município mudar); vigência só para pedido novo ou quando município/data mudam; o saldo
     é revalidado com a linha do lote travada."""
@@ -121,6 +122,8 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
         if campo in dados and campo != "numero":
             setattr(s, campo, dados[campo])
     s.descricao = " ".join((s.descricao or "").split())
+    if novo and origem is not None:  # (chave, id, rótulo) do evento ou da palestra
+        s.origem_tipo, s.origem_id = origem[0], origem[1]
     s.lote = lote
     s.numero = _numero(s, dados.get("numero", ""), (dados["data_solicitacao"] or hoje).year)
     sal = queries.saldo(lote, exceto=s.pk)
@@ -144,10 +147,12 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
                     "numero") from None
             s.numero = queries.proximo_numero(dados["data_solicitacao"].year)
     if novo:
-        origem = f" Duplicada da solicitação {duplicada_de}." if duplicada_de else ""
+        de_onde = f" Duplicada da solicitação {duplicada_de}." if duplicada_de else ""
+        if origem is not None:
+            de_onde += f" Pedido a partir de {origem[2]}."
         _mover(s, usuario, Movimento.Acao.CRIADA,
                f"Solicitação {s.numero} registrada no {lote} ({lote.contrato.fornecedor})."
-               + origem)
+               + de_onde)
     else:
         mudancas = [c for c in CAMPOS if antes.get(c) != getattr(s, c)]
         if s.em_correcao:  # concluída reaberta: cada campo mudado fica no histórico

@@ -108,3 +108,25 @@ def test_gerar_viagem_da_deferida(logado, dados_e2e):
     v = Viagem.objects.get(solicitacoes_de_evento__solicitacao=s)
     assert f"(Solicitação #{s.pk})" in v.motivo
     assert not pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_pedir_coffee_break_a_partir_do_evento(logado, dados_e2e):
+    """CB7b: com o Coffee Break, a folha do evento leva à OS já preenchida e ligada."""
+    from .test_coffee import _lote_de_curitiba
+
+    _u, s = _cenario("ASCOM_COFFEE_BREAK")
+    _lote_de_curitiba()
+    pg = logado
+    pg.goto(f"/eventos/solicitacoes/{s.pk}/")
+    pg.get_by_role("link", name="Pedir coffee break").click()
+    expect(pg.locator("#id_municipio")).to_have_value("Curitiba/PR")
+    expect(pg.locator("#id_descricao")).to_have_value("Feira – Ginásio (e2e) – Curitiba")
+    pg.locator("#id_quantidade").fill("40")
+    pg.get_by_role("button", name="Registrar solicitação").click()
+    expect(pg.locator(".registros")).to_contain_text("Feira – Ginásio (e2e) – Curitiba")
+    from gestao.coffee.models import Solicitacao as OrdemCoffee
+    ordem = OrdemCoffee.objects.get()
+    assert (ordem.origem_tipo, ordem.origem_id) == ("evento", s.pk)
+    pg.goto(f"/coffee/solicitacoes/{ordem.pk}/")
+    expect(pg.get_by_role("link", name=f"Solicitação de evento #{s.pk}")).to_be_visible()
+    assert not pg.erros_console  # type: ignore[attr-defined]

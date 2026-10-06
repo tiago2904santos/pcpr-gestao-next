@@ -21,7 +21,18 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import resolver_municipio
 
-from . import conjunto, documentos, financeiro, pdfs, pedidos, policies, queries, vias, virada
+from . import (
+    conjunto,
+    documentos,
+    financeiro,
+    ganchos,
+    pdfs,
+    pedidos,
+    policies,
+    queries,
+    vias,
+    virada,
+)
 from . import dominio_painel as regras_painel
 from . import dominio_pedido as regras
 from .forms_pedido import (
@@ -187,7 +198,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
               duplicada: Solicitacao | None = None,
               form_fin: FormularioFinanceiro | None = None) -> dict:
     hoje = timezone.localdate()
-    ctx: dict = {"form": form, "s": s, "form_id": FORM_ID, "duplicada": duplicada,
+    ctx: dict = {"form": form, "s": s, "form_id": FORM_ID, "duplicada": duplicada, "origem": None,
                  "proximo_numero": queries.proximo_numero(hoje.year),
                  "msg_travados": MSG_TRAVADOS if form.travado else "",
                  "numero_ano": f"/ {(s.data_solicitacao if s else hoje).year}"}
@@ -234,6 +245,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         from .views_painel import contexto_da_folha  # o painel importa daqui
 
         ctx.update(contexto_da_folha(request, s))
+        ctx["origem"] = ganchos.cartao(request.user, s)
     else:
         ctx["migalhas"] = _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
                                     ("Nova solicitação", ""))
@@ -242,12 +254,16 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
 
 def _gravar(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None,
             duplicada: Solicitacao | None):
+    origem = None
+    if s is None and (achada := ganchos.resolver(request.user, form.cleaned_data.get("origem"))):
+        origem = (achada[0].chave, achada[1], achada[2].rotulo)  # revalidada no POST
     try:
         r = pedidos.salvar(request.user, form.cleaned_data, s,
                            retroativo=form.cleaned_data.get("retroativo", False),
                            justificativa=form.cleaned_data.get("justificativa", ""),
                            duplicada_de=duplicada,
-                           versao=form.cleaned_data.get("versao") if s is not None else None)
+                           versao=form.cleaned_data.get("versao") if s is not None else None,
+                           origem=origem)
     except pedidos.PedidoInvalido as exc:
         form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
         return None
@@ -275,6 +291,10 @@ def nova(request: HttpRequest) -> HttpResponse:
     inicial: dict = {}
     if duplicada is not None:
         inicial = {**pedidos.dados_para_duplicar(duplicada), "duplicada_de": duplicada.pk}
+    if (achada := ganchos.resolver(request.user, request.GET.get("origem"))):
+        inicial.update({**achada[2].iniciais, "origem": f"{achada[0].chave}:{achada[1]}"})
+        messages.info(request, f"Preenchida a partir de {achada[2].rotulo}: confira e "
+                               "complete antes de registrar.")
     if (inicio := _data(request.GET.get("inicio"))):
         inicial["data_evento"] = inicio
     return render(request, "coffee/folha.html",

@@ -11,3 +11,5 @@ class PalestrasConfig(AppConfig):
         agenda.registrar()
         busca.registrar()
         conflitos.registrar()
+        from . import pedir_coffee
+        pedir_coffee.registrar()  # "Pedir coffee break" (CB7b)

@@ -41,11 +41,12 @@ reativar, excluir, reabrir para correção) e o histórico.
 {% elif s and s.em_correcao %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "pencil" %}<div class="alerta__corpo"><p>Aberta para correção: o que mudar fica no histórico, campo a campo.</p></div></div>
 {% elif s and s.concluida %}<div class="alerta alerta--sucesso mb-4" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p>Fluxo financeiro concluído: a solicitação fica só para consulta.</p></div></div>{% endif %}
 {% if msg_travados %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>{{ msg_travados }}</p></div></div>{% endif %}
+{% if origem %}<div class="alerta alerta--{% if origem.aviso %}aviso{% else %}info{% endif %} mb-4" role="status">{% icone "flag" %}<div class="alerta__corpo"><p>Pedido a partir de {% if origem.url %}<a href="{{ origem.url }}">{{ origem.rotulo }}</a>{% else %}{{ origem.rotulo }}{% endif %}.</p>{% if origem.aviso %}<p><strong>{{ origem.aviso }}</strong></p>{% endif %}</div></div>{% endif %}
 {% if aviso_antecedencia %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ aviso_antecedencia }}</p></div></div>{% endif %}
 
 <form method="post" novalidate id="{{ form_id }}" class="documento documento--cartoes" data-proteger action="{% if s %}{% url 'coffee:solicitacao' s.pk %}{% else %}{% url 'coffee:nova' %}{% endif %}">
   {% csrf_token %}
-  {{ form.versao }}{{ form.duplicada_de }}
+  {{ form.versao }}{{ form.duplicada_de }}{{ form.origem }}
   <section class="secao{% if s %} secao--ok{% endif %}" id="evento" aria-labelledby="t-evento">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-evento"><span class="secao__numero">1</span>Evento e pedido</h2><p class="secao__nota">O município define o lote e o fornecedor; a quantidade sai do saldo do lote.</p></div>
     <div class="campos">

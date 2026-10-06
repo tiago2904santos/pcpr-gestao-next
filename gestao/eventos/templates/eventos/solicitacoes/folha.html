@@ -32,6 +32,7 @@ histórico.
   {% if s %}
   <div class="pagina-cabecalho__acoes">
     {% if pode_reabrir and not reabrir %}<a class="botao" href="?reabrir=1">{% icone "pencil" %}Alterar</a>{% endif %}
+    {% if pedir_coffee %}<a class="botao" href="{{ pedir_coffee }}">{% icone "receipt" %}Pedir coffee break</a>{% endif %}
     <form method="post" action="{% url 'eventos:duplicar' s.pk %}">{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "copy" %}Duplicar</button></form>
     {% if pode_excluir %}<form method="post" action="{% url 'eventos:excluir' s.pk %}" data-confirmar="O rascunho #{{ s.pk }} será excluído de vez." data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "trash-2" %}Excluir</button></form>{% endif %}
   </div>
