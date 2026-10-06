@@ -141,6 +141,10 @@
   --cor-foco: var(--foco-cor);
   --anel-foco: 0 0 0 var(--foco-offset) var(--foco-contraste),
     0 0 0 calc(var(--foco-offset) + var(--foco-espessura)) var(--foco-cor);
+  /* O mesmo anel por dentro, para quem mora num contêiner que corta o que vaza (abas que
+     rolam de lado): grafite na borda, halo claro do lado de dentro. */
+  --anel-foco-interno: inset 0 0 0 var(--foco-espessura) var(--foco-cor),
+    inset 0 0 0 calc(var(--foco-espessura) + var(--foco-offset)) var(--foco-contraste);
 
   --cor-sucesso: var(--verde-700);
   --cor-sucesso-solida: var(--verde-600);

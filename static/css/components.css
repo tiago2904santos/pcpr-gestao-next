@@ -2670,9 +2670,27 @@ fieldset.campo--escolhas > .campo__erro {
   text-decoration: none;
 }
 
+/* Foco com o anel do Design System (LP-11), por dentro: a fileira rola de lado e cortaria
+   um anel de fora. Antes era um retângulo de cantos vivos (outline com recuo negativo). */
 .aba:focus-visible {
-  outline-offset: calc(-1 * var(--foco-offset));
-  box-shadow: none;
+  outline: none;
+  border-radius: var(--raio-md);
+  box-shadow: var(--anel-foco-interno);
+}
+
+/* Indício de rolagem (abas-rolagem.js marca data-rola): a borda que esconde abas se
+   esmaece. A máscara só lê o alfa — qualquer cor opaca serve. */
+.abas[data-rola="fim"] {
+  mask-image: linear-gradient(to right, var(--cor-texto) calc(100% - 2.5rem), transparent);
+}
+
+.abas[data-rola="inicio"] {
+  mask-image: linear-gradient(to left, var(--cor-texto) calc(100% - 2.5rem), transparent);
+}
+
+.abas[data-rola="inicio fim"] {
+  mask-image: linear-gradient(to right, transparent, var(--cor-texto) 2.5rem,
+    var(--cor-texto) calc(100% - 2.5rem), transparent);
 }
 
 .aba[aria-selected="true"],

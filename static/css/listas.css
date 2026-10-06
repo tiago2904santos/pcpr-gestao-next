@@ -997,8 +997,8 @@ a.ficha:hover {
 }
 
 .filtros__mais-resumo:focus-visible {
-  outline: var(--foco-espessura) solid var(--foco-cor);
-  outline-offset: var(--foco-offset);
+  outline: none;
+  box-shadow: var(--anel-foco); /* o anel do Design System (LP-11) */
 }
 
 .filtros__mais-seta {
