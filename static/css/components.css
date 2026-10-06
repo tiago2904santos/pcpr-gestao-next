@@ -1186,7 +1186,7 @@ a.resumo__documento:hover {
 }
 
 .placa__rotulo {
-  font-size: 0.5625rem;
+  font-size: var(--texto-2xs);
   font-weight: var(--peso-forte);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1201,8 +1201,12 @@ a.resumo__documento:hover {
   white-space: nowrap;
 }
 
+/* Cancelado: só o número é riscado — o rótulo ("OFÍCIO") continua legível. */
 .placa--cancelada {
   color: var(--cor-texto-terciario);
+}
+
+.placa--cancelada .placa__numero {
   text-decoration: line-through;
   text-decoration-color: var(--cor-perigo);
 }
