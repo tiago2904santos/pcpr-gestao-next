@@ -603,11 +603,6 @@
   display: none;
 }
 
-/* Programa ocupa metade da linha; período e horário, um quarto cada. */
-.campos--iguais.programa-plano > .campo:has(pc-escolhas) {
-  flex: 2 1 0;
-}
-
 .programa-plano > .programa-plano__outro {
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
@@ -1474,3 +1469,50 @@
   border-top: 0;
 }
 
+/* Vínculos da viagem (ofícios, roteiros, planos, OS, termos): uma lista contínua com
+   divisórias — uma linha por documento, em colunas — no lugar de caixas soltas que
+   quebravam o texto em três linhas. O marcado ganha o fundo da marca. */
+.vinculo .caixas {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+  gap: 0;
+  overflow: hidden;
+  border: var(--borda);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie);
+}
+
+.vinculo .caixas__item {
+  align-items: center;
+  margin-bottom: -1px; /* o filete da última linha some sob a borda da caixa */
+  padding: var(--esp-2) var(--esp-3);
+  border: 0;
+  border-bottom: var(--borda-sutil);
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--texto-sm);
+}
+
+.vinculo .caixas__item:hover {
+  background: var(--cor-superficie-sutil);
+}
+
+.vinculo .caixas__item:has(input:checked) {
+  border-color: var(--cor-borda-sutil);
+  background: var(--cor-marca-fundo);
+  font-weight: var(--peso-medio);
+}
+
+.vinculo .caixas__item:has(input:focus-visible) {
+  outline-offset: -2px;
+}
+
+/* Grade de campos curtos repetidos (ex.: a diária de cada servidor no relatório técnico):
+   até três por linha, sem a largura toda para um valor em reais. */
+.grade-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--esp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

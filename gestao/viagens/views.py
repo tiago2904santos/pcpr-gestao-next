@@ -780,7 +780,7 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
     """Minuta em PDF gerada na hora (rascunho), com marca d'água — não é arquivada."""
     oficio = _oficio_visivel(request, pk)
     tipo = request.GET.get("tipo", "oficio")
-    if tipo not in {"oficio", "justificativa"}:
+    if tipo not in {"oficio", "justificativa", "todos"}:
         raise Http404
     dados = dados_do_oficio(oficio)
     from weasyprint import HTML
@@ -788,10 +788,13 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
     # O texto editado vai junto: a minuta é a mesma folha do editor, em PDF (ADR 0018).
     # Sem `regioes`, `html_do_documento` cairia no modelo puro — e o botão "PDF" da barra
     # mostrava um documento diferente do que estava escrito ao lado, no modo "Texto".
-    html = html_do_documento(tipo, dados, previa=True,
-                             regioes=services.regioes_vigentes(oficio, tipo))
-    pdf = HTML(string=html, base_url=str(ASSETS),
-               url_fetcher=buscar_recurso()).write_pdf()
+    # "todos": o ofício e a justificativa num PDF só (o modo PDF do bloco de documentos).
+    tipos = ["oficio", "justificativa"] if tipo == "todos" else [tipo]
+    folhas = [HTML(string=html_do_documento(t, dados, previa=True,
+                                            regioes=services.regioes_vigentes(oficio, t)),
+                   base_url=str(ASSETS), url_fetcher=buscar_recurso()).render()
+              for t in tipos]
+    pdf = folhas[0].copy([pagina for f in folhas for pagina in f.pages]).write_pdf()
     resposta = HttpResponse(pdf, content_type="application/pdf")
     resposta["Content-Disposition"] = f'inline; filename="minuta-{oficio.numero}-{oficio.ano}.pdf"'
     return resposta

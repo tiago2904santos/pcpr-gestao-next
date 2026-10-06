@@ -1058,8 +1058,6 @@ a.ficha:hover {
 }
 
 .prestacao-servidor {
-  display: grid;
-  gap: var(--esp-2);
   padding: var(--esp-3) var(--esp-4);
 }
 
@@ -1069,6 +1067,25 @@ a.ficha:hover {
 
 .prestacao-servidor--fechado {
   background: var(--cor-superficie-sutil);
+}
+
+/* Uma linha no desktop: quem (nome, selos, diária) · os três campos · as ações; a linha de
+   baixo (devolução, justificativa, pendências) ocupa a largura toda e só existe com conteúdo. */
+.prestacao-servidor__form {
+  display: grid;
+  grid-template-columns: minmax(13rem, 1fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.prestacao-servidor__form--leitura {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.prestacao-servidor__quem {
+  display: grid;
+  gap: var(--esp-05);
+  min-width: 0;
 }
 
 .prestacao-servidor__topo {
@@ -1082,17 +1099,32 @@ a.ficha:hover {
   font-weight: var(--peso-semi);
 }
 
+.prestacao-servidor__campos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--esp-3);
+}
+
 .prestacao-servidor__acoes {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--esp-2);
 }
 
-.prestacao-servidor__campos {
+.prestacao-servidor__acoes:empty {
+  display: none;
+}
+
+.prestacao-servidor__rodape {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-  gap: var(--esp-2) var(--esp-3);
+  grid-column: 1 / -1;
+  gap: var(--esp-2);
+}
+
+.prestacao-servidor__rodape:not(:has(*)) {
+  display: none;
 }
 
 .prestacao-servidor__nota {
@@ -1101,9 +1133,14 @@ a.ficha:hover {
   font-size: var(--texto-xs);
 }
 
+.prestacao-servidor__nota strong {
+  color: var(--cor-texto);
+  font-variant-numeric: tabular-nums;
+}
+
 .prestacao-servidor__status {
-  flex: 0 1 auto;
-  margin: 0 0 0 auto;
+  margin: 0;
+  color: var(--cor-texto-terciario);
   font-size: var(--texto-xs);
 }
 
@@ -1111,16 +1148,69 @@ a.ficha:hover {
   display: none;
 }
 
-.prestacao-servidor__justificar > summary {
+/* Pendências recolhidas: uma linha discreta; aberta, a lista e o "finalizar mesmo assim". */
+.prestacao-servidor__pendencias > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-aviso);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
   cursor: pointer;
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-sm);
+  list-style: none;
 }
 
-.prestacao-servidor__justificar[open] {
+.prestacao-servidor__pendencias > summary::-webkit-details-marker {
+  display: none;
+}
+
+.prestacao-servidor__pendencias[open] {
   display: grid;
   gap: var(--esp-2);
-  flex-basis: 100%;
+  padding: var(--esp-3);
+  border-radius: var(--raio-md);
+  background: var(--cor-aviso-fundo);
+}
+
+.prestacao-servidor__lista {
+  display: grid;
+  gap: var(--esp-1);
+  margin: 0;
+  padding-left: var(--esp-5);
+  color: var(--cor-texto);
+  font-size: var(--texto-xs);
+}
+
+.prestacao-servidor__justificar {
+  display: grid;
+  gap: var(--esp-2);
+  max-width: 40rem;
+}
+
+@media (max-width: 1023.98px) {
+  .prestacao-servidor__form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .prestacao-servidor__campos {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .prestacao-servidor__form,
+  .prestacao-servidor__campos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .prestacao-servidor__campos {
+    grid-row: auto;
+  }
+
+  .prestacao-servidor__acoes {
+    justify-content: flex-start;
+  }
 }
 
 /* Atalhos "pedem atenção" da prestação: filtros de uma aba só, mais discretos que as abas. */
@@ -1172,11 +1262,6 @@ a.ficha:hover {
   display: inline-flex;
   flex-wrap: wrap;
   gap: var(--esp-1);
-}
-
-.prestacao-servidor__notas {
-  display: grid;
-  gap: var(--esp-05);
 }
 /* Item de meta que é ação (ex.: "Usado em 3 ofícios" abre a lista): tem a mesma cara do
    texto ao lado, mas se comporta como botão. */

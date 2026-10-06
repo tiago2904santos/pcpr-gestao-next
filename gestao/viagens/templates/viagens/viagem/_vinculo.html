@@ -3,7 +3,7 @@
   <summary>{% icone "plus" classe="icone--sm" %}{{ campo.label }} <span class="texto-terciario texto-xs">· {{ campo.field.queryset.count|pluralizar:"disponível,disponíveis" }}{% if campo.value %} · {{ campo.value|length|pluralizar:"marcado,marcados" }}{% endif %}</span></summary>
   <div class="divulgacao__corpo">
     {% if campo.field.queryset %}
-      <fieldset class="campo">
+      <fieldset class="campo vinculo">
         <legend class="sr-only">{{ campo.label }} para vincular</legend>
         {{ campo }}
       </fieldset>

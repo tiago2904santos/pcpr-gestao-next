@@ -241,10 +241,11 @@ class TestTelas:
         plano = PlanoTrabalho.objects.get()
         assert r["Location"] == reverse("viagens:editar_plano", args=[plano.pk])
         html = cli.get(r["Location"]).content.decode()
-        for ancora in ("identificacao", "efetivo", "atividades", "documento", "conferencia",
+        for ancora in ("identificacao", "efetivo", "atividades", "documento", "eventos",
                        "previa", "historico"):
             assert f'id="{ancora}"' in html
-        assert 'href="#identificacao">Informe o coordenador administrativo.' in html
+        # O que falta: no selo do cabeçalho (leva ao cartão Documento) e no do cartão.
+        assert 'href="#documento"' in html and "Faltam dados" in html
         assert reverse("viagens:folha_plano", args=[plano.pk]) in html
 
     def test_conjunto_padrao_vem_marcado_no_plano_sem_atividade(self, c):
@@ -513,7 +514,8 @@ class TestVariosEventos:
         assert 'id="dialogo-evento"' in html and 'id="evento_data_inicio"' in html
         agente = Cargo.objects.get(nome="Agente de Polícia Judiciária")
         r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
-            "programa": "outro", "programa_outros": "Feira fictícia", "data_inicio": "28/06/2030",
+            "programa_outro": "on", "programa_outros": "Feira fictícia",
+            "data_inicio": "28/06/2030",
             "destinos": ["Sarandi/PR"], "horario": "09:00 até 17:00",
             "efetivo_presente": "1", "efetivo_unidade": [""], "efetivo_cargo": [str(agente.pk)],
             "efetivo_quantidade": ["3"],
@@ -543,6 +545,56 @@ class TestVariosEventos:
         with pytest.raises(PermissionDenied):
             planos.salvar_evento(c.usuarios["operador"], plano.pk)
 
+
+
+class TestRefinamentosDaFolha:
+    def test_evento_com_varios_programas_sem_repetir_na_contextualizacao(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)  # programa do plano: Paraná em Ação
+        parana = ProgramaSolicitante.objects.get(nome="PROGRAMA PARANÁ EM AÇÃO")
+        bairro = ProgramaSolicitante.objects.get(nome="PROGRAMA JUSTIÇA NO BAIRRO")
+        evento = planos.salvar_evento(op, plano.pk, programas=[parana, bairro],
+                                      programa_outros="Feira fictícia",
+                                      data_inicio=date(2030, 6, 27))
+        assert evento.programa == parana
+        assert evento.programa_nome == ("PROGRAMA PARANÁ EM AÇÃO, PROGRAMA JUSTIÇA NO BAIRRO "
+                                        "e Feira fictícia")
+        plano = PlanoTrabalho.objects.get(pk=plano.pk)
+        assert plano.contextualizacao.count("Programa Paraná em Ação") == 1
+        assert "Programa Justiça no Bairro e Feira Fictícia" in plano.contextualizacao
+
+    def test_docx_traz_as_secoes_que_comecam_pagina_nova(self, c):
+        from io import BytesIO
+
+        from docx import Document
+        plano = _completo(c)
+        planos.finalizar(c.usuarios["operador"], plano.pk)
+        plano.refresh_from_db()
+        texto = " | ".join(p.text for p in Document(BytesIO(
+            planos.docx_do_documento(planos.dados_do_documento(plano)))).paragraphs)
+        for secao in ("Atuação", "Atividades a serem desenvolvidas", "Valor total do plano",
+                      "Coordenador do evento", "Considerações finais"):
+            assert secao in texto
+
+    def test_a_tela_sem_assinante_nem_data_nao_apaga_os_gravados(self, c):
+        op = c.usuarios["operador"]
+        assinante = Servidor.objects.filter(unidade__sigla="ASCOM").first()
+        plano = _completo(c, assinante=assinante, data_documento=date(2030, 6, 20))
+        r = _cliente(op).post(reverse("viagens:autosave_plano", args=[plano.pk]),
+                              TestRevisoes()._post_da_tela(plano))
+        assert r.json()["salvo"] is True
+        plano.refresh_from_db()
+        assert plano.assinante == assinante and plano.data_documento == date(2030, 6, 20)
+
+    def test_cadastro_rapido_de_conjunto_devolve_as_atividades(self, c):
+        from django.contrib.auth.models import Permission
+        gestor = c.usuarios["gestor"]
+        gestor.user_permissions.add(Permission.objects.get(codename="add_presetatividades"))
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        r = _cliente(gestor).post(
+            reverse("cadastros:salvar_catalogo", args=["conjuntos"]),
+            {"nome": "Só CIN", "atividades": [str(cin.pk)]}, HTTP_ACCEPT="application/json")
+        assert r.status_code == 200 and r.json()["ids"] == str(cin.pk)
 
 
 class TestResultados:

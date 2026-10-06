@@ -3,7 +3,6 @@
 {% block titulo %}Prestação de contas{% endblock %}
 {% block titulo_lista %}Prestação de contas{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Lance a solicitação, a liberação e o prazo de saque de cada servidor (grava sozinho); finalize e registre o envio ao financeiro.</p>{% endblock %}
-{% block acoes_lista %}<a class="botao" href="{% url 'viagens:exportar_prestacoes' %}{% if querystring_base %}?{{ querystring_base }}{% endif %}">{% icone "download" %}Exportar planilha</a>{% endblock %}
 {% comment %}
 Paridade com a lista de prestações da referência (docs/migration/prestacao.md): abas de
 situação e atalhos "pedem atenção" (aceitam várias, juntas por OU, pela URL), busca por
@@ -20,7 +19,7 @@ esperam as gravações pendentes (data-esperar-salvamento).
     <a class="aba" href="?aba={{ chave }}{% if busca %}&amp;q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:chave }}</span></a>
   {% endfor %}
 </nav>
-<nav class="atalhos-atencao" aria-labelledby="atalhos-atencao-rotulo">
+<nav class="atalhos-atencao" id="atalhos-atencao" aria-labelledby="atalhos-atencao-rotulo">
   <span class="atalhos-atencao__rotulo" id="atalhos-atencao-rotulo">Pedem atenção:</span>
   {% for chave, rotulo in abas_atencao %}{% with n=contagens|get_item:chave %}
     <a class="atalhos-atencao__item{% if n and chave != 'finalizadas_mes' %} atalhos-atencao__item--alerta{% endif %}" href="?aba={{ chave }}{% if busca %}&amp;q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ n }}</span></a>
@@ -29,17 +28,20 @@ esperam as gravações pendentes (data-esperar-salvamento).
 {% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:prestacoes' %}">
+<form class="filtros" role="search" method="get" action="{% url 'viagens:prestacoes' %}"
+      hx-get="{% url 'viagens:prestacoes' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro, #atalhos-atencao" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-prestacoes">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-prestacoes">Buscar</label>
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-prestacoes" type="search" name="q" value="{{ busca }}" placeholder="Servidor, ofício, protocolo…" autocomplete="off"></div>
   </div>
-  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
 {% endblock %}
 
 {% block resultados %}
+<div id="resultados">
 <div class="lista-cabecalho">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Prestações por ofício{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ total_servidores|pluralizar:"servidor,servidores" }} em {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
@@ -90,9 +92,15 @@ esperam as gravações pendentes (data-esperar-salvamento).
 {% else %}
   {% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma prestação de contas ainda" texto="Ela nasce sozinha quando um ofício com equipe é emitido." %}
 {% endif %}
+</div>
 {% endblock %}
 
 {% block depois_lista %}
+{# Barra do rodapé, como em Ofícios: o recorte e a planilha dele. #}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ total_servidores|pluralizar:"servidor,servidores" }} em {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
+  <a class="botao" href="{% url 'viagens:exportar_prestacoes' %}{% if querystring_base %}?{{ querystring_base }}{% endif %}">{% icone "download" %}Exportar planilha</a>
+</div>
 {% include "componentes/dialogo_motivo.html" %}
 {% for b in blocos %}
   {% for l in b.linhas %}{% if l.editavel and l.ps.finalizada and l.ps.situacao != "enviada" and l.ps.situacao != "aprovada" %}{% include "viagens/prestacao/_envio.html" with ps=l.ps equipe=False %}{% endif %}{% endfor %}

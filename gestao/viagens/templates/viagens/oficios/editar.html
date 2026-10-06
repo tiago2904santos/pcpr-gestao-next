@@ -272,35 +272,43 @@ confirmação — e é ele que escreve no histórico.
     </div>
 
     {% comment %}
-    Visualizador com editor (ADR 0018): a folha do documento, como vai sair, dentro do
-    cartão — e é nela que se escreve. O texto em volta dos dados pode ser ajustado; os
-    dados do cadastro (motivo, protocolo…) ficam vivos e gravam no ofício. Com
-    justificativa, a segunda folha entra numa aba ao lado.
+    Visualizador com editor (ADR 0018), no mesmo bloco do termo, da OS e do plano
+    (componentes/editores.js): a barra no topo; embaixo, o índice com a miniatura de cada
+    folha (ofício e, quando há, a justificativa) e as folhas inteiras ao lado. "PDF" troca o
+    bloco por um PDF só com todos os documentos. Os dados do cadastro (motivo, protocolo…)
+    ficam vivos na folha e gravam no ofício.
     {% endcomment %}
-    <div class="secao__bloco" id="minuta" aria-labelledby="t-minuta">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-minuta">{% icone "file-pen-line" classe="icone--sm" %}Minuta</h3>
-        <div class="secao__estado"><span class="texto-terciario texto-xs">{% if pode_editar_texto %}escreva direto na folha — salva sozinho{% else %}gerada agora, com marca d'água{% endif %}</span></div>
-      </div>
+    <div class="secao__bloco" id="minuta" aria-label="Documentos do ofício">
       {% url 'viagens:baixar_oficio' oficio.pk as baixar_url %}
       {% url 'viagens:folha' oficio.pk 'oficio' as folha_oficio %}{% url 'viagens:editor_estado' oficio.pk 'oficio' as estado_oficio %}{% url 'viagens:previa' oficio.pk as pdf_oficio %}
-      {% if mostrar_justificativa %}
-      {% url 'viagens:folha' oficio.pk 'justificativa' as folha_just %}{% url 'viagens:editor_estado' oficio.pk 'justificativa' as estado_just %}
-      <pc-abas>
-        <div role="tablist" class="abas" aria-label="Documentos do ofício">
-          <button type="button" role="tab" class="aba" id="aba-doc-oficio" aria-controls="painel-doc-oficio" aria-selected="true">Ofício</button>
-          <button type="button" role="tab" class="aba" id="aba-doc-justificativa" aria-controls="painel-doc-justificativa">Justificativa</button>
+      {% if mostrar_justificativa %}{% url 'viagens:folha' oficio.pk 'justificativa' as folha_just %}{% url 'viagens:editor_estado' oficio.pk 'justificativa' as estado_just %}{% endif %}
+      <div class="editores editores--unidos" data-editores data-pdf-todos="{{ pdf_oficio }}?tipo={% if mostrar_justificativa %}todos{% else %}oficio{% endif %}">
+        <nav class="editores__indice" id="indice-oficio" aria-label="Páginas do ofício">
+          <button type="button" class="editores__pagina" data-ir-pagina="oficio" aria-current="true" title="Ofício {{ oficio.numero_formatado }}">
+            <span class="editores__miniatura"><iframe data-miniatura data-src="{{ folha_oficio }}" tabindex="-1" aria-hidden="true" title="Miniatura do ofício"></iframe></span>
+            <span class="editores__legenda"><span class="editores__numero">1</span><span class="editores__nome">Ofício</span></span>
+          </button>
+          {% if mostrar_justificativa %}
+          <button type="button" class="editores__pagina" data-ir-pagina="justificativa" title="Justificativa do Ofício {{ oficio.numero_formatado }}">
+            <span class="editores__miniatura"><iframe data-miniatura data-src="{{ folha_just }}" tabindex="-1" aria-hidden="true" title="Miniatura da justificativa"></iframe></span>
+            <span class="editores__legenda"><span class="editores__numero">2</span><span class="editores__nome">Justificativa</span></span>
+          </button>
+          {% endif %}
+        </nav>
+        <div class="editores__area">
+          <div class="editores__pdf" hidden><iframe title="Documentos do Ofício {{ oficio.numero_formatado }} (PDF)" data-pdf-bloco></iframe></div>
+          <section class="editores__item" data-pagina="oficio">
+            <h4 class="editores__titulo" id="folha-doc-oficio"><span class="editores__numero">Página 1</span>Ofício {{ oficio.numero_formatado }}</h4>
+            {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado inteira=True indice="indice-oficio" %}
+          </section>
+          {% if mostrar_justificativa %}
+          <section class="editores__item" data-pagina="justificativa">
+            <h4 class="editores__titulo" id="folha-doc-justificativa"><span class="editores__numero">Página 2</span>Justificativa do Ofício {{ oficio.numero_formatado }}</h4>
+            {% include "viagens/oficios/_editor.html" with tipo="justificativa" rotulo="Justificativa" titulo_doc="Justificativa do Ofício "|add:oficio.numero_formatado folha_url=folha_just estado_url=estado_just pdf_url=pdf_oficio|add:"?tipo=justificativa" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado inteira=True indice="indice-oficio" %}
+          </section>
+          {% endif %}
         </div>
-        <div role="tabpanel" id="painel-doc-oficio" aria-labelledby="aba-doc-oficio" tabindex="0" class="mt-4">
-          {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
-        </div>
-        <div role="tabpanel" id="painel-doc-justificativa" aria-labelledby="aba-doc-justificativa" tabindex="0" class="mt-4" hidden>
-          {% include "viagens/oficios/_editor.html" with tipo="justificativa" rotulo="Justificativa" titulo_doc="Justificativa do Ofício "|add:oficio.numero_formatado folha_url=folha_just estado_url=estado_just pdf_url=pdf_oficio|add:"?tipo=justificativa" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
-        </div>
-      </pc-abas>
-      {% else %}
-        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
-      {% endif %}
+      </div>
     </div>
 
     <div class="secao__bloco" id="historico" aria-labelledby="t-hist">

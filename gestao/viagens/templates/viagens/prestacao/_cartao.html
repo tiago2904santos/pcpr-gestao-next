@@ -1,29 +1,38 @@
 {% comment %}
-Cartão de um servidor na prestação (lista.html). Um formulário por cartão: os três campos
-gravam sozinhos (autosave por cartão); Enter grava pelo botão padrão escondido; as ações
-(Finalizar, Arquivar…) enviam o mesmo formulário e gravam o digitado antes de agir.
-As regiões [data-vivo] se refazem depois de cada gravação (selos, pendências, ações).
+Cartão de um servidor na prestação (lista.html), numa linha no desktop: quem é (nome, selos,
+diária) · os três campos do lote · as ações. Embaixo, só quando há: a devolução, a
+justificativa e o que falta para finalizar (recolhido — a lista se repetia em todo cartão).
+Um formulário por cartão: os três campos gravam sozinhos (autosave por cartão); Enter grava
+pelo botão padrão escondido; as ações (Finalizar, Arquivar…) enviam o mesmo formulário e
+gravam o digitado antes de agir. As regiões [data-vivo] se refazem depois de cada gravação
+(selos, nota, pendências, ações).
 {% endcomment %}
-{% with ps=l.ps %}
+{% with ps=l.ps %}{% with aberta=l.editavel %}
 <li class="prestacao-servidor{% if ps.finalizada or ps.arquivada %} prestacao-servidor--fechado{% endif %}" id="ps-{{ ps.pk }}">
-  <form method="post" action="{% url 'viagens:salvar_prestacao' ps.pk %}" id="form-ps-{{ ps.pk }}"{% if l.editavel and not ps.finalizada and not ps.arquivada %} data-autosave="{% url 'viagens:autosave_prestacao' ps.pk %}"{% endif %} class="pilha-sm">
+  <form method="post" action="{% url 'viagens:salvar_prestacao' ps.pk %}" id="form-ps-{{ ps.pk }}"{% if aberta and not ps.finalizada and not ps.arquivada %} data-autosave="{% url 'viagens:autosave_prestacao' ps.pk %}"{% endif %} class="prestacao-servidor__form{% if not aberta or ps.finalizada or ps.arquivada %} prestacao-servidor__form--leitura{% endif %}">
     {% csrf_token %}
     <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
-    {% if l.editavel and not ps.finalizada and not ps.arquivada %}<button type="submit" hidden>Salvar</button>{% endif %}
-    <div class="prestacao-servidor__topo">
-      <span class="prestacao-servidor__nome">{{ ps.servidor.nome }}</span>
-      <span class="prestacao-servidor__selos" id="estado-ps-{{ ps.pk }}" data-vivo>
-        {% if ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}
-        {% if ps.situacao == "enviada" %}<span class="selo selo--info selo--sem-ponto">Enviada em {{ ps.enviada_em|date:"d/m/Y" }}{% if l.editavel %}, aguardando a decisão{% endif %}</span>
-        {% elif ps.situacao == "aprovada" %}<span class="selo selo--sucesso selo--sem-ponto">Aprovada</span>
-        {% elif ps.situacao == "devolvida" %}<span class="selo selo--perigo selo--sem-ponto">Devolvida</span>{% endif %}
-        {% if ps.arquivada %}<span class="selo selo--sem-ponto">Arquivada</span>{% endif %}
-        {% for s in l.selos %}<span class="selo {% if s.tom == 'vencido' %}selo--perigo{% elif s.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %} selo--sem-ponto" title="{{ s.detalhe }}">{{ s.texto }}</span>{% endfor %}
-      </span>
-      {% if l.editavel and not ps.finalizada and not ps.arquivada %}<p class="prestacao-servidor__status barra-acoes__status" data-status-salvamento aria-live="polite"></p>{% endif %}
+    {% if aberta and not ps.finalizada and not ps.arquivada %}<button type="submit" hidden>Salvar</button>{% endif %}
+
+    <div class="prestacao-servidor__quem">
+      <div class="prestacao-servidor__topo">
+        <span class="prestacao-servidor__nome">{{ ps.servidor.nome }}</span>
+        <span class="prestacao-servidor__selos" id="estado-ps-{{ ps.pk }}" data-vivo>
+          {% if ps.finalizada %}<span class="selo selo--sucesso selo--sem-ponto">Finalizada</span>{% endif %}
+          {% if ps.situacao == "enviada" %}<span class="selo selo--info selo--sem-ponto">Enviada em {{ ps.enviada_em|date:"d/m/Y" }}{% if aberta %}, aguardando a decisão{% endif %}</span>
+          {% elif ps.situacao == "aprovada" %}<span class="selo selo--sucesso selo--sem-ponto">Aprovada</span>
+          {% elif ps.situacao == "devolvida" %}<span class="selo selo--perigo selo--sem-ponto">Devolvida</span>{% endif %}
+          {% if ps.arquivada %}<span class="selo selo--sem-ponto">Arquivada</span>{% endif %}
+          {% for s in l.selos %}<span class="selo {% if s.tom == 'vencido' %}selo--perigo{% elif s.tom == 'alerta' %}selo--aviso{% else %}selo--info{% endif %} selo--sem-ponto" title="{{ s.detalhe }}">{{ s.texto }}</span>{% endfor %}
+        </span>
+      </div>
+      <div class="prestacao-servidor__notas" id="nota-ps-{{ ps.pk }}" data-vivo>
+        <p class="prestacao-servidor__nota">{% if not l.diaria %}Diária ainda não calculada{% elif ps.data_liberacao_diarias %}Diária liberada: <strong>{{ l.diaria|moeda }}</strong>{% else %}Diária prevista: <strong>{{ l.diaria|moeda }}</strong>{% endif %}{% if ps.finalizada or ps.arquivada or not aberta %} · {% if ps.numero_solicitacao %}Nº {{ ps.numero_solicitacao }}{% else %}sem nº de solicitação{% endif %}{% if ps.data_liberacao_diarias %} · liberada em {{ ps.data_liberacao_diarias|date:"d/m/Y" }}{% endif %}{% if ps.prazo_limite_saque %} · saque até {{ ps.prazo_limite_saque|date:"d/m/Y" }}{% endif %}{% endif %}{% if l.prestar_ate and not ps.finalizada and not l.selos %} · prestar contas até {{ l.prestar_ate|date:"d/m/Y" }}{% endif %}{% if ps.protocolo_envio %} · protocolo {{ ps.protocolo_envio }}{% endif %}</p>
+      </div>
+      {% if aberta and not ps.finalizada and not ps.arquivada %}<p class="prestacao-servidor__status" data-status-salvamento aria-live="polite"></p>{% endif %}
     </div>
-    {% if ps.situacao == "devolvida" and ps.motivo_devolucao %}<p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Devolvida{% if ps.decidida_em %} em {{ ps.decidida_em|date:"d/m/Y" }}{% endif %}: {{ ps.motivo_devolucao }}</span></p>{% endif %}
-    {% if l.editavel and not ps.finalizada and not ps.arquivada %}
+
+    {% if aberta and not ps.finalizada and not ps.arquivada %}
     <div class="prestacao-servidor__campos">
       <div class="campo">
         <label class="campo__rotulo" for="ps-{{ ps.pk }}-numero">Nº da solicitação</label>
@@ -39,12 +48,8 @@ As regiões [data-vivo] se refazem depois de cada gravação (selos, pendências
       </div>
     </div>
     {% endif %}
-    <div class="prestacao-servidor__notas" id="nota-ps-{{ ps.pk }}" data-vivo>
-      <p class="prestacao-servidor__nota">{% if not l.diaria %}Diária ainda não calculada{% elif ps.data_liberacao_diarias %}Diária liberada: {{ l.diaria|moeda }}{% else %}Diária prevista: {{ l.diaria|moeda }}{% endif %}{% if ps.finalizada or ps.arquivada or not l.editavel %} · {% if ps.numero_solicitacao %}Nº {{ ps.numero_solicitacao }}{% else %}sem nº de solicitação{% endif %}{% if ps.data_liberacao_diarias %} · liberada em {{ ps.data_liberacao_diarias|date:"d/m/Y" }}{% endif %}{% if ps.prazo_limite_saque %} · saque até {{ ps.prazo_limite_saque|date:"d/m/Y" }}{% endif %}{% endif %}{% if l.prestar_ate and not ps.finalizada and not l.selos %} · prestar contas até {{ l.prestar_ate|date:"d/m/Y" }}{% endif %}{% if ps.protocolo_envio %} · protocolo {{ ps.protocolo_envio }}{% endif %}</p>
-      {% if ps.justificativa_finalizacao %}<p class="prestacao-servidor__nota">Finalizada com pendência. Justificativa: “{{ ps.justificativa_finalizacao }}”</p>{% endif %}
-      {% if l.pendencias and not ps.finalizada %}<p class="prestacao-servidor__nota">Falta para finalizar: {{ l.pendencias|join:" " }}</p>{% endif %}
-    </div>
-    {% if l.editavel %}
+
+    {% if aberta %}
     <div class="prestacao-servidor__acoes" id="acoes-ps-{{ ps.pk }}" data-vivo>
       {% if ps.finalizada %}
         {% if ps.situacao == "enviada" %}
@@ -60,16 +65,6 @@ As regiões [data-vivo] se refazem depois de cada gravação (selos, pendências
         <button type="submit" class="botao botao--sm botao--sutil" formaction="{% url 'viagens:acao_prestacao' ps.pk 'desarquivar' %}">{% icone "folder-open" %}Desarquivar</button>
       {% else %}
         <button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar</button>
-        {% if l.pendencias %}
-        <details class="prestacao-servidor__justificar">
-          <summary>Finalizar com pendência…</summary>
-          <div class="campo">
-            <label class="campo__rotulo" for="ps-{{ ps.pk }}-justificativa">Justificativa (fica registrada)</label>
-            <textarea class="area-texto" id="ps-{{ ps.pk }}-justificativa" name="justificativa" rows="2" maxlength="1000"></textarea>
-          </div>
-          <div><button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar com justificativa</button></div>
-        </details>
-        {% endif %}
         <pc-menu class="menu">
           <button type="button" class="botao botao--icone botao--sutil botao--sm" data-menu-botao aria-haspopup="menu" aria-label="Mais ações de {{ ps.servidor.nome }}">{% icone "ellipsis-vertical" %}</button>
           <div class="menu__painel" role="menu" hidden>
@@ -79,6 +74,27 @@ As regiões [data-vivo] se refazem depois de cada gravação (selos, pendências
       {% endif %}
     </div>
     {% endif %}
+
+    {# A linha de baixo: só aparece quando tem o que dizer. #}
+    <div class="prestacao-servidor__rodape" id="pend-ps-{{ ps.pk }}" data-vivo>
+      {% if ps.situacao == "devolvida" and ps.motivo_devolucao %}<p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Devolvida{% if ps.decidida_em %} em {{ ps.decidida_em|date:"d/m/Y" }}{% endif %}: {{ ps.motivo_devolucao }}</span></p>{% endif %}
+      {% if ps.justificativa_finalizacao %}<p class="prestacao-servidor__nota">Finalizada com pendência. Justificativa: “{{ ps.justificativa_finalizacao }}”</p>{% endif %}
+      {% if l.pendencias and not ps.finalizada %}
+      <details class="prestacao-servidor__pendencias">
+        <summary>{% icone "list-checks" classe="icone--sm" %}{{ l.pendencias|length|pluralizar:"pendência,pendências" }} para finalizar</summary>
+        <ul class="prestacao-servidor__lista">{% for p in l.pendencias %}<li>{{ p }}</li>{% endfor %}</ul>
+        {% if aberta and not ps.arquivada %}
+        <div class="prestacao-servidor__justificar">
+          <div class="campo">
+            <label class="campo__rotulo" for="ps-{{ ps.pk }}-justificativa">Finalizar mesmo assim — justificativa (fica registrada)</label>
+            <textarea class="area-texto" id="ps-{{ ps.pk }}-justificativa" name="justificativa" rows="2" maxlength="1000"></textarea>
+          </div>
+          <div><button type="submit" class="botao botao--sm" formaction="{% url 'viagens:acao_prestacao' ps.pk 'finalizar' %}">{% icone "check" %}Finalizar com justificativa</button></div>
+        </div>
+        {% endif %}
+      </details>
+      {% endif %}
+    </div>
   </form>
 </li>
-{% endwith %}
+{% endwith %}{% endwith %}

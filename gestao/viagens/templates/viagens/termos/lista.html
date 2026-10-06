@@ -2,8 +2,10 @@
 {% block titulo %}Termos de autorização{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Termos de autorização{% endblock %}
+{% comment %}
+"Novo" fica na barra que acompanha a rolagem (abaixo), como em Roteiros.
+{% endcomment %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Um termo por servidor para participar do evento, mais o genérico e o da viatura. Ligado a um ofício, o termo usa dele o que ficar em branco.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>{% elif pode_criar %}{% include "viagens/termos/_botao_novo.html" %}{% endif %}{% endblock %}
 {% comment %}
 Paridade com a lista de termos da referência: título "DESTINO · período", selo de tempo,
 "Ofício N · servidores · viatura", busca (destino, ofício, protocolo, servidor, placa),
@@ -23,18 +25,21 @@ chega com a prestação de contas.
 {% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:termos' %}">
+<form class="filtros" role="search" method="get" action="{% url 'viagens:termos' %}"
+      hx-get="{% url 'viagens:termos' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-termos">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
   {% if oficio_filtro %}<input type="hidden" name="oficio" value="{{ oficio_filtro }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-termos">Buscar</label>
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-termos" type="search" name="q" value="{{ termo_busca }}" placeholder="Destino, ofício (12/2026), protocolo, servidor ou placa" autocomplete="off"></div>
   </div>
-  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
 {% endblock %}
 
 {% block resultados %}
+<div id="resultados">
 <div class="lista-cabecalho">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo_busca %}Resultados para “{{ termo_busca }}”{% elif oficio %}Termos do Ofício {{ oficio.numero_formatado }}{% else %}Termos{% endif %}</h2>
   {% if oficio %}<a class="ficha ficha--ativa" href="{% url 'viagens:termos' %}" aria-label="Ver todos os termos (tirar o filtro do Ofício {{ oficio.numero_formatado }})">Ofício {{ oficio.numero_formatado }} <span class="ficha__remover" aria-hidden="true">{% icone "x" classe="icone--sm" %}</span></a>{% endif %}
@@ -103,6 +108,7 @@ chega com a prestação de contas.
 {% else %}
   {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum termo para mostrar" texto="Quando houver termos da sua unidade, eles aparecerão aqui." %}
 {% endif %}
+</div>
 {% endblock %}
 
 {% block depois_lista %}

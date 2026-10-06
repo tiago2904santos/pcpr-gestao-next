@@ -57,7 +57,13 @@
   box-shadow: none;
 }
 
-.documento--cartoes > .secao {
+/* Um formulário em volta de algumas seções (o relatório técnico grava as três primeiras
+   juntas) não pode tirar delas o cartão: ele some do layout e as seções seguem na coluna. */
+.documento--cartoes > form {
+  display: contents;
+}
+
+:is(.documento--cartoes, .documento--cartoes > form) > .secao {
   padding: var(--esp-6) var(--esp-8);
   border-top: 0;
   border-radius: var(--raio-xl);
@@ -69,12 +75,12 @@
    cartão próprio, cada um tem o mesmo respiro em cima — e o último também embaixo: a
    regra da folha única tira o recuo final, que aqui deixaria o conteúdo colado na borda
    do cartão. */
-.documento--cartoes > .secao:first-child,
+:is(.documento--cartoes, .documento--cartoes > form) > .secao:first-child,
 .documento--cartoes > .documento__guia + .secao {
   padding-top: var(--esp-6);
 }
 
-.documento--cartoes > .secao:last-child {
+:is(.documento--cartoes, .documento--cartoes > form) > .secao:last-child {
   padding-bottom: var(--esp-6);
 }
 
@@ -82,7 +88,7 @@
    presa ao cartão, com o raio dele, abraçando os dois cantos da esquerda. Corre ATRÁS
    (z-index negativo), então só aparece o filete que sobra para fora do cartão — o resto
    some sob a superfície, como na folha única. Quem acende cada uma é guia.js. */
-.documento--cartoes > .secao::before {
+:is(.documento--cartoes, .documento--cartoes > form) > .secao::before {
   content: "";
   position: absolute;
   z-index: -1;
@@ -98,7 +104,7 @@
   transition: opacity var(--duracao-rapida) var(--curva-padrao);
 }
 
-.documento--cartoes > .secao--guiada::before {
+:is(.documento--cartoes, .documento--cartoes > form) > .secao--guiada::before {
   opacity: 1;
 }
 

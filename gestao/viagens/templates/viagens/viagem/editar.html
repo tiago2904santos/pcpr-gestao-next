@@ -60,12 +60,18 @@ ou cancelada, os dados aparecem como texto, sem formulário.
       <p class="secao__nota" id="nota-dados" data-vivo>O título da viagem nasce dos tipos{% if v.titulo %}: <strong>{{ v.titulo }}</strong>{% endif %}. O termo, a OS e o plano criados daqui nascem com o período e os destinos; o ofício e a OS levam o motivo.</p>
     </div>
     <div class="pilha">
-      <fieldset class="campo campo--escolhas{% if form.tipos.errors %} campo--erro{% endif %}">
-        <legend class="campo__rotulo">Tipo da viagem</legend>
-        {% if form.tipos.field.queryset %}{{ form.tipos }}
-        {% else %}<p class="vazio-inline">{% icone "route" classe="icone--sm" %}Nenhum tipo de viagem cadastrado. <a href="{% url 'cadastros:tipos' %}">Cadastrar tipos</a>.</p>{% endif %}
-      </fieldset>
+      {# Tipo (várias escolhas, como o programa do plano) e período na mesma linha. #}
       <div class="campos campos--iguais" id="periodo">
+        <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
+          {% if form.tipos.field.queryset %}
+          <pc-escolhas class="seletor escolhas" data-vazio="Selecione os tipos">
+            <button type="button" class="selecao seletor__gatilho" id="tipos-gatilho" aria-haspopup="true" aria-expanded="false" aria-controls="tipos-painel" data-gatilho><span class="seletor__valor" data-resumo>{{ v.titulo|default:"Selecione os tipos" }}</span>{% icone "chevron-down" classe="seletor__seta" %}</button>
+            <div class="escolhas__painel" id="tipos-painel" role="group" aria-labelledby="tipos-rotulo" data-painel>{{ form.tipos }}</div>
+          </pc-escolhas>
+          {% else %}<p class="vazio-inline">{% icone "route" classe="icone--sm" %}Nenhum tipo de viagem cadastrado. <a href="{% url 'cadastros:tipos' %}">Cadastrar tipos</a>.</p>{% endif %}
+          {% for e in form.tipos.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+        </div>
         <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="viagem-periodo">Período</label>
           <pc-data class="seletor" data-periodo>

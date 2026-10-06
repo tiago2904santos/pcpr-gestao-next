@@ -879,6 +879,8 @@ a.resumo__documento:hover {
 .campos > .campo--xs { flex: 0 1 6.5rem; }
 .campos > .campo--sm { flex: 0 1 10rem; }
 .campos > .campo--md { flex: 0 1 14rem; }
+/* Botão na linha dos campos (ex.: "Salvar piso"): do tamanho dele, alinhado à base. */
+.campos > .campo--acao { flex: 0 0 auto; align-self: flex-end; }
 .campos > .campo--lg { flex: 1 1 18rem; }
 .campos > .campo--cresce { flex-grow: 1; }
 
@@ -1509,6 +1511,21 @@ a.resumo__documento:hover {
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Cabeçalho de linha (th no corpo, ex.: o nome da atividade): é o rótulo da linha, não do
+   bloco — texto normal, em destaque, sem a caixa alta nem o fundo do cabeçalho. */
+.tabela tbody th {
+  position: static;
+  padding: var(--esp-3) var(--esp-4);
+  border-bottom: var(--borda-sutil);
+  background: none;
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
 }
 
 /* Tabela "aberta" dentro do documento: sem fundo no cabeçalho nem recuo lateral —
@@ -2415,6 +2432,12 @@ fieldset.campo--escolhas > .campo__erro {
   display: block;
 }
 
+/* Numa linha de colunas iguais, o campo de várias escolhas leva o dobro (o resumo dele é
+   mais longo): programa do plano · período · horário; tipo da viagem · período. */
+.campos--iguais > .campo:has(> pc-escolhas) {
+  flex: 2 1 0;
+}
+
 .escolhas__painel .caixas {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -2580,8 +2603,8 @@ fieldset.campo--escolhas > .campo__erro {
 /* Alertas que recebem o foco por programa (`foco=...` nas views) só o recebem para serem
    lidos em voz alta: o anel de foco ali não guia ninguém — não há o que teclar dentro —
    e aparecia sozinho ao voltar de uma ação. O papel role="alert"/"status" é que anuncia. */
-.alerta[tabindex="-1"]:focus,
-.alerta[tabindex="-1"]:focus-visible {
+.alerta:focus,
+.alerta:focus-visible {
   outline: none;
   box-shadow: none;
 }

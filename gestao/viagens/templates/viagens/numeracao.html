@@ -48,10 +48,11 @@ formulário muda só o piso: nada é renumerado.
       <div class="campo campo--md">
         <label class="campo__rotulo" for="piso-valor">Piso<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
         <input class="entrada" id="piso-valor" name="piso" inputmode="numeric" required value="{{ request.POST.piso }}" aria-describedby="piso-ajuda{% if erro %} erro-piso{% endif %}"{% if erro %} aria-invalid="true"{% endif %}>
-        <p class="campo__ajuda" id="piso-ajuda">Ex.: 100 para o primeiro ofício do ano sair 100/{{ ano_atual }}.</p>
       </div>
+      {# O botão na mesma linha dos campos (alinhado à base deles), como as faixas de filtro. #}
+      <div class="campo campo--acao"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar piso</button></div>
     </div>
-    <div><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar piso</button></div>
+    <p class="campo__ajuda" id="piso-ajuda">Ex.: piso 100 faz o primeiro ofício do ano sair 100/{{ ano_atual }}.</p>
   </form>
 </section>
 {% endblock %}

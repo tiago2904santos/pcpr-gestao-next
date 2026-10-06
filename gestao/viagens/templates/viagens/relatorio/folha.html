@@ -104,7 +104,8 @@ toda finalizada.
       <h2 class="secao__titulo" id="t-diarias"><span class="secao__numero">3</span>Diária de cada servidor</h2>
       <p class="secao__nota">Vazio usa a liberada. Preencha só quando o servidor recebeu valor diferente (no saque o caixa não entrega centavos) — ex.: “R$ 87,00 (saque)”. Nunca acima da liberada.</p>
     </div>
-    <ul class="pilha">
+    {# Uma grade (até três por linha): o valor é curto, o nome e a liberada vão no rótulo. #}
+    <ul class="grade-campos">
       {% for s in servidores %}
       <li class="campo">
         <label class="campo__rotulo" for="ps-{{ s.ps.pk }}-diaria">{{ s.ps.servidor.nome }} · liberada {{ s.liberada|default:"—" }}</label>

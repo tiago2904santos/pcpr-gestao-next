@@ -24,9 +24,10 @@ dos lançamentos. Linha vazia apaga o resultado. Plano cancelado: só leitura.
       <span class="frase-oficio__item{% if not periodo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
     </p>
   </div>
-  <div class="pagina-cabecalho__acoes">
+  {# Com a barra do rodapé (quem lança), o Voltar fica só nela, à esquerda, como nas folhas. #}
+  {% if not editavel or not linhas %}<div class="pagina-cabecalho__acoes">
     <a class="botao" href="{% url 'viagens:editar_plano' plano.pk %}">{% icone "arrow-left" %}Voltar ao plano</a>
-  </div>
+  </div>{% endif %}
 </header>
 
 {% if plano.cancelado %}<div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Plano cancelado</p><p>Os resultados ficam só para leitura; reative o plano para lançar.</p></div></div>{% endif %}
@@ -77,8 +78,8 @@ dos lançamentos. Linha vazia apaga o resultado. Plano cancelado: só leitura.
 
   {% if editavel and linhas %}
   <div class="barra-acoes">
-    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">Resultados do {{ plano }}</div>
     <a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">Voltar</a>
+    <div class="barra-acoes__status sr-only" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">Resultados do {{ plano }}</div>
     <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar resultados</button>
   </div>
   {% endif %}

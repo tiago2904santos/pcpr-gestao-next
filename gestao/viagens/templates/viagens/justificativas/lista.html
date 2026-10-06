@@ -21,17 +21,20 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:justificativas' %}">
+<form class="filtros" role="search" method="get" action="{% url 'viagens:justificativas' %}"
+      hx-get="{% url 'viagens:justificativas' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
+      hx-trigger="submit, input changed delay:350ms from:#busca-justificativas">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
   <div class="campo filtros__busca">
     <label class="campo__rotulo" for="busca-justificativas">Buscar</label>
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-justificativas" type="search" name="q" value="{{ termo }}" placeholder="Número, protocolo, destino, servidor ou trecho do texto" autocomplete="off"></div>
   </div>
-  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
 {% endblock %}
 
 {% block resultados %}
+<div id="resultados">
 <div class="lista-cabecalho">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Justificativas{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
@@ -99,6 +102,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% else %}
   {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhuma justificativa por aqui" texto="Quando um ofício sair com pouca antecedência, ele aparece aqui para ser justificado." %}
 {% endif %}
+</div>
 {% endblock %}
 
 {% block depois_lista %}
