@@ -100,6 +100,44 @@ def _itinerario_exemplo() -> dict:
     return itin.contexto()
 
 
+def _linha_de_registro() -> dict:
+    """Seção 21: todos os casos do selo de tempo (datas relativas a hoje, para a vitrine
+    nunca envelhecer) e os tipos do ofício, pelas mesmas tags que as listas usam."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from gestao.viagens.dominio.assunto import Marcador, tipo_do_oficio
+
+    hoje = timezone.localdate()
+
+    def dia(n: int):
+        return hoje + timedelta(days=n)
+
+    return {
+        "lab_tempos": [
+            ("Falta mais que o prazo", dia(30), dia(32)),
+            ("Dentro do prazo (≤ 10 dias)", dia(7), dia(9)),
+            ("Amanhã", dia(1), dia(3)),
+            ("Viagem de um dia, hoje", hoje, hoje),
+            ("Começa hoje", hoje, dia(3)),
+            ("Em andamento", dia(-2), dia(4)),
+            ("Volta hoje", dia(-3), hoje),
+            ("Já terminou (sem selo)", dia(-20), dia(-18)),
+            ("Sem data (sem selo)", None, None),
+        ],
+        "lab_tipos": [
+            tipo_do_oficio(hoje, dia(-2)),
+            tipo_do_oficio(hoje, dia(20), Marcador.RETIFICADO),
+            tipo_do_oficio(hoje, dia(20), Marcador.COMPLEMENTAR),
+            tipo_do_oficio(hoje, dia(-2), Marcador.COMPLEMENTAR),
+        ],
+        "lab_hoje": hoje,
+        "lab_dia": {"mais7": dia(7), "mais9": dia(9), "menos2": dia(-2), "mais4": dia(4),
+                    "mais30": dia(30), "mais32": dia(32)},
+    }
+
+
 def indice(request: HttpRequest) -> HttpResponse:
     form_vazio = FormularioExemplo()
     # Prefixo: os mesmos campos aparecem duas vezes na página (padrão e erro) sem ids repetidos.
@@ -129,6 +167,7 @@ def indice(request: HttpRequest) -> HttpResponse:
     ]
     pagina = Paginator(range(1, 241), 20).get_page(request.GET.get("pagina", 5))
     contexto = {
+        **_linha_de_registro(),
         "tons_status": TONS_STATUS,
         "form_vazio": form_vazio,
         "form_erro": form_erro,

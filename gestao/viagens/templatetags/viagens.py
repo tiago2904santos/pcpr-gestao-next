@@ -241,10 +241,15 @@ def alerta_oficio(oficio, hoje: date | None = None) -> str:
     if alerta is None:
         return ""
     if alerta.tipo is TipoAlerta.JUSTIFICATIVA:
-        # Anel vazio âmbar: falta algo para emitir (a mesma forma de "Falta destino").
-        return format_html('<span class="selo selo--aviso selo--situacao-rascunho">{}</span>',
-                           "Justificativa pendente")
+        return selo_justificativa_pendente()
     return _html_selo_tempo(alerta.tempo)
+
+
+@register.simple_tag
+def selo_justificativa_pendente() -> str:
+    """Anel vazio âmbar: falta algo para emitir (a mesma forma de "Falta destino")."""
+    return format_html('<span class="selo selo--aviso selo--situacao-rascunho">{}</span>',
+                       "Justificativa pendente")
 
 
 ICONE_TIPO = {"Retificado": "file-pen-line", "Complementar": "file-plus-2"}
@@ -257,9 +262,11 @@ def tipo_oficio(oficio) -> TipoOficio:
 
 
 @register.simple_tag
-def selo_tipo(oficio) -> str:
-    """Selo do tipo só quando foge do comum: Convalidação, Retificado, Complementar."""
-    tipo = tipo_oficio(oficio)
+def selo_tipo(oficio_ou_tipo) -> str:
+    """Selo do tipo só quando foge do comum: Convalidação, Retificado, Complementar.
+    Recebe o ofício ou um TipoOficio já resolvido (o UI Lab mostra os casos sem banco)."""
+    tipo = (oficio_ou_tipo if isinstance(oficio_ou_tipo, TipoOficio)
+            else tipo_oficio(oficio_ou_tipo))
     if not tipo.incomum:
         return ""
     return format_html('<span class="selo selo--neutro selo--sem-ponto" title="{}">{}{}</span>',

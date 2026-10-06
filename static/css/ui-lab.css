@@ -325,3 +325,20 @@ fieldset.grupo-campos > legend {
   --foco-cor: var(--foco-cor-inverso);
   --foco-contraste: var(--foco-contraste-inverso);
 }
+
+/* Seção 21: casos do selo de tempo em grade (rótulo em cima, selo embaixo). */
+.lab__casos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--esp-3) var(--esp-4);
+  margin: 0;
+}
+
+.lab__casos dd {
+  margin: var(--esp-1) 0 0;
+}
+
+/* Abas num trilho estreito, para a fileira transbordar e mostrar o indício de rolagem. */
+.lab__abas-estreitas {
+  max-width: 28rem;
+}
