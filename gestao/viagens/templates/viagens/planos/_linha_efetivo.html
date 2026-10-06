@@ -1,22 +1,30 @@
-{# Uma linha do efetivo: unidade (opcional), cargo e quantidade. `n` vira número (o modelo usa "__n__"). #}
-<li class="linhas__linha" data-linha>
+{% comment %}
+Uma linha do efetivo: unidade (opcional) e cargo — escolhidos por busca (<pc-combobox>, que
+filtra as opções enquanto se digita) — e a quantidade com − e +. `n` vira número (o modelo
+usa "__n__"); `prefixo` distingue os ids da janela do evento dos da folha.
+{% endcomment %}
+{% firstof prefixo "efetivo" as px %}<li class="linhas__linha" data-linha>
   <div class="campo">
-    <label class="campo__rotulo" for="efetivo-unidade-{{ n }}">Unidade <span class="campo__opcional">(opcional)</span></label>
-    <pc-select class="seletor"><select class="selecao" name="efetivo_unidade" id="efetivo-unidade-{{ n }}">
+    <label class="campo__rotulo" for="{{ px }}-unidade-{{ n }}">Unidade <span class="campo__opcional">(opcional)</span></label>
+    <pc-combobox class="combobox" data-placeholder="Pesquise a unidade…"><select class="selecao" name="efetivo_unidade" id="{{ px }}-unidade-{{ n }}">
       <option value="">Sem unidade</option>
       {% for u in form.unidades %}<option value="{{ u.pk }}"{% if linha and linha.unidade == u.pk|stringformat:"s" %} selected{% endif %}>{{ u }}</option>{% endfor %}
-    </select></pc-select>
+    </select></pc-combobox>
   </div>
   <div class="campo">
-    <label class="campo__rotulo" for="efetivo-cargo-{{ n }}">Cargo</label>
-    <pc-select class="seletor"><select class="selecao" name="efetivo_cargo" id="efetivo-cargo-{{ n }}">
+    <label class="campo__rotulo" for="{{ px }}-cargo-{{ n }}">Cargo</label>
+    <pc-combobox class="combobox" data-placeholder="Pesquise o cargo…"><select class="selecao" name="efetivo_cargo" id="{{ px }}-cargo-{{ n }}">
       <option value="">Selecione o cargo</option>
       {% for c in form.cargos %}<option value="{{ c.pk }}"{% if linha and linha.cargo == c.pk|stringformat:"s" %} selected{% endif %}>{{ c.nome }}</option>{% endfor %}
-    </select></pc-select>
+    </select></pc-combobox>
   </div>
   <div class="campo linhas__curto">
-    <label class="campo__rotulo" for="efetivo-quantidade-{{ n }}">Quantidade</label>
-    <input class="entrada" type="number" min="1" max="999" inputmode="numeric" name="efetivo_quantidade" id="efetivo-quantidade-{{ n }}" value="{% if linha %}{{ linha.quantidade|default:'1' }}{% else %}1{% endif %}" data-padrao="1">
+    <label class="campo__rotulo" for="{{ px }}-quantidade-{{ n }}">Quantidade</label>
+    <div class="passos">
+      <input class="entrada" type="number" min="1" max="999" inputmode="numeric" name="efetivo_quantidade" id="{{ px }}-quantidade-{{ n }}" value="{% if linha %}{{ linha.quantidade|default:'1' }}{% else %}1{% endif %}" data-padrao="1">
+      <button type="button" class="passos__botao" data-passo="-1" aria-label="Diminuir a quantidade">&minus;</button>
+      <button type="button" class="passos__botao" data-passo="1" aria-label="Aumentar a quantidade">+</button>
+    </div>
   </div>
   <button type="button" class="botao botao--icone botao--sutil linhas__remover" data-remover-linha aria-label="Remover a linha do efetivo {{ n }}">{% icone "trash-2" %}</button>
 </li>

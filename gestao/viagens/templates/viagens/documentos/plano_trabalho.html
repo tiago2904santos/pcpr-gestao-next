@@ -1,4 +1,4 @@
-{% load static documentos %}<!doctype html>
+{% load static documentos viagens %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -28,16 +28,33 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
   header.timbre { position: running(timbre); text-align: center; }
   header.timbre img { height: 16mm; display: block; margin: 0 auto 1mm; }
   header.timbre p { margin: 0; font-weight: bold; font-size: 9.5pt; text-align: center; }
-  .capa { text-align: center; margin: 4mm 0 10mm; }
-  .capa h1 { font-size: 14pt; margin: 0 0 2mm; letter-spacing: 0.04em; }
-  .capa p { margin: 0; font-weight: bold; }
+  .capa { text-align: center; margin: 2mm 0 9mm; }
+  .capa h1 { font-size: 14pt; margin: 0 0 1.5mm; letter-spacing: 0.04em; }
+  .capa p { margin: 0; font-weight: bold; text-align: center; }
   section { break-inside: avoid; margin: 0 0 7mm; counter-increment: secao; }
   section h2 { font-size: 11.5pt; margin: 0 0 3mm; text-transform: uppercase; }
   section h2::before { content: counter(secao) ". "; }
-  p { margin: 0 0 3mm; text-align: justify; }
-  .lista p { margin: 0 0 1.5mm; text-align: left; }
-  .quebra { break-before: page; }
-  .evento { break-inside: avoid; margin: 0 0 4mm; }
+  p { margin: 0 0 2.5mm; text-align: justify; }
+  /* Prosa (contextualização, coordenação, considerações): recuo na primeira linha. */
+  .prosa p { text-indent: 1.25cm; }
+  /* Atuação: o título do evento à esquerda (sem espaços esticados) e os dados recuados. */
+  .evento__titulo { text-align: left; margin-bottom: 1.5mm; }
+  .evento__dados { margin-left: 1.25cm; }
+  .evento__dados p { margin: 0 0 1mm; text-align: left; }
+  .evento__dados .efetivo { margin: 0 0 1mm 0.75cm; }
+  /* Listas (atividades, metas, recursos): recuo pendurado — a 2ª linha alinha com o texto. */
+  .lista .subtitulo { margin: 0 0 1.5mm; text-align: left; }
+  ul.itens { margin: 0 0 3mm 1.25cm; padding: 0 0 0 0.5cm; }
+  ul.itens li { margin: 0 0 1mm; text-align: justify; }
+  /* Vários eventos: uma camada a mais — o título de cada evento recuado na seção e o que é
+     dele (dados, itens) recuado sob o título. */
+  .varios .evento__titulo, .varios .subtitulo { margin-left: 0.75cm; }
+  .varios .evento__dados { margin-left: 2cm; }
+  .varios ul.itens { margin-left: 2cm; }
+  /* `.quebra` é o marcador do editor; aqui a página nova é `.nova-pagina` (a classe antiga
+     ainda vale para textos editados antes da troca). */
+  .nova-pagina, .quebra[data-bloco] { break-before: page; }
+  .evento { break-inside: avoid; margin: 0 0 4.5mm; }
   .local-data { margin-top: 10mm; text-align: right; }
   .assinatura { text-align: center; margin-top: 16mm; break-inside: avoid; }
   .assinatura p { margin: 0; text-align: center; }
@@ -70,64 +87,80 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
       <p>{{ d.unidade_nome }}</p>
     </div>
 
-    <section data-bloco="contextualizacao" data-rotulo="Breve contextualização">
+    <section class="prosa" data-bloco="contextualizacao" data-rotulo="Breve contextualização">
       <h2>Breve contextualização</h2>
       {{ d.contextualizacao|linebreaks }}
     </section>
 
     {% if d.eventos %}
     {# Vários eventos: a data vai no título de cada evento (sem a linha "Datas"). #}
-    <section class="quebra" data-bloco="atuacao" data-rotulo="Atuação">
+    <section class="nova-pagina varios" data-bloco="atuacao" data-rotulo="Atuação">
       <h2>Atuação</h2>
       {% for e in d.eventos %}
         <div class="evento">
-          <p><strong>{{ e.cabecalho }}{% if e.programa %} - {{ e.programa }}{% endif %}:</strong></p>
-          <p><strong>Local:</strong> {{ e.local|default:"________" }};</p>
-          <p><strong>Horário de atendimento:</strong> {{ e.horario|default:"________" }};</p>
-          {% if e.unidade_movel %}<p>{{ e.unidade_movel }}</p>{% endif %}
+          <p class="evento__titulo"><strong>{{ e.cabecalho }}{% if e.programa %} - {{ e.programa }}{% endif %}:</strong></p>
+          <div class="evento__dados">
+            <p><strong>Local:</strong> {{ e.local|default:"________" }};</p>
+            <p><strong>Horário de atendimento:</strong> {{ e.horario|default:"________" }};</p>
+            <p><strong>Efetivo:</strong>{% if not e.efetivo %} ________;{% endif %}</p>
+            {% if e.efetivo %}<p class="efetivo">{{ e.efetivo|linebreaksbr }};</p>{% endif %}
+            {% if e.unidade_movel %}<p><strong>Estrutura:</strong> {{ e.unidade_movel|cut:"Estrutura: " }}</p>{% endif %}
+          </div>
         </div>
       {% endfor %}
-      <p><strong>Efetivo total:</strong>{% if d.efetivo %}<br>{{ d.efetivo|linebreaksbr }}{% else %} ________{% endif %};</p>
     </section>
-    <section class="lista" data-bloco="atividades" data-rotulo="Atividades">
+    <section class="lista varios" data-bloco="atividades" data-rotulo="Atividades">
       <h2>Atividades a serem desenvolvidas</h2>
-      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.atividades|default:"________"|linebreaks }}{% endfor %}
+      {% for e in d.eventos %}
+        <p class="subtitulo"><strong>{{ e.cabecalho }}:</strong></p>
+        {% if e.atividades %}<ul class="itens">{% for item in e.atividades|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
+      {% endfor %}
     </section>
-    <section class="lista" data-bloco="metas" data-rotulo="Metas">
+    <section class="lista varios" data-bloco="metas" data-rotulo="Metas">
       <h2>Metas estabelecidas</h2>
-      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.metas|default:"________"|linebreaks }}{% endfor %}
+      {% for e in d.eventos %}
+        <p class="subtitulo"><strong>{{ e.cabecalho }}:</strong></p>
+        {% if e.metas %}<ul class="itens">{% for item in e.metas|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
+      {% endfor %}
     </section>
-    <section class="lista" data-bloco="recursos" data-rotulo="Recursos">
+    <section class="lista varios" data-bloco="recursos" data-rotulo="Recursos">
       <h2>Recursos necessários</h2>
-      {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.recursos|default:"________"|linebreaks }}{% endfor %}
+      {% for e in d.eventos %}
+        <p class="subtitulo"><strong>{{ e.cabecalho }}:</strong></p>
+        {% if e.recursos %}<ul class="itens">{% for item in e.recursos|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
+      {% endfor %}
     </section>
-    <section data-bloco="valor" data-rotulo="Valor total">
+    <section class="varios" data-bloco="valor" data-rotulo="Valor total">
       <h2>Valor total do plano</h2>
-      {% if d.valor %}<p><strong>{{ d.valor_rotulo }}:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
+      {% for e in d.eventos %}{% if e.valor %}<p><strong>{{ e.valor_rotulo }}:</strong>{{ e.valor_resto }}</p>{% else %}<p><strong>{{ e.valor_rotulo }}:</strong> ________</p>{% endif %}{% endfor %}
+      <p><strong>Valor total do plano:</strong> {{ d.valor_geral|default:"________" }}.</p>
     </section>
     {% else %}
-    <section class="quebra" data-bloco="atuacao" data-rotulo="Atuação">
+    <section class="nova-pagina" data-bloco="atuacao" data-rotulo="Atuação">
       <h2>Atuação</h2>
-      <p><strong>Datas:</strong> {{ d.datas|default:"________" }};</p>
-      <p><strong>Local:</strong> {{ d.local|default:"________" }};</p>
-      <p><strong>Horário de atendimento:</strong> {{ d.horario|default:"________" }};</p>
-      <p><strong>Efetivo total:</strong>{% if d.efetivo %}<br>{{ d.efetivo|linebreaksbr }}{% else %} ________{% endif %};</p>
-      {% if d.unidade_movel %}<p>{{ d.unidade_movel }}</p>{% endif %}
+      <div class="evento__dados">
+        <p><strong>Datas:</strong> {{ d.datas|default:"________" }};</p>
+        <p><strong>Local:</strong> {{ d.local|default:"________" }};</p>
+        <p><strong>Horário de atendimento:</strong> {{ d.horario|default:"________" }};</p>
+        <p><strong>Efetivo total:</strong>{% if not d.efetivo %} ________;{% endif %}</p>
+        {% if d.efetivo %}<p class="efetivo">{{ d.efetivo|linebreaksbr }};</p>{% endif %}
+        {% if d.unidade_movel %}<p><strong>Estrutura:</strong> {{ d.unidade_movel|cut:"Estrutura: " }}</p>{% endif %}
+      </div>
     </section>
 
     <section class="lista" data-bloco="atividades" data-rotulo="Atividades">
       <h2>Atividades a serem desenvolvidas</h2>
-      {{ d.atividades|default:"________"|linebreaks }}
+      {% if d.atividades %}<ul class="itens">{% for item in d.atividades|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
     </section>
 
     <section class="lista" data-bloco="metas" data-rotulo="Metas">
       <h2>Metas estabelecidas</h2>
-      {{ d.metas|default:"________"|linebreaks }}
+      {% if d.metas %}<ul class="itens">{% for item in d.metas|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
     </section>
 
     <section class="lista" data-bloco="recursos" data-rotulo="Recursos">
       <h2>Recursos necessários</h2>
-      {{ d.recursos|default:"________"|linebreaks }}
+      {% if d.recursos %}<ul class="itens">{% for item in d.recursos|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>________</p>{% endif %}
     </section>
 
     <section data-bloco="valor" data-rotulo="Valor total">
@@ -137,14 +170,14 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
     {% endif %}
     {% endregiao %}
 
-    <div class="quebra">
+    <div class="nova-pagina">
       {% regiao "fecho" "Coordenação e considerações" %}
-      <section data-bloco="coordenacao" data-rotulo="Coordenador do evento">
+      <section class="prosa" data-bloco="coordenacao" data-rotulo="Coordenador do evento">
         <h2>Coordenador do evento</h2>
         {{ d.coordenacao|default:"________"|linebreaks }}
       </section>
 
-      <section data-bloco="consideracoes" data-rotulo="Considerações finais">
+      <section class="prosa" data-bloco="consideracoes" data-rotulo="Considerações finais">
         <h2>Considerações finais</h2>
         {{ d.consideracoes|linebreaks }}
       </section>

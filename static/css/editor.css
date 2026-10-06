@@ -90,15 +90,22 @@
   background: var(--grafite-800);
 }
 
+/* Estado (páginas, salvo) à esquerda; à direita, baixar, anexar e Texto/PDF. */
 .editor__estado {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
   gap: var(--esp-2);
-  margin-left: auto;
   font-size: var(--texto-xs);
   color: var(--cor-texto-secundario);
+}
+
+.editor__fim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-left: auto;
 }
 
 .editor__salvo {

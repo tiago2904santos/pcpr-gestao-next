@@ -71,12 +71,14 @@ class TestCopiaDoOficio:
         assert ordem.motivo == oficio.motivo and ordem.data_inicio is not None
         assert ordem.destinos.exists()
 
-    def test_o_preenchido_nao_e_trocado(self, c):
+    def test_o_preenchido_fica_e_o_oficio_soma(self, c):
+        # Ligar o ofício une a equipe dele à que já está na OS; o motivo escrito fica.
         um = Servidor.objects.first()
-        ordem, copiados = ordens.salvar(c.usuarios["operador"], oficios=[_oficio(c)],
+        oficio = _oficio(c)
+        ordem, copiados = ordens.salvar(c.usuarios["operador"], oficios=[oficio],
                                         servidores=[um], motivo="Motivo próprio")
-        assert list(ordem.servidores.all()) == [um] and ordem.motivo == "Motivo próprio"
-        assert "equipe" not in copiados and "motivo" not in copiados
+        assert set(ordem.servidores.all()) == {um} | {v.servidor for v in oficio.viajantes.all()}
+        assert ordem.motivo == "Motivo próprio" and "motivo" not in copiados
 
     def test_oficio_de_outra_unidade_nao_entra(self, c):
         outra = Oficio.objects.get(pk=c.ids["oficio_outra_unidade"])
@@ -253,10 +255,13 @@ class TestRevisoes:
                                  data_inicio=date(2030, 1, 1), motivo="x")
         assert ordens.faltando(ordem) == ["função da equipe"]
 
-    def test_data_do_documento_em_branco_volta_ao_automatico(self, c):
+    def test_data_do_documento_fica_quando_a_tela_nao_a_envia(self, c):
+        # A tela não tem o campo: a data fixada (na 1ª geração) não se perde a cada gravação.
         op = c.usuarios["operador"]
         ordem, _ = ordens.salvar(op, destinos=[_londrina()], data_documento=date(2030, 1, 1))
         ordem, _ = ordens.salvar(op, pk=ordem.pk, destinos=[_londrina()])
+        assert ordem.data_documento == date(2030, 1, 1)
+        ordem, _ = ordens.salvar(op, pk=ordem.pk, destinos=[_londrina()], data_documento=None)
         assert ordem.data_documento is None
 
     def test_documento_sem_cache(self, c):
@@ -264,3 +269,38 @@ class TestRevisoes:
         r = _cliente(c.usuarios["operador"]).get(
             reverse("viagens:documento_ordem", args=[ordem.pk, "pdf"]))
         assert r["Cache-Control"] == "no-store"
+
+
+def test_os_so_junta_oficios_da_mesma_acao(c):
+    from gestao.viagens import viagem
+    op = c.usuarios["operador"]
+    o1 = Oficio.objects.get(pk=c.ids["oficio_emitido"])
+    o2 = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    with pytest.raises(ordens.OrdemInvalida, match="mesma viagem ou usar o mesmo roteiro"):
+        ordens.salvar(op, oficios=[o1, o2])
+    Oficio.objects.filter(pk__in=[o1.pk, o2.pk]).update(viagem=viagem.criar(op))
+    o1.refresh_from_db()
+    o2.refresh_from_db()
+    ordem, copiados = ordens.salvar(op, oficios=[o1])
+    # Ligar o segundo une o que ele traz ao que a OS já tem.
+    antes = set(ordem.servidores.all())
+    ordem, copiados = ordens.salvar(op, pk=ordem.pk, oficios=[o1, o2],
+                                    destinos=[m.municipio for m in ordem.destinos.all()],
+                                    data_inicio=ordem.data_inicio, data_fim=ordem.data_fim,
+                                    servidores=list(antes), motivo=ordem.motivo)
+    assert antes < set(ordem.servidores.all()) and "equipe" in copiados
+
+
+def test_duplicar_e_finalizar_a_os(c):
+    op = c.usuarios["operador"]
+    ordem, _ = ordens.salvar(op, destinos=[_londrina()], motivo="Motivo de teste",
+                             servidores=[Servidor.objects.first()])
+    cli = _cliente(op)
+    r = cli.post(reverse("viagens:duplicar_ordem", args=[ordem.pk]))
+    nova = OrdemServico.objects.exclude(pk=ordem.pk).get()
+    assert r["Location"] == reverse("viagens:editar_ordem", args=[nova.pk])
+    assert nova.numero != ordem.numero and nova.motivo == "Motivo de teste"
+    assert list(nova.servidores.all()) == list(ordem.servidores.all())
+    r = cli.post(reverse("viagens:finalizar_ordem", args=[ordem.pk]))
+    ordem.refresh_from_db()
+    assert r["Location"] == reverse("viagens:ordens") and ordem.documento_gerado_em is not None

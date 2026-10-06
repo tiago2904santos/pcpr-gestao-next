@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import cast
 
 from django.db import transaction
 from django.db.models import Prefetch, prefetch_related_objects
@@ -29,9 +30,11 @@ from gestao.cadastros.services import quem_assina
 
 from . import policies
 from .dominio import plano_trabalho as dominio
-from .dominio.escrita import data_por_extenso, legivel
+from .dominio.escrita import data_por_extenso, legivel, moeda
+from .dominio.extenso import reais_por_extenso
 from .dominio.numeracao import proximo_numero
 from .models import (
+    EfetivoEvento,
     EfetivoPlano,
     EventoDestino,
     EventoPlano,
@@ -44,8 +47,10 @@ from .models import (
     Viajante,
 )
 from .queries import buscar_tabelas_vigentes
+from .vinculos import incompatibilidade
 
 MAX_OFICIOS, MAX_DESTINOS, MAX_LINHAS, MAX_EVENTOS = 20, 30, 50, 20
+MANTER = object()  # "a tela não mandou": o valor gravado fica como está
 
 
 class PlanoInvalido(Exception):
@@ -64,9 +69,11 @@ PREFETCH_PLANOS = (
     Prefetch("efetivo", queryset=EfetivoPlano.objects.select_related("cargo", "unidade")),
     Prefetch("atividades", queryset=AtividadePlano.objects.order_by("nome")),
     Prefetch("oficios", queryset=Oficio.objects.order_by("-ano", "-numero")),
-    Prefetch("eventos", queryset=EventoPlano.objects.select_related(
-        "programa", "coordenador_op__cargo").prefetch_related(
+    Prefetch("programas", queryset=ProgramaSolicitante.objects.order_by("nome")),
+    Prefetch("eventos", queryset=EventoPlano.objects.select_related("programa").prefetch_related(
+        Prefetch("programas", queryset=ProgramaSolicitante.objects.order_by("nome")),
         Prefetch("destinos", queryset=EventoDestino.objects.select_related("municipio")),
+        Prefetch("efetivo", queryset=EfetivoEvento.objects.select_related("cargo", "unidade")),
         Prefetch("atividades", queryset=AtividadePlano.objects.order_by("nome")))),
 )
 
@@ -191,9 +198,19 @@ def todos_os_destinos(plano: PlanoTrabalho) -> list[str]:
     return list(dict.fromkeys(saida))
 
 
+def _programas(dono) -> list[str]:
+    """Os nomes dos programas de um plano (evento 1) ou evento, um por um (com o "outro")."""
+    nomes = [p.nome for p in dono.programas.all()]
+    if not nomes and dono.programa is not None:
+        nomes = [dono.programa.nome]
+    return [*nomes, *([dono.programa_outros] if dono.programa_outros else [])]
+
+
 def todos_os_programas(plano: PlanoTrabalho) -> list[str]:
+    """Os programas de todos os eventos, cada um uma vez, na ordem em que aparecem."""
     carregar(plano)
-    return [p for p in [plano.programa_nome, *[e.programa_nome for e in plano.eventos.all()]] if p]
+    nomes = [*_programas(plano), *[n for e in plano.eventos.all() for n in _programas(e)]]
+    return list(dict.fromkeys(nomes))
 
 
 def periodo_geral(plano: PlanoTrabalho):
@@ -206,11 +223,35 @@ def periodo_geral(plano: PlanoTrabalho):
     return (min(inicios) if inicios else None, max(fins) if fins else None)
 
 
-def linhas_do_efetivo(plano: PlanoTrabalho) -> list[dominio.LinhaEfetivo]:
-    carregar(plano)
+def _linhas(efetivo) -> list[dominio.LinhaEfetivo]:
     return [dominio.LinhaEfetivo(e.quantidade, e.cargo.nome, getattr(e.unidade, "sigla", ""),
                                  getattr(e.unidade, "nome", ""))
-            for e in plano.efetivo.all()]
+            for e in efetivo]
+
+
+def linhas_do_efetivo(plano: PlanoTrabalho) -> list[dominio.LinhaEfetivo]:
+    """As linhas do efetivo do evento 1 (os campos do plano)."""
+    carregar(plano)
+    return _linhas(plano.efetivo.all())
+
+
+def linhas_do_efetivo_do_evento(evento: EventoPlano) -> list[dominio.LinhaEfetivo]:
+    return _linhas(evento.efetivo.all())
+
+
+def efetivo_geral(plano: PlanoTrabalho) -> int:
+    """Servidores de todos os eventos somados (o que a lista e o cabeçalho mostram)."""
+    carregar(plano)
+    return dominio.efetivo_total(linhas_do_efetivo(plano)) + sum(
+        dominio.efetivo_total(linhas_do_efetivo_do_evento(e)) for e in plano.eventos.all())
+
+
+def diarias_geral(plano: PlanoTrabalho):
+    """O valor do plano inteiro: as diárias de cada evento somadas — ou None enquanto algum
+    evento não fecha."""
+    carregar(plano)
+    valores = [plano.diarias_total, *[e.diarias_total for e in plano.eventos.all()]]
+    return None if any(v is None for v in valores) else sum(valores)
 
 
 def dados_do_dominio(plano: PlanoTrabalho) -> dominio.DadosPlano:
@@ -222,8 +263,12 @@ def dados_do_dominio(plano: PlanoTrabalho) -> dominio.DadosPlano:
         tem_deslocamento=bool(plano.saida_em and plano.chegada_em),
         tem_atividades=bool(plano.atividades.all()) or any(
             e.atividades.all() for e in plano.eventos.all()),
-        eventos_extras=[(i + 2, bool(e.destinos.all()), bool(e.data_inicio))
-                        for i, e in enumerate(plano.eventos.all())])
+        eventos_extras=[dominio.EventoExtra(
+            i + 2, bool(e.destinos.all()), bool(e.data_inicio),
+            tem_efetivo=dominio.efetivo_total(linhas_do_efetivo_do_evento(e)) > 0,
+            tem_deslocamento=bool(e.saida_em and e.chegada_em),
+            diarias_calculadas=e.diarias_total is not None)
+            for i, e in enumerate(plano.eventos.all())])
 
 
 def pendencias(plano: PlanoTrabalho) -> list[dominio.Pendencia]:
@@ -254,34 +299,53 @@ def conjunto_padrao() -> list[AtividadePlano]:
     return list(padrao.atividades.filter(ativo=True)) if padrao else []
 
 
-def calculo(plano: PlanoTrabalho):
-    """(cálculo, mensagens): as diárias do plano agora, ou o que falta para calcular."""
-    carregar(plano)
-    config = configuracao(plano.unidade)
+def _calcular(unidade, dono, linhas: list[dominio.LinhaEfetivo]):
+    """(cálculo, mensagens) de um evento (`dono`: o plano, para o evento 1, ou o
+    EventoPlano): da sede ao primeiro destino dele, com o efetivo e o deslocamento dele."""
+    config = configuracao(unidade)
     if config is None or not config.sede_id:
         return None, ["A unidade ainda não tem sede na configuração: peça ao gestor."]
-    primeiro = next(iter(plano.destinos.all()), None)
+    primeiro = next(iter(dono.destinos.all()), None)
     try:
         resultado = dominio.calcular_diarias(
-            saida=timezone.localtime(plano.saida_em) if plano.saida_em else None,
-            chegada=timezone.localtime(plano.chegada_em) if plano.chegada_em else None,
+            saida=timezone.localtime(dono.saida_em) if dono.saida_em else None,
+            chegada=timezone.localtime(dono.chegada_em) if dono.chegada_em else None,
             destino=(primeiro.municipio.nome, primeiro.municipio.uf) if primeiro else None,
-            servidores=dominio.efetivo_total(linhas_do_efetivo(plano)),
+            servidores=dominio.efetivo_total(linhas),
             sede=(config.sede.nome, config.sede.uf), buscar_tabelas=buscar_tabelas_vigentes)
     except dominio.PlanoIncalculavel as exc:
         return None, exc.mensagens
     return resultado, []
 
 
+def calculo(plano: PlanoTrabalho):
+    """(cálculo, mensagens): as diárias do evento 1 agora, ou o que falta para calcular."""
+    carregar(plano)
+    return _calcular(plano.unidade, plano, linhas_do_efetivo(plano))
+
+
+def calculo_do_evento(evento: EventoPlano):
+    """(cálculo, mensagens) de um evento adicional (destino, efetivo e deslocamento dele)."""
+    return _calcular(evento.plano.unidade, evento, linhas_do_efetivo_do_evento(evento))
+
+
+def _guardar_calculo(dono, resultado) -> None:
+    """A cópia das diárias no plano ou no evento; cálculo inválido apaga a cópia (vira
+    pendência de diárias)."""
+    if resultado is None:
+        dono.diarias_composicao, dono.diarias_unitario, dono.diarias_total = "", None, None
+    else:
+        dono.diarias_composicao = resultado.resumo
+        dono.diarias_unitario, dono.diarias_total = resultado.por_servidor, resultado.total
+
+
 def textos_automaticos(plano: PlanoTrabalho) -> dict[str, str]:
     """Com vários eventos: todos os destinos e programas (na referência, só os do rascunho —
-    que podia sair com "________"), e só o coordenador administrativo é designado."""
+    que podia sair com "________"); os dois coordenadores são do plano inteiro."""
     destinos = todos_os_destinos(plano)
-    varios = bool(plano.eventos.all())
     return {
         "contextualizacao": dominio.contextualizacao(destinos, todos_os_programas(plano)),
-        "coordenacao": dominio.coordenacao(coordenador(plano, "adm"), coordenador(plano, "op"),
-                                           varios_eventos=varios),
+        "coordenacao": dominio.coordenacao(coordenador(plano, "adm"), coordenador(plano, "op")),
         "consideracoes": dominio.consideracoes_finais(destinos),
     }
 
@@ -302,19 +366,17 @@ def _refazer(plano: PlanoTrabalho) -> None:
     plano.recursos, plano.unidade_movel_texto = textos["recursos"], textos["unidade_movel"]
     for evento in plano.eventos.all():
         t = _textos_das_atividades(evento.atividades.all())
-        novos = (t["atividades"], t["metas"], t["recursos"], t["unidade_movel"])
-        if novos != (evento.atividades_texto, evento.metas, evento.recursos,
-                     evento.unidade_movel_texto):
-            (evento.atividades_texto, evento.metas, evento.recursos,
-             evento.unidade_movel_texto) = novos
-            evento.save(update_fields=["atividades_texto", "metas", "recursos",
-                                       "unidade_movel_texto", "atualizado_em"])
+        campos = ("atividades_texto", "metas", "recursos", "unidade_movel_texto",
+                  "diarias_composicao", "diarias_unitario", "diarias_total")
+        antes = tuple(getattr(evento, c) for c in campos)
+        evento.atividades_texto, evento.metas = t["atividades"], t["metas"]
+        evento.recursos, evento.unidade_movel_texto = t["recursos"], t["unidade_movel"]
+        resultado, _ = calculo_do_evento(evento)
+        _guardar_calculo(evento, resultado)
+        if tuple(getattr(evento, c) for c in campos) != antes:
+            evento.save(update_fields=[*campos, "atualizado_em"])
     resultado, _ = calculo(plano)
-    if resultado is None:  # cálculo inválido apaga a cópia (vira pendência de diárias)
-        plano.diarias_composicao, plano.diarias_unitario, plano.diarias_total = "", None, None
-    else:
-        plano.diarias_composicao = resultado.resumo
-        plano.diarias_unitario, plano.diarias_total = resultado.por_servidor, resultado.total
+    _guardar_calculo(plano, resultado)
 
 
 def _texto_escrito(plano: PlanoTrabalho, campo: str, escrito: str | None,
@@ -335,6 +397,7 @@ def _texto_escrito(plano: PlanoTrabalho, campo: str, escrito: str | None,
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
            programa: ProgramaSolicitante | None = None, programa_outros: str = "",
+           programas=None,
            data_inicio: date | None = None, data_fim: date | None = None, horario: str = "",
            destinos=(), coordenador_adm: Servidor | None = None, coordenador_adm_nome: str = "",
            coordenador_adm_cargo: str = "", coordenador_adm_genero: str = "",
@@ -343,8 +406,8 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
            saida_em: datetime | None = None, chegada_em: datetime | None = None,
            efetivo: list[LinhaInformada] | None = None, atividades=None,
            contextualizacao: str | None = None, coordenacao: str | None = None,
-           consideracoes: str | None = None, assinante: Servidor | None = None,
-           data_documento: date | None = None) -> tuple[PlanoTrabalho, list[str]]:
+           consideracoes: str | None = None, assinante: Servidor | object | None = MANTER,
+           data_documento: date | object | None = MANTER) -> tuple[PlanoTrabalho, list[str]]:
     """Cria (numera) ou altera. Devolve o plano e o que veio dos ofícios.
 
     `efetivo`/`atividades`/textos `None`: a tela não os mandou — ficam como estão. Os campos
@@ -385,6 +448,9 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
             raise PlanoInvalido(f"O Ofício {o.numero_formatado} é de outra unidade.")
         if o.situacao == Oficio.Situacao.CANCELADO and o.pk not in ja_ligados:
             raise PlanoInvalido(f"O Ofício {o.numero_formatado} está cancelado.")
+    # Mais de um ofício: só da mesma ação (mesma viagem ou mesmo roteiro).
+    if {o.pk for o in oficios} != ja_ligados and (erro := incompatibilidade(oficios)):
+        raise PlanoInvalido(erro)
     if data_inicio and data_fim and data_fim < data_inicio:
         raise PlanoInvalido("A data final não pode ser anterior à data inicial.")
     if saida_em and chegada_em and chegada_em <= saida_em:
@@ -406,8 +472,10 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
             saida_em, chegada_em = base["saida"], base["chegada"]
             copiados.append("deslocamento")
 
-    plano.programa = programa
-    plano.programa_outros = "" if programa else " ".join(programa_outros.split())
+    # Vários programas (a tela manda `programas`); `programa`, um só, vale como lista de um.
+    programas = list(programas) if programas is not None else ([programa] if programa else [])
+    plano.programa = programas[0] if programas else None
+    plano.programa_outros = " ".join(programa_outros.split())
     plano.data_inicio, plano.data_fim = data_inicio, (data_fim or data_inicio)
     plano.horario = horario or dominio.HORARIO_PADRAO
     for qual, servidor, nome, cargo, genero in (
@@ -421,15 +489,20 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
         setattr(plano, f"coordenador_{qual}_cargo", "" if servidor else cargo.strip())
         setattr(plano, f"coordenador_{qual}_genero", genero if genero in ("M", "F") else "")
     plano.saida_em, plano.chegada_em = saida_em, chegada_em
-    plano.assinante = assinante
-    if data_documento is not None or plano.documento_gerado_em is None:
-        # Depois da primeira geração, "em branco" não apaga a data fixada (uma aba aberta
-        # antes da geração mandaria o campo vazio e as vias sairiam com datas diferentes).
-        plano.data_documento = data_documento
+    # Quem assina vem da configuração da unidade (a folha não tem mais o campo); quem chama
+    # com um servidor (ex.: duplicar) ainda o define.
+    if assinante is not MANTER:
+        plano.assinante = cast("Servidor | None", assinante)
+    # A folha não tem mais o campo (como a OS): vale a data fixada na primeira geração.
+    # Quem chama com uma data (ou None, antes de gerar) ainda a define.
+    if data_documento is not MANTER and (data_documento is not None
+                                         or plano.documento_gerado_em is None):
+        plano.data_documento = cast("date | None", data_documento)
     if plano.pk is None:
         plano.save()  # o novo precisa existir para receber as relações; o resto, no fim
 
     plano.oficios.set(oficios)
+    plano.programas.set(programas)
     atuais = [d.municipio_id for d in plano.destinos.order_by("posicao", "id")]
     if atuais != [m.pk for m in destinos]:
         plano.destinos.all().delete()
@@ -453,36 +526,48 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
     return plano, copiados
 
 
-def _gravar_efetivo(plano: PlanoTrabalho, linhas: list[LinhaInformada]) -> None:
-    """Regrava as linhas só quando mudaram (a trilha de auditoria não registra o que não
-    mudou a cada gravação automática)."""
-    atuais = [(e.unidade_id, e.cargo_id, e.quantidade) for e in plano.efetivo.order_by(
+def _gravar_efetivo(dono, linhas: list[LinhaInformada]) -> None:
+    """Regrava as linhas do plano (evento 1) ou de um evento adicional só quando mudaram (a
+    trilha de auditoria não registra o que não mudou a cada gravação automática)."""
+    atuais = [(e.unidade_id, e.cargo_id, e.quantidade) for e in dono.efetivo.order_by(
         "posicao", "id")]
     novas = [(getattr(lin.unidade, "pk", None), lin.cargo.pk, lin.quantidade) for lin in linhas]
     if atuais == novas:
         return
-    plano.efetivo.all().delete()
-    EfetivoPlano.objects.bulk_create([
-        EfetivoPlano(plano=plano, unidade=lin.unidade, cargo=lin.cargo,
-                     quantidade=lin.quantidade, posicao=i) for i, lin in enumerate(linhas)])
+    dono.efetivo.all().delete()
+    if isinstance(dono, EventoPlano):
+        EfetivoEvento.objects.bulk_create([
+            EfetivoEvento(evento=dono, unidade=lin.unidade, cargo=lin.cargo,
+                          quantidade=lin.quantidade, posicao=i) for i, lin in enumerate(linhas)])
+    else:
+        EfetivoPlano.objects.bulk_create([
+            EfetivoPlano(plano=dono, unidade=lin.unidade, cargo=lin.cargo,
+                         quantidade=lin.quantidade, posicao=i) for i, lin in enumerate(linhas)])
 
 
 @transaction.atomic
 def salvar_evento(usuario, plano_pk: int, *, evento_pk: int | None = None,
                   programa: ProgramaSolicitante | None = None, programa_outros: str = "",
+                  programas=None,
                   data_inicio: date | None = None, data_fim: date | None = None,
-                  horario: str = "", destinos=(), coordenador_op: Servidor | None = None,
-                  coordenador_op_nome: str = "", coordenador_op_cargo: str = "",
-                  coordenador_op_genero: str = "", atividades=()) -> EventoPlano:
-    """Cria ou altera um evento adicional e refaz o plano (textos, metas, diárias)."""
+                  horario: str = "", destinos=(), saida_em: datetime | None = None,
+                  chegada_em: datetime | None = None,
+                  efetivo: list[LinhaInformada] | None = None, atividades=()) -> EventoPlano:
+    """Cria ou altera um evento adicional e refaz o plano (textos, metas, diárias). O
+    efetivo e o deslocamento são do evento (as diárias dele saem à parte); `efetivo` None:
+    a janela não o mandou — fica como está."""
     plano = PlanoTrabalho.objects.select_for_update().get(pk=plano_pk)
     policies.exigir(policies.pode_editar_plano(usuario, plano),
                     "Este plano de trabalho não pode ser alterado.")
     destinos = list(dict.fromkeys(destinos))
     if len(destinos) > MAX_DESTINOS:
         raise PlanoInvalido(f"No máximo {MAX_DESTINOS} destinos por evento.")
+    if efetivo is not None and len(efetivo) > MAX_LINHAS:
+        raise PlanoInvalido(f"No máximo {MAX_LINHAS} linhas de efetivo por evento.")
     if data_inicio and data_fim and data_fim < data_inicio:
         raise PlanoInvalido("A data final não pode ser anterior à data inicial.")
+    if saida_em and chegada_em and chegada_em <= saida_em:
+        raise PlanoInvalido("A chegada na sede deve ser depois da saída.")
     if evento_pk:
         evento = plano.eventos.get(pk=evento_pk)
     else:
@@ -490,21 +575,21 @@ def salvar_evento(usuario, plano_pk: int, *, evento_pk: int | None = None,
             raise PlanoInvalido(f"No máximo {MAX_EVENTOS} eventos por plano.")
         ultima = plano.eventos.order_by("-posicao").values_list("posicao", flat=True).first()
         evento = EventoPlano(plano=plano, posicao=(ultima + 1) if ultima is not None else 0)
-    evento.programa = programa
-    evento.programa_outros = "" if programa else " ".join(programa_outros.split())
+    programas = list(programas) if programas is not None else ([programa] if programa else [])
+    evento.programa = programas[0] if programas else None
+    evento.programa_outros = " ".join(programa_outros.split())
     evento.data_inicio, evento.data_fim = data_inicio, (data_fim or data_inicio)
     evento.horario = horario or dominio.HORARIO_PADRAO
-    evento.coordenador_op = coordenador_op
-    evento.coordenador_op_nome = "" if coordenador_op else coordenador_op_nome.strip().upper()
-    evento.coordenador_op_cargo = "" if coordenador_op else coordenador_op_cargo.strip()
-    evento.coordenador_op_genero = coordenador_op_genero if coordenador_op_genero in (
-        "M", "F") else ""
+    evento.saida_em, evento.chegada_em = saida_em, chegada_em
     evento.save()
     atuais = [d.municipio_id for d in evento.destinos.order_by("posicao", "id")]
     if atuais != [m.pk for m in destinos]:
         evento.destinos.all().delete()
         EventoDestino.objects.bulk_create(
             [EventoDestino(evento=evento, municipio=m, posicao=i) for i, m in enumerate(destinos)])
+    if efetivo is not None:
+        _gravar_efetivo(evento, efetivo)
+    evento.programas.set(programas)
     evento.atividades.set(list(atividades))
     _refazer_e_gravar(plano)
     return evento
@@ -644,10 +729,7 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         nome, cargo = plano.assinante.nome, getattr(plano.assinante.cargo, "nome", "")
     else:
         nome, cargo, _ = quem_assina(config, "plano_trabalho", data_doc)
-    valor = ""
-    if plano.diarias_total is not None and plano.diarias_unitario is not None:
-        valor = dominio.texto_do_valor(plano.diarias_composicao, plano.diarias_unitario,
-                                       plano.diarias_total)
+    valor = _texto_do_valor(plano)
     sede = config.sede
     local = (f"{config.cidade_endereco}/{config.uf}" if config.cidade_endereco and config.uf
              else f"{sede.nome}/{sede.uf}" if sede else "")
@@ -663,10 +745,10 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         "contextualizacao": plano.contextualizacao,
         "datas": dominio.periodo_por_extenso(inicio, fim),
         "local": ", ".join(todos_os_destinos(plano)),
-        # Vários eventos: atuação, atividades, metas e recursos por evento; o valor é o
-        # combinado da viagem (um trecho, a mesma equipe), com o rótulo do período todo.
+        # Vários eventos: atuação, efetivo, atividades, metas, recursos e valor por evento
+        # (cada um com o seu deslocamento); o total do plano é a soma.
         "eventos": eventos if len(eventos) > 1 else [],
-        "valor_rotulo": dominio.rotulo_do_total(inicio, fim) if len(eventos) > 1 else "",
+        "valor_geral": _moeda_geral(plano) if len(eventos) > 1 else "",
         "horario": plano.horario,
         "efetivo": dominio.texto_do_efetivo(linhas_do_efetivo(plano)),
         "unidade_movel": plano.unidade_movel_texto,
@@ -684,19 +766,41 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
     }
 
 
+def _texto_do_valor(dono) -> str:
+    """O parágrafo do valor do plano (evento 1) ou de um evento, ou "" sem cálculo."""
+    if dono.diarias_total is None or dono.diarias_unitario is None:
+        return ""
+    return dominio.texto_do_valor(dono.diarias_composicao, dono.diarias_unitario,
+                                  dono.diarias_total)
+
+
+def _moeda_geral(plano: PlanoTrabalho) -> str:
+    total = diarias_geral(plano)
+    return f"R${moeda(total)} ({reais_por_extenso(total)})" if total is not None else ""
+
+
 def eventos_para_documento(plano: PlanoTrabalho) -> list[dict]:
-    """O evento 1 (os campos do plano) e os demais, no formato do documento."""
+    """O evento 1 (os campos do plano) e os demais, no formato do documento — cada um com o
+    seu efetivo e o seu valor (rotulado pelas datas dele)."""
     carregar(plano)
     saida = [{"cabecalho": dominio.cabecalho_do_evento(plano.data_inicio, plano.data_fim),
               "programa": plano.programa_nome, "local": ", ".join(destinos_texto(plano)),
               "horario": plano.horario, "atividades": plano.atividades_texto,
               "metas": plano.metas, "recursos": plano.recursos,
-              "unidade_movel": plano.unidade_movel_texto}]
+              "unidade_movel": plano.unidade_movel_texto,
+              "efetivo": dominio.texto_do_efetivo(linhas_do_efetivo(plano)),
+              "valor_rotulo": dominio.rotulo_do_total(plano.data_inicio, plano.data_fim),
+              "valor": _texto_do_valor(plano)}]
     for e in plano.eventos.all():
         saida.append({"cabecalho": dominio.cabecalho_do_evento(e.data_inicio, e.data_fim),
                       "programa": e.programa_nome, "local": ", ".join(_destinos_do_evento(e)),
                       "horario": e.horario, "atividades": e.atividades_texto, "metas": e.metas,
-                      "recursos": e.recursos, "unidade_movel": e.unidade_movel_texto})
+                      "recursos": e.recursos, "unidade_movel": e.unidade_movel_texto,
+                      "efetivo": dominio.texto_do_efetivo(linhas_do_efetivo_do_evento(e)),
+                      "valor_rotulo": dominio.rotulo_do_total(e.data_inicio, e.data_fim),
+                      "valor": _texto_do_valor(e)})
+    for ev in saida:
+        ev["valor_resto"] = ev["valor"].removeprefix("Valor total:")
     return saida
 
 
@@ -808,3 +912,53 @@ def voltar_texto_ao_modelo(plano: PlanoTrabalho, usuario):
     from . import edicao_texto
     atual = _travar_para_texto(usuario, plano)
     return edicao_texto.voltar_ao_modelo(_versoes(atual), _criar(atual), usuario)
+
+
+# ---------------------------------------------------------------- duplicar
+@transaction.atomic
+def duplicar(usuario, pk: int) -> PlanoTrabalho:
+    """Um plano novo (número novo) com os mesmos dados — eventos, efetivo, atividades,
+    textos escritos e o texto editado do documento —, sem a data e a geração do documento,
+    a viagem e o histórico, que são de cada plano."""
+    from .models import EdicaoDocumento, EdicaoPlano
+    origem = carregar(PlanoTrabalho.objects.get(pk=pk))
+    policies.exigir(policies.pode_ver_plano(usuario, origem)
+                    and policies.pode_criar_plano(usuario),
+                    "Você não pode duplicar este plano de trabalho.")
+    novo, _ = salvar(
+        usuario, oficios=[o for o in origem.oficios.all()
+                          if o.situacao != Oficio.Situacao.CANCELADO],
+        programas=list(origem.programas.all()) or ([origem.programa] if origem.programa else []),
+        programa_outros=origem.programa_outros,
+        data_inicio=origem.data_inicio, data_fim=origem.data_fim, horario=origem.horario,
+        destinos=[d.municipio for d in origem.destinos.order_by("posicao", "id")],
+        coordenador_adm=origem.coordenador_adm, coordenador_adm_nome=origem.coordenador_adm_nome,
+        coordenador_adm_cargo=origem.coordenador_adm_cargo,
+        coordenador_adm_genero=origem.coordenador_adm_genero,
+        coordenador_op=origem.coordenador_op, coordenador_op_nome=origem.coordenador_op_nome,
+        coordenador_op_cargo=origem.coordenador_op_cargo,
+        coordenador_op_genero=origem.coordenador_op_genero,
+        saida_em=origem.saida_em, chegada_em=origem.chegada_em,
+        efetivo=[LinhaInformada(cargo=e.cargo, quantidade=e.quantidade, unidade=e.unidade)
+                 for e in origem.efetivo.order_by("posicao", "id")],
+        atividades=list(origem.atividades.all()),
+        contextualizacao=origem.contextualizacao, coordenacao=origem.coordenacao,
+        consideracoes=origem.consideracoes, assinante=origem.assinante)
+    for e in origem.eventos.order_by("posicao", "id"):
+        salvar_evento(
+            usuario, novo.pk, programa_outros=e.programa_outros,
+            programas=list(e.programas.all()) or ([e.programa] if e.programa else []),
+            data_inicio=e.data_inicio, data_fim=e.data_fim, horario=e.horario,
+            destinos=[d.municipio for d in e.destinos.order_by("posicao", "id")],
+            saida_em=e.saida_em, chegada_em=e.chegada_em,
+            efetivo=[LinhaInformada(cargo=f.cargo, quantidade=f.quantidade, unidade=f.unidade)
+                     for f in e.efetivo.order_by("posicao", "id")],
+            atividades=list(e.atividades.all()))
+    edicao = edicao_vigente(origem)
+    if edicao is not None and edicao.regioes:
+        EdicaoPlano.objects.create(
+            plano=novo, numero=1, acao=EdicaoDocumento.Acao.EDITADO,
+            regioes=dict(edicao.regioes), blocos_alterados=list(edicao.blocos_alterados),
+            impressoes=dict(edicao.impressoes), criado_por=usuario)
+    return novo
+

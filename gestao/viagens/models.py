@@ -765,6 +765,10 @@ class TermoAutorizacao(models.Model):
                                related_name="termos")
     oficio = models.ForeignKey(Oficio, on_delete=models.SET_NULL, null=True, blank=True,
                                related_name="termos", verbose_name="ofício vinculado")
+    # Os ofícios que o termo junta (da mesma viagem ou do mesmo roteiro): o termo une os
+    # dados deles. `oficio` é o primeiro — o que as listas e os filtros mostram.
+    oficios = models.ManyToManyField(Oficio, blank=True, related_name="termos_vinculados",
+                                     verbose_name="ofícios vinculados")
     # Como o termo nomeia a participação ("manifesto o interesse em participar do …").
     # O valor inicial é o da referência.
     evento = models.CharField("evento", max_length=160, default="PCPR na Comunidade")
@@ -978,6 +982,10 @@ class PlanoTrabalho(models.Model):
     # 1. Identificação e atuação
     programa = models.ForeignKey(ProgramaSolicitante, on_delete=models.SET_NULL, null=True,
                                  blank=True, related_name="planos", verbose_name="programa")
+    # Os programas do plano (mais de um, como os tipos da viagem); `programa` é o primeiro.
+    # "Outro" é o texto de `programa_outros`, que vale junto com os do catálogo.
+    programas = models.ManyToManyField(ProgramaSolicitante, blank=True, related_name="+",
+                                       verbose_name="programas")
     programa_outros = models.CharField("outro programa", max_length=200, blank=True)
     data_inicio = models.DateField("data de início", null=True, blank=True)
     data_fim = models.DateField("data de fim", null=True, blank=True)
@@ -1066,7 +1074,15 @@ class PlanoTrabalho(models.Model):
 
     @property
     def programa_nome(self) -> str:
-        return self.programa.nome if self.programa is not None else self.programa_outros
+        """Os programas do plano, juntos ("A, B e o outro"), na ordem do catálogo."""
+        nomes = [p.nome for p in self.programas.all()] if self.pk else []
+        if not nomes and self.programa is not None:
+            nomes = [self.programa.nome]
+        if self.programa_outros:
+            nomes.append(self.programa_outros)
+        if len(nomes) > 1:
+            return f"{', '.join(nomes[:-1])} e {nomes[-1]}"
+        return nomes[0] if nomes else ""
 
 
 class PlanoDestino(models.Model):
@@ -1108,22 +1124,28 @@ class EfetivoPlano(models.Model):
 class EventoPlano(models.Model):
     """Evento adicional de um plano de vários eventos (o evento 1 são os campos do próprio
     plano). Na referência o plano servia de "rascunho do evento atual"; aqui cada evento é
-    um registro editado à parte. Efetivo e deslocamento são do plano: a mesma equipe numa
-    viagem só (as diárias saem combinadas)."""
+    um registro editado à parte, com o que muda de um para outro: programa, datas, horário,
+    destinos, efetivo, deslocamento (e as diárias, calculadas por evento) e atividades. Os
+    coordenadores são do plano."""
 
     plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="eventos")
     posicao = models.PositiveSmallIntegerField(default=0)
     programa = models.ForeignKey(ProgramaSolicitante, on_delete=models.SET_NULL, null=True,
                                  blank=True, related_name="+")
+    # Vários programas, como no plano; `programa` é o primeiro.
+    programas = models.ManyToManyField(ProgramaSolicitante, blank=True, related_name="+",
+                                       verbose_name="programas")
     programa_outros = models.CharField("outro programa", max_length=200, blank=True)
     data_inicio = models.DateField("início do evento", null=True, blank=True)
     data_fim = models.DateField("fim do evento", null=True, blank=True)
     horario = models.CharField("horário de atendimento", max_length=60, blank=True)
-    coordenador_op = models.ForeignKey(Servidor, on_delete=models.SET_NULL, null=True,
-                                       blank=True, related_name="+")
-    coordenador_op_nome = models.CharField(max_length=255, blank=True)
-    coordenador_op_cargo = models.CharField(max_length=120, blank=True)
-    coordenador_op_genero = models.CharField(max_length=1, blank=True)
+    saida_em = models.DateTimeField("saída da sede", null=True, blank=True)
+    chegada_em = models.DateTimeField("chegada na sede", null=True, blank=True)
+    diarias_composicao = models.CharField(max_length=120, blank=True)
+    diarias_unitario = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+                                           blank=True)
+    diarias_total = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+                                        blank=True)
     atividades = models.ManyToManyField(AtividadePlano, blank=True, related_name="+")
     atividades_texto = models.TextField(blank=True)
     metas = models.TextField(blank=True)
@@ -1139,6 +1161,10 @@ class EventoPlano(models.Model):
                 condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
                                                        data_fim__gte=models.F("data_inicio")),
                 name="evento_plano_periodo_ordenado"),
+            models.CheckConstraint(
+                condition=Q(saida_em__isnull=True) | Q(chegada_em__isnull=True)
+                | Q(chegada_em__gt=models.F("saida_em")),
+                name="evento_plano_chegada_depois_da_saida"),
         ]
 
     def __str__(self) -> str:
@@ -1146,7 +1172,38 @@ class EventoPlano(models.Model):
 
     @property
     def programa_nome(self) -> str:
-        return self.programa.nome if self.programa is not None else self.programa_outros
+        """Os programas do evento, juntos ("A, B e o outro")."""
+        nomes = [p.nome for p in self.programas.all()] if self.pk else []
+        if not nomes and self.programa is not None:
+            nomes = [self.programa.nome]
+        if self.programa_outros:
+            nomes.append(self.programa_outros)
+        if len(nomes) > 1:
+            return f"{', '.join(nomes[:-1])} e {nomes[-1]}"
+        return nomes[0] if nomes else ""
+
+    @property
+    def efetivo_total(self) -> int:
+        return sum(e.quantidade for e in self.efetivo.all())
+
+
+class EfetivoEvento(models.Model):
+    """Uma linha do efetivo de um evento adicional (o mesmo desenho de EfetivoPlano)."""
+
+    evento = models.ForeignKey(EventoPlano, on_delete=models.CASCADE, related_name="efetivo")
+    unidade = models.ForeignKey(Unidade, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name="+")
+    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT, related_name="+")
+    quantidade = models.PositiveSmallIntegerField(default=1)
+    posicao = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["posicao", "id"]
+        constraints = [models.CheckConstraint(condition=Q(quantidade__gte=1),
+                                              name="efetivo_evento_quantidade_positiva")]
+
+    def __str__(self) -> str:
+        return f"{self.quantidade} {self.cargo}"
 
 
 class EventoDestino(models.Model):

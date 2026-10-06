@@ -156,16 +156,25 @@ formulário.
 </fieldset>
 
 {% if editavel %}
+{% comment %}
+Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar (grava o que
+estiver pendente e volta à lista) e Ações (duplicar — componentes/rodape_documento.html).
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if pauta %}Gravando as alterações…{% else %}Alterações não salvas — registre a pauta antes de sair.{% endif %}" role="status">
+  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+  <div class="sr-only" data-status-salvamento data-texto-sujo="{% if pauta %}Gravando as alterações…{% else %}Alterações não salvas — registre a pauta antes de sair.{% endif %}" role="status">
     {% if pauta %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
     {% else %}<span data-anuncio>Para registrar: título, data, jornalista e unidade.</span>{% endif %}
   </div>
-  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
   {% if pauta %}
+    {% include "componentes/rodape_documento.html" with nome="pauta" finalizar_form="finalizar-publicacoes" duplicar_form="duplicar-publicacoes" %}
   {% else %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar pauta</button>
   {% endif %}
 </div>
+{% if pauta %}
+<form id="finalizar-publicacoes" method="get" action="{% url 'publicacoes:lista' %}" hidden data-esperar-salvamento></form>
+<form id="duplicar-publicacoes" method="post" action="{% url 'publicacoes:duplicar' pauta.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
+{% endif %}
 {% endif %}
 {% endblock %}

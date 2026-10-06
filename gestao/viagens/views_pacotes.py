@@ -101,6 +101,32 @@ def baixar_termo(request: HttpRequest, pk: int) -> HttpResponse:
                       nome_base=f"termo-{termo.pk}", padrao=padrao)
 
 
+@require_http_methods(["GET", "POST"])
+def baixar_ordem(request: HttpRequest, pk: int) -> HttpResponse:
+    from .models import OrdemServico
+    ordem = get_object_or_404(OrdemServico, pk=pk)
+    if not policies.pode_ver_ordem(request.user, ordem):
+        raise Http404
+    padrao = reverse("viagens:editar_ordem", args=[ordem.pk])
+    policies.exigir(policies.pode_editar_ordem(request.user, ordem),
+                    "Reative a Ordem de Serviço para baixar o documento.")
+    return _responder(request, lambda: pacotes.itens_da_ordem(ordem),
+                      nome_base=f"os-{ordem.numero:03d}-{ordem.ano}", padrao=padrao)
+
+
+@require_http_methods(["GET", "POST"])
+def baixar_plano(request: HttpRequest, pk: int) -> HttpResponse:
+    from .models import PlanoTrabalho
+    plano = get_object_or_404(PlanoTrabalho, pk=pk)
+    if not policies.pode_ver_plano(request.user, plano):
+        raise Http404
+    padrao = reverse("viagens:editar_plano", args=[plano.pk])
+    policies.exigir(policies.pode_editar_plano(request.user, plano),
+                    "Reative o plano de trabalho para baixar o documento.")
+    return _responder(request, lambda: pacotes.itens_do_plano(plano),
+                      nome_base=f"plano-{plano.numero:02d}-{plano.ano}", padrao=padrao)
+
+
 def _viagem(request: HttpRequest, pk: int):
     from .models import Viagem
     v = get_object_or_404(Viagem, pk=pk)

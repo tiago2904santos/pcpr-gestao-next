@@ -6,7 +6,12 @@
  *
  * Intervalo: com `data-ate="<id de outro campo de data>"`, o mesmo calendário marca começo e
  * fim — o primeiro clique abre o período, o segundo fecha, e os dias entre eles aparecem
- * marcados. Sem JavaScript continuam dois campos de data comuns.
+ * marcados. O calendário do fim (`data-de="<id do começo>"`) faz o mesmo: qualquer um dos
+ * dois preenche o período todo. Sem JavaScript continuam dois campos de data comuns.
+ *
+ * Regra de todo o sistema: dois campos de data de um período no mesmo formulário — pelo
+ * nome: início/fim, de/até, saída/chegada, ida/volta (ex.: data_inicio e data_fim,
+ * saida_em_0 e chegada_em_0) — se ligam sozinhos (`parear`), sem marcação na página.
  *
  * Período num campo só: com `data-periodo`, o campo visível mostra "13/10/2026 a 20/10/2026"
  * (e aceita ser digitado assim) enquanto dois campos escondidos — `[data-periodo-de]` e
@@ -39,6 +44,19 @@ function lerData(texto) {
   return d.getDate() === dia && d.getMonth() === mes ? d : null;
 }
 
+/** Pares de palavras que fazem de dois campos de data um período (começo → fim). */
+const PARES = [["inicio", "fim"], ["de", "ate"], ["saida", "chegada"], ["ida", "volta"]];
+
+/** O nome do outro campo do par, trocando a palavra inteira (separada por "_" ou "-").
+ * @param {string} nome @param {string} de @param {string} para */
+function trocarPalavra(nome, de, para) {
+  const partes = nome.split(/([_-])/);
+  const i = partes.indexOf(de);
+  if (i < 0) return "";
+  partes[i] = para;
+  return partes.join("");
+}
+
 /** Soma meses mantendo o dia (31/01 + 1 mês → 28 ou 29/02). @param {Date} d @param {number} n */
 function somarMeses(d, n) {
   const alvo = new Date(d.getFullYear(), d.getMonth() + n, 1);
@@ -60,6 +78,12 @@ export class PcData extends SeletorFlutuante {
     return id ? /** @type {HTMLInputElement | null} */ (document.getElementById(id)) : null;
   }
 
+  /** Campo do começo do período, quando este é o calendário do fim. */
+  get campoInicio() {
+    const id = this.dataset.de;
+    return id ? /** @type {HTMLInputElement | null} */ (document.getElementById(id)) : null;
+  }
+
   /** Um campo só para o período inteiro (filtros). */
   get ehPeriodo() {
     return this.hasAttribute("data-periodo");
@@ -67,10 +91,11 @@ export class PcData extends SeletorFlutuante {
 
   /** Este calendário marca duas pontas? */
   get temFim() {
-    return this.ehPeriodo || Boolean(this.campoFim);
+    return this.ehPeriodo || Boolean(this.campoFim) || Boolean(this.campoInicio);
   }
 
   get inicioAtual() {
+    if (this.campoInicio) return lerData(this.campoInicio.value);
     const texto = /** @type {HTMLInputElement} */ (this.entrada).value;
     return lerData(this.ehPeriodo ? texto.split(SEPARADOR)[0] || "" : texto);
   }
@@ -80,15 +105,44 @@ export class PcData extends SeletorFlutuante {
       const texto = /** @type {HTMLInputElement} */ (this.entrada).value;
       return lerData(texto.split(SEPARADOR)[1] || "");
     }
+    if (this.campoInicio) return lerData(/** @type {HTMLInputElement} */ (this.entrada).value);
     return this.campoFim ? lerData(this.campoFim.value) : null;
   }
 
   connectedCallback() {
     super.connectedCallback();
+    this.parear();
     // Digitar o período à mão também vale: os campos escondidos acompanham o que foi escrito.
     if (this.ehPeriodo && this.entrada) {
       this.entrada.addEventListener("change", () => this.gravarEscondidos(this.inicioAtual,
                                                                           this.fimAtual));
+    }
+  }
+
+  /** Liga este campo ao outro do período, pelo nome (ver PARES): o do começo ganha
+   * `data-ate` e o do fim, `data-de`. Quem já foi ligado na página fica como está. */
+  parear() {
+    const entrada = /** @type {HTMLInputElement | null} */ (this.entrada);
+    if (this.ehPeriodo || this.dataset.ate || this.dataset.de || !entrada?.name || !entrada.form) return;
+    for (const [comeco, fim] of PARES) {
+      for (const [minha, outra, eu] of [[comeco, fim, "inicio"], [fim, comeco, "fim"]]) {
+        const nome = trocarPalavra(entrada.name, minha, outra);
+        if (!nome) continue;
+        const par = /** @type {HTMLInputElement | null} */ (
+          entrada.form.querySelector(`pc-data input[name="${CSS.escape(nome)}"]`));
+        const outroSeletor = /** @type {HTMLElement | null} */ (par?.closest("pc-data") ?? null);
+        if (!par || !outroSeletor || outroSeletor.hasAttribute("data-periodo")) continue;
+        if (!entrada.id) entrada.id = `data-${entrada.name}`;
+        if (!par.id) par.id = `data-${par.name}`;
+        if (eu === "inicio") {
+          this.dataset.ate = par.id;
+          outroSeletor.dataset.de = entrada.id;
+        } else {
+          this.dataset.de = par.id;
+          outroSeletor.dataset.ate = entrada.id;
+        }
+        return;
+      }
     }
   }
 
@@ -111,6 +165,14 @@ export class PcData extends SeletorFlutuante {
       const texto = !de ? "" : (ate ? `${formatar(de)} a ${formatar(ate)}` : formatar(de));
       this.escrever(texto);
       this.gravarEscondidos(de, ate);
+      return;
+    }
+    const inicio = this.campoInicio;
+    if (inicio) {
+      // Calendário do fim: o começo vai para o outro campo, o fim fica neste.
+      inicio.value = de ? formatar(de) : "";
+      inicio.dispatchEvent(new Event("change", { bubbles: true }));
+      this.escrever(ate ? formatar(ate) : "");
       return;
     }
     this.escrever(de ? formatar(de) : "");

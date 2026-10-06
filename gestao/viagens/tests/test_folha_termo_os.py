@@ -202,9 +202,9 @@ class TestFolhaDoTermo:
         assert reverse("viagens:folha_termo", args=[termo.pk, str(um.pk)]) in html
         # Pronto para gerar: só o selo do cartão (o aviso verde saiu — o rodapé já diz tudo).
         assert "Pronto para gerar" in html and "documentos prontos para gerar" not in html
-        html = cli.get(url + "?previa=generico").content.decode()
+        # Um bloco de edição só, com todas as páginas (servidor e genérico) e o índice delas.
         assert reverse("viagens:folha_termo", args=[termo.pk, "generico"]) in html
-        assert "Como vai sair — Termo genérico" in html
+        assert 'id="folha-doc-generico"' in html and 'data-ir-pagina="generico"' in html
 
     def test_autosave_e_historico(self, c):
         termo, um = self._termo(c)

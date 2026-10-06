@@ -1238,3 +1238,11 @@
     display: none;
   }
 }
+
+/* O bloco "Sede e destinos" nas folhas (termo, OS, plano, viagem) continua os campos de
+   cima: sem margem nem filete (só o respiro de dentro). */
+.secao__bloco#destinos {
+  margin-top: 0;
+  border-top: 0;
+}
+

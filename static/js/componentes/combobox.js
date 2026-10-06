@@ -25,6 +25,8 @@ let contador = 0;
 const normalizar = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 export class PcCombobox extends HTMLElement {
+  /** @type {HTMLCanvasElement | undefined} Régua de texto (mede o nome para o detalhe). */
+  static regua;
   /** @type {Opcao[]} */
   opcoes = [];
   ativo = -1;
@@ -64,6 +66,7 @@ export class PcCombobox extends HTMLElement {
     this.entrada.setAttribute("aria-autocomplete", "list");
     this.entrada.autocomplete = "off";
     this.criarLimpar();
+    this.prepararMeta();
 
     /** @type {number | undefined} */
     this.atraso = undefined;
@@ -80,7 +83,8 @@ export class PcCombobox extends HTMLElement {
       this.select.addEventListener("change", () => {
         if (this.escolhendo || !this.select || !this.entrada) return;
         const atual = this.select.selectedOptions[0];
-        this.entrada.value = atual && atual.value ? atual.textContent?.trim() || "" : "";
+        const mostrar = atual && (atual.value || this.hasAttribute("data-vazio-e-valor"));
+        this.entrada.value = mostrar ? atual.textContent?.trim() || "" : "";
         this.sincronizarLimpar();
       });
     }
@@ -107,6 +111,37 @@ export class PcCombobox extends HTMLElement {
     this.sincronizarBotao?.();
   }
 
+  /**
+   * `data-mostrar-meta="cargo"` + um `[data-meta-escolhida]` dentro da caixa: o detalhe da
+   * opção escolhida (ex.: o cargo do servidor) aparece dentro do campo, logo depois do nome.
+   * A posição acompanha a largura do nome (medida com a fonte do campo).
+   */
+  prepararMeta() {
+    this.meta = /** @type {HTMLElement | null} */ (this.querySelector("[data-meta-escolhida]"));
+    if (!this.meta || !this.entrada) return;
+    new ResizeObserver(() => this.posicionarMeta()).observe(this.entrada);
+    document.fonts?.ready.then(() => this.posicionarMeta());
+  }
+
+  /** @param {string} texto */
+  mostrarMeta(texto) {
+    if (!this.meta) return;
+    this.meta.textContent = texto;
+    this.meta.hidden = !texto;
+    this.posicionarMeta();
+  }
+
+  posicionarMeta() {
+    const entrada = this.entrada;
+    if (!this.meta || this.meta.hidden || !entrada) return;
+    const estilo = getComputedStyle(entrada);
+    const tela = (PcCombobox.regua ??= document.createElement("canvas")).getContext("2d");
+    if (!tela) return;
+    tela.font = `${estilo.fontWeight} ${estilo.fontSize} ${estilo.fontFamily}`;
+    const x = entrada.offsetLeft + parseFloat(estilo.paddingLeft) + tela.measureText(entrada.value).width;
+    this.meta.style.setProperty("--meta-x", `${Math.round(x)}px`);
+  }
+
   criarEntradaParaSelect() {
     const select = /** @type {HTMLSelectElement} */ (this.select);
     const entrada = document.createElement("input");
@@ -122,7 +157,10 @@ export class PcCombobox extends HTMLElement {
     if (select.getAttribute("aria-invalid")) entrada.setAttribute("aria-invalid", "true");
     entrada.placeholder = this.dataset.placeholder || "Digite para buscar…";
     const atual = select.selectedOptions[0];
-    if (atual && atual.value) entrada.value = atual.textContent?.trim() || "";
+    // `data-vazio-e-valor`: a escolha vazia é um valor de verdade (ex.: "quem assina" = o da
+    // configuração) — o nome dela aparece no campo, em vez do campo em branco.
+    const vazioEValor = this.hasAttribute("data-vazio-e-valor");
+    if (atual && (atual.value || vazioEValor)) entrada.value = atual.textContent?.trim() || "";
     entrada.required = select.required;
     select.hidden = true;
     select.tabIndex = -1;
@@ -139,6 +177,7 @@ export class PcCombobox extends HTMLElement {
 
   aoDigitar() {
     this.sincronizarLimpar();
+    this.mostrarMeta("");
     const oculto = this.oculto;
     if (oculto && oculto.value) {
       oculto.value = "";
@@ -344,6 +383,8 @@ export class PcCombobox extends HTMLElement {
     }
     this.fechar();
     this.sincronizarLimpar();
+    const campoMeta = /** @type {keyof Opcao} */ (this.dataset.mostrarMeta || "meta");
+    this.mostrarMeta(String(opcao[campoMeta] ?? ""));
     this.dispatchEvent(new CustomEvent("pc-selecionado", { detail: opcao, bubbles: true }));
     const url = this.dataset.acaoUrl;
     const htmx = /** @type {any} */ (window).htmx;

@@ -180,6 +180,12 @@
   border-top: 1px solid var(--cor-borda-sutil);
 }
 
+/* O editor do documento sem título de bloco (plano): sem o filete nem a margem de cima. */
+.secao__bloco#previa:not(:has(> .secao__bloco-cabecalho)) {
+  margin-top: 0;
+  border-top: 0;
+}
+
 .secao__cabecalho + .secao__bloco {
   margin-top: 0;
   padding-top: 0;
@@ -192,6 +198,16 @@
   align-items: center;
   gap: var(--esp-2) var(--esp-3);
   margin-bottom: var(--esp-3);
+}
+
+/* Cabeçalho sem nada embaixo (ex.: Eventos com um evento só): sem a margem de baixo. */
+.secao__bloco-cabecalho:last-child {
+  margin-bottom: 0;
+}
+
+/* A ação do bloco ("Adicionar efetivo", "Acrescentar evento"…) fica na ponta direita. */
+.secao__bloco-cabecalho > .secao__bloco-titulo + :is(.botao, a.botao) {
+  margin-left: auto;
 }
 
 /* O título do bloco fala a mesma língua dos títulos da janela de resumo e das seções

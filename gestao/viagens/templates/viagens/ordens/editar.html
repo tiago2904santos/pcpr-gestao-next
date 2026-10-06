@@ -48,6 +48,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
   {% endif %}
 </header>
 
+{% if ordem and editavel %}<form id="finalizar-ordem" method="post" action="{% url 'viagens:finalizar_ordem' ordem.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form><form id="duplicar-ordem" method="post" action="{% url 'viagens:duplicar_ordem' ordem.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>{% endif %}
 {% if pode_excluir %}<form id="excluir-ordem" method="post" action="{% url 'viagens:excluir_ordem' ordem.pk %}" hidden data-confirmar="A {{ ordem }} será excluída e o número volta a ficar livre para a próxima OS do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir ordem de serviço?" data-confirmar-rotulo="Excluir OS" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 
 {% if ordem.cancelada %}
@@ -76,13 +77,17 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado" id="estado-destinos" data-vivo>{% for p in pendencias %}<span class="selo selo--aviso selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-      <p class="secao__nota">Ligar um ofício preenche destinos, período, equipe e motivo com os dele (o que estiver em branco) — confira e ajuste. O tipo de necessidade escolhe o texto do documento.</p>
+      <p class="secao__nota">Ligar ofícios une nos campos os destinos, o período e a equipe deles (e o motivo, se estiver em branco) — confira e ajuste. Mais de um ofício, só da mesma viagem ou do mesmo roteiro. O tipo de necessidade escolhe o texto do documento.</p>
     </div>
 
     <div class="pilha" id="dados">
-      {# Colunas iguais: ofícios · tipo · período (ida e volta num calendário só). #}
+      {# Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. #}
+      <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}">
+        {{ form.oficios }}
+        {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
+      </div>
+      {# Colunas iguais: tipo · período (ida e volta num calendário só). #}
       <div class="campos campos--iguais">
-        {% include "componentes/campo.html" with campo=form.oficios rotulo="Ofícios vinculados" ajuda_oculta=True %}
         {% include "componentes/campo.html" with campo=form.tipo ajuda_oculta=True %}
         <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="ordem-periodo">Período</label>
@@ -136,14 +141,16 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-assinatura">{% icone "stamp" classe="icone--sm" %}Assinatura</h3>
       </div>
-      <div class="campos">
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assinante|campo_acessivel:"" }}</pc-combobox>
-        </div>
-        {% include "componentes/campo.html" with campo=form.data_documento classe="campo--md" %}
+      {% comment %}
+      Quem assina já vem preenchido com o da configuração da unidade (substituto do período,
+      titular ou chefia — `data-vazio-e-valor` mostra a escolha "da configuração" como valor);
+      escolher um servidor troca.
+      {% endcomment %}
+      <div class="campo">
+        <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
+        <pc-combobox class="combobox" data-placeholder="Nome do servidor…" data-vazio-e-valor>{{ form.assinante|campo_acessivel:"" }}</pc-combobox>
       </div>
-      <p class="heranca">{% icone "stamp" classe="icone--sm" %}{% if assinatura_prevista %}Em branco, assina <strong>{{ assinatura_prevista }}</strong>.{% else %}Em branco e sem configuração da unidade, sai sem nome — peça ao gestor a configuração.{% endif %}</p>
+      {% if not assinatura_prevista %}<p class="heranca">{% icone "stamp" classe="icone--sm" %}Sem configuração da unidade, a OS sai sem nome — peça ao gestor a configuração ou escolha quem assina.</p>{% endif %}
     </div>
   </section>
 
@@ -176,25 +183,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     {% endif %}
     {% endif %}
 
-    {% if via.s.mudou and pode_ver_documento %}
-    <div class="alerta alerta--aviso" role="status" id="via-desatualizada" data-vivo>
-      {% icone "alert-triangle" %}
-      <div class="alerta__corpo">
-        <p class="alerta__titulo">A via assinada é anterior à última alteração</p>
-        <p>Gere a OS atualizada, colha a assinatura de novo e troque a via.</p>
-      </div>
-      <a class="botao alerta__acao" href="#via-assinada">{% icone "file-signature" %}Ver a via</a>
-    </div>
-    {% endif %}
-    {% if via and pode_ver_documento %}
-    <div class="secao__bloco" id="via-assinada" aria-labelledby="t-via" data-vivo data-atualizar-ao-voltar>
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-via">{% icone "file-signature" classe="icone--sm" %}Via assinada</h3>
-      </div>
-      <ul class="registros">{% include "viagens/assinados/_registro.html" with c=via vazio="Gere a OS (PDF) para depois anexar a via assinada." %}</ul>
-    </div>
-    {% endif %}
-
     {# Como vai sair: o mesmo editor do ofício — o texto da OS se edita na folha. #}
     <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
       <div class="secao__bloco-cabecalho">
@@ -202,8 +190,28 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">{% if ordem.documento_gerado_em %}refeita a cada gravação{% else %}com marca de minuta até a primeira geração{% endif %}</span></div>{% endif %}
       </div>
       {% if pode_ver_documento %}
+        {% if editavel %}{% url 'viagens:baixar_ordem' ordem.pk as baixar_url %}{% endif %}
         {% url 'viagens:folha_ordem' ordem.pk as folha_url %}{% url 'viagens:documento_ordem' ordem.pk 'pdf' as pdf_url %}{% url 'viagens:editor_ordem_estado' ordem.pk as estado_url %}
-        {% include "viagens/oficios/_editor.html" with tipo="ordem" rotulo="Ordem de serviço" titulo_doc=ordem|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel %}
+        {% comment %}
+        O mesmo bloco do termo (componentes/editores.js): a barra de ferramentas no topo; embaixo,
+        à esquerda, o índice com a miniatura da folha (o botão de painel da barra fecha e abre)
+        e, ao lado, a folha inteira, sem rolagem própria. "PDF" troca o bloco pelo PDF da OS.
+        {% endcomment %}
+        <div class="editores editores--unidos" data-editores data-pdf-todos="{{ pdf_url }}?previa=1">
+          <nav class="editores__indice" id="indice-ordem" aria-label="Páginas da OS">
+            <button type="button" class="editores__pagina" data-ir-pagina="ordem" aria-current="true" title="{{ ordem }}">
+              <span class="editores__miniatura"><iframe data-miniatura data-src="{{ folha_url }}" tabindex="-1" aria-hidden="true" title="Miniatura da OS"></iframe></span>
+              <span class="editores__legenda"><span class="editores__numero">1</span><span class="editores__nome">{{ ordem }}</span></span>
+            </button>
+          </nav>
+          <div class="editores__area">
+            <div class="editores__pdf" hidden><iframe title="{{ ordem }} (PDF)" data-pdf-bloco></iframe></div>
+            <section class="editores__item" data-pagina="ordem">
+              <h4 class="editores__titulo" id="folha-doc-ordem"><span class="editores__numero">Página 1</span>{{ ordem }}</h4>
+              {% include "viagens/oficios/_editor.html" with tipo="ordem" rotulo="Ordem de serviço" titulo_doc=ordem|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-ordem" baixar_url=baixar_url baixar_titulo=ordem|stringformat:"s" via=via %}
+            </section>
+          </div>
+        </div>
       {% elif ordem.cancelada %}
         <p class="texto-secundario texto-sm">A OS cancelada não mostra o documento: reative para ver e gerar.</p>
       {% else %}
@@ -237,9 +245,9 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
 
   {% if editavel %}
   {% comment %}
-  Rodapé como o do termo: Voltar · Gerar · Ações. Sem "Salvar" (a OS se grava sozinha;
-  Ctrl+S grava na hora). Gerar abre a OS como sai no PDF em outra aba — e fixa a data e a
-  geração — e esta aba, já gravada, volta à lista (componentes/gerar-e-voltar.js).
+  Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar (grava o
+  que estiver pendente, deixa a OS gerada — data e geração fixadas — e volta à lista) e Ações
+  (duplicar, cancelar, excluir — componentes/rodape_documento.html).
   {% endcomment %}
   <div class="barra-acoes">
     <a class="botao botao--texto" href="{% url 'viagens:ordens' %}">Voltar</a>
@@ -249,8 +257,11 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       {% else %}<span data-anuncio>Para criar: o tipo e, se houver, os ofícios — o resto vem deles.</span>{% endif %}
     </div>
     {% if ordem %}
-      <a class="botao{% if not faltando %} botao--marca{% endif %}" href="{% url 'viagens:visualizar_ordem' ordem.pk %}?gerar=1" target="_blank" rel="noopener" data-gerar-e-voltar="{% url 'viagens:ordens' %}"{% if faltando %} data-dica="O que falta sai em branco"{% endif %}>{% icone "file-check-2" %}<span>Gerar <span class="barra-acoes__extra">a OS</span></span></a>
-      {% include "viagens/ordens/_acoes.html" with onde="rodapé" dobrar=True %}
+      {% if pode_cancelar and not ordem.cancelada %}{% url 'viagens:cancelar_ordem' ordem.pk as cancelar_url %}{% endif %}
+      {% if pode_excluir %}{% firstof "excluir-ordem" as excluir_form %}{% endif %}
+      {% with nome_doc=ordem|stringformat:"s" %}{% with titulo_cancelar="Cancelar a "|add:nome_doc|add:"?" %}
+      {% include "componentes/rodape_documento.html" with nome="OS" finalizar_form="finalizar-ordem" duplicar_form="duplicar-ordem" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="A OS continua na lista, em Canceladas; o número não se libera." %}
+      {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar OS</button>
     {% endif %}
@@ -260,5 +271,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% if editavel %}{% include "componentes/dialogos_cadastro.html" %}{% endif %}
 {% if ordem and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
+{% if ordem and editavel %}{% include "componentes/dialogo_baixar.html" %}{% endif %}
 {% if via and editavel %}{% include "componentes/dialogo_assinado.html" %}{% if via.s.via %}{% include "viagens/assinados/_form_remover.html" with s=via.s titulo=via.titulo voltar=request.get_full_path %}{% endif %}{% endif %}
 {% endblock %}

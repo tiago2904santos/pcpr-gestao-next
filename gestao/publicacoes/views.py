@@ -255,6 +255,19 @@ def pauta(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Uma pauta nova com o mesmo título, jornalista e unidade; abre a folha dela."""
+    objeto = get_object_or_404(queries.base(), pk=pk)
+    try:
+        nova = services.duplicar(request.user, objeto.pk)
+    except (services.PautaInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc) or "Você não pode duplicar esta pauta.")
+        return redirect("publicacoes:pauta", objeto.pk)
+    messages.success(request, "Pauta duplicada: confira a data e o título.")
+    return redirect("publicacoes:pauta", nova.pk)
+
+
+@require_POST
 def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     """Grava a folha a cada pausa (componentes/autosave.js), quando o formulário é válido;
     senão diz o que impede, no status da barra."""

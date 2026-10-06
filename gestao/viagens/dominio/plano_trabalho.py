@@ -68,8 +68,21 @@ class DadosPlano:
     diarias_total: Decimal | None = None
     tem_deslocamento: bool = False  # saída e chegada na sede informadas
     tem_atividades: bool = False
-    # Eventos adicionais (o 1 são os campos do plano): (número, tem destino, tem data).
-    eventos_extras: list[tuple[int, bool, bool]] = field(default_factory=list)
+    # Eventos adicionais (o 1 são os campos do plano): (número, tem destino, tem data) —
+    # ou um EventoExtra, que também diz do efetivo e das diárias do evento.
+    eventos_extras: list[tuple[int, bool, bool] | EventoExtra] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class EventoExtra:
+    """O que as pendências precisam saber de um evento adicional."""
+
+    numero: int
+    tem_destino: bool
+    tem_data: bool
+    tem_efetivo: bool = True
+    tem_deslocamento: bool = True
+    diarias_calculadas: bool = True
 
 
 # ---------------------------------------------------------------- períodos
@@ -130,7 +143,9 @@ def _municipios(destinos: list[str]) -> str:
 
 def contextualizacao(destinos: list[str], programas: list[str]) -> str:
     """Três parágrafos (separados por linha em branco), como na referência."""
-    programa = ", ".join(dict.fromkeys(legivel(p) for p in programas if p)) or VAZIO
+    nomes = list(dict.fromkeys(legivel(p) for p in programas if p))
+    programa = (f"{', '.join(nomes[:-1])} e {nomes[-1]}" if len(nomes) > 1
+                else nomes[0] if nomes else VAZIO)
     return "\n\n".join((
         "A Assessoria de Comunicação Social da Polícia Civil do Paraná (PCPR), no âmbito do "
         "programa “PCPR na Comunidade”, promoverá ação itinerante no município de "
@@ -157,10 +172,10 @@ def _quem(c: Coordenador) -> str:
     return f"{artigo} {legivel(c.cargo)} {nome}" if c.cargo else f"{artigo} {nome}"
 
 
-def coordenacao(adm: Coordenador | None, op: Coordenador | None, *,
-                varios_eventos: bool = False) -> str:
-    """Designação dos coordenadores. No plano de vários eventos só o administrativo é
-    designado (o operacional muda de evento para evento)."""
+def coordenacao(adm: Coordenador | None, op: Coordenador | None) -> str:
+    """Designação dos coordenadores. Os dois são do plano inteiro (também no de vários
+    eventos: a mesma coordenação em todos — ↔ referência, que só designava o administrativo
+    porque o operacional lá mudava de evento para evento)."""
     partes = []
     if adm and adm.nome.strip():
         f = adm.feminino
@@ -172,7 +187,7 @@ def coordenacao(adm: Coordenador | None, op: Coordenador | None, *,
             "servidores, controle de materiais e equipamentos, consolidação de dados "
             "estatísticos, elaboração de relatório final e demais providências necessárias ao "
             "regular cumprimento da ação.")
-    if op and op.nome.strip() and not varios_eventos:
+    if op and op.nome.strip():
         f = op.feminino
         partes.append(
             f"Fica {'designada' if f else 'designado'} como "
@@ -251,13 +266,23 @@ def pendencias(d: DadosPlano) -> list[Pendencia]:
     if not d.inicio:
         falta.append(Pendencia("Informe a data do evento.", "identificacao",
                                "Falta data do evento"))
-    for numero, tem_destino, tem_data in d.eventos_extras:
-        if not tem_destino:
-            falta.append(Pendencia(f"Informe o destino do evento {numero}.", "eventos",
-                                   f"Falta destino do evento {numero}"))
-        if not tem_data:
-            falta.append(Pendencia(f"Informe a data do evento {numero}.", "eventos",
-                                   f"Falta data do evento {numero}"))
+    for extra in d.eventos_extras:
+        e = extra if isinstance(extra, EventoExtra) else EventoExtra(*extra)
+        if not e.tem_destino:
+            falta.append(Pendencia(f"Informe o destino do evento {e.numero}.", "eventos",
+                                   f"Falta destino do evento {e.numero}"))
+        if not e.tem_data:
+            falta.append(Pendencia(f"Informe a data do evento {e.numero}.", "eventos",
+                                   f"Falta data do evento {e.numero}"))
+        if not e.tem_efetivo:
+            falta.append(Pendencia(f"Informe o efetivo do evento {e.numero}.", "eventos",
+                                   f"Falta efetivo do evento {e.numero}"))
+        elif e.tem_destino and not e.tem_deslocamento:
+            falta.append(Pendencia(f"Informe a saída e a chegada na sede do evento {e.numero}.",
+                                   "eventos", f"Falta saída e chegada do evento {e.numero}"))
+        elif e.tem_destino and not e.diarias_calculadas:
+            falta.append(Pendencia(f"As diárias do evento {e.numero} não fecham: veja a janela "
+                                   "dele.", "eventos", f"Diárias do evento {e.numero}"))
     if efetivo_total(d.efetivo) <= 0:
         falta.append(Pendencia("Informe o efetivo (cargo e quantidade).", "efetivo",
                                "Falta efetivo"))

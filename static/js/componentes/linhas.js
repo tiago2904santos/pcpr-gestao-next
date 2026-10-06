@@ -115,3 +115,13 @@ export class PcLinhas extends HTMLElement {
 }
 
 customElements.define("pc-linhas", PcLinhas);
+
+// Botão de acrescentar fora do componente (ex.: "Adicionar efetivo" no cabeçalho do cartão):
+// `data-adicionar-em="#id-do-pc-linhas"`.
+document.addEventListener("click", (evento) => {
+  const botao = /** @type {HTMLElement | null} */ (
+    /** @type {HTMLElement} */ (evento.target).closest("[data-adicionar-em]"));
+  if (!botao) return;
+  const alvo = /** @type {PcLinhas | null} */ (document.querySelector(botao.dataset.adicionarEm || ""));
+  alvo?.adicionar();
+});

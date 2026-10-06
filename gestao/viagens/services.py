@@ -957,6 +957,42 @@ def desarquivar(oficio: Oficio, usuario) -> Oficio:
 
 
 @transaction.atomic
+def duplicar_oficio(oficio: Oficio, usuario) -> Oficio:
+    """Um rascunho novo (número novo, data de hoje) com os mesmos dados, equipe, motorista,
+    trechos, viagem e texto editado — sem protocolo, documentos emitidos e histórico, que
+    são de cada ofício."""
+    policies.exigir(policies.pode_ver(usuario, oficio) and policies.pode_criar(usuario),
+                    "Você não pode duplicar este ofício.")
+    novo = criar_rascunho(usuario)
+    dados = {c: getattr(oficio, c) for c in CAMPOS_EDITAVEIS
+             if c not in ("numero", "data_oficio", "protocolo")}
+    _aplicar_dados(novo, usuario, dados, registrar=False)
+    motorista = None
+    for v in oficio.viajantes.select_related("servidor").order_by("ordem", "id"):
+        copia = adicionar_viajante(novo, usuario, v.servidor)
+        if v.motorista:
+            motorista = copia.pk
+    if motorista:
+        definir_motorista(novo, usuario, motorista)
+    trechos = [_informado(t) for t in trechos_de(oficio)]
+    if trechos:
+        salvar_trechos(novo, usuario, trechos)
+    if oficio.viagem_id:
+        Oficio.objects.filter(pk=novo.pk).update(viagem=oficio.viagem_id)
+    for tipo in (Documento.Tipo.OFICIO, Documento.Tipo.JUSTIFICATIVA):
+        edicao = edicao_vigente(oficio, tipo)
+        if edicao is not None and edicao.regioes:
+            EdicaoDocumento.objects.create(
+                oficio=novo, tipo=tipo, numero=1, acao=EdicaoDocumento.Acao.EDITADO,
+                regioes=dict(edicao.regioes), blocos_alterados=list(edicao.blocos_alterados),
+                impressoes=dict(edicao.impressoes), criado_por=usuario)
+    _registrar(novo, Historico.Acao.ALTERADO,
+               f"Duplicado do Ofício {oficio.numero_formatado}.", usuario)
+    novo.refresh_from_db()
+    return novo
+
+
+@transaction.atomic
 def excluir_rascunho(oficio: Oficio, usuario) -> str:
     atual = (Oficio.objects.select_for_update(of=("self",))
              .select_related("sede", "viatura").get(pk=oficio.pk))

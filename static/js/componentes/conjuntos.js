@@ -25,7 +25,14 @@ function preparar(raiz) {
   if (ferramentas) /** @type {HTMLElement} */ (ferramentas).hidden = false;
 
   const contagem = /** @type {HTMLElement | null} */ (raiz.querySelector("[data-contagem]"));
-  const contar = () => { if (contagem) contagem.textContent = String(caixas().filter((c) => c.checked).length); };
+  // A contagem também aparece no selo do cabeçalho do cartão (fora do contêiner).
+  const espelho = /** @type {HTMLElement | null} */ (
+    raiz.closest(".secao")?.querySelector("[data-contagem-espelho]") ?? null);
+  const contar = () => {
+    const n = String(caixas().filter((c) => c.checked).length);
+    if (contagem) contagem.textContent = n;
+    if (espelho) espelho.textContent = n;
+  };
   raiz.addEventListener("change", (e) => {
     if (/** @type {HTMLElement} */ (e.target).matches?.(".caixas__item input")) contar();
   });
@@ -50,6 +57,14 @@ function preparar(raiz) {
     conjunto.value = "";
     anunciar(`Conjunto ${nome} aplicado: ${ids.size} atividade${ids.size === 1 ? "" : "s"}.`);
     avisar();
+  });
+
+  // "+" de conjunto: a janela de cadastro nasce com as atividades marcadas agora no plano.
+  raiz.querySelector("[data-abrir-dialogo='dialogo-conjunto']")?.addEventListener("click", () => {
+    const marcadas = new Set(caixas().filter((c) => c.checked).map((c) => c.value));
+    document.querySelectorAll("#dialogo-conjunto input[name='atividades']").forEach((c) => {
+      /** @type {HTMLInputElement} */ (c).checked = marcadas.has(/** @type {HTMLInputElement} */ (c).value);
+    });
   });
 
   raiz.querySelector("[data-limpar]")?.addEventListener("click", async () => {

@@ -142,6 +142,39 @@ def itens_do_termo(termo: TermoAutorizacao) -> list[Item]:
     return _itens_dos_termos([termo], prefixo=False)
 
 
+def itens_da_ordem(ordem) -> list[Item]:
+    """A OS (a via assinada, se houver). Baixar o PDF gera: fixa a data do documento."""
+    from . import ordens
+    via = assinados.vigentes_do(ordem).get(("ordem", ""))
+
+    def pdf() -> bytes:
+        return ordens.pdf_do_documento(ordens.dados_do_documento(ordem, fixar=True))
+
+    def docx() -> bytes:
+        return ordens.docx_do_documento(ordens.dados_do_documento(ordem, fixar=True))
+
+    return [Item(valor="os", nome=str(ordem), detalhe=ordem.get_tipo_display(),
+                 estado="Assinado" if via else ("Gerado" if ordem.documento_gerado_em
+                                                else "Gerado na hora"),
+                 arquivo=f"os-{ordem.numero:03d}-{ordem.ano}", pdf=pdf, docx=docx, via=via)]
+
+
+def itens_do_plano(plano) -> list[Item]:
+    """O plano: gerado, sai como está; ainda não gerado, com a marca de minuta."""
+    from . import planos
+    gerado = bool(plano.documento_gerado_em)
+
+    def pdf() -> bytes:
+        return planos.pdf_do_documento(planos.dados_do_documento(plano, fixar=gerado))
+
+    def docx() -> bytes:
+        return planos.docx_do_documento(planos.dados_do_documento(plano, fixar=gerado))
+
+    return [Item(valor="plano", nome=str(plano), detalhe="Plano de trabalho",
+                 estado="Gerado" if gerado else "Minuta",
+                 arquivo=f"plano-{plano.numero:02d}-{plano.ano}", pdf=pdf, docx=docx)]
+
+
 # ---------------------------------------------------------------- pacote
 def _unicos(nomes: list[str]) -> list[str]:
     vistos: dict[str, int] = {}

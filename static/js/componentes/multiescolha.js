@@ -5,6 +5,10 @@
  * Por dentro: um <pc-combobox> remoto (busca) e a lista dos escolhidos, cada um com um
  * <input type="hidden" name="{data-nome}">. Escolher na busca acrescenta uma linha (sem
  * repetir); "Remover" tira. O servidor desenha os já escolhidos e valida tudo de novo.
+ *
+ * Variantes em cartões (`data-variante`): "equipe" (pessoas, com as iniciais) e "oficios"
+ * (os ofícios que o documento junta, com o ícone do documento). Acrescentar avisa quem
+ * depende da escolha com `pc-escolhido` (ex.: o termo preenche os campos com os ofícios).
  */
 
 import { icone } from "./menu.js";
@@ -40,13 +44,14 @@ export class PcMultiescolha extends HTMLElement {
       this.anunciar(`${opcao.titulo} já está na lista.`);
       return;
     }
-    if (this.dataset.variante === "equipe") {
+    if (this.emCartoes) {
       // Um só (quem dirige, no lote): escolher outro troca o escolhido.
       const maximo = Number(this.dataset.maximo || 0);
       if (maximo && this.lista.children.length >= maximo) this.lista.firstElementChild?.remove();
       this.lista.append(this.cartaoDeEquipe(opcao));
       this.sincronizar();
       this.anunciar(`${opcao.titulo} adicionado.`);
+      this.dispatchEvent(new CustomEvent("pc-escolhido", { bubbles: true, detail: opcao }));
       return;
     }
     const item = document.createElement("li");
@@ -85,6 +90,7 @@ export class PcMultiescolha extends HTMLElement {
    * `data-servidor/unidade/nome/motorista` são o que <pc-transporte> lê para sugerir a viatura.
    * @param {{id: string, titulo: string, meta?: string, unidade?: string}} opcao */
   cartaoDeEquipe(opcao) {
+    const oficio = this.dataset.variante === "oficios";
     const item = document.createElement("li");
     item.className = "pessoa equipe__cartao multiescolha__item";
     item.dataset.id = String(opcao.id);
@@ -100,12 +106,16 @@ export class PcMultiescolha extends HTMLElement {
     const avatar = document.createElement("span");
     avatar.className = dirige ? "avatar avatar--escuro" : "avatar";
     avatar.setAttribute("aria-hidden", "true");
-    // Como Servidor.iniciais: primeira e última palavra com mais de duas letras.
-    const palavras = opcao.titulo.split(/\s+/).filter(Boolean);
-    const longas = palavras.filter((p) => p.length > 2);
-    const base = longas.length ? longas : palavras;
-    avatar.textContent = (base[0]?.[0] || "") + (base.length > 1 ? base[base.length - 1][0] : "");
-    avatar.textContent = avatar.textContent.toUpperCase();
+    if (oficio) {
+      avatar.append(icone("file-text", "icone icone--sm"));
+    } else {
+      // Como Servidor.iniciais: primeira e última palavra com mais de duas letras.
+      const palavras = opcao.titulo.split(/\s+/).filter(Boolean);
+      const longas = palavras.filter((p) => p.length > 2);
+      const base = longas.length ? longas : palavras;
+      avatar.textContent = (base[0]?.[0] || "") + (base.length > 1 ? base[base.length - 1][0] : "");
+      avatar.textContent = avatar.textContent.toUpperCase();
+    }
     const texto = document.createElement("span");
     texto.className = "pessoa__texto";
     const nome = document.createElement("span");
@@ -113,7 +123,7 @@ export class PcMultiescolha extends HTMLElement {
     nome.textContent = opcao.titulo;
     const meta = document.createElement("span");
     meta.className = "pessoa__meta";
-    meta.textContent = opcao.meta || "Cadastro incompleto";
+    meta.textContent = opcao.meta || (oficio ? "" : "Cadastro incompleto");
     texto.append(nome, meta);
     const acoes = document.createElement("span");
     acoes.className = "equipe__acoes";
@@ -121,18 +131,23 @@ export class PcMultiescolha extends HTMLElement {
     remover.type = "button";
     remover.className = "equipe__acao equipe__acao--remover";
     remover.dataset.remover = "";
-    remover.setAttribute("aria-label", `Remover ${opcao.titulo} da equipe`);
-    remover.title = "Remover da equipe";
+    remover.setAttribute("aria-label", oficio ? `Desvincular ${opcao.titulo}` : `Remover ${opcao.titulo} da equipe`);
+    remover.title = oficio ? "Desvincular" : "Remover da equipe";
     remover.append(icone("x", "icone icone--sm"));
     acoes.append(remover);
     item.append(oculto, avatar, texto, acoes);
     return item;
   }
 
+  /** Escolhidos em cartões (equipe, ofícios), na grade que fecha a linha. */
+  get emCartoes() {
+    return this.dataset.variante === "equipe" || this.dataset.variante === "oficios";
+  }
+
   sincronizar() {
     if (this.vazio && this.lista) this.vazio.hidden = this.lista.children.length > 0;
+    if (this.emCartoes) this.arrumarEquipe();
     if (this.dataset.variante === "equipe") {
-      this.arrumarEquipe();
       // A viatura acompanha a equipe (<pc-transporte>: sugestões, chips, quem dirige).
       this.dispatchEvent(new CustomEvent("pc-equipe-alterada", { bubbles: true }));
     }
@@ -145,6 +160,7 @@ export class PcMultiescolha extends HTMLElement {
   arrumarEquipe() {
     if (!this.lista) return;
     const cartoes = [...this.lista.children];
+    /** @type {number[]} */
     const larguras = [];
     for (let restante = cartoes.length; restante > 0;) {
       const porLinha = restante === 4 ? 2 : Math.min(3, restante);

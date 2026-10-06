@@ -1,5 +1,12 @@
-{% load viagens %}{# Janela de um evento adicional do plano (abre por ?evento=novo ou ?evento=<id>). #}
-<dialog id="dialogo-evento" class="dialogo dialogo--largo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
+{% load viagens %}{% comment %}
+Janela de um evento adicional do plano (abre por ?evento=novo ou ?evento=<id>): o que muda de
+um evento para outro, na mesma ordem e com os mesmos componentes da folha do plano —
+programa; período (um campo só, início e fim no mesmo calendário) e horário (com o "+" do
+cadastro de horário); sede e destinos com a rota; efetivo em linhas; deslocamento (saída e
+chegada na sede) com as diárias do evento; atividades em cartões. Os coordenadores são do
+plano (os mesmos em todos os eventos).
+{% endcomment %}
+<dialog id="dialogo-evento" class="dialogo dialogo--amplo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
   <form method="post" action="{% url 'viagens:salvar_evento_plano' plano.pk %}" novalidate>
     {% csrf_token %}
     {% if evento_editando %}<input type="hidden" name="evento" value="{{ evento_editando.pk }}">{% endif %}
@@ -7,42 +14,80 @@
       <div class="dialogo__icone">{% icone "calendar-days" %}</div>
       <div class="dialogo__cabecalho-texto">
         <h2 class="dialogo__titulo" id="t-dialogo-evento">{% if evento_editando %}Editar evento{% else %}Novo evento{% endif %}</h2>
-        <p class="texto-secundario texto-sm">O que muda de um evento para outro. Efetivo e deslocamento ficam no plano.</p>
+        <p class="texto-secundario texto-sm">O que muda de um evento para outro. Os coordenadores são os do plano.</p>
       </div>
       <a class="botao botao--icone dialogo__fechar" href="?#eventos" aria-label="Fechar">{% icone "x" %}</a>
     </div>
-    <div class="dialogo__corpo pilha">
+    <div class="dialogo__corpo pilha evento-plano">
       {% if form_evento.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_evento.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      <div class="campos programa-plano">
-        {% include "componentes/campo.html" with campo=form_evento.programa classe="campo--lg" %}
-        {% include "componentes/campo.html" with campo=form_evento.programa_outros classe="campo--lg condicional condicional--outro-programa" %}
+
+      {# Programa · período · horário (a mesma linha da folha). #}
+      <div class="campos campos--iguais programa-plano">
+        <div class="campo{% if form_evento.programas.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="evento-programas-gatilho" id="evento-programas-rotulo">Programa</label>
+          <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
+            <button type="button" class="selecao seletor__gatilho" id="evento-programas-gatilho" aria-haspopup="true" aria-expanded="false" aria-controls="evento-programas-painel" data-gatilho><span class="seletor__valor" data-resumo>{{ form_evento.resumo_programas|default:"Selecione o programa" }}</span>{% icone "chevron-down" classe="seletor__seta" %}</button>
+            <div class="escolhas__painel" id="evento-programas-painel" role="group" aria-labelledby="evento-programas-rotulo" data-painel>
+              {{ form_evento.programas }}
+              <label class="escolha caixas__item escolhas__outro" for="{{ form_evento.programa_outro.id_for_label }}">{{ form_evento.programa_outro }}<span>Outro</span></label>
+            </div>
+          </pc-escolhas>
+        </div>
+        {% include "componentes/campo.html" with campo=form_evento.programa_outros classe="programa-plano__outro" rotulo="Outro programa" %}
+        <div class="campo{% if form_evento.data_inicio.errors or form_evento.data_fim.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="evento-periodo">Período do evento</label>
+          <pc-data class="seletor" data-periodo>
+            <input class="entrada" type="text" id="evento-periodo" value="{{ form_evento.periodo_texto }}" placeholder="Início e fim" autocomplete="off" aria-describedby="evento-periodo-ajuda">
+            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
+            {{ form_evento.data_inicio }}{{ form_evento.data_fim }}
+          </pc-data>
+          <p class="campo__ajuda sr-only" id="evento-periodo-ajuda">Marque o início e o fim no mesmo calendário. Um dia só: marque só o início.</p>
+          {% for e in form_evento.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+          {% for e in form_evento.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+        </div>
+        {% include "componentes/campo.html" with campo=form_evento.horario ajuda_oculta=True acao_dialogo="dialogo-horario" acao_rotulo="Cadastrar horário" %}
       </div>
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form_evento.data_inicio classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form_evento.data_fim classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form_evento.horario classe="campo--md" %}
-      </div>
+
       {% campo_destinos form_evento.destinos unidade=plano.unidade %}
-      <div class="campos">
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="busca-coord-op-evento">Coordenador operacional <span class="campo__opcional">(opcional)</span></label>
-          <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2">
-            <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-op-evento" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if evento_editando.coordenador_op %}{{ evento_editando.coordenador_op.nome }}{% endif %}" autocomplete="off">{{ form_evento.coordenador_op }}</div>
-          </pc-combobox>
+
+      {# Efetivo do evento: as mesmas linhas da folha (unidade, cargo e quantidade). #}
+      <div class="secao__bloco evento-plano__bloco">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo">{% icone "users" classe="icone--sm" %}Efetivo do evento</h3>
+          <button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-evento-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>
         </div>
-        {% include "componentes/campo.html" with campo=form_evento.coordenador_op_genero classe="campo--md" %}
+        <pc-linhas class="linhas" id="efetivo-evento-linhas" data-rotulo="linha do efetivo">
+          <input type="hidden" name="efetivo_presente" value="1">
+          <ol class="linhas__lista" data-lista aria-label="Efetivo do evento">
+            {% for linha in linhas_efetivo_evento %}{% include "viagens/planos/_linha_efetivo.html" with n=forloop.counter form=form_evento prefixo="evento-efetivo" %}{% endfor %}
+          </ol>
+          <template data-modelo>{% include "viagens/planos/_linha_efetivo.html" with n="__n__" linha=None form=form_evento prefixo="evento-efetivo" %}</template>
+          <div class="sr-only" aria-live="polite" data-anuncio></div>
+        </pc-linhas>
       </div>
-      <details class="divulgacao"{% if form_evento.coordenador_op_nome.value %} open{% endif %}>
-        <summary>{% icone "plus" classe="icone--sm" %}Operacional de fora do cadastro</summary>
-        <div class="divulgacao__corpo campos">
-          {% include "componentes/campo.html" with campo=form_evento.coordenador_op_nome classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form_evento.coordenador_op_cargo classe="campo--lg" %}
+
+      {# Deslocamento e diárias do evento: um calendário marca saída e chegada; a conta sai ao salvar. #}
+      <div class="secao__bloco evento-plano__bloco">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo">{% icone "route" classe="icone--sm" %}Deslocamento e diárias</h3>
         </div>
-      </details>
-      <fieldset class="grupo-campos">
-        <legend>Atividades do evento</legend>
-        {{ form_evento.atividades }}
-      </fieldset>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form_evento.saida_em classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form_evento.chegada_em classe="campo--lg" %}
+        </div>
+        {# As diárias do evento: os mesmos três indicadores do plano e do ofício. #}
+        {% if calculo_evento.total %}<div class="mt-4">{% include "viagens/oficios/_diarias_corpo.html" with calculo=calculo_evento %}</div>{% endif %}
+      </div>
+
+      <div class="secao__bloco evento-plano__bloco">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo">{% icone "list-checks" classe="icone--sm" %}Atividades do evento</h3>
+        </div>
+        <fieldset class="atividades__grupo">
+          <legend class="sr-only">Atividades do evento</legend>
+          {% include "viagens/planos/_atividades.html" with atividades=form_evento.fields.atividades.queryset marcadas=form_evento.atividades_marcadas prefixo="evento-atividade-" %}
+        </fieldset>
+      </div>
     </div>
     <div class="dialogo__rodape">
       <a class="botao botao--texto" href="?#eventos">Cancelar</a>

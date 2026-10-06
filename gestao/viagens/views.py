@@ -385,6 +385,9 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                     return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
                 # A revisão é a janela de resumo aberta sobre a própria folha.
                 return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?revisar=1")
+            if acao == "finalizar":  # "Finalizar" do rodapé: salvo, volta à lista
+                messages.success(request, f"Ofício {oficio.numero_formatado} salvo.")
+                return redirect("viagens:oficios")
             # A confirmação é da própria barra de ações ("Rascunho salvo às HH:MM"),
             # não de um toast: o operador salva dezenas de vezes por dia.
             return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1")
@@ -647,6 +650,20 @@ def desarquivar(request: HttpRequest, pk: int) -> HttpResponse:
     oficio = services.desarquivar(_oficio_visivel(request, pk), request.user)
     messages.success(request, f"Ofício {oficio.numero_formatado} desarquivado.")
     return redirect(_voltar(request, oficio))
+
+
+@require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Um rascunho novo com os mesmos dados; abre a folha dele."""
+    oficio = _oficio_visivel(request, pk)
+    try:
+        novo = services.duplicar_oficio(oficio, request.user)
+    except (services.RegraViolada, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect(_voltar(request, oficio))
+    messages.success(request, f"Ofício {novo.numero_formatado} criado a partir do "
+                              f"Ofício {oficio.numero_formatado}.")
+    return redirect("viagens:editar", novo.pk)
 
 
 @require_POST

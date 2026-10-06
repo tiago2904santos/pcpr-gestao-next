@@ -26,13 +26,13 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
     <p class="frase-oficio" id="frase-plano" data-vivo>
       {% if plano.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' plano.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ plano.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do plano: </span>
-      {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#conferencia">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
+      {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#documento">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
       <span class="frase-oficio__item{% if not plano.programa_nome %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
       <span class="frase-oficio__item{% if not destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
       <span class="frase-oficio__item{% if not periodo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
       {% if eventos %}<span class="frase-oficio__item">{% icone "calendar-days" classe="icone--sm" %}{{ eventos|length|add:1 }} eventos</span>{% endif %}
-      <span class="frase-oficio__item{% if not efetivo_total %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if efetivo_total %}{{ efetivo_total|pluralizar:"servidor,servidores" }}{% else %}sem efetivo{% endif %}</span>
-      {% if plano.diarias_total is not None %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ plano.diarias_total|moeda }}</span>{% endif %}
+      <span class="frase-oficio__item{% if not efetivo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if efetivo_geral %}{{ efetivo_geral|pluralizar:"servidor,servidores" }}{% else %}sem efetivo{% endif %}</span>
+      {% if diarias_geral is not None %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ diarias_geral|moeda }}</span>{% endif %}
       {% for of in plano.oficios.all %}<span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
     </p>
     {% else %}
@@ -46,6 +46,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
   {% endif %}
 </header>
 
+{% if plano and editavel %}<form id="finalizar-plano" method="post" action="{% url 'viagens:finalizar_plano' plano.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form><form id="duplicar-plano" method="post" action="{% url 'viagens:duplicar_plano' plano.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>{% endif %}
 {% if pode_excluir %}<form id="excluir-plano" method="post" action="{% url 'viagens:excluir_plano' plano.pk %}" hidden data-confirmar="O {{ plano }} será excluído e o número volta a ficar livre para o próximo plano do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir plano de trabalho?" data-confirmar-rotulo="Excluir plano" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 
 {% if plano.cancelado %}
@@ -68,9 +69,10 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
   <div class="documento documento--cartoes">
 
   {% comment %}
-  1. Identificação — de onde o plano vem, o quê, quando e onde, os eventos e quem coordena.
+  1. Identificação — de onde o plano vem, o quê, quando e onde, quem coordena, o efetivo, o
+  deslocamento e as diárias.
   {% endcomment %}
-  <section class="secao{% if plano and destinos and plano.data_inicio and coordenador_adm %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
+  <section class="secao{% if plano and destinos and plano.data_inicio and coordenador_adm and efetivo_total and plano.diarias_total is not None %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado" id="estado-identificacao" data-vivo>{% for p in pendencias %}{% if p.secao == "identificacao" %}<span class="selo selo--aviso selo--situacao-rascunho">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
@@ -78,10 +80,30 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
     </div>
 
     <div class="pilha" id="dados">
-      {# Colunas iguais: ofícios · programa · período (início e fim num calendário só) · horário. #}
-      <div class="campos campos--iguais">
-        {% include "componentes/campo.html" with campo=form.oficios rotulo="Ofícios vinculados" ajuda_oculta=True %}
-        {% include "componentes/campo.html" with campo=form.programa ajuda_oculta=True %}
+      {# Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. #}
+      <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}">
+        {{ form.oficios }}
+        {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
+      </div>
+      {% comment %}
+      Programa · período · horário numa linha só, com a mesma altura. Programa é um campo de
+      várias escolhas (<pc-escolhas>): o botão diz o que está marcado e abre a lista com as
+      caixas; "Outro" é a última caixa e abre, ao lado, o campo do nome (CSS :has()). Sem
+      JavaScript, a lista fica à vista.
+      {% endcomment %}
+      <div class="campos campos--iguais programa-plano">
+        <div class="campo{% if form.programas.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="programas-gatilho" id="programas-rotulo">Programa</label>
+          <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
+            <button type="button" class="selecao seletor__gatilho" id="programas-gatilho" aria-haspopup="true" aria-expanded="false" aria-controls="programas-painel" data-gatilho><span class="seletor__valor" data-resumo>{{ plano.programa_nome|default:"Selecione o programa" }}</span>{% icone "chevron-down" classe="seletor__seta" %}</button>
+            <div class="escolhas__painel" id="programas-painel" role="group" aria-labelledby="programas-rotulo" data-painel>
+              {{ form.programas }}
+              <label class="escolha caixas__item escolhas__outro" for="{{ form.programa_outro.id_for_label }}">{{ form.programa_outro }}<span>Outro</span></label>
+            </div>
+          </pc-escolhas>
+          {% for e in form.programas.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.programa_outros classe="programa-plano__outro" rotulo="Outro programa" %}
         <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="plano-periodo">Período do evento</label>
           <pc-data class="seletor" data-periodo>
@@ -93,10 +115,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
           {% for e in form.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
           {% for e in form.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
         </div>
-        {% include "componentes/campo.html" with campo=form.horario ajuda_oculta=True %}
-      </div>
-      <div class="campos programa-plano">
-        {% include "componentes/campo.html" with campo=form.programa_outros classe="campo--lg condicional condicional--outro-programa" %}
+        {% include "componentes/campo.html" with campo=form.horario ajuda_oculta=True acao_dialogo=editavel|yesno:"dialogo-horario," acao_rotulo="Cadastrar horário" %}
       </div>
     </div>
 
@@ -105,250 +124,214 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
       {% campo_destinos form.destinos unidade=plano.unidade %}
     </div>
 
-      {% if plano %}
-      <div class="secao__bloco" id="eventos" aria-labelledby="t-eventos">
-        <div class="secao__bloco-cabecalho">
-          <h3 class="secao__bloco-titulo" id="t-eventos">{% icone "calendar-days" classe="icone--sm" %}Eventos</h3>
-          <div class="secao__estado" id="estado-eventos" data-vivo>{% for p in pendencias %}{% if p.secao == "eventos" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
-        </div>
-        {% if eventos %}
-          <p class="texto-secundario texto-sm">Programa, datas, horário e destinos acima são o <strong>evento 1</strong>. Efetivo e deslocamento valem para todos (a mesma equipe numa viagem só) e as diárias saem combinadas.</p>
-          <ul class="registros eventos-plano" aria-label="Outros eventos">
-            {% for e in eventos %}
-              <li class="registro">
-                <span class="placa" aria-hidden="true"><span class="placa__rotulo">Evento</span><span class="placa__numero">{{ forloop.counter|add:1 }}</span></span>
-                <div class="registro__corpo">
-                  <div class="registro__titulo">{% if editavel %}<a class="registro__link" href="?evento={{ e.pk }}#eventos">{% else %}<span class="registro__link registro__link--estatico">{% endif %}{% for d in e.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if e.data_inicio %} · {{ e.data_inicio|date:"d/m/Y" }}{% if e.data_fim and e.data_fim != e.data_inicio %} a {{ e.data_fim|date:"d/m/Y" }}{% endif %}{% endif %}{% if editavel %}</a>{% else %}</span>{% endif %}</div>
-                  <div class="registro__meta">
-                    <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{{ e.programa_nome|default:"Sem programa" }}</span>
-                    <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ e.horario }}</span>
-                    {% if e.coordenador_op or e.coordenador_op_nome %}<span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% if e.coordenador_op %}{{ e.coordenador_op.nome }}{% else %}{{ e.coordenador_op_nome }}{% endif %}</span>{% endif %}
-                    <span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ e.atividades.all|length|pluralizar:"atividade,atividades" }}</span>
-                  </div>
-                </div>
-                {% if editavel %}
-                <div class="registro__acoes registro__acoes--fixas">
-                  <a class="botao botao--sm" href="?evento={{ e.pk }}#eventos" aria-label="Editar o evento {{ forloop.counter|add:1 }}">{% icone "pencil" %}Editar</a>
-                  <button type="submit" form="remover-evento-{{ e.pk }}" class="botao botao--sm botao--icone botao--sutil" aria-label="Remover o evento {{ forloop.counter|add:1 }}">{% icone "trash-2" %}</button>
-                </div>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="texto-secundario texto-sm">Um evento só. Ação com mais de um evento (datas e lugares diferentes, a mesma equipe)? Acrescente os outros.</p>
-        {% endif %}
-        {% if editavel %}<a class="botao botao--sm" href="?evento=novo#eventos">{% icone "plus" classe="icone--sm" %}Acrescentar evento</a>{% endif %}
-      </div>
-      {% endif %}
-
       <div class="secao__bloco" aria-labelledby="t-coord">
         <div class="secao__bloco-cabecalho">
           <h3 class="secao__bloco-titulo" id="t-coord">{% icone "user-round" classe="icone--sm" %}Coordenadores</h3>
         </div>
-        <div class="campos">
-          <div class="campo campo--lg{% if form.coordenador_adm.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="busca-coord-adm">Coordenador administrativo</label>
-            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2">
-              <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-adm" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if escolhido_adm %}{{ escolhido_adm.nome }}{% endif %}" aria-describedby="busca-coord-adm-ajuda" autocomplete="off">{{ form.coordenador_adm }}</div>
-            </pc-combobox>
-            <p class="campo__ajuda" id="busca-coord-adm-ajuda">{% if escolhido_adm %}{{ escolhido_adm.cargo.nome|default:"Sem cargo no cadastro" }}.{% elif coordenador_padrao %}Em branco, vale o padrão da unidade: {{ coordenador_padrao.nome }}.{% else %}Do cadastro de servidores (o cargo vem de lá).{% endif %}</p>
-          </div>
+        {% comment %}
+        Cada coordenador numa linha, como "Quem dirige" no ofício: quem coordena (do cadastro
+        ou não) · como sai no documento · a busca no cadastro, ou nome e cargo à mão.
+        {% endcomment %}
+        <div class="campos coordenador" data-coordenador="adm">
+          {% include "componentes/campo.html" with campo=form.coordenador_adm_origem classe="campo--md" %}
           {% include "componentes/campo.html" with campo=form.coordenador_adm_genero classe="campo--md" %}
-        </div>
-        <details class="divulgacao"{% if form.coordenador_adm_nome.value %} open{% endif %}>
-          <summary>{% icone "plus" classe="icone--sm" %}Administrativo de fora do cadastro</summary>
-          <div class="divulgacao__corpo pilha">
-            <p class="texto-secundario texto-sm">Vale só se a busca acima estiver vazia.</p>
-            <div class="campos">
-              {% include "componentes/campo.html" with campo=form.coordenador_adm_nome classe="campo--lg" %}
-              {% include "componentes/campo.html" with campo=form.coordenador_adm_cargo classe="campo--lg" %}
-            </div>
-          </div>
-        </details>
-        <div class="campos mt-4">
-          <div class="campo campo--lg{% if form.coordenador_op.errors %} campo--erro{% endif %}">
-            <label class="campo__rotulo" for="busca-coord-op">Coordenador operacional <span class="campo__opcional">(opcional)</span></label>
-            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2">
-              <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-op" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if escolhido_op %}{{ escolhido_op.nome }}{% endif %}" aria-describedby="busca-coord-op-ajuda" autocomplete="off">{{ form.coordenador_op }}</div>
+          <div class="campo campo--lg coordenador__cadastro{% if form.coordenador_adm.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="busca-coord-adm">Coordenador administrativo</label>
+            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2" data-mostrar-meta="cargo">
+              <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-adm" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if escolhido_adm %}{{ escolhido_adm.nome }}{% endif %}" aria-describedby="busca-coord-adm-ajuda" autocomplete="off">{{ form.coordenador_adm }}<span class="entrada-composta__meta" data-meta-escolhida aria-hidden="true"{% if not escolhido_adm.cargo %} hidden{% endif %}>{{ escolhido_adm.cargo.nome }}</span></div>
             </pc-combobox>
-            <p class="campo__ajuda" id="busca-coord-op-ajuda">{% if escolhido_op %}{{ escolhido_op.cargo.nome|default:"Sem cargo no cadastro" }}.{% else %}Quem conduz a ação no local do evento.{% endif %}</p>
+            <p class="campo__ajuda{% if escolhido_adm %} sr-only{% endif %}" id="busca-coord-adm-ajuda">{% if escolhido_adm %}{{ escolhido_adm.cargo.nome|default:"Sem cargo no cadastro" }}.{% elif coordenador_padrao %}Em branco, vale o padrão da unidade: {{ coordenador_padrao.nome }}.{% else %}Do cadastro de servidores (o cargo vem de lá).{% endif %}</p>
           </div>
+          {% include "componentes/campo.html" with campo=form.coordenador_adm_nome classe="campo--lg coordenador__manual" rotulo="Coordenador administrativo" %}
+          {% include "componentes/campo.html" with campo=form.coordenador_adm_cargo classe="campo--lg coordenador__manual" rotulo="Cargo" acao_dialogo=editavel|yesno:"dialogo-cargo-adm," acao_rotulo="Cadastrar cargo" %}
+        </div>
+        <div class="campos coordenador" data-coordenador="op">
+          {% include "componentes/campo.html" with campo=form.coordenador_op_origem classe="campo--md" %}
           {% include "componentes/campo.html" with campo=form.coordenador_op_genero classe="campo--md" %}
-        </div>
-        <details class="divulgacao"{% if form.coordenador_op_nome.value %} open{% endif %}>
-          <summary>{% icone "plus" classe="icone--sm" %}Operacional de fora do cadastro</summary>
-          <div class="divulgacao__corpo pilha">
-            <p class="texto-secundario texto-sm">Vale só se a busca acima estiver vazia.</p>
-            <div class="campos">
-              {% include "componentes/campo.html" with campo=form.coordenador_op_nome classe="campo--lg" %}
-              {% include "componentes/campo.html" with campo=form.coordenador_op_cargo classe="campo--lg" %}
-            </div>
+          <div class="campo campo--lg coordenador__cadastro{% if form.coordenador_op.errors %} campo--erro{% endif %}">
+            <label class="campo__rotulo" for="busca-coord-op">Coordenador operacional <span class="campo__opcional">(opcional)</span></label>
+            <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_servidores' %}?q=" data-minimo="2" data-mostrar-meta="cargo">
+              <div class="entrada-composta">{% icone "user-round" %}<input class="entrada" id="busca-coord-op" type="text" role="combobox" placeholder="Nome ou CPF" value="{% if escolhido_op %}{{ escolhido_op.nome }}{% endif %}" aria-describedby="busca-coord-op-ajuda" autocomplete="off">{{ form.coordenador_op }}<span class="entrada-composta__meta" data-meta-escolhida aria-hidden="true"{% if not escolhido_op.cargo %} hidden{% endif %}>{{ escolhido_op.cargo.nome }}</span></div>
+            </pc-combobox>
+            <p class="campo__ajuda{% if escolhido_op %} sr-only{% endif %}" id="busca-coord-op-ajuda">{% if escolhido_op %}{{ escolhido_op.cargo.nome|default:"Sem cargo no cadastro" }}.{% else %}Quem conduz a ação no local do evento.{% endif %}</p>
           </div>
-        </details>
-      </div>
-  </section>
-
-  {# 2. Efetivo e diárias #}
-  <section class="secao{% if plano and efetivo_total and plano.diarias_total is not None %} secao--ok{% endif %}" id="efetivo" aria-labelledby="t-efetivo">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-efetivo"><span class="secao__numero">2</span>Efetivo e diárias</h2>
-      <div class="secao__estado" id="estado-efetivo" data-vivo>{% for p in pendencias %}{% if p.secao == "efetivo" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
-      <p class="secao__nota">As diárias saem de um trecho só: da sede ao destino principal e de volta, da saída à chegada na sede, para cada servidor do efetivo. A unidade sai entre parênteses no documento.</p>
-    </div>
-    <div class="pilha">
-      <pc-linhas class="linhas" data-rotulo="linha do efetivo">
-        <input type="hidden" name="efetivo_presente" value="1">
-        <ol class="linhas__lista" data-lista aria-label="Efetivo">
-          {% for linha in linhas_efetivo %}{% include "viagens/planos/_linha_efetivo.html" with n=forloop.counter %}{% endfor %}
-        </ol>
-        <template data-modelo>{% include "viagens/planos/_linha_efetivo.html" with n="__n__" linha=None %}</template>
-        <div class="linha linha--entre">
-          <button type="button" class="botao botao--sm" data-adicionar>{% icone "plus" classe="icone--sm" %}Adicionar linha</button>
-          {% if plano %}<p class="texto-secundario texto-sm" id="total-efetivo" data-vivo>Total: <strong>{{ efetivo_total|pluralizar:"servidor,servidores" }}</strong></p>{% endif %}
+          {% include "componentes/campo.html" with campo=form.coordenador_op_nome classe="campo--lg coordenador__manual" rotulo="Coordenador operacional" %}
+          {% include "componentes/campo.html" with campo=form.coordenador_op_cargo classe="campo--lg coordenador__manual" rotulo="Cargo" acao_dialogo=editavel|yesno:"dialogo-cargo-op," acao_rotulo="Cadastrar cargo" %}
         </div>
-        <div class="sr-only" aria-live="polite" data-anuncio></div>
-      </pc-linhas>
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.saida_em classe="campo--lg" %}
-        {% include "componentes/campo.html" with campo=form.chegada_em classe="campo--lg" %}
+      </div>
+
+      {% comment %}
+      Efetivo, deslocamento e diárias (do evento 1) — na Identificação, depois dos
+      coordenadores: quem vai, quando sai e volta, e quanto custa.
+      {% endcomment %}
+      <div class="secao__bloco" id="efetivo" aria-labelledby="t-efetivo">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-efetivo">{% icone "users" classe="icone--sm" %}Efetivo</h3>
+          {% if editavel %}<button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>{% endif %}
+        </div>
+        <pc-linhas class="linhas" id="efetivo-linhas" data-rotulo="linha do efetivo">
+          <input type="hidden" name="efetivo_presente" value="1">
+          <ol class="linhas__lista" data-lista aria-label="Efetivo">
+            {% for linha in linhas_efetivo %}{% include "viagens/planos/_linha_efetivo.html" with n=forloop.counter %}{% endfor %}
+          </ol>
+          <template data-modelo>{% include "viagens/planos/_linha_efetivo.html" with n="__n__" linha=None %}</template>
+          <div class="sr-only" aria-live="polite" data-anuncio></div>
+        </pc-linhas>
+      </div>
+      {# Deslocamento: saída e chegada na sede (um calendário marca as duas datas). #}
+      <div class="secao__bloco">
+        <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "route" classe="icone--sm" %}Deslocamento</h3></div>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.saida_em classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.chegada_em classe="campo--lg" %}
+        </div>
       </div>
       {# Diárias: o mesmo bloco da folha do ofício (refeito a cada gravação). #}
-      <div id="diarias" data-vivo>
-        {% if plano and mensagens_calculo %}
-          <div class="alerta alerta--aviso" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Ainda não dá para calcular as diárias</p><ul>{% for m in mensagens_calculo %}<li>{{ m }}</li>{% endfor %}</ul></div></div>
-        {% else %}
-          {% include "viagens/oficios/_diarias_corpo.html" with texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
-        {% endif %}
+      <div class="secao__bloco">
+        <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "banknote" classe="icone--sm" %}Diárias</h3></div>
+        <div id="diarias" data-vivo>
+          {% if not mensagens_calculo %}
+            {% include "viagens/oficios/_diarias_corpo.html" with texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
+          {% endif %}
+        </div>
       </div>
-    </div>
   </section>
 
-  {# 3. Atividades, metas e recursos #}
+  {% comment %}
+  2. Atividades: etiquetas que se marcam com um clique (viagens/planos/_atividades.html). Em cima, a busca, o conjunto e "Desmarcar todas"
+  numa faixa da altura de um campo (componentes/conjuntos.js). Embaixo, as metas e os
+  recursos como saem no documento.
+  {% endcomment %}
   <section class="secao{% if plano and plano.atividades.all %} secao--ok{% endif %}" id="atividades" aria-labelledby="t-atividades">
+    {% with total=form.fields.atividades.queryset.count %}
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-atividades"><span class="secao__numero">3</span>Atividades, metas e recursos</h2>
-      <p class="secao__nota">A meta e o recurso de cada atividade marcada compõem o plano; o conjunto padrão já vem marcado no plano novo.{% if eventos %} Estas são as do evento 1; as dos outros eventos ficam na janela de cada um.{% endif %}</p>
+      <h2 class="secao__titulo" id="t-atividades"><span class="secao__numero">2</span>Atividades, metas e recursos</h2>
+      {% if total %}<div class="secao__estado"><span class="selo selo--neutro selo--sem-ponto"><span data-contagem-espelho>{{ atividades_marcadas|length }}</span>&nbsp;de {{ total }}</span></div>{% endif %}
     </div>
-    <div class="pilha" data-conjuntos>
+    <div class="pilha atividades" data-conjuntos>
       <input type="hidden" name="atividades_presente" value="1">
-      {% with total=form.fields.atividades.queryset.count %}
-      {% if conjuntos or total > 15 %}
-      <div class="campos ferramentas-atividades" data-ferramentas hidden>
-        {% if conjuntos %}
-        <div class="campo campo--lg">
+      {% if total %}
+      <div class="atividades__barra" data-ferramentas hidden>
+        <div class="campo atividades__filtro">
+          <label class="campo__rotulo" for="filtrar-atividades">Buscar atividade</label>
+          <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="filtrar-atividades" type="search" data-filtro form="fora-do-plano" autocomplete="off" placeholder="Nome da atividade"></div>
+        </div>
+        {% if conjuntos or pode_criar_conjunto %}
+        <div class="campo atividades__conjunto">
           <label class="campo__rotulo" for="aplicar-conjunto">Aplicar conjunto</label>
-          <pc-select class="seletor"><select class="selecao" id="aplicar-conjunto" data-conjunto form="fora-do-plano">
-            <option value="">Escolha um conjunto…</option>
-            {% for c in conjuntos %}<option value="{{ forloop.counter }}" data-ids="{{ c.ids }}">{{ c.nome }}{% if c.padrao %} — padrão{% endif %}</option>{% endfor %}
-          </select></pc-select>
+          <div class="campo__com-acao">
+            <pc-select class="seletor"><select class="selecao" id="aplicar-conjunto" data-conjunto form="fora-do-plano">
+              <option value="">Escolha um conjunto…</option>
+              {% for c in conjuntos %}<option value="{{ forloop.counter }}" data-ids="{{ c.ids }}">{{ c.nome }}{% if c.padrao %} — padrão{% endif %}</option>{% endfor %}
+            </select></pc-select>
+            {% if pode_criar_conjunto %}<button type="button" class="botao botao--icone" data-abrir-dialogo="dialogo-conjunto" aria-label="Cadastrar conjunto">{% icone "plus" %}</button>{% endif %}
+          </div>
         </div>
         {% endif %}
-        {% if total > 15 %}
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="filtrar-atividades">Filtrar atividades por nome</label>
-          <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="filtrar-atividades" type="search" data-filtro form="fora-do-plano" autocomplete="off" placeholder="Ex.: palestra"></div>
-        </div>
-        {% endif %}
+        <button type="button" class="botao atividades__limpar" data-limpar>{% icone "rotate-ccw" classe="icone--sm" %}Desmarcar todas</button>
       </div>
       {% endif %}
-      <fieldset class="grupo-campos">
-        <legend class="caixas__legenda">Atividades <span class="texto-secundario texto-sm">· <span data-contagem>{{ atividades_marcadas|length }}</span> de {{ total }} marcadas</span></legend>
-        <div class="caixas">
-          {% for a in form.fields.atividades.queryset %}
-            <label class="escolha caixas__item" for="atividade-{{ a.pk }}"><input type="checkbox" name="atividades" value="{{ a.pk }}" id="atividade-{{ a.pk }}"{% if a.pk|stringformat:"s" in atividades_marcadas %} checked{% endif %}><span>{{ a.nome }}</span></label>
-          {% empty %}
-            <p class="vazio-inline">Nenhuma atividade cadastrada. <a href="{% url 'cadastros:atividades' %}">Cadastre a primeira</a>.</p>
-          {% endfor %}
-        </div>
-        <p class="vazio-inline" data-sem-resultado hidden>Nenhuma atividade encontrada para a busca informada.</p>
-        {% if total %}<button type="button" class="botao botao--sm botao--texto mt-2" data-limpar>{% icone "x" classe="icone--sm" %}Desmarcar todas</button>{% endif %}
+      <fieldset class="atividades__grupo">
+        <legend class="sr-only">Atividades — <span data-contagem>{{ atividades_marcadas|length }}</span> de {{ total }} marcadas</legend>
+        {% include "viagens/planos/_atividades.html" with atividades=form.fields.atividades.queryset marcadas=atividades_marcadas prefixo="atividade-" %}
+        <p class="vazio-inline atividades__sem-resultado" data-sem-resultado hidden>Nenhuma atividade com esse nome.</p>
       </fieldset>
-      {% endwith %}
       <div class="sr-only" aria-live="polite" data-anuncio></div>
       {% if plano %}
-      <div id="metas-recursos" data-vivo>
+      <div id="metas-recursos" class="atividades__documento" data-vivo>
         <details class="divulgacao">
-          <summary>{% icone "flag" classe="icone--sm" %}Metas e recursos que entram no documento</summary>
-          <div class="divulgacao__corpo campos metas-recursos">
-            <div class="secao__bloco">
-              <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "flag" classe="icone--sm" %}Metas</h3></div>
-              {% if plano.metas %}<p class="texto-pre texto-sm">{{ plano.metas }}</p>{% else %}<p class="vazio-inline">Sem metas ainda — marque uma atividade para ver a meta dela.</p>{% endif %}
+          <summary>{% icone "file-text" classe="icone--sm" %}Metas e recursos como saem no documento</summary>
+          <div class="divulgacao__corpo atividades__textos">
+            <div class="atividades__texto-doc">
+              <h3 class="atividades__titulo-doc">{% icone "flag" classe="icone--sm" %}Metas</h3>
+              {% if plano.metas %}<ul class="atividades__itens">{% for item in plano.metas|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p class="vazio-inline">Marque uma atividade para ver a meta dela.</p>{% endif %}
             </div>
-            <div class="secao__bloco">
-              <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "layers" classe="icone--sm" %}Recursos</h3></div>
-              {% if plano.recursos %}<p class="texto-pre texto-sm">{{ plano.recursos }}</p>{% else %}<p class="vazio-inline">Sem recursos ainda — o recurso é opcional em cada atividade.</p>{% endif %}
+            <div class="atividades__texto-doc">
+              <h3 class="atividades__titulo-doc">{% icone "layers" classe="icone--sm" %}Recursos</h3>
+              {% if plano.recursos %}<ul class="atividades__itens">{% for item in plano.recursos|itens %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p class="vazio-inline">O recurso é opcional em cada atividade.</p>{% endif %}
             </div>
           </div>
         </details>
       </div>
       {% endif %}
     </div>
+    {% endwith %}
   </section>
 
-  {# 4. Documento: assinatura e textos antes; a conferência gera por último. #}
+  {% comment %}
+  3. Documento — os eventos (quem assina vem da configuração da unidade); depois, como o bloco 2 da OS: o que falta (só
+  quando falta), o documento num editor como o do ofício e o histórico.
+  {% endcomment %}
   <section class="secao{% if plano and not pendencias and not plano.cancelado %} secao--ok{% endif %}" id="documento" aria-labelledby="t-documento">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">4</span>Documento</h2>
-      <p class="secao__nota">{% if plano %}Sai do que está salvo — o plano se grava sozinho.{% if plano.documento_gerado_em %} Gerado em {{ plano.documento_gerado_em|date:"d/m/Y" }}: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada ao gerar; em branco, é a do dia.{% endif %}{% else %}Crie o plano para ver o documento como vai sair.{% endif %}</p>
+      <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">3</span>Documento</h2>
+      {% if plano and not plano.cancelado %}<div class="secao__estado">{% if plano.documento_gerado_em %}<span class="selo selo--sucesso selo--situacao-emitido">Gerado em {{ plano.documento_gerado_em|date:"d/m/Y" }}</span>{% elif not pendencias %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para gerar</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Faltam dados</span>{% endif %}</div>{% endif %}
+      <p class="secao__nota">{% if plano %}Sai do que está salvo — o plano se grava sozinho enquanto você preenche.{% if plano.documento_gerado_em %} Já foi gerado: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada na primeira geração.{% endif %}{% else %}Ao criar, o documento aparece aqui como vai sair.{% endif %}</p>
     </div>
-    <div class="secao__bloco" aria-labelledby="t-assinatura">
-      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-assinatura">{% icone "stamp" classe="icone--sm" %}Assinatura</h3></div>
-      <div class="campos">
-        <div class="campo campo--lg">
-          <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Nome do servidor…">{{ form.assinante|campo_acessivel:"" }}</pc-combobox>
-        </div>
-        {% include "componentes/campo.html" with campo=form.data_documento classe="campo--md" %}
-      </div>
-      <p class="heranca">{% icone "stamp" classe="icone--sm" %}{% if assinatura_prevista %}Em branco, assina <strong>{{ assinatura_prevista }}</strong>.{% else %}Em branco e sem assinante dos planos na configuração, o plano sai sem nome no fim.{% endif %}</p>
-    </div>
-
-    <details class="divulgacao secao__bloco"{% if form.contextualizacao.errors or form.coordenacao.errors or form.consideracoes.errors or textos_desatualizados %} open{% endif %}>
-      <summary>{% icone "file-pen-line" classe="icone--sm" %}Ajustar os textos do documento{% if plano and not plano.contextualizacao_auto or plano and not plano.coordenacao_auto or plano and not plano.consideracoes_auto %} · com texto escrito à mão{% endif %}</summary>
-      <div class="divulgacao__corpo pilha" id="textos-documento" data-vivo>
-        {% if textos_desatualizados %}<div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>O texto automático mudou (ex.: outro coordenador ou destino), mas {{ textos_desatualizados|join:", " }} {{ textos_desatualizados|length|pluralize:"está,estão" }} com texto escrito à mão, que não acompanha.</p></div></div>{% endif %}
-        {{ form.contextualizacao_original }}{{ form.coordenacao_original }}{{ form.consideracoes_original }}
-        {% include "componentes/campo.html" with campo=form.contextualizacao %}
-        {% if plano and not plano.contextualizacao_auto %}<button type="button" class="botao botao--sm botao--texto" data-esvaziar="{{ form.contextualizacao.auto_id }}">{% icone "rotate-ccw" classe="icone--sm" %}Voltar ao texto automático</button>{% endif %}
-        {% include "componentes/campo.html" with campo=form.coordenacao %}
-        {% if plano and not plano.coordenacao_auto %}<button type="button" class="botao botao--sm botao--texto" data-esvaziar="{{ form.coordenacao.auto_id }}">{% icone "rotate-ccw" classe="icone--sm" %}Voltar ao texto automático</button>{% endif %}
-        {% include "componentes/campo.html" with campo=form.consideracoes %}
-        {% if plano and not plano.consideracoes_auto %}<button type="button" class="botao botao--sm botao--texto" data-esvaziar="{{ form.consideracoes.auto_id }}">{% icone "rotate-ccw" classe="icone--sm" %}Voltar ao texto automático</button>{% endif %}
-      </div>
-    </details>
 
     {% if plano %}
-    {% if plano.cancelado %}
-      <p class="texto-secundario" id="conferencia">Plano cancelado: reative para gerar o documento.</p>
-    {% else %}
-    {# Só fala quando falta algo (ou há aviso); pronto para gerar, o rodapé já diz tudo. O lugar fica (autosave). #}
-    {% if not pendencias and not avisos %}<div id="conferencia" data-vivo hidden></div>{% else %}
-    <div class="alerta alerta--aviso" role="status" id="conferencia" data-vivo>
-      {% icone "list-checks" %}
-      <div class="alerta__corpo">
-        <p class="alerta__titulo">{% if pendencias %}{{ pendencias|length|pluralizar:"item falta,itens faltam" }} para gerar o plano{% else %}Dá para gerar o plano — com {{ avisos|length|pluralizar:"aviso,avisos" }}{% endif %}</p>
-        <ul class="checklist">
-          {% for p in pendencias %}<li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a></li>{% endfor %}
-          {% for a in avisos %}<li class="checklist__item"><a href="#{{ a.secao }}">{{ a.mensagem }}</a> <span class="texto-secundario texto-sm">(não impede gerar)</span></li>{% endfor %}
-        </ul>
+    <div class="secao__bloco" id="eventos" aria-labelledby="t-eventos">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-eventos">{% icone "calendar-days" classe="icone--sm" %}Eventos</h3>
+        <div class="secao__estado" id="estado-eventos" data-vivo>{% for p in pendencias %}{% if p.secao == "eventos" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
+        {% if editavel %}<a class="botao botao--sm" href="?evento=novo#eventos">{% icone "plus" classe="icone--sm" %}Acrescentar evento</a>{% endif %}
       </div>
+      {% if eventos %}
+        <ul class="registros eventos-plano" aria-label="Outros eventos">
+          {% for e in eventos %}
+            <li class="registro">
+              <span class="placa" aria-hidden="true"><span class="placa__rotulo">Evento</span><span class="placa__numero">{{ forloop.counter|add:1 }}</span></span>
+              <div class="registro__corpo">
+                <div class="registro__titulo">{% if editavel %}<a class="registro__link" href="?evento={{ e.pk }}#eventos">{% else %}<span class="registro__link registro__link--estatico">{% endif %}{% for d in e.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if e.data_inicio %} · {{ e.data_inicio|date:"d/m/Y" }}{% if e.data_fim and e.data_fim != e.data_inicio %} a {{ e.data_fim|date:"d/m/Y" }}{% endif %}{% endif %}{% if editavel %}</a>{% else %}</span>{% endif %}</div>
+                <div class="registro__meta">
+                  <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{{ e.programa_nome|default:"Sem programa" }}</span>
+                  <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ e.horario }}</span>
+                  {% with n=e.efetivo_total %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>{% endwith %}
+                  {% if e.diarias_total is not None %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ e.diarias_total|moeda }}</span>{% endif %}
+                  <span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ e.atividades.all|length|pluralizar:"atividade,atividades" }}</span>
+                </div>
+              </div>
+              {% if editavel %}
+              <div class="registro__acoes registro__acoes--fixas">
+                <a class="botao botao--sm" href="?evento={{ e.pk }}#eventos" aria-label="Editar o evento {{ forloop.counter|add:1 }}">{% icone "pencil" %}Editar</a>
+                <button type="submit" form="remover-evento-{{ e.pk }}" class="botao botao--sm botao--icone botao--sutil" aria-label="Remover o evento {{ forloop.counter|add:1 }}">{% icone "trash-2" %}</button>
+              </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
     {% endif %}
-    {% endif %}
 
-    {% if plano.documento_gerado_em %}<p class="heranca">{% icone "list-checks" classe="icone--sm" %}Depois da ação: <a href="{% url 'viagens:resultados_plano' plano.pk %}">lançar os resultados por atividade</a> (e o relatório final).</p>{% endif %}
+    {% if plano %}
+    {% if plano.cancelado %}<p class="texto-secundario">Plano cancelado: reative para gerar o documento.</p>{% endif %}
 
-    <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-pen-line" classe="icone--sm" %}Como vai sair</h3>
-        {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">{% if plano.documento_gerado_em %}refeito a cada gravação{% else %}com marca de minuta até ser gerado{% endif %}</span></div>{% endif %}
-      </div>
+    <div class="secao__bloco" id="previa" aria-label="Como vai sair">
       {% if pode_ver_documento %}
         {% url 'viagens:folha_plano' plano.pk as folha_url %}{% url 'viagens:documento_plano' plano.pk 'pdf' as pdf_url %}
         {% url 'viagens:editor_plano_estado' plano.pk as estado_url %}
-        {# O mesmo editor do ofício: o texto do plano se edita na folha. #}
-        {% include "viagens/oficios/_editor.html" with tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel %}
+        {% if editavel %}{% url 'viagens:baixar_plano' plano.pk as baixar_url %}{% endif %}
+        {% comment %}
+        O mesmo bloco do termo e da OS (componentes/editores.js): a barra no topo (com Baixar);
+        embaixo, à esquerda, o índice com a miniatura da folha e, ao lado, a folha inteira, sem
+        rolagem própria. "PDF" troca o bloco pelo PDF do plano.
+        {% endcomment %}
+        <div class="editores editores--unidos" data-editores data-pdf-todos="{{ pdf_url }}?previa=1">
+          <nav class="editores__indice" id="indice-plano" aria-label="Páginas do plano">
+            <button type="button" class="editores__pagina" data-ir-pagina="plano" aria-current="true" title="{{ plano }}">
+              <span class="editores__miniatura"><iframe data-miniatura data-src="{{ folha_url }}" tabindex="-1" aria-hidden="true" title="Miniatura do plano"></iframe></span>
+              <span class="editores__legenda"><span class="editores__numero">1</span><span class="editores__nome">{{ plano }}</span></span>
+            </button>
+          </nav>
+          <div class="editores__area">
+            <div class="editores__pdf" hidden><iframe title="{{ plano }} (PDF)" data-pdf-bloco></iframe></div>
+            <section class="editores__item" data-pagina="plano">
+              <h4 class="editores__titulo" id="folha-doc-plano"><span class="editores__numero">Plano</span>{{ plano }}</h4>
+              {% include "viagens/oficios/_editor.html" with tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-plano" baixar_url=baixar_url baixar_titulo=plano|stringformat:"s" %}
+            </section>
+          </div>
+        </div>
       {% elif plano.cancelado %}
         <p class="texto-secundario texto-sm">O plano cancelado não mostra o documento: reative para ver e gerar.</p>
       {% else %}
@@ -373,6 +356,8 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
         </details>
       {% endif %}
     </div>
+    {% else %}
+      <p class="vazio-inline">{% icone "file-text" classe="icone--sm" %}Ao criar, o plano recebe o número e o documento passa a aparecer aqui como vai sair.</p>
     {% endif %}
   </section>
   </div>
@@ -380,10 +365,9 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
 
   {% if editavel %}
   {% comment %}
-  Rodapé como o do termo e o da OS: Voltar · Gerar · Ações. Sem "Salvar" (o plano se grava
-  sozinho; Ctrl+S grava na hora). Sem pendências, Gerar abre o plano como sai no PDF em
-  outra aba — e gera — e esta aba, já gravada, volta à lista (gerar-e-voltar.js); com
-  pendências, o botão leva ao que falta.
+  Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar (grava o
+  que estiver pendente, confere e gera o plano — com pendências, fica e mostra o que falta —
+  e volta à lista) e Ações (duplicar, cancelar, excluir — componentes/rodape_documento.html).
   {% endcomment %}
   <div class="barra-acoes">
     <a class="botao botao--texto" href="{% url 'viagens:planos' %}">Voltar</a>
@@ -393,9 +377,11 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
       {% else %}<span data-anuncio>Para criar, ligue um ofício (o resto vem dele) ou comece em branco.</span>{% endif %}
     </div>
     {% if plano %}
-      {% if pendencias %}<a class="botao" href="#conferencia">{% icone "list-checks" %}<span>Ver <span class="barra-acoes__extra">o que falta</span></span></a>
-      {% else %}<a class="botao botao--marca" href="{% url 'viagens:visualizar_plano' plano.pk %}?gerar=1" target="_blank" rel="noopener" data-gerar-e-voltar="{% url 'viagens:planos' %}">{% icone "file-check-2" %}<span>Gerar <span class="barra-acoes__extra">o plano</span></span></a>{% endif %}
-      {% include "viagens/planos/_acoes.html" with onde="rodapé" dobrar=True %}
+      {% if pode_cancelar and not plano.cancelado %}{% url 'viagens:cancelar_plano' plano.pk as cancelar_url %}{% endif %}
+      {% if pode_excluir %}{% firstof "excluir-plano" as excluir_form %}{% endif %}
+      {% with nome_doc=plano|stringformat:"s" %}{% with titulo_cancelar="Cancelar o "|add:nome_doc|add:"?" %}
+      {% include "componentes/rodape_documento.html" with nome="plano" finalizar_form="finalizar-plano" duplicar_form="duplicar-plano" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O plano continua na lista, em Cancelados; o número não se libera." %}
+      {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar plano</button>
     {% endif %}
@@ -405,4 +391,9 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
 {% for e in eventos %}<form id="remover-evento-{{ e.pk }}" method="post" action="{% url 'viagens:remover_evento_plano' plano.pk e.pk %}" hidden data-confirmar="O evento {{ forloop.counter|add:1 }} sai do plano (com as atividades dele)." data-confirmar-titulo="Remover evento?" data-confirmar-rotulo="Remover evento" data-confirmar-perigo>{% csrf_token %}</form>{% endfor %}
 {% if form_evento %}{% include "viagens/planos/_dialogo_evento.html" %}{% endif %}
 {% if plano and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
+{% if editavel %}{% include "componentes/dialogo_horario.html" with destino=form.horario.auto_id %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-cargo-adm" slug="cargos" rotulo="cargo" destino=form.coordenador_adm_cargo.auto_id valor="nome" %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-cargo-op" slug="cargos" rotulo="cargo" destino=form.coordenador_op_cargo.auto_id valor="nome" %}{% endif %}
+{% if plano and editavel %}{% include "componentes/dialogo_baixar.html" %}{% endif %}
+{% if pode_criar_conjunto %}{% include "viagens/planos/_dialogo_conjunto.html" %}{% endif %}
 {% endblock %}

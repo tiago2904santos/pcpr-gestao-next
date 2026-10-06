@@ -220,7 +220,7 @@ class TestDocumentoECicloDeVida:
 
     def test_historico(self, c):
         cli = _cliente(c.usuarios["operador"])
-        cli.post(reverse("viagens:novo_plano"), {"programa": "outro",
+        cli.post(reverse("viagens:novo_plano"), {"programa_outro": "on",
                                                  "programa_outros": "Feira fictícia"})
         plano = PlanoTrabalho.objects.get()
         cli.post(reverse("viagens:cancelar_plano", args=[plano.pk]), {"motivo": "Adiado"})
@@ -234,7 +234,8 @@ class TestTelas:
         html = cli.get(reverse("viagens:novo_plano")).content.decode()
         assert "Recebe o número" in html
         r = cli.post(reverse("viagens:novo_plano"), {
-            "programa": "outro", "programa_outros": "Feira fictícia", "horario": "09:00 até 17:00",
+            "programa_outro": "on", "programa_outros": "Feira fictícia",
+            "horario": "09:00 até 17:00",
             "efetivo_presente": "1", "efetivo_unidade": [""], "efetivo_cargo": [""],
             "efetivo_quantidade": ["1"], "atividades_presente": "1"})
         plano = PlanoTrabalho.objects.get()
@@ -275,7 +276,7 @@ class TestTelas:
         aberta = planos.versao_de(plano)
         planos.salvar(c.usuarios["gestor"], pk=plano.pk, programa_outros="Outro")
         url = reverse("viagens:autosave_plano", args=[plano.pk])
-        r = _cliente(c.usuarios["operador"]).post(url, {"versao": aberta, "programa": "outro",
+        r = _cliente(c.usuarios["operador"]).post(url, {"versao": aberta, "programa_outro": "on",
                                                         "programa_outros": "Meu"})
         assert r.json()["salvo"] is False and "Outra pessoa" in r.json()["mensagem"]
         planos.cancelar(c.usuarios["operador"], plano.pk, "Adiado")
@@ -452,21 +453,33 @@ class TestVariosEventos:
         plano = _completo(c)
         bo = AtividadePlano.objects.get(codigo="BO")
         outro = ProgramaSolicitante.objects.get(nome="PROGRAMA JUSTIÇA NO BAIRRO")
+        agente = Cargo.objects.get(nome="Agente de Polícia Judiciária")
         planos.salvar_evento(op, plano.pk, programa=outro, data_inicio=date(2030, 6, 27),
-                             destinos=[self._sarandi()], atividades=[bo])
+                             destinos=[self._sarandi()], atividades=[bo],
+                             efetivo=[planos.LinhaInformada(cargo=agente, quantidade=2)],
+                             saida_em=_aware(2030, 6, 27, 6), chegada_em=_aware(2030, 6, 27, 20))
         plano = PlanoTrabalho.objects.get(pk=plano.pk)
         assert "Maringá/PR, Sarandi/PR" in plano.contextualizacao
         assert "Programa Justiça no Bairro" in plano.contextualizacao
-        assert plano.coordenacao.count("Fica designad") == 1  # só o administrativo
+        assert plano.coordenacao.count("Fica designad") == 1  # sem operacional no plano
         assert planos.periodo_geral(plano) == (date(2030, 6, 25), date(2030, 6, 27))
         evento = plano.eventos.get()
         assert evento.atividades_texto == "• Registro de Boletins de Ocorrência"
+        # As diárias são de cada evento (efetivo e deslocamento próprios) e somam no plano.
+        assert evento.diarias_total is not None and evento.diarias_total > 0
+        assert evento.diarias_total != plano.diarias_total
+        assert planos.diarias_geral(plano) == plano.diarias_total + evento.diarias_total
+        assert planos.efetivo_geral(plano) == 8
+        assert planos.pendencias(plano) == []
         planos.finalizar(op, plano.pk)
         plano.refresh_from_db()
         html = planos.html_do_documento(planos.dados_do_documento(plano))
         assert "Dias 25 a 27 de junho de 2030 - PROGRAMA PARANÁ EM AÇÃO:" in html
         assert "Dia 27 de junho de 2030 - PROGRAMA JUSTIÇA NO BAIRRO:" in html
         assert "Valor total do evento dias: 25 a 27/06/2030:" in html
+        assert "Valor total do evento dia: 27/06/2030:" in html
+        assert "<strong>Valor total do plano:</strong> R$" in html
+        assert html.count("<strong>Efetivo:</strong>") == 2  # um por evento
         assert "<strong>Datas:</strong>" not in html  # a data vai no título de cada evento
 
     def test_pendencias_do_evento_e_remover_volta_a_um_evento(self, c):
@@ -475,7 +488,18 @@ class TestVariosEventos:
         evento = planos.salvar_evento(op, plano.pk)
         plano = PlanoTrabalho.objects.get(pk=plano.pk)
         assert [p.mensagem for p in planos.pendencias(plano)] == [
-            "Informe o destino do evento 2.", "Informe a data do evento 2."]
+            "Informe o destino do evento 2.", "Informe a data do evento 2.",
+            "Informe o efetivo do evento 2."]
+        agente = Cargo.objects.get(nome="Agente de Polícia Judiciária")
+        planos.salvar_evento(op, plano.pk, evento_pk=evento.pk, data_inicio=date(2030, 7, 1),
+                             destinos=[self._sarandi()],
+                             efetivo=[planos.LinhaInformada(cargo=agente, quantidade=1)])
+        plano = PlanoTrabalho.objects.get(pk=plano.pk)
+        assert [p.mensagem for p in planos.pendencias(plano)] == [
+            "Informe a saída e a chegada na sede do evento 2."]
+        with pytest.raises(planos.PlanoInvalido, match="depois da saída"):
+            planos.salvar_evento(op, plano.pk, evento_pk=evento.pk,
+                                 saida_em=_aware(2030, 7, 1, 9), chegada_em=_aware(2030, 7, 1, 8))
         planos.remover_evento(op, plano.pk, evento.pk)
         plano = PlanoTrabalho.objects.get(pk=plano.pk)
         assert planos.pendencias(plano) == [] and not plano.eventos.exists()
@@ -487,14 +511,23 @@ class TestVariosEventos:
         url = reverse("viagens:editar_plano", args=[plano.pk])
         html = cli.get(url + "?evento=novo").content.decode()
         assert 'id="dialogo-evento"' in html and 'id="evento_data_inicio"' in html
+        agente = Cargo.objects.get(nome="Agente de Polícia Judiciária")
         r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
             "programa": "outro", "programa_outros": "Feira fictícia", "data_inicio": "28/06/2030",
-            "destinos": ["Sarandi/PR"], "horario": "09:00 até 17:00"})
+            "destinos": ["Sarandi/PR"], "horario": "09:00 até 17:00",
+            "efetivo_presente": "1", "efetivo_unidade": [""], "efetivo_cargo": [str(agente.pk)],
+            "efetivo_quantidade": ["3"],
+            "saida_em": "28/06/2030 06:00", "chegada_em": "28/06/2030 21:00"})
         assert r["Location"].endswith("#eventos")
         evento = plano.eventos.get()
         assert evento.programa_outros == "Feira fictícia"
+        assert [(e.cargo_id, e.quantidade) for e in evento.efetivo.all()] == [(agente.pk, 3)]
+        assert evento.diarias_total is not None
         html = cli.get(url).content.decode()
         assert "Evento" in html and "Sarandi/PR" in html and "2 eventos" in html
+        assert "3 servidores" in html
+        html = cli.get(url + f"?evento={evento.pk}").content.decode()
+        assert 'id="evento-efetivo-cargo-1"' in html and 'id="evento_saida_em"' in html
         r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
             "evento": str(evento.pk), "data_inicio": "29/06/2030", "data_fim": "28/06/2030"})
         assert r.status_code == 422 and "anterior à data inicial" in r.content.decode()
@@ -563,3 +596,33 @@ class TestResultados:
         assert _cliente(c.usuarios["consulta"]).post(url, {}).status_code == 403
         planos.cancelar(c.usuarios["operador"], plano.pk, "Adiado")
         assert cli.post(url, {f"realizado_{cin.pk}": "8"}).status_code == 403
+
+
+class TestDuplicarEFinalizar:
+    def test_duplicar_copia_dados_com_numero_novo(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)
+        novo = planos.duplicar(op, plano.pk)
+        assert novo.pk != plano.pk and novo.numero != plano.numero
+        assert novo.data_inicio == plano.data_inicio and novo.horario == plano.horario
+        assert [d.municipio_id for d in novo.destinos.all()] == [
+            d.municipio_id for d in plano.destinos.all()]
+        assert novo.documento_gerado_em is None and novo.data_documento is None
+
+    def test_finalizar_do_rodape_sem_campos_gera_e_volta_a_lista(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)
+        r = _cliente(op).post(reverse("viagens:finalizar_plano", args=[plano.pk]))
+        plano.refresh_from_db()
+        if planos.pendencias(planos.carregar(plano)):
+            assert r["Location"].startswith(reverse("viagens:editar_plano", args=[plano.pk]))
+        else:
+            assert r["Location"] == reverse("viagens:planos")
+            assert plano.documento_gerado_em is not None
+
+    def test_duplicar_pela_tela_abre_o_novo(self, c):
+        op = c.usuarios["operador"]
+        plano = _completo(c)
+        r = _cliente(op).post(reverse("viagens:duplicar_plano", args=[plano.pk]))
+        novo = PlanoTrabalho.objects.exclude(pk=plano.pk).get()
+        assert r["Location"] == reverse("viagens:editar_plano", args=[novo.pk])

@@ -289,6 +289,10 @@ a:not([class]):focus-visible {
   gap: var(--esp-3);
 }
 
+.linha--fim {
+  justify-content: flex-end;
+}
+
 .cresce {
   flex: 1 1 auto;
   min-width: 0;

@@ -46,6 +46,7 @@ urlpatterns = [
     path("oficios/<int:pk>/arquivar/", views.arquivar, name="arquivar"),
     path("oficios/<int:pk>/desarquivar/", views.desarquivar, name="desarquivar"),
     path("oficios/<int:pk>/excluir/", views.excluir, name="excluir"),
+    path("oficios/<int:pk>/duplicar/", views.duplicar, name="duplicar_oficio"),
     path("oficios/<int:pk>/documentos/", views.documentos_parcial, name="documentos"),
     path("oficios/<int:pk>/minuta.pdf", views.previa, name="previa"),
     path("oficios/<int:pk>/documento/<str:tipo>.docx", views.baixar_docx, name="baixar_docx"),
@@ -120,7 +121,6 @@ urlpatterns = [
     path("viagens/nova/", views_viagem.criar, name="nova_viagem"),
     path("viagens/<int:pk>/", views_viagem.editar, name="editar_viagem"),
     path("viagens/<int:pk>/salvar/", views_viagem.salvar, name="salvar_viagem"),
-    path("viagens/<int:pk>/visualizar/", views_viagem.visualizar, name="visualizar_viagem"),
     path("viagens/<int:pk>/autosave/", views_viagem.autosave, name="autosave_viagem"),
     path("viagens/<int:pk>/novo/<str:tipo>/", views_viagem.novo_documento,
          name="novo_documento_viagem"),
@@ -139,6 +139,8 @@ urlpatterns = [
     path("justificativas/<int:pk>/baixar/", views_pacotes.baixar_justificativa,
          name="baixar_justificativa"),
     path("termos/<int:pk>/baixar/", views_pacotes.baixar_termo, name="baixar_termo"),
+    path("ordens/<int:pk>/baixar/", views_pacotes.baixar_ordem, name="baixar_ordem"),
+    path("planos/<int:pk>/baixar/", views_pacotes.baixar_plano, name="baixar_plano"),
     path("assinados/via/<int:via_pk>/", views_assinados.abrir, name="abrir_via_assinada"),
     path("assinados/via/<int:via_pk>/remover/", views_assinados.remover,
          name="remover_via_assinada"),
@@ -155,7 +157,6 @@ urlpatterns = [
     path("termos/<int:pk>/documento/<str:chave>.<str:formato>", views_termos.documento,
          name="documento_termo"),
     path("termos/<int:pk>/todos.<str:formato>", views_termos.todos, name="todos_termo"),
-    path("termos/<int:pk>/visualizar/", views_termos.visualizar, name="visualizar_termo"),
     path("termos/<int:pk>/autosave/", views_termos.autosave, name="autosave_termo"),
     path("termos/<int:pk>/folha/<str:chave>/", views_termos.folha, name="folha_termo"),
     # Editor do texto de cada documento do termo (as mesmas rotas relativas do ofício).
@@ -173,6 +174,8 @@ urlpatterns = [
     path("termos/<int:pk>/editor/<str:chave>/aplicar-em-todos/",
          views_editor_avulso.aplicar_em_todos_termo, name="editor_termo_aplicar_em_todos"),
     path("termos/<int:pk>/cancelar/", views_termos.cancelar, name="cancelar_termo"),
+    path("termos/<int:pk>/finalizar/", views_termos.finalizar, name="finalizar_termo"),
+    path("termos/<int:pk>/duplicar/", views_termos.duplicar, name="duplicar_termo"),
     path("termos/<int:pk>/reativar/", views_termos.reativar, name="reativar_termo"),
     path("termos/<int:pk>/excluir/", views_termos.excluir, name="excluir_termo"),
     path("api/oficios/", views_termos.buscar_oficios, name="buscar_oficios"),
@@ -185,7 +188,6 @@ urlpatterns = [
     path("ordens/<int:pk>/", views_ordens.editar, name="editar_ordem"),
     path("ordens/<int:pk>/autosave/", views_ordens.autosave, name="autosave_ordem"),
     path("ordens/<int:pk>/folha/", views_ordens.folha, name="folha_ordem"),
-    path("ordens/<int:pk>/visualizar/", views_ordens.visualizar, name="visualizar_ordem"),
     # Editor do texto da OS (as mesmas rotas relativas do ofício; a OS tem um documento só).
     *[path(f"ordens/<int:pk>/editor/{caminho}", visao, name=f"editor_ordem_{nome}")
       for nome, caminho, visao in [
@@ -200,6 +202,8 @@ urlpatterns = [
     path("ordens/<int:pk>/documento.<str:formato>", views_ordens.documento,
          name="documento_ordem"),
     path("ordens/<int:pk>/cancelar/", views_ordens.cancelar, name="cancelar_ordem"),
+    path("ordens/<int:pk>/finalizar/", views_ordens.finalizar, name="finalizar_ordem"),
+    path("ordens/<int:pk>/duplicar/", views_ordens.duplicar, name="duplicar_ordem"),
     path("ordens/<int:pk>/reativar/", views_ordens.reativar, name="reativar_ordem"),
     path("ordens/<int:pk>/excluir/", views_ordens.excluir, name="excluir_ordem"),
     path("planos/", views_planos.lista, name="planos"),
@@ -216,7 +220,6 @@ urlpatterns = [
     path("planos/<int:pk>/eventos/<int:evento_pk>/remover/", views_planos.remover_evento,
          name="remover_evento_plano"),
     path("planos/<int:pk>/folha/", views_planos.folha, name="folha_plano"),
-    path("planos/<int:pk>/visualizar/", views_planos.visualizar, name="visualizar_plano"),
     # Editor do texto do plano (as mesmas rotas relativas do ofício).
     *[path(f"planos/<int:pk>/editor/{caminho}", visao, name=f"editor_plano_{nome}")
       for nome, caminho, visao in [
@@ -231,6 +234,7 @@ urlpatterns = [
     path("planos/<int:pk>/documento.<str:formato>", views_planos.documento,
          name="documento_plano"),
     path("planos/<int:pk>/cancelar/", views_planos.cancelar, name="cancelar_plano"),
+    path("planos/<int:pk>/duplicar/", views_planos.duplicar, name="duplicar_plano"),
     path("planos/<int:pk>/reativar/", views_planos.reativar, name="reativar_plano"),
     path("planos/<int:pk>/excluir/", views_planos.excluir, name="excluir_plano"),
     path("roteiros/", views_roteiros.lista, name="roteiros"),

@@ -30,7 +30,7 @@ delas são parte do contrato e não mudam.
       {% if termo.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' termo.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ termo.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo do termo: </span>
       {% if termo.cancelado %}<span class="selo selo--perigo">Cancelado</span>{% elif not ef.completo %}<span class="selo selo--aviso">Incompleto</span>{% else %}<span class="selo selo--sucesso">Completo</span>{% endif %}
-      <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{% if termo.oficio %}{{ termo.oficio }}{% else %}avulso{% endif %}</span>
+      <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{% if termo.oficio %}{{ termo.oficio }}{% with n=termo.oficios.all|length %}{% if n > 1 %} e mais {{ n|add:"-1" }}{% endif %}{% endwith %}{% else %}avulso{% endif %}</span>
       {% with n=ef.servidores|length %}<span class="frase-oficio__item{% if not n %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem servidores{% endif %}</span>{% endwith %}
       <span class="frase-oficio__item{% if not ef.destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ ef.destino_texto|default:"sem destino" }}</span>
       <span class="frase-oficio__item{% if not ef.periodo_curto %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ ef.periodo_curto|default:"sem datas" }}</span>
@@ -47,6 +47,7 @@ delas são parte do contrato e não mudam.
   {% endif %}
 </header>
 
+{% if termo and editavel %}<form id="finalizar-termo" method="post" action="{% url 'viagens:finalizar_termo' termo.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form><form id="duplicar-termo" method="post" action="{% url 'viagens:duplicar_termo' termo.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>{% endif %}
 {% if pode_excluir %}<form id="excluir-termo" method="post" action="{% url 'viagens:excluir_termo' termo.pk %}" hidden data-confirmar="O {{ termo }} será excluído de vez. Para guardar o histórico, cancele em vez de excluir." data-confirmar-titulo="Excluir termo?" data-confirmar-rotulo="Excluir termo" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 
 {% if termo.cancelado %}
@@ -80,16 +81,17 @@ delas são parte do contrato e não mudam.
     </div>
 
     <div class="pilha" id="dados">
-      {# Colunas iguais: ofício · evento · período (ida e volta num calendário só). #}
+      {% comment %}
+      Ofícios: a linha toda, como "Adicionar servidor" — busca e um cartão por ofício. Escolher
+      um preenche os campos com a união dos vinculados (termo.js); mais de um, só da mesma
+      viagem ou do mesmo roteiro.
+      {% endcomment %}
+      <div class="campo{% if form.oficios.errors %} campo--erro{% endif %}" data-oficio-do-termo>
+        {{ form.oficios }}
+        {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
+      </div>
+      {# Colunas iguais: evento · período (ida e volta num calendário só). #}
       <div class="campos campos--iguais">
-        <div class="campo{% if form.oficio.errors %} campo--erro{% endif %}" data-oficio-do-termo>
-          <label class="campo__rotulo" for="busca-oficio">Ofício vinculado</label>
-          <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_oficios' %}?q=" data-minimo="1">
-            <div class="entrada-composta">{% icone "file-text" %}<input class="entrada" id="busca-oficio" type="text" role="combobox" placeholder="Número, destino ou servidor…" value="{% if oficio %}Ofício {{ oficio.numero_formatado }}{% endif %}" aria-describedby="busca-oficio-ajuda" autocomplete="off">{{ form.oficio }}</div>
-          </pc-combobox>
-          <p class="campo__ajuda sr-only" id="busca-oficio-ajuda">Opcional. Escolher um ofício preenche os campos com os dados dele.</p>
-          {% if form.oficio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficio.errors|join:" " }}</span></p>{% endif %}
-        </div>
         {% include "componentes/campo.html" with campo=form.evento ajuda_oculta=True %}
         <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="termo-periodo" id="termo-periodo-rotulo">Período</label>
@@ -149,7 +151,7 @@ delas são parte do contrato e não mudam.
     <div class="alerta alerta--aviso" role="status" id="conferencia" data-vivo>
       {% icone "list-checks" %}
       <div class="alerta__corpo">
-        <p class="alerta__titulo">{% if termo.oficio %}O Ofício {{ termo.oficio.numero_formatado }} não tem tudo de que o termo precisa{% else %}Falta informação para os documentos{% endif %}</p>
+        <p class="alerta__titulo">{% if termo.oficios.all|length > 1 %}Os ofícios vinculados não têm tudo de que o termo precisa{% elif termo.oficio %}O Ofício {{ termo.oficio.numero_formatado }} não tem tudo de que o termo precisa{% else %}Falta informação para os documentos{% endif %}</p>
         <ul class="checklist">
           {% if not ef.destinos %}<li class="checklist__item"><a href="#destinos">Falta destino</a></li>{% endif %}
           {% if not ef.inicio %}<li class="checklist__item"><a href="#dados">Falta período</a></li>{% endif %}
@@ -158,41 +160,6 @@ delas são parte do contrato e não mudam.
     </div>
     {% endif %}
     {% endif %}
-
-    <div class="secao__bloco" id="lista-documentos" aria-labelledby="t-lista-docs" data-vivo>
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-lista-docs">{% icone "files" classe="icone--sm" %}O que o termo emite</h3>
-        <div class="secao__estado"><span class="texto-terciario texto-xs">{{ docs|length|pluralizar:"documento,documentos" }}</span>{% if editavel and pode_ver_documento %} <button type="button" class="botao botao--sm" data-baixar-documentos="{% url 'viagens:baixar_termo' termo.pk %}" data-baixar-titulo="{{ termo }}">{% icone "download" %}Baixar documentos</button>{% endif %}</div>
-      </div>
-      <ul class="registros">
-        {% for d in docs %}
-          <li class="registro">
-            <span class="registro__icone" aria-hidden="true">{% if d.chave == "viatura" %}{% icone "car" %}{% elif d.chave == "generico" %}{% icone "file-text" %}{% else %}{% icone "user-round" %}{% endif %}</span>
-            <div class="registro__corpo">
-              <div class="registro__titulo">{% if pode_ver_documento %}<a class="registro__link" href="#folha-doc-{{ d.chave }}">{{ d.titulo }}<span class="sr-only"> — ir para a folha</span></a>{% else %}<span class="registro__link registro__link--estatico">{{ d.titulo }}</span>{% endif %}{% if d.via %} {% include "viagens/assinados/_selo.html" with s=d.via.s %}{% endif %}</div>
-              <p class="registro__texto">{{ d.descricao }}</p>
-              {% if d.via.s.via %}<div class="registro__meta">
-                <span class="registro__meta-item">{% icone "file-signature" classe="icone--sm" %}Via anexada por {{ d.via.s.via.enviado_por.nome }}</span>
-                <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ d.via.s.via.enviado_em|date:"d/m/Y H:i" }}</span>
-              </div>{% endif %}
-            </div>
-            {% if editavel %}
-            {# Todas as ações do documento num menu só (gerar, baixar, via assinada). #}
-            <div class="registro__acoes registro__acoes--fixas">
-              <pc-menu class="menu">
-                <button type="button" class="botao botao--sm botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações: {{ d.titulo }}" title="Ações">{% icone "ellipsis-vertical" %}</button>
-                <div class="menu__painel" role="menu" hidden>
-                  <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' termo.pk d.chave 'pdf' %}" download data-baixar-arquivo>{% icone "file-check-2" %}Gerar PDF</a>
-                  <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' termo.pk d.chave 'docx' %}" download data-baixar-arquivo>{% icone "download" %}Baixar em DOCX</a>
-                  {% if d.via %}<div class="menu__separador" role="separator"></div>{% include "viagens/assinados/_itens_menu.html" with s=d.via.s anexar_url=d.via.anexar_url titulo=d.via.titulo pode=d.via.pode original_url=d.via.original_url voltar=d.via.voltar %}{% endif %}
-                </div>
-              </pc-menu>
-            </div>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
 
     {% comment %}
     Como vão sair: um bloco de edição só com todos os documentos do termo, página por página
@@ -223,11 +190,12 @@ delas são parte do contrato e não mudam.
           <section class="editores__item" data-pagina="{{ d.chave }}">
             <h4 class="editores__titulo" id="folha-doc-{{ d.chave }}"><span class="editores__numero">Página {{ forloop.counter }}</span>{{ d.titulo }}<span class="texto-terciario"> · {{ d.descricao }}</span></h4>
             {% url 'viagens:folha_termo' termo.pk d.chave as folha_url %}{% url 'viagens:documento_termo' termo.pk d.chave 'pdf' as pdf_url %}{% url 'viagens:editor_termo_estado' termo.pk d.chave as estado_url %}{% url 'viagens:editor_termo_aplicar_em_todos' termo.pk d.chave as aplicar_url %}
+            {% url 'viagens:baixar_termo' termo.pk as baixar_url %}
             {% with sufixo="termo-"|add:d.chave %}
             {% if docs|length > 1 and editavel %}
-            {% include "viagens/oficios/_editor.html" with tipo="termo" rotulo="Termo de autorização" titulo_doc=d.titulo folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel sufixo=sufixo inteira=True aplicar_url=aplicar_url indice="indice-termo" %}
+            {% include "viagens/oficios/_editor.html" with tipo="termo" rotulo="Termo de autorização" titulo_doc=d.titulo folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel sufixo=sufixo inteira=True aplicar_url=aplicar_url indice="indice-termo" baixar_url=baixar_url baixar_titulo=termo|stringformat:"s" via=d.via %}
             {% else %}
-            {% include "viagens/oficios/_editor.html" with tipo="termo" rotulo="Termo de autorização" titulo_doc=d.titulo folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel sufixo=sufixo inteira=True indice="indice-termo" aplicar_url="" %}
+            {% include "viagens/oficios/_editor.html" with tipo="termo" rotulo="Termo de autorização" titulo_doc=d.titulo folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel sufixo=sufixo inteira=True indice="indice-termo" aplicar_url="" baixar_url=baixar_url baixar_titulo=termo|stringformat:"s" via=d.via %}
             {% endif %}
             {% endwith %}
           </section>
@@ -266,9 +234,10 @@ delas são parte do contrato e não mudam.
   </fieldset>
 
   {% comment %}
-  Barra do rodapé, na ordem da folha do ofício: Voltar à esquerda; à direita, Salvar, a
-  ação decisiva (gerar os termos, dourada quando tudo está pronto) e o menu de ações.
-  O estado do salvamento fica só para leitor de tela — é por ele que o autosave avisa.
+  Barra do rodapé, igual em toda folha de documento: Voltar à esquerda; à direita,
+  Finalizar (grava o que estiver pendente e volta à lista) e Ações (duplicar, cancelar,
+  excluir — componentes/rodape_documento.html). O estado do salvamento fica só para leitor
+  de tela — é por ele que o autosave avisa.
   {% endcomment %}
   {% if editavel %}
   <div class="barra-acoes">
@@ -279,12 +248,11 @@ delas são parte do contrato e não mudam.
       {% else %}<span data-anuncio>Para criar: um ofício, ou destino e data.</span>{% endif %}
     </div>
     {% if termo %}
-      {% comment %}
-      Sem "Salvar": o termo se grava sozinho (Ctrl+S ainda grava na hora). Gerar abre o PDF
-      completo em outra aba (termos/visualizar.html) e esta aba, já gravada, volta à lista.
-      {% endcomment %}
-      <a class="botao{% if ef.completo %} botao--marca{% endif %}" href="{% url 'viagens:visualizar_termo' termo.pk %}" target="_blank" rel="noopener" data-gerar-e-voltar="{% url 'viagens:termos' %}"{% if not ef.completo %} data-dica="Sai com lacunas para preencher à mão"{% endif %}>{% icone "file-check-2" %}<span>Gerar <span class="barra-acoes__extra">os termos</span></span></a>
-      {% include "viagens/termos/_acoes.html" with onde="rodapé" dobrar=True %}
+      {% if pode_cancelar and not termo.cancelado %}{% url 'viagens:cancelar_termo' termo.pk as cancelar_url %}{% endif %}
+      {% if pode_excluir %}{% firstof "excluir-termo" as excluir_form %}{% endif %}
+      {% with nome_doc=termo|stringformat:"s" %}{% with titulo_cancelar="Cancelar o "|add:nome_doc|add:"?" %}
+      {% include "componentes/rodape_documento.html" with nome="termo" finalizar_form="finalizar-termo" duplicar_form="duplicar-termo" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O termo continua na lista, em Cancelados; dá para reativar." %}
+      {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar termo</button>
     {% endif %}

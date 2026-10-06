@@ -7,7 +7,10 @@ de views_assinados.cartao; `vazio` é o texto quando ainda não há via e não s
   <span class="registro__icone" aria-hidden="true">{% icone "file-signature" %}</span>
   <div class="registro__corpo">
     <div class="registro__titulo">
+      {% comment %}Clicar no registro abre o documento numa aba nova: a via assinada, se houver;
+      senão o PDF como sai agora (`previa=1`: ler não conta como geração).{% endcomment %}
       {% if c.s.via %}<a class="registro__link" href="{% url 'viagens:abrir_via_assinada' c.s.via.pk %}" target="_blank" rel="noopener">{{ c.titulo }}<span class="sr-only"> — abrir a via assinada (PDF, nova aba)</span></a>
+      {% elif c.original_url %}<a class="registro__link" href="{{ c.original_url }}?previa=1" target="_blank" rel="noopener">{{ c.titulo }}<span class="sr-only"> — abrir o PDF (nova aba)</span></a>
       {% else %}<span class="registro__link registro__link--estatico">{{ c.titulo }}</span>{% endif %}
       {% if c.s.via %}{% include "viagens/assinados/_selo.html" with s=c.s %}{% else %}<span class="selo selo--neutro selo--sem-ponto">Sem via assinada</span>{% endif %}
     </div>
@@ -17,11 +20,15 @@ de views_assinados.cartao; `vazio` é o texto quando ainda não há via e não s
         <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ c.s.via.enviado_em|date:"d/m/Y H:i" }}</span>
         <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ c.s.via.nome_original|truncatechars:48 }}</span>
       </div>
-      {% with conf=c.s.via.conferencia %}{% if conf.resumo %}
-      <p class="registro__texto">{% if conf.assinado %}{% icone "shield-check" classe="icone--sm" %}{% else %}{% icone "alert-triangle" classe="icone--sm" %}{% endif %}{{ conf.resumo }}</p>
-      {% for aviso in conf.avisos %}<p class="registro__texto">{% icone "alert-triangle" classe="icone--sm" %}{{ aviso }}</p>{% endfor %}
+      {% comment %}O que a conferência do PDF diz e se os dados mudaram: uma lista curta, cada
+      nota numa linha só, com o ícone ao lado do texto.{% endcomment %}
+      {% with conf=c.s.via.conferencia %}{% if conf.resumo or c.s.mudou %}
+      <ul class="registro__notas" role="list">
+        {% if conf.resumo %}<li class="registro__nota{% if conf.assinado %} registro__nota--ok{% else %} registro__nota--aviso{% endif %}">{% if conf.assinado %}{% icone "shield-check" classe="icone--sm" %}{% else %}{% icone "alert-triangle" classe="icone--sm" %}{% endif %}<span>{{ conf.resumo }}</span></li>{% endif %}
+        {% for aviso in conf.avisos %}<li class="registro__nota registro__nota--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ aviso }}</span></li>{% endfor %}
+        {% if c.s.mudou %}<li class="registro__nota registro__nota--aviso">{% icone "history" classe="icone--sm" %}<span>Os dados mudaram depois que a via foi anexada: gere o documento atualizado e troque a via.</span></li>{% endif %}
+      </ul>
       {% endif %}{% endwith %}
-      {% if c.s.mudou %}<p class="registro__texto">Os dados mudaram depois que a via foi anexada: gere o documento atualizado e troque a via.</p>{% endif %}
     {% elif not c.pode and vazio %}
       <p class="registro__texto">{{ vazio }}</p>
     {% endif %}

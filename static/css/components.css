@@ -408,12 +408,12 @@
 /* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
    é metade "papel" (--fundo-rotulo: onde o campo está) e metade caixa (--fundo-entrada),
    então serve sobre a folha branca e sobre faixas cinzas sem recorte. */
-.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada, .campo__com-acao, .multiescolha)) {
+.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .passos, .itin__chegada, .campo__com-acao, .multiescolha)) {
   position: relative;
   padding-top: 0.5rem;
 }
 
-.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada, .campo__com-acao, .multiescolha)) {
+.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .passos, .itin__chegada, .campo__com-acao, .multiescolha)) {
   position: absolute;
   z-index: 2;
   top: 0;
@@ -767,6 +767,28 @@ a.resumo__documento:hover {
 
 .entrada-composta > .icone + .entrada {
   padding-left: calc(var(--esp-3) * 2 + var(--tamanho-icone));
+}
+
+/* Detalhe da escolha dentro do campo, logo depois do nome (ex.: o cargo do servidor
+   escolhido): posição medida pelo combobox (`--meta-x`), cortado com reticências. */
+.entrada-composta__meta {
+  position: absolute;
+  left: calc(var(--meta-x, 0px) + var(--esp-2));
+  right: calc(var(--esp-3) + 1.75rem);
+  overflow: hidden;
+  color: var(--cor-texto-terciario);
+  font-size: var(--texto-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.entrada-composta__meta::before {
+  content: "· ";
+}
+
+.entrada-composta__meta[hidden] {
+  display: none;
 }
 
 .entrada-composta__texto-fixo {
@@ -1748,6 +1770,12 @@ dialog.dialogo--largo {
   width: min(44rem, calc(100vw - 2 * var(--esp-4)));
 }
 
+/* Formulário completo numa janela (o evento do plano: destinos com a rota, atividades em
+   três colunas): a largura de uma folha. */
+dialog.dialogo--amplo {
+  width: min(68rem, calc(100vw - 2 * var(--esp-4)));
+}
+
 /* Grupo de campos com título (fieldset): "Identificação", "Lotação"… */
 .grupo-campos {
   display: grid;
@@ -2297,6 +2325,176 @@ kbd {
 /* Grupo que vem logo depois de uma lista (funções da equipe sob os escolhidos). */
 .grupo-campos--afastado {
   margin-top: var(--esp-4);
+}
+
+/* Grupo de campo (fieldset.campo): sem a moldura "groove" do navegador. */
+fieldset.campo {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Escolhas numa caixa de campo (tipos da viagem, programas do plano): a mesma caixa das
+   entradas, com o rótulo na borda (a legenda do fieldset já corta a linha de cima), e as
+   opções em pílulas compactas numa faixa — a marcada ganha a borda grafite. Uma linha tem
+   a altura de uma entrada. */
+fieldset.campo--escolhas {
+  min-height: var(--altura-controle);
+  padding: var(--esp-1) var(--esp-1) var(--esp-1);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+fieldset.campo--escolhas:hover {
+  border-color: var(--neutro-500);
+}
+
+fieldset.campo--escolhas:focus-within {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.campo--erro.campo--escolhas {
+  border-color: var(--cor-perigo);
+}
+
+fieldset.campo--escolhas > legend {
+  margin-left: var(--esp-1);
+  padding: 0 var(--esp-1);
+  font-size: var(--texto-xs);
+  line-height: 1rem;
+}
+
+fieldset.campo--escolhas .caixas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+fieldset.campo--escolhas .caixas__item {
+  align-items: center;
+  min-height: var(--altura-controle-sm);
+  padding: 0 var(--esp-3) 0 var(--esp-2);
+  border: 1px solid transparent;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-sm);
+  line-height: var(--altura-linha-justa);
+  white-space: nowrap;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+fieldset.campo--escolhas .caixas__item:hover {
+  border-color: var(--cor-borda);
+}
+
+fieldset.campo--escolhas .caixas__item:has(input:checked) {
+  border-color: var(--grafite-800);
+  background: var(--cor-superficie);
+  font-weight: var(--peso-medio);
+}
+
+fieldset.campo--escolhas .caixas__item input {
+  margin: 0;
+}
+
+fieldset.campo--escolhas > .campo__erro {
+  padding: 0 var(--esp-2) var(--esp-1);
+}
+
+/* =============== Várias escolhas num campo (pc-escolhas) ===============
+   O botão tem a cara de um select (o que está marcado, resumido); o painel flutua abaixo,
+   como a lista do select, com uma caixa por linha. Sem JavaScript o painel fica no fluxo. */
+.escolhas {
+  position: relative;
+  display: block;
+}
+
+.escolhas__painel .caixas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.escolhas__painel .caixas__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle-sm);
+  padding: var(--esp-1) var(--esp-3);
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  font-size: var(--texto-sm);
+}
+
+.escolhas__painel .caixas__item input {
+  margin: 0;
+}
+
+.escolhas__painel .caixas__item:hover,
+.escolhas__painel .caixas__item:has(input:focus-visible) {
+  background: var(--cor-superficie-sutil);
+  outline: none;
+}
+
+.escolhas__painel .caixas__item:has(input:checked) {
+  border: 0;
+  background: transparent;
+  font-weight: var(--peso-medio);
+}
+
+.escolhas__painel .caixas__item:has(input:checked):hover {
+  background: var(--cor-superficie-sutil);
+}
+
+/* "Outro" fecha a lista, separado por um filete. */
+.escolhas__painel .caixas__item.escolhas__outro {
+  margin-top: var(--esp-1);
+  padding-top: var(--esp-2);
+  border-top: var(--borda-sutil);
+  border-radius: 0;
+}
+
+.escolhas[data-pronto] .escolhas__painel {
+  position: absolute;
+  z-index: var(--z-painel-campo);
+  top: calc(100% + var(--esp-1));
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(26rem, calc(100vw - 2rem));
+  max-height: 20rem;
+  padding: var(--esp-1);
+  overflow-y: auto;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-elevada);
+  box-shadow: var(--sombra-flutuante);
+  transform-origin: top center;
+  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+.escolhas__painel[hidden] {
+  display: none;
+}
+
+/* Com JavaScript, a lista não pisca aberta enquanto o componente carrega. */
+@media (scripting: enabled) {
+  pc-escolhas:not([data-pronto]) .escolhas__painel {
+    display: none;
+  }
+}
+
+/* Sem JavaScript, o botão não abre nada: fica só a lista. */
+@media (scripting: none) {
+  pc-escolhas [data-gatilho] {
+    display: none;
+  }
 }
 
 /* Caixas de escolha em grade (widget CaixasDeEscolha): várias escolhas de uma lista
@@ -2917,59 +3115,3 @@ kbd {
   color: var(--cor-texto-secundario);
 }
 
-/* =============== Visualizar o PDF completo (termos/visualizar.html) =============== */
-/* As folhas empilhadas sobre o cinza da mesa, como num leitor de PDF; cada uma com a
-   proporção do A4 e o nome do documento em cima. */
-.visualizador-pdf {
-  display: grid;
-  justify-items: center;
-  gap: var(--esp-4);
-  padding: var(--esp-4) var(--esp-4) var(--esp-2);
-  border-radius: var(--raio-lg);
-  background: var(--neutro-200);
-  box-shadow: inset 0 0 0 1px var(--cor-borda);
-}
-
-/* A folha A4 inteira (210 mm + a margem da folha de tela): o texto quebra como no PDF. */
-.visualizador-pdf__pagina {
-  display: grid;
-  justify-items: center;
-  gap: var(--esp-2);
-  width: 100%;
-  max-width: calc(210mm + 3rem);
-}
-
-.visualizador-pdf__rotulo {
-  justify-self: stretch;
-}
-
-.visualizador-pdf__rotulo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--esp-2);
-  margin: 0;
-  font-size: var(--texto-sm);
-  font-weight: var(--peso-semi);
-  color: var(--cor-texto);
-}
-
-.visualizador-pdf__numero {
-  font-size: var(--texto-xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--cor-texto-secundario);
-}
-
-/* A folha inteira, sem rolagem própria: largura do A4 (reduzida por escala em telas
-   estreitas) e altura do documento — quem ajusta é static/js/componentes/folhas.js. */
-.visualizador-pdf__moldura {
-  overflow: hidden;
-  min-height: 20rem;
-}
-
-.visualizador-pdf__folha {
-  display: block;
-  width: 100%;
-  min-height: 20rem;
-  border: 0;
-}

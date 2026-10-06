@@ -478,6 +478,17 @@ class TestEmissaoEAcoes:
         r = operador.post(reverse("viagens:excluir", args=[pk]))
         assert r.status_code == 302 and not Oficio.objects.filter(pk=pk).exists()
 
+    def test_duplicar_oficio_copia_equipe_e_trechos(self, operador, cenario):
+        origem = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        r = operador.post(reverse("viagens:duplicar_oficio", args=[origem.pk]))
+        novo = Oficio.objects.order_by("-pk").first()
+        assert r["Location"] == reverse("viagens:editar", args=[novo.pk])
+        assert novo.pk != origem.pk and novo.numero != origem.numero and not novo.protocolo
+        assert ([v.servidor_id for v in novo.viajantes.order_by("ordem")]
+                == [v.servidor_id for v in origem.viajantes.order_by("ordem")])
+        assert novo.trechos.count() == origem.trechos.count()
+        assert novo.motivo == origem.motivo and novo.viatura_id == origem.viatura_id
+
     def test_resumo_do_registro_traz_roteiro_equipe_e_documentos(self, operador, cenario):
         """Clicar no registro abre uma janela com o resumo (fragmento HTMX)."""
         r = operador.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]),

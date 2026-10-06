@@ -60,7 +60,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
       <p class="secao__nota" id="nota-dados" data-vivo>O título da viagem nasce dos tipos{% if v.titulo %}: <strong>{{ v.titulo }}</strong>{% endif %}. O termo, a OS e o plano criados daqui nascem com o período e os destinos; o ofício e a OS levam o motivo.</p>
     </div>
     <div class="pilha">
-      <fieldset class="campo{% if form.tipos.errors %} campo--erro{% endif %}">
+      <fieldset class="campo campo--escolhas{% if form.tipos.errors %} campo--erro{% endif %}">
         <legend class="campo__rotulo">Tipo da viagem</legend>
         {% if form.tipos.field.queryset %}{{ form.tipos }}
         {% else %}<p class="vazio-inline">{% icone "route" classe="icone--sm" %}Nenhum tipo de viagem cadastrado. <a href="{% url 'cadastros:tipos' %}">Cadastrar tipos</a>.</p>{% endif %}

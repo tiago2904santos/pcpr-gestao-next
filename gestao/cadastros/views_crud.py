@@ -401,7 +401,10 @@ def salvar_catalogo(request: HttpRequest, slug: str) -> HttpResponse:
             # o registro criado para a escolha receber a opção nova sem recarregar a página
             # — recarregar perderia o que já estava digitado no formulário de trás.
             if _quer_json(request):
-                return JsonResponse({"id": obj.pk, "nome": str(obj)})
+                novo = {"id": obj.pk, "nome": str(obj)}
+                if isinstance(obj, PresetAtividades):  # o plano aplica o conjunto por elas
+                    novo["ids"] = ",".join(str(a.pk) for a in obj.atividades.all())
+                return JsonResponse(novo)
             feito = ("atualizad" if pk else "criad") + cat.artigo
             messages.success(request, f"{cat.singular.capitalize()} “{obj}” {feito}.")
             return redirect(_voltar(request, slug))
@@ -581,6 +584,7 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
         resultados = resultados.exclude(pk__in=excluir)
     return JsonResponse({"resultados": [
         {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao,
+         "cargo": s.cargo.nome if s.cargo is not None else "",
          "unidade": str(s.unidade_id or "")} for s in resultados[:15]]})
 
 

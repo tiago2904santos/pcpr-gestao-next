@@ -5,13 +5,13 @@ documento como vai sair, histórico), finalizar, gerar PDF/DOCX e o ciclo de vid
 from __future__ import annotations
 
 from typing import cast
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from django import forms
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -19,6 +19,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros import policies as cadastros_policies
+from gestao.cadastros.forms import FormularioHorario
 from gestao.cadastros.models import PresetAtividades
 
 from . import linha_do_tempo, planos, policies, prestacao, resultados
@@ -73,6 +75,15 @@ def _buscar(qs, busca: str):
     return qs.filter(filtro).distinct()
 
 
+# Ordens da lista: número (o padrão, mais recente primeiro) ou o período do evento.
+ORDENS = {
+    "-numero": ("-ano", "-numero"),
+    "numero": ("ano", "numero"),
+    "periodo": (F("data_inicio").asc(nulls_last=True), "-ano", "-numero"),
+    "-periodo": (F("data_inicio").desc(nulls_last=True), "-ano", "-numero"),
+}
+
+
 @require_GET
 def lista(request: HttpRequest) -> HttpResponse:
     if not request.user.has_perm("viagens.view_planotrabalho"):
@@ -87,11 +98,14 @@ def lista(request: HttpRequest) -> HttpResponse:
     if aba not in {a for a, _, _ in ABAS}:
         aba = ""
     busca = (request.GET.get("q") or "").strip()
-    qs = planos.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-ano", "-numero"))
+    ordem = request.GET.get("ordem") or "-numero"
+    if ordem not in ORDENS:
+        ordem = "-numero"
+    qs = planos.com_dados(_buscar(_filtrar(base, aba), busca).order_by(*ORDENS[ordem]))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     linhas = [{"plano": p, "periodo": dominio.periodo_curto(*planos.periodo_geral(p)),
                "eventos": len(p.eventos.all()) + 1 if p.eventos.all() else 0,
-               "efetivo": dominio.efetivo_total(planos.linhas_do_efetivo(p)),
+               "efetivo": planos.efetivo_geral(p), "diarias": planos.diarias_geral(p),
                "coordenador": planos.coordenador(p, "adm"),
                "estado": planos.estado(p),
                "editavel": policies.pode_editar_plano(request.user, p),
@@ -100,6 +114,11 @@ def lista(request: HttpRequest) -> HttpResponse:
               for p in pagina.object_list]
     return render(request, "viagens/planos/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
+        "ordem": ordem, "por_periodo": ordem in ("periodo", "-periodo"),
+        # O que as abas preservam ao trocar de situação (busca, ordem e o filtro do ofício).
+        "querystring_abas": urlencode({k: v for k, v in (
+            ("oficio", oficio_pk if oficio is not None else ""), ("q", busca),
+            ("ordem", ordem if ordem != "-numero" else "")) if v}),
         "contagens": {"todos": base.count(),
                       **{c: _filtrar(base, c).count() for c, _, _ in ABAS if c}},
         "oficio": oficio, "oficio_filtro": oficio_pk if oficio is not None else "",
@@ -132,14 +151,14 @@ def _formulario(request: HttpRequest, *args, plano=None, **kwargs) -> Formulario
     return FormularioPlano(*args, plano=plano, **extras, **kwargs)
 
 
-def _linhas_para_tela(form: FormularioPlano, plano) -> list[dict]:
-    """As linhas do efetivo como a tela as desenha: as enviadas (com erro) ou as gravadas;
-    o plano novo começa com uma linha em branco."""
+def _linhas_para_tela(form, dono) -> list[dict]:
+    """As linhas do efetivo como a tela as desenha (`dono`: o plano ou o evento): as
+    enviadas (com erro) ou as gravadas; o novo começa com uma linha em branco."""
     if form.is_bound:
         return form.linhas_informadas() or [{"unidade": "", "cargo": "", "quantidade": "1"}]
-    if plano is not None and plano.efetivo.all():
+    if dono is not None and dono.efetivo.all():
         return [{"unidade": str(e.unidade_id or ""), "cargo": str(e.cargo_id),
-                 "quantidade": str(e.quantidade)} for e in plano.efetivo.all()]
+                 "quantidade": str(e.quantidade)} for e in dono.efetivo.all()]
     return [{"unidade": "", "cargo": "", "quantidade": "1"}]
 
 
@@ -224,9 +243,17 @@ def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int =
     mensagens_calculo = [m for m in mensagens_calculo
                          if not m.startswith(("Informe o destino", "Informe o efetivo"))]
     conjuntos = list(PresetAtividades.objects.filter(ativo=True).prefetch_related("atividades"))
+    # Quem assina já aparece no campo: a escolha "da configuração" leva o nome de quem assina.
+    prevista = planos.assinatura_prevista(plano) if plano else ""
     return render(request, "viagens/planos/editar.html", {
         "form": form, "plano": plano, "editavel": editavel,
+        # O "+" do horário: o cadastro rápido de horário (cadastros › Horários).
+        "form_horario": FormularioHorario(auto_id="horario-novo-%s"),
         "linhas_efetivo": _linhas_para_tela(form, plano),
+        "linhas_efetivo_evento": (_linhas_para_tela(form_evento, evento_editando)
+                                  if form_evento is not None else []),
+        "calculo_evento": (planos.calculo_do_evento(evento_editando)[0]
+                           if evento_editando is not None else None),
         "atividades_marcadas": _atividades_na_tela(form),
         "estado": planos.estado(plano, pend) if plano else None,
         "eventos": list(plano.eventos.all()) if plano else [],
@@ -235,11 +262,16 @@ def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int =
         "avisos": planos.avisos(plano) if plano else [],
         "textos_desatualizados": _textos_desatualizados(plano),
         "vem_do_oficio": _vem_do_oficio(form, plano),
+        # O "+" de "Aplicar conjunto": cadastrar um conjunto novo (cadastros › Conjuntos).
+        "pode_criar_conjunto": editavel and cadastros_policies.pode_criar_cadastro(
+            request.user, PresetAtividades),
         "conjuntos": [{"nome": c.nome, "padrao": c.padrao,
                        "ids": ",".join(str(a.pk) for a in c.atividades.all())}
                       for c in conjuntos],
         "pendencias": pend, "calculo": calculo, "mensagens_calculo": mensagens_calculo,
         "efetivo_total": dominio.efetivo_total(planos.linhas_do_efetivo(plano)) if plano else 0,
+        "efetivo_geral": planos.efetivo_geral(plano) if plano else 0,
+        "diarias_geral": planos.diarias_geral(plano) if plano else None,
         "periodo": dominio.periodo_curto(plano.data_inicio, plano.data_fim) if plano else "",
         "destinos": planos.destinos_texto(plano) if plano else [],
         "coordenador_adm": planos.coordenador(plano, "adm") if plano else None,
@@ -247,7 +279,7 @@ def _tela(request: HttpRequest, form: FormularioPlano, plano=None, status: int =
         "escolhido_op": _servidor_escolhido(form, "coordenador_op"),
         "coordenador_padrao": (None if plano else getattr(planos.configuracao(
             policies.unidade_do_usuario(request.user)), "coordenador_plano", None)),
-        "assinatura_prevista": planos.assinatura_prevista(plano) if plano else "",
+        "assinatura_prevista": prevista,
         "historico": (linha_do_tempo.do_plano(plano)
                       if plano and policies.pode_ver_historico_plano(request.user, plano)
                       else []),
@@ -437,18 +469,36 @@ def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
     plano = _plano_visivel(request, pk)
     policies.exigir(policies.pode_editar_plano(request.user, plano),
                     "Este plano de trabalho não pode ser alterado.")
-    form = _formulario(request, request.POST, plano=plano)
-    if not form.is_valid():
-        return _tela(request, form, plano, status=422)
+    # "Finalizar" do rodapé: a folha já se gravou sozinha (o envio espera o autosave) e o
+    # pedido vem sem os campos — só conclui e volta à lista. Com os campos (sem JavaScript),
+    # grava antes.
+    com_campos = "versao" in request.POST
+    if com_campos:
+        form = _formulario(request, request.POST, plano=plano)
+        if not form.is_valid():
+            return _tela(request, form, plano, status=422)
     try:
-        planos.salvar(request.user, pk=plano.pk, **form.cleaned_data)
+        if com_campos:
+            planos.salvar(request.user, pk=plano.pk, **form.cleaned_data)
         planos.finalizar(request.user, plano.pk)
     except planos.PlanoInvalido as exc:
         messages.error(request, str(exc))
         return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#conferencia")
-    messages.success(request, f"{plano} gerado: abra o PDF ou baixe o DOCX no cartão "
-                              "Documento.")
-    return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#documento")
+    messages.success(request, f"{plano} finalizado e gerado.")
+    return redirect("viagens:planos")
+
+
+@require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Um plano novo com os mesmos dados; abre a folha dele."""
+    plano = _plano_visivel(request, pk)
+    try:
+        novo = planos.duplicar(request.user, plano.pk)
+    except (planos.PlanoInvalido, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_plano", plano.pk)
+    messages.success(request, f"{novo} criado a partir do {plano}.")
+    return redirect("viagens:editar_plano", novo.pk)
 
 
 @require_GET
@@ -480,40 +530,6 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
         return planos.html_do_documento(dados, folha=True, nonce=nonce, regioes=regioes,
                                         blocos_alterados=marcados)
     return resposta_de_folha(request, gerar, erros=(planos.PlanoInvalido,))
-
-
-@require_GET
-def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
-    """O plano numa página da aplicação (as folhas, como no PDF). Vindo de "Gerar"
-    (?gerar=1), finaliza e gera: só sem pendências; fixa a data e marca GERADO."""
-    plano = _plano_visivel(request, pk)
-    policies.exigir(policies.pode_editar_plano(request.user, plano),
-                    "Reative o plano antes de gerar documentos.")
-    if request.GET.get("gerar") == "1":
-        try:
-            plano = planos.finalizar(request.user, plano.pk)
-        except planos.PlanoInvalido as exc:
-            messages.error(request, str(exc))
-            return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#conferencia")
-    para_lista = request.GET.get("voltar") == "lista"
-    gerado = plano.documento_gerado_em is not None
-    return render(request, "viagens/visualizar.html", {
-        "placa_rotulo": "Plano", "placa_numero": f"{plano.numero:02d}/{plano.ano}",
-        "titulo_doc": str(plano),
-        "descricao": "O plano como sai no PDF." if gerado
-        else "Prévia (com marca de minuta): o plano ainda não foi gerado.",
-        "folhas": [{"titulo": str(plano), "descricao": plano.programa_nome or "",
-                    "url": reverse("viagens:folha_plano", args=[plano.pk])}],
-        # Antes de gerar, o PDF é a prévia (o documento final só sai gerado).
-        "pdf_url": reverse("viagens:documento_plano", args=[plano.pk, "pdf"])
-        + ("" if gerado else "?previa=1"),
-        "pdf_nome": f"plano-{plano.numero:02d}-{plano.ano}{'' if gerado else '-previa'}.pdf",
-        "voltar_url": reverse("viagens:planos") if para_lista
-        else reverse("viagens:editar_plano", args=[plano.pk]),
-        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar ao plano",
-        "migalhas": _migalhas(("Planos de trabalho", reverse("viagens:planos")),
-                              (str(plano), reverse("viagens:editar_plano", args=[plano.pk])),
-                              ("Visualizar", ""))})
 
 
 @require_GET

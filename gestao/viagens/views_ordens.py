@@ -4,12 +4,14 @@ serviço" a partir do ofício."""
 
 from __future__ import annotations
 
+from typing import cast
 from urllib.parse import urlsplit
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Q, Subquery
+from django.forms import ModelChoiceField
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
@@ -167,6 +169,10 @@ def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int =
     editavel = ordem is None or policies.pode_editar_ordem(request.user, ordem)
     unidade = ordem.unidade if ordem else policies.unidade_do_usuario(request.user)
     faltando = ordens.faltando(ordem) if ordem else []
+    prevista = ordens.assinatura_prevista(ordem, unidade)
+    if prevista and "assinante" in form.fields:
+        # A escolha "da configuração" aparece com o nome de quem assina (o campo vem preenchido).
+        cast(ModelChoiceField, form.fields["assinante"]).empty_label = prevista
     return render(request, "viagens/ordens/editar.html", {
         "form": form, "ordem": ordem, "editavel": editavel,
         "faltando": faltando,
@@ -184,7 +190,7 @@ def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int =
             if ordem is not None else None),
         "hoje": timezone.localdate(),
         "copia": _copia_prevista(form, ordem),
-        "assinatura_prevista": ordens.assinatura_prevista(ordem, unidade),
+        "assinatura_prevista": prevista,
         "periodo": ordens.periodo_curto(ordem) if ordem else "",
         "proximo_numero": None if ordem else ordens.proximo_numero_do_ano(
             timezone.localdate().year),
@@ -336,35 +342,6 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_GET
-def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
-    """A OS numa página da aplicação (as folhas, como no PDF). Vindo de "Gerar" (?gerar=1),
-    gera: a data do documento e a geração ficam fixadas, como no PDF."""
-    ordem = _ordem_visivel(request, pk)
-    policies.exigir(policies.pode_editar_ordem(request.user, ordem),
-                    "Reative a Ordem de Serviço para gerar o documento.")
-    if request.GET.get("gerar") == "1":
-        try:
-            ordens.dados_do_documento(ordem, fixar=True)
-        except ordens.OrdemInvalida as exc:
-            messages.error(request, str(exc))
-            return redirect("viagens:editar_ordem", ordem.pk)
-    para_lista = request.GET.get("voltar") == "lista"
-    return render(request, "viagens/visualizar.html", {
-        "placa_rotulo": "OS", "placa_numero": ordem.numero_formatado, "titulo_doc": str(ordem),
-        "descricao": "O documento como sai no PDF.",
-        "folhas": [{"titulo": str(ordem), "descricao": ordem.get_tipo_display(),
-                    "url": reverse("viagens:folha_ordem", args=[ordem.pk])}],
-        "pdf_url": reverse("viagens:documento_ordem", args=[ordem.pk, "pdf"]),
-        "pdf_nome": f"os-{ordem.numero:03d}-{ordem.ano}.pdf",
-        "voltar_url": reverse("viagens:ordens") if para_lista
-        else reverse("viagens:editar_ordem", args=[ordem.pk]),
-        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar à OS",
-        "migalhas": _migalhas(("Ordens de serviço", reverse("viagens:ordens")),
-                              (str(ordem), reverse("viagens:editar_ordem", args=[ordem.pk])),
-                              ("Visualizar", ""))})
-
-
-@require_GET
 @moldura_do_pdf
 def documento(request: HttpRequest, pk: int, formato: str) -> HttpResponseBase:
     ordem = _ordem_visivel(request, pk)
@@ -405,6 +382,33 @@ def _voltar(request: HttpRequest, padrao: str, ordem_pk: int | None = None) -> s
             and url_has_allowed_host_and_scheme(voltar, allowed_hosts={request.get_host()})):
         return voltar
     return padrao
+
+
+@require_POST
+def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Finalizar" do rodapé: a folha já se gravou (o envio espera o autosave e o editor);
+    a OS fica gerada (data e geração fixadas) e a tela volta à lista."""
+    ordem = _ordem_visivel(request, pk)
+    try:
+        ordens.finalizar(request.user, ordem.pk)
+    except (ordens.OrdemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_ordem", ordem.pk)
+    messages.success(request, f"{ordem} finalizada.")
+    return redirect("viagens:ordens")
+
+
+@require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Uma OS nova (número novo) com os mesmos dados; abre a folha dela."""
+    ordem = _ordem_visivel(request, pk)
+    try:
+        nova = ordens.duplicar(request.user, ordem.pk)
+    except (ordens.OrdemInvalida, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_ordem", ordem.pk)
+    messages.success(request, f"{nova} criada a partir da {ordem}.")
+    return redirect("viagens:editar_ordem", nova.pk)
 
 
 def _acao(request: HttpRequest, pk: int, executar):

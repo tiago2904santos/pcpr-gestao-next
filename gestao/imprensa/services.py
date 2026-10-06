@@ -17,6 +17,7 @@ from typing import Any
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 
 from . import dominio, policies
 from .models import Andamento, Atendimento, Integrante, Veiculo
@@ -101,6 +102,23 @@ def salvar(usuario, pk: int, dados: dict[str, Any]) -> Atendimento:
     _conferir(atendimento)
     atendimento.save()
     return atendimento
+
+
+# O que se copia ao duplicar: o pedido (de hoje) — a resposta é de cada atendimento.
+CAMPOS_DUPLICADOS = ("horario", "jornalista", "veiculo", "contato", "pedido", "responsavel",
+                     "deadline", "fonte", "inicio_pedido", "final_pedido")
+
+
+@transaction.atomic
+def duplicar(usuario, pk: int) -> Atendimento:
+    """Um atendimento novo, de hoje, com o mesmo pedido (jornalista, veículo, contato,
+    pedido, responsável, prazo e fontes) — sem a resposta, o andamento e o histórico."""
+    if not policies.pode_criar(usuario):
+        raise PermissionDenied
+    origem = Atendimento.objects.get(pk=pk)
+    dados = {c: getattr(origem, c) for c in CAMPOS_DUPLICADOS}
+    dados["data"] = timezone.localdate()
+    return criar(usuario, dados)
 
 
 @transaction.atomic

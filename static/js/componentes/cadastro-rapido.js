@@ -10,6 +10,9 @@
  *
  * O que fazer com o registro criado, por atributo do <dialog>:
  *  - `data-destino="<id do select>"` → entra como opção e fica escolhido (viatura, cargo…);
+ *    com `data-valor="nome"`, o valor da opção é o nome, não o id (o horário do plano);
+ *    com `data-sem-escolher`, só entra na lista (o conjunto de atividades: escolher já o
+ *    aplicaria); `ids` da resposta vira `data-ids` da opção;
  *  - `data-envio-url="<url>"` + `data-alvo="<seletor>"` → manda o id por HTMX e troca o
  *    pedaço devolvido (a equipe do ofício: o servidor novo já entra na equipe);
  *  - `data-multiescolha="<seletor>"` → entra como cartão num <pc-multiescolha> (a equipe
@@ -80,7 +83,7 @@ function ligar(janela) {
   });
 }
 
-/** @param {HTMLDialogElement} janela @param {{id: number, nome: string, meta?: string}} novo */
+/** @param {HTMLDialogElement} janela @param {{id: number, nome: string, meta?: string, ids?: string}} novo */
 function aplicar(janela, novo) {
   const origem = /** @type {HTMLElement | undefined} */ (origens.get(janela));
   const multiOrigem = /** @type {any} */ (origem?.closest("pc-multiescolha"));
@@ -92,9 +95,13 @@ function aplicar(janela, novo) {
     origem?.closest(".campo__com-acao")?.querySelector("select")
     || document.getElementById(janela.dataset.destino || ""));
   if (destino) {
-    destino.add(new Option(novo.nome, String(novo.id), true, true));
+    const valor = janela.dataset.valor === "nome" ? novo.nome : String(novo.id);
+    const escolher = !janela.hasAttribute("data-sem-escolher");
+    const opcao = new Option(novo.nome, valor, escolher, escolher);
+    if (novo.ids) opcao.dataset.ids = novo.ids;
+    destino.add(opcao);
     // O <pc-select>/<pc-combobox> que embrulha a escolha acompanha pelo "change".
-    destino.dispatchEvent(new Event("change", { bubbles: true }));
+    if (escolher) destino.dispatchEvent(new Event("change", { bubbles: true }));
   }
   // Seletor múltiplo (a equipe do termo): o criado entra como mais um cartão.
   const multi = /** @type {any} */ (janela.dataset.multiescolha

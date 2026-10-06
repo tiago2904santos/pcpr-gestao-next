@@ -217,11 +217,18 @@ document.querySelectorAll("form[data-autosave]").forEach((f) => {
 document.addEventListener("submit", (e) => {
   const form = /** @type {HTMLFormElement} */ (e.target);
   if (!form.matches("[data-esperar-salvamento]") || form.dataset.descarregado) return;
-  if (!Autosave.todos.length) return;
+  // O texto do editor ainda não gravado (a pausa não chegou) também vai antes ("Finalizar").
+  const editores = /** @type {any[]} */ (Array.from(document.querySelectorAll("pc-editor-documento")))
+    .filter((ed) => ed.sujo && typeof ed.salvar === "function");
+  if (!Autosave.todos.length && !editores.length) return;
   e.preventDefault();
   const quem = /** @type {HTMLElement | null} */ (e.submitter);
-  Promise.all(Autosave.todos.map((a) => a.descarregar())).finally(() => {
+  Promise.all([...Autosave.todos.map((a) => a.descarregar()),
+    ...editores.map((ed) => ed.salvar())]).finally(() => {
+    document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
     form.dataset.descarregado = "1";
-    form.requestSubmit(quem ?? undefined);
+    // Na próxima volta, não aqui: sem nada pendente, esta promessa resolve entre um ouvinte
+    // e outro deste mesmo "submit" — e um requestSubmit durante o envio é ignorado.
+    window.setTimeout(() => form.requestSubmit(quem ?? undefined), 0);
   });
 });

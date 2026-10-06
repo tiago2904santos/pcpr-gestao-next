@@ -282,6 +282,7 @@ confirmação — e é ele que escreve no histórico.
         <h3 class="secao__bloco-titulo" id="t-minuta">{% icone "file-pen-line" classe="icone--sm" %}Minuta</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">{% if pode_editar_texto %}escreva direto na folha — salva sozinho{% else %}gerada agora, com marca d'água{% endif %}</span></div>
       </div>
+      {% url 'viagens:baixar_oficio' oficio.pk as baixar_url %}
       {% url 'viagens:folha' oficio.pk 'oficio' as folha_oficio %}{% url 'viagens:editor_estado' oficio.pk 'oficio' as estado_oficio %}{% url 'viagens:previa' oficio.pk as pdf_oficio %}
       {% if mostrar_justificativa %}
       {% url 'viagens:folha' oficio.pk 'justificativa' as folha_just %}{% url 'viagens:editor_estado' oficio.pk 'justificativa' as estado_just %}
@@ -291,14 +292,14 @@ confirmação — e é ele que escreve no histórico.
           <button type="button" role="tab" class="aba" id="aba-doc-justificativa" aria-controls="painel-doc-justificativa">Justificativa</button>
         </div>
         <div role="tabpanel" id="painel-doc-oficio" aria-labelledby="aba-doc-oficio" tabindex="0" class="mt-4">
-          {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" %}
+          {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
         </div>
         <div role="tabpanel" id="painel-doc-justificativa" aria-labelledby="aba-doc-justificativa" tabindex="0" class="mt-4" hidden>
-          {% include "viagens/oficios/_editor.html" with tipo="justificativa" rotulo="Justificativa" titulo_doc="Justificativa do Ofício "|add:oficio.numero_formatado folha_url=folha_just estado_url=estado_just pdf_url=pdf_oficio|add:"?tipo=justificativa" %}
+          {% include "viagens/oficios/_editor.html" with tipo="justificativa" rotulo="Justificativa" titulo_doc="Justificativa do Ofício "|add:oficio.numero_formatado folha_url=folha_just estado_url=estado_just pdf_url=pdf_oficio|add:"?tipo=justificativa" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
         </div>
       </pc-abas>
       {% else %}
-        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" %}
+        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício "|add:oficio.numero_formatado folha_url=folha_oficio estado_url=estado_oficio pdf_url=pdf_oficio|add:"?tipo=oficio" baixar_url=baixar_url baixar_titulo="Ofício "|add:oficio.numero_formatado %}
       {% endif %}
     </div>
 
@@ -323,25 +324,22 @@ confirmação — e é ele que escreve no histórico.
 </div>
 
 {% comment %}
-Barra do rodapé, na mesma ordem da folha do roteiro: sair à esquerda, o estado do
-salvamento no meio e, à direita, o que age sobre o ofício — Salvar, a ação decisiva e,
-por último, o menu de ações.
+Barra do rodapé, igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar
+(salva o rascunho e volta à lista) e Ações (duplicar, excluir —
+componentes/rodape_documento.html). Emitir fica no cartão Documentos ("Revisar e emitir").
+O estado do salvamento fica só para leitor de tela — é por ele que o JS de autosave e de
+proteção de saída se comunicam.
 {% endcomment %}
 <div class="barra-acoes">
   <a class="botao botao--texto" href="{% url 'viagens:oficios' %}">Voltar</a>
-  {% comment %}
-  O estado do salvamento não ocupa mais espaço na barra: quem escreve aqui é o autosave, e
-  o aviso que importa ("alterações não salvas") aparece sozinho ao sair. Fica só para
-  leitor de tela — e é por ele que o JS de autosave e de proteção de saída se comunicam.
-  {% endcomment %}
   <div class="sr-only" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
     {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario">· {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}<a href="#emissao">{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir</a><span class="barra-acoes__secundario">· última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
-  <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
-  {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva ao cartão Documentos (sem beco sem saída), mas não promete emissão. #}
-  {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
-  {% include "viagens/oficios/_acoes.html" with onde="rodapé" dobrar=True %}
+  {% if pode_excluir %}{% firstof "form-excluir" as excluir_form %}{% endif %}
+  {% include "componentes/rodape_documento.html" with nome="ofício" finalizar_form="form-oficio" finalizar_acao="finalizar" duplicar_form="duplicar-oficio" excluir_form=excluir_form %}
 </div>
+<form id="duplicar-oficio" method="post" action="{% url 'viagens:duplicar_oficio' oficio.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
+{% include "componentes/dialogo_baixar.html" %}
 {% comment %}
 "Revisar e emitir" salva a folha e volta com "?revisar=1": a janela de resumo em modo
 revisão abre pronta por cima, com o botão de emitir. Fechar é "voltar e corrigir".

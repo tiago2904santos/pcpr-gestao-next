@@ -15,6 +15,14 @@ ICONE_SITUACAO = {"rascunho": "file-pen-line", "emitido": "file-check-2", "cance
 
 
 @register.filter
+def itens(texto: str) -> list[str]:
+    """Texto de uma linha por item ("• Meta…") em itens, sem o marcador — para mostrar
+    como lista na tela (as metas e os recursos do plano)."""
+    return [linha.strip().removeprefix("•").strip()
+            for linha in (texto or "").splitlines() if linha.strip()]
+
+
+@register.filter
 def tom_situacao(situacao: str) -> str:
     return TOM_SITUACAO.get(situacao, "neutro")
 

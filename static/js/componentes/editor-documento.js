@@ -190,7 +190,8 @@ export class PcEditorDocumento extends HTMLElement {
     doc.addEventListener("paste", (e) => this.colar(/** @type {ClipboardEvent} */ (e)));
     doc.addEventListener("keydown", (e) => this.atalhos(/** @type {KeyboardEvent} */ (e)));
     doc.addEventListener("click", (e) => {
-      const quebra = /** @type {HTMLElement} */ (e.target).closest(".quebra");
+      // Só o marcador de quebra (um bloco do modelo nunca é: `[data-bloco]`).
+      const quebra = /** @type {HTMLElement} */ (e.target).closest(".quebra:not([data-bloco])");
       if (!quebra) return;
       e.preventDefault();
       if (quebra.classList.contains("quebra--livre")) quebra.remove();
@@ -205,7 +206,7 @@ export class PcEditorDocumento extends HTMLElement {
     const alvo = /** @type {HTMLElement | null} */ (e.target);
     const doc = this.doc;
     if (!doc) return;
-    const grupoTabela = /** @type {HTMLElement | null} */ (this.barra.querySelector("[data-so-tabela]"));
+    const grupoTabela = /** @type {HTMLElement | null} */ (this.barra?.querySelector("[data-so-tabela]") ?? null);
     if (grupoTabela) grupoTabela.hidden = !this.celulaAtual();
     const selecao = doc.getSelection();
     const no = selecao && selecao.anchorNode;
@@ -487,6 +488,7 @@ export class PcEditorDocumento extends HTMLElement {
       case "historico": if (this.historico) { this.montarHistorico(); this.historico.showModal(); } return;
       case "salvar": return this.sujo ? this.salvar() : undefined;
       case "recarregar": return this.recarregar();
+      case "atualizar": return this.atualizarDocumento(botao);
       case "guardar-texto": return this.abrirGuardarTexto();
       case "atual": return this.verVersao(null);
       case "ir-campo": return this.irParaCampo(botao.dataset.campo || "");
@@ -992,6 +994,28 @@ export class PcEditorDocumento extends HTMLElement {
     this.sujo = false;
     this.verVersao(null);
     this.carregarEstado();
+  }
+
+  /**
+   * "Atualizar": grava o texto em edição e os campos da folha (mesmo sem mudança — a
+   * gravação é que refaz os textos automáticos e as diárias no servidor) e redesenha o
+   * documento, as miniaturas e o PDF com os dados de agora.
+   * @param {HTMLElement} botao
+   */
+  async atualizarDocumento(botao) {
+    if (botao instanceof HTMLButtonElement) botao.disabled = true;
+    try {
+      if (this.sujo && typeof this.salvar === "function") await this.salvar();
+      const { Autosave } = await import("./autosave.js");
+      for (const a of Autosave.todos) a.ultima = "";
+      await Promise.all(Autosave.todos.map((a) => a.descarregar()));
+      // A gravação avisa (pcpr:dados-salvos) e a folha, as miniaturas e o PDF se refazem;
+      // sem formulário que grave (só leitura), o aviso sai daqui.
+      if (!Autosave.todos.length) document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
+      this.carregarEstado();
+    } finally {
+      if (botao instanceof HTMLButtonElement) botao.disabled = false;
+    }
   }
 
   // ---------------------------------------------------------------- páginas

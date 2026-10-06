@@ -53,7 +53,10 @@ def test_todos_os_tokens_usados_existem():
               # Rótulo na borda: fundo de onde o campo está / fundo da caixa.
               "--fundo-rotulo", "--fundo-entrada",
               # Itinerário: largura da coluna do trilho e centro vertical do marco.
-              "--itin-trilho", "--itin-centro"}
+              "--itin-trilho", "--itin-centro",
+              # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
+              # por editores.js); colunas da grade de filtros (com valor padrão no var()).
+              "--largura-indice", "--altura-barra", "--filtros-colunas"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

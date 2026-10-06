@@ -186,9 +186,15 @@ quando todos estão finalizados. Consulta vê tudo como texto.
 </div>
 
 {% if editavel and linhas %}
+{% comment %}
+Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar — grava o
+que estiver pendente e volta à prestação de contas (componentes/rodape_documento.html).
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Os km gravam sozinhos enquanto você preenche.</span></div>
-  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
+  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a>
+  <div class="sr-only" data-status-salvamento role="status"><span data-anuncio>Os km gravam sozinhos enquanto você preenche.</span></div>
+  {% include "componentes/rodape_documento.html" with nome="diário de bordo" finalizar_form="finalizar-diario" %}
 </div>
+<form id="finalizar-diario" method="get" action="{% url 'viagens:prestacoes' %}" hidden data-esperar-salvamento><input type="hidden" name="q" value="{{ oficio.numero_formatado }}"></form>
 {% endif %}
 {% endblock %}

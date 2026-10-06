@@ -230,7 +230,7 @@ class TestOrdem:
         with pytest.raises(PermissionDenied):
             assinados.anexar(op, assinados.Alvo("ordem", ordem), nome="os.pdf", conteudo=PDF)
         html = _cliente(op).get(reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
-        assert "Gere a OS (PDF) para depois anexar a via assinada." in html
+        assert "data-anexar-assinado" not in html  # "Anexar" só aparece depois de gerada
 
     def test_via_prevalece_e_dados_mudados(self, c):
         op = c.usuarios["operador"]

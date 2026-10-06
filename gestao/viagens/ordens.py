@@ -16,6 +16,7 @@ Toda gravação passa por aqui; a auditoria é do banco (trigger).
 from __future__ import annotations
 
 from datetime import date
+from typing import cast
 
 from django.db import transaction
 from django.db.models import Prefetch, prefetch_related_objects
@@ -36,6 +37,10 @@ from .models import (
     Trecho,
     Viajante,
 )
+from .vinculos import incompatibilidade
+
+# "Não mexa": a data do documento só muda quando quem chama a informa.
+MANTER = object()
 
 
 class OrdemInvalida(Exception):
@@ -134,14 +139,15 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
            servidores=(), motivo: str = "", funcoes: dict | None = None,
            assinante: Servidor | None = None,
-           data_documento: date | None = None,
+           data_documento: date | object | None = MANTER,
            versao: str = "") -> tuple[OrdemServico, list[str]]:
     """Cria (numera) ou altera. Devolve a OS e o que foi copiado dos ofícios.
 
     `versao` (o `atualizado_em` que a tela abriu) recusa gravar por cima de quem salvou
-    depois. Os campos vazios recebem dos ofícios na criação e quando um ofício é ligado
-    agora — não a cada gravação (com o autosave, apagar o motivo para reescrevê-lo não pode
-    trazer de volta o do ofício)."""
+    depois. Na criação e quando um ofício é ligado agora, a OS une o que os ofícios trazem
+    (destinos, período, equipe; o motivo só se vazio) — não a cada gravação (com o autosave,
+    apagar o motivo para reescrevê-lo não pode trazer de volta o do ofício). Mais de um
+    ofício, só da mesma ação (vinculos.incompatibilidade)."""
     oficios, destinos, servidores = list(oficios), list(dict.fromkeys(destinos)), list(servidores)
     if pk:
         ordem = OrdemServico.objects.select_for_update().get(pk=pk)
@@ -170,6 +176,9 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
             raise OrdemInvalida(f"O Ofício {o.numero_formatado} é de outra unidade.")
         if o.situacao == Oficio.Situacao.CANCELADO and o.pk not in ja_ligados:
             raise OrdemInvalida(f"O Ofício {o.numero_formatado} está cancelado.")
+    # Mais de um ofício: só da mesma ação (mesma viagem ou mesmo roteiro).
+    if {o.pk for o in oficios} != ja_ligados and (erro := incompatibilidade(oficios)):
+        raise OrdemInvalida(erro)
     if assinante is not None and assinante.unidade_id != ordem.unidade_id \
             and assinante.pk != ordem.assinante_id:
         raise OrdemInvalida("Quem assina a OS precisa ser da unidade da OS.")
@@ -179,15 +188,22 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
         raise OrdemInvalida("Informe a data inicial.")
     copiados: list[str] = []
     if oficios and (not pk or any(o.pk not in ja_ligados for o in oficios)):
+        # Um ofício a mais: a OS une o que eles trazem ao que já tem — os destinos e a equipe
+        # de todos (sem repetir), da primeira saída à última chegada; o motivo, se vazio.
         base = dados_dos_oficios(oficios)
-        if not destinos and base["destinos"]:
-            destinos = base["destinos"]
+        novos = [m for m in base["destinos"] if m not in destinos]
+        if novos:
+            destinos = destinos + novos
             copiados.append("destinos")
-        if not data_inicio and base["inicio"]:
-            data_inicio, data_fim = base["inicio"], base["fim"]
-            copiados.append("período")
-        if not servidores and base["servidores"]:
-            servidores = base["servidores"]
+        if base["inicio"]:
+            ida = min(data_inicio, base["inicio"]) if data_inicio else base["inicio"]
+            volta = max(data_fim or data_inicio or base["fim"], base["fim"])
+            if (ida, volta) != (data_inicio, data_fim or data_inicio):
+                data_inicio, data_fim = ida, volta
+                copiados.append("período")
+        chegam = [s for s in base["servidores"] if s not in servidores]
+        if chegam:
+            servidores = servidores + chegam
             copiados.append("equipe")
         if not motivo.strip() and base["motivo"]:
             motivo = base["motivo"]
@@ -200,7 +216,8 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
     ordem.data_inicio, ordem.data_fim = data_inicio, (data_fim or data_inicio)
     ordem.motivo = (motivo or "").strip()
     ordem.assinante = assinante
-    ordem.data_documento = data_documento  # em branco: a da próxima geração
+    if data_documento is not MANTER:  # a tela não tem o campo: vale a fixada na 1ª geração
+        ordem.data_documento = cast("date | None", data_documento)
     if funcoes is None:  # a tela não mostrou as funções: valem as gravadas
         funcoes = ordem.funcoes if pk else {}
     ordem.funcoes = _funcoes_validas(tipo, funcoes, servidores)
@@ -478,3 +495,40 @@ def voltar_texto_ao_modelo(ordem: OrdemServico, usuario):
     from . import edicao_texto
     atual = _travar(usuario, ordem)
     return edicao_texto.voltar_ao_modelo(_versoes(atual), _criar(atual), usuario)
+
+
+# ---------------------------------------------------------------- duplicar e finalizar
+@transaction.atomic
+def duplicar(usuario, pk: int) -> OrdemServico:
+    """Uma OS nova (número novo) com os mesmos dados e o mesmo texto editado — sem a data
+    e a geração do documento, a viagem, a via assinada e o histórico, que são de cada OS."""
+    from .models import EdicaoDocumento, EdicaoOrdem
+    origem = OrdemServico.objects.get(pk=pk)
+    policies.exigir(policies.pode_ver_ordem(usuario, origem)
+                    and policies.pode_criar_ordem(usuario),
+                    "Você não pode duplicar esta Ordem de Serviço.")
+    nova, _ = salvar(
+        usuario, oficios=[o for o in origem.oficios.all()
+                          if o.situacao != Oficio.Situacao.CANCELADO],
+        tipo=origem.tipo, destinos=[d.municipio for d in origem.destinos.order_by("posicao", "id")],
+        data_inicio=origem.data_inicio, data_fim=origem.data_fim,
+        servidores=list(origem.servidores.all()), motivo=origem.motivo,
+        funcoes=dict(origem.funcoes or {}), assinante=origem.assinante)
+    edicao = edicao_vigente(origem)
+    if edicao is not None and edicao.regioes:
+        EdicaoOrdem.objects.create(
+            ordem=nova, numero=1, acao=EdicaoDocumento.Acao.EDITADO,
+            regioes=dict(edicao.regioes), blocos_alterados=list(edicao.blocos_alterados),
+            impressoes=dict(edicao.impressoes), criado_por=usuario)
+    return nova
+
+
+@transaction.atomic
+def finalizar(usuario, pk: int) -> OrdemServico:
+    """"Finalizar" na folha: a OS fica gerada — a data do documento e a geração ficam
+    fixadas, como ao baixar o PDF (o que falta sai em branco, como antes no "Gerar")."""
+    ordem = OrdemServico.objects.select_for_update().get(pk=pk)
+    policies.exigir(policies.pode_editar_ordem(usuario, ordem),
+                    "Esta Ordem de Serviço não pode ser alterada.")
+    fixar_data_do_documento(ordem)
+    return ordem

@@ -187,3 +187,11 @@ def test_fonte_da_agenda(ascom, gabi, dp):
     itens = {i.chave: i for i in agenda.compromissos_de(ascom, hoje, hoje, ["pauta"])}
     assert itens[f"pauta-{p.pk}"].hora == "09:00" and not itens[f"pauta-{p.pk}"].prazo
     assert itens[f"pauta-{c.pk}"].encerrado
+
+
+def test_duplicar_pauta_abre_a_nova_sem_a_publicacao(cliente, ascom, gabi, dp):
+    p = services.criar(ascom, _dados(gabi, dp, link_site="https://example.invalid/x"))
+    r = cliente.post(reverse("publicacoes:duplicar", args=[p.pk]))
+    nova = Publicacao.objects.exclude(pk=p.pk).get()
+    assert r["Location"] == reverse("publicacoes:pauta", args=[nova.pk])
+    assert nova.titulo == p.titulo and nova.jornalista == gabi and not nova.link_site

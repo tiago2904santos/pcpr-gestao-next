@@ -182,7 +182,11 @@ class _Escritor:
         if "quebra--ativa" in classes:
             self.quebra_pendente = True
             return
-        if "quebra" in classes or el.tag in ("style", "script", "head", "title", "meta"):
+        # Bloco do modelo que começa página nova (`.nova-pagina`; a classe antiga `.quebra`
+        # num bloco `[data-bloco]` vem de texto editado antes da troca): quebra e segue.
+        if "nova-pagina" in classes or ("quebra" in classes and el.get("data-bloco")):
+            self.quebra_pendente = True
+        elif "quebra" in classes or el.tag in ("style", "script", "head", "title", "meta"):
             return
         if "rodape" in classes:
             rodape = self.doc.sections[0].footer.paragraphs[0]

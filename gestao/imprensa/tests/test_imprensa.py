@@ -270,3 +270,11 @@ def test_permissoes_por_escrita(ascom):
     a = services.criar(ascom, _dados())
     with pytest.raises(PermissionDenied):
         services.registrar_andamento(consulta, a.pk, "atendido", "x")
+
+
+def test_duplicar_atendimento_copia_o_pedido_sem_a_resposta(cliente, ascom):
+    a = services.criar(ascom, _dados(resposta="Nota"))
+    r = cliente.post(reverse("imprensa:duplicar", args=[a.pk]))
+    novo = Atendimento.objects.exclude(pk=a.pk).get()
+    assert r["Location"] == reverse("imprensa:atendimento", args=[novo.pk])
+    assert novo.pedido == a.pedido and novo.jornalista == a.jornalista and not novo.resposta

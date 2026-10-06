@@ -87,6 +87,22 @@ def salvar(usuario, pk: int, dados: dict[str, Any]) -> Publicacao:
     return pauta
 
 
+# O que se copia ao duplicar: a pauta (de hoje) — a publicação é de cada uma.
+CAMPOS_DUPLICADOS = ("jornalista", "unidade", "fonte", "inicio_pauta", "titulo")
+
+
+@transaction.atomic
+def duplicar(usuario, pk: int) -> Publicacao:
+    """Uma pauta nova, de hoje, com o mesmo título, jornalista, unidade e fonte — sem a
+    publicação (datas, links, envios), o andamento e o histórico."""
+    if not policies.pode_criar(usuario):
+        raise PermissionDenied
+    origem = Publicacao.objects.get(pk=pk)
+    dados = {c: getattr(origem, c) for c in CAMPOS_DUPLICADOS}
+    dados["data"] = timezone.localdate()
+    return criar(usuario, dados)
+
+
 @transaction.atomic
 def registrar_andamento(usuario, pk: int, novo: str, anotacao: str = "") -> Publicacao:
     if not policies.pode_editar(usuario):

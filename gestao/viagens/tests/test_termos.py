@@ -199,13 +199,57 @@ class TestTextoEditado:
         assert "e o crachá" not in generico
 
 
+class TestOficiosVinculados:
+    """Vários ofícios num termo: só da mesma ação (mesma viagem ou mesmo roteiro); o termo
+    une os dados deles."""
+
+    def _dois(self, c):
+        return (Oficio.objects.get(pk=c.ids["oficio_emitido"]),
+                Oficio.objects.get(pk=c.ids["oficio_rascunho"]))
+
+    def test_oficios_de_acoes_diferentes_nao_se_juntam(self, c):
+        o1, o2 = self._dois(c)
+        with pytest.raises(termos.TermoInvalido, match="mesma viagem ou usar o mesmo roteiro"):
+            termos.salvar(c.usuarios["operador"], oficios=[o1, o2])
+
+    def test_da_mesma_viagem_unem_destinos_periodo_e_equipe(self, c):
+        from gestao.viagens import viagem
+        op = c.usuarios["operador"]
+        o1, o2 = self._dois(c)
+        v = viagem.criar(op)
+        Oficio.objects.filter(pk__in=[o1.pk, o2.pk]).update(viagem=v)
+        o1.refresh_from_db()
+        o2.refresh_from_db()
+        termo = termos.salvar(op, oficios=[o1, o2])
+        assert termo.oficio == o1 and set(termo.oficios.all()) == {o1, o2}
+        ef = termos.efetivo(TermoAutorizacao.objects.get(pk=termo.pk))
+        separados = [termos.efetivo(TermoAutorizacao.objects.get(
+            pk=termos.salvar(op, oficio=o).pk)) for o in (o1, o2)]
+        assert set(ef.destinos) == set(separados[0].destinos) | set(separados[1].destinos)
+        assert set(ef.servidores) == set(separados[0].servidores) | set(separados[1].servidores)
+        assert ef.inicio == min(e.inicio for e in separados)
+        assert ef.fim == max(e.fim for e in separados)
+
+    def test_busca_so_oferece_os_que_se_juntam(self, c):
+        from gestao.viagens import viagem
+        op = c.usuarios["operador"]
+        o1, o2 = self._dois(c)
+        cli = _cliente(op)
+        url = reverse("viagens:buscar_oficios")
+        separado = cli.get(url, {"excluir": o1.pk, "q": o2.numero_formatado}).json()
+        assert separado["resultados"] == []
+        Oficio.objects.filter(pk__in=[o1.pk, o2.pk]).update(viagem=viagem.criar(op))
+        junto = cli.get(url, {"excluir": o1.pk, "q": o2.numero_formatado}).json()
+        assert [r["id"] for r in junto["resultados"]] == [str(o2.pk)]
+
+
 class TestTelas:
     def test_novo_a_partir_do_oficio(self, c):
         oficio = _oficio(c)
         cli = _cliente(c.usuarios["operador"])
         html = cli.get(reverse("viagens:novo_termo") + f"?oficio={oficio.pk}").content.decode()
         assert f"Ofício {oficio.numero_formatado}" in html
-        r = cli.post(reverse("viagens:novo_termo"), {"oficio": oficio.pk})
+        r = cli.post(reverse("viagens:novo_termo"), {"oficios": [oficio.pk]})
         termo = TermoAutorizacao.objects.get()
         assert r["Location"] == reverse("viagens:editar_termo", args=[termo.pk]) + "#t-documentos"
         assert termo.oficio == oficio and termo.unidade == oficio.unidade
@@ -357,3 +401,24 @@ class TestRevisaoDeSeguranca:
             buscar_recurso().fetch("https://exemplo.invalido/x.png")
         with pytest.raises(ValueError):
             buscar_recurso().fetch("file:///etc/passwd")
+
+
+class TestDuplicarEFinalizar:
+    def test_duplicar_copia_dados_e_texto_editado(self, c):
+        op = c.usuarios["operador"]
+        s1 = Servidor.objects.order_by("pk").first()
+        termo = termos.salvar(op, servidores=[s1], data_inicio=date(2030, 5, 10),
+                              destinos=[Municipio.objects.get(nome="Londrina", uf="PR")])
+        TestTextoEditado()._editar(c, termo, str(s1.pk))
+        r = _cliente(op).post(reverse("viagens:duplicar_termo", args=[termo.pk]))
+        novo = TermoAutorizacao.objects.exclude(pk=termo.pk).get()
+        assert r["Location"] == reverse("viagens:editar_termo", args=[novo.pk])
+        assert list(novo.servidores.all()) == [s1] and novo.data_inicio == date(2030, 5, 10)
+        html = termos.html_do_documento(termos.dados_do_documento(novo, str(s1.pk)))
+        assert "e o crachá" in html
+
+    def test_finalizar_volta_a_lista(self, c):
+        op = c.usuarios["operador"]
+        termo = termos.salvar(op, data_inicio=date(2030, 5, 10))
+        r = _cliente(op).post(reverse("viagens:finalizar_termo", args=[termo.pk]))
+        assert r["Location"] == reverse("viagens:termos")

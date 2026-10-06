@@ -268,6 +268,19 @@ def atendimento(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Um atendimento novo com o mesmo pedido; abre a folha dele."""
+    objeto = get_object_or_404(queries.base(), pk=pk)
+    try:
+        novo = services.duplicar(request.user, objeto.pk)
+    except (services.AtendimentoInvalido, PermissionDenied) as exc:
+        messages.error(request, str(exc) or "Você não pode duplicar este atendimento.")
+        return redirect("imprensa:atendimento", objeto.pk)
+    messages.success(request, "Atendimento duplicado: confira a data e o pedido.")
+    return redirect("imprensa:atendimento", novo.pk)
+
+
+@require_POST
 def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     """Grava a folha a cada pausa (componentes/autosave.js), quando o formulário é válido;
     senão diz o que impede, no status da barra."""

@@ -9,7 +9,11 @@ Opcionais: `sufixo` (os ids da peça, quando há vários editores na página —
 e `inteira` (a folha com a altura do documento todo, sem rolagem própria — vários editores
 empilhados, como no termo) e `aplicar_url` (depois de salvar, pergunta se a alteração vai
 para os outros documentos — os termos de cada servidor) e `indice` (o id do índice de
-páginas do bloco: a barra ganha o botão que mostra/esconde a coluna das miniaturas).
+páginas do bloco: a barra ganha o botão que mostra/esconde a coluna das miniaturas);
+`baixar_url` (+ `baixar_titulo`: "Baixar", a janela de baixar documentos) e `via` (o cartão
+da via assinada — views_assinados.cartao: o selo "Assinado" no estado e "Anexar", a janela
+da via, quando se pode anexar) — na barra, à direita, antes de Texto/PDF; o estado (páginas,
+salvo) fica à esquerda.
 Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica oculta.
 {% endcomment %}
 {% with ident=sufixo|default:tipo %}<pc-editor-documento class="editor{% if inteira %} editor--inteira{% endif %}" id="editor-{{ ident }}"{% if inteira %} data-folha-inteira{% endif %}{% if aplicar_url %} data-aplicar-em-todos="{{ aplicar_url }}"{% endif %}
@@ -26,12 +30,19 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
         <span class="editor__pendencias" data-pendencias hidden></span>
         <span class="editor__paginas" data-paginas hidden></span>
         <span class="editor__presenca" data-presenca hidden></span>
+        {% if via.s.via %}{% include "viagens/assinados/_selo.html" with s=via.s %}{% endif %}
         <output class="editor__salvo selo selo--sem-ponto" data-salvo aria-live="polite">{% if pode_editar_texto %}Carregando…{% else %}{{ estado_leitura|default:"Somente leitura" }}{% endif %}</output>
       </div>
-      {# Texto / PDF: no lado direito da barra, depois do estado. #}
-      <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
-        <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
-        <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
+      {# À direita: baixar e anexar a via assinada (as janelas de cada um) e Texto / PDF. #}
+      <div class="editor__fim">
+        {# Atualizar: grava o que estiver pendente e refaz o documento com os dados de agora. #}
+        <button type="button" class="botao botao--sm" data-acao="atualizar" title="Refazer o documento com os dados atuais">{% icone "refresh-cw" classe="icone--sm" %}Atualizar</button>
+        {% if baixar_url %}<button type="button" class="botao botao--sm" data-baixar-documentos="{{ baixar_url }}" data-baixar-titulo="{{ baixar_titulo }}">{% icone "download" classe="icone--sm" %}Baixar</button>{% endif %}
+        {% if via.pode %}<a class="botao botao--sm" href="{{ via.anexar_url }}" data-anexar-assinado="{{ via.anexar_url }}" data-assinado-titulo="{{ via.titulo }}" data-assinado-voltar="{{ via.voltar }}">{% icone "file-signature" classe="icone--sm" %}{% if via.s.via %}Trocar via{% else %}Anexar{% endif %}</a>{% endif %}
+        <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
+          <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
+          <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
+        </div>
       </div>
     </div>
     {% if pode_editar_texto %}

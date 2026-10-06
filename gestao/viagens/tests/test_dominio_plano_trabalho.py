@@ -88,7 +88,7 @@ class TestTextos:
         texto = pt.coordenacao(adm, op)
         assert ("Fica designado como Coordenador Operacional do Evento o Agente de Polícia "
                 "Judiciária Caio Prado Ribeiro, o qual") in texto
-        assert pt.coordenacao(adm, op, varios_eventos=True).count("Fica designad") == 1
+        assert texto.count("Fica designad") == 2  # os dois, também com vários eventos
         assert pt.coordenacao(None, None) == ""
 
     def test_periodos_por_extenso(self):
@@ -188,9 +188,16 @@ class TestVariosEventos:
         d = pt.DadosPlano(destinos=["Maringá/PR"], inicio=date(2026, 6, 25),
                           coordenador_adm=pt.Coordenador("ANA", genero="F"),
                           efetivo=[pt.LinhaEfetivo(2, "Agente")], diarias_total=Decimal("1"),
-                          eventos_extras=[(2, False, True), (3, True, False)])
+                          eventos_extras=[(2, False, True), (3, True, False),
+                                          pt.EventoExtra(4, True, True, tem_efetivo=False),
+                                          pt.EventoExtra(5, True, True, tem_deslocamento=False),
+                                          pt.EventoExtra(6, True, True,
+                                                         diarias_calculadas=False)])
         assert [p.mensagem for p in pt.pendencias(d)] == [
-            "Informe o destino do evento 2.", "Informe a data do evento 3."]
+            "Informe o destino do evento 2.", "Informe a data do evento 3.",
+            "Informe o efetivo do evento 4.",
+            "Informe a saída e a chegada na sede do evento 5.",
+            "As diárias do evento 6 não fecham: veja a janela dele."]
 
 
 class TestResultados:

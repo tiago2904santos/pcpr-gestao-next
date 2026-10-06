@@ -5,7 +5,6 @@ rodapé. "Visualizar" abre, em outra aba, a página com a OS como sai no PDF; no
 botão em "processando" (componentes/baixar-arquivo.js). O formulário de exclusão fica uma
 vez só em editar.html.
 {% endcomment %}
-{% if editavel and pode_ver_documento and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_ordem' ordem.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
 <pc-menu class="menu">
   <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da {{ ordem }}{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
   <div class="menu__painel" role="menu" hidden>

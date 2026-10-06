@@ -1,0 +1,27 @@
+{% comment %}
+Cadastro rápido de horário de atendimento (o "+" ao lado do horário do plano): início e fim,
+gravados pelo mesmo endpoint da tela Cadastros › Horários ("HH:MM até HH:MM"). A escolha do
+plano guarda o texto do horário, não o id — `data-valor="nome"` (cadastro-rapido.js).
+Contexto: `form_horario` (cadastros.forms.FormularioHorario). Fica fora do <form> da folha.
+{% endcomment %}
+<dialog id="dialogo-horario" class="dialogo" data-cadastro-rapido data-valor="nome" data-destino="{{ destino }}" aria-labelledby="dialogo-horario-titulo">
+  <form method="post" action="{% url 'cadastros:salvar_catalogo' 'horarios' %}" novalidate>
+    {% csrf_token %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-horario-titulo">Cadastrar horário</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <fieldset class="grupo-campos" aria-label="Horário de atendimento">
+        <div class="campos campos--iguais">
+          {% include "componentes/campo.html" with campo=form_horario.inicio %}
+          {% include "componentes/campo.html" with campo=form_horario.fim %}
+        </div>
+      </fieldset>
+      <p class="campo__erro" data-erro hidden></p>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Cadastrar horário</button>
+    </div>
+  </form>
+</dialog>

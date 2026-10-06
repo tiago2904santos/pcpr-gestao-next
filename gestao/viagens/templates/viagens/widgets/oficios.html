@@ -1,0 +1,32 @@
+{% load ui %}{% comment %}
+Os ofícios vinculados (viagens.forms.CampoOficios): o arranjo de "Adicionar servidor"
+(widgets/equipe.html) — a busca na linha toda e um cartão por ofício. A busca não oferece
+os já escolhidos e só traz os que se juntam a eles (`excluir`, atualizado por multiescolha.js).
+{% endcomment %}<pc-multiescolha class="equipe-campo oficios-campo" data-nome="{{ widget.name }}" data-variante="oficios">
+  <div class="campo equipe__busca">
+    <label class="campo__rotulo" for="{{ widget.attrs.id }}">{{ widget.rotulo }}</label>
+    <pc-combobox class="combobox" data-fonte="{{ widget.fonte }}?excluir={{ widget.excluir }}&amp;q=" data-fonte-base="{{ widget.fonte }}" data-minimo="1">
+      <div class="entrada-composta equipe__entrada">{% icone "file-text" %}<input class="entrada" type="text" role="combobox" placeholder="{{ widget.placeholder }}" autocomplete="off"{% include "django/forms/widgets/attrs.html" %}></div>
+    </pc-combobox>
+  </div>
+  <ul class="resumo__cartoes equipe__cartoes multiescolha__lista" role="list" aria-label="Ofícios vinculados">
+    {% for e in widget.escolhidos %}
+      <li class="pessoa equipe__cartao multiescolha__item resumo__cartao--{{ e.largura }}" data-id="{{ e.id }}">
+        <input type="hidden" name="{{ widget.name }}" value="{{ e.id }}">
+        <span class="avatar" aria-hidden="true">{% icone "file-text" classe="icone--sm" %}</span>
+        <span class="pessoa__texto">
+          <span class="pessoa__nome">{{ e.titulo }}</span>
+          <span class="pessoa__meta">{{ e.meta }}</span>
+        </span>
+        <span class="equipe__acoes">
+          <button type="button" class="equipe__acao equipe__acao--remover" data-remover aria-label="Desvincular {{ e.titulo }}" title="Desvincular">{% icone "x" classe="icone--sm" %}</button>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="equipe__vazia multiescolha__vazio"{% if widget.escolhidos %} hidden{% endif %}>
+    {% icone "file-text" %}
+    <p><strong>{{ widget.rotulo_vazio }}</strong> Busque acima pelo número, destino ou servidor. Mais de um ofício só se forem da mesma viagem ou do mesmo roteiro.</p>
+  </div>
+  <div class="sr-only" aria-live="polite" data-anuncio></div>
+</pc-multiescolha>

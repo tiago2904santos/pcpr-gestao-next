@@ -162,16 +162,25 @@ o seu próprio formulário.
 </fieldset>
 
 {% if editavel %}
+{% comment %}
+Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar (grava o que
+estiver pendente e volta à lista) e Ações (duplicar — componentes/rodape_documento.html).
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if atendimento %}Gravando as alterações…{% else %}Alterações não salvas — registre o atendimento antes de sair.{% endif %}" role="status">
+  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
+  <div class="sr-only" data-status-salvamento data-texto-sujo="{% if atendimento %}Gravando as alterações…{% else %}Alterações não salvas — registre o atendimento antes de sair.{% endif %}" role="status">
     {% if atendimento %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
     {% else %}<span data-anuncio>Para registrar: data, jornalista e pedido.</span>{% endif %}
   </div>
-  <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
   {% if atendimento %}
+    {% include "componentes/rodape_documento.html" with nome="atendimento" finalizar_form="finalizar-imprensa" duplicar_form="duplicar-imprensa" %}
   {% else %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar atendimento</button>
   {% endif %}
 </div>
+{% if atendimento %}
+<form id="finalizar-imprensa" method="get" action="{% url 'imprensa:lista' %}" hidden data-esperar-salvamento></form>
+<form id="duplicar-imprensa" method="post" action="{% url 'imprensa:duplicar' atendimento.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
+{% endif %}
 {% endif %}
 {% endblock %}

@@ -11,11 +11,13 @@ Uso:
 - `slug`: cadastro em cadastros:salvar_catalogo (unidades, cargos, combustiveis…);
 - `rotulo`: nome no singular, minúsculo ("unidade", "cargo");
 - `destino`: id do <select> que recebe a opção nova;
-- `com_sigla`: também pede a sigla (só as unidades têm).
+- `com_sigla`: também pede a sigla (só as unidades têm);
+- `valor="nome"`: a opção nova vale pelo nome, não pelo id (campo de texto, ex.: o cargo
+  de um coordenador de fora do cadastro).
 
 Fica sempre FORA do <form> que o chamou — formulário dentro de formulário não é HTML válido.
 {% endcomment %}
-<dialog id="{{ id }}" class="dialogo" data-cadastro-rapido data-destino="{{ destino }}" aria-labelledby="{{ id }}-titulo">
+<dialog id="{{ id }}" class="dialogo" data-cadastro-rapido data-destino="{{ destino }}"{% if valor %} data-valor="{{ valor }}"{% endif %} aria-labelledby="{{ id }}-titulo">
   <form method="post" action="{% url 'cadastros:salvar_catalogo' slug %}" novalidate>
     {% csrf_token %}
     <div class="dialogo__cabecalho">

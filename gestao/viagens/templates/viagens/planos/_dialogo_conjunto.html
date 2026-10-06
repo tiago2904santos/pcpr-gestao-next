@@ -1,0 +1,33 @@
+{% load viagens %}{% comment %}
+Cadastro rápido de conjunto de atividades (o "+" ao lado de "Aplicar conjunto"): nome e
+atividades — as etiquetas da folha, já marcadas como estão no plano (conjuntos.js). Grava pelo
+mesmo endpoint da tela Cadastros › Conjuntos; o conjunto novo entra na lista sem ser aplicado
+(`data-sem-escolher`, cadastro-rapido.js). Fica fora do <form> da folha.
+{% endcomment %}
+<dialog id="dialogo-conjunto" class="dialogo dialogo--amplo" data-cadastro-rapido data-destino="aplicar-conjunto" data-sem-escolher aria-labelledby="dialogo-conjunto-titulo">
+  <form method="post" action="{% url 'cadastros:salvar_catalogo' 'conjuntos' %}" novalidate>
+    {% csrf_token %}
+    <div class="dialogo__cabecalho">
+      <div class="dialogo__icone">{% icone "layers" %}</div>
+      <div class="dialogo__cabecalho-texto">
+        <h2 class="dialogo__titulo" id="dialogo-conjunto-titulo">Cadastrar conjunto</h2>
+        <p class="texto-secundario texto-sm">Atividades que se aplicam de uma vez nos próximos planos.</p>
+      </div>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <div class="campo">
+        <label class="campo__rotulo" for="conjunto-novo-nome">Nome do conjunto<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+        <input class="entrada" id="conjunto-novo-nome" name="nome" maxlength="200" required autocomplete="off" placeholder="Ex.: ATENDIMENTO COMPLETO">
+      </div>
+      <fieldset class="atividades__grupo">
+        <legend class="campo__rotulo">Atividades</legend>
+        <div class="mt-2">{% include "viagens/planos/_atividades.html" with atividades=form.fields.atividades.queryset marcadas=atividades_marcadas prefixo="conjunto-atividade-" %}</div>
+      </fieldset>
+      <p class="campo__erro" data-erro hidden></p>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Cadastrar conjunto</button>
+    </div>
+  </form>
+</dialog>

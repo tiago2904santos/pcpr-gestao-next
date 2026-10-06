@@ -5,7 +5,6 @@ documentos do termo); no rodapé (`dobrar`) quem abre essa aba é "Gerar os term
 documentos" abre a janela de escolher o que e em que formato (componentes/dialogo_baixar.html).
 O formulário de exclusão fica uma vez só em editar.html.
 {% endcomment %}
-{% if editavel and pode_ver_documento and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_termo' termo.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
 <pc-menu class="menu">
   <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do {{ termo }}{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
   <div class="menu__painel" role="menu" hidden>

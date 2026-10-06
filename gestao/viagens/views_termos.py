@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import CharField, Count, DateField, Min, OuterRef, Q, Subquery
+from django.db.models import CharField, Count, DateField, Min, OuterRef, Prefetch, Q, Subquery
 from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.http.response import HttpResponseBase
@@ -25,7 +25,7 @@ from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
 from . import assinados, linha_do_tempo, policies, prestacao, termos, views_assinados
 from .forms import FormularioTermo
-from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho
+from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho, Viajante
 from .views import POR_PAGINA, _migalhas
 from .views_editor import (
     moldura_da_folha,
@@ -91,7 +91,9 @@ def lista(request: HttpRequest) -> HttpResponse:
     oficio = None
     if oficio_pk.isascii() and oficio_pk.isdecimal():
         oficio = policies.oficios_visiveis(request.user).filter(pk=int(oficio_pk)).first()
-        base = base.filter(oficio_id=int(oficio_pk))
+        # Os termos que juntam este ofício (em qualquer posição, não só o primeiro).
+        base = base.filter(Q(oficio_id=int(oficio_pk)) | Q(
+            pk__in=TermoAutorizacao.objects.filter(oficios=int(oficio_pk)).values("pk")))
     aba = request.GET.get("aba") or ""
     if aba not in {chave for chave, _, _ in ABAS}:
         aba = ""
@@ -141,6 +143,7 @@ def _oficios_escolhiveis(request: HttpRequest):
 
 def _formulario(request: HttpRequest, *args, termo=None, **kwargs) -> FormularioTermo:
     extras = {"oficios": _oficios_escolhiveis(request),
+              "fonte_oficios": reverse("viagens:buscar_oficios"),
               "fonte_servidores": reverse("cadastros:buscar_servidores"),
               "fonte_municipios": reverse("cadastros:buscar_municipios")}
     if termo is not None and not args and not kwargs.get("initial"):
@@ -149,13 +152,14 @@ def _formulario(request: HttpRequest, *args, termo=None, **kwargs) -> Formulario
 
 
 def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int = 200):
+    # O primeiro ofício vinculado: o que a tela cita (voltar à janela dele, a herança).
     oficio = None
     if form.is_bound and form.is_valid():
-        oficio = form.cleaned_data.get("oficio")
+        oficio = next(iter(form.cleaned_data.get("oficios") or []), None)
     elif termo is not None:
         oficio = termo.oficio
-    elif (pk := form.initial.get("oficio")):
-        oficio = _oficios_escolhiveis(request).filter(pk=pk).first()
+    elif (pks := form.initial.get("oficios")):
+        oficio = _oficios_escolhiveis(request).filter(pk=pks[0]).first()
     ef = termos.efetivo(termo) if termo is not None else None
     voltar = reverse("viagens:termos")
     if termo is None and oficio is not None:  # veio da janela do ofício: volta para ela
@@ -226,7 +230,7 @@ def novo(request: HttpRequest) -> HttpResponse:
               if oficio_pk.isascii() and oficio_pk.isdecimal() else None)
     if oficio is not None:
         # Já preenchido com o que vem do ofício (destinos, período, equipe, viatura).
-        inicial = {"oficio": oficio.pk, **FormularioTermo.campos_do_oficio(oficio)}
+        inicial = {"oficios": [oficio.pk], **FormularioTermo.campos_do_oficio(oficio)}
     return _tela(request, _formulario(request, initial=inicial))
 
 
@@ -264,7 +268,6 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
     form = _formulario(request, request.POST, termo=termo)
     if not form.is_valid():
         return JsonResponse({"salvo": False, "mensagem": primeiro_erro(form)})
-    oficio_antes = termo.oficio_id
     try:
         salvo = termos.salvar(request.user, pk=termo.pk, **form.cleaned_data)
     except termos.TermoInvalido as exc:
@@ -273,8 +276,8 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         return JsonResponse({"salvo": False, "mensagem": "Este termo não pode mais ser alterado."})
     except TermoAutorizacao.DoesNotExist:
         return JsonResponse({"salvo": False, "mensagem": "Este termo foi excluído."})
-    # Trocar o ofício muda o que vem dele sob cada campo: a tela é redesenhada.
-    return JsonResponse({"salvo": True, "recarregar": salvo.oficio_id != oficio_antes,
+    # Vincular ofícios já preencheu os campos na tela (termo.js): nada a redesenhar.
+    return JsonResponse({"salvo": True, "recarregar": False,
                          "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
                          "campos": {"versao": termos.versao_de(salvo)}})
 
@@ -335,36 +338,6 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
 
 
 @require_GET
-def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
-    """O PDF completo do termo numa página da aplicação, na mesma aba (com Voltar)."""
-    termo = _termo_visivel(request, pk)
-    policies.exigir(policies.pode_editar_termo(request.user, termo),
-                    "Reative o termo para ver os documentos.")
-    # Vindo de "Gerar" sem aba nova (?voltar=lista), o Voltar leva à lista de termos.
-    para_lista = request.GET.get("voltar") == "lista"
-    docs = termos.documentos_do_termo(termo)
-    return render(request, "viagens/visualizar.html", {
-        "placa_rotulo": "Termo", "placa_numero": f"#{termo.pk}", "titulo_doc": str(termo),
-        "descricao": f"{len(docs)} documento{'s' if len(docs) != 1 else ''}, na ordem da "
-                     "lista do termo — como saem no PDF.",
-        "folhas": [{"titulo": d["titulo"], "descricao": d["descricao"],
-                    "url": reverse("viagens:folha_termo", args=[termo.pk, d["chave"]])}
-                   for d in docs],
-        "pdf_url": reverse("viagens:todos_termo", args=[termo.pk, "pdf"]),
-        "pdf_nome": f"termo-{termo.pk}-todos.pdf",
-        "separados": {"url": reverse("viagens:baixar_termo", args=[termo.pk]),
-                      "itens": [d["chave"] for d in docs],
-                      "voltar": request.get_full_path()},
-        "baixar_url": reverse("viagens:baixar_termo", args=[termo.pk]),
-        "voltar_url": reverse("viagens:termos") if para_lista
-        else reverse("viagens:editar_termo", args=[termo.pk]),
-        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar ao termo",
-        "migalhas": _migalhas(("Termos de autorização", reverse("viagens:termos")),
-                              (str(termo), reverse("viagens:editar_termo", args=[termo.pk])),
-                              ("Visualizar", ""))})
-
-
-@require_GET
 @moldura_do_pdf
 def todos(request: HttpRequest, pk: int, formato: str) -> HttpResponse:
     """Todos os documentos do termo: um PDF só ou um ZIP de DOCX (referência)."""
@@ -398,6 +371,28 @@ def _voltar(request: HttpRequest, padrao: str, termo_pk: int | None = None) -> s
             and url_has_allowed_host_and_scheme(voltar, allowed_hosts={request.get_host()})):
         return voltar
     return padrao
+
+
+@require_POST
+def finalizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Finalizar" do rodapé: o termo já se gravou (o envio espera o autosave e o texto do
+    editor); a tela volta à lista."""
+    termo = _termo_visivel(request, pk)
+    messages.success(request, f"{termo} salvo.")
+    return redirect("viagens:termos")
+
+
+@require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Um termo novo com os mesmos dados e o mesmo texto; abre a folha dele."""
+    termo = _termo_visivel(request, pk)
+    try:
+        novo = termos.duplicar(request.user, termo.pk)
+    except (termos.TermoInvalido, PermissionDenied) as exc:
+        messages.error(request, str(exc))
+        return redirect("viagens:editar_termo", termo.pk)
+    messages.success(request, f"{novo} criado a partir do {termo}.")
+    return redirect("viagens:editar_termo", novo.pk)
 
 
 def _acao(request: HttpRequest, pk: int, executar, padrao: str | None = None):
@@ -439,27 +434,56 @@ def dados_do_oficio(request: HttpRequest, oficio_pk: int) -> JsonResponse:
     """
     if not request.user.has_perm("viagens.view_oficio"):
         raise PermissionDenied
-    oficio = get_object_or_404(
-        _oficios_escolhiveis(request).select_related("viatura", "sede"), pk=oficio_pk)
-    destinos, inicio, fim = termos._do_oficio(oficio)
-    servidores = [v.servidor for v in oficio.viajantes.select_related(
-        "servidor__cargo", "servidor__unidade").order_by("ordem", "id")]
+    # ?oficios=1,2: a união de vários (o termo que junta ofícios da mesma ação).
+    pedidos = [int(p) for p in (request.GET.get("oficios") or "").split(",")
+               if p.isascii() and p.isdecimal() and len(p) <= 18][:50] or [oficio_pk]
+    oficios = list(_oficios_escolhiveis(request).filter(pk__in=pedidos)
+                   .select_related("viatura", "sede").order_by("ano", "numero")
+                   .prefetch_related(
+                       Prefetch("trechos", queryset=Trecho.objects.select_related("destino")
+                                .order_by("ordem")),
+                       Prefetch("viajantes", queryset=Viajante.objects.select_related(
+                           "servidor__cargo", "servidor__unidade").order_by("ordem", "id"))))
+    if not oficios:
+        raise Http404
+    base = termos.uniao_dos_oficios(oficios)
+    inicio, fim = base["inicio"], base["fim"]
     return JsonResponse({
-        "destinos": [{"cidade": f"{m.nome}/{m.uf}", "uf": m.uf} for m in destinos],
+        "destinos": [{"cidade": f"{m.nome}/{m.uf}", "uf": m.uf} for m in base["destinos"]],
         "inicio": f"{inicio:%d/%m/%Y}" if inicio else "",
         "fim": f"{fim:%d/%m/%Y}" if fim and fim != inicio else "",
         "servidores": [{"id": str(s.pk), "titulo": s.nome, "meta": s.descricao}
-                       for s in servidores],
-        "viatura": str(oficio.viatura_id) if oficio.viatura_id else "",
+                       for s in base["servidores"]],
+        "viatura": str(base["viatura"].pk) if base["viatura"] else "",
     })
 
 
 def buscar_oficios(request: HttpRequest) -> JsonResponse:
-    """Ofícios que um termo pode usar (visíveis, não cancelados), para o seletor do termo."""
+    """Ofícios que um termo, uma OS ou um plano pode juntar (visíveis, não cancelados).
+
+    `excluir` (os já escolhidos) sai da lista e restringe o resto aos que se juntam a eles:
+    mesma viagem ou mesmo roteiro (vinculos.compativeis). Com `irmaos`, sem busca: todos os
+    que se juntam aos escolhidos (a tela pergunta se devem entrar também)."""
+    from .vinculos import compativeis, resumo
     if not request.user.has_perm("viagens.view_oficio"):
         raise PermissionDenied
     busca = (request.GET.get("q") or "").strip()
+    excluir = [int(p) for p in (request.GET.get("excluir") or "").split(",")
+               if p.isascii() and p.isdecimal() and len(p) <= 18][:50]
     qs = _oficios_escolhiveis(request).annotate(numero_texto=Cast("numero", CharField()))
+    escolhidos = list(Oficio.objects.filter(pk__in=excluir).only("pk", "roteiro_id", "viagem_id"))
+    if excluir:
+        qs = compativeis(qs.exclude(pk__in=excluir), escolhidos)
+    if request.GET.get("irmaos"):
+        # Os da mesma ação que ainda faltam (a tela pergunta se entram também): sem busca.
+        roteiros = {o.roteiro_id for o in escolhidos} - {None}
+        irmaos = (qs.select_related("sede").prefetch_related(Prefetch(
+            "trechos", queryset=Trecho.objects.select_related("destino").order_by("ordem")))
+            .order_by("ano", "numero")[:10]) if escolhidos else []
+        return JsonResponse({"resultados": [
+            {"id": str(o.pk), "titulo": f"Ofício {o.numero_formatado}", "meta": resumo(o),
+             "motivo": "usa o mesmo roteiro" if o.roteiro_id in roteiros else "é da mesma viagem"}
+            for o in irmaos]})
     filtro = Q(trechos__destino__nome__unaccent__icontains=busca) | Q(
         viajantes__servidor__nome__unaccent__icontains=busca)
     if (digitos := somente_digitos(busca)):
@@ -469,12 +493,9 @@ def buscar_oficios(request: HttpRequest) -> JsonResponse:
         else:
             filtro |= Q(numero_texto__startswith=digitos[:6]) | Q(protocolo__contains=digitos)
     ofs = (qs.filter(filtro).distinct().select_related("sede")
-           .prefetch_related("trechos__destino").order_by("-ano", "-numero")[:30])
-    resultados = []
-    for o in ofs:
-        destinos = list(dict.fromkeys(f"{t.destino.nome}/{t.destino.uf}" for t in o.trechos.all()
-                                      if t.destino_id != o.sede_id))
-        resultados.append({"id": str(o.pk), "titulo": f"Ofício {o.numero_formatado}",
-                           "meta": " · ".join(p for p in (", ".join(destinos),
-                                                          o.get_situacao_display()) if p)})
-    return JsonResponse({"resultados": resultados})
+           .prefetch_related(Prefetch("trechos", queryset=Trecho.objects
+                                      .select_related("destino").order_by("ordem")))
+           .order_by("-ano", "-numero")[:30])
+    return JsonResponse({"resultados": [
+        {"id": str(o.pk), "titulo": f"Ofício {o.numero_formatado}", "meta": resumo(o)}
+        for o in ofs]})

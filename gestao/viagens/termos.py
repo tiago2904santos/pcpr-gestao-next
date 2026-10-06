@@ -4,6 +4,9 @@ e os dados dos documentos.
 Paridade com `viagens_termos` da referência:
 - o termo pode estar ligado a um ofício e herda dele o que ficar em branco — destinos (os
   do roteiro do ofício), período (saída e chegada), servidores (a equipe) e viatura;
+- pode juntar vários ofícios da mesma ação (mesma viagem ou mesmo roteiro — vinculos.py):
+  herda a união deles (destinos de todos, da primeira saída à última chegada, a equipe
+  toda, a primeira viatura);
 - sem ofício, destino e data são obrigatórios; a data final, vazia, repete a inicial;
 - um documento por servidor (variante completa, com ou sem viatura), o **genérico** (só
   destino e período, para preencher à mão) e o **da viatura** (servidor em branco).
@@ -47,6 +50,12 @@ PREFETCH_TERMOS = (
              .order_by("ordem")),
     Prefetch("oficio__viajantes", queryset=Viajante.objects.select_related(
         "servidor__cargo", "servidor__unidade").order_by("servidor__nome")),
+    Prefetch("oficios", queryset=Oficio.objects.select_related(
+        "sede", "viatura__combustivel").order_by("ano", "numero")),
+    Prefetch("oficios__trechos", queryset=Trecho.objects.select_related("destino")
+             .order_by("ordem")),
+    Prefetch("oficios__viajantes", queryset=Viajante.objects.select_related(
+        "servidor__cargo", "servidor__unidade").order_by("ordem", "id")),
 )
 
 
@@ -150,33 +159,62 @@ def heranca_do_oficio(oficio: Oficio | None) -> dict[str, str]:
     }.items() if v}
 
 
+def oficios_do_termo(termo: TermoAutorizacao) -> list[Oficio]:
+    """Os ofícios que o termo junta (o vínculo antigo, de um só, vale como lista de um)."""
+    oficios = list(termo.oficios.all()) if termo.pk else []
+    if not oficios and termo.oficio is not None:
+        oficios = [termo.oficio]
+    return oficios
+
+
+def uniao_dos_oficios(oficios: list[Oficio]) -> dict:
+    """O que os ofícios dão juntos: destinos de todos (na ordem, sem repetir), da primeira
+    saída à última chegada, a equipe toda (sem repetir) e a primeira viatura."""
+    destinos: list[Municipio] = []
+    servidores: list[Servidor] = []
+    inicio: date | None = None
+    fim: date | None = None
+    viatura = None
+    for oficio in oficios:
+        seus, saida, chegada = _do_oficio(oficio)
+        destinos += [m for m in seus if m not in destinos]
+        if saida:
+            inicio = min(inicio, saida) if inicio else saida
+        if chegada:
+            fim = max(fim, chegada) if fim else chegada
+        servidores += [v.servidor for v in oficio.viajantes.all()
+                       if v.servidor not in servidores]
+        if (viatura is None and oficio.viatura_id
+                and oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA):
+            viatura = oficio.viatura
+    return {"destinos": destinos, "inicio": inicio, "fim": fim, "servidores": servidores,
+            "viatura": viatura}
+
+
 def efetivo(termo: TermoAutorizacao) -> Efetivo:
-    """O que vale no termo: o próprio, ou o do ofício quando em branco."""
+    """O que vale no termo: o próprio, ou o dos ofícios (unidos) quando em branco."""
     if termo.pk and not hasattr(termo, "_prefetched_objects_cache"):
         prefetch_related_objects([termo], *PREFETCH_TERMOS)
     ef = Efetivo()
-    oficio = termo.oficio if termo.oficio_id else None
     ef.destinos = [d.municipio for d in termo.destinos.all()] if termo.pk else []
     ef.inicio, ef.fim = termo.data_inicio, termo.data_fim or termo.data_inicio
     ef.servidores = list(termo.servidores.all()) if termo.pk else []
     ef.viatura = termo.viatura if termo.viatura_id else None
-    if oficio is None:
+    oficios = oficios_do_termo(termo)
+    if not oficios:
         return ef
-    destinos, inicio, fim = _do_oficio(oficio)
-    if not ef.destinos and destinos:
-        ef.destinos = destinos
+    base = uniao_dos_oficios(oficios)
+    if not ef.destinos and base["destinos"]:
+        ef.destinos = base["destinos"]
         ef.herdados.append("destinos")
-    if not ef.inicio and inicio:
-        ef.inicio, ef.fim = inicio, fim
+    if not ef.inicio and base["inicio"]:
+        ef.inicio, ef.fim = base["inicio"], base["fim"]
         ef.herdados.append("período")
-    if not ef.servidores:
-        equipe = [v.servidor for v in oficio.viajantes.all()]
-        if equipe:
-            ef.servidores = equipe
-            ef.herdados.append("servidores")
-    if (ef.viatura is None and oficio.viatura_id
-            and oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA):
-        ef.viatura = oficio.viatura
+    if not ef.servidores and base["servidores"]:
+        ef.servidores = base["servidores"]
+        ef.herdados.append("servidores")
+    if ef.viatura is None and base["viatura"] is not None:
+        ef.viatura = base["viatura"]
         ef.herdados.append("viatura")
     return ef
 
@@ -184,12 +222,17 @@ def efetivo(termo: TermoAutorizacao) -> Efetivo:
 # ---------------------------------------------------------------- escrita
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
-           evento: str = "", data_inicio: date | None = None, data_fim: date | None = None,
-           destinos: list[Municipio] | None = None, servidores=(),
-           viatura: Viatura | None = None, versao: str = "") -> TermoAutorizacao:
+           oficios=None, evento: str = "", data_inicio: date | None = None,
+           data_fim: date | None = None, destinos: list[Municipio] | None = None,
+           servidores=(), viatura: Viatura | None = None, versao: str = "") -> TermoAutorizacao:
     """Cria ou altera. `versao` (o `atualizado_em` que a tela abriu) recusa gravar por cima
-    de quem salvou depois (a tela grava sozinha a cada pausa)."""
+    de quem salvou depois (a tela grava sozinha a cada pausa).
+
+    `oficios`: os ofícios que o termo junta (`oficio`, um só, vale como lista de um). Juntar
+    mais de um exige que sejam da mesma ação (vinculos.incompatibilidade)."""
+    from .vinculos import incompatibilidade
     destinos = list(dict.fromkeys(destinos or []))  # sem repetir, na ordem informada
+    oficios = list(dict.fromkeys(oficios if oficios is not None else ([oficio] if oficio else [])))
     if pk:
         termo = TermoAutorizacao.objects.select_for_update().get(pk=pk)
         policies.exigir(policies.pode_editar_termo(usuario, termo),
@@ -205,16 +248,19 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
                                  criado_por=usuario)
     # Os documentos de antes: os que surgirem agora (servidor, viatura) herdam o texto editado.
     docs_antes = {d["chave"] for d in documentos_do_termo(termo)} if termo.pk else set()
-    if oficio is not None:
-        policies.exigir(policies.pode_ver(usuario, oficio), "Ofício não encontrado.")
-        if oficio.situacao == Oficio.Situacao.CANCELADO:
-            raise TermoInvalido("O ofício escolhido está cancelado.")
-        if termo.pk is None:
+    ja_ligados = {o.pk for o in oficios_do_termo(termo)} if termo.pk else set()
+    for i, o in enumerate(oficios):
+        policies.exigir(policies.pode_ver(usuario, o), "Ofício não encontrado.")
+        if o.situacao == Oficio.Situacao.CANCELADO and o.pk not in ja_ligados:
+            raise TermoInvalido(f"O Ofício {o.numero_formatado} está cancelado.")
+        if termo.pk is None and i == 0:
             # O termo é da unidade do ofício (senão a equipe e os dados de um ofício de
             # outra unidade ficariam à vista de quem não os vê).
-            termo.unidade = oficio.unidade
-        elif oficio.unidade_id != termo.unidade_id:
-            raise TermoInvalido("O ofício escolhido é de outra unidade.")
+            termo.unidade = o.unidade
+        elif o.unidade_id != termo.unidade_id:
+            raise TermoInvalido(f"O Ofício {o.numero_formatado} é de outra unidade.")
+    if {o.pk for o in oficios} != ja_ligados and (erro := incompatibilidade(oficios)):
+        raise TermoInvalido(erro)
     servidores = list(servidores)
     if len(servidores) > MAX_SERVIDORES:
         raise TermoInvalido(f"No máximo {MAX_SERVIDORES} servidores por termo.")
@@ -226,12 +272,13 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         raise TermoInvalido("A data final não pode ser anterior à inicial.")
     if data_fim and not data_inicio:
         raise TermoInvalido("Informe a data inicial.")
-    termo.oficio = oficio
+    termo.oficio = oficios[0] if oficios else None
     termo.evento = " ".join((evento or "").split()) or TermoAutorizacao._meta.get_field(
         "evento").default
     termo.data_inicio, termo.data_fim = data_inicio, (data_fim or data_inicio)
     termo.viatura = viatura
     termo.save()
+    termo.oficios.set(oficios)
     termo.servidores.set(servidores)
     atuais = [d.municipio_id for d in termo.destinos.order_by("ordem", "id")]
     if atuais != [m.pk for m in destinos]:  # só regrava se mudou (trilha de auditoria limpa)
@@ -239,6 +286,8 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         TermoDestino.objects.bulk_create(
             [TermoDestino(termo=termo, municipio=m, ordem=i) for i, m in enumerate(destinos)])
     if docs_antes:
+        # O que foi carregado antes de gravar (destinos, servidores) não vale mais.
+        termo.__dict__.pop("_prefetched_objects_cache", None)
         _herdar_texto_editado(termo, usuario, docs_antes)
     return termo
 
@@ -637,3 +686,30 @@ def aplicar_texto_em_todos(termo: TermoAutorizacao, usuario, chave_origem: str
                                 guardar_modelos=True)
             atualizados += 1
     return atualizados, sorted(ficaram)
+
+
+# ---------------------------------------------------------------- duplicar e finalizar
+@transaction.atomic
+def duplicar(usuario, pk: int) -> TermoAutorizacao:
+    """Um termo novo com os mesmos dados (ofícios, evento, período, destinos, servidores,
+    viatura) e o mesmo texto editado de cada documento — fora a viagem, as vias assinadas e
+    o histórico, que são de cada termo."""
+    from .models import EdicaoDocumento, EdicaoTermo
+    origem = TermoAutorizacao.objects.get(pk=pk)
+    policies.exigir(policies.pode_ver_termo(usuario, origem)
+                    and policies.pode_criar_termo(usuario), "Você não pode duplicar este termo.")
+    novo = salvar(
+        usuario, oficios=[o for o in oficios_do_termo(origem)
+                          if o.situacao != Oficio.Situacao.CANCELADO],
+        evento=origem.evento, data_inicio=origem.data_inicio, data_fim=origem.data_fim,
+        destinos=[d.municipio for d in origem.destinos.order_by("ordem", "id")],
+        servidores=list(origem.servidores.all()), viatura=origem.viatura)
+    for doc in documentos_do_termo(novo):
+        edicao = edicao_vigente(origem, doc["chave"])
+        if edicao is not None and edicao.regioes:
+            EdicaoTermo.objects.create(
+                termo=novo, chave=doc["chave"], numero=1, acao=EdicaoDocumento.Acao.EDITADO,
+                regioes=dict(edicao.regioes), blocos_alterados=list(edicao.blocos_alterados),
+                impressoes=dict(edicao.impressoes), modelos=dict(edicao.modelos),
+                criado_por=usuario)
+    return novo

@@ -74,6 +74,14 @@
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
 }
 
+/* Dentro de uma janela o painel vira `popover` (para ficar acima dela): sem a borda preta
+   grossa e a cor de texto que o navegador dá a todo popover. */
+.seletor__painel[popover] {
+  margin: 0;
+  border: 0;
+  color: var(--cor-texto);
+}
+
 /* Campo estreito perto da borda esquerda da tela: o painel cresce para a direita. */
 .seletor__painel--esquerda {
   right: auto;
@@ -589,11 +597,18 @@
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
-/* Plano de trabalho: "Outro programa" só quando a escolha é "Outro" (com erro, sempre). */
-.programa-plano:has(select[name="programa"] option[value="outro"]:checked) .condicional--outro-programa,
-.programa-plano .condicional--outro-programa.campo--erro {
-  display: flex;
-  flex: 1 1 18rem;
+/* Programas do plano: o campo "Outro programa" divide a linha com programa, período e
+   horário — só quando "Outro" está marcado na lista (ou tem erro). */
+.programa-plano:not(:has(input[name="programa_outro"]:checked)) > .programa-plano__outro:not(.campo--erro) {
+  display: none;
+}
+
+/* Programa ocupa metade da linha; período e horário, um quarto cada. */
+.campos--iguais.programa-plano > .campo:has(pc-escolhas) {
+  flex: 2 1 0;
+}
+
+.programa-plano > .programa-plano__outro {
   animation: aparecer var(--duracao-media) var(--curva-padrao);
 }
 
@@ -765,6 +780,17 @@
   flex: 1 1 100%;
 }
 
+/* Coordenadores do plano: "Quem coordena" mostra a busca no cadastro ou o nome e o cargo
+   à mão (só um dos dois de cada vez, sem JavaScript). */
+.coordenador:has(select[name$="_origem"] option[value="manual"]:checked) .coordenador__cadastro,
+.coordenador:not(:has(select[name$="_origem"] option[value="manual"]:checked)) .coordenador__manual {
+  display: none;
+}
+
+.coordenador + .coordenador {
+  margin-top: var(--esp-3);
+}
+
 /* =============== Equipe: crachás =============== */
 /* A busca vai de margem a margem, como a busca das listas — uma caixa curta deixaria a
    linha pela metade. Avisos de agenda numa lista só. */
@@ -816,6 +842,11 @@
 
 .equipe-campo .equipe__vazia {
   margin-top: var(--esp-3);
+}
+
+/* Ofícios vinculados: o aviso de vazio encosta na busca. */
+.oficios-campo .equipe__vazia {
+  margin-top: 0;
 }
 
 .equipe__acoes {
@@ -1028,8 +1059,10 @@
 
 /* Celular: o cargo na linha toda; unidade e quantidade lado a lado; remover no pé. */
 @media (max-width: 639.98px) {
+  /* No celular: o cargo (o que mais importa) na linha de cima, inteiro; embaixo, unidade,
+     a quantidade compacta e a lixeira — sem uma linha só para a lixeira. */
   .linhas__linha {
-    grid-template-columns: minmax(0, 1fr) 6.5rem;
+    grid-template-columns: minmax(0, 1fr) 5.5rem auto;
     padding-bottom: var(--esp-3);
     border-bottom: var(--borda-sutil);
   }
@@ -1037,11 +1070,6 @@
   .linhas__linha > .campo:nth-child(2) {
     grid-column: 1 / -1;
     grid-row: 1;
-  }
-
-  .linhas__remover {
-    grid-column: 1 / -1;
-    justify-self: end;
   }
 }
 
@@ -1162,3 +1190,287 @@
   display: flex;
   align-items: flex-end;
 }
+
+/* =============== Número com − e + (componentes/passos.js) ===============
+   O mesmo desenho dos passos de tempo do roteiro: a caixa é uma peça só e os botões moram
+   dentro dela, à direita. */
+.passos {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--altura-controle);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.passos:hover {
+  border-color: var(--neutro-500);
+}
+
+.passos:focus-within {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.passos .entrada {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 0 0 var(--esp-3);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+}
+
+.passos .entrada::-webkit-inner-spin-button,
+.passos .entrada::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.passos .entrada:focus-visible {
+  box-shadow: none;
+}
+
+.passos__botao {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0 var(--esp-05);
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: transparent;
+  color: var(--cor-texto-terciario);
+  font: inherit;
+  font-size: var(--texto-md);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.passos__botao:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.passos__botao:last-child {
+  margin-right: var(--esp-1);
+}
+
+.passos__botao:focus-visible {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 1px;
+}
+
+/* =============== Atividades do plano ===============
+   Uma faixa de ferramentas da altura de um campo (busca larga, conjunto, desmarcar) e a
+   lista: uma caixa só, duas colunas com filetes entre as linhas (sem cartões soltos). Cada
+   linha: a caixa, o nome e a meta numa linha; a marcada ganha o fundo da marca. */
+.atividades__barra {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--esp-3);
+}
+
+.atividades__barra[hidden] {
+  display: none;
+}
+
+/* Sem conjuntos (nem o "+"), a busca ocupa o lugar dele. */
+.atividades__barra:not(:has(.atividades__conjunto)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.atividades__limpar {
+  min-height: var(--altura-controle);
+}
+
+@media (max-width: 767.98px) {
+  .atividades__barra {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Respiro entre o que vem antes (a faixa de ferramentas, o nome do conjunto na janela) e
+   as etiquetas — o `margin: 0` do grupo anulava o da pilha. */
+.atividades__barra + .atividades__grupo,
+.pilha > .atividades__grupo:not(:first-child) {
+  margin-top: var(--esp-4);
+}
+
+.atividades__grupo {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.atividades__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+/* Etiqueta: contornada e discreta; marcada, preenchida em grafite (o mesmo par do botão
+   primário escuro do sistema) com o "✓" no lugar do "+". */
+.atividade {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: var(--altura-controle-sm);
+  max-width: 100%;
+  padding: var(--esp-1) var(--esp-4) var(--esp-1) var(--esp-3);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color var(--duracao-rapida) var(--curva-padrao),
+    background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.atividade[hidden] {
+  display: none;
+}
+
+.atividade:hover {
+  border-color: var(--neutro-500);
+  color: var(--cor-texto);
+}
+
+.atividade:has(.atividade__caixa:checked) {
+  border-color: var(--grafite-900);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.atividade:has(.atividade__caixa:checked):hover {
+  border-color: var(--grafite-800);
+  background: var(--grafite-800);
+  color: var(--neutro-0);
+}
+
+.atividade:has(.atividade__caixa:focus-visible) {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 2px;
+}
+
+/* A caixa é o valor e o alvo do teclado; não aparece. */
+.atividade__caixa {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.atividade__icone {
+  flex: none;
+  color: var(--cor-texto-terciario);
+}
+
+.atividade__icone--marcada,
+.atividade:has(.atividade__caixa:checked) .atividade__icone--marcar {
+  display: none;
+}
+
+.atividade:has(.atividade__caixa:checked) .atividade__icone--marcada {
+  display: block;
+  color: var(--dourado-300);
+}
+
+.atividade__nome {
+  overflow: hidden;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-medio);
+  line-height: var(--altura-linha-justa);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.atividades__sem-resultado {
+  padding: var(--esp-2) 0;
+}
+
+.atividades__documento .divulgacao {
+  margin: 0;
+}
+
+.atividades__textos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-4);
+}
+
+@media (max-width: 767.98px) {
+  .atividades__textos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.atividades__texto-doc {
+  display: grid;
+  gap: var(--esp-2);
+  align-content: start;
+  padding: var(--esp-4);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+}
+
+/* Metas e recursos como lista: marcador dourado, recuo pendurado (a 2ª linha alinha com o
+   texto, não com o marcador) e respiro entre os itens. */
+.atividades__itens {
+  display: grid;
+  gap: var(--esp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-sm);
+  line-height: var(--altura-linha);
+  color: var(--cor-texto);
+}
+
+.atividades__itens > li {
+  position: relative;
+  padding-left: var(--esp-4);
+}
+
+.atividades__itens > li::before {
+  content: "";
+  position: absolute;
+  top: 0.6em;
+  left: var(--esp-1);
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--cor-marca);
+}
+
+.atividades__titulo-doc {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin: 0;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+/* Janela do evento do plano: os blocos (efetivo, deslocamento, atividades) sem filete entre
+   eles — o espaço da pilha já os separa. */
+.evento-plano > .secao__bloco {
+  margin-top: 0;
+  border-top: 0;
+}
+

@@ -139,6 +139,19 @@ a.ficha:hover {
   box-shadow: inset var(--filete) 0 0 var(--cor-marca);
 }
 
+/* Linhas dentro das folhas de documento (cartões da folha): já nascem com o fundo e o
+   trilho do hover — o texto fica na cor normal —; passar o mouse escurece um pouco mais e
+   o título muda de cor (.registro:hover .registro__link). */
+.secao .registros > .registro {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset var(--filete) 0 0 var(--cor-marca);
+}
+
+.secao .registros > .registro:hover,
+.secao .registros > .registro:focus-within {
+  background: var(--cor-superficie-realce);
+}
+
 /* Cabeçalho de grupo (mês): leitura em alta velocidade numa lista longa. Fica preso
    sob o topo enquanto o grupo rola. */
 .registros__grupo {
@@ -581,6 +594,38 @@ a.ficha:hover {
 
 /* Desativado: continua na lista (para reativar), mas recua. */
 .registro--inativo .registro__link,
+/* Notas curtas sob o registro (a via assinada: conferência do PDF, dados que mudaram): cada
+   uma numa linha, com o ícone ao lado do texto. */
+.registro__notas {
+  display: grid;
+  gap: var(--esp-1);
+  margin: var(--esp-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.registro__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-2);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+  line-height: var(--altura-linha-justa);
+}
+
+.registro__nota > .icone {
+  flex: none;
+  margin-top: 0.1em;
+}
+
+.registro__nota--aviso > .icone {
+  color: var(--cor-aviso);
+}
+
+.registro__nota--ok > .icone {
+  color: var(--cor-sucesso);
+}
+
 .registro--inativo .registro__texto {
   color: var(--cor-texto-terciario);
 }

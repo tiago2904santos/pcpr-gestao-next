@@ -1,0 +1,21 @@
+{% comment %}
+As atividades como etiquetas que se marcam com um clique: só o nome (a meta fica na dica e em
+"Metas e recursos como saem no documento"). Desmarcada, contornada com um "+"; marcada,
+preenchida em grafite com um "✓". A caixa continua sendo o valor do formulário e o que o
+teclado e o leitor de tela usam — só não aparece. O mesmo desenho no cartão do plano e na
+janela de um evento. Variáveis: `atividades` (as opções), `marcadas` (ids em texto),
+`prefixo` (dos ids). O `.caixas__item` é o gancho de componentes/conjuntos.js.
+{% endcomment %}
+{% if atividades %}
+<div class="atividades__lista">
+  {% for a in atividades %}
+    <label class="atividade caixas__item" for="{{ prefixo }}{{ a.pk }}"{% if a.meta %} title="{{ a.meta }}"{% endif %}>
+      <input class="atividade__caixa" type="checkbox" name="atividades" value="{{ a.pk }}" id="{{ prefixo }}{{ a.pk }}"{% if a.pk|stringformat:"s" in marcadas %} checked{% endif %}>
+      {% icone "plus" classe="icone--sm atividade__icone atividade__icone--marcar" %}{% icone "check" classe="icone--sm atividade__icone atividade__icone--marcada" %}
+      <span class="atividade__nome">{{ a.nome }}</span>
+    </label>
+  {% endfor %}
+</div>
+{% else %}
+  <p class="vazio-inline">Nenhuma atividade cadastrada. <a href="{% url 'cadastros:atividades' %}">Cadastre a primeira</a>.</p>
+{% endif %}

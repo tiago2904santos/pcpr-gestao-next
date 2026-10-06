@@ -156,6 +156,24 @@ html.folha--editavel .quebra--ativa::after {
   border-top: 2px solid var(--cor-marca);
 }
 
+/* Um bloco do modelo com a classe antiga de página nova (texto editado antes da troca para
+   `.nova-pagina`) não é marcador de quebra: continua sendo texto. */
+html.folha--editavel .quebra[data-bloco] {
+  display: block;
+  margin: 0 0 7mm;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  color: inherit;
+  cursor: auto;
+  user-select: auto;
+}
+
+html.folha--editavel .quebra[data-bloco]::before,
+html.folha--editavel .quebra[data-bloco]::after {
+  content: none;
+}
+
 /* Quando não se edita, só a quebra ativa aparece — como um corte de página. */
 html:not(.folha--editavel) .quebra--ativa {
   display: block;

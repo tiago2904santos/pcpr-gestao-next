@@ -12,6 +12,7 @@ urlpatterns = [
     path("atendimentos/novo/email/", views.preencher, name="preencher"),
     path("atendimentos/<int:pk>/", views.atendimento, name="atendimento"),
     path("atendimentos/<int:pk>/autosave/", views.autosave, name="autosave"),
+    path("atendimentos/<int:pk>/duplicar/", views.duplicar, name="duplicar"),
     path("atendimentos/<int:pk>/andamento/", views.andamento, name="andamento"),
     path("cadastros/equipe/", views.equipe, name="equipe"),
     path("cadastros/veiculos/", views.veiculos, name="veiculos"),

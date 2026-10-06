@@ -145,10 +145,16 @@ toda finalizada.
 </div>
 
 {% if editavel %}
+{% comment %}
+Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar — grava o
+que estiver pendente e volta à prestação de contas (componentes/rodape_documento.html).
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Grava sozinho enquanto você escreve.</span></div>
-  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
+  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a>
+  <div class="sr-only" data-status-salvamento role="status"><span data-anuncio>Grava sozinho enquanto você escreve.</span></div>
+  {% include "componentes/rodape_documento.html" with nome="relatório" finalizar_form="finalizar-relatorio" %}
 </div>
+<form id="finalizar-relatorio" method="get" action="{% url 'viagens:prestacoes' %}" hidden data-esperar-salvamento><input type="hidden" name="q" value="{{ oficio.numero_formatado }}"></form>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% endif %}
 {% endblock %}

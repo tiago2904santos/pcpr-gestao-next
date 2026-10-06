@@ -1,0 +1,11 @@
+{% comment %}
+Abas de situação da lista de planos; trocam só a situação e preservam o resto (busca, ordem,
+ofício — querystring_abas). Atualizadas fora de banda (OOB) pela busca ao vivo.
+{% endcomment %}
+<nav class="abas" id="abas-filtro" aria-label="Situação"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for chave, rotulo, contador in abas %}
+    <a class="aba" href="?{% if chave %}aba={{ chave }}{% if querystring_abas %}&amp;{% endif %}{% endif %}{{ querystring_abas }}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+    </a>
+  {% endfor %}
+</nav>

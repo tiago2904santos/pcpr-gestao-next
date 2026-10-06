@@ -5,7 +5,6 @@ processo. No rodapé (`dobrar`), "Gerar documentos" tem botão próprio e sai do
 tudo (ZIP) gera na hora, com o botão do menu em "processando" (baixar-arquivo.js). Os
 formulários (excluir, baixar tudo) ficam uma vez só em editar.html.
 {% endcomment %}
-{% if docs.total and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_viagem' v.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
 <pc-menu class="menu">
   <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da viagem{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
   <div class="menu__painel" role="menu" hidden>

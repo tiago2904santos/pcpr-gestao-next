@@ -1,0 +1,26 @@
+{% load ui %}{% comment %}
+O lado direito do rodapé de toda folha de documento (termo, OS, plano, ofício…): "Finalizar"
+— grava o que estiver pendente (formulário e texto do editor), conclui o documento quando
+ele tem essa etapa e volta à lista — e "Ações", com duplicar, cancelar e excluir. "Voltar"
+fica à esquerda, na própria página.
+
+Os formulários ficam fora do formulário da folha (não se aninham): `finalizar_form`,
+`duplicar_form` e `excluir_form` são os ids deles, e os botões daqui os enviam com `form=`.
+
+Variáveis: `nome` ("termo", "OS"…), `finalizar_form` (+ `finalizar_acao`: o `acao` que
+o botão manda, quando Finalizar é o próprio formulário da folha — o ofício), `duplicar_form`,
+`excluir_form`,
+`cancelar_url` (+ `cancelar_titulo`, `cancelar_ajuda`). Ações próprias de um documento
+(ex.: "Lançar os resultados" do plano) ficam no menu do cabeçalho.
+{% endcomment %}
+{% if finalizar_form %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="botao botao--marca">{% icone "check" %}Finalizar</button>{% endif %}
+{% if duplicar_form or cancelar_url or excluir_form %}
+<pc-menu class="menu">
+  <button type="button" class="botao" data-menu-botao aria-haspopup="menu" aria-label="Ações: {{ nome }}">{% icone "ellipsis-vertical" %}<span>Ações</span></button>
+  <div class="menu__painel menu__painel--acima" role="menu" hidden>
+    {% if duplicar_form %}<button type="submit" form="{{ duplicar_form }}" class="menu__item" role="menuitem">{% icone "copy" %}Duplicar {{ nome }}</button>{% endif %}
+    {% if cancelar_url %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{{ cancelar_url }}" data-motivo-titulo="{{ cancelar_titulo }}" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar {{ nome }}" data-motivo-ajuda="{{ cancelar_ajuda }}" data-motivo-perigo>{% icone "ban" %}Cancelar {{ nome }}</button>{% endif %}
+    {% if excluir_form %}<button type="submit" form="{{ excluir_form }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir {{ nome }}</button>{% endif %}
+  </div>
+</pc-menu>
+{% endif %}

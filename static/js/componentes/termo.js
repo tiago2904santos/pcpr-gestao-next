@@ -1,9 +1,9 @@
 // @ts-check
 /**
- * Folha do termo: vincular um ofício preenche os campos com os dados dele.
+ * Folha do termo: vincular ofícios preenche os campos com os dados deles, unidos.
  *
- * Como "usar um roteiro" na folha do ofício: escolher o ofício na busca traz destinos,
- * período, equipe e viatura para os campos do termo — valores de verdade, que a pessoa vê e
+ * Como "usar um roteiro" na folha do ofício: escolher um ofício na busca traz destinos,
+ * período, equipe e viatura (de todos os vinculados) para os campos do termo — valores de verdade, que a pessoa vê e
  * ajusta — em vez de deixar os campos vazios "herdando" do ofício. Os dados vêm de
  * viagens:dados_do_oficio_para_termo (`data-dados-oficio` no <form>).
  *
@@ -68,12 +68,18 @@ function preencherViatura(viatura) {
   avisar(select);
 }
 
-document.addEventListener("pc-selecionado", async (evento) => {
+// Um ofício a mais nos vinculados: os campos recebem a união de todos (destinos de todos,
+// da primeira saída à última chegada, a equipe toda, a primeira viatura).
+document.addEventListener("pc-escolhido", async (evento) => {
   const origem = /** @type {HTMLElement} */ (evento.target);
-  if (!url || !origem.closest("[data-oficio-do-termo]")) return;
+  const campo = origem.closest("[data-oficio-do-termo]");
+  if (!url || !campo) return;
   const opcao = /** @type {CustomEvent} */ (evento).detail;
-  if (!opcao?.id) return;
-  const resposta = await fetch(url.replace("/0/", `/${encodeURIComponent(opcao.id)}/`),
+  const ids = Array.from(campo.querySelectorAll("input[type='hidden'][name='oficios']"),
+    (i) => /** @type {HTMLInputElement} */ (i).value).filter(Boolean);
+  if (!ids.length) return;
+  const endereco = `${url.replace("/0/", `/${encodeURIComponent(ids[0])}/`)}?oficios=${ids.join(",")}`;
+  const resposta = await fetch(endereco,
     { credentials: "same-origin", headers: { Accept: "application/json" } }).catch(() => null);
   if (!resposta?.ok) return;
   const dados = await resposta.json();
@@ -81,9 +87,10 @@ document.addEventListener("pc-selecionado", async (evento) => {
   preencherPeriodo(dados.inicio || "", dados.fim || "");
   preencherEquipe(dados.servidores || []);
   preencherViatura(dados.viatura || "");
-  document.body.dispatchEvent(new CustomEvent("toast", {
-    detail: { mensagem: `Dados do ${opcao.titulo} preenchidos. Confira e ajuste o que precisar.`, nivel: "info" },
-  }));
+  const mensagem = ids.length > 1
+    ? `Dados dos ${ids.length} ofícios unidos nos campos. Confira e ajuste o que precisar.`
+    : `Dados do ${opcao?.titulo || "ofício"} preenchidos. Confira e ajuste o que precisar.`;
+  document.body.dispatchEvent(new CustomEvent("toast", { detail: { mensagem, nivel: "info" } }));
 });
 
 
