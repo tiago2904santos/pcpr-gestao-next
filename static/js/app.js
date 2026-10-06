@@ -29,10 +29,16 @@ const sobDemanda = [
   ["pc-transporte", () => import("./componentes/transporte.js")],
   ["[data-texto-pronto]", () => import("./componentes/texto-pronto.js")],
   ["pc-multiescolha", () => import("./componentes/multiescolha.js")],
+  ["pc-destinos", () => import("./componentes/destinos.js")],
+  ["form#form-termo", () => import("./componentes/termo.js")],
   ["pc-linhas", () => import("./componentes/linhas.js")],
   ["[data-esvaziar]", () => import("./componentes/esvaziar.js")],
   ["#dialogo-assinado", () => import("./componentes/assinado.js")],
   ["#dialogo-baixar", () => import("./componentes/baixar.js")],
+  ["[data-baixar-arquivo]", () => import("./componentes/baixar-arquivo.js")],
+  ["iframe[data-folha-inteira]", () => import("./componentes/folhas.js")],
+  ["a[data-gerar-e-voltar]", () => import("./componentes/gerar-e-voltar.js")],
+  ["[data-editores]", () => import("./componentes/editores.js")],
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
   ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
@@ -69,7 +75,9 @@ function carregarQuandoVisivel() {
       observador.disconnect();
       carregar();
     }, { rootMargin: "400px 0px" });
-    alvos.forEach((alvo) => observador.observe(alvo));
+    // Num bloco de vários editores (o termo), o editor não tem caixa própria
+    // (display: contents) e nunca "apareceria": observa-se o bloco.
+    alvos.forEach((alvo) => observador.observe(alvo.closest("[data-editores]") || alvo));
   }
 }
 carregarQuandoVisivel();

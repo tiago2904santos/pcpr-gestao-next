@@ -1,0 +1,47 @@
+{% comment %}
+Cadastro rápido de um catálogo, numa janela que abre por cima do formulário aberto.
+Usado pelo "+" ao lado de uma escolha (Cargo, Unidade, Combustível…): grava pelo mesmo
+endpoint da tela de cadastro e devolve o registro já escolhido na lista, sem recarregar —
+recarregar levaria junto o que já estava digitado. Ver cadastro-rapido.js.
+
+Uso:
+  {% include "componentes/cadastro_rapido.html" with id="dialogo-unidade" slug="unidades" rotulo="unidade" destino=form.unidade.auto_id com_sigla=True %}
+
+- `id`: id do <dialog> (o mesmo que o botão "+" aponta em `acao_dialogo`);
+- `slug`: cadastro em cadastros:salvar_catalogo (unidades, cargos, combustiveis…);
+- `rotulo`: nome no singular, minúsculo ("unidade", "cargo");
+- `destino`: id do <select> que recebe a opção nova;
+- `com_sigla`: também pede a sigla (só as unidades têm).
+
+Fica sempre FORA do <form> que o chamou — formulário dentro de formulário não é HTML válido.
+{% endcomment %}
+<dialog id="{{ id }}" class="dialogo" data-cadastro-rapido data-destino="{{ destino }}" aria-labelledby="{{ id }}-titulo">
+  <form method="post" action="{% url 'cadastros:salvar_catalogo' slug %}" novalidate>
+    {% csrf_token %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="{{ id }}-titulo">Cadastrar {{ rotulo }}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      <fieldset class="grupo-campos" aria-label="Dados do cadastro">
+        <div class="campos campos--iguais">
+          <div class="campo">
+            <label class="campo__rotulo" for="{{ id }}-nome">{% if com_sigla %}Nome{% else %}{{ rotulo|capfirst }}{% endif %}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+            <input class="entrada" id="{{ id }}-nome" name="nome" maxlength="255" required autocomplete="off">
+          </div>
+          {% if com_sigla %}
+          <div class="campo">
+            <label class="campo__rotulo" for="{{ id }}-sigla">Sigla</label>
+            <input class="entrada" id="{{ id }}-sigla" name="sigla" maxlength="50" autocomplete="off" aria-describedby="{{ id }}-sigla-ajuda">
+            <p class="campo__ajuda" id="{{ id }}-sigla-ajuda">Como aparece nas listas. Ex.: ASCOM.</p>
+          </div>
+          {% endif %}
+        </div>
+      </fieldset>
+      <p class="campo__erro" data-erro hidden></p>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}Cadastrar {{ rotulo }}</button>
+    </div>
+  </form>
+</dialog>

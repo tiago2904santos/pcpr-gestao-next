@@ -3,7 +3,7 @@
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Termos de autorização{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Um termo por servidor para participar do evento, mais o genérico e o da viatura. Ligado a um ofício, o termo usa dele o que ficar em branco.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo_termo' %}">{% icone "plus" %}Novo termo</a>{% endif %}{% endblock %}
+{% block acoes_lista %}{% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>{% elif pode_criar %}{% include "viagens/termos/_botao_novo.html" %}{% endif %}{% endblock %}
 {% comment %}
 Paridade com a lista de termos da referência: título "DESTINO · período", selo de tempo,
 "Ofício N · servidores · viatura", busca (destino, ofício, protocolo, servidor, placa),
@@ -99,14 +99,22 @@ chega com a prestação de contas.
 {% elif termo_busca or aba or oficio_filtro %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhum termo encontrado" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
 {% elif pode_criar %}
-  {% url 'viagens:novo_termo' as url_novo %}
-  {% include "componentes/vazio.html" with icone="file-signature" titulo="Nenhum termo de autorização ainda" texto="Crie um termo avulso ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_url=url_novo acao_rotulo="Novo termo" %}
+  {% include "componentes/vazio.html" with icone="file-signature" titulo="Nenhum termo de autorização ainda" texto="Crie um termo avulso ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_template="viagens/termos/_botao_novo.html" %}
 {% else %}
   {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum termo para mostrar" texto="Quando houver termos da sua unidade, eles aparecerão aqui." %}
 {% endif %}
 {% endblock %}
 
 {% block depois_lista %}
+{% comment %}
+Barra flutuante no rodapé, como nas outras listas: a contagem do recorte e a ação de criar
+ficam ao alcance de quem rolou até o fim, em vez de só no topo da página.
+{% endcomment %}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"termo,termos" }}{% if termo or aba %} no filtro de agora{% endif %}</p>
+  {% if pode_termo_do_oficio %}<form method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo deste ofício</button></form>
+  {% elif pode_criar %}{% include "viagens/termos/_botao_novo.html" %}{% endif %}
+</div>
 {% include "componentes/dialogo_motivo.html" %}
 {% include "componentes/dialogo_baixar.html" %}
 {% endblock %}

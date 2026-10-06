@@ -178,7 +178,7 @@ class TestNaFolhaDoOficio:
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
         assert 'data-texto-pronto data-alvo="id_motivo"' in html
         assert 'data-texto="Apoio e condução da Unidade Móvel no evento."' in html
-        assert "Guardar como texto pronto" in html and 'id="dialogo-guardar-texto"' in html
+        assert "Guardar texto" in html and 'id="dialogo-guardar-texto"' in html
         # A justificativa usa o mesmo componente (o cartão só aparece quando o prazo pede).
         com_prazo = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         html = operador.get(reverse("viagens:editar", args=[com_prazo.pk])).content.decode()

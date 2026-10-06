@@ -35,17 +35,7 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
   </div>
   {% if roteiro %}
   <div class="pagina-cabecalho__acoes">
-    {% if pode_criar_oficio and roteiro.trechos.all %}<button type="submit" form="form-criar-oficio" class="botao">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
-    {% if pode_cancelar or pode_excluir %}
-    <pc-menu class="menu">
-      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do roteiro">{% icone "ellipsis-vertical" %}</button>
-      <div class="menu__painel" role="menu" hidden>
-        {% if pode_cancelar %}<button type="submit" form="form-cancelar" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>{% endif %}
-        {% if pode_excluir %}<div class="menu__separador" role="separator"></div>
-        <button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>{% endif %}
-      </div>
-    </pc-menu>
-    {% endif %}
+    {% include "viagens/roteiros/_acoes.html" with onde="cabeçalho" %}
   </div>
   {% endif %}
 </header>
@@ -89,20 +79,21 @@ o efetivo usado na estimativa de diárias e as observações. Novo e edição us
   </div>
 
   {% if oficios_do_roteiro %}
-  <section class="secao" id="oficios" aria-labelledby="t-oficios">
+  <section class="secao secao--sem-filete" id="oficios" aria-labelledby="t-oficios">
     <div class="secao__cabecalho"><h2 class="secao__titulo secao__titulo--institucional" id="t-oficios">{% icone "file-text" %}Ofícios preenchidos com este roteiro</h2></div>
     {% include "viagens/roteiros/_oficios.html" with oficios=oficios_do_roteiro %}
-    <p class="texto-secundario texto-sm">Os trechos foram copiados para cada ofício; alterar o roteiro não muda esses ofícios.</p>
   </section>
   {% endif %}
 </div>
 
+{% comment %}
+Barra do rodapé: sair fica à esquerda (onde a leitura começa) e, à direita, o que age sobre
+o roteiro — Salvar e, depois dele, o meno de ações.
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
-    {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Roteiro salvo às {{ roteiro.atualizado_em|date:"H:i" }}{% elif roteiro %}Última alteração {{ roteiro.atualizado_em|date:"d/m/Y H:i" }}{% else %}Novo roteiro{% endif %}
-  </div>
   <a class="botao botao--texto" href="{% url 'viagens:roteiros' %}">Voltar</a>
   <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar roteiro</span></button>
+  {% if roteiro %}{% include "viagens/roteiros/_acoes.html" with onde="rodapé" dobrar=True %}{% endif %}
 </div>
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

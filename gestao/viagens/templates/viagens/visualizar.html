@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Visualizar · {{ titulo_doc }}{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Visualizar os documentos (termo, OS): as folhas, uma embaixo da outra, como num leitor de
+PDF — as mesmas folhas do editor (o modelo que vira o PDF, com o texto editado em vigor),
+que aparecem em qualquer navegador; um PDF dentro de um quadro some nos que não têm leitor
+embutido. Cada folha tem a largura do A4 (reduzida por escala em telas estreitas) e a
+altura do documento, sem rolagem própria (componentes/folhas.js).
+
+Contexto: placa_rotulo, placa_numero, titulo_doc, descricao, folhas [{titulo, descricao,
+url}], voltar_url, voltar_rotulo; opcionais: pdf_url e pdf_nome (um PDF com tudo), separados
+{url, itens, voltar} (um PDF por documento, num ZIP), zip_url (POST que devolve o .zip da
+viagem), baixar_url (a janela "Baixar documentos"). Sem folhas: o aviso de que não há o que
+mostrar.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
+    <span class="placa__rotulo">{{ placa_rotulo }}</span>
+    <span class="placa__numero">{{ placa_numero }}</span>
+  </span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Visualizar</h1>
+    <p class="pagina-cabecalho__descricao">{{ descricao }}</p>
+  </div>
+</header>
+
+<div class="visualizador-pdf">
+  {% if not folhas %}<p class="vazio-inline">{% icone "files" classe="icone--sm" %}Nenhum documento para mostrar ainda.</p>{% endif %}
+  {% for f in folhas %}
+    <section class="visualizador-pdf__pagina" aria-labelledby="vis-{{ forloop.counter }}">
+      <p class="visualizador-pdf__rotulo" id="vis-{{ forloop.counter }}">{% if folhas|length > 1 %}<span class="visualizador-pdf__numero">{{ forloop.counter }}/{{ folhas|length }}</span>{% endif %}{{ f.titulo }}{% if f.descricao %}<span class="texto-terciario"> · {{ f.descricao }}</span>{% endif %}</p>
+      <div class="visualizador-pdf__moldura"><iframe class="visualizador-pdf__folha" src="{{ f.url }}" title="{{ f.titulo }}" data-folha-inteira></iframe></div>
+    </section>
+  {% endfor %}
+</div>
+
+<div class="barra-acoes">
+  <a class="botao botao--texto" href="{{ voltar_url }}">{{ voltar_rotulo }}</a>
+  {% if pdf_url %}<a class="botao" href="{{ pdf_url }}" download="{{ pdf_nome }}" data-baixar-arquivo>{% icone "file-check-2" %}Baixar {% if folhas|length > 1 %}este PDF{% else %}o PDF{% endif %}</a>{% endif %}
+  {% if zip_url %}
+  {# Todos os documentos, cada um em PDF, num .zip numerado na ordem do processo. #}
+  <form method="post" action="{{ zip_url }}" class="form-em-linha" data-baixar-arquivo>{% csrf_token %}<button type="submit" class="botao">{% icone "files" %}Baixar tudo (ZIP)</button></form>
+  {% endif %}
+  {% if separados %}
+  {# Os mesmos documentos, um PDF por arquivo (num ZIP) — o envio da janela "Baixar", já respondido. #}
+  <form method="post" action="{{ separados.url }}" class="form-em-linha" data-baixar-arquivo>
+    {% csrf_token %}
+    {% for item in separados.itens %}<input type="hidden" name="itens" value="{{ item }}">{% endfor %}
+    <input type="hidden" name="formato" value="pdf"><input type="hidden" name="saida" value="separados">
+    <input type="hidden" name="voltar" value="{{ separados.voltar }}">
+    <button type="submit" class="botao">{% icone "files" %}Baixar separados</button>
+  </form>
+  {% endif %}
+  {% if baixar_url %}<button type="button" class="botao botao--primario" data-baixar-documentos="{{ baixar_url }}" data-baixar-titulo="{{ titulo_doc }}">{% icone "download" %}Baixar documentos</button>{% endif %}
+</div>
+{% if baixar_url %}{% include "componentes/dialogo_baixar.html" %}{% endif %}
+{% endblock %}

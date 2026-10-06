@@ -9,10 +9,6 @@
     <h1 class="pagina-cabecalho__titulo">Viagens</h1>
     <p class="pagina-cabecalho__descricao">Ofícios de viagem, diárias e documentos da sua unidade.</p>
   </div>
-  <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="{% url 'viagens:oficios' %}">{% icone "file-text" %}Todos os ofícios</a>
-    {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
-  </div>
 </header>
 {% endblock %}
 {% block indicadores %}

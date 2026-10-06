@@ -64,9 +64,9 @@ faixa sem nenhuma vigência.
     </div>
     <div class="dialogo__corpo pilha">
       {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.faixa classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.vigente_desde classe="campo--md" %}
+      <div class="campos campos--iguais">
+        {% include "componentes/campo.html" with campo=form.faixa %}
+        {% include "componentes/campo.html" with campo=form.vigente_desde %}
       </div>
       {% if editando %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Rascunhos recalculados passam a usar o valor novo; documentos emitidos não mudam. Para um reajuste, prefira <b>Nova vigência</b>.</p></div></div>{% endif %}
       {% include "componentes/campo.html" with campo=form.valor_24h texto_fixo_antes="R$" %}

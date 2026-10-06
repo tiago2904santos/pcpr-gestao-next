@@ -4,116 +4,6 @@
    Regras só com tokens (tokens.css); depende de base.css e components.css.
    ===================================================================== */
 
-/* =============== Abas =============== */
-.abas {
-  display: flex;
-  gap: var(--esp-1);
-  /* Rolar só de lado (telas estreitas): com overflow-x sozinho o navegador liga a rolagem
-     vertical junto e um fio de sobra já fazia aparecer a barra. */
-  overflow-x: auto;
-  overflow-y: hidden;
-  border-bottom: var(--borda);
-}
-
-.aba {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-2);
-  padding: var(--esp-3) var(--esp-3);
-  border: 0;
-  background: transparent;
-  color: var(--cor-texto-secundario);
-  font-weight: var(--peso-medio);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.aba:hover {
-  color: var(--cor-texto);
-  text-decoration: none;
-}
-
-.aba:focus-visible {
-  outline-offset: calc(-1 * var(--foco-offset));
-  box-shadow: none;
-}
-
-.aba[aria-selected="true"],
-.aba[aria-current="page"] {
-  color: var(--cor-texto);
-  font-weight: var(--peso-semi);
-}
-
-/* Ao trocar de aba, quem se mexe é o que mudou de estado: o filete, que cresce de lado
-   (eixo X), e a contagem, que sobe (eixo Y). O rótulo fica parado — ele não mudou. */
-.aba[aria-current="page"] .aba__contagem {
-  animation: contagem-entrar var(--duracao-media) var(--curva-padrao);
-}
-
-@keyframes contagem-entrar {
-  from { opacity: 0; translate: 0 0.4rem; }
-}
-
-/* Filete dourado sob a aba ativa (DNA das referências), nasce da esquerda. */
-.aba[aria-selected="true"]::after,
-.aba[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: var(--esp-2);
-  right: var(--esp-2);
-  bottom: -1px;
-  height: var(--filete);
-  border-radius: var(--raio-xs) var(--raio-xs) 0 0;
-  background: var(--cor-marca);
-  transform-origin: left center;
-  animation: filete-crescer var(--duracao-media) var(--curva-padrao);
-}
-
-.aba__contagem {
-  min-width: 1.5rem;
-  padding: 0 var(--esp-1);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-superficie-realce);
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-semi);
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  transition: background-color var(--duracao-rapida) var(--curva-padrao),
-    color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.aba[aria-current="page"] .aba__contagem,
-.aba[aria-selected="true"] .aba__contagem {
-  background: var(--grafite-900);
-  color: var(--neutro-0);
-}
-
-/* Item de meta que é ação (ex.: "Usado em 3 ofícios" abre a lista): tem a mesma cara do
-   texto ao lado, mas se comporta como botão. */
-.registro__meta-item--acao {
-  border: 0;
-  background: none;
-  font: inherit;
-  color: var(--cor-marca-texto);
-  cursor: pointer;
-  transition: color var(--duracao-rapida) var(--curva-padrao);
-}
-
-.registro__meta-item--acao:hover {
-  color: var(--cor-texto);
-}
-
-/* Link de meta numa linha que já é clicável (entrada dos cadastros: "3 incompletos"):
-   fica por cima do link esticado do título e com o alvo mínimo de toque. */
-.registro__meta-item--alvo {
-  position: relative;
-  z-index: 1;
-  min-height: var(--alvo-minimo);
-}
-
 /* =============== Refino da busca (fichas) =============== */
 /* A tela diz como entendeu o termo e deixa escolher: "Ofício 26/2026 (1)" ou
    "Protocolo com 26 (12)". Fica entre os filtros e o cabeçalho dos resultados. */
@@ -210,18 +100,43 @@ a.ficha:hover {
   border-bottom: 0;
 }
 
+/* Última linha encostada na base do cartão: o fundo do hover e o trilho dourado seguem o
+   canto arredondado (o cartão não recorta os filhos — o menu da linha precisa escapar). */
+.registros:last-child > .registro:last-child {
+  border-radius: 0 0 var(--raio-lg) var(--raio-lg);
+}
+
+/* Lista solta num bloco da folha (ex.: "O que o termo emite"): a primeira linha também é
+   uma ponta — fundo e fita seguem a curva de cima. */
+.secao__bloco > .registros > .registro:first-child {
+  border-top-left-radius: var(--raio-lg);
+  border-top-right-radius: var(--raio-lg);
+}
+
 /* Menu aberto numa linha: a linha sobe sobre as vizinhas. Sem isso as ações da linha de
    baixo (que criam contexto de empilhamento ao aparecer) cobriam o painel e o clique num
-   item caía no botão da outra linha. */
-.registro:has(.menu__painel:not([hidden])) {
+   item caía no botão da outra linha.
+
+   A condição é o botão estar aberto, não o painel não ter [hidden]: as caixas de "pousar"
+   (Usado em N ofícios) se escondem por `visibility`, nunca com [hidden]. Com a regra
+   antiga TODA linha que tivesse uma dessas caixas ficava em z 20 — e, no empate, a linha
+   de baixo (mais tarde na árvore) pintava o seu texto por cima do menu aberto na de cima. */
+.registro:has([data-menu-botao][aria-expanded="true"]) {
   z-index: var(--z-painel-campo);
+}
+
+/* A caixa de pousar também precisa subir, mas um degrau abaixo do menu de ações: com as
+   duas abertas, quem manda é o menu que a pessoa abriu com o clique. */
+.registro:has(.menu--pousar:hover),
+.registro:has(.menu--pousar:focus-within) {
+  z-index: calc(var(--z-painel-campo) - 1);
 }
 
 /* Hover: superfície sutil + trilho dourado à esquerda (a mesma gramática das tabelas). */
 .registro:hover,
 .registro:focus-within {
   background: var(--cor-superficie-sutil);
-  box-shadow: inset var(--filete-fino) 0 0 var(--cor-marca);
+  box-shadow: inset var(--filete) 0 0 var(--cor-marca);
 }
 
 /* Cabeçalho de grupo (mês): leitura em alta velocidade numa lista longa. Fica preso
@@ -312,9 +227,20 @@ a.ficha:hover {
   text-overflow: ellipsis;
 }
 
-/* Valor curto (o tipo de destino): pode ocupar o cartão. */
+/* Valor curto (o tipo de destino): pode ocupar o cartão. "INTERIOR + CAPITAL" é o caso
+   longo — encolhe com o cartão em vez de ser cortado, já que aqui, ao contrário da conta
+   das diárias, o texto é a informação inteira e reticências não dizem nada. */
+.resumo__indicadores .indicador--compacto {
+  container-type: inline-size;
+}
+
 .resumo__indicadores .indicador--compacto .indicador__valor--grande {
-  font-size: var(--texto-3xl);
+  font-size: clamp(var(--texto-lg), 9cqw, var(--texto-3xl));
+  /* Pode quebrar: o `nowrap` acima existe para a conta das diárias, que perde o sentido
+     partida ao meio. Aqui são nomes de faixa ("INTERIOR + CAPITAL") — duas linhas dizem
+     tudo, reticências não. */
+  white-space: normal;
+  text-overflow: clip;
 }
 
 /* O roteiro é texto que quebra (nomes de cidade), as diárias são números curtos: 60/40. */
@@ -481,6 +407,18 @@ a.ficha:hover {
 
 .resumo__definicoes .resumo__largo {
   grid-column: 1 / -1;
+}
+
+/* Texto de uma linha longa (nome com cargo, valor por extenso): duas colunas. Numa só ele
+   quebrava em três linhas ao lado de um vão vazio; na linha inteira sobrava espaço. */
+.resumo__definicoes .resumo__medio {
+  grid-column: span 2;
+}
+
+@media (max-width: 767.98px) {
+  .resumo__definicoes .resumo__medio {
+    grid-column: 1 / -1;
+  }
 }
 
 .resumo__valor {
@@ -837,6 +775,19 @@ a.ficha:hover {
   }
 }
 
+/* Em tela larga os filtros cabem todos numa linha: uma coluna por filtro, nenhuma com
+   peso dobrado. Antes as duas datas pediam duas colunas cada e empurravam o resto para
+   uma segunda fila, com um vão grande sobrando ao lado. */
+@media (min-width: 1200px) {
+  .filtros__avancados {
+    grid-template-columns: repeat(var(--filtros-colunas, 5), minmax(0, 1fr));
+  }
+
+  .filtros__avancados .filtros__campo--lg {
+    grid-column: auto;
+  }
+}
+
 .filtros__limpar {
   justify-self: start;
   align-self: center;
@@ -1006,8 +957,11 @@ a.ficha:hover {
 }
 
 /* O registro que está aberto ao lado (ex.: o documento do termo mostrado na prévia). */
-.registro--atual {
+.registro--atual,
+.registro--atual:hover,
+.registro--atual:focus-within {
   background: var(--cor-superficie-sutil);
+  /* A fita do aberto não afina sob o mouse (o hover comum usa o filete fino). */
   box-shadow: inset var(--filete) 0 0 var(--cor-marca);
 }
 
@@ -1178,4 +1132,26 @@ a.ficha:hover {
 .prestacao-servidor__notas {
   display: grid;
   gap: var(--esp-05);
+}
+/* Item de meta que é ação (ex.: "Usado em 3 ofícios" abre a lista): tem a mesma cara do
+   texto ao lado, mas se comporta como botão. */
+.registro__meta-item--acao {
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--cor-marca-texto);
+  cursor: pointer;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.registro__meta-item--acao:hover {
+  color: var(--cor-texto);
+}
+
+/* Link de meta numa linha que já é clicável (entrada dos cadastros: "3 incompletos"):
+   fica por cima do link esticado do título e com o alvo mínimo de toque. */
+.registro__meta-item--alvo {
+  position: relative;
+  z-index: 1;
+  min-height: var(--alvo-minimo);
 }

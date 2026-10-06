@@ -1,4 +1,5 @@
 {% extends "arquetipos/lista.html" %}
+{% block modulos %}{{ block.super }}{% load static %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block titulo %}Viaturas{% endblock %}
 {% block titulo_lista %}Viaturas{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Veículos oficiais que podem ser designados a uma viagem, com os servidores que costumam dirigi-los.</p>{% endblock %}
@@ -113,51 +114,8 @@ Ativas / Incompletas / Inativas e "Desativar".
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
-<dialog id="dialogo-viatura" class="dialogo dialogo--largo" aria-labelledby="dialogo-viatura-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
-  <form method="post" action="{% url 'cadastros:salvar_viatura' %}" novalidate>
-    {% csrf_token %}
-    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
-    <input type="hidden" name="voltar" value="{{ request.path }}?{{ querystring_base }}">
-    <div class="dialogo__cabecalho">
-      <div class="dialogo__cabecalho-texto">
-        <h2 class="dialogo__titulo" id="dialogo-viatura-titulo">{% if editando %}Editar viatura {{ editando.placa_formatada }}{% else %}Nova viatura{% endif %}</h2>
-        <p class="texto-secundario texto-sm">Só a placa é obrigatória; os demais campos podem ser completados depois.</p>
-      </div>
-    </div>
-    <div class="dialogo__corpo pilha">
-      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      {% if editando and not editando.completo %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Falta {{ editando.faltando_texto }} para o ofício sair completo.</p></div></div>{% endif %}
-      <fieldset class="grupo-campos">
-        <legend>Identificação</legend>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.placa classe="campo--md" ajuda_oculta=True %}
-          {% include "componentes/campo.html" with campo=form.modelo classe="campo--lg" %}
-        </div>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.tipo classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form.combustivel classe="campo--lg" %}
-        </div>
-      </fieldset>
-      <fieldset class="grupo-campos">
-        <legend>Lotação</legend>
-        <div class="campo{% if form.unidade.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="{{ form.unidade.id_for_label }}">{{ form.unidade.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Sigla ou nome da unidade…">{{ form.unidade|campo_acessivel:"" }}</pc-combobox>
-          {% if form.unidade.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.unidade.errors|join:" " }}</span></p>{% endif %}
-        </div>
-      </fieldset>
-      <fieldset class="grupo-campos">
-        <legend>Motoristas habituais</legend>
-        {% include "componentes/campo.html" with campo=form.motoristas rotulo="Buscar servidor" %}
-      </fieldset>
-    </div>
-    <div class="dialogo__rodape">
-      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
-      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
-      {% if not editando %}<button type="submit" class="botao" name="outro" value="1">Cadastrar e incluir outra</button>{% endif %}
-      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar viatura{% endif %}</button>
-    </div>
-  </form>
-</dialog>
+{% include "componentes/dialogo_viatura.html" %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-combustivel" slug="combustiveis" rotulo="combustível" destino=form.combustivel.auto_id %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-unidade" slug="unidades" rotulo="unidade" destino=form.unidade.auto_id com_sigla=True %}
 {% endif %}
 {% endblock %}

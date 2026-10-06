@@ -1,0 +1,14 @@
+{% comment %}
+"Voltar para …": a tarefa que ficou aberta em outra tela.
+
+Aparece quando a pessoa sai de um trabalho para resolver algo aqui (abrir os textos
+prontos no meio de um ofício, por exemplo) e segue com ela por qualquer página até voltar
+— o destino fica guardado na sessão (`navegacao.pagina_anterior`), não no Referer.
+
+Flutua no canto inferior esquerdo, do lado oposto às ações da própria tela: é um atalho de
+saída, não uma ação do que está aberto. A folha de onde se saiu salva sozinha, então
+voltar devolve tudo como estava.
+{% endcomment %}
+<a class="botao voltar-tarefa" href="{{ pagina_anterior.url }}">
+  {% icone "arrow-left" %}Voltar para {{ pagina_anterior.rotulo }}
+</a>

@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -59,19 +59,25 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
     <p>{{ d.cabecalho_unidade }}</p>
   </header>
   <main>
-    <div class="capa">
+    {% comment %}
+    O que o editor deixa escrever (ADR 0018), em três regiões: o plano (capa a valor), o fecho
+    (coordenação e considerações) e a assinatura. A linha de local e data fica fora — a data
+    só se fixa ao gerar. Cada seção é um bloco (o histórico diz qual mudou).
+    {% endcomment %}
+    {% regiao "corpo" "Plano" %}
+    <div class="capa" data-bloco="capa" data-rotulo="Título">
       <h1>PLANO DE TRABALHO Nº {{ d.numero }}</h1>
       <p>{{ d.unidade_nome }}</p>
     </div>
 
-    <section>
+    <section data-bloco="contextualizacao" data-rotulo="Breve contextualização">
       <h2>Breve contextualização</h2>
       {{ d.contextualizacao|linebreaks }}
     </section>
 
     {% if d.eventos %}
     {# Vários eventos: a data vai no título de cada evento (sem a linha "Datas"). #}
-    <section class="quebra">
+    <section class="quebra" data-bloco="atuacao" data-rotulo="Atuação">
       <h2>Atuação</h2>
       {% for e in d.eventos %}
         <div class="evento">
@@ -83,24 +89,24 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
       {% endfor %}
       <p><strong>Efetivo total:</strong>{% if d.efetivo %}<br>{{ d.efetivo|linebreaksbr }}{% else %} ________{% endif %};</p>
     </section>
-    <section class="lista">
+    <section class="lista" data-bloco="atividades" data-rotulo="Atividades">
       <h2>Atividades a serem desenvolvidas</h2>
       {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.atividades|default:"________"|linebreaks }}{% endfor %}
     </section>
-    <section class="lista">
+    <section class="lista" data-bloco="metas" data-rotulo="Metas">
       <h2>Metas estabelecidas</h2>
       {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.metas|default:"________"|linebreaks }}{% endfor %}
     </section>
-    <section class="lista">
+    <section class="lista" data-bloco="recursos" data-rotulo="Recursos">
       <h2>Recursos necessários</h2>
       {% for e in d.eventos %}<p><strong>{{ e.cabecalho }}:</strong></p>{{ e.recursos|default:"________"|linebreaks }}{% endfor %}
     </section>
-    <section>
+    <section data-bloco="valor" data-rotulo="Valor total">
       <h2>Valor total do plano</h2>
       {% if d.valor %}<p><strong>{{ d.valor_rotulo }}:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
     </section>
     {% else %}
-    <section class="quebra">
+    <section class="quebra" data-bloco="atuacao" data-rotulo="Atuação">
       <h2>Atuação</h2>
       <p><strong>Datas:</strong> {{ d.datas|default:"________" }};</p>
       <p><strong>Local:</strong> {{ d.local|default:"________" }};</p>
@@ -109,42 +115,47 @@ não se divide entre páginas; cabeçalho institucional e número da página em 
       {% if d.unidade_movel %}<p>{{ d.unidade_movel }}</p>{% endif %}
     </section>
 
-    <section class="lista">
+    <section class="lista" data-bloco="atividades" data-rotulo="Atividades">
       <h2>Atividades a serem desenvolvidas</h2>
       {{ d.atividades|default:"________"|linebreaks }}
     </section>
 
-    <section class="lista">
+    <section class="lista" data-bloco="metas" data-rotulo="Metas">
       <h2>Metas estabelecidas</h2>
       {{ d.metas|default:"________"|linebreaks }}
     </section>
 
-    <section class="lista">
+    <section class="lista" data-bloco="recursos" data-rotulo="Recursos">
       <h2>Recursos necessários</h2>
       {{ d.recursos|default:"________"|linebreaks }}
     </section>
 
-    <section>
+    <section data-bloco="valor" data-rotulo="Valor total">
       <h2>Valor total do plano</h2>
       {% if d.valor %}<p><strong>Valor total:</strong>{{ d.valor_resto }}</p>{% else %}<p>________</p>{% endif %}
     </section>
     {% endif %}
+    {% endregiao %}
 
     <div class="quebra">
-      <section>
+      {% regiao "fecho" "Coordenação e considerações" %}
+      <section data-bloco="coordenacao" data-rotulo="Coordenador do evento">
         <h2>Coordenador do evento</h2>
         {{ d.coordenacao|default:"________"|linebreaks }}
       </section>
 
-      <section>
+      <section data-bloco="consideracoes" data-rotulo="Considerações finais">
         <h2>Considerações finais</h2>
         {{ d.consideracoes|linebreaks }}
       </section>
+      {% endregiao %}
 
       {% if d.local_data %}<p class="local-data">{{ d.local_data }}.</p>{% endif %}
-      <div class="assinatura">
+      {% regiao "assinatura" "Assinatura" %}
+      <div class="assinatura" data-bloco="assinatura" data-rotulo="Assinatura">
         {% if d.assina.nome %}<p><strong>{{ d.assina.nome }}</strong></p><p>{{ d.assina.cargo }}</p>{% endif %}
       </div>
+      {% endregiao %}
     </div>
   </main>
 </body>

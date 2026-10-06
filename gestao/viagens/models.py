@@ -108,6 +108,23 @@ class Oficio(models.Model):
         VIATURA = "viatura", "Viatura oficial"
         OUTRO = "outro", "Outro meio (informar)"
 
+    class MeioTransporte(models.TextChoices):
+        """Meios de transporte da referência, reunidos no que se escolhe de verdade.
+
+        As 19 linhas da referência combinavam modal + origem do veículo + porte + "com/sem
+        motorista". O "com motorista" não entra: quem dirige é o bloco de motorista ao lado.
+        """
+
+        AEREO = "aereo", "Aéreo"
+        FERROVIARIO = "ferroviario", "Ferroviário"
+        MARITIMO = "maritimo", "Marítimo"
+        ONIBUS_LINHA = "onibus_linha", "Rodoviário — ônibus de linha"
+        ONIBUS_FRETADO = "onibus_fretado", "Rodoviário — ônibus fretado"
+        VEICULO_FRETADO = "veiculo_fretado", "Rodoviário — veículo fretado"
+        VEICULO_OFICIAL = "veiculo_oficial", "Rodoviário — veículo oficial de outro órgão"
+        TAXIGOV = "taxigov", "TAXIGOV"
+        SEM_CUSTO = "sem_custo", "Sem custo para o Estado"
+
     class Marcador(models.TextChoices):
         NENHUM = "", "Nenhum (documento original)"
         RETIFICADO = "retificado", "Retificado (corrige ofício anterior à viagem)"
@@ -158,6 +175,8 @@ class Oficio(models.Model):
                                 related_name="oficios")
     transporte_descricao = models.CharField("descrição do transporte", max_length=120,
                                             blank=True)
+    transporte_meio = models.CharField("meio de transporte", max_length=20, blank=True,
+                                       choices=MeioTransporte.choices)
     transporte_placa = models.CharField("placa", max_length=7, blank=True)
     transporte_combustivel = models.ForeignKey(Combustivel, on_delete=models.PROTECT,
                                                null=True, blank=True)
@@ -1506,3 +1525,117 @@ class CarimboSolicitacao(models.Model):
 
     def __str__(self) -> str:
         return f"Carimbo p{self.pagina + 1} de {self.servidor_id}"
+
+
+class EdicaoTermo(models.Model):
+    """Uma versão do texto editado de um documento do termo — como EdicaoDocumento faz no
+    ofício (ADR 0018), uma linha por salvamento, restauração ou "voltar ao modelo".
+
+    O termo emite vários documentos (um por servidor, o genérico, o da viatura): `chave` diz
+    qual (a mesma de termos.documentos_do_termo). A versão em vigor é a de maior `numero`
+    do par (termo, chave); `regioes == {}` significa "como o modelo gera".
+
+    `modelos` guarda o HTML de cada região editada como o modelo a gerava na hora da edição:
+    quando os dados mudam depois (viatura, servidor, período), a edição é levada para o
+    texto novo do modelo por fusão a três, em vez de ficar presa aos dados antigos.
+    """
+
+    termo = models.ForeignKey(TermoAutorizacao, on_delete=models.CASCADE,
+                              related_name="edicoes")
+    chave = models.CharField(max_length=20)
+    numero = models.PositiveIntegerField()
+    acao = models.CharField(max_length=10, choices=EdicaoDocumento.Acao.choices,
+                            default=EdicaoDocumento.Acao.EDITADO)
+    regioes = models.JSONField("HTML por região", default=dict, blank=True)
+    blocos_alterados = models.JSONField(default=list, blank=True)
+    impressoes = models.JSONField(default=dict, blank=True)
+    modelos = models.JSONField("HTML do modelo por região, na edição", default=dict, blank=True)
+    restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
+                                      related_name="+")
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   null=True, related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["chave", "-numero"]
+        constraints = [
+            models.UniqueConstraint(fields=["termo", "chave", "numero"],
+                                    name="edicao_termo_numero_unico"),
+        ]
+        verbose_name = "edição de termo"
+        verbose_name_plural = "edições de termo"
+
+    def __str__(self) -> str:
+        return f"{self.termo} ({self.chave}) — texto v{self.numero}"
+
+    @property
+    def do_modelo(self) -> bool:
+        return not self.regioes
+
+
+class EdicaoOrdem(models.Model):
+    """Uma versão do texto editado do documento da Ordem de Serviço (como EdicaoTermo; as
+    regras ficam em edicao_texto.py). A OS emite um documento só: não há `chave`."""
+
+    ordem = models.ForeignKey(OrdemServico, on_delete=models.CASCADE, related_name="edicoes")
+    numero = models.PositiveIntegerField()
+    acao = models.CharField(max_length=10, choices=EdicaoDocumento.Acao.choices,
+                            default=EdicaoDocumento.Acao.EDITADO)
+    regioes = models.JSONField("HTML por região", default=dict, blank=True)
+    blocos_alterados = models.JSONField(default=list, blank=True)
+    impressoes = models.JSONField(default=dict, blank=True)
+    restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
+                                      related_name="+")
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   null=True, related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-numero"]
+        constraints = [
+            models.UniqueConstraint(fields=["ordem", "numero"],
+                                    name="edicao_ordem_numero_unico"),
+        ]
+        verbose_name = "edição de ordem de serviço"
+        verbose_name_plural = "edições de ordem de serviço"
+
+    def __str__(self) -> str:
+        return f"{self.ordem} — texto v{self.numero}"
+
+    @property
+    def do_modelo(self) -> bool:
+        return not self.regioes
+
+
+class EdicaoPlano(models.Model):
+    """Uma versão do texto editado do documento do plano de trabalho (como EdicaoOrdem; as
+    regras ficam em edicao_texto.py)."""
+
+    plano = models.ForeignKey(PlanoTrabalho, on_delete=models.CASCADE, related_name="edicoes")
+    numero = models.PositiveIntegerField()
+    acao = models.CharField(max_length=10, choices=EdicaoDocumento.Acao.choices,
+                            default=EdicaoDocumento.Acao.EDITADO)
+    regioes = models.JSONField("HTML por região", default=dict, blank=True)
+    blocos_alterados = models.JSONField(default=list, blank=True)
+    impressoes = models.JSONField(default=dict, blank=True)
+    restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
+                                      related_name="+")
+    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   null=True, related_name="+")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-numero"]
+        constraints = [
+            models.UniqueConstraint(fields=["plano", "numero"],
+                                    name="edicao_plano_numero_unico"),
+        ]
+        verbose_name = "edição de plano de trabalho"
+        verbose_name_plural = "edições de plano de trabalho"
+
+    def __str__(self) -> str:
+        return f"{self.plano} — texto v{self.numero}"
+
+    @property
+    def do_modelo(self) -> bool:
+        return not self.regioes

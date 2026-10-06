@@ -622,6 +622,11 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
   box-shadow: var(--sombra-flutuante);
 }
 
+/* Sem status no meio (barra só de botões): quem sai fica à esquerda e o resto à direita. */
+.barra-acoes > .botao--texto:first-child {
+  margin-right: auto;
+}
+
 /* Base 0: o texto do status quebra linha antes de empurrar os botões para baixo. */
 /* Rodapé de lista (cadastros): a ação "Novo…" fica no fim da lista, como na referência, e
    não flutua por cima das linhas (a barra fixa cobriria o menu da última linha visível). */
@@ -875,4 +880,49 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
 .texto-acesso {
   gap: var(--esp-2);
   color: var(--shell-filete-claro);
+}
+
+/* Volta ao trabalho: aparece quando se chega a uma área vindo de outra (ver
+   `navegacao.pagina_anterior`). Fica na linha das migalhas, à direita, porque é desvio —
+   não faz parte da hierarquia que as migalhas descrevem. */
+.migalhas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.migalhas ol {
+  flex: 1 1 auto;
+}
+
+.migalhas__voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  color: var(--cor-marca-texto);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+}
+
+.migalhas__voltar:hover {
+  text-decoration: underline;
+}
+
+/* "Voltar para …": atalho flutuante para a tarefa que ficou aberta em outra tela. Fica no
+   canto inferior esquerdo, oposto às ações da própria página (que moram à direita), e
+   acompanha a pessoa enquanto o desvio durar. */
+.voltar-tarefa {
+  position: fixed;
+  z-index: var(--z-barra-acoes);
+  bottom: var(--esp-4);
+  left: var(--esp-4);
+  box-shadow: var(--sombra-flutuante);
+}
+
+@media (max-width: 767.98px) {
+  /* No celular a barra de ações ocupa a largura toda: o atalho sobe para não cobri-la. */
+  .voltar-tarefa {
+    bottom: calc(var(--esp-4) + var(--altura-controle) + var(--esp-4));
+  }
 }

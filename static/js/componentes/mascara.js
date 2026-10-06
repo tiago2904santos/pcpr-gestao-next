@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Máscaras leves por atributo: `data-mascara="protocolo|cpf|telefone|placa|data|hora"`.
+ * Máscaras leves por atributo: `data-mascara="protocolo|cpf|rg|telefone|cep|placa|data|hora"`.
  * O servidor valida e normaliza de novo — a máscara é só conforto de digitação.
  */
 const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
@@ -32,6 +32,23 @@ const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
     if (v.length <= 2) return v.replace(/^(\d+)/, "($1");
     const meio = v.length > 10 ? 7 : 6;
     return `(${v.slice(0, 2)}) ${v.slice(2, meio)}${v.length > meio ? `-${v.slice(meio)}` : ""}`;
+  },
+  // RG: 8 dígitos (0.000.000-0) ou 9 (00.000.000-0), como o servidor imprime de volta.
+  // Letras passam (há RG com dígito "X" e de outros estados), e aí fica como foi digitado.
+  rg: (v) => {
+    const limpo = v.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 12);
+    if (!/^\d+$/.test(limpo)) return limpo;
+    if (limpo.length <= 8) {
+      return limpo
+        .replace(/^(\d{1})(\d)/, "$1.$2")
+        .replace(/^(\d{1})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/^(\d{1})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    }
+    const v9 = limpo.slice(0, 9);
+    return v9
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
   },
   // CEP: 00000-000.
   cep: (d) => d.replace(/\D/g, "").slice(0, 8).replace(/^(\d{5})(\d)/, "$1-$2"),

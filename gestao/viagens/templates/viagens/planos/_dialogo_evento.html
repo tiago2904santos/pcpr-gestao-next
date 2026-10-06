@@ -1,4 +1,4 @@
-{# Janela de um evento adicional do plano (abre por ?evento=novo ou ?evento=<id>). #}
+{% load viagens %}{# Janela de um evento adicional do plano (abre por ?evento=novo ou ?evento=<id>). #}
 <dialog id="dialogo-evento" class="dialogo dialogo--largo" aria-labelledby="t-dialogo-evento" data-abrir-ao-carregar>
   <form method="post" action="{% url 'viagens:salvar_evento_plano' plano.pk %}" novalidate>
     {% csrf_token %}
@@ -22,7 +22,7 @@
         {% include "componentes/campo.html" with campo=form_evento.data_fim classe="campo--md" %}
         {% include "componentes/campo.html" with campo=form_evento.horario classe="campo--md" %}
       </div>
-      {% include "componentes/campo.html" with campo=form_evento.destinos rotulo="Destinos" %}
+      {% campo_destinos form_evento.destinos unidade=plano.unidade %}
       <div class="campos">
         <div class="campo campo--lg">
           <label class="campo__rotulo" for="busca-coord-op-evento">Coordenador operacional <span class="campo__opcional">(opcional)</span></label>

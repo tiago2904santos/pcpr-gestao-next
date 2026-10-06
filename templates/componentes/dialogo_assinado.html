@@ -6,26 +6,44 @@ Janela "anexar via assinada" — uma por página. Quem aciona é um botão com:
 assinado.js preenche, abre e confere extensão e tamanho antes de enviar; o servidor confere
 de novo (extensão .pdf, até 15 MB, começa com %PDF-). Sem JS, o botão é um link para a
 página de anexar, com o mesmo formulário.
+
+Desenho: o documento no cabeçalho, uma área para soltar o PDF (ou clicar e escolher) e, já
+escolhido, o arquivo num cartão com nome e tamanho — trocar é clicar de novo.
 {% endcomment %}
-<dialog id="dialogo-assinado" class="dialogo" aria-labelledby="dialogo-assinado-titulo">
+<dialog id="dialogo-assinado" class="dialogo dialogo--anexo" aria-labelledby="dialogo-assinado-titulo" aria-describedby="dialogo-assinado-documento">
   <form method="post" action="" enctype="multipart/form-data" novalidate data-assinado-form>
     {% csrf_token %}
     <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
-    <div class="dialogo__cabecalho">
-      <h2 class="dialogo__titulo" id="dialogo-assinado-titulo">Anexar via assinada</h2>
-    </div>
-    <div class="dialogo__corpo pilha">
-      <p class="texto-secundario texto-sm"><strong data-assinado-documento></strong></p>
-      <p class="alerta alerta--info" data-assinado-troca-aviso hidden>{% icone "info" %}<span>Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.</span></p>
-      <div class="campo">
-        <label class="campo__rotulo" for="dialogo-assinado-arquivo">PDF assinado<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-        <input class="entrada entrada--arquivo" type="file" id="dialogo-assinado-arquivo" name="arquivo" accept="application/pdf,.pdf" required aria-describedby="dialogo-assinado-ajuda dialogo-assinado-erro">
-        <p class="campo__ajuda" id="dialogo-assinado-ajuda">O documento escaneado ou com assinatura digital, em PDF, até 15 MB. A via fica guardada com o documento; gerar o PDF continua gerando o documento atualizado.</p>
-        <p class="campo__erro" id="dialogo-assinado-erro" hidden>{% icone "alert-circle" classe="icone--sm" %}<span data-assinado-erro>Escolha o PDF assinado.</span></p>
+    <div class="dialogo__cabecalho anexo__cabecalho">
+      <span class="anexo__selo" aria-hidden="true">{% icone "file-signature" %}</span>
+      <div>
+        <h2 class="dialogo__titulo" id="dialogo-assinado-titulo">Anexar via assinada</h2>
+        <p class="texto-secundario texto-sm" id="dialogo-assinado-documento" data-assinado-documento></p>
       </div>
     </div>
+    <div class="dialogo__corpo anexo">
+      <p class="alerta alerta--info" data-assinado-troca-aviso hidden>{% icone "info" %}<span>Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.</span></p>
+      <label class="anexo__area" for="dialogo-assinado-arquivo" data-assinado-area>
+        <input class="anexo__entrada" type="file" id="dialogo-assinado-arquivo" name="arquivo" accept="application/pdf,.pdf" required aria-describedby="dialogo-assinado-ajuda dialogo-assinado-erro">
+        <span class="anexo__vazio" data-assinado-vazio>
+          <span class="anexo__icone" aria-hidden="true">{% icone "file-input" %}</span>
+          <span class="anexo__chamada">Arraste o PDF assinado para cá ou <span class="anexo__link">escolha o arquivo</span></span>
+          <span class="anexo__limite" id="dialogo-assinado-ajuda">PDF escaneado ou com assinatura digital · até 15 MB</span>
+        </span>
+        <span class="anexo__arquivo" data-assinado-arquivo hidden>
+          <span class="anexo__icone anexo__icone--pdf" aria-hidden="true">{% icone "file-text" %}</span>
+          <span class="anexo__arquivo-texto">
+            <span class="anexo__nome" data-assinado-nome></span>
+            <span class="anexo__tamanho" data-assinado-tamanho></span>
+          </span>
+          <span class="anexo__trocar">Trocar</span>
+        </span>
+      </label>
+      <p class="campo__erro" id="dialogo-assinado-erro" hidden>{% icone "alert-circle" classe="icone--sm" %}<span data-assinado-erro>Escolha o PDF assinado.</span></p>
+      <p class="anexo__nota">A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.</p>
+    </div>
     <div class="dialogo__rodape">
-      <button type="button" class="botao botao--texto" data-fechar-dialogo>Voltar</button>
+      <button type="button" class="botao" data-fechar-dialogo>Voltar</button>
       <button type="submit" class="botao botao--primario">{% icone "file-signature" %}Anexar via assinada</button>
     </div>
   </form>

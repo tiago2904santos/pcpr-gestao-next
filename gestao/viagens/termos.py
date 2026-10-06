@@ -203,6 +203,8 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
                         "Você não pode criar termos de autorização.")
         termo = TermoAutorizacao(unidade=policies.unidade_do_usuario(usuario),
                                  criado_por=usuario)
+    # Os documentos de antes: os que surgirem agora (servidor, viatura) herdam o texto editado.
+    docs_antes = {d["chave"] for d in documentos_do_termo(termo)} if termo.pk else set()
     if oficio is not None:
         policies.exigir(policies.pode_ver(usuario, oficio), "Ofício não encontrado.")
         if oficio.situacao == Oficio.Situacao.CANCELADO:
@@ -218,11 +220,8 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         raise TermoInvalido(f"No máximo {MAX_SERVIDORES} servidores por termo.")
     if len(destinos) > MAX_DESTINOS:
         raise TermoInvalido(f"No máximo {MAX_DESTINOS} destinos por termo.")
-    destinos_oficio, inicio_oficio, _ = _do_oficio(oficio) if oficio else ([], None, None)
-    if not destinos and not destinos_oficio:
-        raise TermoInvalido("Informe o destino ou escolha um ofício com roteiro.")
-    if not data_inicio and not inicio_oficio:
-        raise TermoInvalido("Informe a data ou escolha um ofício com período.")
+    # Destino e período podem ficar para depois: o termo nasce rascunho ("Novo termo" já o
+    # cria) e o que falta aparece como pendência (efetivo().completo).
     if data_inicio and data_fim and data_fim < data_inicio:
         raise TermoInvalido("A data final não pode ser anterior à inicial.")
     if data_fim and not data_inicio:
@@ -239,6 +238,8 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         termo.destinos.all().delete()
         TermoDestino.objects.bulk_create(
             [TermoDestino(termo=termo, municipio=m, ordem=i) for i, m in enumerate(destinos)])
+    if docs_antes:
+        _herdar_texto_editado(termo, usuario, docs_antes)
     return termo
 
 
@@ -311,7 +312,16 @@ def documentos_do_termo(termo: TermoAutorizacao, ef: Efetivo | None = None) -> l
 
 
 def dados_do_documento(termo: TermoAutorizacao, chave: str) -> dict:
-    """Dados de um documento do termo (`chave`: id do servidor, "generico" ou "viatura")."""
+    """Dados de um documento do termo (`chave`: id do servidor, "generico" ou "viatura"),
+    com o texto editado no visualizador (EdicaoTermo), que vale para a folha, o PDF e o
+    DOCX — já levado para os dados atuais (regioes_vigentes)."""
+    dados = _dados_do_modelo(termo, chave)
+    dados["regioes_editadas"] = regioes_vigentes(termo, chave, dados)
+    return dados
+
+
+def _dados_do_modelo(termo: TermoAutorizacao, chave: str) -> dict:
+    """Os dados do documento sem o texto editado: o que o modelo usa para gerar."""
     ef = efetivo(termo)
     config = ConfiguracaoInstitucional.objects.filter(unidade=termo.unidade).first()
     if config is None:
@@ -334,6 +344,10 @@ def dados_do_documento(termo: TermoAutorizacao, chave: str) -> dict:
         "periodo": ef.periodo_extenso,
         "destino": ef.destino_texto,
         "destinos_frase": ef.destinos_frase,
+        # Frases em duas partes — a ligação ("nos dias", "no município de") e o dado, que
+        # sai em negrito como os demais dados preenchidos (nome, CPF, lotação…).
+        "periodo_partes": _partes(ef.periodo_extenso, ("nos dias", "no dia")),
+        "destinos_partes": _partes(ef.destinos_frase, ("nos municípios de", "no município de")),
         "participante": None if participante is None else {
             "nome": participante.nome, "rg": participante.rg_formatado or participante.rg,
             "cpf": participante.cpf_formatado, "telefone": participante.telefone_formatado,
@@ -346,18 +360,43 @@ def dados_do_documento(termo: TermoAutorizacao, chave: str) -> dict:
     }
 
 
+def _partes(frase: str, ligacoes: tuple[str, ...]) -> tuple[str, str]:
+    """"nos dias 13 até 16 de outubro" → ("nos dias", "13 até 16 de outubro")."""
+    for ligacao in ligacoes:
+        if frase.startswith(ligacao + " "):
+            return ligacao, frase[len(ligacao) + 1:]
+    return "", frase
+
+
 def nome_do_arquivo(termo: TermoAutorizacao, chave: str, extensao: str) -> str:
     sufixo = {GENERICO: "generico", VIATURA: "viatura"}.get(chave, f"servidor-{chave}")
     return f"termo-{termo.pk}-{sufixo}.{extensao}"
 
 
-def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
-    """HTML do documento; `folha=True` é a versão de tela (dentro do visualizador)."""
+def html_do_modelo(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+    """O documento como o modelo o gera, sem nenhum texto editado."""
     from django.template.loader import render_to_string
 
     from .documentos.pdf import _recursos
     return render_to_string("viagens/documentos/termo.html",
                             {"d": dados, "folha": folha, "nonce": nonce, **_recursos(folha)})
+
+
+def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "",
+                      regioes: dict[str, str] | None = None,
+                      blocos_alterados: set[str] | None = None) -> str:
+    """HTML do documento com o texto editado em vigor (o de `dados`, se `regioes` não vier);
+    `folha=True` é a versão de tela (dentro do visualizador). PDF, DOCX e a folha saem
+    daqui: o que se edita é o que se baixa."""
+    from .documentos.regioes import aplicar_regioes, marcar_blocos_alterados
+    if regioes is None:
+        regioes = dados.get("regioes_editadas") or {}
+    html = html_do_modelo(dados, folha=folha, nonce=nonce)
+    if regioes:
+        html = aplicar_regioes(html, regioes)
+    if blocos_alterados:
+        html = marcar_blocos_alterados(html, blocos_alterados)
+    return html
 
 
 def pdf_do_documento(dados: dict) -> bytes:
@@ -409,3 +448,192 @@ def zip_de_docx(termo: TermoAutorizacao) -> bytes:
             arquivo.writestr(nome_do_arquivo(termo, doc["chave"], "docx"),
                              docx_do_documento(dados_do_documento(termo, doc["chave"])))
     return buffer.getvalue()
+
+
+# ---------------------------------------------------------------- texto editado (ADR 0018)
+# Como no ofício: cada documento do termo (servidor, genérico, viatura) pode ter o texto
+# editado no visualizador; as regras de versão ficam em edicao_texto.py.
+
+
+class ConflitoDeEdicao(TermoInvalido):
+    """Outra pessoa salvou o texto deste documento depois que a folha foi aberta."""
+
+
+def _chave_valida(termo: TermoAutorizacao, chave: str) -> str:
+    if chave not in {d["chave"] for d in documentos_do_termo(termo)}:
+        raise TermoInvalido("Este documento não é do termo.")
+    return chave
+
+
+def _versoes(termo: TermoAutorizacao, chave: str):
+    from .models import EdicaoTermo
+    return EdicaoTermo.objects.filter(termo=termo, chave=chave)
+
+
+def _criar(termo: TermoAutorizacao, chave: str):
+    from .models import EdicaoTermo
+    return lambda **campos: EdicaoTermo.objects.create(termo=termo, chave=chave, **campos)
+
+
+def edicao_vigente(termo: TermoAutorizacao, chave: str):
+    from . import edicao_texto
+    return edicao_texto.vigente(_versoes(termo, chave))
+
+
+def regioes_vigentes(termo: TermoAutorizacao, chave: str, dados: dict | None = None
+                     ) -> dict[str, str]:
+    """O texto editado em vigor, já com os dados atuais. A edição foi feita sobre o modelo
+    de então (`modelos` da versão); se os dados mudaram depois (outra viatura, outro
+    período…), o que a pessoa mudou é levado para o modelo de agora por fusão a três — a
+    edição fica, e os dados acompanham o cadastro. Versões antigas, sem `modelos`, valem
+    como foram salvas."""
+    from .documentos.regioes import mesclar_alteracao, normalizar
+    edicao = edicao_vigente(termo, chave)
+    if edicao is None or not edicao.regioes:
+        return {}
+    regioes = dict(edicao.regioes)
+    if not edicao.modelos:
+        return regioes
+    agora = regioes_do_modelo(dados if dados is not None else _dados_do_modelo(termo, chave))
+    for regiao, html in regioes.items():
+        antes, novo = edicao.modelos.get(regiao), agora.get(regiao)
+        if antes is None or novo is None or normalizar(antes) == normalizar(novo):
+            continue
+        regioes[regiao], _ = mesclar_alteracao(antes, html, novo)
+    return regioes
+
+
+def _herdar_texto_editado(termo: TermoAutorizacao, usuario, docs_antes: set[str]) -> None:
+    """Os documentos que surgiram agora (um servidor a mais, a viatura) nascem com o texto
+    já editado nos irmãos: as mudanças do documento editado mais recente (de servidor, para
+    um servidor novo, quando há) vão para o modelo do novo por fusão a três — só o texto
+    comum; os dados de cada um ficam os dele."""
+    from . import edicao_texto
+    from .documentos.regioes import mesclar_alteracao
+    atuais = [d["chave"] for d in documentos_do_termo(termo)]
+    novos = [c for c in atuais if c not in docs_antes]
+    if not novos:
+        return
+    editados = []
+    for chave in atuais:
+        if chave in docs_antes:
+            edicao = edicao_vigente(termo, chave)
+            if edicao is not None and not edicao.do_modelo:
+                editados.append((chave, edicao))
+    if not editados:
+        return
+    for chave in novos:
+        de_servidor = chave not in (GENERICO, VIATURA)
+        mesmo_tipo = [par for par in editados if (par[0] not in (GENERICO, VIATURA)) == de_servidor]
+        origem, _ = max(mesmo_tipo or editados, key=lambda par: par[1].criado_em)
+        dados_origem = dados_do_documento(termo, origem)
+        modelo_origem = regioes_do_modelo(dados_origem)
+        modelo_novo = regioes_do_modelo(_dados_do_modelo(termo, chave))
+        regioes = {r: mesclar_alteracao(modelo_origem[r], html, modelo_novo[r])[0]
+                   for r, html in dados_origem["regioes_editadas"].items()
+                   if r in modelo_origem and r in modelo_novo}
+        try:
+            edicao_texto.salvar(_versoes(termo, chave), _criar(termo, chave), usuario,
+                                modelo_novo, regioes, versao_base=None, invalido=TermoInvalido,
+                                conflito=ConflitoDeEdicao, guardar_modelos=True)
+        except TermoInvalido:  # nada a levar (ficou igual ao modelo)
+            continue
+
+
+def regioes_do_modelo(dados: dict) -> dict[str, str]:
+    from .documentos.regioes import extrair_regioes
+    return extrair_regioes(html_do_modelo(dados))
+
+
+def _travar(usuario, termo: TermoAutorizacao) -> TermoAutorizacao:
+    atual = TermoAutorizacao.objects.select_for_update().get(pk=termo.pk)
+    policies.exigir(policies.pode_editar_termo(usuario, atual),
+                    "Você não pode alterar o texto deste termo.")
+    return atual
+
+
+@transaction.atomic
+def salvar_texto(termo: TermoAutorizacao, usuario, chave: str, regioes: dict[str, str], *,
+                 versao_base: int | None = None):
+    from . import edicao_texto
+    atual = _travar(usuario, termo)
+    chave = _chave_valida(atual, chave)
+    return edicao_texto.salvar(
+        _versoes(atual, chave), _criar(atual, chave), usuario,
+        regioes_do_modelo(_dados_do_modelo(atual, chave)), regioes,
+        versao_base=versao_base, invalido=TermoInvalido, conflito=ConflitoDeEdicao,
+        guardar_modelos=True)
+
+
+@transaction.atomic
+def restaurar_texto(termo: TermoAutorizacao, usuario, chave: str, numero: int):
+    from . import edicao_texto
+    atual = _travar(usuario, termo)
+    chave = _chave_valida(atual, chave)
+    return edicao_texto.restaurar(_versoes(atual, chave), _criar(atual, chave), usuario,
+                                  numero, invalido=TermoInvalido)
+
+
+@transaction.atomic
+def voltar_texto_ao_modelo(termo: TermoAutorizacao, usuario, chave: str):
+    from . import edicao_texto
+    atual = _travar(usuario, termo)
+    chave = _chave_valida(atual, chave)
+    return edicao_texto.voltar_ao_modelo(_versoes(atual, chave), _criar(atual, chave), usuario)
+
+
+@transaction.atomic
+def aplicar_texto_em_todos(termo: TermoAutorizacao, usuario, chave_origem: str
+                           ) -> tuple[int, list[str]]:
+    """Leva para os outros documentos do termo as alterações feitas no texto de um.
+
+    Cada bloco alterado na origem passa por uma fusão a três (regioes.mesclar_alteracao):
+    o que mudou vai para o mesmo ponto de cada documento irmão, onde o texto em volta é o
+    mesmo — inclusive no parágrafo do servidor (apagar ou reescrever o fim dele vale para
+    todos) —, e só o que cai em dado de cada um (nome, CPF, lotação) fica de fora. Devolve
+    quantos documentos mudaram e os blocos em que algo não pôde ir."""
+    from . import edicao_texto
+    from .documentos.regioes import bloco_original, mesclar_alteracao, trocar_bloco
+    atual = _travar(usuario, termo)
+    chave_origem = _chave_valida(atual, chave_origem)
+    origem = edicao_vigente(atual, chave_origem)
+    if origem is None or origem.do_modelo:
+        raise TermoInvalido("O texto deste documento está como o modelo: não há o que levar.")
+    dados_origem = dados_do_documento(atual, chave_origem)
+    modelo_origem = regioes_do_modelo(dados_origem)
+    texto_origem = dados_origem["regioes_editadas"]  # a edição, com os dados atuais
+    blocos = [b for b in origem.blocos_alterados if b["chave"] not in ("texto", "quebras")]
+
+    atualizados, ficaram = 0, set()
+    for doc in documentos_do_termo(atual):
+        chave = doc["chave"]
+        if chave == chave_origem:
+            continue
+        dados_destino = dados_do_documento(atual, chave)
+        modelo_destino = regioes_do_modelo(dados_destino)
+        vigentes = dados_destino["regioes_editadas"]
+        regioes = {r: vigentes.get(r, html) for r, html in modelo_destino.items()}
+        mudou = False
+        for bloco in blocos:
+            for regiao, html_modelo in modelo_origem.items():
+                antes = bloco_original(html_modelo, bloco["chave"])
+                if antes is None or regiao not in regioes:
+                    continue
+                editado = bloco_original(texto_origem.get(regiao, ""), bloco["chave"])
+                atual_destino = bloco_original(regioes[regiao], bloco["chave"])
+                if editado is None or atual_destino is None:
+                    ficaram.add(bloco["rotulo"])
+                    continue
+                fundido, fora = mesclar_alteracao(antes, editado, atual_destino)
+                if fora:
+                    ficaram.add(bloco["rotulo"])
+                novo = trocar_bloco(regioes[regiao], bloco["chave"], fundido)
+                if novo is not None and novo != regioes[regiao]:
+                    regioes[regiao], mudou = novo, True
+        if mudou:
+            edicao_texto.salvar(_versoes(atual, chave), _criar(atual, chave), usuario,
+                                modelo_destino, regioes, versao_base=None,
+                                invalido=TermoInvalido, conflito=ConflitoDeEdicao,
+                                guardar_modelos=True)
+            atualizados += 1
+    return atualizados, sorted(ficaram)

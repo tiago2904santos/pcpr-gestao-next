@@ -19,7 +19,8 @@
  * Depois de gravar, a tela acompanha o que foi gravado:
  *  - `campos` da resposta voltam ao formulário (ex.: a versão nova);
  *  - as regiões `[data-vivo][id]` (selos, conferência, listas que dependem dos dados) são
- *    trocadas pelas da página refeita no servidor — menos a que tem o foco;
+ *    trocadas pelas da página refeita no servidor — menos a que tem o foco — e a página
+ *    refeita é anunciada (`pcpr:pagina-refeita`) para quem tem mais a refazer com ela;
  *  - `recarregar: true` (a gravação mudou CAMPOS, não só valores — ex.: funções da equipe
  *    a escolher) recarrega a página, já com tudo gravado.
  */
@@ -31,8 +32,8 @@ export class Autosave {
   static todos = [];
   /** @type {number | undefined} */
   atraso = undefined;
-  /** @type {AbortController | null} */
-  pedido = null;
+  /** Gravações em fila: uma por vez, cada uma com a versão que a anterior devolveu. */
+  fila = Promise.resolve();
   /** Última carga enviada, para não regravar o que não mudou. */
   ultima = "";
   /** @type {Promise<void> | null} gravação automática em andamento */
@@ -109,8 +110,20 @@ export class Autosave {
     this.atraso = window.setTimeout(() => this.gravar(), ESPERA);
   }
 
+  /**
+   * Põe a gravação na fila. Cancelar a que está no caminho não serve: o servidor já pode
+   * ter gravado, e a seguinte iria com a versão velha — "outra pessoa alterou este termo".
+   * Saindo da página não há fila: vai o que houver, de uma vez (sendBeacon).
+   * @param {boolean} saindo
+   */
+  gravar(saindo = false) {
+    if (saindo) return this.gravarAgora(true);
+    this.fila = this.fila.then(() => this.gravarAgora()).catch(() => {});
+    return this.fila;
+  }
+
   /** @param {boolean} saindo */
-  async gravar(saindo = false) {
+  async gravarAgora(saindo = false) {
     const dados = new FormData(this.form);
     const assinatura = this.assinatura();
     if (assinatura === this.ultima) return;
@@ -119,8 +132,6 @@ export class Autosave {
       navigator.sendBeacon(this.url, dados);
       return;
     }
-    this.pedido?.abort();
-    this.pedido = new AbortController();
     this.anunciar("Salvando…");
     /** @type {(valor?: void) => void} */
     let terminar = () => {};
@@ -128,7 +139,7 @@ export class Autosave {
     const meu = new Promise((resolver) => { terminar = resolver; });
     this.emVoo = meu;
     try {
-      const resposta = await fetch(this.url, { method: "POST", body: dados, signal: this.pedido.signal });
+      const resposta = await fetch(this.url, { method: "POST", body: dados });
       if (!resposta.ok) throw new Error(String(resposta.status));
       const corpo = await resposta.json();
       if (!corpo.salvo) {
@@ -158,12 +169,10 @@ export class Autosave {
       document.documentElement.dataset.dadosSalvos = "1"; // para quem carregar depois
       document.dispatchEvent(new CustomEvent("pcpr:dados-salvos"));
       this.atualizarRegioes();
-    } catch (erro) {
-      if (/** @type {Error} */ (erro).name === "AbortError") return;
+    } catch {
       this.ultima = "";
       this.anunciar("Não foi possível salvar agora — suas alterações continuam na tela.");
     } finally {
-      // Uma gravação cancelada por outra mais nova não apaga o registro da mais nova.
       if (this.emVoo === meu) this.emVoo = null;
       terminar();
     }
@@ -184,6 +193,9 @@ export class Autosave {
         if (!outra || atual.contains(document.activeElement)) continue;
         atual.replaceWith(document.adoptNode(outra));
       }
+      // Quem tem mais a refazer com a página nova olha nela (ex.: o bloco de editores do
+      // termo, quando surge um documento — editores.js).
+      document.dispatchEvent(new CustomEvent("pcpr:pagina-refeita", { detail: { pagina: nova } }));
     } catch { /* informativo: a tela continua válida, só menos atual */ }
   }
 

@@ -52,8 +52,13 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
             "viatura": oficio.viatura.get_tipo_display(), "oficial": True,
         }
     else:
+        # Fora da viatura oficial, o meio é o escolhido na lista; o detalhe (livre) vem
+        # entre parênteses, quando a pessoa escreveu algo.
+        meio = oficio.get_transporte_meio_display() if oficio.transporte_meio else ""
+        detalhe = oficio.transporte_descricao
         transporte = {
-            "meio": oficio.transporte_descricao, "placa": oficio.transporte_placa,
+            "meio": f"{meio} ({detalhe})" if meio and detalhe else (meio or detalhe),
+            "placa": oficio.transporte_placa,
             "combustivel": str(oficio.transporte_combustivel or ""), "viatura": "",
             "oficial": False,
         }

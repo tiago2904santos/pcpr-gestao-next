@@ -11,18 +11,24 @@
  *     transporte vira "Viatura oficial"), avisando pelo toast.
  * A equipe é salva na hora (HTMX, evento `equipe-alterada`); a viatura segue no formulário
  * principal — a escolha automática só marca o campo, quem salva é a pessoa.
+ *
+ * É a escolha de viatura de todas as telas (viagens/_campo_viatura.html): fora do ofício a
+ * equipe é o campo CampoEquipe, cujos cartões trazem os mesmos data-*; `data-equipe` diz
+ * onde ela está (padrão #equipe) e o aviso de mudança é `pc-equipe-alterada`.
  */
 
 /** @typedef {{id: string, unidade: string, nome: string, motorista: boolean}} Membro */
 
 export class PcTransporte extends HTMLElement {
   connectedCallback() {
-    this.select = /** @type {HTMLSelectElement | null} */ (this.querySelector("select[name='viatura']"));
+    this.select = /** @type {HTMLSelectElement | null} */ (
+      this.querySelector("select[name='viatura']") || this.querySelector("select"));
     this.tipo = /** @type {HTMLSelectElement | null} */ (this.querySelector("select[name='tipo_transporte']"));
     if (!this.select) return;
     this.ordemOriginal = Array.from(this.select.options);
     this.motoristaAnterior = this.equipe().find((m) => m.motorista)?.id || "";
     this.sugerir();
+    this.ligarMotoristaDeFora();
     // O HTMX troca o bloco #equipe inteiro (outerHTML): o `HX-Trigger` cai num elemento já
     // fora da página e não chega ao body. O que chega é o fim da troca, com a rota pedida.
     this.aoMudarEquipe = (/** @type {Event} */ e) => {
@@ -32,15 +38,29 @@ export class PcTransporte extends HTMLElement {
       this.escolherPeloMotorista();
     };
     document.body.addEventListener("htmx:afterSettle", this.aoMudarEquipe);
+    this.aoMudarCampoEquipe = (/** @type {Event} */ e) => {
+      const area = this.areaDaEquipe();
+      if (area && !area.contains(/** @type {Node} */ (e.target))) return;
+      this.sugerir();
+      this.escolherPeloMotorista();
+    };
+    document.addEventListener("pc-equipe-alterada", this.aoMudarCampoEquipe);
+  }
+
+  /** Onde está a equipe desta viatura (o lote tem uma por ofício). */
+  areaDaEquipe() {
+    return document.querySelector(this.dataset.equipe || "#equipe");
   }
 
   disconnectedCallback() {
     if (this.aoMudarEquipe) document.body.removeEventListener("htmx:afterSettle", this.aoMudarEquipe);
+    if (this.aoMudarCampoEquipe) document.removeEventListener("pc-equipe-alterada", this.aoMudarCampoEquipe);
   }
 
   /** @returns {Membro[]} */
   equipe() {
-    return Array.from(document.querySelectorAll("#equipe [data-servidor]")).map((el) => {
+    const area = this.areaDaEquipe();
+    return Array.from(area ? area.querySelectorAll("[data-servidor]") : []).map((el) => {
       const e = /** @type {HTMLElement} */ (el);
       return {
         id: e.dataset.servidor || "",
@@ -88,6 +108,26 @@ export class PcTransporte extends HTMLElement {
     for (const o of [...sugeridas, ...outras]) select.append(o);
     if (!sugeridas.length) for (const o of outras) delete o.dataset.grupo;
     select.value = valor;
+  }
+
+  /** Abrir e fechar "Motorista de fora da equipe" é que liga e desliga o caso.
+   *
+   * A escolha "Quem dirige" não tem mais "Alguém da equipe" (isso se marca na equipe): ela
+   * só diz QUEM é o de fora. Então abrir o bloco sem nada escolhido já assume a primeira
+   * opção, e fechá-lo devolve o campo a vazio — é o que grava "não há motorista de fora".
+   */
+  ligarMotoristaDeFora() {
+    const bloco = /** @type {HTMLDetailsElement | null} */ (this.querySelector("details.motorista-externo"));
+    const quem = /** @type {HTMLSelectElement | null} */ (
+      this.querySelector("select[name='motorista_externo']"));
+    if (!bloco || !quem) return;
+    const primeira = () => Array.from(quem.options).find((o) => o.value)?.value || "";
+    bloco.addEventListener("toggle", () => {
+      const novo = bloco.open ? (quem.value || primeira()) : "";
+      if (quem.value === novo) return;
+      quem.value = novo;
+      quem.dispatchEvent(new Event("change", { bubbles: true }));
+    });
   }
 
   /** Marcou um motorista: a viatura que ele dirige entra sozinha. */

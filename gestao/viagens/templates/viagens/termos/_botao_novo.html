@@ -1,0 +1,2 @@
+{# "Novo termo" cria o rascunho na hora (POST) e abre a folha: os documentos já aparecem. #}
+<form class="form-em-linha" method="post" action="{% url 'viagens:novo_termo' %}">{% csrf_token %}<input type="hidden" name="acao" value="criar"><button type="submit" class="botao botao--primario">{% icone "plus" %}Novo termo</button></form>

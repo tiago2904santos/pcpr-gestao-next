@@ -363,9 +363,12 @@ def test_clique_em_texto_nao_rola_a_pagina(logado, dados_e2e):
 
 
 def test_novo_oficio_cria_e_abre_a_folha_completa(logado):
-    """Como no sistema de referência: não há página "novo"; o botão cria o ofício."""
+    """Como no sistema de referência: não há página "novo"; o botão cria o ofício.
+
+    O botão mora na lista de ofícios — o painel do módulo deixou de repeti-lo no cabeçalho.
+    """
     pg = logado
-    pg.goto("/viagens/")
+    pg.goto("/viagens/oficios/")
     pg.get_by_role("button", name="Novo ofício").first.click()
     expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
     expect(pg.get_by_role("heading", level=1)).to_contain_text("Ofício ")

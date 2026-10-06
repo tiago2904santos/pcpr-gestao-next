@@ -46,6 +46,7 @@ from .validacoes import (
     normalizar_rg,
     placa_valida,
     somente_digitos,
+    titulo,
 )
 
 
@@ -117,7 +118,7 @@ class FormularioUnidade(forms.Form):
                             widget=_entrada())
 
     def clean_nome(self) -> str:
-        return espacos(self.cleaned_data["nome"])
+        return titulo(self.cleaned_data["nome"])
 
     def clean_sigla(self) -> str:
         return espacos(self.cleaned_data["sigla"]).upper()
@@ -133,7 +134,7 @@ class FormularioCatalogo(forms.Form):
     nome = forms.CharField(label="Nome", max_length=120, widget=_entrada())
 
     def clean_nome(self) -> str:
-        return espacos(self.cleaned_data["nome"])
+        return titulo(self.cleaned_data["nome"])
 
     @classmethod
     def de(cls, objeto) -> FormularioCatalogo:
@@ -146,15 +147,14 @@ class FormularioServidor(forms.Form):
                            widget=_entrada(autocomplete="name"))
     cargo = forms.ModelChoiceField(label="Cargo", queryset=Cargo.objects.none(),
                                    required=False, empty_label="Selecione (opcional)",
-                                   help_text="Não achou? Salve sem cargo e complete depois.",
                                    widget=Selecao())
     # Declarados à mão: o modelo guarda só dígitos (11), mas digita-se com pontuação.
     cpf = forms.CharField(label="CPF", max_length=14, required=False,
                           widget=_entrada(inputmode="numeric", placeholder="000.000.000-00",
                                           **{"data-mascara": "cpf"}))
     rg = forms.CharField(label="RG", max_length=30, required=False,
-                         help_text="Sem RG: escreva “não possui”.",
-                         widget=_entrada(placeholder="00.000.000-0"))
+                         widget=_entrada(placeholder="00.000.000-0",
+                                         **{"data-mascara": "rg"}))
     telefone = forms.CharField(label="Telefone", max_length=20, required=False,
                                widget=_entrada(inputmode="tel", autocomplete="tel",
                                                placeholder="(00) 00000-0000",
@@ -199,7 +199,7 @@ class FormularioServidor(forms.Form):
                                     f"{outro.nome}{onde}.")
 
     def clean_nome(self) -> str:
-        nome = espacos(self.cleaned_data["nome"])
+        nome = titulo(self.cleaned_data["nome"])
         self._repetido("nome", nome__iexact=nome)
         return nome
 
@@ -218,8 +218,14 @@ class FormularioServidor(forms.Form):
         return cpf
 
     def clean_rg(self) -> str:
+        """Em branco é "não possui RG": ninguém precisa escrever a frase.
+
+        O cadastro guarda a marca, e não o vazio, para o documento poder dizer que a
+        pessoa não tem RG em vez de deixar um espaço que parece esquecimento."""
         rg = normalizar_rg(self.cleaned_data["rg"])
-        if rg and rg != RG_NAO_POSSUI:
+        if not rg:
+            return RG_NAO_POSSUI
+        if rg != RG_NAO_POSSUI:
             self._repetido("RG", rg=rg)
         return rg
 
@@ -293,7 +299,7 @@ class FormularioViatura(forms.Form):
         return placa
 
     def clean_modelo(self) -> str:
-        return espacos(self.cleaned_data["modelo"])
+        return titulo(self.cleaned_data["modelo"])
 
 
 # ---------------------------------------------------------------- tabela de diárias
@@ -329,10 +335,9 @@ class FormularioTexto(forms.Form):
         label="Nome", max_length=120,
         help_text="Curto, para achar na lista. Ex.: “Apoio da Unidade Móvel”.",
         widget=forms.TextInput(attrs={"class": "entrada", "autocomplete": "off"}))
-    ordem = forms.IntegerField(
-        label="Ordem", min_value=0, max_value=32767, initial=100,
-        help_text="Menor aparece primeiro.",
-        widget=forms.NumberInput(attrs={"class": "entrada", "inputmode": "numeric"}))
+    # A ordem continua no banco (`ModeloTexto.ordem`, padrão 100), mas não se digita: quem
+    # cadastra pensa no nome, não num número de posição. `textos.salvar` sem `ordem` mantém
+    # a que o registro já tem.
     texto = forms.CharField(
         label="Texto", max_length=4000,
         help_text="Entra no campo exatamente como escrito; dá para ajustar depois de inserir.",
@@ -340,7 +345,7 @@ class FormularioTexto(forms.Form):
 
     @classmethod
     def de(cls, modelo: ModeloTexto) -> FormularioTexto:
-        return cls(initial={"tipo": modelo.tipo, "nome": modelo.nome, "ordem": modelo.ordem,
+        return cls(initial={"tipo": modelo.tipo, "nome": modelo.nome,
                             "texto": modelo.texto})
 
 
@@ -551,7 +556,7 @@ class FormularioAtividade(forms.Form):
                               help_text="Opcional. Sai em “Recursos necessários”.")
 
     def clean_nome(self) -> str:
-        return espacos(self.cleaned_data["nome"])
+        return titulo(self.cleaned_data["nome"])
 
     def clean_meta(self) -> str:
         return self.cleaned_data["meta"].strip()
@@ -658,6 +663,9 @@ class FormularioUsuario(forms.Form):
             "papeis": list(usuario.groups.values_list("name", flat=True)),
             "unidade": lotacao.unidade_id if lotacao else None})
 
+    def clean_nome(self) -> str:
+        return titulo(self.cleaned_data["nome"])
+
     def clean_login(self) -> str:
         from gestao.identidade.models import Usuario
         login = self.cleaned_data["login"].strip()
@@ -702,3 +710,12 @@ class FormularioUsuario(forms.Form):
                 except forms.ValidationError as exc:
                     self.add_error("senha", exc)
         return dados
+
+
+def formularios_de_cadastro_rapido() -> dict[str, forms.Form]:
+    """Os formulários dos diálogos de cadastro rápido (componentes/dialogos_cadastro.html):
+    servidor e viatura, cadastrados sem sair da folha em qualquer tela que os escolhe."""
+    from django.urls import reverse
+    return {"form_servidor": FormularioServidor(),
+            "form_viatura": FormularioViatura(
+                fonte_motoristas=reverse("cadastros:buscar_servidores"))}

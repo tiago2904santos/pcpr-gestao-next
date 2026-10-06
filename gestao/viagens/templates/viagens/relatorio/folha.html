@@ -148,7 +148,6 @@ toda finalizada.
 <div class="barra-acoes">
   <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Grava sozinho enquanto você escreve.</span></div>
   <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
-  <button type="submit" form="form-rt" class="botao">{% icone "save" %}Salvar</button>
 </div>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
 {% endif %}

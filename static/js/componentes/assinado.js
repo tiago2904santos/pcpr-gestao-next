@@ -8,6 +8,53 @@
 
 const MAXIMO = 15 * 1024 * 1024;
 
+/** @param {number} bytes */
+const tamanho = (bytes) => (bytes >= 1024 * 1024
+  ? `${(bytes / 1024 / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`
+  : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+
+/** Mostra o arquivo escolhido no cartão (ou a área vazia). @param {HTMLElement} janela */
+function mostrarArquivo(janela) {
+  const campo = /** @type {HTMLInputElement} */ (janela.querySelector("input[type=file]"));
+  const arquivo = campo.files && campo.files[0];
+  /** @type {HTMLElement} */ (janela.querySelector("[data-assinado-vazio]")).hidden = Boolean(arquivo);
+  /** @type {HTMLElement} */ (janela.querySelector("[data-assinado-arquivo]")).hidden = !arquivo;
+  /** @type {HTMLElement} */ (janela.querySelector("[data-assinado-area]")).classList.toggle("anexo__area--com-arquivo", Boolean(arquivo));
+  /** @type {HTMLElement} */ (janela.querySelector("[data-assinado-nome]")).textContent = arquivo ? arquivo.name : "";
+  /** @type {HTMLElement} */ (janela.querySelector("[data-assinado-tamanho]")).textContent = arquivo ? tamanho(arquivo.size) : "";
+  if (arquivo) {
+    /** @type {HTMLElement} */ (janela.querySelector("#dialogo-assinado-erro")).hidden = true;
+    campo.removeAttribute("aria-invalid");
+  }
+}
+
+document.addEventListener("change", (e) => {
+  const campo = /** @type {HTMLElement} */ (e.target);
+  if (campo.matches("#dialogo-assinado-arquivo")) mostrarArquivo(/** @type {HTMLElement} */ (campo.closest("dialog")));
+});
+
+// Soltar o PDF na área: o arquivo vai para o próprio <input type=file> (o envio é o mesmo).
+document.addEventListener("dragover", (e) => {
+  const area = /** @type {HTMLElement} */ (e.target).closest?.("[data-assinado-area]");
+  if (!area) return;
+  e.preventDefault();
+  area.classList.add("anexo__area--sobre");
+});
+document.addEventListener("dragleave", (e) => {
+  /** @type {HTMLElement} */ (e.target).closest?.("[data-assinado-area]")?.classList.remove("anexo__area--sobre");
+});
+document.addEventListener("drop", (e) => {
+  const area = /** @type {HTMLElement} */ (e.target).closest?.("[data-assinado-area]");
+  if (!area) return;
+  e.preventDefault();
+  area.classList.remove("anexo__area--sobre");
+  const campo = /** @type {HTMLInputElement} */ (area.querySelector("input[type=file]"));
+  if (e.dataTransfer?.files.length) {
+    campo.files = e.dataTransfer.files;
+    mostrarArquivo(/** @type {HTMLElement} */ (area.closest("dialog")));
+  }
+});
+
 /** @param {HTMLElement} janela @param {string} texto */
 function mostrarErro(janela, texto) {
   const erro = /** @type {HTMLElement} */ (janela.querySelector("#dialogo-assinado-erro"));
@@ -40,6 +87,7 @@ document.addEventListener("click", (e) => {
     botao.dataset.assinadoTroca === undefined;
   const menu = /** @type {any} */ (botao.closest("pc-menu"));
   if (menu && typeof menu.fechar === "function") menu.fechar(false);
+  mostrarArquivo(janela);
   janela.showModal();
   campo.focus();
 });

@@ -17,14 +17,18 @@ def _eventos(tabela: str):
 
 
 def test_insert_update_delete_sao_registrados_com_autor():
+    # A trilha é só de inserção: a limpeza entre testes não a apaga, e usuários criados por
+    # testes anteriores no mesmo processo continuam nela. Conta só o que este teste gerou.
+    antes = EventoAuditoria.objects.order_by("-id").values_list("id", flat=True).first() or 0
     with auditoria.contexto(usuario_id=42, ip="10.0.0.7", requisicao_id="req-1"):
         u = Usuario.objects.create_user("ana", "ana@pc.pr.gov.br", "x" * 12, nome="Ana")
         u.nome = "Ana Souza"
         u.save()
         u.delete()
-    ops = list(_eventos("identidade_usuario").values_list("operacao", flat=True))
+    deste = _eventos("identidade_usuario").filter(id__gt=antes)
+    ops = list(deste.values_list("operacao", flat=True))
     assert ops == ["INSERT", "UPDATE", "DELETE"]
-    update = _eventos("identidade_usuario").get(operacao="UPDATE")
+    update = deste.get(operacao="UPDATE")
     assert update.usuario_id == 42
     assert str(update.ip) == "10.0.0.7"
     assert update.requisicao_id == "req-1"

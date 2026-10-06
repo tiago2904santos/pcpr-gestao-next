@@ -31,6 +31,9 @@ if env_bool("PREVIEW_ESTATICOS_AO_VIVO", False):  # noqa: F405
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
     WHITENOISE_AUTOREFRESH = True
     WHITENOISE_USE_FINDERS = True
+    # Sem cache: com DEBUG desligado o WhiteNoise guarda os estáticos por 60 s, e logo após
+    # uma mudança o navegador seguia com o JS/CSS antigo ("o botão não funciona").
+    WHITENOISE_MAX_AGE = 0
 
 if DEMO_MODE:  # noqa: F405
     AUTHENTICATION_BACKENDS = [*_BACKENDS_BASE, "gestao.identidade.backends.DemoBackend"]

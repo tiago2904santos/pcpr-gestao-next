@@ -189,7 +189,6 @@ quando todos estão finalizados. Consulta vê tudo como texto.
 <div class="barra-acoes">
   <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Os km gravam sozinhos enquanto você preenche.</span></div>
   <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
-  <button type="submit" form="form-diario" class="botao">{% icone "save" %}Salvar</button>
 </div>
 {% endif %}
 {% endblock %}

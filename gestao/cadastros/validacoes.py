@@ -90,3 +90,38 @@ def formatar_telefone(valor: str | None) -> str:
     if len(digitos) == 11:
         return f"({digitos[:2]}) {digitos[2:7]}-{digitos[7:]}"
     return valor or ""
+
+
+# Partículas que ficam em minúscula no meio de um nome próprio (nunca na primeira palavra).
+_PARTICULAS = {"de", "da", "do", "das", "dos", "e", "di", "du", "del", "della",
+               "van", "von", "der", "la", "le", "y"}
+
+
+def titulo(texto: str | None) -> str:
+    """Nome próprio com a inicial de cada palavra em maiúscula.
+
+    Padrão dos cadastros: quem digita "ana maria da silva" grava "Ana Maria da Silva" —
+    assim a lista, a equipe do ofício e o documento saem sempre com a mesma cara, sem
+    depender de quem digitou estar com o Caps Lock certo.
+
+    Uma sigla no meio de um nome em caixa mista fica como está ("Núcleo NUCRIA"): quem a
+    escreveu assim quis a sigla. Já o texto inteiro em caixa alta é Caps Lock, não sigla —
+    "JOÃO DOS SANTOS" vira "João dos Santos". Hífen e apóstrofo também separam palavras
+    ("Costa-Silva", "D'Ávila").
+    """
+    limpo = espacos(texto)
+    palavras = limpo.split(" ")
+    # Tudo em caixa alta: Caps Lock. Só então as "siglas" perdem a proteção.
+    siglas_valem = not limpo.isupper()
+    saida = []
+    for i, palavra in enumerate(palavras):
+        if siglas_valem and len(palavra) > 1 and palavra.isupper():
+            saida.append(palavra)
+            continue
+        minuscula = palavra.lower()
+        if i > 0 and minuscula in _PARTICULAS:
+            saida.append(minuscula)
+            continue
+        saida.append(re.sub(r"(^|[-'’])(\w)",
+                            lambda m: m.group(1) + m.group(2).upper(), minuscula))
+    return " ".join(saida)

@@ -1,0 +1,15 @@
+{% comment %}
+Cadastrar servidor e viatura sem sair da folha — os mesmos diálogos das telas de Cadastros,
+com os "+" de cargo, unidade e combustível que ficam dentro deles. Para qualquer tela que
+usa a equipe (viagens.forms.CampoEquipe) ou a viatura (viagens/_campo_viatura.html); o
+criado entra no campo cujo "+" foi apertado (cadastro-rapido.js). Fica fora do <form> da
+folha: formulário dentro de formulário não é HTML válido.
+Contexto: form_servidor e form_viatura (cadastros.forms.formularios_de_cadastro_rapido).
+Opcionais: envio_url/alvo (o ofício grava a equipe na hora) e destino (id do <select> da
+viatura, quando o "+" não estiver ao lado dele).
+{% endcomment %}
+{% include "componentes/dialogo_servidor.html" with form=form_servidor cadastro_rapido=True envio_url=envio_url alvo=alvo %}
+{% include "componentes/dialogo_viatura.html" with form=form_viatura cadastro_rapido=True destino=destino %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-cargo" slug="cargos" rotulo="cargo" destino=form_servidor.cargo.auto_id %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-combustivel" slug="combustiveis" rotulo="combustível" destino=form_viatura.combustivel.auto_id %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-unidade" slug="unidades" rotulo="unidade" destino=form_servidor.unidade.auto_id com_sigla=True %}

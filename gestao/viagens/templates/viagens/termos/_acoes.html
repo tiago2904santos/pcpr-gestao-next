@@ -1,0 +1,19 @@
+{% comment %}
+Ações do termo, como as do ofício (viagens/oficios/_acoes.html): no cabeçalho e também na
+barra do rodapé. "Visualizar" abre, em outra aba, a página com o PDF completo (todos os
+documentos do termo); no rodapé (`dobrar`) quem abre essa aba é "Gerar os termos". "Baixar
+documentos" abre a janela de escolher o que e em que formato (componentes/dialogo_baixar.html).
+O formulário de exclusão fica uma vez só em editar.html.
+{% endcomment %}
+{% if editavel and pode_ver_documento and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_termo' termo.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do {{ termo }}{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if editavel and pode_ver_documento %}
+      <button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_termo' termo.pk %}" data-baixar-titulo="{{ termo }}">{% icone "download" %}Baixar documentos</button>
+    {% endif %}
+    <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
+    {% if pode_cancelar and not termo.cancelado %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_termo' termo.pk %}" data-motivo-titulo="Cancelar o {{ termo }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar termo" data-motivo-ajuda="O termo continua na lista, em Cancelados; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar termo</button>{% endif %}
+    {% if pode_excluir %}<button type="submit" form="excluir-termo" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir termo</button>{% endif %}
+  </div>
+</pc-menu>

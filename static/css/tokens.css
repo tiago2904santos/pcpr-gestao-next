@@ -150,6 +150,14 @@
   --cor-aviso-solida: var(--ambar-500);
   --cor-aviso-fundo: var(--ambar-50);
   --cor-aviso-borda: var(--ambar-100);
+
+  /* Cores de fonte do DOCUMENTO (o que sai impresso), oferecidas pelo editor. Iguais à
+     paleta fechada que o saneador aceita (documentos/regioes.py · CORES_DE_FONTE). */
+  --doc-cor-preto: #000000;
+  --doc-cor-cinza: #555555;
+  --doc-cor-vermelho: #a3241a;
+  --doc-cor-azul: #1b5592;
+  --doc-cor-verde: #17603d;
   --cor-perigo: var(--vermelho-700);
   --cor-perigo-solida: var(--vermelho-600);
   --cor-perigo-fundo: var(--vermelho-50);
@@ -276,11 +284,12 @@
   --escala-pressao: 0.985;
 
   /* ---------- Camadas ----------
-     Painéis que brotam de um campo (calendário, listas) ficam ACIMA do conteúdo e ABAIXO
-     das barras fixas: o cabeçalho e a barra de ações continuam alcançáveis. */
+     Painéis que brotam de um campo (calendário, listas) ficam ACIMA do conteúdo e da
+     barra de ações flutuante (uma lista aberta perto do rodapé não pode sumir atrás dela)
+     e ABAIXO do cabeçalho. */
   --z-progresso: 15;
-  --z-painel-campo: 20;
   --z-barra-acoes: 25;
+  --z-painel-campo: 27;
   --z-cabecalho: 30;
   --z-gaveta: 60;
   --z-dialogo: 70;

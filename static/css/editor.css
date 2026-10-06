@@ -189,6 +189,40 @@
   overflow: auto;
 }
 
+/* Menu de textos prontos sem nenhum texto: ícone, título e a dica, centralizados. */
+.editor__textos-vazio {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-1);
+  padding: var(--esp-4) var(--esp-4) var(--esp-3);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+
+.editor__textos-vazio strong {
+  font-size: var(--texto-sm);
+  color: var(--cor-texto);
+}
+
+.editor__textos-vazio-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+}
+
+.editor__textos-carregando {
+  margin: 0;
+  padding: var(--esp-3) var(--esp-4);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
 .editor__texto-pronto {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -280,5 +314,361 @@
 @media (prefers-reduced-motion: reduce) {
   .editor__salvo--salvando::before {
     animation: none;
+  }
+}
+
+/* Pendências do documento na barra: botões pequenos em tom de aviso, à esquerda do estado
+   do salvamento. Levam ao trecho que falta sem empurrar a folha para baixo. */
+.editor__estado > .editor__pendencias {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1);
+}
+
+.editor__pendencia {
+  --botao-texto: var(--cor-texto);
+  border-color: var(--cor-aviso-borda);
+  background: var(--cor-aviso-fundo);
+}
+
+/* Escolhas compactas na barra (tamanho da fonte, largura e altura da tabela). */
+/* Escolhas da barra (tamanho da fonte, largura da tabela…): com a cara dos botões da
+   barra — sem a caixa de campo de formulário, só a seta e o realce ao passar o mouse. */
+.editor__selecao {
+  min-height: var(--altura-controle-sm);
+  width: auto;
+  padding: 0 var(--esp-6) 0 var(--esp-2);
+  border-color: transparent;
+  border-radius: var(--raio-sm);
+  background-color: transparent;
+  background-position: calc(100% - 0.85rem) 50%, calc(100% - 0.55rem) 50%;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.editor__selecao:hover {
+  border-color: transparent;
+  background-color: var(--cor-superficie-realce);
+}
+
+.editor__selecao:focus-visible {
+  border-color: var(--grafite-900);
+  background-color: var(--cor-superficie);
+  box-shadow: none;
+}
+
+/* Amostra de cor no menu de cor da fonte. As cores são as do documento (impresso), não do
+   sistema — por isso vêm da paleta fixa do saneador, e não de tokens de interface. */
+.editor__cor {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: var(--raio-xs);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+
+.editor__cor--preto { background: var(--doc-cor-preto); }
+.editor__cor--cinza { background: var(--doc-cor-cinza); }
+.editor__cor--vermelho { background: var(--doc-cor-vermelho); }
+.editor__cor--azul { background: var(--doc-cor-azul); }
+.editor__cor--verde { background: var(--doc-cor-verde); }
+
+/* Menus de texto da barra (Tamanho): botão da barra com o rótulo e a seta. */
+.editor__menu-texto {
+  gap: var(--esp-1);
+  padding: 0 var(--esp-2);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.editor__menu-texto:hover,
+.editor__menu-texto[aria-expanded="true"] {
+  background: var(--cor-superficie-realce);
+}
+
+.editor__menu-seta {
+  color: var(--cor-texto-terciario);
+  transition: rotate var(--duracao-rapida) var(--curva-padrao);
+}
+
+.editor__menu-texto[aria-expanded="true"] .editor__menu-seta {
+  rotate: 180deg;
+}
+
+/* Tamanhos: uma coluna estreita, sem a largura dos menus de texto pronto. */
+.editor__painel.editor__tamanhos {
+  width: 6.5rem;
+  min-width: 0;
+}
+
+/* Escolhas da tabela (pc-select) na barra: do tamanho do conteúdo, não da linha toda. */
+.editor__seletor {
+  display: inline-block;
+}
+
+.editor__seletor .seletor__gatilho {
+  min-width: 6.5rem;
+}
+
+/* =============== Vários editores empilhados (o termo: um por documento) =============== */
+.editores {
+  display: grid;
+  gap: var(--esp-6);
+}
+
+.editores__item {
+  display: grid;
+  gap: var(--esp-2);
+  scroll-margin-top: calc(var(--altura-topo) + var(--esp-4));
+}
+
+.editores__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-2);
+  margin: 0;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+}
+
+.editores__numero {
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-texto-secundario);
+}
+
+/* Folha inteira: a altura do documento (editor-documento.js), sem rolagem própria; a barra
+   acompanha a rolagem enquanto o editor está na tela. */
+.editor--inteira .editor__quadro {
+  height: auto;
+  min-height: 297mm;
+}
+
+.editor--inteira .editor__folha {
+  min-height: 0;
+}
+
+.editor--inteira .editor__barra {
+  position: sticky;
+  top: var(--altura-topo);
+  z-index: 2;
+  box-shadow: var(--sombra-1);
+}
+
+/* ---- Bloco único (o termo): as páginas de vários editores numa moldura só ----
+   A barra de ferramentas é o cabeçalho do bloco (linha 1, largura toda; as barras de
+   todos os editores ficam na mesma casa e só a do editor ativo aparece). Embaixo, à
+   esquerda, o índice das páginas — a miniatura de cada folha, como num leitor de PDF, que
+   o botão de painel da barra fecha e abre — e, ao lado, título e folha de cada página, na
+   ordem. Os editores, os itens e a área somem como caixa (display: contents) para as peças
+   entrarem nesta grade. Barra e índice acompanham a rolagem (a altura da barra vem de
+   editores.js em --altura-barra). Em tela estreita o índice começa fechado. */
+.editores--unidos {
+  --largura-indice: 9.5rem;
+  --altura-barra: 5.5rem;
+  grid-template-columns: var(--largura-indice) minmax(0, 1fr);
+  gap: 0;
+  overflow: clip;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-md);
+  background: var(--neutro-200);
+}
+
+.editores--sem-indice {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.editores--unidos .editores__area,
+.editores--unidos .editores__item,
+.editores--unidos .editor {
+  display: contents;
+}
+
+/* Tudo o que vem dos editores vai para a coluna das páginas; a barra, para o topo. */
+.editores--unidos .editor > *,
+.editores--unidos .editores__titulo {
+  grid-column: 2;
+}
+
+.editores__indice {
+  grid-column: 1;
+  /* Da linha 2 até o fim: as linhas a mais, vazias, não têm altura. */
+  grid-row: 2 / span 400;
+  position: sticky;
+  top: calc(var(--altura-topo) + var(--altura-barra));
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  max-height: calc(100vh - var(--altura-topo) - var(--altura-barra));
+  padding: var(--esp-4) var(--esp-3);
+  overflow-y: auto;
+  /* A barra de rolagem não muda a largura das miniaturas quando aparece. */
+  scrollbar-gutter: stable;
+  border-right: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+  scrollbar-width: thin;
+}
+
+.editores--sem-indice .editores__indice {
+  display: none;
+}
+
+/* "PDF" na barra: o bloco todo vira um PDF só, com todos os documentos (editores.js). As
+   páginas de edição, os títulos e o índice saem — o leitor do navegador já tem as dele. */
+.editores--pdf {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.editores--pdf .editores__indice,
+.editores--pdf .editores__titulo,
+.editores--pdf .editor > .editor__folha,
+.editores--pdf .editor > .editor__avisos,
+.editores--pdf .editor__paginas,
+.editor--pdf [data-alternar-indice] {
+  display: none;
+}
+
+.editores__pdf {
+  grid-column: 2;
+  padding: var(--esp-4);
+}
+
+.editores__pdf[hidden] {
+  display: none;
+}
+
+.editores__pdf iframe {
+  display: block;
+  width: 100%;
+  height: calc(100vh - var(--altura-topo) - var(--altura-barra) - var(--esp-8));
+  min-height: 24rem;
+  border: 0;
+  border-radius: var(--raio-sm);
+  background: var(--neutro-0);
+}
+
+.editores__pagina {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font: inherit;
+  font-size: var(--texto-xs);
+  cursor: pointer;
+}
+
+/* A miniatura: a folha A4 inteira em escala (editores.js), sem rolagem nem clique próprios. */
+.editores__miniatura {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 210 / 297;
+  overflow: hidden;
+  border-radius: var(--raio-xs);
+  background: var(--neutro-0);
+  box-shadow: 0 0 0 1px var(--cor-borda);
+  transition: box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.editores__miniatura iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 210mm;
+  height: 297mm;
+  border: 0;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.editores__miniatura iframe[data-carregando] {
+  visibility: hidden;
+}
+
+.editores__pagina:hover .editores__miniatura {
+  box-shadow: 0 0 0 2px var(--cor-borda-forte);
+}
+
+.editores__pagina[aria-current="true"] .editores__miniatura {
+  box-shadow: 0 0 0 3px var(--cor-marca);
+}
+
+.editores__pagina:focus-visible {
+  outline: none;
+}
+
+.editores__pagina:focus-visible .editores__miniatura {
+  box-shadow: 0 0 0 3px var(--foco-cor);
+}
+
+.editores__legenda {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--esp-1);
+  max-width: 100%;
+  line-height: var(--altura-linha-justa);
+  text-align: center;
+}
+
+.editores__pagina .editores__numero {
+  flex: none;
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+}
+
+.editores__nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editores__pagina[aria-current="true"] .editores__legenda {
+  color: var(--cor-texto);
+  font-weight: var(--peso-medio);
+}
+
+.editores--unidos .editor > .editor__barra {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  top: var(--altura-topo);
+  z-index: 3;
+  border: 0;
+  border-bottom: 1px solid var(--cor-borda);
+  border-radius: 0;
+}
+
+.editor__indice[aria-expanded="true"] {
+  background: var(--cor-superficie-realce);
+}
+
+.editores--unidos .editor:not(.editor--ativo) .editor__barra {
+  display: none;
+}
+
+.editores--unidos .editores__titulo {
+  margin: 0;
+  padding: var(--esp-4) var(--esp-5) 0;
+  scroll-margin-top: calc(var(--altura-topo) + var(--altura-barra) + var(--esp-2));
+}
+
+.editores--unidos .editor__folha {
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 767.98px) {
+  .editores--unidos {
+    --largura-indice: 6rem;
   }
 }

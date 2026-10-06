@@ -5,7 +5,7 @@ equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe
 {% endcomment %}
 <section class="secao{% if quadro.pronta and not diferencas %} secao--ok{% endif %}" id="conferencia" aria-labelledby="t-conferencia" data-vivo>
   <div class="secao__cabecalho">
-    <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">4</span>Conferência</h2>
+    <h2 class="secao__titulo" id="t-conferencia"><span class="secao__numero">3</span>Conferência</h2>
     <div class="secao__estado">{% if quadro.pronta %}<span class="selo selo--sucesso selo--sem-ponto">Pronta</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas</span>{% endif %}</div>
     <p class="secao__nota">{% if quadro.pronta %}Nada falta: roteiro, documentos, assinaturas e protocolo em dia.{% else %}O que falta para a viagem ficar pronta: {{ quadro.pendencias|pluralizar:"item,itens" }}.{% endif %}</p>
   </div>

@@ -159,7 +159,7 @@ def test_criar_pela_tela_e_folha(c):
     v = Viagem.objects.get()
     assert r["Location"] == reverse("viagens:editar_viagem", args=[v.pk])
     html = cli.get(r["Location"]).content.decode()
-    assert "Tipo e motivo" in html and "Documentos da viagem" in html
+    assert "Identificação" in html and "Documentos da viagem" in html
     assert "Falta o tipo" in html and "Nenhum ofício vinculado a esta viagem." in html
 
 

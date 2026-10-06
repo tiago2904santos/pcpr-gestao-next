@@ -198,7 +198,8 @@ class TestNovoEEdicao:
 
     def test_botao_novo_oficio_e_um_formulario_post(self, operador):
         url = reverse("viagens:novo")
-        for pagina in ("viagens:oficios", "viagens:painel"):
+        # O painel não tem mais o botão no cabeçalho (decisão do dono): fica na lista.
+        for pagina in ("viagens:oficios",):
             html = operador.get(reverse(pagina)).content.decode()
             assert f'method="post" action="{url}"' in html
             assert f'href="{url}"' not in html
@@ -486,9 +487,9 @@ class TestEmissaoEAcoes:
         assert "Roteiro" in html and "Equipe" in html and "Documentos" in html
         assert "<html" not in html  # fragmento, não página inteira
 
-    # Rascunho 17: +1 dos conflitos de agenda com as palestras (aviso da prontidão); 18: +1
-    # dos conflitos com as solicitações de evento (motorista escalado no período); 19: +1
-    # dos conflitos com termos e ordens de serviço (A2c).
+    # Rascunho 17: +1 dos conflitos de agenda com as palestras (aviso da prontidão).
+    # Rascunho 18: +1 dos conflitos com as solicitações de eventos.
+    # Rascunho 19: +1 dos conflitos de agenda com termos e OS (viagens/conflitos.py).
     @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 19), ("oficio_emitido", 14)])
     def test_resumo_tem_orcamento_de_consultas(self, operador, cenario, chave, limite,
                                                django_assert_max_num_queries):
@@ -506,7 +507,8 @@ class TestEmissaoEAcoes:
                           follow=True)
         html = r.content.decode()
         assert "?salvo=1" in r.redirect_chain[-1][0]
-        assert "Rascunho salvo às" in html and "barra-acoes__status--salvo" in html
+        # O status da barra é só para leitores de tela (o visível saiu a pedido do dono).
+        assert "Rascunho salvo às" in html
         assert "Rascunho do Ofício" not in html  # sem toast para o trivial
 
     def test_folha_mostra_historico_e_janela_mostra_documentos(self, operador, cenario):
@@ -615,11 +617,11 @@ class TestOrcamentoDeConsultas:
         # 24: +1 em toda página, a contagem de avisos não lidos do sino (índice usuario+lida).
         # 25: +1 dos conflitos de agenda com as palestras (servidor que é palestrante no
         # mesmo período) — uma consulta só quando não há conflito.
-        # 26: +1 dos conflitos com as solicitações de evento (servidor escalado como motorista
-        # de um evento no período) — também uma consulta só quando não há conflito.
-        # 27: +1 dos conflitos com termos de autorização e ordens de serviço com datas
-        # próprias (A2c) — constante, não cresce com o ofício.
-        with django_assert_max_num_queries(27):
+        # 31: +4 das janelas de cadastro rápido na folha (servidor e viatura: cargos,
+        # unidades, combustíveis e o cadastro da sede), constantes; +2 dos conflitos de
+        # agenda com as solicitações de eventos. Nenhuma cresce com o tamanho do ofício.
+        # 32: +1 dos conflitos de agenda com termos e OS (viagens/conflitos.py).
+        with django_assert_max_num_queries(32):
             url = reverse("viagens:editar", args=[oficio.pk]) + ("?revisar=1" if revisar else "")
             assert operador.get(url).status_code == 200
 
@@ -627,7 +629,8 @@ class TestOrcamentoDeConsultas:
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         # 27: +2 ao refazer os trechos — soltam as linhas do diário de bordo e os trechos
         # realizados da prestação (SET_NULL).
-        with django_assert_max_num_queries(27):
+        # 29: +2 da conferência de conflitos de agenda (palestras e eventos) ao gravar.
+        with django_assert_max_num_queries(29):
             r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(oficio))
         assert r.status_code == 302
 
@@ -1086,12 +1089,12 @@ class TestMotoristaExternoNaFolha:
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
             oficio, tipo_transporte="viatura", viatura=viatura.pk, transporte_descricao="",
             motorista_externo="manual", motorista_externo_nome="Carlos Motorista",
-            motorista_externo_cpf="123.456.789-09", motorista_oficio_origem="15 / 2026",
-            motorista_protocolo_origem="12.345.678-9"))
+            motorista_oficio_origem="15 / 2026", motorista_protocolo_origem="12.345.678-9"))
         assert r.status_code == 302
         oficio.refresh_from_db()
-        assert (oficio.motorista_externo_cpf, oficio.motorista_oficio_origem,
-                oficio.motorista_protocolo_origem) == ("12345678909", "15/2026", "123456789")
+        # De quem não é cadastrado basta o nome, o ofício e o protocolo (sem CPF).
+        assert (oficio.motorista_oficio_origem,
+                oficio.motorista_protocolo_origem) == ("15/2026", "123456789")
         folha = operador.get(reverse("viagens:folha", args=[oficio.pk, "oficio"]))
         assert "Carlos Motorista" in folha.content.decode()
 
@@ -1176,13 +1179,13 @@ class TestRevisaoDeUXDoCicloDeVida:
                           {"voltar": "https://fora.example/"})
         assert r["Location"].startswith(reverse("viagens:oficios") + "?q=")
 
-    def test_cpf_e_protocolo_do_motorista_com_tamanho_errado_dao_erro(self, operador, cenario):
+    def test_protocolo_do_motorista_com_tamanho_errado_da_erro(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
             oficio, motorista_externo="manual", motorista_externo_nome="X",
-            motorista_externo_cpf="123", motorista_protocolo_origem="12.345.678-90"))
+            motorista_protocolo_origem="12.345.678-90"))
         html = r.content.decode()
-        assert r.status_code == 422 and "11 dígitos" in html and "9 dígitos" in html
+        assert r.status_code == 422 and "9 dígitos" in html
 
     def test_justificativas_abrem_nas_pendentes_e_nao_gravam_em_branco(self, operador, cenario):
         rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])

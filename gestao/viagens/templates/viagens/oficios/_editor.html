@@ -5,22 +5,33 @@ Editor dentro do visualizador (ADR 0018). Variáveis: `tipo` ("oficio" | "justif
 `estado_url` (vazio no UI Lab: vitrine, nada é salvo), `pode_editar_texto`; opcional
 `estado_leitura` (o selo quando não se escreve na folha — termos e OS usam o visualizador só
 para ver o documento como vai sair).
+Opcionais: `sufixo` (os ids da peça, quando há vários editores na página — padrão: `tipo`)
+e `inteira` (a folha com a altura do documento todo, sem rolagem própria — vários editores
+empilhados, como no termo) e `aplicar_url` (depois de salvar, pergunta se a alteração vai
+para os outros documentos — os termos de cada servidor) e `indice` (o id do índice de
+páginas do bloco: a barra ganha o botão que mostra/esconde a coluna das miniaturas).
 Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica oculta.
 {% endcomment %}
-<pc-editor-documento class="editor" id="editor-{{ tipo }}"
+{% with ident=sufixo|default:tipo %}<pc-editor-documento class="editor{% if inteira %} editor--inteira{% endif %}" id="editor-{{ ident }}"{% if inteira %} data-folha-inteira{% endif %}{% if aplicar_url %} data-aplicar-em-todos="{{ aplicar_url }}"{% endif %}
     data-folha="{{ folha_url }}"{% if estado_url %} data-base="{{ estado_url }}"{% endif %}
     data-pdf="{{ pdf_url }}"
     {% if pode_editar_texto %}data-editavel{% endif %}>
-  <div class="editor__barra" role="toolbar" aria-label="Ferramentas {% if tipo == 'oficio' %}do ofício{% elif tipo == 'justificativa' %}da justificativa{% else %}— {{ rotulo }}{% endif %}" aria-controls="folha-{{ tipo }}" hidden>
+  <div class="editor__barra" role="toolbar" aria-label="Ferramentas {% if tipo == 'oficio' %}do ofício{% elif tipo == 'justificativa' %}da justificativa{% else %}— {{ rotulo }}{% endif %}" aria-controls="folha-{{ ident }}" hidden>
     <div class="editor__linha">
-      <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
-        <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
-        <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
-      </div>
+      {% if indice %}<button type="button" class="botao botao--sm botao--icone editor__indice" data-alternar-indice aria-controls="{{ indice }}" aria-expanded="true" title="Mostrar ou esconder as páginas">{% icone "panel-left" classe="icone--sm" %}<span class="sr-only">Páginas</span></button>{% endif %}
       <div class="editor__estado">
+        {% comment %}Pendências do documento: na própria barra, como atalho para o trecho que
+        falta. Num alerta acima da folha elas empurravam o documento para baixo e repetiam, em
+        tom de erro, o que o cartão de conferência já lista.{% endcomment %}
+        <span class="editor__pendencias" data-pendencias hidden></span>
         <span class="editor__paginas" data-paginas hidden></span>
         <span class="editor__presenca" data-presenca hidden></span>
         <output class="editor__salvo selo selo--sem-ponto" data-salvo aria-live="polite">{% if pode_editar_texto %}Carregando…{% else %}{{ estado_leitura|default:"Somente leitura" }}{% endif %}</output>
+      </div>
+      {# Texto / PDF: no lado direito da barra, depois do estado. #}
+      <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
+        <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
+        <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
       </div>
     </div>
     {% if pode_editar_texto %}
@@ -30,6 +41,49 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
       <button type="button" class="botao botao--sm botao--icone" data-comando="italic" aria-pressed="false" aria-label="Itálico (Ctrl+I)" title="Itálico (Ctrl+I)">{% icone "italic" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="underline" aria-pressed="false" aria-label="Sublinhado (Ctrl+U)" title="Sublinhado (Ctrl+U)">{% icone "underline" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="removeFormat" aria-label="Limpar formatação" title="Limpar formatação">{% icone "remove-formatting" classe="icone--sm" %}</button>
+    </div>
+    {# Fonte: tamanho e cor do trecho selecionado. Os valores são os que o saneador aceita. #}
+    <div class="editor__grupo" role="group" aria-label="Fonte">
+      {# Tamanho: um menu como o da cor (a lista nativa do <select> não segue o sistema). #}
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--sm editor__menu-texto" data-menu-botao aria-haspopup="menu" title="Tamanho da fonte"><span>Tamanho</span>{% icone "chevron-down" classe="icone--sm editor__menu-seta" %}</button>
+        <div class="menu__painel menu__painel--esquerda editor__painel editor__tamanhos" role="menu" aria-label="Tamanho da fonte" hidden>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:8pt">8 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:9pt">9 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:9.5pt">9,5 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:10pt">10 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:11pt">11 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:12pt">12 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:14pt">14 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:16pt">16 pt</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="font-size:18pt">18 pt</button>
+        </div>
+      </pc-menu>
+      <pc-menu class="menu">
+        <button type="button" class="botao botao--sm botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Cor da fonte" title="Cor da fonte">{% icone "palette" classe="icone--sm" %}</button>
+        <div class="menu__painel menu__painel--esquerda editor__painel editor__cores" role="menu" hidden>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#000000"><span class="editor__cor editor__cor--preto" aria-hidden="true"></span>Preto</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#555555"><span class="editor__cor editor__cor--cinza" aria-hidden="true"></span>Cinza</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#a3241a"><span class="editor__cor editor__cor--vermelho" aria-hidden="true"></span>Vermelho</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#1b5592"><span class="editor__cor editor__cor--azul" aria-hidden="true"></span>Azul</button>
+          <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#17603d"><span class="editor__cor editor__cor--verde" aria-hidden="true"></span>Verde</button>
+        </div>
+      </pc-menu>
+    </div>
+    {# Tabela: aparece quando o cursor está numa célula. #}
+    <div class="editor__grupo" role="group" aria-label="Tabela" data-so-tabela hidden>
+      <label class="sr-only" for="tabela-largura-{{ ident }}">Largura da tabela</label>
+      <pc-select class="seletor editor__seletor"><select class="selecao editor__selecao" id="tabela-largura-{{ ident }}" data-tabela-estilo="width" title="Largura da tabela">
+        <option value="">Largura</option>
+        <option value="100%">100%</option><option value="90%">90%</option><option value="75%">75%</option>
+        <option value="60%">60%</option><option value="50%">50%</option>
+      </select></pc-select>
+      <label class="sr-only" for="tabela-altura-{{ ident }}">Altura da linha</label>
+      <pc-select class="seletor editor__seletor"><select class="selecao editor__selecao" id="tabela-altura-{{ ident }}" data-linha-estilo="height" title="Altura da linha">
+        <option value="">Altura da linha</option>
+        <option value="6mm">Baixa</option><option value="9mm">Média</option>
+        <option value="14mm">Alta</option><option value="20mm">Muito alta</option>
+      </select></pc-select>
     </div>
     <div class="editor__grupo" role="group" aria-label="Parágrafo">
       <button type="button" class="botao botao--sm botao--icone" data-comando="insertUnorderedList" aria-pressed="false" aria-label="Lista" title="Lista">{% icone "list" classe="icone--sm" %}</button>
@@ -45,20 +99,22 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
         <button type="button" class="botao botao--sm botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Inserir tabela" title="Inserir tabela">{% icone "table" classe="icone--sm" %}</button>
         <div class="menu__painel menu__painel--esquerda editor__painel" role="menu" hidden>
           <form class="editor__tabela-form" data-tabela>
-            <div class="campo"><label class="campo__rotulo" for="tabela-linhas-{{ tipo }}">Linhas</label><input class="entrada" id="tabela-linhas-{{ tipo }}" name="linhas" type="number" min="1" max="20" value="2" inputmode="numeric"></div>
-            <div class="campo"><label class="campo__rotulo" for="tabela-colunas-{{ tipo }}">Colunas</label><input class="entrada" id="tabela-colunas-{{ tipo }}" name="colunas" type="number" min="1" max="8" value="3" inputmode="numeric"></div>
+            <div class="campo"><label class="campo__rotulo" for="tabela-linhas-{{ ident }}">Linhas</label><input class="entrada" id="tabela-linhas-{{ ident }}" name="linhas" type="number" min="1" max="20" value="2" inputmode="numeric"></div>
+            <div class="campo"><label class="campo__rotulo" for="tabela-colunas-{{ ident }}">Colunas</label><input class="entrada" id="tabela-colunas-{{ ident }}" name="colunas" type="number" min="1" max="8" value="3" inputmode="numeric"></div>
             <button type="submit" class="botao botao--sm botao--primario" role="menuitem">Inserir</button>
           </form>
         </div>
       </pc-menu>
+      {% if tipo == "oficio" or tipo == "justificativa" %}{# Textos prontos são do ofício e da justificativa. #}
       <pc-menu class="menu">
         <button type="button" class="botao botao--sm" data-menu-botao aria-haspopup="menu" title="Textos prontos">{% icone "book-open-text" classe="icone--sm" %}Texto pronto</button>
         <div class="menu__painel menu__painel--esquerda editor__painel" role="menu" hidden data-textos-painel>
-          <div data-textos-lista><p class="texto-secundario texto-sm">Carregando…</p></div>
+          <div data-textos-lista><p class="editor__textos-carregando">Carregando os textos…</p></div>
           <div class="menu__separador" role="separator"></div>
           <button type="button" class="menu__item" role="menuitem" data-acao="guardar-texto">{% icone "bookmark-plus" classe="icone--sm" %}Guardar a seleção como texto pronto</button>
         </div>
       </pc-menu>
+      {% endif %}
     </div>
     <div class="editor__grupo" role="group" aria-label="Versões">
       <button type="button" class="botao botao--sm botao--icone" data-comando="undo" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">{% icone "undo-2" classe="icone--sm" %}</button>
@@ -76,30 +132,31 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
     A folha só carrega quando o editor chega à tela (editor-documento.js põe o `src`): na
     abertura da folha do ofício ela não pesa (D8). Sem JavaScript, o <noscript> mostra a folha.
     {% endcomment %}
-    <iframe id="folha-{{ tipo }}" class="editor__quadro" data-src="{{ folha_url }}" title="{{ titulo_doc }} — folha" data-quadro="texto" hidden></iframe>
+    <iframe id="folha-{{ ident }}" class="editor__quadro" data-src="{{ folha_url }}" title="{{ titulo_doc }} — folha" data-quadro="texto" hidden></iframe>
     <noscript><iframe class="editor__quadro" src="{{ folha_url }}" title="{{ titulo_doc }} — folha" loading="lazy"></iframe></noscript>
     <iframe class="editor__quadro" title="{{ titulo_doc }} (PDF)" data-quadro="pdf" hidden></iframe>
   </div>
   {% if pode_editar_texto %}
-  <dialog class="dialogo" id="historico-{{ tipo }}" aria-labelledby="t-historico-{{ tipo }}" data-historico>
+  <dialog class="dialogo" id="historico-{{ ident }}" aria-labelledby="t-historico-{{ ident }}" data-historico>
     <div class="dialogo__cabecalho">
       <div class="dialogo__icone">{% icone "history" %}</div>
-      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-historico-{{ tipo }}">Histórico do texto</h2><p class="texto-secundario texto-sm">Cada salvamento é uma versão; restaurar cria outra — nada se perde.</p></div>
+      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-historico-{{ ident }}">Histórico do texto</h2><p class="texto-secundario texto-sm">Cada salvamento é uma versão; restaurar cria outra — nada se perde.</p></div>
       <button type="button" class="botao botao--icone dialogo__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
     </div>
     <div class="dialogo__corpo"><ol class="editor__versoes" data-versoes aria-label="Versões do texto"></ol></div>
   </dialog>
-  <dialog class="dialogo" id="guardar-texto-{{ tipo }}" aria-labelledby="t-guardar-{{ tipo }}" data-guardar-texto>
+  <dialog class="dialogo" id="guardar-texto-{{ ident }}" aria-labelledby="t-guardar-{{ ident }}" data-guardar-texto>
     <div class="dialogo__cabecalho">
       <div class="dialogo__icone">{% icone "bookmark-plus" %}</div>
-      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-guardar-{{ tipo }}">Guardar como texto pronto</h2><p class="texto-secundario texto-sm">Fica disponível para todos nos próximos documentos.</p></div>
+      <div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="t-guardar-{{ ident }}">Guardar como texto pronto</h2><p class="texto-secundario texto-sm">Fica disponível para todos nos próximos documentos.</p></div>
       <button type="button" class="botao botao--icone dialogo__fechar" data-fechar-dialogo aria-label="Fechar">{% icone "x" %}</button>
     </div>
     <form class="dialogo__corpo" data-guardar>
-      <div class="campo"><label class="campo__rotulo" for="guardar-nome-{{ tipo }}">Nome</label><input class="entrada" id="guardar-nome-{{ tipo }}" name="nome" maxlength="120" required placeholder="Ex.: Pedido de apoio em evento"></div>
-      <div class="campo mt-2"><label class="campo__rotulo" for="guardar-texto-{{ tipo }}">Texto</label><textarea class="entrada area-texto" id="guardar-texto-{{ tipo }}" name="texto" rows="5" required></textarea></div>
+      <div class="campo"><label class="campo__rotulo" for="guardar-nome-{{ ident }}">Nome</label><input class="entrada" id="guardar-nome-{{ ident }}" name="nome" maxlength="120" required placeholder="Ex.: Pedido de apoio em evento"></div>
+      <div class="campo mt-2"><label class="campo__rotulo" for="guardar-texto-{{ ident }}">Texto</label><textarea class="entrada area-texto" id="guardar-texto-{{ ident }}" name="texto" rows="5" required></textarea></div>
       <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Cancelar</button><button type="submit" class="botao botao--primario">{% icone "save" %}Guardar</button></div>
     </form>
   </dialog>
   {% endif %}
 </pc-editor-documento>
+{% endwith %}

@@ -38,6 +38,7 @@ from gestao.plataforma.widgets import (
     SelecaoDeTexto,
 )
 
+from .dominio.numeracao import formatar_numero
 from .models import Oficio, OrdemServico, PlanoTrabalho, Roteiro, TermoAutorizacao
 from .queries import trechos_de
 
@@ -183,9 +184,6 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     versao = forms.IntegerField(widget=forms.HiddenInput, required=False)
     # Digitados com pontuação (14 e 12 caracteres); a limpeza deixa só os dígitos (11 e 9).
-    motorista_externo_cpf = forms.CharField(
-        label="CPF", required=False, max_length=14,
-        widget=forms.TextInput(attrs=_attrs(inputmode="numeric", **{"data-mascara": "cpf"})))
     motorista_protocolo_origem = forms.CharField(
         label="Protocolo de origem", required=False, max_length=14,
         widget=forms.TextInput(attrs=_attrs(inputmode="numeric",
@@ -201,15 +199,20 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     class Meta:
         model = Oficio
-        fields = ["data_oficio", "protocolo", "marcador", "motivo", "custeio",
-                  "custeio_instituicao", "tipo_transporte", "viatura", "transporte_descricao",
+        fields = ["numero", "data_oficio", "protocolo", "marcador", "motivo", "custeio",
+                  "custeio_instituicao", "tipo_transporte", "viatura", "transporte_meio",
+                  "transporte_descricao",
                   "transporte_placa", "transporte_combustivel", "porte_arma",
                   "justificativa_modelo", "justificativa", "roteiro",
+                  # Da pessoa não cadastrada basta o nome: o ofício e o protocolo de
+                  # origem a identificam (CPF, RG, cargo e unidade estão lá).
                   "motorista_externo", "motorista_externo_servidor", "motorista_externo_nome",
-                  "motorista_externo_rg", "motorista_externo_cpf", "motorista_externo_cargo",
-                  "motorista_externo_unidade", "motorista_externo_observacao",
                   "motorista_oficio_origem", "motorista_protocolo_origem"]
         widgets = {
+            # O número já vem reservado ("Novo ofício" numera na hora); dá para trocar
+            # enquanto é rascunho, quando a unidade precisa casar com outra numeração.
+            "numero": forms.NumberInput(attrs=_attrs(inputmode="numeric", min="1",
+                                                     required=False)),
             "data_oficio": EntradaData(),
             # Escolhas como seleção, na altura dos campos ao lado (a mesma peça do "Texto
             # pronto", do "Ordenar por" da lista e da UF da folha do roteiro).
@@ -220,6 +223,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             "custeio": Selecao(),
             "custeio_instituicao": forms.TextInput(attrs=_attrs()),
             "tipo_transporte": Selecao(),
+            "transporte_meio": Selecao(),
             "viatura": SelecaoDeViatura(attrs=_attrs("selecao")),
             "transporte_descricao": forms.TextInput(attrs=_attrs(
                 placeholder="Ex.: Ônibus de linha, veículo cedido…")),
@@ -232,25 +236,20 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             # O id vem do <pc-combobox> remoto (busca de servidores), no campo oculto.
             "motorista_externo_servidor": forms.HiddenInput(attrs={"data-valor-id": ""}),
             "motorista_externo_nome": forms.TextInput(attrs=_attrs(autocomplete="off")),
-            "motorista_externo_rg": forms.TextInput(attrs=_attrs(inputmode="numeric")),
-            "motorista_externo_cargo": forms.TextInput(attrs=_attrs()),
-            "motorista_externo_unidade": forms.TextInput(attrs=_attrs()),
-            "motorista_externo_observacao": forms.Textarea(attrs=_attrs("area-texto", rows=2)),
             "motorista_oficio_origem": forms.TextInput(attrs=_attrs(
                 inputmode="numeric", placeholder="Ex.: 15/2026")),
         }
         labels = {"motorista_externo": "Quem dirige",
-                  "motorista_externo_nome": "Nome", "motorista_externo_rg": "RG",
-                  "motorista_externo_cpf": "CPF", "motorista_externo_cargo": "Cargo",
-                  "motorista_externo_unidade": "Unidade",
-                  "motorista_externo_observacao": "Observação",
+                  "motorista_externo_nome": "Nome",
                   "motorista_oficio_origem": "Ofício de origem",
                   "motorista_protocolo_origem": "Protocolo do motorista",
+                  "numero": "Número do ofício",
                   "motivo": "Motivo da viagem",
                   "justificativa_modelo": "Texto pronto da justificativa",
-                  "viatura": "Viatura", "transporte_combustivel": "Combustível"}
+                  "viatura": "Viatura", "transporte_combustivel": "Combustível",
+                  "transporte_meio": "Meio de transporte"}
         help_texts = {
-            "motivo": "Aparece no ofício exatamente como escrito.",
+            "numero": "Já vem preenchido; mude só se a numeração da unidade pedir.",
             "porte_arma": "Marque se os servidores transportarão arma de fogo.",
         }
 
@@ -262,6 +261,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # O número não é obrigatório no envio: quem não manda o campo fica com o que já tem.
+        self.fields["numero"].required = False
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
             ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
         # Na folha, as escolhas levam o nome curto — o rótulo completo do modelo (com a
@@ -277,8 +278,10 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
             (Oficio.Custeio.OUTRA_INSTITUICAO, "Outra instituição"),
             (Oficio.Custeio.ONUS_LIMITADO, "Ônus limitados"),
         ]
+        # Sem "Alguém da equipe": quem dirige pela equipe se marca na própria equipe. Aqui
+        # só se diz QUEM é o de fora — abrir ou fechar o bloco é que liga e desliga o caso
+        # (transporte.js devolve o campo a vazio ao fechar).
         cast(forms.ChoiceField, self.fields["motorista_externo"]).choices = [
-            (Oficio.MotoristaExterno.NENHUM, "Alguém da equipe"),
             (Oficio.MotoristaExterno.SERVIDOR, "Servidor de outro ofício"),
             (Oficio.MotoristaExterno.MANUAL, "Pessoa não cadastrada"),
         ]
@@ -289,6 +292,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         servidor_externo.queryset = Servidor.objects.filter(
             Q(ativo=True) | Q(pk=inst.motorista_externo_servidor_id))
         servidor_externo.required = False
+        cast(forms.ChoiceField, self.fields["transporte_meio"]).choices = [
+            ("", "Selecione o meio…"), *Oficio.MeioTransporte.choices]
         cast(forms.ChoiceField, self.fields["tipo_transporte"]).choices = [
             (Oficio.TipoTransporte.VIATURA, "Viatura oficial"),
             (Oficio.TipoTransporte.OUTRO, "Outro meio"),
@@ -323,17 +328,28 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
                 self.initial["motorista_protocolo_origem"] = f"{p[:2]}.{p[2:5]}.{p[5:8]}-{p[8]}"
         self._associar()
 
+    def clean_numero(self):
+        """Número livre no ano do ofício. O banco tem a trava (ano+numero únicos); aqui a
+        mensagem é de gente, e não de IntegrityError.
+
+        Sem o campo no envio (salvamentos que não passam pela folha), fica o que o ofício
+        já tem: o número nasce reservado e nunca deve voltar a vazio.
+        """
+        numero = self.cleaned_data.get("numero") or self.instance.numero
+        if not numero:
+            return numero
+        ano = self.instance.ano
+        if Oficio.objects.filter(ano=ano, numero=numero).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError(
+                f"O número {formatar_numero(numero, ano)} já é de outro ofício. "
+                f"Escolha outro.")
+        return numero
+
     def clean_protocolo(self):
         digitos = somente_digitos(self.cleaned_data.get("protocolo"))
         if digitos and len(digitos) != 9:
             raise forms.ValidationError(
                 f"O protocolo tem 9 dígitos; você informou {len(digitos)}.")
-        return digitos
-
-    def clean_motorista_externo_cpf(self):
-        digitos = somente_digitos(self.cleaned_data.get("motorista_externo_cpf"))
-        if digitos and len(digitos) != 11:
-            raise forms.ValidationError(f"O CPF tem 11 dígitos; você informou {len(digitos)}.")
         return digitos
 
     def clean_motorista_protocolo_origem(self):
@@ -594,6 +610,51 @@ MAX_DESTINOS_TERMO = 30
 MAX_SERVIDORES_TERMO = 50
 
 
+class CampoEquipe(EscolhaMultiplaRemota):
+    """A equipe, em qualquer tela que pede servidores: o mesmo componente da folha do ofício
+    (viagens/oficios/_equipe.html) — "Adicionar servidor" com busca e o "+" de cadastrar,
+    e embaixo um cartão por pessoa (iniciais, nome, cargo · unidade, X para tirar), na grade
+    que fecha a linha (larguras_de_cartoes).
+
+    No ofício a equipe grava na hora (HTMX); aqui cada cartão leva um
+    <input type="hidden" name="..."> e vai junto com o formulário. `cadastrar` é o id do
+    <dialog> de cadastro rápido de servidor (sem ele, não há "+").
+    """
+
+    template_name = "viagens/widgets/equipe.html"
+
+    def __init__(self, *, fonte: str = "", rotulo: str = "Adicionar servidor",
+                 rotulo_vazio: str = "Ninguém na equipe ainda.", cadastrar: str = "",
+                 maximo: int = 0, motorista: bool = False,
+                 attrs: dict[str, Any] | None = None):
+        super().__init__(fonte=fonte, rotulo_vazio=rotulo_vazio,
+                         placeholder="Nome, CPF ou RG — escolha na lista", attrs=attrs)
+        self.rotulo, self.cadastrar, self.maximo = rotulo, cadastrar, maximo
+        # Quem está aqui dirige (o "Quem dirige" do lote): a viatura dele entra sozinha.
+        self.motorista = motorista
+
+    def get_context(self, name, value, attrs):
+        from .templatetags.viagens import larguras_de_cartoes
+        contexto = super().get_context(name, value, attrs)
+        consulta = getattr(self.choices, "queryset", None)
+        escolhidos = contexto["widget"]["escolhidos"]
+        if consulta is not None and escolhidos:
+            por_id = {s.pk: s for s in consulta.filter(pk__in=[e["id"] for e in escolhidos])
+                      .select_related("cargo", "unidade")}
+            for e in escolhidos:
+                s = por_id.get(e["id"])
+                e["iniciais"] = getattr(s, "iniciais", "")
+                e["titulo"] = getattr(s, "nome", e["titulo"])
+                e["unidade"] = getattr(s, "unidade_id", "") or ""
+        for e, largura in zip(escolhidos, larguras_de_cartoes(len(escolhidos)), strict=False):
+            e["largura"] = largura
+        contexto["widget"].update({
+            "rotulo": self.rotulo, "cadastrar": self.cadastrar, "maximo": self.maximo,
+            "motorista": self.motorista,
+            "excluir": ",".join(str(e["id"]) for e in escolhidos)})
+        return contexto
+
+
 class CampoMunicipios(forms.Field):
     """Vários "Cidade/UF" (escolhidos por busca), resolvidos para Municipio na ordem."""
 
@@ -632,11 +693,12 @@ class FormularioTermo(forms.Form):
         widget=forms.TextInput(attrs=_attrs(autocomplete="off")))
     destinos = CampoMunicipios(label="Destinos", required=False,
                                help_text="Em branco, valem os destinos do ofício.")
-    data_inicio = forms.DateField(label="Data inicial", required=False, widget=EntradaData(),
-                                  input_formats=FORMATOS_DATA)
-    data_fim = forms.DateField(label="Data final", required=False, widget=EntradaData(),
-                               input_formats=FORMATOS_DATA,
-                               help_text="Um dia só: deixe em branco.")
+    # O período é um campo só na tela (<pc-data data-periodo>, o calendário que marca ida e
+    # volta): estes dois levam as pontas, como os filtros de período da lista de ofícios.
+    data_inicio = forms.DateField(label="Data inicial", required=False, input_formats=FORMATOS_DATA,
+                                  widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    data_fim = forms.DateField(label="Data final", required=False, input_formats=FORMATOS_DATA,
+                               widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
     servidores = forms.ModelMultipleChoiceField(
         label="Servidores", queryset=Servidor.objects.none(), required=False,
         help_text="Um termo por servidor. Em branco, vale a equipe do ofício.")
@@ -653,14 +715,16 @@ class FormularioTermo(forms.Form):
         atuais = list(termo.servidores.values_list("pk", flat=True)) if termo else []
         servidores = cast(forms.ModelMultipleChoiceField, self.fields["servidores"])
         servidores.queryset = Servidor.objects.filter(Q(ativo=True) | Q(pk__in=atuais))
-        servidores.widget = EscolhaMultiplaRemota(
-            fonte=fonte_servidores, rotulo_vazio="Nenhum servidor escolhido.",
-            placeholder="Nome, cargo ou CPF…")
+        servidores.widget = CampoEquipe(fonte=fonte_servidores, cadastrar="dialogo-servidor")
         servidores.widget.choices = servidores.choices
         self.fields["destinos"].widget.fonte = fonte_municipios
         viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
-        viatura.queryset = Viatura.objects.filter(
+        viatura.queryset = (Viatura.objects.filter(
             Q(ativo=True) | Q(pk=termo.viatura_id if termo else None)).order_by("placa")
+            .select_related("combustivel", "unidade").prefetch_related("motoristas"))
+        # A mesma escolha do ofício: sugeridas pela equipe, com os chips (transporte.js).
+        viatura.widget = SelecaoDeViatura(attrs=_attrs("selecao"))
+        viatura.widget.choices = viatura.choices
         # Com ofício, o que vem dele aparece sob cada campo ("Do ofício: …"): o vazio diz
         # isso, sem ajuda fixa que repita. Sem ofício, destino e data são obrigatórios.
         if self.is_bound:
@@ -678,16 +742,13 @@ class FormularioTermo(forms.Form):
             servidores.help_text = "Um termo por servidor; sem servidor, sai só o genérico."
 
     def clean(self):
-        """As regras do serviço, com o erro no campo certo (todas de uma vez)."""
-        from .termos import _do_oficio
+        """As regras do serviço, com o erro no campo certo (todas de uma vez).
+
+        Destino e período em branco não impedem gravar: o termo nasce rascunho e se grava
+        sozinho enquanto é preenchido (os documentos aparecem já na primeira tela); o que
+        falta vira pendência na conferência ("Falta destino", "Falta período")."""
         dados = super().clean() or {}
-        oficio = dados.get("oficio")
-        destinos_oficio, inicio_oficio, _ = _do_oficio(oficio) if oficio else ([], None, None)
-        if not dados.get("destinos") and not destinos_oficio and "destinos" not in self.errors:
-            self.add_error("destinos", "Informe o destino ou escolha um ofício com roteiro.")
         inicio, fim = dados.get("data_inicio"), dados.get("data_fim")
-        if not inicio and not inicio_oficio and "data_inicio" not in self.errors:
-            self.add_error("data_inicio", "Informe a data ou escolha um ofício com período.")
         if inicio and fim and fim < inicio:
             self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
         if fim and not inicio:
@@ -700,17 +761,50 @@ class FormularioTermo(forms.Form):
             raise forms.ValidationError(f"No máximo {MAX_SERVIDORES_TERMO} servidores por termo.")
         return servidores
 
+    def periodo_texto(self) -> str:
+        """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só a ida."""
+        def texto(campo):
+            v = self[campo].value()
+            return v.strftime("%d/%m/%Y") if hasattr(v, "strftime") else (v or "")
+        de, ate = texto("data_inicio"), texto("data_fim")
+        return f"{de} a {ate}" if de and ate else de
+
+    @staticmethod
+    def campos_do_oficio(oficio) -> dict:
+        """O que o ofício põe nos campos do termo: destinos, período, equipe e viatura."""
+        from .termos import _do_oficio
+        destinos, inicio, fim = _do_oficio(oficio)
+        return {"destinos": [str(m) for m in destinos], "data_inicio": inicio,
+                "data_fim": fim if fim != inicio else None,
+                "servidores": list(oficio.viajantes.order_by("ordem", "id")
+                                   .values_list("servidor_id", flat=True)),
+                "viatura": oficio.viatura_id}
+
     @classmethod
     def de(cls, termo, **kwargs):
+        """O termo como está, com o que estiver em branco preenchido pelo ofício vinculado.
+
+        Vincular um ofício copia dele destinos, período, equipe e viatura para os campos —
+        a pessoa vê e ajusta valores de verdade, em vez de um "Do ofício: …" sob campos
+        vazios. Termos antigos, gravados vazios para herdar, abrem já preenchidos.
+        """
         from .termos import versao_de
+        destinos = [str(d.municipio) for d in termo.destinos.all()]
+        inicio = termo.data_inicio
+        fim = termo.data_fim if termo.data_fim != termo.data_inicio else None
+        servidores = [s.pk for s in termo.servidores.all()]
+        viatura = termo.viatura_id
+        if termo.oficio_id:
+            of = cls.campos_do_oficio(termo.oficio)
+            destinos = destinos or of["destinos"]
+            if not inicio:
+                inicio, fim = of["data_inicio"], of["data_fim"]
+            servidores = servidores or of["servidores"]
+            viatura = viatura or of["viatura"]
         return cls(termo=termo, initial={
-            "versao": versao_de(termo),
-            "oficio": termo.oficio_id, "evento": termo.evento,
-            "destinos": [str(d.municipio) for d in termo.destinos.all()],
-            "data_inicio": termo.data_inicio,
-            "data_fim": termo.data_fim if termo.data_fim != termo.data_inicio else None,
-            "servidores": [s.pk for s in termo.servidores.all()],
-            "viatura": termo.viatura_id}, **kwargs)
+            "versao": versao_de(termo), "oficio": termo.oficio_id, "evento": termo.evento,
+            "destinos": destinos, "data_inicio": inicio, "data_fim": fim,
+            "servidores": servidores, "viatura": viatura}, **kwargs)
 
 
 # ---------------------------------------------------------------- ordens de serviço
@@ -728,11 +822,12 @@ class FormularioOrdem(forms.Form):
                              help_text="Muda o texto do documento (referência, justificativas "
                                        "e atribuições da equipe).")
     destinos = CampoMunicipios(label="Destinos", required=False)
-    data_inicio = forms.DateField(label="Data inicial", required=False, widget=EntradaData(),
-                                  input_formats=FORMATOS_DATA)
-    data_fim = forms.DateField(label="Data final", required=False, widget=EntradaData(),
-                               input_formats=FORMATOS_DATA,
-                               help_text="Um dia só: deixe em branco.")
+    # Período num campo só na tela (<pc-data data-periodo>, ida e volta no mesmo calendário),
+    # como no termo: estes dois levam as pontas.
+    data_inicio = forms.DateField(label="Data inicial", required=False, input_formats=FORMATOS_DATA,
+                                  widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    data_fim = forms.DateField(label="Data final", required=False, input_formats=FORMATOS_DATA,
+                               widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
     servidores = forms.ModelMultipleChoiceField(label="Equipe", queryset=Servidor.objects.none(),
                                                 required=False)
     motivo_modelo = forms.ModelChoiceField(
@@ -769,9 +864,7 @@ class FormularioOrdem(forms.Form):
         atuais = list(ordem.servidores.values_list("pk", flat=True)) if ordem else []
         equipe = cast(forms.ModelMultipleChoiceField, self.fields["servidores"])
         equipe.queryset = Servidor.objects.filter(Q(ativo=True) | Q(pk__in=atuais))
-        equipe.widget = EscolhaMultiplaRemota(fonte=fonte_servidores,
-                                              rotulo_vazio="Nenhum servidor na equipe.",
-                                              placeholder="Nome, cargo ou CPF…")
+        equipe.widget = CampoEquipe(fonte=fonte_servidores, cadastrar="dialogo-servidor")
         equipe.widget.choices = equipe.choices
         self.fields["destinos"].widget.fonte = fonte_municipios
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
@@ -804,6 +897,14 @@ class FormularioOrdem(forms.Form):
                     label=rotulo, choices=opcoes, required=False, widget=Selecao(),
                     initial=(ordem.funcoes or {}).get(str(s.pk), ""))
                 self.campos_de_funcao.append((s, nome))
+
+    def periodo_texto(self) -> str:
+        """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só a ida."""
+        def texto(campo):
+            v = self[campo].value()
+            return v.strftime("%d/%m/%Y") if hasattr(v, "strftime") else (v or "")
+        de, ate = texto("data_inicio"), texto("data_fim")
+        return f"{de} a {ate}" if de and ate else de
 
     @property
     def funcoes_da_equipe(self):
@@ -896,12 +997,13 @@ class FormularioPlano(forms.Form):
         label="Outro programa", max_length=200, required=False,
         widget=forms.TextInput(attrs=_attrs(placeholder="Informe o programa quando não estiver "
                                                         "na lista")))
+    # Período num campo só na tela (<pc-data data-periodo>, início e fim no mesmo
+    # calendário), como no termo e na OS: estes dois levam as pontas.
     data_inicio = forms.DateField(label="Início do evento", required=False,
-                                  widget=EntradaData(), input_formats=FORMATOS_DATA)
-    data_fim = forms.DateField(label="Fim do evento", required=False, widget=EntradaData(),
-                               input_formats=FORMATOS_DATA,
-                               help_text="Um dia só: deixe em branco. O deslocamento fica no "
-                                         "cartão 2.")
+                                  input_formats=FORMATOS_DATA,
+                                  widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    data_fim = forms.DateField(label="Fim do evento", required=False, input_formats=FORMATOS_DATA,
+                               widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
     horario = forms.ChoiceField(label="Horário de atendimento", required=False, widget=Selecao())
     destinos = CampoMunicipios(label="Destinos", required=False,
                                help_text="O primeiro é o principal (entra nas diárias).")
@@ -1089,6 +1191,14 @@ class FormularioPlano(forms.Form):
                     valor.pk if sufixo == "" and valor is not None else valor)
         return cls(plano=plano, initial=inicial, **kwargs)
 
+    def periodo_texto(self) -> str:
+        """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só o início."""
+        def texto(campo):
+            v = self[campo].value()
+            return v.strftime("%d/%m/%Y") if hasattr(v, "strftime") else (v or "")
+        de, ate = texto("data_inicio"), texto("data_fim")
+        return f"{de} a {ate}" if de and ate else de
+
     @staticmethod
     def conjunto_padrao() -> list[int]:
         """As atividades do conjunto padrão (vêm marcadas no plano novo e são gravadas)."""
@@ -1191,10 +1301,12 @@ class FormularioViagem(forms.Form):
     descricao = forms.CharField(
         label="Descrição/objetivo", required=False, max_length=4000,
         widget=forms.Textarea(attrs={"class": "area-texto", "rows": 2}))
-    data_inicio = forms.DateField(label="Início", required=False, widget=EntradaData(),
-                                  input_formats=FORMATOS_DATA)
-    data_fim = forms.DateField(label="Fim", required=False, widget=EntradaData(),
-                               input_formats=FORMATOS_DATA, help_text="Um dia só: em branco.")
+    # Período num campo só na tela (<pc-data data-periodo>, início e fim no mesmo
+    # calendário), como no termo, na OS e no plano: estes dois levam as pontas.
+    data_inicio = forms.DateField(label="Início", required=False, input_formats=FORMATOS_DATA,
+                                  widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
+    data_fim = forms.DateField(label="Fim", required=False, input_formats=FORMATOS_DATA,
+                               widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
     destinos = CampoMunicipios(label="Destinos", required=False,
                                help_text="Na ordem da visita; o primeiro é o principal.")
     roteiros = _OpcaoDocumento(label="Roteiros", queryset=Roteiro.objects.none(),
@@ -1213,6 +1325,14 @@ class FormularioViagem(forms.Form):
     # Os documentos que a tela mostrou (por tipo): desmarcar solta só estes. Um documento
     # vinculado depois que a tela abriu (outra aba, "Novo …") não é solto por engano.
     conhecidos = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    def periodo_texto(self) -> str:
+        """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só o início."""
+        def texto(campo):
+            v = self[campo].value()
+            return v.strftime("%d/%m/%Y") if hasattr(v, "strftime") else (v or "")
+        de, ate = texto("data_inicio"), texto("data_fim")
+        return f"{de} a {ate}" if de and ate else de
 
     def __init__(self, *args, viagem, fonte_municipios: str = "", **kwargs):
         from .viagem import candidatos
@@ -1272,26 +1392,25 @@ class FormularioLote(forms.Form):
         super().__init__(*args, **kwargs)
         self.quantidade = max(1, min(quantidade, 20))
         ativos = Servidor.objects.filter(ativo=True)
-        viaturas = Viatura.objects.filter(ativo=True).order_by("placa")
+        viaturas = (Viatura.objects.filter(ativo=True).order_by("placa")
+                    .select_related("combustivel", "unidade").prefetch_related("motoristas"))
         for i in range(self.quantidade):
             equipe = forms.ModelMultipleChoiceField(
                 label="Equipe", queryset=ativos, required=False,
-                widget=EscolhaMultiplaRemota(fonte=fonte_servidores,
-                                             rotulo_vazio="Ninguém escolhido ainda.",
-                                             placeholder="Nome, CPF, cargo ou unidade…"))
+                widget=CampoEquipe(fonte=fonte_servidores, cadastrar="dialogo-servidor"))
             equipe.widget.choices = equipe.choices
             motorista = forms.ModelMultipleChoiceField(
                 label="Quem dirige (opcional)", queryset=ativos, required=False,
                 help_text="Fora da equipe, entra na deste ofício.",
-                widget=EscolhaMultiplaRemota(fonte=fonte_servidores,
-                                             rotulo_vazio="Ninguém escolhido.",
-                                             placeholder="Nome do motorista…"))
+                widget=CampoEquipe(fonte=fonte_servidores, rotulo="Quem dirige (opcional)",
+                                   rotulo_vazio="Ninguém escolhido para dirigir.",
+                                   cadastrar="dialogo-servidor", maximo=1, motorista=True))
             motorista.widget.choices = motorista.choices
             self.fields[f"equipe_{i}"] = equipe
             self.fields[f"motorista_{i}"] = motorista
             self.fields[f"viatura_{i}"] = forms.ModelChoiceField(
                 label="Viatura", queryset=viaturas, required=False,
-                empty_label="Sem viatura", widget=Selecao())
+                empty_label="Sem viatura", widget=SelecaoDeViatura(attrs=_attrs("selecao")))
 
     def cartoes(self) -> list[dict]:
         return [{"n": i + 1, "equipe": self[f"equipe_{i}"], "motorista": self[f"motorista_{i}"],

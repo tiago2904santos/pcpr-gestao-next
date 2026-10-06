@@ -1,0 +1,72 @@
+{% load static viagens %}
+{% comment %}
+O componente de destinos de todas as telas que pedem destino ({% campo_destinos %}): o
+mesmo "Sede e destinos" + "Rota" do roteiro (viagens/_itinerario.html), sem trechos.
+- A sede da unidade fica fixa no topo (origem) e no fim (volta); não vai ao formulário.
+- Cada destino é um <input name="{{ campo.html_name }}"> com "Cidade/UF", na ordem da tela.
+- O painel Rota traça sede → destinos → sede no mapa (mapa-rota.js, o mesmo do roteiro),
+  com km e tempo da ida e da ida e volta.
+{% endcomment %}
+<link rel="stylesheet" href="{% static 'css/itinerario.css' %}">
+<pc-destinos class="itin destinos" id="{{ campo.auto_id }}" data-nome="{{ campo.html_name }}" data-maximo="{{ maximo }}" data-sede="{{ sede }}"
+             data-municipios-url="{% url 'cadastros:buscar_municipios' %}" data-rota-url="{% url 'viagens:rota' %}"
+             data-tiles="{{ mapa_tiles }}" data-atribuicao="{{ mapa_atribuicao }}"
+             data-leaflet="{% static 'vendor/leaflet/leaflet.js' %}" data-leaflet-css="{% static 'vendor/leaflet/leaflet.css' %}">
+
+  <section class="itin__bloco" aria-labelledby="{{ campo.auto_id }}-t-paradas">
+    <header class="itin__bloco-cabecalho">
+      <h3 class="itin__bloco-titulo" id="{{ campo.auto_id }}-t-paradas">{% icone "map-pin" %}{{ titulo }}</h3>
+    </header>
+    <ol class="itin__paradas" aria-label="Sede e destinos, na ordem da visita" data-destinos-lista>
+      <li class="itin__parada itin__parada--sede" data-sede>
+        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
+        <div class="itin__local" role="group" aria-label="Sede (origem e volta da viagem)">
+          <div class="campo itin__uf">
+            <label class="campo__rotulo" for="{{ campo.auto_id }}-sede-uf">UF</label>
+            <input class="entrada" id="{{ campo.auto_id }}-sede-uf" type="text" value="{{ sede_uf|default:'—' }}" readonly tabindex="-1">
+          </div>
+          <div class="campo itin__cidade">
+            <label class="campo__rotulo" for="{{ campo.auto_id }}-sede">Sede (origem da viagem)</label>
+            <div class="entrada-composta"><input class="entrada" id="{{ campo.auto_id }}-sede" type="text" value="{{ sede|default:'Sem sede na configuração da unidade' }}" readonly tabindex="-1"></div>
+          </div>
+        </div>
+      </li>
+      {% for cidade in valores %}
+        {% include "viagens/_destino.html" with cidade=cidade numero=forloop.counter nome=campo.html_name uf_padrao=sede_uf %}
+      {% empty %}
+        {% include "viagens/_destino.html" with cidade="" numero=1 nome=campo.html_name uf_padrao=sede_uf %}
+      {% endfor %}
+      <li class="itin__adicionar" data-adicionar-li>
+        <span class="itin__marco itin__marco--novo" aria-hidden="true">{% icone "plus" %}</span>
+        <button type="button" class="itin__botao-adicionar" data-adicionar-destino>
+          {% icone "plus" %}<span>Adicionar destino</span><small>entra antes da volta à sede</small>
+        </button>
+      </li>
+      <li class="itin__parada itin__parada--volta">
+        <span class="itin__marco" aria-hidden="true">{% icone "home" %}</span>
+        <p class="itin__volta"><span class="itin__volta-rotulo">Volta à sede</span><span class="itin__volta-cidade">{{ sede|default:"—" }}</span></p>
+      </li>
+    </ol>
+    {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+  </section>
+
+  <section class="itin__bloco itin__painel" aria-labelledby="{{ campo.auto_id }}-t-rota">
+    <header class="itin__bloco-cabecalho">
+      <h3 class="itin__bloco-titulo" id="{{ campo.auto_id }}-t-rota">{% icone "route" %}Rota</h3>
+      <p class="itin__totais" data-totais role="status">
+        <span class="itin__total">{% icone "arrow-right" classe="icone--sm" %}<span class="itin__total-rotulo">Ida</span><span class="itin__total-valor" data-ida-km>—</span><span class="itin__total-valor" data-ida-tempo>—</span></span>
+        <span class="itin__total">{% icone "undo-2" classe="icone--sm" %}<span class="itin__total-rotulo">Ida e volta</span><span class="itin__total-valor" data-total-km>—</span><span class="itin__total-valor" data-total-tempo>—</span></span>
+      </p>
+      <p class="itin__fonte" data-rota-fonte role="status"></p>
+    </header>
+    <div class="itin__rota">
+      <div class="itin__mapa" data-mapa>
+        <p class="itin__mapa-vazio" data-mapa-vazio>{% icone "map" %}O mapa traça a rota assim que houver um destino.</p>
+      </div>
+      <button type="button" class="botao botao--sm itin__ver-rota" data-ver-rota hidden>{% icone "route" classe="icone--sm" %}Ver a rota inteira</button>
+    </div>
+  </section>
+
+  <template data-destino-modelo>{% include "viagens/_destino.html" with cidade="" numero=0 nome=campo.html_name uf_padrao=sede_uf %}</template>
+  <div class="sr-only" aria-live="polite" data-anuncio></div>
+</pc-destinos>

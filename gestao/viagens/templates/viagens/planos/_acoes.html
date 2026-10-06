@@ -1,0 +1,22 @@
+{% comment %}
+Ações do plano, como as do termo e da OS: no cabeçalho e na barra do rodapé. "Visualizar"
+abre, em outra aba, a página com o plano como sai no PDF (prévia, com marca de minuta, até
+ser gerado); no rodapé (`dobrar`) quem abre essa aba é "Gerar o plano". Baixar o PDF ou o
+DOCX — só do plano gerado — gera na hora, com o botão em "processando"
+(componentes/baixar-arquivo.js). O formulário de exclusão fica uma vez só em editar.html.
+{% endcomment %}
+{% if editavel and pode_ver_documento and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_plano' plano.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do {{ plano }}{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if editavel and plano.documento_gerado_em %}
+      <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_plano' plano.pk 'pdf' %}" download="plano-{{ plano.numero|stringformat:'02d' }}-{{ plano.ano }}.pdf" data-baixar-arquivo>{% icone "file-check-2" %}Baixar o PDF</a>
+      <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_plano' plano.pk 'docx' %}" download data-baixar-arquivo>{% icone "download" %}Baixar em DOCX</a>
+    {% endif %}
+    {% if plano.documento_gerado_em %}<a class="menu__item" role="menuitem" href="{% url 'viagens:resultados_plano' plano.pk %}">{% icone "list-checks" %}Lançar os resultados</a>{% endif %}
+    <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
+    {% if pode_cancelar and not plano.cancelado or pode_excluir %}<div class="menu__separador" role="separator"></div>{% endif %}
+    {% if pode_cancelar and not plano.cancelado %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_plano' plano.pk %}" data-motivo-titulo="Cancelar o {{ plano }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar plano" data-motivo-ajuda="O plano continua na lista, em Cancelados, com o mesmo número; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar plano</button>{% endif %}
+    {% if pode_excluir %}<button type="submit" form="excluir-plano" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir plano</button>{% endif %}
+  </div>
+</pc-menu>

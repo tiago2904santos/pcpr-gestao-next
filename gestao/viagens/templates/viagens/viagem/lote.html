@@ -2,6 +2,7 @@
 {% load static %}
 {% block titulo %}Gerar documentos · {{ v }}{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Gerar documentos em lote (paridade com a referência): um cartão por ofício — a equipe, quem
@@ -46,10 +47,10 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
       <p class="secao__nota">A equipe que viaja neste ofício, quem dirige e em qual viatura.</p>
     </div>
     <div class="pilha">
-      {% include "componentes/campo.html" with campo=c.equipe %}
+      {% include "viagens/_campo_equipe.html" with campo=c.equipe %}
+      {% include "viagens/_campo_equipe.html" with campo=c.motorista %}
       <div class="campos">
-        {% include "componentes/campo.html" with campo=c.motorista classe="campo--lg" %}
-        {% include "componentes/campo.html" with campo=c.viatura classe="campo--md" %}
+        {% with n=c.n|stringformat:"s" %}{% include "viagens/_campo_viatura.html" with campo=c.viatura cadastrar=True equipe="#oficio-"|add:n %}{% endwith %}
       </div>
     </div>
   </section>
@@ -76,4 +77,5 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
     <button type="submit" name="acao" value="gerar" class="botao botao--primario">{% icone "files" %}Gerar documentos</button>
   </div>
 </form>
+{% include "componentes/dialogos_cadastro.html" %}
 {% endblock %}

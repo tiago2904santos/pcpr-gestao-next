@@ -16,10 +16,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros.forms import formularios_de_cadastro_rapido
+
 from . import policies, prestacao, viagem, viagem_conferencia
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
-from .models import Viagem
+from .models import Oficio, Viagem
 from .views import POR_PAGINA, _migalhas
 from .views_editor import primeiro_erro
 
@@ -345,6 +347,7 @@ def gerar_documentos(request: HttpRequest, pk: int) -> HttpResponse:
         "tem_ordem": any(not o.cancelada for o in docs.ordens),
         "tem_plano": any(not p.cancelado for p in docs.planos),
         "roteiro": next((r for r in reversed(docs.roteiros) if r.editavel), None),
+        **formularios_de_cadastro_rapido(),
         "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
                               (str(v), reverse("viagens:editar_viagem", args=[v.pk])),
                               ("Gerar documentos", ""))}, status=422 if erros else 200)
@@ -371,3 +374,54 @@ def repetir(request: HttpRequest, pk: int) -> HttpResponse:
                               "de serviço e termos. Números e protocolos são novos; confira os "
                               "documentos antes de emitir.")
     return redirect("viagens:editar_viagem", nova.pk)
+
+
+@require_GET
+def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Os documentos da viagem numa página só, na ordem do processo — ofícios (e a
+    justificativa, quando há), planos, OS e termos —, cada um como sai no PDF. Os cancelados
+    ficam de fora; cada folha confere a própria permissão."""
+    from . import termos as termos_do_termo
+    v = _viagem_visivel(request, pk)
+    docs = viagem.documentos(v)
+    folhas: list[dict] = []
+    for o in docs.oficios:
+        if o.situacao == Oficio.Situacao.CANCELADO:
+            continue
+        folhas.append({"titulo": f"Ofício {o.numero_formatado}", "descricao": "Ofício",
+                       "url": reverse("viagens:folha", args=[o.pk, "oficio"])})
+        if (o.justificativa or "").strip():
+            folhas.append({"titulo": f"Ofício {o.numero_formatado}",
+                           "descricao": "Justificativa",
+                           "url": reverse("viagens:folha", args=[o.pk, "justificativa"])})
+    for p in docs.planos:
+        if not p.cancelado:
+            folhas.append({"titulo": str(p), "descricao": "Plano de trabalho",
+                           "url": reverse("viagens:folha_plano", args=[p.pk])})
+    for os_ in docs.ordens:
+        if not os_.cancelada:
+            folhas.append({"titulo": str(os_), "descricao": os_.get_tipo_display(),
+                           "url": reverse("viagens:folha_ordem", args=[os_.pk])})
+    for t in docs.termos:
+        if t.cancelado:
+            continue
+        for d in termos_do_termo.documentos_do_termo(t):
+            folhas.append({"titulo": d["titulo"], "descricao": f"{t} · {d['descricao']}",
+                           "url": reverse("viagens:folha_termo", args=[t.pk, d["chave"]])})
+    editavel = policies.pode_editar_viagem(request.user, v)
+    return render(request, "viagens/visualizar.html", {
+        "placa_rotulo": "Viagem",
+        "placa_numero": f"{v.data_inicio:%d/%m}" if v.data_inicio else f"#{v.pk}",
+        "titulo_doc": str(v),
+        "descricao": (f"{len(folhas)} folha{'s' if len(folhas) != 1 else ''} dos documentos "
+                      "da viagem, na ordem do processo — como saem no PDF."),
+        "folhas": folhas,
+        "zip_url": reverse("viagens:baixar_tudo_viagem", args=[v.pk]) if editavel and folhas
+        else "",
+        "baixar_url": reverse("viagens:baixar_viagem", args=[v.pk]) if editavel and folhas
+        else "",
+        "voltar_url": reverse("viagens:editar_viagem", args=[v.pk]),
+        "voltar_rotulo": "Voltar à viagem",
+        "migalhas": _migalhas(("Todas as viagens", reverse("viagens:viagens")),
+                              (str(v), reverse("viagens:editar_viagem", args=[v.pk])),
+                              ("Visualizar", ""))})

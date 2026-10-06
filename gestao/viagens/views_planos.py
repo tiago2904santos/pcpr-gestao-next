@@ -283,6 +283,16 @@ def _gravar(request: HttpRequest, form: FormularioPlano, plano=None) -> HttpResp
 def novo(request: HttpRequest) -> HttpResponse:
     policies.exigir(policies.pode_criar_plano(request.user),
                     "Você não pode criar planos de trabalho.")
+    if request.method == "POST" and request.POST.get("acao") == "criar":
+        # "Novo plano" (lista): cria na hora e abre a folha — o documento já aparece e vai se
+        # refazendo enquanto a pessoa preenche (como o termo, a OS e o ofício).
+        try:
+            # Sem `atividades`, o conjunto padrão já nasce gravado (planos.salvar).
+            plano, _ = planos.salvar(request.user, horario=dominio.HORARIO_PADRAO)
+        except planos.PlanoInvalido as exc:
+            messages.error(request, str(exc))
+            return redirect("viagens:planos")
+        return redirect("viagens:editar_plano", plano.pk)
     if request.method == "POST":
         return _gravar(request, _formulario(request, request.POST))
     inicial: dict = {"horario": dominio.HORARIO_PADRAO,
@@ -449,9 +459,61 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     plano = _plano_visivel(request, pk)
     policies.exigir(policies.pode_ver_documento_plano(request.user, plano),
                     "Reative o plano para ver o documento.")
-    return resposta_de_folha(request, lambda nonce: planos.html_do_documento(
-        planos.dados_do_documento(plano, fixar=False), folha=True, nonce=nonce),
-        erros=(planos.PlanoInvalido,))
+    # ?versao=N mostra uma versão do texto (o histórico do editor); 0 é o modelo.
+    regioes, marcados = None, set()
+    pedido = request.GET.get("versao") or ""
+    if pedido.isascii() and pedido.isdigit():
+        numero = int(pedido)
+        edicao = planos._versoes(plano).filter(numero=numero).first() if numero else None
+        if numero and edicao is None:
+            raise Http404
+        regioes = dict(edicao.regioes) if edicao else {}
+        marcados = {b["chave"] for b in edicao.blocos_alterados} if edicao else set()
+    else:
+        vigente = planos.edicao_vigente(plano)
+        marcados = {b["chave"] for b in vigente.blocos_alterados} if vigente else set()
+
+    def gerar(nonce: str) -> str:
+        dados = planos.dados_do_documento(plano, fixar=False)
+        # Gerado, a folha é o documento (número e data já fixados): sem a marca de minuta.
+        dados["previa"] = plano.documento_gerado_em is None
+        return planos.html_do_documento(dados, folha=True, nonce=nonce, regioes=regioes,
+                                        blocos_alterados=marcados)
+    return resposta_de_folha(request, gerar, erros=(planos.PlanoInvalido,))
+
+
+@require_GET
+def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """O plano numa página da aplicação (as folhas, como no PDF). Vindo de "Gerar"
+    (?gerar=1), finaliza e gera: só sem pendências; fixa a data e marca GERADO."""
+    plano = _plano_visivel(request, pk)
+    policies.exigir(policies.pode_editar_plano(request.user, plano),
+                    "Reative o plano antes de gerar documentos.")
+    if request.GET.get("gerar") == "1":
+        try:
+            plano = planos.finalizar(request.user, plano.pk)
+        except planos.PlanoInvalido as exc:
+            messages.error(request, str(exc))
+            return redirect(reverse("viagens:editar_plano", args=[plano.pk]) + "#conferencia")
+    para_lista = request.GET.get("voltar") == "lista"
+    gerado = plano.documento_gerado_em is not None
+    return render(request, "viagens/visualizar.html", {
+        "placa_rotulo": "Plano", "placa_numero": f"{plano.numero:02d}/{plano.ano}",
+        "titulo_doc": str(plano),
+        "descricao": "O plano como sai no PDF." if gerado
+        else "Prévia (com marca de minuta): o plano ainda não foi gerado.",
+        "folhas": [{"titulo": str(plano), "descricao": plano.programa_nome or "",
+                    "url": reverse("viagens:folha_plano", args=[plano.pk])}],
+        # Antes de gerar, o PDF é a prévia (o documento final só sai gerado).
+        "pdf_url": reverse("viagens:documento_plano", args=[plano.pk, "pdf"])
+        + ("" if gerado else "?previa=1"),
+        "pdf_nome": f"plano-{plano.numero:02d}-{plano.ano}{'' if gerado else '-previa'}.pdf",
+        "voltar_url": reverse("viagens:planos") if para_lista
+        else reverse("viagens:editar_plano", args=[plano.pk]),
+        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar ao plano",
+        "migalhas": _migalhas(("Planos de trabalho", reverse("viagens:planos")),
+                              (str(plano), reverse("viagens:editar_plano", args=[plano.pk])),
+                              ("Visualizar", ""))})
 
 
 @require_GET

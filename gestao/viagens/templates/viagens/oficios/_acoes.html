@@ -1,0 +1,16 @@
+{% comment %}
+Ações do ofício (ver minuta, histórico, excluir). Aparecem no cabeçalho da folha e também
+na barra do rodapé, como no roteiro: quem rola até o fim não precisa voltar ao topo.
+Com `dobrar`, "Ver minuta" entra no menu em vez de ficar como botão solto — é o que a barra
+do rodapé usa, onde Salvar e Revisar já ocupam o espaço próprio.
+O formulário de exclusão fica uma vez só em `editar.html`.
+{% endcomment %}
+{% if not dobrar %}<a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>{% endif %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do ofício{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if dobrar %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>{% endif %}
+    <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
+    {% if pode_excluir %}<button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>{% endif %}
+  </div>
+</pc-menu>

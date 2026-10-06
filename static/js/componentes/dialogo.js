@@ -132,7 +132,7 @@ document.addEventListener("cancel", (e) => {
 
 /**
  * Abre o diálogo de confirmação padrão e resolve com true/false.
- * @param {{titulo?: string, mensagem: string, confirmar?: string, perigo?: boolean}} opcoes
+ * @param {{titulo?: string, mensagem: string, confirmar?: string, cancelar?: string, perigo?: boolean}} opcoes
  * @returns {Promise<boolean>}
  */
 export function confirmar(opcoes) {
@@ -144,6 +144,8 @@ export function confirmar(opcoes) {
   titulo.textContent = opcoes.titulo || "Confirmar ação";
   mensagem.textContent = opcoes.mensagem;
   botao.textContent = opcoes.confirmar || "Confirmar";
+  const voltar = /** @type {HTMLElement | null} */ (d.querySelector("[data-cancelar]"));
+  if (voltar) voltar.textContent = opcoes.cancelar || "Cancelar";
   d.classList.toggle("dialogo--perigo", Boolean(opcoes.perigo));
   botao.classList.toggle("botao--perigo", Boolean(opcoes.perigo));
   botao.classList.toggle("botao--primario", !opcoes.perigo);

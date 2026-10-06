@@ -198,9 +198,9 @@ Assinantes por tipo com substituições e endereço em campos: ficha docs/migrat
         {% if form_sub.servidor.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form_sub.servidor.errors|join:" " }}</span></p>{% endif %}
       </div>
       {% include "componentes/campo.html" with campo=form_sub.tipo %}
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form_sub.inicio classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form_sub.fim classe="campo--md" %}
+      <div class="campos campos--iguais">
+        {% include "componentes/campo.html" with campo=form_sub.inicio %}
+        {% include "componentes/campo.html" with campo=form_sub.fim %}
       </div>
       {% include "componentes/campo.html" with campo=form_sub.motivo %}
     </div>

@@ -24,6 +24,7 @@ from django.views.decorators.csp import csp_override
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_headers
 
+from gestao.cadastros.forms import FormularioServidor, FormularioViatura
 from gestao.cadastros.models import Municipio, Servidor
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
@@ -281,6 +282,20 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", cal
         ok = not bloqueia and ("diarias" not in origens or bool(oficio.diarias_resumo))
         secoes.append({"chave": chave, "rotulo": rotulo, "ok": ok, "bloqueia": bloqueia})
     return {
+        # Nome desta folha para quem sair dela e precisar voltar (botão do rodapé).
+        "rotulo_de_volta": f"o ofício {oficio.numero_formatado}",
+        # Cadastrar sem sair da folha: são os mesmos diálogos das telas de Cadastros, e
+        # por isso levam os mesmos formulários (ver componentes/dialogo_*.html).
+        "form_servidor": FormularioServidor(),
+        # Para onde o servidor recém-cadastrado vai: direto para a equipe deste ofício.
+        "url_adicionar_viajante": reverse("viagens:adicionar_viajante", args=[oficio.pk]),
+        "form_viatura": FormularioViatura(
+            fonte_motoristas=reverse("cadastros:buscar_servidores")),
+        # Pendências em vermelho só depois de salvar ou de pedir para emitir: abrir um
+        # rascunho novo não é erro de ninguém.
+        "mostrar_pendencias": bool(form is not None
+                                   or request.GET.get("salvo") == "1"
+                                   or request.GET.get("revisar")),
         "oficio": oficio,
         "form": form or FormularioOficio(instance=oficio),
         "secoes": secoes,
@@ -442,6 +457,8 @@ def _secao_equipe(request, oficio, erro: str = "") -> HttpResponse:
         "oficio": oficio, "erro_equipe": erro, "oob": True,
         "viajantes": viajantes_de(oficio),
         "prontidao": services.verificar_prontidao(oficio),
+        # Mexer na equipe é uma gravação: daqui em diante a pendência pode falar.
+        "mostrar_pendencias": True,
     }
     resposta = render(request, "viagens/oficios/_equipe.html", contexto)
     resposta["HX-Trigger"] = "equipe-alterada"
@@ -751,8 +768,13 @@ def previa(request: HttpRequest, pk: int) -> HttpResponse:
     dados = dados_do_oficio(oficio)
     from weasyprint import HTML
 
-    pdf = HTML(string=html_do_documento(tipo, dados, previa=True),
-               base_url=str(ASSETS), url_fetcher=buscar_recurso()).write_pdf()
+    # O texto editado vai junto: a minuta é a mesma folha do editor, em PDF (ADR 0018).
+    # Sem `regioes`, `html_do_documento` cairia no modelo puro — e o botão "PDF" da barra
+    # mostrava um documento diferente do que estava escrito ao lado, no modo "Texto".
+    html = html_do_documento(tipo, dados, previa=True,
+                             regioes=services.regioes_vigentes(oficio, tipo))
+    pdf = HTML(string=html, base_url=str(ASSETS),
+               url_fetcher=buscar_recurso()).write_pdf()
     resposta = HttpResponse(pdf, content_type="application/pdf")
     resposta["Content-Disposition"] = f'inline; filename="minuta-{oficio.numero}-{oficio.ano}.pdf"'
     return resposta
@@ -795,7 +817,12 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
     if len(digitos) >= 3:
         filtro |= Q(cpf__contains=digitos) | Q(rg__contains=digitos)
     servidores = (Servidor.objects.filter(ativo=True).filter(filtro)
-                  .select_related("cargo", "unidade").order_by("nome")[:15])
+                  .select_related("cargo", "unidade").order_by("nome"))
+    # `?oficio=<pk>`: quem já está na equipe sai da lista. Oferecer de novo quem já entrou só
+    # produz o erro "já está na equipe" — a busca é para achar quem falta.
+    if (pk := (request.GET.get("oficio") or "")).isdigit():
+        servidores = servidores.exclude(viagens__oficio_id=int(pk))
+    servidores = servidores[:15]
     return JsonResponse({"resultados": [
         {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao}
         for s in servidores]})

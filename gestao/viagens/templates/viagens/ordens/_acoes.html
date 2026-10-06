@@ -1,0 +1,21 @@
+{% comment %}
+Ações da OS, como as do termo (viagens/termos/_acoes.html): no cabeçalho e na barra do
+rodapé. "Visualizar" abre, em outra aba, a página com a OS como sai no PDF; no rodapé
+(`dobrar`) quem abre essa aba é "Gerar a OS". Baixar o PDF ou o DOCX gera na hora, com o
+botão em "processando" (componentes/baixar-arquivo.js). O formulário de exclusão fica uma
+vez só em editar.html.
+{% endcomment %}
+{% if editavel and pode_ver_documento and not dobrar %}<a class="botao" href="{% url 'viagens:visualizar_ordem' ordem.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Visualizar<span class="sr-only"> (nova aba)</span></a>{% endif %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da {{ ordem }}{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if editavel and pode_ver_documento %}
+      <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' ordem.pk 'pdf' %}" download="os-{{ ordem.numero|stringformat:'03d' }}-{{ ordem.ano }}.pdf" data-baixar-arquivo>{% icone "file-check-2" %}Baixar o PDF</a>
+      <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' ordem.pk 'docx' %}" download data-baixar-arquivo>{% icone "download" %}Baixar em DOCX</a>
+    {% endif %}
+    <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
+    {% if pode_cancelar and not ordem.cancelada or pode_excluir %}<div class="menu__separador" role="separator"></div>{% endif %}
+    {% if pode_cancelar and not ordem.cancelada %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_ordem' ordem.pk %}" data-motivo-titulo="Cancelar a {{ ordem }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar OS" data-motivo-ajuda="A OS continua na lista, em Canceladas, com o mesmo número; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar OS</button>{% endif %}
+    {% if pode_excluir %}<button type="submit" form="excluir-ordem" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir OS</button>{% endif %}
+  </div>
+</pc-menu>

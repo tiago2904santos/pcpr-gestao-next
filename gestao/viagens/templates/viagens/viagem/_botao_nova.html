@@ -1,0 +1,2 @@
+{# "Nova viagem" cria a viagem na hora (POST) e abre a folha. #}
+<form class="form-em-linha" method="post" action="{% url 'viagens:nova_viagem' %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova viagem</button></form>

@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -48,19 +48,28 @@ dominio/ordem_servico.py; aqui só a composição.
     <p>{{ d.cabecalho_unidade }}</p>
   </header>
   <main>
-    <h1>ORDEM DE SERVIÇO {{ d.numero }} - {{ d.sigla|upper }}</h1>
-    <p class="referencia"><strong>Ref.:</strong> {{ d.referencia }}</p>
-    <p>Eu, {{ d.assina.nome|default:"________________" }}, {{ d.assina.cargo|default:"________________" }} da Polícia Civil do Paraná, no uso das atribuições que me foram conferidas pelo Delegado-Geral {% if d.delegado_geral %}{{ d.delegado_geral }}{% else %}<span class="branco"></span>{% endif %}, bem como pelo Conselho da Polícia Civil,</p>
-    <p class="determino">DETERMINO</p>
-    <p>{{ d.determinacao }}</p>
-    {% if d.competencias %}<ul class="competencias">{% for c in d.competencias %}<li>{{ c }};</li>{% endfor %}</ul>{% endif %}
-    {% for j in d.justificativas %}<p>{{ j }}</p>{% endfor %}
-    <p>{{ d.finalidade }}</p>
+    {% comment %}
+    O que o editor deixa escrever (ADR 0018): o texto da OS e a assinatura. A linha de local e
+    data fica fora — a data só se fixa na geração, e dentro de uma região o texto editado
+    pareceria desatualizado a cada dia.
+    {% endcomment %}
+    {% regiao "corpo" "Texto da OS" %}
+    <h1 data-bloco="titulo" data-rotulo="Título">ORDEM DE SERVIÇO {{ d.numero }} - {{ d.sigla|upper }}</h1>
+    <p class="referencia" data-bloco="referencia" data-rotulo="Referência"><strong>Ref.:</strong> {{ d.referencia }}</p>
+    <p data-bloco="autoridade" data-rotulo="Quem determina">Eu, <strong>{{ d.assina.nome|default:"________________" }}</strong>, {{ d.assina.cargo|default:"________________" }} da Polícia Civil do Paraná, no uso das atribuições que me foram conferidas pelo Delegado-Geral {% if d.delegado_geral %}{{ d.delegado_geral }}{% else %}<span class="branco"></span>{% endif %}, bem como pelo Conselho da Polícia Civil,</p>
+    <p class="determino" data-bloco="determino" data-rotulo="Determino">DETERMINO</p>
+    <p data-bloco="determinacao" data-rotulo="Determinação">{{ d.determinacao }}</p>
+    {% if d.competencias %}<ul class="competencias" data-bloco="competencias" data-rotulo="Competências da equipe">{% for c in d.competencias %}<li>{{ c }};</li>{% endfor %}</ul>{% endif %}
+    {% for j in d.justificativas %}<p data-bloco="justificativa-{{ forloop.counter }}" data-rotulo="Justificativa {{ forloop.counter }}">{{ j }}</p>{% endfor %}
+    <p data-bloco="finalidade" data-rotulo="Finalidade">{{ d.finalidade }}</p>
+    {% endregiao %}
     <p class="local-data">{{ d.sede|default:"Curitiba" }}, {{ d.data_extenso }}.</p>
-    <div class="assinatura">
+    {% regiao "assinatura" "Assinatura" %}
+    <div class="assinatura" data-bloco="assinatura" data-rotulo="Assinatura">
       <p><strong>{{ d.assina.nome }}</strong></p>
       <p>{{ d.assina.cargo }}</p>
     </div>
+    {% endregiao %}
   </main>
 </body>
 </html>

@@ -2,7 +2,7 @@
 {% block titulo %}Viagens{% endblock %}
 {% block titulo_lista %}Viagens{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada viagem junta o roteiro, os ofícios (com justificativa e termos), a ordem de serviço e o plano de trabalho de uma mesma ação.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_criar %}<form method="post" action="{% url 'viagens:nova_viagem' %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova viagem</button></form>{% endif %}{% endblock %}
+{% block acoes_lista %}{% if pode_criar %}{% include "viagens/viagem/_botao_nova.html" %}{% endif %}{% endblock %}
 {% comment %}
 Paridade com a lista de viagens da referência: abas por quando (vão acontecer, em andamento
 e realizadas, canceladas — "contas prestadas" chega com a prestação de contas), busca por
@@ -64,4 +64,15 @@ destinos, quantos ofícios e documentos tem e o selo de quando.
 {% else %}
   {% include "componentes/vazio.html" with icone="map" titulo="Nenhuma viagem registrada ainda" texto="Crie uma viagem para juntar o roteiro, os ofícios, os termos, a OS e o plano de uma mesma ação." %}
 {% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% comment %}
+Barra flutuante no rodapé, como nas outras listas: a contagem do recorte e a ação de criar
+ficam ao alcance de quem rolou até o fim, em vez de só no topo da página.
+{% endcomment %}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
+  {% if pode_criar %}{% include "viagens/viagem/_botao_nova.html" %}{% endif %}
+</div>
 {% endblock %}

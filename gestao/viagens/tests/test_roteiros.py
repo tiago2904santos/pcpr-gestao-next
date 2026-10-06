@@ -239,6 +239,22 @@ class TestOficioUsaRoteiro:
         assert f'name="roteiro" value="{cenario.ids["roteiro"]}"' in html
         assert oficio.trechos.count() == 0  # nada gravado ainda
 
+    def test_usar_roteiro_ja_mostra_a_previa_das_diarias(self, operador, cenario):
+        """Com os trechos do roteiro na tela, a conta aparece antes de salvar.
+
+        Regressão: o bloco de diárias olhava primeiro o `diarias_erro` gravado no ofício
+        (ainda sem trechos) e dizia "Informe os trechos" com os trechos preenchidos logo
+        acima, ignorando a prévia que a view tinha calculado.
+        """
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        dados = self._dados_do_oficio(oficio, acao="usar_roteiro",
+                                      roteiro_modelo=cenario.ids["roteiro"])
+        html = operador.post(reverse("viagens:editar", args=[oficio.pk]),
+                             dados).content.decode()
+        assert "Ainda não dá para calcular" not in html
+        assert "Valor total" in html and "Quantidade por servidor" in html
+        assert oficio.trechos.count() == 0  # a prévia não grava nada
+
     def test_salvar_depois_de_usar_grava_trechos_e_vinculo(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = self._dados_do_oficio(oficio, roteiro=cenario.ids["roteiro"])

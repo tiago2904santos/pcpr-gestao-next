@@ -1,0 +1,31 @@
+{% load viagens %}
+{% comment %}
+Um destino de <pc-destinos> (viagens/_destinos.html), na cara de uma parada do roteiro
+(viagens/_parada.html): UF + cidade com busca, e remover. Também é o modelo que
+"Adicionar destino" clona (destinos.js). A UF não vai ao formulário — só filtra a busca;
+a cidade escolhida vai como "Cidade/UF" no campo oculto `nome` (o texto digitado só busca:
+gravar "marin" pela metade daria erro a cada pausa do autosave).
+{% endcomment %}
+{% with uf_atual=cidade|uf_de|default:uf_padrao|default:"PR" %}
+<li class="itin__parada" data-destino>
+  <button type="button" class="itin__alca" data-alca hidden aria-label="Mover destino {{ numero }}: setas para cima e para baixo">{% icone "grip-vertical" %}</button>
+  <span class="itin__marco" aria-hidden="true"></span>
+  <div class="itin__local" role="group" aria-label="Destino {{ numero }}">
+    <div class="campo itin__uf">
+      <label class="campo__rotulo">UF</label>
+      <select class="selecao" data-uf aria-label="UF do destino">
+        {% for uf in ufs %}<option value="{{ uf }}"{% if uf == uf_atual %} selected{% endif %}>{{ uf }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo itin__cidade">
+      <label class="campo__rotulo">Destino <span data-numero>{{ numero }}</span></label>
+      <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?uf={{ uf_atual }}&q=" data-minimo="2">
+        <div class="entrada-composta"><input class="entrada" type="text" role="combobox" value="{{ cidade }}" placeholder="Digite e escolha na lista" autocomplete="off" aria-label="Destino {{ numero }}"></div>
+        {# O valor é a cidade ESCOLHIDA na lista ("Cidade/UF"); o que se digita só busca. #}
+        <input type="hidden" name="{{ nome }}" value="{{ cidade }}" data-valor-id>
+      </pc-combobox>
+    </div>
+  </div>
+  <button type="button" class="itin__remover" data-remover-destino title="Remover destino">{% icone "trash-2" %}<span class="itin__remover-texto">Remover<span class="sr-only"> o destino</span></span></button>
+</li>
+{% endwith %}

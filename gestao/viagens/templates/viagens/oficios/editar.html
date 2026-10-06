@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% if abrir_resumo %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endif %}{% endblock %}
-{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% comment %}
 Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
 janela de resumo: cabeçalho com placa, frase e ações; quatro cartões soltos — Identificação,
@@ -42,15 +42,7 @@ diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na marge
     </p>
   </div>
   <div class="pagina-cabecalho__acoes">
-    <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>
-    <pc-menu class="menu">
-      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do ofício">{% icone "ellipsis-vertical" %}</button>
-      <div class="menu__painel" role="menu" hidden>
-        <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
-        {% if pode_excluir %}<div class="menu__separador" role="separator"></div>
-        <button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir rascunho</button>{% endif %}
-      </div>
-    </pc-menu>
+    {% include "viagens/oficios/_acoes.html" with onde="cabeçalho" %}
   </div>
 </header>
 
@@ -100,15 +92,17 @@ confirmação — e é ele que escreve no histórico.
     </div>
 
     <div class="pilha" id="dados">
-      {# Uma linha: data · protocolo · tipo de documento · custeio. "Outra instituição" abre a linha seguinte inteira. #}
-      <div class="campos custeio">
-        {% include "componentes/campo.html" with campo=form.data_oficio classe="campo--sm" %}
-        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" exigido_para_emitir=True ajuda_oculta=True %}
-        {% include "componentes/campo.html" with campo=form.marcador classe="campo--md" rotulo="Tipo de documento" %}
-        {% include "componentes/campo.html" with campo=form.custeio classe="campo--lg" rotulo="Custeio" %}
+      {# Colunas iguais: número · data · protocolo · tipo de documento · custeio. #}
+      {# "Outra instituição" abre a linha seguinte inteira. #}
+      <div class="campos campos--iguais custeio">
+        {% include "componentes/campo.html" with campo=form.numero ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.data_oficio %}
+        {% include "componentes/campo.html" with campo=form.protocolo exigido_para_emitir=True ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.marcador rotulo="Tipo de documento" %}
+        {% include "componentes/campo.html" with campo=form.custeio rotulo="Custeio" %}
         {% include "componentes/campo.html" with campo=form.custeio_instituicao classe="condicional condicional--outra-instituicao" rotulo="Instituição que custeia" ajuda="Aparece no ofício como responsável pelo custeio." %}
       </div>
-      {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
+      {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
       {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
     </div>
 
@@ -130,15 +124,12 @@ confirmação — e é ele que escreve no histórico.
       {# Uma linha: meio de transporte · o que a escolha pede (viatura, ou descrição · placa · combustível). #}
       <div class="campos transporte">
         {% include "componentes/campo.html" with campo=form.tipo_transporte classe="campo--md" rotulo="Meio de transporte" %}
-        <div class="campo campo--lg so-viatura{% if form.viatura.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="{{ form.viatura.id_for_label }}">Viatura <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span></label>
-          <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ form.viatura|campo_acessivel:"" }}</pc-combobox>
-        </div>
-        {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" exigido_para_emitir=True %}
+        {% include "viagens/_campo_viatura.html" with campo=form.viatura classe="campo--lg so-viatura" exigido_para_emitir=True cadastrar=True envolvido=True %}
+        {# Outro meio: basta a escolha do meio (quem dirige é o bloco ao lado); placa e combustível são da viatura. #}
+        {% include "componentes/campo.html" with campo=form.transporte_meio classe="campo--md so-outro" exigido_para_emitir=True %}
+        {% include "componentes/campo.html" with campo=form.transporte_descricao classe="campo--lg so-outro" rotulo="Detalhe (opcional)" %}
         {# Placa cabe em "ABC1D23" e combustível em "Gasolina": ambos campos curtos, do mesmo tamanho. #}
-        {% include "componentes/campo.html" with campo=form.transporte_placa classe="campo--sm so-outro" %}
-        {% include "componentes/campo.html" with campo=form.transporte_combustivel classe="campo--sm so-outro" %}
-      </div>
+                      </div>
       {% comment %}
       Motorista de fora da equipe (D3): ele viaja por outro ofício e não entra nas diárias
       deste; o documento cita o nome. Escolher aqui tira a marca de motorista da equipe.
@@ -150,20 +141,20 @@ confirmação — e é ele que escreve no histórico.
           {% include "componentes/campo.html" with campo=form.motorista_externo classe="campo--md" %}
           <div class="campo campo--lg so-servidor-externo">
             <label class="campo__rotulo" for="busca-motorista-externo">Servidor que vai dirigir</label>
-            <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2">
+            <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?oficio={{ oficio.pk }}&amp;q=" data-minimo="2">
               <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}" aria-describedby="ajuda-motorista-externo"></div>
               {{ form.motorista_externo_servidor }}
             </pc-combobox>
             <p class="campo__ajuda" id="ajuda-motorista-externo">Cadastrado, mas fora desta equipe (viaja por outro ofício).</p>
           </div>
+          {% comment %}
+          Pessoa não cadastrada: só nome, ofício de origem e protocolo. Quem dirige por
+          outro ofício é identificado por ele — CPF, RG, cargo e unidade estão no ofício
+          de origem e repetir aqui só dava trabalho a quem preenche.
+          {% endcomment %}
           {% include "componentes/campo.html" with campo=form.motorista_externo_nome classe="campo--lg so-manual" exigido_para_emitir=True %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_cpf classe="campo--sm so-manual" %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_rg classe="campo--sm so-manual" %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_cargo classe="campo--md so-manual" %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_unidade classe="campo--md so-manual" %}
           {% include "componentes/campo.html" with campo=form.motorista_oficio_origem classe="campo--md so-externo" exigido_para_emitir=True ajuda="Número/ano do ofício pelo qual ele viaja." ajuda_oculta=True %}
           {% include "componentes/campo.html" with campo=form.motorista_protocolo_origem classe="campo--md so-externo" exigido_para_emitir=True %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_observacao classe="so-manual motorista-externo__largo" %}
         </div>
       </details>
     </pc-transporte>
@@ -229,14 +220,14 @@ confirmação — e é ele que escreve no histórico.
     {# O texto pronto vai de margem a margem, como a busca de roteiro: um campo curto deixaria a linha pela metade. #}
     {% if prazo.justificativa_obrigatoria %}
       <div class="campos">
-        {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
+        {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
         {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=True %}
       </div>
     {% else %}
       <details class="divulgacao" open>
         <summary>{% icone "plus" classe="icone--sm" %}Justificativa incluída mesmo dispensada</summary>
         <div class="divulgacao__corpo campos">
-          {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos %}
+          {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
           {% include "componentes/campo.html" with campo=form.justificativa %}
         </div>
       </details>
@@ -331,13 +322,25 @@ confirmação — e é ele que escreve no histórico.
   </section>
 </div>
 
+{% comment %}
+Barra do rodapé, na mesma ordem da folha do roteiro: sair à esquerda, o estado do
+salvamento no meio e, à direita, o que age sobre o ofício — Salvar, a ação decisiva e,
+por último, o menu de ações.
+{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status{% if recem_salvo %} barra-acoes__status--salvo{% endif %}" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
+  <a class="botao botao--texto" href="{% url 'viagens:oficios' %}">Voltar</a>
+  {% comment %}
+  O estado do salvamento não ocupa mais espaço na barra: quem escreve aqui é o autosave, e
+  o aviso que importa ("alterações não salvas") aparece sozinho ao sair. Fica só para
+  leitor de tela — e é por ele que o JS de autosave e de proteção de saída se comunicam.
+  {% endcomment %}
+  <div class="sr-only" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
     {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% icone "check-circle-2" classe="icone--sm" %} Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}<span class="barra-acoes__secundario">· {% if prontidao.pode_emitir %}tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir{% endif %}</span>{% elif prontidao.pode_emitir %}{% icone "check-circle-2" classe="icone--sm" %} Tudo pronto para emitir.{% else %}<a href="#emissao">{{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir</a><span class="barra-acoes__secundario">· última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }}</span>{% endif %}
   </div>
   <button type="submit" form="form-oficio" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}<span>Salvar <span class="barra-acoes__extra">rascunho</span></span></button>
   {# Dourado = a ação decisiva está disponível. Com pendências, o mesmo botão salva e leva ao cartão Documentos (sem beco sem saída), mas não promete emissão. #}
   {% if pode_emitir %}<button type="submit" form="form-oficio" name="acao" value="emitir" class="botao{% if prontidao.pode_emitir %} botao--marca{% endif %}"{% if not prontidao.pode_emitir %} data-dica="Salva e mostra o que falta"{% endif %}>{% icone "stamp" %}Revisar e emitir</button>{% endif %}
+  {% include "viagens/oficios/_acoes.html" with onde="rodapé" dobrar=True %}
 </div>
 {% comment %}
 "Revisar e emitir" salva a folha e volta com "?revisar=1": a janela de resumo em modo
@@ -345,5 +348,14 @@ revisão abre pronta por cima, com o botão de emitir. Fechar é "voltar e corri
 {% endcomment %}
 {% if abrir_resumo %}{% include "viagens/oficios/_dialogo_resumo.html" %}{% endif %}
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
+{% comment %}
+Cadastrar sem sair da folha: são os mesmos diálogos das telas de Cadastros. O servidor novo
+entra direto na equipe (HTMX, como escolher alguém na busca); a viatura nova entra na
+escolha já selecionada. Os "+" de cargo, unidade e combustível ficam dentro deles, então
+os cadastros rápidos desses catálogos também precisam estar aqui. Ver cadastro-rapido.js.
+{% endcomment %}
+{% if pode_editar_texto %}
+{% include "componentes/dialogos_cadastro.html" with envio_url=url_adicionar_viajante alvo="#equipe" destino=form.viatura.auto_id %}
+{% endif %}
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

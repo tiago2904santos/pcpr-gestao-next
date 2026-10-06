@@ -169,8 +169,10 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
 
 # ---------------------------------------------------------------- edição
 CAMPOS_EDITAVEIS = [
+    "numero",
     "data_oficio", "protocolo", "marcador", "motivo", "custeio", "custeio_instituicao",
-    "tipo_transporte", "viatura", "transporte_descricao", "transporte_placa",
+    "tipo_transporte", "viatura", "transporte_meio", "transporte_descricao",
+    "transporte_placa",
     "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa", "roteiro",
     "sede",
     # Motorista de fora da equipe (D3)
@@ -244,6 +246,7 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
             f"{atual.numero_formatado}."
         )
     alterados = []
+    numero_anterior = atual.numero
     for campo in CAMPOS_EDITAVEIS:
         if campo in dados and getattr(atual, campo) != dados[campo]:
             setattr(atual, campo, dados[campo])
@@ -251,7 +254,13 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
     if "protocolo" in alterados:
         # Quem digita o número assume a origem (apaga marca de simulado/treinamento).
         atual.protocolo_origem = Oficio.OrigemProtocolo.MANUAL if atual.protocolo else ""
+    if "numero" in alterados:
+        # O número que a pessoa largou volta à fila como lacuna (o mesmo que a exclusão de
+        # um rascunho faz, decisão D5) e o novo sai dela, se de lá tiver vindo.
+        LacunaNumeracao.objects.get_or_create(ano=atual.ano, numero=numero_anterior)
+        LacunaNumeracao.objects.filter(ano=atual.ano, numero=atual.numero).delete()
     if atual.tipo_transporte == Oficio.TipoTransporte.VIATURA:
+        atual.transporte_meio = ""
         atual.transporte_descricao = atual.transporte_placa = ""
         atual.transporte_combustivel = None
     else:
@@ -708,17 +717,33 @@ def voltar_texto_ao_modelo(oficio: Oficio, usuario, tipo: str) -> EdicaoDocument
     return edicao
 
 
-def _validar_campo_vinculado(campo: CampoVinculado, valor: str) -> str:
+def _validar_campo_vinculado(campo: CampoVinculado, valor: str, ano: int) -> object:
     valor = (valor or "").replace("\r\n", "\n").strip()
     if not campo.multilinha:
         valor = " ".join(valor.split())
+    if len(valor) > campo.maximo:
+        raise RegraViolada(f"{campo.rotulo}: no máximo {campo.maximo} caracteres.")
+    if campo.formato == "data":
+        return _data_do_documento(campo, valor, ano)
     if campo.chave == "protocolo":
         valor = somente_digitos(valor)
         if valor and len(valor) != 9:
             raise RegraViolada(f"O protocolo tem 9 dígitos; você informou {len(valor)}.")
-    if len(valor) > campo.maximo:
-        raise RegraViolada(f"{campo.rotulo}: no máximo {campo.maximo} caracteres.")
     return valor
+
+
+def _data_do_documento(campo: CampoVinculado, valor: str, ano: int) -> date:
+    """Data escrita no documento (dd/mm/aaaa). Mesma regra do formulário: tem de ser do ano
+    do número do ofício — a numeração é anual e o documento não pode dizer outro ano."""
+    try:
+        data = datetime.strptime(valor, "%d/%m/%Y").date()
+    except ValueError:
+        raise RegraViolada(
+            f"{campo.rotulo}: escreva no formato dd/mm/aaaa (ex.: 05/10/{ano})."
+        ) from None
+    if data.year != ano:
+        raise RegraViolada(f"A data do ofício deve estar em {ano}, o ano do número.")
+    return data
 
 
 @transaction.atomic
@@ -730,7 +755,7 @@ def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *
     campo = CAMPOS[chave]
     atual = _travar_para_edicao(oficio, usuario, versao)
     policies.exigir(policies.pode_editar_texto(usuario, atual))
-    novo = _validar_campo_vinculado(campo, valor)
+    novo = _validar_campo_vinculado(campo, valor, atual.ano)
     if getattr(atual, campo.atributo) == novo:
         return atual
     setattr(atual, campo.atributo, novo)

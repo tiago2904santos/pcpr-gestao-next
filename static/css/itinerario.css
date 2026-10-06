@@ -254,9 +254,17 @@
   grid-column: 2 / -1;
 }
 
-.itin__uf .selecao {
+.itin__uf :is(.selecao, .entrada) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+/* Sede fixa da unidade (<pc-destinos>): a mesma caixa das paradas, só que sem editar —
+   fundo e texto de campo comum (o cinza de "desabilitado" quebrava o rótulo flutuante)
+   e o mesmo par UF | cidade colado. */
+.itin__parada--sede .entrada[readonly] {
+  background-color: var(--cor-superficie);
+  color: var(--cor-texto);
 }
 
 .itin__cidade {
@@ -1034,6 +1042,8 @@
 .itin__chegada {
   justify-content: center;
   min-height: var(--altura-controle);
+  /* Mesmo arredondamento dos campos ao lado: na linha de tempos ele lê como um campo. */
+  border-radius: var(--raio-md);
 }
 
 /* Duração com passos de 15 min: a caixa é uma peça só e os botões moram dentro dela. */
@@ -1138,7 +1148,7 @@
 .itin__calendario {
   right: 0;
   left: auto;
-  width: min(20.5rem, calc(100vw - 2rem));
+  width: min(22rem, calc(100vw - 2rem));
 }
 
 /* Sem espaço abaixo, o calendário abre para cima (caberCalendario). */
@@ -1169,7 +1179,7 @@
 
 .itin__calendario .calendario__grade td {
   position: relative;
-  height: 2.125rem;
+  height: 2.5rem;
   vertical-align: top;
   padding-top: var(--esp-05);
 }
@@ -1177,7 +1187,7 @@
 /* Dias entre a primeira e a última saída: a viagem está em curso. */
 .itin__calendario .calendario__intervalo {
   background: var(--cor-superficie-realce);
-  border-radius: 0;
+  border-radius: var(--raio-xs);
 }
 
 .itin__marca-dia {

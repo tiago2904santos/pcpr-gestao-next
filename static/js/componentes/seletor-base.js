@@ -7,6 +7,8 @@
  * não modal: Esc fecha e devolve o foco ao botão; clique ou foco fora fecham.
  */
 
+import { posicionar, recolher, soltar } from "./painel-flutuante.js";
+
 let contador = 0;
 
 /** Texto do rótulo do campo, sem marcadores (*, "(opcional)"…). @param {HTMLInputElement} entrada */
@@ -83,26 +85,29 @@ export class SeletorFlutuante extends HTMLElement {
     this.painel.hidden = false;
     this.botao.setAttribute("aria-expanded", "true");
     this.posicionar();
+    // Dentro de um <dialog>: camada de topo, para a janela não recortar o painel.
+    soltar(this.painel, this);
+    posicionar(this.painel, this);
     this.focarInicial();
   }
 
   /** @param {boolean} devolverFoco */
   fechar(devolverFoco) {
     if (!this.painel || !this.botao || this.painel.hidden) return;
+    recolher(this.painel);
     this.painel.hidden = true;
     this.botao.setAttribute("aria-expanded", "false");
     if (devolverFoco) this.botao.focus();
   }
 
-  /** Abre sempre para baixo (acima ficaria sob a faixa fixa do topo) e rola a página o
-   * bastante para o painel não ficar sob a barra de ações; alinha à direita quando
-   * passaria da tela. */
+  /** Abre logo abaixo do botão, com a borda direita alinhada à dele (acima só quando não
+   * cabe embaixo) e rola a página o bastante para o painel não ficar sob a barra de ações;
+   * cresce para a direita quando passaria da borda esquerda da tela. */
   posicionar() {
     const painel = /** @type {HTMLElement} */ (this.painel);
-    painel.classList.remove("seletor__painel--direita", "seletor__painel--acima");
-    if (this.getBoundingClientRect().left + painel.offsetWidth > document.documentElement.clientWidth - 8) {
-      painel.classList.add("seletor__painel--direita");
-    }
+    painel.classList.remove("seletor__painel--esquerda", "seletor__painel--acima");
+    const direita = (this.botao || this).getBoundingClientRect().right;
+    if (direita - painel.offsetWidth < 8) painel.classList.add("seletor__painel--esquerda");
     // Barra de ações e cabeçalho são fixos e ficam por cima: o painel abre para o lado em
     // que couber inteiro, em vez de nascer escondido atrás de um deles.
     const campo = this.getBoundingClientRect();

@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static viagens %}
 {% block titulo %}{% if ordem %}{{ ordem }}{% else %}Nova ordem de serviço{% endif %} · Ordens{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% if ordem %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endif %}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% if ordem %}<link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endif %}{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Folha da OS, na linguagem da folha do ofício: cabeçalho com placa, frase e ações; cartões
-numerados — Ofícios e tipo, Destinos e período, Equipe, Motivo e assinatura, Documento —
-cada um com nota e selo do que falta; no fim, a conferência (cada falta leva ao cartão), o
-documento como vai sair (visualizador, refeito a cada gravação) e o histórico (da trilha
-do banco). A OS salva se grava sozinha a cada pausa (autosave); as regiões `data-vivo`
-(frase, selos, conferência, pendências da barra) se refazem depois de cada gravação; quando
-a gravação muda campos (funções da equipe, cópia de um ofício recém-ligado) a página
-recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #equipe,
-#motivo e #documento são o destino dos links de pendência.
+Folha da OS, com as peças e o arranjo da folha do termo (viagens/termos/editar.html):
+cabeçalho com placa, frase e ações; cartões numerados — 1 Identificação (a primeira linha
+em colunas iguais: ofícios, tipo e período num calendário só; depois os blocos Destinos,
+Equipe, Motivo e Assinatura) e 2 Documento (o que falta, a via assinada, o documento num
+editor como o do ofício e o histórico); e a barra do rodapé com Voltar, Gerar e Ações.
+A OS nasce na hora ("Nova OS") e se grava sozinha a cada pausa; ligar um ofício novo
+preenche os campos vazios com os dados dele (a página se redesenha). As regiões `data-vivo`
+se refazem depois de cada gravação — os ids delas são parte do contrato.
 {% endcomment %}
 {% block conteudo %}
 <header class="pagina-cabecalho">
@@ -23,7 +23,6 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
   <div class="pagina-cabecalho__texto">
     <h1 class="sr-only">{% if ordem %}{{ ordem }}{% if ordem.cancelada %} — cancelada{% endif %}{% else %}Nova ordem de serviço{% endif %}</h1>
     {% if ordem %}
-    {# Primeiro o que o operador precisa saber (o documento); depois o resto da frase. #}
     <p class="frase-oficio" id="frase-ordem" data-vivo>
       {% if ordem.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' ordem.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ ordem.viagem }}</a>{% endif %}
       <span class="sr-only">Resumo da ordem: </span>
@@ -44,82 +43,72 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
   </div>
   {% if ordem %}
   <div class="pagina-cabecalho__acoes">
-    {# No cabeçalho, ver não compromete nada; gerar (fixa data e número) fica na conferência e na barra. #}
-    {% if pode_ver_documento %}<a class="botao" href="#previa">{% icone "eye" %}Ver como vai sair</a>{% endif %}
-    <pc-menu class="menu">
-      <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações da {{ ordem }}">{% icone "ellipsis-vertical" %}</button>
-      <div class="menu__painel" role="menu" hidden>
-        {% if editavel %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_ordem' ordem.pk 'docx' %}">{% icone "download" %}Gerar a OS em DOCX</a>{% endif %}
-        <a class="menu__item" role="menuitem" href="#historico">{% icone "history" %}Ver o histórico</a>
-        {% if pode_cancelar and not ordem.cancelada or pode_excluir %}<div class="menu__separador" role="separator"></div>{% endif %}
-        {% if pode_cancelar and not ordem.cancelada %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_ordem' ordem.pk %}" data-motivo-titulo="Cancelar a {{ ordem }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar OS" data-motivo-ajuda="A OS continua na lista, em Canceladas, com o mesmo número; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar OS</button>{% endif %}
-        {% if pode_excluir %}<button type="submit" form="excluir-ordem" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir OS</button>{% endif %}
-      </div>
-    </pc-menu>
-    {% if pode_excluir %}<form id="excluir-ordem" method="post" action="{% url 'viagens:excluir_ordem' ordem.pk %}" hidden data-confirmar="A {{ ordem }} será excluída e o número volta a ficar livre para a próxima OS do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir ordem de serviço?" data-confirmar-rotulo="Excluir OS" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+    {% include "viagens/ordens/_acoes.html" with onde="cabeçalho" %}
   </div>
   {% endif %}
 </header>
 
+{% if pode_excluir %}<form id="excluir-ordem" method="post" action="{% url 'viagens:excluir_ordem' ordem.pk %}" hidden data-confirmar="A {{ ordem }} será excluída e o número volta a ficar livre para a próxima OS do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir ordem de serviço?" data-confirmar-rotulo="Excluir OS" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+
 {% if ordem.cancelada %}
 <div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo">
   <p class="alerta__titulo">Ordem de serviço cancelada</p><p>{{ ordem.motivo_cancelamento }}</p>
-  <div class="linha mt-2">
-    {% if pode_cancelar %}<form method="post" action="{% url 'viagens:reativar_ordem' ordem.pk %}">{% csrf_token %}<input type="hidden" name="voltar" value="{% url 'viagens:editar_ordem' ordem.pk %}"><button type="submit" class="botao botao--sm">{% icone "undo-2" %}Reativar para alterar e gerar o documento</button></form>{% endif %}
-    <a class="botao botao--sm botao--texto" href="{% url 'viagens:ordens' %}">Voltar à lista</a>
-  </div>
-</div></div>
+</div>
+  {% if pode_cancelar %}<form method="post" action="{% url 'viagens:reativar_ordem' ordem.pk %}" class="alerta__acao">{% csrf_token %}<input type="hidden" name="voltar" value="{% url 'viagens:editar_ordem' ordem.pk %}"><button type="submit" class="botao botao--sm">{% icone "undo-2" %}Reativar</button></form>{% endif %}
+</div>
 {% endif %}
 
 {% include "componentes/resumo_erros.html" %}
 
 <form method="post" novalidate id="form-ordem" data-proteger{% if ordem and editavel %} data-autosave="{% url 'viagens:autosave_ordem' ordem.pk %}"{% endif %}>
   {% csrf_token %}
+  {# Botão padrão: Enter em qualquer campo salva. #}
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Salvar</button>
   {{ form.versao }}
   <fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
   <legend class="sr-only">Dados da ordem de serviço</legend>
   <div class="documento documento--cartoes">
 
-  {# 1. Ofícios e tipo — de onde a OS vem e qual texto ela usa. #}
-  <section class="secao{% if ordem %} secao--ok{% endif %}" id="oficios" aria-labelledby="t-oficios">
+  {% comment %}
+  1. Identificação — de onde a OS vem, para onde e quando, quem vai, por quê e quem assina.
+  {% endcomment %}
+  <section class="secao{% if ordem and not faltando %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-oficios"><span class="secao__numero">1</span>Ofícios e tipo</h2>
-      <p class="secao__nota">{% if ordem %}Os dados dos ofícios entram nos campos vazios na criação e ao ligar um ofício novo; mudanças posteriores no ofício não chegam aqui.{% else %}Ligada a ofícios, a OS recebe deles o que ficar em branco nos cartões seguintes (destinos, período, equipe e motivo).{% endif %} O tipo de necessidade escolhe o texto do documento.</p>
+      <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
+      <div class="secao__estado" id="estado-destinos" data-vivo>{% for p in pendencias %}<span class="selo selo--aviso selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+      <p class="secao__nota">Ligar um ofício preenche destinos, período, equipe e motivo com os dele (o que estiver em branco) — confira e ajuste. O tipo de necessidade escolhe o texto do documento.</p>
     </div>
-    <div class="campos">
-      {% include "componentes/campo.html" with campo=form.oficios rotulo="Ofícios vinculados" %}
-      {% include "componentes/campo.html" with campo=form.tipo classe="campo--lg" %}
-    </div>
-  </section>
 
-  {# 2. Destinos e período. #}
-  <section class="secao{% if ordem and ordem.data_inicio and ordem.destinos.all %} secao--ok{% endif %}" id="destinos" aria-labelledby="t-destinos">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-destinos"><span class="secao__numero">2</span>Destinos e período</h2>
-      <div class="secao__estado" id="estado-destinos" data-vivo>{% for p in pendencias %}{% if p.secao == "destinos" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.mensagem }}</span>{% endif %}{% endfor %}</div>
-      <p class="secao__nota">Os municípios e as datas do deslocamento, como saem na frase do documento.</p>
-    </div>
-    <div class="pilha">
-      {% include "componentes/campo.html" with campo=form.destinos rotulo="Destinos" %}
-      {% if copia.destinos and not form.destinos.value %}<p class="heranca">{% icone "file-text" classe="icone--sm" %}Ao criar, vem dos ofícios: <strong>{{ copia.destinos }}</strong></p>{% endif %}
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.data_inicio classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.data_fim classe="campo--md" %}
+    <div class="pilha" id="dados">
+      {# Colunas iguais: ofícios · tipo · período (ida e volta num calendário só). #}
+      <div class="campos campos--iguais">
+        {% include "componentes/campo.html" with campo=form.oficios rotulo="Ofícios vinculados" ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.tipo ajuda_oculta=True %}
+        <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="ordem-periodo">Período</label>
+          <pc-data class="seletor" data-periodo>
+            <input class="entrada" type="text" id="ordem-periodo" value="{{ form.periodo_texto }}" placeholder="Ida e volta" autocomplete="off" aria-describedby="ordem-periodo-ajuda">
+            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
+            {{ form.data_inicio }}{{ form.data_fim }}
+          </pc-data>
+          <p class="campo__ajuda sr-only" id="ordem-periodo-ajuda">Marque a ida e a volta no mesmo calendário. Um dia só: marque só a ida.</p>
+          {% for e in form.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+          {% for e in form.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
+        </div>
       </div>
-      {% if copia.periodo and not form.data_inicio.value %}<p class="heranca">{% icone "calendar" classe="icone--sm" %}Ao criar, vem dos ofícios: <strong>{{ copia.periodo }}</strong></p>{% endif %}
     </div>
-  </section>
 
-  {# 3. Equipe — com a função de cada um nos tipos que as usam. #}
-  <section class="secao{% if ordem and ordem.servidores.all and 'função da equipe' not in faltando %} secao--ok{% endif %}" id="equipe" aria-labelledby="t-equipe">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-equipe"><span class="secao__numero">3</span>Equipe</h2>
-      <div class="secao__estado" id="estado-equipe" data-vivo>{% for p in pendencias %}{% if p.secao == "equipe" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.mensagem }}</span>{% endif %}{% endfor %}</div>
-      <p class="secao__nota">No documento, a equipe sai agrupada por cargo.{% if form.tipo_com_funcao %} Este tipo pede a função de cada um (sai nas atribuições).{% endif %}</p>
+    {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}
+    <div class="secao__bloco" id="destinos">
+      {% campo_destinos form.destinos unidade=ordem.unidade %}
     </div>
-    <div class="pilha">
-      {% include "componentes/campo.html" with campo=form.servidores rotulo="Equipe" %}
-      {% if copia.servidores and not form.servidores.value %}<p class="heranca">{% icone "users" classe="icone--sm" %}Ao criar, vem dos ofícios: <strong>{{ copia.servidores }}</strong></p>{% endif %}
+
+    <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-equipe">{% icone "users" classe="icone--sm" %}Equipe</h3>
+        <div class="secao__estado" id="estado-equipe" data-vivo><span class="texto-terciario texto-xs">sai agrupada por cargo</span></div>
+      </div>
+      {% include "viagens/_campo_equipe.html" with campo=form.servidores %}
       {% if form.campos_de_funcao %}
         <fieldset class="grupo-campos grupo-campos--afastado">
           <legend>Função de cada um</legend>
@@ -128,22 +117,25 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
           </div>
         </fieldset>
       {% elif form.tipo_com_funcao %}
-        <p class="alerta alerta--info">{% icone "info" %}{% if ordem %}As funções aparecem aqui assim que a equipe for gravada.{% else %}As funções aparecem aqui depois de criar a OS com a equipe.{% endif %}</p>
+        <p class="alerta alerta--info">{% icone "info" %}As funções aparecem aqui assim que a equipe for gravada.</p>
       {% endif %}
     </div>
-  </section>
 
-  {# 4. Motivo e assinatura. #}
-  <section class="secao{% if ordem and ordem.motivo %} secao--ok{% endif %}" id="motivo" aria-labelledby="t-motivo">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-motivo"><span class="secao__numero">4</span>Motivo e assinatura</h2>
-      <div class="secao__estado" id="estado-motivo" data-vivo>{% for p in pendencias %}{% if p.secao == "motivo" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.mensagem }}</span>{% endif %}{% endfor %}</div>
-      <p class="secao__nota">O motivo completa a frase do tipo de necessidade; quem assina sai no fim do documento.</p>
+    <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
+        <div class="secao__estado" id="estado-motivo" data-vivo></div>
+      </div>
+      <div class="pilha">
+        {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
+        {% include "componentes/campo.html" with campo=form.motivo %}
+      </div>
     </div>
-    <div class="pilha">
-      {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
-      {% include "componentes/campo.html" with campo=form.motivo %}
-      {% if copia.motivo and not form.motivo.value %}<p class="heranca">{% icone "file-text" classe="icone--sm" %}Ao criar, vem dos ofícios: <strong>{{ copia.motivo|truncatechars:160 }}</strong></p>{% endif %}
+
+    <div class="secao__bloco" id="assinatura" aria-labelledby="t-assinatura">
+      <div class="secao__bloco-cabecalho">
+        <h3 class="secao__bloco-titulo" id="t-assinatura">{% icone "stamp" classe="icone--sm" %}Assinatura</h3>
+      </div>
       <div class="campos">
         <div class="campo campo--lg">
           <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
@@ -155,29 +147,33 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
     </div>
   </section>
 
-  {# 5. Documento — conferência, o documento como vai sair e o histórico. #}
+  {% comment %}
+  2. Documento — como o cartão Documentos do termo: o que falta (só quando falta), a via
+  assinada, o documento num editor como o do ofício e o histórico.
+  {% endcomment %}
   <section class="secao{% if ordem and not faltando and not ordem.cancelada %} secao--ok{% endif %}" id="documento" aria-labelledby="t-documento">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">5</span>Documento</h2>
-      <p class="secao__nota">{% if ordem %}Sai do que está salvo — a OS se grava sozinha enquanto você preenche.{% if ordem.documento_gerado_em %} Já foi gerada em {{ ordem.documento_gerado_em|date:"d/m/Y" }}: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada na primeira geração.{% endif %}{% else %}Salve a OS para ver o documento como vai sair.{% endif %}</p>
+      <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">2</span>Documento</h2>
+      {% if ordem and not ordem.cancelada %}<div class="secao__estado">{% if ordem.documento_gerado_em %}<span class="selo selo--sucesso selo--situacao-emitido">Gerada em {{ ordem.documento_gerado_em|date:"d/m/Y" }}</span>{% elif not faltando %}<span class="selo selo--sucesso selo--situacao-emitido">Pronta para gerar</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Faltam dados</span>{% endif %}</div>{% endif %}
+      <p class="secao__nota">{% if ordem %}Sai do que está salvo — a OS se grava sozinha enquanto você preenche.{% if ordem.documento_gerado_em %} Já foi gerada: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada na primeira geração.{% endif %}{% else %}Ao criar, o documento aparece aqui como vai sair.{% endif %}</p>
     </div>
+
     {% if ordem %}
     {% if ordem.cancelada %}
       <p class="texto-secundario" id="conferencia">OS cancelada: reative para gerar o documento.</p>
     {% else %}
-    <div class="alerta {% if faltando %}alerta--aviso{% else %}alerta--sucesso{% endif %}" role="status" id="conferencia" data-vivo>
-      {% if faltando %}{% icone "list-checks" %}{% else %}{% icone "check-circle-2" %}{% endif %}
+    {# Só fala quando falta algo; pronta para gerar, o botão do rodapé já diz tudo. O lugar fica (autosave). #}
+    {% if not faltando %}<div id="conferencia" data-vivo hidden></div>{% else %}
+    <div class="alerta alerta--aviso" role="status" id="conferencia" data-vivo>
+      {% icone "list-checks" %}
       <div class="alerta__corpo">
-        <p class="alerta__titulo">{% if faltando %}{{ faltando|length|pluralizar:"item falta,itens faltam" }} para o texto sair completo{% else %}Tudo preenchido para o documento{% endif %}</p>
-        {% if faltando %}
-          <ul class="checklist">
-            {% for p in pendencias %}<li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a></li>{% endfor %}
-          </ul>
-          <p class="texto-secundario texto-sm">Dá para gerar assim mesmo: o que falta sai em branco.</p>
-        {% endif %}
+        <p class="alerta__titulo">{{ faltando|length|pluralizar:"item falta,itens faltam" }} para o texto sair completo</p>
+        <ul class="checklist">
+          {% for p in pendencias %}<li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a></li>{% endfor %}
+        </ul>
       </div>
-      {% if editavel %}<a class="botao{% if not faltando %} botao--primario{% endif %} alerta__acao" href="{% url 'viagens:documento_ordem' ordem.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Gerar a OS (PDF)</a>{% endif %}
     </div>
+    {% endif %}
     {% endif %}
 
     {% if via.s.mudou and pode_ver_documento %}
@@ -199,14 +195,15 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
     </div>
     {% endif %}
 
+    {# Como vai sair: o mesmo editor do ofício — o texto da OS se edita na folha. #}
     <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
       <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-text" classe="icone--sm" %}Como vai sair</h3>
-        {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">prévia com marca de minuta · refeita a cada gravação</span></div>{% endif %}
+        <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-pen-line" classe="icone--sm" %}Como vai sair</h3>
+        {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">{% if ordem.documento_gerado_em %}refeita a cada gravação{% else %}com marca de minuta até a primeira geração{% endif %}</span></div>{% endif %}
       </div>
       {% if pode_ver_documento %}
-        {% url 'viagens:folha_ordem' ordem.pk as folha_url %}{% url 'viagens:documento_ordem' ordem.pk 'pdf' as pdf_url %}
-        {% include "viagens/oficios/_editor.html" with tipo="ordem" rotulo="Ordem de serviço" titulo_doc=ordem|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url="" pode_editar_texto=False estado_leitura="Do que está salvo" %}
+        {% url 'viagens:folha_ordem' ordem.pk as folha_url %}{% url 'viagens:documento_ordem' ordem.pk 'pdf' as pdf_url %}{% url 'viagens:editor_ordem_estado' ordem.pk as estado_url %}
+        {% include "viagens/oficios/_editor.html" with tipo="ordem" rotulo="Ordem de serviço" titulo_doc=ordem|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel %}
       {% elif ordem.cancelada %}
         <p class="texto-secundario texto-sm">A OS cancelada não mostra o documento: reative para ver e gerar.</p>
       {% else %}
@@ -239,16 +236,21 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
   </fieldset>
 
   {% if editavel %}
+  {% comment %}
+  Rodapé como o do termo: Voltar · Gerar · Ações. Sem "Salvar" (a OS se grava sozinha;
+  Ctrl+S grava na hora). Gerar abre a OS como sai no PDF em outra aba — e fixa a data e a
+  geração — e esta aba, já gravada, volta à lista (componentes/gerar-e-voltar.js).
+  {% endcomment %}
   <div class="barra-acoes">
-    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if ordem %}Gravando as alterações…{% else %}Alterações não salvas — crie a OS antes de sair.{% endif %}" role="status">
+    <a class="botao botao--texto" href="{% url 'viagens:ordens' %}">Voltar</a>
+    <div class="sr-only" data-status-salvamento data-texto-sujo="{% if ordem %}Gravando as alterações…{% else %}Alterações não salvas — crie a OS antes de sair.{% endif %}" role="status">
       {% if ordem %}<span data-anuncio>Grava sozinha enquanto você preenche.</span>
-      <span class="barra-acoes__secundario" id="barra-pendencias" data-vivo>{% if faltando %}· <a href="#conferencia">{{ faltando|length|pluralizar:"pendência,pendências" }} no texto</a>{% else %}· tudo preenchido{% endif %}</span>
+      <span id="barra-pendencias" data-vivo>{% if faltando %}{{ faltando|length|pluralizar:"pendência,pendências" }} no texto.{% else %}Tudo preenchido.{% endif %}</span>
       {% else %}<span data-anuncio>Para criar: o tipo e, se houver, os ofícios — o resto vem deles.</span>{% endif %}
     </div>
-    <a class="botao botao--texto" href="{% url 'viagens:ordens' %}">Voltar</a>
     {% if ordem %}
-      <button type="submit" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
-      <a class="botao{% if not faltando %} botao--marca{% endif %}" href="{% url 'viagens:documento_ordem' ordem.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}<span>Gerar <span class="barra-acoes__extra">a OS</span></span></a>
+      <a class="botao{% if not faltando %} botao--marca{% endif %}" href="{% url 'viagens:visualizar_ordem' ordem.pk %}?gerar=1" target="_blank" rel="noopener" data-gerar-e-voltar="{% url 'viagens:ordens' %}"{% if faltando %} data-dica="O que falta sai em branco"{% endif %}>{% icone "file-check-2" %}<span>Gerar <span class="barra-acoes__extra">a OS</span></span></a>
+      {% include "viagens/ordens/_acoes.html" with onde="rodapé" dobrar=True %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar OS</button>
     {% endif %}
@@ -256,6 +258,7 @@ recarrega. A nova recebe o número ao salvar. As âncoras #oficios, #destinos, #
   {% endif %}
 </form>
 {% if pode_gerir_textos %}{% include "componentes/dialogo_guardar_texto.html" %}{% endif %}
+{% if editavel %}{% include "componentes/dialogos_cadastro.html" %}{% endif %}
 {% if ordem and pode_cancelar %}{% include "componentes/dialogo_motivo.html" %}{% endif %}
 {% if via and editavel %}{% include "componentes/dialogo_assinado.html" %}{% if via.s.via %}{% include "viagens/assinados/_form_remover.html" with s=via.s titulo=via.titulo voltar=request.get_full_path %}{% endif %}{% endif %}
 {% endblock %}

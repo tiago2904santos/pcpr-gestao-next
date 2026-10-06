@@ -14,6 +14,7 @@
         {% block migalhas %}{% endblock %}
         {% block cabecalho_pagina %}{% endblock %}
         {% block conteudo %}{% endblock %}
+        {% if pagina_anterior %}{% include "componentes/voltar_tarefa.html" %}{% endif %}
       </div>
       {% include "parciais/rodape.html" %}
     </main>

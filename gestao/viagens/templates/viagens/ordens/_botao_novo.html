@@ -1,0 +1,2 @@
+{# "Nova ordem de serviço" cria a OS na hora (POST: reserva o número) e abre a folha. #}
+<form class="form-em-linha" method="post" action="{% url 'viagens:nova_ordem' %}">{% csrf_token %}<input type="hidden" name="acao" value="criar"><button type="submit" class="botao botao--primario">{% icone "plus" %}Nova ordem de serviço</button></form>

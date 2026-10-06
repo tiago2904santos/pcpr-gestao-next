@@ -18,15 +18,16 @@
 
   @page {
     size: A4;
-    margin: 14mm 18mm 24mm 18mm;
+    /* Topo e pé mais curtos: o timbre e o rodapé estavam comendo página sem informação. */
+    margin: 9mm 18mm 15mm 18mm;
     @bottom-center {
       content: element(rodape);
     }
   }
   html { font-family: "Doc Serif", serif; font-size: 9.5pt; color: #000; line-height: 1.3; }
   body { margin: 0; }
-  header.timbre { text-align: center; margin-bottom: 5mm; }
-  header.timbre img { height: 18mm; display: block; margin: 0 auto 2mm; }
+  header.timbre { text-align: center; margin-bottom: 3mm; }
+  header.timbre img { height: 13mm; display: block; margin: 0 auto 1mm; }
   header.timbre p { margin: 0; font-weight: bold; font-size: 10pt; }
   .minuta { position: fixed; top: 110mm; left: 0; right: 0; text-align: center; font-size: 54pt;
             color: #d9d9d9; transform: rotate(-30deg); font-weight: bold; letter-spacing: 6pt; }
@@ -43,7 +44,7 @@
   .destinatario { margin-top: 8mm; font-weight: bold; line-height: 1.25; break-inside: avoid; }
   .destinatario p { margin: 0; }
   .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
-  .rodape strong { display: block; font-style: normal; font-size: 13pt; letter-spacing: 1pt; color: #555; }
+  .rodape strong { display: block; font-style: normal; font-size: 10pt; letter-spacing: 1pt; color: #555; }
   .marcacao { display: inline-block; width: 7mm; text-align: center; }
   .quebra { display: none; }
   .quebra--ativa { display: block; break-before: page; height: 0; }
@@ -65,7 +66,7 @@
     <table data-bloco="identificacao" data-rotulo="Identificação do ofício">
       <tr>
         <td>Ofício Nº <strong>{{ d.numero }}</strong> {{ d.assunto_rotulo }}</td>
-        <td>Data: {{ d.data_oficio }}</td>
+        <td>Data: {% campo_vinculado "data_oficio" d.data_oficio %}</td>
       </tr>
       <tr>
         <td>Origem: <strong>{{ d.origem }}</strong></td>
@@ -79,7 +80,8 @@
     {% endregiao %}
 
     {% regiao "corpo" "Corpo do ofício" %}
-    <p data-bloco="saudacao" data-rotulo="Saudação e pedido"><strong>Senhor Delegado,</strong> através deste, solicito {{ d.assunto_termo }} e medidas para a concessão de diárias e recursos para combustível, conforme cronograma abaixo:</p>
+    {# Em uma linha só: "através deste" e "medidas para" não diziam nada que o verbo já não diga. #}
+    <p data-bloco="saudacao" data-rotulo="Saudação e pedido"><strong>Senhor Delegado,</strong> solicito {{ d.assunto_termo }} e a concessão de diárias e combustível, conforme cronograma abaixo:</p>
 
     <table data-bloco="equipe" data-rotulo="Servidores">
       <thead>
@@ -159,7 +161,7 @@
         <span class="marcacao">({% if d.custeio == "onus_limitado" %} X {% else %}&nbsp;&nbsp;&nbsp;{% endif %})</span> ÔNUS LIMITADOS AOS PRÓPRIOS VENCIMENTOS
       </td></tr>
       <tr><td data-bloco="motivo" data-rotulo="Motivo da viagem"><strong>Motivo da viagem:</strong> {% campo_vinculado "motivo" d.motivo %}</td></tr>
-      <tr><td data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro que os servidores estão cientes da necessidade de estar na posse de cartão corporativo vigente e apto para uso, no período do deslocamento.</strong></td></tr>
+      <tr><td data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro que os servidores estão cientes de que devem portar cartão corporativo vigente no deslocamento.</strong></td></tr>
     </table>
     {% endregiao %}
 

@@ -106,12 +106,11 @@ escrito quando o campo nasce vazio — um por tipo.
     </div>
     <div class="dialogo__corpo pilha">
       {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      <div class="campos">
-        {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
-        {% include "componentes/campo.html" with campo=form.tipo classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.ordem classe="campo--sm" ajuda_oculta=True %}
-      </div>
-      {% include "componentes/campo.html" with campo=form.texto %}
+      <fieldset class="grupo-campos" aria-label="Dados do texto pronto">
+        {% include "componentes/campo.html" with campo=form.nome %}
+        {% include "componentes/campo.html" with campo=form.tipo %}
+        {% include "componentes/campo.html" with campo=form.texto %}
+      </fieldset>
     </div>
     <div class="dialogo__rodape">
       <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>

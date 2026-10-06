@@ -12,8 +12,11 @@ Sem JavaScript, a escolha vai com o formulário e preenche o campo se ele estive
   {% include "componentes/campo.html" with campo=campo classe="campo--lg texto-pronto__escolha" %}
   {% if pode_gerir %}
     <div class="texto-pronto__acoes">
-      <button type="button" class="botao botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" %}Guardar como texto pronto</button>
-      <a class="botao botao--texto" href="{% url 'cadastros:textos' %}?tipo={{ tipo }}" target="_blank" rel="noopener">{% icone "settings" %}Gerenciar<span class="sr-only"> textos prontos (nova aba)</span></a>
+      <button type="button" class="botao botao--sm botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" classe="icone--sm" %}Guardar texto</button>
+      {% comment %}Mesma aba, levando de onde veio: a tela de textos prontos mostra no
+      rodapé um "Voltar para …" que devolve a esta folha (ver componentes/voltar_tarefa.html).
+      A folha salva sozinha, então nada do que já foi digitado se perde.{% endcomment %}
+      <a class="botao botao--sm botao--icone botao--sutil" data-dica="Gerenciar textos prontos" aria-label="Gerenciar textos prontos" href="{% url 'cadastros:textos' %}?tipo={{ tipo }}&amp;de={{ request.get_full_path|urlencode }}{% if voltar_rotulo %}&amp;de_rotulo={{ voltar_rotulo|urlencode }}{% endif %}">{% icone "settings" classe="icone--sm" %}</a>
     </div>
   {% endif %}
 </div>

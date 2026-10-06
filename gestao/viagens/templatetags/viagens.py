@@ -149,3 +149,37 @@ def selo_justificativa(oficio) -> dict[str, str] | None:
     if oficio.justificativa.strip():
         return {"texto": "Justificativa preenchida", "tom": "sucesso"}
     return {"texto": "Justificativa pendente", "tom": "aviso"}
+
+
+@register.filter
+def uf_de(cidade: object) -> str:
+    """"Curitiba/PR" → "PR" (a UF de um destino escrito como Cidade/UF); vazio se não houver."""
+    texto = str(cidade or "")
+    return texto.rsplit("/", 1)[1].strip().upper() if "/" in texto else ""
+
+
+@register.inclusion_tag("viagens/_destinos.html", takes_context=True)
+def campo_destinos(context, campo, unidade=None, maximo: int = 10, titulo: str = "") -> dict:
+    """O componente de destinos de todas as telas que pedem destino (termo, OS, plano,
+    evento do plano, viagem): a lista "Sede e destinos" do roteiro — a sede da unidade
+    fixa no topo e na volta, uma linha por destino (UF + cidade), "Adicionar destino" — e o
+    painel Rota ao lado (mapa, km e tempo). A sede só desenha a rota: não vai ao formulário.
+
+    `campo` é um CampoMunicipios (cada destino vai como "Cidade/UF", na ordem da tela);
+    `unidade`, a da folha (na falta, a de quem está usando)."""
+    from django.conf import settings
+
+    from gestao.cadastros.models import ConfiguracaoInstitucional
+    from gestao.viagens import policies
+    from gestao.viagens.forms import UFS
+
+    if not unidade and "request" in context:
+        unidade = policies.unidade_do_usuario(context["request"].user)
+    config = (ConfiguracaoInstitucional.objects.filter(unidade=unidade)
+              .select_related("sede").first() if unidade else None)
+    sede = f"{config.sede.nome}/{config.sede.uf}" if config else ""
+    valores = [str(v) for v in (campo.value() or []) if str(v).strip()]
+    return {"campo": campo, "valores": valores, "sede": sede, "sede_uf": uf_de(sede),
+            "ufs": UFS, "maximo": maximo, "titulo": titulo or "Sede e destinos",
+            "mapa_tiles": settings.MAPA_TILES_URL, "mapa_atribuicao": settings.MAPA_ATRIBUICAO,
+            "csp_nonce": context.get("csp_nonce", "")}

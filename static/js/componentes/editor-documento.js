@@ -19,6 +19,7 @@
  * Sem `data-base` (UI Lab) funciona como vitrine: edita, formata e insere, mas não salva.
  */
 import { confirmar } from "./dialogo.js";
+import { icone } from "./menu.js";
 
 const ESPERA_SALVAR = 1200;
 const ESPERA_CAMPO = 700;
@@ -105,7 +106,11 @@ export class PcEditorDocumento extends HTMLElement {
     // que recarregar apagaria.
     this.aoMudarDados = () => {
       if (this.sujo || this.salvando || this.vendoVersao !== null) return;
-      this.quadro?.contentWindow?.location.reload();
+      // Folha ainda a caminho (o editor acabou de entrar na página): ela já chega com os
+      // dados novos — recarregar o about:blank cancelaria a ida.
+      const janela = this.quadro?.contentWindow;
+      if (!janela || janela.location.href === "about:blank") return;
+      janela.location.reload();
     };
     document.addEventListener("pcpr:dados-salvos", this.aoMudarDados);
     document.body.addEventListener("equipe-alterada", this.aoMudarDados);
@@ -115,9 +120,16 @@ export class PcEditorDocumento extends HTMLElement {
       this.aoMudarDados();
     }
     this.addEventListener("keydown", (e) => this.atalhos(e));
+    // Outro editor da página levou o texto dele para este (termo: "Aplicar em todos"):
+    // a folha e a versão base se refazem, para a próxima gravação não dar conflito.
+    this.aoAplicarNoutro = (/** @type {Event} */ e) => {
+      if (/** @type {CustomEvent} */ (e).detail?.origem !== this) this.recarregar();
+    };
+    document.addEventListener("pc-editor:texto-aplicado", this.aoAplicarNoutro);
   }
 
   disconnectedCallback() {
+    if (this.aoAplicarNoutro) document.removeEventListener("pc-editor:texto-aplicado", this.aoAplicarNoutro);
     window.clearInterval(this.timerPresenca);
     window.clearTimeout(this.timerSalvar);
     window.clearTimeout(this.timerCampo);
@@ -134,10 +146,28 @@ export class PcEditorDocumento extends HTMLElement {
     return this.quadro ? this.quadro.contentDocument : null;
   }
 
+  /** Folha inteira (`data-folha-inteira`, vários editores empilhados — o termo): o quadro
+   * tem a altura do documento todo e quem rola é a página, não a folha. */
+  ajustarAltura() {
+    const doc = this.doc;
+    if (!this.quadro || !doc || !doc.documentElement || !this.hasAttribute("data-folha-inteira")) return;
+    doc.documentElement.style.overflow = "hidden";
+    this.quadro.style.height = `${doc.documentElement.scrollHeight}px`;
+  }
+
   prepararFolha() {
     const doc = this.doc;
     if (!doc || !doc.body || !doc.documentElement) return;
     const raiz = doc.documentElement;
+    // Vários editores num bloco só (o termo): quem recebe o cursor passa a ser o da barra.
+    const ativar = () => this.dispatchEvent(new CustomEvent("pc-editor:ativo", { bubbles: true }));
+    doc.addEventListener("focusin", ativar);
+    doc.addEventListener("pointerdown", ativar);
+    if (this.hasAttribute("data-folha-inteira")) {
+      this.ajustarAltura();
+      // Fontes, brasão e o que se digita mudam a altura: acompanha.
+      new ResizeObserver(() => this.ajustarAltura()).observe(doc.body);
+    }
     raiz.classList.toggle("folha--leitura", this.vendoVersao !== null);
     const podeEditar = this.editavel && this.vendoVersao === null;
     raiz.classList.toggle("folha--editavel", podeEditar);
@@ -175,6 +205,8 @@ export class PcEditorDocumento extends HTMLElement {
     const alvo = /** @type {HTMLElement | null} */ (e.target);
     const doc = this.doc;
     if (!doc) return;
+    const grupoTabela = /** @type {HTMLElement | null} */ (this.barra.querySelector("[data-so-tabela]"));
+    if (grupoTabela) grupoTabela.hidden = !this.celulaAtual();
     const selecao = doc.getSelection();
     const no = selecao && selecao.anchorNode;
     const campo = no ? this.campoDe(no) : null;
@@ -297,8 +329,31 @@ export class PcEditorDocumento extends HTMLElement {
       const botao = /** @type {HTMLElement | null} */ (/** @type {HTMLElement} */ (e.target).closest("button"));
       if (!botao) return;
       if (botao.dataset.comando) this.comando(botao.dataset.comando);
-      else if (botao.dataset.modo) this.modo(botao.dataset.modo);
+      else if (botao.dataset.estiloValor) {
+        const [prop, valor] = botao.dataset.estiloValor.split(":");
+        this.estilizarSelecao(prop, valor);
+      } else if (botao.dataset.modo) this.modo(botao.dataset.modo);
       else if (botao.dataset.acao) this.acao(botao.dataset.acao, botao);
+    });
+    barra.addEventListener("change", (e) => {
+      const campo = /** @type {HTMLSelectElement} */ (e.target);
+      if (!(campo instanceof HTMLSelectElement) || !campo.value) return;
+      if (campo.dataset.estilo) {
+        this.estilizarSelecao(campo.dataset.estilo, campo.value);
+      } else if (campo.dataset.tabelaEstilo || campo.dataset.linhaEstilo) {
+        const celula = this.celulaAtual();
+        const alvo = campo.dataset.tabelaEstilo ? celula?.closest("table") : celula?.closest("tr");
+        if (alvo) {
+          /** @type {HTMLElement} */ (alvo).style.setProperty(
+            campo.dataset.tabelaEstilo || campo.dataset.linhaEstilo || "", campo.value);
+          this.marcarSujo();
+        }
+      }
+      campo.value = "";  // a escolha é uma ação, não um estado
+      // O <pc-select> em volta volta a mostrar o rótulo ("Largura"); sem borbulhar, este
+      // ouvinte não roda de novo.
+      campo.dispatchEvent(new Event("change"));
+      this.focarFolha();
     });
     // Padrão "toolbar" da WAI-ARIA: um só tabstop; setas andam entre os botões.
     const botoes = () => /** @type {HTMLButtonElement[]} */ (Array.from(barra.querySelectorAll("button:not([disabled])")));
@@ -336,6 +391,49 @@ export class PcEditorDocumento extends HTMLElement {
     }
   }
 
+  /** Aplica um estilo inline ao trecho selecionado (tamanho/cor da fonte), embrulhando-o
+   * num <span>. Sem trecho selecionado (só o cursor num parágrafo), vale para o parágrafo
+   * inteiro — escolher um tamanho e nada acontecer parecia defeito. O saneador do servidor
+   * guarda só valores da lista que a barra oferece.
+   * @param {string} propriedade @param {string} valor */
+  estilizarSelecao(propriedade, valor) {
+    const doc = this.doc;
+    const sel = doc?.getSelection();
+    if (!doc || !sel || !sel.rangeCount || !valor) return;
+    const faixa = sel.getRangeAt(0);
+    const no = faixa.commonAncestorContainer;
+    const elemento = no.nodeType === 1 ? /** @type {Element} */ (no) : no.parentElement;
+    if (!elemento?.closest("[data-regiao]")) return;
+    if (sel.isCollapsed) {
+      const bloco = /** @type {HTMLElement | null} */ (
+        elemento.closest("p, li, td, th, h1, h2, h3, blockquote, [data-bloco]"));
+      if (!bloco || !bloco.closest("[data-regiao]") || bloco.matches("[data-regiao]")) return;
+      bloco.style.setProperty(propriedade, valor);
+      this.marcarSujo();
+      return;
+    }
+    const span = doc.createElement("span");
+    span.style.setProperty(propriedade, valor);
+    try {
+      span.append(faixa.extractContents());
+      faixa.insertNode(span);
+    } catch {
+      return;
+    }
+    sel.removeAllRanges();
+    const nova = doc.createRange();
+    nova.selectNodeContents(span);
+    sel.addRange(nova);
+    this.marcarSujo();
+  }
+
+  /** Célula onde o cursor está (ou nada). @returns {HTMLTableCellElement | null} */
+  celulaAtual() {
+    const no = this.doc?.getSelection()?.anchorNode;
+    const el = no?.nodeType === 1 ? /** @type {Element} */ (no) : no?.parentElement;
+    return /** @type {HTMLTableCellElement | null} */ (el?.closest("td, th") ?? null);
+  }
+
   /** @param {string} comando */
   comando(comando) {
     const doc = this.doc;
@@ -365,6 +463,8 @@ export class PcEditorDocumento extends HTMLElement {
 
   /** @param {string} modo */
   modo(modo) {
+    // No PDF o índice de páginas do bloco (termo) some — editor.css.
+    this.classList.toggle("editor--pdf", modo === "pdf");
     this.querySelectorAll("[data-modo]").forEach((b) => b.setAttribute("aria-pressed", String(/** @type {HTMLElement} */ (b).dataset.modo === modo)));
     if (this.quadro) this.quadro.hidden = modo !== "texto";
     if (this.quadroPdf) {
@@ -478,9 +578,18 @@ export class PcEditorDocumento extends HTMLElement {
       lista.append(linha);
     }
     if (!(this.textos || []).length) {
-      const vazio = document.createElement("p");
-      vazio.className = "texto-secundario texto-sm";
-      vazio.textContent = "Nenhum texto pronto ainda. Selecione um trecho e use «Guardar como texto pronto».";
+      // Vazio: o que é e como criar o primeiro, sem um parágrafo espremido no menu.
+      const vazio = document.createElement("div");
+      vazio.className = "editor__textos-vazio";
+      const simbolo = document.createElement("span");
+      simbolo.className = "editor__textos-vazio-icone";
+      simbolo.setAttribute("aria-hidden", "true");
+      simbolo.append(icone("book-open-text", "icone"));
+      const titulo = document.createElement("strong");
+      titulo.textContent = "Nenhum texto pronto ainda";
+      const dica = document.createElement("span");
+      dica.textContent = "Selecione um trecho da folha e guarde-o abaixo para reaproveitar.";
+      vazio.append(simbolo, titulo, dica);
       lista.append(vazio);
     }
   }
@@ -583,6 +692,13 @@ export class PcEditorDocumento extends HTMLElement {
     this.aplicarEstado(r);
     this.marcarBlocosAlterados();
     this.paginas();
+    this.avisarGravado();
+    this.oferecerAplicarEmTodos();
+  }
+
+  /** O texto gravado mudou (quem mostra a folha em miniatura refaz: editores.js). */
+  avisarGravado() {
+    this.dispatchEvent(new CustomEvent("pc-editor:gravado", { bubbles: true }));
   }
 
   /** @param {HTMLElement} campo */
@@ -604,6 +720,7 @@ export class PcEditorDocumento extends HTMLElement {
     const r = await this.pedir(`campos/${encodeURIComponent(chave)}/`, { valor, versao });
     if (!r) return;
     this.aplicarEstado(r);
+    this.avisarGravado();
     const resultado = r.resultado || {};
     // O formulário da folha mostra o mesmo campo: acompanha, e a versão do ofício também.
     const entrada = /** @type {HTMLInputElement | HTMLTextAreaElement | null} */ (document.querySelector(`#form-oficio [name="${CSS.escape(chave)}"], [form="form-oficio"][name="${CSS.escape(chave)}"]`));
@@ -660,16 +777,20 @@ export class PcEditorDocumento extends HTMLElement {
     if (!e || e.do_modelo) this.mostrarSalvo("Como o modelo", "");
     else this.mostrarSalvo(`Salvo ${e.quando} · v${e.numero}`, "editor__salvo--ok");
     this.removerAviso("conflito");
-    if (estado.desatualizadas.length && estado.regioes) {
-      const nomes = estado.desatualizadas.map((c) => (estado.regioes.find((r) => r.chave === c) || { rotulo: c }).rotulo);
-      this.mostrarAviso("desatualizado", "aviso", `Os dados do ofício mudaram depois da edição do texto em: ${nomes.join(", ")}. O texto editado não acompanha o cadastro.`, [["modelo", "Voltar ao modelo"]]);
-    } else {
-      this.removerAviso("desatualizado");
-    }
+    // Dados que mudaram depois da edição: sem alerta sobre a folha (aparecia a cada página,
+    // a cada gravação); fica dito, discreto, no botão "Voltar ao modelo" da barra.
+    this.removerAviso("desatualizado");
     this.montarPendencias(estado.pendencias);
     this.montarPresenca(estado.presenca);
     const modelo = /** @type {HTMLButtonElement | null} */ (this.querySelector("[data-acao='modelo']"));
-    if (modelo) modelo.disabled = !e || e.do_modelo;
+    if (modelo) {
+      modelo.disabled = !e || e.do_modelo;
+      const rotulo = estado.desatualizadas.length
+        ? "Voltar ao modelo (os dados mudaram depois da edição: o texto editado não acompanha)"
+        : "Voltar ao modelo";
+      modelo.title = rotulo;
+      modelo.setAttribute("aria-label", rotulo);
+    }
     const hist = /** @type {HTMLButtonElement | null} */ (this.querySelector("[data-acao='historico']"));
     if (hist) {
       hist.disabled = !estado.versoes.length;
@@ -680,11 +801,17 @@ export class PcEditorDocumento extends HTMLElement {
     if (this.historico && this.historico.open) this.montarHistorico();
   }
 
-  /** @param {{chave: string, mensagem: string}[]} pendencias */
+  /** Pendências na própria barra: um botão por dado que falta, que leva ao trecho.
+   * @param {{chave: string, mensagem: string}[]} pendencias */
   montarPendencias(pendencias) {
-    if (!pendencias.length) { this.removerAviso("pendencias"); return; }
-    const itens = pendencias.map((p) => `<li><button type="button" class="botao botao--sm" data-acao="ir-campo" data-campo="${escapar(p.chave)}">${escapar(p.mensagem)}</button></li>`).join("");
-    this.mostrarAviso("pendencias", "aviso", `${pendencias.length === 1 ? "Falta um dado" : `Faltam ${pendencias.length} dados`} que o documento mostra — clique para ir ao trecho.`, [], `<ul class="editor__pendencias">${itens}</ul>`);
+    this.removerAviso("pendencias");  // versão antiga, em alerta sobre a folha
+    const el = /** @type {HTMLElement | null} */ (this.querySelector("[data-pendencias]"));
+    if (!el) return;
+    el.hidden = !pendencias.length;
+    el.innerHTML = pendencias.map((p) =>
+      `<button type="button" class="botao botao--sm botao--sutil editor__pendencia"
+         data-acao="ir-campo" data-campo="${escapar(p.chave)}"
+         title="Ir ao trecho no documento">${escapar(p.mensagem)}</button>`).join("");
   }
 
   /** @param {{nome: string}[]} presenca */
@@ -781,6 +908,7 @@ export class PcEditorDocumento extends HTMLElement {
     if (!r) return;
     this.aplicarEstado(r);
     this.verVersao(null);
+    this.avisarGravado();
     avisar("sucesso", `Versão ${numero} restaurada.`);
   }
 
@@ -791,6 +919,7 @@ export class PcEditorDocumento extends HTMLElement {
     this.sujo = false;
     this.aplicarEstado(r);
     this.verVersao(null);
+    this.avisarGravado();
     avisar("sucesso", "O documento voltou ao modelo.");
   }
 
@@ -821,6 +950,42 @@ export class PcEditorDocumento extends HTMLElement {
     if (!doc || !this.estado) return;
     const chaves = new Set((this.estado.edicao ? this.estado.edicao.blocos_alterados : []).map((b) => b.chave));
     doc.querySelectorAll("[data-bloco]").forEach((b) => b.classList.toggle("bloco--alterado", chaves.has(b.getAttribute("data-bloco") || "")));
+  }
+
+  /**
+   * Termo (vários documentos, um por servidor): depois de salvar o texto de um, pergunta se
+   * a alteração vai para os outros. "Sim" vale para o resto da edição (as próximas
+   * gravações já levam); "Não" não pergunta de novo. Vai só o texto comum — o servidor
+   * deixa de fora o que tem dado de cada um (termos.aplicar_texto_em_todos).
+   */
+  async oferecerAplicarEmTodos() {
+    const url = this.dataset.aplicarEmTodos;
+    if (!url || this.aplicarEmTodos === "nao") return;
+    if (this.aplicarEmTodos !== "sim") {
+      const sim = await confirmar({
+        titulo: "Aplicar em todos os termos?",
+        mensagem: "Levar esta alteração do texto para os termos dos outros servidores, o genérico e o da viatura? Vai só o texto comum: o que é de cada servidor (nome, CPF, lotação) fica como está.",
+        confirmar: "Sim, aplicar em todos", cancelar: "Não",
+      });
+      this.aplicarEmTodos = sim ? "sim" : "nao";
+      if (!sim) return;
+    }
+    const token = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
+    try {
+      const r = await fetch(url, { method: "POST", headers: { Accept: "application/json", "X-CSRFToken": token, "X-Requested-With": "fetch" } });
+      const dados = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        avisar("erro", dados.erro || "Não foi possível aplicar nos outros termos.");
+        return;
+      }
+      const n = Number(dados.atualizados || 0);
+      const ficaram = /** @type {string[]} */ (dados.ficaram || []);
+      avisar(n ? "sucesso" : "info", (n ? `Aplicado em ${n} ${n === 1 ? "termo" : "termos"}.` : "Nada a levar para os outros termos.")
+        + (ficaram.length ? ` Ficou só neste (é de cada servidor): ${ficaram.join(", ")}.` : ""));
+      if (n) document.dispatchEvent(new CustomEvent("pc-editor:texto-aplicado", { detail: { origem: this } }));
+    } catch {
+      avisar("erro", "Sem conexão: tente de novo em instantes.");
+    }
   }
 
   recarregar() {

@@ -12,6 +12,8 @@
  * O servidor recalcula tudo ao salvar — o que aparece aqui é conforto, não regra.
  */
 
+import { MapaDaRota } from "./mapa-rota.js";
+
 const dois = (/** @type {number} */ n) => String(n).padStart(2, "0");
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto",
   "setembro", "outubro", "novembro", "dezembro"];
@@ -50,25 +52,6 @@ function deslizar(el, topoAntigo) {
   if (Math.abs(delta) > 0.5) el.animate([{ transform: `translateY(${delta}px)` }, { transform: "none" }], DESLIZE);
 }
 
-/** @type {Promise<any> | null} */
-let carregandoLeaflet = null;
-/** @param {string} js @param {string} css */
-function carregarLeaflet(js, css) {
-  if (/** @type {any} */ (window).L) return Promise.resolve(/** @type {any} */ (window).L);
-  carregandoLeaflet ||= new Promise((resolve, reject) => {
-    const folha = document.createElement("link");
-    folha.rel = "stylesheet";
-    folha.href = css;
-    document.head.append(folha);
-    const script = document.createElement("script");
-    script.src = js;
-    script.onload = () => resolve(/** @type {any} */ (window).L);
-    script.onerror = reject;
-    document.head.append(script);
-  });
-  return carregandoLeaflet;
-}
-
 export class PcItinerario extends HTMLElement {
   /** @type {number | undefined} */
   atraso = undefined;
@@ -80,19 +63,10 @@ export class PcItinerario extends HTMLElement {
   pedidoDiarias = null;
   /** @type {AbortController | null} */
   pedidoTrechos = null;
-  /** @type {any} */
-  mapa = null;
-  /** @type {any} */
-  camada = null;
-  /** @type {any} */
-  ultimaRota = null;
-  /** @type {any} Limites do último desenho concluído (reenquadra quando o mapa muda de tamanho). */
-  limites = null;
-  /** Sede já centrada no mapa, para não refazer o pedido a cada tecla. */
-  sedeNoMapa = "";
+  /** @type {MapaDaRota | null} */
+  mapaRota = null;
   /** A pessoa já mexeu em algo (só então vale pedir a prévia das diárias). */
   tocado = false;
-  visivel = false;
   arrastando = /** @type {HTMLElement | null} */ (null);
 
   connectedCallback() {
@@ -115,22 +89,9 @@ export class PcItinerario extends HTMLElement {
     this.addEventListener("keydown", (e) => this.tecla(e));
     this.addEventListener("pointerdown", (e) => this.comecarArraste(e));
 
-    const caixaMapa = /** @type {Element} */ (this.querySelector("[data-mapa]"));
-    new IntersectionObserver((entradas) => {
-      if (entradas.some((e) => e.isIntersecting)) {
-        this.visivel = true;
-        if (this.ultimaRota) this.desenhar(this.ultimaRota);
-      }
-    }, { rootMargin: "200px" }).observe(caixaMapa);
-    // Na folha larga o mapa acompanha a altura da lista de paradas: ao entrar ou sair um
-    // destino a caixa muda de tamanho e o Leaflet precisa remedir para não cortar a rota.
-    // Os limites são os do último desenho concluído: durante o desenho a camada ainda está
-    // pela metade, e reenquadrar por ela jogaria o mapa em cima de um único ponto.
-    new ResizeObserver(() => {
-      if (!this.mapa) return;
-      this.mapa.invalidateSize();
-      if (this.limites) this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
-    }).observe(caixaMapa);
+    // O painel Rota (mapa, pinos, traçado) é o mesmo de <pc-destinos>: mapa-rota.js.
+    this.mapaRota = new MapaDaRota(this);
+    this.mapaRota.observar();
 
     this.renumerar();
     // Tempos já gravados valem para a rota atual: só uma rota nova (cidade trocada ou
@@ -389,7 +350,7 @@ export class PcItinerario extends HTMLElement {
     } else if (alvo.closest("[data-preencher-datas]")) {
       this.abrirCalendario();
     } else if (alvo.closest("[data-ver-rota]")) {
-      this.enquadrarRota();
+      this.mapaRota?.enquadrar();
     } else if (alvo.closest("[data-passo]")) {
       this.passoDeTempo(/** @type {HTMLElement} */ (alvo.closest("[data-passo]")));
     } else if (alvo.closest("[data-limpar-bv]")) {
@@ -439,35 +400,6 @@ export class PcItinerario extends HTMLElement {
     campo.value = hhmm(minutos);
     campo.dataset.manual = "1";
     campo.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-
-  /** Volta o mapa ao enquadramento que mostra a rota inteira. */
-  enquadrarRota() {
-    if (!this.mapa || !this.limites) return;
-    this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
-  }
-
-  /**
-   * O traçado se desenha da origem ao destino. É o momento em que a rota deixa de ser
-   * números e vira caminho — por isso vale a ênfase, e só aqui.
-   * @param {SVGPathElement | null} caminho @param {number} ordem
-   */
-  desenharTracado(caminho, ordem) {
-    if (!caminho || MENOS_MOVIMENTO.matches || typeof caminho.getTotalLength !== "function") return;
-    const comprimento = caminho.getTotalLength();
-    if (!comprimento) return;
-    caminho.animate(
-      [{ strokeDasharray: comprimento, strokeDashoffset: comprimento },
-       { strokeDasharray: comprimento, strokeDashoffset: 0 }],
-      { duration: 720, delay: ordem * 160, easing: "cubic-bezier(0.2, 0, 0, 1)", fill: "backwards" },
-    );
-  }
-
-  /** O atalho só aparece quando a vista deixou de mostrar a rota toda. */
-  atualizarVerRota() {
-    const botao = /** @type {HTMLElement | null} */ (this.querySelector("[data-ver-rota]"));
-    if (!botao) return;
-    botao.hidden = !this.limites || !this.mapa || this.mapa.getBounds().contains(this.limites);
   }
 
   /** @param {Event} e */
@@ -745,21 +677,17 @@ export class PcItinerario extends HTMLElement {
     if (!sede || destinos.length === 0 || destinos.some((d) => !d.includes("/"))) {
       this.texto("[data-rota-fonte]", "");
       // Ainda não há rota: em vez de uma caixa vazia, o mapa já mostra a cidade da sede.
-      if (sede.includes("/")) this.centrarNaSede(sede);
+      if (sede.includes("/")) this.mapaRota?.centrarNaSede(sede);
       return;
     }
-    this.sedeNoMapa = "";
     const pontos = this.classList.contains("itin--bate-volta")
       ? [sede, ...destinos.flatMap((d) => [d, sede])]
       : [sede, ...destinos, sede];
-    const url = `${this.dataset.rotaUrl}?${pontos.map((p) => `p=${encodeURIComponent(p)}`).join("&")}`;
     this.pedido?.abort();
     this.pedido = new AbortController();
     this.setAttribute("aria-busy", "true");
     try {
-      const resposta = await fetch(url, { signal: this.pedido.signal, headers: { Accept: "application/json" } });
-      if (!resposta.ok) throw new Error(String(resposta.status));
-      this.aplicarRota(await resposta.json());
+      this.aplicarRota(await /** @type {MapaDaRota} */ (this.mapaRota).buscar(pontos, this.pedido.signal));
     } catch (erro) {
       if (/** @type {Error} */ (erro).name !== "AbortError") {
         this.texto("[data-rota-fonte]", "Não foi possível calcular a rota agora; informe os tempos manualmente.");
@@ -811,88 +739,7 @@ export class PcItinerario extends HTMLElement {
       ? "Estimativa (linha reta × 1,3 a 70 km/h): o serviço de rotas não respondeu. Ajuste os tempos se precisar."
       : "");
     this.recalcular();
-    this.ultimaRota = rota;
-    if (this.visivel) this.desenhar(rota);
-  }
-
-  /** Cria o mapa na primeira vez e devolve o Leaflet (null se ele não carregar). */
-  async garantirMapa() {
-    const caixa = /** @type {HTMLElement} */ (this.querySelector("[data-mapa]"));
-    let L;
-    try {
-      L = await carregarLeaflet(this.dataset.leaflet || "", this.dataset.leafletCss || "");
-    } catch {
-      return null; // sem mapa: o resumo e os tempos continuam valendo
-    }
-    caixa.querySelector("[data-mapa-vazio]")?.remove();
-    if (!this.mapa) {
-      this.mapa = L.map(caixa, { scrollWheelZoom: false, keyboard: false, attributionControl: true, zoomSnap: 0.25 });
-      this.mapa.on("moveend zoomend", () => this.atualizarVerRota());
-      if (this.dataset.tiles) {
-        L.tileLayer(this.dataset.tiles, { maxZoom: 17, attribution: this.dataset.atribuicao || "" }).addTo(this.mapa);
-      } else {
-        caixa.classList.add("itin__mapa--sem-mosaico");
-      }
-    }
-    return L;
-  }
-
-  /** Mapa na cidade da sede enquanto não há rota para traçar. @param {string} sede */
-  async centrarNaSede(sede) {
-    if (this.sedeNoMapa === sede) return;
-    this.sedeNoMapa = sede;
-    const resposta = await fetch(`${this.dataset.rotaUrl}?p=${encodeURIComponent(sede)}`,
-      { headers: { Accept: "application/json" } });
-    if (!resposta.ok) return;
-    const ponto = (await resposta.json()).pontos?.[0];
-    if (!ponto || ponto.lat === null || ponto.lat === undefined) return;
-    this.ultimaRota = null;
-    this.limites = null;
-    if (!this.visivel) return;
-    const L = await this.garantirMapa();
-    if (!L) return;
-    this.camada?.remove();
-    this.camada = L.featureGroup().addTo(this.mapa);
-    const icone = L.divIcon({ className: "itin-pino itin-pino--sede", html: "<span>S</span>", iconSize: [28, 28], iconAnchor: [14, 14] });
-    L.marker([ponto.lat, ponto.lon], { icon: icone, keyboard: false, title: ponto.rotulo }).addTo(this.camada);
-    this.mapa.setView([ponto.lat, ponto.lon], 11);
-    this.atualizarVerRota();
-  }
-
-  /** @param {any} rota */
-  async desenhar(rota) {
-    const pontos = rota.pontos.filter((/** @type {any} */ p) => p.lat !== undefined && p.lat !== null);
-    if (pontos.length < 2) return;
-    const L = await this.garantirMapa();
-    if (!L) return;
-    this.camada?.remove();
-    this.camada = L.featureGroup().addTo(this.mapa);
-    rota.pernas.forEach((/** @type {any} */ perna, /** @type {number} */ i) => {
-      if (!perna?.tracado?.length) return;
-      const linha = L.polyline(perna.tracado, { className: `itin-rota${i === rota.pernas.length - 1 ? " itin-rota--volta" : ""}`, weight: 4 });
-      linha.addTo(this.camada);
-      this.desenharTracado(linha.getElement(), i);
-    });
-    // Paradas no mesmo lugar (bate-volta, volta pela sede) viram um marcador só: "S·2".
-    const ultimo = rota.pontos.length - 1;
-    /** @type {Map<string, {lat: number, lon: number, rotulos: string[], titulo: string, sede: boolean}>} */
-    const grupos = new Map();
-    rota.pontos.forEach((/** @type {any} */ p, /** @type {number} */ i) => {
-      if (p.lat === null || p.lat === undefined || i === ultimo) return;
-      const chave = `${p.lat},${p.lon}`;
-      const grupo = grupos.get(chave) || { lat: p.lat, lon: p.lon, rotulos: /** @type {string[]} */ ([]), titulo: p.rotulo, sede: false };
-      grupo.rotulos.push(i === 0 ? "S" : String(i));
-      grupo.sede ||= i === 0;
-      grupos.set(chave, grupo);
-    });
-    for (const g of grupos.values()) {
-      const largura = 28 + (g.rotulos.length - 1) * 14;
-      const icone = L.divIcon({ className: `itin-pino${g.sede ? " itin-pino--sede" : ""}`, html: `<span>${g.rotulos.join("·")}</span>`, iconSize: [largura, 28], iconAnchor: [largura / 2, 14] });
-      L.marker([g.lat, g.lon], { icon: icone, keyboard: false, title: g.titulo }).addTo(this.camada);
-    }
-    this.mapa.invalidateSize();
-    this.limites = this.camada.getBounds();
-    this.mapa.fitBounds(this.limites, { padding: [28, 28], maxZoom: 11 });
+    this.mapaRota?.mostrar(rota);
   }
 
   // ------------------------------------------------------------------ calendário das saídas

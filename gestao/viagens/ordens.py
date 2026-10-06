@@ -364,17 +364,35 @@ def dados_do_documento(ordem: OrdemServico, *, fixar: bool = True) -> dict:
         # Prévia (tela, PDF com ?previa=1): sai com a marca MINUTA — não é a OS emitida e
         # não pode circular como se fosse (a trava de exclusão só conta a geração real).
         "previa": not fixar,
+        # O texto editado no visualizador (EdicaoOrdem) vale para a folha, o PDF e o DOCX.
+        "regioes_editadas": regioes_vigentes(ordem),
         **textos,
     }
 
 
-def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
-    """HTML do documento; `folha=True` é a versão de tela (dentro do visualizador)."""
+def html_do_modelo(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+    """O documento como o modelo o gera, sem nenhum texto editado."""
     from django.template.loader import render_to_string
 
     from .documentos.pdf import _recursos
     return render_to_string("viagens/documentos/ordem_servico.html",
                             {"d": dados, "folha": folha, "nonce": nonce, **_recursos(folha)})
+
+
+def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "",
+                      regioes: dict[str, str] | None = None,
+                      blocos_alterados: set[str] | None = None) -> str:
+    """HTML do documento com o texto editado em vigor (o de `dados`, se `regioes` não vier);
+    `folha=True` é a versão de tela. PDF, DOCX e a folha saem daqui."""
+    from .documentos.regioes import aplicar_regioes, marcar_blocos_alterados
+    if regioes is None:
+        regioes = dados.get("regioes_editadas") or {}
+    html = html_do_modelo(dados, folha=folha, nonce=nonce)
+    if regioes:
+        html = aplicar_regioes(html, regioes)
+    if blocos_alterados:
+        html = marcar_blocos_alterados(html, blocos_alterados)
+    return html
 
 
 def pdf_do_documento(dados: dict) -> bytes:
@@ -393,3 +411,70 @@ def docx_do_documento(dados: dict) -> bytes:
     from .documentos.docx import docx_do_html
     from .documentos.pdf import ASSETS
     return docx_do_html(html_do_documento(dados), base_imagens=ASSETS)
+
+
+# ---------------------------------------------------------------- texto editado (ADR 0018)
+# O documento da OS também se edita no visualizador, como o do ofício e os do termo; as
+# regras de versão ficam em edicao_texto.py.
+
+
+class ConflitoDeEdicao(OrdemInvalida):
+    """Outra pessoa salvou o texto da OS depois que a folha foi aberta."""
+
+
+def _versoes(ordem: OrdemServico):
+    from .models import EdicaoOrdem
+    return EdicaoOrdem.objects.filter(ordem=ordem)
+
+
+def _criar(ordem: OrdemServico):
+    from .models import EdicaoOrdem
+    return lambda **campos: EdicaoOrdem.objects.create(ordem=ordem, **campos)
+
+
+def edicao_vigente(ordem: OrdemServico):
+    from . import edicao_texto
+    return edicao_texto.vigente(_versoes(ordem))
+
+
+def regioes_vigentes(ordem: OrdemServico) -> dict[str, str]:
+    edicao = edicao_vigente(ordem)
+    return dict(edicao.regioes) if edicao is not None else {}
+
+
+def regioes_do_modelo(dados: dict) -> dict[str, str]:
+    from .documentos.regioes import extrair_regioes
+    return extrair_regioes(html_do_modelo(dados))
+
+
+def _travar(usuario, ordem: OrdemServico) -> OrdemServico:
+    atual = OrdemServico.objects.select_for_update().get(pk=ordem.pk)
+    policies.exigir(policies.pode_editar_ordem(usuario, atual),
+                    "Esta Ordem de Serviço não pode ser alterada.")
+    return atual
+
+
+@transaction.atomic
+def salvar_texto(ordem: OrdemServico, usuario, regioes: dict[str, str], *,
+                 versao_base: int | None = None):
+    from . import edicao_texto
+    atual = _travar(usuario, ordem)
+    return edicao_texto.salvar(
+        _versoes(atual), _criar(atual), usuario,
+        regioes_do_modelo(dados_do_documento(atual, fixar=False)), regioes,
+        versao_base=versao_base, invalido=OrdemInvalida, conflito=ConflitoDeEdicao)
+
+
+@transaction.atomic
+def restaurar_texto(ordem: OrdemServico, usuario, numero: int):
+    from . import edicao_texto
+    atual = _travar(usuario, ordem)
+    return edicao_texto.restaurar(_versoes(atual), _criar(atual), usuario, numero,
+                                  invalido=OrdemInvalida)
+
+
+@transaction.atomic
+def voltar_texto_ao_modelo(ordem: OrdemServico, usuario):
+    from . import edicao_texto
+    atual = _travar(usuario, ordem)
+    return edicao_texto.voltar_ao_modelo(_versoes(atual), _criar(atual), usuario)

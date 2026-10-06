@@ -24,10 +24,14 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
           hx-post="{% url 'viagens:adicionar_viajante' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
       {% csrf_token %}
       <label class="campo__rotulo" for="busca-servidor">Adicionar servidor</label>
-      <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?q=" data-minimo="2"
+      <div class="campo__com-acao">
+      <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?oficio={{ oficio.pk }}&amp;q=" data-minimo="2"
                    data-acao-url="{% url 'viagens:adicionar_viajante' oficio.pk %}" data-alvo="#equipe" data-troca="outerHTML">
         <div class="entrada-composta equipe__entrada">{% icone "user-round" %}<input id="busca-servidor" class="entrada" role="combobox" name="busca" placeholder="Nome, CPF ou RG — escolha na lista e a pessoa entra na hora" aria-describedby="busca-servidor-ajuda" autocomplete="off"></div>
       </pc-combobox>
+      {# Quem ainda não está cadastrado entra por aqui, sem sair da folha. #}
+      <button type="button" class="botao botao--icone" data-abrir-dialogo="dialogo-servidor" aria-label="Cadastrar servidor">{% icone "plus" %}</button>
+      </div>
       <p class="campo__ajuda sr-only" id="busca-servidor-ajuda">Digite ao menos 2 letras e escolha na lista.</p>
       <noscript><p class="campo__ajuda">Sem JavaScript: informe o código do servidor.</p><input class="entrada" name="id" inputmode="numeric"><button class="botao botao--sm mt-2">Adicionar</button></noscript>
     </form>
@@ -62,9 +66,14 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
         <p><strong>Ninguém na equipe ainda.</strong> Busque acima: a pessoa entra na hora e o primeiro marcado como motorista escolhe a viatura.</p>
       </div>
     {% endif %}
-    {% for p in pendencias_equipe %}{% if p.bloqueia %}
+    {% comment %}
+    A pendência em vermelho só depois de salvar (ou de pedir para emitir): ao abrir a folha
+    de um rascunho novo ela repetiria, em tom de erro, o que o estado vazio acima já diz com
+    calma — e nada deu errado ainda. `mostrar_pendencias` vem de views._contexto_edicao.
+    {% endcomment %}
+    {% if mostrar_pendencias %}{% for p in pendencias_equipe %}{% if p.bloqueia %}
       <div class="alerta alerta--perigo" role="note">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ p.mensagem }}</p></div></div>
-    {% endif %}{% endfor %}
+    {% endif %}{% endfor %}{% endif %}
     {% with avisos=pendencias_equipe|so_avisos %}{% if avisos %}
       <div class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<div class="alerta__corpo">
         <p class="alerta__titulo">{{ avisos|length|pluralizar:"servidor também está,servidores também estão" }} em outro ofício no mesmo período <span class="texto-sm peso-normal">(é só um aviso)</span></p>

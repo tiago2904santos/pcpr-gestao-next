@@ -19,6 +19,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from gestao.cadastros import policies as politicas_cadastros
+from gestao.cadastros.forms import formularios_de_cadastro_rapido
 
 from . import assinados, linha_do_tempo, ordens, policies, prestacao, views_assinados
 from .forms import FormularioOrdem
@@ -158,7 +159,7 @@ def _copia_prevista(form: FormularioOrdem, ordem) -> dict:
 
 
 # Cada falta leva ao cartão onde se resolve (conferência e selos dos cartões).
-SECAO_DA_FALTA = {"período": "destinos", "destino": "destinos", "equipe": "equipe",
+SECAO_DA_FALTA = {"período": "dados", "destino": "destinos", "equipe": "equipe",
                   "função da equipe": "equipe", "motivo": "motivo"}
 
 
@@ -190,6 +191,7 @@ def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int =
         "ano": timezone.localdate().year,
         "pode_cancelar": ordem is not None and policies.pode_cancelar_ordem(request.user, ordem),
         "pode_excluir": ordem is not None and policies.pode_excluir_ordem(request.user, ordem),
+        **formularios_de_cadastro_rapido(),
         "pode_gerir_textos": politicas_cadastros.pode_gerir_textos(request.user),
         "migalhas": _migalhas(("Ordens de serviço", reverse("viagens:ordens")),
                               (str(ordem) if ordem else "Nova ordem de serviço", ""))},
@@ -220,6 +222,15 @@ def _gravar(request: HttpRequest, form: FormularioOrdem, ordem=None) -> HttpResp
 def nova(request: HttpRequest) -> HttpResponse:
     policies.exigir(policies.pode_criar_ordem(request.user),
                     "Você não pode criar Ordens de Serviço.")
+    if request.method == "POST" and request.POST.get("acao") == "criar":
+        # "Nova OS" (lista): cria na hora e abre a folha — o documento já aparece e vai se
+        # refazendo enquanto a pessoa preenche (como o termo e o ofício).
+        try:
+            ordem, _ = ordens.salvar(request.user)
+        except ordens.OrdemInvalida as exc:
+            messages.error(request, str(exc))
+            return redirect("viagens:ordens")
+        return redirect("viagens:editar_ordem", ordem.pk)
     if request.method == "POST":
         return _gravar(request, _formulario(request, request.POST))
     inicial: dict = {"tipo": "padrao"}
@@ -301,9 +312,56 @@ def folha(request: HttpRequest, pk: int) -> HttpResponse:
     ordem = _ordem_visivel(request, pk)
     policies.exigir(policies.pode_ver_documento_ordem(request.user, ordem),
                     "Reative a Ordem de Serviço para ver o documento.")
-    return resposta_de_folha(request, lambda nonce: ordens.html_do_documento(
-        ordens.dados_do_documento(ordem, fixar=False), folha=True, nonce=nonce),
-        erros=(ordens.OrdemInvalida,))
+    # ?versao=N mostra uma versão do texto (o histórico do editor); 0 é o modelo.
+    regioes, marcados = None, set()
+    pedido = request.GET.get("versao") or ""
+    if pedido.isascii() and pedido.isdigit():
+        numero = int(pedido)
+        edicao = ordens._versoes(ordem).filter(numero=numero).first() if numero else None
+        if numero and edicao is None:
+            raise Http404
+        regioes = dict(edicao.regioes) if edicao else {}
+        marcados = {b["chave"] for b in edicao.blocos_alterados} if edicao else set()
+    else:
+        vigente = ordens.edicao_vigente(ordem)
+        marcados = {b["chave"] for b in vigente.blocos_alterados} if vigente else set()
+
+    def gerar(nonce: str) -> str:
+        dados = ordens.dados_do_documento(ordem, fixar=False)
+        # Gerada, a folha é o documento (número e data já fixados): sem a marca de minuta.
+        dados["previa"] = ordem.documento_gerado_em is None
+        return ordens.html_do_documento(dados, folha=True, nonce=nonce, regioes=regioes,
+                                        blocos_alterados=marcados)
+    return resposta_de_folha(request, gerar, erros=(ordens.OrdemInvalida,))
+
+
+@require_GET
+def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """A OS numa página da aplicação (as folhas, como no PDF). Vindo de "Gerar" (?gerar=1),
+    gera: a data do documento e a geração ficam fixadas, como no PDF."""
+    ordem = _ordem_visivel(request, pk)
+    policies.exigir(policies.pode_editar_ordem(request.user, ordem),
+                    "Reative a Ordem de Serviço para gerar o documento.")
+    if request.GET.get("gerar") == "1":
+        try:
+            ordens.dados_do_documento(ordem, fixar=True)
+        except ordens.OrdemInvalida as exc:
+            messages.error(request, str(exc))
+            return redirect("viagens:editar_ordem", ordem.pk)
+    para_lista = request.GET.get("voltar") == "lista"
+    return render(request, "viagens/visualizar.html", {
+        "placa_rotulo": "OS", "placa_numero": ordem.numero_formatado, "titulo_doc": str(ordem),
+        "descricao": "O documento como sai no PDF.",
+        "folhas": [{"titulo": str(ordem), "descricao": ordem.get_tipo_display(),
+                    "url": reverse("viagens:folha_ordem", args=[ordem.pk])}],
+        "pdf_url": reverse("viagens:documento_ordem", args=[ordem.pk, "pdf"]),
+        "pdf_nome": f"os-{ordem.numero:03d}-{ordem.ano}.pdf",
+        "voltar_url": reverse("viagens:ordens") if para_lista
+        else reverse("viagens:editar_ordem", args=[ordem.pk]),
+        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar à OS",
+        "migalhas": _migalhas(("Ordens de serviço", reverse("viagens:ordens")),
+                              (str(ordem), reverse("viagens:editar_ordem", args=[ordem.pk])),
+                              ("Visualizar", ""))})
 
 
 @require_GET

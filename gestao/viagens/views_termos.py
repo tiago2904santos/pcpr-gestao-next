@@ -20,11 +20,12 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from gestao.cadastros.forms import formularios_de_cadastro_rapido
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
 from . import assinados, linha_do_tempo, policies, prestacao, termos, views_assinados
 from .forms import FormularioTermo
-from .models import Oficio, TermoAutorizacao, Trecho
+from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho
 from .views import POR_PAGINA, _migalhas
 from .views_editor import (
     moldura_da_folha,
@@ -183,6 +184,9 @@ def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int =
         "editavel": termo is None or policies.pode_editar_termo(request.user, termo),
         "pode_cancelar": termo is not None and policies.pode_cancelar_termo(request.user, termo),
         "pode_excluir": termo is not None and policies.pode_excluir_termo(request.user, termo),
+        # Cadastrar viatura sem sair da folha: o mesmo diálogo da tela de Cadastros e da
+        # folha do ofício (componentes/dialogo_viatura.html).
+        **formularios_de_cadastro_rapido(),
         "migalhas": _migalhas(("Termos de autorização", reverse("viagens:termos")),
                               (str(termo) if termo else "Novo termo", ""))}, status=status)
 
@@ -204,14 +208,25 @@ def _gravar(request: HttpRequest, form: FormularioTermo, termo=None) -> HttpResp
 def novo(request: HttpRequest) -> HttpResponse:
     policies.exigir(policies.pode_criar_termo(request.user),
                     "Você não pode criar termos de autorização.")
+    if request.method == "POST" and request.POST.get("acao") == "criar":
+        # "Novo termo" (lista, viagem): cria o rascunho na hora e abre a folha — os
+        # documentos já aparecem e vão se refazendo enquanto a pessoa preenche.
+        try:
+            termo = termos.salvar(request.user)
+        except termos.TermoInvalido as exc:
+            messages.error(request, str(exc))
+            return redirect("viagens:termos")
+        return redirect("viagens:editar_termo", termo.pk)
     if request.method == "POST":
         return _gravar(request, _formulario(request, request.POST))
     inicial = {}
     oficio_pk = request.GET.get("oficio") or ""
     # "Termo de autorização" a partir do ofício: o termo já nasce ligado a ele.
-    if (oficio_pk.isascii() and oficio_pk.isdecimal()
-            and _oficios_escolhiveis(request).filter(pk=int(oficio_pk)).exists()):
-        inicial["oficio"] = int(oficio_pk)
+    oficio = (_oficios_escolhiveis(request).filter(pk=int(oficio_pk)).first()
+              if oficio_pk.isascii() and oficio_pk.isdecimal() else None)
+    if oficio is not None:
+        # Já preenchido com o que vem do ofício (destinos, período, equipe, viatura).
+        inicial = {"oficio": oficio.pk, **FormularioTermo.campos_do_oficio(oficio)}
     return _tela(request, _formulario(request, initial=inicial))
 
 
@@ -271,9 +286,23 @@ def folha(request: HttpRequest, pk: int, chave: str) -> HttpResponse:
     termo = _termo_visivel(request, pk)
     policies.exigir(policies.pode_ver_documento_termo(request.user, termo),
                     "Reative o termo para ver os documentos.")
+    # ?versao=N mostra uma versão do texto (o histórico do editor); 0 é o modelo.
+    regioes, marcados = None, set()
+    pedido = request.GET.get("versao") or ""
+    if pedido.isascii() and pedido.isdigit():
+        numero = int(pedido)
+        edicao = (EdicaoTermo.objects.filter(termo=termo, chave=chave, numero=numero).first()
+                  if numero else None)
+        if numero and edicao is None:
+            raise Http404
+        regioes = dict(edicao.regioes) if edicao else {}
+        marcados = {b["chave"] for b in edicao.blocos_alterados} if edicao else set()
+    else:
+        vigente = termos.edicao_vigente(termo, chave)
+        marcados = {b["chave"] for b in vigente.blocos_alterados} if vigente else set()
     return resposta_de_folha(request, lambda nonce: termos.html_do_documento(
-        termos.dados_do_documento(termo, chave), folha=True, nonce=nonce),
-        erros=(termos.TermoInvalido,))
+        termos.dados_do_documento(termo, chave), folha=True, nonce=nonce, regioes=regioes,
+        blocos_alterados=marcados), erros=(termos.TermoInvalido,))
 
 
 @require_GET
@@ -303,6 +332,36 @@ def documento(request: HttpRequest, pk: int, chave: str, formato: str) -> HttpRe
         resposta["Content-Disposition"] = f'attachment; filename="{nome}"'
     resposta["Cache-Control"] = "no-store"  # dados pessoais da equipe (RG, CPF, telefone)
     return resposta
+
+
+@require_GET
+def visualizar(request: HttpRequest, pk: int) -> HttpResponse:
+    """O PDF completo do termo numa página da aplicação, na mesma aba (com Voltar)."""
+    termo = _termo_visivel(request, pk)
+    policies.exigir(policies.pode_editar_termo(request.user, termo),
+                    "Reative o termo para ver os documentos.")
+    # Vindo de "Gerar" sem aba nova (?voltar=lista), o Voltar leva à lista de termos.
+    para_lista = request.GET.get("voltar") == "lista"
+    docs = termos.documentos_do_termo(termo)
+    return render(request, "viagens/visualizar.html", {
+        "placa_rotulo": "Termo", "placa_numero": f"#{termo.pk}", "titulo_doc": str(termo),
+        "descricao": f"{len(docs)} documento{'s' if len(docs) != 1 else ''}, na ordem da "
+                     "lista do termo — como saem no PDF.",
+        "folhas": [{"titulo": d["titulo"], "descricao": d["descricao"],
+                    "url": reverse("viagens:folha_termo", args=[termo.pk, d["chave"]])}
+                   for d in docs],
+        "pdf_url": reverse("viagens:todos_termo", args=[termo.pk, "pdf"]),
+        "pdf_nome": f"termo-{termo.pk}-todos.pdf",
+        "separados": {"url": reverse("viagens:baixar_termo", args=[termo.pk]),
+                      "itens": [d["chave"] for d in docs],
+                      "voltar": request.get_full_path()},
+        "baixar_url": reverse("viagens:baixar_termo", args=[termo.pk]),
+        "voltar_url": reverse("viagens:termos") if para_lista
+        else reverse("viagens:editar_termo", args=[termo.pk]),
+        "voltar_rotulo": "Voltar à lista" if para_lista else "Voltar ao termo",
+        "migalhas": _migalhas(("Termos de autorização", reverse("viagens:termos")),
+                              (str(termo), reverse("viagens:editar_termo", args=[termo.pk])),
+                              ("Visualizar", ""))})
 
 
 @require_GET
@@ -371,6 +430,30 @@ def excluir(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_GET
+@require_GET
+def dados_do_oficio(request: HttpRequest, oficio_pk: int) -> JsonResponse:
+    """O que um termo copia do ofício ao ser vinculado a ele: destinos, período, equipe e
+    viatura — para a folha preencher os campos na hora, como "usar um roteiro" no ofício.
+
+    Só ofícios que o termo pode usar (`_oficios_escolhiveis`: visíveis e não cancelados).
+    """
+    if not request.user.has_perm("viagens.view_oficio"):
+        raise PermissionDenied
+    oficio = get_object_or_404(
+        _oficios_escolhiveis(request).select_related("viatura", "sede"), pk=oficio_pk)
+    destinos, inicio, fim = termos._do_oficio(oficio)
+    servidores = [v.servidor for v in oficio.viajantes.select_related(
+        "servidor__cargo", "servidor__unidade").order_by("ordem", "id")]
+    return JsonResponse({
+        "destinos": [{"cidade": f"{m.nome}/{m.uf}", "uf": m.uf} for m in destinos],
+        "inicio": f"{inicio:%d/%m/%Y}" if inicio else "",
+        "fim": f"{fim:%d/%m/%Y}" if fim and fim != inicio else "",
+        "servidores": [{"id": str(s.pk), "titulo": s.nome, "meta": s.descricao}
+                       for s in servidores],
+        "viatura": str(oficio.viatura_id) if oficio.viatura_id else "",
+    })
+
+
 def buscar_oficios(request: HttpRequest) -> JsonResponse:
     """Ofícios que um termo pode usar (visíveis, não cancelados), para o seletor do termo."""
     if not request.user.has_perm("viagens.view_oficio"):

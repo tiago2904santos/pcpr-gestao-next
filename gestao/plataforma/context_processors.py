@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from django.utils.functional import SimpleLazyObject
 
 from . import ambiente
-from .navegacao import navegacao_para
+from .navegacao import navegacao_para, pagina_anterior
 
 
 def plataforma(request: HttpRequest) -> dict[str, Any]:
@@ -17,6 +17,8 @@ def plataforma(request: HttpRequest) -> dict[str, Any]:
         "app_env": ambiente.atual(),
         "demo_ativo": ambiente.demo_ativo(),
         "navegacao": navegacao_para(request),
+        # Botão "Voltar para …" quando se entra numa área vindo de outra.
+        "pagina_anterior": pagina_anterior(request),
         # O ponto do sino: uma contagem (índice usuario+lida), só quando o cabeçalho a lê.
         "notificacoes_nao_lidas": SimpleLazyObject(
             lambda: _nao_lidas(getattr(request, "user", None))),

@@ -1,0 +1,8 @@
+{% load ui %}{% comment %}
+A equipe como campo de formulário (viagens.forms.CampoEquipe, o componente da equipe do
+ofício) com o erro embaixo. Parâmetro: campo.
+{% endcomment %}
+<div class="campo-equipe{% if campo.errors %} campo--erro{% endif %}">
+  {{ campo|campo_acessivel:"" }}
+  {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+</div>

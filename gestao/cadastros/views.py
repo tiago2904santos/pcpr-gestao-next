@@ -79,7 +79,7 @@ def _lista_textos(request: HttpRequest, *, form=None, editando=None, status=200)
         form = FormularioTexto.de(editando) if editando else None
     abrir = form is not None or (gerir and request.GET.get("novo") == "1")
     if form is None:
-        form = FormularioTexto(initial={"tipo": tipo, "ordem": 100})
+        form = FormularioTexto(initial={"tipo": tipo})
     return render(request, "cadastros/textos.html", {
         "textos": lista, "tipo": tipo, "termo": termo, "abas": ABAS_TEXTOS,
         "ativos": sum(1 for t in lista if t.ativo),

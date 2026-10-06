@@ -1,4 +1,5 @@
 {% extends "arquetipos/lista.html" %}
+{% block modulos %}{{ block.super }}{% load static %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block titulo %}Servidores{% endblock %}
 {% block titulo_lista %}Servidores{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pessoas que compõem as equipes de viagem, dirigem as viaturas e assinam os documentos.</p>{% endblock %}
@@ -115,48 +116,8 @@ Incompletos / Inativos e "Desativar".
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
-<dialog id="dialogo-servidor" class="dialogo dialogo--largo" aria-labelledby="dialogo-servidor-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
-  <form method="post" action="{% url 'cadastros:salvar_servidor' %}" novalidate>
-    {% csrf_token %}
-    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
-    <input type="hidden" name="voltar" value="{{ request.path }}?{{ querystring_base }}">
-    <div class="dialogo__cabecalho">
-      <div class="dialogo__cabecalho-texto">
-        <h2 class="dialogo__titulo" id="dialogo-servidor-titulo">{% if editando %}Editar {{ editando.nome }}{% else %}Novo servidor{% endif %}</h2>
-        <p class="texto-secundario texto-sm">Só o nome é obrigatório; os demais campos podem ser completados depois.</p>
-      </div>
-    </div>
-    <div class="dialogo__corpo pilha">
-      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      {% if editando and not editando.completo %}<div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>Falta {{ editando.faltando|join:" e " }} para o documento sair completo.</p></div></div>{% endif %}
-      <fieldset class="grupo-campos">
-        <legend>Identificação funcional</legend>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form.cargo classe="campo--md" %}
-        </div>
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.cpf classe="campo--sm" %}
-          {% include "componentes/campo.html" with campo=form.rg classe="campo--md campo--cresce" %}
-          {% include "componentes/campo.html" with campo=form.telefone classe="campo--sm" %}
-        </div>
-      </fieldset>
-      <fieldset class="grupo-campos">
-        <legend>Lotação</legend>
-        <div class="campo{% if form.unidade.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="{{ form.unidade.id_for_label }}">{{ form.unidade.label }}</label>
-          <pc-combobox class="combobox" data-placeholder="Sigla ou nome da unidade…">{{ form.unidade|campo_acessivel:"" }}</pc-combobox>
-          {% if form.unidade.errors %}<p class="campo__erro" id="{{ form.unidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.unidade.errors|join:" " }}</span></p>{% endif %}
-        </div>
-      </fieldset>
-    </div>
-    <div class="dialogo__rodape">
-      {% if editando %}<a class="botao botao--texto" href="?{{ querystring_base }}">Cancelar</a>
-      {% else %}<button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>{% endif %}
-      {% if not editando %}<button type="submit" class="botao" name="outro" value="1">Cadastrar e incluir outro</button>{% endif %}
-      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Cadastrar servidor{% endif %}</button>
-    </div>
-  </form>
-</dialog>
+{% include "componentes/dialogo_servidor.html" %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-cargo" slug="cargos" rotulo="cargo" destino=form.cargo.auto_id %}
+{% include "componentes/cadastro_rapido.html" with id="dialogo-unidade" slug="unidades" rotulo="unidade" destino=form.unidade.auto_id com_sigla=True %}
 {% endif %}
 {% endblock %}

@@ -131,6 +131,12 @@
   padding-bottom: 0;
 }
 
+/* Seção que não faz parte da sequência numerada (um apêndice, como os ofícios feitos com
+   o roteiro): sem o filete que separa um passo do outro. */
+.secao--sem-filete {
+  border-top: 0;
+}
+
 .secao__cabecalho {
   display: flex;
   flex-wrap: wrap;

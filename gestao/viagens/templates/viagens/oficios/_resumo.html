@@ -49,10 +49,11 @@ continua sendo a edição; aqui só se lê e se decide.
     <div class="resumo__largo"><dt>Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     {% if revisao %}
       {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
-      <div><dt>Destinatário</dt><dd>{{ dados.destinatario.nome }}{% if dados.destinatario.cargo %}, {{ dados.destinatario.cargo }}{% endif %}</dd></div>
-      <div><dt>Assina</dt><dd>{{ dados.chefia.nome }}{% if dados.chefia.cargo %} — {{ dados.chefia.cargo }}{% endif %}</dd></div>
-      <div class="resumo__largo"><dt>Valor por extenso</dt><dd>{{ dados.diarias.extenso|default:"—" }}</dd></div>
-      <div><dt>Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
+      {# Nome com cargo é longo: duas colunas, senão quebra em três linhas ao lado de um vão. #}
+      <div class="resumo__medio"><dt>Destinatário</dt><dd>{{ dados.destinatario.nome }}{% if dados.destinatario.cargo %}, {{ dados.destinatario.cargo }}{% endif %}</dd></div>
+      <div class="resumo__medio"><dt>Assina</dt><dd>{{ dados.chefia.nome }}{% if dados.chefia.cargo %} — {{ dados.chefia.cargo }}{% endif %}</dd></div>
+      <div class="resumo__medio"><dt>Valor por extenso</dt><dd>{{ dados.diarias.extenso|default:"—" }}</dd></div>
+      <div class="resumo__medio"><dt>Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
     {% endif %}
   </dl>
 
@@ -177,7 +178,6 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
   A janela já é a confirmação (número, valor e destinatário estão à vista): emitir não abre
   uma segunda janela por cima. Emitido, o ofício ainda se corrige por retificação.
   {% endcomment %}
-  <p class="dialogo__nota texto-secundario texto-sm">Depois de emitido, editar abre uma retificação.</p>
   {% if pode_emitir %}
     <form method="post" action="{% url 'viagens:emitir' oficio.pk %}" class="dialogo__acao">
       {% csrf_token %}
@@ -187,20 +187,27 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
   {% endif %}
 </div>
 {% else %}
+{% comment %}
+Rodapé com três controles, não cinco: ler o documento à esquerda, o resto no menu e a ação
+de abrir à direita. Minuta, Word e "Baixar documentos" são a mesma família (levar o
+documento embora) e viraram um grupo dentro de "Mais ações".
+{% endcomment %}
 <div class="dialogo__rodape">
-  <a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Minuta</a>
-  {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
-  <a class="botao botao--texto" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download aria-label="Ofício {{ oficio.numero_formatado }} em Word (DOCX editável){% if pdf_oficio %}, via {{ pdf_oficio.versao }}{% else %}, minuta{% endif %}">{% icone "download" %}Word{% if pdf_oficio %} (v{{ pdf_oficio.versao }}){% else %} (minuta){% endif %}</a>
-  {% if pode_baixar %}<button type="button" class="botao botao--texto" data-baixar-documentos="{% url 'viagens:baixar_oficio' oficio.pk %}" data-baixar-titulo="Ofício {{ oficio.numero_formatado }}">{% icone "download" %}Baixar documentos</button>{% endif %}
   {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and d == pdf_oficio %}
     {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
-    <a class="botao" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
+    <a class="botao botao--texto" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
   {% endif %}{% endfor %}
-  {% if acoes.alguma or pode_termo or termos_do_oficio or pode_os or ordens_do_oficio or pode_plano or planos_do_oficio %}
+  {% if not pdf_oficio %}<a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>{% endif %}
+  {% if True %}
     {# Termos do ofício e ciclo de vida (cancelar, reativar, arquivar, excluir). #}
     <pc-menu class="menu">
       <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
       <div class="menu__painel menu__painel--acima" role="menu" hidden>
+        {% if pdf_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>{% endif %}
+        {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
+        <a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download>{% icone "download" %}Baixar em Word{% if pdf_oficio %} (v{{ pdf_oficio.versao }}){% else %} (minuta){% endif %}</a>
+        {% if pode_baixar %}<button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_oficio' oficio.pk %}" data-baixar-titulo="Ofício {{ oficio.numero_formatado }}">{% icone "download" %}Baixar documentos</button>{% endif %}
+        {% if pode_termo or termos_do_oficio or pode_os or ordens_do_oficio or pode_plano or planos_do_oficio or acoes.alguma %}<div class="menu__separador" role="separator"></div>{% endif %}
         {% if pode_termo %}<button type="submit" form="termo-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "file-signature" %}Novo termo de autorização</button>{% endif %}
         {% if termos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:termos' %}?oficio={{ oficio.pk }}">{% icone "files" %}Termos deste ofício</a>{% endif %}
         {% if pode_os %}<button type="submit" form="os-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "clipboard-list" %}Nova ordem de serviço</button>{% endif %}

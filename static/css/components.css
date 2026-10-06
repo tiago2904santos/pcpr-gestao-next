@@ -408,12 +408,12 @@
 /* Rótulo na borda: o nome do campo fica sobre a linha de cima da caixa. O fundo do rótulo
    é metade "papel" (--fundo-rotulo: onde o campo está) e metade caixa (--fundo-entrada),
    então serve sobre a folha branca e sobre faixas cinzas sem recorte. */
-.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada)) {
+.campo:has(> .campo__rotulo + :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada, .campo__com-acao, .multiescolha)) {
   position: relative;
   padding-top: 0.5rem;
 }
 
-.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada)) {
+.campo > .campo__rotulo:has(+ :is(.entrada, .selecao, .area-texto, .entrada-composta, .combobox, .seletor, .data-hora, .itin__passo, .itin__chegada, .campo__com-acao, .multiescolha)) {
   position: absolute;
   z-index: 2;
   top: 0;
@@ -608,20 +608,30 @@
   text-decoration: none;
 }
 
+/* Destino e período na mesma linha, separados por ponto — a linha inteira fica de uma
+   altura só e centrada com a placa e o selo. */
 .lista-ligacoes__texto {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-1) var(--esp-2);
 }
 
 .lista-ligacoes__titulo {
-  display: block;
   font-weight: var(--peso-medio);
 }
 
 .lista-ligacoes__meta {
-  display: block;
   color: var(--cor-texto-secundario);
   font-size: var(--texto-sm);
+}
+
+.lista-ligacoes__meta::before {
+  content: "·";
+  margin-right: var(--esp-2);
+  color: var(--cor-texto-terciario);
 }
 
 /* =============== Pessoa e avatar =============== */
@@ -997,6 +1007,7 @@ a.resumo__documento:hover {
 /* Resumo de erros no topo do formulário (WCAG 3.3.1). */
 .resumo-erros {
   border-left: var(--filete) solid var(--cor-perigo-solida);
+  margin-bottom: var(--esp-4);
 }
 
 .resumo-erros ul {
@@ -1512,7 +1523,7 @@ a.resumo__documento:hover {
 
 /* Linha sob o ponteiro ganha o trilho dourado à esquerda. */
 .tabela tbody tr:hover td:first-child {
-  box-shadow: inset var(--filete-fino) 0 0 var(--cor-marca);
+  box-shadow: inset var(--filete) 0 0 var(--cor-marca);
 }
 
 .tabela--compacta td {
@@ -1922,7 +1933,10 @@ dialog.dialogo.gaveta[open] {
   z-index: var(--z-painel-campo);
   right: 0;
   top: calc(100% + var(--esp-1));
+  /* Largura do rótulo mais longo (os itens não quebram linha), com teto no celular. */
+  width: max-content;
   min-width: 14rem;
+  max-width: min(24rem, calc(100vw - 2rem));
   padding: var(--esp-1);
   border: 0;
   border-radius: var(--raio-lg);
@@ -2017,6 +2031,8 @@ dialog.dialogo.gaveta[open] {
   font-size: var(--texto-md);
   text-align: left;
   text-decoration: none;
+  /* Uma ação, uma linha: o painel cresce até o rótulo caber (ver .menu__painel). */
+  white-space: nowrap;
   transition: background-color var(--duracao-rapida) var(--curva-padrao);
 }
 
@@ -2203,7 +2219,15 @@ kbd {
   white-space: nowrap;
   pointer-events: none;
   box-shadow: var(--sombra-3);
-  animation: brotar var(--duracao-rapida) var(--curva-padrao);
+  /* Animação própria: `brotar` termina em `transform: none` e apagaria o translateX(-50%)
+     que centraliza a dica — ela nascia torta e saltava para o lugar no fim. Aqui o
+     deslocamento de centragem entra em todos os quadros. */
+  animation: dica-brotar var(--duracao-rapida) var(--curva-padrao);
+}
+
+@keyframes dica-brotar {
+  from { opacity: 0; transform: translateX(-50%) scale(0.96) translateY(-4px); }
+  to { opacity: 1; transform: translateX(-50%); }
 }
 
 /* =============== Escolha múltipla por busca (pc-multiescolha) =============== */
@@ -2298,4 +2322,654 @@ kbd {
 .caixas__item:has(input:focus-visible) {
   outline: 2px solid var(--grafite-900);
   outline-offset: 2px;
+}
+
+/* Linha de colunas iguais: cada campo recebe a mesma fatia, independentemente do que
+   carrega. Vale para a primeira linha da Identificação (número · data · protocolo · tipo ·
+   custeio), onde larguras diferentes faziam a linha parecer desalinhada. */
+.campos--iguais > * { flex: 1 1 0; }
+
+/* Os campos que só aparecem por condição (ex.: "Instituição que custeia") continuam
+   ocupando a linha inteira. */
+.campos--iguais > .condicional { flex-basis: 100%; }
+
+@media (max-width: 767.98px) {
+  .campos--iguais > * { flex: 1 1 calc(50% - var(--esp-4)); }
+}
+
+/* Campo com atalho de cadastro: o controle ocupa a linha e o "+" fica encostado nele, na
+   mesma altura. Serve a "Cargo" e "Unidade de lotação" nos diálogos de cadastro — quem
+   não acha o que precisa cadastra ali mesmo, sem perder o que já digitou. */
+.campo__com-acao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.campo__com-acao > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.campo__com-acao > .botao--icone {
+  flex: none;
+}
+
+/* Nos diálogos de cadastro os grupos de campos não levam filete entre si: a janela já é
+   curta e a linha cortava o formulário sem necessidade. */
+.dialogo .grupo-campos + .grupo-campos {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Sair fica à esquerda, como na barra de ações das folhas: o olho acha o "voltar" no
+   começo da linha e as ações que gravam ficam juntas, à direita. */
+.dialogo__rodape > .botao--texto:first-child,
+.dialogo__rodape > [data-fechar-dialogo]:first-child {
+  margin-right: auto;
+}
+
+/* Diálogos de cadastro respiram um pouco mais entre as linhas de campos: a janela é curta
+   e o ganho de clareza vale os poucos pixels. */
+.dialogo .grupo-campos {
+  gap: var(--esp-4);
+}
+
+.dialogo .campos {
+  row-gap: var(--esp-4);
+}
+
+/* Alertas que recebem o foco por programa (`foco=...` nas views) só o recebem para serem
+   lidos em voz alta: o anel de foco ali não guia ninguém — não há o que teclar dentro —
+   e aparecia sozinho ao voltar de uma ação. O papel role="alert"/"status" é que anuncia. */
+.alerta[tabindex="-1"]:focus,
+.alerta[tabindex="-1"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Indicador centrado: usado no quadro de diárias, onde os três cartões são lidos como uma
+   linha de resultados e o alinhamento à esquerda deixava os valores soltos na caixa. */
+.indicador--centro {
+  align-items: center;
+  text-align: center;
+}
+
+/* O indicador centrado também centra na vertical: nos quadros de diárias os três cartões
+   têm a mesma altura e os valores precisam ficar na mesma linha de leitura. */
+.indicador--centro {
+  justify-content: center;
+}
+
+/* =============== Abas =============== */
+/* Componente do Design System, não da lista: as abas da minuta (Ofício/Justificativa)
+   vivem na folha do ofício, que não carrega listas.css. Por isso o bloco mora aqui, em
+   components.css, que toda página carrega. */
+.abas {
+  display: flex;
+  gap: var(--esp-1);
+  /* Rolar só de lado (telas estreitas): com overflow-x sozinho o navegador liga a rolagem
+     vertical junto e um fio de sobra já fazia aparecer a barra. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: var(--borda);
+}
+
+.aba {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-3);
+  border: 0;
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba:hover {
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+
+.aba:focus-visible {
+  outline-offset: calc(-1 * var(--foco-offset));
+  box-shadow: none;
+}
+
+.aba[aria-selected="true"],
+.aba[aria-current="page"] {
+  color: var(--cor-texto);
+  font-weight: var(--peso-semi);
+}
+
+/* Ao trocar de aba, quem se mexe é o que mudou de estado: o filete, que cresce de lado
+   (eixo X), e a contagem, que sobe (eixo Y). O rótulo fica parado — ele não mudou. */
+.aba[aria-current="page"] .aba__contagem {
+  animation: contagem-entrar var(--duracao-media) var(--curva-padrao);
+}
+
+@keyframes contagem-entrar {
+  from { opacity: 0; translate: 0 0.4rem; }
+}
+
+/* Filete dourado sob a aba ativa (DNA das referências), nasce da esquerda. */
+.aba[aria-selected="true"]::after,
+.aba[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: var(--esp-2);
+  right: var(--esp-2);
+  bottom: -1px;
+  height: var(--filete);
+  border-radius: var(--raio-xs) var(--raio-xs) 0 0;
+  background: var(--cor-marca);
+  transform-origin: left center;
+  animation: filete-crescer var(--duracao-media) var(--curva-padrao);
+}
+
+.aba__contagem {
+  min-width: 1.5rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.aba[aria-current="page"] .aba__contagem,
+.aba[aria-selected="true"] .aba__contagem {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+/* As duas ações do texto pronto são auxiliares: ficam na altura do campo ao lado, discretas,
+   e só ganham superfície ao passar o mouse. "Guardar texto" leva rótulo porque é uma ação
+   sobre o que foi escrito; "Gerenciar" é só o ícone, com dica — leva para outra tela. */
+.texto-pronto__acoes {
+  align-items: center;
+  gap: var(--esp-1);
+}
+
+/* Na altura do campo ao lado: as ações ficam na mesma linha de base da escolha, senão a
+   linha parece ter dois tamanhos de controle. O `--sm` vale só para o texto e o ícone. */
+.texto-pronto__acoes .botao {
+  min-height: var(--altura-controle);
+}
+
+.texto-pronto__acoes .botao--icone {
+  width: var(--altura-controle);
+}
+
+.texto-pronto__acoes .botao--sutil:hover {
+  background: var(--cor-superficie-realce);
+}
+
+/* Valor do indicador centrado não pode ser cortado: "INTERIOR + CAPITAL" não cabe numa
+   linha no tamanho cheio e o cartão esconde o que passa. O cartão vira o contêiner de
+   consulta e o valor encolhe junto com ele, até o piso legível. */
+.indicador--centro {
+  container-type: inline-size;
+}
+
+.indicador--centro .indicador__valor {
+  font-size: clamp(var(--texto-lg), 9cqw, var(--texto-3xl));
+}
+
+/* =============== Controle segmentado (.segmentado) =============== */
+/* Uma escolha entre poucas opções curtas: rádios de verdade (teclado e leitor de tela como
+   num grupo de rádio) com o rótulo como botão — o mesmo desenho do "Texto | PDF" do editor:
+   trilho cinza, a opção marcada em grafite. */
+.segmentado {
+  display: inline-flex;
+  gap: var(--esp-05);
+  padding: 0.1875rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-realce);
+}
+
+.segmentado > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmentado > label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0 var(--esp-4);
+  border-radius: calc(var(--raio-md) - 0.1875rem);
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.segmentado > input:not(:checked):not(:disabled) + label:hover {
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+}
+
+.segmentado > input:checked + label {
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+}
+
+.segmentado > input:focus-visible + label {
+  outline: var(--foco-espessura) solid var(--foco-cor);
+  outline-offset: 2px;
+}
+
+/* Opção que não vale agora (ex.: "Um PDF só" com um documento): some do caminho sem sumir. */
+.segmentado > input:disabled + label {
+  color: var(--cor-texto-terciario);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============== Baixar documentos (componentes/dialogo_baixar.html) =============== */
+.dialogo--baixar {
+  width: min(36rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+.baixar {
+  display: grid;
+  gap: var(--esp-4);
+}
+
+.baixar__lista {
+  display: grid;
+  gap: var(--esp-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.baixar__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-2);
+}
+
+.baixar__instrucao {
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__carregando {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin: 0;
+  font-size: var(--texto-sm);
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__carregando[hidden] {
+  display: none;
+}
+
+/* Até 5 cartões inteiros à vista; do 6º em diante rola (a altura exata vem de baixar.js).
+   A folga em volta deixa o realce do foco e a borda dos cartões sem recorte. */
+.baixar__itens {
+  display: grid;
+  gap: var(--esp-2);
+  padding: 0.1875rem;
+  margin: -0.1875rem;
+  overflow-y: auto;
+}
+
+.baixar__itens--rolagem {
+  padding-right: var(--esp-2);
+  overscroll-behavior: contain;
+}
+
+.baixar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 3.5rem;
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+.baixar__item.escolha input[type="checkbox"] {
+  margin: 0;
+}
+
+.baixar__item:hover {
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
+}
+
+.baixar__item:has(input:checked) {
+  background: var(--cor-superficie-sutil);
+  box-shadow: inset 0 0 0 1px var(--cor-borda-forte);
+}
+
+/* Desmarcado: o documento continua na lista, mas sai do primeiro plano. */
+.baixar__item:not(:has(input:checked)) :is(.baixar__nome, .baixar__estado) {
+  color: var(--cor-texto-terciario);
+}
+
+/* Foco pelo teclado: realce dourado suave no cartão, sem o contorno preto. */
+.baixar__item:has(input:focus-visible) {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--cor-marca), 0 0 0 3px var(--cor-marca-fundo-forte);
+}
+
+.baixar__item input:focus-visible {
+  outline: none;
+}
+
+.baixar__texto {
+  display: grid;
+  gap: var(--esp-05);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.baixar__nome {
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+.baixar__detalhe {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* O estado em selo pequeno, à direita (gerado na hora / assinado). */
+.baixar__estado {
+  flex: none;
+  padding: var(--esp-05) var(--esp-2);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie-realce);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.baixar__estado:empty {
+  display: none;
+}
+
+.baixar__estado--assinado {
+  background: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso);
+}
+
+/* Formato · Versão · Saída lado a lado, separados da lista por um filete. */
+.baixar__escolhas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3) var(--esp-6);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.baixar__escolha {
+  display: grid;
+  gap: var(--esp-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.baixar__escolha[hidden] {
+  display: none;
+}
+
+.baixar__rotulo {
+  padding: 0;
+  margin-bottom: var(--esp-1);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.baixar__resumo {
+  margin: calc(-1 * var(--esp-2)) 0 0;
+}
+
+/* =============== Anexar via assinada (componentes/dialogo_assinado.html) =============== */
+.dialogo--anexo {
+  width: min(32rem, calc(100vw - 2 * var(--esp-4)));
+}
+
+/* O documento ao lado de um selo com o ícone da assinatura. */
+.anexo__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+}
+
+.anexo__selo {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--raio-md);
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+}
+
+.anexo {
+  display: grid;
+  gap: var(--esp-3);
+}
+
+/* A área de soltar: tracejada, clicável inteira (é o rótulo do campo de arquivo). */
+.anexo__area {
+  position: relative;
+  display: block;
+  padding: var(--esp-6) var(--esp-4);
+  border: 1.5px dashed var(--cor-borda-forte);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    border-color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.anexo__area:hover,
+.anexo__area--sobre {
+  border-color: var(--cor-marca);
+  background: var(--cor-marca-fundo);
+}
+
+.anexo__area:has(.anexo__entrada:focus-visible) {
+  border-color: var(--cor-marca);
+  box-shadow: 0 0 0 3px var(--cor-marca-fundo-forte);
+}
+
+/* Arquivo escolhido: a caixa vira um cartão comum, sem o tracejado. */
+.anexo__area--com-arquivo {
+  padding: var(--esp-3) var(--esp-4);
+  border-style: solid;
+  border-color: var(--cor-borda);
+  background: var(--cor-superficie);
+  text-align: left;
+}
+
+.anexo__entrada {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anexo__vazio {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-1);
+}
+
+.anexo__vazio[hidden],
+.anexo__arquivo[hidden] {
+  display: none;
+}
+
+.anexo__icone {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+  color: var(--cor-marca-texto);
+}
+
+.anexo__chamada {
+  font-size: var(--texto-md);
+  font-weight: var(--peso-medio);
+  color: var(--cor-texto);
+}
+
+.anexo__link {
+  color: var(--cor-marca-texto);
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.anexo__limite {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.anexo__arquivo {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+}
+
+.anexo__icone--pdf {
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0;
+  border-radius: var(--raio-md);
+  background: var(--cor-perigo-fundo);
+  box-shadow: none;
+  color: var(--cor-perigo);
+}
+
+.anexo__arquivo-texto {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.anexo__nome {
+  overflow: hidden;
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.anexo__tamanho {
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+.anexo__trocar {
+  flex: none;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-marca-texto);
+}
+
+.anexo__nota {
+  margin: 0;
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+
+/* =============== Visualizar o PDF completo (termos/visualizar.html) =============== */
+/* As folhas empilhadas sobre o cinza da mesa, como num leitor de PDF; cada uma com a
+   proporção do A4 e o nome do documento em cima. */
+.visualizador-pdf {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-4);
+  padding: var(--esp-4) var(--esp-4) var(--esp-2);
+  border-radius: var(--raio-lg);
+  background: var(--neutro-200);
+  box-shadow: inset 0 0 0 1px var(--cor-borda);
+}
+
+/* A folha A4 inteira (210 mm + a margem da folha de tela): o texto quebra como no PDF. */
+.visualizador-pdf__pagina {
+  display: grid;
+  justify-items: center;
+  gap: var(--esp-2);
+  width: 100%;
+  max-width: calc(210mm + 3rem);
+}
+
+.visualizador-pdf__rotulo {
+  justify-self: stretch;
+}
+
+.visualizador-pdf__rotulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--esp-2);
+  margin: 0;
+  font-size: var(--texto-sm);
+  font-weight: var(--peso-semi);
+  color: var(--cor-texto);
+}
+
+.visualizador-pdf__numero {
+  font-size: var(--texto-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-texto-secundario);
+}
+
+/* A folha inteira, sem rolagem própria: largura do A4 (reduzida por escala em telas
+   estreitas) e altura do documento — quem ajusta é static/js/componentes/folhas.js. */
+.visualizador-pdf__moldura {
+  overflow: hidden;
+  min-height: 20rem;
+}
+
+.visualizador-pdf__folha {
+  display: block;
+  width: 100%;
+  min-height: 20rem;
+  border: 0;
 }

@@ -21,9 +21,13 @@ class CampoVinculado:
     multilinha: bool = False
     maximo: int = 2000
     secao: str = "dados"   # cartão da folha de edição que também o mostra
+    # "texto" grava a string; "data" converte de dd/mm/aaaa para date antes de gravar.
+    formato: str = "texto"
 
 
 CAMPOS: dict[str, CampoVinculado] = {c.chave: c for c in [
+    CampoVinculado("data_oficio", "data_oficio", "Data do ofício", "oficio",
+                   obrigatorio=True, maximo=10, formato="data"),
     CampoVinculado("protocolo", "protocolo", "Protocolo do eProtocolo", "oficio",
                    obrigatorio=True, maximo=20),
     CampoVinculado("motivo", "motivo", "Motivo da viagem", "oficio", obrigatorio=True,

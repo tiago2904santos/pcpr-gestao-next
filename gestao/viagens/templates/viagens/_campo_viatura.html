@@ -1,0 +1,19 @@
+{% load ui %}{% comment %}
+A viatura, em qualquer tela que a pede (ofício, termo, lote): escolha com busca por placa
+ou modelo e o "+" que cadastra sem sair da folha (componentes/dialogos_cadastro.html).
+A lista é a do ofício: primeiro as viaturas sugeridas pela equipe, com os chips "Unidade
+SIGLA" e o primeiro nome de quem costuma dirigi-la; marcar quem dirige escolhe a viatura dele
+(<pc-transporte>, transporte.js). O ofício já embrulha o bloco todo num <pc-transporte>.
+Parâmetros: campo; classe (padrão campo--lg); exigido_para_emitir; cadastrar (mostra o "+");
+equipe (seletor de onde está a equipe, padrão #equipe); envolvido (já dentro de <pc-transporte>).
+{% endcomment %}
+{% if not envolvido %}<pc-transporte class="transporte-campo" data-equipe="{{ equipe|default:'#equipe' }}">{% endif %}
+<div class="campo {{ classe|default:'campo--lg' }}{% if campo.errors %} campo--erro{% endif %}">
+  <label class="campo__rotulo" for="{{ campo.id_for_label }}">Viatura{% if exigido_para_emitir %} <span class="campo__opcional">(<span class="sr-only">necessário </span>para emitir)</span>{% endif %}</label>
+  <div class="campo__com-acao">
+    <pc-combobox class="combobox" data-placeholder="Placa ou modelo…">{{ campo|campo_acessivel:"" }}</pc-combobox>
+    {% if cadastrar %}<button type="button" class="botao botao--icone" data-abrir-dialogo="dialogo-viatura" aria-label="Cadastrar viatura">{% icone "plus" %}</button>{% endif %}
+  </div>
+  {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+</div>
+{% if not envolvido %}</pc-transporte>{% endif %}

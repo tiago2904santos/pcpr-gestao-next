@@ -119,9 +119,9 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
       {% if cat.campos %}
         {% include cat.campos %}
       {% elif slug == "unidades" %}
-        <div class="campos">
-          {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
-          {% include "componentes/campo.html" with campo=form.sigla classe="campo--sm" %}
+        <div class="campos campos--iguais">
+          {% include "componentes/campo.html" with campo=form.nome %}
+          {% include "componentes/campo.html" with campo=form.sigla %}
         </div>
       {% else %}
         {% include "componentes/campo.html" with campo=form.nome rotulo=cat.singular|capfirst %}

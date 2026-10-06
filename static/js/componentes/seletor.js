@@ -9,6 +9,7 @@
  */
 
 import { abrirEspaco } from "./seletor-base.js";
+import { posicionar, recolher, soltar } from "./painel-flutuante.js";
 // O ícone do sprite mora em menu.js (carregado em toda página: sem requisição a mais).
 import { icone } from "./menu.js";
 
@@ -117,10 +118,14 @@ export class PcSelect extends HTMLElement {
     this.gatilho?.setAttribute("aria-expanded", "true");
     this.destacar(Math.max(0, select.selectedIndex));
     abrirEspaco(lista);
+    // Dentro de um <dialog>: camada de topo, senão a janela corta a lista.
+    soltar(lista, /** @type {HTMLElement} */ (this.gatilho || this));
+    posicionar(lista, /** @type {HTMLElement} */ (this.gatilho || this));
   }
 
   fechar() {
     if (!this.lista || this.lista.hidden) return;
+    recolher(this.lista);
     this.lista.hidden = true;
     this.gatilho?.setAttribute("aria-expanded", "false");
     this.gatilho?.removeAttribute("aria-activedescendant");

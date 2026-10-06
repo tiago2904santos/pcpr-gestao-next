@@ -2,7 +2,7 @@
 {% block titulo %}Ordens de serviço{% endblock %}
 {% block titulo_lista %}Ordens de serviço{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Determinam o deslocamento da equipe — destinos, período e motivo — com o texto do tipo de necessidade. Numeração anual própria.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_os_do_oficio %}<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}" data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ oficio.numero_formatado }}? Ela recebe o próximo número do ano." data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova ordem de serviço</button></form>{% elif pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:nova_ordem' %}">{% icone "plus" %}Nova ordem de serviço</a>{% endif %}{% endblock %}
+{% block acoes_lista %}{% if pode_os_do_oficio %}<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}" data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ oficio.numero_formatado }}? Ela recebe o próximo número do ano." data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova ordem de serviço</button></form>{% elif pode_criar %}{% include "viagens/ordens/_botao_novo.html" %}{% endif %}{% endblock %}
 {% comment %}
 Paridade com a lista de OS da referência: número, destinos · período, selo de tempo,
 equipe e ofícios; busca (número, destino, servidor, motivo, ofício); abas de situação.
@@ -90,11 +90,21 @@ equipe e ofícios; busca (número, destino, servidor, motivo, ofício); abas de 
 {% elif busca or aba or oficio_filtro %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma ordem encontrada" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
 {% elif pode_criar %}
-  {% url 'viagens:nova_ordem' as url_nova %}
-  {% include "componentes/vazio.html" with icone="clipboard-list" titulo="Nenhuma ordem de serviço ainda" texto="Crie uma OS avulsa ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_url=url_nova acao_rotulo="Nova ordem de serviço" %}
+  {% include "componentes/vazio.html" with icone="clipboard-list" titulo="Nenhuma ordem de serviço ainda" texto="Crie uma OS avulsa ou a partir de um ofício (menu Mais ações da janela do ofício)." acao_template="viagens/ordens/_botao_novo.html" %}
 {% else %}
   {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhuma ordem para mostrar" texto="Quando houver ordens da sua unidade, elas aparecerão aqui." %}
 {% endif %}
 {% endblock %}
 
-{% block depois_lista %}{% include "componentes/dialogo_motivo.html" %}{% endblock %}
+{% block depois_lista %}
+{% comment %}
+Barra flutuante no rodapé, como nas outras listas: a contagem do recorte e a ação de criar
+ficam ao alcance de quem rolou até o fim, em vez de só no topo da página.
+{% endcomment %}
+<div class="barra-acoes">
+  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ordem de serviço,ordens de serviço" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
+  {% if pode_os_do_oficio %}<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Nova OS deste ofício</button></form>
+  {% elif pode_criar %}{% include "viagens/ordens/_botao_novo.html" %}{% endif %}
+</div>
+{% include "componentes/dialogo_motivo.html" %}
+{% endblock %}

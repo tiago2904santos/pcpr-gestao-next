@@ -1,4 +1,4 @@
-{% load static %}<!doctype html>
+{% load static documentos %}<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -25,8 +25,17 @@ para preencher à mão. A unidade e o evento vêm do cadastro e do termo, não d
   p { margin: 0 0 5mm; text-align: justify; }
   .branco { display: inline-block; min-width: 60mm; border-bottom: 1px solid #000; }
   .branco--curto { min-width: 30mm; }
-  .assinaturas { margin-top: 18mm; }
-  .assinaturas p { margin: 0 0 14mm; text-align: left; }
+  /* Linhas para preencher à mão: nome e CPF com folga para a letra de quem escreve. */
+  .branco--nome { min-width: 95mm; }
+  .branco--cpf { min-width: 45mm; }
+  /* Rótulo e linha nunca se separam: "telefone (   )" no fim de uma linha e o traço no
+     começo da outra deixava a pessoa sem saber onde escrever. */
+  .par { white-space: nowrap; }
+  /* Viatura e placa: duas linhas com folga entre elas (é onde se escreve à mão, no genérico). */
+  [data-bloco="viatura"] { line-height: 2.2; }
+  [data-bloco="declaracao"] { text-align: center; }
+  .assinaturas { margin-top: 8mm; }
+  .assinaturas p { margin: 0 0 6mm; text-align: left; }
   .rodape { position: running(rodape); text-align: center; font-size: 7.5pt; font-style: italic; }
   .rodape strong { display: block; font-style: normal; font-size: 13pt; color: #555; }
 </style>
@@ -40,27 +49,38 @@ para preencher à mão. A unidade e o evento vêm do cadastro e do termo, não d
     <p>{{ d.cabecalho_unidade }}</p>
   </header>
   <main>
-    <h1>TERMO DE AUTORIZAÇÃO PARA PARTICIPAÇÃO EM EVENTOS DA {{ d.sigla|upper }}</h1>
+    {% comment %}
+    O que o editor deixa escrever (ADR 0018): o texto e as assinaturas. Cada parágrafo é um
+    bloco (o histórico diz qual mudou e "voltar ao original" vale por bloco).
+    {% endcomment %}
+    {% regiao "corpo" "Texto do termo" %}
+    <h1 data-bloco="titulo" data-rotulo="Título">TERMO DE AUTORIZAÇÃO PARA PARTICIPAÇÃO EM EVENTOS DA {{ d.sigla|upper }}</h1>
     {% with p=d.participante %}
-    <p>Eu {% if p %}<strong>{{ p.nome }}</strong>{% else %}<span class="branco"></span>{% endif %},
-      RG: {% if p and p.rg %}{{ p.rg }}{% else %}<span class="branco branco--curto"></span>{% endif %},
-      CPF: {% if p and p.cpf %}{{ p.cpf }}{% else %}<span class="branco branco--curto"></span>{% endif %},
-      telefone {% if p and p.telefone %}{{ p.telefone }}{% else %}(&nbsp;&nbsp;&nbsp;&nbsp;) <span class="branco branco--curto"></span>{% endif %},
-      lotado(a) na(o) {% if p and p.lotacao %}{{ p.lotacao }}{% else %}<span class="branco"></span>{% endif %},
-      manifesto o interesse em participar do evento “{{ d.evento }}”, {{ d.periodo|default:"________________" }},
-      {{ d.destinos_frase|default:"no município de ________________" }}, para execução de atividades
+    {# O que vem do cadastro e do termo sai em negrito; o texto fixo, normal. #}
+    <p data-bloco="identificacao" data-rotulo="Servidor e evento"><span class="par">Eu {% if p %}<strong>{{ p.nome }}</strong>{% else %}<span class="branco branco--nome"></span>{% endif %}</span>,
+      <span class="par">CPF: {% if p and p.cpf %}<strong>{{ p.cpf }}</strong>{% else %}<span class="branco branco--cpf"></span>{% endif %}</span>,
+      <span class="par">telefone {% if p and p.telefone %}<strong>{{ p.telefone }}</strong>{% else %}(&nbsp;&nbsp;&nbsp;&nbsp;) <span class="branco branco--curto"></span>{% endif %}</span>,
+      <span class="par">lotado(a) na(o) {% if p and p.lotacao %}<strong>{{ p.lotacao }}</strong>{% else %}<span class="branco"></span>{% endif %}</span>,
+      manifesto o interesse na participação de <strong>{{ d.evento }}</strong>,
+      {% if d.periodo %}{{ d.periodo_partes.0 }} <strong>{{ d.periodo_partes.1 }}</strong>{% else %}________________{% endif %},
+      {% if d.destinos_frase %}{{ d.destinos_partes.0 }} <strong>{{ d.destinos_partes.1 }}</strong>{% else %}no município de ________________{% endif %}, para execução de atividades
       inerentes à {{ d.unidade_nome }} - {{ d.sigla|upper }}/PCPR.</p>
     {% endwith %}
-    <p>Declaro que estou ciente da necessidade de estar na posse de cartão corporativo vigente e
-      apto para uso, no período do deslocamento.</p>
+    {# Em negrito e numa linha só (medida na fonte do documento: cabe nos 170 mm da folha). #}
+    <p data-bloco="declaracao" data-rotulo="Declaração"><strong>Declaro estar ciente de que devo ter cartão corporativo vigente e apto para uso no deslocamento.</strong></p>
     {% with v=d.viatura %}
-    <p>Viatura: {% if v %}{{ v.modelo|default:"—" }}{% else %}Modelo: <span class="branco"></span>{% endif %}<br>
-      Placa / Combustível: {% if v %}{{ v.placa }} / {{ v.combustivel|default:"—" }}{% else %}<span class="branco"></span>{% endif %}</p>
+    <p data-bloco="viatura" data-rotulo="Viatura">Viatura: {% if v %}<strong>{{ v.modelo|default:"—" }}</strong>{% else %}Modelo: <span class="branco"></span>{% endif %}<br>
+      Placa / Combustível: {% if v %}<strong>{{ v.placa }} / {{ v.combustivel|default:"—" }}</strong>{% else %}<span class="branco"></span>{% endif %}</p>
     {% endwith %}
-    <div class="assinaturas">
+    {% endregiao %}
+    {% regiao "assinaturas" "Assinaturas" %}
+    <div class="assinaturas" data-bloco="assinaturas" data-rotulo="Assinaturas">
       <p>Assinatura servidor:</p>
+      {# Duas linhas em branco: o espaço da assinatura do servidor. #}
+      <p><br></p><p><br></p>
       <p>Autorização da Chefia:</p>
     </div>
+    {% endregiao %}
   </main>
 </body>
 </html>

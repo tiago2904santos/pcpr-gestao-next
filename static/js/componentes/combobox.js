@@ -15,6 +15,7 @@
  */
 
 import { adicionarLimpar } from "./limpar.js";
+import { posicionar, recolher, soltar } from "./painel-flutuante.js";
 
 /** @typedef {{id: string, titulo: string, meta?: string, chips?: string[], grupo?: string}} Opcao */
 
@@ -257,6 +258,9 @@ export class PcCombobox extends HTMLElement {
     });
     this.lista.hidden = false;
     this.entrada.setAttribute("aria-expanded", "true");
+    // Dentro de um <dialog> a lista vai para a camada de topo (não é cortada pela janela).
+    soltar(this.lista, this.entrada);
+    posicionar(this.lista, this.entrada);
     if (this.anuncio) {
       const n = this.opcoes.length;
       this.anuncio.textContent = n === 0 ? "Nenhum resultado." : `${n} resultado${n > 1 ? "s" : ""}.`;
@@ -267,6 +271,7 @@ export class PcCombobox extends HTMLElement {
 
   fechar() {
     if (!this.lista || !this.entrada) return;
+    recolher(this.lista);
     this.lista.hidden = true;
     this.entrada.setAttribute("aria-expanded", "false");
     this.entrada.removeAttribute("aria-activedescendant");

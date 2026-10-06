@@ -63,29 +63,33 @@
   position: absolute;
   z-index: var(--z-painel-campo);
   top: calc(100% + var(--esp-1));
-  left: 0;
+  /* Logo abaixo do botão do calendário/relógio, com a borda direita alinhada à dele. */
+  right: var(--esp-1);
+  left: auto;
   padding: var(--esp-3);
   border-radius: var(--raio-lg);
   background: var(--cor-superficie-elevada);
   box-shadow: var(--sombra-flutuante);
-  transform-origin: top left;
+  transform-origin: top right;
   animation: brotar var(--duracao-rapida) var(--curva-padrao);
 }
 
-.seletor__painel--direita {
-  right: 0;
-  left: auto;
+/* Campo estreito perto da borda esquerda da tela: o painel cresce para a direita. */
+.seletor__painel--esquerda {
+  right: auto;
+  left: 0;
+  transform-origin: top left;
 }
 
 /* Sem espaço abaixo (barra de ações ou fim da janela), o painel abre para cima. */
 .seletor__painel--acima {
   top: auto;
   bottom: calc(100% + var(--esp-1));
-  transform-origin: bottom left;
+  transform-origin: bottom right;
 }
 
-.seletor__painel--acima.seletor__painel--direita {
-  transform-origin: bottom right;
+.seletor__painel--acima.seletor__painel--esquerda {
+  transform-origin: bottom left;
 }
 
 /* Data e hora lado a lado (trechos do roteiro). */
@@ -97,7 +101,7 @@
 
 /* Calendário: grade do mês, hoje com aro dourado, escolhido em grafite. */
 .calendario {
-  width: 17rem;
+  width: min(21rem, calc(100vw - 2rem));
 }
 
 .calendario__topo {
@@ -109,14 +113,15 @@
 }
 
 .calendario__mes {
+  font-size: var(--texto-md);
   font-weight: var(--peso-semi);
 }
 
 .calendario__nav {
   display: inline-grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 0;
   border-radius: var(--raio-sm);
   background: transparent;
@@ -138,16 +143,16 @@
 
 .calendario__grade th {
   padding-bottom: var(--esp-1);
-  font-size: var(--texto-xs);
+  font-size: var(--texto-sm);
   font-weight: var(--peso-semi);
   color: var(--cor-texto-terciario);
   text-align: center;
 }
 
 .calendario__grade td {
-  height: 2rem;
+  height: 2.5rem;
   border-radius: var(--raio-sm);
-  font-size: var(--texto-sm);
+  font-size: var(--texto-md);
   font-variant-numeric: tabular-nums;
   text-align: center;
   cursor: pointer;
@@ -170,12 +175,13 @@
 .calendario__grade td[aria-selected="true"] {
   background: var(--grafite-900);
   color: var(--neutro-0);
+  border-radius: var(--raio-xs);
 }
 
 /* Período: os dias entre o começo e o fim escolhidos (pc-data com data-ate). */
 .calendario__grade .calendario__intervalo {
   background: var(--cor-superficie-realce);
-  border-radius: 0;
+  border-radius: var(--raio-xs);
 }
 
 .calendario__rodape {
@@ -742,6 +748,13 @@
 }
 
 /* Motorista de fora da equipe: cada escolha mostra os seus campos (sem JS: :has()). */
+/* Já há motorista marcado na equipe: o atalho de motorista de fora não tem o que oferecer
+   (um ofício tem um motorista só). Continua à mostra se o bloco estiver aberto — quem o
+   abriu está justamente trocando o motorista. */
+#identificacao:has(#equipe [data-motorista]) .motorista-externo:not([open]) {
+  display: none;
+}
+
 .motorista-externo__campos:not(:has(option[value="servidor"]:checked)) .so-servidor-externo,
 .motorista-externo__campos:not(:has(option[value="manual"]:checked)) .so-manual,
 .motorista-externo__campos:has(select[name="motorista_externo"] option[value=""]:checked) .so-externo {
@@ -774,6 +787,35 @@
 
 .equipe__cartao {
   gap: var(--esp-3);
+}
+
+/* A equipe como campo de formulário (viagens.forms.CampoEquipe): o mesmo componente da
+   folha do ofício — a grade de seis colunas e o cartão de pessoa por inteiro, sem o jeito
+   compacto da escolha múltipla genérica. */
+.equipe-campo {
+  display: block;
+}
+
+/* A escolha de viatura fora do ofício (viagens/_campo_viatura.html): o <pc-transporte> só
+   liga a lógica; quem ocupa a linha é o campo de dentro. */
+.transporte-campo {
+  display: contents;
+}
+
+.campos > .transporte-campo > .campo--lg { flex: 1 1 18rem; }
+.campos > .transporte-campo > .campo--md { flex: 0 1 14rem; }
+
+.equipe__cartoes.multiescolha__lista {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.equipe__cartao.multiescolha__item {
+  flex-wrap: wrap;
+  padding: var(--esp-3);
+}
+
+.equipe-campo .equipe__vazia {
+  margin-top: var(--esp-3);
 }
 
 .equipe__acoes {

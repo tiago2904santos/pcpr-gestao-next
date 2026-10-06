@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit
 
 from django.http import HttpRequest
 from django.urls import NoReverseMatch, reverse
@@ -53,6 +54,9 @@ _MODULOS: dict[str, Modulo] = {}
 
 # Menu superior sem transbordo (ADR 0006): links diretos + menus suspensos por módulo.
 MAX_ENTRADAS_NA_BARRA = 7
+
+# Onde a sessão guarda a tarefa que ficou aberta em outra tela (ver pagina_anterior).
+CHAVE_TAREFA = "tarefa_aberta"
 
 
 def entradas_na_barra(modulo: Modulo) -> int:
@@ -124,3 +128,76 @@ def navegacao_para(request: HttpRequest) -> dict[str, Any]:
         if ativos and atual is None:
             atual = entrada
     return {"modulos": visiveis, "atual": atual}
+
+
+def _rotulo_de(caminho: str) -> str:
+    """O nome da página do caminho, pelo item de navegação de prefixo mais longo."""
+    melhor = ("", "")
+    for modulo in modulos():
+        url_modulo = _url(modulo.url_name)
+        if url_modulo and caminho.startswith(url_modulo) and len(url_modulo) > len(melhor[0]):
+            melhor = (url_modulo, modulo.rotulo)
+        for grupo in modulo.grupos:
+            for item in grupo.itens:
+                url = _url(item.url_name)
+                if url and caminho.startswith(url) and len(url) > len(melhor[0]):
+                    melhor = (url, item.rotulo)
+    return melhor[1]
+
+
+def _area(caminho: str) -> str:
+    """Primeiro segmento do caminho ("viagens", "cadastros"…) — a "área" do sistema."""
+    partes = caminho.strip("/").split("/")
+    return partes[0] if partes and partes[0] else ""
+
+
+def pagina_anterior(request: HttpRequest) -> dict[str, str] | None:
+    """A tarefa que ficou aberta em outra tela, para o botão "Voltar para …".
+
+    Nasce do `?de=<caminho>&de_rotulo=<nome>` do link que trouxe a pessoa: sair da folha de
+    um ofício para "Gerenciar textos prontos" e poder voltar **para aquele ofício**, não
+    para a lista. Como a folha salva sozinha (autosave), voltar à mesma URL devolve o
+    rascunho como estava.
+
+    E **fica guardada na sessão**: o desvio costuma ter mais de um passo (abrir os textos
+    prontos, ir para cadastros, procurar um servidor…). O botão acompanha a pessoa por
+    qualquer página até ela voltar — chegar ao caminho guardado apaga a marca.
+
+    Só endereço interno entra (`url_has_allowed_host_and_scheme`); o rótulo vem da URL,
+    então é cortado e o template o escapa.
+    """
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    if request.method != "GET":
+        return None
+    sessao = getattr(request, "session", None)
+
+    def interno(url: str) -> bool:
+        return bool(url) and url.startswith("/") and url_has_allowed_host_and_scheme(
+            url, allowed_hosts={request.get_host()}, require_https=request.is_secure())
+
+    pedido = request.GET.get("de") or ""
+    if interno(pedido) and pedido != request.get_full_path():
+        rotulo = (espacos(request.GET.get("de_rotulo") or "")[:60]
+                  or _rotulo_de(urlsplit(pedido).path) or "a página anterior")
+        tarefa = {"url": pedido, "rotulo": rotulo}
+        if sessao is not None:
+            sessao[CHAVE_TAREFA] = tarefa
+        return tarefa
+
+    if sessao is None:
+        return None
+    tarefa = sessao.get(CHAVE_TAREFA)
+    if not isinstance(tarefa, dict) or not interno(tarefa.get("url", "")):
+        sessao.pop(CHAVE_TAREFA, None)
+        return None
+    # Chegou onde tinha parado: a tarefa deixou de estar aberta.
+    if urlsplit(tarefa["url"]).path == request.path:
+        del sessao[CHAVE_TAREFA]
+        return None
+    return tarefa
+
+
+def espacos(texto: str) -> str:
+    """Tira as pontas e junta espaços repetidos (o rótulo vem da URL)."""
+    return " ".join(texto.split())

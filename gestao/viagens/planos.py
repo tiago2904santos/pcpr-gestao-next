@@ -679,6 +679,8 @@ def dados_do_documento(plano: PlanoTrabalho, *, fixar: bool = True) -> dict:
         "consideracoes": plano.consideracoes,
         "local_data": f"{local}, {data_por_extenso(data_doc)}" if local else "",
         "assina": {"nome": legivel(nome) if nome else "", "cargo": legivel(cargo) if cargo else ""},
+        # O texto editado no visualizador (EdicaoPlano) vale para a folha, o PDF e o DOCX.
+        "regioes_editadas": regioes_vigentes(plano),
     }
 
 
@@ -698,12 +700,29 @@ def eventos_para_documento(plano: PlanoTrabalho) -> list[dict]:
     return saida
 
 
-def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+def html_do_modelo(dados: dict, *, folha: bool = False, nonce: str = "") -> str:
+    """O documento como o modelo o gera, sem nenhum texto editado."""
     from django.template.loader import render_to_string
 
     from .documentos.pdf import _recursos
     return render_to_string("viagens/documentos/plano_trabalho.html",
                             {"d": dados, "folha": folha, "nonce": nonce, **_recursos(folha)})
+
+
+def html_do_documento(dados: dict, *, folha: bool = False, nonce: str = "",
+                      regioes: dict[str, str] | None = None,
+                      blocos_alterados: set[str] | None = None) -> str:
+    """HTML do documento com o texto editado em vigor (o de `dados`, se `regioes` não vier);
+    `folha=True` é a versão de tela. PDF, DOCX e a folha saem daqui."""
+    from .documentos.regioes import aplicar_regioes, marcar_blocos_alterados
+    if regioes is None:
+        regioes = dados.get("regioes_editadas") or {}
+    html = html_do_modelo(dados, folha=folha, nonce=nonce)
+    if regioes:
+        html = aplicar_regioes(html, regioes)
+    if blocos_alterados:
+        html = marcar_blocos_alterados(html, blocos_alterados)
+    return html
 
 
 def pdf_do_documento(dados: dict) -> bytes:
@@ -722,3 +741,70 @@ def docx_do_documento(dados: dict) -> bytes:
     from .documentos.docx import docx_do_html
     from .documentos.pdf import ASSETS
     return docx_do_html(html_do_documento(dados), base_imagens=ASSETS)
+
+
+# ---------------------------------------------------------------- texto editado (ADR 0018)
+# O documento do plano também se edita no visualizador, como o do ofício, os do termo e o
+# da OS; as regras de versão ficam em edicao_texto.py.
+
+
+class ConflitoDeEdicao(PlanoInvalido):
+    """Outra pessoa salvou o texto do plano depois que a folha foi aberta."""
+
+
+def _versoes(plano: PlanoTrabalho):
+    from .models import EdicaoPlano
+    return EdicaoPlano.objects.filter(plano=plano)
+
+
+def _criar(plano: PlanoTrabalho):
+    from .models import EdicaoPlano
+    return lambda **campos: EdicaoPlano.objects.create(plano=plano, **campos)
+
+
+def edicao_vigente(plano: PlanoTrabalho):
+    from . import edicao_texto
+    return edicao_texto.vigente(_versoes(plano))
+
+
+def regioes_vigentes(plano: PlanoTrabalho) -> dict[str, str]:
+    edicao = edicao_vigente(plano)
+    return dict(edicao.regioes) if edicao is not None else {}
+
+
+def regioes_do_modelo(dados: dict) -> dict[str, str]:
+    from .documentos.regioes import extrair_regioes
+    return extrair_regioes(html_do_modelo(dados))
+
+
+def _travar_para_texto(usuario, plano: PlanoTrabalho) -> PlanoTrabalho:
+    atual = PlanoTrabalho.objects.select_for_update().get(pk=plano.pk)
+    policies.exigir(policies.pode_editar_plano(usuario, atual),
+                    "Este plano de trabalho não pode ser alterado.")
+    return atual
+
+
+@transaction.atomic
+def salvar_texto(plano: PlanoTrabalho, usuario, regioes: dict[str, str], *,
+                 versao_base: int | None = None):
+    from . import edicao_texto
+    atual = _travar_para_texto(usuario, plano)
+    return edicao_texto.salvar(
+        _versoes(atual), _criar(atual), usuario,
+        regioes_do_modelo(dados_do_documento(atual, fixar=False)), regioes,
+        versao_base=versao_base, invalido=PlanoInvalido, conflito=ConflitoDeEdicao)
+
+
+@transaction.atomic
+def restaurar_texto(plano: PlanoTrabalho, usuario, numero: int):
+    from . import edicao_texto
+    atual = _travar_para_texto(usuario, plano)
+    return edicao_texto.restaurar(_versoes(atual), _criar(atual), usuario, numero,
+                                  invalido=PlanoInvalido)
+
+
+@transaction.atomic
+def voltar_texto_ao_modelo(plano: PlanoTrabalho, usuario):
+    from . import edicao_texto
+    atual = _travar_para_texto(usuario, plano)
+    return edicao_texto.voltar_ao_modelo(_versoes(atual), _criar(atual), usuario)

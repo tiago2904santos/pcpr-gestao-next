@@ -1,0 +1,2 @@
+{# "Novo plano de trabalho" cria o plano na hora (POST: reserva o número) e abre a folha. #}
+<form class="form-em-linha" method="post" action="{% url 'viagens:novo_plano' %}">{% csrf_token %}<input type="hidden" name="acao" value="criar"><button type="submit" class="botao botao--primario">{% icone "plus" %}Novo plano de trabalho</button></form>

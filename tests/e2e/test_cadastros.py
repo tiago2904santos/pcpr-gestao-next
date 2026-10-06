@@ -54,7 +54,9 @@ def test_viatura_com_motoristas_por_busca(logado):
     janela.get_by_label("Placa").press_sequentially("zzt-1a23")
     expect(janela.get_by_label("Placa")).to_have_value("ZZT1A23")
     janela.get_by_label("Modelo").fill("Fiat Cronos")
-    busca = janela.get_by_role("combobox", name="Buscar servidor")
+    # Sem a legenda "Motoristas habituais" (um grupo só na janela), o rótulo do campo
+    # é que diz o que a busca alimenta.
+    busca = janela.get_by_role("combobox", name="Motoristas habituais")
     for nome in ("Isabela", "Bruno"):
         busca.fill(nome.lower())
         janela.get_by_role("option", name=re.compile(nome)).first.click()

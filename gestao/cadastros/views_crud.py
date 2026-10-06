@@ -397,10 +397,29 @@ def salvar_catalogo(request: HttpRequest, slug: str) -> HttpResponse:
         except services.CadastroInvalido as exc:
             form.add_error("nome" if "nome" in form.fields else None, str(exc))
         else:
+            # Chamada de dentro de outro formulário (o "+" ao lado de Cargo/Unidade): volta
+            # o registro criado para a escolha receber a opção nova sem recarregar a página
+            # — recarregar perderia o que já estava digitado no formulário de trás.
+            if _quer_json(request):
+                return JsonResponse({"id": obj.pk, "nome": str(obj)})
             feito = ("atualizad" if pk else "criad") + cat.artigo
             messages.success(request, f"{cat.singular.capitalize()} “{obj}” {feito}.")
             return redirect(_voltar(request, slug))
+    if _quer_json(request):
+        erros = [str(e) for lista in form.errors.values() for e in lista]
+        return JsonResponse({"erro": " ".join(erros) or "Não foi possível cadastrar."},
+                            status=422)
     return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+
+
+def _quer_json(request: HttpRequest) -> bool:
+    return "application/json" in request.headers.get("Accept", "")
+
+
+def _erros_em_texto(form) -> str:
+    """Erros do formulário numa frase — o cadastro rápido só tem uma linha para mostrá-los."""
+    erros = [str(e) for lista in form.errors.values() for e in lista]
+    return " ".join(erros) or "Não foi possível cadastrar."
 
 
 # ---------------------------------------------------------------- ações comuns
@@ -532,7 +551,15 @@ def salvar_servidor(request: HttpRequest) -> HttpResponse:
                 falta = servidor.faltando_texto
                 messages.warning(request, f"Servidor “{servidor}” salvo com cadastro "
                                           f"incompleto: falta {falta}.")
+            # Chamado de dentro de outra folha (o "+" ao lado da busca de servidores, na
+            # folha do ofício): devolve quem foi criado para a escolha receber a opção nova
+            # sem recarregar — recarregar levaria junto o que já estava preenchido.
+            if _quer_json(request):
+                return JsonResponse({"id": servidor.pk, "nome": servidor.nome,
+                                     "meta": servidor.descricao})
             return redirect(_depois_de_salvar(request, "servidores"))
+    if _quer_json(request):
+        return JsonResponse({"erro": _erros_em_texto(form)}, status=422)
     return _lista_servidores(request, form=form, editando=editando, status=422)
 
 
@@ -546,9 +573,15 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
     if len(digitos) >= 3:
         filtro |= Q(cpf__contains=digitos)
     resultados = (Servidor.objects.filter(ativo=True).filter(filtro)
-                  .select_related("cargo", "unidade").order_by("nome")[:15])
+                  .select_related("cargo", "unidade").order_by("nome"))
+    # `?excluir=1,2,3`: quem já está escolhido (a equipe) sai da lista.
+    excluir = [int(i) for i in (request.GET.get("excluir") or "").split(",")[:200]
+               if i.isascii() and i.isdecimal() and len(i) <= 18]
+    if excluir:
+        resultados = resultados.exclude(pk__in=excluir)
     return JsonResponse({"resultados": [
-        {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao} for s in resultados]})
+        {"id": str(s.pk), "titulo": s.nome, "meta": s.descricao,
+         "unidade": str(s.unidade_id or "")} for s in resultados[:15]]})
 
 
 # ---------------------------------------------------------------- viaturas
@@ -635,7 +668,11 @@ def salvar_viatura(request: HttpRequest) -> HttpResponse:
                 falta = viatura.faltando_texto
                 messages.warning(request, f"Viatura {viatura.placa_formatada} salva com "
                                           f"cadastro incompleto: falta {falta}.")
+            if _quer_json(request):
+                return JsonResponse({"id": viatura.pk, "nome": str(viatura)})
             return redirect(_depois_de_salvar(request, "viaturas"))
+    if _quer_json(request):
+        return JsonResponse({"erro": _erros_em_texto(form)}, status=422)
     return _lista_viaturas(request, form=form, editando=editando, status=422)
 
 

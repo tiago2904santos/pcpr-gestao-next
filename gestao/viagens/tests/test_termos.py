@@ -72,12 +72,11 @@ class TestRegras:
         assert (ef.inicio, ef.fim) == (date(2030, 5, 1), date(2030, 5, 1))  # fim = início
         assert "destinos" not in ef.herdados and "servidores" not in ef.herdados
 
-    def test_avulso_exige_destino_e_data(self, c):
-        with pytest.raises(termos.TermoInvalido, match="destino"):
-            termos.salvar(c.usuarios["operador"], data_inicio=date(2030, 1, 1))
+    def test_rascunho_sem_destino_e_data_mas_periodo_coerente(self, c):
+        # "Novo termo" cria o rascunho na hora: destino e período ficam como pendência.
+        rascunho = termos.salvar(c.usuarios["operador"])
+        assert not termos.efetivo(rascunho).completo
         londrina = Municipio.objects.get(nome="Londrina", uf="PR")
-        with pytest.raises(termos.TermoInvalido, match="data"):
-            termos.salvar(c.usuarios["operador"], destinos=[londrina])
         with pytest.raises(termos.TermoInvalido, match="anterior"):
             termos.salvar(c.usuarios["operador"], destinos=[londrina],
                           data_inicio=date(2030, 1, 5), data_fim=date(2030, 1, 1))
@@ -165,6 +164,41 @@ class TestDocumentos:
         assert r.status_code == 403
 
 
+class TestTextoEditado:
+    """O texto editado no visualizador acompanha os dados e passa para os documentos novos."""
+
+    def _editar(self, c, termo, chave):
+        modelo = termos.regioes_do_modelo(termos.dados_do_documento(termo, chave))
+        corpo = modelo["corpo"].replace("cartão corporativo vigente",
+                                        "cartão corporativo vigente e o crachá")
+        assert corpo != modelo["corpo"]
+        termos.salvar_texto(termo, c.usuarios["operador"], chave, {"corpo": corpo})
+
+    def test_edicao_acompanha_a_troca_de_viatura(self, c):
+        op = c.usuarios["operador"]
+        s1 = Servidor.objects.order_by("pk").first()
+        v1, v2 = Viatura.objects.filter(ativo=True).order_by("pk")[:2]
+        termo = termos.salvar(op, servidores=[s1], viatura=v1, data_inicio=date(2030, 5, 10))
+        self._editar(c, termo, str(s1.pk))
+        termo = termos.salvar(op, pk=termo.pk, servidores=[s1], viatura=v2,
+                              data_inicio=date(2030, 5, 10))
+        html = termos.html_do_documento(termos.dados_do_documento(termo, str(s1.pk)))
+        assert "e o crachá" in html  # a edição fica
+        assert v2.placa_formatada in html and v1.placa_formatada not in html  # o dado acompanha
+
+    def test_servidor_novo_nasce_com_o_texto_editado(self, c):
+        op = c.usuarios["operador"]
+        s1, s2 = Servidor.objects.order_by("pk")[:2]
+        termo = termos.salvar(op, servidores=[s1], data_inicio=date(2030, 5, 10))
+        self._editar(c, termo, str(s1.pk))
+        termo = termos.salvar(op, pk=termo.pk, servidores=[s1, s2], data_inicio=date(2030, 5, 10))
+        novo = termos.html_do_documento(termos.dados_do_documento(termo, str(s2.pk)))
+        assert "e o crachá" in novo and s2.nome in novo and s1.nome not in novo
+        # O genérico já existia e não foi editado: continua como o modelo.
+        generico = termos.html_do_documento(termos.dados_do_documento(termo, termos.GENERICO))
+        assert "e o crachá" not in generico
+
+
 class TestTelas:
     def test_novo_a_partir_do_oficio(self, c):
         oficio = _oficio(c)
@@ -188,9 +222,9 @@ class TestTelas:
 
     def test_erro_volta_com_mensagem(self, c):
         r = _cliente(c.usuarios["operador"]).post(reverse("viagens:novo_termo"), {
-            "data_inicio": "10/07/2030"})
+            "data_inicio": "10/07/2030", "data_fim": "01/07/2030"})
         assert r.status_code == 422
-        assert "Informe o destino ou escolha um ofício com roteiro." in r.content.decode()
+        assert "A data final não pode ser anterior à inicial." in r.content.decode()
 
     def test_lista_abas_busca_e_filtro_por_oficio(self, c):
         oficio = _oficio(c)
@@ -229,23 +263,30 @@ class TestTelas:
         termo = TermoAutorizacao.objects.get()
         assert r["Location"].endswith(f"/viagens/termos/{termo.pk}/#t-documentos")
         assert termo.oficio == oficio
-        # Ofício sem roteiro: abre o cadastro para completar, sem criar nada.
+        # Ofício sem roteiro: o termo nasce do mesmo jeito (rascunho), com o que falta
+        # como pendência na folha.
         vazio = Oficio.objects.get(pk=c.ids["oficio_vazio"])
         r = _cliente(c.usuarios["operador"]).post(
             reverse("viagens:criar_termo_do_oficio", args=[vazio.pk]))
-        assert "novo/?oficio=" in r["Location"] and TermoAutorizacao.objects.count() == 1
+        novo = TermoAutorizacao.objects.exclude(pk=termo.pk).get()
+        assert r["Location"].endswith(f"/viagens/termos/{novo.pk}/#t-documentos")
 
-    def test_tela_mostra_o_que_vem_do_oficio_antes_de_salvar(self, c):
+    def test_tela_preenche_os_campos_com_o_que_vem_do_oficio(self, c):
+        # Vincular um ofício preenche os campos (sem o antigo "Do ofício: …" sob eles).
         oficio = _oficio(c)
         html = _cliente(c.usuarios["operador"]).get(
             reverse("viagens:novo_termo") + f"?oficio={oficio.pk}").content.decode()
-        assert html.count('class="heranca"') >= 3 and "Do ofício:" in html
+        destinos, _, _ = termos._do_oficio(oficio)
+        assert destinos and all(f'value="{m.nome}/{m.uf}"' in html for m in destinos)
+        assert "Do ofício:" not in html
 
-    def test_erros_de_destino_e_data_juntos_e_no_campo(self, c):
-        r = _cliente(c.usuarios["operador"]).post(reverse("viagens:novo_termo"), {})
-        html = r.content.decode()
-        assert "Informe o destino ou escolha um ofício com roteiro." in html
-        assert "Informe a data ou escolha um ofício com período." in html
+    def test_novo_termo_cria_o_rascunho_na_hora(self, c):
+        cli = _cliente(c.usuarios["operador"])
+        r = cli.post(reverse("viagens:novo_termo"), {"acao": "criar"})
+        termo = TermoAutorizacao.objects.get()
+        assert r["Location"] == reverse("viagens:editar_termo", args=[termo.pk])
+        html = cli.get(r["Location"]).content.decode()
+        assert "Falta destino" in html and "Falta período" in html
 
     def test_janela_do_oficio_oferece_novo_termo(self, c):
         oficio = _oficio(c)

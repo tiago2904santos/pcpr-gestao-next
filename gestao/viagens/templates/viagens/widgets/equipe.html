@@ -1,0 +1,35 @@
+{% load ui %}{% comment %}
+A equipe (viagens.forms.CampoEquipe): o componente da folha do ofício
+(viagens/oficios/_equipe.html), com os escolhidos indo junto com o formulário.
+A busca não oferece quem já está na equipe (`excluir`, atualizado por multiescolha.js).
+{% endcomment %}<pc-multiescolha class="equipe-campo" data-nome="{{ widget.name }}" data-variante="equipe"{% if widget.motorista %} data-motorista{% endif %}{% if widget.maximo %} data-maximo="{{ widget.maximo }}"{% endif %}>
+  <div class="campo equipe__busca">
+    <label class="campo__rotulo" for="{{ widget.attrs.id }}">{{ widget.rotulo }}</label>
+    <div class="campo__com-acao">
+      <pc-combobox class="combobox" data-fonte="{{ widget.fonte }}?excluir={{ widget.excluir }}&amp;q=" data-fonte-base="{{ widget.fonte }}" data-minimo="2">
+        <div class="entrada-composta equipe__entrada">{% icone "user-round" %}<input class="entrada" type="text" role="combobox" placeholder="{{ widget.placeholder }}" autocomplete="off"{% include "django/forms/widgets/attrs.html" %}></div>
+      </pc-combobox>
+      {% if widget.cadastrar %}<button type="button" class="botao botao--icone" data-abrir-dialogo="{{ widget.cadastrar }}" aria-label="Cadastrar servidor">{% icone "plus" %}</button>{% endif %}
+    </div>
+  </div>
+  <ul class="resumo__cartoes equipe__cartoes multiescolha__lista" role="list" aria-label="Servidores da equipe">
+    {% for e in widget.escolhidos %}
+      <li class="pessoa equipe__cartao multiescolha__item resumo__cartao--{{ e.largura }}" data-id="{{ e.id }}" data-servidor="{{ e.id }}" data-unidade="{{ e.unidade }}" data-nome="{{ e.titulo }}"{% if widget.motorista %} data-motorista{% endif %}>
+        <input type="hidden" name="{{ widget.name }}" value="{{ e.id }}">
+        <span class="avatar{% if widget.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ e.iniciais }}</span>
+        <span class="pessoa__texto">
+          <span class="pessoa__nome">{{ e.titulo }}</span>
+          <span class="pessoa__meta">{{ e.meta|default:"Cadastro incompleto" }}</span>
+        </span>
+        <span class="equipe__acoes">
+          <button type="button" class="equipe__acao equipe__acao--remover" data-remover aria-label="Remover {{ e.titulo }} da equipe" title="Remover da equipe">{% icone "x" classe="icone--sm" %}</button>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="equipe__vazia multiescolha__vazio"{% if widget.escolhidos %} hidden{% endif %}>
+    {% icone "users" %}
+    <p><strong>{{ widget.rotulo_vazio }}</strong> Busque acima pelo nome, CPF ou RG.</p>
+  </div>
+  <div class="sr-only" aria-live="polite" data-anuncio></div>
+</pc-multiescolha>

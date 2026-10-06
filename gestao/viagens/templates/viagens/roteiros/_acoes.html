@@ -1,0 +1,19 @@
+{% load viagens %}
+{% comment %}
+Ações do roteiro (criar ofício, cancelar, excluir). Aparecem no cabeçalho da folha e
+também na barra do rodapé: quem rola até o fim não precisa voltar ao topo para agir.
+Com `dobrar`, "Criar ofício" entra no menu em vez de ficar como botão solto — é o que a
+barra do rodapé usa, onde só "Salvar" merece espaço próprio.
+Os formulários que elas submetem ficam uma vez só em `editar.html`.
+{% endcomment %}
+{% if pode_criar_oficio and roteiro.trechos.all and not dobrar %}<button type="submit" form="form-criar-oficio" class="botao">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
+{% if pode_cancelar or pode_excluir or dobrar and pode_criar_oficio and roteiro.trechos.all %}
+<pc-menu class="menu">
+  <button type="button" class="botao botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Mais ações do roteiro{% if onde %} ({{ onde }}){% endif %}">{% icone "ellipsis-vertical" %}</button>
+  <div class="menu__painel" role="menu" hidden>
+    {% if pode_criar_oficio and roteiro.trechos.all and dobrar %}<button type="submit" form="form-criar-oficio" class="menu__item" role="menuitem">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
+    {% if pode_cancelar %}<button type="submit" form="form-cancelar" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>{% endif %}
+    {% if pode_excluir %}<button type="submit" form="form-excluir" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>{% endif %}
+  </div>
+</pc-menu>
+{% endif %}

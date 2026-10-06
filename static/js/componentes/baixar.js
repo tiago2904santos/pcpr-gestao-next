@@ -49,28 +49,58 @@ function atualizar(form) {
   /** @type {HTMLButtonElement} */ (um(form, "[data-baixar-enviar]")).disabled = !marcados.length;
   um(form, "[data-baixar-todos]").textContent =
     marcados.length === todos.length ? "Desmarcar todos" : "Marcar todos";
+  // O que vai sair, numa linha: "3 documentos · PDF · num ZIP".
+  const dados = new FormData(form);
+  const n = marcados.length;
+  const saida = n < 2 ? "" : dados.get("saida") === "unico" ? "num PDF só" : "num ZIP";
+  um(form, "[data-baixar-resumo]").textContent = n
+    ? [`${n} ${n === 1 ? "documento" : "documentos"}`, String(dados.get("formato") || "").toUpperCase(), saida]
+      .filter(Boolean).join(" · ")
+    : "Marque ao menos um documento.";
 }
 
-/** @param {HTMLElement} caixa @param {Item[]} itens */
+/** Um cartão por documento: caixa de marcar, nome e detalhe, e o estado à direita.
+ * @param {HTMLElement} caixa @param {Item[]} itens */
 function desenhar(caixa, itens) {
   caixa.replaceChildren(...itens.map((item, i) => {
     const rotulo = document.createElement("label");
-    rotulo.className = "caixas__item escolha";
+    rotulo.className = "baixar__item escolha";  // a caixa de marcar do sistema
     rotulo.htmlFor = `baixar-item-${i}`;
     const entrada = document.createElement("input");
     Object.assign(entrada, { type: "checkbox", name: "itens", value: item.valor, checked: true,
       id: `baixar-item-${i}` });
     entrada.dataset.assinado = item.assinado ? "1" : "0";
     const texto = document.createElement("span");
-    const nome = document.createElement("strong");
+    texto.className = "baixar__texto";
+    const nome = document.createElement("span");
+    nome.className = "baixar__nome";
     nome.textContent = item.nome;
     const detalhe = document.createElement("span");
-    detalhe.className = "escolha__descricao";
-    detalhe.textContent = [item.detalhe, item.estado].filter(Boolean).join(" · ");
+    detalhe.className = "baixar__detalhe";
+    detalhe.textContent = item.detalhe || "";
     texto.append(nome, detalhe);
-    rotulo.append(entrada, texto);
+    const estado = document.createElement("span");
+    estado.className = `baixar__estado${item.assinado ? " baixar__estado--assinado" : ""}`;
+    estado.textContent = item.estado || "";
+    rotulo.append(entrada, texto, estado);
     return rotulo;
   }));
+}
+
+/** A lista mostra até 5 cartões inteiros; do 6º em diante, rola. A altura é medida nos
+ * próprios cartões (um nome longo que quebra a linha não corta o 5º).
+ * @param {HTMLElement} caixa */
+function limitarAltura(caixa) {
+  caixa.style.removeProperty("max-height");
+  caixa.classList.remove("baixar__itens--rolagem");
+  const itens = /** @type {HTMLElement[]} */ (Array.from(caixa.children));
+  if (itens.length <= 5) return;
+  caixa.classList.add("baixar__itens--rolagem");  // antes de medir: a folga da barra estreita os cartões
+  const estilo = getComputedStyle(caixa);
+  const vao = parseFloat(estilo.rowGap) || 0;
+  const folga = (parseFloat(estilo.paddingTop) || 0) + (parseFloat(estilo.paddingBottom) || 0);
+  const altura = itens.slice(0, 5).reduce((t, el) => t + el.getBoundingClientRect().height, 0);
+  caixa.style.maxHeight = `${Math.ceil(altura + vao * 4 + folga)}px`;
 }
 
 /** @param {Response} resposta */
@@ -126,6 +156,7 @@ document.addEventListener("click", async (e) => {
     if (resposta.redirected) { window.location.href = resposta.url; return; }
     if (!resposta.ok) throw new Error(String(resposta.status));
     desenhar(caixa, (await resposta.json()).itens);
+    limitarAltura(caixa);
   } catch {
     const erro = um(form, "[data-baixar-erro]");
     erro.textContent = "Não foi possível carregar os documentos. Tente de novo.";
@@ -134,7 +165,8 @@ document.addEventListener("click", async (e) => {
     carregando.hidden = true;
     atualizar(form);
   }
-  /** @type {HTMLElement | null} */ (caixa.querySelector("input"))?.focus();
+  // O foco fica no "Baixar": abrir já com o primeiro cartão realçado parecia uma escolha.
+  /** @type {HTMLElement} */ (um(form, "[data-baixar-enviar]")).focus(/** @type {FocusOptions} */ ({ focusVisible: false }));
 });
 
 document.addEventListener("change", (e) => {

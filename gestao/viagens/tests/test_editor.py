@@ -113,7 +113,7 @@ class TestModelosMarcados:
         dados = dados_do_oficio(rascunho)
         oficio = regioes_do_modelo("oficio", dados)
         assert list(oficio) == ["cabecalho", "corpo", "rodape"]
-        assert reg.campos_presentes(oficio["cabecalho"]) == {"protocolo"}
+        assert reg.campos_presentes(oficio["cabecalho"]) == {"data_oficio", "protocolo"}
         assert reg.campos_presentes(oficio["corpo"]) == {"motivo"}
         assert {e.chave for e in reg.elementos_marcados(oficio["corpo"])} >= {
             "saudacao",
@@ -326,7 +326,7 @@ class TestVisoesDoEditor:
         base = reverse("viagens:editor_estado", args=[rascunho.pk, "oficio"])
         e = operador.get(base).json()
         assert e["pode_editar"] and e["edicao"] is None and e["versoes"] == []
-        assert {c["chave"] for c in e["campos"]} == {"protocolo", "motivo"}
+        assert {c["chave"] for c in e["campos"]} == {"data_oficio", "protocolo", "motivo"}
         original = regioes_do_modelo("oficio", dados_do_oficio(rascunho))
         corpo = original["corpo"].replace("conforme cronograma abaixo:", "conforme o cronograma:")
         r = _json(
