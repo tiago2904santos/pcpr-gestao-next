@@ -116,8 +116,9 @@ from .models_solicitacao import (  # noqa: E402
     Solicitacao,
     SolicitacaoEquipe,
     SolicitacaoServico,
+    ViagemGerada,
 )
 
 __all__ = ["AnexoSolicitacao", "Catalogo", "Equipe", "Lembrete", "Movimento", "OrgaoResponsavel",
            "Servico", "Solicitacao", "SolicitacaoEquipe", "SolicitacaoServico", "TextoDespacho",
-           "TipoEvento", "TipoEventoEquipe", "UnidadeMovel"]
+           "TipoEvento", "TipoEventoEquipe", "UnidadeMovel", "ViagemGerada"]

@@ -20,6 +20,7 @@ urlpatterns = [
     path("solicitacoes/<int:pk>/transferir/", vs.transferir, name="transferir"),
     path("solicitacoes/<int:pk>/duplicar/", vs.duplicar, name="duplicar"),
     path("solicitacoes/<int:pk>/excluir/", vs.excluir, name="excluir"),
+    path("solicitacoes/<int:pk>/viagem/", vs.gerar_viagem, name="gerar_viagem"),
     path("solicitacoes/<int:pk>/anexos/", vs.anexar, name="anexar"),
     path("solicitacoes/<int:pk>/anexos/<int:anexo_pk>/", vs.abrir_anexo, name="abrir_anexo"),
     path("solicitacoes/<int:pk>/anexos/<int:anexo_pk>/remover/", vs.remover_anexo,

@@ -134,7 +134,29 @@ Solicitações no mês (vs. mês anterior), Aguardando despacho, Deferidas no an
   por solicitação, tipo e data de referência (`Lembrete`, migração 0006): confirmar o
   atendimento (responsável, depois do fim do evento deferido), despacho com evento em até
   7 dias (DG), devolução parada há mais de 3 dias (responsável); janela de 30 dias.
-- Fora: e-mail dos lembretes (o sino é o canal; SMTP institucional é dependência externa)
+- Fora (E3): e-mail dos lembretes (o sino é o canal; SMTP institucional é dependência externa)
   e o "simular" do comando da referência (a rotina tem o comando `rodar_rotinas_diarias`).
 - Fora por ora: "preencher com e-mail" e importadores; consultar protocolo (integração
   simulada).
+
+## E4 — o que foi feito (05/10/2026)
+
+- "Gerar viagem" na folha da solicitação deferida (seção 5, "Viagem"): a DG ou quem cria
+  viagens escolhe a unidade responsável (sugerida pela equipe designada com o nome/sigla da
+  unidade, senão a lotação de quem gera; operador de viagens só a própria). A viagem nasce
+  em rascunho com título (município/UF — data), período, destino, motivo com "(Solicitação
+  #N)", descrição e o tipo de viagem com o nome do tipo de evento; a equipe de viagens da
+  unidade é avisada no sino; o movimento "Viagem gerada" entra no histórico. Uma por
+  solicitação (enquanto não cancelada).
+- Não atendida ou cancelada: a viagem sem documento é cancelada junto ("Solicitação #N
+  cancelada: motivo"); com documento, a equipe de viagens da unidade é avisada e decide.
+  Uma falha aqui não desfaz o despacho (vira log).
+- Arquitetura: o código está em Viagens (`gestao/viagens/de_eventos.py`); Eventos não
+  importa Viagens — a folha e os serviços chamam os ganchos (`gestao/eventos/ganchos.py`)
+  registrados no `ready` de Viagens; o vínculo é `eventos.ViagemGerada` (auditado).
+- Fora do E4 (diferente da referência): geração automática no deferimento, "ambiente" por
+  setor (aqui a viagem é de uma unidade), roteiro com sede/trechos/diárias, cópia dos
+  anexos, multieventos (juntar eventos vizinhos), meta de servidores por equipe,
+  sincronizar a viagem num novo deferimento e o aviso "viagem desatualizada" na folha da
+  viagem. Ver decisoes.md.
+

@@ -164,8 +164,34 @@ histórico.
     {% endif %}
   </section>
 
+  {% if mostrar_viagem %}
+  <section class="secao{% if viagem_info.viagens %} secao--ok{% endif %}" id="viagem" aria-labelledby="t-viagem">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-viagem"><span class="secao__numero">5</span>Viagem</h2><p class="secao__nota">Deferida, a solicitação vira viagem: destino, período e motivo vão daqui; a equipe, a viatura e o percurso ficam com a unidade.</p></div>
+    {% if viagem_info.viagens %}
+    <ul class="registros">{% for v in viagem_info.viagens %}
+      <li class="registro{% if v.viagem.cancelada %} registro--inativo{% endif %}">
+        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Viagem</span><span class="placa__numero">#{{ v.viagem.pk }}</span></span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">{% if v.url %}<a class="registro__link" href="{{ v.url }}"><span class="sr-only">Viagem #{{ v.viagem.pk }} · </span>{{ v.viagem.titulo|default:"Viagem" }}</a>{% else %}<span class="registro__texto">{{ v.viagem.titulo|default:"Viagem" }}</span>{% endif %}<span class="selo selo--{% if v.viagem.cancelada %}perigo{% else %}info{% endif %} selo--sem-ponto">{{ v.viagem.get_situacao_display }}</span></div>
+          <div class="registro__meta"><span class="registro__meta-item"><span class="sr-only">Unidade: </span>{% icone "landmark" classe="icone--sm" %}{{ v.viagem.unidade }}</span><span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.documentos %}Com documentos{% else %}Sem documentos ainda{% endif %}</span></div>
+        </div>
+      </li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if viagem_info.pode_gerar %}
+    <form method="post" action="{% url 'eventos:gerar_viagem' s.pk %}" class="pilha" novalidate>
+      {% csrf_token %}
+      <div class="campo campo--lg"><label class="campo__rotulo" for="unidade-viagem">Unidade responsável pela viagem</label><pc-select class="seletor"><select class="selecao" id="unidade-viagem" name="unidade">{% for u in viagem_info.unidades %}<option value="{{ u.pk }}"{% if u.pk == viagem_info.sugerida %} selected{% endif %}>{{ u.sigla|default:u.nome }}{% if u.sigla %} — {{ u.nome }}{% endif %}</option>{% endfor %}</select></pc-select></div>
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "plane" %}Gerar viagem</button></div>
+    </form>
+    {% elif not viagem_info.viagens %}
+    <p class="vazio-inline">{% icone "info" classe="icone--sm" %}{% if viagem_info.motivo %}{{ viagem_info.motivo }}{% else %}A viagem é gerada pela Diretoria-Geral ou pela equipe de viagens da unidade.{% endif %}</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
   <section class="secao" id="encerramento" aria-labelledby="t-encerramento">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-encerramento"><span class="secao__numero">5</span>Encerramento do evento</h2></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-encerramento"><span class="secao__numero">{% if mostrar_viagem %}6{% else %}5{% endif %}</span>Encerramento do evento</h2></div>
     {% if pode_concluir %}
       {% if erro_concluir %}<button type="button" class="botao" disabled>{% icone "check" %}Atendida só após {{ s.data_fim_evento|default:s.data_inicio_evento|date:"d/m/Y" }}</button><p class="texto-secundario texto-sm">{{ erro_concluir }}</p>
       {% else %}<form method="post" action="{% url 'eventos:concluir' s.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "check-circle-2" %}Marcar como atendida</button></form>{% endif %}
@@ -179,7 +205,7 @@ histórico.
   </section>
 
   <section class="secao" id="responsavel" aria-labelledby="t-responsavel">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-responsavel"><span class="secao__numero">6</span>Responsável</h2><p class="secao__nota">{{ s.criado_por.nome }} cuida desta solicitação.</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-responsavel"><span class="secao__numero">{% if mostrar_viagem %}7{% else %}6{% endif %}</span>Responsável</h2><p class="secao__nota">{{ s.criado_por.nome }} cuida desta solicitação.</p></div>
     {% if pode_transferir %}
     <details><summary class="botao botao--sm botao--sutil">{% icone "user-round" %}Transferir</summary>
       <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="campos mt-2" novalidate>{% csrf_token %}

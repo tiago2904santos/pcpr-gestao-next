@@ -23,7 +23,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.models import Municipio
 
-from . import conflitos, dominio, policies, queries, solicitacoes
+from . import conflitos, dominio, ganchos, policies, queries, solicitacoes
 from .forms import FORM_ID, FormularioSolicitacao, estrutura_do_post, quantidade
 from .models import AnexoSolicitacao, Equipe, Servico, Solicitacao, TextoDespacho, TipoEvento
 
@@ -129,6 +129,33 @@ def _celula(valor):
     return valor
 
 
+# ---------------------------------------------------------------- viagem (E4)
+def _viagem(request: HttpRequest, s: Solicitacao) -> dict:
+    integracao = ganchos.viagem()
+    info = integracao.resumo(request.user, s) if integracao else None
+    mostrar = bool(info) and (s.status in (dominio.DEFERIDA, dominio.ATENDIDA)
+                              or bool(info and info["viagens"]))
+    return {"viagem_info": info, "mostrar_viagem": mostrar}
+
+
+@require_POST
+def gerar_viagem(request: HttpRequest, pk: int) -> HttpResponse:
+    s = _visivel(request, pk)
+    integracao = ganchos.viagem()
+    if integracao is None:
+        raise Http404
+    texto = request.POST.get("unidade") or ""
+    unidade = int(texto) if re.fullmatch(r"[0-9]{1,9}", texto) else None
+    try:
+        viagem = integracao.gerar(request.user, s, unidade)
+    except ValueError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, f"Viagem #{viagem.pk} gerada; a equipe de viagens da "
+                                  "unidade foi avisada.")
+    return redirect(reverse("eventos:solicitacao", args=[pk]) + "#viagem")
+
+
 # ---------------------------------------------------------------- folha
 def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None, *,
               reabrir: bool = False, erros_estrutura: list[str] | None = None) -> dict:
@@ -193,6 +220,7 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
         "historico": queries.historico(s),
         # Aviso, não bloqueio: motorista ou unidade móvel ocupados, pedido repetido.
         "avisos_agenda": conflitos.avisos_da_solicitacao(s),
+        **_viagem(request, s),
         "migalhas": _migalhas((str(s), "")),
     })
     return ctx

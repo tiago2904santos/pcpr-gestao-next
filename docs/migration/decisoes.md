@@ -267,7 +267,10 @@ Fonte: `solicitacoes/{models,services,permissions,views}.py` da referência
 | Conflitos | unidade móvel, motorista, pedido repetido; consultam todas as solicitações | os mesmos, pelo registro comum de conflitos (aparecem também na folha do ofício); o aviso cita nº, município e período mesmo de solicitação que a pessoa não abre (o link dá 404) — paridade; esconder o nº seria endurecimento opcional | referência + **agente** — confirmar |
 | Selo de tempo | "Realizado" também na cancelada e na não atendida | sem selo de tempo nessas duas (o evento não aconteceu) | **agente** — confirmar |
 | Ordem da fila "Aguardando despacho" | pela data do pedido | pelo evento mais próximo, a mesma ordem do "Registrar e abrir a próxima"; com mais de um na fila, este é o botão principal | **agente** — confirmar |
-| Gerar viagem, painel, lembretes, consultar protocolo | existem | E3/E4; protocolo segue simulado | pendente |
+| Gerar viagem | automática no deferimento, uma por "ambiente" (setor casado pelo nome da equipe), com roteiro (sede, trechos, diárias), anexos copiados e multieventos | botão "Gerar viagem" na folha deferida (DG ou quem cria viagens), uma viagem para a unidade escolhida (sugerida pela equipe com o nome da unidade); sem roteiro, anexos nem multieventos — ficam com a unidade | **agente** — confirmar |
+| Viagem quando o evento não acontece | cancela a viagem sem documento; com documento avisa Viagens | igual | referência |
+| Painel, lembretes | existem | E3 (sino; sem e-mail) | referência |
+| Consultar protocolo | eProtocolo | segue simulado | pendente (dependência externa) |
 
 ## Pendências abertas
 

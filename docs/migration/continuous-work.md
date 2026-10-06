@@ -28,11 +28,10 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 
 ## Módulo atual
 
-**Módulo 9 — Prestação de contas** ([prestacao.md](prestacao.md)). 9a (base) implementado:
-nascimento na emissão, equipe que muda, prazos em dias úteis, lista com abas/lote/ações,
-finalizar com justificativa, envio/aprovação/devolução, avisos no sino, planilha, DEMO;
-9a-2 (abas Finalizados/Contas prestadas nos outros módulos) feito; 9b (diário de bordo)
-feito; 9c (relatório técnico) feito; 9d-1 (anexos) e 9d-2 (pacote final) feitos; rotina diária de avisos feita. 9c-2, 9b-2 e 9d-3 feitos. Próximo: revisão do pacote ou trilhas paralelas (Agenda com fontes de Viagens, Eventos, ASCOM).
+**Eventos Sociais** concluído em E1–E4 (catálogos, solicitação com despacho, painel e
+lembretes, gerar viagem; [eventos-sociais.md](eventos-sociais.md)). Prestação de contas (9)
+segue com 9a–9d feitos; falta a revisão página a página do pacote (13d). Próximo: a fila
+abaixo (Agenda A2c, Palestras PL2, Coffee Break, relatórios).
 
 ## Próxima tarefa concreta
 
@@ -63,19 +62,21 @@ Ver a fila abaixo (primeiro item não concluído).
 | 13c | 9d-3: carimbo do nº da solicitação no ofício assinado (posição manual por servidor, prévia, aplicado no pacote sem alterar a via; pendência da referência) | feito (sem posição automática) |
 | 13d | Revisão página a página do pacote (ordem/giro/ocultar) | pendente |
 | 14b | Rotina diária (plataforma.rotinas: registro por contexto, uma rodada por dia pela marca no banco, middleware no primeiro acesso + comando para cron) e avisos da prestação (saque vencido/vencendo sem comprovante, prestação vencida, documentos gerados/assinados, equipe chegou) | feito (sem "amanhã sai", que fala do PWA) |
-| 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | depende de 11–13 |
+| 14 | Finalizados completo (pendências de despacho/comprovante/diário/RT entram com 9b–9d) | feito (pendências na ordem e com os textos da referência em `viagens/prestacao.py:pendencias`, desde 9d-1/9d-3) |
 | 15 | Agenda com fontes de Viagens (A1: mês/lista, viagens, prazos de saque, feriados; ver [agenda.md](agenda.md)) | feito (A1) |
 | 15b | Agenda A2a: semana/dia, conflitos entre módulos (ofício × palestra), busca global ([busca.md](busca.md)) | feito (A2a) |
 | 15c | Agenda A2b: "só os meus", pauta em PDF, escala pessoa × dia | feito (A2b) |
 | 15d | Agenda A2c: dossiê, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
 | 17 | Eventos Sociais E1 (catálogos e modelo do tipo) e E2 (solicitação: folha, envio, despacho da DG, devolução, reenvio, concluir, cancelar, transferir, duplicar, excluir, anexos, lista, CSV, avisos, agenda, conflitos) — ver [eventos-sociais.md](eventos-sociais.md) | feito (E1, E2) |
 | 17b | Eventos Sociais E3 (painel com os indicadores da referência, série 6/12/24, despacho da DG; lembretes diários pela rotina) | feito (E3) |
-| 17c | Eventos Sociais E4 (gerar viagem no deferimento; cancelar/avisar quando não atendida ou cancelada) | pendente |
+| 17c | Eventos Sociais E4 (gerar viagem da deferida pela folha, com a unidade; cancelar/avisar quando não atendida ou cancelada) | feito (E4 — sem automático, roteiro, anexos, multieventos e sincronização; ver decisoes.md) |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
 | 16d | Palestras PL2: pedido público com acompanhamento (revisão de segurança), choque palestrante × viagem | pendente |
-| P | Trilhas paralelas: histórico de roteiros | pendente |
+| P | Trilhas paralelas: histórico de roteiros | pendente (telas de roteiros em mudança pela sessão paralela de correção visual) |
+| 18 | Coffee Break (lotes contratados, solicitações, fluxo de pagamento; 0/61 rotas) — levantar a especificação na referência e fatiar | pendente |
+| 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)
 
@@ -90,15 +91,15 @@ Ver a fila abaixo (primeiro item não concluído).
 
 ## Iniciado e incompleto
 
-- Prestação 9a: pendências para finalizar só conhecem nº de solicitação e prazo de saque
-  (despacho, comprovante, diário e RT chegam com 9b–9d); selo de saque ignora comprovante
-  até 9d. Rotina diária de avisos (saque vencendo etc.) ainda não existe.
+- Prestação: revisão página a página do pacote (13d) e posição automática do carimbo.
+- Eventos Sociais: o que ficou fora de E1–E4 está em [eventos-sociais.md](eventos-sociais.md)
+  (geração automática da viagem, roteiro/anexos/multieventos, XLSX, consultar protocolo).
 
 ## Falhas conhecidas
 
-- Nenhuma conhecida (05/10): em `85d58d4`, suíte rápida 1264 passaram e regressão de
-  navegador completa 375 passaram, 0 falhas (o orçamento de desempenho que falhou sob
-  carga em `cc007ca` passou desta vez — segue em observação).
+- Nenhuma conhecida (05/10): em `6e92030` (E3), suíte rápida 1436 passaram, 0 falhas;
+  navegador direcionado (eventos, imprensa, publicações, UI Lab, axe) 21 passaram. A
+  regressão de navegador completa não foi rodada depois de `85d58d4` (375 passaram).
 
 ## Bloqueios externos
 

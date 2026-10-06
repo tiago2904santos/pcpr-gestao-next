@@ -101,10 +101,13 @@ Regras em `gestao/palestras/policies.py`.
 | Pedir (criar), editar rascunho/devolvida, enviar, reenviar, confirmar atendimento, cancelar, anexar | as próprias | as próprias | as próprias |
 | Ver lista, folha e exportar CSV | as próprias | todas (`ver_todas_solicitacoes`) | todas (`ver_todas_solicitacoes`) |
 | Despachar e ajustar servidores (`despachar_solicitacao`) | — | ✓ | — |
+| Gerar a viagem da solicitação deferida (unidade à escolha) | — | ✓ | — |
 | Textos prontos do despacho (`*_textodespacho`) | — | ✓ | ✓ |
 | Demais catálogos (tipos, serviços, equipes, órgãos, unidades móveis) | — | — | ✓ |
 
-Solicitação que a pessoa não vê → 404. Regras em `gestao/eventos/policies.py`.
+Solicitação que a pessoa não vê → 404. Regras em `gestao/eventos/policies.py`. Quem cria
+viagens (`viagens.add_viagem`, lotado) também gera a viagem de uma solicitação que vê, só
+para a própria unidade (`gestao/viagens/de_eventos.py`).
 
 ## Regras por objeto (Ofício)
 

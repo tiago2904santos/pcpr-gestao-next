@@ -90,3 +90,21 @@ def test_telas_sem_rolagem_horizontal(logado, dados_e2e, largura):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"
+
+
+def test_gerar_viagem_da_deferida(logado, dados_e2e):
+    """E4: a DG defere e gera a viagem pela folha; a seção mostra a viagem criada."""
+    from gestao.eventos import solicitacoes
+    from gestao.viagens.models import Viagem
+
+    u, s = _cenario("GESTOR_DG")
+    solicitacoes.enviar(u, s.pk)
+    solicitacoes.despachar(u, s.pk, "atender")
+    pg = logado
+    pg.goto(f"/eventos/solicitacoes/{s.pk}/#viagem")
+    expect(pg.locator("#viagem")).to_contain_text("Gerar viagem")
+    pg.get_by_role("button", name="Gerar viagem").click()
+    expect(pg.locator("#viagem .registro__link")).to_be_visible()
+    v = Viagem.objects.get(solicitacoes_de_evento__solicitacao=s)
+    assert f"(Solicitação #{s.pk})" in v.motivo
+    assert not pg.erros_console  # type: ignore[attr-defined]

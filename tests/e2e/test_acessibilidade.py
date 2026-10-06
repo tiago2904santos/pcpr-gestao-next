@@ -479,3 +479,16 @@ def test_solicitacoes_de_evento_sem_violacoes(logado, dados_e2e, largura):
     for rota in ("/eventos/", "/eventos/?meses=24", "/eventos/solicitacoes/",
                  "/eventos/solicitacoes/nova/", f"/eventos/solicitacoes/{s.pk}/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_viagem_da_solicitacao_sem_violacoes(logado, dados_e2e, largura):
+    from gestao.eventos import solicitacoes
+
+    from .test_solicitacoes_evento import _cenario
+
+    u, s = _cenario("GESTOR_DG")
+    solicitacoes.enviar(u, s.pk)
+    solicitacoes.despachar(u, s.pk, "atender")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    _avaliar(logado, f"/eventos/solicitacoes/{s.pk}/")

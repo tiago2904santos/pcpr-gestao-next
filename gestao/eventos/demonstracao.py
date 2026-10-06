@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from gestao.cadastros.models import Municipio, Servidor
 
-from . import dominio
+from . import dominio, ganchos
 from .models import (
     Equipe,
     Movimento,
@@ -169,4 +169,20 @@ def semear(usuario, hoje: date | None = None, outros: tuple = ()) -> int:
             _movimento(s, Movimento.Acao.CONCLUSAO, dominio.DEFERIDA, dominio.ATENDIDA, dono,
                        _em(min(fim + timedelta(days=1), hoje), 11))
         criadas += 1
+    _viagens(usuario, hoje)
     return criadas
+
+
+def _viagens(usuario, hoje: date) -> None:
+    """Duas deferidas próximas já com a viagem gerada (pela integração de Viagens, quando
+    registrada), para a seção "Viagem" da folha poder ser avaliada nos dois estados."""
+    integracao = ganchos.viagem()
+    if integracao is None:
+        return
+    for s in (Solicitacao.objects.filter(status=dominio.DEFERIDA, municipio__isnull=False,
+                                         data_inicio_evento__gte=hoje)
+              .order_by("data_inicio_evento", "pk")[:2]):
+        info = integracao.resumo(usuario, s)
+        unidade = info["sugerida"] or (info["unidades"][0].pk if info["unidades"] else None)
+        if info["pode_gerar"] and unidade:
+            integracao.gerar(usuario, s, unidade)

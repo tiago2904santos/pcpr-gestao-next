@@ -6,6 +6,7 @@ auditoria do banco.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import date
 from functools import partial
@@ -20,7 +21,7 @@ from django.utils import timezone
 
 from gestao.plataforma.notificacoes import notificar
 
-from . import dominio, policies
+from . import dominio, ganchos, policies
 from .models import (
     AnexoSolicitacao,
     Equipe,
@@ -29,7 +30,10 @@ from .models import (
     Solicitacao,
     SolicitacaoEquipe,
     SolicitacaoServico,
+    ViagemGerada,
 )
+
+logger = logging.getLogger(__name__)
 
 SolicitacaoInvalida = dominio.RegraViolada
 
@@ -265,6 +269,8 @@ def despachar(usuario, pk: int, decisao: str, observacao: str = "",
         _mover(s, usuario, Movimento.Acao.DECISAO, anterior, s.observacoes_dg)
         _avisar([s.criado_por], f"Solicitação #{s.pk}: {s.get_status_display().lower()}",
                 s.observacoes_dg or "A Diretoria-Geral registrou a decisão.", s, usuario)
+        if novo in (dominio.NAO_ATENDIDA, dominio.CANCELADA):
+            _encerrar_viagem(usuario, s, s.observacoes_dg)
     return s
 
 
@@ -276,6 +282,28 @@ def proxima_da_fila(usuario, depois_de: int | None = None) -> Solicitacao | None
     if depois_de:
         qs = qs.exclude(pk=depois_de)
     return qs.first()
+
+
+# ---------------------------------------------------------------- viagem (E4)
+@transaction.atomic
+def registrar_viagem(usuario, pk: int, viagem_pk: int, observacao: str = "") -> None:
+    """Chamado pela integração de Viagens depois de criar a viagem (ganchos)."""
+    s = Solicitacao.objects.get(pk=pk)
+    ViagemGerada.objects.create(solicitacao=s, viagem_id=viagem_pk, criada_por=usuario)
+    _mover(s, usuario, Movimento.Acao.VIAGEM, s.status, observacao)
+
+
+def _encerrar_viagem(usuario, s: Solicitacao, motivo: str) -> None:
+    """Não atendida ou cancelada: a viagem gerada é cancelada (sem documento) ou a unidade é
+    avisada. Uma falha aqui não desfaz o despacho nem o cancelamento (vira log)."""
+    integracao = ganchos.viagem()
+    if integracao is None or not s.viagens_geradas.exists():
+        return
+    try:
+        with transaction.atomic():
+            integracao.encerrar(usuario, s, motivo)
+    except Exception:
+        logger.exception("Viagem da solicitação %s não encerrada.", s.pk)
 
 
 # ---------------------------------------------------------------- encerramento e outros
@@ -309,6 +337,7 @@ def cancelar(usuario, pk: int, motivo: str) -> Solicitacao:
     _mover(s, usuario, Movimento.Acao.CANCELAMENTO, anterior, motivo)
     _avisar([*_dg(), s.criado_por], f"Solicitação #{s.pk}: evento cancelado", motivo, s,
             usuario)
+    _encerrar_viagem(usuario, s, motivo)
     return s
 
 

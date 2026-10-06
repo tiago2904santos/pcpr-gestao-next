@@ -168,6 +168,7 @@ class Movimento(models.Model):
         CANCELAMENTO = "cancelamento", "Evento cancelado"
         TRANSFERENCIA = "transferencia", "Responsável transferido"
         ANEXO = "anexo", "Anexos"
+        VIAGEM = "viagem", "Viagem gerada"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")
@@ -187,6 +188,30 @@ class Movimento(models.Model):
 
     def __str__(self) -> str:
         return f"{self.solicitacao} — {self.get_acao_display()}"
+
+
+class ViagemGerada(models.Model):
+    """A viagem de Viagens que nasceu desta solicitação (E4). A chave aponta para Viagens
+    pelo nome do modelo: Eventos não importa Viagens (a integração entra pelos ganchos)."""
+
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
+                                    related_name="viagens_geradas")
+    viagem = models.ForeignKey("viagens.Viagem", on_delete=models.CASCADE,
+                               related_name="solicitacoes_de_evento")
+    criada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                   related_name="+")
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "eventos"
+        ordering = ["criada_em", "pk"]
+        verbose_name = "viagem gerada da solicitação"
+        verbose_name_plural = "viagens geradas das solicitações"
+        constraints = [models.UniqueConstraint(fields=["solicitacao", "viagem"],
+                                               name="eventos_viagem_gerada_unica")]
+
+    def __str__(self) -> str:
+        return f"{self.solicitacao} → Viagem #{self.viagem_id}"
 
 
 class Lembrete(models.Model):
