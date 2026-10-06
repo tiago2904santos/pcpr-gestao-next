@@ -21,11 +21,24 @@ ASCOM"), reimplementado no padrão das folhas, sem copiar código. As regras vê
 
 - Pedido público (`/pedido/`, sem login, com link de acompanhamento por token e anexo):
   rota aberta a quem não tem conta — fica para uma fatia própria, com revisão de segurança.
-- Encaminhar à DG (cria a solicitação de evento): depende do módulo Solicitações.
 - Consultar o protocolo no eProtocolo: a integração ainda é simulada.
 - "Preencher com um e-mail" e o importador da planilha.
-- Choque de agenda palestrante × viagem: entra com a Agenda A2 (o vínculo com o servidor já
-  existe).
+
+## PL2a — encaminhar à DG (06/10/2026)
+
+- "Encaminhar à DG" na folha (quem edita palestras; não em cancelada; uma vez só): cria o
+  rascunho da solicitação de evento (Eventos Sociais) com datas (fim = início se faltar),
+  município, tipo (PCPR na Comunidade/Palestra pelo nome do tipo), solicitante, contato
+  (telefone e e-mail), local/endereço e a descrição com tema, palestrante, horário, público
+  e "Encaminhada da … #N da ASCOM."; liga as duas (`Palestra.solicitacao_dg`), registra o
+  andamento e leva à solicitação para completar órgão, serviços e equipes. Na folha, depois,
+  o link "Solicitação à DG #N".
+- O que a DG faz (envio, devolução, reenvio, decisão, conclusão, cancelamento) aparece no
+  histórico da palestra, lido da solicitação ligada (Palestras pode importar Eventos; o
+  contrário, não).
+- O choque palestrante × viagem já está nos conflitos de agenda (A2a).
+- Continua fora: o pedido público sem login (decisão do usuário), consultar o protocolo no
+  eProtocolo (integração simulada), "preencher com e-mail" e o importador da planilha.
 
 ## Decisões (do agente — a confirmar)
 

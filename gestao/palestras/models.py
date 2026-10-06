@@ -142,6 +142,10 @@ class Palestra(models.Model):
     status = models.CharField("status", max_length=25, choices=Status.choices,
                               default=Status.PENDENTE)
     andamento = models.TextField("andamento", blank=True)
+    # A solicitação de evento criada pelo "Encaminhar à DG" (PL2a).
+    solicitacao_dg = models.ForeignKey("eventos.Solicitacao", verbose_name="solicitação à DG",
+                                       on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name="palestras")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
                                    related_name="palestras")
     criado_em = models.DateTimeField(auto_now_add=True)

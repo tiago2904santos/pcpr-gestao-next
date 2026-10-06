@@ -73,7 +73,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |
-| 16d | Palestras PL2: pedido público com acompanhamento (revisão de segurança), choque palestrante × viagem | pendente |
+| 16d | Palestras PL2a: encaminhar à DG (rascunho da solicitação de evento ligado, retorno da DG no histórico); o choque palestrante × viagem já veio com a A2a | feito (PL2a) |
+| 16e | Palestras PL2b: pedido público sem login com acompanhamento por token e anexo | pendente (decisão do usuário: abrir rota pública) |
 | P | Trilhas paralelas: histórico de roteiros | pendente (telas de roteiros em mudança pela sessão paralela de correção visual) |
 | 18 | Coffee Break — especificação levantada ([coffee-break.md](coffee-break.md)); CB1 acesso e cadastros contratuais | feito (CB1) |
 | 18b | Coffee Break CB2 (solicitação/etapa 1 e lista: lote pelo município, saldo com trava, vigência, retroativo, antecedência, duplicar, cancelar/reativar/excluir, CSV, lotes com saldo) | feito (CB2 — numeração própria até a decisão) |

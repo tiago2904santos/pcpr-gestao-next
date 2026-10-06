@@ -23,7 +23,16 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import conflitos, dominio, historico, pedir_coffee, policies, queries, services
+from . import (
+    conflitos,
+    dominio,
+    encaminhamento,
+    historico,
+    pedir_coffee,
+    policies,
+    queries,
+    services,
+)
 from .forms import (
     FORM_ID,
     FormularioAndamento,
@@ -166,6 +175,7 @@ def _contexto_folha(request: HttpRequest, form: FormularioPalestra, p: Palestra 
     possiveis = dominio.opcoes_de_status(p.status, p.data_inicio_evento, hoje)
     contexto.update({
         "pedir_coffee": pedir_coffee.url(request.user, p),
+        "pode_encaminhar_dg": encaminhamento.pode_encaminhar(request.user, p),
         "quando": dominio.quando(p.data_inicio_evento, p.data_fim_evento, hoje),
         "etapas": dominio.etapas(p.status),
         "andamento": andamento or FormularioAndamento(),
@@ -279,6 +289,21 @@ def andamento(request: HttpRequest, pk: int) -> HttpResponse:
         form.errors["novo_status"] = form.error_class([dominio.MSG_ESCOLHA])
     messages.error(request, "O andamento não foi registrado: veja o cartão Andamento.")
     return _refazer(request, objeto, andamento=form)
+
+
+@require_POST
+def encaminhar_dg(request: HttpRequest, pk: int) -> HttpResponse:
+    """A palestra vira o rascunho de uma solicitação de evento para o despacho da DG."""
+    _exigir(policies.pode_editar(request.user))
+    objeto = get_object_or_404(queries.base(), pk=pk)
+    try:
+        s = encaminhamento.encaminhar(request.user, objeto.pk)
+    except encaminhamento.EncaminhamentoInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect("palestras:palestra", pk=objeto.pk)
+    messages.success(request, f"Solicitação de evento #{s.pk} criada em rascunho: complete o "
+                              "órgão, os serviços e as equipes e envie à DG.")
+    return redirect("eventos:solicitacao", pk=s.pk)
 
 
 @require_POST

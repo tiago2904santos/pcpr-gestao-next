@@ -36,6 +36,8 @@ com o seu formulário.
   {% if palestra %}
   <div class="pagina-cabecalho__acoes">
     {% if pedir_coffee %}<a class="botao" href="{{ pedir_coffee }}">{% icone "receipt" %}Pedir coffee break</a>{% endif %}
+    {% if palestra.solicitacao_dg_id %}<a class="botao botao--sutil" href="{% url 'eventos:solicitacao' palestra.solicitacao_dg_id %}">{% icone "send" %}Solicitação à DG #{{ palestra.solicitacao_dg_id }}</a>
+    {% elif pode_encaminhar_dg %}<form method="post" action="{% url 'palestras:encaminhar_dg' palestra.pk %}" data-confirmar="Cria o rascunho de uma solicitação de evento com os dados desta palestra; você completa lá o órgão, os serviços e as equipes e envia à DG." data-confirmar-titulo="Encaminhar à DG?" data-confirmar-rotulo="Encaminhar">{% csrf_token %}<button type="submit" class="botao">{% icone "send" %}Encaminhar à DG</button></form>{% endif %}
     {% if editavel %}<a class="botao" href="#resposta">{% icone "mail" %}Responder</a><a class="botao" href="#andamento">{% icone "activity" %}Andamento</a>{% endif %}
   </div>
   {% endif %}
@@ -221,7 +223,7 @@ com o seu formulário.
       </div>
       <ol class="historico__linhas" aria-label="Eventos da palestra">
         {% for h in historico %}
-        <li class="historico__linha{% if h.acao == 'andamento' or h.acao == 'resposta' %} historico__linha--marca{% endif %}">
+        <li class="historico__linha{% if h.acao == 'andamento' or h.acao == 'resposta' or h.acao == 'dg' %} historico__linha--marca{% endif %}">
           <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
           <span class="historico__texto">{{ h.descricao }}</span>
           <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>

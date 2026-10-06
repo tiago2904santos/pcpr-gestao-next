@@ -29,7 +29,7 @@ FILHAS = {"palestras_palestra_temas": "temas", "palestras_palestra_palestrantes"
 @dataclass
 class Evento:
     em: datetime
-    acao: str  # criado | alterado | andamento | resposta
+    acao: str  # criado | alterado | andamento | resposta | dg
     usuario: object | None
     texto: str = ""
     partes: list[str] = field(default_factory=list)
@@ -68,5 +68,12 @@ def da_palestra(p: Palestra) -> list[Evento]:
                               f"{texto} — {a.anotacao}" if a.anotacao else texto))
     for r in p.respostas.select_related("usuario"):
         eventos.append(Evento(r.em, "resposta", r.usuario, f"Resposta enviada: {r.tipo}"))
+    from .encaminhamento import movimentos_da_dg  # o que a DG fez na solicitação ligada
+
+    for m in movimentos_da_dg(p):
+        texto = (f"Solicitação #{m.solicitacao_id} — {m.get_acao_display()}: "
+                 f"{m.solicitacao.get_status_display()}")
+        eventos.append(Evento(m.em, "dg", m.usuario,
+                              f"{texto} — {m.observacao}" if m.observacao else texto))
     eventos.sort(key=lambda e: e.em, reverse=True)
     return eventos
