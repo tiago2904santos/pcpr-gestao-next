@@ -592,8 +592,12 @@ a.ficha:hover {
   font-size: var(--texto-sm);
 }
 
-/* Desativado: continua na lista (para reativar), mas recua. */
-.registro--inativo .registro__link,
+/* Desativado: continua na lista (para reativar), mas recua — o título passa ao texto
+   terciário (5,3:1, ainda AA); o hover devolve a cor de link como em qualquer linha. */
+.registro--inativo .registro__link {
+  color: var(--cor-texto-terciario);
+}
+
 /* Notas curtas sob o registro (a via assinada: conferência do PDF, dados que mudaram): cada
    uma numa linha, com o ícone ao lado do texto. */
 .registro__notas {
