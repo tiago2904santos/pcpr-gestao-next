@@ -117,6 +117,8 @@ para a própria unidade (`gestao/viagens/de_eventos.py`).
 | Cadastros contratuais: fornecedores, contratos, termos aditivos, lotes, ofício e protocolo | ver | ✓ | — |
 | Baixar o PDF do contrato/aditivo | ✓ | ✓ | — |
 | Solicitações (registrar, editar a etapa 1, cancelar, reativar, excluir antes da nota, duplicar), lista, CSV e lotes | ✓ | ✓ | — |
+| Etapas 2 e 3 (nota, ofício, protocolo, pagamento) e andamento | ✓ | ✓ | — |
+| Reabrir concluída para correção / encerrar a correção | — | ✓ | — |
 
 `ADMINISTRADOR` sem o papel do módulo não entra (como na referência: o administrador do
 módulo é o módulo + o perfil). Regras em `gestao/coffee/policies.py`.

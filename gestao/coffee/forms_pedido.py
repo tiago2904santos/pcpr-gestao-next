@@ -116,3 +116,69 @@ class FormularioSolicitacao(forms.Form):
             for nome in TRAVADOS:
                 dados[nome] = getattr(s, nome) if nome != "numero" else s.numero
         return dados
+
+
+FORM_FINANCEIRO = "form-financeiro"
+
+
+def _fin(**attrs) -> forms.TextInput:
+    return forms.TextInput(attrs={"class": "entrada", "autocomplete": "off",
+                                  "form": FORM_FINANCEIRO, **attrs})
+
+
+def _data_fin() -> EntradaData:
+    return EntradaData(attrs={"form": FORM_FINANCEIRO})
+
+
+class FormularioFinanceiro(forms.Form):
+    """Etapas 2 (nota fiscal e ofício) e 3 (protocolo e pagamento), gravadas juntas; a ordem
+    dos marcos é conferida no serviço (mensagens da referência)."""
+
+    nota_fiscal = forms.CharField(label="Nº da nota fiscal", required=False, max_length=60,
+                                  widget=_fin())
+    quantidade_faturada = forms.IntegerField(
+        label="Pessoas faturadas", required=False, min_value=1,
+        widget=forms.NumberInput(attrs={"class": "entrada", "inputmode": "numeric",
+                                        "form": FORM_FINANCEIRO}),
+        help_text="Em branco, o lote desconta o pedido; com a nota, desconta o faturado e a "
+                  "diferença volta ao saldo.")
+    numero_oficio = forms.CharField(label="Nº do ofício", required=False, max_length=20,
+                                    widget=_fin(inputmode="numeric"),
+                                    help_text="Em branco, o próximo livre quando houver nota.")
+    data_oficio = forms.DateField(label="Data do ofício", required=False,
+                                  input_formats=FORMATOS_DATA, widget=_data_fin())
+    protocolo_pcpr = forms.CharField(label="PCPR protocolo n.º", required=False, max_length=30,
+                                     widget=_fin())
+    protocolo_pagamento = forms.CharField(
+        label="Protocolo de pagamento", required=False, max_length=20,
+        widget=_fin(inputmode="numeric", placeholder="00.000.000-0",
+                    **{"data-mascara": "protocolo"}),
+        help_text="O protocolo aberto à mão no eProtocolo (00.000.000-0).")
+    atesto_em = forms.DateField(label="Atesto e envio ao GAF em", required=False,
+                                input_formats=FORMATOS_DATA, widget=_data_fin())
+    ordem_bancaria_em = forms.DateField(label="Ordem bancária emitida em", required=False,
+                                        input_formats=FORMATOS_DATA, widget=_data_fin())
+    envio_empresa_em = forms.DateField(label="OB enviada à empresa em", required=False,
+                                       input_formats=FORMATOS_DATA, widget=_data_fin())
+    observacoes = forms.CharField(label="Observações", required=False, max_length=2000,
+                                  widget=forms.Textarea(attrs={"class": "entrada", "rows": 2,
+                                                               "form": FORM_FINANCEIRO}))
+    versao = forms.CharField(required=False,
+                             widget=forms.HiddenInput(attrs={"form": FORM_FINANCEIRO}))
+
+    def __init__(self, *args, solicitacao=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if solicitacao is not None and not self.is_bound:
+            for nome in self.fields:
+                if nome != "versao":
+                    self.initial[nome] = getattr(solicitacao, nome)
+            self.initial["numero_oficio"] = solicitacao.numero_oficio.partition("/")[0]
+            self.initial["versao"] = versao_de(solicitacao)
+        if solicitacao is not None and solicitacao.bloqueada:
+            for campo in self.fields.values():
+                campo.disabled = True
+
+
+class FormularioAndamento(forms.Form):
+    valor = forms.CharField(required=False, max_length=60)
+    anotacao = forms.CharField(label="Anotação", required=False, max_length=500)

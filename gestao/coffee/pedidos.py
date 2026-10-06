@@ -42,6 +42,14 @@ def _exigir(usuario) -> None:
         raise PermissionDenied
 
 
+def _valor(v) -> str:
+    if v in (None, ""):
+        return "—"
+    if isinstance(v, date):
+        return f"{v:%d/%m/%Y}"
+    return str(v)
+
+
 def _mover(s: Solicitacao, usuario, acao: str, texto: str = "") -> None:
     Movimento.objects.create(solicitacao=s, acao=acao, texto=texto.strip(), usuario=usuario)
 
@@ -141,10 +149,16 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
                f"Solicitação {s.numero} registrada no {lote} ({lote.contrato.fornecedor})."
                + origem)
     else:
-        mudancas = [ROTULOS[c] for c in CAMPOS if antes.get(c) != getattr(s, c)]
-        _mover(s, usuario, Movimento.Acao.ATUALIZADA,
-               f"Campos atualizados: {', '.join(mudancas)}." if mudancas
-               else "Solicitação salva sem alteração de campos.")
+        mudancas = [c for c in CAMPOS if antes.get(c) != getattr(s, c)]
+        if s.em_correcao:  # concluída reaberta: cada campo mudado fica no histórico
+            for c in mudancas:
+                _mover(s, usuario, Movimento.Acao.CORRECAO,
+                       f"Correção — {ROTULOS[c]}: {_valor(antes.get(c))} → "
+                       f"{_valor(getattr(s, c))}.")
+        else:
+            _mover(s, usuario, Movimento.Acao.ATUALIZADA,
+                   "Campos atualizados: " + ", ".join(ROTULOS[c] for c in mudancas) + "."
+                   if mudancas else "Solicitação salva sem alteração de campos.")
     if retroativo and justificativa.strip():
         _mover(s, usuario, Movimento.Acao.ATUALIZADA,
                f"Registro retroativo: {justificativa.strip()}")

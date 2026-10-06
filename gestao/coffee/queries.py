@@ -123,6 +123,13 @@ def proximo_numero(ano: int) -> str:
     return f"{max((seq for _a, seq in usadas), default=0) + 1}/{ano}"
 
 
+def proximo_oficio(ano: int) -> str:
+    """Próximo ofício ao GAF do ano (numeração própria por ora, como a da OS)."""
+    usados = [s for n in Solicitacao.objects.filter(numero_oficio__endswith=f"/{ano}")
+              .values_list("numero_oficio", flat=True) if (s := dominio_pedido.sequencia(n))]
+    return f"{max((seq for _a, seq in usados), default=0) + 1}/{ano}"
+
+
 def filtrar(qs: QuerySet[Solicitacao], *, q: str = "", lote: int | None = None,
             fornecedor: int | None = None, de: date | None = None, ate: date | None = None,
             situacao: str = "", pendentes: bool = False) -> QuerySet[Solicitacao]:

@@ -158,3 +158,27 @@ def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"
+
+
+def test_andamento_do_proximo_marco(logado, dados_e2e):
+    """CB3a: registrar a nota pelo andamento e ver a etapa seguinte como a atual."""
+    from django.utils import timezone
+
+    from gestao.coffee import pedidos
+    from gestao.identidade.models import Usuario
+
+    _operador_do_modulo()
+    lote = _lote_de_curitiba()
+    s = pedidos.salvar(Usuario.objects.get(login="operador"), {
+        "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
+        "numero": "", "descricao": "Evento do andamento (e2e)", "quantidade": 30}).solicitacao
+    pg = logado
+    pg.goto(f"/coffee/solicitacoes/{s.pk}/#situacao")
+    pg.locator("#andamento-valor").fill("8957")
+    pg.locator("#andamento-anotacao").fill("Nota por e-mail (e2e)")
+    pg.get_by_role("button", name="Registrar andamento").click()
+    expect(pg.locator(".etapas-progresso__item--atual")).to_contain_text("Protocolo")
+    expect(pg.locator("#historico")).to_contain_text("Número da nota fiscal: 8957")
+    s.refresh_from_db()
+    assert s.nota_fiscal == "8957" and s.situacao == "aguardando_protocolo"
+    assert not pg.erros_console  # type: ignore[attr-defined]

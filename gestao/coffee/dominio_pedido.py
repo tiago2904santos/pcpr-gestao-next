@@ -212,3 +212,98 @@ def sequencia(numero: str) -> tuple[int, int] | None:
     if seq.strip().isdecimal() and ano.strip().isdecimal():
         return int(ano), int(seq)
     return None
+
+
+# ---------------------------------------------------------------- fluxo financeiro (CB3)
+# Os marcos na ordem do fluxo: (campo, etapa no stepper, rótulo, tipo).
+MARCOS = (
+    ("nota_fiscal", "Nota fiscal", "Número da nota fiscal", "texto"),
+    ("protocolo_pagamento", "Protocolo", "Protocolo de pagamento", "texto"),
+    ("atesto_em", "Atesto", "Atesto e envio ao GAF em", "data"),
+    ("ordem_bancaria_em", "Ordem bancária", "Ordem bancária emitida em", "data"),
+    ("envio_empresa_em", "Paga", "OB enviada à empresa em", "data"),
+)
+MSG_SEM_MARCO = "Esta solicitação não tem marco a registrar."
+MSG_PROTOCOLO_VAZIO = "Informe o número do protocolo aberto no eProtocolo."
+MSG_PROTOCOLO_FORMATO = "O número do protocolo deve estar no formato 00.000.000-0."
+MSG_NOTA_OBRIGATORIA = ("O protocolo de pagamento já foi registrado: a nota não pode ficar em "
+                        "branco.")
+MSG_SO_CONCLUIDA = "Só solicitações concluídas são reabertas para correção."
+MSG_JA_EM_CORRECAO = "A solicitação já está aberta para correção."
+MSG_MOTIVO_CORRECAO = "Informe o motivo da correção."
+MSG_NAO_EM_CORRECAO = "A solicitação não está aberta para correção."
+
+
+def erros_dos_marcos(nota: str, protocolo: str, atesto: date | None, ob: date | None,
+                     envio: date | None) -> dict[str, str]:
+    """A ordem dos marcos (mensagens da referência), por campo."""
+    erros: dict[str, str] = {}
+    if protocolo and not nota:
+        erros["protocolo_pagamento"] = "Informe a nota fiscal antes do protocolo de pagamento."
+    if atesto and not protocolo:
+        erros["atesto_em"] = "Informe o protocolo de pagamento antes do atesto."
+    if ob and not atesto:
+        erros["ordem_bancaria_em"] = "Informe o atesto antes da ordem bancária."
+    if envio and not ob:
+        erros["envio_empresa_em"] = ("Informe a emissão da ordem bancária antes do envio à "
+                                     "empresa.")
+    if atesto and ob and ob < atesto:
+        erros["ordem_bancaria_em"] = "A ordem bancária não pode ser anterior ao atesto."
+    if ob and envio and envio < ob:
+        erros["envio_empresa_em"] = ("O envio à empresa não pode ser anterior à emissão da "
+                                     "ordem bancária.")
+    return erros
+
+
+def formatar_protocolo(texto: str | None) -> str:
+    """9 dígitos → 00.000.000-0; vazio → ""; outro formato → ValueError."""
+    digitos = "".join(c for c in (texto or "") if c.isdigit() and c.isascii())
+    if not digitos:
+        return ""
+    if len(digitos) != 9:
+        raise ValueError(MSG_PROTOCOLO_FORMATO)
+    return f"{digitos[:2]}.{digitos[2:5]}.{digitos[5:8]}-{digitos[8]}"
+
+
+def _feito(valor) -> bool:
+    return bool(valor.strip()) if isinstance(valor, str) else valor is not None
+
+
+def etapas(valores: dict, cancelada: bool) -> list[tuple[str, str]]:
+    """O stepper: (título, estado) — um marco conta como feito quando ele ou um posterior
+    está preenchido; o atual é o próximo (nada é atual em cancelada)."""
+    feitos = [_feito(valores.get(campo)) for campo, *_ in MARCOS]
+    ultimo = max((i for i, f in enumerate(feitos) if f), default=-1)
+    saida = [("Pedido", "concluido")]
+    for i, (_campo, titulo, *_r) in enumerate(MARCOS):
+        estado = ("concluido" if i <= ultimo
+                  else "atual" if i == ultimo + 1 and not cancelada else "pendente")
+        saida.append((titulo, estado))
+    return saida
+
+
+def proximo_marco(valores: dict, cancelada: bool) -> tuple[str, str, str] | None:
+    """(campo, rótulo, tipo) do marco que falta, ou None quando acabou (ou cancelada)."""
+    if cancelada:
+        return None
+    feitos = [_feito(valores.get(campo)) for campo, *_ in MARCOS]
+    ultimo = max((i for i, f in enumerate(feitos) if f), default=-1)
+    if ultimo + 1 >= len(MARCOS):
+        return None
+    campo, _titulo, rotulo, tipo = MARCOS[ultimo + 1]
+    return campo, rotulo, tipo
+
+
+def texto_faturada(pedida: int, antes: int | None, depois: int | None) -> str:
+    """O histórico da quantidade faturada (o saldo do lote acompanha)."""
+    if depois == antes:
+        return ""
+    if depois is None:
+        return f"Quantidade faturada removida: o lote volta a descontar as {pedida} pedidas."
+    if depois < pedida:
+        return (f"Quantidade faturada: {depois} de {pedida} pedidas; {pedida - depois} "
+                "voltaram ao saldo do lote.")
+    if depois > pedida:
+        return (f"Quantidade faturada: {depois} de {pedida} pedidas; {depois - pedida} a mais "
+                "saíram do saldo do lote.")
+    return f"Quantidade faturada: {depois} de {pedida} pedidas."

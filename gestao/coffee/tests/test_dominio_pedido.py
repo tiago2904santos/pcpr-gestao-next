@@ -76,3 +76,30 @@ def test_numero_da_os():
     with pytest.raises(ValueError, match="1 ou mais"):
         d.formatar_numero("0", 2026)
     assert d.sequencia("41/2026") == (2026, 41) and d.sequencia("x") is None
+
+
+def test_ordem_dos_marcos():
+    assert d.erros_dos_marcos("", "12.345.678-9", None, None, None) == {
+        "protocolo_pagamento": "Informe a nota fiscal antes do protocolo de pagamento."}
+    e = d.erros_dos_marcos("1", "p", date(2026, 5, 10), date(2026, 5, 1), date(2026, 4, 1))
+    assert e["ordem_bancaria_em"] == "A ordem bancária não pode ser anterior ao atesto."
+    assert "não pode ser anterior à emissão" in e["envio_empresa_em"]
+    assert d.erros_dos_marcos("1", "", None, date(2026, 5, 1), None) == {
+        "ordem_bancaria_em": "Informe o atesto antes da ordem bancária."}
+
+
+def test_protocolo_stepper_proximo_marco_e_faturada():
+    assert d.formatar_protocolo("123456789") == "12.345.678-9"
+    assert d.formatar_protocolo("") == ""
+    with pytest.raises(ValueError, match=r"00.000.000-0"):
+        d.formatar_protocolo("12345")
+    valores = {"nota_fiscal": "8957", "protocolo_pagamento": "", "atesto_em": None}
+    assert d.proximo_marco(valores, False) == ("protocolo_pagamento", "Protocolo de pagamento",
+                                               "texto")
+    assert d.proximo_marco(valores, True) is None
+    estados = dict(d.etapas(valores, False))
+    assert estados["Nota fiscal"] == "concluido" and estados["Protocolo"] == "atual"
+    assert d.texto_faturada(300, None, 280).endswith("20 voltaram ao saldo do lote.")
+    assert "10 a mais saíram" in d.texto_faturada(300, None, 310)
+    assert d.texto_faturada(300, 280, None).startswith("Quantidade faturada removida")
+    assert d.texto_faturada(300, 280, 280) == ""

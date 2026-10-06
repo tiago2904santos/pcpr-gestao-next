@@ -37,12 +37,16 @@ class Solicitacao(Carimbos):
     nota_fiscal = models.CharField("nº da nota fiscal", max_length=60, blank=True)
     quantidade_faturada = models.PositiveIntegerField("quantidade faturada", null=True,
                                                       blank=True)
+    numero_oficio = models.CharField("nº do ofício", max_length=20, blank=True)
+    data_oficio = models.DateField("data do ofício", null=True, blank=True)
+    protocolo_pcpr = models.CharField("PCPR protocolo n.º", max_length=30, blank=True)
     protocolo_pagamento = models.CharField("protocolo de pagamento", max_length=20, blank=True)
     atesto_em = models.DateField("atesto e envio ao GAF", null=True, blank=True)
     ordem_bancaria_em = models.DateField("ordem bancária emitida em", null=True, blank=True)
     envio_empresa_em = models.DateField("ordem bancária enviada à empresa em", null=True,
                                         blank=True)
     observacoes = models.TextField("observações", blank=True)
+    em_correcao = models.BooleanField("aberta para correção", default=False)
     cancelada = models.BooleanField("cancelada", default=False)
     cancelada_em = models.DateTimeField(null=True, blank=True)
     cancelada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
@@ -108,7 +112,12 @@ class Solicitacao(Carimbos):
 
     @property
     def bloqueada(self) -> bool:
-        return self.cancelada or self.concluida
+        """Cancelada, ou concluída sem estar aberta para correção: só consulta."""
+        return self.cancelada or (self.concluida and not self.em_correcao)
+
+    @property
+    def valores_dos_marcos(self) -> dict:
+        return {campo: getattr(self, campo) for campo, *_ in dominio_pedido.MARCOS}
 
     @property
     def quantidade_efetiva(self) -> int:
@@ -128,6 +137,8 @@ class Movimento(models.Model):
         ATUALIZADA = "atualizada", "Solicitação atualizada"
         CANCELADA = "cancelada", "Solicitação cancelada"
         REATIVADA = "reativada", "Solicitação reativada"
+        ANDAMENTO = "andamento", "Andamento registrado"
+        CORRECAO = "correcao", "Correção"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")

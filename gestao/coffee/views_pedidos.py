@@ -20,8 +20,15 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from gestao.cadastros.forms import resolver_municipio
 
 from . import dominio_pedido as regras
-from . import pedidos, policies, queries
-from .forms_pedido import FORM_ID, MSG_TRAVADOS, FormularioSolicitacao
+from . import financeiro, pedidos, policies, queries
+from .forms_pedido import (
+    FORM_FINANCEIRO,
+    FORM_ID,
+    MSG_TRAVADOS,
+    FormularioAndamento,
+    FormularioFinanceiro,
+    FormularioSolicitacao,
+)
 from .models import Fornecedor, Lote, Solicitacao
 
 POR_PAGINA = 25
@@ -157,7 +164,8 @@ def _historico(s: Solicitacao) -> list:
 
 
 def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None,
-              duplicada: Solicitacao | None = None) -> dict:
+              duplicada: Solicitacao | None = None,
+              form_fin: FormularioFinanceiro | None = None) -> dict:
     hoje = timezone.localdate()
     ctx: dict = {"form": form, "s": s, "form_id": FORM_ID, "duplicada": duplicada,
                  "proximo_numero": queries.proximo_numero(hoje.year),
@@ -165,7 +173,16 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                  "numero_ano": f"/ {(s.data_solicitacao if s else hoje).year}"}
     if s is not None:
         sal = queries.saldo(s.lote)
+        marco = regras.proximo_marco(s.valores_dos_marcos, s.cancelada)
+        admin = policies.pode_gerir_cadastros(request.user)
         ctx.update({
+            "form_fin": form_fin or FormularioFinanceiro(solicitacao=s),
+            "form_financeiro_id": FORM_FINANCEIRO,
+            "etapas": regras.etapas(s.valores_dos_marcos, s.cancelada),
+            "proximo_marco": marco if not s.bloqueada else None,
+            "proximo_oficio": queries.proximo_oficio(timezone.localdate().year),
+            "pode_reabrir": admin and s.concluida and not s.em_correcao and not s.cancelada,
+            "pode_encerrar": admin and s.em_correcao,
             "saldo": sal, "fim_vigencia": s.lote.contrato.fim_efetivo(),
             "historico": _historico(s), "linha": _linha(s, hoje),
             "aviso_antecedencia": regras.aviso_antecedencia(
@@ -274,6 +291,53 @@ def _acao(request: HttpRequest, pk: int, fazer, sucesso: str) -> HttpResponse:
     messages.success(request, sucesso.format(r=resultado))
     return redirect("coffee:solicitacoes" if isinstance(resultado, str)
                     else reverse("coffee:solicitacao", args=[pk]))
+
+
+@require_POST
+def salvar_financeiro(request: HttpRequest, pk: int) -> HttpResponse:
+    """Etapas 2 e 3: nota fiscal, ofício, protocolo e pagamento."""
+    _exigir(request)
+    s = get_object_or_404(_base(), pk=pk)
+    if s.bloqueada:
+        messages.error(request, regras.MSG_BLOQUEADA)
+        return redirect("coffee:solicitacao", pk=pk)
+    form_fin = FormularioFinanceiro(request.POST, solicitacao=s)
+    if form_fin.is_valid():
+        try:
+            financeiro.salvar_financeiro(request.user, pk, form_fin.cleaned_data,
+                                         versao=form_fin.cleaned_data.get("versao") or "")
+        except pedidos.PedidoInvalido as exc:
+            form_fin.add_error(exc.campo if exc.campo in form_fin.fields else None, str(exc))
+        else:
+            messages.success(request, "Nota, ofício e pagamento salvos.")
+            return redirect(reverse("coffee:solicitacao", args=[pk]) + "#pagamento")
+    messages.error(request, "Corrija os campos destacados para continuar.")
+    return render(request, "coffee/folha.html",
+                  _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin),
+                  status=422)
+
+
+@require_POST
+def andamento(request: HttpRequest, pk: int) -> HttpResponse:
+    """Registra só o próximo marco, com anotação opcional."""
+    form = FormularioAndamento(request.POST)
+    form.is_valid()
+    return _acao(request, pk, lambda: financeiro.registrar_marco(
+        request.user, pk, form.cleaned_data.get("valor", ""),
+        form.cleaned_data.get("anotacao", "")), "Andamento registrado: {r.situacao_rotulo}.")
+
+
+@require_POST
+def reabrir(request: HttpRequest, pk: int) -> HttpResponse:
+    return _acao(request, pk, lambda: financeiro.reabrir_correcao(
+        request.user, pk, request.POST.get("motivo") or ""),
+        "Solicitação reaberta para correção. O que mudar fica no histórico.")
+
+
+@require_POST
+def encerrar_correcao(request: HttpRequest, pk: int) -> HttpResponse:
+    return _acao(request, pk, lambda: financeiro.encerrar_correcao(request.user, pk),
+                 "Correção encerrada: a solicitação voltou a ficar só para consulta.")
 
 
 @require_POST

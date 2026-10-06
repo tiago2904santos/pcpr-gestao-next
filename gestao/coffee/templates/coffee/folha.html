@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}{% if s %}{{ s }} · {{ s.descricao|truncatechars:40 }}{% else %}Nova solicitação{% endif %} · Coffee Break{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Folha da solicitação de coffee break (a ordem de serviço), etapa 1, na linguagem da folha do
 ofício: placa e frase no cabeçalho; 1 Evento e pedido (com o lote que o município recebe,
-consultado ao escolher o município), 2 Entrega, 3 Situação (cancelar, reativar, excluir,
-duplicar) e o histórico. As etapas 2 e 3 (nota, ofício, protocolo, pagamento) vêm na CB3.
+consultado ao escolher o município), 2 Entrega; 3 Nota fiscal e ofício e 4 Protocolo e
+pagamento (etapas 2 e 3, gravadas juntas); 5 Situação (andamento do próximo marco, cancelar,
+reativar, excluir, reabrir para correção) e o histórico.
 {% endcomment %}
 {% block conteudo %}
 <header class="pagina-cabecalho">
@@ -35,6 +36,7 @@ duplicar) e o histórico. As etapas 2 e 3 (nota, ofício, protocolo, pagamento) 
 {% include "componentes/resumo_erros.html" %}
 {% if duplicada %}<div class="alerta alerta--info mb-4" role="status">{% icone "copy" %}<div class="alerta__corpo"><p>Copiada de {{ duplicada }} ({{ duplicada.descricao|truncatechars:60 }}): datas, número e pagamento não vêm junto.</p></div></div>{% endif %}
 {% if s and s.cancelada %}<div class="alerta alerta--perigo mb-4" role="status">{% icone "ban" %}<div class="alerta__corpo"><p class="alerta__titulo">Solicitação cancelada</p><p>{{ s.motivo_cancelamento }}{% if s.cancelada_por %} — {{ s.cancelada_por.nome }}, {{ s.cancelada_em|date:"d/m/Y H:i" }}{% endif %}</p></div></div>
+{% elif s and s.em_correcao %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "pencil" %}<div class="alerta__corpo"><p>Aberta para correção: o que mudar fica no histórico, campo a campo.</p></div></div>
 {% elif s and s.concluida %}<div class="alerta alerta--sucesso mb-4" role="status">{% icone "check-circle-2" %}<div class="alerta__corpo"><p>Fluxo financeiro concluído: a solicitação fica só para consulta.</p></div></div>{% endif %}
 {% if msg_travados %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>{{ msg_travados }}</p></div></div>{% endif %}
 {% if aviso_antecedencia %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo"><p>{{ aviso_antecedencia }}</p></div></div>{% endif %}
@@ -64,10 +66,12 @@ duplicar) e o histórico. As etapas 2 e 3 (nota, ofício, protocolo, pagamento) 
       {% include "componentes/campo.html" with campo=form.data_evento classe="campo--md" %}
       {% include "componentes/campo.html" with campo=form.horario classe="campo--sm" %}
     </div>
+    {% if not form.travado %}
     <div class="mt-4">{% include "componentes/campo.html" with campo=form.retroativo %}</div>
     <div class="campos">
       {% include "componentes/campo.html" with campo=form.justificativa classe="campo--cresce" %}
     </div>
+    {% endif %}
   </section>
 
   <section class="secao" id="entrega" aria-labelledby="t-entrega">
@@ -85,14 +89,65 @@ duplicar) e o histórico. As etapas 2 e 3 (nota, ofício, protocolo, pagamento) 
 </form>
 
 {% if s %}
+{% if form_fin.errors %}{% with form=form_fin %}{% include "componentes/resumo_erros.html" %}{% endwith %}{% endif %}
+<form method="post" novalidate id="{{ form_financeiro_id }}" class="documento documento--cartoes mt-4" action="{% url 'coffee:financeiro' s.pk %}">
+  {% csrf_token %}
+  {{ form_fin.versao }}
+  <section class="secao{% if s.nota_fiscal %} secao--ok{% endif %}" id="nota" aria-labelledby="t-nota">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-nota"><span class="secao__numero">3</span>Nota fiscal e ofício</h2><p class="secao__nota">Com a nota, o lote desconta as pessoas faturadas; o ofício ao GAF leva a nota para pagamento.</p></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form_fin.nota_fiscal classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form_fin.quantidade_faturada classe="campo--lg" %}
+    </div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form_fin.numero_oficio classe="campo--md" ajuda_oculta=True %}
+      {% include "componentes/campo.html" with campo=form_fin.data_oficio classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form_fin.protocolo_pcpr classe="campo--lg" %}
+    </div>
+  </section>
+  <section class="secao{% if s.concluida %} secao--ok{% endif %}" id="pagamento" aria-labelledby="t-pagamento">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pagamento"><span class="secao__numero">4</span>Protocolo e pagamento</h2><p class="secao__nota">Na ordem: protocolo, atesto e envio ao GAF, ordem bancária e o envio dela à empresa.</p></div>
+    <div class="campos">
+      {% include "componentes/campo.html" with campo=form_fin.protocolo_pagamento classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form_fin.atesto_em classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form_fin.ordem_bancaria_em classe="campo--md" %}
+      {% include "componentes/campo.html" with campo=form_fin.envio_empresa_em classe="campo--md" %}
+    </div>
+    <div class="campos">{% include "componentes/campo.html" with campo=form_fin.observacoes classe="campo--cresce" %}</div>
+    {% if not s.bloqueada %}<div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar nota, ofício e pagamento</button></div>{% endif %}
+  </section>
+</form>
+
 <div class="documento documento--cartoes mt-4">
   <section class="secao" id="situacao" aria-labelledby="t-situacao">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">3</span>Situação da solicitação</h2><p class="secao__nota">Cancelar devolve a quantidade ao saldo do lote; excluir só antes da nota e do protocolo.</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">5</span>Situação da solicitação</h2><p class="secao__nota">O andamento grava só o próximo marco; cancelar devolve a quantidade ao saldo do lote; excluir só antes da nota e do protocolo.</p></div>
+    <ol class="etapas-progresso" aria-label="Etapas do pagamento">
+      {% for titulo, estado in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ estado }}"{% if estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ titulo }}</span>{% if estado == "concluido" %}<span class="sr-only"> (concluída)</span>{% endif %}</li>{% endfor %}
+    </ol>
+    {% if proximo_marco %}
+    <form method="post" action="{% url 'coffee:andamento' s.pk %}" class="pilha mt-4" novalidate>
+      {% csrf_token %}
+      <div class="campos">
+        <div class="campo campo--md">
+          <label class="campo__rotulo" for="andamento-valor">{{ proximo_marco.1 }}<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+          {% if proximo_marco.2 == "data" %}<pc-data class="seletor"><input class="entrada" type="text" id="andamento-valor" name="valor" value="{% now 'd/m/Y' %}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" required><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+          {% else %}<input class="entrada" type="text" id="andamento-valor" name="valor" autocomplete="off" maxlength="60" required{% if proximo_marco.0 == "protocolo_pagamento" %} inputmode="numeric" placeholder="00.000.000-0" data-mascara="protocolo"{% endif %}>{% endif %}
+        </div>
+        <div class="campo campo--cresce"><label class="campo__rotulo" for="andamento-anotacao">Anotação</label><input class="entrada" type="text" id="andamento-anotacao" name="anotacao" maxlength="500" autocomplete="off"></div>
+      </div>
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "activity" %}Registrar andamento</button></div>
+    </form>
+    {% endif %}
     <div class="linha">
       {% if s.cancelada %}
         <form method="post" action="{% url 'coffee:reativar' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "undo-2" %}Reativar</button></form>
       {% elif not s.concluida %}
         <button type="button" class="botao botao--perigo" data-pedir-motivo="{% url 'coffee:cancelar' s.pk %}" data-motivo-titulo="Cancelar {{ s }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar solicitação" data-motivo-ajuda="Fica no histórico; a quantidade volta ao saldo do lote." data-motivo-perigo>{% icone "ban" %}Cancelar</button>
+      {% endif %}
+      {% if pode_reabrir %}
+        <button type="button" class="botao" data-pedir-motivo="{% url 'coffee:reabrir' s.pk %}" data-motivo-titulo="Reabrir {{ s }} para correção?" data-motivo-rotulo="Motivo da correção" data-motivo-acao="Reabrir para correção" data-motivo-ajuda="Fica no histórico; cada campo que mudar também.">{% icone "pencil" %}Reabrir para correção</button>
+      {% elif pode_encerrar %}
+        <form method="post" action="{% url 'coffee:encerrar_correcao' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "lock" %}Encerrar correção</button></form>
       {% endif %}
       {% if not s.financeiro_iniciado %}
         <form method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "trash-2" %}Excluir</button></form>

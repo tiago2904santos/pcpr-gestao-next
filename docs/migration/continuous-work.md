@@ -77,7 +77,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | P | Trilhas paralelas: histórico de roteiros | pendente (telas de roteiros em mudança pela sessão paralela de correção visual) |
 | 18 | Coffee Break — especificação levantada ([coffee-break.md](coffee-break.md)); CB1 acesso e cadastros contratuais | feito (CB1) |
 | 18b | Coffee Break CB2 (solicitação/etapa 1 e lista: lote pelo município, saldo com trava, vigência, retroativo, antecedência, duplicar, cancelar/reativar/excluir, CSV, lotes com saldo) | feito (CB2 — numeração própria até a decisão) |
-| 18c | Coffee Break CB3–CB8 (fluxo financeiro, documentos, certidões e leitura de PDFs, entregas/painel/relatório/virada, integrações, fornecedor) | pendente |
+| 18c | Coffee Break CB3a (etapas 2 e 3, ordem dos marcos, faturada, ofício, protocolo, andamento do próximo marco, reabrir/encerrar correção) | feito (CB3a) |
+| 18d | Coffee Break CB3b (pagamento conjunto), CB4–CB8 (documentos, certidões e leitura de PDFs, entregas/painel/relatório/virada, integrações, fornecedor) | pendente |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)
@@ -102,6 +103,10 @@ Ver a fila abaixo (primeiro item não concluído).
 - Nenhuma conhecida (05/10): em `6e92030` (E3), suíte rápida 1436 passaram, 0 falhas;
   navegador direcionado (eventos, imprensa, publicações, UI Lab, axe) 21 passaram. A
   regressão de navegador completa não foi rodada depois de `85d58d4` (375 passaram).
+
+- Intermitente (06/10): `tests/e2e/test_coffee.py::test_cadastrar_fornecedor_contrato_e_lote`
+  falhou uma vez sob carga (o clique no combobox "Fornecedor" achou o `<select>` nativo
+  ainda sem a lista própria); passou sozinho duas vezes em seguida. Em observação.
 
 ## Bloqueios externos
 

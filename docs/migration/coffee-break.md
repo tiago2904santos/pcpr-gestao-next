@@ -717,6 +717,23 @@ como histórico.
 - Fora da CB2: etapas 2 e 3 (nota, ofício, protocolo, OB) e reabrir para correção (CB3);
   "parada há N dias" (CB6); sugestão de locais já usados; "criar aqui" da agenda (CB7).
 
+## CB3a — fluxo financeiro (06/10/2026)
+
+- Etapas 2 e 3 na folha (gravadas juntas, `financeiro.py`): nº da nota fiscal, pessoas
+  faturadas (o saldo do lote passa a descontar o faturado, com o texto da referência no
+  histórico e o saldo revalidado), nº e data do ofício (com a nota: em branco = próximo /
+  hoje; numeração própria do módulo até a decisão sobre o livro conjunto), "PCPR protocolo
+  n.º", protocolo de pagamento no formato 00.000.000-0 (também vira o PCPR quando este está
+  vazio), atesto, ordem bancária, envio à empresa, observações. A ordem dos marcos com as
+  mensagens da referência; "a nota não pode ficar em branco" depois do protocolo.
+- Andamento: grava só o próximo marco (nota → protocolo → atesto → OB → envio) com anotação,
+  e o stepper das etapas (UI Lab §19) mostra o feito e o atual.
+- Concluída (envio à empresa) fica só para consulta; o administrador do módulo reabre para
+  correção (com motivo) — cada campo que mudar vira "Correção — rótulo: antes → depois." —
+  e encerra a correção.
+- Fora da CB3a (CB3b): pagamento conjunto (várias OS num ofício e num protocolo, campos
+  espelhados); PDFs da nota e da OB e a leitura deles (CB4/CB5).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

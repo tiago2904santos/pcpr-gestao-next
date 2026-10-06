@@ -105,8 +105,11 @@ def _solicitacoes(hoje: date, usuario) -> None:
         marcos: dict = {}
         if situacao in ("protocolo", "atesto", "ob", "envio", "concluida", "faturada"):
             marcos["nota_fiscal"] = str(8900 + i)
+            marcos["numero_oficio"] = f"{100 + i}/{(evento + timedelta(days=1)).year}"
+            marcos["data_oficio"] = evento + timedelta(days=1)
         if situacao in ("atesto", "ob", "envio", "concluida", "faturada"):
             marcos["protocolo_pagamento"] = f"23.{100 + i:03d}.{500 + i:03d}-{i % 10}"
+            marcos["protocolo_pcpr"] = marcos["protocolo_pagamento"]
         if situacao in ("ob", "envio", "concluida", "faturada"):
             marcos["atesto_em"] = evento + timedelta(days=3)
         if situacao in ("envio", "concluida", "faturada"):
