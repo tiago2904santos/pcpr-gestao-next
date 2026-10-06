@@ -28,10 +28,13 @@ Adaptação: este arquivo como fila persistente; relatório não é ponto de par
 
 ## Módulo atual
 
-**Eventos Sociais** concluído em E1–E4 (catálogos, solicitação com despacho, painel e
-lembretes, gerar viagem; [eventos-sociais.md](eventos-sociais.md)). Prestação de contas (9)
-segue com 9a–9d feitos; falta a revisão página a página do pacote (13d). Próximo: a fila
-abaixo (Agenda A2c, Palestras PL2, Coffee Break, relatórios).
+Fila de 06/10 percorrida: Coffee Break CB5c–CB7 e CB5d, relatório consolidado (R1), Agenda
+A2c, Palestras PL2a, Eventos E5, Imprensa I2 e Publicações P2 commitados com a suíte rápida
+verde (fora as 2 falhas herdadas de `afcf0dd`, já corrigidas na cópia da sessão paralela).
+O que resta na fila depende de: decisão do usuário (16e pedido público, CB9, importadores,
+setor/módulo), dependência externa (SMTP, eProtocolo, acesso à referência/ETL) ou arquivos
+não commitados da sessão de correção visual (20 rodapé, 13d migração 0045, prévia da
+conferência em `assinado.js`, 18l arquétipo do painel, P histórico de roteiros).
 
 ## Próxima tarefa concreta
 
@@ -41,7 +44,7 @@ Ver a fila abaixo (primeiro item não concluído).
 
 | # | Tarefa | Situação |
 |---|---|---|
-| A | Regressão de navegador completa | feita em `a320553`: **357 passaram, 0 falhas** (`-n 4`) |
+| A | Regressão de navegador completa | feita em `a320553`: **357 passaram, 0 falhas** (`-n 4`). Em 06/10, sobre `3de5a7c`: a 1ª tentativa caiu com o contêiner de teste (835 erros de conexão — o Docker Desktop reiniciou com o disco C: a 99%); a 2ª, serial, passou do limite de 2 h e foi interrompida **sem resultado**. Cada fatia teve o navegador direcionado (axe, responsivo, e2e) verde. Refazer com `-n 4` depois de liberar espaço em disco |
 | B | Inventário global de lacunas | feito → [inventario-global.md](inventario-global.md) |
 | C | parity.md (Planos, Termos, OS) | feito |
 | D | Orçamento de desempenho sob carga: mediana de 3 amostras (TTFB/db) | validado: passou sob `-n 4` na regressão completa |

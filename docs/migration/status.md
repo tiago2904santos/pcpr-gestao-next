@@ -1,40 +1,34 @@
 # Status da migração
 
-Atualizado em 04/10/2026 (ramo `migracao/loop-continuo`).
+Atualizado em 06/10/2026 (ramo `migracao/loop-continuo`). Detalhe por módulo em
+[parity.md](parity.md); fila e falhas conhecidas em [continuous-work.md](continuous-work.md).
 
 ## Agora
 
-**Módulo 6 — Planos de trabalho: implementado** (catálogos, plano de um e de vários eventos, documento, resultados; ficha [planos.md](planos.md)). Próximo: módulo 7 (núcleo de Documentos).
-
-**Termos e Ordens de serviço: folhas refeitas** na linguagem da folha do ofício (placa e
-frase, cartões numerados com selos de falta, conferência, documento como vai sair,
-histórico da trilha do banco, gravação automática). Fichas: [termos.md](termos.md),
-[ordens.md](ordens.md).
+Todos os módulos da referência têm equivalente navegável. Nesta rodada (05–06/10):
+Eventos Sociais E1–E5, Palestras PL1 e PL2a (encaminhar à DG), Imprensa I1–I2, Publicações
+P1–P2, Coffee Break CB1–CB7 (com CB5d), Agenda A1–A2c (dossiê, assinatura ICS, conflitos de
+termos/OS) e o relatório consolidado R1. O que resta depende de decisão do usuário, de
+dependência externa ou de arquivos que a sessão paralela de correção visual ainda não
+commitou (ver "Bloqueios").
 
 ## Módulos
 
-Inventário da referência (rotas por app): accounts 11, agenda 7, atendimento_imprensa 12,
-cadastros 8, coffee_break 60, config 25, core 8, dashboard 1, demandas_eventos 16,
-documentos 23, publicacoes 12, relatorios 2, solicitacoes 19, viagens_cadastros 11,
-viagens_oficios 29, viagens_ordens 8, viagens_planos 12, viagens_prestacoes 10,
-viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
-
-| # | Módulo | Status | Paridade | Testes | Performance | Visual | Pendências | Próximo passo |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Ofícios (+ justificativas) | EM FECHAMENTO | matriz completa por leitura ([oficios.md](oficios.md)) | unit, e2e, axe | teto 32 req., TTFB/LCP no orçamento | 6 larguras | comparação com a referência em execução; botão de reabrir | aguarda decisão/acesso |
-| 2 | Cadastros | IMPLEMENTADO | completa por leitura ([cadastros.md](cadastros.md)) | ~84 unit, e2e, axe | listas sem N+1 | 6 larguras | comportamentos adotados a confirmar | — |
-| 3 | Roteiros | EM PARIDADE | "Finalizados" feito com a prestação 9a ([roteiros.md](roteiros.md)) | unit, e2e, axe | medido | 6 larguras | "Finalizados" (módulo 9) | com o módulo 9 |
-| 4 | Termos de autorização | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado e "Finalizados" | 33 + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | anexar assinado (7), "Finalizados" (9) | com 7 e 9 |
-| 5 | Ordens de serviço | IMPLEMENTADO (folha refeita) | completa, menos anexar assinado, "Finalizadas", conflito de agenda | 24 + 23 domínio + folha termo/OS (28), e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | idem + conflito de agenda | com 7 e 9 |
-| 6 | Planos de trabalho | IMPLEMENTADO (6a–6e) | matriz em [planos.md](planos.md) | 17 catálogos + 23 domínio + 40 plano, e2e, axe 360/1440 | lista com consultas fixas | 6 larguras | "Finalizados" (9), integração com viagem (8) | com 8 e 9 |
-| 7 | Documentos (núcleo: anexar assinado, conferência) | PENDENTE | — | — | — | — | `documentos` (23 rotas) | **próximo** |
-| 8 | Viagem (assistente) | PENDENTE | — | — | — | — | `viagens_viagem` (13) | depois do 7 |
-| 9 | Prestação de contas (+ abas "Finalizados") | PENDENTE | — | — | — | — | `viagens_prestacoes` (10) | depois do 8 |
-| 10 | Plataforma (usuários/setores, notificações, agenda, relatórios, painel) | PARCIAL | entrada, notificações (vazio) e painel existem | — | — | — | `accounts`, `config`, `agenda`, `relatorios`, `dashboard` | depois do 9 |
-| 11 | Eventos sociais (solicitações, demandas, cadastros de eventos) | PENDENTE | — | — | — | — | `solicitacoes` (19), `demandas_eventos` (16), `cadastros` (8) | — |
-| 12 | ASCOM (atendimento à imprensa, publicações) | PENDENTE | — | — | — | — | 12 + 12 rotas | — |
-| 13 | Coffee Break | PENDENTE | — | — | — | — | 60 rotas | — |
-| 14 | ETL (dados da referência) | BLOQUEADO EXTERNAMENTE | — | — | — | — | acesso aos dados | — |
+| # | Módulo | Status | Pendências | O que destrava |
+|---|---|---|---|---|
+| 1 | Ofícios (+ justificativas) | IMPLEMENTADO | comparação com a referência em execução; botão de reabrir | acesso / decisão |
+| 2 | Cadastros | IMPLEMENTADO | comportamentos adotados a confirmar | decisão (não bloqueia) |
+| 3 | Roteiros | IMPLEMENTADO | histórico de roteiros (trilha P) | commits da sessão paralela |
+| 4–6 | Termos, Ordens, Planos | IMPLEMENTADO (área da sessão paralela) | editor e folhas em mudança lá | — |
+| 7 | Documentos (via assinada, conferência, baixar) | IMPLEMENTADO | prévia da conferência antes de anexar | `assinado.js` da sessão paralela |
+| 8 | Viagem | IMPLEMENTADO (8a–8d) | geração automática/anexos a partir do evento (decisão E4) | decisão |
+| 9 | Prestação de contas | IMPLEMENTADO (9a–9d) | revisão página a página do pacote (13d); carimbo automático; OCR; eProtocolo | migração 0045 da sessão paralela; externos |
+| 10 | Plataforma (usuários, notificações, rotinas, agenda, busca, relatórios) | IMPLEMENTADO | esqueci a senha (SMTP); setor/módulo | SMTP; decisão |
+| 11 | Eventos Sociais | IMPLEMENTADO (E1–E5) | consultar protocolo; preencher com e-mail | eProtocolo; — |
+| 12 | ASCOM: imprensa, publicações, palestras | IMPLEMENTADO (I2, P2, PL2a) | importadores de planilha; pedido público de palestra | decisão do usuário |
+| 13 | Coffee Break | IMPLEMENTADO (CB1–CB7, CB5d) | e-mails e link do fornecedor (CB8); importações (CB9) | SMTP + decisão institucional; decisão |
+| 14 | ETL (dados da referência) | BLOQUEADO EXTERNAMENTE | acesso aos dados | — |
+| — | Rodapé padrão das folhas (pedido do usuário via sessão paralela) | PENDENTE | coffee, eventos, palestras | commit do componente pela sessão paralela |
 
 ## Decisões de Ofícios
 
@@ -57,7 +51,9 @@ viagens_roteiros 14, viagens_termos 12, viagens_viagem 13.
 | eProtocolo real | dependência externa | credenciamento (PDS Mantis), usuário de sistema com CPF, `consumerId`, IP fixo, escopos |
 | Central de Viagens | dependência externa | canal institucional (DETO/SEAP, Celepar) |
 | Hospedagem / n8n / IA | dependência externa | plano, recursos, backups e custos da VPS |
-| Termos por servidor, assinatura de documentos | sequência do roteiro | módulos Termos e Documentos |
+| SMTP institucional | credencial externa | esqueci a senha, e-mails do Coffee Break (CB8), pauta semanal por e-mail |
+| Arquivos não commitados da sessão de correção visual | coordenação | rodapé padrão das folhas (20), migração 0045 (13d), `assinado.js` (prévia), arquétipo do painel (18l) |
+| Decisões do usuário | decisão | pedido público de palestra (16e), rota pública do fornecedor (CB8), importações (CB9, planilhas da imprensa/publicações), setor/módulo |
 | Reabertura formal com motivo sem botão (hoje o caminho é "Editar (retificar)") | **decisão** | dizer se a reabertura formal ainda precisa de botão |
 | Cadastros: operador mantém cadastros; nome/RG/telefone únicos (adotados da referência) | decisão (não bloqueia) | confirmar ou pedir mudança |
 | Uso real do DOCX fora do sistema | **evidência** do usuário | dizer como o Word é usado (editar e devolver? anexar?) |
