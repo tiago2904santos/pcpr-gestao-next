@@ -608,6 +608,8 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   display: flex;
   align-items: flex-start;
   gap: var(--esp-2);
+  min-width: 0;
+  overflow-wrap: anywhere; /* nome de arquivo, protocolo… não empurram a tela para o lado */
 }
 
 .checklist__item > .icone {
@@ -765,6 +767,46 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 
 .tabela--resultados td:nth-child(4) {
   min-width: 22rem;
+}
+
+/* No celular, cada atividade vira um bloco: o nome, a meta e, lado a lado, realizado e
+   observação (os rótulos aparecem — o cabeçalho da tabela some). */
+@media (max-width: 599.98px) {
+  .tabela--resultados,
+  .tabela--resultados tbody {
+    display: block;
+    min-width: 0;
+  }
+
+  .tabela--resultados thead {
+    display: none;
+  }
+
+  .tabela--resultados tr {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--esp-2) var(--esp-3);
+    padding: var(--esp-3) 0;
+    border-bottom: var(--borda-sutil);
+  }
+
+  .tabela--resultados tr > * {
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    border: 0;
+  }
+
+  .tabela--resultados th[scope="row"],
+  .tabela--resultados td:nth-child(2) {
+    grid-column: 1 / -1;
+    width: auto;
+  }
+
+  .tabela--resultados td:nth-child(3),
+  .tabela--resultados td:nth-child(4) {
+    width: auto;
+  }
 }
 
 .relatorio-final {

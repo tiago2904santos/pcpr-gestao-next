@@ -1170,20 +1170,31 @@
 
 /* Anexar documento da prestação: o arquivo, os dados do comprovante e o botão numa linha
    que quebra (360px: um embaixo do outro). */
+/* Anexar: o arquivo (e, no comprovante, valor, data e operação) e o botão numa linha só,
+   o botão alinhado à caixa do campo (não à ajuda embaixo dela). Estreito, empilha. */
 .anexo-campos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--esp-2) var(--esp-3);
 }
 
-.anexo-campos__arquivo {
-  grid-column: 1 / -1;
+.anexo-campos > .campo {
+  flex: 1 1 9rem;
+}
+
+.anexo-campos > .anexo-campos__arquivo {
+  flex: 3 1 20rem;
 }
 
 .anexo-campos__acao {
   display: flex;
-  align-items: flex-end;
+  flex: 0 0 auto;
+  padding-top: 0.5rem; /* o recuo do rótulo na borda: o botão fica na linha da caixa */
+}
+
+.anexo-campos__acao > .botao {
+  min-height: var(--altura-controle);
 }
 
 /* =============== Número com − e + (componentes/passos.js) ===============
@@ -1510,7 +1521,7 @@
    até três por linha, sem a largura toda para um valor em reais. */
 .grade-campos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
   gap: var(--esp-4);
   margin: 0;
   padding: 0;

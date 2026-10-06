@@ -461,3 +461,9 @@ html:active-view-transition .conteudo__interno > * {
 .form-em-linha {
   display: contents;
 }
+
+/* O navegador dá ao fieldset a largura mínima do conteúdo: uma tabela larga lá dentro
+   esticava a página em vez de rolar na própria caixa (.tabela-rolagem). */
+fieldset {
+  min-width: 0;
+}

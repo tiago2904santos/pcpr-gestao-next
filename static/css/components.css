@@ -1483,6 +1483,9 @@ a.resumo__documento:hover {
   max-width: 100%;
   overflow-x: auto;
   border-radius: inherit;
+  /* Contêiner posicionado: os rótulos sr-only (absolutos) das células ficam dentro da
+     caixa que rola, em vez de esticar a página no celular. */
+  position: relative;
 }
 
 .tabela {

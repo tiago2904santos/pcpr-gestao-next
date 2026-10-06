@@ -56,7 +56,9 @@ def test_todos_os_tokens_usados_existem():
               "--itin-trilho", "--itin-centro",
               # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
               # por editores.js); colunas da grade de filtros (com valor padrão no var()).
-              "--largura-indice", "--altura-barra", "--filtros-colunas"}
+              "--largura-indice", "--altura-barra", "--filtros-colunas",
+              # Detalhe da escolha dentro do campo: a posição medida pelo combobox.
+              "--meta-x"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

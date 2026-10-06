@@ -529,7 +529,7 @@ class TestVariosEventos:
         assert "Evento" in html and "Sarandi/PR" in html and "2 eventos" in html
         assert "3 servidores" in html
         html = cli.get(url + f"?evento={evento.pk}").content.decode()
-        assert 'id="evento-efetivo-cargo-1"' in html and 'id="evento_saida_em"' in html
+        assert 'id="evento-efetivo-cargo-1"' in html and 'id="evento_saida_em_0"' in html
         r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
             "evento": str(evento.pk), "data_inicio": "29/06/2030", "data_fim": "28/06/2030"})
         assert r.status_code == 422 and "anterior à data inicial" in r.content.decode()
@@ -556,8 +556,9 @@ class TestRefinamentosDaFolha:
         evento = planos.salvar_evento(op, plano.pk, programas=[parana, bairro],
                                       programa_outros="Feira fictícia",
                                       data_inicio=date(2030, 6, 27))
-        assert evento.programa == parana
-        assert evento.programa_nome == ("PROGRAMA PARANÁ EM AÇÃO, PROGRAMA JUSTIÇA NO BAIRRO "
+        assert evento.programa == parana  # o primeiro escolhido
+        # Os nomes saem na ordem do catálogo (alfabética), com o "outro" no fim.
+        assert evento.programa_nome == ("PROGRAMA JUSTIÇA NO BAIRRO, PROGRAMA PARANÁ EM AÇÃO "
                                         "e Feira fictícia")
         plano = PlanoTrabalho.objects.get(pk=plano.pk)
         assert plano.contextualizacao.count("Programa Paraná em Ação") == 1
