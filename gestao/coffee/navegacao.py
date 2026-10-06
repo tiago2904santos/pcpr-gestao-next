@@ -18,6 +18,8 @@ registrar_modulo(
                      requer="coffee.acessar_coffee"),
                 Item("Nova solicitação", "coffee:nova", "plus", requer="coffee.acessar_coffee"),
                 Item("Lotes", "coffee:lotes", "layers", requer="coffee.acessar_coffee"),
+                Item("Certidões", "coffee:certidoes", "shield-check",
+                     requer="coffee.acessar_coffee"),
             )),
             Grupo("Cadastros", em_menu=True, itens=(
                 Item("Fornecedores", "coffee:fornecedores", "building-2",

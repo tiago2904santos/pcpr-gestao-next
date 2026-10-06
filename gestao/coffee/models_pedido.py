@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 
-from . import dominio_pedido
+from . import dominio_certidoes, dominio_pedido
 from .models import Carimbos, Lote
 
 
@@ -190,3 +190,28 @@ class Via(models.Model):
 
     def __str__(self) -> str:
         return f"{self.nome} ({'assinada' if self.assinada else 'emitida'})"
+
+
+class Certidao(models.Model):
+    """Certidão do fornecedor (federal, estadual, municipal, trabalhista, FGTS). O histórico
+    fica; a vigente de cada tipo é a de maior validade. Emissão é manual (os portais têm
+    CAPTCHA): aqui se anexa o PDF e a validade é lida dele ou informada."""
+
+    fornecedor = models.ForeignKey("coffee.Fornecedor", on_delete=models.CASCADE,
+                                   related_name="certidoes")
+    tipo = models.CharField(max_length=12, choices=dominio_certidoes.TIPOS)
+    arquivo = models.FileField(upload_to="coffee/certidoes/%Y/")
+    validade = models.DateField("válida até")
+    aviso = models.CharField(max_length=255, blank=True)
+    enviada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name="+")
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "coffee"
+        ordering = ["tipo", "-validade", "-criada_em"]
+        verbose_name = "certidão do fornecedor"
+        verbose_name_plural = "certidões dos fornecedores"
+
+    def __str__(self) -> str:
+        return f"Certidão {self.get_tipo_display()} — {self.fornecedor} ({self.validade:%d/%m/%Y})"

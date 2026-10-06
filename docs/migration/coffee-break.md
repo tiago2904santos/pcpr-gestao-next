@@ -775,6 +775,22 @@ como histórico.
   único/ZIP, atesto ao baixar) e textos do eProtocolo para copiar — dependem das certidões e
   dos PDFs da nota (CB5).
 
+## CB5a — certidões (06/10/2026)
+
+- `Certidao` (auditada) com o histórico; a vigente de cada tipo é a de maior validade.
+  Regras puras em `dominio_certidoes.py`; leitura do texto do PDF pelo pypdf (`certidoes.py`).
+- Tela "Certidões": por fornecedor com lote ativo, uma linha por tipo (federal, estadual,
+  municipal, trabalhista, FGTS) com a situação (faltando, vencida, vencendo em até 15 dias,
+  vigente), a validade, o portal emissor (fixos; o municipal vem do cadastro do fornecedor,
+  ou o aviso "Cadastre o endereço do portal municipal no fornecedor") e Anexar/Renovar.
+- Anexar confere o PDF (bytes), o texto de certidão, o tipo pelas marcas do texto, o CNPJ
+  (inteiro ou a raiz) e lê a validade ("Válida até …", intervalo "… a …" vale o fim,
+  emissão + "válida por N dias"); PDF só de imagem vale a data informada; mensagens da
+  referência prefixadas "Certidão X: ". Aviso quando vencida.
+- DEMO com certidões em todas as situações. Fora (próximas fatias): leitura dos PDFs da
+  nota e da OB, contrato/aditivo lido do PDF, anexo do protocolo (CB5b/CB5c); alertas no
+  painel (CB6); envio pelo fornecedor (CB8).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

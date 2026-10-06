@@ -178,7 +178,8 @@ forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gest
 [[tool.importlinter.contracts]]
 name = "Regras do Coffee Break são puras (sem Django)"
 type = "forbidden"
-source_modules = ["gestao.coffee.dominio", "gestao.coffee.dominio_pedido"]
+source_modules = ["gestao.coffee.dominio", "gestao.coffee.dominio_pedido",
+                  "gestao.coffee.dominio_certidoes"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

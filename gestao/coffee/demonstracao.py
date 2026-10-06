@@ -14,6 +14,7 @@ from decimal import Decimal
 from gestao.cadastros.models import Municipio
 
 from .models import (
+    Certidao,
     ConfiguracaoOficio,
     Contrato,
     Fornecedor,
@@ -64,6 +65,7 @@ def semear(hoje: date, usuario=None) -> int:
             criados += 1
     if usuario is not None:
         _solicitacoes(hoje, usuario)
+        _certidoes(hoje, usuario, a, b)
     cfg = ConfiguracaoOficio.atual()
     cfg.destinatario = "Ao Grupo Administrativo Financeiro (DEMO)\nNesta"
     cfg.emails_ascom = "ascom@exemplo.invalid"
@@ -130,3 +132,16 @@ def _solicitacoes(hoje: date, usuario) -> None:
     # Um pagamento conjunto: duas OS do mesmo lote (1ª e 4ª), ainda sem protocolo.
     if len(criadas) > 3 and criadas[0].lote_id == criadas[3].lote_id:
         Solicitacao.objects.filter(pk=criadas[3].pk).update(pagamento_com=criadas[0])
+
+
+def _certidoes(hoje: date, usuario, a: Fornecedor, b: Fornecedor) -> None:
+    """Certidões fictícias em todas as situações (o PDF é um marcador, sem conteúdo real)."""
+    from django.core.files.base import ContentFile
+
+    plano = ((a, "federal", 120), (a, "estadual", 10), (a, "trabalhista", 90),
+             (a, "fgts", -5), (b, "federal", 60), (b, "trabalhista", 12), (b, "fgts", 25))
+    for fornecedor, tipo, dias in plano:  # municipal fica faltando nos dois
+        Certidao.objects.create(
+            fornecedor=fornecedor, tipo=tipo, validade=hoje + timedelta(days=dias),
+            enviada_por=usuario, arquivo=ContentFile(b"%PDF-1.4 certidao (DEMO)",
+                                                     name=f"certidao-{tipo}-demo.pdf"))

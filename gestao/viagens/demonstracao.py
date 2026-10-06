@@ -66,7 +66,8 @@ SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
 
 TABELAS = (
-    "coffee_movimento", "coffee_solicitacao", "coffee_lote_municipios", "coffee_lote",
+    "coffee_certidao", "coffee_via", "coffee_movimento", "coffee_solicitacao",
+    "coffee_lote_municipios", "coffee_lote",
     "coffee_termoaditivo", "coffee_contrato",
     "coffee_fornecedor", "coffee_configuracaooficio",
     "eventos_movimento", "eventos_anexosolicitacao", "eventos_solicitacaoequipe",

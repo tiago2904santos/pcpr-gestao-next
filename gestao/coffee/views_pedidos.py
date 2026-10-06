@@ -5,13 +5,14 @@ município recebe; cancelar, reativar, excluir, duplicar; e a lista de lotes com
 from __future__ import annotations
 
 import csv
+import re
 from datetime import date, datetime
 from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -452,3 +453,64 @@ def lotes(request: HttpRequest) -> HttpResponse:
         "situacoes": (("ativos", "Vigentes"), ("inativos", "Encerrados"), ("todos", "Todos")),
         "migalhas": _migalhas(("Lotes", "")),
     })
+
+
+# ---------------------------------------------------------------- certidões (CB5a)
+@require_GET
+def certidoes(request: HttpRequest) -> HttpResponse:
+    """Quadro das certidões por fornecedor com lote ativo; ?anexar=<fornecedor>:<tipo> abre a
+    janela do anexo já com o fornecedor e o tipo."""
+    from . import certidoes as certs
+    from .dominio_certidoes import ROTULOS
+
+    _exigir(request)
+    hoje = timezone.localdate()
+    fornecedores = list(certs.fornecedores_com_lote_ativo())
+    anexar_f, anexar_t = None, ""
+    fid, _, tipo = (request.GET.get("anexar") or "").partition(":")
+    if fid.isdecimal() and tipo in ROTULOS:
+        anexar_f = next((f for f in fornecedores if f.pk == int(fid)), None)
+        anexar_t = tipo if anexar_f else ""
+    return render(request, "coffee/certidoes.html", {
+        "quadros": [(f, certs.quadro(f, hoje)) for f in fornecedores],
+        "anexar_f": anexar_f, "anexar_t": anexar_t,
+        "anexar_rotulo": ROTULOS.get(anexar_t, ""),
+        "migalhas": _migalhas(("Certidões", "")),
+    })
+
+
+@require_POST
+def anexar_certidao(request: HttpRequest) -> HttpResponse:
+    from . import certidoes as certs
+
+    _exigir(request)
+    fid = request.POST.get("fornecedor") or ""
+    tipo = request.POST.get("tipo") or ""
+    if not fid.isdecimal():
+        return redirect("coffee:certidoes")
+    get_object_or_404(Fornecedor, pk=int(fid))
+    try:
+        c = certs.anexar(request.user, int(fid), tipo, request.FILES.get("arquivo"),
+                         _data(request.POST.get("validade")))
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("coffee:certidoes") + f"?anexar={fid}:{tipo}")
+    texto, aviso = certs.mensagem(c)
+    (messages.warning if aviso else messages.success)(request, texto)
+    return redirect(reverse("coffee:certidoes") + f"#fornecedor-{fid}")
+
+
+@require_GET
+def arquivo_certidao(request: HttpRequest, pk: int) -> StreamingHttpResponse:
+    from django.http import FileResponse
+
+    from .models import Certidao
+
+    _exigir(request)
+    c = get_object_or_404(Certidao, pk=pk)
+    nome = re.sub(r"[^\w .-]", "-", f"Certidao {c.get_tipo_display()} {c.fornecedor}")[:120]
+    resposta = FileResponse(c.arquivo.open("rb"), as_attachment=True, filename=f"{nome}.pdf",
+                            content_type="application/pdf")
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta

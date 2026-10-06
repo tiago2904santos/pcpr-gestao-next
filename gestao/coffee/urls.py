@@ -26,6 +26,9 @@ urlpatterns = [
     path("solicitacoes/<int:pk>/reativar/", vp.reativar, name="reativar"),
     path("solicitacoes/<int:pk>/excluir/", vp.excluir, name="excluir_solicitacao"),
     path("lotes/", vp.lotes, name="lotes"),
+    path("certidoes/", vp.certidoes, name="certidoes"),
+    path("certidoes/anexar/", vp.anexar_certidao, name="anexar_certidao"),
+    path("certidoes/<int:pk>/arquivo/", vp.arquivo_certidao, name="arquivo_certidao"),
     path("cadastros/oficio/", views.configuracao, name="configuracao"),
     # Um nome por tabela (para o menu) e o genérico (para as telas).
     *(path(f"cadastros/{t}/", views.cadastros, {"tabela": t}, name=f"{t}_cadastro"

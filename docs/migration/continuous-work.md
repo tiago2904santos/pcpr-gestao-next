@@ -80,7 +80,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 18c | Coffee Break CB3a (etapas 2 e 3, ordem dos marcos, faturada, ofício, protocolo, andamento do próximo marco, reabrir/encerrar correção) | feito (CB3a) |
 | 18d | Coffee Break CB3b (pagamento conjunto: candidatas, espelhamento com histórico, protocolo/atesto com a nota de todas, principal que sai) | feito (CB3b) |
 | 18e | Coffee Break CB4 (OS, ofício, certifico e certificado em PDF/prévia; pendências; vias; versão assinada) | feito (CB4) |
-| 18f | Coffee Break CB5–CB8 (certidões, PDFs da nota/OB e leitura, anexo do protocolo; entregas/painel/relatório/virada; integrações; fornecedor) | pendente |
+| 18f | Coffee Break CB5a (certidões: quadro, anexo com conferência de tipo/CNPJ/validade pelo texto do PDF) | feito (CB5a) |
+| 18g | Coffee Break CB5b/c (PDFs da nota e da OB com leitura e avisos; anexo do protocolo e textos do eProtocolo), CB6–CB8 | pendente |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)

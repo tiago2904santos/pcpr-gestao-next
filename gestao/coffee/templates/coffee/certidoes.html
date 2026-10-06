@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Certidões · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Certidões dos fornecedores com lote ativo (paridade com o quadro da referência): uma linha
+por tipo com a situação (faltando, vencida, vencendo em até 15 dias, vigente), a validade, o
+portal emissor (a emissão é manual — os portais têm CAPTCHA) e o anexo, que confere o tipo,
+o CNPJ e lê a validade do PDF.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Coffee Break</p>
+    <h1 class="pagina-cabecalho__titulo">Certidões</h1>
+    <p class="pagina-cabecalho__descricao">As cinco certidões de cada fornecedor com lote ativo: emita no portal com o CNPJ à mão e anexe o PDF — o sistema confere o tipo, o CNPJ e lê a validade.</p>
+  </div>
+</header>
+{% for f, linhas in quadros %}
+<section class="cartao mt-4" id="fornecedor-{{ f.pk }}" aria-labelledby="t-f-{{ f.pk }}">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-f-{{ f.pk }}">{{ f.razao_social }}</h2><span class="texto-secundario texto-sm">CNPJ {{ f.cnpj_formatado|default:"não cadastrado" }}</span></div>
+  <ul class="registros" aria-labelledby="t-f-{{ f.pk }}">
+    {% for l in linhas %}
+    <li class="registro">
+      <span class="registro__icone" aria-hidden="true">{% icone "shield-check" %}</span>
+      <div class="registro__corpo">
+        <div class="registro__titulo"><span class="registro__texto">Certidão {{ l.rotulo }}</span><span class="selo selo--{{ l.tom }} selo--sem-ponto">{% if l.situacao == "faltando" %}Faltando{% elif l.situacao == "vencida" %}Vencida{% elif l.situacao == "vencendo" %}Vencendo{% else %}Vigente{% endif %}</span></div>
+        <div class="registro__meta">
+          <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if l.certidao %}{{ l.texto }}{% else %}<span class="vazio-inline">Certidão não cadastrada</span>{% endif %}</span>
+          {% if l.portal %}<span class="registro__meta-item">{% icone "external-link" classe="icone--sm" %}<a href="{{ l.portal }}" target="_blank" rel="noopener noreferrer">Portal emissor<span class="sr-only"> da certidão {{ l.rotulo }} (abre em nova aba)</span></a></span>
+          {% elif l.tipo == "municipal" %}<span class="registro__meta-item"><span class="vazio-inline">Cadastre o endereço do portal municipal no fornecedor</span></span>{% endif %}
+        </div>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        {% if l.certidao %}<a class="botao botao--sm botao--sutil" href="{% url 'coffee:arquivo_certidao' l.certidao.pk %}">{% icone "download" %}PDF<span class="sr-only"> da certidão {{ l.rotulo }}</span></a>{% endif %}
+        <a class="botao botao--sm" href="?anexar={{ f.pk }}:{{ l.tipo }}">{% icone "file-check-2" %}{% if l.certidao %}Renovar{% else %}Anexar{% endif %}<span class="sr-only"> a certidão {{ l.rotulo }} de {{ f.razao_social }}</span></a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% empty %}
+{% include "componentes/vazio.html" with icone="shield-check" titulo="Nenhum fornecedor com lote ativo" texto="As certidões aparecem para os fornecedores dos lotes vigentes." %}
+{% endfor %}
+
+{% if anexar_f %}
+<dialog id="dialogo-certidao" class="dialogo" aria-labelledby="dialogo-certidao-titulo" data-abrir-ao-carregar>
+  <form method="post" action="{% url 'coffee:anexar_certidao' %}" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="fornecedor" value="{{ anexar_f.pk }}"><input type="hidden" name="tipo" value="{{ anexar_t }}">
+    <div class="dialogo__cabecalho"><div class="dialogo__cabecalho-texto"><h2 class="dialogo__titulo" id="dialogo-certidao-titulo">Certidão {{ anexar_rotulo }} — {{ anexar_f.razao_social }}</h2><p class="texto-secundario texto-sm">O PDF tem de ser desta certidão e deste CNPJ; a validade é lida dele.</p></div></div>
+    <div class="dialogo__corpo pilha">
+      <div class="campo"><label class="campo__rotulo" for="certidao-arquivo">PDF da certidão<span class="campo__obrigatorio" aria-hidden="true">*</span></label><input class="entrada" type="file" id="certidao-arquivo" name="arquivo" accept="application/pdf" required></div>
+      <div class="campo campo--md"><label class="campo__rotulo" for="certidao-validade">Válida até</label><pc-data class="seletor"><input class="entrada" type="text" id="certidao-validade" name="validade" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" aria-describedby="certidao-validade-ajuda"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data><p class="campo__ajuda" id="certidao-validade-ajuda">Só quando o PDF é uma imagem (sem texto para ler).</p></div>
+    </div>
+    <div class="dialogo__rodape"><a class="botao botao--texto" href="{% url 'coffee:certidoes' %}">Cancelar</a><button type="submit" class="botao botao--primario">{% icone "save" %}Conferir e anexar</button></div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}
