@@ -35,6 +35,12 @@ class Solicitacao(Carimbos):
                                          null=True, blank=True)
     # Marcos do fluxo financeiro (as etapas 2 e 3 chegam com a CB3).
     nota_fiscal = models.CharField("nº da nota fiscal", max_length=60, blank=True)
+    # PDF da nota e o que foi lido dele (valor, emissão, CNPJ do emitente) — para conferir.
+    nota_pdf = models.FileField("PDF da nota fiscal", upload_to="coffee/notas/%Y/", blank=True)
+    nota_valor = models.DecimalField("valor da nota (lido)", max_digits=12, decimal_places=2,
+                                     null=True, blank=True)
+    nota_emissao = models.DateField("emissão da nota (lida)", null=True, blank=True)
+    nota_cnpj = models.CharField("CNPJ do emitente (lido)", max_length=14, blank=True)
     quantidade_faturada = models.PositiveIntegerField("quantidade faturada", null=True,
                                                       blank=True)
     numero_oficio = models.CharField("nº do ofício", max_length=20, blank=True)
@@ -45,6 +51,11 @@ class Solicitacao(Carimbos):
     ordem_bancaria_em = models.DateField("ordem bancária emitida em", null=True, blank=True)
     envio_empresa_em = models.DateField("ordem bancária enviada à empresa em", null=True,
                                         blank=True)
+    # PDF da ordem bancária (o mesmo arquivo em todas as OS do pagamento) e o lido dele.
+    ob_pdf = models.FileField("PDF da ordem bancária", upload_to="coffee/ob/%Y/", blank=True)
+    ob_numero = models.CharField("nº da ordem bancária (lido)", max_length=30, blank=True)
+    ob_valor = models.DecimalField("valor da ordem bancária (lido)", max_digits=12,
+                                   decimal_places=2, null=True, blank=True)
     observacoes = models.TextField("observações", blank=True)
     em_correcao = models.BooleanField("aberta para correção", default=False)
     # Pagamento conjunto: as OS do mesmo lote que vão num só ofício e num só protocolo

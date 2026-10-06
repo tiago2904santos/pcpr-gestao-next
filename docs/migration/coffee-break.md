@@ -791,6 +791,23 @@ como histórico.
   nota e da OB, contrato/aditivo lido do PDF, anexo do protocolo (CB5b/CB5c); alertas no
   painel (CB6); envio pelo fornecedor (CB8).
 
+## CB5b — PDFs da nota fiscal e da ordem bancária (06/10/2026)
+
+- Campos `nota_pdf`, `nota_valor`, `nota_emissao`, `nota_cnpj`, `ob_pdf`, `ob_numero`,
+  `ob_valor`; leitura pura em `dominio_leitura.py`, escrita em `pdfs.py`.
+- Nota: o número vem da chave de acesso (modelo 55/65, posições 26–34), do "Nº 000.008.957"
+  do DANFE ou dos rótulos da NFS-e; o CNPJ do emitente da chave (na NFS-e, o do prestador);
+  valor total e emissão pelos rótulos. Sugere o número quando o campo está vazio; mensagens
+  da referência ("Nota fiscal N anexada — o número foi lido do PDF." / "…não deu para ler o
+  número…"). Conferência que só avisa: CNPJ de outro emitente, valor ≠ pessoas × unitário,
+  emitida antes do evento, mesma nota do mesmo fornecedor em outra OS.
+- Ordem bancária: exige a nota; número ("2026OB012345"), data e valor lidos; vale para todas
+  as OS do pagamento (mesmo arquivo; sai do disco quando ninguém mais aponta); sendo o
+  próximo marco, a data lida entra (ou hoje; anterior ao atesto, hoje) e é espelhada; sem
+  atesto, "registre o atesto para a data da OB entrar"; aviso quando o valor não bate com as
+  notas (retenções explicam).
+- Fora: contrato/aditivo lido do PDF (CB5d, administrador) e o anexo do protocolo (CB5c).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

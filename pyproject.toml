@@ -179,7 +179,7 @@ forbidden_modules = ["gestao.viagens", "gestao.painel", "gestao.imprensa", "gest
 name = "Regras do Coffee Break são puras (sem Django)"
 type = "forbidden"
 source_modules = ["gestao.coffee.dominio", "gestao.coffee.dominio_pedido",
-                  "gestao.coffee.dominio_certidoes"]
+                  "gestao.coffee.dominio_certidoes", "gestao.coffee.dominio_leitura"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

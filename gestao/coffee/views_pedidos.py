@@ -20,7 +20,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import resolver_municipio
 
-from . import conjunto, documentos, financeiro, pedidos, policies, queries, vias
+from . import conjunto, documentos, financeiro, pdfs, pedidos, policies, queries, vias
 from . import dominio_pedido as regras
 from .forms_pedido import (
     FORM_FINANCEIRO,
@@ -191,6 +191,16 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                  else None,
                  "assinavel": t in documentos.ASSINAVEIS,
                  "n_vias": s.vias.filter(tipo=t).count()} for t in documentos.TIPOS],
+            "avisos_nota": pdfs.avisos_da_nota(s),
+            "pdfs": (("nota", "Nota fiscal", s.nota_pdf,
+                      (("Número", s.nota_fiscal), ("Valor", regras.moeda(s.nota_valor)
+                                                   if s.nota_valor is not None else ""),
+                       ("Emissão", f"{s.nota_emissao:%d/%m/%Y}" if s.nota_emissao else ""),
+                       ("CNPJ do emitente", s.nota_cnpj))),
+                     ("ob", "Ordem bancária", s.ob_pdf,
+                      (("Número", s.ob_numero), ("Valor", regras.moeda(s.ob_valor)
+                                                 if s.ob_valor is not None else "")))),
+            "aviso_ob": pdfs.aviso_da_ob(s),
             "grupo": conjunto.membros(s) if conjunto.em_grupo(s) else [],
             "principal": conjunto.principal_de(s),
             "candidatas": (list(conjunto.candidatas(s)) if not s.bloqueada
@@ -360,6 +370,54 @@ def documento(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     from django.utils.http import content_disposition_header
     resposta["Content-Disposition"] = (content_disposition_header(modo == "attachment", arq.nome)
                                        or modo)
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+def _acao_pdf(request: HttpRequest, pk: int, fazer) -> HttpResponse:
+    _exigir(request)
+    get_object_or_404(Solicitacao, pk=pk)
+    try:
+        r = fazer()
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+    else:
+        (messages.warning if r.aviso else messages.success)(request, r.mensagem)
+    return redirect(reverse("coffee:solicitacao", args=[pk]) + "#pdfs")
+
+
+@require_POST
+def anexar_pdf(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
+    if qual not in ("nota", "ob"):
+        from django.http import Http404
+        raise Http404
+    fazer = pdfs.anexar_nota if qual == "nota" else pdfs.anexar_ob
+    return _acao_pdf(request, pk, lambda: fazer(request.user, pk, request.FILES.get("arquivo")))
+
+
+@require_POST
+def remover_pdf(request: HttpRequest, pk: int, qual: str) -> HttpResponse:
+    if qual not in ("nota", "ob"):
+        from django.http import Http404
+        raise Http404
+    fazer = pdfs.remover_nota if qual == "nota" else pdfs.remover_ob
+    return _acao_pdf(request, pk, lambda: fazer(request.user, pk))
+
+
+@require_GET
+def baixar_pdf(request: HttpRequest, pk: int, qual: str) -> StreamingHttpResponse:
+    from django.http import FileResponse, Http404
+
+    _exigir(request)
+    s = get_object_or_404(Solicitacao, pk=pk)
+    arquivo = s.nota_pdf if qual == "nota" else s.ob_pdf if qual == "ob" else None
+    if not arquivo:
+        raise Http404
+    rotulo = f"NF {s.nota_fiscal}" if qual == "nota" else f"OB {s.ob_numero or s.pk}"
+    nome = re.sub(r"[^\w .-]", "-", f"{rotulo} - {s}")[:120]
+    resposta = FileResponse(arquivo.open("rb"), as_attachment=True, filename=f"{nome}.pdf",
+                            content_type="application/pdf")
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"
     return resposta

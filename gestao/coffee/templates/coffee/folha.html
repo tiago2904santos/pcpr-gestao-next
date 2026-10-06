@@ -120,6 +120,44 @@ reativar, excluir, reabrir para correção) e o histórico.
   </section>
 </form>
 
+{% if not s.cancelada %}
+<div class="documento documento--cartoes mt-4">
+  <section class="secao" id="pdfs" aria-labelledby="t-pdfs">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-pdfs">{% icone "file-check-2" classe="icone--sm" %}Nota fiscal e ordem bancária em PDF</h2><p class="secao__nota">O sistema lê o número, o valor, a emissão e o CNPJ do PDF e só avisa o que não bate; a ordem bancária vale para todas as OS do pagamento.</p></div>
+    <ul class="registros" aria-labelledby="t-pdfs">
+      {% for qual, titulo, arquivo, lido in pdfs %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone "receipt" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{{ titulo }}</span>{% if arquivo %}<span class="selo selo--sucesso selo--sem-ponto">Anexado</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">Sem PDF</span>{% endif %}</div>
+          {% if arquivo %}<div class="registro__meta">{% for rotulo, valor in lido %}<span class="registro__meta-item">{{ rotulo }}: {{ valor|default:"não lido" }}</span>{% endfor %}</div>{% endif %}
+          {% if qual == "nota" %}{% for a in avisos_nota %}<p class="alerta alerta--aviso mt-2" role="note">{% icone "alert-triangle" %}<span class="alerta__corpo">{{ a }}</span></p>{% endfor %}
+          {% elif aviso_ob %}<p class="alerta alerta--aviso mt-2" role="note">{% icone "alert-triangle" %}<span class="alerta__corpo">{{ aviso_ob }}</span></p>{% endif %}
+          {% if not s.bloqueada %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "file-plus-2" %}{% if arquivo %}Substituir{% else %}Anexar{% endif %}<span class="sr-only"> — {{ titulo }}</span></summary>
+            <form method="post" action="{% url 'coffee:anexar_pdf' s.pk qual %}" enctype="multipart/form-data" class="linha mt-2" novalidate>
+              {% csrf_token %}
+              <label class="campo__rotulo sr-only" for="pdf-{{ qual }}">PDF — {{ titulo }}</label>
+              <input class="entrada" type="file" id="pdf-{{ qual }}" name="arquivo" accept="application/pdf">
+              <button type="submit" class="botao botao--sm">{% icone "save" %}Enviar</button>
+            </form>
+          </details>
+          {% endif %}
+        </div>
+        {% if arquivo %}
+        <div class="registro__acoes registro__acoes--fixas">
+          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:baixar_pdf' s.pk qual %}">{% icone "download" %}PDF<span class="sr-only"> — {{ titulo }}</span></a>
+          {% if not s.bloqueada %}<form method="post" action="{% url 'coffee:remover_pdf' s.pk qual %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "x" %}Remover<span class="sr-only"> — {{ titulo }}</span></button></form>{% endif %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endif %}
+
 {% if candidatas %}
 <form method="post" action="{% url 'coffee:conjunto' s.pk %}" class="documento documento--cartoes mt-4" novalidate>
   {% csrf_token %}
