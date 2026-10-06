@@ -29,6 +29,7 @@ from . import (
     pdfs,
     pedidos,
     policies,
+    preenchimento,
     queries,
     vias,
     virada,
@@ -194,11 +195,22 @@ def _historico(s: Solicitacao) -> list:
     return list(s.movimentos.select_related("usuario")[:50])
 
 
+def _locais_usados() -> list[str]:
+    """Os locais de entrega já usados (os mais recentes primeiro), para sugerir no campo."""
+    vistos: dict[str, None] = {}
+    for local in (Solicitacao.objects.exclude(local_entrega="").order_by("-criado_em")
+                  .values_list("local_entrega", flat=True)[:400]):
+        vistos.setdefault(" ".join(local.split()), None)
+    return list(vistos)[:150]
+
+
 def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | None,
               duplicada: Solicitacao | None = None,
-              form_fin: FormularioFinanceiro | None = None) -> dict:
+              form_fin: FormularioFinanceiro | None = None,
+              leitura: preenchimento.Sugestoes | None = None) -> dict:
     hoje = timezone.localdate()
     ctx: dict = {"form": form, "s": s, "form_id": FORM_ID, "duplicada": duplicada, "origem": None,
+                 "leitura": leitura, "locais_usados": _locais_usados(),
                  "proximo_numero": queries.proximo_numero(hoje.year),
                  "msg_travados": MSG_TRAVADOS if form.travado else "",
                  "numero_ano": f"/ {(s.data_solicitacao if s else hoje).year}"}
@@ -263,7 +275,8 @@ def _gravar(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao | 
                            justificativa=form.cleaned_data.get("justificativa", ""),
                            duplicada_de=duplicada,
                            versao=form.cleaned_data.get("versao") if s is not None else None,
-                           origem=origem)
+                           origem=origem,
+                           email_impressao=form.cleaned_data.get("email_impressao") or "")
     except pedidos.PedidoInvalido as exc:
         form.add_error(exc.campo if exc.campo in form.fields else None, str(exc))
         return None
@@ -299,6 +312,18 @@ def nova(request: HttpRequest) -> HttpResponse:
         inicial["data_evento"] = inicio
     return render(request, "coffee/folha.html",
                   _contexto(request, FormularioSolicitacao(initial=inicial), None, duplicada))
+
+
+@require_POST
+def preencher(request: HttpRequest) -> HttpResponse:
+    """"Preencher com um e-mail": a OS nova volta com as sugestões, o que foi lido, os
+    avisos (lote, saldo, período) e as OS já criadas do mesmo e-mail. Nada grava."""
+    _exigir(request)
+    texto = (request.POST.get("email") or "")[:20000]
+    leitura = preenchimento.sugerir(request.user, texto, timezone.localdate())
+    form = FormularioSolicitacao(initial=leitura.iniciais)
+    return render(request, "coffee/folha.html",
+                  _contexto(request, form, None, None, leitura=leitura))
 
 
 @require_http_methods(["GET", "POST"])

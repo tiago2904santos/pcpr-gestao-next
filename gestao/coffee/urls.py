@@ -12,6 +12,7 @@ urlpatterns = [
     path("painel/", vpa.painel_coffee, name="painel"),
     path("exportar/", vp.exportar, name="exportar"),
     path("nova/", vp.nova, name="nova"),
+    path("nova/preencher/", vp.preencher, name="preencher"),
     path("lote-do-municipio/", vp.lote_do_municipio, name="lote_do_municipio"),
     path("solicitacoes/<int:pk>/", vp.solicitacao, name="solicitacao"),
     path("solicitacoes/<int:pk>/financeiro/", vp.salvar_financeiro, name="financeiro"),

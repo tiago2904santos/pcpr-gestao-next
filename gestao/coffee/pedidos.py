@@ -74,7 +74,7 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
            retroativo: bool = False, justificativa: str = "",
            duplicada_de: Solicitacao | None = None, hoje: date | None = None,
            versao: str | None = None,
-           origem: tuple[str, int, str] | None = None) -> Resultado:
+           origem: tuple[str, int, str] | None = None, email_impressao: str = "") -> Resultado:
     """Grava a etapa 1. O lote vem do município (registro existente só troca de lote se o
     município mudar); vigência só para pedido novo ou quando município/data mudam; o saldo
     é revalidado com a linha do lote travada."""
@@ -124,6 +124,8 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
     s.descricao = " ".join((s.descricao or "").split())
     if novo and origem is not None:  # (chave, id, rótulo) do evento ou da palestra
         s.origem_tipo, s.origem_id = origem[0], origem[1]
+    if novo and email_impressao:
+        s.email_impressao = email_impressao
     s.lote = lote
     s.numero = _numero(s, dados.get("numero", ""), (dados["data_solicitacao"] or hoje).year)
     sal = queries.saldo(lote, exceto=s.pk)
@@ -150,6 +152,8 @@ def salvar(usuario, dados: dict[str, Any], solicitacao: Solicitacao | None = Non
         de_onde = f" Duplicada da solicitação {duplicada_de}." if duplicada_de else ""
         if origem is not None:
             de_onde += f" Pedido a partir de {origem[2]}."
+        if email_impressao:
+            de_onde += " Preenchida a partir de um e-mail."
         _mover(s, usuario, Movimento.Acao.CRIADA,
                f"Solicitação {s.numero} registrada no {lote} ({lote.contrato.fornecedor})."
                + de_onde)

@@ -86,7 +86,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 18i | Coffee Break CB6a (entregas e ocorrências; painel com indicadores, alerta de saldo pela projeção, vigência, certidões, "O que fazer hoje"; "parada há N dias" na lista; resumo das entregas por fornecedor) | feito (CB6a) |
 | 18j | Coffee Break CB6b (relatório do contrato em tela/PDF/CSV; virada de exercício com cópia dos lotes, impedimentos e encerrar) | feito (CB6b) |
 | 18k | Coffee Break CB7a/b (Agenda: OS, vigência e certidões; busca global; cartão da página inicial; "Pedir coffee break" de Eventos e de Palestras com a OS ligada à origem e o aviso de remarcação) | feito (CB7a/b) |
-| 18m | Coffee Break CB7c ("Preencher com um e-mail" e locais já usados), CB5d (contrato lido do PDF), relatórios consolidados (com o item 19), CB8 (fornecedor — depende de SMTP/decisão), CB9 (importações) | pendente |
+| 18m | Coffee Break CB7c ("Preencher com um e-mail": leitura própria em Python puro, avisos de lote/saldo e período, OS já criadas do mesmo e-mail; locais de entrega já usados) | feito (CB7c) |
+| 18n | Coffee Break CB5d (contrato/aditivo lido do PDF), relatórios consolidados (com o item 19), CB8 (fornecedor — depende de SMTP/decisão), CB9 (importações — decisão) | pendente |
 | 18l | Painel do Coffee Break: rótulo da coluna lateral "Alertas e lotes" (o bloco `rotulo_lateral` já está no template; falta o arquétipo `arquetipos/painel.html` aceitá-lo — o arquivo tem mudança não commitada da sessão de correção visual) | pendente (depende da outra sessão) |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
@@ -116,6 +117,10 @@ Ver a fila abaixo (primeiro item não concluído).
 - Intermitente (06/10): `tests/e2e/test_coffee.py::test_cadastrar_fornecedor_contrato_e_lote`
   falhou uma vez sob carga (o clique no combobox "Fornecedor" achou o `<select>` nativo
   ainda sem a lista própria); passou sozinho duas vezes em seguida. Em observação.
+- Intermitente (06/10, CB7c): no lote de navegador do Coffee Break, rodado junto com a
+  suíte rápida, 1 teste falhou com `Timeout em Locator.click` (o nome do teste não ficou no
+  registro filtrado); o lote repetido logo depois passou 13/13 e o teste novo passou
+  sozinho. Mesma família do item acima (clique sob carga). Em observação.
 
 ## Bloqueios externos
 

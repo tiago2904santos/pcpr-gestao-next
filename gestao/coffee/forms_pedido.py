@@ -72,11 +72,14 @@ class FormularioSolicitacao(forms.Form):
                                       widget=forms.HiddenInput(attrs={"form": FORM_ID}))
     origem = forms.CharField(required=False, max_length=30,
                              widget=forms.HiddenInput(attrs={"form": FORM_ID}))
+    email_impressao = forms.RegexField(regex=r"^[0-9a-f]{64}$", required=False,
+                                       widget=forms.HiddenInput(attrs={"form": FORM_ID}))
 
     def __init__(self, *args, solicitacao=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.solicitacao = solicitacao
         self.fields["municipio"].widget.attrs["form"] = FORM_ID
+        self.fields["local_entrega"].widget.attrs["list"] = "locais-usados"  # já usados
         if not self.is_bound:
             self.initial.setdefault("data_solicitacao", timezone.localdate())
             if solicitacao is not None:

@@ -75,6 +75,8 @@ class Solicitacao(Carimbos):
     # e o id lá — sem chave estrangeira, o Coffee Break não conhece os outros contextos.
     origem_tipo = models.CharField("origem do pedido", max_length=20, blank=True)
     origem_id = models.PositiveIntegerField("id na origem", null=True, blank=True)
+    # A "digital" do e-mail que preencheu a OS (CB7c): acha as OS já criadas dele.
+    email_impressao = models.CharField(max_length=64, blank=True, db_index=True)
 
     class Meta:
         app_label = "coffee"

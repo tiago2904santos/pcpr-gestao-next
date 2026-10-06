@@ -888,6 +888,22 @@ como histórico.
 - Fora: "criar aqui" da agenda (a agenda nova não tem esse atalho para nenhum módulo),
   relatórios consolidados (item 19), "Preencher com um e-mail" e locais já usados (CB7c).
 
+## CB7c — preencher com um e-mail e locais já usados (06/10/2026)
+
+- **"Preencher com um e-mail"** na OS nova (sanfona do UI Lab): cola-se o e-mail; a leitura
+  (`dominio_email.py`, Python puro, implementação própria) sugere data, horário (o mais
+  perto de "coffee/lanche/intervalo"), município do PR (o mais comprido, preferindo o que
+  vem depois de "em"), evento (rótulo "Evento/Assunto" ou a 1ª linha útil, com " - Cidade"),
+  quantidade ("2 turmas de 25", "30 alunos + 10 instrutores", por extenso, "Quantidade:",
+  "coffee para 30", correção vale a última), local, endereço, bairro, CEP e quem recebe.
+  Nada grava: a tela mostra "Lido do e-mail", os avisos (sem lote; saldo — texto da
+  referência; período de vários dias — uma OS por dia) e as OS já criadas do mesmo e-mail
+  (digital SHA-256 do texto normalizado, `email_impressao`). Nunca sugere o nº da OS.
+- **Locais já usados**: o campo "Local de entrega" sugere (datalist) os locais das OS
+  anteriores.
+- Fora: a "memória por remetente" e a leitura da conversa citada da referência (sem
+  evidência de uso; decisão do agente).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

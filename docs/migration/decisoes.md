@@ -290,6 +290,7 @@ Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffe
 | Excluir OS com entrega registrada (CB6a) | permitido antes da nota e do protocolo | recusado ("já tem entrega registrada: cancele em vez de excluir") — a ocorrência é a base de notificação ao fornecedor | agente (segurança) — confirmar |
 | Registro da entrega (CB6a) | modal na lista ou página própria | seção "Recebimento e ocorrências" na folha, logo depois do evento e da entrega; o estado ("Entregue · 4/5" / "Com ocorrência") na frase-resumo; recusado, o que foi digitado volta (menos o arquivo) com o erro no campo | agente (UX) |
 | Avaliação da entrega (CB6a) | 1–5 opcional | seleção "Sem avaliação", 5 (melhor) … 1 (pior) | agente (UX) |
+| "Preencher com um e-mail" (CB7c) | leitura com memória por remetente e conversa citada | leitura própria do texto colado (sem memória por remetente); a digital do e-mail acha as OS já criadas dele; locais já usados só como sugestão do campo (sem preencher o endereço) | agente — confirmar |
 | Origem do pedido (CB7b) | chaves estrangeiras para a solicitação de evento e a demanda | `origem_tipo` + `origem_id`, sem chave estrangeira (o Coffee Break não conhece os outros contextos); origem apagada some do cartão | agente (arquitetura) |
 
 ## Pendências abertas

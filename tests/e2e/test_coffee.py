@@ -230,3 +230,30 @@ def test_painel_e_registro_de_entrega(logado, dados_e2e):
     expect(pg.locator("#historico")).to_contain_text("Entrega registrada: Atraso na entrega")
     assert Entrega.objects.get().observacao == "Chegou 30 minutos depois (e2e)."
     assert not pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_preencher_com_um_email(logado, dados_e2e):
+    """CB7c: colar o e-mail preenche a OS nova, mostra o que foi lido e passa no axe."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from .conftest import rodar_axe
+
+    _operador_do_modulo()
+    _lote_de_curitiba()
+    data = timezone.localdate() + timedelta(days=15)
+    pg = logado
+    pg.goto("/coffee/nova/")
+    pg.get_by_text("Preencher com um e-mail").click()
+    pg.locator("#preencher-email").fill(
+        f"Assunto: Seminário de inteligência\nBom dia, coffee dia {data:%d/%m/%Y} às 10h no "
+        "Auditório Central, em Curitiba, para 2 turmas de 20.\nRecebe: Agente João")
+    pg.get_by_role("button", name="Ler o e-mail").click()
+    expect(pg.get_by_role("heading", name="Lido do e-mail")).to_be_visible()
+    expect(pg.locator("#id_municipio")).to_have_value("Curitiba/PR")
+    expect(pg.locator("#id_quantidade")).to_have_value("40")
+    expect(pg.locator("#id_local_entrega")).to_have_value("Auditório Central")
+    graves = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+    assert not graves, [(v["id"], [n["target"] for n in v["nodes"]][:3]) for v in graves]
+    assert not pg.erros_console  # type: ignore[attr-defined]
