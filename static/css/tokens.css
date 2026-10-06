@@ -287,6 +287,11 @@
      Painéis que brotam de um campo (calendário, listas) ficam ACIMA do conteúdo e da
      barra de ações flutuante (uma lista aberta perto do rodapé não pode sumir atrás dela)
      e ABAIXO do cabeçalho. */
+  /* Dentro de uma lista: as ações da linha sobem um degrau (o link esticado da linha não
+     pode cobri-las) e o cabeçalho de mês preso ao topo fica acima delas — senão o ⋮ das
+     linhas que passam por baixo pintava por cima do cabeçalho. */
+  --z-linha-acoes: 1;
+  --z-grupo-lista: 2;
   --z-progresso: 15;
   --z-barra-acoes: 25;
   --z-painel-campo: 27;

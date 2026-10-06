@@ -157,7 +157,7 @@ a.ficha:hover {
 .registros__grupo {
   position: sticky;
   top: var(--altura-topo);
-  z-index: 1;
+  z-index: var(--z-grupo-lista);
   display: flex;
   align-items: center;
   gap: var(--esp-2);
@@ -669,25 +669,18 @@ a.ficha:hover {
   font-style: italic;
 }
 
-/* Ações: discretas até o ponteiro ou o foco chegarem à linha (sem sumir: a11y). */
+/* Ações: sempre com o contraste cheio (WCAG 1.4.11 — o ⋮ é o único caminho para
+   cancelar, arquivar ou excluir). Antes esmaeciam a 60% até o ponteiro chegar (≈2,6:1).
+   O hover da linha só dá ao botão o fundo de "pronto para clicar". */
 .registro__acoes {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-linha-acoes);
   display: flex;
   gap: var(--esp-2);
-  opacity: 0.6;
-  transition: opacity var(--duracao-rapida) var(--curva-padrao);
 }
 
-.registro:hover .registro__acoes,
-.registro:focus-within .registro__acoes {
-  opacity: 1;
-}
-
-/* Ações com texto (ex.: "PDF", "DOCX" nos documentos do termo) não esmaecem: o texto
-   precisa do contraste cheio o tempo todo. */
-.registro__acoes--fixas {
-  opacity: 1;
+.registro:hover .registro__acoes .botao--sutil:not(:hover) {
+  background: var(--cor-superficie-realce);
 }
 
 @media (max-width: 767.98px) {
@@ -711,7 +704,7 @@ a.ficha:hover {
   }
   .registro > .placa .placa__numero { font-size: var(--texto-sm); }
   .registro__corpo { grid-area: corpo; }
-  .registro__acoes { grid-area: acoes; opacity: 1; }
+  .registro__acoes { grid-area: acoes; }
   .registro__meta { gap: var(--esp-05) var(--esp-3); font-size: var(--texto-xs); }
 }
 
