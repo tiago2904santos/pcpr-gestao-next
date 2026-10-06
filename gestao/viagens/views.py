@@ -208,7 +208,6 @@ def lista(request: HttpRequest) -> HttpResponse:
             (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
         "pode_criar": policies.pode_criar(request.user),
         "pode_editar_oficios": policies.edita_oficios(request.user),
-        "agora": timezone.now(),
         "migalhas": _migalhas(("Ofícios", "")),
     }
     if _htmx(request) and request.htmx.target == "resultados":  # type: ignore[attr-defined]

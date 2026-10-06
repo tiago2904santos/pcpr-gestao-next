@@ -89,3 +89,38 @@ def test_assunto_autorizacao_ou_convalidacao(saida, marcador, rotulo, termo):
     a = resolver_assunto(OFICIO, saida, marcador)
     assert (a.rotulo, a.termo) == (rotulo, termo)
     assert a.linha == f"Solicitação de {termo} e concessão de diárias."
+
+
+# ---------------------------------------------------------------- tipo do ofício (LP-07)
+from gestao.viagens.dominio.assunto import tipo_do_oficio  # noqa: E402
+
+
+@pytest.mark.parametrize(("saida", "marcador", "completo", "selo"), [
+    (date(2026, 10, 8), "", "Autorização", ""),                   # o comum: sem selo
+    (None, "", "Autorização", ""),
+    (date(2026, 9, 28), "", "Convalidação", "Convalidação"),      # mesmo dia
+    (date(2026, 9, 1), "", "Convalidação", "Convalidação"),
+    (date(2026, 10, 8), Marcador.RETIFICADO, "Autorização · Retificado", "Retificado"),
+    (date(2026, 9, 1), Marcador.RETIFICADO, "Convalidação", "Convalidação"),  # não vale
+    (date(2026, 10, 8), Marcador.COMPLEMENTAR, "Autorização · Complementar", "Complementar"),
+    (date(2026, 9, 1), Marcador.COMPLEMENTAR, "Convalidação · Complementar",
+     "Convalidação · Complementar"),
+])
+def test_tipo_do_oficio(saida, marcador, completo, selo):
+    tipo = tipo_do_oficio(OFICIO, saida, marcador)
+    assert (tipo.completo, tipo.selo) == (completo, selo)
+    assert tipo.incomum is bool(selo)
+    # coerente com o assunto que vai no documento
+    assert tipo.autorizacao is resolver_assunto(OFICIO, saida, marcador).autorizacao
+
+
+def test_tipo_explica_o_porque():
+    assert "8 dias depois do ofício" in tipo_do_oficio(OFICIO, date(2026, 10, 6)).porque
+    assert "no mesmo dia do ofício" in tipo_do_oficio(OFICIO, date(2026, 9, 28)).porque
+    assert "antes do ofício" in tipo_do_oficio(OFICIO, date(2026, 9, 1)).porque
+    assert "Sem data de saída" in tipo_do_oficio(OFICIO, None).porque
+    assert "1 dia depois" in tipo_do_oficio(OFICIO, date(2026, 9, 29)).porque
+    retificado_ignorado = tipo_do_oficio(OFICIO, date(2026, 9, 1), Marcador.RETIFICADO)
+    assert "não vale na convalidação" in retificado_ignorado.porque
+    assert "acrescenta" in tipo_do_oficio(OFICIO, date(2026, 10, 8),
+                                          Marcador.COMPLEMENTAR).porque

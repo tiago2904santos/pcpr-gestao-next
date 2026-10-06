@@ -71,7 +71,6 @@ def lista(request: HttpRequest) -> HttpResponse:
         "pode_criar": policies.pode_criar_roteiro(request.user),
         "pode_editar_roteiros": request.user.has_perm("viagens.change_roteiro"),
         "pode_criar_oficio": policies.pode_criar(request.user),
-        "agora": timezone.now(),
         "migalhas": _migalhas(("Roteiros", "")),
     }
     if _htmx(request) and request.htmx.target == "resultados":  # type: ignore[attr-defined]

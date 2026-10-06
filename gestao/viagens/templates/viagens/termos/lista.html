@@ -1,4 +1,5 @@
 {% extends "arquetipos/lista.html" %}
+{% load viagens %}
 {% block titulo %}Termos de autorização{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block titulo_lista %}Termos de autorização{% endblock %}
@@ -49,15 +50,13 @@ chega com a prestação de contas.
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with t=l.termo ef=l.ef %}
       <li class="registro{% if t.cancelado %} registro--inativo{% endif %}">
-        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Termo</span><span class="placa__numero">#{{ t.pk }}</span></span>
+        <span class="placa{% if t.cancelado %} placa--cancelada{% endif %}" aria-hidden="true"><span class="placa__rotulo">Termo</span><span class="placa__numero">#{{ t.pk }}</span></span>
         <div class="registro__corpo">
           <div class="registro__titulo">
             <a class="registro__link" href="{% url 'viagens:editar_termo' t.pk %}"><span class="sr-only">{{ t }} · </span>{{ ef.destino_texto|default:"Sem destino" }}{% if ef.periodo_curto %} · {{ ef.periodo_curto }}{% endif %}</a>
-            {% if t.cancelado %}<span class="selo selo--perigo selo--sem-ponto">Cancelado</span>
-            {% elif not ef.inicio %}<span class="selo selo--neutro selo--sem-ponto">Sem período</span>
-            {% elif ef.inicio > hoje %}<span class="selo selo--neutro selo--sem-ponto">Previsto</span>
-            {% elif ef.fim >= hoje %}<span class="selo selo--info selo--sem-ponto">Em andamento</span>
-            {% else %}<span class="selo selo--sucesso selo--sem-ponto">Realizado</span>{% endif %}
+            {# Tempo no vocabulário único das listas (D3); cancelado com a gramática de Roteiros. #}
+            {% if t.cancelado %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>
+            {% else %}{% selo_tempo ef.inicio ef.fim hoje=hoje %}{% endif %}
             {% if not t.oficio %}<span class="selo selo--neutro selo--sem-ponto">Avulso</span>{% endif %}
             {% if t.vias_vigentes %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "file-signature" classe="icone--sm" %}{% if t.vias_vigentes >= l.docs|length %}Assinado{% else %}{{ t.vias_vigentes }} de {{ l.docs|length }} assinados{% endif %}</span>{% endif %}
           </div>

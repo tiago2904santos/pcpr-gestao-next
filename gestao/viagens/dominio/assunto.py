@@ -46,3 +46,71 @@ def resolver_assunto(data_oficio: date, primeira_saida: date | None,
     else:
         rotulo = "(Autorização)" if autorizacao else "(Convalidação)"
     return Assunto(autorizacao, rotulo, termo, linha)
+
+
+# ---------------------------------------------------------------- tipo (listas e resumo)
+_MARCAS = {Marcador.RETIFICADO: "Retificado", Marcador.COMPLEMENTAR: "Complementar"}
+_POR_QUE_MARCA = {
+    Marcador.RETIFICADO: "Marcado como retificado: corrige um ofício anterior à viagem.",
+    Marcador.COMPLEMENTAR: "Marcado como complementar: acrescenta ao ofício já enviado.",
+}
+
+
+@dataclass(frozen=True)
+class TipoOficio:
+    """O tipo do pedido como as listas e o resumo o mostram.
+
+    `completo` sempre ("Autorização", "Convalidação · Complementar"); `selo` só quando foge
+    do comum — Convalidação, Retificado ou Complementar — porque Autorização é o caso de
+    quase todo ofício e um selo em toda linha seria ruído (decisão D4). `porque` explica
+    em uma ou duas frases (o legado usava uma dica de passar o mouse, inacessível no toque).
+    """
+
+    autorizacao: bool
+    marca: str    # "" | "Retificado" | "Complementar" (só a marca que vale)
+    porque: str
+
+    @property
+    def natureza(self) -> str:
+        return "Autorização" if self.autorizacao else "Convalidação"
+
+    @property
+    def completo(self) -> str:
+        return f"{self.natureza} · {self.marca}" if self.marca else self.natureza
+
+    @property
+    def selo(self) -> str:
+        if self.autorizacao:
+            return self.marca
+        return self.completo
+
+    @property
+    def incomum(self) -> bool:
+        return bool(self.selo)
+
+
+def tipo_do_oficio(data_oficio: date, primeira_saida: date | None,
+                   marcador: Marcador | str = Marcador.NENHUM) -> TipoOficio:
+    assunto = resolver_assunto(data_oficio, primeira_saida, marcador)
+    marcador = Marcador(marcador or "")
+    vale = marcador is Marcador.COMPLEMENTAR or (
+        marcador is Marcador.RETIFICADO and assunto.autorizacao)
+    if primeira_saida is None:
+        porque = "Sem data de saída ainda: o pedido é de autorização."
+    else:
+        oficio, saida = f"{data_oficio:%d/%m/%Y}", f"{primeira_saida:%d/%m/%Y}"
+        dias = (primeira_saida - data_oficio).days
+        if dias > 0:
+            porque = (f"A viagem começa em {saida}, {dias} dia{'s' if dias != 1 else ''} "
+                      f"depois do ofício ({oficio}): pedido de autorização.")
+        elif dias == 0:
+            porque = (f"A viagem começa no mesmo dia do ofício ({oficio}): "
+                      "pedido de convalidação.")
+        else:
+            porque = (f"A viagem começou em {saida}, antes do ofício ({oficio}): "
+                      "pedido de convalidação.")
+    if vale:
+        porque += " " + _POR_QUE_MARCA[marcador]
+    elif marcador is Marcador.RETIFICADO:
+        porque += " A marca de retificado não vale na convalidação."
+    return TipoOficio(assunto.autorizacao, _MARCAS[marcador] if vale else "", porque)

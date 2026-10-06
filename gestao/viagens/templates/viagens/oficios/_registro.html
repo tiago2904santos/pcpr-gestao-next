@@ -1,5 +1,4 @@
 {% load viagens %}
-{% contagem_dias o.primeira_saida as contagem %}
 {# data-vt na placa: a placa do registro aberto viaja até o cabeçalho do detalhe (registro.js deixa só a clicada nomeada no pageswap). #}
 <li class="registro" data-destaque="oficio:{{ o.pk }}">
   {# Placa: o número do ofício como assinatura visual da lista (o link abaixo já o anuncia). #}
@@ -15,8 +14,8 @@
         <span class="sr-only">Ofício {{ o.numero_formatado }} · </span>{% with d=o|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
       </a>
       <span class="selo selo--{{ o.situacao|tom_situacao }} selo--situacao-{{ o.situacao }}">{{ o.get_situacao_display }}</span>
-      {% if o.editavel %}{% with sj=o|selo_justificativa %}{% if sj %}<span class="selo selo--{{ sj.tom }}">{{ sj.texto }}</span>{% endif %}{% endwith %}{% endif %}
-      {% if contagem and o.situacao != "cancelado" %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
+      {# Orçamento de selos (D4): situação + tipo só se incomum + no máximo um alerta. #}
+      {% selo_tipo o %}{% alerta_oficio o %}
     </div>
     <div class="registro__meta">
       {% if o.protocolo %}<span class="registro__meta-item">{% icone "stamp" classe="icone--sm" %}Protocolo {{ o.protocolo_formatado }}</span>{% endif %}

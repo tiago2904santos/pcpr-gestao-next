@@ -1196,3 +1196,91 @@ class TestRevisaoDeUXDoCicloDeVida:
     def test_aba_arquivados_vazia_tem_mensagem_propria(self, operador, cenario):
         html = operador.get(reverse("viagens:oficios") + "?situacao=arquivado").content.decode()
         assert "Nenhum ofício arquivado" in html
+
+
+class TestSelosDasListas:
+    """Lote 1 da lista de ofícios (LP-06/LP-07): um vocabulário de tempo para as três listas,
+    no máximo um alerta por linha e o tipo do ofício só quando foge do comum."""
+
+    @staticmethod
+    def _linha(html: str, numero: str) -> str:
+        """O <li> do registro de um ofício (até o próximo)."""
+        inicio = html.index(f"Ofício {numero} · ")
+        return html[inicio:html.index("</li>", inicio)]
+
+    @staticmethod
+    def _deslocar(oficio: Oficio, dias: int) -> None:
+        """Move a viagem inteira (dado de teste; não é fluxo de negócio)."""
+        for t in oficio.trechos.all():
+            t.saida_em += timedelta(days=dias)
+            t.chegada_em += timedelta(days=dias)
+            t.save(update_fields=["saida_em", "chegada_em"])
+
+    def test_um_alerta_so_justificativa_pendente_vence_o_tempo(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])  # sai em 3 dias
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            rascunho.numero_formatado)
+        assert "Justificativa pendente" in linha and "faltam 3 dias" not in linha
+
+    def test_tempo_futuro_e_justificativa_preenchida_fora_da_linha(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])  # sai em 20 dias
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            emitido.numero_formatado)
+        assert "faltam 20 dias" in linha and "selo--info" in linha
+        assert "Justificativa preenchida" not in linha
+
+    def test_viagem_em_curso_diz_em_andamento_e_nunca_ha_n_dias(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])  # 4 dias de viagem
+        self._deslocar(emitido, -21)  # saiu ontem, volta em 3 dias
+        volta = timezone.localdate() + timedelta(days=3)
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            emitido.numero_formatado)
+        assert f"em andamento · até {volta:%d/%m}" in linha and "selo--processo" in linha
+        assert "há 1 dia" not in linha
+
+    def test_passado_nao_tem_selo_de_tempo(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        self._deslocar(emitido, -60)
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            emitido.numero_formatado)
+        assert "há " not in linha and "#i-clock" not in linha and "selo--processo" not in linha
+
+    def test_tipo_so_quando_foge_do_comum(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "Convalidação" not in self._linha(html, emitido.numero_formatado)
+        assert "Autorização" not in html  # o comum não ganha selo
+        # Ofício datado depois da saída: convalidação, com o porquê no title.
+        Oficio.objects.filter(pk=emitido.pk).update(
+            data_oficio=timezone.localdate() + timedelta(days=25), marcador="complementar")
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            emitido.numero_formatado)
+        assert ">Convalidação · Complementar</span>" in linha
+        assert "antes do ofício" in linha and "acrescenta ao ofício já enviado" in linha
+
+    def test_retificado_aparece_na_linha(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        Oficio.objects.filter(pk=emitido.pk).update(marcador="retificado")
+        linha = self._linha(operador.get(reverse("viagens:oficios")).content.decode(),
+                            emitido.numero_formatado)
+        assert ">Retificado</span>" in linha
+
+    def test_resumo_usa_o_mesmo_vocabulario_e_explica_o_tipo(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        html = operador.get(reverse("viagens:resumo", args=[rascunho.pk])).content.decode()
+        assert "Fora do prazo" not in html
+        assert "Justificativa pendente" in html  # o mesmo selo da linha
+        assert "<strong>Autorização</strong>" in html and "3 dias depois do ofício" in html
+        assert "Pendente: ainda não foi escrita." in html
+
+    def test_roteiros_e_termos_com_o_mesmo_selo(self, operador, cenario):
+        html = operador.get(reverse("viagens:roteiros")).content.decode()
+        assert "faltam 25 dias" in html
+        from gestao.viagens import termos
+        hoje = timezone.localdate()
+        termos.salvar(cenario.usuarios["operador"], evento="Feira",
+                      data_inicio=hoje - timedelta(days=1), data_fim=hoje + timedelta(days=2),
+                      destinos=[Municipio.objects.get(nome="Londrina", uf="PR")])
+        html = operador.get(reverse("viagens:termos")).content.decode()
+        assert f"em andamento · até {hoje + timedelta(days=2):%d/%m}" in html
+        assert "Previsto" not in html and "Realizado" not in html

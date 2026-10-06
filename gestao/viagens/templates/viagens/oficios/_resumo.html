@@ -16,7 +16,8 @@ continua sendo a edição; aqui só se lê e se decide.
     <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}
       <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if oficio.arquivado %}<span class="selo selo--neutro selo--sem-ponto">{% icone "inbox" classe="icone--sm" %}Arquivado</span>{% endif %}
-      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
+      {# Os mesmos selos da linha da lista (D3/D4): quem abre a janela lê as mesmas palavras. #}
+      {% selo_tipo oficio %}{% alerta_oficio oficio %}
     </h2>
   </div>
 </div>
@@ -46,6 +47,10 @@ continua sendo a edição; aqui só se lê e se decide.
     <div><dt>Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
     <div><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
     <div><dt>Porte de arma</dt><dd>{{ oficio.porte_arma|yesno:"Sim,Não" }}</dd></div>
+    {% tipo_oficio oficio as tipo %}
+    {# O tipo sempre (inclusive Autorização, que a lista não marca) e o porquê, por escrito. #}
+    <div class="resumo__largo"><dt>Tipo</dt><dd><strong>{{ tipo.completo }}</strong>. {{ tipo.porque }}</dd></div>
+    {% if prazo.primeira_saida %}<div class="resumo__largo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}
     <div class="resumo__largo"><dt>Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     {% if revisao %}
       {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}

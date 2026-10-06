@@ -2,11 +2,20 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.utils.html import format_html
+
+from gestao.plataforma.templatetags.ui import icone
+
+from ..dominio import tempo as dominio_tempo
+from ..dominio.assunto import TipoOficio, tipo_do_oficio
+from ..dominio.prazos import avaliar_prazo
+from ..dominio.selos import TipoAlerta, alerta_da_linha
+from ..dominio.tempo import PRAZO_PADRAO, Momento, SeloTempo
 
 register = template.Library()
 
@@ -54,21 +63,6 @@ def custeio_curto(custeio: str) -> str:
     """Só o nome do custeio. A explicação entre parênteses cabe na folha do ofício; num
     resumo, ela ocuparia três linhas para dizer "Unidade"."""
     return CUSTEIO_CURTO.get(custeio, custeio)
-
-
-@register.simple_tag
-def contagem_dias(primeira_saida: datetime | None) -> dict[str, str] | None:
-    """"faltam 7 dias" / "hoje" / "há 3 dias" (selo da lista)."""
-    if not primeira_saida:
-        return None
-    dias = (timezone.localdate(primeira_saida) - timezone.localdate()).days
-    if dias > 1:
-        return {"texto": f"faltam {dias} dias", "tom": "aviso" if dias <= 10 else "info"}
-    if dias == 1:
-        return {"texto": "amanhã", "tom": "aviso"}
-    if dias == 0:
-        return {"texto": "hoje", "tom": "aviso"}
-    return {"texto": f"há {-dias} dia{'s' if dias < -1 else ''}", "tom": "neutro"}
 
 
 @register.filter
@@ -139,24 +133,100 @@ def so_avisos(pendencias):
     return [p for p in pendencias if not p.bloqueia]
 
 
-@register.filter
-def selo_justificativa(oficio) -> dict[str, str] | None:
-    """Selo da lista: justificativa pendente/preenchida quando o prazo a exige."""
-    from ..dominio.prazos import avaliar_prazo
-
-    saida = getattr(oficio, "primeira_saida", None)
-    if oficio.situacao == "cancelado" or saida is None:
+# ---------------------------------------------------------------- selos das listas
+# A regra é do domínio (dominio/tempo.py, dominio/selos.py, dominio/assunto.py); aqui só a
+# forma do selo. Nenhuma tela monta selo de tempo, de justificativa ou de tipo à mão.
+def _data_local(valor: date | datetime | None) -> date | None:
+    if valor is None:
         return None
+    if isinstance(valor, datetime):
+        return timezone.localdate(valor)
+    return valor
+
+
+def _html_selo_tempo(selo: SeloTempo | None) -> str:
+    if selo is None:
+        return ""
+    if selo.momento is Momento.EM_ANDAMENTO:  # o ponto pulsa: está acontecendo agora
+        return format_html('<span class="selo selo--info selo--processo">{}</span>', selo.texto)
+    return format_html('<span class="selo selo--{} selo--sem-ponto">{}{}</span>',
+                       "aviso" if selo.aviso else "info",
+                       icone("clock", classe="icone--sm"), selo.texto)
+
+
+@register.simple_tag
+def selo_tempo(inicio: date | datetime | None, fim: date | datetime | None = None,
+               prazo: int = PRAZO_PADRAO, hoje: date | None = None) -> str:
+    """`{% selo_tempo inicio fim %}`: "faltam 12 dias", "amanhã", "começa hoje",
+    "em andamento · até 15/10", "volta hoje" — ou nada (passado, sem data)."""
+    return _html_selo_tempo(dominio_tempo.selo_tempo(
+        _data_local(inicio), _data_local(fim), hoje or timezone.localdate(), prazo))
+
+
+def _prazo_da_unidade(oficio) -> int | None:
     try:
-        prazo = oficio.unidade.configuracao.prazo_justificativa_dias
+        return oficio.unidade.configuracao.prazo_justificativa_dias
     except ObjectDoesNotExist:  # unidade sem configuração: as pendências já avisam
         return None
-    avaliacao = avaliar_prazo(oficio.data_oficio, timezone.localdate(saida), prazo)
-    if not avaliacao.justificativa_obrigatoria:
-        return None
-    if oficio.justificativa.strip():
-        return {"texto": "Justificativa preenchida", "tom": "sucesso"}
-    return {"texto": "Justificativa pendente", "tom": "aviso"}
+
+
+def _periodo_do_oficio(oficio) -> tuple[date | None, date | None]:
+    """Datas locais da 1ª saída e da última chegada. Na lista os trechos já vêm juntos
+    (com_dados_de_lista); no resumo, do cache de trechos_de — nenhuma consulta por linha."""
+    from ..queries import trechos_de
+
+    trechos = trechos_de(oficio)
+    if not trechos:
+        return None, None
+    return _data_local(trechos[0].saida_em), _data_local(trechos[-1].chegada_em)
+
+
+def justificativa_pendente(oficio, inicio: date | None, prazo: int | None) -> bool:
+    if (prazo is None or inicio is None or not oficio.editavel
+            or oficio.situacao == "cancelado"):
+        return False
+    return (avaliar_prazo(oficio.data_oficio, inicio, prazo).justificativa_obrigatoria
+            and not oficio.justificativa.strip())
+
+
+@register.simple_tag
+def alerta_oficio(oficio, hoje: date | None = None) -> str:
+    """O único alerta do título do ofício (D4): Justificativa pendente > prazo > tempo."""
+    if oficio.situacao == "cancelado":
+        return ""
+    inicio, fim = _periodo_do_oficio(oficio)
+    prazo = _prazo_da_unidade(oficio)
+    tempo = dominio_tempo.selo_tempo(inicio, fim, hoje or timezone.localdate(),
+                                     PRAZO_PADRAO if prazo is None else prazo)
+    alerta = alerta_da_linha(justificativa_pendente=justificativa_pendente(oficio, inicio, prazo),
+                             tempo=tempo)
+    if alerta is None:
+        return ""
+    if alerta.tipo is TipoAlerta.JUSTIFICATIVA:
+        # Anel vazio âmbar: falta algo para emitir (a mesma forma de "Falta destino").
+        return format_html('<span class="selo selo--aviso selo--situacao-rascunho">{}</span>',
+                           "Justificativa pendente")
+    return _html_selo_tempo(alerta.tempo)
+
+
+ICONE_TIPO = {"Retificado": "file-pen-line", "Complementar": "file-plus-2"}
+
+
+@register.simple_tag
+def tipo_oficio(oficio) -> TipoOficio:
+    """`{% tipo_oficio o as tipo %}` — Autorização × Convalidação + marca, com o porquê."""
+    return tipo_do_oficio(oficio.data_oficio, _periodo_do_oficio(oficio)[0], oficio.marcador)
+
+
+@register.simple_tag
+def selo_tipo(oficio) -> str:
+    """Selo do tipo só quando foge do comum: Convalidação, Retificado, Complementar."""
+    tipo = tipo_oficio(oficio)
+    if not tipo.incomum:
+        return ""
+    return format_html('<span class="selo selo--neutro selo--sem-ponto" title="{}">{}{}</span>',
+                       tipo.porque, icone(ICONE_TIPO.get(tipo.marca, "history"),
+                                          classe="icone--sm"), tipo.selo)
 
 
 @register.filter

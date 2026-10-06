@@ -1,5 +1,4 @@
 {% load viagens %}
-{% contagem_dias r.primeira_saida as contagem %}
 <li class="registro" data-destaque="roteiro:{{ r.pk }}">
   <span class="placa{% if r.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
     <span class="placa__rotulo">Roteiro</span>
@@ -15,8 +14,7 @@
       {% endif %}
       {% endwith %}
       {% if r.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>
-      {% elif r.primeira_saida and r.primeira_saida <= agora and r.ultima_chegada >= agora %}<span class="selo selo--info selo--processo">em andamento</span>
-      {% elif contagem %}<span class="selo selo--{{ contagem.tom }} selo--sem-ponto">{% icone "clock" classe="icone--sm" %}{{ contagem.texto }}</span>{% endif %}
+      {% else %}{% selo_tempo r.primeira_saida r.ultima_chegada %}{% endif %}
     </div>
     <div class="registro__meta">
       {% with p=r.trechos.all|periodo %}
