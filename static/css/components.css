@@ -1259,6 +1259,15 @@ a.resumo__documento:hover {
 
 .selo--sem-ponto::before { display: none; }
 
+/* Neutro: o tom de base, declarado. Quem monta o selo por um "tom" vindo do domínio
+   (rascunho, encerrado, "Previsto", "Avulso"…) pede `selo--neutro` — antes a classe não
+   existia e o selo caía no padrão por sorte. */
+.selo--neutro {
+  --selo-fundo: var(--cor-superficie-realce);
+  --selo-texto: var(--cor-texto-secundario);
+  --selo-borda: var(--cor-borda);
+}
+
 .selo--info {
   --selo-fundo: var(--cor-info-fundo);
   --selo-texto: var(--cor-info);
