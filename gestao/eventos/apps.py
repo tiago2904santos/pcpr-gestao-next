@@ -7,4 +7,6 @@ class EventosConfig(AppConfig):
     verbose_name = "Eventos Sociais"
 
     def ready(self) -> None:
-        from . import navegacao  # noqa: F401  (registra o módulo no menu)
+        from . import agenda, conflitos, navegacao  # noqa: F401  (menu)
+        agenda.registrar()
+        conflitos.registrar()

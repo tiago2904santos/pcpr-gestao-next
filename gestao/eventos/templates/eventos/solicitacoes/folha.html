@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{% if s %}{{ s }} · {{ titulo }}{% else %}Nova solicitação{% endif %} · Eventos Sociais{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Folha da solicitação de evento (paridade com a tela única da referência), na linguagem da
+folha do ofício: placa, frase e etapas no cabeçalho; 1 Dados e 2 Serviços e estrutura no
+formulário (rascunho e devolvida se gravam sozinhos; depois do envio, só leitura — ou
+"Alterar" reabre e reenvia à DG); 3 Anexos; 4 Despacho da DG (só a DG, com textos prontos,
+ajuste de servidores e "registrar e abrir a próxima"); 5 Encerramento; 6 Responsável;
+histórico.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true"><span class="placa__rotulo">Pedido</span><span class="placa__numero">{% if s %}#{{ s.pk }}{% else %}novo{% endif %}</span></span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="{% if s %}pagina-cabecalho__titulo{% else %}sr-only{% endif %}">{% if s %}{{ titulo }}{% else %}Nova solicitação de evento{% endif %}</h1>
+    {% if s %}
+    <p class="frase-oficio" id="frase-solicitacao">
+      <span class="sr-only">Resumo: </span>
+      <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %}">{{ s.get_status_display }}</span>
+      {% if selo %}<span class="selo selo--{{ selo.tom }} selo--sem-ponto">{{ selo.texto }}</span>{% endif %}
+      {% if em_cima %}<span class="selo selo--aviso selo--sem-ponto">{{ em_cima }}</span>{% endif %}
+      <span class="frase-oficio__item{% if not s.solicitante_nome %} frase-oficio__item--vazio{% endif %}">{% icone "user-round" classe="icone--sm" %}{{ s.solicitante_nome|default:"sem solicitante" }}</span>
+      <span class="frase-oficio__item">{% icone "user" classe="icone--sm" %}Responsável: {{ s.criado_por.nome }}</span>
+    </p>
+    {% else %}
+    <p class="pagina-cabecalho__descricao">Preencha o que já sabe e salve como rascunho; quando estiver completa, envie para o despacho da Diretoria-Geral.</p>
+    {% endif %}
+  </div>
+  {% if s %}
+  <div class="pagina-cabecalho__acoes">
+    {% if pode_reabrir and not reabrir %}<a class="botao" href="?reabrir=1">{% icone "pencil" %}Alterar</a>{% endif %}
+    <form method="post" action="{% url 'eventos:duplicar' s.pk %}">{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "copy" %}Duplicar</button></form>
+    {% if pode_excluir %}<form method="post" action="{% url 'eventos:excluir' s.pk %}" data-confirmar="O rascunho #{{ s.pk }} será excluído de vez." data-confirmar-titulo="Excluir rascunho?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "trash-2" %}Excluir</button></form>{% endif %}
+  </div>
+  {% endif %}
+</header>
+
+{% if s %}
+<ol class="etapas-progresso mb-4" aria-label="Etapas da solicitação">
+  {% for e in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ e.estado }}"{% if e.estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if e.estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ e.titulo }}</span></li>{% endfor %}
+</ol>
+{% if s.status == "devolvida" and s.observacoes_dg %}<div class="alerta alerta--aviso mb-4" role="status">{% icone "undo-2" %}<div class="alerta__corpo"><p class="alerta__titulo">Enviada para correção pela Diretoria-Geral</p><p>{{ s.observacoes_dg }}</p></div></div>{% endif %}
+{% if reabrir %}<div class="alerta alerta--info mb-4" role="status">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Alterando depois do envio</p><p>Ao salvar com alguma mudança, a solicitação volta a aguardar o despacho da DG{% if s.status == "deferida" %} (a decisão atual é desfeita){% endif %}.</p></div></div>{% endif %}
+{% endif %}
+
+{% include "componentes/resumo_erros.html" %}
+{% if avisos_agenda %}<div class="alerta alerta--aviso mb-4" role="status" id="avisos-agenda">{% icone "alert-triangle" %}<div class="alerta__corpo"><p class="alerta__titulo">{{ avisos_agenda|length|pluralizar:"aviso de agenda,avisos de agenda" }}</p><ul class="checklist">{% for a in avisos_agenda %}<li class="checklist__item"><a href="{{ a.url }}">{{ a.mensagem }}</a></li>{% endfor %}</ul><p class="texto-secundario texto-sm">É só um aviso: confira antes de seguir.</p></div></div>{% endif %}
+{% if erros_estrutura %}<div class="alerta alerta--perigo mb-4" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><ul class="checklist">{% for e in erros_estrutura %}<li class="checklist__item">{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
+<datalist id="solicitantes">{% for n in solicitantes %}<option value="{{ n }}">{% endfor %}</datalist>
+
+<form method="post" novalidate id="{{ form_id }}" class="documento documento--cartoes" data-proteger{% if s and editavel and not reabrir %} data-autosave="{% url 'eventos:autosave' s.pk %}"{% endif %} action="{% if s %}{% url 'eventos:solicitacao' s.pk %}{% else %}{% url 'eventos:nova' %}{% endif %}">
+  {% csrf_token %}{{ form.versao }}{% if reabrir %}<input type="hidden" name="reabrir" value="1">{% endif %}
+
+  <section class="secao{% if s and not erros_envio %} secao--ok{% endif %}" id="dados" aria-labelledby="t-dados">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados da solicitação</h2>
+      <p class="secao__nota">Quando, onde, o quê e quem pede.{% if not s %} Escolheu o tipo? Use o modelo dele: <span class="linha">{% for t in tipos_com_modelo|slice:":6" %}<a class="botao botao--sm botao--sutil" href="?tipo={{ t.pk }}">{{ t.nome }}</a>{% endfor %}</span>{% endif %}</p>
+    </div>
+    <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
+      <legend class="sr-only">Dados da solicitação</legend>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.data_solicitacao classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.data_inicio_evento classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.data_fim_evento classe="campo--md" %}
+      </div>
+      <div class="campos">
+        <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
+          <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">Município</label>
+          <pc-combobox class="combobox" data-fonte="{% url 'cadastros:buscar_municipios' %}?q=" data-minimo="2" data-valor-texto><div class="entrada-composta">{{ form.municipio|campo_acessivel:"" }}</div></pc-combobox>
+          {% if form.municipio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.municipio.errors|join:" " }}</span></p>{% endif %}
+        </div>
+        {% include "componentes/campo.html" with campo=form.tipo_evento classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.solicitante_nome classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.solicitante_cargo_unidade classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.contato classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.orgao_responsavel classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.local_evento classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.endereco classe="campo--lg" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.bairro classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.cep classe="campo--sm" %}
+        {% include "componentes/campo.html" with campo=form.protocolo classe="campo--md" %}
+      </div>
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.tipo_operacao classe="campo--md" %}
+        {% include "componentes/campo.html" with campo=form.quantidade_cin classe="campo--md" %}
+      </div>
+      {% include "componentes/campo.html" with campo=form.descricao_complementar %}
+    </fieldset>
+  </section>
+
+  <section class="secao" id="estrutura" aria-labelledby="t-estrutura">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-estrutura"><span class="secao__numero">2</span>Serviços e estrutura</h2>
+      <p class="secao__nota">Os serviços oferecidos, as equipes com quantos servidores e, se for, a unidade móvel.</p>
+    </div>
+    <fieldset class="grupo-campos--livre pilha"{% if not editavel %} disabled{% endif %}>
+      <legend class="sr-only">Serviços e estrutura</legend>
+      <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Serviços</legend>
+        <div class="caixas">{% for sv, marcado in servicos %}<label class="escolha caixas__item"><input type="checkbox" name="servico_{{ sv.pk }}" value="1" form="{{ form_id }}"{% if marcado %} checked{% endif %}><span>{{ sv.nome }}{% if not sv.ativo %} (inativo){% endif %}</span></label>{% empty %}<p class="vazio-inline">Nenhum serviço cadastrado.</p>{% endfor %}</div>
+      </fieldset>
+      <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Equipes</legend>
+        <div class="pilha">
+          {% for e, marcada, qtd in equipes %}
+          <div class="campos">
+            <label class="escolha campo--md"><input type="checkbox" name="equipe_{{ e.pk }}" value="1" form="{{ form_id }}"{% if marcada %} checked{% endif %}><span>{{ e.nome }}{% if not e.ativo %} (inativa){% endif %}</span></label>
+            <div class="campo campo--sm"><label class="campo__rotulo" for="qtd-{{ e.pk }}">Servidores<span class="sr-only"> de {{ e.nome }}</span></label><input class="entrada" id="qtd-{{ e.pk }}" name="quantidade_equipe_{{ e.pk }}" form="{{ form_id }}" inputmode="numeric" autocomplete="off" value="{{ qtd|default_if_none:'' }}"></div>
+          </div>
+          {% empty %}<p class="vazio-inline">Nenhuma equipe cadastrada.</p>{% endfor %}
+        </div>
+        {% if s %}<p class="texto-secundario texto-sm">Total: {{ s.quantidade_servidores|pluralizar:"servidor,servidores" }}.</p>{% endif %}
+      </fieldset>
+      {% include "componentes/campo.html" with campo=form.unidade_movel %}
+      <div class="campos">
+        {% include "componentes/campo.html" with campo=form.unidade_movel_designada classe="campo--lg" %}
+        {% include "componentes/campo.html" with campo=form.motorista classe="campo--lg" %}
+      </div>
+    </fieldset>
+  </section>
+</form>
+
+{% if s %}
+<div class="documento documento--cartoes mt-6">
+  <section class="secao" id="anexos" aria-labelledby="t-anexos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexos"><span class="secao__numero">3</span>Anexos</h2><p class="secao__nota">Ofício do pedido, e-mail, fotos. PDF, imagens, documentos e planilhas, até 10 MB.</p></div>
+    {% if s.anexos.all %}<ul class="registros">{% for a in s.anexos.all %}<li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "file-text" %}</span><div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'eventos:abrir_anexo' s.pk a.pk %}">{{ a.nome_original }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ a.tamanho|filesizeformat }}</span><span class="registro__meta-item">{{ a.criado_em|date:"d/m/Y H:i" }}</span></div></div>{% if pode_anexos %}<div class="registro__acoes registro__acoes--fixas"><form method="post" action="{% url 'eventos:remover_anexo' s.pk a.pk %}" data-confirmar="Remover o anexo {{ a.nome_original }}?" data-confirmar-titulo="Remover anexo?" data-confirmar-rotulo="Remover" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil" aria-label="Remover {{ a.nome_original }}">{% icone "trash-2" %}</button></form></div>{% endif %}</li>{% endfor %}</ul>
+    {% else %}<p class="vazio-inline">{% icone "file-text" classe="icone--sm" %}Nenhum anexo.</p>{% endif %}
+    {% if pode_anexos %}<form method="post" enctype="multipart/form-data" action="{% url 'eventos:anexar' s.pk %}" class="linha mt-4">{% csrf_token %}<label class="campo__rotulo" for="anexo-arquivo">Anexar arquivos</label><input id="anexo-arquivo" type="file" name="arquivo" multiple class="entrada"><button type="submit" class="botao">{% icone "plus" %}Anexar</button></form>{% endif %}
+  </section>
+
+  <section class="secao{% if s.decisao_dg != 'pendente' %} secao--ok{% endif %}" id="despacho" aria-labelledby="t-despacho">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-despacho"><span class="secao__numero">4</span>Despacho da DG</h2>{% if pode_despachar and fila %}<div class="secao__estado"><span class="selo selo--sem-ponto">{{ fila|pluralizar:"na fila,na fila" }}</span></div>{% endif %}</div>
+    {% if pode_despachar %}
+    <form method="post" action="{% url 'eventos:despachar' s.pk %}" class="pilha" novalidate>
+      {% csrf_token %}
+      <fieldset class="opcoes"><legend>Decisão</legend>
+        {% for valor, rotulo, _st in decisoes %}<label class="opcao"><input type="radio" name="decisao" value="{{ valor }}"{% if despacho_escolhido == valor %} checked{% endif %}><span class="opcao__texto"><span class="opcao__titulo">{{ rotulo }}</span></span></label>{% endfor %}
+      </fieldset>
+      {% if textos_despacho %}<div class="texto-pronto" data-texto-pronto data-alvo="observacao-dg"><div class="campo campo--lg"><label class="campo__rotulo" for="texto-dg">Textos prontos</label><pc-select class="seletor"><select class="selecao" id="texto-dg"><option value="">Escrever do zero</option>{% for t in textos_despacho %}<option value="{{ t.pk }}" data-texto="{{ t.texto }}">{{ t.nome }}</option>{% endfor %}</select></pc-select></div></div>{% endif %}
+      <div class="campo"><label class="campo__rotulo" for="observacao-dg">Observações da decisão</label><textarea class="entrada" id="observacao-dg" name="observacao" rows="3" placeholder="Obrigatória para não atender, evento cancelado ou correção.">{{ despacho_observacao }}</textarea></div>
+      {% if s.equipes.all %}<fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Servidores por equipe (a DG pode ajustar)</legend><div class="campos">{% for e in s.equipes.all %}<div class="campo campo--sm"><label class="campo__rotulo" for="dg-{{ e.equipe_id }}">{{ e.equipe.nome }}</label><input class="entrada" id="dg-{{ e.equipe_id }}" name="quantidade_dg_{{ e.equipe_id }}" inputmode="numeric" value="{{ e.quantidade_servidores|default_if_none:'' }}"></div>{% endfor %}</div></fieldset>{% endif %}
+      <div class="linha">
+        {% if s.equipes.all %}<button type="submit" name="acao_despacho" value="salvar_ajustes" class="botao">{% icone "save" %}Salvar servidores</button>{% endif %}
+        {% if fila > 1 %}<button type="submit" class="botao">{% icone "stamp" %}Registrar decisão</button>
+        <button type="submit" name="seguir" value="proxima" class="botao botao--primario">{% icone "arrow-right" %}Registrar e abrir a próxima</button>
+        {% else %}<button type="submit" class="botao botao--primario">{% icone "stamp" %}Registrar decisão</button>{% endif %}
+      </div>
+      {% if textos_despacho %}<p class="texto-secundario texto-sm"><a href="{% url 'eventos:textos-despacho' %}">Editar textos</a></p>{% endif %}
+    </form>
+    {% elif s.decisao_dg != "pendente" %}
+    <div class="alerta {% if s.decisao_dg == 'atender' %}alerta--sucesso{% else %}alerta--aviso{% endif %}" role="status">{% icone "stamp" %}<div class="alerta__corpo"><p class="alerta__titulo">Despacho da DG — {{ s.get_decisao_dg_display }}</p>{% if s.observacoes_dg %}<p>{{ s.observacoes_dg }}</p>{% endif %}{% if s.decidido_por %}<p class="texto-secundario texto-sm">{{ s.decidido_por.nome }}, {{ s.decidido_em|date:"d/m/Y H:i" }}</p>{% endif %}</div></div>
+    {% else %}
+    <p class="vazio-inline">{% icone "stamp" classe="icone--sm" %}{% if s.status == "rascunho" or s.status == "devolvida" %}Envie para a DG para receber o despacho.{% else %}Aguardando o despacho da Diretoria-Geral.{% endif %}</p>
+    {% endif %}
+  </section>
+
+  <section class="secao" id="encerramento" aria-labelledby="t-encerramento">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-encerramento"><span class="secao__numero">5</span>Encerramento do evento</h2></div>
+    {% if pode_concluir %}
+      {% if erro_concluir %}<button type="button" class="botao" disabled>{% icone "check" %}Atendida só após {{ s.data_fim_evento|default:s.data_inicio_evento|date:"d/m/Y" }}</button><p class="texto-secundario texto-sm">{{ erro_concluir }}</p>
+      {% else %}<form method="post" action="{% url 'eventos:concluir' s.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "check-circle-2" %}Marcar como atendida</button></form>{% endif %}
+    {% endif %}
+    {% if pode_cancelar %}
+    <details class="mt-4"><summary class="botao botao--sm botao--sutil">{% icone "ban" %}O evento foi cancelado?</summary>
+      <form method="post" action="{% url 'eventos:cancelar' s.pk %}" class="pilha mt-2" novalidate>{% csrf_token %}<div class="campo"><label class="campo__rotulo" for="motivo-cancelamento">Motivo do cancelamento</label><textarea class="entrada" id="motivo-cancelamento" name="motivo_cancelamento" rows="2" required></textarea></div><div class="linha"><button type="submit" class="botao botao--perigo">{% icone "ban" %}Registrar cancelamento</button></div></form>
+    </details>
+    {% endif %}
+    {% if not pode_concluir and not pode_cancelar %}<p class="vazio-inline">{% if s.finalizada %}Solicitação encerrada: {{ s.get_status_display|lower }}.{% else %}Depois do deferimento, o responsável confirma aqui o atendimento.{% endif %}</p>{% endif %}
+  </section>
+
+  <section class="secao" id="responsavel" aria-labelledby="t-responsavel">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-responsavel"><span class="secao__numero">6</span>Responsável</h2><p class="secao__nota">{{ s.criado_por.nome }} cuida desta solicitação.</p></div>
+    {% if pode_transferir %}
+    <details><summary class="botao botao--sm botao--sutil">{% icone "user-round" %}Transferir</summary>
+      <form method="post" action="{% url 'eventos:transferir' s.pk %}" class="campos mt-2" novalidate>{% csrf_token %}
+        <div class="campo campo--lg"><label class="campo__rotulo" for="responsavel-novo">Novo responsável</label><pc-select class="seletor"><select class="selecao" id="responsavel-novo" name="responsavel"><option value="">Escolha</option>{% for u in usuarios %}<option value="{{ u.pk }}">{{ u.nome }}</option>{% endfor %}</select></pc-select></div>
+        <div class="campo campo--lg"><label class="campo__rotulo" for="motivo-transferencia">Motivo (opcional)</label><input class="entrada" id="motivo-transferencia" name="motivo_transferencia" maxlength="255"></div>
+        <div class="campo campo--auto"><button type="submit" class="botao">{% icone "send" %}Transferir</button></div>
+      </form>
+    </details>
+    {% endif %}
+    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+      <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3><div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div></div>
+      <ol class="historico__linhas" aria-label="Eventos da solicitação">
+        {% for h in historico %}<li class="historico__linha{% if h.marca %} historico__linha--marca{% endif %}"><time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m" }}</b><small>{{ h.em|date:"H:i" }}</small></time><span class="historico__texto">{{ h.texto }}</span><span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span></li>{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+      </ol>
+    </div>
+  </section>
+</div>
+{% endif %}
+
+{% if editavel %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if s and not reabrir %}Gravando as alterações…{% else %}Alterações não salvas.{% endif %}" role="status">
+    {% if s and not reabrir %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if erros_envio %} <span class="barra-acoes__secundario">· falta coisa para enviar</span>{% endif %}
+    {% elif reabrir %}<span data-anuncio>Altere o que precisar e reenvie à DG.</span>
+    {% else %}<span data-anuncio>Salve como rascunho ou envie direto para a DG.</span>{% endif %}
+  </div>
+  <a class="botao botao--texto" href="{% url 'eventos:solicitacoes' %}">Voltar</a>
+  {% if reabrir %}
+    <button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "send" %}Salvar e reenviar para a DG</button>
+  {% else %}
+    <button type="submit" form="{{ form_id }}" name="acao" value="rascunho" class="botao">{% icone "save" %}<span>Salvar{% if not s %} <span class="barra-acoes__extra">rascunho</span>{% endif %}</span></button>
+    <button type="submit" form="{{ form_id }}" name="acao" value="enviar" class="botao botao--primario">{% icone "send" %}<span>Enviar <span class="barra-acoes__extra">para a DG</span></span></button>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

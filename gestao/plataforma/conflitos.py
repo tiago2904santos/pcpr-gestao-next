@@ -37,6 +37,7 @@ class Consulta:
     servidores: frozenset[int] = frozenset()
     viaturas: frozenset[int] = frozenset()
     palestrantes: frozenset[int] = frozenset()
+    unidades_moveis: frozenset[int] = frozenset()
     municipios: frozenset[int] = frozenset()
     pedido: str = ""
     excluir: dict[str, set[int]] = field(default_factory=dict)
@@ -47,7 +48,7 @@ class Consulta:
     @property
     def vazia(self) -> bool:
         return not (self.servidores or self.viaturas or self.palestrantes
-                    or (self.municipios and self.pedido))
+                    or self.unidades_moveis or (self.municipios and self.pedido))
 
     def datas(self) -> tuple[date, date]:
         """O período em datas locais (para pré-filtrar campos de data)."""
@@ -58,7 +59,7 @@ class Consulta:
 
 @dataclass(frozen=True)
 class Conflito:
-    tipo: str  # servidor | viatura | palestrante | pedido
+    tipo: str  # servidor | viatura | palestrante | unidade_movel | pedido
     recurso: str  # "FULANO", "Viatura ABC1D23"
     no_documento: str  # "no Ofício 12/2026", "na Palestra #45"
     documento: str
@@ -150,14 +151,16 @@ def _ids(valores: Iterable[object]) -> frozenset[int]:
 
 
 def consulta(inicio: datetime | None, fim: datetime | None, *, servidores: Iterable = (),
-             viaturas: Iterable = (), palestrantes: Iterable = (), municipios: Iterable = (),
-             pedido: str = "", excluir: dict[str, set[int]] | None = None) -> Consulta | None:
+             viaturas: Iterable = (), palestrantes: Iterable = (), unidades_moveis: Iterable = (),
+             municipios: Iterable = (), pedido: str = "",
+             excluir: dict[str, set[int]] | None = None) -> Consulta | None:
     """Monta a Consulta limpando os ids (aceita instâncias, textos e None)."""
     if not (inicio and fim):
         return None
     c = Consulta(inicio=_aware(inicio), fim=_aware(fim), servidores=_ids(servidores),
                  viaturas=_ids(viaturas), palestrantes=_ids(palestrantes),
-                 municipios=_ids(municipios), pedido=pedido, excluir=dict(excluir or {}))
+                 unidades_moveis=_ids(unidades_moveis), municipios=_ids(municipios),
+                 pedido=pedido, excluir=dict(excluir or {}))
     for ampliar in _AMPLIADORES:
         c = ampliar(c)
     return c

@@ -468,3 +468,14 @@ def test_eventos_cadastros_e_agenda_a2b_sem_violacoes(logado, dados_e2e, largura
                  "/eventos/cadastros/textos-despacho/", f"/eventos/cadastros/tipos-evento/{tipo.pk}/modelo/",
                  "/agenda/escala/", "/agenda/pauta/?formato=html"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_solicitacoes_de_evento_sem_violacoes(logado, dados_e2e, largura):
+    from .test_solicitacoes_evento import _cenario
+
+    _u, s = _cenario("GESTOR_DG")
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/eventos/solicitacoes/", "/eventos/solicitacoes/nova/",
+                 f"/eventos/solicitacoes/{s.pk}/"):
+        _avaliar(logado, rota)

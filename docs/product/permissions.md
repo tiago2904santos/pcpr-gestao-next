@@ -94,6 +94,18 @@ Regras em `gestao/publicacoes/policies.py`; o módulo só aparece para quem tem
 
 Regras em `gestao/palestras/policies.py`.
 
+## Matriz — Eventos Sociais (solicitações)
+
+| Ação | Qualquer usuário | GESTOR_DG | ADMINISTRADOR |
+|---|:-:|:-:|:-:|
+| Pedir (criar), editar rascunho/devolvida, enviar, reenviar, confirmar atendimento, cancelar, anexar | as próprias | as próprias | as próprias |
+| Ver lista, folha e exportar CSV | as próprias | todas (`ver_todas_solicitacoes`) | todas (`ver_todas_solicitacoes`) |
+| Despachar e ajustar servidores (`despachar_solicitacao`) | — | ✓ | — |
+| Textos prontos do despacho (`*_textodespacho`) | — | ✓ | ✓ |
+| Demais catálogos (tipos, serviços, equipes, órgãos, unidades móveis) | — | — | ✓ |
+
+Solicitação que a pessoa não vê → 404. Regras em `gestao/eventos/policies.py`.
+
 ## Regras por objeto (Ofício)
 
 | Ação | Condição (`policies.py`) |
@@ -126,8 +138,8 @@ namespace) e grupo dentro do módulo; superusuário passa por tudo.
 | VIAGENS_GESTOR | Viagens | tudo, inclusive tabela de diárias e numeração | `GESTOR_VIAGENS` |
 | VIAGENS_OPERADOR | Viagens | mutações em servidores, viaturas, catálogos, roteiros, ofícios, prestações | `OPERADOR_VIAGENS` (sem mutação de cadastros) — a confirmar |
 | Módulo VIAGENS sem grupo | Viagens | somente consulta | `CONSULTA` |
-| SOLICITANTE | Eventos | cria/edita rascunhos, envia, reenvia, confirma atendimento; vê só os próprios | Planejado |
-| GESTOR_DG | Eventos | único que despacha; ajusta quantidades; gerencia usuários; gera viagem | Planejado |
+| SOLICITANTE | Eventos | cria/edita rascunhos, envia, reenvia, confirma atendimento; vê só os próprios | todo usuário autenticado (sem papel) |
+| GESTOR_DG | Eventos | único que despacha; ajusta quantidades; gerencia usuários; gera viagem | `GESTOR_DG` (despacha e vê todas; usuários ficam com ADMINISTRADOR; gerar viagem no E4) |
 | ADMINISTRADOR | Plataforma | usuários e cadastros; visão transversal; **não despacha** | `ADMINISTRADOR` (parcial) |
 | ANALISTA | legado | migrado para SOLICITANTE | — |
 | Admin do módulo | Coffee Break / Publicações / Imprensa | cadastros contratuais/de apoio; operação aberta a todos do módulo | Planejado |

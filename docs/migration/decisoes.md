@@ -253,6 +253,22 @@ referência ([palestras.md](palestras.md)).
 | Protocolo | só no canal Protocolo, 9 dígitos | igual | referência |
 | Pedido público, encaminhar à DG, consultar protocolo | existem | fora da PL1 (segurança; Solicitações; integração simulada) | pendente |
 
+## Eventos Sociais — solicitações (E2)
+
+Fonte: `solicitacoes/{models,services,permissions,views}.py` da referência
+([eventos-sociais.md](eventos-sociais.md)).
+
+| Ponto | Referência | Aqui | Origem |
+|---|---|---|---|
+| Quem pede / vê / despacha | todos pedem; responsável, GESTOR_DG e ADMINISTRADOR veem; só GESTOR_DG despacha | igual | referência |
+| Histórico | lista de alterações com diferenças | trilha de auditoria do banco + movimentos (quem, quando, observação) | agente (padrão do sistema) |
+| Reenvio depois do envio | edição limpa a decisão e volta a aguardar | igual, mas só quando algo mudou de fato (salvar sem mudanças não reenvia) | **agente** — confirmar |
+| Exportação | XLSX/CSV, 29 colunas | CSV, 28 colunas (sem "Região": não há região no cadastro de municípios) | **agente** — confirmar |
+| Conflitos | unidade móvel, motorista, pedido repetido; consultam todas as solicitações | os mesmos, pelo registro comum de conflitos (aparecem também na folha do ofício); o aviso cita nº, município e período mesmo de solicitação que a pessoa não abre (o link dá 404) — paridade; esconder o nº seria endurecimento opcional | referência + **agente** — confirmar |
+| Selo de tempo | "Realizado" também na cancelada e na não atendida | sem selo de tempo nessas duas (o evento não aconteceu) | **agente** — confirmar |
+| Ordem da fila "Aguardando despacho" | pela data do pedido | pelo evento mais próximo, a mesma ordem do "Registrar e abrir a próxima"; com mais de um na fila, este é o botão principal | **agente** — confirmar |
+| Gerar viagem, painel, lembretes, consultar protocolo | existem | E3/E4; protocolo segue simulado | pendente |
+
 ## Pendências abertas
 
 | Pendência | Tipo |

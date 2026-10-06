@@ -84,6 +84,41 @@ Solicitações no mês (vs. mês anterior), Aguardando despacho, Deferidas no an
   transferir, duplicar, excluir, anexos, histórico, lista, exportação, avisos, agenda e
   conflitos.
 - **E3** painel de Eventos Sociais e lembretes diários.
+
+## E2 — o que foi feito (05/10/2026)
+
+- Modelos `Solicitacao`, `SolicitacaoServico`, `SolicitacaoEquipe`, `AnexoSolicitacao`,
+  `Movimento` (`gestao/eventos/models_solicitacao.py`), auditados pelo trigger do banco.
+- Serviços (`solicitacoes.py`): criar, salvar (rascunho/devolvida), enviar (o que falta,
+  com as mensagens da referência; avisa a DG), reabrir e reenviar (só se mudou algo; a
+  decisão é desfeita), ajustar servidores, despachar (atender, não atender, cancelado,
+  devolver; observação obrigatória quando a referência exige; "Registrar e abrir a
+  próxima"), concluir (só depois do fim do evento), cancelar com motivo, transferir,
+  duplicar (rascunho sem datas/protocolo/decisão/anexos), excluir (só rascunho), anexos
+  (extensões da referência, 10 MB, conteúdo conferido com a extensão).
+- Políticas (`policies.py`): qualquer usuário pede; vê as próprias; GESTOR_DG e
+  ADMINISTRADOR veem todas; só GESTOR_DG despacha.
+- Lista com as filas da referência (Aguardando despacho só para a DG), busca (inclui `#nº`
+  e protocolo), período, município e tipo; selo de tempo e "pedido em cima da hora";
+  exportação CSV.
+- Folha única no padrão das folhas: etapas, Dados, Serviços e estrutura, Anexos, Despacho
+  da DG (textos prontos, ajuste de servidores), Encerramento, Responsável e histórico
+  (trilha do banco + movimentos). Autosave com trava de versão. "Nova solicitação" com o
+  modelo do tipo (`?tipo=`) e com as datas vindas da agenda (`?inicio=&fim=`).
+- Agenda (fonte "solicitacao") e conflitos (fonte "solicitacoes": motorista e unidade
+  móvel em outro evento no período, pedido repetido no mesmo município); os conflitos
+  aparecem também na folha do ofício.
+- DEMO: ~30 solicitações em todos os status, textos prontos, unidades móveis e o modelo
+  de "PCPR na Comunidade" (`gestao/eventos/demonstracao.py`); o usuário demo é GESTOR_DG.
+- Revisões: segurança (fórmula em todas as colunas do CSV, números só ASCII com teto,
+  serviço/equipe inativos fora do POST, anexos apagados só depois do commit, visibilidade
+  conferida também no despacho) e UX (fila do despacho pelo evento mais próximo, ação
+  principal "abrir a próxima", decisão que volta depois de um erro, selos coerentes, ação
+  da linha que diz o que faz). Pendentes da revisão de UX: dados em leitura (sem campos
+  desabilitados) fora da edição, cores por decisão, unidade móvel só quando marcada.
+- Fora do E2: XLSX e a coluna "Região" da exportação (não há região no cadastro de
+  municípios aqui), sugestões de solicitantes anteriores, consultar protocolo, "preencher
+  com e-mail", gerar viagem (E4), painel e lembretes (E3).
 - **E4** gerar viagem no deferimento.
 - Fora por ora: "preencher com e-mail" e importadores; consultar protocolo (integração
   simulada).

@@ -194,3 +194,18 @@ def test_prestacoes_de_exemplo_cobrem_as_abas(dataset):
                 "saque_vencendo", "prestacao_vencida"):
         assert prestacao.filtrar(todas, aba, hoje=HOJE).exists(), aba
     assert todas.filter(situacao="enviada").exists()
+
+
+def test_solicitacoes_de_evento_de_exemplo_cobrem_as_filas(dataset):
+    from gestao.eventos import queries
+    from gestao.eventos.models import Solicitacao
+
+    demo = Usuario.objects.get(login=LOGIN_DEMO)
+    assert demo.has_perm("eventos.despachar_solicitacao")
+    todas = Solicitacao.objects.all()
+    assert set(todas.values_list("status", flat=True)) == {
+        "rascunho", "aguardando_despacho", "devolvida", "deferida", "atendida",
+        "nao_atendida", "cancelada"}
+    assert todas.exclude(criado_por=demo).exists()  # a fila "todas" tem outros responsáveis
+    for fila, _rotulo in queries.filas_visiveis(demo):
+        assert queries.aplicar_fila(todas, fila, demo, hoje=HOJE).exists(), fila

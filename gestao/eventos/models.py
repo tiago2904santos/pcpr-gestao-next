@@ -105,3 +105,18 @@ class TipoEventoEquipe(models.Model):
 
     def __str__(self) -> str:
         return f"{self.tipo_evento} — {self.equipe}"
+
+
+# A solicitação mora em models_solicitacao.py (o arquivo ficaria grande); importada aqui para
+# o Django registrar os modelos do app.
+from .models_solicitacao import (  # noqa: E402
+    AnexoSolicitacao,
+    Movimento,
+    Solicitacao,
+    SolicitacaoEquipe,
+    SolicitacaoServico,
+)
+
+__all__ = ["AnexoSolicitacao", "Catalogo", "Equipe", "Movimento", "OrgaoResponsavel", "Servico",
+           "Solicitacao", "SolicitacaoEquipe", "SolicitacaoServico", "TextoDespacho",
+           "TipoEvento", "TipoEventoEquipe", "UnidadeMovel"]

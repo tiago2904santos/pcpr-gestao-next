@@ -176,7 +176,7 @@ class Selo:
 def selo_de_tempo(inicio: date | None, fim: date | None, status: str, hoje: date) -> Selo | None:
     """Quando o evento acontece; "Evento em N dias" (perigo ≤ 3, aviso ≤ 7) só enquanto a
     decisão não saiu (rascunho, aguardando, devolvida)."""
-    if not inicio:
+    if not inicio or status in (CANCELADA, NAO_ATENDIDA):
         return None
     ultimo = fim or inicio
     if ultimo < hoje:

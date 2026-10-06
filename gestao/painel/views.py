@@ -11,8 +11,6 @@ from gestao.viagens import queries as viagens_queries
 
 # Módulos do sistema de referência ainda não migrados (Fase 19: um módulo por vez).
 FUTUROS = [
-    {"rotulo": "Eventos Sociais", "icone": "calendar-days",
-     "descricao": "Solicitações de eventos sociais e despacho da Diretoria-Geral."},
     {"rotulo": "Coffee Break", "icone": "receipt",
      "descricao": "Lotes contratados, solicitações e fluxo de pagamento."},
 ]

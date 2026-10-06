@@ -35,14 +35,14 @@ equipes com a quantidade de servidores. Só os ativos aparecem, mais os já esco
   </section>
   <section class="secao" aria-labelledby="t-equipes">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-equipes"><span class="secao__numero">3</span>Equipes</h2><p class="secao__nota">Marque as equipes e, se quiser, quantos servidores de cada.</p></div>
-    <ul class="pilha">
+    <div class="pilha">
       {% for e, marcada, quantidade in equipes %}
-      <li class="campos">
-        <label class="escolha campo--lg"><input type="checkbox" name="equipe_{{ e.pk }}" value="1"{% if marcada %} checked{% endif %}><span>{{ e.nome }}{% if not e.ativo %} (inativa){% endif %}</span></label>
+      <div class="campos">
+        <label class="escolha campo--md"><input type="checkbox" name="equipe_{{ e.pk }}" value="1"{% if marcada %} checked{% endif %}><span>{{ e.nome }}{% if not e.ativo %} (inativa){% endif %}</span></label>
         <div class="campo campo--sm"><label class="campo__rotulo" for="quantidade-{{ e.pk }}">Servidores de {{ e.nome }}</label><input class="entrada" id="quantidade-{{ e.pk }}" name="quantidade_{{ e.pk }}" inputmode="numeric" value="{{ quantidade|default_if_none:'' }}" autocomplete="off"></div>
-      </li>
-      {% empty %}<li class="vazio-inline">Nenhuma equipe cadastrada.</li>{% endfor %}
-    </ul>
+      </div>
+      {% empty %}<p class="vazio-inline">Nenhuma equipe cadastrada.</p>{% endfor %}
+    </div>
   </section>
   <div class="linha"><a class="botao botao--texto" href="{% url 'eventos:tipos-evento' %}">Voltar</a><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar modelo</button></div>
 </form>

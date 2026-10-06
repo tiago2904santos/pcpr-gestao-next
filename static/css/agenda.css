@@ -119,6 +119,8 @@
 
 .agenda-dia__lista {
   display: grid;
+  /* minmax(0, …): o título longo (nowrap) não alarga a coluna além da célula. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--esp-05);
   margin: var(--esp-1) 0 0;
   padding: 0;

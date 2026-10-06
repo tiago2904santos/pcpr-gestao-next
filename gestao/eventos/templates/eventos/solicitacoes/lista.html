@@ -1,0 +1,97 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Solicitações de evento{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block titulo_lista %}Solicitações de evento{% endblock %}
+{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pedidos de eventos sociais à PCPR, do rascunho ao atendimento, com o despacho da Diretoria-Geral.</p>{% endblock %}
+{% block acoes_lista %}
+<a class="botao" href="{{ url_exportar }}">{% icone "download" %}Exportar CSV</a>
+<a class="botao botao--primario" href="{% url 'eventos:nova' %}">{% icone "plus" %}Nova solicitação</a>
+{% endblock %}
+{% comment %}
+Paridade com a lista da referência: filas (Todas, Aguardando despacho — só a DG —,
+Devolvidas, Deferidas, Confirmar atendimento, Canceladas, Meus rascunhos, Minhas) com
+contagens que respeitam a busca; busca por nº, solicitante, local, município, protocolo,
+tipo ou órgão; período do evento, município e tipo. Linha: tipo · município, status, selo
+de tempo ("Evento em N dias") e "pedido em cima da hora".
+{% endcomment %}
+
+{% block abas_filtro %}
+<nav class="abas" id="abas-filtro" aria-label="Filas">
+  {% for chave, rotulo, total in filas %}
+    <a class="aba" href="?{% if chave %}fila={{ chave }}{% if qs_sem_fila %}&amp;{% endif %}{% endif %}{{ qs_sem_fila }}"{% if chave == filtros.fila %} aria-current="page"{% endif %}>{{ rotulo }} <span class="aba__contagem">{{ total }}</span></a>
+  {% endfor %}
+</nav>
+{% endblock %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'eventos:solicitacoes' %}">
+  {% if filtros.fila %}<input type="hidden" name="fila" value="{{ filtros.fila }}">{% endif %}
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-solicitacoes">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-solicitacoes" type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar por nº, solicitante, local, município, tipo ou órgão…" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+  <details class="filtros__mais" id="filtros-mais"{% if filtros.ativos %} open{% endif %}>
+    <summary class="filtros__mais-resumo">
+      {% icone "sliders-horizontal" classe="icone--sm" %}<span>Mais filtros</span>
+      {% if filtros.ativos %}<span class="selo selo--forte selo--sem-ponto">{{ filtros.ativos }}</span>{% endif %}
+      {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
+    </summary>
+    <div class="filtros__avancados">
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-inicio">Eventos a partir de</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-inicio" name="inicio" value="{{ filtros.inicio|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-fim">Eventos até</label>
+        <pc-data class="seletor"><input class="entrada" type="text" id="filtro-fim" name="fim" value="{{ filtros.fim|date:'d/m/Y' }}" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data"><button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button></pc-data>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-municipio">Município</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-municipio" name="municipio"><option value="">Todos</option>{% for m in municipios %}<option value="{{ m.pk }}"{% if filtros.municipio == m.pk %} selected{% endif %}>{{ m.nome }}/{{ m.uf }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="filtro-tipo">Tipo</label>
+        <pc-select class="seletor"><select class="selecao" id="filtro-tipo" name="tipo"><option value="">Todos</option>{% for t in tipos %}<option value="{{ t.pk }}"{% if filtros.tipo == t.pk %} selected{% endif %}>{{ t.nome }}</option>{% endfor %}</select></pc-select>
+      </div>
+      <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Aplicar</button>{% if filtros.ativos %}<a class="botao botao--texto filtros__limpar" href="{% url 'eventos:solicitacoes' %}{% if filtros.fila %}?fila={{ filtros.fila }}{% endif %}">Limpar filtros</a>{% endif %}</div>
+    </div>
+  </details>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if filtros.q %}Resultados para “{{ filtros.q }}”{% else %}Solicitações{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"solicitação,solicitações" }}</span>
+</div>
+{% if linhas %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for l in linhas %}{% with s=l.s %}
+    <li class="registro{% if s.status == 'cancelada' or s.status == 'nao_atendida' %} registro--inativo{% endif %}">
+      <span class="placa" aria-hidden="true"><span class="placa__rotulo">Pedido</span><span class="placa__numero">#{{ s.pk }}</span></span>
+      <div class="registro__corpo">
+        <div class="registro__titulo">
+          <a class="registro__link" href="{% url 'eventos:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{% if s.tipo_evento %}{{ s.tipo_evento.nome }}{% else %}Evento{% endif %}{% if s.municipio %} · {{ s.municipio.nome }}{% endif %}</a>
+          <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %} selo--sem-ponto">{{ s.get_status_display }}</span>
+          {% if l.selo %}<span class="selo selo--{{ l.selo.tom }} selo--sem-ponto">{{ l.selo.texto }}</span>{% endif %}
+          {% if l.em_cima %}<span class="selo selo--aviso selo--sem-ponto">{% icone "alert-triangle" classe="icone--sm" %}{{ l.em_cima }}</span>{% endif %}
+        </div>
+        <div class="registro__meta">
+          {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="registro__acoes registro__acoes--fixas">
+        <a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacao' s.pk %}{% if s.status == 'aguardando_despacho' %}#despacho{% endif %}">{% if s.status == 'aguardando_despacho' and pode_despachar %}{% icone "stamp" %}Despachar{% elif s.status == 'devolvida' and s.criado_por_id == request.user.pk %}{% icone "pencil" %}Corrigir{% elif s.status == 'rascunho' %}{% icone "pencil" %}Continuar{% else %}{% icone "eye" %}Ver{% endif %}<span class="sr-only"> {{ s }}</span></a>
+      </div>
+    </li>
+    {% endwith %}{% endfor %}
+  </ul>
+  {% include "componentes/paginacao.html" %}
+{% elif filtros.q or filtros.ativos or filtros.fila %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma solicitação encontrada com os filtros aplicados." texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
+{% else %}
+  {% url 'eventos:nova' as url_nova %}
+  {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação registrada ainda." texto="Registre o primeiro pedido de evento." acao_url=url_nova acao_rotulo="Nova solicitação" %}
+{% endif %}
+{% endblock %}
