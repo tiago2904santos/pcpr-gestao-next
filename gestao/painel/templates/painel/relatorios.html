@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Relatório consolidado · {{ r.periodo.rotulo }}{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Relatório consolidado (paridade com o painel de relatórios da referência — a planilha
+"PCPR na Comunidade - ASCOM"): os indicadores, a visão geral por mês (ou por ano) e uma
+seção por módulo, cada uma só para quem tem o módulo. A planilha traz os mesmos números.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "table" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Relatório consolidado</h1>
+    <p class="pagina-cabecalho__descricao">Os números dos módulos que você acompanha, em {{ r.periodo.rotulo|lower }}. Conta o que aconteceu; cada seção só aparece para quem tem o módulo.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao botao--primario" href="{% url 'painel:exportar_relatorio' %}?ano={{ ano_valor }}">{% icone "download" %}Planilha (XLSX)</a>
+  </div>
+</header>
+
+<nav class="abas mb-4" aria-label="Período do relatório">
+  {% for valor, rotulo in opcoes_ano %}<a class="aba" href="?ano={{ valor }}"{% if valor == ano_valor %} aria-current="page"{% endif %}>{{ rotulo }}</a>{% endfor %}
+</nav>
+
+<section aria-label="Indicadores" class="grade grade--kpi">
+  {% for k in r.indicadores %}<div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone k.icone classe="icone--sm" %}{{ k.titulo }}</span><span class="indicador__valor">{{ k.valor }}</span><span class="indicador__nota">{{ k.detalhe }}</span></div>{% endfor %}
+</section>
+
+{% with s=r.quadro %}
+<section class="cartao mt-6" aria-labelledby="t-{{ s.slug }}">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-{{ s.slug }}">{% icone s.icone classe="icone--sm" %}{{ s.titulo }}</h2></div>
+  <div class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="t-{{ s.slug }}">
+    <table class="tabela">
+      <caption class="sr-only">{{ s.titulo }} — {{ r.periodo.rotulo }}</caption>
+      <thead><tr>{% for c in s.colunas %}<th scope="col"{% if not forloop.first %} class="num"{% endif %}>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for linha in s.linhas %}<tr>{% for v in linha %}{% if forloop.first %}<th scope="row">{{ v }}</th>{% else %}<td class="num">{{ v }}</td>{% endif %}{% endfor %}</tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <p class="cartao__corpo texto-secundario texto-sm">{{ s.nota }}</p>
+</section>
+{% endwith %}
+
+{% for s in r.secoes %}
+<section class="cartao mt-6" aria-labelledby="t-{{ s.slug }}">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-{{ s.slug }}">{% icone s.icone classe="icone--sm" %}{{ s.titulo }}</h2></div>
+  {% if s.linhas %}
+  <div class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="t-{{ s.slug }}">
+    <table class="tabela">
+      <caption class="sr-only">{{ s.titulo }} — {{ r.periodo.rotulo }}</caption>
+      <thead><tr>{% for c in s.colunas %}<th scope="col"{% if forloop.counter0 in s.numericas %} class="num"{% endif %}>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for linha in s.linhas %}<tr>{% for v in linha %}{% if forloop.first %}<th scope="row">{{ v }}</th>{% else %}<td{% if forloop.counter0 in s.numericas %} class="num"{% endif %}>{{ v }}</td>{% endif %}{% endfor %}</tr>{% endfor %}</tbody>
+      {% if s.totais %}<tfoot><tr>{% for v in s.totais %}{% if forloop.first %}<th scope="row">{{ v }}</th>{% else %}<td{% if forloop.counter0 in s.numericas %} class="num"{% endif %}>{{ v }}</td>{% endif %}{% endfor %}</tr></tfoot>{% endif %}
+    </table>
+  </div>
+  {% else %}
+  <p class="cartao__corpo texto-secundario texto-sm">Nada registrado em {{ r.periodo.rotulo|lower }}.</p>
+  {% endif %}
+  <p class="cartao__corpo texto-secundario texto-sm">{{ s.nota }}</p>
+</section>
+{% endfor %}
+<p class="texto-terciario texto-xs mt-4">Gerado em {{ gerado_em|date:"d/m/Y H:i" }}.</p>
+{% endblock %}

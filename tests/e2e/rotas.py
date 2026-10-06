@@ -7,6 +7,8 @@ ROTAS_PUBLICAS = ["/conta/entrar/"]
 
 ROTAS_AUTENTICADAS = [
     "/",
+    "/relatorios/",  # relatório consolidado (R1)
+    "/relatorios/?ano=todos",
     "/viagens/",
     "/viagens/oficios/",
     "/viagens/oficios/?situacao=rascunho",

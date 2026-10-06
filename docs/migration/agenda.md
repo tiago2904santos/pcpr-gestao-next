@@ -64,3 +64,15 @@ Fonte de comportamento, não de código.
   palestrantes, jornalista da pauta, responsáveis do atendimento); "N dias fora" por pessoa.
 - Ainda não: dossiê em janela, assinatura ICS (link público por token), conflitos de
   termos/OS.
+
+## R1 — relatório consolidado (06/10/2026)
+
+- `/relatorios/` (módulo "Relatórios" no menu; `painel/consolidado.py`, que importa cada
+  contexto como a agenda faz pelas fontes): o ano (colunas por mês) ou "Todos os anos"
+  (colunas por ano); indicadores; visão geral (um módulo por linha); seções Palestras
+  (atendidas, no mês do evento), PCPR na Comunidade (solicitações de evento do tipo, atendidas
+  ou deferidas com data passada, + palestras atendidas do tipo — mesma edição = uma linha),
+  Eventos em geral, Coffee break (canceladas fora da quantidade e do valor), Publicações,
+  Atendimento à imprensa e Viagens (só as viagens e os ofícios que a pessoa vê — a referência
+  contava todos). Cada seção só para quem tem o módulo. Planilha XLSX com as mesmas abas
+  (células protegidas contra fórmula). Tabelas largas roláveis por teclado.
