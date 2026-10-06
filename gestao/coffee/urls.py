@@ -44,6 +44,7 @@ urlpatterns = [
     path("certidoes/anexar/", vp.anexar_certidao, name="anexar_certidao"),
     path("certidoes/<int:pk>/arquivo/", vp.arquivo_certidao, name="arquivo_certidao"),
     path("cadastros/oficio/", views.configuracao, name="configuracao"),
+    path("cadastros/contratos/anexar-pdf/", views.anexar_contrato, name="anexar_contrato"),
     # Um nome por tabela (para o menu) e o genérico (para as telas).
     *(path(f"cadastros/{t}/", views.cadastros, {"tabela": t}, name=f"{t}_cadastro"
            if t == "lotes" else t) for t in views.TABELAS),

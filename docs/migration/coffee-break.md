@@ -904,6 +904,20 @@ como histórico.
 - Fora: a "memória por remetente" e a leitura da conversa citada da referência (sem
   evidência de uso; decisão do agente).
 
+## CB5d — contrato e termo aditivo lidos do PDF (06/10/2026)
+
+- "Anexar contrato ou termo aditivo (PDF)" na aba Contratos dos cadastros (só o
+  administrador): a leitura pura (`dominio_contrato.py`, no modelo dos contratos da SESP)
+  diz se é contrato ou aditivo e tira CNPJ/razão social do contratado, número, GMS, aditivo,
+  lote, quantidade, valores (no aditivo de repactuação, o unitário novo) e a vigência (a do
+  contrato inicial estimada pelo prazo a partir da inserção no protocolo; a do aditivo,
+  escrita, corrige). `contratos_pdf.anexar` cria o fornecedor pelo CNPJ (ou completa o
+  cadastro sem CNPJ de mesma razão social; recusa a mesma razão social com outro CNPJ),
+  cria/completa o contrato, guarda o PDF no contrato ou no termo aditivo (o antigo sai do
+  disco depois do commit, se ninguém mais aponta) e cria o lote se o contrato não tiver
+  nenhum. Mensagens da referência; aviso em vez de sucesso se vencido. Testes com textos
+  fictícios no formato da referência (sem dados pessoais reais).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

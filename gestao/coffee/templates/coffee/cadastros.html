@@ -1,6 +1,6 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}{{ t.titulo }} · Cadastros do Coffee Break{% endblock %}
-{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
 {% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break · Cadastros</p>{% endblock %}
 {% block titulo_lista %}{{ t.titulo }}{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">{{ t.descricao }}</p>{% endblock %}
@@ -26,6 +26,17 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
   </div>
   <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
 </form>
+{% if t.chave == "contratos" %}
+<details class="sanfona mt-4">
+  <summary>Anexar contrato ou termo aditivo (PDF)</summary>
+  <form method="post" action="{% url 'coffee:anexar_contrato' %}" enctype="multipart/form-data" class="sanfona__corpo pilha" novalidate>
+    {% csrf_token %}
+    <p class="texto-secundario texto-sm">Basta anexar: o sistema identifica se é o contrato ou um termo aditivo da SESP, lê o CNPJ e a razão social do contratado, o número, o GMS, o lote, a quantidade, os valores e a vigência — cria o fornecedor pelo CNPJ e o lote, se faltarem. Confira depois os dados lidos.</p>
+    <div class="campo"><label class="campo__rotulo" for="contrato-pdf">PDF do contrato ou do termo aditivo</label><input class="entrada" type="file" id="contrato-pdf" name="arquivo" accept="application/pdf" required></div>
+    <div class="linha"><button type="submit" class="botao">{% icone "file-search" %}Anexar e ler</button></div>
+  </form>
+</details>
+{% endif %}
 {% endblock %}
 
 {% block resultados %}

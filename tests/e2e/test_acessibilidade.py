@@ -505,6 +505,9 @@ def test_coffee_break_cadastros_sem_violacoes(logado, dados_e2e, largura):
                  "/coffee/cadastros/lotes/?novo=1", "/coffee/cadastros/oficio/",
                  "/coffee/lotes/abrir-exercicio/"):
         _avaliar(logado, rota)
+    # A sanfona "Anexar contrato ou termo aditivo (PDF)" aberta (CB5d).
+    _avaliar(logado, "/coffee/cadastros/contratos/",
+             antes=lambda pg: pg.get_by_text("Anexar contrato ou termo aditivo (PDF)").click())
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

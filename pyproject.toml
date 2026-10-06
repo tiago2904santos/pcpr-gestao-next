@@ -180,7 +180,8 @@ name = "Regras do Coffee Break são puras (sem Django)"
 type = "forbidden"
 source_modules = ["gestao.coffee.dominio", "gestao.coffee.dominio_pedido",
                   "gestao.coffee.dominio_certidoes", "gestao.coffee.dominio_leitura",
-                  "gestao.coffee.dominio_painel", "gestao.coffee.dominio_email"]
+                  "gestao.coffee.dominio_painel", "gestao.coffee.dominio_email",
+                  "gestao.coffee.dominio_contrato"]
 forbidden_modules = ["django"]
 allow_indirect_imports = true
 

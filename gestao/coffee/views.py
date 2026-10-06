@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.http import urlencode
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import dominio, entregas, policies, services
+from . import contratos_pdf, dominio, entregas, policies, services
 from .forms import (
     FormularioAditivo,
     FormularioConfiguracao,
@@ -29,6 +29,7 @@ from .forms import (
     FormularioLote,
 )
 from .models import Contrato, Fornecedor, Lote, TermoAditivo
+from .pedidos import PedidoInvalido
 
 POR_PAGINA = 25
 
@@ -226,6 +227,20 @@ def _render(request, t: Tabela, pagina, termo: str, form, editando, status: int 
         "novo_rotulo": f"Nov{t.genero} {t.singular}",
         "migalhas": _migalhas(("Cadastros", "")),
     }, status=status)
+
+
+@require_POST
+def anexar_contrato(request: HttpRequest) -> HttpResponse:
+    """Contrato ou termo aditivo por PDF: o sistema lê e preenche (CB5d)."""
+    _exigir(request.user, "contratos")
+    try:
+        r = contratos_pdf.anexar(request.user, request.FILES.get("arquivo"))
+    except PedidoInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("coffee:cadastros", args=["contratos"]))
+    (messages.warning if r.aviso else messages.success)(request, r.mensagem)
+    destino = reverse("coffee:cadastros", args=["contratos"])
+    return redirect(f"{destino}?editar={r.contrato.pk}" if r.contrato else destino)
 
 
 @require_POST
