@@ -187,3 +187,31 @@ class Movimento(models.Model):
 
     def __str__(self) -> str:
         return f"{self.solicitacao} — {self.get_acao_display()}"
+
+
+class Lembrete(models.Model):
+    """Lembrete diário já enviado — o que impede avisar duas vezes. `referencia` é a data
+    que motivou o aviso (o fim do evento, o início dele ou o dia da devolução): se a data
+    muda, o lembrete vale de novo. Registro do sistema (sem trilha de auditoria)."""
+
+    class Tipo(models.TextChoices):
+        CONFIRMAR_ATENDIMENTO = "confirmar_atendimento", "Confirmar o atendimento"
+        DESPACHO_PROXIMO = "despacho_proximo", "Despacho com evento próximo"
+        DEVOLUCAO_PARADA = "devolucao_parada", "Devolução parada"
+
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
+                                    related_name="lembretes")
+    tipo = models.CharField(max_length=25, choices=Tipo.choices)
+    referencia = models.DateField("data de referência")
+    enviado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "eventos"
+        ordering = ["-enviado_em"]
+        verbose_name = "lembrete da solicitação"
+        verbose_name_plural = "lembretes das solicitações"
+        constraints = [models.UniqueConstraint(fields=["solicitacao", "tipo", "referencia"],
+                                               name="eventos_lembrete_unico")]
+
+    def __str__(self) -> str:
+        return f"{self.solicitacao} — {self.get_tipo_display()} ({self.referencia:%d/%m/%Y})"

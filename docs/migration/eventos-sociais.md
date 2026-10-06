@@ -120,5 +120,21 @@ Solicitações no mês (vs. mês anterior), Aguardando despacho, Deferidas no an
   municípios aqui), sugestões de solicitantes anteriores, consultar protocolo, "preencher
   com e-mail", gerar viagem (E4), painel e lembretes (E3).
 - **E4** gerar viagem no deferimento.
+
+## E3 — o que foi feito (05/10/2026)
+
+- Painel (`/eventos/`, entrada do módulo): os quatro indicadores da referência sobre as
+  solicitações que a pessoa vê (no mês vs. mês anterior; aguardando despacho; deferidas no
+  ano com atendidas e % das decididas; eventos nos próximos 30 dias com unidade móvel),
+  cada um levando à fila com o mesmo recorte; próximos eventos (7) e últimas solicitações
+  (6) com a mesma linha da lista; solicitações por mês (6/12/24, série densa no UI Lab
+  §18); despacho da DG (dias em média do primeiro envio à primeira decisão, pendentes e as
+  decisões do ano). Números numa consulta agregada só.
+- Lembretes diários pela rotina da plataforma (`gestao/eventos/lembretes.py`), uma vez só
+  por solicitação, tipo e data de referência (`Lembrete`, migração 0006): confirmar o
+  atendimento (responsável, depois do fim do evento deferido), despacho com evento em até
+  7 dias (DG), devolução parada há mais de 3 dias (responsável); janela de 30 dias.
+- Fora: e-mail dos lembretes (o sino é o canal; SMTP institucional é dependência externa)
+  e o "simular" do comando da referência (a rotina tem o comando `rodar_rotinas_diarias`).
 - Fora por ora: "preencher com e-mail" e importadores; consultar protocolo (integração
   simulada).

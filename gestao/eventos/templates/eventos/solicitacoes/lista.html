@@ -67,25 +67,7 @@ de tempo ("Evento em N dias") e "pedido em cima da hora".
 </div>
 {% if linhas %}
   <ul class="registros" aria-labelledby="titulo-resultados">
-    {% for l in linhas %}{% with s=l.s %}
-    <li class="registro{% if s.status == 'cancelada' or s.status == 'nao_atendida' %} registro--inativo{% endif %}">
-      <span class="placa" aria-hidden="true"><span class="placa__rotulo">Pedido</span><span class="placa__numero">#{{ s.pk }}</span></span>
-      <div class="registro__corpo">
-        <div class="registro__titulo">
-          <a class="registro__link" href="{% url 'eventos:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{% if s.tipo_evento %}{{ s.tipo_evento.nome }}{% else %}Evento{% endif %}{% if s.municipio %} · {{ s.municipio.nome }}{% endif %}</a>
-          <span class="selo selo--{% if s.status == 'aguardando_despacho' or s.status == 'devolvida' %}aviso{% elif s.status == 'deferida' %}info{% elif s.status == 'atendida' %}sucesso{% elif s.status == 'rascunho' %}neutro{% else %}perigo{% endif %} selo--sem-ponto">{{ s.get_status_display }}</span>
-          {% if l.selo %}<span class="selo selo--{{ l.selo.tom }} selo--sem-ponto">{{ l.selo.texto }}</span>{% endif %}
-          {% if l.em_cima %}<span class="selo selo--aviso selo--sem-ponto">{% icone "alert-triangle" classe="icone--sm" %}{{ l.em_cima }}</span>{% endif %}
-        </div>
-        <div class="registro__meta">
-          {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
-        </div>
-      </div>
-      <div class="registro__acoes registro__acoes--fixas">
-        <a class="botao botao--sm botao--sutil" href="{% url 'eventos:solicitacao' s.pk %}{% if s.status == 'aguardando_despacho' %}#despacho{% endif %}">{% if s.status == 'aguardando_despacho' and pode_despachar %}{% icone "stamp" %}Despachar{% elif s.status == 'devolvida' and s.criado_por_id == request.user.pk %}{% icone "pencil" %}Corrigir{% elif s.status == 'rascunho' %}{% icone "pencil" %}Continuar{% else %}{% icone "eye" %}Ver{% endif %}<span class="sr-only"> {{ s }}</span></a>
-      </div>
-    </li>
-    {% endwith %}{% endfor %}
+    {% for l in linhas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}
   </ul>
   {% include "componentes/paginacao.html" %}
 {% elif filtros.q or filtros.ativos or filtros.fila %}

@@ -84,8 +84,9 @@ def test_telas_sem_rolagem_horizontal(logado, dados_e2e, largura):
     _u, s = _cenario("GESTOR_DG")
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 900})
-    for rota in ("/eventos/solicitacoes/", "/eventos/solicitacoes/nova/",
-                 f"/eventos/solicitacoes/{s.pk}/", "/eventos/solicitacoes/?fila=despacho"):
+    for rota in ("/eventos/", "/eventos/?meses=24", "/eventos/solicitacoes/",
+                 "/eventos/solicitacoes/nova/", f"/eventos/solicitacoes/{s.pk}/",
+                 "/eventos/solicitacoes/?fila=despacho"):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"

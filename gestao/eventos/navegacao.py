@@ -8,11 +8,12 @@ registrar_modulo(
         chave="eventos",
         rotulo="Eventos Sociais",
         icone="calendar-days",
-        url_name="eventos:solicitacoes",
+        url_name="eventos:painel",
         descricao="Solicitações de eventos sociais e despacho da Diretoria-Geral.",
         ordem=15,
         grupos=(
             Grupo("Eventos", (
+                Item("Painel", "eventos:painel", "layout-dashboard"),
                 Item("Solicitações", "eventos:solicitacoes", "file-text"),
                 Item("Nova solicitação", "eventos:nova", "plus"),
             )),

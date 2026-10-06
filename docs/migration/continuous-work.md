@@ -69,7 +69,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 15c | Agenda A2b: "só os meus", pauta em PDF, escala pessoa × dia | feito (A2b) |
 | 15d | Agenda A2c: dossiê, assinatura ICS (link público por token — revisão de segurança), conflitos de termos/OS | pendente |
 | 17 | Eventos Sociais E1 (catálogos e modelo do tipo) e E2 (solicitação: folha, envio, despacho da DG, devolução, reenvio, concluir, cancelar, transferir, duplicar, excluir, anexos, lista, CSV, avisos, agenda, conflitos) — ver [eventos-sociais.md](eventos-sociais.md) | feito (E1, E2) |
-| 17b | Eventos Sociais E3 (painel e lembretes diários) e E4 (gerar viagem no deferimento) | pendente |
+| 17b | Eventos Sociais E3 (painel com os indicadores da referência, série 6/12/24, despacho da DG; lembretes diários pela rotina) | feito (E3) |
+| 17c | Eventos Sociais E4 (gerar viagem no deferimento; cancelar/avisar quando não atendida ou cancelada) | pendente |
 | 16 | ASCOM · Atendimento à imprensa (I1; ver [imprensa.md](imprensa.md)) | feito (sem e-mail/importador) |
 | 16b | ASCOM · Publicações (P1; ver [publicacoes.md](publicacoes.md)) | feito (sem e-mail/importador) |
 | 16c | ASCOM · Palestras e eventos (PL1; ver [palestras.md](palestras.md)) | feito (PL1) |

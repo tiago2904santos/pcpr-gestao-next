@@ -476,6 +476,6 @@ def test_solicitacoes_de_evento_sem_violacoes(logado, dados_e2e, largura):
 
     _u, s = _cenario("GESTOR_DG")
     logado.set_viewport_size({"width": largura, "height": 900})
-    for rota in ("/eventos/solicitacoes/", "/eventos/solicitacoes/nova/",
-                 f"/eventos/solicitacoes/{s.pk}/"):
+    for rota in ("/eventos/", "/eventos/?meses=24", "/eventos/solicitacoes/",
+                 "/eventos/solicitacoes/nova/", f"/eventos/solicitacoes/{s.pk}/"):
         _avaliar(logado, rota)

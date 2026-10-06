@@ -111,12 +111,13 @@ class TipoEventoEquipe(models.Model):
 # o Django registrar os modelos do app.
 from .models_solicitacao import (  # noqa: E402
     AnexoSolicitacao,
+    Lembrete,
     Movimento,
     Solicitacao,
     SolicitacaoEquipe,
     SolicitacaoServico,
 )
 
-__all__ = ["AnexoSolicitacao", "Catalogo", "Equipe", "Movimento", "OrgaoResponsavel", "Servico",
-           "Solicitacao", "SolicitacaoEquipe", "SolicitacaoServico", "TextoDespacho",
+__all__ = ["AnexoSolicitacao", "Catalogo", "Equipe", "Lembrete", "Movimento", "OrgaoResponsavel",
+           "Servico", "Solicitacao", "SolicitacaoEquipe", "SolicitacaoServico", "TextoDespacho",
            "TipoEvento", "TipoEventoEquipe", "UnidadeMovel"]

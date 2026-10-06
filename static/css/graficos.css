@@ -17,6 +17,8 @@
 
 .serie__item {
   display: grid;
+  /* A trilha do tamanho do item: a largura da barra (min(100%, …)) se resolve contra ela. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   gap: var(--esp-1);
   min-width: 0;
@@ -47,6 +49,44 @@
   color: var(--cor-texto-secundario);
   font-size: var(--texto-xs);
   white-space: nowrap;
+}
+
+/* Série densa (12 ou 24 meses): barras mais juntas; número e rótulo de três em três meses
+   contando do atual — os outros números seguem para o leitor de tela (recorte, não
+   display:none). */
+.serie--densa {
+  gap: var(--esp-1);
+}
+
+.serie--densa .serie__valor {
+  font-size: var(--texto-xs);
+}
+
+.serie--densa .serie__item:not(:nth-last-child(3n + 1)) .serie__valor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.serie--densa .serie__item:not(:nth-last-child(3n + 1)) .serie__rotulo {
+  visibility: hidden;
+}
+
+/* Série longa (24 meses): de seis em seis. */
+.serie--longa .serie__item:nth-last-child(3n + 1):not(:nth-last-child(6n + 1)) .serie__valor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.serie--longa .serie__item:not(:nth-last-child(6n + 1)) .serie__rotulo {
+  visibility: hidden;
 }
 
 .ranking {
