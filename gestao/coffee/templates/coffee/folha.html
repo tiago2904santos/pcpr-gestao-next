@@ -32,7 +32,6 @@ reativar, excluir, reabrir para correção) e o histórico.
     <p class="pagina-cabecalho__descricao">O pedido vira a ordem de serviço ao fornecedor do lote que atende o município. Informe o evento; local e responsável podem vir depois.</p>
     {% endif %}
   </div>
-  {% if s and not s.bloqueada %}<div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'coffee:nova' %}?duplicar={{ s.pk }}">{% icone "copy" %}Duplicar</a></div>{% endif %}
 </header>
 
 {% include "componentes/resumo_erros.html" %}
@@ -292,16 +291,11 @@ reativar, excluir, reabrir para correção) e o histórico.
     <div class="linha">
       {% if s.cancelada %}
         <form method="post" action="{% url 'coffee:reativar' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "undo-2" %}Reativar</button></form>
-      {% elif not s.concluida %}
-        <button type="button" class="botao botao--perigo" data-pedir-motivo="{% url 'coffee:cancelar' s.pk %}" data-motivo-titulo="Cancelar {{ s }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar solicitação" data-motivo-ajuda="Fica no histórico; a quantidade volta ao saldo do lote." data-motivo-perigo>{% icone "ban" %}Cancelar</button>
       {% endif %}
       {% if pode_reabrir %}
         <button type="button" class="botao" data-pedir-motivo="{% url 'coffee:reabrir' s.pk %}" data-motivo-titulo="Reabrir {{ s }} para correção?" data-motivo-rotulo="Motivo da correção" data-motivo-acao="Reabrir para correção" data-motivo-ajuda="Fica no histórico; cada campo que mudar também.">{% icone "pencil" %}Reabrir para correção</button>
       {% elif pode_encerrar %}
         <form method="post" action="{% url 'coffee:encerrar_correcao' s.pk %}">{% csrf_token %}<button type="submit" class="botao">{% icone "lock" %}Encerrar correção</button></form>
-      {% endif %}
-      {% if not s.financeiro_iniciado %}
-        <form method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}<button type="submit" class="botao botao--sutil">{% icone "trash-2" %}Excluir</button></form>
       {% endif %}
     </div>
     <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
@@ -321,11 +315,23 @@ reativar, excluir, reabrir para correção) e o histórico.
 {% include "componentes/dialogo_motivo.html" %}
 {% endif %}
 
-{% if not s or not s.bloqueada %}
+{% if s %}
+{% comment %}Rodapé igual em toda folha de documento: Voltar · Finalizar (grava e volta à lista) · Ações (duplicar, cancelar, excluir).{% endcomment %}
 <div class="barra-acoes">
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>{% if s %}Salve para gravar as alterações.{% else %}Para registrar: município, data, descrição e quantidade.{% endif %}</span></div>
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>{% if s.bloqueada %}Só consulta.{% else %}Finalizar grava as alterações e volta à lista.{% endif %}</span></div>
   <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
-  <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}{% if s %}Salvar{% else %}Registrar solicitação{% endif %}</button>
+  {% if not s.bloqueada %}{% firstof form_id as finalizar_form %}{% else %}{% firstof "" as finalizar_form %}{% endif %}
+  {% if not s.cancelada and not s.concluida %}{% url 'coffee:cancelar' s.pk as cancelar_url %}{% else %}{% firstof "" as cancelar_url %}{% endif %}
+  {% if not s.financeiro_iniciado %}{% firstof "excluir-coffee" as excluir_form %}{% else %}{% firstof "" as excluir_form %}{% endif %}
+  {% include "componentes/rodape_documento.html" with nome="OS" finalizar_form=finalizar_form duplicar_form="duplicar-coffee" cancelar_url=cancelar_url cancelar_titulo="Cancelar a solicitação?" cancelar_ajuda="Fica no histórico; a quantidade volta ao saldo do lote." excluir_form=excluir_form %}
+</div>
+<form id="duplicar-coffee" method="get" action="{% url 'coffee:nova' %}" hidden><input type="hidden" name="duplicar" value="{{ s.pk }}"></form>
+{% if not s.financeiro_iniciado %}<form id="excluir-coffee" method="post" action="{% url 'coffee:excluir_solicitacao' s.pk %}" hidden data-confirmar="{{ s }} será excluída de vez." data-confirmar-titulo="Excluir {{ s }}?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
+{% else %}
+<div class="barra-acoes">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas." role="status"><span data-anuncio>Para registrar: município, data, descrição e quantidade.</span></div>
+  <a class="botao botao--texto" href="{% url 'coffee:solicitacoes' %}">Voltar</a>
+  <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar solicitação</button>
 </div>
 {% endif %}
 {% endblock %}

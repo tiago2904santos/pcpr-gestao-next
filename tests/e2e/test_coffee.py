@@ -142,9 +142,11 @@ def test_pedir_coffee_break_e_cancelar(logado, dados_e2e):
 
     pg.goto(f"/coffee/solicitacoes/{s.pk}/")
     expect(pg.locator("#lote-do-municipio")).to_contain_text("460 de 500 unidades")
-    pg.get_by_role("button", name="Cancelar", exact=True).click()
+    # O cancelamento fica no menu "Ações" do rodapé padrão das folhas.
+    pg.get_by_role("button", name="Ações: OS").click()
+    pg.get_by_role("menuitem", name="Cancelar OS").click()
     pg.locator("#dialogo-motivo-texto").fill("Evento adiado (e2e)")
-    pg.locator("#dialogo-motivo").get_by_role("button", name="Cancelar solicitação").click()
+    pg.locator("#dialogo-motivo").get_by_role("button", name="Cancelar OS").click()
     expect(pg.locator(".alerta--perigo")).to_contain_text("Solicitação cancelada")
     s.refresh_from_db()
     assert s.cancelada and s.motivo_cancelamento == "Evento adiado (e2e)"

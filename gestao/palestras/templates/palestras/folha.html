@@ -243,10 +243,15 @@ com o seu formulário.
   </div>
   <a class="botao botao--texto" href="{{ voltar }}">Voltar</a>
   {% if palestra %}
-    <button type="submit" form="{{ form_id }}" class="botao" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar</button>
+    {% comment %}Rodapé igual em toda folha de documento: Finalizar (grava o pendente e volta à lista) e Ações.{% endcomment %}
+    {% include "componentes/rodape_documento.html" with nome="palestra" finalizar_form="finalizar-palestra" duplicar_form="duplicar-palestra" %}
   {% else %}
     <button type="submit" form="{{ form_id }}" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Registrar palestra</button>
   {% endif %}
 </div>
+{% if palestra %}
+<form id="finalizar-palestra" method="get" action="{{ voltar }}" hidden data-esperar-salvamento></form>
+<form id="duplicar-palestra" method="post" action="{% url 'palestras:duplicar' palestra.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
+{% endif %}
 {% endif %}
 {% endblock %}

@@ -28,7 +28,7 @@ commitou (ver "Bloqueios").
 | 12 | ASCOM: imprensa, publicações, palestras | IMPLEMENTADO (I2, P2, PL2a) | importadores de planilha; pedido público de palestra | decisão do usuário |
 | 13 | Coffee Break | IMPLEMENTADO (CB1–CB7, CB5d) | e-mails e link do fornecedor (CB8); importações (CB9) | SMTP + decisão institucional; decisão |
 | 14 | ETL (dados da referência) | BLOQUEADO EXTERNAMENTE | acesso aos dados | — |
-| — | Rodapé padrão das folhas (pedido do usuário via sessão paralela) | PENDENTE | coffee, eventos, palestras | commit do componente pela sessão paralela |
+| — | Rodapé padrão das folhas (pedido do usuário via sessão paralela) | FEITO | coffee, eventos, palestras | — |
 
 ## Decisões de Ofícios
 

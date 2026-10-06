@@ -336,3 +336,20 @@ def test_fila_do_despacho_pelo_evento_mais_proximo_e_escolha_que_volta_uma_vez(a
     assert 'value="nao_atender" checked' not in html  # só uma vez
     from gestao.eventos import dominio
     assert dominio.selo_de_tempo(hoje - timedelta(days=9), None, "cancelada", hoje) is None
+
+
+def test_rodape_padrao_e_cancelar_pelo_dialogo(ana, dg):
+    """Rodapé igual em toda folha (06/10): Finalizar e Ações (Duplicar, Cancelar, Excluir);
+    o cancelamento pela janela de motivo manda `motivo`."""
+    s = solicitacoes.criar(ana, _completa(), _estrutura())
+    c = Client()
+    c.force_login(ana)
+    html = c.get(reverse("eventos:solicitacao", args=[s.pk])).content.decode()
+    assert 'form="finalizar-evento"' in html and "Duplicar solicitação" in html
+    assert "Excluir solicitação" in html  # rascunho
+    solicitacoes.enviar(ana, s.pk)  # aguardando despacho: a responsável pode cancelar
+    html = c.get(reverse("eventos:solicitacao", args=[s.pk])).content.decode()
+    assert "Cancelar solicitação" in html and "Excluir solicitação" not in html
+    c.post(reverse("eventos:cancelar", args=[s.pk]), {"motivo": "Evento adiado"})
+    s.refresh_from_db()
+    assert s.status == Solicitacao.Status.CANCELADA

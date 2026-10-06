@@ -85,6 +85,24 @@ def salvar(usuario, pk: int, dados: dict[str, Any]) -> Palestra:
     return p
 
 
+# O que a cópia leva: o pedido e o lugar; datas do evento, status, andamentos e respostas
+# são da palestra original (a nova nasce pendente, com a data de hoje).
+CAMPOS_DA_COPIA = ("canal_solicitacao", "solicitante", "telefone", "email", "descricao",
+                   "evento", "municipio", "local", "endereco", "bairro", "cep",
+                   "quantidade_publico")
+
+
+@transaction.atomic
+def duplicar(usuario, pk: int) -> Palestra:
+    if not policies.pode_criar(usuario):
+        raise PermissionDenied
+    origem = Palestra.objects.get(pk=pk)
+    dados: dict[str, Any] = {c: getattr(origem, c) for c in CAMPOS_DA_COPIA}
+    dados.update(data_solicitacao=timezone.localdate(), temas=list(origem.temas.all()),
+                 palestrantes=list(origem.palestrantes.all()))
+    return criar(usuario, dados)
+
+
 def tem_palestrante(p: Palestra) -> bool:
     return p.palestrantes.exists()
 

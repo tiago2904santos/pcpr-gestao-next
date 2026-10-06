@@ -441,7 +441,8 @@ def concluir(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 def cancelar(request: HttpRequest, pk: int) -> HttpResponse:
     return _acao(request, pk, lambda s: solicitacoes.cancelar(
-        request.user, s.pk, request.POST.get("motivo_cancelamento") or ""),
+        request.user, s.pk,
+        request.POST.get("motivo_cancelamento") or request.POST.get("motivo") or ""),
         "Evento da solicitação #{s.pk} registrado como cancelado.", "#encerramento")
 
 

@@ -292,6 +292,16 @@ def andamento(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @require_POST
+def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Uma palestra nova com o mesmo pedido e o mesmo lugar; abre a folha dela."""
+    _exigir(policies.pode_criar(request.user))
+    objeto = get_object_or_404(queries.base(), pk=pk)
+    nova = services.duplicar(request.user, objeto.pk)
+    messages.success(request, "Palestra duplicada: confira a data do evento e o status.")
+    return redirect("palestras:palestra", pk=nova.pk)
+
+
+@require_POST
 def encaminhar_dg(request: HttpRequest, pk: int) -> HttpResponse:
     """A palestra vira o rascunho de uma solicitação de evento para o despacho da DG."""
     _exigir(policies.pode_editar(request.user))

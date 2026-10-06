@@ -190,3 +190,18 @@ def test_entrega_impede_excluir_e_anexo_recusado_aparece_no_campo(base):
                        observacao="")
     with pytest.raises(pedidos.PedidoInvalido, match="já tem entrega registrada"):
         pedidos.excluir(u, s.pk)
+
+
+def test_rodape_padrao_da_folha(base):
+    """Rodapé igual em toda folha (pedido do usuário, 06/10): Finalizar grava e volta à lista;
+    Ações tem Duplicar, Cancelar e Excluir (este só antes do financeiro)."""
+    u, mun, hoje, _f = base
+    s = _os(u, mun, hoje, data_evento=hoje + timedelta(days=3))
+    cli = Client()
+    cli.force_login(u)
+    html = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
+    assert "Finalizar" in html and "Duplicar OS" in html and "Cancelar OS" in html
+    assert "Excluir OS" in html and 'id="duplicar-coffee"' in html
+    Solicitacao.objects.filter(pk=s.pk).update(nota_fiscal="1")
+    html = cli.get(reverse("coffee:solicitacao", args=[s.pk])).content.decode()
+    assert "Excluir OS" not in html
