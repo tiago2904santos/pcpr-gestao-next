@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}{% if tela %}<link rel="stylesheet" href="{% static 'css/tokens.css' %}"><link rel="stylesheet" href="{% static 'css/impresso.css' %}">{% endif %}
 <title>{{ titulo }} — {{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}</title>
 {% comment %}
 Pauta da semana (painel/pauta.py): documento próprio, sem o App Shell, para o PDF
-(WeasyPrint) e para a tela imprimível (?formato=html, com o nonce da CSP). Cores do
-documento impresso: preto e cinza, como os documentos oficiais.
+(WeasyPrint, com o estilo embutido) e para a tela imprimível (?formato=html, com
+static/css/impresso.css — a CSP não aceita estilo embutido). Cores do documento impresso:
+preto e cinza, como os documentos oficiais.
 {% endcomment %}
-<style{% if nonce %} nonce="{{ nonce }}"{% endif %}>
+{% if not tela %}<style>
   @page { size: A4; margin: 16mm 14mm; @bottom-right { content: "página " counter(page) " de " counter(pages); font-size: 8pt; color: #555; } }
   body { font-family: "Inter", "Helvetica", "Arial", sans-serif; font-size: 10pt; color: #111; margin: 0; }
   .tela body, body.tela { max-width: 52rem; margin: 1.5rem auto; padding: 0 1rem; }
@@ -25,9 +27,10 @@ documento impresso: preto e cinza, como os documentos oficiais.
   .det { color: #333; font-size: 8.5pt; margin-top: .5mm; }
   .vazio { color: #666; font-style: italic; }
   .aviso { border: 1px solid #999; padding: 2mm 3mm; margin-bottom: 4mm; }
-</style>
+</style>{% endif %}
 </head>
-<body{% if tela %} class="tela"{% endif %}>
+<body{% if tela %} class="impresso impresso--pauta"{% endif %}>
+{% if tela %}<main class="folha-impressa">{% endif %}
 <h1>{{ titulo }} — {{ inicio|date:"d/m" }} a {{ fim|date:"d/m/Y" }}</h1>
 <p class="sub">Gerada em {{ gerada_em|date:"d/m/Y H:i" }} por {{ usuario.nome }} · {{ total }} compromisso{{ total|pluralize }} · só o que você tem acesso.</p>
 {% for dia in dias %}
@@ -46,5 +49,6 @@ documento impresso: preto e cinza, como os documentos oficiais.
   {% elif not dia.faixas %}<p class="vazio">Nada marcado.</p>{% endif %}
 </section>
 {% endfor %}
+{% if tela %}</main>{% endif %}
 </body>
 </html>

@@ -144,6 +144,7 @@ class Movimento(models.Model):
         REATIVADA = "reativada", "Solicitação reativada"
         ANDAMENTO = "andamento", "Andamento registrado"
         CONJUNTO = "conjunto", "Pagamento conjunto"
+        DOCUMENTO = "documento", "Documento"
         CORRECAO = "correcao", "Correção"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
@@ -162,3 +163,30 @@ class Movimento(models.Model):
 
     def __str__(self) -> str:
         return f"{self.solicitacao} — {self.get_acao_display()}"
+
+
+class Via(models.Model):
+    """Cada PDF que sai (visualizar, baixar) fica guardado como via emitida; a folha igual
+    à última não gera outra. A via assinada (anexada) vale no lugar do gerado até ser
+    removida — removida, fica guardada (removida_em)."""
+
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name="vias")
+    tipo = models.CharField(max_length=12)
+    arquivo = models.FileField(upload_to="coffee/vias/%Y/")
+    nome = models.CharField(max_length=255)
+    sha256 = models.CharField(max_length=64)
+    assinada = models.BooleanField(default=False)
+    emitida_em = models.DateTimeField(auto_now_add=True)
+    emitida_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name="+")
+    removida_em = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        app_label = "coffee"
+        ordering = ["-emitida_em", "-pk"]
+        verbose_name = "via de documento do coffee break"
+        verbose_name_plural = "vias de documentos do coffee break"
+        indexes = [models.Index(fields=["solicitacao", "tipo"], name="coffee_via_documento")]
+
+    def __str__(self) -> str:
+        return f"{self.nome} ({'assinada' if self.assinada else 'emitida'})"

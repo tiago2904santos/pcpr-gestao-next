@@ -520,5 +520,6 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
         "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
         "numero": "", "descricao": "Evento (axe)", "quantidade": 30}).solicitacao
     logado.set_viewport_size({"width": largura, "height": 900})
-    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/"):
+    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/",
+                 f"/coffee/solicitacoes/{s.pk}/documentos/certificado/?formato=html"):
         _avaliar(logado, rota)

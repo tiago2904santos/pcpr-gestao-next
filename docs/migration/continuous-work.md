@@ -79,7 +79,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 18b | Coffee Break CB2 (solicitação/etapa 1 e lista: lote pelo município, saldo com trava, vigência, retroativo, antecedência, duplicar, cancelar/reativar/excluir, CSV, lotes com saldo) | feito (CB2 — numeração própria até a decisão) |
 | 18c | Coffee Break CB3a (etapas 2 e 3, ordem dos marcos, faturada, ofício, protocolo, andamento do próximo marco, reabrir/encerrar correção) | feito (CB3a) |
 | 18d | Coffee Break CB3b (pagamento conjunto: candidatas, espelhamento com histórico, protocolo/atesto com a nota de todas, principal que sai) | feito (CB3b) |
-| 18e | Coffee Break CB4–CB8 (documentos, certidões e leitura de PDFs, entregas/painel/relatório/virada, integrações, fornecedor) | pendente |
+| 18e | Coffee Break CB4 (OS, ofício, certifico e certificado em PDF/prévia; pendências; vias; versão assinada) | feito (CB4) |
+| 18f | Coffee Break CB5–CB8 (certidões, PDFs da nota/OB e leitura, anexo do protocolo; entregas/painel/relatório/virada; integrações; fornecedor) | pendente |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)

@@ -1,0 +1,30 @@
+{% extends "coffee/pdf/_base.html" %}
+{% block titulo_doc %}Certificado da solicitação {{ s }}{% endblock %}
+{% block corpo %}
+<h1>CERTIFICADO DA SOLICITAÇÃO DE COFFEE BREAK</h1>
+{% if s.cancelada %}<p class="faixa">CANCELADA — {{ s.motivo_cancelamento }}</p>{% endif %}
+<h2>Pedido</h2>
+<table class="espelho">
+  <tr><th>Nº da OS</th><td>{{ s.numero|default:"—" }}</td></tr>
+  <tr><th>Data da solicitação</th><td>{{ s.data_solicitacao|date:"d/m/Y" }}</td></tr>
+  <tr><th>Evento</th><td>{{ s.descricao }}</td></tr>
+  <tr><th>Data do evento</th><td>{{ s.data_evento|date:"d/m/Y"|default:"—" }}</td></tr>
+  <tr><th>Município</th><td>{{ s.municipio.nome }}/{{ s.municipio.uf }}</td></tr>
+  <tr><th>Quantidade</th><td>{{ s.quantidade }} pessoas{% if s.quantidade_faturada %} (faturadas: {{ s.quantidade_faturada }}){% endif %}</td></tr>
+  <tr><th>Situação</th><td>{{ s.situacao_rotulo }}</td></tr>
+</table>
+<h2>Lote, contrato e fornecedor</h2>
+<table class="espelho">
+  <tr><th>Lote</th><td>{{ lote }}</td></tr>
+  <tr><th>Contrato</th><td>{{ referencia }}</td></tr>
+  <tr><th>Empenho</th><td>{{ lote.empenho|default:"—" }}</td></tr>
+  <tr><th>Fiscal</th><td>{{ contrato.fiscal|default:"—" }}</td></tr>
+  <tr><th>Fornecedor</th><td>{{ fornecedor.razao_social }} — CNPJ {{ fornecedor.cnpj_formatado|default:"—" }}</td></tr>
+</table>
+<h2>Fluxo financeiro</h2>
+<table class="espelho">
+  {% for rotulo, valor in marcos %}<tr><th>{{ rotulo }}</th><td>{{ valor }}</td></tr>{% endfor %}
+</table>
+{% if s.observacoes %}<h2>Observações</h2><p>{{ s.observacoes }}</p>{% endif %}
+<p class="miudo">Emitido em {{ emitido_em|date:"d/m/Y H:i" }}. Registrado por {{ s.criado_por.nome }}. Vale como espelho do registro na data da emissão; a situação corrente é sempre a do sistema.</p>
+{% endblock %}

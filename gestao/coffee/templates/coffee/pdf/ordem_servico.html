@@ -1,0 +1,19 @@
+{% extends "coffee/pdf/_base.html" %}
+{% block titulo_doc %}Ordem de Serviço {{ s.numero }}{% endblock %}
+{% block corpo %}
+<p class="direita">Curitiba, {{ data }}.</p>
+<h1>ORDEM DE SERVIÇO {{ s.numero }}</h1>
+<p class="bloco"><span class="rotulo">À empresa:</span> {{ fornecedor.razao_social }}</p>
+<p class="bloco"><span class="rotulo">Contrato:</span> {{ referencia }}</p>
+{% if lote.empenho %}<p class="bloco"><span class="rotulo">Empenho:</span> {{ lote.empenho }}</p>{% endif %}
+<p class="bloco"><span class="rotulo">OBJETO:</span> {{ s.descricao }}</p>
+<p class="bloco"><span class="rotulo">DETALHAMENTO DO PEDIDO:</span></p>
+<p class="bloco linha-pre">{{ detalhamento }}</p>
+<p class="bloco"><span class="rotulo">LOCAL DE ENTREGA:</span> {{ s.local_entrega }}{% if s.endereco %} — {{ s.endereco }}{% if s.bairro %}, {{ s.bairro }}{% endif %}{% if s.cep %}, CEP {{ s.cep }}{% endif %}{% endif %} — {{ s.municipio.nome }}/{{ s.municipio.uf }}</p>
+<p class="bloco"><span class="rotulo">RESPONSÁVEL PELO RECEBIMENTO:</span> {{ s.responsavel }}</p>
+<div class="assinatura">
+  <p>______________________________________________</p>
+  <p>{{ contrato.fiscal|upper|default:"FISCAL DO CONTRATO" }}</p>
+  <p>{{ contrato.cargo_fiscal }}</p>
+</div>
+{% endblock %}

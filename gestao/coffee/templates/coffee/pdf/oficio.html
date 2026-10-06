@@ -1,0 +1,17 @@
+{% extends "coffee/pdf/_base.html" %}
+{% block titulo_doc %}Ofício {{ s.numero_oficio }}{% endblock %}
+{% block corpo %}
+<h1>OFÍCIO {{ s.numero_oficio }}</h1>
+<p class="miudo">PCPR Protocolo n.º: {{ s.protocolo_pcpr|default:"—" }} · Curitiba, {{ data }}.</p>
+<p>{{ cfg.vocativo }}</p>
+<p>Venho, por meio deste, informar e certificar que os serviços de Coffee Break foram devidamente entregues, conforme solicitado, para {% if itens|length > 1 %}os seguintes eventos{% else %}o seguinte evento{% endif %}:</p>
+{% for i in itens %}<p>• {{ i.s.descricao }} - Coffee Break para {{ i.s.quantidade_efetiva }} ({{ i.extenso }}) pessoas.</p>{% endfor %}
+<p>Encaminho, em anexo, {% if varias_notas %}as Notas Fiscais n° {{ notas }}, devidamente atestadas{% else %}a Nota Fiscal n° {{ notas }}, devidamente atestada{% endif %}, juntamente com os demais documentos necessários, para que seja efetuado o pagamento ao CONTRATADO, nos termos da {{ contrato.clausula_pagamento }}, do CONTRATO {{ referencia }}.</p>
+<p>Atenciosamente,</p>
+<div class="assinatura">
+  <p>______________________________________________</p>
+  <p>{{ cfg.assinante|upper|default:"(QUEM ASSINA)" }}</p>
+  <p>{{ cfg.cargo_assinante }}</p>
+</div>
+{% if destinatario %}<div class="bloco">{% for linha in destinatario %}<p class="bloco">{{ linha }}</p>{% endfor %}</div>{% endif %}
+{% endblock %}

@@ -7,7 +7,8 @@
 Folha da solicitação de coffee break (a ordem de serviço), etapa 1, na linguagem da folha do
 ofício: placa e frase no cabeçalho; 1 Evento e pedido (com o lote que o município recebe,
 consultado ao escolher o município), 2 Entrega; 3 Nota fiscal e ofício e 4 Protocolo e
-pagamento (etapas 2 e 3, gravadas juntas); 5 Situação (andamento do próximo marco, cancelar,
+pagamento (etapas 2 e 3, gravadas juntas); 5 Documentos (OS, ofício, certifico,
+certificado: ver, PDF, versão assinada); 6 Situação (andamento do próximo marco, cancelar,
 reativar, excluir, reabrir para correção) e o histórico.
 {% endcomment %}
 {% block conteudo %}
@@ -133,8 +134,49 @@ reativar, excluir, reabrir para correção) e o histórico.
 {% endif %}
 
 <div class="documento documento--cartoes mt-4">
+  <section class="secao" id="documentos" aria-labelledby="t-documentos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-documentos"><span class="secao__numero">5</span>Documentos</h2><p class="secao__nota">Cada PDF que sai fica guardado como via; a versão assinada, quando anexada, vale no lugar do gerado.</p></div>
+    <ul class="registros" aria-labelledby="t-documentos">
+      {% for d in documentos %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone "file-text" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{{ d.titulo }}</span>
+            {% if d.assinada %}<span class="selo selo--sucesso selo--sem-ponto">Assinado</span>{% elif d.faltas %}<span class="selo selo--aviso selo--sem-ponto">Falta informação</span>{% else %}<span class="selo selo--info selo--sem-ponto">Pronto</span>{% endif %}
+          </div>
+          <div class="registro__meta">
+            {% if d.faltas %}<span class="registro__meta-item">{% icone "alert-triangle" classe="icone--sm" %}{{ d.faltas|join:" " }}</span>
+            {% elif d.assinavel %}<span class="registro__meta-item">{% icone "history" classe="icone--sm" %}{{ d.n_vias|pluralizar:"via guardada,vias guardadas" }}</span>
+            {% else %}<span class="registro__meta-item">{% icone "info" classe="icone--sm" %}Espelho do momento (não se guarda)</span>{% endif %}
+          </div>
+          {% if d.assinavel and not s.bloqueada and not d.faltas %}
+          <details class="mt-2">
+            <summary class="botao botao--sm botao--sutil">{% icone "file-check-2" %}Anexar assinado<span class="sr-only"> — {{ d.titulo }}</span></summary>
+            <form method="post" action="{% url 'coffee:anexar_assinada' s.pk d.tipo %}" enctype="multipart/form-data" class="linha mt-2" novalidate>
+              {% csrf_token %}
+              <label class="campo__rotulo sr-only" for="assinado-{{ d.tipo }}">PDF assinado — {{ d.titulo }}</label>
+              <input class="entrada" type="file" id="assinado-{{ d.tipo }}" name="arquivo" accept="application/pdf">
+              <button type="submit" class="botao botao--sm">{% icone "save" %}Enviar</button>
+            </form>
+          </details>
+          {% endif %}
+        </div>
+        {% if not d.faltas %}
+        <div class="registro__acoes registro__acoes--fixas">
+          <a class="botao botao--sm botao--sutil" href="{% url 'coffee:documento' s.pk d.tipo %}?formato=html">{% icone "eye" %}Ver<span class="sr-only"> {{ d.titulo }}</span></a>
+          <a class="botao botao--sm" href="{% url 'coffee:documento' s.pk d.tipo %}?baixar=1">{% icone "download" %}PDF<span class="sr-only"> de {{ d.titulo }}</span></a>
+          {% if d.assinada and not s.bloqueada %}<form method="post" action="{% url 'coffee:remover_assinada' s.pk d.tipo %}">{% csrf_token %}<button type="submit" class="botao botao--sm botao--sutil">{% icone "x" %}Remover assinado<span class="sr-only"> de {{ d.titulo }}</span></button></form>{% endif %}
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<div class="documento documento--cartoes mt-4">
   <section class="secao" id="situacao" aria-labelledby="t-situacao">
-    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">5</span>Situação da solicitação</h2><p class="secao__nota">O andamento grava só o próximo marco; cancelar devolve a quantidade ao saldo do lote; excluir só antes da nota e do protocolo.</p></div>
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-situacao"><span class="secao__numero">6</span>Situação da solicitação</h2><p class="secao__nota">O andamento grava só o próximo marco; cancelar devolve a quantidade ao saldo do lote; excluir só antes da nota e do protocolo.</p></div>
     <ol class="etapas-progresso" aria-label="Etapas do pagamento">
       {% for titulo, estado in etapas %}<li class="etapas-progresso__item etapas-progresso__item--{{ estado }}"{% if estado == "atual" %} aria-current="step"{% endif %}><span class="etapas-progresso__marca" aria-hidden="true">{% if estado == "concluido" %}{% icone "check" classe="icone--sm" %}{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ titulo }}</span>{% if estado == "concluido" %}<span class="sr-only"> (concluída)</span>{% endif %}</li>{% endfor %}
     </ol>

@@ -19,7 +19,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import resolver_municipio
 
-from . import conjunto, financeiro, pedidos, policies, queries
+from . import conjunto, documentos, financeiro, pedidos, policies, queries, vias
 from . import dominio_pedido as regras
 from .forms_pedido import (
     FORM_FINANCEIRO,
@@ -183,6 +183,13 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
             "proximo_oficio": queries.proximo_oficio(timezone.localdate().year),
             "pode_reabrir": admin and s.concluida and not s.em_correcao and not s.cancelada,
             "pode_encerrar": admin and s.em_correcao,
+            "documentos": [
+                {"tipo": t, "titulo": documentos.TIPOS[t].titulo,
+                 "faltas": documentos.pendencias(t, s),
+                 "assinada": vias.assinada_vigente(s, t) if t in documentos.ASSINAVEIS
+                 else None,
+                 "assinavel": t in documentos.ASSINAVEIS,
+                 "n_vias": s.vias.filter(tipo=t).count()} for t in documentos.TIPOS],
             "grupo": conjunto.membros(s) if conjunto.em_grupo(s) else [],
             "principal": conjunto.principal_de(s),
             "candidatas": (list(conjunto.candidatas(s)) if not s.bloqueada
@@ -319,6 +326,54 @@ def salvar_financeiro(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "coffee/folha.html",
                   _contexto(request, FormularioSolicitacao(solicitacao=s), s, form_fin=form_fin),
                   status=422)
+
+
+@require_GET
+def documento(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
+    """O documento em PDF (visualizar; ?baixar=1 baixa) ou a prévia em tela (?formato=html).
+    Com pendência, volta à folha dizendo o que falta."""
+    from django.http import Http404
+    from django.middleware.csp import get_nonce
+
+    _exigir(request)
+    if tipo not in documentos.TIPOS:
+        raise Http404
+    s = get_object_or_404(_base(), pk=pk)
+    if request.GET.get("formato") == "html":
+        faltas = documentos.pendencias(tipo, s)
+        if faltas:
+            messages.error(request, " ".join(faltas))
+            return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+        nonce = str(get_nonce(request) or "")
+        return HttpResponse(documentos.html(tipo, s, nonce=nonce, tela=True))
+    try:
+        arq = vias.obter(request.user, s, tipo)
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+    except RuntimeError as exc:  # sem o motor de PDF
+        messages.error(request, str(exc))
+        return redirect(reverse("coffee:solicitacao", args=[pk]) + "#documentos")
+    resposta = HttpResponse(arq.conteudo, content_type="application/pdf")
+    modo = "attachment" if request.GET.get("baixar") == "1" else "inline"
+    from django.utils.http import content_disposition_header
+    resposta["Content-Disposition"] = (content_disposition_header(modo == "attachment", arq.nome)
+                                       or modo)
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta
+
+
+@require_POST
+def anexar_assinada(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
+    return _acao(request, pk, lambda: vias.anexar_assinada(
+        request.user, pk, tipo, request.FILES.get("arquivo")), vias.MSG_ANEXADA)
+
+
+@require_POST
+def remover_assinada(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
+    return _acao(request, pk, lambda: vias.remover_assinada(request.user, pk, tipo),
+                 vias.MSG_REMOVIDA)
 
 
 @require_POST

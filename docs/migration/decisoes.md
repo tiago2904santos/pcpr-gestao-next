@@ -283,6 +283,7 @@ Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffe
 | Configuração do ofício | nasce com nomes reais de pessoas | nasce com valores neutros (vocativo, textos dos e-mails); assinante e destinatário em branco | **agente** (dados pessoais) |
 | Numeração da OS e do ofício | livro único com Viagens | OS com sequência anual própria do módulo (CB2), atrás de `queries.proximo_numero`; ofício na CB3 | **pendente — decisão do usuário** |
 | Pagamento conjunto sem nota em todas | "Protocolo N registrado no ofício. Ele vira o protocolo de pagamento quando… tiverem a nota fiscal." | recusa o protocolo/atesto até todas as OS terem a nota, dizendo qual falta (o PCPR do ofício pode ser digitado à parte) | **agente** — confirmar |
+| Documentos do Coffee Break | textos editáveis na folha e textos-base pelo admin; brasão | textos fixos (com os dados dos cadastros e da configuração); timbre em texto | **agente** — confirmar |
 | Selo de tempo e abas da lista | trilha na ordem dos marcos | trilha na ordem do fluxo (aguardando nota → … → concluídas, canceladas) com rótulos curtos | agente (UX) |
 
 ## Pendências abertas

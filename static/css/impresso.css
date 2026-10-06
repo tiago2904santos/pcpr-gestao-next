@@ -1,0 +1,67 @@
+/* Tela imprimível dos documentos gerados em PDF (pauta da agenda; documentos do Coffee
+   Break). O PDF usa o estilo embutido no próprio HTML (WeasyPrint não passa pela CSP); no
+   navegador a CSP só aceita folhas de estilo do próprio site, então estas regras repetem o
+   essencial com os tokens: uma folha branca centralizada, texto sóbrio, sem o App Shell. */
+
+body.impresso {
+  margin: 0;
+  padding: var(--esp-6) var(--esp-4);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-base);
+  font-size: var(--texto-md);
+  line-height: 1.5;
+}
+
+.impresso .folha-impressa {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: var(--esp-8) var(--esp-6);
+  background: var(--cor-superficie);
+  border-radius: var(--raio-md);
+  box-shadow: var(--sombra-cartao);
+}
+
+.impresso h1 {
+  margin: var(--esp-2) 0 var(--esp-4);
+  font-size: var(--texto-xl);
+}
+
+.impresso h2 {
+  margin: var(--esp-5) 0 var(--esp-2);
+  font-size: var(--texto-lg);
+}
+
+.impresso p {
+  margin: 0 0 var(--esp-3);
+}
+
+/* Documentos do Coffee Break */
+.impresso--documento h1 { text-align: center; }
+.impresso--documento .timbre { margin-bottom: var(--esp-6); text-align: center; }
+.impresso--documento .timbre p { margin: 0; font-size: var(--texto-sm); font-weight: var(--peso-forte); }
+.impresso--documento .direita { text-align: right; }
+.impresso--documento .rotulo { font-weight: var(--peso-forte); }
+.impresso--documento .linha-pre { white-space: pre-line; }
+.impresso--documento .assinatura { margin-top: var(--esp-10); text-align: center; }
+.impresso--documento .assinatura p { margin: 0; }
+.impresso--documento .caixa { margin: var(--esp-5) 0; padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda-forte); }
+.impresso--documento .miudo { color: var(--cor-texto-secundario); font-size: var(--texto-sm); }
+.impresso--documento .faixa { margin: 0 0 var(--esp-4); padding: var(--esp-2) var(--esp-3); border: 2px solid var(--cor-texto); font-weight: var(--peso-forte); text-align: center; }
+.impresso--documento .rodape { margin-top: var(--esp-8); color: var(--cor-texto-secundario); font-size: var(--texto-xs); text-align: center; }
+.impresso--documento table.espelho { width: 100%; margin: 0 0 var(--esp-4); border-collapse: collapse; font-size: var(--texto-sm); }
+.impresso--documento table.espelho th,
+.impresso--documento table.espelho td { padding: var(--esp-1) var(--esp-2); border-bottom: 1px solid var(--cor-borda); text-align: left; vertical-align: top; }
+.impresso--documento table.espelho th { width: 38%; }
+
+/* Pauta da agenda */
+.impresso--pauta .sub { margin: 0 0 var(--esp-5); color: var(--cor-texto-secundario); font-size: var(--texto-sm); }
+.impresso--pauta .dia { margin: 0 0 var(--esp-4); padding-top: var(--esp-2); border-top: 1px solid var(--cor-borda-forte); }
+.impresso--pauta .dia h2 { margin: 0 0 var(--esp-1); text-transform: capitalize; }
+.impresso--pauta .faixa { margin: 0 0 var(--esp-1); color: var(--cor-texto-secundario); font-weight: var(--peso-semi); }
+.impresso--pauta ul { margin: 0; padding: 0; list-style: none; }
+.impresso--pauta li { margin: 0 0 var(--esp-2); padding-left: var(--esp-3); border-left: 2px solid var(--cor-borda-forte); }
+.impresso--pauta .hora { margin-right: var(--esp-2); font-weight: var(--peso-forte); }
+.impresso--pauta .fonte,
+.impresso--pauta .det { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
+.impresso--pauta .vazio { color: var(--cor-texto-terciario); font-style: italic; }

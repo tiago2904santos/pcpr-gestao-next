@@ -1,0 +1,13 @@
+{% extends "coffee/pdf/_base.html" %}
+{% block titulo_doc %}Certifico digital — NF {{ s.nota_fiscal }}{% endblock %}
+{% block corpo %}
+<h1>CERTIFICO DIGITAL</h1>
+<p>Nota Fiscal nº {{ s.nota_fiscal }}, emitida pela empresa {{ fornecedor.razao_social }}, inscrita no CNPJ nº {{ fornecedor.cnpj_formatado|default:"—" }} (CONTRATO {{ referencia }}).</p>
+<div class="caixa"><p><span class="rotulo">ATESTO</span> {{ atesto }}</p></div>
+<p class="direita miudo">(assinado e datado digitalmente)</p>
+<div class="assinatura">
+  <p>{{ contrato.fiscal|upper|default:"FISCAL DO CONTRATO" }}</p>
+  <p>{{ contrato.cargo_fiscal }}</p>
+  <p>Fiscal do Contrato n° {{ contrato.numero }}</p>
+</div>
+{% endblock %}

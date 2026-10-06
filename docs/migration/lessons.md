@@ -229,3 +229,9 @@ problema real; não redescubra. Formato: **padrão** — por quê / onde está.
   (`.prestacao-equipe__*`).
 - Item novo solto na barra de navegação estoura 768px (o teste responsivo pega): o grupo
   "Documentos" em menu existe para isso.
+
+- (06/10) Documento com `<style nonce>` não basta: a CSP daqui é `style-src 'self'` (sem
+  nonce para estilos). Tela imprimível de PDF usa folha estática com tokens
+  (`static/css/impresso.css`); o estilo embutido fica só para o WeasyPrint. Conferir no
+  console do navegador ao revisar uma tela nova.
+

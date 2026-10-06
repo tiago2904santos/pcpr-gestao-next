@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+{% load static %}{% if tela %}<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{% static 'css/tokens.css' %}"><link rel="stylesheet" href="{% static 'css/impresso.css' %}">{% endif %}
+<title>{% block titulo_doc %}{{ tipo.titulo }}{% endblock %}</title>
+{% comment %}
+Base dos documentos do Coffee Break: no PDF (WeasyPrint) vale o estilo embutido; na tela
+(?formato=html) a CSP só aceita folhas do site, então vale static/css/impresso.css.
+Documento oficial: preto e cinza, timbre da ASCOM no alto e rodapé institucional.
+{% endcomment %}
+{% if not tela %}<style>
+  @page { size: A4; margin: 20mm 20mm 24mm 20mm; @bottom-center { content: element(rodape); } }
+  html { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 11.5pt; color: #000; line-height: 1.45; }
+  body { margin: 0; }
+  body.tela { max-width: 48rem; margin: 1.5rem auto; padding: 1.5rem; background: #fff; box-shadow: 0 0 0 1px #ccc; }
+  .timbre { text-align: center; margin-bottom: 8mm; }
+  .timbre p { margin: 0; font-weight: bold; font-size: 10pt; }
+  h1 { font-size: 13pt; text-align: center; margin: 4mm 0 6mm; letter-spacing: 0.02em; }
+  p { margin: 0 0 3.5mm; text-align: justify; }
+  .direita { text-align: right; }
+  .rotulo { font-weight: bold; }
+  .bloco { margin: 0 0 4mm; }
+  .linha-pre { white-space: pre-line; }
+  .assinatura { text-align: center; margin-top: 16mm; }
+  .assinatura p { margin: 0; text-align: center; }
+  .caixa { border: 1px solid #000; padding: 3mm 4mm; margin: 6mm 0; }
+  .miudo { font-size: 9pt; color: #333; }
+  table.espelho { width: 100%; border-collapse: collapse; margin: 0 0 5mm; font-size: 10pt; }
+  table.espelho th, table.espelho td { text-align: left; border-bottom: 1px solid #bbb; padding: 1.5mm 2mm; vertical-align: top; }
+  table.espelho th { width: 38%; font-weight: bold; }
+  h2 { font-size: 11pt; margin: 6mm 0 2mm; }
+  .faixa { border: 2px solid #000; padding: 2mm 3mm; font-weight: bold; text-align: center; margin: 0 0 5mm; }
+  .rodape { position: running(rodape); text-align: center; font-size: 8pt; color: #333; }
+</style>{% endif %}
+</head>
+<body{% if tela %} class="impresso impresso--documento"{% endif %}>
+{% if tela %}<main class="folha-impressa">{% endif %}
+<div class="timbre">
+  <p>ESTADO DO PARANÁ</p>
+  <p>SECRETARIA DE ESTADO DA SEGURANÇA PÚBLICA</p>
+  <p>POLÍCIA CIVIL DO PARANÁ</p>
+  <p>ASSESSORIA DE COMUNICAÇÃO SOCIAL</p>
+</div>
+{% block corpo %}{% endblock %}
+<div class="rodape">Polícia Civil do Paraná — Assessoria de Comunicação Social</div>
+{% if tela %}</main>{% endif %}
+</body>
+</html>

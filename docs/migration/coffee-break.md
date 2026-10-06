@@ -750,6 +750,31 @@ como histórico.
   foi cancelada|excluída e saiu do pagamento conjunto."
 - Fora: o ofício com um item por OS e as notas no plural (CB4, documentos).
 
+## CB4 — documentos (06/10/2026)
+
+- `documentos.py`: ordem de serviço (cidade e data por extenso, fornecedor, contrato pela
+  referência documental, empenho, objeto, detalhamento "Solicito coffee para: Dia dd/mm às
+  hh p/ N pessoas.", local com endereço, responsável, assinatura do fiscal), ofício ao GAF
+  (um por pagamento: um item por OS com a quantidade por extenso e as notas no plural,
+  cláusula e contrato, assinante e destinatário da configuração), certifico digital (nota,
+  empresa, CNPJ, contrato e o ATESTO) e o certificado da solicitação (espelho: pedido, lote/
+  contrato/fornecedor, marcos ou "Pendente", faixa de cancelada, ressalva). Pendências que
+  bloqueiam com as mensagens da referência; PDF pelo WeasyPrint ("Ver" em tela com o nonce
+  da CSP, "PDF" para baixar) e nome "<prefixo> <nº> - Lote <n> - <fornecedor>.pdf".
+- Vias (`vias.py`, modelo `Via`, auditado): cada PDF que sai fica guardado; a mesma folha
+  (comparada pelo HTML — o PDF leva a data da geração) não gera outra via; o certificado,
+  espelho do momento, não se guarda. Versão assinada (PDF conferido) vale no lugar do gerado
+  até ser removida (fica guardada); recusada em cancelada/concluída.
+- Prévia em tela: a CSP (`style-src 'self'`) recusa estilo embutido, então na tela vale
+  `static/css/impresso.css` (só tokens) e o estilo embutido fica só para o PDF. O mesmo
+  defeito existia na tela imprimível da pauta da agenda (A2b: aparecia sem estilo, com erro
+  de CSP no console) e foi corrigido do mesmo jeito.
+- Diferenças: timbre em texto (sem o brasão em imagem) e sem editar o texto na folha nem os
+  textos-base por administrador (o editor de documentos daqui é o de Viagens; fica para uma
+  CB4b se for preciso). Fora: anexo do protocolo (lista ordenada, quatro arquivos, PDF
+  único/ZIP, atesto ao baixar) e textos do eProtocolo para copiar — dependem das certidões e
+  dos PDFs da nota (CB5).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só
