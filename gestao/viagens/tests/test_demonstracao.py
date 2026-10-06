@@ -235,3 +235,13 @@ def test_painel_do_coffee_break_de_exemplo(dataset):
     assert p.vigencia and p.certidoes  # contrato vencendo e certidões a renovar
     assert Entrega.objects.exclude(tipo="sem_ocorrencia").exists()
     assert Entrega.objects.filter(tipo="sem_ocorrencia").exists()
+
+
+def test_relatorio_e_virada_do_coffee_break_de_exemplo(dataset):
+    from gestao.coffee import relatorio, virada
+    from gestao.coffee.models import Contrato
+
+    r = relatorio.montar(Contrato.objects.get(numero="101/2025"), HOJE)
+    assert r.meses and r.municipios and r.capacidade == 3000
+    origem = virada.exercicio_de_origem()
+    assert origem is not None and virada.lotes_de_origem(origem)  # "Abrir exercício N+1"

@@ -496,12 +496,14 @@ def test_viagem_da_solicitacao_sem_violacoes(logado, dados_e2e, largura):
 
 @pytest.mark.parametrize("largura", [360, 1440])
 def test_coffee_break_cadastros_sem_violacoes(logado, dados_e2e, largura):
-    from .test_coffee import _admin_do_modulo
+    from .test_coffee import _admin_do_modulo, _lote_de_curitiba
 
     _admin_do_modulo()
+    _lote_de_curitiba()  # a virada precisa de um lote vigente
     logado.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/coffee/cadastros/fornecedores/", "/coffee/cadastros/contratos/?novo=1",
-                 "/coffee/cadastros/lotes/?novo=1", "/coffee/cadastros/oficio/"):
+                 "/coffee/cadastros/lotes/?novo=1", "/coffee/cadastros/oficio/",
+                 "/coffee/lotes/abrir-exercicio/"):
         _avaliar(logado, rota)
 
 
@@ -522,7 +524,7 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     _evento_realizado(s)  # o painel ganha um grupo em "O que fazer hoje"; a folha, a entrega
     for rota in ("/coffee/painel/", "/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/",
-                 "/coffee/lotes/",
+                 "/coffee/lotes/", f"/coffee/lotes/contrato/{lote.contrato_id}/relatorio/",
                  f"/coffee/solicitacoes/{s.pk}/documentos/certificado/?formato=html",
                  "/coffee/certidoes/", f"/coffee/certidoes/?anexar={lote.contrato.fornecedor_id}:fgts",
                  f"/coffee/solicitacoes/{s.pk}/protocolo/"):

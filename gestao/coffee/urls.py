@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 from . import views_painel as vpa
 from . import views_pedidos as vp
+from . import views_relatorio as vr
 
 app_name = "coffee"
 
@@ -36,6 +37,8 @@ urlpatterns = [
     path("solicitacoes/<int:pk>/reativar/", vp.reativar, name="reativar"),
     path("solicitacoes/<int:pk>/excluir/", vp.excluir, name="excluir_solicitacao"),
     path("lotes/", vp.lotes, name="lotes"),
+    path("lotes/abrir-exercicio/", vr.virada_exercicio, name="virada"),
+    path("lotes/contrato/<int:pk>/relatorio/", vr.relatorio_contrato, name="relatorio_contrato"),
     path("certidoes/", vp.certidoes, name="certidoes"),
     path("certidoes/anexar/", vp.anexar_certidao, name="anexar_certidao"),
     path("certidoes/<int:pk>/arquivo/", vp.arquivo_certidao, name="arquivo_certidao"),

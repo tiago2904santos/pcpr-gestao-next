@@ -114,10 +114,11 @@ class Resumo:
         return " · ".join(partes)
 
 
-def resumos(fornecedores: list[int]) -> dict[int, Resumo]:
-    """Resumo das entregas por fornecedor (uma consulta para a lista toda)."""
+def resumos(fornecedores: list[int], *, por: str = "fornecedor") -> dict[int, Resumo]:
+    """Resumo das entregas por fornecedor (ou por contrato), numa consulta só."""
     saida = {f: Resumo() for f in fornecedores}
-    chave = "solicitacao__lote__contrato__fornecedor_id"
+    chave = ("solicitacao__lote__contrato_id" if por == "contrato"
+             else "solicitacao__lote__contrato__fornecedor_id")
     linhas = (Entrega.objects.filter(**{f"{chave}__in": fornecedores}).values(chave)
               .annotate(total=Count("pk"), media=Avg("avaliacao"),
                         ocorr=Count("pk", filter=~Q(tipo="sem_ocorrencia"))).order_by())
@@ -135,3 +136,7 @@ def resumo_do_fornecedor(fornecedor_id: int) -> Resumo:
                       .exclude(tipo="sem_ocorrencia").values_list("tipo")
                       .annotate(c=Count("pk")).order_by())
     return r
+
+
+def resumo_do_contrato(contrato_id: int) -> Resumo:
+    return resumos([contrato_id], por="contrato")[contrato_id]

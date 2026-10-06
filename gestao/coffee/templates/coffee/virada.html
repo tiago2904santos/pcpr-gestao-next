@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block titulo %}Abrir exercício {{ destino }} · Coffee Break{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Virada de exercício (paridade com a referência, docs/migration/coffee-break.md §8.4): os
+lotes vigentes de {{ origem }} viram os de {{ destino }} com os mesmos municípios,
+orientações e especificações; cada um pede só a quantidade e o empenho.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "calendar-days" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Coffee Break · Lotes</p>
+    <h1 class="pagina-cabecalho__titulo">Abrir o exercício {{ destino }}</h1>
+    <p class="pagina-cabecalho__descricao">Os lotes vigentes de {{ origem }} são copiados com os municípios, as orientações e as especificações; informe a quantidade e o empenho de cada um.</p>
+  </div>
+</header>
+<form method="post" novalidate class="documento documento--cartoes">
+  {% csrf_token %}
+  <section class="secao" aria-labelledby="t-lotes">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-lotes"><span class="secao__numero">1</span>Lotes a criar em {{ destino }}</h2><p class="secao__nota">Desmarque o lote que não continua. Um lote de contrato vencido não pode ser copiado antes do aditivo de prorrogação.</p></div>
+    <ul class="registros">
+      {% for item in linhas %}{% with l=item.l lote=item.l.origem %}
+      <li class="registro{% if item.impedimento %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% icone "layers" %}</span>
+        <div class="registro__corpo pilha-sm">
+          <label class="escolha"><input type="checkbox" name="criar" value="{{ lote.pk }}"{% if l.criar %} checked{% endif %}{% if item.impedimento %} disabled{% endif %}><span class="peso-semi">Lote {{ lote.numero }} ({{ destino }}) · {{ lote.contrato.fornecedor }} · Contrato {{ lote.contrato.numero }}</span></label>
+          <p class="texto-secundario texto-sm">Em {{ origem }}: {{ lote.quantidade_total }} unidades{% if lote.empenho %} · empenho {{ lote.empenho }}{% endif %} · {{ lote.municipios.all|length|pluralizar:"município,municípios" }}</p>
+          {% if item.impedimento %}<p class="alerta alerta--perigo" role="note">{% icone "ban" %}<span class="alerta__corpo">{{ item.impedimento }}</span></p>
+          {% else %}
+          {% if item.aviso %}<p class="alerta alerta--aviso" role="note">{% icone "alert-triangle" %}<span class="alerta__corpo">{{ item.aviso }}</span></p>{% endif %}
+          <div class="campos">
+            <div class="campo campo--md"><label class="campo__rotulo" for="quantidade-{{ lote.pk }}">Quantidade em {{ destino }}</label><input class="entrada" type="text" inputmode="numeric" id="quantidade-{{ lote.pk }}" name="quantidade-{{ lote.pk }}" value="{{ l.quantidade|default_if_none:'' }}" maxlength="9" autocomplete="off"{% if l.erro %} aria-invalid="true" aria-describedby="erro-{{ lote.pk }}"{% endif %}></div>
+            <div class="campo campo--md"><label class="campo__rotulo" for="empenho-{{ lote.pk }}">Empenho</label><input class="entrada" type="text" id="empenho-{{ lote.pk }}" name="empenho-{{ lote.pk }}" value="{{ l.empenho }}" maxlength="60" autocomplete="off"></div>
+            <div class="campo campo--md"><label class="campo__rotulo" for="valor-{{ lote.pk }}">Valor do empenho (R$)</label><input class="entrada" type="text" inputmode="decimal" id="valor-{{ lote.pk }}" name="valor-{{ lote.pk }}" value="{% if l.valor_empenho is not None %}{{ l.valor_empenho|floatformat:'2g' }}{% endif %}" maxlength="20" autocomplete="off"></div>
+          </div>
+          {% if l.erro %}<p class="campo__erro" id="erro-{{ lote.pk }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ l.erro }}</span></p>{% endif %}
+          {% endif %}
+        </div>
+      </li>
+      {% endwith %}{% endfor %}
+    </ul>
+  </section>
+  <section class="secao" aria-labelledby="t-origem">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-origem"><span class="secao__numero">2</span>Os lotes de {{ origem }}</h2><p class="secao__nota">Enquanto os dois exercícios ficam vigentes, o pedido cai no lote do ano do evento.</p></div>
+    <label class="escolha"><input type="checkbox" name="encerrar" value="1"{% if encerrar %} checked{% endif %}><span>Encerrar os lotes de {{ origem }} que forem copiados</span></label>
+  </section>
+  <div class="linha mt-4"><button type="submit" class="botao botao--primario">{% icone "save" %}Abrir o exercício {{ destino }}</button><a class="botao botao--sutil" href="{% url 'coffee:lotes' %}">Voltar aos lotes</a></div>
+</form>
+{% endblock %}

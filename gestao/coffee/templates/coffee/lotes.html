@@ -3,7 +3,7 @@
 {% block sobretitulo %}<p class="rotulo-caixa-alta">Coffee Break</p>{% endblock %}
 {% block titulo_lista %}Lotes{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Quanto cada lote contratado já consumiu e quanto resta: o pedido cai no lote que atende o município do evento.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_gerir %}<a class="botao" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}Cadastro de lotes</a>{% endif %}{% endblock %}
+{% block acoes_lista %}{% if pode_gerir %}{% if proximo_exercicio %}<a class="botao" href="{% url 'coffee:virada' %}">{% icone "calendar-days" %}Abrir exercício {{ proximo_exercicio }}</a>{% endif %}<a class="botao" href="{% url 'coffee:lotes_cadastro' %}">{% icone "settings" %}Cadastro de lotes</a>{% endif %}{% endblock %}
 {% comment %}
 Paridade com a lista de lotes da referência: "Lote N · FORNECEDOR", vigente/encerrado, selo
 de consumo (verde < 70%, âmbar ≥ 70%, vermelho ≥ 90%), exercício, contrato, "R de T
@@ -38,6 +38,7 @@ unidades" e os municípios.
         <span class="registro__meta-item"><span class="sr-only">Municípios: </span>{% icone "map-pin" classe="icone--sm" %}{% for m in lote.municipios.all|slice:":5" %}{{ m.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Nenhum município</span>{% endfor %}{% if lote.municipios.all|length > 5 %} e mais {{ lote.municipios.all|length|add:"-5" }}{% endif %}</span>
       </div>
     </div>
+    <div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:relatorio_contrato' lote.contrato_id %}">{% icone "file-search" %}Relatório<span class="sr-only"> do contrato {{ lote.contrato.numero }}</span></a></div>
   </li>
   {% endwith %}{% endfor %}
 </ul>

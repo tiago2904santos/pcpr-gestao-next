@@ -62,7 +62,7 @@ certidões a renovar e os lotes ativos.
   <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-alertas">Saldo e vigência</h2></div>
   <div class="cartao__corpo pilha">
     {% for la in p.alertas_de_saldo %}
-    <div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p><strong>{{ la.lote }} · {{ la.lote.contrato.fornecedor }}</strong></p><p>{{ la.alerta }}</p><p><a href="{% url 'coffee:solicitacoes' %}?lote={{ la.lote.pk }}">Ver as solicitações do lote</a></p></div></div>
+    <div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p><strong>{{ la.lote }} · {{ la.lote.contrato.fornecedor }}</strong></p><p>{{ la.alerta }}</p><p><a href="{% url 'coffee:relatorio_contrato' la.lote.contrato_id %}">Relatório do contrato</a></p></div></div>
     {% endfor %}
     {% for contrato, texto, tom, url in p.vigencia %}
     <div class="alerta alerta--{{ tom }}">{% icone "calendar" %}<div class="alerta__corpo"><p><strong>{{ contrato }}</strong></p><p>{{ texto }}</p>{% if pode_gerir %}<p><a href="{{ url }}">Cadastrar o termo aditivo</a></p>{% endif %}</div></div>

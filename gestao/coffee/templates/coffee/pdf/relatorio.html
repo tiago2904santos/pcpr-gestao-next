@@ -1,0 +1,35 @@
+{% extends "coffee/pdf/_base.html" %}
+{% block titulo_doc %}Relatório do contrato {{ r.contrato.numero }}{% endblock %}
+{% block corpo %}
+<h1>RELATÓRIO DO CONTRATO {{ r.contrato.numero }}</h1>
+<p class="direita miudo">Gerado em {{ r.hoje|date:"d/m/Y" }}</p>
+<table class="espelho">
+  <tr><th>Fornecedor</th><td>{{ r.contrato.fornecedor.razao_social }}{% if r.contrato.fornecedor.cnpj %} — CNPJ {{ r.contrato.fornecedor.cnpj_formatado }}{% endif %}</td></tr>
+  <tr><th>Fim da vigência</th><td>{{ r.fim|date:"d/m/Y"|default:"—" }}</td></tr>
+  <tr><th>Capacidade dos lotes vigentes</th><td>{{ r.capacidade }}</td></tr>
+  <tr><th>Saldo restante</th><td>{{ r.restante }}</td></tr>
+  <tr><th>Ritmo (média dos últimos 3 meses)</th><td>{{ r.ritmo|floatformat:1 }} por mês</td></tr>
+  <tr><th>Saldo acaba em</th><td>{% if r.acaba_em %}{{ r.acaba_em|date:"d/m/Y" }}{% if r.acaba_antes %} (antes do fim do contrato){% endif %}{% else %}sem consumo recente para projetar{% endif %}</td></tr>
+  <tr><th>Sobra (falta) no fim da vigência</th><td>{% if r.sobra is None %}—{% elif r.falta %}faltam {{ r.falta }} unidades{% else %}sobram {{ r.sobra }} unidades{% endif %}</td></tr>
+  <tr><th>Valor gasto / pago</th><td>{{ r.gasto|moeda }} / {{ r.pago|moeda }}</td></tr>
+  <tr><th>Empenhado (lotes vigentes) / saldo</th><td>{% if r.empenhado is None %}—{% else %}{{ r.empenhado|moeda }} / {{ r.saldo_empenho|moeda }}{% endif %}</td></tr>
+  <tr><th>Prazo médio nota → ordem bancária</th><td>{% if r.prazo_medio is None %}—{% else %}{{ r.prazo_medio }} dias ({{ r.pagamentos_medidos }} pagamentos){% endif %}</td></tr>
+  <tr><th>Entregas</th><td>{{ r.entregas.texto }}</td></tr>
+</table>
+<h2>Consumo por mês</h2>
+<table class="espelho">
+  <tr><th>Mês</th><th>OS</th><th>Quantidade</th><th>Valor</th></tr>
+  {% for m in r.meses %}<tr><td>{{ m.rotulo }}</td><td>{{ m.os }}</td><td>{{ m.quantidade }}</td><td>{{ m.valor|moeda }}</td></tr>{% empty %}<tr><td colspan="4">Nenhuma OS.</td></tr>{% endfor %}
+</table>
+<h2>Consumo por município</h2>
+<table class="espelho">
+  <tr><th>Município</th><th>OS</th><th>Quantidade</th></tr>
+  {% for mu in r.municipios %}<tr><td>{{ mu.nome }}</td><td>{{ mu.os }}</td><td>{{ mu.quantidade }}</td></tr>{% empty %}<tr><td colspan="3">Nenhuma OS.</td></tr>{% endfor %}
+</table>
+<h2>Lotes</h2>
+<table class="espelho">
+  <tr><th>Lote</th><th>Situação</th><th>Capacidade</th><th>Consumido</th><th>Restante</th><th>Empenho</th></tr>
+  {% for linha in r.lotes %}<tr><td>{{ linha.lote }}</td><td>{% if linha.lote.ativo %}Vigente{% else %}Encerrado{% endif %}</td><td>{{ linha.saldo.total }}</td><td>{{ linha.saldo.consumido }}</td><td>{{ linha.saldo.restante }}</td><td>{{ linha.lote.empenho|default:"—" }}</td></tr>{% endfor %}
+</table>
+<p class="miudo">Conta as OS não canceladas no mês do evento (ou do pedido, sem data de evento). Dados do sistema na data da geração.</p>
+{% endblock %}

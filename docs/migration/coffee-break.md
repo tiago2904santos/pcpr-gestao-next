@@ -849,6 +849,24 @@ como histórico.
 - Fora: "Enviar a OS" (CB8), relatório do contrato e virada (CB6b), "Importar processo de
   pagamento" (CB9).
 
+## CB6b — relatório do contrato e virada de exercício (06/10/2026)
+
+- **Relatório do contrato** (`relatorio.py`, `/coffee/lotes/contrato/<pk>/relatorio/`, a partir de
+  cada lote e do alerta de saldo do painel): saldo dos lotes vigentes, ritmo dos 3 meses
+  completos (e a média geral), quando o saldo acaba e se é antes do fim, sobra/falta no fim,
+  gasto e pago, empenhado e saldo do empenho, prazo médio nota (emissão lida, senão a data
+  do ofício) → OB, entregas; consumo por mês (gráfico `serie` + tabela), por município e os
+  lotes. Em PDF (WeasyPrint, `coffee/pdf/relatorio.html`) e CSV (`;`, BOM, vírgula decimal,
+  blocos da referência; células protegidas contra fórmula). Só OS não canceladas, no mês do
+  evento (ou do pedido).
+- **Virada de exercício** (`virada.py`, `/coffee/lotes/abrir-exercicio/`, botão "Abrir
+  exercício N+1" na lista de lotes para quem altera lotes): os lotes vigentes do maior
+  exercício, cada um com quantidade (padrão a atual), empenho e valor; impedimentos ("já
+  existe", "Contrato vencido…") e aviso de vigência que acaba no ano novo; copia municípios,
+  texto original, orientações e especificações com a observação da referência; opção de
+  encerrar os de origem; mensagens da referência; recusa tudo se uma linha marcada tiver
+  erro (com o erro na linha).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

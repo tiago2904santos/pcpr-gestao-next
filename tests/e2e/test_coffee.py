@@ -66,11 +66,12 @@ def test_cadastrar_fornecedor_contrato_e_lote(logado, dados_e2e):
 @pytest.mark.parametrize("largura", [360, 1440])
 def test_sem_rolagem_horizontal(logado, dados_e2e, largura):
     _admin_do_modulo()
+    _lote_de_curitiba()  # a virada precisa de um lote vigente
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/coffee/cadastros/fornecedores/", "/coffee/cadastros/contratos/?novo=1",
                  "/coffee/cadastros/aditivos/", "/coffee/cadastros/lotes/?novo=1",
-                 "/coffee/cadastros/oficio/"):
+                 "/coffee/cadastros/oficio/", "/coffee/lotes/abrir-exercicio/"):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"
@@ -166,7 +167,7 @@ def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
     pg.set_viewport_size({"width": largura, "height": 900})
     _evento_realizado(s)  # o painel ganha um grupo em "O que fazer hoje"; a folha, a entrega
     for rota in ("/coffee/painel/", "/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/",
-                 "/coffee/lotes/",
+                 "/coffee/lotes/", f"/coffee/lotes/contrato/{lote.contrato_id}/relatorio/",
                  "/coffee/certidoes/", f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")

@@ -21,7 +21,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import resolver_municipio
 
-from . import conjunto, documentos, financeiro, pdfs, pedidos, policies, queries, vias
+from . import conjunto, documentos, financeiro, pdfs, pedidos, policies, queries, vias, virada
 from . import dominio_painel as regras_painel
 from . import dominio_pedido as regras
 from .forms_pedido import (
@@ -527,9 +527,13 @@ def lotes(request: HttpRequest) -> HttpResponse:
         fim = lote.contrato.fim_efetivo()
         linhas.append({"lote": lote, "saldo": sal[lote.pk], "fim": fim,
                        "vencido": bool(fim and fim < hoje)})
+    origem = (virada.exercicio_de_origem()
+              if policies.pode_gerir_cadastros(request.user, "lotes") else None)
+    proximo = origem + 1 if origem else None
     return render(request, "coffee/lotes.html", {
         "linhas": linhas,
         "situacao": situacao, "pode_gerir": policies.pode_gerir_cadastros(request.user),
+        "proximo_exercicio": proximo,
         "situacoes": (("ativos", "Vigentes"), ("inativos", "Encerrados"), ("todos", "Todos")),
         "migalhas": _migalhas(("Lotes", "")),
     })

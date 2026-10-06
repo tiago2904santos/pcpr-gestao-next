@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block titulo %}Relatório do contrato {{ r.contrato.numero }} · Coffee Break{% endblock %}
+{% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Relatório do contrato (paridade com a referência, docs/migration/coffee-break.md §8.3): o
+que justifica um aditivo, um reforço de empenho ou as quantidades da próxima licitação.
+Conta as OS não canceladas no mês do evento (ou do pedido, sem data de evento). O mesmo
+conteúdo sai em PDF (coffee/pdf/relatorio.html) e em planilha.
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "file-search" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <p class="rotulo-caixa-alta">Coffee Break</p>
+    <h1 class="pagina-cabecalho__titulo">Relatório do contrato {{ r.contrato.numero }}</h1>
+    <p class="pagina-cabecalho__descricao">{{ r.contrato.fornecedor.razao_social }}{% if r.fim %} · vigente até {{ r.fim|date:"d/m/Y" }}{% endif %} · {{ r.total_os|pluralizar:"OS,OS" }} não cancelada{{ r.total_os|pluralize }}, {{ r.total_quantidade }} unidades.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="?formato=csv">{% icone "table" %}Planilha (CSV)</a>
+    <a class="botao botao--primario" href="?formato=pdf">{% icone "download" %}Baixar PDF</a>
+  </div>
+</header>
+
+<section aria-label="Saldo e projeção" class="grade grade--kpi">
+  <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "layers" classe="icone--sm" %}Saldo restante</span><span class="indicador__valor">{{ r.restante }}</span><span class="indicador__nota">{% if r.capacidade %}de {{ r.capacidade }} nos lotes vigentes{% else %}Sem lote vigente{% endif %}</span></div>
+  <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "activity" classe="icone--sm" %}Ritmo</span><span class="indicador__valor">{{ r.ritmo|floatformat:1 }}</span><span class="indicador__nota">por mês, média dos últimos 3 meses completos (geral: {{ r.media_por_mes|floatformat:1 }})</span></div>
+  <div class="indicador{% if r.acaba_antes %} indicador--atencao{% endif %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Saldo acaba em</span><span class="indicador__valor">{% if r.acaba_em %}{{ r.acaba_em|date:"d/m/Y" }}{% else %}—{% endif %}</span><span class="indicador__nota">{% if not r.acaba_em %}Sem consumo recente para projetar{% elif r.acaba_antes %}Antes do fim do contrato{% elif r.fim %}Depois do fim do contrato{% else %}Contrato sem fim de vigência{% endif %}</span></div>
+  <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor gasto</span><span class="indicador__valor">{{ r.gasto|moeda }}</span><span class="indicador__nota">{{ r.pago|moeda }} pago (com ordem bancária)</span></div>
+</section>
+
+<div class="layout-detalhe mt-6">
+  <div class="pilha-lg">
+    <section class="cartao" aria-labelledby="t-mes">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-mes">Consumo por mês</h2></div>
+      {% if r.meses %}
+      <div class="cartao__corpo">
+        <ol class="serie{% if r.meses|length > 6 %} serie--densa{% endif %}{% if r.meses|length > 12 %} serie--longa{% endif %}" aria-hidden="true">
+          {% for m in r.meses %}<li class="serie__item"><span class="serie__valor">{{ m.quantidade }}</span><svg class="serie__barra" viewBox="0 0 10 100" preserveAspectRatio="none" focusable="false"><rect x="0" y="{{ m.topo }}" width="10" height="{{ m.barra }}"></rect></svg><span class="serie__rotulo">{{ m.rotulo }}</span></li>{% endfor %}
+        </ol>
+      </div>
+      <div>
+        <table class="tabela tabela--responsiva">
+          <caption class="sr-only">Consumo por mês do evento</caption>
+          <thead><tr><th scope="col">Mês</th><th scope="col">OS</th><th scope="col">Quantidade</th><th scope="col">Valor</th></tr></thead>
+          <tbody>{% for m in r.meses %}<tr><td class="tabela__celula-principal" data-rotulo="Mês"><span class="tabela__principal">{{ m.rotulo }}</span></td><td data-rotulo="OS">{{ m.os }}</td><td data-rotulo="Quantidade">{{ m.quantidade }}</td><td data-rotulo="Valor">{{ m.valor|moeda }}</td></tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      {% else %}
+      {% include "componentes/vazio.html" with icone="calendar" titulo="Nenhuma OS neste contrato" texto="O consumo aparece aqui à medida que as solicitações são registradas." %}
+      {% endif %}
+    </section>
+    <section class="cartao" aria-labelledby="t-mun">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-mun">Consumo por município</h2></div>
+      {% if r.municipios %}
+      <div>
+        <table class="tabela tabela--responsiva">
+          <caption class="sr-only">Consumo por município</caption>
+          <thead><tr><th scope="col">Município</th><th scope="col">OS</th><th scope="col">Quantidade</th></tr></thead>
+          <tbody>{% for mu in r.municipios %}<tr><td class="tabela__celula-principal" data-rotulo="Município"><span class="tabela__principal">{{ mu.nome }}</span></td><td data-rotulo="OS">{{ mu.os }}</td><td data-rotulo="Quantidade">{{ mu.quantidade }}</td></tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="cartao__corpo texto-secundario texto-sm">Nenhum consumo registrado.</p>
+      {% endif %}
+    </section>
+    <section class="cartao" aria-labelledby="t-lotes">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lotes">Lotes</h2></div>
+      <div>
+        <table class="tabela tabela--responsiva">
+          <caption class="sr-only">Lotes do contrato</caption>
+          <thead><tr><th scope="col">Lote</th><th scope="col">Situação</th><th scope="col">Capacidade</th><th scope="col">Consumido</th><th scope="col">Restante</th><th scope="col">Empenho</th></tr></thead>
+          <tbody>{% for linha in r.lotes %}<tr><td class="tabela__celula-principal" data-rotulo="Lote"><span class="tabela__principal">{{ linha.lote }}</span></td><td data-rotulo="Situação">{% if linha.lote.ativo %}Vigente{% else %}Encerrado{% endif %}</td><td data-rotulo="Capacidade">{{ linha.saldo.total }}</td><td data-rotulo="Consumido">{{ linha.saldo.consumido }} ({{ linha.saldo.percentual }}%)</td><td data-rotulo="Restante">{{ linha.saldo.restante }}</td><td data-rotulo="Empenho">{{ linha.lote.empenho|default:"—" }}{% if linha.lote.valor_empenho is not None %} · {{ linha.lote.valor_empenho|moeda }}{% endif %}</td></tr>
+          {% empty %}<tr><td colspan="6">Nenhum lote cadastrado.</td></tr>{% endfor %}</tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <aside class="pilha-lg" aria-label="Valores e entregas">
+    <section class="cartao" aria-labelledby="t-proj">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-proj">Projeção e empenho</h2></div>
+      <div class="cartao__corpo">
+        <dl class="resumo__definicoes">
+          <div><dt>Fim da vigência</dt><dd>{{ r.fim|date:"d/m/Y"|default:"Sem fim informado" }}</dd></div>
+          <div><dt>Sobra (falta) no fim</dt><dd>{% if r.sobra is None %}Sem como projetar{% elif r.falta %}Faltam {{ r.falta }} unidades{% else %}Sobram {{ r.sobra }} unidades{% endif %}</dd></div>
+          <div><dt>Empenhado (lotes vigentes)</dt><dd>{% if r.empenhado is None %}Sem valor de empenho{% else %}{{ r.empenhado|moeda }}{% endif %}</dd></div>
+          <div><dt>Saldo do empenho</dt><dd>{% if r.saldo_empenho is None %}—{% else %}{{ r.saldo_empenho|moeda }}{% endif %}</dd></div>
+          <div><dt>Prazo médio nota → OB</dt><dd>{% if r.prazo_medio is None %}Sem pagamento medido{% else %}{{ r.prazo_medio|pluralizar:"dia,dias" }} ({{ r.pagamentos_medidos|pluralizar:"pagamento,pagamentos" }}){% endif %}</dd></div>
+        </dl>
+      </div>
+    </section>
+    <section class="cartao" aria-labelledby="t-entregas">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-entregas">Entregas</h2></div>
+      <p class="cartao__corpo texto-sm">{{ r.entregas.texto }}.</p>
+    </section>
+  </aside>
+</div>
+{% endblock %}
