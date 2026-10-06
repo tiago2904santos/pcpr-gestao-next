@@ -727,7 +727,7 @@ a.ficha:hover {
    "(motorista)". O ícone herda a cor do texto para não sumir ao lado do nome. */
 .registro__motorista {
   display: inline-block; /* o reset deixa svg em bloco: aqui ele corre com o texto */
-  margin-right: var(--esp-05);
+  margin-right: var(--esp-1);
   vertical-align: -0.15em;
   color: var(--cor-texto-secundario);
 }

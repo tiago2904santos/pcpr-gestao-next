@@ -1271,7 +1271,12 @@ class TestSelosDasListas:
         assert "Fora do prazo" not in html
         assert "Justificativa pendente" in html  # o mesmo selo da linha
         assert "<strong>Autorização</strong>" in html and "3 dias depois do ofício" in html
-        assert "Pendente: ainda não foi escrita." in html
+        # o prazo por escrito não se repete: o alerta de pendências já o diz
+        assert html.count("de antecedência, e o prazo exige") == 1
+        assert "Justificativa obrigatória" in html  # na lista de pendências antes de emitir
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])  # no prazo
+        html = operador.get(reverse("viagens:resumo", args=[emitido.pk])).content.decode()
+        assert "<dt>Prazo</dt>" in html and "justificativa dispensada" in html
 
     def test_roteiros_e_termos_com_o_mesmo_selo(self, operador, cenario):
         html = operador.get(reverse("viagens:roteiros")).content.decode()

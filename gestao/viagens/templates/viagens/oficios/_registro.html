@@ -1,6 +1,6 @@
 {% load viagens %}
 {# data-vt na placa: a placa do registro aberto viaja até o cabeçalho do detalhe (registro.js deixa só a clicada nomeada no pageswap). #}
-<li class="registro" data-destaque="oficio:{{ o.pk }}">
+<li class="registro{% if o.situacao == "cancelado" %} registro--inativo{% endif %}" data-destaque="oficio:{{ o.pk }}">
   {# Placa: o número do ofício como assinatura visual da lista (o link abaixo já o anuncia). #}
   <span class="placa{% if o.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true" data-vt="placa-{{ vt_prefixo|default:'r' }}{{ o.pk }}">
     <span class="placa__rotulo">Ofício</span>

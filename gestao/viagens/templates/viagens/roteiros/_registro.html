@@ -1,5 +1,5 @@
 {% load viagens %}
-<li class="registro" data-destaque="roteiro:{{ r.pk }}">
+<li class="registro{% if r.situacao == "cancelado" %} registro--inativo{% endif %}" data-destaque="roteiro:{{ r.pk }}">
   <span class="placa{% if r.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
     <span class="placa__rotulo">Roteiro</span>
     <span class="placa__numero">#{{ r.pk }}</span>

@@ -50,7 +50,11 @@ continua sendo a edição; aqui só se lê e se decide.
     {% tipo_oficio oficio as tipo %}
     {# O tipo sempre (inclusive Autorização, que a lista não marca) e o porquê, por escrito. #}
     <div class="resumo__largo"><dt>Tipo</dt><dd><strong>{{ tipo.completo }}</strong>. {{ tipo.porque }}</dd></div>
-    {% if prazo.primeira_saida %}<div class="resumo__largo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}
+    {% comment %}
+    O prazo por escrito — menos quando a justificativa está pendente num rascunho: aí o
+    alerta de pendências, logo acima, já diz a mesma frase (não repetir três vezes).
+    {% endcomment %}
+    {% if prazo.primeira_saida %}{% if not prazo.justificativa_obrigatoria or oficio.justificativa.strip or not oficio.editavel %}<div class="resumo__largo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}{% endif %}
     <div class="resumo__largo"><dt>Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     {% if revisao %}
       {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
