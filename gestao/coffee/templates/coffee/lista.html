@@ -65,24 +65,7 @@ fornecedor e eventos de/até; linha "nº · evento", situação, selo temporal e
 </div>
 {% if linhas %}
   <ul class="registros" aria-labelledby="titulo-resultados">
-    {% for l in linhas %}{% with s=l.s %}
-    <li class="registro{% if s.cancelada %} registro--inativo{% endif %}">
-      <span class="placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
-      <div class="registro__corpo">
-        <div class="registro__titulo">
-          <a class="registro__link" href="{% url 'coffee:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{{ s.descricao|truncatechars:90 }}</a>
-          <span class="selo selo--{{ s.situacao_tom }} selo--sem-ponto">{{ s.situacao_rotulo }}</span>
-          {% if l.tempo %}<span class="selo selo--{{ l.tempo.1 }} selo--sem-ponto">{{ l.tempo.0 }}</span>{% endif %}
-        </div>
-        <div class="registro__meta">
-          {% for icone_fato, rotulo, texto, ausente in l.fatos %}<span class="registro__meta-item"><span class="sr-only">{{ rotulo }}: </span>{% icone icone_fato classe="icone--sm" %}{% if ausente %}<span class="vazio-inline">{{ texto }}</span>{% else %}{{ texto }}{% endif %}</span>{% endfor %}
-        </div>
-      </div>
-      <div class="registro__acoes registro__acoes--fixas">
-        <a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacao' s.pk %}">{% if s.bloqueada %}{% icone "eye" %}Ver{% else %}{% icone "pencil" %}Abrir{% endif %}<span class="sr-only"> {{ s }}</span></a>
-      </div>
-    </li>
-    {% endwith %}{% endfor %}
+    {% for l in linhas %}{% include "coffee/_registro.html" %}{% endfor %}
   </ul>
   {% include "componentes/paginacao.html" %}
 {% elif f.q or ativos or f.situacao %}

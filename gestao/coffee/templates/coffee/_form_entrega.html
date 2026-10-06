@@ -1,0 +1,18 @@
+{% comment %}Formulário de registro da entrega (folha da OS). Espera `s`, `tipos_entrega` e `r` (o rascunho de um envio recusado: tipo, avaliacao, recebido_por, observacao, campo).{% endcomment %}
+<form method="post" action="{% url 'coffee:registrar_entrega' s.pk %}" enctype="multipart/form-data" class="pilha mt-4" novalidate>
+  {% csrf_token %}
+  <div class="campos">
+    <div class="campo"><label class="campo__rotulo" for="entrega-tipo">O que aconteceu<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
+      <pc-select class="seletor"><select class="selecao" id="entrega-tipo" name="tipo" required>{% for chave, rotulo in tipos_entrega %}<option value="{{ chave }}"{% if r.tipo == chave %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}</select></pc-select></div>
+    <div class="campo"><label class="campo__rotulo" for="entrega-avaliacao">Avaliação</label>
+      <pc-select class="seletor"><select class="selecao" id="entrega-avaliacao" name="avaliacao" aria-describedby="ajuda-avaliacao"><option value="">Sem avaliação</option>{% for n in "54321" %}<option value="{{ n }}"{% if r.avaliacao|stringformat:"s" == n %} selected{% endif %}>{{ n }}{% if n == "5" %} (melhor){% elif n == "1" %} (pior){% endif %}</option>{% endfor %}</select></pc-select>
+      <p class="campo__ajuda" id="ajuda-avaliacao">De 1 a 5, opcional.</p></div>
+    <div class="campo campo--cresce"><label class="campo__rotulo" for="entrega-recebido">Quem recebeu</label><input class="entrada" type="text" id="entrega-recebido" name="recebido_por" value="{{ r.recebido_por }}" maxlength="150" autocomplete="off"></div>
+  </div>
+  <div class="campo"><label class="campo__rotulo" for="entrega-observacao">Observação</label><textarea class="entrada" id="entrega-observacao" name="observacao" rows="3" maxlength="4000" aria-describedby="ajuda-observacao{% if r.campo == 'observacao' %} erro-observacao{% endif %}"{% if r.campo == "observacao" %} aria-invalid="true" autofocus{% endif %}>{{ r.observacao }}</textarea>
+    <p class="campo__ajuda" id="ajuda-observacao">Obrigatória quando há ocorrência: descreva o que aconteceu.</p>
+    {% if r.campo == "observacao" %}<p class="campo__erro" id="erro-observacao">{% icone "alert-circle" classe="icone--sm" %}<span>Descreva a ocorrência: é a base de uma notificação ao fornecedor.</span></p>{% endif %}</div>
+  <div class="campo"><label class="campo__rotulo" for="entrega-anexo">Foto ou documento</label><input class="entrada" type="file" id="entrega-anexo" name="anexo" accept="application/pdf,image/png,image/jpeg" aria-describedby="ajuda-anexo{% if r.campo == 'anexo' %} erro-anexo{% endif %}"{% if r.campo == "anexo" %} aria-invalid="true" autofocus{% endif %}><p class="campo__ajuda" id="ajuda-anexo">PDF, PNG ou JPG, até 10 MB.</p>
+    {% if r.campo == "anexo" %}<p class="campo__erro" id="erro-anexo">{% icone "alert-circle" classe="icone--sm" %}<span>O arquivo foi recusado: selecione de novo uma foto (PNG ou JPG) ou um PDF.</span></p>{% endif %}</div>
+  <div class="linha"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar o registro</button></div>
+</form>

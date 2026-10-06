@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.http import urlencode
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from . import dominio, policies, services
+from . import dominio, entregas, policies, services
 from .forms import (
     FormularioAditivo,
     FormularioConfiguracao,
@@ -117,18 +117,20 @@ def _tabela(chave: str) -> Tabela:
 
 
 def _migalhas(*fim: tuple[str, str]) -> list[tuple[str, str]]:
-    return [("Início", reverse("painel:inicio")), ("Coffee Break", reverse("coffee:solicitacoes")),
+    return [("Início", reverse("painel:inicio")), ("Coffee Break", reverse("coffee:painel")),
             *fim]
 
 
-def _linha(t: Tabela, obj, hoje) -> dict[str, Any]:
+def _linha(t: Tabela, obj, hoje, resumo=None) -> dict[str, Any]:
     """Título, selos e fatos de cada registro, pela tabela."""
     if t.chave == "fornecedores":
         return {"titulo": obj.razao_social, "selos": [], "fatos": [
             ("id-card", "CNPJ", obj.cnpj_formatado or "Sem CNPJ", not obj.cnpj),
             ("user-round", "Contato", obj.contato or "Sem contato", not obj.contato),
             ("mail", "E-mail", obj.email or "Sem e-mail", not obj.email),
-            ("file-text", "Contratos", f"{obj.n_contratos} contrato(s)", False)]}
+            ("file-text", "Contratos", f"{obj.n_contratos} contrato(s)", False),
+            ("clipboard-list", "Entregas", resumo.texto if resumo else
+             "Nenhuma entrega registrada", not (resumo and resumo.entregas))]}
     if t.chave == "contratos":
         selo = dominio.selo_vigencia(obj.fim_efetivo(), hoje, obj.vigencia_estimada)
         valor = (f"R$ {obj.valor_unitario:.4f}".replace(".", ",") if obj.valor_unitario
@@ -211,11 +213,14 @@ def _render(request, t: Tabela, pagina, termo: str, form, editando, status: int 
     base = urlencode([(k, v) for k, v in (("q", termo),) if v])
     contagens = {c: TABELAS[c].modelo.objects.count() for c in TABELAS}
     form = form or t.formulario()
+    resumos = (entregas.resumos([o.pk for o in pagina.object_list])
+               if t.chave == "fornecedores" else {})
     return render(request, "coffee/cadastros.html", {
         "grupos": [(legenda, [(form[c], classe) for c, classe in campos])
                    for legenda, campos in t.layout],
         "t": t, "tabelas": [(c, x.titulo, x.icone, contagens[c]) for c, x in TABELAS.items()],
-        "page_obj": pagina, "linhas": [(o, _linha(t, o, hoje)) for o in pagina.object_list],
+        "page_obj": pagina, "linhas": [(o, _linha(t, o, hoje, resumos.get(o.pk)))
+                                       for o in pagina.object_list],
         "termo": termo, "querystring_base": f"{base}&" if base else "",
         "form": form, "editando": editando, "abrir_dialogo": abrir,
         "novo_rotulo": f"Nov{t.genero} {t.singular}",

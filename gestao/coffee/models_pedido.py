@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 
-from . import dominio_certidoes, dominio_pedido
+from . import dominio_certidoes, dominio_painel, dominio_pedido
 from .models import Carimbos, Lote
 
 
@@ -157,6 +157,7 @@ class Movimento(models.Model):
         CONJUNTO = "conjunto", "Pagamento conjunto"
         DOCUMENTO = "documento", "Documento"
         CORRECAO = "correcao", "Correção"
+        ENTREGA = "entrega", "Entrega registrada"
 
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
                                     related_name="movimentos")
@@ -226,3 +227,38 @@ class Certidao(models.Model):
 
     def __str__(self) -> str:
         return f"Certidão {self.get_tipo_display()} — {self.fornecedor} ({self.validade:%d/%m/%Y})"
+
+
+class Entrega(models.Model):
+    """Registro de entrega e ocorrência de uma OS (vários por OS): o que aconteceu, a nota de 1
+    a 5, quem recebeu, a observação (obrigatória quando há ocorrência — é a base de uma
+    notificação ao fornecedor) e uma foto ou documento."""
+
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE,
+                                    related_name="entregas")
+    tipo = models.CharField("o que aconteceu", max_length=20,
+                            choices=dominio_painel.TIPOS_ENTREGA, default="sem_ocorrencia")
+    avaliacao = models.PositiveSmallIntegerField("avaliação", null=True, blank=True)
+    recebido_por = models.CharField("quem recebeu", max_length=150, blank=True)
+    observacao = models.TextField("observação", blank=True)
+    anexo = models.FileField("foto ou documento", upload_to="coffee/entregas/%Y/", blank=True)
+    registrado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                       related_name="+")
+    registrado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "coffee"
+        ordering = ["-registrado_em", "-pk"]
+        verbose_name = "entrega do coffee break"
+        verbose_name_plural = "entregas do coffee break"
+        constraints = [models.CheckConstraint(
+            condition=models.Q(avaliacao__isnull=True) | models.Q(avaliacao__gte=1,
+                                                                  avaliacao__lte=5),
+            name="coffee_entrega_avaliacao_1_a_5")]
+
+    def __str__(self) -> str:
+        return f"{self.get_tipo_display()} — {self.solicitacao}"
+
+    @property
+    def ocorrencia(self) -> bool:
+        return self.tipo != "sem_ocorrencia"

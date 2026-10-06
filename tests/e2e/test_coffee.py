@@ -97,6 +97,16 @@ def _lote_de_curitiba():
     return lote
 
 
+def _evento_realizado(s) -> None:
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from gestao.coffee.models import Solicitacao
+
+    Solicitacao.objects.filter(pk=s.pk).update(data_evento=timezone.localdate() - timedelta(days=2))
+
+
 def _operador_do_modulo() -> None:
     from django.contrib.auth.models import Group
 
@@ -154,7 +164,9 @@ def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
         "de linha no cabeçalho da folha (e2e)", "quantidade": 30}).solicitacao
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 900})
-    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/",
+    _evento_realizado(s)  # o painel ganha um grupo em "O que fazer hoje"; a folha, a entrega
+    for rota in ("/coffee/painel/", "/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/",
+                 "/coffee/lotes/",
                  "/coffee/certidoes/", f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
@@ -182,4 +194,38 @@ def test_andamento_do_proximo_marco(logado, dados_e2e):
     expect(pg.locator("#historico")).to_contain_text("Número da nota fiscal: 8957")
     s.refresh_from_db()
     assert s.nota_fiscal == "8957" and s.situacao == "aguardando_protocolo"
+    assert not pg.erros_console  # type: ignore[attr-defined]
+
+
+def test_painel_e_registro_de_entrega(logado, dados_e2e):
+    """CB6a: o painel leva à OS do evento realizado; a entrega com ocorrência exige a
+    descrição e, registrada, entra na folha e no histórico."""
+    from django.utils import timezone
+
+    from gestao.coffee import pedidos
+    from gestao.coffee.models import Entrega
+    from gestao.identidade.models import Usuario
+
+    _operador_do_modulo()
+    lote = _lote_de_curitiba()
+    s = pedidos.salvar(Usuario.objects.get(login="operador"), {
+        "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
+        "numero": "", "descricao": "Evento da entrega (e2e)", "quantidade": 30}).solicitacao
+    _evento_realizado(s)
+    pg = logado
+    pg.goto("/coffee/painel/")
+    expect(pg.get_by_role("heading", name="Eventos realizados sem nota fiscal")).to_be_visible()
+    pg.get_by_role("link", name="Anexar a nota").click()
+    expect(pg).to_have_url(f"{pg.url.split('/coffee/')[0]}/coffee/solicitacoes/{s.pk}/#pdfs")
+    pg.get_by_role("combobox", name="O que aconteceu").click()
+    pg.get_by_role("option", name="Atraso na entrega").click()
+    pg.locator("#entrega-recebido").fill("Plantão (e2e)")
+    pg.get_by_role("button", name="Salvar o registro").click()
+    expect(pg.locator("#entrega-observacao")).to_have_attribute("aria-invalid", "true")
+    expect(pg.locator("#entrega-recebido")).to_have_value("Plantão (e2e)")
+    pg.locator("#entrega-observacao").fill("Chegou 30 minutos depois (e2e).")
+    pg.get_by_role("button", name="Salvar o registro").click()
+    expect(pg.locator("#entregas .registros")).to_contain_text("Atraso na entrega")
+    expect(pg.locator("#historico")).to_contain_text("Entrega registrada: Atraso na entrega")
+    assert Entrega.objects.get().observacao == "Chegou 30 minutos depois (e2e)."
     assert not pg.erros_console  # type: ignore[attr-defined]

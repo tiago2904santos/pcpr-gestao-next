@@ -26,6 +26,8 @@ MSG_CONCLUIDA_NAO_CANCELA = ("Solicitações com o fluxo financeiro concluído n
 MSG_MOTIVO = "Informe o motivo do cancelamento."
 MSG_NAO_CANCELADA = "A solicitação não está cancelada."
 MSG_EXCLUIR = "A solicitação {numero} já tem nota ou protocolo: cancele em vez de excluir."
+MSG_EXCLUIR_COM_ENTREGA = ("A solicitação {numero} já tem entrega registrada: cancele em vez de "
+                           "excluir.")
 MSG_BLOQUEADA = "Solicitações canceladas ou concluídas ficam bloqueadas para edição."
 MSG_VERSAO = "Esta solicitação foi alterada por outra pessoa. Recarregue a página antes de salvar."
 

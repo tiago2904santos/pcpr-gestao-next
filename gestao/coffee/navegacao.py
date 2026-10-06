@@ -8,12 +8,13 @@ registrar_modulo(
         chave="coffee",
         rotulo="Coffee Break",
         icone="receipt",
-        url_name="coffee:solicitacoes",
+        url_name="coffee:painel",
         descricao="Lotes contratados, ordens de serviço e o fluxo de pagamento do coffee break.",
         ordem=34,
         requer="coffee.acessar_coffee",
         grupos=(
             Grupo("Coffee Break", (
+                Item("Painel", "coffee:painel", "layout-dashboard", requer="coffee.acessar_coffee"),
                 Item("Solicitações", "coffee:solicitacoes", "receipt",
                      requer="coffee.acessar_coffee"),
                 Item("Nova solicitação", "coffee:nova", "plus", requer="coffee.acessar_coffee"),

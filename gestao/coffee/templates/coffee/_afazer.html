@@ -1,0 +1,22 @@
+{% comment %}Uma OS em "O que fazer hoje" (painel): placa, evento, fatos do grupo e o botão do que se faz ao chegar. Espera `g` (o grupo) e `item` = (OS, dias parada, rótulo, seção da folha).{% endcomment %}{% with s=item.0 dias=item.1 %}
+<li class="registro">
+  <span class="placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
+  <div class="registro__corpo">
+    <div class="registro__titulo"><a class="registro__link" href="{% url 'coffee:solicitacao' s.pk %}"><span class="sr-only">{{ s }} · </span>{{ s.descricao|truncatechars:80 }}</a>{% if g.chave != "entregas" and dias >= dias_parada %}<span class="selo selo--aviso selo--sem-ponto">{% icone "hourglass" classe="icone--sm" %}Parada há {{ dias|pluralizar:"dia,dias" }}</span>{% endif %}</div>
+    <div class="registro__meta">
+      {% if g.chave == "entregas" %}
+      <span class="registro__meta-item"><span class="sr-only">Evento: </span>{% icone "calendar" classe="icone--sm" %}{{ s.data_evento|date:"d/m/Y" }}{% if s.horario %} às {{ s.horario|time:"H:i" }}{% endif %}</span>
+      <span class="registro__meta-item"><span class="sr-only">Local: </span>{% icone "map-pin" classe="icone--sm" %}{% if s.local_entrega %}{{ s.local_entrega }}{% else %}<span class="vazio-inline">Local não informado</span>{% endif %}</span>
+      {% if s.responsavel %}<span class="registro__meta-item"><span class="sr-only">Quem recebe: </span>{% icone "user" classe="icone--sm" %}{{ s.responsavel }}</span>{% endif %}
+      {% elif dias < dias_parada %}
+      <span class="registro__meta-item">{% icone "hourglass" classe="icone--sm" %}{% if dias == 0 %}Parada hoje{% else %}Parada há {{ dias|pluralizar:"dia,dias" }}{% endif %}</span>
+      {% endif %}
+      {% if g.chave != "entregas" and s.nota_fiscal %}<span class="registro__meta-item">{% icone "receipt" classe="icone--sm" %}NF {{ s.nota_fiscal }}</span>{% endif %}
+      <span class="registro__meta-item"><span class="sr-only">Fornecedor: </span>{% icone "building-2" classe="icone--sm" %}{{ s.lote.contrato.fornecedor }}</span>
+    </div>
+  </div>
+  <div class="registro__acoes registro__acoes--fixas">
+    <a class="botao botao--sm" href="{% url 'coffee:solicitacao' s.pk %}#{{ item.3 }}">{{ item.2 }}<span class="sr-only"> — {{ s }}</span></a>
+  </div>
+</li>
+{% endwith %}

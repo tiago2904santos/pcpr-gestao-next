@@ -1,12 +1,14 @@
 from django.urls import path
 
 from . import views
+from . import views_painel as vpa
 from . import views_pedidos as vp
 
 app_name = "coffee"
 
 urlpatterns = [
     path("", vp.lista, name="solicitacoes"),
+    path("painel/", vpa.painel_coffee, name="painel"),
     path("exportar/", vp.exportar, name="exportar"),
     path("nova/", vp.nova, name="nova"),
     path("lote-do-municipio/", vp.lote_do_municipio, name="lote_do_municipio"),
@@ -25,6 +27,8 @@ urlpatterns = [
          name="anexar_assinada"),
     path("solicitacoes/<int:pk>/documentos/<slug:tipo>/assinado/remover/", vp.remover_assinada,
          name="remover_assinada"),
+    path("solicitacoes/<int:pk>/entregas/", vpa.registrar_entrega, name="registrar_entrega"),
+    path("entregas/<int:pk>/arquivo/", vpa.arquivo_entrega, name="arquivo_entrega"),
     path("solicitacoes/<int:pk>/reabrir/", vp.reabrir, name="reabrir"),
     path("solicitacoes/<int:pk>/encerrar-correcao/", vp.encerrar_correcao,
          name="encerrar_correcao"),

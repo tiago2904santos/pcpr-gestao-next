@@ -512,7 +512,7 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
     from gestao.coffee import pedidos
     from gestao.identidade.models import Usuario
 
-    from .test_coffee import _lote_de_curitiba, _operador_do_modulo
+    from .test_coffee import _evento_realizado, _lote_de_curitiba, _operador_do_modulo
 
     _operador_do_modulo()
     lote = _lote_de_curitiba()
@@ -520,7 +520,9 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
         "municipio": lote.municipios.get(), "data_solicitacao": timezone.localdate(),
         "numero": "", "descricao": "Evento (axe)", "quantidade": 30}).solicitacao
     logado.set_viewport_size({"width": largura, "height": 900})
-    for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/",
+    _evento_realizado(s)  # o painel ganha um grupo em "O que fazer hoje"; a folha, a entrega
+    for rota in ("/coffee/painel/", "/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/",
+                 "/coffee/lotes/",
                  f"/coffee/solicitacoes/{s.pk}/documentos/certificado/?formato=html",
                  "/coffee/certidoes/", f"/coffee/certidoes/?anexar={lote.contrato.fornecedor_id}:fgts",
                  f"/coffee/solicitacoes/{s.pk}/protocolo/"):

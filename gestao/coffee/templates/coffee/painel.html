@@ -1,0 +1,100 @@
+{% extends "arquetipos/painel.html" %}
+{% block titulo %}Coffee Break{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Painel do Coffee Break (paridade com o painel da referência, docs/migration/coffee-break.md
+§8.2): saldo, pendências, consumo e gasto do ano; "O que fazer hoje" em grupos na ordem do
+fluxo (cada OS com o botão do que se faz ao chegar; 5 por grupo, o resto sob "Mostrar
+mais"); as solicitações recentes; e, ao lado, os alertas de saldo e de vigência, as
+certidões a renovar e os lotes ativos.
+{% endcomment %}
+{% block cabecalho_painel %}
+<header class="pagina-cabecalho">
+  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "receipt" classe="icone--lg" %}</span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Coffee Break</h1>
+    <p class="pagina-cabecalho__descricao">Saldo dos lotes contratados, as ordens de serviço e o que falta para cada pagamento sair.</p>
+  </div>
+  <div class="pagina-cabecalho__acoes">
+    <a class="botao" href="{% url 'coffee:solicitacoes' %}">{% icone "list" %}Ver solicitações</a>
+    <a class="botao botao--primario" href="{% url 'coffee:nova' %}">{% icone "plus" %}Nova solicitação</a>
+  </div>
+</header>
+{% endblock %}
+{% block indicadores %}
+  <a class="indicador" href="{% url 'coffee:lotes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "layers" classe="icone--sm" %}Saldo restante</span><span class="indicador__valor">{{ ind.restante }}</span><span class="indicador__nota">{% if ind.lotes_ativos %}de {{ ind.capacidade }} contratadas · {{ ind.lotes_ativos|pluralizar:"lote ativo,lotes ativos" }}{% else %}Sem lotes ativos{% endif %}</span></a>
+  <a class="indicador{% if ind.pendencias %} indicador--atencao{% endif %}" href="{% url 'coffee:solicitacoes' %}?pendentes=1"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "hourglass" classe="icone--sm" %}Pendências financeiras</span><span class="indicador__valor">{{ ind.pendencias }}</span><span class="indicador__nota">{% if ind.pendencias %}{{ p.pedem_acao }} pede{{ p.pedem_acao|pluralize:"m" }} ação hoje; as demais aguardam o evento ou o pagamento{% else %}Nenhum pagamento em aberto{% endif %}</span></a>
+  <a class="indicador" href="{% url 'coffee:lotes' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "users" classe="icone--sm" %}Unidades consumidas</span><span class="indicador__valor">{{ ind.consumido }}</span><span class="indicador__nota">{% if ind.capacidade %}{{ ind.percentual }}% da capacidade{% else %}Sem lotes ativos{% endif %}</span></a>
+  <a class="indicador" href="{% url 'coffee:solicitacoes' %}?de={{ ind.ano }}-01-01&amp;ate={{ ind.ano }}-12-31"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Gasto em {{ ind.ano }}</span><span class="indicador__valor">{{ ind.gasto|moeda }}</span><span class="indicador__nota">{{ ind.pago|moeda }} com ordem bancária</span></a>
+{% endblock %}
+{% block principal %}
+<section class="cartao" aria-labelledby="t-fazer">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-fazer">O que fazer hoje</h2></div>
+  {% if p.grupos %}
+  <div class="cartao__corpo pilha-lg">
+    {% for g in p.grupos %}
+    <div class="pilha">
+      <h3 class="peso-semi">{{ g.titulo }} <span class="selo selo--neutro selo--sem-ponto">{{ g.itens|length }}</span></h3>
+      <p class="texto-secundario texto-sm">{{ g.ajuda }}</p>
+      <ul class="registros">{% for item in g.primeiros %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
+      {% if g.demais %}
+      <details>
+        <summary class="botao botao--sm botao--sutil">{% icone "chevron-down" %}Mostrar mais {{ g.demais|length }}<span class="sr-only"> — {{ g.titulo }}</span></summary>
+        <ul class="registros mt-2">{% for item in g.demais %}{% include "coffee/_afazer.html" %}{% endfor %}</ul>
+      </details>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Tudo em dia" texto=msg_nada %}
+  {% endif %}
+</section>
+<section class="cartao" aria-labelledby="t-recentes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-recentes">Solicitações recentes</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:solicitacoes' %}">Ver todas</a></div></div>
+  {% if recentes %}<ul class="registros">{% for l in recentes %}{% include "coffee/_registro.html" %}{% endfor %}</ul>
+  {% else %}{% url 'coffee:nova' as url_nova %}{% include "componentes/vazio.html" with icone="receipt" titulo="Nenhuma solicitação registrada ainda" texto="Registre o primeiro pedido de coffee break: o lote vem do município." acao_url=url_nova acao_rotulo="Nova solicitação" %}{% endif %}
+</section>
+{% endblock %}
+{% block rotulo_lateral %}Alertas e lotes{% endblock %}
+{% block lateral %}
+<section class="cartao" aria-labelledby="t-alertas">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-alertas">Saldo e vigência</h2></div>
+  <div class="cartao__corpo pilha">
+    {% for la in p.alertas_de_saldo %}
+    <div class="alerta alerta--aviso">{% icone "alert-triangle" %}<div class="alerta__corpo"><p><strong>{{ la.lote }} · {{ la.lote.contrato.fornecedor }}</strong></p><p>{{ la.alerta }}</p><p><a href="{% url 'coffee:solicitacoes' %}?lote={{ la.lote.pk }}">Ver as solicitações do lote</a></p></div></div>
+    {% endfor %}
+    {% for contrato, texto, tom, url in p.vigencia %}
+    <div class="alerta alerta--{{ tom }}">{% icone "calendar" %}<div class="alerta__corpo"><p><strong>{{ contrato }}</strong></p><p>{{ texto }}</p>{% if pode_gerir %}<p><a href="{{ url }}">Cadastrar o termo aditivo</a></p>{% endif %}</div></div>
+    {% endfor %}
+    {% if not p.alertas_de_saldo and not p.vigencia %}<p class="texto-secundario texto-sm">Nenhum lote com saldo para acabar antes do fim do contrato e nenhum contrato vencendo nos próximos 90 dias.</p>{% endif %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-certidoes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-certidoes">Certidões a renovar</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:certidoes' %}">Ver quadro</a></div></div>
+  <div class="cartao__corpo pilha">
+    {% for f, linhas in p.certidoes %}
+    <div class="pilha-sm">
+      <p class="peso-semi">{{ f }}</p>
+      <ul class="lista-simples">
+        {% for linha in linhas %}<li class="linha linha--entre"><a href="{% url 'coffee:certidoes' %}?anexar={{ f.pk }}:{{ linha.tipo }}"><span class="sr-only">Renovar a certidão </span>{{ linha.rotulo }}<span class="sr-only"> de {{ f }}</span></a><span class="selo selo--{{ linha.tom }} selo--sem-ponto">{{ linha.texto }}</span></li>{% endfor %}
+      </ul>
+    </div>
+    {% empty %}
+    <p class="texto-secundario texto-sm">Todas as certidões dos fornecedores com lote ativo estão vigentes.</p>
+    {% endfor %}
+  </div>
+</section>
+<section class="cartao" aria-labelledby="t-lotes">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lotes">Lotes ativos</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:lotes' %}">Ver lotes</a></div></div>
+  {% if p.lotes %}
+  <div class="cartao__corpo">
+    <ul class="lista-simples">
+      {% for la in p.lotes %}<li class="pilha-sm"><a href="{% url 'coffee:solicitacoes' %}?lote={{ la.lote.pk }}">{{ la.lote }} · {{ la.lote.contrato.fornecedor }}</a> <span class="texto-sm">{{ la.saldo.restante }} restantes de {{ la.saldo.total }} <span class="selo selo--{{ la.saldo.tom }} selo--sem-ponto">{{ la.saldo.percentual }}% usado</span></span></li>{% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  {% include "componentes/vazio.html" with icone="layers" titulo="Nenhum lote ativo" texto="Os lotes são cadastrados pelo administrador do módulo." %}
+  {% endif %}
+</section>
+{% endblock %}

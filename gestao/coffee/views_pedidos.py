@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
+from django.db.models import Max
 from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -21,6 +22,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from gestao.cadastros.forms import resolver_municipio
 
 from . import conjunto, documentos, financeiro, pdfs, pedidos, policies, queries, vias
+from . import dominio_painel as regras_painel
 from . import dominio_pedido as regras
 from .forms_pedido import (
     FORM_FINANCEIRO,
@@ -51,7 +53,7 @@ def _exigir(request: HttpRequest) -> None:
 
 def _migalhas(*fim: tuple[str, str]) -> list[tuple[str, str]]:
     return [("Início", reverse("painel:inicio")),
-            ("Coffee Break", reverse("coffee:solicitacoes")), *fim]
+            ("Coffee Break", reverse("coffee:painel")), *fim]
 
 
 def _data(texto: str | None) -> date | None:
@@ -98,7 +100,23 @@ def _linha(s: Solicitacao, hoje: date) -> dict:
     if s.nota_fiscal:
         fatos.append(("receipt", "Nota fiscal", f"NF {s.nota_fiscal}", False))
     fatos.append(("clock", "Solicitada", f"Solicitada em {s.data_solicitacao:%d/%m/%Y}", False))
-    return {"s": s, "tempo": tempo if not s.cancelada else None, "fatos": fatos}
+    return {"s": s, "tempo": tempo if not s.cancelada else None, "fatos": fatos,
+            "parada": _parada(s, hoje)}
+
+
+def _parada(s: Solicitacao, hoje: date) -> str:
+    """"Parada há N dias" (≥ 7) só quando a OS depende da equipe (está em "O que fazer
+    hoje"); precisa do último histórico anotado (`ultimo`)."""
+    if not hasattr(s, "ultimo") or s.cancelada or s.concluida:
+        return ""
+    chave = regras_painel.grupo_de(
+        cancelada=False, concluida=False, data_evento=s.data_evento, nota=bool(s.nota_fiscal),
+        oficio=bool(s.numero_oficio), protocolo=bool(s.protocolo_pagamento),
+        ob=bool(s.ordem_bancaria_em), hoje=hoje)
+    if chave is None or chave == "entregas":
+        return ""
+    dias = regras_painel.dias_parada((s.ultimo or s.criado_em).date(), s.data_evento, hoje)
+    return regras_painel.texto_parada(dias) if dias >= regras_painel.DIAS_PARADA else ""
 
 
 @require_GET
@@ -109,7 +127,8 @@ def lista(request: HttpRequest) -> HttpResponse:
     ativos = sum(bool(f[k]) for k in ("lote", "fornecedor", "de", "ate"))
     sem_situacao = queries.filtrar(_base(), **{**f, "situacao": "", "pendentes": False})
     contagens = queries.contagens_por_situacao(sem_situacao)
-    qs = queries.filtrar(_base(), **f).order_by("-data_solicitacao", "-pk")
+    qs = (queries.filtrar(_base(), **f).annotate(ultimo=Max("movimentos__em"))
+          .order_by("-data_solicitacao", "-pk"))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     base = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs if k != "pagina" and v])
     sem_sit = urlencode([(k, v) for k, vs in request.GET.lists() for v in vs
@@ -212,6 +231,9 @@ def _contexto(request: HttpRequest, form: FormularioSolicitacao, s: Solicitacao 
                 s.lote.contrato.numero) if not s.bloqueada else "",
             "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")), (str(s), "")),
         })
+        from .views_painel import contexto_da_folha  # o painel importa daqui
+
+        ctx.update(contexto_da_folha(request, s))
     else:
         ctx["migalhas"] = _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
                                     ("Nova solicitação", ""))

@@ -222,3 +222,16 @@ def test_cadastros_do_coffee_break_de_exemplo(dataset):
     from gestao.coffee.models import Solicitacao
     vistas = {s.situacao for s in Solicitacao.objects.all()}
     assert vistas == {c for c, _r, _t in SITUACOES}  # todas as situações para avaliar
+
+
+def test_painel_do_coffee_break_de_exemplo(dataset):
+    from gestao.coffee import painel
+    from gestao.coffee.models import Entrega
+
+    p = painel.montar(HOJE)
+    chaves = {g.chave for g in p.grupos}
+    assert {"entregas", "sem_nota", "sem_protocolo"} <= chaves  # "O que fazer hoje" povoado
+    assert any(dias >= 7 for g in p.grupos for _s, dias, *_ in g.itens)  # há OS parada
+    assert p.vigencia and p.certidoes  # contrato vencendo e certidões a renovar
+    assert Entrega.objects.exclude(tipo="sem_ocorrencia").exists()
+    assert Entrega.objects.filter(tipo="sem_ocorrencia").exists()

@@ -4,12 +4,15 @@ Fictícios: dois fornecedores (CNPJ de teste), três contratos — um vigente, u
 menos de 60 dias, um com termo aditivo que estende a vigência —, lotes de dois exercícios
 com municípios do Paraná, a configuração do ofício com valores neutros e ~20 solicitações
 em todas as situações financeiras (aguardando nota, protocolo, atesto, ordem bancária,
-envio, concluída, cancelada; uma faturada a menos, uma retroativa)."""
+envio, concluída, cancelada; uma faturada a menos, uma retroativa), com o histórico datado
+do pedido (o painel mostra "parada há N dias") e entregas com e sem ocorrência."""
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
+
+from django.utils import timezone
 
 from gestao.cadastros.models import Municipio
 
@@ -17,6 +20,7 @@ from .models import (
     Certidao,
     ConfiguracaoOficio,
     Contrato,
+    Entrega,
     Fornecedor,
     Lote,
     Movimento,
@@ -126,9 +130,21 @@ def _solicitacoes(hoje: date, usuario) -> None:
                                                               "(DEMO).")
         if marcos:
             Solicitacao.objects.filter(pk=s.pk).update(**marcos)
-        Movimento.objects.create(solicitacao=s, acao=Movimento.Acao.CRIADA, usuario=usuario,
-                                 texto=f"Solicitação {s.numero} registrada no {lote} (DEMO).")
+        mov = Movimento.objects.create(
+            solicitacao=s, acao=Movimento.Acao.CRIADA, usuario=usuario,
+            texto=f"Solicitação {s.numero} registrada no {lote} (DEMO).")
+        Movimento.objects.filter(pk=mov.pk).update(
+            em=timezone.make_aware(datetime.combine(pedido, time(10))))
         criadas.append(s)
+    # Entregas: (índice no PLANO, tipo, avaliação, observação).
+    for i, tipo, nota, obs in ((3, "sem_ocorrencia", 5, ""),
+                               (4, "atraso", 3, "Chegou 40 minutos depois do combinado (DEMO)."),
+                               (5, "sem_ocorrencia", 4, ""),
+                               (8, "falta_itens", 2, "Faltaram os sucos do cardápio (DEMO).")):
+        if i < len(criadas):
+            Entrega.objects.create(solicitacao=criadas[i], tipo=tipo, avaliacao=nota,
+                                   recebido_por="Servidor de plantão (fictício)", observacao=obs,
+                                   registrado_por=usuario)
     # Um pagamento conjunto: duas OS do mesmo lote (1ª e 4ª), ainda sem protocolo.
     if len(criadas) > 3 and criadas[0].lote_id == criadas[3].lote_id:
         Solicitacao.objects.filter(pk=criadas[3].pk).update(pagamento_com=criadas[0])

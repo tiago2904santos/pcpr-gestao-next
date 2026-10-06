@@ -25,6 +25,7 @@ reativar, excluir, reabrir para correção) e o histórico.
       <span class="frase-oficio__item">{% icone "map-pin" classe="icone--sm" %}{{ s.municipio.nome }}/{{ s.municipio.uf }}</span>
       <span class="frase-oficio__item">{% icone "users" classe="icone--sm" %}{{ s.quantidade }} pessoas</span>
       <span class="frase-oficio__item">{% icone "layers" classe="icone--sm" %}{{ s.lote }} · {{ s.lote.contrato.fornecedor }}</span>
+      {% if entregas %}{% with ultima=entregas.0 %}<a class="frase-oficio__item" href="#entregas">{% if ultima.ocorrencia %}{% icone "alert-triangle" classe="icone--sm" %}Com ocorrência{% else %}{% icone "check-circle-2" classe="icone--sm" %}Entregue{% endif %}{% if ultima.avaliacao %} · {{ ultima.avaliacao }}/5{% endif %}</a>{% endwith %}{% endif %}
       {% if s.valor is not None %}<span class="frase-oficio__item">{% icone "banknote" classe="icone--sm" %}R$ {{ s.valor|floatformat:2 }}</span>{% endif %}
     </p>
     {% else %}
@@ -90,6 +91,38 @@ reativar, excluir, reabrir para correção) e o histórico.
 </form>
 
 {% if s %}
+<div class="documento documento--cartoes mt-4">
+  <section class="secao{% if entregas %} secao--ok{% endif %}" id="entregas" aria-labelledby="t-entregas">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-entregas">{% icone "clipboard-list" classe="icone--sm" %}Recebimento e ocorrências</h2><p class="secao__nota">A partir do dia do evento: o que aconteceu, a nota do serviço e quem recebeu. A ocorrência descrita é a base de uma notificação ao fornecedor.</p></div>
+    {% if entregas %}
+    <ul class="registros">
+      {% for e in entregas %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% if e.ocorrencia %}{% icone "alert-triangle" %}{% else %}{% icone "check-circle-2" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{{ e.get_tipo_display }}</span>{% if e.ocorrencia %}<span class="selo selo--aviso selo--sem-ponto">Ocorrência</span>{% endif %}{% if e.avaliacao %}<span class="selo selo--neutro selo--sem-ponto">Avaliação {{ e.avaliacao }}/5</span>{% endif %}</div>
+          <div class="registro__meta">
+            <span class="registro__meta-item"><span class="sr-only">Registrada em </span>{% icone "clock" classe="icone--sm" %}{{ e.registrado_em|date:"d/m/Y H:i" }}<span class="sr-only"> por</span> · {{ e.registrado_por.nome|default:e.registrado_por }}</span>
+            {% if e.recebido_por %}<span class="registro__meta-item">{% icone "user" classe="icone--sm" %}Recebido por {{ e.recebido_por }}</span>{% endif %}
+          </div>
+          {% if e.observacao %}<p class="texto-sm mt-2">{{ e.observacao|linebreaksbr }}</p>{% endif %}
+        </div>
+        {% if e.anexo %}<div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm botao--sutil" href="{% url 'coffee:arquivo_entrega' e.pk %}">{% icone "download" %}Baixar foto ou PDF<span class="sr-only"> da entrega de {{ e.registrado_em|date:"d/m/Y H:i" }}</span></a></div>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif not pode_registrar_entrega %}
+    <p class="texto-secundario texto-sm">{% if s.cancelada %}Solicitação cancelada: não recebe registro de entrega.{% else %}Entrega ainda não registrada — o registro abre no dia do evento{% if s.data_evento %} ({{ s.data_evento|date:"d/m/Y" }}){% endif %}.{% endif %}</p>
+    {% endif %}
+    {% if pode_registrar_entrega %}
+    {% if entregas or s.concluida %}<details class="secao__bloco"{% if rascunho_entrega.campo %} open{% endif %}>
+      <summary class="botao botao--sm botao--sutil">{% icone "plus" %}{% if entregas %}Registrar outra entrega{% else %}Registrar a entrega{% endif %}</summary>{% endif %}
+      {% include "coffee/_form_entrega.html" with r=rascunho_entrega %}
+    {% if entregas or s.concluida %}</details>{% endif %}
+    {% endif %}
+  </section>
+</div>
+
 {% if form_fin.errors %}{% with form=form_fin %}{% include "componentes/resumo_erros.html" %}{% endwith %}{% endif %}
 <form method="post" novalidate id="{{ form_financeiro_id }}" class="documento documento--cartoes mt-4" action="{% url 'coffee:financeiro' s.pk %}">
   {% csrf_token %}

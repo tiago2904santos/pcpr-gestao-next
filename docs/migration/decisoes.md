@@ -285,6 +285,11 @@ Fonte: `coffee_break/{models,forms,views,permissions}.py` da referência ([coffe
 | Pagamento conjunto sem nota em todas | "Protocolo N registrado no ofício. Ele vira o protocolo de pagamento quando… tiverem a nota fiscal." | recusa o protocolo/atesto até todas as OS terem a nota, dizendo qual falta (o PCPR do ofício pode ser digitado à parte) | **agente** — confirmar |
 | Documentos do Coffee Break | textos editáveis na folha e textos-base pelo admin; brasão | textos fixos (com os dados dos cadastros e da configuração); timbre em texto | **agente** — confirmar |
 | Selo de tempo e abas da lista | trilha na ordem dos marcos | trilha na ordem do fluxo (aguardando nota → … → concluídas, canceladas) com rótulos curtos | agente (UX) |
+| Indicadores do painel (CB6a) | cinco: capacidade, consumidas, saldo, gasto do ano, pendências | quatro: **saldo restante** ("de T contratadas · N lotes ativos"), consumidas, gasto do ano, pendências — a capacidade vai na nota do saldo (mesma informação, sem um quinto cartão órfão na grade de 4) | agente (UX) — confirmar |
+| Botões de "O que fazer hoje" (CB6a) | "Abrir a OS"/"Enviar a OS", "Anexar a nota", "Gerar o ofício", "Informar o protocolo", "Registrar/Anexar a OB", "Enviar a OB" | o rótulo diz o que se faz ao chegar e leva à seção certa: "Registrar a entrega" (evento hoje) ou "Abrir a OS"; "Anexar a nota"; "Informar o ofício"; "Informar o protocolo"; "Registrar a OB" ou "Anexar a OB" (com atesto, no PDF); "Informar o envio da OB" — enviar por e-mail é a CB8 (SMTP). 5 por grupo, o resto em "Mostrar mais"; sem "a mais antiga parada há N dias" (é o 1º item); "Parada há N dias" em destaque a partir de 7 | agente (UX) — confirmar |
+| Excluir OS com entrega registrada (CB6a) | permitido antes da nota e do protocolo | recusado ("já tem entrega registrada: cancele em vez de excluir") — a ocorrência é a base de notificação ao fornecedor | agente (segurança) — confirmar |
+| Registro da entrega (CB6a) | modal na lista ou página própria | seção "Recebimento e ocorrências" na folha, logo depois do evento e da entrega; o estado ("Entregue · 4/5" / "Com ocorrência") na frase-resumo; recusado, o que foi digitado volta (menos o arquivo) com o erro no campo | agente (UX) |
+| Avaliação da entrega (CB6a) | 1–5 opcional | seleção "Sem avaliação", 5 (melhor) … 1 (pior) | agente (UX) |
 
 ## Pendências abertas
 

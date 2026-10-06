@@ -825,6 +825,30 @@ como histórico.
   espelhado no pagamento conjunto e no histórico.
 - Fora: contrato/aditivo lido do PDF (CB5d) e a importação do processo do eProtocolo (CB9).
 
+## CB6a — entregas e painel (06/10/2026)
+
+- **Entregas e ocorrências** (`entregas.py`, modelo `Entrega`, auditado): seção
+  "Recebimento e ocorrências" na folha da OS (estado na frase-resumo) a partir do dia do evento (sem data também; não em cancelada), com o que aconteceu, a
+  avaliação 1–5, quem recebeu, a observação (obrigatória com ocorrência — mensagem da
+  referência) e uma foto ou PDF (extensão conferida pelo conteúdo, até 10 MB; baixa só para
+  quem tem o módulo). Vários registros por OS; histórico "Entrega registrada: <tipo>;
+  avaliação N/5; recebido por X. <obs>"; recusado, o que foi digitado volta. A lista de
+  fornecedores mostra o resumo ("N entregas registradas · nota média 4,5 · 2 ocorrências").
+  OS com entrega não se exclui (cancela-se).
+- **Painel** (`/coffee/painel/`, a entrada do módulo; `painel.py` + `dominio_painel.py`
+  puro): saldo restante, consumidas, gasto do ano (com a parte já com OB), pendências
+  financeiras (→ `?pendentes=1`); alerta de saldo pela projeção dos 3 meses completos (a
+  mesma conta da referência — inclusive o limite de 15% sem como projetar e o saldo zerado
+  "acabando" hoje), vigência (30/60/90 e encerrada), certidões não vigentes com "Renovar",
+  "O que fazer hoje" nos seis grupos da referência (entregas por data/horário; os demais pelo
+  tempo parado; 5 por grupo e "Mostrar mais"; cada botão leva à seção da folha onde a ação
+  acontece — ver decisoes.md), solicitações recentes e lotes ativos.
+- **Lista**: "Parada há N dias" (≥ 7, só quando a OS depende da equipe; desde o último
+  histórico, ou desde o evento se posterior). Linha da OS virou o parcial `_registro.html`.
+- DEMO: histórico datado do pedido (há OS paradas) e quatro entregas (duas com ocorrência).
+- Fora: "Enviar a OS" (CB8), relatório do contrato e virada (CB6b), "Importar processo de
+  pagamento" (CB9).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

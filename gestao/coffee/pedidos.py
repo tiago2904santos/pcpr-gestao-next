@@ -214,6 +214,8 @@ def excluir(usuario, pk: int) -> str:
     s = Solicitacao.objects.select_for_update().get(pk=pk)
     if s.financeiro_iniciado:
         raise PedidoInvalido(regras.MSG_EXCLUIR.format(numero=s.numero or f"#{s.pk}"))
+    if s.entregas.exists():  # a ocorrência é a base de notificação ao fornecedor
+        raise PedidoInvalido(regras.MSG_EXCLUIR_COM_ENTREGA.format(numero=s.numero or f"#{s.pk}"))
     numero = s.numero or f"#{s.pk}"
     from . import conjunto
     conjunto.ao_sair(s, usuario, "excluída")
