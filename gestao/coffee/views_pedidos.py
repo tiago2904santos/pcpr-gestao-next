@@ -572,3 +572,42 @@ def arquivo_certidao(request: HttpRequest, pk: int) -> StreamingHttpResponse:
     resposta["X-Content-Type-Options"] = "nosniff"
     resposta["Cache-Control"] = "private, no-store"
     return resposta
+
+
+# ---------------------------------------------------------------- protocolo (CB5c)
+@require_GET
+def protocolo_pagamento(request: HttpRequest, pk: int) -> HttpResponse:
+    """Montar o protocolo: passo a passo, textos para copiar, a lista do anexo e os arquivos."""
+    from . import protocolo
+
+    _exigir(request)
+    s = get_object_or_404(_base(), pk=pk)
+    lista = protocolo.itens(request.user, s)
+    return render(request, "coffee/protocolo.html", {
+        "s": s, "itens": lista, "textos": protocolo.textos(s), "partes": protocolo.PARTES,
+        "prontas": {i.parte for i in lista if i.pronto},
+        "faltando": sum(1 for i in lista if not i.pronto),
+        "migalhas": _migalhas(("Solicitações", reverse("coffee:solicitacoes")),
+                              (str(s), reverse("coffee:solicitacao", args=[pk])),
+                              ("Protocolo", "")),
+    })
+
+
+@require_POST
+def baixar_protocolo(request: HttpRequest, pk: int) -> HttpResponse:
+    from . import protocolo
+
+    _exigir(request)
+    get_object_or_404(Solicitacao, pk=pk)
+    try:
+        pacote = protocolo.baixar(request.user, pk, request.POST.getlist("partes"),
+                                  request.POST.get("formato") or "zip")
+    except pedidos.PedidoInvalido as exc:
+        messages.error(request, str(exc))
+        return redirect("coffee:protocolo", pk=pk)
+    from django.utils.http import content_disposition_header
+    resposta = HttpResponse(pacote.conteudo, content_type=pacote.tipo)
+    resposta["Content-Disposition"] = content_disposition_header(True, pacote.nome) or "attachment"
+    resposta["X-Content-Type-Options"] = "nosniff"
+    resposta["Cache-Control"] = "private, no-store"
+    return resposta

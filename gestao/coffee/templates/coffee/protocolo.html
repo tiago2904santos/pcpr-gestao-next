@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Protocolo · {{ s }} · Coffee Break{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block modulos %}<script type="module" src="{% static 'js/componentes/copiar.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Montar o protocolo de pagamento (paridade com a etapa 3 da referência): o protocolo é aberto
+à mão no eProtocolo; aqui ficam 1 o passo a passo, 2 os textos para copiar, 3 a lista do anexo
+na ordem (pronto ou o que falta, com "Resolver") e 4 os quatro arquivos para baixar — baixar
+registra o atesto e envio ao GAF (uma vez, com o protocolo registrado).
+{% endcomment %}
+{% block conteudo %}
+<header class="pagina-cabecalho">
+  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true"><span class="placa__rotulo">OS</span><span class="placa__numero">{{ s.numero|default:"—" }}</span></span>
+  <div class="pagina-cabecalho__texto">
+    <h1 class="pagina-cabecalho__titulo">Protocolo de pagamento</h1>
+    <p class="frase-oficio">
+      <span class="selo selo--{{ s.situacao_tom }}">{{ s.situacao_rotulo }}</span>
+      <span class="frase-oficio__item{% if not s.numero_oficio %} frase-oficio__item--vazio{% endif %}">{% icone "file-text" classe="icone--sm" %}{% if s.numero_oficio %}Ofício {{ s.numero_oficio }}{% else %}sem ofício{% endif %}</span>
+      <span class="frase-oficio__item{% if not s.protocolo_pagamento %} frase-oficio__item--vazio{% endif %}">{% icone "stamp" classe="icone--sm" %}{{ s.protocolo_pagamento|default:"protocolo ainda não registrado" }}</span>
+      {% if faltando %}<span class="frase-oficio__item">{% icone "alert-triangle" classe="icone--sm" %}{{ faltando|pluralizar:"item falta,itens faltam" }}</span>{% endif %}
+    </p>
+  </div>
+  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'coffee:solicitacao' s.pk %}#pagamento">{% icone "arrow-left" %}Voltar à solicitação</a></div>
+</header>
+
+<div class="documento documento--cartoes">
+  <section class="secao" aria-labelledby="t-passos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-passos"><span class="secao__numero">1</span>Passo a passo</h2></div>
+    <ol class="pilha-sm">
+      <li>Baixe os arquivos (seção 4) — o sistema registra o atesto e envio ao GAF.</li>
+      <li>No eProtocolo, abra um protocolo novo e preencha com os textos da seção 2.</li>
+      <li>Anexe os arquivos na ordem: ordens de serviço, ofício, notas e certificos, contrato com aditivos e certidões.</li>
+      <li>Despache ao GAF e registre o número do protocolo na solicitação (andamento ou etapa 3).</li>
+    </ol>
+  </section>
+
+  <section class="secao" aria-labelledby="t-textos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-textos"><span class="secao__numero">2</span>Textos para copiar</h2><p class="secao__nota">Montados com o fornecedor, as notas, o contrato e a configuração do ofício.</p></div>
+    <div class="pilha">
+      {% for chave, rotulo, texto in textos %}
+      <div class="campo">
+        <label class="campo__rotulo" for="texto-{{ chave }}">{{ rotulo }}</label>
+        <div class="linha">
+          {% if chave == "despacho" %}<textarea class="entrada campo--cresce" id="texto-{{ chave }}" rows="3" readonly>{{ texto }}</textarea>
+          {% else %}<input class="entrada campo--cresce" id="texto-{{ chave }}" value="{{ texto }}" readonly>{% endif %}
+          <button type="button" class="botao botao--sm" data-copiar-alvo="texto-{{ chave }}" aria-live="polite">{% icone "copy" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> {{ rotulo }}</span></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="secao" aria-labelledby="t-anexo">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-anexo"><span class="secao__numero">3</span>Anexo do protocolo</h2><p class="secao__nota">Na ordem do protocolo. O que falta fica de fora dos arquivos; certidão vencida entra com aviso.</p></div>
+    <ol class="registros" aria-labelledby="t-anexo">
+      {% for i in itens %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% if i.pronto %}{% icone "check-circle-2" %}{% else %}{% icone "alert-triangle" %}{% endif %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><span class="registro__texto">{{ forloop.counter }}. {{ i.titulo }}</span>{% if i.pronto and not i.aviso %}<span class="selo selo--sucesso selo--sem-ponto">Pronto</span>{% elif i.pronto %}<span class="selo selo--aviso selo--sem-ponto">Com aviso</span>{% else %}<span class="selo selo--perigo selo--sem-ponto">Falta</span>{% endif %}</div>
+          {% if i.falta or i.aviso %}<div class="registro__meta"><span class="registro__meta-item">{{ i.falta|default:i.aviso }}</span></div>{% endif %}
+        </div>
+        {% if i.resolver %}<div class="registro__acoes registro__acoes--fixas"><a class="botao botao--sm" href="{{ i.resolver }}">{% icone "pencil" %}Resolver<span class="sr-only"> — {{ i.titulo }}</span></a></div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="secao" aria-labelledby="t-arquivos">
+    <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-arquivos"><span class="secao__numero">4</span>Arquivos para baixar</h2><p class="secao__nota">Cada um junta os seus documentos num PDF. {% if s.protocolo_pagamento and not s.atesto_em %}Baixar registra hoje o atesto e envio ao GAF.{% endif %}</p></div>
+    <form method="post" action="{% url 'coffee:baixar_protocolo' s.pk %}" class="pilha" novalidate>
+      {% csrf_token %}
+      <fieldset class="grupo-campos--livre"><legend class="campo__rotulo">Arquivos</legend>
+        <div class="caixas">{% for chave, rotulo in partes %}<label class="escolha caixas__item"><input type="checkbox" name="partes" value="{{ chave }}"{% if chave in prontas %} checked{% else %} disabled{% endif %}><span>{{ forloop.counter }}. {{ rotulo }}{% if chave not in prontas %} <span class="texto-secundario">(nada pronto ainda)</span>{% endif %}</span></label>{% endfor %}</div>
+      </fieldset>
+      <fieldset class="opcoes"><legend>Como baixar</legend>
+        <label class="opcao"><input type="radio" name="formato" value="zip" checked><span class="opcao__texto"><span class="opcao__titulo">Um PDF por arquivo (ZIP)</span></span></label>
+        <label class="opcao"><input type="radio" name="formato" value="unico"><span class="opcao__texto"><span class="opcao__titulo">Tudo num PDF só, na ordem</span></span></label>
+      </fieldset>
+      <div class="linha"><button type="submit" class="botao botao--primario">{% icone "download" %}Baixar</button></div>
+    </form>
+  </section>
+</div>
+{% endblock %}

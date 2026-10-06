@@ -82,7 +82,8 @@ Ver a fila abaixo (primeiro item não concluído).
 | 18e | Coffee Break CB4 (OS, ofício, certifico e certificado em PDF/prévia; pendências; vias; versão assinada) | feito (CB4) |
 | 18f | Coffee Break CB5a (certidões: quadro, anexo com conferência de tipo/CNPJ/validade pelo texto do PDF) | feito (CB5a) |
 | 18g | Coffee Break CB5b (PDFs da nota e da OB com leitura e avisos) | feito (CB5b) |
-| 18h | Coffee Break CB5c (anexo do protocolo: lista ordenada, quatro arquivos, PDF único/ZIP, atesto ao baixar; textos do eProtocolo), CB5d (contrato/aditivo lido do PDF), CB6–CB8 | pendente |
+| 18h | Coffee Break CB5c (anexo do protocolo: lista ordenada, quatro arquivos, PDF único/ZIP, atesto ao baixar; textos do eProtocolo com "Copiar") | feito (CB5c) |
+| 18i | Coffee Break CB6 (entregas, painel, relatório do contrato, virada), CB7 (integrações: pedir de Eventos/Palestras, agenda, início), CB5d (contrato lido do PDF), CB8 (fornecedor) | pendente |
 | 19 | Relatórios (agenda/painel: os da referência ainda sem equivalente) — levantar e fatiar | pendente |
 
 ## Concluído (com evidência)

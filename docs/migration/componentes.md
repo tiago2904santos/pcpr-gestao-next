@@ -29,6 +29,7 @@ pelo nome. "Usos" = número de templates que referenciam (03/10/2026).
 | `pc-multiescolha` (`multiescolha.js`, widget `EscolhaMultiplaRemota`) | **vários** registros por busca remota: escolhidos em linhas com campo oculto do mesmo nome, sem repetir, remover, anúncio para leitor de tela; só os escolhidos são desenhados | 1 (motoristas da viatura) + UI Lab | servidores de um termo em lote, equipe da OS/PT, participantes |
 | `diaria.js` | prévia dos percentuais (15%/30%) ao digitar o valor de 24 h | 1 | prestação de contas (valores derivados) |
 | `progresso.js`, `protecao.js`, `guia.js` | barra de progresso, aviso de saída sem salvar, guia | — | global |
+| `copiar.js` (`data-copiar-alvo`) | botão "Copiar" de um campo só de leitura (área de transferência; sem a API, seleciona); carregado pela tela no bloco `modulos` — UI Lab §20 | 1 | textos para colar em sistemas externos (eProtocolo) |
 | `menu.js` (exporta `icone`, `abrirEspaco`, `limiteInferior`) | utilitários de toda página: ícone do sprite e espaço acima da barra flutuante | — | global (sem requisição extra) |
 
 ## Partes de template (`templates/componentes/`, `templates/arquetipos/`)

@@ -116,7 +116,7 @@ reativar, excluir, reabrir para correção) e o histórico.
       {% include "componentes/campo.html" with campo=form_fin.envio_empresa_em classe="campo--md" %}
     </div>
     <div class="campos">{% include "componentes/campo.html" with campo=form_fin.observacoes classe="campo--cresce" %}</div>
-    {% if not s.bloqueada %}<div class="linha"><button type="submit" class="botao">{% icone "save" %}Salvar nota, ofício e pagamento</button></div>{% endif %}
+    <div class="linha">{% if not s.bloqueada %}<button type="submit" class="botao">{% icone "save" %}Salvar nota, ofício e pagamento</button>{% endif %}<a class="botao botao--sutil" href="{% url 'coffee:protocolo' s.pk %}">{% icone "files" %}Montar o protocolo</a></div>
   </section>
 </form>
 

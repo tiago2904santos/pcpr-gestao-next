@@ -808,6 +808,23 @@ como histórico.
   notas (retenções explicam).
 - Fora: contrato/aditivo lido do PDF (CB5d, administrador) e o anexo do protocolo (CB5c).
 
+## CB5c — protocolo de pagamento (06/10/2026)
+
+- Tela "Montar o protocolo" (`/coffee/solicitacoes/<pk>/protocolo/`, a partir da etapa 3):
+  1 passo a passo (o protocolo é aberto à mão — o eProtocolo alcançado é de treinamento);
+  2 textos para copiar (interessado, assunto, palavras-chave, detalhamento "ENVIO P/
+  PAGAMENTO DA NOTA FISCAL N … - (NOME CURTO)" no singular/plural, Nº/Ano do ofício, assunto
+  e texto do despacho) com o componente novo "Copiar" (UI Lab §20, `copiar.js`, carregado
+  só pela tela); 3 a lista do anexo na ordem da referência (ofício; nota e certifico de cada
+  OS do pagamento; certidões FGTS, trabalhista, municipal, estadual, federal; termos
+  aditivos do mais antigo ao mais novo; contrato), cada item pronto, com aviso (certidão
+  vencida entra) ou dizendo o que falta, com "Resolver"; 4 os quatro arquivos (ordens de
+  serviço; ofício; notas e certificos intercalados; contrato, aditivos e certidões) em um PDF
+  cada (ZIP) ou tudo num PDF só (pypdf); o que falta fica de fora; mensagens da referência.
+- Baixar registra o "atesto e envio ao GAF" (uma vez; exige o protocolo; não em cancelada),
+  espelhado no pagamento conjunto e no histórico.
+- Fora: contrato/aditivo lido do PDF (CB5d) e a importação do processo do eProtocolo (CB9).
+
 ## Integrações externas e dependências sem credencial
 
 - **SMTP institucional** para os e-mails ao fornecedor (OS, OB, link): sem ele, enviar só

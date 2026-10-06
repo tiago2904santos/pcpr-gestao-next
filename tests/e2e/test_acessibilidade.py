@@ -522,5 +522,6 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
     logado.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/",
                  f"/coffee/solicitacoes/{s.pk}/documentos/certificado/?formato=html",
-                 "/coffee/certidoes/", f"/coffee/certidoes/?anexar={lote.contrato.fornecedor_id}:fgts"):
+                 "/coffee/certidoes/", f"/coffee/certidoes/?anexar={lote.contrato.fornecedor_id}:fgts",
+                 f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         _avaliar(logado, rota)

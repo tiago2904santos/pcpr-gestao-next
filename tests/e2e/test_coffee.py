@@ -155,7 +155,7 @@ def test_solicitacoes_sem_rolagem_horizontal(logado, dados_e2e, largura):
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 900})
     for rota in ("/coffee/", "/coffee/nova/", f"/coffee/solicitacoes/{s.pk}/", "/coffee/lotes/",
-                 "/coffee/certidoes/"):
+                 "/coffee/certidoes/", f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         pg.goto(rota)
         excesso = pg.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         assert excesso <= 0, f"{rota} @ {largura}px: rolagem horizontal de {excesso}px"

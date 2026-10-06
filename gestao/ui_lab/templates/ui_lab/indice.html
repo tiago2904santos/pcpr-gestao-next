@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}UI Lab{% endblock %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/painel.css' %}"><link rel="stylesheet" href="{% static 'css/assistente.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}"><link rel="stylesheet" href="{% static 'css/agenda.css' %}"><link rel="stylesheet" href="{% static 'css/graficos.css' %}"><link rel="stylesheet" href="{% static 'css/progresso.css' %}"><link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
-{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
+{% block modulos %}{% load static %}<script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/copiar.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block cabecalho_pagina %}
   {% include "componentes/pagina_cabecalho.html" with titulo="UI Lab" icone="palette" descricao="Vitrine viva: todos os componentes em todos os estados. Hover, foco e ativo são exercitados com mouse e teclado (e pelos testes visuais automatizados)." acoes="ui_lab/_acoes_cabecalho.html" %}
@@ -705,6 +705,17 @@
           <li class="etapas-progresso__item etapas-progresso__item--pendente"><span class="etapas-progresso__marca" aria-hidden="true">3</span><span>Agendada</span></li>
           <li class="etapas-progresso__item etapas-progresso__item--pendente"><span class="etapas-progresso__marca" aria-hidden="true">4</span><span>Atendida</span></li>
         </ol>
+      </div>
+    </section>
+
+    <!-- 20. COPIAR UM TEXTO -->
+    <section class="cartao" id="copiar-lab" aria-labelledby="t-copiar-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-copiar-lab"><span class="cartao__numero">20</span>Copiar um texto</h2><span class="texto-secundario texto-sm">Campo só de leitura com o botão "Copiar" (data-copiar-alvo): copia para a área de transferência e diz "Copiado" por um instante (aria-live no botão); sem a API, seleciona o texto para o Ctrl+C. Usado nos textos do eProtocolo.</span></div>
+      <div class="cartao__corpo">
+        <div class="campo">
+          <label class="campo__rotulo" for="lab-copiar">Detalhamento (exemplo)</label>
+          <div class="linha"><input class="entrada campo--cresce" id="lab-copiar" value="ENVIO P/ PAGAMENTO DA NOTA FISCAL N 8957 - (BUFFET EXEMPLO)" readonly><button type="button" class="botao botao--sm" data-copiar-alvo="lab-copiar" aria-live="polite">{% icone "copy" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> o detalhamento</span></button></div>
+        </div>
       </div>
     </section>
 </div>
