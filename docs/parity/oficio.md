@@ -143,3 +143,16 @@ Escopo por unidade e permissões granulares (policies.py); invariantes no banco 
 | D7 | Bate-volta no documento | **Em trechos** | ✅ Com volta intermediária à sede, o documento mostra "ROTEIRO POR TRECHOS" numerados, na ordem; viagem simples mantém ida/retorno |
 | D8 | Histórico do Git | **Reescrever** | Ver `docs/ops/historico-git.md` |
 | D9 | Navegação no celular | **Gaveta lateral** (temporária) | ✅ ADR 0006; tablet e desktop seguem com menu superior |
+# Regra de tempo confirmada — 07/10/2026
+
+Tiago autorizou reproduzir o tempo de viagem e o adicional do legado (D16).
+Domínio e serviço de rotas agora usam a combinação calibrada por distância/API,
+arredondamento de 15 minutos e adicional proporcional documentados em
+`docs/product/tempos-de-rota.md`. Cache antigo recebe versão 0; novas sugestões
+usam versão 1, evitando recalibrar um resultado já arredondado. Tempos salvos e
+snapshots antigos não são regravados automaticamente.
+
+Evidência: 101 testes de domínio/integração e 2 testes Chromium aprovados;
+capturas antes/depois do ajuste de largura e medidas dos inputs em cinco larguras.
+Esta evidência cobre D16; a reconstrução completa e seus outros itens de paridade
+continuam com seus estados individuais. Não implica aprovação da suíte integral.

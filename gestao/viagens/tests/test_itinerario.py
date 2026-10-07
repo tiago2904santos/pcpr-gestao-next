@@ -37,13 +37,14 @@ def _m(nome: str, uf: str = "PR") -> Municipio:
 
 
 class TestRotas:
-    @pytest.mark.parametrize(("minutos", "esperado"), [(0, 0), (119, 0), (120, 15), (270, 30),
-                                                       (480, 60)])
-    def test_tempo_adicional_sugerido_15_min_a_cada_2h(self, minutos, esperado):
+    @pytest.mark.parametrize(("minutos", "esperado"), [(0, 0), (119, 15), (120, 15), (270, 45),
+                                                       (480, 75)])
+    def test_tempo_adicional_sugerido_reproduz_um_sexto_do_legado(self, minutos, esperado):
         assert rotas.tempo_adicional_sugerido(minutos) == esperado
 
-    @pytest.mark.parametrize(("minutos", "esperado"), [(1, 15), (15, 15), (16, 30), (101.5, 105)])
-    def test_tempo_de_viagem_arredonda_para_cima_em_15(self, minutos, esperado):
+    @pytest.mark.parametrize(("minutos", "esperado"), [(1, 0), (5, 0), (6, 15), (15, 15),
+                                                       (16, 15), (21, 30), (101.5, 105)])
+    def test_tempo_de_viagem_arredonda_com_resto_cinco_da_referencia(self, minutos, esperado):
         assert rotas.arredondar_minutos(minutos) == esperado
 
     def test_estimativa_offline_usa_coordenadas_oficiais(self, cenario):
@@ -72,6 +73,53 @@ class TestRotas:
         de_novo = rotas.calcular(_m("Curitiba"), _m("Ponta Grossa"))
         assert de_novo.km == perna.km and len(chamadas) == 1
         assert DistanciaMunicipios.objects.count() == 1
+        assert DistanciaMunicipios.objects.get().regra_tempo == rotas.REGRA_TEMPO
+
+    @override_settings(ROTAS_PROVEDOR="osrm")
+    def test_cache_antigo_nao_recalibra_minutos_e_busca_duracao_bruta(self, cenario, monkeypatch):
+        origem, destino = _m("Curitiba"), _m("Ponta Grossa")
+        cache = DistanciaMunicipios.objects.create(
+            origem=origem, destino=destino, km=300, minutos=180, fonte="osrm")
+        chamadas = []
+
+        def provedor(a, b):
+            chamadas.append((a, b))
+            return 300_000.0, 10_800.0, [[-49.27, -25.43], [-50.16, -25.09]]
+
+        monkeypatch.setitem(rotas.PROVEDORES, "osrm", provedor)
+        primeira = rotas.calcular(origem, destino)
+        segunda = rotas.calcular(origem, destino)
+        # 85% ((300+12)/74*60) + 15% de 180 min → 240; adicional → 45.
+        assert (primeira.minutos, primeira.adicional_sugerido) == (240, 45)
+        assert segunda == primeira and len(chamadas) == 1
+        cache.refresh_from_db()
+        assert cache.regra_tempo == rotas.REGRA_TEMPO and cache.minutos == 240
+        assert DistanciaMunicipios.objects.count() == 1
+
+    @override_settings(ROTAS_PROVEDOR="osrm")
+    def test_cache_de_outro_provedor_nao_vale_para_o_atual(self, cenario, monkeypatch):
+        origem, destino = _m("Curitiba"), _m("Ponta Grossa")
+        DistanciaMunicipios.objects.create(origem=origem, destino=destino, km=1,
+            minutos=15, fonte="openrouteservice", regra_tempo=rotas.REGRA_TEMPO)
+        monkeypatch.setitem(rotas.PROVEDORES, "osrm", lambda a, b: (
+            300_000.0, 10_800.0, [[-49.27, -25.43], [-50.16, -25.09]]))
+        perna = rotas.calcular(origem, destino)
+        assert perna.fonte == "osrm" and perna.minutos == 240
+
+    @override_settings(ROTAS_PROVEDOR="osrm")
+    def test_cache_antigo_com_rede_falha_estima_sem_regravar_o_cache(self, cenario, monkeypatch):
+        origem, destino = _m("Curitiba"), _m("Ponta Grossa")
+        cache = DistanciaMunicipios.objects.create(
+            origem=origem, destino=destino, km=300, minutos=999, fonte="osrm")
+
+        def falha(a, b):
+            raise OSError("sem rede")
+
+        monkeypatch.setitem(rotas.PROVEDORES, "osrm", falha)
+        perna = rotas.calcular(origem, destino)
+        assert perna.fonte == "estimativa" and perna.minutos == 120
+        cache.refresh_from_db()
+        assert cache.regra_tempo == 0 and cache.minutos == 999
 
     @override_settings(ROTAS_PROVEDOR="osrm", ROTAS_URL="https://rotas.invalido")
     def test_provedor_fora_do_ar_cai_na_estimativa(self, cenario, monkeypatch):
@@ -89,6 +137,28 @@ class TestRotas:
 
 
 class TestApiDaRota:
+    @override_settings(ROTAS_PROVEDOR="osrm")
+    def test_api_usa_calibracao_legada_sem_alterar_trechos_e_emissao(self, operador, cenario,
+                                                                  monkeypatch):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        trechos = list(oficio.trechos.values("pk", "saida_em", "chegada_em",
+            "tempo_viagem_min", "tempo_adicional_min"))
+        documentos = list(oficio.documentos.values("pk", "dados"))
+        assert trechos and documentos
+        antes = (oficio.versao, oficio.diarias_total)
+        monkeypatch.setitem(rotas.PROVEDORES, "osrm", lambda a, b: (
+            300_000.0, 10_800.0, [[-49.27, -25.43], [-50.16, -25.09]]))
+        resposta = operador.get(reverse("viagens:rota"),
+            {"p": ["Curitiba/PR", "Ponta Grossa/PR", "Curitiba/PR"]})
+        assert resposta.status_code == 200
+        assert all((p["minutos"], p["adicional_sugerido"]) == (240, 45)
+                   for p in resposta.json()["pernas"])
+        oficio.refresh_from_db()
+        assert (oficio.versao, oficio.diarias_total) == antes
+        assert list(oficio.trechos.values("pk", "saida_em", "chegada_em",
+            "tempo_viagem_min", "tempo_adicional_min")) == trechos
+        assert list(oficio.documentos.values("pk", "dados")) == documentos
+
     def test_pernas_totais_e_pontos_com_coordenadas(self, operador):
         r = operador.get(reverse("viagens:rota"),
                          {"p": ["Curitiba/PR", "Ponta Grossa/PR", "Curitiba/PR"]})
@@ -114,6 +184,24 @@ class TestApiDaRota:
 
 
 class TestFormularioDoItinerario:
+    @override_settings(ROTAS_PROVEDOR="osrm")
+    def test_sugestao_legada_alimenta_chegada_e_degrau_de_diaria(self, operador, cenario,
+                                                              monkeypatch):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        monkeypatch.setitem(rotas.PROVEDORES, "osrm", lambda a, b: (
+            300_000.0, 10_800.0, [[-49.27, -25.43], [-50.16, -25.09]]))
+        dados = _post_edicao(oficio, **_itinerario(("Ponta Grossa/PR", _local(20, 6)),
+            volta=_local(21, 8), viagem="", adicional=""))
+        resposta = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
+        assert resposta.status_code == 302, resposta.content.decode()[:600]
+        ida, volta = oficio.trechos.order_by("ordem")
+        assert (ida.tempo_viagem_min, ida.tempo_adicional_min) == (240, 45)
+        assert timezone.localtime(ida.chegada_em).strftime("%H:%M") == "10:45"
+        assert timezone.localtime(volta.chegada_em).strftime("%H:%M") == "12:45"
+        # 30h45 = uma diária de 24h + 15%; regra anterior chegaria em 29h15 (sem parcial).
+        oficio.refresh_from_db()
+        assert oficio.diarias_total == Decimal("334.13")
+
     def test_chegada_e_calculada_saida_mais_viagem_mais_adicional(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = _post_edicao(oficio, **_itinerario(("Ponta Grossa/PR", _local(20, 8)),

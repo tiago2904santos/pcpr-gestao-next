@@ -511,6 +511,7 @@ class DistanciaMunicipios(models.Model):
     minutos = models.PositiveIntegerField("tempo de estrada (min)")
     geometria = models.JSONField(default=list, blank=True)  # [[lat, lon], ...] simplificada
     fonte = models.CharField(max_length=20)
+    regra_tempo = models.PositiveSmallIntegerField(default=0)
     atualizado_em = models.DateTimeField(auto_now=True)
 
     class Meta:

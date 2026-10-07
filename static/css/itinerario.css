@@ -1202,6 +1202,14 @@
 }
 
 /* ---------- Celular ---------- */
+/* Os passos de menos/mais reservam largura fixa. Num itinerário estreito, cada
+   duração ocupa uma linha para que hh:mm fique inteiro sem diminuir os alvos. */
+@container itin (max-width: 20rem) {
+  .itin__duracao {
+    grid-column: 1 / -1;
+  }
+}
+
 @container itin (max-width: 30rem) {
   .itin {
     gap: var(--esp-5);

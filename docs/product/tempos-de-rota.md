@@ -89,3 +89,52 @@ Não executada nem alegada: validação da aplicação com a regra nova, integra
 de cache/provedores, navegador ou suíte geral. `scripts/verificar.sh` do agente
 principal continua referido ao código congelado; estes testes validam somente
 os novos arquivos de domínio, sem sobrescrever seu checkpoint.
+
+## Integração isolada — 07/10/2026 17:05
+
+No worktree gerenciado `viagens-tempo-legado`, sobre `36d4acd`, o serviço `rotas.py`
+passou a usar o domínio. Cache recebeu `regra_tempo`, com default 0 para registros
+antigos e versão 1 para a nova fórmula; somente o mesmo provedor/versão vale na
+leitura. Migração aditiva 0050, conforme ADR 0024. Nenhum banco remoto consultado
+ou alterado; dados sintéticos em `pcpr_lab_rotas`, PostgreSQL próprio porta 55432.
+
+**101 testes passaram em 98,08 s**: 68 puros + integração do itinerário.
+Log no checkout original: `var/rota-legado-integracao.log`. Cache anterior é
+ignorado, uma resposta nova é reutilizada sem dupla calibração, cache de outro
+provedor é substituído; falha de rede usa estimativa sem regravar cache antigo.
+API preservou tempos salvos, versão, diárias e snapshots da emissão anterior.
+
+Caso com provedor sintético: 300 km/180 min de API → 240 +45 min; saída 06:00,
+chegada 10:45. Retorno no dia seguinte às 08:00 → chegada 12:45; período total
+30h45 gera uma diária de 24h +15%, **R$ 334,13** pela tabela fictícia de teste
+R$ 290,55, para um servidor. Não são valores ou dados de produção.
+
+Tempos preenchidos manualmente continuam preservados ao salvar/reabrir a folha.
+Makemigrations --check: sem diferenças; ruff e mypy verdes (2 arquivos de produto).
+Navegador e incorporação ao checkout original ainda pendentes. Esta integração
+não altera o código em execução na suíte H original, nem o servidor aberto em :8000.
+
+## Validação da folha — 07/10/2026 17:37
+
+Chromium: **2 testes passaram em 29,70 s** em 360 e 1440 px,
+`var/rota-legado-layout-valores.log` no checkout original. Sugestões 04:00/00:45
+foram salvas e recarregadas; ajuste manual 02:00/00:30 permaneceu no banco e na
+folha. A resposta POST e o redirecionamento de salvamento são aguardados
+explicitamente antes de recarregar, evitando confundir a mensagem de um
+salvamento anterior com o envio atual.
+
+A revisão de capturas encontrou corte do último dígito dos dois tempos no
+celular. Contêineres estreitos agora exibem cada duração em sua própria linha,
+preservando fonte e comandos. O navegador mede o texto do valor e exige que
+caiba no input em **360, 390, 768, 1024 e 1440 px**. Capturas antes/depois estão
+em `docs/visual-agents/evidencias/rota-legado/`; o antes refere-se ao ajuste de
+layout, já com a fórmula nova. Revisão direta em 360 confirmou ambos os valores
+completos. O corte anterior do ano no campo de saída permanece um achado
+separado, fora dessa correção de duração.
+
+Rodada intermediária: um caso passou e outro recebeu 422 ao salvar; log
+`var/rota-legado-layout-final.log` preservado. A rodada posterior aguardou
+explicitamente a resposta e passou. A causa do 422 intermitente não foi
+demonstrada; não atribuí-la ao CSS nem afirmar que o diagnóstico de concorrência
+está encerrado. A suíte integral H anterior terminou com uma falha de assinantes;
+os checks verdes focados aqui não tornam `scripts/verificar.sh` verde.

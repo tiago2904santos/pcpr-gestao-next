@@ -18,13 +18,20 @@ from django.conf import settings
 
 from gestao.cadastros.models import Municipio
 
+from .dominio.tempos_rota import (
+    arredondar_a_15,
+    minutos_da_api,
+    tempo_adicional_sugerido,
+    tempo_de_viagem,
+)
 from .models import DistanciaMunicipios
 
 log = logging.getLogger(__name__)
 
 FATOR_ESTRADA = 1.3  # linha reta → estrada (estimativa)
 VELOCIDADE_MEDIA_KMH = 70
-ARREDONDAMENTO_MIN = 15  # como na referência: tempo de viagem em múltiplos de 15 min
+ARREDONDAMENTO_MIN = 15
+REGRA_TEMPO = 1  # ADR 0024: caches anteriores não guardam a duração bruta do provedor.
 MAX_PONTOS_TRACADO = 250
 
 
@@ -40,14 +47,9 @@ class Perna:
         return tempo_adicional_sugerido(self.minutos)
 
 
-def tempo_adicional_sugerido(minutos: int) -> int:
-    """Pausas: 15 min a cada 2 h completas de estrada (ex.: 4h30 → 30 min)."""
-    return (minutos // 120) * 15
-
-
 def arredondar_minutos(minutos: float) -> int:
-    """Para cima, em múltiplos de 15 min (mínimo 15)."""
-    return max(ARREDONDAMENTO_MIN, math.ceil(minutos / ARREDONDAMENTO_MIN) * ARREDONDAMENTO_MIN)
+    """Compatibilidade do serviço: usa os passos da regra confirmada na referência."""
+    return arredondar_a_15(minutos)
 
 
 def _coords(m: Municipio) -> tuple[float, float] | None:
@@ -68,7 +70,8 @@ def estimar(origem: Municipio, destino: Municipio) -> Perna:
     if a is None or b is None:
         return Perna(Decimal(0), ARREDONDAMENTO_MIN, "estimativa")
     km = _haversine_km(a, b) * FATOR_ESTRADA
-    return Perna(Decimal(str(round(km, 1))), arredondar_minutos(km / VELOCIDADE_MEDIA_KMH * 60),
+    duracao_estimada = minutos_da_api(km / VELOCIDADE_MEDIA_KMH * 3600)
+    return Perna(Decimal(str(round(km, 1))), tempo_de_viagem(round(km, 2), duracao_estimada),
                  "estimativa", [list(a), list(b)])
 
 
@@ -118,7 +121,9 @@ def calcular(origem: Municipio, destino: Municipio) -> Perna:
     provedor = PROVEDORES.get(settings.ROTAS_PROVEDOR)
     if provedor is None:
         return estimar(origem, destino)
-    em_cache = DistanciaMunicipios.objects.filter(origem=origem, destino=destino).first()
+    em_cache = DistanciaMunicipios.objects.filter(
+        origem=origem, destino=destino, regra_tempo=REGRA_TEMPO,
+        fonte=settings.ROTAS_PROVEDOR).first()
     if em_cache:
         return Perna(em_cache.km, em_cache.minutos, em_cache.fonte, em_cache.geometria)
     a, b = _coords(origem), _coords(destino)
@@ -132,9 +137,11 @@ def calcular(origem: Municipio, destino: Municipio) -> Perna:
         return estimar(origem, destino)
     km = Decimal(str(metros / 1000)).quantize(Decimal("0.1"), ROUND_HALF_UP)
     tracado = _simplificar([[round(lat, 5), round(lon, 5)] for lon, lat in coordenadas])
-    perna = Perna(km, arredondar_minutos(segundos / 60), settings.ROTAS_PROVEDOR, tracado)
+    # A referência calibra distância com duas casas, antes da precisão de exibição/cache.
+    minutos = tempo_de_viagem(round(metros / 1000, 2), minutos_da_api(segundos))
+    perna = Perna(km, minutos, settings.ROTAS_PROVEDOR, tracado)
     DistanciaMunicipios.objects.update_or_create(
         origem=origem, destino=destino,
         defaults={"km": perna.km, "minutos": perna.minutos, "geometria": tracado,
-                  "fonte": perna.fonte})
+                  "fonte": perna.fonte, "regra_tempo": REGRA_TEMPO})
     return perna
