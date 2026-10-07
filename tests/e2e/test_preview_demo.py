@@ -79,8 +79,12 @@ def _ir_para(pg: Page, largura: int, item: str) -> None:
         "link", name=item, exact=True).click()
 
 
+ABA_ATUAL = ".aba[aria-current='page'] .aba__contagem"
+
+
 def _total(pg: Page) -> int:
-    return int(re.sub(r"\D", "", pg.locator(".lista-cabecalho__total").inner_text()))
+    """Quantos ofícios a lista mostra: a contagem da aba atual acompanha busca e filtros."""
+    return int(re.sub(r"\D", "", pg.locator(ABA_ATUAL).inner_text()))
 
 
 @pytest.mark.parametrize("largura", LARGURAS)
@@ -117,16 +121,20 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg.locator(".lista-cabecalho")).to_contain_text("Resultados para")
     assert 0 < _total(pg) < total
     busca.fill("")
-    # A busca é ao vivo: espera a lista voltar ao todo antes de filtrar, senão o link
-    # "Emitidos" ainda carrega o `q=` do protocolo e o filtro sai vazio.
-    expect(pg.locator(".lista-cabecalho")).not_to_contain_text("Resultados para")
-    expect(pg.locator(".lista-cabecalho__total")).to_contain_text(str(total))
-    pg.get_by_role("link", name=re.compile("^Emitidos")).click()
+    # A busca é ao vivo: espera a lista voltar ao todo antes de filtrar.
+    expect(pg.locator(".lista-cabecalho")).to_have_count(0)
+    expect(pg.locator(ABA_ATUAL)).to_have_text(str(total))
+    pg.locator("label[for='documento-emitido']").click()  # Documento: um clique
+    expect(pg).to_have_url(re.compile("documento=emitido"))
+    expect(pg.locator(ABA_ATUAL)).not_to_have_text(str(total))
     emitidos = _total(pg)
     assert 0 < emitidos < total
+    pg.locator("#filtros-mais > summary").click()  # a ordem mora na gaveta
     pg.get_by_role("combobox", name="Ordenar por").click()
-    pg.get_by_role("option", name="Data de saída (próximas)").click()
+    pg.get_by_role("option", name="Saída, mais antiga primeiro").click()
     expect(pg).to_have_url(re.compile("ordem=saida"))
+    pg.locator("[data-fechar-filtros]").click()
+    expect(pg.locator(".filtros-ativos")).to_contain_text("Ordem: Saída")
     _sem_rolagem_lateral(pg)
 
     # Ofício emitido: a leitura é a janela de resumo, com documentos, sem sair da lista.
@@ -137,7 +145,7 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     _sem_rolagem_lateral(pg)
     pg.keyboard.press("Escape")
     expect(janela).to_be_hidden()
-    expect(pg.locator(".lista-cabecalho__total")).to_be_visible()
+    expect(pg.locator(".registro").first).to_be_visible()
 
     # Nova busca: sem resultado e de volta.
     busca.fill("zzzz-nada-encontrado")
@@ -146,7 +154,7 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg.locator(".registro").first).to_be_visible()
 
     # Editar um rascunho e salvar.
-    pg.goto("/viagens/oficios/?situacao=rascunho")
+    pg.goto("/viagens/oficios/?documento=rascunho")
     pg.locator(".registro__link").first.click()  # o título abre a janela de resumo…
     janela = pg.get_by_role("dialog", name="Resumo do ofício")
     janela.get_by_role("link", name="Abrir o ofício").click()  # …e editar é ação explícita

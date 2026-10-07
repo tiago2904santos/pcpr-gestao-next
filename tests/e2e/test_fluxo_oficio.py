@@ -290,15 +290,21 @@ def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e
 
 
 def test_gaveta_de_filtros_filtra_por_protocolo(logado, dados_e2e):
-    """Os filtros finos ficam guardados; abertos, valem na hora e aparecem na URL."""
+    """Os filtros finos ficam guardados; abertos, valem na hora e aparecem na URL e numa
+    ficha removível; Esc fecha a gaveta e devolve o foco ao botão (D6)."""
     pg = logado
     pg.goto("/viagens/oficios/")
     gaveta = pg.locator("#filtros-mais")
     expect(gaveta.locator(".filtros__avancados")).to_be_hidden()
-    gaveta.get_by_text("Mais filtros").click()
+    gaveta.locator("summary").click()
     gaveta.get_by_label("Protocolo").fill("123456789")
-    expect(pg.locator(".lista-cabecalho__total")).to_contain_text("1 ofício")
+    expect(pg.locator(".aba[aria-current='page'] .aba__contagem")).to_have_text("1")
+    expect(pg.locator("#conta-filtros")).to_have_text("1")
     assert "protocolo=123456789" in pg.url
+    pg.keyboard.press("Escape")
+    expect(gaveta.locator(".filtros__avancados")).to_be_hidden()
+    expect(gaveta.locator("summary")).to_be_focused()
+    expect(pg.locator(".filtros-ativos")).to_contain_text("Protocolo: 123456789")
 
 
 def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):

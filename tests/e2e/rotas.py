@@ -11,7 +11,7 @@ ROTAS_AUTENTICADAS = [
     "/relatorios/?ano=todos",
     "/viagens/",
     "/viagens/oficios/",
-    "/viagens/oficios/?situacao=rascunho",
+    "/viagens/oficios/?documento=rascunho",
     "/viagens/oficios/?q=nada-encontrado-xyz",
     "/viagens/oficios/{oficio_rascunho}/editar/",
     # A leitura de um ofício é a janela de resumo, que abre na própria lista (ADR 0017);
@@ -22,7 +22,7 @@ ROTAS_AUTENTICADAS = [
     "/viagens/roteiros/{roteiro}/editar/",
     "/viagens/justificativas/",
     "/viagens/justificativas/?editar={oficio_rascunho}",  # janela de escrever aberta
-    "/viagens/oficios/?situacao=arquivado",
+    "/viagens/oficios/?documento=arquivado",
     "/cadastros/textos-prontos/",
     "/cadastros/textos-prontos/?tipo=justificativa&novo=1",  # janela de novo texto aberta
     # Módulo 2 — cadastros em tela (o operador mantém; diárias e configuração ele só vê).

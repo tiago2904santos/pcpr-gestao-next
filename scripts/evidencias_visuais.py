@@ -244,16 +244,16 @@ CENARIOS = [
     C("oficios-lista", "Lista de ofícios", "/viagens/oficios/"),
     C("oficios-lista-motivo", "Lista — cancelar pede o motivo", "/viagens/oficios/", "lista_motivo", POUCAS, False),
     C("oficios-lista-filtros", "Lista — Mais filtros (período de saída e data do ofício)", "/viagens/oficios/", "lista_gaveta_filtros", POUCAS, False),
-    C("oficios-lista-arquivados", "Lista — aba Arquivados", "/viagens/oficios/?situacao=arquivado", larguras=POUCAS),
+    C("oficios-lista-arquivados", "Lista — Documento: Arquivados", "/viagens/oficios/?documento=arquivado", larguras=POUCAS),
     C("oficios-lista-menu", "Lista — menu de ações do registro", "/viagens/oficios/", "lista_menu_acoes", POUCAS, False),
     C("oficios-lista-foco", "Lista — foco por teclado no registro", "/viagens/oficios/", "lista_foco_registro", POUCAS, False),
-    C("oficios-lista-rascunhos", "Lista — aba Rascunhos", "/viagens/oficios/?situacao=rascunho", larguras=POUCAS),
-    C("oficios-lista-por-saida", "Lista — ordenada por saída", "/viagens/oficios/?ordem=saida&situacao=proximos", larguras=POUCAS),
+    C("oficios-lista-rascunhos", "Lista — Documento: Rascunhos", "/viagens/oficios/?documento=rascunho", larguras=POUCAS),
+    C("oficios-lista-por-saida", "Lista — que vão acontecer, por saída", "/viagens/oficios/?ordem=saida&aba=futuros", larguras=POUCAS),
     C("oficios-lista-vazia", "Lista — busca sem resultado", "/viagens/oficios/?q=nada-encontrado-xyz", larguras=POUCAS),
     # A leitura do ofício é a janela de resumo (ADR 0017): a página de detalhe não existe mais.
     C("oficio-resumo", "Janela de resumo — emitido", "/viagens/oficios/?resumo={oficio_emitido}"),
     C("oficio-resumo-acoes", "Janela de resumo — mais ações", "/viagens/oficios/?resumo={oficio_emitido}", "resumo_mais_acoes", POUCAS, False),
-    C("oficio-resumo-cancelado", "Janela de resumo — cancelado (motivo e reativar)", "/viagens/oficios/?situacao=cancelado&resumo={oficio_cancelado}", larguras=POUCAS),
+    C("oficio-resumo-cancelado", "Janela de resumo — cancelado (motivo e reativar)", "/viagens/oficios/?aba=cancelados&resumo={oficio_cancelado}", larguras=POUCAS),
     C("oficio-resumo-rascunho", "Janela de resumo — rascunho com pendências", "/viagens/oficios/?resumo={oficio_rascunho}", larguras=POUCAS),
     C("oficio-editar", "Edição do ofício (rascunho)", "/viagens/oficios/{oficio_rascunho}/editar/", "mapa"),
     C("oficio-editar-erro", "Edição — erros de validação", "/viagens/oficios/{oficio_rascunho}/editar/", "editar_erro", POUCAS),
@@ -354,11 +354,11 @@ def resolver_dados(pg, base) -> dict:
         m = re.search(r"/(\d+)/", href or "")
         return int(m.group(1)) if m else None
 
-    dados["oficio_emitido"] = pk(primeiro("/viagens/oficios/?situacao=emitido"))
-    dados["oficio_cancelado"] = pk(primeiro("/viagens/oficios/?situacao=cancelado"))
-    dados["oficio_rascunho"] = pk(primeiro("/viagens/oficios/?situacao=rascunho"))
+    dados["oficio_emitido"] = pk(primeiro("/viagens/oficios/?documento=emitido"))
+    dados["oficio_cancelado"] = pk(primeiro("/viagens/oficios/?aba=cancelados"))
+    dados["oficio_rascunho"] = pk(primeiro("/viagens/oficios/?documento=rascunho"))
     # Rascunho pronto para emitir: o primeiro cujo /emitir/ não devolve para a edição.
-    pg.goto(f"{base}/viagens/oficios/?situacao=rascunho", wait_until="networkidle")
+    pg.goto(f"{base}/viagens/oficios/?documento=rascunho", wait_until="networkidle")
     hrefs = [a.get_attribute("href") for a in pg.locator(".registro a.registro__link").all()]
     for h in hrefs[:20]:
         pg.goto(f"{base}/viagens/oficios/{pk(h)}/emitir/", wait_until="networkidle")
