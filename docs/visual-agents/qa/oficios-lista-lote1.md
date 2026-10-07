@@ -222,3 +222,66 @@ B1 e B2 com `titulos.py` + `quebra_titulo.py` + `truncamento.py` (main × novo, 
 I2 em Ofícios/Roteiros a 1280 e 1440; e de novo `axe_estados.py` e `regressao_listas.py`
 completos. O `main` sobe com `/home/claude/tools/main_server.sh` (worktree
 `/home/claude/main-wt`, porta 8002).
+
+---
+
+## Re-QA — correções `2a2b51e..5e41b8b` · veredito: **REPROVADO** (1 bloqueante, correção pequena)
+
+> Agente 3 · 2026-10-06 · branch @ `5e41b8b` contra o `main` (`b47e2d5`, `:8002`). Só
+> Chromium 141 disponível nesta máquina (Firefox/WebKit não instalados): o caminho "sem
+> suporte a container queries" **não foi verificado em navegador** — só lido no CSS.
+> Evidências: `/home/claude/caps/reqa-l1/`; scripts novos em `/home/claude/tools/qa/`
+> (`diarias.py`, `motorista2.py`, `folga.py`, `axe_estados2.py`, `axe_um.py`, `menu_ultimo.py`,
+> `estados2.py`) e os anteriores reexecutados.
+
+### Bloqueante novo
+**RB1 — Roteiros de 768 a ~950 px: axe `target-size` (WCAG 2.5.8, serious) — regressão sobre o `main`.**
+Nas duas faixas, o título (18,9 px de altura) e o botão "Usado em N ofícios" (17,5 px) ficam
+a 21,4–23 px um do outro (mínimo 24). `/viagens/roteiros/` a 768: 4 nós (roteiros #53 e #49);
+`?pagina=2`: 2 nós; 800 e 900 px: 2 nós; 1000/1024: 0. `main` nas mesmas rotas e larguras:
+**0**. Já existia na 1ª entrega (`72179cb`, verificado no worktree) — escapou do 1º QA porque
+o axe rodou só a 1440/390, e escapa de `test_acessibilidade.py`, que não mede 768. O critério
+de aceite do plano é "axe sem violações"; por isso bloqueia. Reproduzir:
+`uv run python /home/claude/tools/qa/axe_um.py 8000 /viagens/roteiros/ 768` (× `8002`);
+`reqa-l1/roteiro53-{8000,8002}-768.png`. Correção sugerida: alvo mínimo de 24 px no botão
+de pousar (`min-height` com margem negativa) ou mais `row-gap` entre título e meta nas faixas.
+
+### O que foi corrigido (com evidência)
+| Achado | Resultado do re-QA |
+|---|---|
+| **B1** | `titulos.py`: novo = main em 35 rotas × 1440/1024/768 (só Notificações/UI Lab 77/257 px, pré-existentes). Usuários: rolagem 310/566 → **0**. `quebra_titulo.py` (25 rotas × 4 larguras): **nenhuma** rota com mais títulos quebrados que o main; Pautas, Eventos, Coffee iguais ao main. **Corrigido.** |
+| **B2** | Painel a 1024 (cartão 714 px) em duas faixas: Equipe 77 → **264 px**, cortes 10/10 → 1/10; a 1440 (913 px) uma faixa, 0/10. UI Lab 21 responde à largura do cartão (1100: duas faixas; 1440: uma). Listas a ≥ 1024 continuam 71–72 px. Menu ⋮ da última linha abre por cima das vizinhas e dentro da tela (1440, painel 1024, 390); cabeçalho de mês preso acima do ⋮. **Corrigido** (em Chromium). |
+| **I1** | "Usado em" a 390: x = 25, largura 340, rolagem **0** (360: largura 310, 0); 1440/1024/768 sem rolagem. **Corrigido.** |
+| **I2** | `diarias.py` — 340 itens (13 páginas de Ofícios, 4 de Roteiros, painel, UI Lab) × 13 larguras (1920 → 360, incluindo 1240/1180/1100/900/800/700 nos limiares): **0 valores cortados, 0 detalhes parciais**; detalhe inteiro em 236 itens a ≥ 1240, escondido abaixo. **Corrigido.** |
+| **I3** | "(motorista)" visível e inteiro em **196/196** linhas com motorista × 8 larguras (1440 → 360), motorista primeiro, ", …" quando há mais gente; leitor de tela ouve "Fulano (motorista), …" uma vez. **Corrigido** (decisão do orquestrador). |
+| Menores | M1 (hover só no `.botao--icone`), M3 ("Sem diárias", "Sem servidor"), M4 ("Sem destino" em itálico), M6 (roteiro cancelado continua terciário no hover), M7 (UI Lab com `registro--inativo`): **conferidos**. |
+
+### Regressão, a11y, teclado, desempenho
+- `regressao_listas.py` 26 rotas × **6** larguras (1440/1280/1024/768/390/360) × main/novo:
+  status iguais; rolagem horizontal igual ao main em todas as 156 combinações (só os
+  pré-existentes); 0 conteúdo fora da linha. Alturas: Ordens/Planos/Viagens/Coffee/Eventos/
+  Imprensa/Palestras/Publicações perderam as linhas de 77/98 px (viraram 72/93) — efeito do
+  LP-01 (o seletor órfão deixava o título inativo em grade com margem), conferido nas capturas
+  de Ordens (`reqa-l1/ordens-*.png`): melhora, não regressão.
+- axe (`axe_estados2.py`) em Ofícios, Ofícios cancelados, Roteiros, Termos e **painel** ×
+  normal/menu aberto (+ resumo) × 1440/1024/768/390/360: 0 violações, exceto **RB1** e o M8
+  já conhecido (Termos 390/360 com o ⋮ aberto). `test_acessibilidade.py` (subconjunto das
+  telas tocadas): 23 passed. Testes do lote + UI Lab + tokens: 151 passed. `ruff`: verde.
+- Teclado (`teclado.py`): ordem, Shift+Tab, Enter no título → resumo (foco em Fechar), Esc
+  devolve o foco, ⋮ com ↓/Home/End/Esc — inalterado e correto.
+- Consultas inalteradas (Ofícios 16, Roteiros 18, Termos 22, painel 20, resumo 22); HTML de
+  Ofícios 152,2 → 153,7 KiB.
+
+### Menores que continuam (não bloqueiam)
+- **RM1** No celular e no painel em duas faixas o nome do motorista corta cedo e sobra um
+  vão visível entre a reticência e "(motorista)" ("Rogério Antunes Vasc…   (motorista)",
+  `reqa-l1/folga-1024.png`) — o Designer já listou; vale um ajuste fino.
+- **RM2** No celular a Equipe agora mostra em geral só o 1º nome do motorista ("João …
+  (motorista), …"): ganha-se quem dirige, perde-se quem vai — trade-off aceito pelo
+  orquestrador; reavaliar com usuários.
+- **RM3** Fallback sem container queries/`:has` não testado em navegador (só Chromium aqui).
+- M2, M5, M8, M9, M10, M11 como no §3.
+
+### Para aprovar
+Corrigir RB1 e mostrar `axe_um.py 8000 /viagens/roteiros/ {768,800,900}` = `[]`, mais
+`axe_estados2.py` limpo (exceto M8). Nada mais do Lote 1 impede a aprovação.
