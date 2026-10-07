@@ -891,6 +891,9 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
   .barra-acoes__status { font-size: var(--texto-xs); }
   .barra-acoes__extra { display: none; }
   .barra-acoes .botao { flex: 1 1 0; padding: 0 var(--esp-2); }
+  /* "Mais" (componentes/menu_mais.html): o menu é o item da barra; o botão o preenche. */
+  .barra-acoes > .barra-acoes__mais { display: flex; flex: 1 1 0; }
+  .barra-acoes > .barra-acoes__mais > .botao { width: 100%; }
 }
 
 @media (max-width: 479.98px) {

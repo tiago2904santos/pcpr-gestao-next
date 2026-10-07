@@ -178,6 +178,9 @@ def indice(request: HttpRequest) -> HttpResponse:
         "querystring_base": "",
         "municipios": MUNICIPIOS,
         "migalhas": [("Início", "/"), ("Design System", "/ui-lab/"), ("UI Lab", "")],
+        # "Mais" da barra fixa (componentes/menu_mais.html, D8).
+        "lab_mais": [{"url": "#sobreposicoes", "icone": "list-ordered", "titulo": "Numeração",
+                      "descricao": "Número inicial do ano, próximo número e lacunas"}],
         **_itinerario_exemplo(),
     }
     return render(request, "ui_lab/indice.html", contexto)

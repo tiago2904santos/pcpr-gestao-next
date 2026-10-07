@@ -1,0 +1,19 @@
+{% comment %}
+"Mais" da barra fixa de uma lista (D8, LP-31): ações da página que não são do dia a dia —
+ex.: Numeração (só gestor). Quem chama passa `itens` (lista de dicts com url, icone, titulo
+e descricao); sem item, nada é desenhado (nunca um "Mais" vazio, nem item inativo de algo
+que ainda não existe). O menu sobe para a camada de topo (menu.js): abre para cima, junto
+do botão, e no celular vira folha inferior.
+Uso: {% include "componentes/menu_mais.html" with itens=mais titulo="Ofícios" %}
+{% endcomment %}
+{% if itens %}
+<pc-menu class="menu barra-acoes__mais" data-menu-flutuante>
+  <button type="button" class="botao" data-menu-botao aria-haspopup="menu" aria-label="Mais ações{% if titulo %}: {{ titulo|lower }}{% endif %}">{% icone "ellipsis-vertical" %}<span>Mais</span></button>
+  <div class="menu__painel menu__painel--descrito menu__painel--acima" role="menu" hidden>
+    {% if titulo %}<p class="menu__folha-titulo" aria-hidden="true">{{ titulo }}</p>{% endif %}
+    {% for item in itens %}
+      <a class="menu__item menu__item--descrito" role="menuitem" href="{{ item.url }}"{% if item.descricao %} aria-describedby="mais-{{ forloop.counter }}"{% endif %}>{% icone item.icone %}<span class="menu__item-texto"><span>{{ item.titulo }}</span>{% if item.descricao %}<span class="menu__item-descricao" id="mais-{{ forloop.counter }}" aria-hidden="true">{{ item.descricao }}</span>{% endif %}</span></a>
+    {% endfor %}
+  </div>
+</pc-menu>
+{% endif %}

@@ -1587,10 +1587,6 @@ html.rolagem-presa {
   overflow: hidden;
 }
 
-@keyframes folha-subir {
-  from { translate: 0 100%; }
-}
-
 /* =============== Paginação =============== */
 .paginacao {
   display: flex;

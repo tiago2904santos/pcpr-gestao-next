@@ -441,6 +441,39 @@
         <a class="botao" href="#sobreposicoes" data-anexar-assinado="#sobreposicoes" data-assinado-titulo="Ordem de Serviço 07/2026">{% icone "file-signature" %}Anexar via assinada</a>
         <a class="botao" href="#sobreposicoes" data-anexar-assinado="#sobreposicoes" data-assinado-titulo="Ordem de Serviço 07/2026" data-assinado-troca>{% icone "file-input" %}Trocar via assinada</a>
       </div>
+      <div class="cartao__corpo pilha">
+        <h3 class="subtitulo-secao">Menu de linha com itens descritos (⋮ canônico, D7)</h3>
+        <p class="texto-secundario texto-sm">Título + o que a ação faz (ou por que está inativa) — a descrição sai do nome do item e entra como descrição (aria-describedby). Itens de leitura sem descrição. Grupos por separador: ler/levar o documento · criar a partir dele · marcas · situação · excluir. No desktop o painel sobe para a camada de topo sobre um véu invisível (o toque fora só fecha), abre abaixo, acima ou ao lado do botão e nunca sai da janela; no celular vira folha inferior com o nome do registro. Item inativo recebe o foco e não age. Nas listas os itens chegam do servidor quando o mouse ou o foco chega ao ⋮.</p>
+        <div class="linha">
+          <pc-menu class="menu" data-menu-flutuante>
+            <button class="botao botao--icone" type="button" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício 131/2026 (exemplo)">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel menu__painel--descrito" role="menu" hidden>
+              <p class="menu__folha-titulo" aria-hidden="true">Ofício 131/2026 · Maringá/PR</p>
+              <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "eye" %}Ver resumo</a>
+              <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "pencil" %}Abrir o ofício</a>
+              <a class="menu__item" role="menuitem" href="#sobreposicoes">{% icone "printer" %}Ver minuta</a>
+              <button type="button" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="lab-md-bx" data-baixar-documentos="{% url 'ui_lab:baixar_exemplo' %}" data-baixar-titulo="Ofício 131/2026">{% icone "download" %}<span class="menu__item-texto"><span>Baixar documentos…</span><span class="menu__item-descricao" id="lab-md-bx" aria-hidden="true">Ofício, justificativa e termos</span></span></button>
+              <span class="menu__item menu__item--descrito" role="menuitem" aria-disabled="true" tabindex="-1" aria-describedby="lab-md-as">{% icone "file-input" %}<span class="menu__item-texto"><span>Anexar assinado…</span><span class="menu__item-descricao" id="lab-md-as" aria-hidden="true">Emita o ofício primeiro: a via é a do PDF emitido</span></span></span>
+              <div class="menu__separador" role="separator"></div>
+              <a class="menu__item menu__item--descrito" role="menuitem" href="#sobreposicoes" aria-describedby="lab-md-du">{% icone "copy" %}<span class="menu__item-texto"><span>Duplicar</span><span class="menu__item-descricao" id="lab-md-du" aria-hidden="true">Rascunho novo, com outro número</span></span></a>
+              <div class="menu__separador" role="separator"></div>
+              <a class="menu__item menu__item--descrito" role="menuitem" href="#sobreposicoes" aria-describedby="lab-md-co">{% icone "file-plus-2" %}<span class="menu__item-texto"><span>Marcar como complementar</span><span class="menu__item-descricao" id="lab-md-co" aria-hidden="true">Sai “(Complementar)” ao lado do número; tira a de retificado</span></span></a>
+              <div class="menu__separador" role="separator"></div>
+              <a class="menu__item menu__item--descrito" role="menuitem" href="#sobreposicoes" aria-describedby="lab-md-ar">{% icone "inbox" %}<span class="menu__item-texto"><span>Arquivar</span><span class="menu__item-descricao" id="lab-md-ar" aria-hidden="true">Sai das abas de trabalho; nada é apagado</span></span></a>
+              <div class="menu__separador" role="separator"></div>
+              <a class="menu__item menu__item--descrito menu__item--perigo" role="menuitem" href="#sobreposicoes" aria-describedby="lab-md-ex">{% icone "trash-2" %}<span class="menu__item-texto"><span>Excluir rascunho</span><span class="menu__item-descricao" id="lab-md-ex" aria-hidden="true">O número 131/2026 volta a ficar livre</span></span></a>
+            </div>
+          </pc-menu>
+          <span class="texto-secundario texto-sm">← abra pelo mouse ou com Enter/↓; ↑/↓, Home/End e Esc.</span>
+        </div>
+        <h3 class="subtitulo-secao">Barra fixa da lista com "Mais" (D8)</h3>
+        <div class="barra-acoes barra-acoes--rodape">
+          <p class="barra-acoes__status" role="status">42 de 255 ofícios</p>
+          <a class="botao" href="#sobreposicoes">{% icone "download" %}<span>Exportar <span class="barra-acoes__extra">planilha</span></span></a>
+          {% include "componentes/menu_mais.html" with itens=lab_mais titulo="Ofícios (exemplo)" %}
+          <button class="botao botao--primario" type="button">{% icone "plus" %}Novo ofício</button>
+        </div>
+      </div>
       <div class="cartao__corpo linha" aria-label="Selos da via assinada">
         <span class="selo selo--sucesso">{% icone "file-signature" classe="icone--sm" %}Assinado</span>
         <span class="selo selo--aviso">{% icone "alert-triangle" classe="icone--sm" %}Assinado, mas os dados mudaram</span>

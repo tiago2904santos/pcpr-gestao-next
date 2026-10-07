@@ -2133,6 +2133,143 @@ dialog.dialogo.gaveta[open] {
   margin-bottom: var(--esp-1);
 }
 
+/* Item com linha de descrição (menu ⋮ canônico das listas, D7): título em cima, o que a
+   ação faz (ou por que está inativa) embaixo, em texto secundário. A descrição fica fora
+   do nome do item (aria-hidden) e entra como descrição (aria-describedby). */
+.menu__item--descrito {
+  align-items: flex-start;
+  white-space: normal;
+}
+
+.menu__item--descrito > .icone {
+  flex: none;
+  margin-top: var(--esp-05);
+}
+
+.menu__item-texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-05);
+  min-width: 0;
+}
+
+.menu__item-descricao {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  line-height: var(--altura-linha-justa);
+}
+
+/* Inativo: recebe o foco (o porquê está na descrição), mas não age nem acende. */
+.menu__item[aria-disabled="true"] {
+  color: var(--cor-texto-terciario);
+  cursor: not-allowed;
+}
+
+.menu__item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.menu__item[aria-disabled="true"] > .icone,
+.menu__item[aria-disabled="true"]:hover > .icone,
+.menu__item[aria-disabled="true"]:focus-visible > .icone {
+  color: var(--cor-texto-terciario);
+}
+
+/* Painel na camada de topo (menu.js, linhas das listas): sem a moldura que o navegador
+   dá a todo popover; a posição vem do JS. O que não couber na janela rola dentro dele. */
+.menu__painel[popover] {
+  z-index: auto;
+  margin: 0;
+  border: 0;
+  color: var(--cor-texto);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu__painel--descrito {
+  min-width: 17rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+}
+
+/* Num menu com descrições, o título de cada item em peso médio: a vista corre pelos títulos
+   e só desce à descrição quando precisa. */
+.menu__painel--descrito .menu__item {
+  font-weight: var(--peso-medio);
+}
+
+.menu__painel--descrito .menu__item-descricao {
+  font-weight: var(--peso-normal);
+}
+
+/* Véu do menu flutuante: invisível no desktop (o toque fora só fecha, sem acionar o que
+   está atrás); no celular escurece por trás da folha. */
+.menu__veu {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.menu__veu::backdrop {
+  background: transparent;
+}
+
+/* Sem espaço acima nem abaixo, o painel abre ao lado do botão (menu.js). */
+.menu__painel--lado {
+  transform-origin: center right;
+}
+
+/* Título da folha (celular): o registro de que se trata, já que a folha se solta da linha. */
+.menu__folha-titulo {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .menu__veu {
+    background: var(--cor-veu);
+    animation: aparecer var(--duracao-media) var(--curva-padrao);
+    touch-action: none;
+  }
+
+  .menu__painel.menu__painel--folha {
+    inset: auto 0 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    max-height: min(85dvh, calc(100dvh - var(--altura-cabecalho)));
+    padding: 0 var(--esp-2) calc(var(--esp-3) + env(safe-area-inset-bottom));
+    border-radius: var(--raio-xl) var(--raio-xl) 0 0;
+    transform-origin: bottom center;
+    animation: folha-subir var(--duracao-media) var(--curva-padrao);
+  }
+
+  .menu__painel--folha .menu__folha-titulo {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    display: block;
+    margin: 0 calc(-1 * var(--esp-2)) var(--esp-1);
+    padding: var(--esp-4) var(--esp-5) var(--esp-2);
+    border-bottom: var(--borda);
+    background: var(--cor-superficie-elevada);
+    overflow: hidden;
+    color: var(--cor-texto-secundario);
+    font-size: var(--texto-sm);
+    font-weight: var(--peso-semi);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Na folha, alvos de toque confortáveis. */
+  .menu__painel--folha .menu__item {
+    min-height: var(--altura-controle-lg);
+  }
+}
+
 /* =============== Paleta de comandos (pc-comandos) =============== */
 .comandos {
   width: min(40rem, calc(100vw - 2 * var(--esp-4)));
