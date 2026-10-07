@@ -795,8 +795,14 @@ a.ficha:hover {
 .registro__meta-item--notas { grid-area: notas; }
 
 .registro__meta-item--uso > .registro__meta-item--acao {
+  align-items: flex-start;
   max-width: 100%;
-  padding: 0; /* o botão "Usado em N ofícios" não pode deixar a linha 2px mais alta */
+  /* Alvo mínimo de 24px (WCAG 2.5.8) que cresce só para BAIXO — para longe do título — e
+     a margem negativa devolve a diferença: a faixa continua com a altura de uma linha de
+     texto (a linha de 72px não muda). Sem padding: antes ele somava 2px à linha. */
+  min-height: var(--alvo-minimo);
+  margin-bottom: calc(var(--altura-linha) * 1em - var(--alvo-minimo));
+  padding: 0;
 }
 
 /* Diárias: o valor nunca corta; o detalhe ("10 × 100% + 1 × 50%") é número, e número
@@ -854,11 +860,13 @@ a.ficha:hover {
         "oficio transporte";
     }
 
+    /* "Usado em N ofícios" (um botão) desce para a 2ª faixa: logo abaixo de um título
+       longo ele ficava a 21–23px do link (WCAG 2.5.8, RB1 do re-QA). */
     .registro__meta--roteiro {
       grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
       grid-template-areas:
-        "periodo uso diarias"
-        "trechos notas notas";
+        "periodo notas diarias"
+        "trechos uso uso";
     }
   }
 

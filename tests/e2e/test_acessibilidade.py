@@ -535,3 +535,33 @@ def test_coffee_break_solicitacoes_sem_violacoes(logado, dados_e2e, largura):
                  "/coffee/certidoes/", f"/coffee/certidoes/?anexar={lote.contrato.fornecedor_id}:fgts",
                  f"/coffee/solicitacoes/{s.pk}/protocolo/"):
         _avaliar(logado, rota)
+
+
+@pytest.mark.parametrize("largura", [768, 900])
+def test_listas_de_viagens_nas_duas_faixas_sem_violacoes(logado, dados_e2e, largura):
+    """Ofícios, Roteiros, Termos e painel com os metadados em duas faixas (lista de 640 a
+    949px). Um título longo logo acima de um alvo da meta ("Usado em N ofícios") ficava a
+    21–23px dele (WCAG 2.5.8) — e as outras checagens só mediam 360 e 1440."""
+    from datetime import timedelta
+    from itertools import pairwise
+
+    from django.utils import timezone
+
+    from gestao.cadastros.models import Municipio
+    from gestao.identidade.models import Usuario
+    from gestao.viagens import services
+    from gestao.viagens.models import Roteiro
+
+    operador = Usuario.objects.get(login="operador")
+    roteiro = Roteiro.objects.get(pk=dados_e2e.ids["roteiro"])
+    sede = roteiro.sede
+    cidades = list(Municipio.objects.filter(uf="PR").exclude(pk=sede.pk).order_by("nome")[:4])
+    inicio = timezone.now() + timedelta(days=20)
+    services.salvar_roteiro(operador, roteiro, {}, [
+        services.TrechoInformado(a.pk, b.pk, inicio + timedelta(hours=10 * i),
+                                 inicio + timedelta(hours=10 * i + 3))
+        for i, (a, b) in enumerate(pairwise([sede, *cidades, sede]))])
+    services.criar_oficio_do_roteiro(operador, roteiro)  # o roteiro passa a ter "Usado em"
+    logado.set_viewport_size({"width": largura, "height": 900})
+    for rota in ("/viagens/oficios/", "/viagens/roteiros/", "/viagens/termos/", "/viagens/"):
+        _avaliar(logado, rota)
