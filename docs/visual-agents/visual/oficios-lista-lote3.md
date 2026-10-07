@@ -198,3 +198,57 @@ lista.
 
 ## Nota do orquestrador (2026-10-07)
 LP-32 (Numeração) revertido: a página tinha sido excluída a pedido do dono do produto em `4a3f835`. O "Mais" da barra continua como componente (`componentes/menu_mais.html`) e hoje não aparece, porque não há item; entra "Importar processo do eProtocolo" quando existir. Os testes e2e de Numeração saíram; ficou `test_lista_sem_mais_vazio`.
+
+## 8. Correções pós-QA (`qa/oficios-lista-lote3.md`, `a25b9c6`)
+> A Numeração (LP-32) foi revertida pelo orquestrador (`1eee6fc`, `864d7e7`: a página fora
+> excluída a pedido em `4a3f835`); o "Mais" fica sem item até o eProtocolo. O que este
+> relatório diz da Numeração nas §§1–7 é histórico.
+
+**I1 — sessão expirada no ⋮ (corrigido na origem, para todo pedido assíncrono).** Não havia
+padrão no projeto. `identidade.middleware.EntradaObrigatoriaMiddleware` (substitui o
+`LoginRequiredMiddleware` do Django): navegação sem sessão continua indo ao login; pedido
+assíncrono (HTMX, `Sec-Fetch-Dest: empty`, `X-Requested-With`, `Accept: application/json`)
+recebe **401** com `X-Sessao-Expirada` e `{"mensagem": "Sua sessão terminou — entre de novo.",
+"entrar": "/conta/entrar/?next=<página de origem>"}` (origem = `HX-Current-URL`/`Referer` do
+mesmo site, nunca o fragmento); HTMX ganha `HX-Redirect` (recarrega no login e volta). No
+front, `app.js` envolve o `fetch`: qualquer componente que receba esse 401 dispara
+`pcpr:sessao-expirada` → aviso persistente com o link "Entrar de novo" (`pc-toasts` ganhou
+ação em aviso). O menu diz no próprio painel: item "Entrar de novo — Sua sessão terminou —
+entre de novo e volte para esta página", focado e anunciado. `l3_sessao.py` (sem alteração):
+`menu com sessão expirada: Entrar de novo …`, `formulário de login dentro do menu? False`
+(`/home/claude/caps/qa-l3/menu-sessao-expirada-1440.png`). Testes:
+`identidade/tests/test_sessao_expirada.py` (navegação 302; 4 tipos de pedido assíncrono 401
+com a volta certa; `HX-Redirect`; Referer de outro site ignorado) e e2e
+`test_sessao_expirada_avisa_no_menu_e_nao_mostra_o_login`.
+
+**Menores.**
+- M1: o mouse só pede os itens parado ~120 ms sobre o ⋮; foco e toque pedem na hora.
+- M3: falha ao carregar anunciada numa região viva (além do texto no item).
+- M4: toque no véu no celular — o véu fica, transparente, até o "click" de compatibilidade;
+  o foco volta ao ⋮ (e2e `test_toque_no_veu_devolve_o_foco_ao_botao_no_celular`, `has_touch`).
+- M5: "Termos / Ordens / Planos deste ofício" só quando existem para quem vê (uma consulta
+  para os três; teto do resumo 19→20 / 14→15, comentado no teste).
+- M6: `test_operador_cria_preenche_e_emite_um_oficio` salva com Enter (o botão "Salvar
+  rascunho" só existe escondido como botão padrão) e acha "Revisar e emitir" no cartão
+  Documentos; passa desse ponto e **para logo depois**: depois de salvar, "Desmarcar Isabela…
+  como motorista" não existe mais — o motorista parece desmarcado ao salvar a folha. É da folha
+  do ofício (próxima página), **provável defeito de produto**: fica para ela. `test_preview_demo`
+  volta a conferir "Salvo automaticamente às" na folha do ofício.
+
+**M7 — menu longo: decisão.** Agrupar o que se faz uma vez por ofício, no lugar, sem submenu:
+"Criar a partir deste ofício" (termo, OS, plano, cópia — quando há 2 ou mais) e "Retificado ou
+complementar" (diz a marca de hoje) abrem dentro do menu (Enter/Espaço/→; ← recolhe). Ler,
+levar, anexar e mudar a situação — o dia a dia — continuam a um clique; submenu voando ao lado
+seria pior no toque e no leitor. Resultado: rascunho do gestor **14 → 10** itens à vista
+(577 → 480 px a 1440, abre abaixo do botão em vez de ao lado; folha 643 → 546 px a 390),
+emitido 11 → 8; Novo termo passa de 2 para 3 cliques (a lista de Termos tem "Novo termo deste
+ofício"). axe: 10 estados × 1440/390 com o menu aberto, **0 violações**
+(`/home/claude/caps/l3/menus4/`); teclado no e2e (`Enter` abre e foca o 1º item, `←` recolhe e
+volta ao título, ↑/↓ pulam o grupo fechado). UI Lab e `components.md` atualizados.
+
+**Testes desta rodada.** `test_menu_oficio.py` (18), `test_sessao_expirada.py` (6),
+`test_views` (resumo, ciclo, lista: 68), e2e `test_menu_oficio` (13), `test_preview_demo` (6
+larguras), resumo/baixar, fluxo (resumo) — verdes. Vermelhos só das folhas (iguais antes):
+`test_fluxo_oficio::test_operador_cria…` (ver M6), `test_termos/ordens/planos::…a_partir_do_
+oficio` (o passo do menu, agora com o grupo, passa; param na folha do termo/OS/plano).
+`ruff`, `mypy`, `tsc` limpos.

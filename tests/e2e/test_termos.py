@@ -18,6 +18,7 @@ def test_termo_a_partir_do_oficio(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/?resumo={oficio}")
     janela = pg.get_by_role("dialog")
     janela.get_by_role("button", name="Mais ações").click()
+    janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
     janela.get_by_role("menuitem", name="Novo termo de autorização").press("Enter")
     # Um clique: o termo nasce ligado ao ofício e abre direto nos documentos.
     expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")

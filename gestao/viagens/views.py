@@ -866,11 +866,9 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
-        # Os registros que nasceram do ofício (o menu os lista; sem contar: a janela tem
-        # orçamento de consultas, e o link abre a lista filtrada).
-        "termos_do_oficio": request.user.has_perm("viagens.view_termoautorizacao"),
-        "ordens_do_oficio": request.user.has_perm("viagens.view_ordemservico"),
-        "planos_do_oficio": request.user.has_perm("viagens.view_planotrabalho"),
+        # Os registros que nasceram do ofício e que quem pede vê — só quando existem (o link
+        # levava a uma lista vazia; QA Lote 3, M5). Uma consulta para os três.
+        **_registros_do_oficio(request, oficio),
         # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
         "pdf_oficio": pdf,
         "vias": _vias_do_oficio(request, oficio, documentos, vigentes),
@@ -883,6 +881,24 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
                                None),
             via_justificativa=("justificativa", "") in vigentes),
     }
+
+
+def _registros_do_oficio(request: HttpRequest, oficio) -> dict[str, bool]:
+    """Termos, OS e planos deste ofício que o usuário vê: existem? (uma consulta)."""
+    from django.db.models import Exists, OuterRef
+
+    from .models import TermoAutorizacao
+
+    u, este = request.user, OuterRef("pk")
+    termos = policies.termos_visiveis(u).filter(
+        Q(oficio=este) | Q(pk__in=TermoAutorizacao.objects.filter(oficios=este).values("pk")))
+    linha = (Oficio.objects.filter(pk=oficio.pk).annotate(
+        termos_do_oficio=Exists(termos),
+        ordens_do_oficio=Exists(policies.ordens_visiveis(u).filter(oficios=este)),
+        planos_do_oficio=Exists(policies.planos_visiveis(u).filter(oficios=este)),
+    ).values_list("termos_do_oficio", "ordens_do_oficio", "planos_do_oficio").get())
+    return dict(zip(("termos_do_oficio", "ordens_do_oficio", "planos_do_oficio"), linha,
+                    strict=True))
 
 
 def _vias_do_oficio(request: HttpRequest, oficio, documentos, vigentes: dict) -> list[dict]:

@@ -503,7 +503,9 @@ class TestEmissaoEAcoes:
     # Rascunho 17: +1 dos conflitos de agenda com as palestras (aviso da prontidão).
     # Rascunho 18: +1 dos conflitos com as solicitações de eventos.
     # Rascunho 19: +1 dos conflitos de agenda com termos e OS (viagens/conflitos.py).
-    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 19), ("oficio_emitido", 14)])
+    # 20/15: +1 — termos, OS e planos deste ofício existem? (uma consulta para os três; o
+    # "Mais ações" não oferece mais um link para lista vazia — QA Lote 3, M5).
+    @pytest.mark.parametrize("chave,limite", [("oficio_rascunho", 20), ("oficio_emitido", 15)])
     def test_resumo_tem_orcamento_de_consultas(self, operador, cenario, chave, limite,
                                                django_assert_max_num_queries):
         with django_assert_max_num_queries(limite):

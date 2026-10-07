@@ -2225,6 +2225,39 @@ dialog.dialogo.gaveta[open] {
   background: transparent;
 }
 
+/* Toque no véu (celular): ele fica um instante, já transparente, para receber o "click" que
+   vem depois do toque — o foco volta ao ⋮, não ao corpo da página. */
+.menu__veu.menu__veu--saindo {
+  background: transparent;
+  animation: none;
+}
+
+/* Grupo recolhido dentro do menu (ex.: "Criar a partir deste ofício"): o título abre os
+   itens no lugar, recuados sob ele; a seta gira. Menos itens à vista, nenhum escondido. */
+.menu__item--grupo > .menu__grupo-seta {
+  flex: none;
+  margin-left: auto;
+  align-self: center;
+  color: var(--cor-texto-terciario);
+  transition: transform var(--duracao-rapida) var(--curva-padrao);
+}
+
+.menu__item--grupo[aria-expanded="true"] > .menu__grupo-seta {
+  transform: rotate(180deg);
+}
+
+.menu__grupo {
+  margin-left: var(--esp-6);
+  border-left: var(--borda);
+}
+
+/* Ação dentro de um aviso (ex.: "Entrar de novo" na sessão expirada). */
+.toast__acao {
+  color: inherit;
+  font-weight: var(--peso-semi);
+  text-decoration: underline;
+}
+
 /* Sem espaço acima nem abaixo, o painel abre ao lado do botão (menu.js). */
 .menu__painel--lado {
   transform-origin: center right;

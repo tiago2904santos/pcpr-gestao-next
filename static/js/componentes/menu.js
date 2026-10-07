@@ -10,6 +10,8 @@
  *   </pc-menu>
  *
  * Teclado: Enter/Espaço/↓ abrem; ↑/↓/Home/End navegam; Esc fecha e devolve o foco.
+ * Grupo recolhido (`[data-menu-grupo]` + `.menu__grupo[hidden]`): Enter/Espaço/→ abrem no
+ * lugar e levam ao 1º item dele; ← (dentro) recolhe e volta ao título do grupo.
  * Item inativo (`aria-disabled="true"`) recebe o foco — o leitor de tela ouve o porquê na
  * descrição — mas não age (padrão da WAI-ARIA para menus).
  *
@@ -21,6 +23,22 @@
  */
 const CELULAR = "(max-width: 767.98px)";
 const FOLGA = 8;
+/** Mouse que só passa pelo ⋮ não pede nada; parado sobre ele, sim (intenção). */
+const INTENCAO = 120;
+
+/** Anúncio para leitor de tela (uma região viva para todos os menus). @param {string} texto */
+function anunciar(texto) {
+  let regiao = document.getElementById("menu-anuncio");
+  if (!regiao) {
+    regiao = document.createElement("div");
+    regiao.id = "menu-anuncio";
+    regiao.className = "sr-only";
+    regiao.setAttribute("aria-live", "polite");
+    document.body.append(regiao);
+  }
+  regiao.textContent = "";
+  window.setTimeout(() => { if (regiao) regiao.textContent = texto; }, 50);
+}
 /** Topo da barra flutuante (ou o pé da janela): abaixo disso nada aparece inteiro. */
 export function limiteInferior() {
   // A barra flutua acima da borda da janela: o limite é o topo dela, não a altura.
@@ -83,6 +101,11 @@ export class PcMenu extends HTMLElement {
         e.preventDefault();
         return;
       }
+      if (item.hasAttribute("data-menu-grupo")) {
+        e.preventDefault();
+        this.alternarGrupo(/** @type {HTMLElement} */ (item));
+        return;
+      }
       if (this.flutuante()) this.fechar();
     });
     // O menu tem nome: o do botão que o abre ("Ações do Ofício 12/2026").
@@ -95,11 +118,32 @@ export class PcMenu extends HTMLElement {
     };
     // Itens que vêm do servidor (`data-menu-carregar`): pedidos quando a pessoa chega ao
     // botão — mouse por cima ou foco —, para já estarem lá no clique.
+    // Foco e toque pedem na hora; o mouse, só se parar sobre o botão (passar por cima de
+    // uma coluna de ⋮ não dispara 20 pedidos).
     if (this.dataset.menuCarregar) {
-      const antes = () => { this.carregar(); };
-      this.botao.addEventListener("pointerenter", antes, { once: true });
-      this.botao.addEventListener("focus", antes, { once: true });
+      /** @type {number | undefined} */
+      let espera;
+      this.botao.addEventListener("pointerenter", (e) => {
+        if (e.pointerType !== "mouse") { this.carregar(); return; }
+        espera = window.setTimeout(() => this.carregar(), INTENCAO);
+      });
+      this.botao.addEventListener("pointerleave", () => window.clearTimeout(espera));
+      this.botao.addEventListener("focus", () => { this.carregar(); });
     }
+  }
+
+  /** Abre ou recolhe um grupo no lugar (ex.: "Criar a partir deste ofício").
+   * @param {HTMLElement} titulo @param {boolean} [abrir] */
+  alternarGrupo(titulo, abrir) {
+    const grupo = /** @type {HTMLElement | null} */ (
+      document.getElementById(titulo.getAttribute("aria-controls") || ""));
+    if (!grupo) return;
+    const mostrar = abrir ?? grupo.hidden;
+    grupo.hidden = !mostrar;
+    titulo.setAttribute("aria-expanded", String(mostrar));
+    if (this.flutuante()) this.posicionar();
+    if (mostrar) /** @type {HTMLElement | null} */ (grupo.querySelector("[role='menuitem']"))?.focus();
+    else titulo.focus();
   }
 
   /** @returns {Promise<void>} */
@@ -110,7 +154,15 @@ export class PcMenu extends HTMLElement {
     const painel = this.painel;
     const aviso = /** @type {HTMLElement | null} */ (painel.querySelector("[data-menu-carregando]"));
     this.promessa = fetch(url, { credentials: "same-origin", headers: { "HX-Request": "true" } })
-      .then((r) => {
+      .then(async (r) => {
+        // Sessão expirada: o servidor responde 401 com o caminho de volta (identidade/
+        // middleware.py); nunca a tela de login dentro do menu.
+        if (r.status === 401 || r.redirected) {
+          const corpo = r.status === 401 ? await r.json().catch(() => ({})) : {};
+          this.sessaoTerminou(corpo.entrar || `/conta/entrar/?next=${encodeURIComponent(
+            window.location.pathname + window.location.search)}`);
+          throw new Error("sessão");
+        }
         if (!r.ok) throw new Error(String(r.status));
         return r.text();
       })
@@ -120,11 +172,42 @@ export class PcMenu extends HTMLElement {
         /** @type {any} */ (window).htmx?.process(painel); // "Ver resumo" usa hx-get
         delete this.dataset.menuCarregar;
       })
-      .catch(() => {
+      .catch((erro) => {
         this.promessa = undefined; // a próxima abertura tenta de novo
-        if (aviso) aviso.textContent = "Não deu para carregar as ações. Feche e abra de novo.";
+        if (erro?.message === "sessão") return;
+        const texto = "Não deu para carregar as ações. Feche e abra de novo.";
+        if (aviso) aviso.textContent = texto;
+        if (this.aberto()) anunciar(texto);
       });
     return this.promessa;
+  }
+
+  /** O menu diz que a sessão terminou e oferece entrar de novo, voltando para esta página.
+   * @param {string} entrar */
+  sessaoTerminou(entrar) {
+    const painel = this.painel;
+    if (!painel) return;
+    painel.querySelectorAll("[data-menu-carregando], [data-menu-sessao]").forEach((e) => e.remove());
+    const link = document.createElement("a");
+    link.className = "menu__item menu__item--descrito";
+    link.setAttribute("role", "menuitem");
+    link.dataset.menuSessao = "";
+    link.href = entrar;
+    const texto = document.createElement("span");
+    texto.className = "menu__item-texto";
+    const titulo = document.createElement("span");
+    titulo.textContent = "Entrar de novo";
+    const descricao = document.createElement("span");
+    descricao.className = "menu__item-descricao";
+    descricao.textContent = "Sua sessão terminou — entre de novo e volte para esta página.";
+    texto.append(titulo, descricao);
+    link.append(icone("log-out"), texto);
+    painel.append(link);
+    if (this.aberto()) {
+      link.focus({ preventScroll: true });
+      anunciar("Sua sessão terminou — entre de novo.");
+      if (this.flutuante()) this.posicionar();
+    }
   }
 
   disconnectedCallback() {
@@ -145,7 +228,7 @@ export class PcMenu extends HTMLElement {
   itens() {
     return /** @type {HTMLElement[]} */ (
       Array.from(this.painel?.querySelectorAll("[role='menuitem']") ?? [])
-    );
+    ).filter((i) => !i.closest(".menu__grupo[hidden]"));
   }
 
   abrir() {
@@ -196,6 +279,9 @@ export class PcMenu extends HTMLElement {
     (this.closest("dialog[open]") || document.body).append(veu);
     veu.addEventListener("pointerdown", (e) => {
       e.preventDefault(); // o toque fora só fecha: nada por trás é acionado
+      // No toque, o "click" de compatibilidade chega depois: o véu fica (transparente)
+      // para recebê-lo — senão ele cairia na página e levaria o foco para o <body>.
+      if (e.pointerType !== "mouse") this.veuAteOClique = true;
       this.fechar();
     });
     veu.addEventListener("wheel", (e) => { if (this.folha) e.preventDefault(); }, { passive: false });
@@ -259,9 +345,20 @@ export class PcMenu extends HTMLElement {
       this.acompanhar = undefined;
     }
     if (this.veu) {
-      try { /** @type {any} */ (this.veu).hidePopover(); } catch { /* já fechado */ }
-      this.veu.remove();
+      const veu = this.veu;
       this.veu = undefined;
+      const tirar = () => {
+        try { /** @type {any} */ (veu).hidePopover(); } catch { /* já fechado */ }
+        veu.remove();
+      };
+      if (this.veuAteOClique) {
+        this.veuAteOClique = false;
+        veu.classList.add("menu__veu--saindo");
+        veu.addEventListener("click", (e) => { e.preventDefault(); tirar(); }, { once: true });
+        window.setTimeout(tirar, 700);
+      } else {
+        tirar();
+      }
     }
     if (!painel?.hasAttribute("popover")) return;
     if (painel.matches(":popover-open")) {
@@ -309,6 +406,21 @@ export class PcMenu extends HTMLElement {
       case "Home": e.preventDefault(); ir(0); break;
       case "End": e.preventDefault(); ir(itens.length - 1); break;
       case "Escape": e.preventDefault(); this.fechar(); break;
+      case "ArrowRight":
+        if (itens[i]?.hasAttribute("data-menu-grupo")) {
+          e.preventDefault();
+          this.alternarGrupo(itens[i], true);
+        }
+        break;
+      case "ArrowLeft": {
+        const grupo = itens[i]?.closest(".menu__grupo");
+        const titulo = grupo && this.painel?.querySelector(`[aria-controls="${grupo.id}"]`);
+        if (titulo) {
+          e.preventDefault();
+          this.alternarGrupo(/** @type {HTMLElement} */ (titulo), false);
+        }
+        break;
+      }
       case "Enter":
       case " ":
         if (itens[i]?.getAttribute("aria-disabled") === "true") e.preventDefault();

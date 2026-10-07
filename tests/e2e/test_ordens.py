@@ -17,6 +17,7 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
     janela = pg.get_by_role("dialog")
     janela.get_by_role("button", name="Mais ações").click()
+    janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
     janela.get_by_role("menuitem", name="Nova ordem de serviço").press("Enter")
     pg.get_by_role("dialog", name="Nova ordem de serviço?").get_by_role(
         "button", name="Criar OS").click()

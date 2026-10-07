@@ -69,8 +69,17 @@ def test_teclado_setas_home_end_esc_e_foco_devolvido(logado, dados_e2e):
     expect(anexar).to_be_focused()
     pg.keyboard.press("Enter")
     expect(menu).to_be_visible()
-    # Nome do item sem a descrição; descrição como descrição.
-    expect(menu.get_by_role("menuitem", name="Marcar como complementar", exact=True)).to_have_count(1)
+    # Criar e marcar vêm recolhidos; o grupo abre no lugar (Enter) e ← recolhe.
+    criar = menu.get_by_role("menuitem", name="Criar a partir deste ofício")
+    expect(criar).to_have_attribute("aria-expanded", "false")
+    expect(menu.get_by_role("menuitem", name="Duplicar")).to_be_hidden()
+    criar.focus()
+    pg.keyboard.press("Enter")
+    expect(criar).to_have_attribute("aria-expanded", "true")
+    expect(menu.get_by_role("menuitem", name="Novo termo de autorização")).to_be_focused()
+    pg.keyboard.press("ArrowLeft")
+    expect(criar).to_be_focused()
+    expect(criar).to_have_attribute("aria-expanded", "false")
     pg.keyboard.press("Escape")
     expect(menu).to_be_hidden()
     expect(botao).to_be_focused()
@@ -98,6 +107,20 @@ def test_painel_dentro_da_janela_em_toda_largura(logado, dados_e2e):
         expect(painel).to_have_count(0)
 
 
+def test_sessao_expirada_avisa_no_menu_e_nao_mostra_o_login(logado, dados_e2e):
+    pg = logado
+    pg.goto("/viagens/oficios/?documento=rascunho")
+    pg.context.clear_cookies()  # a sessão terminou (aba esquecida aberta)
+    botao = _botao(pg, dados_e2e.ids["oficio_rascunho"])
+    botao.click()
+    menu = pg.get_by_role("menu", name=re.compile("Ações do Ofício"))
+    entrar = menu.get_by_role("menuitem", name="Entrar de novo")
+    expect(entrar).to_be_focused()
+    expect(entrar).to_have_attribute("href", "/conta/entrar/?next=/viagens/oficios/%3Fdocumento%3Drascunho")
+    expect(menu.locator("input[name=password]")).to_have_count(0)
+    expect(pg.locator(".toast")).to_contain_text("Sua sessão terminou")
+
+
 def test_toque_fora_so_fecha(logado, dados_e2e):
     pg = logado
     pg.set_viewport_size({"width": 390, "height": 844})
@@ -107,6 +130,23 @@ def test_toque_fora_so_fecha(logado, dados_e2e):
     expect(menu).to_be_hidden()
     assert pg.url.endswith("/viagens/oficios/?documento=rascunho")  # nada por trás acionou
     expect(botao).to_be_focused()
+
+
+def test_toque_no_veu_devolve_o_foco_ao_botao_no_celular(navegador, live_server, dados_e2e):
+    contexto = navegador.new_context(viewport={"width": 390, "height": 844}, has_touch=True,
+                                     is_mobile=True, locale="pt-BR", base_url=live_server.url)
+    pg = contexto.new_page()
+    entrar(pg)
+    pg.goto("/viagens/oficios/?documento=rascunho")
+    botao = _botao(pg, dados_e2e.ids["oficio_rascunho"])
+    botao.tap()
+    menu = pg.get_by_role("menu", name=re.compile("Ações do Ofício"))
+    expect(menu.get_by_role("menuitem", name="Ver resumo")).to_be_focused()
+    pg.touchscreen.tap(195, 120)  # véu, sobre a lista
+    expect(menu).to_be_hidden()
+    expect(botao).to_be_focused()
+    assert pg.url.endswith("/viagens/oficios/?documento=rascunho")
+    contexto.close()
 
 
 def test_baixar_documentos_pelo_menu_e_foco_volta_ao_botao(logado, dados_e2e):
@@ -139,11 +179,16 @@ def test_marcar_complementar_pelo_menu(logado, dados_e2e):
     pg = logado
     pg.goto("/viagens/oficios/?documento=rascunho")
     _, menu = _abrir(pg, dados_e2e.ids["oficio_rascunho"])
+    menu.get_by_role("menuitem", name="Retificado ou complementar").click()  # grupo no lugar
     menu.get_by_role("menuitem", name="Marcar como complementar").click()
     expect(pg.get_by_text(re.compile(r"marcado como complementar"))).to_be_visible()
     assert "documento=rascunho" in pg.url  # a lista volta como estava
     assert Oficio.objects.get(pk=dados_e2e.ids["oficio_rascunho"]).marcador == "complementar"
     _, menu = _abrir(pg, dados_e2e.ids["oficio_rascunho"])
+    grupo = menu.get_by_role("menuitem", name="Retificado ou complementar")
+    expect(grupo).to_have_accessible_description("Hoje sai como complementar")
+    grupo.press("ArrowRight")  # → abre o grupo e leva ao 1º item dele
+    expect(menu.get_by_role("menuitem", name="Marcar como retificado")).to_be_focused()
     expect(menu.get_by_role("menuitem", name="Deixar de ser complementar")).to_be_visible()
     expect(menu.get_by_role("menuitem", name="Marcar como retificado")).to_have_accessible_description(
         re.compile("tira a de complementar"))

@@ -22,6 +22,7 @@ def test_plano_a_partir_do_oficio(logado, dados_e2e):
     pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
     janela = pg.get_by_role("dialog")
     janela.get_by_role("button", name="Mais ações").click()
+    janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
     janela.get_by_role("menuitem", name="Novo plano de trabalho").press("Enter")
     pg.get_by_role("dialog", name="Novo plano de trabalho?").get_by_role(
         "button", name="Criar plano").click()

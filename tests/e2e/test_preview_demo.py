@@ -165,7 +165,10 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     janela.get_by_role("link", name="Abrir o ofício").click()  # …e editar é ação explícita
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
-    # A folha grava sozinha a cada pausa; "Finalizar" grava o que faltar e volta à lista.
+    # A folha grava sozinha a cada pausa (o status diz quando); "Finalizar" grava o que
+    # faltar e volta à lista.
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente às",
+                                                                   timeout=15000)
     _sem_rolagem_lateral(pg)
     pg.get_by_role("button", name="Finalizar").click()
     expect(pg.get_by_text(re.compile(r"Ofício \d+/\d{4} salvo\."))).to_be_visible()

@@ -174,3 +174,26 @@ class TestFragmentoDoMenu:
         client.force_login(cenario.usuarios["gestor"])
         with django_assert_max_num_queries(12):
             client.get(reverse("viagens:acoes_oficio", args=[cenario.ids["oficio_emitido"]]))
+
+
+class TestResumo:
+    def test_registros_do_oficio_so_quando_existem(self, client, cenario):
+        from gestao.viagens import termos
+
+        client.force_login(cenario.usuarios["operador"])
+        pk = cenario.ids["oficio_emitido"]
+        url = reverse("viagens:resumo", args=[pk])
+        html = client.get(url, HTTP_HX_REQUEST="true").content.decode()
+        assert "Termos deste ofício</a>" not in html  # lista vazia (QA Lote 3, M5)
+        termos.salvar(cenario.usuarios["operador"], oficio=Oficio.objects.get(pk=pk))
+        html = client.get(url, HTTP_HX_REQUEST="true").content.decode()
+        assert "Termos deste ofício</a>" in html
+        assert "Ordens de serviço deste ofício</a>" not in html
+
+    def test_criar_e_marcas_vem_recolhidos(self, client, cenario):
+        client.force_login(cenario.usuarios["operador"])
+        html = client.get(reverse("viagens:acoes_oficio",
+                                  args=[cenario.ids["oficio_rascunho"]])).content.decode()
+        assert html.count("data-menu-grupo") == 2
+        assert "Criar a partir deste ofício" in html and "Retificado ou complementar" in html
+        assert html.count('class="menu__grupo"') == 2 and "Hoje sai sem marca" in html

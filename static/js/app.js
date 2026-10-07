@@ -121,6 +121,21 @@ document.addEventListener("submit", (evento) => {
   }
 });
 
+// Sessão expirada em qualquer pedido assíncrono (fetch dos componentes, HTMX): o servidor
+// responde 401 com `X-Sessao-Expirada` e o caminho de volta (identidade/middleware.py). Aqui a
+// página avisa uma vez, com o link "Entrar de novo" — cada componente continua tratando a
+// falha do seu jeito (o menu ⋮ diz no próprio menu). O HTMX ainda recarrega no login pelo
+// `HX-Redirect`.
+const fetchOriginal = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const resposta = await fetchOriginal(...args);
+  if (resposta.status === 401 && resposta.headers.get("X-Sessao-Expirada")) {
+    const corpo = await resposta.clone().json().catch(() => ({}));
+    document.dispatchEvent(new CustomEvent("pcpr:sessao-expirada", { detail: corpo }));
+  }
+  return resposta;
+};
+
 // HTMX: envia o token CSRF em toda requisição e respeita prefers-reduced-motion.
 document.body.addEventListener("htmx:configRequest", (evento) => {
   const e = /** @type {CustomEvent} */ (evento);

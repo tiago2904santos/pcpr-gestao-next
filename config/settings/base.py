@@ -95,7 +95,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.LoginRequiredMiddleware",
+    # LoginRequiredMiddleware do Django + 401 para pedidos assíncronos (sessão expirada).
+    "gestao.identidade.middleware.EntradaObrigatoriaMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "gestao.identidade.middleware.TrocaDeSenhaObrigatoriaMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

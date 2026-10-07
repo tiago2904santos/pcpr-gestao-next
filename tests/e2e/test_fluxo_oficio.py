@@ -58,7 +58,9 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     _data_hora(pg, "retorno-saida", 17, 8)
     expect(pg.locator("#id_destino-0-tempo_viagem")).not_to_have_value("")
     expect(pg.locator("[data-total-km]")).to_contain_text("km")
-    pg.get_by_role("button", name="Salvar rascunho").click()
+    # Enter num campo salva e fica na folha (o botão padrão do formulário; o visível,
+    # "Finalizar", salva e volta à lista).
+    pg.locator("#id_protocolo").press("Enter")
 
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     expect(motorista).to_have_attribute("aria-pressed", "true")
@@ -69,7 +71,8 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     expect(pg.locator("#justificativa")).to_have_count(0)
 
     # A revisão é a janela de resumo aberta sobre a folha (não há mais página própria).
-    pg.locator(".barra-acoes").get_by_role("button", name="Revisar e emitir").click()
+    # "Revisar e emitir" mora no cartão Documentos da folha (não na barra do rodapé).
+    pg.get_by_role("button", name="Revisar e emitir").click()
     revisao = pg.get_by_role("dialog", name="Revisar e emitir o ofício")
     expect(revisao).to_be_visible()
     expect(revisao).to_contain_text("R$ 624,68")

@@ -46,6 +46,15 @@ retificado); no rascunho, "Marcar como retificado" liga a marca — como no lega
 
 {% if m.criar or no_resumo and termos_do_oficio or no_resumo and ordens_do_oficio or no_resumo and planos_do_oficio %}
 <div class="menu__separador" role="separator"></div>
+{% comment %}
+Criar e marcar vêm recolhidos (QA Lote 3, M7: 14–15 itens contra 8 no legado): ler, levar,
+anexar e mudar a situação — o dia a dia — continuam a um clique; o que se faz uma vez por
+ofício abre no lugar (Enter, Espaço ou →; ← recolhe), sem submenu voando ao lado.
+{% endcomment %}
+{% if m.criar_agrupado %}
+<button type="button" class="menu__item menu__item--descrito menu__item--grupo" role="menuitem" data-menu-grupo aria-expanded="false" aria-controls="{{ px }}{{ o.pk }}-gc" aria-describedby="{{ px }}{{ o.pk }}-gcd">{% icone "file-plus-2" %}<span class="menu__item-texto"><span>Criar a partir deste ofício</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-gcd" aria-hidden="true">{{ m.criar_itens|join:", "|capfirst }}</span></span>{% icone "chevron-down" classe="icone--sm menu__grupo-seta" %}</button>
+<div class="menu__grupo" id="{{ px }}{{ o.pk }}-gc" role="group" aria-label="Criar a partir deste ofício" hidden>
+{% endif %}
 {% if m.termo %}
 <form method="post" action="{% url 'viagens:criar_termo_do_oficio' o.pk %}">
   {% csrf_token %}
@@ -74,8 +83,9 @@ retificado); no rascunho, "Marcar como retificado" liga a marca — como no lega
   <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-du">{% icone "copy" %}<span class="menu__item-texto"><span>Duplicar</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-du" aria-hidden="true">Rascunho novo, com outro número</span></span></button>
 </form>
 {% endif %}
+{% if m.criar_agrupado %}</div>{% endif %}
 {% if no_resumo %}
-{# Na janela: os registros que já nasceram do ofício (a lista filtrada). #}
+{# Na janela: os registros que já nasceram do ofício (a lista filtrada), só quando existem. #}
 {% if termos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:termos' %}?oficio={{ o.pk }}">{% icone "files" %}Termos deste ofício</a>{% endif %}
 {% if ordens_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:ordens' %}?oficio={{ o.pk }}">{% icone "files" %}Ordens de serviço deste ofício</a>{% endif %}
 {% if planos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:planos' %}?oficio={{ o.pk }}">{% icone "files" %}Planos de trabalho deste ofício</a>{% endif %}
@@ -84,12 +94,15 @@ retificado); no rascunho, "Marcar como retificado" liga a marca — como no lega
 
 {% if m.marcas %}
 <div class="menu__separador" role="separator"></div>
+<button type="button" class="menu__item menu__item--descrito menu__item--grupo" role="menuitem" data-menu-grupo aria-expanded="false" aria-controls="{{ px }}{{ o.pk }}-gm" aria-describedby="{{ px }}{{ o.pk }}-gmd">{% icone "file-pen-line" %}<span class="menu__item-texto"><span>Retificado ou complementar</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-gmd" aria-hidden="true">{% if o.marcador %}Hoje sai como {{ o.marcador }}{% else %}Hoje sai sem marca{% endif %}</span></span>{% icone "chevron-down" classe="icone--sm menu__grupo-seta" %}</button>
+<div class="menu__grupo" id="{{ px }}{{ o.pk }}-gm" role="group" aria-label="Retificado ou complementar" hidden>
 {% for op in m.marcas %}
 <form method="post" action="{% url 'viagens:marcar_oficio' o.pk %}">
   {% csrf_token %}<input type="hidden" name="marca" value="{{ op.marca.value }}"><input type="hidden" name="voltar" value="{{ request.get_full_path }}" data-voltar-vivo>
   <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-{{ op.marca.value|slice:':2' }}">{% if op.marca.value == "retificado" %}{% icone "file-pen-line" %}{% else %}{% icone "file-plus-2" %}{% endif %}<span class="menu__item-texto"><span>{% if op.ligar %}Marcar como {{ op.marca.value }}{% else %}Deixar de ser {{ op.marca.value }}{% endif %}</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-{{ op.marca.value|slice:':2' }}" aria-hidden="true">{% if op.ligar %}Sai “({{ op.marca.value|capfirst }})” ao lado do número{% if op.tira.value %}; tira a de {{ op.tira.value }}{% endif %}{% else %}O documento volta a sair sem a marca{% endif %}</span></span></button>
 </form>
 {% endfor %}
+</div>
 {% endif %}
 
 {% include "viagens/oficios/_acoes_ciclo.html" with acoes=m.ciclo %}

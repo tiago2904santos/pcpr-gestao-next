@@ -206,6 +206,18 @@ class MenuDoOficio:
     def criar(self) -> bool:
         return self.termo or self.ordem or self.plano or self.duplicar
 
+    @property
+    def criar_itens(self) -> list[str]:
+        """O que "Criar a partir deste ofício" reúne, na ordem do menu (vira a descrição)."""
+        return [nome for nome, vale in (("termo", self.termo), ("OS", self.ordem),
+                                        ("plano", self.plano), ("cópia", self.duplicar)) if vale]
+
+    @property
+    def criar_agrupado(self) -> bool:
+        """Dois ou mais itens de criação viram um grupo recolhido (QA Lote 3, M7); um só
+        fica solto — um grupo de um item seria um clique a mais por nada."""
+        return len(self.criar_itens) > 1
+
 
 _CONSULTAR = object()
 

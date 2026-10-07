@@ -19,12 +19,23 @@ export class PcToasts extends HTMLElement {
     this.querySelectorAll(".toast").forEach((t) => this.agendar(/** @type {HTMLElement} */ (t)));
     document.body.addEventListener("toast", (evento) => {
       const d = /** @type {CustomEvent} */ (evento).detail || {};
-      this.mostrar(d.mensagem || d.value || "", d.nivel || "info");
+      this.mostrar(d.mensagem || d.value || "", d.nivel || "info", d.link);
+    });
+    // Sessão expirada num pedido assíncrono (app.js): um aviso só, que fica até ser fechado.
+    document.addEventListener("pcpr:sessao-expirada", (evento) => {
+      if (this.querySelector("[data-toast-sessao]")) return;
+      const d = /** @type {CustomEvent} */ (evento).detail || {};
+      this.mostrar(d.mensagem || "Sua sessão terminou — entre de novo.", "perigo",
+        { texto: "Entrar de novo", url: d.entrar || "/conta/entrar/" });
+      this.lastElementChild?.setAttribute("data-toast-sessao", "");
     });
   }
 
-  /** @param {string} mensagem @param {string} nivel */
-  mostrar(mensagem, nivel = "info") {
+  /**
+   * @param {string} mensagem @param {string} nivel
+   * @param {{texto: string, url: string}} [link] uma ação no próprio aviso (ex.: entrar de novo)
+   */
+  mostrar(mensagem, nivel = "info", link) {
     if (!mensagem) return;
     const t = document.createElement("div");
     t.className = `toast toast--${nivel}`;
@@ -37,6 +48,13 @@ export class PcToasts extends HTMLElement {
     svg.append(use);
     const texto = document.createElement("div");
     texto.textContent = mensagem;
+    if (link?.url && link.url.startsWith("/") && !link.url.startsWith("//")) {
+      const a = document.createElement("a");
+      a.className = "toast__acao";
+      a.href = link.url;
+      a.textContent = link.texto || "Abrir";
+      texto.append(" ", a);
+    }
     const fechar = document.createElement("button");
     fechar.type = "button";
     fechar.className = "toast__fechar";
