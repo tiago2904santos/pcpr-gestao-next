@@ -118,11 +118,11 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     # Busca, filtro e ordenação.
     protocolo = pg.locator(".registro__meta-item", has_text="Protocolo").first.inner_text()
     busca.fill(protocolo.replace("Protocolo", "").strip())
-    expect(pg.locator(".lista-cabecalho")).to_contain_text("Resultados para")
+    expect(pg.locator("#titulo-resultados")).to_contain_text("Resultados para")
     assert 0 < _total(pg) < total
     busca.fill("")
     # A busca é ao vivo: espera a lista voltar ao todo antes de filtrar.
-    expect(pg.locator(".lista-cabecalho")).to_have_count(0)
+    expect(pg.locator("#titulo-resultados")).not_to_contain_text("Resultados para")
     expect(pg.locator(ABA_ATUAL)).to_have_text(str(total))
     pg.locator("label[for='documento-emitido']").click()  # Documento: um clique
     expect(pg).to_have_url(re.compile("documento=emitido"))

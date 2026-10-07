@@ -1407,8 +1407,9 @@ class TestAbasTemporaisEDocumento:
         html = operador.get(reverse("viagens:oficios"), {"q": "arapongas"}).content.decode()
         assert _contagem(html, "aba-todos") == 1 and _contagem(html, "aba-futuros") == 1
         assert _contagem(html, "aba-cancelados") == 0
-        assert _contagem(html, "doc-todos") == 1 and _contagem(html, "doc-emitido") == 1
-        assert _contagem(html, "doc-rascunho") == 0
+        assert _contagem(html, "doc-emitido") == 1 and _contagem(html, "doc-rascunho") == 0
+        # "Todos" do Documento não tem número: os outros não somam o todo (decisão I3).
+        assert 'id="conta-doc-todos"' not in html
 
     def test_contadores_ignoram_so_a_propria_dimensao(self, operador, cenario):
         html = operador.get(reverse("viagens:oficios"),
@@ -1417,11 +1418,11 @@ class TestAbasTemporaisEDocumento:
         assert _contagem(html, "aba-todos") == 2 and _contagem(html, "aba-futuros") == 2
         assert _contagem(html, "aba-cancelados") == 0
         # …e o Documento conta dentro da aba (Todos), sem se filtrar por ele mesmo.
-        assert _contagem(html, "doc-todos") == 4 and _contagem(html, "doc-rascunho") == 2
+        assert _contagem(html, "doc-rascunho") == 2
         assert _contagem(html, "doc-emitido") == 1 and _contagem(html, "doc-arquivado") == 0
         html = operador.get(reverse("viagens:oficios"),
                             {"aba": "cancelados", "protocolo": "999"}).content.decode()
-        assert _contagem(html, "doc-todos") == 0 and _contagem(html, "aba-todos") == 0
+        assert _contagem(html, "doc-rascunho") == 0 and _contagem(html, "aba-todos") == 0
 
     def test_busca_ao_vivo_atualiza_os_contadores_sem_trocar_o_controle(self, operador):
         r = operador.get(reverse("viagens:oficios"), {"q": "arapongas"},
@@ -1494,8 +1495,8 @@ class TestGavetaEFichas:
             "ordem": "numero"}).content.decode()
         fichas = {rotulo: unescape(href) for href, rotulo in re.findall(
             r'<a class="ficha__remover" href="([^"]+)"[^>]*aria-label="Remover ([^"]+)"', html)}
-        assert set(fichas) >= {"Documento: Emitidos", "Protocolo: 12345",
-                               "Ordem: Número, mais antigo primeiro"}
+        assert set(fichas) == {"Protocolo: 12345", "Ordem: Número, mais antigo primeiro"}
+        # Documento não vira ficha: o segmentado marcado já diz (QA Lote 2, I4).
         sem_protocolo = parse_qs(urlsplit(fichas["Protocolo: 12345"]).query)
         assert "protocolo" not in sem_protocolo
         assert sem_protocolo["q"] == ["a"] and sem_protocolo["aba"] == ["futuros"]
@@ -1572,7 +1573,10 @@ class TestVaziosEContagens:
         html = operador.get(reverse("viagens:oficios"), {"documento": "rascunho"}).content.decode()
         assert "2 de 4 ofícios" in html
         html = operador.get(reverse("viagens:oficios"), {"q": "arapongas"}).content.decode()
-        assert "Resultados para “arapongas”" in html and "1 de 4 ofícios" in html
+        # Com busca o título também é só para o leitor (o total já está na aba e na barra).
+        assert re.search(r'<h2 class="sr-only" id="titulo-resultados">Resultados para '
+                         r'“arapongas”: 1 ofício</h2>', html)
+        assert "1 de 4 ofícios" in html and "lista-cabecalho" not in html
 
     def test_cabecalho_do_mes_conta_o_grupo(self, operador, cenario):
         html = operador.get(reverse("viagens:oficios")).content.decode()
