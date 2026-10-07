@@ -676,6 +676,13 @@ a.ficha:hover {
   font-weight: var(--peso-normal);
 }
 
+/* Itálico dentro de um corte (overflow: hidden): a última letra inclina para fora da caixa
+   e era decepada ("Sem destinc"). Um respiro à direita guarda a inclinação. */
+.registro__link-texto > .vazio-inline,
+.registro__meta-item--vazio > .registro__meta-texto {
+  padding-right: 0.15em;
+}
+
 .registro:hover .registro__link-texto > .vazio-inline {
   color: inherit;
 }
