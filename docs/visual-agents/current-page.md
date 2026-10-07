@@ -3,15 +3,15 @@
 | Campo | Valor |
 |---|---|
 | Módulo | Viagens → **Ofícios** |
-| Página | **Lista de ofícios** (`/viagens/oficios/`) |
-| Agente responsável | 3 — QA (Lote 3) |
-| Análise do legado | **concluída** — `parity/oficios-lista.md` (matriz L1–L80, defeitos F1–F16) |
-| Implementação | plano aprovado (`visual/oficios-lista-plano.md`, LP-01…LP-33); **Lote 1 APROVADO pelo QA** (LP-01…LP-12 + correções pós-QA); **Lote 2 APROVADO**; **Lote 3 implementado** (LP-30…LP-33 + saneamento dos 3 e2e + menores M5/M8/M-R1/M-R2/M-R4, `visual/oficios-lista-lote3.md`) — aguardando QA |
-| Testes executados | QA do Lote 1: 26 rotas × 6 larguras contra o main, axe 11 larguras, benchmark legado × novo, consultas SQL (`qa/oficios-lista-lote1.md`) |
-| Problemas encontrados | ver `parity/oficios-lista.md` e `visual/oficios-lista.md` |
-| Problemas resolvidos | P2–P5, P9, P10, P12, P13 (parcial) do diagnóstico; B1, B2, I1–I3, RB1 do QA |
-| Pendências | QA do Lote 3; **confirmar com o dono do produto a página Numeração** (excluída a pedido em `4a3f835`, recriada por D9); importação do eProtocolo (sub-projeto); e2e vermelhos das folhas (não da lista, iguais em `a10a831`) |
-| Próximo passo | QA do Lote 3 → fechar a lista (completed-pages) → resumo/detalhes |
+| Página | **Folha do ofício — Lote H (correções urgentes)**, depois Resumo → Folha → Documentos |
+| Agente responsável | 2 — Design Lead (implementação do Lote H) |
+| Análise do legado | **concluída** — `parity/oficios-folha.md`, `parity/oficios-resumo.md`, `parity/oficios-documentos.md` |
+| Implementação | plano aprovado (`visual/oficios-detalhe-plano.md`, D12–D18); Lote H em andamento |
+| Testes executados | suíte rápida após a lista: 1837 ✓ / 1 ✗ de ambiente |
+| Problemas encontrados | G1 salvar desmarca o motorista (perda de dado, desde `afcf0dd`); F1 geração que falha fica "gerando" para sempre; G2 data do ofício na emissão; G3 "Outro meio"; 6 e2e vermelhos da folha |
+| Problemas resolvidos | Lista de ofícios concluída (ver `completed-pages.md`) |
+| Pendências | Lotes H, RS, FL, DC; perguntas ao dono no plano |
+| Próximo passo | Lote H → QA → Lote RS |
 
 ## Log
 - 2026-10-06 — ambiente montado (NOVO :8000 PREVIEW semeado; LEGADO :8001 do backup de 05/10). Branch `viagens/reconstrucao` criado.
@@ -20,3 +20,4 @@
 - 2026-10-07 — Lote 2 implementado: abas temporais + filtro Documento, gaveta com fichas, busca (placa, destino ≠ sede, unaccent), vazios/erro, `voltar` vivo, contagens, XLSX. Relatório em `visual/oficios-lista-lote2.md`.
 - 2026-10-07 — Lote 2: abas temporais com regra do legado (`dominio/recorte.py`), filtro Documento, contadores do recorte, gaveta/folha modal + fichas, Ano, busca placa/destino/acentos, erro HTMX. QA reprovou 1× (folha do celular cortava calendário; modal falso), corrigido, APROVADO (`651d666`).
 - 2026-10-07 — Lote 3: ⋮ canônico com itens descritos (lista, painel e resumo; itens sob demanda; folha no celular; véu), "Mais" da barra, página Numeração (domínio explica o próximo; histórico da trilha), docs do DS, 3 e2e do main verdes, menores M5/M8/M-R1/M-R2/M-R4. Relatório em `visual/oficios-lista-lote3.md`.
+- 2026-10-07 — Lote 3 (menu ⋮ canônico com grupos, carga sob demanda, 401 em pedidos assíncronos sem sessão, barra "Mais") aprovado; Numeração revertida por decisão anterior do dono (D9 revogada). **Lista de ofícios CONCLUÍDA.** Paridade de folha/resumo/documentos entregue; plano D12–D18.
