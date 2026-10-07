@@ -757,6 +757,11 @@ a.ficha:hover {
   max-width: 100%;
 }
 
+/* Com mais gente depois do motorista, o bloco dele deixa o lugar do ", …". */
+.registro__equipe-motorista:not(:last-child) {
+  max-width: calc(100% - 1.75em);
+}
+
 .registro__equipe-nome,
 .registro__equipe-resto {
   min-width: 0;
@@ -767,6 +772,8 @@ a.ficha:hover {
 
 .registro__equipe-resto {
   flex: 0 1 auto;
+  /* Sempre sobra ", …": a equipe nunca parece ser só o motorista quando há mais gente. */
+  min-width: 1.75em;
 }
 
 /* Cada item no seu lugar da grade (as listas declaram as colunas abaixo). */
