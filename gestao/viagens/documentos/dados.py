@@ -9,8 +9,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.db.models import Prefetch, prefetch_related_objects
 from django.utils import timezone
 
+from gestao.cadastros.models import SubstituicaoAssinante
 from gestao.cadastros.services import assinante
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
@@ -33,6 +35,9 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     )
 
     config = configuracao_da_unidade(oficio)
+    # Ofício e justificativa usam a mesma lista; o cargo do substituto vem junto.
+    prefetch_related_objects([config], Prefetch(
+        "substituicoes", queryset=SubstituicaoAssinante.objects.select_related("servidor__cargo")))
     viajantes = viajantes_de(oficio)
     trechos = trechos_de(oficio)
     destinos = []
@@ -54,10 +59,8 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     else:
         # Fora da viatura oficial, o meio é o escolhido na lista; o detalhe (livre) vem
         # entre parênteses, quando a pessoa escreveu algo.
-        meio = oficio.get_transporte_meio_display() if oficio.transporte_meio else ""
-        detalhe = oficio.transporte_descricao
         transporte = {
-            "meio": f"{meio} ({detalhe})" if meio and detalhe else (meio or detalhe),
+            "meio": oficio.transporte_texto,
             "placa": oficio.transporte_placa,
             "combustivel": str(oficio.transporte_combustivel or ""), "viatura": "",
             "oficial": False,

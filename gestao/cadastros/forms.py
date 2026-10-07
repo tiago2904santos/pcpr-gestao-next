@@ -14,6 +14,7 @@ from django import forms
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Q, Value
 from django.db.models.functions import Lower
+from django.forms.models import ModelChoiceIterator
 
 from gestao.plataforma.widgets import (
     CaixasDeEscolha,
@@ -171,8 +172,13 @@ class FormularioServidor(forms.Form):
         unidade = cast(forms.ModelChoiceField, self.fields["unidade"])
         unidade.queryset = _unidades(instancia.unidade_id if instancia else None)
         if instancia is None and not self.is_bound:
-            padrao = Cargo.objects.filter(padrao=True, ativo=True).first()
-            if padrao:  # o cargo padrão já vem escolhido no servidor novo (referência)
+            # A lista já precisa ser desenhada; aproveite-a para achar o padrão,
+            # sem uma segunda consulta. Preserve os valores do ModelChoiceIterator.
+            opcoes = list(iter(ModelChoiceIterator(cargo)))
+            cargo.choices = opcoes
+            padrao = next((getattr(valor, "instance", None) for valor, _ in opcoes
+                           if getattr(getattr(valor, "instance", None), "padrao", False)), None)
+            if padrao is not None:
                 self.initial.setdefault("cargo", padrao.pk)
 
     @classmethod

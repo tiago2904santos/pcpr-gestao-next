@@ -155,6 +155,12 @@ def pode_baixar_documentos(usuario, oficio: Oficio) -> bool:
             and pode_ver(usuario, oficio))
 
 
+def pode_regenerar_documentos(usuario, oficio: Oficio) -> bool:
+    return (oficio.situacao == Oficio.Situacao.EMITIDO and not oficio.arquivado
+            and edita_oficios(usuario) and usuario.has_perm("viagens.emitir_oficio")
+            and pode_ver(usuario, oficio))
+
+
 def pode_anexar_assinado(usuario, oficio: Oficio) -> bool:
     """Via assinada do ofício (e da justificativa): só do PDF emitido, fora do arquivo."""
     return (oficio.situacao == Oficio.Situacao.EMITIDO and not oficio.arquivado

@@ -74,6 +74,8 @@ urlpatterns = [
     path("oficios/<int:pk>/documento/<str:tipo>/textos/<int:texto_id>/remover/",
          views_editor.remover_texto, name="editor_remover_texto"),
     path("documentos/<int:documento_id>/", views.baixar_documento, name="baixar_documento"),
+    path("documentos/<int:documento_id>/gerar/", views.regenerar_documento,
+         name="regenerar_documento"),
     path("prestacoes/", views_prestacao.lista, name="prestacoes"),
     path("prestacoes/exportar/", views_prestacao.exportar, name="exportar_prestacoes"),
     path("prestacoes/equipe/<int:pk>/diario/", views_diario.folha, name="diario"),

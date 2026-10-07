@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from itertools import pairwise
+from zoneinfo import ZoneInfo
 
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Max, Q
@@ -33,6 +34,7 @@ from .documentos.regioes import (
 from .dominio import bate_volta as dominio_bate_volta
 from .dominio import busca as dominio_busca
 from .dominio import diarias as dominio_diarias
+from .dominio.emissao import data_da_emissao
 from .dominio.numeracao import proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
 from .models import (
@@ -156,13 +158,15 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
     if unidade is None:
         raise RegraViolada("Seu usuário não está lotado em nenhuma unidade.")
     config = configuracao_da_unidade(unidade)
+    data_manual = data_oficio is not None
     data_oficio = data_oficio or timezone.localdate()
     # O motivo nasce com o texto padrão do catálogo, como na referência ("padrão sugerido
     # no novo"); a pessoa ajusta na folha.
     motivo_padrao = textos.padrao(ModeloTexto.Tipo.MOTIVO)
     oficio = Oficio.objects.create(
         unidade=unidade, ano=data_oficio.year, numero=reservar_numero(data_oficio.year),
-        data_oficio=data_oficio, sede=config.sede, criado_por=usuario,
+        data_oficio=data_oficio, data_oficio_manual=data_manual,
+        sede=config.sede, criado_por=usuario,
         motivo=motivo_padrao.texto if motivo_padrao else "",
     )
     _registrar(oficio, Historico.Acao.CRIADO,
@@ -173,7 +177,8 @@ def criar_rascunho(usuario, *, data_oficio: date | None = None) -> Oficio:
 # ---------------------------------------------------------------- edição
 CAMPOS_EDITAVEIS = [
     "numero",
-    "data_oficio", "protocolo", "marcador", "motivo", "custeio", "custeio_instituicao",
+    "data_oficio", "data_oficio_manual", "protocolo", "marcador", "motivo", "custeio",
+    "custeio_instituicao",
     "tipo_transporte", "viatura", "transporte_meio", "transporte_descricao",
     "transporte_placa",
     "transporte_combustivel", "porte_arma", "justificativa_modelo", "justificativa", "roteiro",
@@ -257,6 +262,8 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
     if "protocolo" in alterados:
         # Quem digita o número assume a origem (apaga marca de simulado/treinamento).
         atual.protocolo_origem = Oficio.OrigemProtocolo.MANUAL if atual.protocolo else ""
+    if "data_oficio" in alterados:
+        atual.data_oficio_manual = True
     if "numero" in alterados:
         # O número que a pessoa largou volta à fila como lacuna (o mesmo que a exclusão de
         # um rascunho faz, decisão D5) e o novo sai dela, se de lá tiver vindo.
@@ -272,7 +279,8 @@ def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = Tru
         atual.motorista_externo = Oficio.MotoristaExterno.NENHUM
     if atual.custeio != Oficio.Custeio.OUTRA_INSTITUICAO:
         atual.custeio_instituicao = ""
-    _normalizar_motorista_externo(atual)
+    if "motorista_externo" in alterados or "tipo_transporte" in alterados:
+        _normalizar_motorista_externo(atual)
     atual.versao += 1
     atual.save()
     # Diárias dependem só de trechos, equipe e sede: nada aqui muda o cálculo.
@@ -498,7 +506,7 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
             p.append(Pendencia("equipe", "Indique quem dirige: alguém da equipe ou um motorista "
                                          "de fora (em Transporte)."))
         p.extend(pendencias_do_motorista_externo(oficio, viajantes))
-    elif not oficio.transporte_descricao.strip():
+    elif not oficio.transporte_meio and not oficio.transporte_descricao.strip():
         p.append(Pendencia("transporte", "Descreva o meio de transporte."))
     if not trechos_de(oficio):
         p.append(Pendencia("roteiro", "Informe os trechos de ida e de volta."))
@@ -555,6 +563,8 @@ def pendencias_do_motorista_externo(oficio: Oficio, viajantes) -> list[Pendencia
 
 def nome_do_motorista(oficio: Oficio, viajantes=None) -> str:
     """O nome que vai no documento: o da equipe, ou o de fora (servidor ou não cadastrado)."""
+    if oficio.tipo_transporte != Oficio.TipoTransporte.VIATURA:
+        return ""
     if oficio.motorista_externo == Oficio.MotoristaExterno.SERVIDOR:
         return oficio.motorista_externo_servidor.nome if oficio.motorista_externo_servidor else ""
     if oficio.motorista_externo == Oficio.MotoristaExterno.MANUAL:
@@ -801,10 +811,56 @@ def desativar_texto_pronto(usuario, pk: int) -> ModeloTexto:
 
 
 # ---------------------------------------------------------------- emissão
+def preparar_data_emissao(oficio: Oficio) -> Oficio:
+    """Cópia para revisão/prontidão; nunca grava durante leitura."""
+    from copy import copy
+
+    copia = copy(oficio)
+    try:
+        hoje = timezone.localdate(timezone=ZoneInfo("America/Sao_Paulo"))
+        copia.data_oficio = data_da_emissao(oficio.data_oficio, hoje,
+                                          manual=oficio.data_oficio_manual, ano=oficio.ano)
+    except ValueError as exc:
+        raise RegraViolada(str(exc)) from None
+    return copia
+
+
+@transaction.atomic
+def regenerar_documento(documento: Documento, usuario) -> Documento:
+    """Reagenda a mesma mensagem e versão. Ordem de locks igual à do worker."""
+    from gestao.plataforma.models import MensagemOutbox
+
+    policies.exigir(policies.pode_regenerar_documentos(usuario, documento.oficio),
+                    "Você não pode gerar novamente os documentos deste ofício.")
+    mensagem = MensagemOutbox.objects.select_for_update().get(
+        chave_idempotencia=f"documento:{documento.pk}")
+    doc = Documento.objects.select_for_update().select_related("oficio").get(pk=documento.pk)
+    # O ofício pode ter sido cancelado ou arquivado enquanto a requisição aguardava.
+    policies.exigir(policies.pode_regenerar_documentos(usuario, doc.oficio),
+                    "Você não pode gerar novamente os documentos deste ofício.")
+    if doc.situacao != Documento.Situacao.FALHOU:
+        return doc
+    if doc.oficio.documentos.filter(tipo=doc.tipo, versao__gt=doc.versao).exists():
+        raise RegraViolada("Esta versão foi substituída. Gere novamente a versão mais recente.")
+    mensagem.situacao = MensagemOutbox.Situacao.PENDENTE
+    mensagem.tentativas = 0
+    mensagem.disponivel_em = timezone.now()
+    mensagem.processada_em = None
+    mensagem.ultimo_erro = ""
+    mensagem.save()
+    doc.situacao, doc.erro = Documento.Situacao.GERANDO, ""
+    doc.save(update_fields=["situacao", "erro"])
+    _registrar(doc.oficio, Historico.Acao.DOCUMENTO,
+               f"Nova tentativa de gerar {doc.get_tipo_display()} versão {doc.versao}.", usuario)
+    transaction.on_commit(outbox._notificar_worker)
+    return doc
+
+
 @transaction.atomic
 def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
     atual = _travar_para_edicao(oficio, usuario, versao)
     policies.exigir(policies.pode_emitir(usuario, atual), "Você não pode emitir ofícios.")
+    atual.data_oficio = preparar_data_emissao(atual).data_oficio
     recalcular_diarias(atual)
     prontidao = verificar_prontidao(atual)
     if not prontidao.pode_emitir:
@@ -814,7 +870,7 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
     atual.situacao = Oficio.Situacao.EMITIDO
     atual.emitido_em = agora
     atual.versao += 1
-    atual.save(update_fields=["situacao", "emitido_em", "versao", "atualizado_em"])
+    atual.save(update_fields=["situacao", "emitido_em", "versao", "atualizado_em", "data_oficio"])
 
     from .documentos.dados import dados_do_oficio  # evita import circular
 

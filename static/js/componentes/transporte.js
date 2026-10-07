@@ -122,7 +122,15 @@ export class PcTransporte extends HTMLElement {
       this.querySelector("select[name='motorista_externo']"));
     if (!bloco || !quem) return;
     const primeira = () => Array.from(quem.options).find((o) => o.value)?.value || "";
+    const campos = Array.from(bloco.querySelectorAll("input, select, textarea"));
+    const habilitar = () => {
+      for (const campo of campos) {
+        /** @type {HTMLInputElement} */ (campo).disabled = !bloco.open;
+      }
+    };
+    habilitar();
     bloco.addEventListener("toggle", () => {
+      habilitar();
       const novo = bloco.open ? (quem.value || primeira()) : "";
       if (quem.value === novo) return;
       quem.value = novo;

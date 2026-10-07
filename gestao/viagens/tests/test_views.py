@@ -328,11 +328,16 @@ class TestNovoEEdicao:
         assert f'action="{reverse("viagens:emitir", args=[oficio.pk])}"' in html
         assert "Destinatário" in html and "Voltar e corrigir" in html
 
-    def test_revisar_com_pendencias_nao_abre_a_janela(self, operador, cenario):
+    def test_revisar_com_pendencias_mostra_motivos_e_bloqueia_emissao(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         html = operador.get(reverse("viagens:editar", args=[oficio.pk]) + "?revisar=1"
                             ).content.decode()
-        assert "data-abrir-ao-carregar" not in html
+        assert "data-abrir-ao-carregar" in html
+        assert "Informe o protocolo do eProtocolo" in html
+        assert re.search(r'<button[^>]*disabled aria-disabled="true"[^>]*>.*?Emitir ofício',
+                         html, re.S)
+        oficio.refresh_from_db()
+        assert oficio.situacao == "rascunho" and not oficio.documentos.exists()
 
     def test_pagina_de_revisao_nao_existe_mais(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])

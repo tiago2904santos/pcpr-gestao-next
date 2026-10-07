@@ -22,6 +22,12 @@ continua sendo a edição; aqui só se lê e se decide.
   </div>
 </div>
 <div class="dialogo__corpo">
+  {% if revisao and data_atualizada %}
+    <div class="alerta alerta--info resumo__aviso" role="status">{% icone "calendar" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">A emissão usará a data de hoje: {{ oficio.data_oficio|date:"d/m/Y" }}</p>
+      <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para manter outra data, volte à folha e marque “Manter esta data na emissão”.</p>
+    </div></div>
+  {% endif %}
   {% if prontidao and not prontidao.pode_emitir %}
     <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-circle" %}<div class="alerta__corpo">
       <p class="alerta__titulo">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</p>
@@ -135,8 +141,8 @@ continua sendo a edição; aqui só se lê e se decide.
                 <span class="pessoa__nome">{{ oficio.viatura.modelo|default:"Viatura" }}</span>
                 <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }}{% if oficio.viatura.tipo %} · {{ oficio.viatura.get_tipo_display|lower }}{% endif %}</span>
                 {% if oficio.motorista_externo %}<span class="pessoa__meta">Motorista: {% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% else %}{{ oficio.motorista_externo_nome }}{% endif %} (de outro ofício)</span>{% endif %}
-              {% elif oficio.transporte_descricao %}
-                <span class="pessoa__nome">{{ oficio.transporte_descricao }}</span>
+              {% elif oficio.transporte_texto %}
+                <span class="pessoa__nome">{{ oficio.transporte_texto }}</span>
                 <span class="pessoa__meta">Transporte informado</span>
               {% else %}
                 <span class="pessoa__nome">Sem transporte</span>
@@ -149,7 +155,7 @@ continua sendo a edição; aqui só se lê e se decide.
     </section>
 
     {# Linha 3: o que saiu em papel. #}
-    <section aria-labelledby="resumo-documentos">
+    <section id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-swap="outerHTML"{% endif %}>
       <h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
       {% if documentos %}
         <ul class="resumo__documentos" role="list">
@@ -162,6 +168,7 @@ continua sendo a edição; aqui só se lê e se decide.
               {% else %}
                 <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
               {% endif %}
+              {% include "viagens/oficios/_regenerar_documento.html" %}
             </li>
           {% endfor %}
         </ul>
@@ -182,7 +189,7 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
 {% endcomment %}
 <div class="dialogo__rodape">
   <button type="button" class="botao botao--texto" data-fechar-dialogo>{% icone "arrow-left" %}Voltar e corrigir</button>
-  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>
+  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}?emissao=1" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>
   {% comment %}
   A janela já é a confirmação (número, valor e destinatário estão à vista): emitir não abre
   uma segunda janela por cima. Emitido, o ofício ainda se corrige por retificação.

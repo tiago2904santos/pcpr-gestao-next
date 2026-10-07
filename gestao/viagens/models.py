@@ -138,6 +138,7 @@ class Oficio(models.Model):
     ano = models.PositiveSmallIntegerField("ano")
     numero = models.PositiveIntegerField("número")
     data_oficio = models.DateField("data do ofício")
+    data_oficio_manual = models.BooleanField("manter esta data na emissão", default=False)
     protocolo = models.CharField(
         "protocolo (eProtocolo)", max_length=9, blank=True,
         help_text="Nove dígitos, com ou sem pontuação (ex.: 12.345.678-9).",
@@ -302,6 +303,12 @@ class Oficio(models.Model):
     @property
     def editavel(self) -> bool:
         return self.situacao == self.Situacao.RASCUNHO and self.arquivado_em is None
+
+    @property
+    def transporte_texto(self) -> str:
+        meio = self.get_transporte_meio_display() if self.transporte_meio else ""
+        detalhe = self.transporte_descricao.strip()
+        return f"{meio} ({detalhe})" if meio and detalhe else meio or detalhe
 
     @property
     def arquivado(self) -> bool:

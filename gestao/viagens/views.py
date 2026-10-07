@@ -506,7 +506,12 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
             return render(request, "viagens/oficios/editar.html", contexto, status=422)
         else:
             if acao == "emitir":
-                bloqueantes = services.verificar_prontidao(oficio).bloqueantes
+                try:
+                    revisado = services.preparar_data_emissao(oficio)
+                except services.RegraViolada as exc:
+                    messages.error(request, str(exc))
+                    return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#emissao")
+                bloqueantes = services.verificar_prontidao(revisado).bloqueantes
                 if bloqueantes:
                     messages.warning(request, f"Rascunho salvo, mas ainda há {len(bloqueantes)} "
                                               "pendência(s) para emitir. Veja o que falta "
@@ -642,20 +647,28 @@ def secao_diarias(request: HttpRequest, pk: int) -> HttpResponse:
 def _revisao_pedida(request: HttpRequest, oficio, folha: dict) -> dict:
     """"Revisar e emitir": a janela de resumo, em modo revisão, aberta sobre a folha.
 
-    Só abre quando quem pede pode emitir e o ofício não tem pendência — senão a folha já
-    mostra o que falta, e uma janela com o botão desligado só atrapalharia. Reaproveita o
-    que a folha já carregou (equipe, trechos, prontidão, prazo): a janela não consulta de novo.
+    Mostra a data efetiva e suas consequências, inclusive pendências que bloqueiam emitir.
+    Reaproveita equipe, trechos e prontidão; só reavalia esta última quando a data muda.
     """
-    if request.GET.get("revisar") != "1" or not folha["prontidao"].pode_emitir:
+    if request.GET.get("revisar") != "1":
         return {}
     if not policies.pode_emitir(request.user, oficio):
         return {}
+    data_anterior = oficio.data_oficio
+    try:
+        oficio = services.preparar_data_emissao(oficio)
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+        return {}
     return {"abrir_resumo": oficio.pk, "resumo": {
         "revisao": True, "oficio": oficio, "dados": dados_do_oficio(oficio),
-        "pode_emitir": True, "assunto": folha["assunto"], "prazo": folha["prazo"],
+        "pode_emitir": True, "assunto": services.assunto_do_oficio(oficio),
+        "prazo": services.avaliar_prazo_do_oficio(oficio),
+        "data_anterior": data_anterior, "data_atualizada": data_anterior != oficio.data_oficio,
         "calculo": oficio.diarias_calculo, "viajantes": folha["viajantes"],
         "trechos": folha["trechos"], "documentos": list(oficio.documentos.all()),
-        "prontidao": folha["prontidao"],
+        "prontidao": (folha["prontidao"] if data_anterior == oficio.data_oficio
+                      else services.verificar_prontidao(oficio)),
     }}
 
 
@@ -703,7 +716,7 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
                                        versao=form.cleaned_data.get("versao"),
                                        registrar=False)
     except (services.ConflitoDeEdicao, services.RegraViolada) as exc:
-        return JsonResponse({"salvo": False, "motivo": str(exc)})
+        return JsonResponse({"salvo": False, "motivo": str(exc), "mensagem": str(exc)})
     return JsonResponse({
         "salvo": True,
         "em": timezone.localtime(salvo.atualizado_em).strftime("%H:%M"),
@@ -863,6 +876,8 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "viajantes": viajantes_de(oficio),
         "trechos": trechos_de(oficio),
         "documentos": documentos,
+        "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
+        "pode_regenerar_documentos": policies.pode_regenerar_documentos(request.user, oficio),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
@@ -937,7 +952,23 @@ def documentos_parcial(request: HttpRequest, pk: int) -> HttpResponse:
     documentos = list(oficio.documentos.select_related("emitido_por"))
     return render(request, "viagens/oficios/_documentos.html", {
         "oficio": oficio, "documentos": documentos,
+        "pode_regenerar_documentos": policies.pode_regenerar_documentos(request.user, oficio),
         "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos)})
+
+
+@require_POST
+def regenerar_documento(request: HttpRequest, documento_id: int) -> HttpResponse:
+    doc = get_object_or_404(Documento.objects.select_related("oficio"), pk=documento_id)
+    if not policies.pode_ver(request.user, doc.oficio):
+        raise Http404
+    try:
+        services.regenerar_documento(doc, request.user)
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Geração solicitada. O documento aparece aqui quando "
+                                  "estiver pronto.")
+    return redirect(f"{reverse('viagens:oficios')}?resumo={doc.oficio_id}")
 
 
 @require_GET
@@ -968,6 +999,11 @@ def baixar_documento(request: HttpRequest, documento_id: int) -> FileResponse:
 def previa(request: HttpRequest, pk: int) -> HttpResponse:
     """Minuta em PDF gerada na hora (rascunho), com marca d'água — não é arquivada."""
     oficio = _oficio_visivel(request, pk)
+    if request.GET.get("emissao") == "1" and oficio.editavel:
+        try:
+            oficio = services.preparar_data_emissao(oficio)
+        except services.RegraViolada as exc:
+            return HttpResponse(str(exc), status=422, content_type="text/plain; charset=utf-8")
     tipo = request.GET.get("tipo", "oficio")
     if tipo not in {"oficio", "justificativa", "todos"}:
         raise Http404

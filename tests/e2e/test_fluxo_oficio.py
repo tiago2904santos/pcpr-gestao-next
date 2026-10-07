@@ -97,15 +97,20 @@ def test_emissao_bloqueada_sem_justificativa_mostra_o_motivo(logado, dados_e2e):
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
     expect(pg.locator("#justificativa .selo")).to_have_text("Obrigatória")
-    expect(pg.locator(".barra-acoes__status")).to_contain_text("pendência")
-    pg.get_by_role("button", name="Revisar e emitir").click()
-    # Com pendências, salva e volta para a seção de emissão (sem beco sem saída).
-    expect(pg.locator(".toast")).to_contain_text("pendência")
-    expect(pg).to_have_url(re.compile(r"/editar/#emissao$"))
-    expect(pg.locator("#emissao .checklist")).to_contain_text("Justificativa obrigatória")
-    # Mesmo pedindo a revisão pelo endereço, a janela de emitir não abre com pendências.
+    expect(pg.locator("[data-status-salvamento]")).to_contain_text("pendência")
+    expect(pg.locator("[data-status-salvamento]")).to_be_visible()
+    # O formulário atual apresenta atalhos para corrigir e só oferece revisão quando pronto.
+    expect(pg.get_by_role("button", name="Revisar e emitir")).to_have_count(0)
+    pendencia = pg.locator("#emissao .checklist").get_by_role(
+        "link", name=re.compile("Justificativa obrigatória"))
+    expect(pendencia).to_have_attribute("href", "#justificativa")
+    pendencia.click()
+    expect(pg.locator("#justificativa")).to_be_visible()
+    # Revisão por URL considera a data efetiva e mostra pendências; emitir fica bloqueado.
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/?revisar=1")
-    expect(pg.locator("#dialogo-resumo")).to_have_count(0)
+    revisao = pg.get_by_role("dialog", name="Revisar e emitir o ofício")
+    expect(revisao).to_be_visible()
+    expect(revisao.get_by_role("button", name="Emitir ofício")).to_be_disabled()
 
 
 def test_enter_salva_e_alteracao_nao_salva_e_avisada(logado, dados_e2e):
@@ -342,10 +347,10 @@ def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2
     expect(instituicao).to_be_visible()
     # Meio de transporte: cada escolha traz os seus campos.
     _escolher(pg, "tipo_transporte", "Meio de transporte", "^Viatura oficial")
-    expect(pg.get_by_label("Descrição do transporte")).to_be_hidden()
+    expect(pg.get_by_label("Detalhe (opcional)")).to_be_hidden()
     _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
     expect(pg.locator("select[name=tipo_transporte]")).to_have_value("outro")
-    expect(pg.get_by_label("Descrição do transporte")).to_be_visible()
+    expect(pg.get_by_label("Detalhe (opcional)")).to_be_visible()
     # Porte de arma é um interruptor, no cabeçalho do bloco.
     expect(pg.get_by_role("switch", name=re.compile(r"^Porte.tr.nsito de arma"))).to_be_visible()
     # Itinerário: começa e termina na sede; o trecho diz de onde sai.
@@ -449,14 +454,14 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     data.fill("")
     data.press_sequentially("21102026")
     expect(data).to_have_value("21/10/2026")
-    # Lista própria (combustível): abre, navega e escolhe; o <select> oculto acompanha.
+    # Lista própria do outro meio: abre, navega e escolhe; o <select> oculto acompanha.
     _escolher(pg, "tipo_transporte", "Meio de transporte", "^Outro meio")
-    lista = pg.get_by_role("combobox", name=re.compile("^Combustível"))
+    lista = pg.locator("#id_transporte_meio-gatilho")
     lista.click()
     expect(lista).to_have_attribute("aria-expanded", "true")
-    pg.get_by_role("option", name="Diesel").click()
-    expect(lista).to_contain_text("Diesel")
-    expect(pg.locator("#id_transporte_combustivel")).to_have_value(re.compile(r"\d+"))
+    pg.get_by_role("option", name="Aéreo", exact=True).click()
+    expect(lista).to_contain_text("Aéreo")
+    expect(pg.locator("#id_transporte_meio")).to_have_value("aereo")
     lista.press("ArrowDown")
     pg.keyboard.press("Escape")
     expect(lista).to_have_attribute("aria-expanded", "false")
@@ -473,7 +478,7 @@ def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
     folha = f"/viagens/oficios/{pk}/documento/oficio/folha/"
     pg.goto(f"/viagens/oficios/{pk}/editar/")
     with pg.expect_response(lambda r: r.url.endswith(folha)) as resposta:
-        pg.locator("#editor-oficio").scroll_into_view_if_needed()
+        pg.locator("#minuta").scroll_into_view_if_needed()
     assert resposta.value.status == 200
     assert resposta.value.headers["content-type"].startswith("text/html")
     assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]
@@ -510,6 +515,8 @@ def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
            ).to_have_attribute("aria-pressed", "true")
     expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
     expect(pg.locator(".toast").last).to_contain_text("Isabela costuma dirigi-la")
-    pg.get_by_role("button", name="Salvar rascunho").click()
+    pg.locator("#id_protocolo").press("Enter")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
     expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
+    expect(pg.get_by_role("button", name="Desmarcar Isabela Prado Cavalcanti como motorista"))\
+        .to_have_attribute("aria-pressed", "true")

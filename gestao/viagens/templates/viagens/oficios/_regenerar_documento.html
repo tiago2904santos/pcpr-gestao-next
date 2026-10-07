@@ -1,0 +1,6 @@
+{% if d.situacao == "falhou" and pode_regenerar_documentos %}
+  <form method="post" action="{% url 'viagens:regenerar_documento' d.pk %}">
+    {% csrf_token %}
+    <button class="botao botao--sm" type="submit" aria-label="Gerar de novo {{ d.get_tipo_display }} versão {{ d.versao }}">{% icone "rotate-cw" %}Gerar de novo</button>
+  </form>
+{% endif %}

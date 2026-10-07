@@ -242,7 +242,8 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
 
     class Meta:
         model = Oficio
-        fields = ["numero", "data_oficio", "protocolo", "marcador", "motivo", "custeio",
+        fields = ["numero", "data_oficio", "data_oficio_manual", "protocolo", "marcador",
+                  "motivo", "custeio",
                   "custeio_instituicao", "tipo_transporte", "viatura", "transporte_meio",
                   "transporte_descricao",
                   "transporte_placa", "transporte_combustivel", "porte_arma",
@@ -325,6 +326,7 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         # só se diz QUEM é o de fora — abrir ou fechar o bloco é que liga e desliga o caso
         # (transporte.js devolve o campo a vazio ao fechar).
         cast(forms.ChoiceField, self.fields["motorista_externo"]).choices = [
+            (Oficio.MotoristaExterno.NENHUM, "Ninguém de fora da equipe"),
             (Oficio.MotoristaExterno.SERVIDOR, "Servidor de outro ofício"),
             (Oficio.MotoristaExterno.MANUAL, "Pessoa não cadastrada"),
         ]
@@ -414,6 +416,10 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
     def clean(self):
         super().clean()
         dados = self.cleaned_data
+        if "data_oficio_manual" not in self.data:
+            dados["data_oficio_manual"] = self.instance.data_oficio_manual
+        if dados.get("data_oficio") and dados["data_oficio"] != self.instance.data_oficio:
+            dados["data_oficio_manual"] = True
         if (dados.get("custeio") == Oficio.Custeio.OUTRA_INSTITUICAO
                 and not dados.get("custeio_instituicao")):
             self.add_error("custeio_instituicao", "Informe qual instituição custeia a viagem.")

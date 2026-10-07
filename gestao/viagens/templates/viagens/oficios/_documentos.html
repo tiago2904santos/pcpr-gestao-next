@@ -16,10 +16,11 @@
               <span class="registro__meta-item">{% icone "user" classe="icone--sm" %}{{ d.emitido_por.nome }}</span>
               <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ d.emitido_em|date:"d/m/Y H:i" }}</span>
               {% if d.sha256 %}<span class="registro__meta-item" title="Impressão digital SHA-256 do arquivo">{% icone "shield-check" classe="icone--sm" %}SHA-256 {{ d.sha256|slice:":12" }}…</span>{% endif %}
-              {% if d.erro %}<span class="registro__meta-item">{{ d.erro|truncatechars:120 }}</span>{% endif %}
+              {% if d.situacao == "falhou" %}<span class="registro__meta-item">Não foi possível gerar o documento. Tente de novo.</span>{% endif %}
             </div>
           </div>
           <div class="registro__acoes">
+            {% include "viagens/oficios/_regenerar_documento.html" %}
             {% if d.situacao == "pronto" %}<a class="botao botao--sm" href="{% url 'viagens:baixar_documento' d.pk %}?baixar=1" aria-label="Baixar {{ d.get_tipo_display }} versão {{ d.versao }}">{% icone "download" %}Baixar</a>{% endif %}
           </div>
         </li>
