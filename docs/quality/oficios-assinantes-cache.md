@@ -67,3 +67,9 @@ excluiu o teste de navegador que estava na mesma linha de comando; por isso este
 log não valida navegador. A comparação do modo PDF foi executada separadamente.
 Rodada dos serviços e orçamentos HTTP está em andamento; suíte integral anterior
 continua registrada com exit 1 até nova execução integral concluir.
+
+Rodada ampliada final: **53 testes passaram em 383,60 s**, log
+`var/assinantes-servicos-orcamentos.log`. Serviços, geração real de PDF,
+orçamentos da folha/revisão em equipe pequena/grande e resumo de rascunho/emitido
+passaram sem ampliar tetos. Executada após incorporar a regra de rotas `df93e90`.
+Isso valida o conjunto focado; não substitui o novo `scripts/verificar.sh` integral.

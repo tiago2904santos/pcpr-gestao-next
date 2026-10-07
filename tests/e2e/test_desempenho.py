@@ -14,6 +14,7 @@ import gzip
 import re
 
 import pytest
+from playwright.sync_api import Error, Request
 
 from gestao.plataforma.estaticos import minificar
 
@@ -74,40 +75,108 @@ def _amostra_do_servidor(pg, url: str) -> tuple[float, float, int]:
     return ttfb, db, sql
 
 
+def _medir_recursos(requisicoes: list[Request], terminadas: list[Request],
+                    falhas: list[Request]) -> list[dict]:
+    """Lê corpos concluídos fora dos callbacks, antes de qualquer outra navegação.
+
+    Cada entrada representa uma requisição, inclusive repetições da mesma URL. Não
+    deduplicamos URLs: downloads repetidos na navegação/interação também custam rede.
+    Erros ficam no relatório e reprovam a coleta; nunca viram uma medição menor aprovada.
+    """
+    recursos = []
+    for request in requisicoes:
+        recurso = {"url": request.url, "tipo": request.resource_type,
+                   "metodo": request.method, "status": None, "tamanho": 0,
+                   "fonte_bytes": 0, "gzip": 0, "server_timing": "",
+                   "itinerario": bool(ITINERARIO.search(request.url))}
+        try:
+            if request in falhas:
+                recurso["erro"] = request.failure or "Requisição falhou sem motivo informado."
+            elif request not in terminadas:
+                recurso["erro"] = "Requisição ainda não terminou ao encerrar a coleta."
+            else:
+                resposta = request.response()
+                if resposta is None:
+                    recurso["erro"] = "Requisição concluída sem resposta."
+                else:
+                    recurso["status"] = resposta.status
+                    recurso["server_timing"] = resposta.headers.get("server-timing", "")
+                    if resposta.status >= 400:
+                        recurso["erro"] = f"Resposta HTTP {resposta.status}."
+                    if request.resource_type == "font" and not recurso["itinerario"]:
+                        # Chromium pode descartar o body de uma fonte já reutilizada por
+                        # outros documentos. Fontes contam como requisições, mas não têm
+                        # orçamento de conteúdo/minificação/gzip. Não fingir tamanho zero.
+                        recurso.update(tamanho=None, fonte_bytes=None, gzip=None,
+                                       medicao_conteudo="Não aplicável ao orçamento: body de "
+                                       "fonte não lido; bytes de rede medidos separadamente.")
+                        recurso["rede_tamanhos"] = request.sizes()
+                        recursos.append(recurso)
+                        continue
+                    corpo = resposta.body() if resposta.status < 300 else b""
+                    recurso["fonte_bytes"] = len(corpo)
+                    # Mesmo tratamento do collectstatic: o teste serve fontes comentados.
+                    if corpo and request.resource_type in ("stylesheet", "script"):
+                        pronto = minificar(request.url.split("?")[0], corpo.decode("utf-8"))
+                        corpo = corpo if pronto is None else pronto.encode("utf-8")
+                    recurso["tamanho"] = len(corpo)
+                    recurso["gzip"] = len(gzip.compress(corpo, 6)) if corpo else 0
+        except Error as exc:
+            # Preserva diagnóstico específico do Playwright, mas a asserção abaixo falha.
+            recurso["erro"] = str(exc)
+        recursos.append(recurso)
+    return recursos
+
+
 @pytest.mark.parametrize("rota", ROTAS)
 def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     pg = logado
     url = resolver(rota, dados_e2e.ids)
-    recursos: list[dict] = []
-    def anotar(r):
-        corpo = (r.body() or b"") if r.status < 300 else b""
-        # Em produção CSS e JS saem minificados do collectstatic (gestao/plataforma/
-        # estaticos.py); o servidor de teste serve os fontes comentados — mede-se o que o
-        # usuário recebe em produção.
-        if corpo and r.request.resource_type in ("stylesheet", "script"):
-            pronto = minificar(r.url.split("?")[0], corpo.decode("utf-8"))
-            corpo = corpo if pronto is None else pronto.encode("utf-8")
-        recursos.append({"url": r.url, "tipo": r.request.resource_type, "tamanho": len(corpo),
-                         "gzip": len(gzip.compress(corpo, 6)) if corpo else 0,
-                         "server_timing": r.headers.get("server-timing", "")})
-    pg.on("response", anotar)
-    pg.add_init_script(f"({OBSERVADORES})()")
-    pg.goto(url, wait_until="networkidle")
-    # Interação real para INP: abre e fecha o menu do usuário; na lista, expande um registro.
-    if pg.locator("dialog:modal").count():  # janela aberta pela URL: fecha antes (resto inerte)
+    relatorio = f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json"
+    requisicoes: list[Request] = []
+    terminadas: list[Request] = []
+    falhas: list[Request] = []
+    # Drena a entrada da fixture antes de delimitar a navegação medida. Callbacks só
+    # guardam referências: body() dentro de response pode continuar pendente no goto
+    # das amostras seguintes, perdendo o identificador do recurso no Chromium.
+    pg.wait_for_load_state("networkidle")
+    # Playwright anota o handler com metadados; métodos nativos de list não aceitam
+    # esses atributos. As funções também preservam a mesma referência na remoção.
+    listeners = {"request": lambda r: requisicoes.append(r),
+                 "requestfinished": lambda r: terminadas.append(r),
+                 "requestfailed": lambda r: falhas.append(r)}
+    for evento, callback in listeners.items():
+        pg.on(evento, callback)
+    try:
+        pg.add_init_script(f"({OBSERVADORES})()")
+        pg.goto(url, wait_until="networkidle")
+        # Interação real para INP: menu do usuário e, na lista, resumo de um registro.
+        if pg.locator("dialog:modal").count():  # fecha a janela aberta pela URL (resto inerte)
+            pg.keyboard.press("Escape")
+            pg.wait_for_function("() => !document.querySelector('dialog:modal')")
+        pg.click(".perfil")
         pg.keyboard.press("Escape")
-        pg.wait_for_function("() => !document.querySelector('dialog:modal')")
-    pg.click(".perfil")
-    pg.keyboard.press("Escape")
-    janela = pg.locator("#dialogo-resumo")
-    if janela.count() and not janela.evaluate("d => d.open") and pg.locator(".registro__link").count():
-        pg.locator(".registro__link").first.click()
-        pg.wait_for_selector("#dialogo-resumo[open] .resumo")
-    pg.wait_for_timeout(200)
-    nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
-        const fcp = performance.getEntriesByName('first-contentful-paint')[0];
-        return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
-                lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+        janela = pg.locator("#dialogo-resumo")
+        if (janela.count() and not janela.evaluate("d => d.open")
+                and pg.locator(".registro__link").count()):
+            pg.locator(".registro__link").first.click()
+            pg.wait_for_selector("#dialogo-resumo[open] .resumo")
+        pg.wait_for_timeout(200)
+        pg.wait_for_load_state("networkidle")
+        nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
+            const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+            return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
+                    lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+    finally:
+        for evento, callback in listeners.items():
+            pg.remove_listener(evento, callback)
+    recursos = _medir_recursos(requisicoes, terminadas, falhas)
+    salvar_relatorio(f"recursos-{relatorio}", {"rota": url,
+                     "escopo": "Uma navegação e as interações, antes das amostras de servidor.",
+                     "recursos": recursos})
+    erros = [{"url": r["url"], "erro": r["erro"]} for r in recursos if "erro" in r]
+    assert not erros, f"{url}: coleta de recursos incompleta: {erros}"
+    todos_recursos = recursos
     doc = next(r for r in recursos if r["tipo"] == "document")
     timing = doc["server_timing"]
     sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
@@ -136,7 +205,8 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
     medido["sql"] = max(a[2] for a in amostras)
     medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
-    salvar_relatorio(f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json", medido)
+    medido["recursos"] = todos_recursos
+    salvar_relatorio(relatorio, medido)
     orcamento = dict(ORCAMENTO)
     if FOLHAS_DE_EDICAO.search(url):
         orcamento["requisicoes"] = REQUISICOES_FOLHA

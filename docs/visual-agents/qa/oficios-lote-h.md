@@ -195,3 +195,40 @@ continuar contadas. A correção em andamento separa tamanhos da rede dos tamanh
 conteúdo/minificação/gzip, preservando a métrica dos recursos de itinerário. A
 validação integral continua sobre produto `b0829d6`, sem integração da nova regra
 de rota ainda. D16 foi respondida pelo usuário: reproduzir fórmulas do legado.
+
+### Resultado integral do checkpoint — 07/10/2026 17:23
+
+`var/lote-h-verificar-final.log`: **1 falha, 1.897 testes passaram em 2.935,54 s**.
+Lint, fronteiras, mypy, bandit, migrações e tipos JavaScript passaram. O script
+integral terminou com exit 1; não está verde. A falha restante é
+`test_documentos_saem_com_o_assinante_de_cada_tipo`: uma segunda montagem dos dados,
+depois de criar uma substituição de assinante, reutiliza o prefetch antigo da
+configuração. A consulta compartilhada foi introduzida na otimização H; exige
+renovar essa relação a cada montagem sem duplicar a consulta entre os dois tipos.
+Correção e validação focada em andamento. Os arquivos novos do domínio/adaptador
+adicionados após a coleta não estão cobertos por esta execução.
+
+O coletor corrigido concluiu outra rodada: `var/lote-h-perf-medicao.log`, três
+reprovações de orçamento em 92,94 s, sem erro de coleta. Lista/resumo ainda carregam
+149,5 KiB de CSS e 28 requisições; folha, 146,8 KiB HTML, 161,8 CSS, 157,7 JS e
+52 requisições. Fontes continuam contadas; somente seus corpos indisponíveis via
+CDP ficam sem tamanho de conteúdo/gzip, com motivo explícito. Nenhum teto foi
+aumentado. Latências disputaram recursos com a suíte integral, portanto não são
+evidência de ganho/perda estável. Carga inicial das miniaturas está sendo corrigida
+e validada no worktree isolado; esses números não validam a correção posterior.
+
+### Regra confirmada de tempo — 07/10/2026 17:30
+
+No worktree isolado, 101 testes do domínio/integração passaram; dois testes Chromium
+passaram em 25,51 s, com sugestões 04:00/00:45 persistidas e ajuste manual
+02:00/00:30 mantido após recarregar. Capturas nas cinco larguras foram produzidas.
+A primeira rodada teve um erro de fixture por dados residuais do navegador
+interrompido e um caso aprovado; sua falha foi preservada no log. A rodada final
+passou integralmente. Revisão visual encontrou dígitos de duração cortados em
+360 px; ajuste de largura em andamento, ainda sem captura posterior validada.
+
+O lote anterior de nove testes do editor ficou sem resultado por cerca de 21 min
+e foi interrompido. A inspeção encontrou Python ocioso aguardando o protocolo
+Playwright e servidor responsivo; não demonstrou a causa. Teste isolado posterior
+passou em 16,46 s com log de API. Nova rodada completa tem saída não bufferizada
+e diagnóstico de pilha com timeout, sem inferir aprovação da execução interrompida.

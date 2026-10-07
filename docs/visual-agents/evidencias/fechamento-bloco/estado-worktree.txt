@@ -1,0 +1,94 @@
+ M docs/visual-agents/current-page.md
+ M docs/visual-agents/parity/oficios-documentos.md
+ M docs/visual-agents/parity/oficios-resumo.md
+ M gestao/cadastros/templates/cadastros/catalogo.html
+ M gestao/cadastros/templates/cadastros/configuracao.html
+ M gestao/cadastros/templates/cadastros/diarias.html
+ M gestao/cadastros/templates/cadastros/usuarios.html
+ M gestao/coffee/templates/coffee/cadastros.html
+ M gestao/coffee/templates/coffee/certidoes.html
+ M gestao/coffee/templates/coffee/configuracao.html
+ M gestao/coffee/templates/coffee/folha.html
+ M gestao/coffee/templates/coffee/lista.html
+ M gestao/coffee/templates/coffee/protocolo.html
+ M gestao/coffee/templates/coffee/virada.html
+ M gestao/eventos/templates/eventos/catalogo.html
+ M gestao/eventos/templates/eventos/modelo_do_tipo.html
+ M gestao/eventos/templates/eventos/solicitacoes/folha.html
+ M gestao/eventos/templates/eventos/solicitacoes/lista.html
+ M gestao/imprensa/templates/imprensa/folha.html
+ M gestao/imprensa/templates/imprensa/lista.html
+ M gestao/imprensa/templates/imprensa/preencher.html
+ M gestao/painel/templates/painel/agenda.html
+ M gestao/palestras/templates/palestras/cadastro.html
+ M gestao/palestras/templates/palestras/folha.html
+ M gestao/palestras/templates/palestras/lista.html
+ M gestao/publicacoes/templates/publicacoes/folha.html
+ M gestao/publicacoes/templates/publicacoes/lista.html
+ M gestao/publicacoes/templates/publicacoes/preencher.html
+ M gestao/ui_lab/templates/ui_lab/indice.html
+ M gestao/viagens/assinados.py
+ M gestao/viagens/pacotes.py
+ M gestao/viagens/policies.py
+ M gestao/viagens/queries.py
+ M gestao/viagens/templates/viagens/anexos/folha.html
+ M gestao/viagens/templates/viagens/assinados/anexar.html
+ M gestao/viagens/templates/viagens/diario/folha.html
+ M gestao/viagens/templates/viagens/justificativas/lista.html
+ M gestao/viagens/templates/viagens/oficios/_dialogo_resumo.html
+ M gestao/viagens/templates/viagens/oficios/_menu_oficio.html
+ M gestao/viagens/templates/viagens/oficios/_resumo.html
+ M gestao/viagens/templates/viagens/oficios/editar.html
+ M gestao/viagens/templates/viagens/oficios/lista.html
+ M gestao/viagens/templates/viagens/ordens/editar.html
+ M gestao/viagens/templates/viagens/planos/editar.html
+ M gestao/viagens/templates/viagens/planos/resultados.html
+ M gestao/viagens/templates/viagens/prestacao/lista.html
+ M gestao/viagens/templates/viagens/relatorio/folha.html
+ M gestao/viagens/templates/viagens/roteiros/editar.html
+ M gestao/viagens/templates/viagens/termos/editar.html
+ M gestao/viagens/templates/viagens/termos/lista.html
+ M gestao/viagens/templates/viagens/viagem/editar.html
+ M gestao/viagens/templates/viagens/viagem/lote.html
+ M gestao/viagens/tests/test_eprotocolo_http.py
+ M gestao/viagens/tests/test_menu_oficio.py
+ M gestao/viagens/views.py
+ M static/css/formulario.css
+ M static/js/app.js
+ M static/js/componentes/baixar.js
+ M static/js/componentes/cadastro-rapido.js
+ M static/js/componentes/dialogo.js
+ M static/js/componentes/seletor-data.js
+ M templates/arquetipos/assistente.html
+ M templates/arquetipos/cadastro_nomes.html
+ M templates/arquetipos/formulario.html
+ M templates/arquetipos/lista.html
+ M tests/e2e/test_desempenho.py
+ M tests/test_css_por_pagina.py
+?? docs/adr/0026-separar-seletores-e-adiar-controladores.md
+?? docs/adr/0027-cadastro-rapido-sob-demanda.md
+?? docs/adr/0028-carregar-download-na-primeira-acao.md
+?? docs/product/calendario-periodo-teclado.md
+?? docs/quality/critica-rs02.md
+?? docs/quality/oficios-documentos-projecao.md
+?? docs/quality/qa-baixar-carga.md
+?? docs/quality/qa-cadastro-adiado.md
+?? docs/quality/qa-seletores-gaveta.md
+?? docs/quality/viagens-desempenho-proposta.md
+?? docs/visual-agents/evidencias/cadastro-adiado/
+?? docs/visual-agents/qa/fechamento-bloco-2026-10-07.md
+?? gestao/viagens/templates/viagens/oficios/_resumo_documento.html
+?? gestao/viagens/templates/viagens/oficios/_resumo_documentos.html
+?? gestao/viagens/templates/viagens/oficios/_resumo_rodape.html
+?? gestao/viagens/tests/test_cadastro_adiado.py
+?? gestao/viagens/tests/test_documentos_correntes.py
+?? gestao/viagens/tests/test_leitura_documental.py
+?? gestao/viagens/tests/test_resumo_documentos.py
+?? static/css/seletores.css
+?? templates/componentes/dialogo_cadastro_adiado.html
+?? templates/componentes/dialogos_cadastro_adiados.html
+?? templates/componentes/estilos_formulario.html
+?? tests/e2e/test_baixar_carga.py
+?? tests/e2e/test_cadastro_adiado.py
+?? tests/e2e/test_filtros_carga.py
+?? tests/e2e/test_resumo_versoes_documentais.py

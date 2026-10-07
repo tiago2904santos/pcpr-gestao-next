@@ -1,0 +1,5 @@
+Exemplar sintético de teste
+Origem: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\var\test-media\documentos\2026\oficio-01-2026-v1.pdf
+Páginas: 1
+SHA256: 713fbf07321027c4ccbbba493dea4b33c448e7d29e1c42117f4f79d023620ec6
+Abertura estrutural por pikepdf confirmada. Não comprova PDF/A ou paridade DOCX.
