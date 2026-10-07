@@ -170,3 +170,52 @@ mas são testes vermelhos na suíte: alguém precisa consertá-los (ou o código
 B1 corrigido com `cal390b.py 8000` = 46/46 a 390/360 e `pickers390.py` com todas as opções
 clicáveis; I1–I5 tratados (ou I3 decidido pelo orquestrador); reexecutar `axe_l2.py`,
 `regressao_l2.py` e `l2_interacoes.py`.
+
+---
+
+## Re-QA — correções `adb04fd`, `cc759f8`, `f6d439f` · veredito: **APROVADO**
+
+> Agente 3 · 2026-10-07 · branch @ `f6d439f`, Lote 1 em `:8003`. Medições próprias em
+> `/home/claude/tools/qa/` (`alvos_folha.py`, `reqa_l2_modal.py`, `fichas390.py`,
+> `l2_telas.py`, `axe_l2b.py`, `regressao_l2.py`, `outros_pickers.py`, `erro_msg.py`);
+> capturas em `/home/claude/caps/qa-l2/reqa/`.
+
+**Sobre a medição de B1.** O Designer tem razão num ponto: `cal390b.py`/`pickers390.py`
+filtravam o painel por `offsetParent`, que é `null` em elemento `position: fixed` — na
+versão nova (painel na camada de topo) eles não achariam o painel. A medição do QA original
+continua válida para aquele código (o painel não era fixo; a captura `estados/cal-390.png`
+mostra o calendário cortado). Para o re-QA não usei nenhum dos dois scripts: `alvos_folha.py`
+acha o painel aberto por `:popover-open` (ou pelo `aria-controls` do gatilho), mede **cada
+alvo** (dias, setas com `aria-label`, Hoje/Limpar, opções) por `elementFromPoint` no centro e
+exige que esteja dentro da tela — e ainda faz **cliques reais**.
+
+| Item | Medição própria | Resultado |
+|---|---|---|
+| **B1** | 390 e 360: Período **46/46**, Data do ofício **46/46**, Veículo **8/8**, Ordenar 6/6, Ano 4/4 (no topo e na tela); clique real em 12 e 16 do calendário e na última opção de Veículo → `saida_de=12/10/2026&saida_ate=16/10/2026&veiculo=sem`, folha continua aberta. Coffee, Eventos e Imprensa (que não usam a folha) iguais ao Lote 1: 46/46 a 1440 e 390 | **corrigido** |
+| **I1** folha modal | `role="dialog"`, `aria-modal`, rotulada por "Filtros e ordem"; 19 elementos `inert`; foco inicial no gatilho visível de "Ordenar por"; 30 Tab + 30 Shift+Tab sem sair e sem foco encoberto; rolagem por trás **0** (era 600); Esc com calendário aberto fecha só o calendário; Esc seguinte fecha a folha, devolve o foco a "Filtros" e tira todo `inert` e a trava; toque no véu idem; girar para 1280 com a folha aberta desfaz o modal | **corrigido** |
+| **I2** | "Tentar de novo" → foco em `H2#titulo-resultados` ("Resultados para “reuniao”: 29 ofícios") | **corrigido** (ver M-R3) |
+| **I3** | `#conta-doc-todos` ausente em todos os estados e larguras; Rascunhos/Emitidos/Arquivados com número | **corrigido** (decisão do orquestrador) |
+| **I4** 1ª tela 390/360 | normal 3,42 · Rascunhos 3,20 · busca 3,13 · **busca + Rascunhos 3,00** · 6 filtros 3,01 | **corrigido** (no limite com busca + Rascunhos) |
+| **I5** barra | Busca e Filtros na mesma linha em 1440/1280/1024/900/820/768 (barra 73 px); 900 com filtros 3,23 → **4,14**; 768 normal 4,15 → **4,59** | **corrigido** (ver M-R4) |
+| Fichas < 1280 | 1024/768/390: as 6 fichas e "Limpar tudo" alcançáveis por Tab; "Limpar tudo" tira o Documento e mantém busca e aba | **ok** (ver M-R1, M-R2) |
+| axe | 23 estados (os 19 do QA + folha com calendário aberto, folha com Veículo aberto, busca + Rascunhos, depois de "Tentar de novo") × 1440/1024/900/768/390/360 = **138 execuções, 0 violações** | **ok** |
+| Regressões | 26 rotas × 1440/1024/900/768/390/360 contra o Lote 1 = **156 combinações, 0 diferenças** (status, rolagem, linhas, alturas, fontes); gaveta desktop, fichas, Limpar, vazio, refino, Documento pelo teclado, erro e "Tentar de novo" iguais ao QA (`l2_interacoes.py`) | **ok** |
+
+### Menores novos (não bloqueiam)
+- **M-R1** A 390, ao focar o × de uma ficha perto da borda ("Veículo: Sem transporte"), o
+  trilho rola só o suficiente: o × fica com ~6 de 21 px à vista, sob o esmaecido
+  (`reqa/ficha-foco-390.png`). Não é "foco totalmente encoberto" (2.4.11 passa), mas o anel
+  quase não aparece. `scroll-padding-inline` no trilho resolve.
+- **M-R2** "Limpar tudo" está no começo do trilho só visualmente (`order`): na ordem do
+  Tab ele é o último, depois da última ficha — o foco salta do fim do trilho para o começo.
+  Pôr o link no começo do DOM.
+- **M-R3** Depois de "Tentar de novo" o foco vai para um título que só existe para leitor
+  de tela: quem usa teclado sem leitor não vê onde o foco está (o próximo Tab segue certo).
+- **M-R4** A 768 a busca fica com 178–207 px e o texto de ajuda corta ("Número, protocol").
+  Troca consciente (uma linha a mais de lista); vale um placeholder curto nessa faixa.
+- Continuam do QA: fichas sob a gaveta aberta no desktop, link "Viagens em 30 dias" do painel,
+  `ordem=-numero` na URL, `?resumo=` de outras telas para arquivado, os 3 e2e vermelhos
+  pré-existentes (iguais no `main`).
+
+**Veredito do Lote 2: APROVADO.** Nenhum bloqueante nem importante em aberto; os menores
+acima vão para a lista de pendências.
