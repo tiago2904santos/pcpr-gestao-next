@@ -57,6 +57,18 @@ class TestPolitica:
         assert m.marcas == []  # o emitido se corrige por retificação
         assert m.ciclo["cancelar"] and not m.ciclo.get("excluir")
 
+    def test_justificativa_emitida_ganha_o_proprio_item(self, cenario):
+        """O legado escolhia o documento numa lista; aqui a justificativa tem item próprio."""
+        pk = cenario.ids["oficio_emitido"]
+        _pdf_pronto(pk)
+        o = _da_lista(pk)
+        assert policies.menu_do_oficio(cenario.usuarios["operador"], o).justificativa is None
+        m = policies.menu_do_oficio(cenario.usuarios["operador"], o, justificativa=2,
+                                    via_justificativa=True)
+        assert m.justificativa == 2 and m.justificativa_troca
+        leitor = policies.menu_do_oficio(cenario.usuarios["consulta"], o, justificativa=2)
+        assert leitor.justificativa is None
+
     def test_emitido_sem_pdf_pronto_explica_a_espera(self, cenario):
         m = policies.menu_do_oficio(cenario.usuarios["gestor"],
                                     _da_lista(cenario.ids["oficio_emitido"]))

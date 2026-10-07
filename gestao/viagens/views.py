@@ -881,7 +881,11 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         # O ⋮ canônico (D7) — "Mais ações" — com o PDF e a via que a janela já carregou.
         "menu": policies.menu_do_oficio(
             request.user, oficio, pdf=(pdf.pk, pdf.versao) if pdf else None,
-            via=("oficio", "") in vigentes),
+            via=("oficio", "") in vigentes,
+            justificativa=next((d.versao for d in documentos if d.tipo == Documento.Tipo
+                                .JUSTIFICATIVA and d.situacao == Documento.Situacao.PRONTO),
+                               None),
+            via_justificativa=("justificativa", "") in vigentes),
     }
 
 

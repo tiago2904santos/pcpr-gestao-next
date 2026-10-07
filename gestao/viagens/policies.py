@@ -187,6 +187,10 @@ class MenuDoOficio:
     anexar: str
     anexar_motivo: str
     anexar_troca: bool                   # já há via em vigor: a nova a substitui
+    # Justificativa emitida (versão) quando dá para anexar a via dela — o legado escolhia o
+    # documento numa lista; aqui cada um tem o seu item (o da justificativa só se existir).
+    justificativa: int | None
+    justificativa_troca: bool
     termo: bool
     ordem: bool
     plano: bool
@@ -206,8 +210,17 @@ class MenuDoOficio:
 _CONSULTAR = object()
 
 
-def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR,
-                   via: bool | None = None) -> MenuDoOficio:
+def _justificativa_emitida(oficio: Oficio) -> int | None:
+    if hasattr(oficio, "pdf_justificativa_versao"):
+        return oficio.pdf_justificativa_versao  # type: ignore[attr-defined]
+    return (oficio.documentos.filter(tipo=Documento.Tipo.JUSTIFICATIVA,
+                                     situacao=Documento.Situacao.PRONTO)
+            .order_by("-versao").values_list("versao", flat=True).first())
+
+
+def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR, via: bool | None = None,
+                   justificativa=_CONSULTAR,
+                   via_justificativa: bool | None = None) -> MenuDoOficio:
     """Tudo o que o ⋮ de um ofício oferece a este usuário (lista e janela de resumo). Na
     lista, sem consulta por linha: PDF, via em vigor e documentos vêm anotados
     (`queries.com_dados_de_lista`); a janela de resumo, que já carregou os documentos e as
@@ -218,6 +231,10 @@ def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR,
         pdf = _pdf_do_oficio(oficio)
     if via is None:
         via = bool(getattr(oficio, "via_oficio", False))
+    just = None
+    if pdf and situacao == Oficio.Situacao.EMITIDO:  # sem ofício emitido, não há justificativa
+        just = (_justificativa_emitida(oficio) if justificativa is _CONSULTAR
+                else justificativa)
     # "Ver minuta" é o rascunho como está agora; emitido (ou cancelado depois de emitido)
     # mostra o PDF que vale.
     minuta = situacao == Oficio.Situacao.RASCUNHO or pdf is None
@@ -248,6 +265,10 @@ def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR,
         anexar=anexar,
         anexar_motivo=motivo,
         anexar_troca=anexar == "ativo" and via,
+        justificativa=just if anexar == "ativo" else None,
+        justificativa_troca=bool(anexar == "ativo" and just and (
+            via_justificativa if via_justificativa is not None
+            else getattr(oficio, "via_justificativa", False))),
         termo=pode_criar_termo(usuario) and not cancelado,
         ordem=pode_criar_ordem_do_oficio(usuario, oficio),
         plano=pode_criar_plano_do_oficio(usuario, oficio),

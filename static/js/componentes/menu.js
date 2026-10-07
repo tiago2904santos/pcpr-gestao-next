@@ -179,6 +179,15 @@ export class PcMenu extends HTMLElement {
   /** Véu (camada de topo, sob o painel) + painel solto junto do botão. */
   soltar() {
     const painel = /** @type {any} */ (this.painel);
+    // Na folha do celular o menu se solta da linha: o alto dela diz de que registro se trata.
+    // Quem não escreveu o título ganha o nome do botão ("Ações do Termo #7").
+    if (!painel.querySelector(".menu__folha-titulo") && this.botao) {
+      const titulo = document.createElement("p");
+      titulo.className = "menu__folha-titulo";
+      titulo.setAttribute("aria-hidden", "true");
+      titulo.textContent = this.botao.getAttribute("aria-label") || this.botao.textContent?.trim() || "";
+      painel.prepend(titulo);
+    }
     const veu = document.createElement("div");
     veu.className = "menu__veu";
     veu.setAttribute("popover", "manual");

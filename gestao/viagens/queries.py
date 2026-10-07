@@ -77,6 +77,14 @@ def viajantes_de(oficio: Oficio) -> list[Viajante]:
 _pdf_do_oficio = (Documento.objects.filter(oficio=OuterRef("pk"), tipo=Documento.Tipo.OFICIO,
                                           situacao=Documento.Situacao.PRONTO)
                   .order_by("-versao"))
+_pdf_da_justificativa = (Documento.objects.filter(
+    oficio=OuterRef("pk"), tipo=Documento.Tipo.JUSTIFICATIVA,
+    situacao=Documento.Situacao.PRONTO).order_by("-versao"))
+
+
+def _via(tipo: str) -> Exists:
+    return Exists(ViaAssinada.objects.filter(oficio=OuterRef("pk"), tipo=tipo,
+                                             revogada_em__isnull=True))
 
 
 def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
@@ -95,9 +103,9 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
                   # via assinada — subconsultas na mesma consulta, nenhuma por linha.
                   pdf_oficio_id=Subquery(_pdf_do_oficio.values("pk")[:1]),
                   pdf_oficio_versao=Subquery(_pdf_do_oficio.values("versao")[:1]),
-                  via_oficio=Exists(ViaAssinada.objects.filter(
-                      oficio=OuterRef("pk"), tipo=ViaAssinada.Tipo.OFICIO,
-                      revogada_em__isnull=True)))
+                  via_oficio=_via(ViaAssinada.Tipo.OFICIO),
+                  pdf_justificativa_versao=Subquery(_pdf_da_justificativa.values("versao")[:1]),
+                  via_justificativa=_via(ViaAssinada.Tipo.JUSTIFICATIVA))
     )
 
 

@@ -49,7 +49,10 @@ def test_baixar_documentos_do_termo(logado, dados_e2e):
 def test_baixar_documentos_pelo_resumo_do_oficio(logado, dados_e2e):
     pg = logado
     pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
-    pg.get_by_role("dialog").get_by_role("button", name="Baixar documentos").click()
+    # "Baixar documentos…" mora em "Mais ações" (o mesmo menu ⋮ da linha, D7).
+    resumo = pg.get_by_role("dialog", name="Resumo do ofício")
+    resumo.get_by_role("button", name="Mais ações").click()
+    resumo.get_by_role("menuitem", name="Baixar documentos…").click()
     janela = pg.get_by_role("dialog", name="Baixar documentos")
     expect(janela.locator("input[name=itens]").first).to_be_checked()
     with pg.expect_download() as baixado:
