@@ -748,82 +748,154 @@ a.ficha:hover {
   padding: 0; /* o botão "Usado em N ofícios" não pode deixar a linha 2px mais alta */
 }
 
-/* ≥ 768px: título numa linha só (reticências no texto, selos inteiros ao lado). */
+/* Diárias: o valor nunca corta; o detalhe ("10 × 100% + 1 × 50%") é número, e número
+   partido ao meio engana ("10 × 1…"). Por padrão o detalhe fica no title e no resumo; só
+   na coluna larga ele aparece — e só quando cabe inteiro (abaixo). */
+.registro__meta-item--diarias .registro__meta-detalhe {
+  display: none;
+}
+
+/* A lista com linhas em colunas é o contêiner: as faixas respondem à largura do CARTÃO
+   (painel de Viagens, vitrine do UI Lab), não à da janela (B2). Só essas listas viram
+   contêiner — contenção de largura numa lista que se medisse pelo conteúdo a zeraria.
+   Sem suporte a container queries, os metadados caem no fluxo antigo (itens que quebram
+   linha), sem colunas e sem corte. */
+.registros:has(> .registro > .registro__corpo > .registro__meta--colunas) {
+  container: registros / inline-size;
+}
+
+/* ≥ 768px de janela (abaixo vale o layout do celular, mais adiante). Limiares medidos na
+   largura da lista: 981px na lista a 1024 de janela, 913px no painel a 1440, 714px no
+   painel a 1024, 689px no UI Lab a 768. */
 @media (min-width: 768px) {
-  .registro__titulo {
-    flex-wrap: nowrap;
+  /* Título numa linha só (reticências no texto, selos inteiros ao lado) — SÓ nas linhas
+     que aderiram às colunas (B1: sem escopo, os selos de Usuários saíam do cartão). */
+  @container registros (min-width: 640px) {
+    .registro__corpo:has(> .registro__meta--colunas) > .registro__titulo {
+      flex-wrap: nowrap;
+    }
+
+    .registro__corpo:has(> .registro__meta--colunas) > .registro__titulo > .selo,
+    .registro__corpo:has(> .registro__meta--colunas) > .registro__titulo > .registro__selos {
+      flex: none;
+      flex-wrap: nowrap;
+    }
+
+    .registro__meta--colunas {
+      display: grid;
+      gap: var(--esp-1) var(--esp-4);
+      align-items: center;
+    }
+
+    /* 640–949px de lista: duas faixas. A 1ª coluna (datas, números) e a do valor ficam
+       fixas; a equipe fica com o resto (≥ 200px). */
+    .registro__meta--oficio {
+      grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
+      grid-template-areas:
+        "periodo equipe diarias"
+        "protocolo transporte transporte";
+    }
+
+    .registro__meta--termo {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      grid-template-areas:
+        "periodo equipe"
+        "oficio transporte";
+    }
+
+    .registro__meta--roteiro {
+      grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
+      grid-template-areas:
+        "periodo uso diarias"
+        "trechos notas notas";
+    }
   }
 
-  .registro__titulo > .selo,
-  .registro__titulo > .registro__selos {
-    flex: none;
-    flex-wrap: nowrap;
+  /* Cartão estreito numa janela larga: as mesmas duas faixas de duas colunas do celular. */
+  @container registros (max-width: 639.98px) {
+    .registro__meta--colunas {
+      display: grid;
+      gap: var(--esp-05) var(--esp-3);
+      align-items: center;
+    }
+
+    .registro__meta--oficio,
+    .registro__meta--termo,
+    .registro__meta--roteiro {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+
+    .registro__meta--oficio { grid-template-areas: "periodo diarias" "equipe transporte"; }
+    .registro__meta--termo { grid-template-areas: "periodo oficio" "equipe transporte"; }
+    .registro__meta--roteiro { grid-template-areas: "periodo diarias" "trechos uso"; }
+
+    .registro__meta--oficio .registro__meta-item--protocolo,
+    .registro__meta--roteiro .registro__meta-item--notas {
+      display: none;
+    }
+
+    /* Como no celular (I1): a caixa de pousar ancora nas bordas da linha. */
+    .registro .menu--pousar { position: static; }
+    .registro .menu--pousar > .menu__painel {
+      left: var(--esp-3);
+      right: var(--esp-3);
+      width: auto;
+      max-width: none;
+    }
   }
 
-  .registro__meta--colunas {
-    display: grid;
-    gap: var(--esp-1) var(--esp-4);
-    align-items: center;
+  /* ≥ 950px de lista: uma faixa só, em colunas de largura fixa — a mesma coluna em todas
+     as linhas, para ler de cima para baixo ("qual viatura?", "quanto?"). Linha de 72px.
+     A coluna das diárias, só com o valor, fica estreita e cede a sobra à equipe. */
+  @container registros (min-width: 950px) {
+    .registro__meta--oficio {
+      grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 7.5rem;
+      grid-template-areas: "periodo protocolo equipe transporte diarias";
+    }
+
+    .registro__meta--termo {
+      grid-template-columns: 9.5rem 8.75rem minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-areas: "periodo oficio equipe transporte";
+    }
+
+    .registro__meta--roteiro {
+      grid-template-columns: 9.5rem 6.5rem 10rem 7.5rem minmax(0, 1fr);
+      grid-template-areas: "periodo trechos uso diarias notas";
+    }
   }
 
-  /* 768–1023px: duas faixas. A 1ª coluna (datas, números) e a do valor ficam fixas. */
-  .registro__meta--oficio {
-    grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
-    grid-template-areas:
-      "periodo equipe diarias"
-      "protocolo transporte transporte";
-  }
+  /* ≥ 1180px de lista (a lista inteira a partir de ~1240 de janela): coluna das diárias
+     larga, com o detalhe quando ele CABE INTEIRO (I2). Valor e detalhe são dois itens
+     de uma linha flexível de uma linha de altura: o detalhe que não cabe desce para a 2ª
+     linha, que fica fora do corte — nunca aparece pela metade. */
+  @container registros (min-width: 1180px) {
+    .registro__meta--oficio {
+      grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 11rem;
+    }
 
-  .registro__meta--termo {
-    grid-template-columns: 9.5rem minmax(0, 1fr);
-    grid-template-areas:
-      "periodo equipe"
-      "oficio transporte";
-  }
+    .registro__meta--roteiro {
+      grid-template-columns: 9.5rem 6.5rem 10rem 11rem minmax(0, 1fr);
+    }
 
-  .registro__meta--roteiro {
-    grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
-    grid-template-areas:
-      "periodo uso diarias"
-      "trechos notas notas";
-  }
-}
+    .registro__meta-item--diarias:not(.registro__meta-item--vazio) > .registro__meta-texto {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--esp-1);
+      height: calc(var(--altura-linha) * 1em);
+      text-overflow: clip;
+    }
 
-/* Abaixo de 1280px a coluna das diárias mostra só o valor (o detalhe "2 × 100%" fica no
-   title e no resumo) e cede a sobra para a equipe e o transporte. */
-@media (max-width: 1279.98px) {
-  .registro__meta--colunas .registro__meta-detalhe {
-    display: none;
-  }
-}
+    .registro__meta-item--diarias .registro__valor {
+      flex: none;
+    }
 
-/* ≥ 1024px: uma faixa só, em colunas de largura fixa — a mesma coluna em todas as
-   linhas, para ler de cima para baixo ("qual viatura?", "quanto?"). Linha de 72px. */
-@media (min-width: 1024px) {
-  .registro__meta--oficio {
-    grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 11rem;
-    grid-template-areas: "periodo protocolo equipe transporte diarias";
-  }
-
-  .registro__meta--termo {
-    grid-template-columns: 9.5rem 8.75rem minmax(0, 1.4fr) minmax(0, 1fr);
-    grid-template-areas: "periodo oficio equipe transporte";
-  }
-
-  .registro__meta--roteiro {
-    grid-template-columns: 9.5rem 6.5rem 10rem 11rem minmax(0, 1fr);
-    grid-template-areas: "periodo trechos uso diarias notas";
-  }
-}
-
-/* 1024–1279px: a coluna das diárias, só com o valor, fica estreita. */
-@media (min-width: 1024px) and (max-width: 1279.98px) {
-  .registro__meta--oficio {
-    grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 7.5rem;
-  }
-
-  .registro__meta--roteiro {
-    grid-template-columns: 9.5rem 6.5rem 10rem 7.5rem minmax(0, 1fr);
+    /* O detalhe que desce fica inteiro fora da vista (recortado em si mesmo, para não
+       "vazar" a largura de rolagem da célula). */
+    .registro__meta-item--diarias .registro__meta-detalhe {
+      display: inline;
+      max-width: 100%;
+      overflow: hidden;
+    }
   }
 }
 
@@ -925,6 +997,17 @@ a.ficha:hover {
     grid-template-areas: "periodo diarias" "trechos uso";
   }
   .registro__meta--roteiro .registro__meta-item--notas { display: none; }
+
+  /* I1 — A caixa "Usado em N ofícios" ancora na LINHA, não no botão: no celular o botão
+     fica na coluna da direita e a caixa, presa à borda esquerda dele, saía 183px da tela.
+     Presa às bordas da linha, ela nunca passa da largura da lista. */
+  .registro .menu--pousar { position: static; }
+  .registro .menu--pousar > .menu__painel {
+    left: var(--esp-3);
+    right: var(--esp-3);
+    width: auto;
+    max-width: none;
+  }
 }
 
 /* =============== Barra de filtros =============== */
