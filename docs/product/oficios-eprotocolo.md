@@ -203,3 +203,19 @@ portanto não transformar o aviso em novo bloqueio institucional nesta etapa.
 Até este checkpoint, essas verificações são propostas, **não resultados de testes**.
 Esta atualização mudou somente este documento; não executou banco ou suíte e não
 alterou o código congelado em `b0829d6` durante `scripts/verificar.sh`.
+
+## Adaptador independente — 07/10/2026
+
+`gestao/viagens/eprotocolo.py` implementa a projeção documentada. O chamador precisa
+autorizar o objeto; listas já carregadas evitam fallback de consulta. Snapshot
+ausente ou inválido produz indisponibilidade visível, sem reconstruir uma emissão
+com cadastros atuais. O resultado inclui fonte, versão e estado do documento;
+CPF/RG não são projetados. Cancelados sem snapshot não prometem dados de emissão.
+
+**28 testes com objetos simulados passaram em 0,72 s**, reexecutados pelo principal
+sem plugin Django, conftest ou banco. Ruff e mypy verdes. Cobrem fontes e versões,
+snapshot invalidado, correspondência de protocolo/origem, dias locais e ausência
+de consultas de fallback quando listas são fornecidas. Não estão conectados à
+tela, não demonstram orçamento SQL real e não substituem testes de autorização.
+Arquivos: `gestao/viagens/eprotocolo.py` e
+`gestao/viagens/tests/test_eprotocolo_dados.py`.
