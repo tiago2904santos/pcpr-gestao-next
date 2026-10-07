@@ -12,7 +12,16 @@ from gestao.plataforma.outbox import assinante
 log = logging.getLogger(__name__)
 
 
-@assinante("viagens.documento.gerar")
+def _registrar_falha(payload: dict, erro: Exception) -> None:
+    """Executado pela outbox depois de reverter a geração que falhou."""
+    from .models import Documento
+
+    Documento.objects.filter(pk=payload["documento_id"]).exclude(
+        situacao=Documento.Situacao.PRONTO).update(
+            situacao=Documento.Situacao.FALHOU, erro=f"{type(erro).__name__}: {erro}"[:2000])
+
+
+@assinante("viagens.documento.gerar", ao_falhar=_registrar_falha)
 def gerar_documento(payload: dict) -> None:
     """Gera o PDF/A-2a de uma versão de documento. Idempotente: versão pronta não é refeita."""
     from .documentos.pdf import gerar_pdf
@@ -22,13 +31,7 @@ def gerar_documento(payload: dict) -> None:
         pk=payload["documento_id"])
     if doc.situacao == Documento.Situacao.PRONTO:
         return
-    try:
-        conteudo, sha = gerar_pdf(doc.tipo, doc.dados)
-    except Exception as exc:
-        doc.situacao = Documento.Situacao.FALHOU
-        doc.erro = f"{type(exc).__name__}: {exc}"[:2000]
-        doc.save(update_fields=["situacao", "erro"])
-        raise
+    conteudo, sha = gerar_pdf(doc.tipo, doc.dados)
     doc.arquivo.save(doc.nome_arquivo, ContentFile(conteudo), save=False)
     doc.sha256, doc.tamanho = sha, len(conteudo)
     doc.situacao, doc.erro, doc.gerado_em = Documento.Situacao.PRONTO, "", timezone.now()

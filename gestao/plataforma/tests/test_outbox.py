@@ -59,3 +59,19 @@ def test_falha_agenda_nova_tentativa_e_desiste_apos_limite():
     outbox.processar_lote()
     m.refresh_from_db()
     assert m.situacao == MensagemOutbox.Situacao.FALHOU
+
+
+def test_falha_no_tratador_nao_perde_tentativa(monkeypatch):
+    with transaction.atomic():
+        m = outbox.publicar("teste.falha", {}, chave="falha-tratador")
+
+    def tratar(payload, erro):
+        MensagemOutbox.objects.filter(pk=m.pk).update(ultimo_erro="escrita parcial")
+        raise RuntimeError("tratador falhou")
+
+    monkeypatch.setitem(outbox._FALHAS, "teste.falha", tratar)
+    outbox.processar_lote()
+    m.refresh_from_db()
+    assert m.tentativas == 1 and m.situacao == MensagemOutbox.Situacao.PENDENTE
+    assert "serviço externo fora do ar" in m.ultimo_erro
+    assert "escrita parcial" not in m.ultimo_erro

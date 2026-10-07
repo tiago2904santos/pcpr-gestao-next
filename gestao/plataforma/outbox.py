@@ -28,7 +28,9 @@ from .models import MensagemOutbox
 log = logging.getLogger(__name__)
 
 Assinante = Callable[[dict[str, Any]], None]
+TratadorDeFalha = Callable[[dict[str, Any], Exception], None]
 _ASSINANTES: dict[str, Assinante] = {}
+_FALHAS: dict[str, TratadorDeFalha] = {}
 MAX_TENTATIVAS = 8
 
 
@@ -36,11 +38,14 @@ class OutboxForaDeTransacao(RuntimeError):
     pass
 
 
-def assinante(topico: str) -> Callable[[Assinante], Assinante]:
+def assinante(topico: str, *, ao_falhar: TratadorDeFalha | None = None
+              ) -> Callable[[Assinante], Assinante]:
     def registrar(func: Assinante) -> Assinante:
         if topico in _ASSINANTES and _ASSINANTES[topico] is not func:
             raise ValueError(f"Tópico já possui assinante: {topico}")
         _ASSINANTES[topico] = func
+        if ao_falhar is not None:
+            _FALHAS[topico] = ao_falhar
         return func
 
     return registrar
@@ -92,6 +97,13 @@ def processar_lote(limite: int = 20) -> int:
                     func(mensagem.payload)
             except Exception as exc:
                 log.exception("Falha na mensagem %s (%s)", mensagem.pk, mensagem.topico)
+                tratar = _FALHAS.get(mensagem.topico)
+                if tratar is not None:
+                    try:
+                        with transaction.atomic():
+                            tratar(mensagem.payload, exc)
+                    except Exception:
+                        log.exception("Falha ao registrar erro da mensagem %s", mensagem.pk)
                 mensagem.ultimo_erro = f"{type(exc).__name__}: {exc}"[:2000]
                 if mensagem.tentativas >= MAX_TENTATIVAS:
                     mensagem.situacao = MensagemOutbox.Situacao.FALHOU
