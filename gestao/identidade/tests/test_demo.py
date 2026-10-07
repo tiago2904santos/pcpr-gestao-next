@@ -193,8 +193,16 @@ def _carregar_settings(modulo: str, **env: str) -> subprocess.CompletedProcess:
     ambiente_proc = {k: v for k, v in os.environ.items()
                      if not k.startswith(("DJANGO_", "APP_ENV", "DEMO_MODE", "POSTGRES_"))}
     ambiente_proc.update(env)
-    codigo = (f"import json, {modulo} as s; print(json.dumps([s.APP_ENV, s.DEMO_MODE, "
-              f"s.AUTHENTICATION_BACKENDS, s.MIDDLEWARE, s.DATABASES['default']['NAME']]))")
+    # Estes testes verificam defaults de configuração; o .env de DEV não é a fonte.
+    # Só o arquivo .env é excluído da importação, sem tocar o arquivo do usuário.
+    codigo = (
+        "import json\nfrom pathlib import Path\nfrom unittest.mock import patch\n"
+        "existe = Path.is_file\n"
+        "with patch.object(Path, 'is_file', lambda p: p.name != '.env' and existe(p)):\n"
+        f"    import {modulo} as s\n"
+        "print(json.dumps([s.APP_ENV, s.DEMO_MODE, s.AUTHENTICATION_BACKENDS, "
+        "s.MIDDLEWARE, s.DATABASES['default']['NAME']]))"
+    )
     return subprocess.run([sys.executable, "-c", codigo], cwd=RAIZ, env=ambiente_proc,  # noqa: S603
                           capture_output=True, text=True, check=False)
 
