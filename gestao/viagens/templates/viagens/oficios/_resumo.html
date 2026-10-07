@@ -207,30 +207,21 @@ documento embora) e viraram um grupo dentro de "Mais ações".
     <a class="botao botao--texto" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
   {% endif %}{% endfor %}
   {% if not pdf_oficio %}<a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>{% endif %}
-  {% if True %}
-    {# Termos do ofício e ciclo de vida (cancelar, reativar, arquivar, excluir). #}
-    <pc-menu class="menu">
-      <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
-      <div class="menu__painel menu__painel--acima" role="menu" hidden>
-        {% if pdf_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta</a>{% endif %}
-        {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
-        <a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download>{% icone "download" %}Baixar em Word{% if pdf_oficio %} (v{{ pdf_oficio.versao }}){% else %} (minuta){% endif %}</a>
-        {% if pode_baixar %}<button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_oficio' oficio.pk %}" data-baixar-titulo="Ofício {{ oficio.numero_formatado }}">{% icone "download" %}Baixar documentos</button>{% endif %}
-        {% if pode_termo or termos_do_oficio or pode_os or ordens_do_oficio or pode_plano or planos_do_oficio or acoes.alguma %}<div class="menu__separador" role="separator"></div>{% endif %}
-        {% if pode_termo %}<button type="submit" form="termo-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "file-signature" %}Novo termo de autorização</button>{% endif %}
-        {% if termos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:termos' %}?oficio={{ oficio.pk }}">{% icone "files" %}Termos deste ofício</a>{% endif %}
-        {% if pode_os %}<button type="submit" form="os-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "clipboard-list" %}Nova ordem de serviço</button>{% endif %}
-        {% if ordens_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:ordens' %}?oficio={{ oficio.pk }}">{% icone "files" %}Ordens de serviço deste ofício</a>{% endif %}
-        {% if pode_plano %}<button type="submit" form="plano-do-oficio-{{ oficio.pk }}" class="menu__item" role="menuitem">{% icone "list-checks" %}Novo plano de trabalho</button>{% endif %}
-        {% if planos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:planos' %}?oficio={{ oficio.pk }}">{% icone "files" %}Planos de trabalho deste ofício</a>{% endif %}
-        {% if acoes.alguma %}{% if pode_termo or termos_do_oficio or pode_os or ordens_do_oficio or pode_plano or planos_do_oficio %}<div class="menu__separador" role="separator"></div>{% endif %}
-        {% include "viagens/oficios/_acoes_ciclo.html" with o=oficio %}{% endif %}
-      </div>
-    </pc-menu>
-    {% if pode_termo %}<form id="termo-do-oficio-{{ oficio.pk }}" method="post" action="{% url 'viagens:criar_termo_do_oficio' oficio.pk %}" hidden>{% csrf_token %}</form>{% endif %}
-    {% if pode_plano %}<form id="plano-do-oficio-{{ oficio.pk }}" method="post" action="{% url 'viagens:criar_plano_do_oficio' oficio.pk %}" hidden data-confirmar="Criar um plano de trabalho para o Ofício {{ oficio.numero_formatado }}? Ele recebe o próximo número do ano e, do ofício, destino, datas, efetivo e deslocamento." data-confirmar-titulo="Novo plano de trabalho?" data-confirmar-rotulo="Criar plano">{% csrf_token %}</form>{% endif %}
-    {% if pode_os %}<form id="os-do-oficio-{{ oficio.pk }}" method="post" action="{% url 'viagens:criar_ordem_do_oficio' oficio.pk %}" hidden data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ oficio.numero_formatado }}? Ela recebe o próximo número do ano e copia do ofício destinos, período, equipe e motivo. Se o ofício já tem OS, veja antes em “Ordens de serviço deste ofício”." data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">{% csrf_token %}</form>{% endif %}
-  {% endif %}
+  {% comment %}
+  "Mais ações" é o mesmo menu ⋮ da linha da lista (D7, _menu_oficio.html), menos o que já
+  está à vista no rodapé (resumo, abrir/editar, ver o PDF ou a minuta); a janela acrescenta
+  a minuta e o Word (levar o documento embora) e os registros que nasceram do ofício.
+  {% endcomment %}
+  <pc-menu class="menu" data-menu-flutuante>
+    <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
+    <div class="menu__painel menu__painel--descrito menu__painel--acima" role="menu" hidden>
+      <p class="menu__folha-titulo" aria-hidden="true">Ofício {{ oficio.numero_formatado }}</p>
+      {% if pdf_oficio %}<a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-describedby="r{{ oficio.pk }}-mi">{% icone "printer" %}<span class="menu__item-texto"><span>Ver minuta</span><span class="menu__item-descricao" id="r{{ oficio.pk }}-mi" aria-hidden="true">Como está agora, com marca d’água</span></span></a>{% endif %}
+      {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
+      <a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download aria-describedby="r{{ oficio.pk }}-wd">{% icone "download" %}<span class="menu__item-texto"><span>Baixar em Word</span><span class="menu__item-descricao" id="r{{ oficio.pk }}-wd" aria-hidden="true">{% if pdf_oficio %}A via emitida (v{{ pdf_oficio.versao }}), editável{% else %}A minuta como está agora, editável{% endif %}</span></span></a>
+      {% include "viagens/oficios/_menu_oficio.html" with o=oficio m=menu p="r" no_resumo=True %}
+    </div>
+  </pc-menu>
   {% if pode_editar %}
     <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
   {% elif pode_retificar %}

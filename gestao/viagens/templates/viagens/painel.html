@@ -40,4 +40,11 @@
   </ul>
 </section>
 <aside class="lembrete" aria-label="Lembrete de prazo">{% icone "calendar-days" %}<p><strong>Prazo de 10 dias.</strong> Pedidos com 10 dias ou menos de antecedência precisam de justificativa — o sistema avisa e não deixa emitir sem ela.</p></aside>
+{% comment %}
+O ⋮ das linhas é o mesmo da lista de ofícios (D7): as janelas que ele abre moram aqui também.
+{% endcomment %}
+{% include "viagens/oficios/_dialogo_resumo.html" %}
+{% include "componentes/dialogo_motivo.html" %}
+{% include "componentes/dialogo_assinado.html" %}
+{% include "componentes/dialogo_baixar.html" %}
 {% endblock %}

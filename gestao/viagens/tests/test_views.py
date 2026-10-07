@@ -694,10 +694,11 @@ class TestProvasDaRevisaoDeUX:
 
     def test_consulta_nao_ve_continuar_edicao_e_recebe_mensagem_certa(self, client, cenario):
         client.force_login(cenario.usuarios["consulta"])
-        lista = client.get(reverse("viagens:oficios")).content.decode()
-        # Os rótulos mudaram com a remoção da página do ofício: quem pode editar vê "Abrir o
-        # ofício"; quem só consulta recebe a minuta em PDF, nunca uma ação de escrita.
-        assert "Abrir o ofício" not in lista and "Ver a minuta (PDF)" in lista
+        # O ⋮ da linha (D7) vem do servidor ao abrir: quem só consulta lê (resumo e minuta),
+        # nunca uma ação de escrita.
+        menu = client.get(reverse("viagens:acoes_oficio",
+                                  args=[cenario.ids["oficio_rascunho"]])).content.decode()
+        assert "Abrir o ofício" not in menu and "Ver minuta" in menu and "Ver resumo" in menu
         r = client.get(reverse("viagens:editar", args=[cenario.ids["oficio_rascunho"]]),
                        follow=True)
         assert "Seu perfil permite consultar, mas não editar ofícios." in r.content.decode()
@@ -965,14 +966,17 @@ class TestCicloDeVidaNaTela:
 
     def test_menu_da_linha_oferece_o_que_a_politica_libera(self, operador, cenario):
         html = operador.get(reverse("viagens:oficios")).content.decode()
-        assert 'id="dialogo-motivo"' in html and "Arquivar" in html
-        assert "Reativar ofício" not in html  # operador não reativa
-        html = operador.get(reverse("viagens:oficios") + "?aba=cancelados").content.decode()
-        assert 'id="dialogo-motivo"' in html and "Reativar ofício" not in html
+        assert 'id="dialogo-motivo"' in html
+        menu = operador.get(reverse("viagens:acoes_oficio",
+                                    args=[cenario.ids["oficio_emitido"]])).content.decode()
+        assert "Arquivar" in menu and "Reativar ofício" not in menu  # operador não reativa
+        menu = operador.get(reverse("viagens:acoes_oficio",
+                                    args=[cenario.ids["oficio_cancelado"]])).content.decode()
+        assert "Reativar ofício" not in menu
 
     def test_gestor_reativa_pela_tela_e_sem_justificativa_volta_com_erro(self, gestor, cenario):
         cancelado = Oficio.objects.get(pk=cenario.ids["oficio_cancelado"])
-        html = gestor.get(reverse("viagens:oficios") + "?aba=cancelados").content.decode()
+        html = gestor.get(reverse("viagens:acoes_oficio", args=[cancelado.pk])).content.decode()
         assert f'data-pedir-motivo="{reverse("viagens:reativar", args=[cancelado.pk])}"' in html
         r = gestor.post(reverse("viagens:reativar", args=[cancelado.pk]), {"justificativa": ""},
                         follow=True)
@@ -1007,7 +1011,8 @@ class TestCicloDeVidaNaTela:
         assert f">{oficio.numero_formatado}<" not in lista
         arquivados = operador.get(reverse("viagens:oficios") + "?documento=arquivado")
         assert f">{oficio.numero_formatado}<" in arquivados.content.decode()
-        assert "Desarquivar" in arquivados.content.decode()
+        menu = operador.get(reverse("viagens:acoes_oficio", args=[oficio.pk])).content.decode()
+        assert "Desarquivar" in menu
 
 
 class TestListaDeJustificativas:

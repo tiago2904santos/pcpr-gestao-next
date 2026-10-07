@@ -285,9 +285,6 @@ def lista(request: HttpRequest) -> HttpResponse:
     refino_atual = next((x for x in refinos if x["escopo"] == r.escopo), None)
     pagina = Paginator(r.qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
-    for o in pagina.object_list:  # o menu de cada linha vem da política, por objeto
-        o.acoes = policies.acoes_do_oficio(  # type: ignore[attr-defined]
-            request.user, o, com_exclusao=True)
     _grupos_por_mes(pagina.object_list, r.ordem, pagina)
     contagens = queries.contagens_do_recorte(
         base, r.filtrado if (r.termo or r.avancados.validos) else None, r.aba, r.documento)
@@ -776,6 +773,43 @@ def desarquivar(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(_voltar(request, oficio))
 
 
+@require_GET
+def acoes_oficio(request: HttpRequest, pk: int) -> HttpResponse:
+    """Os itens do menu ⋮ de uma linha (D7), pedidos quando a pessoa chega ao botão: a
+    lista não carrega 15 itens descritos por linha, e o menu sai com o estado de agora."""
+    oficio = (queries.com_dados_de_lista(policies.oficios_visiveis(request.user).filter(pk=pk))
+              .first())
+    if oficio is None:
+        raise Http404
+    resposta = render(request, "viagens/oficios/_menu_oficio.html",
+                      {"o": oficio, "m": policies.menu_do_oficio(request.user, oficio), "p": "m"})
+    resposta["Cache-Control"] = "no-store"  # muda com a situação e com quem pede
+    return resposta
+
+
+_MARCA_NA_MENSAGEM = {("retificado", True): "marcado como retificado",
+                      ("retificado", False): "deixou de ser retificado",
+                      ("complementar", True): "marcado como complementar",
+                      ("complementar", False): "deixou de ser complementar"}
+
+
+@require_POST
+def marcar(request: HttpRequest, pk: int) -> HttpResponse:
+    """Liga/desliga Retificado ou Complementar de um rascunho pelo menu ⋮ (D7); a lista
+    volta como estava."""
+    oficio = _oficio_visivel(request, pk)
+    marca = request.POST.get("marca", "")
+    try:
+        oficio = services.alternar_marcador(oficio, request.user, marca)
+    except services.RegraViolada as exc:
+        messages.error(request, str(exc))
+    else:
+        texto = _MARCA_NA_MENSAGEM[(marca, oficio.marcador == marca)]
+        messages.success(request, f"Ofício {oficio.numero_formatado} {texto}. O documento "
+                                  "já sai assim na minuta.")
+    return redirect(_voltar(request, oficio))
+
+
 @require_POST
 def duplicar(request: HttpRequest, pk: int) -> HttpResponse:
     """Um rascunho novo com os mesmos dados; abre a folha dele."""
@@ -803,7 +837,14 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
     Em `revisao` (antes de emitir) ela também mostra o que vai no papel e não está na
     folha — destinatário e quem assina — e troca o rodapé pelo botão de emitir.
     """
+    from . import assinados
+
     documentos = list(oficio.documentos.select_related("emitido_por").order_by("tipo", "-versao"))
+    pdf = next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
+                and d.situacao == Documento.Situacao.PRONTO), None)
+    # Vias assinadas em vigor: uma consulta, e só quando há PDF (sem PDF não há via).
+    vigentes = assinados.vigentes_do(oficio) if any(
+        d.situacao == Documento.Situacao.PRONTO for d in documentos) else {}
     extras = {"revisao": True, "dados": dados_do_oficio(oficio),
               "pode_emitir": policies.pode_emitir(request.user, oficio)} if revisao else {}
     return {**extras,
@@ -817,26 +858,22 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
         "pode_retificar": policies.pode_retificar(request.user, oficio),
-        "acoes": policies.acoes_do_oficio(request.user, oficio, com_exclusao=True),
-        # Termos de autorização (módulo 4): criar a partir deste ofício e ver os dele.
-        "pode_termo": (policies.pode_criar_termo(request.user)
-                       and oficio.situacao != Oficio.Situacao.CANCELADO),
-        # Sem contar (a janela tem orçamento de consultas): o link abre a lista filtrada.
+        # Os registros que nasceram do ofício (o menu os lista; sem contar: a janela tem
+        # orçamento de consultas, e o link abre a lista filtrada).
         "termos_do_oficio": request.user.has_perm("viagens.view_termoautorizacao"),
-        "pode_os": policies.pode_criar_ordem_do_oficio(request.user, oficio),
         "ordens_do_oficio": request.user.has_perm("viagens.view_ordemservico"),
-        "pode_plano": policies.pode_criar_plano_do_oficio(request.user, oficio),
         "planos_do_oficio": request.user.has_perm("viagens.view_planotrabalho"),
         # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
-        "pdf_oficio": next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
-                            and d.situacao == Documento.Situacao.PRONTO), None),
-        "vias": _vias_do_oficio(request, oficio, documentos),
-        "pode_baixar": (policies.edita_oficios(request.user)
-                        and oficio.situacao != Oficio.Situacao.CANCELADO),
+        "pdf_oficio": pdf,
+        "vias": _vias_do_oficio(request, oficio, documentos, vigentes),
+        # O ⋮ canônico (D7) — "Mais ações" — com o PDF e a via que a janela já carregou.
+        "menu": policies.menu_do_oficio(
+            request.user, oficio, pdf=(pdf.pk, pdf.versao) if pdf else None,
+            via=("oficio", "") in vigentes),
     }
 
 
-def _vias_do_oficio(request: HttpRequest, oficio, documentos) -> list[dict]:
+def _vias_do_oficio(request: HttpRequest, oficio, documentos, vigentes: dict) -> list[dict]:
     """A via assinada de cada documento emitido (o PDF pronto mais recente de cada tipo)."""
     from . import assinados, views_assinados
 
@@ -846,7 +883,7 @@ def _vias_do_oficio(request: HttpRequest, oficio, documentos) -> list[dict]:
             prontos.setdefault(d.tipo, d)
     if not prontos:
         return []
-    vias = assinados.vigentes_do(oficio)
+    vias = vigentes
     # O resumo é um fragmento: remover volta para a lista com o resumo aberto.
     voltar = f"{reverse('viagens:oficios')}?resumo={oficio.pk}"
     ordem: list[str] = ["oficio", "justificativa"]  # o ofício primeiro

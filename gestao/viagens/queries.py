@@ -30,7 +30,15 @@ from gestao.cadastros.models import TabelaDiaria
 from . import prestacao
 from .dominio import busca, recorte
 from .dominio.diarias import Faixa, ValorVigente
-from .models import Documento, Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
+from .models import (
+    Documento,
+    Oficio,
+    Roteiro,
+    Trecho,
+    TrechoRoteiro,
+    ViaAssinada,
+    Viajante,
+)
 
 
 def buscar_tabelas_vigentes(data_referencia: date) -> dict[Faixa, ValorVigente]:
@@ -66,6 +74,11 @@ def viajantes_de(oficio: Oficio) -> list[Viajante]:
     return list(oficio.viajantes.all())
 
 
+_pdf_do_oficio = (Documento.objects.filter(oficio=OuterRef("pk"), tipo=Documento.Tipo.OFICIO,
+                                          situacao=Documento.Situacao.PRONTO)
+                  .order_by("-versao"))
+
+
 def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
     """Tudo que a lista de ofícios exibe, em número fixo de consultas."""
     return (
@@ -77,7 +90,14 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
                      .order_by("ordem")),
         )
         .annotate(primeira_saida=Min("trechos__saida_em"),
-                  tem_documentos=Exists(Documento.objects.filter(oficio=OuterRef("pk"))))
+                  tem_documentos=Exists(Documento.objects.filter(oficio=OuterRef("pk"))),
+                  # Menu ⋮ (D7): o PDF que vale ("Ver PDF vN", "Anexar assinado") e se já há
+                  # via assinada — subconsultas na mesma consulta, nenhuma por linha.
+                  pdf_oficio_id=Subquery(_pdf_do_oficio.values("pk")[:1]),
+                  pdf_oficio_versao=Subquery(_pdf_do_oficio.values("versao")[:1]),
+                  via_oficio=Exists(ViaAssinada.objects.filter(
+                      oficio=OuterRef("pk"), tipo=ViaAssinada.Tipo.OFICIO,
+                      revogada_em__isnull=True)))
     )
 
 

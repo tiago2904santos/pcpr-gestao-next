@@ -5,13 +5,18 @@ Matriz completa em docs/product/permissions.md.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
+from django.utils import timezone
 
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
+from .dominio.assunto import OpcaoDeMarca, marcas_do_menu, resolver_assunto
 from .models import (
+    Documento,
     Oficio,
     OrdemServico,
     PlanoTrabalho,
@@ -131,6 +136,125 @@ def acoes_do_oficio(usuario, oficio: Oficio, *, com_exclusao: bool = False) -> d
         acoes["excluir"] = pode_excluir(usuario, oficio)
     acoes["alguma"] = any(acoes.values())
     return acoes
+
+
+def pode_duplicar(usuario, oficio: Oficio) -> bool:
+    """Um rascunho novo com os dados de um ofício que a pessoa vê, na unidade dela."""
+    return pode_ver(usuario, oficio) and pode_criar(usuario)
+
+
+def pode_marcar(usuario, oficio: Oficio) -> bool:
+    """Marcas Retificado/Complementar mudam o texto do documento: só enquanto é rascunho
+    (o emitido se corrige por retificação, que já o marca como retificado)."""
+    return pode_editar(usuario, oficio)
+
+
+def pode_baixar_documentos(usuario, oficio: Oficio) -> bool:
+    """Janela "Baixar documentos": quem prepara ofícios; o cancelado se reativa antes."""
+    return (edita_oficios(usuario) and oficio.situacao != Oficio.Situacao.CANCELADO
+            and pode_ver(usuario, oficio))
+
+
+def pode_anexar_assinado(usuario, oficio: Oficio) -> bool:
+    """Via assinada do ofício (e da justificativa): só do PDF emitido, fora do arquivo."""
+    return (oficio.situacao == Oficio.Situacao.EMITIDO and not oficio.arquivado
+            and pode_ver(usuario, oficio) and usuario.has_perm("viagens.change_oficio"))
+
+
+def _pdf_do_oficio(oficio: Oficio) -> tuple[int, int] | None:
+    """(id, versão) do PDF do ofício que vale — anotado pela lista (`pdf_oficio_id`), senão
+    uma consulta (a janela de um ofício)."""
+    if hasattr(oficio, "pdf_oficio_id"):
+        pk = oficio.pdf_oficio_id
+        return (pk, oficio.pdf_oficio_versao) if pk else None  # type: ignore[attr-defined]
+    doc = (oficio.documentos.filter(tipo=Documento.Tipo.OFICIO,
+                                    situacao=Documento.Situacao.PRONTO)
+           .order_by("-versao").values_list("pk", "versao").first())
+    return (doc[0], doc[1]) if doc else None
+
+
+@dataclass(frozen=True)
+class MenuDoOficio:
+    """O menu ⋮ canônico de um ofício (D7), na ordem dos grupos. O template só desenha o que
+    vem aqui; cada view confere de novo. `anexar` é "" (não aparece), "ativo" ou "inativo"
+    (aparece apagado, com `anexar_motivo` — como no legado, "gere o PDF primeiro")."""
+
+    abrir: bool
+    retificar: bool
+    pdf: tuple[int, int] | None          # (id, versão) do PDF emitido que vale
+    minuta: bool
+    baixar: bool
+    anexar: str
+    anexar_motivo: str
+    anexar_troca: bool                   # já há via em vigor: a nova a substitui
+    termo: bool
+    ordem: bool
+    plano: bool
+    duplicar: bool
+    marcas: list[OpcaoDeMarca] = field(default_factory=list)
+    ciclo: dict[str, bool] = field(default_factory=dict)
+
+    @property
+    def documento(self) -> bool:
+        return bool(self.baixar or self.anexar)
+
+    @property
+    def criar(self) -> bool:
+        return self.termo or self.ordem or self.plano or self.duplicar
+
+
+_CONSULTAR = object()
+
+
+def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR,
+                   via: bool | None = None) -> MenuDoOficio:
+    """Tudo o que o ⋮ de um ofício oferece a este usuário (lista e janela de resumo). Na
+    lista, sem consulta por linha: PDF, via em vigor e documentos vêm anotados
+    (`queries.com_dados_de_lista`); a janela de resumo, que já carregou os documentos e as
+    vias, passa `pdf` ((id, versão) ou None) e `via`."""
+    situacao = oficio.situacao
+    cancelado = situacao == Oficio.Situacao.CANCELADO
+    if pdf is _CONSULTAR:
+        pdf = _pdf_do_oficio(oficio)
+    if via is None:
+        via = bool(getattr(oficio, "via_oficio", False))
+    # "Ver minuta" é o rascunho como está agora; emitido (ou cancelado depois de emitido)
+    # mostra o PDF que vale.
+    minuta = situacao == Oficio.Situacao.RASCUNHO or pdf is None
+    anexar, motivo = "", ""
+    if edita_oficios(usuario) and not cancelado and pode_ver(usuario, oficio):
+        if pode_anexar_assinado(usuario, oficio) and pdf:
+            anexar = "ativo"
+        elif oficio.arquivado:
+            anexar, motivo = "inativo", "Desarquive o ofício para anexar a via assinada"
+        elif situacao == Oficio.Situacao.RASCUNHO:
+            anexar, motivo = "inativo", "Emita o ofício primeiro: a via é a do PDF emitido"
+        else:
+            anexar, motivo = "inativo", "O PDF ainda está sendo gerado; tente em instantes"
+    marcas: list[OpcaoDeMarca] = []
+    if pode_marcar(usuario, oficio):
+        from .queries import trechos_de  # (os trechos já vêm juntos na lista)
+
+        trechos = trechos_de(oficio)
+        saida = timezone.localtime(trechos[0].saida_em).date() if trechos else None
+        assunto = resolver_assunto(oficio.data_oficio, saida)
+        marcas = marcas_do_menu(oficio.marcador, autorizacao=assunto.autorizacao)
+    return MenuDoOficio(
+        abrir=pode_editar(usuario, oficio),
+        retificar=pode_retificar(usuario, oficio),
+        pdf=pdf if not minuta else None,
+        minuta=minuta,
+        baixar=pode_baixar_documentos(usuario, oficio),
+        anexar=anexar,
+        anexar_motivo=motivo,
+        anexar_troca=anexar == "ativo" and via,
+        termo=pode_criar_termo(usuario) and not cancelado,
+        ordem=pode_criar_ordem_do_oficio(usuario, oficio),
+        plano=pode_criar_plano_do_oficio(usuario, oficio),
+        duplicar=pode_duplicar(usuario, oficio),
+        marcas=marcas,
+        ciclo=acoes_do_oficio(usuario, oficio, com_exclusao=True),
+    )
 
 
 def pode_excluir(usuario, oficio: Oficio) -> bool:

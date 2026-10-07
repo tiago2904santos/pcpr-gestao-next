@@ -1,0 +1,92 @@
+{% comment %}
+Menu ⋮ canônico de um ofício (D7, LP-30) — o mesmo na lista, no painel e na janela de
+resumo. `m` vem de policies.menu_do_oficio: o template só desenha o que a política libera
+(cada view confere de novo). Grupos: ler e levar o documento · criar a partir dele · marcas
+do documento · situação · excluir. Os itens que mudam alguma coisa (ou estão inativos) têm,
+embaixo do título, o que fazem (ou por quê): a descrição fica fora do nome (aria-hidden) e
+entra como descrição. Os de leitura (resumo, abrir, minuta/PDF) não precisam dela.
+
+Variáveis: `o` (ofício), `m` (MenuDoOficio), `p` (prefixo dos ids: "m" na lista, "r" no
+resumo — o mesmo ofício aparece nos dois), `no_resumo` (dentro da janela: sem "Ver resumo",
+e Abrir/Editar e Ver minuta/PDF ficam no rodapé dela).
+"Retificar" aparece uma vez só: no emitido é "Editar (retificar)…" (volta a rascunho como
+retificado); no rascunho, "Marcar como retificado" liga a marca — como no legado.
+{% endcomment %}
+{% firstof p "m" as px %}
+{% if not no_resumo %}
+<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}" data-abrir-dialogo="dialogo-resumo"
+   hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Ver resumo</a>
+{% if m.abrir %}
+<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+{% elif m.retificar %}
+<form method="post" action="{% url 'viagens:retificar' o.pk %}"
+      data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."
+      data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
+  {% csrf_token %}
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-rt">{% icone "file-pen-line" %}<span class="menu__item-texto"><span>Editar (retificar)</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-rt" aria-hidden="true">Volta a rascunho{% if m.pdf %}; o PDF v{{ m.pdf.1 }} fica no histórico{% endif %}</span></span></button>
+</form>
+{% endif %}
+{% if m.pdf %}
+<a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_documento' m.pdf.0 %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver PDF v{{ m.pdf.1 }}<span class="sr-only"> (nova aba)</span></a>
+{% else %}
+<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta<span class="sr-only"> (nova aba)</span></a>
+{% endif %}
+{% endif %}
+{% if m.baixar %}
+<button type="button" class="menu__item menu__item--descrito" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_oficio' o.pk %}" data-baixar-titulo="Ofício {{ o.numero_formatado }}" aria-describedby="{{ px }}{{ o.pk }}-bx">{% icone "download" %}<span class="menu__item-texto"><span>Baixar documentos…</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-bx" aria-hidden="true">Ofício, justificativa e termos</span></span></button>
+{% endif %}
+{% if m.anexar == "ativo" %}
+<a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:anexar_assinado' 'oficio' o.pk %}" data-anexar-assinado="{% url 'viagens:anexar_assinado' 'oficio' o.pk %}" data-assinado-titulo="Ofício {{ o.numero_formatado }} · v{{ m.pdf.1 }}"{% if m.anexar_troca %} data-assinado-troca{% endif %} aria-describedby="{{ px }}{{ o.pk }}-as">{% icone "file-input" %}<span class="menu__item-texto"><span>{% if m.anexar_troca %}Trocar via assinada…{% else %}Anexar assinado…{% endif %}</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-as" aria-hidden="true">{% if m.anexar_troca %}A nova passa a valer; a anterior fica guardada{% else %}O PDF do ofício com as assinaturas{% endif %}</span></span></a>
+{% elif m.anexar == "inativo" %}
+<span class="menu__item menu__item--descrito" role="menuitem" aria-disabled="true" tabindex="-1" aria-describedby="{{ px }}{{ o.pk }}-as">{% icone "file-input" %}<span class="menu__item-texto"><span>Anexar assinado…</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-as" aria-hidden="true">{{ m.anexar_motivo }}</span></span></span>
+{% endif %}
+
+{% if m.criar or no_resumo and termos_do_oficio or no_resumo and ordens_do_oficio or no_resumo and planos_do_oficio %}
+<div class="menu__separador" role="separator"></div>
+{% if m.termo %}
+<form method="post" action="{% url 'viagens:criar_termo_do_oficio' o.pk %}">
+  {% csrf_token %}
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-te">{% icone "file-signature" %}<span class="menu__item-texto"><span>Novo termo de autorização</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-te" aria-hidden="true">Com a equipe e o período deste ofício</span></span></button>
+</form>
+{% endif %}
+{% if m.ordem %}
+<form method="post" action="{% url 'viagens:criar_ordem_do_oficio' o.pk %}"
+      data-confirmar="Criar uma nova ordem de serviço para o Ofício {{ o.numero_formatado }}? Ela recebe o próximo número do ano e copia do ofício destinos, período, equipe e motivo. Se o ofício já tem OS, veja antes em “Ordens de serviço deste ofício”, no resumo."
+      data-confirmar-titulo="Nova ordem de serviço?" data-confirmar-rotulo="Criar OS">
+  {% csrf_token %}
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-os">{% icone "clipboard-list" %}<span class="menu__item-texto"><span>Nova ordem de serviço</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-os" aria-hidden="true">Próximo número; copia destinos e equipe</span></span></button>
+</form>
+{% endif %}
+{% if m.plano %}
+<form method="post" action="{% url 'viagens:criar_plano_do_oficio' o.pk %}"
+      data-confirmar="Criar um plano de trabalho para o Ofício {{ o.numero_formatado }}? Ele recebe o próximo número do ano e, do ofício, destino, datas, efetivo e deslocamento."
+      data-confirmar-titulo="Novo plano de trabalho?" data-confirmar-rotulo="Criar plano">
+  {% csrf_token %}
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-pl">{% icone "list-checks" %}<span class="menu__item-texto"><span>Novo plano de trabalho</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-pl" aria-hidden="true">Próximo número; copia destino e datas</span></span></button>
+</form>
+{% endif %}
+{% if m.duplicar %}
+<form method="post" action="{% url 'viagens:duplicar_oficio' o.pk %}">
+  {% csrf_token %}
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-du">{% icone "copy" %}<span class="menu__item-texto"><span>Duplicar</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-du" aria-hidden="true">Rascunho novo, com outro número</span></span></button>
+</form>
+{% endif %}
+{% if no_resumo %}
+{# Na janela: os registros que já nasceram do ofício (a lista filtrada). #}
+{% if termos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:termos' %}?oficio={{ o.pk }}">{% icone "files" %}Termos deste ofício</a>{% endif %}
+{% if ordens_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:ordens' %}?oficio={{ o.pk }}">{% icone "files" %}Ordens de serviço deste ofício</a>{% endif %}
+{% if planos_do_oficio %}<a class="menu__item" role="menuitem" href="{% url 'viagens:planos' %}?oficio={{ o.pk }}">{% icone "files" %}Planos de trabalho deste ofício</a>{% endif %}
+{% endif %}
+{% endif %}
+
+{% if m.marcas %}
+<div class="menu__separador" role="separator"></div>
+{% for op in m.marcas %}
+<form method="post" action="{% url 'viagens:marcar_oficio' o.pk %}">
+  {% csrf_token %}<input type="hidden" name="marca" value="{{ op.marca.value }}"><input type="hidden" name="voltar" value="{{ request.get_full_path }}" data-voltar-vivo>
+  <button type="submit" class="menu__item menu__item--descrito" role="menuitem" aria-describedby="{{ px }}{{ o.pk }}-{{ op.marca.value|slice:':2' }}">{% if op.marca.value == "retificado" %}{% icone "file-pen-line" %}{% else %}{% icone "file-plus-2" %}{% endif %}<span class="menu__item-texto"><span>{% if op.ligar %}Marcar como {{ op.marca.value }}{% else %}Deixar de ser {{ op.marca.value }}{% endif %}</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-{{ op.marca.value|slice:':2' }}" aria-hidden="true">{% if op.ligar %}Sai “({{ op.marca.value|capfirst }})” ao lado do número{% if op.tira.value %}; tira a de {{ op.tira.value }}{% endif %}{% else %}O documento volta a sair sem a marca{% endif %}</span></span></button>
+</form>
+{% endfor %}
+{% endif %}
+
+{% include "viagens/oficios/_acoes_ciclo.html" with acoes=m.ciclo %}

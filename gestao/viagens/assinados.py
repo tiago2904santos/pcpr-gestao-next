@@ -144,8 +144,7 @@ def pode_anexar(usuario, alvo: Alvo) -> bool:
     dono = alvo.dono
     if alvo.tipo in (ViaAssinada.Tipo.OFICIO, ViaAssinada.Tipo.JUSTIFICATIVA):
         assert isinstance(dono, Oficio)  # nosec B101 - estreita o tipo
-        return (dono.situacao == Oficio.Situacao.EMITIDO and not dono.arquivado
-                and policies.pode_ver(usuario, dono) and usuario.has_perm("viagens.change_oficio"))
+        return policies.pode_anexar_assinado(usuario, dono)  # uma regra só (menu ⋮ também)
     if alvo.tipo == ViaAssinada.Tipo.TERMO:
         return policies.pode_editar_termo(usuario, dono)  # type: ignore[arg-type]
     # OS: só depois de gerada (a referência deixa "Anexar assinado" inativo até haver PDF).

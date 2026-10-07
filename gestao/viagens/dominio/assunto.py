@@ -114,3 +114,38 @@ def tipo_do_oficio(data_oficio: date, primeira_saida: date | None,
     elif marcador is Marcador.RETIFICADO:
         porque += " A marca de retificado não vale na convalidação."
     return TipoOficio(assunto.autorizacao, _MARCAS[marcador] if vale else "", porque)
+
+
+# ---------------------------------------------------------------- marcas no menu (LP-30, D7)
+def alternar_marcador(atual: Marcador | str, marca: Marcador | str) -> Marcador:
+    """O mesmo item do menu liga e desliga a marca. As marcas são mutuamente exclusivas
+    (referência: retificar tira a de complementar e vice-versa): ligar uma tira a outra."""
+    marca = Marcador(marca or "")
+    if marca is Marcador.NENHUM:
+        raise ValueError("Diga qual marca ligar ou desligar (retificado ou complementar).")
+    return Marcador.NENHUM if Marcador(atual or "") is marca else marca
+
+
+@dataclass(frozen=True)
+class OpcaoDeMarca:
+    """Um item de marca no menu: liga (`ligar`) ou desliga `marca`; `tira` é a marca que
+    sai junto quando esta entra (a tela avisa — ninguém perde a outra sem saber)."""
+
+    marca: Marcador
+    ligar: bool
+    tira: Marcador
+
+
+def marcas_do_menu(atual: Marcador | str, *, autorizacao: bool) -> list[OpcaoDeMarca]:
+    """O que o menu oferece, nesta ordem: Retificado, Complementar. "Retificado" só muda o
+    rótulo de uma Autorização (`resolver_assunto`): numa Convalidação não se oferece ligá-la
+    — desligar continua possível, para limpar o dado."""
+    atual = Marcador(atual or "")
+    opcoes = []
+    for marca in (Marcador.RETIFICADO, Marcador.COMPLEMENTAR):
+        ligada = atual is marca
+        if marca is Marcador.RETIFICADO and not autorizacao and not ligada:
+            continue
+        tira = atual if not ligada and atual is not Marcador.NENHUM else Marcador.NENHUM
+        opcoes.append(OpcaoDeMarca(marca, not ligada, tira))
+    return opcoes

@@ -886,6 +886,40 @@ def retificar(oficio: Oficio, usuario) -> Oficio:
     return atual
 
 
+_MARCA_NO_HISTORICO = {
+    (Oficio.Marcador.RETIFICADO, True): "Marcado como retificado: sai “(Retificado)” ao lado "
+                                        "do número.",
+    (Oficio.Marcador.RETIFICADO, False): "Deixou de ser retificado.",
+    (Oficio.Marcador.COMPLEMENTAR, True): "Marcado como complementar: sai “(Complementar)” ao "
+                                          "lado do número.",
+    (Oficio.Marcador.COMPLEMENTAR, False): "Deixou de ser complementar.",
+}
+
+
+@transaction.atomic
+def alternar_marcador(oficio: Oficio, usuario, marca: str) -> Oficio:
+    """Liga ou desliga a marca Retificado/Complementar de um rascunho (menu ⋮ da lista, D7).
+    As marcas se excluem (dominio.assunto.alternar_marcador): ligar uma tira a outra."""
+    from .dominio.assunto import alternar_marcador as alternar
+
+    atual = _travar_para_edicao(oficio, usuario, None)
+    try:
+        novo = alternar(atual.marcador, marca)
+    except ValueError as exc:
+        raise RegraViolada(str(exc)) from exc
+    anterior = atual.marcador
+    atual.marcador = novo.value
+    atual.versao += 1
+    atual.save(update_fields=["marcador", "versao", "atualizado_em"])
+    ligou = bool(novo.value)
+    descricao = _MARCA_NO_HISTORICO[(Oficio.Marcador(marca), ligou)]
+    if ligou and anterior:  # a outra marca saiu junto (exclusão mútua)
+        descricao += f" A marca de {Oficio.Marcador(anterior).name.lower()} saiu."
+    _registrar(atual, Historico.Acao.ALTERADO, descricao, usuario,
+               campos=["marcador"], de=anterior, para=novo.value)
+    return atual
+
+
 @transaction.atomic
 def cancelar(oficio: Oficio, usuario, motivo: str) -> Oficio:
     atual = (Oficio.objects.select_for_update(of=("self",))
@@ -964,7 +998,7 @@ def duplicar_oficio(oficio: Oficio, usuario) -> Oficio:
     """Um rascunho novo (número novo, data de hoje) com os mesmos dados, equipe, motorista,
     trechos, viagem e texto editado — sem protocolo, documentos emitidos e histórico, que
     são de cada ofício."""
-    policies.exigir(policies.pode_ver(usuario, oficio) and policies.pode_criar(usuario),
+    policies.exigir(policies.pode_duplicar(usuario, oficio),
                     "Você não pode duplicar este ofício.")
     novo = criar_rascunho(usuario)
     dados = {c: getattr(oficio, c) for c in CAMPOS_EDITAVEIS

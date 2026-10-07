@@ -58,20 +58,16 @@
     </div>
   </div>
   <div class="registro__acoes">
-    <pc-menu class="menu">
+    {% comment %}
+    Menu ⋮ canônico (D7): policies.menu_do_oficio decide; quem só consulta vê só o que pode
+    ler. Os itens vêm do servidor quando a pessoa chega ao ⋮ (mouse por cima ou foco) —
+    15 itens descritos em 20 linhas pesariam ~150 KB na lista — e já chegam frescos.
+    {% endcomment %}
+    <pc-menu class="menu" data-menu-carregar="{% url 'viagens:acoes_oficio' o.pk %}">
       <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do Ofício {{ o.numero_formatado }}">{% icone "ellipsis-vertical" %}</button>
-      <div class="menu__painel" role="menu" hidden>
-        {% if o.editavel and pode_editar_oficios %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Abrir o ofício</a>
-        {% elif o.situacao == "emitido" and not o.arquivado and pode_editar_oficios %}
-          {# Emitido se edita por retificação: a confirmação explica o que muda. #}
-          <form method="post" action="{% url 'viagens:retificar' o.pk %}"
-                data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."
-                data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
-            {% csrf_token %}
-            <button type="submit" class="menu__item" role="menuitem">{% icone "pencil" %}Editar (retificar)</button>
-          </form>
-        {% else %}<a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver a minuta (PDF)</a>{% endif %}
-        {% include "viagens/oficios/_acoes_ciclo.html" with acoes=o.acoes %}
+      <div class="menu__painel menu__painel--descrito" role="menu" hidden>
+        <p class="menu__folha-titulo" aria-hidden="true">Ofício {{ o.numero_formatado }}{% with d=o|lista_destinos|resumir:2 %}{% if d.visiveis %} · {{ d.visiveis }}{% if d.mais %} +{{ d.mais }}{% endif %}{% endif %}{% endwith %}</p>
+        <span class="menu__item" role="menuitem" aria-disabled="true" tabindex="-1" data-menu-carregando>{% icone "loader-circle" classe="girando" %}Carregando as ações…</span>
       </div>
     </pc-menu>
   </div>
