@@ -124,3 +124,65 @@ achada na medição e corrigida com `position: relative` no span que corta).
   marcado e motorista de fora.
 - `test_views.py`, `test_termos.py`, `test_roteiros.py`, `test_viagem.py`: 220 verdes.
 - Navegador e `scripts/verificar.sh`: resultado registrado no Log de `current-page.md`.
+
+## 7. Correções pós-QA
+
+> Agente 2 · 2026-10-06 · resposta ao `qa/oficios-lista-lote1.md` (REPROVADO). Commits
+> `2a2b51e` (B1, B2, I1, I2), `f4a538a` (I3 + E501), `006b6a7` (menores), `8407f4b` (equipe
+> com ", …"), `ebd14f3` (autocrítica). Medido contra o NOVO (:8000) e o `main` (:8002) com as
+> ferramentas do QA (`/home/claude/tools/qa/`); capturas em `/home/claude/caps/pos-qa/`
+> (`{main,novo}/<larg>/` — 26 rotas × 1440/1280/1024/768/390/360 — e `el/`).
+
+### 7.1 Achados do QA
+
+| Achado | Causa | Correção (na origem: `static/css/listas.css`) | Evidência medida |
+|---|---|---|---|
+| **B1** título sem quebra vazou para todas as listas | `@media (min-width: 768px) .registro__titulo { flex-wrap: nowrap }` e `> .selo { flex: none }` sem escopo | Regras restritas a `.registro__corpo:has(> .registro__meta--colunas) > .registro__titulo` | `titulos.py 8000` = `titulos.py 8002` (só UI Lab/Notificações 77/257 px, pré-existentes). Usuários: rolagem **310/566 → 0** a 1024/768; alturas iguais ao main. `quebra_titulo.py` (main × novo, 25 rotas × 4 larguras): **nenhuma rota com mais títulos quebrados que o main**; Pautas, Eventos e Coffee iguais ao main; Ofícios/Roteiros/painel com menos (ex.: Roteiros 390: 7 → 0) |
+| **B2** colunas pela largura da janela | `@media (min-width: 1024px)` decidia a grade da meta; o painel põe a linha num cartão de 714–913px | A lista com linhas em colunas é contêiner (`container: registros / inline-size`, só via `:has`, para não zerar listas medidas pelo conteúdo). Dentro de `@media (min-width: 768px)`: `@container registros` ≥ 640px duas faixas; ≥ 950px uma faixa (diárias 7,5rem); ≥ 1180px diárias 11rem; < 640px as duas colunas do celular. O celular (< 768 de janela) segue igual ao aprovado. **Suporte**: Chrome/Edge 105+, Safari 16+, Firefox 121+ (pelo `:has`); sem suporte a meta cai no fluxo antigo (itens que quebram linha), sem corte nem colunas | Painel a 1024: equipe **77 → 264px**, cortes 10/10 → 1/10; a 1440: 463px, 2/10 → 0/10 (`truncamento.py`); duas faixas no painel (913 e 714px de cartão), uma faixa nas listas a ≥ 1024 (981px) — alturas 71–72 preservadas; UI Lab 21 a 1440 (978px) em uma faixa, a 390 em duas colunas (`el/lab21-*.png`) |
+| **I1** "Usado em N ofícios" 183px fora da tela | `.menu__painel--esquerda` ancorado no botão, que no celular foi para a coluna da direita | No celular e em cartão < 640px, `.menu--pousar` fica `static` e o painel ancora nas bordas da **linha** (`left/right: --esp-3`, `width: auto`) | `pousar.py`: 390 → x = 25, largura 340, rolagem **183 → 0** (main: x = 29, 0); 1440 inalterado |
+| **I2** "R$ 12.790,68 · 10 × 1…" | detalhe dentro do mesmo corte com reticências | Detalhe escondido por padrão; só na coluna larga (lista ≥ 1180px) valor e detalhe viram itens de uma linha flexível de 1 linha de altura: o detalhe que não cabe desce e fica fora do corte (e se recorta, para não vazar `scrollWidth`). Valor `flex: none`. Detalhe completo no `title` e no resumo | 1440: Ofícios 11 detalhes inteiros, 1 escondido ("10 × 100% + 1 × 15% + 1 × 30%"), **0 números partidos**; Roteiros 2 escondidos, 0 partidos; diárias cortadas 0/20 em todas as larguras |
+| **I3** motorista só por ícone | `circle-dot` + "(motorista)" só para leitor de tela | "(motorista)" visível (cor secundária), lido uma vez (sem cópia `sr-only`); ícone removido (não acrescentava nada). Externo: "(motorista" + `sr-only` " de fora da equipe" + ")". Novo filtro `motorista_primeiro`: na linha o motorista vem primeiro e seu bloco não encolhe — só o NOME corta, a marca nunca; o resto da equipe fica com o que sobra e guarda sempre ", …". O `title` mantém a ordem do ofício | `motorista.py`: marca inteira visível em **15/15** linhas (Ofícios) e 8/8 (painel) de 1440 a 360 — antes da reordenação 7/10 a 1440 e **0/10** a 390 |
+| Ruff E501 `test_views.py:1322` | asserção longa | Asserções reescritas (I3) | `ruff check .` verde |
+
+### 7.2 Menores (§3 do QA)
+
+| Achado | Situação |
+|---|---|
+| M1 hover pinta botões de texto | **Corrigido**: só `.botao--icone.botao--sutil` ganha fundo (Despachar/Abrir/Andamento voltam ao normal; captura de Pautas a 768) |
+| M3 rótulos de vazio cortados | **Corrigido**: "Sem diárias" (title "Sem diárias calculadas"), Termos "Sem servidor" (title "Sem servidor: sai só o termo genérico") |
+| M4 "Sem destino" sem cara de vazio | **Corrigido** em Ofícios e Termos (`vazio-inline` itálico; acende no hover). Na autocrítica: itálico decepado pelo corte ("Sem destinc") → respiro de 0,15em em todos os vazios |
+| M6 roteiro cancelado escurece no hover | **Corrigido**: `.registro--inativo:hover .registro__link--estatico` fica terciário |
+| M7 UI Lab: cancelado sem recuo + B2 | **Corrigido**: `registro--inativo`, faixas pela largura do cartão, motorista e vazios iguais ao produto |
+| M2 fonte da meta no celular em todas as listas | **Mantido** (decisão D11); efeito +2–20px em Eventos/Palestras/Publicações a 360–390 registrado |
+| M5 tipo × situação, dois selos cinza | Lote 3/decisão de selo (variante de contorno para o tipo) — pendente |
+| M8 axe `target-size` com ⋮ aberto em Termos a 390 | Lote 3 (menu canônico) |
+| M9 1ª tela a 390 (2,55 ofícios) | Lote 2 (gaveta de filtros, LP-21) |
+| M10 ícone por modal | dados DEMO sem `transporte_meio` — pendente do cadastro |
+| M11 peso do HTML | aceito (+1,8 KiB comprimido); a equipe ganhou 2 spans por linha com motorista |
+| M12 relatório | Corrigido aqui: a rolagem de 77/257px no UI Lab e em Notificações a 1024/768 é **pré-existente** (navegação global, igual no main) — o §2 errou ao dizer 0 |
+
+### 7.3 Regressão e testes
+- `regressao_listas.py` (main × novo, 26 rotas × 1440/1280/1024/768/390/360): rolagem
+  horizontal igual ao main em todas (só UI Lab/Notificações 77/257, pré-existentes); nenhuma
+  linha com conteúdo fora da caixa (o único caso, "(motorista)" na vitrine do UI Lab a
+  390/360, foi corrigido em `8407f4b`); alturas iguais ou mais regulares que no main fora
+  de M2.
+- Pilha/z-index com a lista como contêiner: cabeçalho de mês continua preso (top 104) e
+  acima das linhas; menu ⋮ da última linha abre por cima das vizinhas (`sticky.py`).
+- `test_views.py`, `test_termos.py`, `test_roteiros.py`, `gestao/ui_lab`,
+  `test_design_tokens.py`, `test_css_por_pagina.py`: **266 passed**; `ruff`: verde.
+- `tests/e2e/test_acessibilidade.py`: 88 passed, 6 failed — as 6 (folhas de termo/OS/plano,
+  termo salvo com documentos, via assinada; contraste de `.texto-terciario` nas folhas e
+  seletor de iframe ambíguo) **falham igual no `main`** (`b47e2d5`), fora deste lote.
+  Subconjunto das telas tocadas (ofícios, roteiros, painel, UI Lab, usuários): 23 passed.
+
+### 7.4 Autocrítica pós-correção (1440/1280/1024/768/390/360: Ofícios, Roteiros, Termos, painel, UI Lab 21, Usuários, Pautas, Solicitações, Coffee, Ordens, Atendimentos)
+1. Revisão 1 — equipe no celular ficava "Caio Fontana Gouveia (motorista)" sem nenhum sinal
+   dos demais (o bloco do motorista ocupava a célula) → ", …" garantido (`8407f4b`).
+2. Revisão 1 — o encolhimento 1000:1 ainda tirava fração de pixel do nome do motorista e
+   disparava reticências com folga ("Gouv…   (motorista)") → bloco do motorista `flex: none`
+   + `max-width` (sem encolher fracionado).
+3. Revisão 2 — "Sem destinc": itálico cortado pelo `overflow` → respiro (`ebd14f3`).
+4. Ainda me incomoda (fica para depois): no celular o nome do motorista corta cedo ("Caio
+   Font… (motorista), …"); o "+N" conta só além dos três nomes do HTML, não o que o corte
+   escondeu; sobra uma folga de um glifo entre a reticência e "(motorista)".
