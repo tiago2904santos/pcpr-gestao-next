@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Viagens → **Ofícios** |
 | Página | **Lista de ofícios** (`/viagens/oficios/`) |
-| Agente responsável | 2 — Design Lead (implementação, Lote 2) |
+| Agente responsável | 2 — Design Lead (implementação, Lote 3) |
 | Análise do legado | **concluída** — `parity/oficios-lista.md` (matriz L1–L80, defeitos F1–F16) |
 | Implementação | plano aprovado (`visual/oficios-lista-plano.md`, LP-01…LP-33); **Lote 1 APROVADO pelo QA** (LP-01…LP-12 + correções pós-QA); **Lote 2 implementado** (LP-20…LP-27, `visual/oficios-lista-lote2.md`) — aguardando QA |
 | Testes executados | QA do Lote 1: 26 rotas × 6 larguras contra o main, axe 11 larguras, benchmark legado × novo, consultas SQL (`qa/oficios-lista-lote1.md`) |
@@ -18,3 +18,4 @@
 - 2026-10-06 — Agente 1 entregou paridade da lista e inventário de Ofícios; inventário de Viagens (288 itens) em `inventory.md`; Agente 2 entregou identidade de referência, catálogo de componentes e diagnóstico (P1–P14). Orquestrador aprovou o plano D1–D11.
 - 2026-10-07 — Lote 1 implementado (19 commits), QA reprovou 2× (B1/B2 regressões em outras listas; RB1 target-size a 768), Designer corrigiu na origem, QA APROVOU (Re-QA 2, `34d8d1d`). Decisão: motorista primeiro na equipe com "(motorista)" visível.
 - 2026-10-07 — Lote 2 implementado: abas temporais + filtro Documento, gaveta com fichas, busca (placa, destino ≠ sede, unaccent), vazios/erro, `voltar` vivo, contagens, XLSX. Relatório em `visual/oficios-lista-lote2.md`.
+- 2026-10-07 — Lote 2: abas temporais com regra do legado (`dominio/recorte.py`), filtro Documento, contadores do recorte, gaveta/folha modal + fichas, Ano, busca placa/destino/acentos, erro HTMX. QA reprovou 1× (folha do celular cortava calendário; modal falso), corrigido, APROVADO (`651d666`).
