@@ -1,6 +1,6 @@
 """Planilha da lista de ofícios (paridade com o "Exportar" da referência).
 
-O recorte é o mesmo da tela — busca, situação, filtros avançados e ordem —, então quem
+O recorte é o mesmo da tela — aba, documento, busca, filtros e ordem —, então quem
 exporta leva exatamente o que estava vendo. As 14 colunas seguem a referência; datas e
 valores saem como data e número de verdade (a planilha soma e ordena).
 """
@@ -16,6 +16,7 @@ from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 from . import services
+from .dominio.assunto import tipo_do_oficio
 from .models import Oficio
 from .queries import trechos_de, viajantes_de
 
@@ -65,18 +66,27 @@ def _texto_seguro(valor):
     return valor
 
 
+def _situacao(oficio: Oficio) -> str:
+    """Como a referência: arquivado diz "Arquivado" (antes saía "Emitido", L4)."""
+    return "Arquivado" if oficio.arquivado_em else oficio.get_situacao_display()
+
+
+def _tipo(oficio: Oficio, trechos) -> str:
+    """O mesmo tipo da lista e do resumo: "Autorização", "Convalidação · Complementar"…"""
+    saida = timezone.localdate(trechos[0].saida_em) if trechos else None
+    return tipo_do_oficio(oficio.data_oficio, saida, oficio.marcador).completo
+
+
 def linha(oficio: Oficio) -> list:
     trechos = trechos_de(oficio)
     equipe = viajantes_de(oficio)
-    assunto = services.assunto_do_oficio(oficio)
     motorista = services.nome_do_motorista(oficio, equipe)
     return [_texto_seguro(v) for v in [
         oficio.numero_formatado,
         oficio.data_oficio,
         oficio.protocolo_formatado,
-        oficio.get_situacao_display(),
-        ("Autorização" if assunto.autorizacao else "Convalidação")
-        + (f" {assunto.rotulo}" if oficio.marcador else ""),
+        _situacao(oficio),
+        _tipo(oficio, trechos),
         _destinos(oficio, trechos),
         _local(trechos[0].saida_em) if trechos else None,
         _local(trechos[-1].chegada_em) if trechos else None,
