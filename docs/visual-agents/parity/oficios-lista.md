@@ -259,7 +259,7 @@ tudo (`viagens_cadastros/permissions.py`). **Sem escopo por unidade**: todos vee
 | L3 | Colunas do XLSX | 14 colunas (`views.py:245-246`) | as mesmas 14 (`exportacao.py:22-24`) + autofiltro + anti-injeção de fórmula | ✅ ➕ |
 | L4 | Situação no XLSX | Rascunho/Gerado/Finalizado/Arquivado/Cancelado (`views.py:267`) | Rascunho/Emitido/Cancelado; **arquivado não aparece** (`exportacao.py:77`) | ⚠️ |
 | L5 | Destinos no XLSX | `roteiro.destinos` (`views.py:269`) | destinos dos trechos, sem a sede (`exportacao.py:30-36`) | ✅ |
-| L6 | Numeração (piso) | botão p/ gestor + tela (`lista.html:27`, `views.py:972-991`) | serviço `definir_piso` existe (`services.py:131`), **sem tela nem URL** | ❌ |
+| L6 | Numeração (piso) | botão p/ gestor + tela (`lista.html:27`, `views.py:972-991`) | serviço `definir_piso` existe (`services.py:131`), **sem tela nem URL** | ⛔ removida por decisão do dono (4a3f835) |
 | L7 | Importar processo do eProtocolo (topo, por linha, arrastar-soltar) | `lista.html:28-31, 46-53`, `_acoes_linha.html:196` | inexistente | ❌ |
 | L8 | Novo ofício | botão flutuante, POST `criar` (`lista.html:33-40`) | barra fixa do rodapé + CTA no vazio, POST `novo` (`_botao_novo.html`, `views.py:219-239`) | ✅ |
 | L9 | Reaproveitar rascunho vazio (> 30 min) | `services.py:63-106` | sempre cria; rascunho se exclui e libera o número | ⚠️ (decisão anterior: comportamento legado) |

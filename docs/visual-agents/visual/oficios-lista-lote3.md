@@ -194,3 +194,7 @@ lista.
 ## 7. Commits
 `c98aa59` saneamento · `54843d0` componente no UI Lab · `c6f7362` LP-30 · `56a17ff` LP-32 ·
 `7cb7416` LP-31 · `398f252` menores · `f612836` LP-33 · `168cca0` autocrítica (rodada 2) · este relatório.
+
+
+## Nota do orquestrador (2026-10-07)
+LP-32 (Numeração) revertido: a página tinha sido excluída a pedido do dono do produto em `4a3f835`. O "Mais" da barra continua como componente (`componentes/menu_mais.html`) e hoje não aparece, porque não há item; entra "Importar processo do eProtocolo" quando existir. Os testes e2e de Numeração saíram; ficou `test_lista_sem_mais_vazio`.

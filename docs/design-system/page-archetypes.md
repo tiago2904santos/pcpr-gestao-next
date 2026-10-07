@@ -13,7 +13,7 @@ Cada arquétipo é um template-base reutilizável em `templates/arquetipos/` e a
 | **CALENDAR** | `arquetipos/calendario.html` | cabeçalho → navegação de mês → grade semanal acessível (tabela) | Agenda de viagens (próximo módulo) |
 | **REPORT** | `arquetipos/relatorio.html` | filtros de período → resumo numérico → tabela com totais → exportar | Relatório de diárias (próximo módulo) |
 | **SEARCH** | `arquetipos/busca.html` | campo grande → resultados agrupados por tipo | Busca global sem JS |
-| **SETTINGS** | `arquetipos/configuracoes.html` | navegação de seções à esquerda → formulários curtos; numa seção só, em uma coluna: indicadores do que se configura → formulário curto (resumo de erros, rótulo na borda, mensagens que dizem como resolver) → o que a regra faz com o dado (ex.: lacunas) → histórico lido da trilha | Configurações institucionais; Numeração de ofícios (`viagens/numeracao.html`, abas por ano) |
+| **SETTINGS** | `arquetipos/configuracoes.html` | navegação de seções à esquerda → formulários curtos; numa seção só, em uma coluna: indicadores do que se configura → formulário curto (resumo de erros, rótulo na borda, mensagens que dizem como resolver) → o que a regra faz com o dado (ex.: lacunas) → histórico lido da trilha | Configurações institucionais |
 | **EMPTY** | `componentes/vazio.html` | ícone, título, orientação, ação | Lista sem ofícios |
 | **ERROR** | `erros/erro.html`, `erros/500.html` | código, título, explicação, caminho de volta | 403 / 404 / 500 |
 

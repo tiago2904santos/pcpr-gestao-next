@@ -1,5 +1,5 @@
 """Lote 3 da lista de ofícios no navegador: menu ⋮ canônico (LP-30), "Mais" da barra
-(LP-31) e página Numeração (LP-32) — teclado, foco devolvido, posição do painel, perfis e axe.
+(LP-31; a página Numeração foi excluída a pedido — 4a3f835) — teclado, foco devolvido, posição do painel, perfis e axe.
 """
 
 from __future__ import annotations
@@ -169,37 +169,7 @@ def test_menu_aberto_sem_violacoes(logado, dados_e2e, largura):
     assert _axe(pg) == []
 
 
-def test_operador_nao_tem_mais_nem_numeracao(logado, dados_e2e):
+def test_lista_sem_mais_vazio(logado, dados_e2e):
     pg = logado
     pg.goto("/viagens/oficios/")
     expect(pg.locator(".barra-acoes__mais")).to_have_count(0)  # nunca um "Mais" vazio
-    resposta = pg.goto("/viagens/oficios/numeracao/")
-    assert resposta is not None and resposta.status == 403
-
-
-def test_mais_numeracao_do_gestor(pagina, dados_e2e):
-    from django.utils import timezone
-
-    from gestao.viagens.models import NumeracaoAnual
-
-    pg = pagina
-    entrar(pg, "gestor")
-    pg.goto("/viagens/oficios/")
-    mais = pg.get_by_role("button", name="Mais ações: ofícios")
-    mais.click()
-    item = pg.get_by_role("menuitem", name="Numeração")
-    expect(item).to_be_focused()
-    item.click()
-    expect(pg.get_by_role("heading", level=1)).to_have_text("Numeração de ofícios")
-    assert _axe(pg) == []
-    pg.get_by_label("Número inicial do ano").fill("0")
-    pg.get_by_role("button", name="Salvar número inicial").click()
-    expect(pg.locator("#resumo-erros")).to_be_focused()
-    expect(pg.locator("#resumo-erros")).to_contain_text("começa em 1")
-    assert _axe(pg) == []
-    pg.get_by_label("Número inicial do ano").fill("500")
-    pg.get_by_role("button", name="Salvar número inicial").click()
-    ano = timezone.localdate().year
-    expect(pg.get_by_text(f"O próximo ofício de {ano} será 500/{ano}.")).to_be_visible()
-    assert NumeracaoAnual.objects.get(ano=ano).piso == 500
-    expect(pg.locator(".historico__linha").first).to_contain_text("De 1 para 500")

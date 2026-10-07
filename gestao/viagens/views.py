@@ -262,13 +262,9 @@ def _grupos_por_mes(oficios: list, ordem: str, pagina) -> None:
 
 def _mais_da_lista(request: HttpRequest) -> list[dict[str, str]]:
     """Itens do "Mais" da barra (D8): o que a página faz além do dia a dia, por permissão.
-    "Importar processo do eProtocolo" entra aqui quando existir (D10) — nunca antes, inativo."""
-    mais = []
-    if policies.pode_gerir_numeracao(request.user):
-        mais.append({"url": reverse("viagens:numeracao"), "icone": "list-ordered",
-                     "titulo": "Numeração", "descricao": "Número inicial do ano, próximo número "
-                                                     "e lacunas"})
-    return mais
+    Hoje vazio — a tela de Numeração foi excluída a pedido do dono do produto (4a3f835);
+    "Importar processo do eProtocolo" entra aqui quando existir (D10), nunca antes, inativo."""
+    return []
 
 
 @require_GET
