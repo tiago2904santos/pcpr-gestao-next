@@ -1,0 +1,152 @@
+{
+  "etapa": "depois-final",
+  "arvore": "C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next",
+  "banco": "pcpr_lab_demo",
+  "oficios": 258,
+  "documentos": 294,
+  "oficio_amostrado": 117,
+  "relogio": "2026-10-07T12:00:00-03:00",
+  "metodo": "test client Django; 1 aquecimento + 5 amostras; HTML sem compressao; SQL inclui middleware",
+  "rotas": {
+    "lista": {
+      "rota": "/viagens/oficios/",
+      "amostras": [
+        {
+          "servidor_ms": 103.79,
+          "sql": 16,
+          "sql_ms": 45.0,
+          "html_bytes": 122364
+        },
+        {
+          "servidor_ms": 95.42,
+          "sql": 16,
+          "sql_ms": 39.0,
+          "html_bytes": 122364
+        },
+        {
+          "servidor_ms": 105.02,
+          "sql": 16,
+          "sql_ms": 48.0,
+          "html_bytes": 122364
+        },
+        {
+          "servidor_ms": 107.42,
+          "sql": 16,
+          "sql_ms": 48.0,
+          "html_bytes": 122364
+        },
+        {
+          "servidor_ms": 105.01,
+          "sql": 16,
+          "sql_ms": 41.0,
+          "html_bytes": 122364
+        }
+      ]
+    },
+    "folha": {
+      "rota": "/viagens/oficios/117/editar/",
+      "amostras": [
+        {
+          "servidor_ms": 219.46,
+          "sql": 30,
+          "sql_ms": 32.0,
+          "html_bytes": 166395
+        },
+        {
+          "servidor_ms": 210.86,
+          "sql": 30,
+          "sql_ms": 34.0,
+          "html_bytes": 166395
+        },
+        {
+          "servidor_ms": 245.19,
+          "sql": 30,
+          "sql_ms": 31.0,
+          "html_bytes": 166395
+        },
+        {
+          "servidor_ms": 204.45,
+          "sql": 30,
+          "sql_ms": 31.0,
+          "html_bytes": 166395
+        },
+        {
+          "servidor_ms": 184.8,
+          "sql": 30,
+          "sql_ms": 36.0,
+          "html_bytes": 166395
+        }
+      ]
+    },
+    "revisao": {
+      "rota": "/viagens/oficios/117/editar/?revisar=1",
+      "amostras": [
+        {
+          "servidor_ms": 221.51,
+          "sql": 31,
+          "sql_ms": 32.0,
+          "html_bytes": 175040
+        },
+        {
+          "servidor_ms": 235.58,
+          "sql": 31,
+          "sql_ms": 51.0,
+          "html_bytes": 175040
+        },
+        {
+          "servidor_ms": 235.1,
+          "sql": 31,
+          "sql_ms": 45.0,
+          "html_bytes": 175040
+        },
+        {
+          "servidor_ms": 209.78,
+          "sql": 31,
+          "sql_ms": 36.0,
+          "html_bytes": 175040
+        },
+        {
+          "servidor_ms": 209.61,
+          "sql": 31,
+          "sql_ms": 45.0,
+          "html_bytes": 175040
+        }
+      ]
+    },
+    "resumo": {
+      "rota": "/viagens/oficios/117/resumo/",
+      "amostras": [
+        {
+          "servidor_ms": 70.91,
+          "sql": 20,
+          "sql_ms": 26.0,
+          "html_bytes": 15366
+        },
+        {
+          "servidor_ms": 68.86,
+          "sql": 20,
+          "sql_ms": 24.0,
+          "html_bytes": 15366
+        },
+        {
+          "servidor_ms": 71.77,
+          "sql": 20,
+          "sql_ms": 26.0,
+          "html_bytes": 15366
+        },
+        {
+          "servidor_ms": 79.28,
+          "sql": 20,
+          "sql_ms": 29.0,
+          "html_bytes": 15366
+        },
+        {
+          "servidor_ms": 91.67,
+          "sql": 20,
+          "sql_ms": 30.0,
+          "html_bytes": 15366
+        }
+      ]
+    }
+  }
+}

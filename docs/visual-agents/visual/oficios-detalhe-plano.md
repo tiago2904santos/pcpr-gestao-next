@@ -12,7 +12,7 @@
 | D13 | Data do ofício na emissão | Como o legado: ao emitir, a data do ofício passa a ser **hoje**, salvo se a pessoa alterou a data à mão. A revisão mostra a mudança e a consequência (Autorização × Convalidação, justificativa). Regra no domínio puro. | Fonte de verdade funcional; evita assunto/justificativa errados |
 | D14 | Reabrir para correção | Entra no ⋮ e no "Mais ações" do resumo para quem tem a permissão, com motivo obrigatório | Rota/serviço existem e estavam inalcançáveis |
 | D15 | Textos oficiais | Voltar ao texto do modelo oficial do legado **a menos que** o histórico do git mostre que o dono mudou o texto de propósito (então registrar aqui e manter) | Conteúdo de documento oficial não muda sem decisão |
-| D16 | Regra de tempo de viagem (ADR 0016) | **Mantida** até decisão do dono — pergunta registrada | Decisão estrutural anterior do próprio projeto |
+| D16 | Regra de tempo de viagem (ADR 0016) | **Reproduzir fórmulas do legado**, confirmado por Tiago em 07/10 após explicação. Novas sugestões usam a fórmula corrigida; trechos/snapshots já salvos não são recalculados automaticamente | Confirmação humana “pode copiar a regra do legado”; revisão no ADR 0016 |
 | D17 | "Emitir nova versão" sem retificar | **Não** nesta etapa — pergunta ao dono | Muda o ciclo de vida do documento |
 | D18 | Dados para o eProtocolo | Componente único (domínio puro `dominio/eprotocolo.py` + parcial com Copiar/Copiar tudo) usado no resumo e na folha (depois Termos e Prestação) | Lacuna do legado, alto uso diário |
 
@@ -33,7 +33,7 @@ P0–P2 de `parity/oficios-folha.md`: indicador de salvamento visível (E70/G5);
 P0–P1 de `parity/oficios-documentos.md`: ofício/protocolo de origem do motorista de fora no papel; nº da solicitação por servidor quando houver; marca d'água atrás do conteúdo; justificativa com sede e data por extenso; textos oficiais (D15); DOCX com a mesma paginação do PDF; valor por extenso impresso (ou tirar o anúncio); conferência do PDF assinado antes de anexar.
 
 ## Perguntas ao dono do produto (não bloqueiam)
-1. ADR 0016 — tempo de viagem/adicional diferente do legado: manter?
+1. ADR 0016 — respondida em 07/10: reproduzir tempo de viagem/adicional do legado.
 2. "Emitir nova versão" sem retificar (o legado permitia)?
 3. Reaproveitar rascunho vazio abandonado (legado, L9)?
 4. Nº da solicitação na tabela de equipe do ofício quando ainda não existe prestação.

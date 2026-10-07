@@ -8,6 +8,12 @@ Caminhos abreviados:
 - **REF** = repositório `tiago2904santos/Sistema-de-Gest-o-de-Eventos-Sociais` (sistema antigo, referência de regras);
 - **NOVO** = `gestao/` deste repositório.
 
+Atualização de 07/10/2026: Lote H implementado sobre `8d1d77e`; regras vigentes em
+`docs/product/oficios-lote-h.md` e evidências em `docs/visual-agents/qa/oficios-lote-h.md`.
+A matriz abaixo preserva o diagnóstico de 01/10; não representa o estado atual de
+todas as funcionalidades. Reconstrução atual: `docs/visual-agents/parity/` e
+`docs/visual-agents/current-page.md`.
+
 > **Situação após a revisão** (commit `e77e154`):
 > - **R1 corrigida** — assunto derivado no domínio (`gestao/viagens/dominio/assunto.py`):
 >   Autorização se a data do ofício é anterior à 1ª saída, senão Convalidação; marcadores

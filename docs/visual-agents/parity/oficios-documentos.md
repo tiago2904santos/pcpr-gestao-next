@@ -1,5 +1,23 @@
 # Paridade — Documentos do ofício (ofício, justificativa, termos)
 
+## Atualização H — checkpoint `44b3186`, 07/10/2026
+
+- **F1 — COMPROVADO no LAB:** falha controlada persiste após rollback do assinante.
+  Callback da outbox (ADR 0023); tela expõe falha e nova tentativa autorizada.
+  Worker real e teste de callback que também falha comprovam backoff preservado.
+- **Nova tentativa — COMPROVADO nos cenários testados:** Enter no Chromium, polling,
+  geração real, PDF servido e SHA; documento, snapshot, versão, numeração e mensagem
+  não duplicam. Retry concorrente tem uma operação histórica. Consulta/outro setor
+  e emitidor sem permissão de editar são recusados. Provas: `test_lote_h.py` e
+  `test_falha_retry_por_teclado_e_pdf_sem_duplicacao`.
+- **PARCIAL:** polling H atualiza somente o bloco Documentos; rodapé e seleção da
+  versão vigente ainda precisam do RS. Conteúdo, DOCX, assinados e demais lacunas
+  desta matriz continuam para DC. Geração via WeasyPrint não equivale a validação
+  independente de PDF/A; essa validação não foi executada no ambiente Windows.
+
+Resultado completo, capturas e limitações: `../qa/oficios-lote-h.md`.
+
+
 > Agente 1 — Legacy/Parity Analyst · 07/10/2026 · complementa `oficios-resumo.md` (onde os
 > documentos aparecem) e `oficios-inventario.md` §1.4. Escopo: gerar, visualizar, baixar
 > (PDF/DOCX, pacote), versões emitidas, minuta, vias assinadas, editor de documento, modelos de

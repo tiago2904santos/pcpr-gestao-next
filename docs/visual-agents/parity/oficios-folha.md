@@ -1,5 +1,34 @@
 # Paridade — Folha do ofício (cadastro/edição, `/viagens/oficios/<pk>/editar/`)
 
+## Atualização do Lote H — checkpoint `44b3186`, 07/10/2026
+
+Esta atualização prevalece sobre o diagnóstico inicial nos itens abaixo. Fechamento
+global ainda **PARCIAL**, até a verificação completa final; evidências em
+`../qa/oficios-lote-h.md`, sem aprovação estética presumida.
+
+- **G1/E24 — COMPROVADO nos cenários testados:** seleção da equipe permanece em
+  autosave e Enter; duas abas recebem conflito sem sobrescrita silenciosa. Fonte:
+  requisito da missão e defeito legado/caracterização existente. Implementação:
+  opção vazia, campos externos fechados desativados, normalização condicionada.
+  Provas: `test_lote_h.py`, `test_motorista_autosave_e_conflito_entre_abas` e jornada
+  `test_operador_cria_preenche_e_emite_um_oficio`, vermelha no baseline e verde após fix.
+- **Recuperação — COMPROVADO no LAB:** simula por padrão, prova de auditoria por
+  requisição, casos ambíguos exigem escolha humana, idempotência/concorrência/rollback.
+  Código e testes: `recuperacao_motorista.py`, comando `recuperar_motoristas` e
+  `test_recuperacao_motorista.py`. Nenhum banco real recuperado.
+- **E10 — COMPROVADO na integração/domínio:** D13 confirmada por Tiago neste chat;
+  hoje em Brasília salvo data manual, revisão sem escrita, snapshot e rollback.
+  Código: `dominio/emissao.py`, serviços e migração 0049. Provas:
+  `test_emissao_data.py`, `test_lote_h.py`, incluindo 01:30 UTC e ano divergente.
+  Documentos emitidos não são refeitos pela alteração de template/regra.
+- **G3 — COMPROVADO nos cenários testados:** outro meio aceita a seleção com detalhe
+  opcional ou descrição legada; motorista da viatura não sai nesse papel. Texto comum
+  via `Oficio.transporte_texto`; serviço, formulário e documento têm regressões.
+- **E70 — COMPROVADO no navegador:** salvamento visível e conflito com orientação;
+  capturas nas cinco larguras e asserções de visibilidade. Polimento da folha além
+  do H, teto SQL 25 e demais lacunas continuam para FL.
+
+
 > Agente 1 — Legacy/Parity Analyst · 07/10/2026 · ponto de partida: `oficios-inventario.md` §1.2
 > e `docs/parity/oficio.md` (matriz do recorte vertical; várias regressões de lá já foram
 > resolvidas — esta especificação reflete o código de hoje, branch `viagens/reconstrucao`).

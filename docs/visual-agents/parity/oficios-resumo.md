@@ -1,5 +1,14 @@
 # Paridade — Resumo / detalhes do ofício
 
+## Estado após H — checkpoint `b0829d6`, 07/10/2026
+
+Falha/retry documental já foram testados no LAB, com capturas de cinco larguras;
+evidência em `../qa/oficios-lote-h.md`. **R36 PARCIAL:** bloco documental atualiza,
+rodapé ainda não. **R28 PARCIAL:** domínio puro e 17 testes do eProtocolo prontos,
+sem adaptador ou tela. Demais itens RS continuam abertos, incluindo seleção de
+versão vigente, histórico, reabrir e lista unificada de documentos.
+
+
 > Agente 1 — Legacy/Parity Analyst · 07/10/2026 · complementa `oficios-lista.md` (L48: clique →
 > resumo) e `oficios-inventario.md` (§1.1/§1.2). Escopo: **o que a pessoa consegue saber e
 > fazer sobre um ofício sem editá-lo**. Os documentos em si (geração, conteúdo, assinados,

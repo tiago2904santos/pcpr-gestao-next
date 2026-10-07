@@ -44,3 +44,32 @@ um calendário só.
   (`exigir_roteiro_compativel` só confere se o roteiro está ativo).
 - O seed DEMO usa a estimativa offline para km e tempos coerentes.
 - Operação: ver `docs/ops/rotas.md`.
+
+## Revisão da regra de tempo — 07/10/2026
+
+Tiago confirmou neste chat: **“pode copiar a regra do legado”**, após explicação
+da diferença entre tempo de estrada, adicional sugerido e efeito nas chegadas/diárias.
+Esta decisão substitui somente as fórmulas de tempo do item 2; mapa, provedores,
+estimativa offline, edição dos tempos e orçamento próprio permanecem vigentes.
+
+Fonte consultada somente por leitura: `Solicitações de eventos/viagens_roteiros/services/rota.py`,
+constantes e funções `arredondar_a_15`, `tempo_de_viagem`, `tempo_adicional_sugerido`.
+
+- Tempo calibrado: `((km + 12) / 74 × 60) × 0,85 + duração_api_min × 0,15`.
+- Arredondamento: converter para minuto inteiro com `round` como a referência;
+  múltiplos de 15, resto até 5 arredonda para baixo, acima de 5 para cima.
+- Adicional sugerido: zero para viagem menor que 30 minutos; nos demais casos,
+  `max(15, arredondar_a_15(tempo_viagem_min / 6))`.
+- Exemplo confirmado por código: 240 minutos de viagem → 45 adicionais, em vez
+  dos 30 adicionais da implementação anterior do novo sistema.
+
+Domínio puro e testes vêm primeiro. A integração deve distinguir o tempo já
+  calibrado de uma duração bruta do provedor: recalibrar um valor de cache já
+  calibrado aplicaria a fórmula duas vezes. A cache anterior não guarda a duração
+  bruta e será tratada como versão antiga, sem converter silenciosamente seu valor.
+  O mecanismo concreto de versão será documentado antes da mudança estrutural.
+
+Não recalcular trechos salvos, snapshots ou documentos emitidos automaticamente.
+O operador continua podendo ajustar os tempos no fluxo da aplicação; novas
+sugestões seguirão a fórmula aprovada. Ainda não implementado no serviço neste
+checkpoint: a validação H está em execução sobre o código anterior.
