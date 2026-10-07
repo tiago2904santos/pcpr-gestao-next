@@ -260,6 +260,17 @@ def _grupos_por_mes(oficios: list, ordem: str, pagina) -> None:
         grupo[0].grupo = {"quantidade": len(grupo), "parcial": parcial}
 
 
+def _mais_da_lista(request: HttpRequest) -> list[dict[str, str]]:
+    """Itens do "Mais" da barra (D8): o que a página faz além do dia a dia, por permissão.
+    "Importar processo do eProtocolo" entra aqui quando existir (D10) — nunca antes, inativo."""
+    mais = []
+    if policies.pode_gerir_numeracao(request.user):
+        mais.append({"url": reverse("viagens:numeracao"), "icone": "list-ordered",
+                     "titulo": "Numeração", "descricao": "Número inicial do ano, próximo número "
+                                                     "e lacunas"})
+    return mais
+
+
 @require_GET
 @vary_on_headers("HX-Request", "HX-Target")  # senão o "Voltar" do navegador reusa o fragmento
 def lista(request: HttpRequest) -> HttpResponse:
@@ -330,6 +341,7 @@ def lista(request: HttpRequest) -> HttpResponse:
         "avancados": r.avancados,
         "pode_criar": policies.pode_criar(request.user),
         "pode_editar_oficios": policies.edita_oficios(request.user),
+        "mais": _mais_da_lista(request),
         "migalhas": _migalhas(("Ofícios", "")),
     }
     if _htmx(request) and request.htmx.target == "resultados":  # type: ignore[attr-defined]

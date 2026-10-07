@@ -144,8 +144,10 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
 {% endblock %}
 
 {% block depois_lista %}
+{# Barra fixa (D8): contagem do recorte · Exportar planilha · Mais · Novo ofício. #}
 <div class="barra-acoes">
   {% include "viagens/oficios/_barra_status.html" %}
+  {% include "componentes/menu_mais.html" with itens=mais titulo="Ofícios" %}
   {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}
 </div>
 {% include "viagens/oficios/_dialogo_resumo.html" %}
