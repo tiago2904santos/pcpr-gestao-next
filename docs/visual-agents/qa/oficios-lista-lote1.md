@@ -285,3 +285,29 @@ de pousar (`min-height` com margem negativa) ou mais `row-gap` entre título e m
 ### Para aprovar
 Corrigir RB1 e mostrar `axe_um.py 8000 /viagens/roteiros/ {768,800,900}` = `[]`, mais
 `axe_estados2.py` limpo (exceto M8). Nada mais do Lote 1 impede a aprovação.
+
+## Re-QA 2 — RB1 (`e0a86e0`, `ba24fc1`) · veredito final do Lote 1: **APROVADO**
+
+> Agente 3 · 2026-10-07 · branch @ `ba24fc1` contra o `main` (`:8002`), Chromium 141.
+> Scripts: `/home/claude/tools/qa/axe_grade.py`, `regressao_listas.py`, `pousar.py`,
+> `/home/claude/tools/medir_lista.py`; capturas em `/home/claude/caps/reqa2-l1/`.
+
+- **RB1 corrigido.** `axe_grade.py 8000`: Ofícios, Roteiros (páginas 1–4), Termos e painel ×
+  1440/1280/1024/1000/950/900/850/800/768/390/360 × {normal, ⋮ aberto} = 154 execuções.
+  **Estado normal: 0 violações em todas** (antes: 4 nós a 768, 2 a 800/900). O botão "Usado
+  em" tem alvo de 24 px e desceu para a 2ª faixa, longe do título.
+- Sobra só o M8 conhecido (com o ⋮ aberto, a 390/360, o painel do menu cobre o link de uma
+  linha vizinha: Termos e Roteiros págs. 3–4, 6 casos). O `main` tem a mesma classe de caso
+  (7 casos, no próprio ⋮) — pré-existente e transitório. Continua MENOR, para o Lote 3 (menu
+  canônico).
+- **Alturas inalteradas**: Roteiros 70–72 px a ≥ 1024, 91–93 a 900/768, 85–109 a 390 (págs.
+  1, 2 e 4); Ofícios 72/93/109; Termos 70–72/91–93; painel 92–93.
+- **Rolagem horizontal**: 26 rotas × 1440/1024/900/768/390 (130 combinações) iguais ao
+  `main`, sem conteúdo fora da linha. "Usado em" aberto: 0 de rolagem a 1440/1024/768/390/360.
+- Teste novo `test_listas_de_viagens_nas_duas_faixas_sem_violacoes` (768 e 900) + subconjunto
+  Ofícios/Roteiros de `test_acessibilidade.py`: 11 passed.
+
+**Veredito final: Lote 1 APROVADO.** Pendências que seguem para os próximos lotes, sem
+bloquear: RM1 (vão entre o nome cortado e "(motorista)"), RM2 (no celular a equipe mostra
+quase só o motorista), RM3 (fallback sem container queries não testado em Firefox/Safari),
+M2, M5, M8, M9, M10, M11.
