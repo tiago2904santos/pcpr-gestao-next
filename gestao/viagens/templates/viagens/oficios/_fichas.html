@@ -1,6 +1,6 @@
 {% comment %}
-Fichas dos filtros que valem (D6): cada uma tira só o que diz; "Limpar tudo" tira todas e
-mantém a busca e a aba (F8). Links comuns (página inteira): a barra de filtros, fora de
+Fichas dos filtros que valem (D6): cada uma tira só o que diz; "Limpar tudo" tira todas (e o
+Documento) e mantém a busca e a aba (F8). Links comuns (página inteira): a barra de filtros, fora de
 #resultados, precisa voltar com os valores certos.
 {% endcomment %}
 {% if fichas %}
@@ -9,6 +9,6 @@ mantém a busca e a aba (F8). Links comuns (página inteira): a barra de filtros
     {% for f in fichas %}
       <span class="ficha ficha--filtro">{{ f.rotulo }}<a class="ficha__remover" href="{{ f.url }}" aria-label="Remover {{ f.rotulo }}">{% icone "x" classe="icone--sm" %}</a></span>
     {% endfor %}
-    {% if fichas|length > 1 %}<a class="botao botao--texto botao--sm filtros-ativos__limpar" href="{{ url_limpar_tudo }}">Limpar tudo</a>{% endif %}
+    {% if fichas|length > 1 or documento %}<a class="botao botao--texto botao--sm filtros-ativos__limpar" href="{{ url_limpar_tudo }}">Limpar tudo</a>{% endif %}
   </div>
 {% endif %}

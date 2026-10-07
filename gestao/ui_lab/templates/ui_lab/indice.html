@@ -377,7 +377,7 @@
           <div class="campo filtros__campo"><label class="campo__rotulo" for="lab-f-s">Situação</label><pc-select class="seletor"><select class="selecao" id="lab-f-s"><option>Todas</option><option>Rascunho</option><option>Emitido</option></select></pc-select></div>
           <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Filtrar</button></div>
         </form>
-        <div class="filtros-ativos" role="group" aria-label="Filtros valendo (exemplo)" data-rola-lado><span class="filtros-ativos__rotulo">Filtrando por</span><span class="ficha ficha--filtro">Documento: Emitidos<a class="ficha__remover" href="#tabelas" aria-label="Remover Documento: Emitidos">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ano do número: 2026<a class="ficha__remover" href="#tabelas" aria-label="Remover Ano do número: 2026">{% icone "x" classe="icone--sm" %}</a></span><a class="botao botao--texto botao--sm filtros-ativos__limpar" href="#tabelas">Limpar tudo</a></div>
+        <div class="filtros-ativos" role="group" aria-label="Filtros valendo (exemplo)" data-rola-lado><span class="filtros-ativos__rotulo">Filtrando por</span><span class="ficha ficha--filtro">Veículo: Ônibus<a class="ficha__remover" href="#tabelas" aria-label="Remover Veículo: Ônibus">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ano do número: 2026<a class="ficha__remover" href="#tabelas" aria-label="Remover Ano do número: 2026">{% icone "x" classe="icone--sm" %}</a></span><a class="botao botao--texto botao--sm filtros-ativos__limpar" href="#tabelas">Limpar tudo</a></div>
         <div class="tabela-rolagem">
           <table class="tabela tabela--responsiva tabela--linhas-clicaveis">
             <caption class="sr-only">Ofícios de exemplo</caption>
@@ -844,7 +844,7 @@
       </div>
     </section>
     <section class="cartao" id="filtros-lab" aria-labelledby="t-filtros-lab">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-filtros-lab"><span class="cartao__numero">22</span>Barra de filtros das listas</h2><span class="texto-secundario texto-sm">Padrão D6 (lista de ofícios): abas pelo tempo da viagem (aba sem resultado recua, mas continua clicável) · Busca · Documento (segmentado com contagem, um clique, rótulo na borda) · Filtros (n). A gaveta nunca abre sozinha; o que vale vira ficha removível, com "Limpar tudo" que mantém a busca e a aba. Esc, clique fora e "Fechar" fecham a gaveta (Esc e Fechar devolvem o foco ao botão); no celular ela é uma folha inferior sobre um véu, e Documento e fichas rolam de lado com a borda esmaecida. Busca ao vivo que falha (rede/servidor) troca os resultados pelo aviso com "Tentar de novo".</span></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-filtros-lab"><span class="cartao__numero">22</span>Barra de filtros das listas</h2><span class="texto-secundario texto-sm">Padrão D6 (lista de ofícios): abas pelo tempo da viagem (aba sem resultado recua, mas continua clicável) · Busca · Documento (segmentado, um clique, rótulo na borda; "Todos" sem número porque os outros não somam o todo) · Filtros (n) — Documento e Filtros andam juntos (se não couberem ao lado da busca, descem juntos). A situação do documento não vira ficha: o segmentado já diz. A gaveta nunca abre sozinha; o que vale vira ficha removível, com "Limpar tudo" que mantém a busca e a aba. Esc, clique fora e "Fechar" fecham a gaveta (Esc e Fechar devolvem o foco ao botão); no celular ela é uma folha inferior MODAL sobre um véu (resto da página inerte, página parada, Tab cicla dentro, foco no 1º campo; calendário e listas sobem para a camada de topo e não são recortados), e Documento e fichas rolam de lado com a borda esmaecida. Busca ao vivo que falha (rede/servidor) troca os resultados pelo aviso com "Tentar de novo".</span></div>
       <div class="cartao__corpo--sem-respiro">
         <nav class="abas" aria-label="Abas de exemplo">
           <a class="aba" href="#filtros-lab" aria-current="page">Todos <span class="aba__contagem">12</span></a>
@@ -855,10 +855,11 @@
         </nav>
         <form class="filtros filtros--barra" id="lab-filtros-barra" role="search" aria-label="Filtrar ofícios (exemplo da barra D6)" method="get" action="#filtros-lab">
           <div class="campo filtros__busca"><label class="campo__rotulo" for="lab-b-q">Buscar</label><div class="entrada-composta">{% icone "search" %}<input class="entrada" id="lab-b-q" type="search" name="q" value="ABC1D23" placeholder="Número, protocolo, destino, servidor, placa ou motivo"></div></div>
+          <div class="filtros__lado">
           <fieldset class="filtros__documento">
             <legend class="filtros__documento-rotulo">Documento</legend>
             <div class="segmentado segmentado--contagem" data-rola-lado>
-              <input type="radio" name="lab-documento" id="lab-doc-todos"><label for="lab-doc-todos">Todos <span class="segmentado__conta">12</span></label>
+              <input type="radio" name="lab-documento" id="lab-doc-todos"><label for="lab-doc-todos">Todos</label>
               <input type="radio" name="lab-documento" id="lab-doc-rascunho" checked><label for="lab-doc-rascunho">Rascunhos <span class="segmentado__conta">4</span></label>
               <input type="radio" name="lab-documento" id="lab-doc-emitido"><label for="lab-doc-emitido">Emitidos <span class="segmentado__conta">8</span></label>
               <input type="radio" name="lab-documento" id="lab-doc-arquivado"><label for="lab-doc-arquivado">Arquivados <span class="segmentado__conta">1</span></label>
@@ -867,7 +868,7 @@
           <details class="filtros__mais">
             <summary class="filtros__mais-resumo">{% icone "sliders-horizontal" classe="icone--sm" %}<span>Filtros</span><span class="filtros__mais-conta">2</span>{% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}</summary>
             <div class="filtros__avancados filtros__avancados--rodape" role="group" aria-label="Filtros e ordem (exemplo)">
-              <div class="filtros__gaveta-cabecalho"><h3 class="filtros__gaveta-titulo">Filtros e ordem</h3></div>
+              <div class="filtros__gaveta-cabecalho"><h3 class="filtros__gaveta-titulo" id="lab-filtros-titulo">Filtros e ordem</h3></div>
               <div class="campo"><label class="campo__rotulo" for="lab-b-ordem">Ordenar por</label><pc-select class="seletor"><select class="selecao" id="lab-b-ordem"><option>Número, mais recente primeiro</option><option selected>Saída, mais antiga primeiro</option></select></pc-select></div>
               <div class="campo"><label class="campo__rotulo" for="lab-b-ano">Ano do número</label><pc-select class="seletor"><select class="selecao" id="lab-b-ano"><option>Qualquer</option><option selected>2026</option><option>2025</option></select></pc-select></div>
               <div class="campo"><label class="campo__rotulo" for="lab-b-prot">Protocolo</label><input class="entrada" id="lab-b-prot" inputmode="numeric" placeholder="Dígitos do protocolo"></div>
@@ -875,8 +876,9 @@
               <div class="filtros__gaveta-rodape"><a class="botao botao--texto" href="#filtros-lab">{% icone "x" %}Limpar filtros</a><button type="button" class="botao" data-fechar-filtros>Fechar</button></div>
             </div>
           </details>
+          </div>
         </form>
-        <div class="filtros-ativos" role="group" aria-label="Filtros valendo (exemplo D6)" data-rola-lado><span class="filtros-ativos__rotulo">Filtrando por</span><span class="ficha ficha--filtro">Documento: Rascunhos<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Documento: Rascunhos">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ano do número: 2026<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Ano do número: 2026">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ordem: Saída, mais antiga primeiro<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Ordem: Saída, mais antiga primeiro">{% icone "x" classe="icone--sm" %}</a></span><a class="botao botao--texto botao--sm filtros-ativos__limpar" href="#filtros-lab">Limpar tudo</a></div>
+        <div class="filtros-ativos" role="group" aria-label="Filtros valendo (exemplo D6)" data-rola-lado><span class="filtros-ativos__rotulo">Filtrando por</span><span class="ficha ficha--filtro">Veículo: Ônibus<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Veículo: Ônibus">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ano do número: 2026<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Ano do número: 2026">{% icone "x" classe="icone--sm" %}</a></span><span class="ficha ficha--filtro">Ordem: Saída, mais antiga primeiro<a class="ficha__remover" href="#filtros-lab" aria-label="Remover Ordem: Saída, mais antiga primeiro">{% icone "x" classe="icone--sm" %}</a></span><a class="botao botao--texto botao--sm filtros-ativos__limpar" href="#filtros-lab">Limpar tudo</a></div>
         <ul class="registros" aria-label="Grupo de exemplo"><li class="registros__grupo"><span>Outubro de 2026</span><span class="registros__grupo-conta"><span class="sr-only">: </span>4<span class="sr-only"> ofícios</span> nesta página</span></li></ul>
         <div class="lista-resultados">
           <div class="alerta alerta--perigo lista-erro" role="alert">

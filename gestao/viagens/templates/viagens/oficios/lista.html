@@ -28,11 +28,14 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
     <label class="campo__rotulo" for="busca-oficios">Buscar</label>
     <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-oficios" type="search" name="q" value="{{ termo }}" placeholder="Número, protocolo, destino, servidor, placa ou motivo" autocomplete="off"></div>
   </div>
+  {# Documento e Filtros andam juntos: se a linha não couber, a busca fica com a 1ª linha inteira e os dois dividem a 2ª (nunca "Filtros" sozinho). #}
+  <div class="filtros__lado">
   <fieldset class="filtros__documento" id="filtro-documento">
     <legend class="filtros__documento-rotulo">Documento</legend>
     <div class="segmentado segmentado--contagem" data-rola-lado>
       {% for chave, rotulo, contador in documentos %}
-        <input type="radio" name="documento" value="{{ chave }}" id="documento-{{ chave|default:'todos' }}"{% if chave == documento %} checked{% endif %}><label for="documento-{{ chave|default:'todos' }}">{{ rotulo }} <span class="segmentado__conta" id="conta-{{ contador }}">{{ contagens|get_item:contador }}</span></label>
+        {# "Todos" sem número: os números dos outros não somam o todo (os cancelados moram na aba) — decisão I3. #}
+        <input type="radio" name="documento" value="{{ chave }}" id="documento-{{ chave|default:'todos' }}"{% if chave == documento %} checked{% endif %}><label for="documento-{{ chave|default:'todos' }}">{{ rotulo }}{% if chave %} <span class="segmentado__conta" id="conta-{{ contador }}">{{ contagens|get_item:contador }}</span>{% endif %}</label>
       {% endfor %}
     </div>
   </fieldset>
@@ -45,7 +48,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
     </summary>
     <div class="filtros__avancados filtros__avancados--rodape" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
       <div class="filtros__gaveta-cabecalho">
-        <h2 class="filtros__gaveta-titulo">Filtros e ordem</h2>
+        <h2 class="filtros__gaveta-titulo" id="filtros-titulo">Filtros e ordem</h2>
       </div>
       <div class="campo">
         <label class="campo__rotulo" for="ordem-oficios">Ordenar por</label>
@@ -92,6 +95,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
       </div>
     </div>
   </details>
+  </div>
 </form>
 {% endblock %}
 
@@ -101,22 +105,20 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
   {% if request.htmx %}
     {# Fora de banda: o que mora fora de #resultados e depende do recorte. #}
     {% include "viagens/oficios/_abas.html" with oob=True %}
-    {% for chave, rotulo, contador in documentos %}<span class="segmentado__conta" id="conta-{{ contador }}" hx-swap-oob="true">{{ contagens|get_item:contador }}</span>{% endfor %}
+    {% for chave, rotulo, contador in documentos %}{% if chave %}<span class="segmentado__conta" id="conta-{{ contador }}" hx-swap-oob="true">{{ contagens|get_item:contador }}</span>{% endif %}{% endfor %}
     {% include "viagens/oficios/_conta_filtros.html" with oob=True %}
     {% include "viagens/oficios/_limpar_gaveta.html" with oob=True %}
     {% include "viagens/oficios/_barra_status.html" with oob=True %}
   {% endif %}
   {% include "viagens/oficios/_fichas.html" %}
   {% include "viagens/oficios/_refino.html" %}
-  {% if termo %}
-    <div class="lista-cabecalho">
-      <h2 class="peso-semi texto-lg" id="titulo-resultados">Resultados para “{{ termo }}”</h2>
-      <span class="lista-cabecalho__total">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}</span>
-    </div>
-  {% else %}
-    {# Sem busca, o título só para o leitor de tela: a aba e a barra já dizem quantos são. #}
-    <h2 class="sr-only" id="titulo-resultados">Ofícios</h2>
-  {% endif %}
+  {% comment %}
+  Título só para o leitor de tela, com ou sem busca (LP-26, QA I4): o termo já está no campo
+  e o total na aba (e na barra, "N de M"); uma faixa "Resultados para … · N" era a 3ª vez
+  do mesmo número e empurrava a lista para fora da 1ª tela do celular. É também para onde
+  o foco volta depois de "Tentar de novo".
+  {% endcomment %}
+  <h2 class="sr-only" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”: {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% else %}Ofícios{% endif %}</h2>
   {% if oficios %}
     <ul class="registros" aria-labelledby="titulo-resultados">
       {% for o in oficios %}

@@ -5,7 +5,7 @@ ofícios cada uma traz — um clique resolve. Aparece com duas leituras ou mais,
 quando a busca ampla não achou nada. Com um escopo escolhido, ele vira ficha (_fichas.html).
 {% endcomment %}
 {% if mostrar_refino %}
-  <div class="refino" role="group" aria-label="Refinar a busca">
+  <div class="refino" role="group" aria-label="Refinar a busca" data-rola-lado>
     <span class="refino__rotulo">{% icone "search" classe="icone--sm" %}{% if page_obj.paginator.count %}“{{ termo }}” pode ser{% else %}Nada na busca geral. Procure só em{% endif %}</span>
     {% for r in refinos %}
       <a class="ficha" href="{% url 'viagens:oficios' %}?{{ querystring_refino }}{% if querystring_refino %}&amp;{% endif %}escopo={{ r.escopo }}"

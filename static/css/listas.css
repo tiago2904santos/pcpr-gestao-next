@@ -121,6 +121,32 @@ a.ficha:hover {
   margin-left: var(--esp-1);
 }
 
+/* Abaixo de 1280: fichas numa linha só, rolando de lado (borda esmaecida, data-rola-lado) —
+   com seis filtros a pilha ocupava duas ou três linhas e empurrava a lista para fora da
+   1ª tela (QA Lote 2, I5: 3,23 ofícios a 900). */
+@media (max-width: 1279.98px) {
+  .filtros-ativos {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filtros-ativos > * { flex: none; white-space: nowrap; }
+  /* "Limpar tudo" fica preso à direita, sempre à vista; as fichas passam por baixo dele
+     (o esmaecido é a sombra do próprio botão, não a máscara do trilho). */
+  .filtros-ativos[data-rola] { mask-image: none; }
+  .filtros-ativos:has(> .filtros-ativos__limpar) { padding-right: 0; }
+  .filtros-ativos__limpar {
+    position: sticky;
+    right: 0;
+    margin-left: auto;
+    padding-left: var(--esp-3);
+    padding-right: var(--esp-5);
+    border-radius: 0;
+    background: var(--cor-superficie);
+    box-shadow: calc(-1 * var(--esp-5)) 0 var(--esp-3) var(--cor-superficie);
+  }
+}
+
 /* =============== Lista de registros (linha-cartão) =============== */
 .registros {
   list-style: none;
@@ -1358,6 +1384,27 @@ a.ficha:hover {
   box-shadow: none;
 }
 
+/* Documento + Filtros andam juntos (QA Lote 2, I5): se a linha não couber, a busca fica com
+   a 1ª linha inteira e os dois dividem a 2ª — nunca "Filtros" sozinho numa linha. */
+.filtros--barra .filtros__busca {
+  flex: 1 1 16rem;
+}
+
+.filtros__lado {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  gap: var(--esp-3);
+  max-width: 100%;
+}
+
+/* 768–1023: Documento compacto e busca a partir de 12rem cabem com o Filtros numa linha só
+   — duas faixas custavam 54px de lista (pior que o Lote 1 a 768/900). */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .filtros--barra .filtros__busca { flex-basis: 12rem; }
+  .filtros--barra .filtros__documento > .segmentado > label { padding: 0 var(--esp-2); }
+}
+
 /* Documento (D1): um clique, sempre à vista, com a contagem de cada situação. Desenhado
    como os campos ao lado — contorno de campo e rótulo na borda, na mesma altura do
    "Buscar" —, com a opção marcada em grafite por dentro. */
@@ -1476,20 +1523,22 @@ a.ficha:hover {
   .filtros__acoes { width: 100%; }
   .filtros__acoes .botao { flex: 1; }
   .lista-cabecalho { padding: var(--esp-3) var(--esp-4); }
-  /* Fichas numa linha só, rolando de lado: com cinco filtros, a pilha empurrava a lista
-     para fora da primeira tela. */
-  .filtros-ativos {
+  .filtros-ativos { padding: var(--esp-3) var(--esp-4) var(--esp-1); }
+  .filtros-ativos__limpar { padding-right: var(--esp-4); }
+  /* Refino da busca no celular: também numa linha só, rolando de lado. */
+  .refino[data-rola-lado] {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding: var(--esp-3) var(--esp-4) var(--esp-1);
     scrollbar-width: none;
   }
-  .filtros-ativos > * { flex: none; white-space: nowrap; }
+  .refino[data-rola-lado] > * { flex: none; white-space: nowrap; }
   .filtros-ativos__rotulo { display: none; }
 
   /* Barra de Ofícios no celular: Busca e Filtros na mesma linha; Documento embaixo, na
      largura toda, rolando de lado se não couber (com a borda esmaecida como nas abas). */
   .filtros--barra { row-gap: var(--esp-2); }
+  .filtros--barra .filtros__lado { display: contents; }
   .filtros--barra .filtros__busca { flex: 1 1 0; min-width: 0; order: 1; }
   .filtros--barra .filtros__mais { order: 2; }
   .filtros--barra .filtros__documento { flex: 1 1 100%; order: 3; }
@@ -1542,6 +1591,11 @@ a.ficha:hover {
     padding: var(--esp-3) var(--esp-4) calc(var(--esp-3) + env(safe-area-inset-bottom));
     background: var(--cor-superficie-elevada);
   }
+}
+
+/* Folha modal aberta (filtros.js): a página não rola por trás. */
+html.rolagem-presa {
+  overflow: hidden;
 }
 
 @keyframes folha-subir {

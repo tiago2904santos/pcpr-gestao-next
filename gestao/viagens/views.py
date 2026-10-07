@@ -224,12 +224,11 @@ def _trocar(get: QueryDict, chave: str, valor: str) -> str:
 
 
 def _fichas(get: QueryDict, r: RecorteDaLista, refino_atual: dict | None) -> list[dict]:
-    """Uma ficha por filtro valendo (D6), cada uma tira só o que diz. A busca e a aba não
-    são fichas: a busca tem o próprio campo (com o X) e a aba se troca na fileira."""
+    """Uma ficha por filtro valendo (D6), cada uma tira só o que diz. A busca, a aba e o
+    Documento não são fichas: a busca tem o próprio campo (com o X), a aba se troca na
+    fileira e o Documento é o segmentado sempre à vista ("Todos" é o X dele) — uma ficha a
+    mais repetia o que está marcado e custava uma linha no celular (QA Lote 2, I4)."""
     fichas: list[tuple[str, tuple[str, ...]]] = []
-    if r.documento:
-        fichas.append(("Documento: " + recorte.rotulo(recorte.DOCUMENTOS, r.documento),
-                       ("documento",)))
     if refino_atual:
         fichas.append((f"Buscando em: {refino_atual['rotulo']}", ("escopo",)))
     fichas += r.avancados.fichas

@@ -6,9 +6,9 @@ ficam) ou tudo.
 <div class="vazio">
   <span class="vazio__icone" aria-hidden="true">{% icone "search" classe="icone--lg" %}</span>
   <h2 class="vazio__titulo">Nenhum ofício encontrado</h2>
-  <p class="vazio__texto">{% if termo %}Confira o número (ex.: 131/2026), o protocolo, a placa ou o nome{% if fichas %} — ou tire um filtro{% endif %}.{% elif fichas %}Nenhum ofício combina com todos os filtros juntos. Tire um deles.{% else %}Nada nesta aba agora.{% endif %}</p>
+  <p class="vazio__texto">{% if termo %}Confira o número (ex.: 131/2026), o protocolo, a placa ou o nome{% if fichas or documento %} — ou tire um filtro{% endif %}.{% elif fichas or documento %}Nenhum ofício combina com todos os filtros juntos. Tire um deles.{% else %}Nada nesta aba agora.{% endif %}</p>
   <div class="grupo-botoes">
-    {% if fichas %}<a class="botao" href="{{ url_limpar_tudo }}">{% icone "x" %}Limpar filtros</a>{% endif %}
+    {% if fichas or documento %}<a class="botao" href="{{ url_limpar_tudo }}">{% icone "x" %}Limpar filtros</a>{% endif %}
     {% if termo %}<a class="botao" href="{{ url_limpar_busca }}">{% icone "x" %}Limpar busca</a>{% endif %}
     <a class="botao botao--texto" href="{{ url_ver_todos }}">Ver todos</a>
   </div>

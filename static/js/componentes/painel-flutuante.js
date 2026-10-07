@@ -7,8 +7,14 @@
  * diálogo, o painel vira **popover**, que o navegador pinta na camada de topo — acima da
  * janela e sem recorte — com a posição calculada aqui, já que ele deixa de seguir o campo.
  *
- * Fora de um diálogo nada muda: o painel continua posicionado pelo CSS, junto do campo.
+ * O mesmo vale para qualquer contêiner marcado com `data-camada-topo` — a folha inferior
+ * de filtros do celular rola e recortava o calendário e a lista de "Veículo" (QA Lote 2,
+ * B1). Enquanto o painel está solto, rolar o contêiner o leva junto.
+ *
+ * Fora disso nada muda: o painel continua posicionado pelo CSS, junto do campo.
  */
+
+const CAMADA = "dialog[open], [data-camada-topo]";
 
 /** @param {HTMLElement} painel */
 function suportado(painel) {
@@ -20,7 +26,7 @@ function suportado(painel) {
  * nada. @param {HTMLElement} painel @param {HTMLElement} ancora
  */
 export function soltar(painel, ancora) {
-  if (!ancora.closest("dialog[open]") || !suportado(painel)) return;
+  if (!ancora.closest(CAMADA) || !suportado(painel)) return;
   if (!painel.hasAttribute("popover")) painel.setAttribute("popover", "manual");
   try {
     /** @type {any} */ (painel).showPopover();
@@ -28,6 +34,10 @@ export function soltar(painel, ancora) {
     return; // já aberto (ou o navegador recusou): a posição abaixo ainda vale
   }
   posicionar(painel, ancora);
+  const acompanhar = () => posicionar(painel, ancora);
+  window.addEventListener("scroll", acompanhar, true);
+  window.addEventListener("resize", acompanhar);
+  /** @type {any} */ (painel).__acompanhar = acompanhar;
 }
 
 /** Recoloca o painel junto do campo (rolagem, mudança de tamanho).
@@ -63,6 +73,12 @@ export function posicionar(painel, ancora) {
 /** Devolve o painel ao fluxo do campo. @param {HTMLElement} painel */
 export function recolher(painel) {
   if (!painel.hasAttribute("popover")) return;
+  const acompanhar = /** @type {any} */ (painel).__acompanhar;
+  if (acompanhar) {
+    window.removeEventListener("scroll", acompanhar, true);
+    window.removeEventListener("resize", acompanhar);
+    delete (/** @type {any} */ (painel).__acompanhar);
+  }
   if (painel.matches(":popover-open")) {
     try {
       /** @type {any} */ (painel).hidePopover();
