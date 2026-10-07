@@ -161,3 +161,45 @@ clique fora e o erro da busca; migrar para fichas + gaveta fechada é o próximo
   `test_preview_demo` no passo "Salvar rascunho" da folha; `test_preview_demo` também mede a
   rolagem da navegação de módulos a 1024/768 (M12). A parte da lista do `test_preview_demo`
   (Documento por um clique, ordem na gaveta, ficha) passou.
+
+## 8. Correções pós-QA (`qa/oficios-lista-lote2.md`, `027e55d`)
+
+| Item | Correção (na origem) | Evidência medida |
+|---|---|---|
+| **B1** calendários e "Veículo" cortados na folha inferior | `painel-flutuante.js`: além de `dialog[open]`, qualquer contêiner `[data-camada-topo]` solta o painel do campo (calendário, relógio, `pc-select`) para a **camada de topo** (popover), posicionado abaixo ou acima conforme o espaço da tela, e acompanha a rolagem do contêiner enquanto aberto. A folha do celular ganha `data-camada-topo` ao abrir. Vale para todo campo flutuante dentro de qualquer folha futura | `tools/b1_folha.py` (alvos no ponto, dentro da tela): Período **46/46**, Data do ofício **46/46**, Veículo **8/8**, Ordenar 6/6, Ano 4/4 — a 390 e a 360 (antes 16/46 e 3/8); `caps/lote2/b1-*.png`. Obs.: `cal390b.py`/`pickers390.py` do QA filtram por `offsetParent`, que é `null` em todo popover (camada de topo, `position: fixed`) e, com a folha agora `role="dialog"`, pegam a própria folha — versões que usam `getClientRects()`: `tools/cal390_topo.py`, `tools/pickers390_topo.py` |
+| **I1** folha não era modal | `filtros.js`: ao abrir no celular, a folha vira `role="dialog"` `aria-modal="true"` `aria-labelledby` (título "Filtros e ordem"); todo o resto da página (subindo até o `<body>`, inclusive o botão sob o véu) fica `inert`; `html.rolagem-presa` trava a rolagem; Tab/Shift+Tab ciclam dentro; foco inicial no 1º controle **visível** (o gatilho do `pc-select`, não o `<select>` escondido); Esc/Fechar/véu desfazem tudo e devolvem o foco a "Filtros"; girar para largura de desktop com a folha aberta desfaz o modal. **Desktop continua não modal** (decisão): é um painel de divulgação sobre a lista que muda ao vivo, compartilhado com Coffee/Eventos/Imprensa/Palestras/Publicações, que não mudam | `qa/gaveta_teclado.py`: 0 saídas da folha em 16 Tabs; foco ao abrir `#ordem-oficios-gatilho`; rolagem por trás **0** (era 600); Esc devolve a "Filtros". Shift+Tab: Fechar → Limpar → Diárias até (dentro); depois de fechar: 0 `[inert]`, `role="group"` |
+| **I2** foco no BODY após "Tentar de novo" | `filtros.js`: depois da troca bem-sucedida, foco no `#titulo-resultados` (`tabindex=-1`), que diz "Resultados para “x”: N ofícios" — componente do arquétipo, vale para as outras listas | `qa/erro_foco.py`: foco `H2#titulo-resultados` |
+| **I3** Documento "Todos" com número que não fecha a soma | "Todos" **sem contagem** (decisão do orquestrador); só Rascunhos/Emitidos/Arquivados mostram números (também no OOB) | `test_views.py` (`conta-doc-todos` ausente) |
+| **I4** 1ª tela a 390 com busca/Rascunhos e total 3× | Título dos resultados **só para leitor de tela também com busca** ("Resultados para “x”: N ofícios"); o total fica na aba (e, no desktop, na barra "N de M"). Documento **não vira ficha** (o segmentado marcado já diz; "Limpar tudo" continua tirando o Documento). Refino e fichas numa linha só, rolando de lado, no celular | `qa/l2_telas.py` a 390: normal 3,42 · **busca 3,13** (era 2,75) · **Rascunhos 3,20** (era 2,83) · fichas 3,01; 360 igual |
+| **I5** "Filtros" órfão a 900; 768 pior que o Lote 1 | Documento + Filtros num grupo (`.filtros__lado`) que nunca se separa; de 768 a 1023 o Documento fica compacto e a busca começa em 12rem → **uma linha só de 768 em diante** (busca 197 px a 768, 329 px a 900). Fichas numa linha só abaixo de 1280, com "Limpar tudo" no começo do trilho (sempre à vista; também resolve o menor do fade que o escondia) | `qa/l2_telas.py`, Lote 1 → agora: 900 normal **4,15 → 4,59**, 768 **4,15 → 4,59**; com 5 filtros valendo 900/768 **3,23 → 4,14**, 1024 4,77 → **5,30**; barra 73 px em 768–1440 (era 127 a 768/820) |
+
+Também: busca (`?q=26`) a 390 com refino numa linha: 2,17 → 2,45 (3 resultados ao todo);
+UI Lab seção 22 atualizado (grupo Documento+Filtros, "Todos" sem número, folha modal).
+
+**Verificação depois das correções**
+- axe (`tools/axe_l2_900.py`, cópia do `axe_l2.py` do QA com 900 e mais dois estados: folha
+  com o calendário aberto e com "Veículo" aberto) — 21 estados × 1440/1024/900/768/390/360 =
+  **126 execuções, 0 violações**.
+- Regressão contra o Lote 1 (`:8003`): 18 rotas (Roteiros, Termos, painel, Ordens, Planos,
+  Viagens, Justificativas, Prestações, Servidores, Usuários, Coffee ×2, Eventos, Imprensa,
+  Publicações, Palestras, Agenda, Notificações) × 6 larguras = **108 combinações, 0
+  diferenças**.
+- `qa/l2_interacoes.py`: gaveta, fichas, Limpar, vazio, refino, Documento pelo teclado, erro
+  (abort e 500) e "Tentar de novo" — como no QA.
+- Testes: 73 do `test_views.py` (classes do Lote 2 + lista/ciclo/filtros) passed; e2e
+  gaveta/agrupamento 3 passed; parte da lista do `test_preview_demo` passou (para no
+  "Salvar rascunho" pré-existente); ruff, mypy, tsc, tokens verdes.
+
+**Autocrítica dupla (pós-QA)**
+1. *1ª revisão*: a folha modal prendia o foco, mas "Limpar tudo" das fichas, rolando de lado,
+   ficava escondido pela máscara (menor do QA) → primeiro tentei prendê-lo à direita
+   (`sticky`) — o axe acusou `target-size` (o botão encobria parte do "×" vizinho, 14×25 px a
+   360 e no UI Lab a 390/768) → **"Limpar tudo" passou para o começo do trilho** (`order`),
+   nada fica por cima de nenhum alvo. O refino ainda empilhava no celular (2,17) → linha única.
+2. *2ª revisão*: a 768 a busca tem 197 px — cabe "131/2026", uma placa ou um sobrenome;
+   termo longo rola dentro do campo. Aceito em troca de uma linha de lista (o Lote 1 a 768
+   também tinha a busca dividindo a linha). O painel do calendário no celular aparece sobre
+   o topo da folha (camada de topo) — é o comportamento dos diálogos do sistema. Na largura
+   de desktop a gaveta segue cobrindo as fichas recém-criadas (menor; contador avisa).
+   Continuam como menores registrados: link "Viagens em 30 dias" do painel, `ordem=-numero`
+   na URL, `?resumo=` de outras telas para ofício arquivado.

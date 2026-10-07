@@ -131,20 +131,10 @@ a.ficha:hover {
     scrollbar-width: none;
   }
   .filtros-ativos > * { flex: none; white-space: nowrap; }
-  /* "Limpar tudo" fica preso à direita, sempre à vista; as fichas passam por baixo dele
-     (o esmaecido é a sombra do próprio botão, não a máscara do trilho). */
-  .filtros-ativos[data-rola] { mask-image: none; }
-  .filtros-ativos:has(> .filtros-ativos__limpar) { padding-right: 0; }
-  .filtros-ativos__limpar {
-    position: sticky;
-    right: 0;
-    margin-left: auto;
-    padding-left: var(--esp-3);
-    padding-right: var(--esp-5);
-    border-radius: 0;
-    background: var(--cor-superficie);
-    box-shadow: calc(-1 * var(--esp-5)) 0 var(--esp-3) var(--cor-superficie);
-  }
+  /* "Limpar tudo" vem antes das fichas: sempre à vista no começo do trilho, sem nada por
+     cima de nenhum "×" (um botão preso à direita encobria os alvos — WCAG 2.5.8/2.4.11). */
+  .filtros-ativos__rotulo { order: -2; }
+  .filtros-ativos__limpar { order: -1; margin-left: 0; }
 }
 
 /* =============== Lista de registros (linha-cartão) =============== */
@@ -1524,7 +1514,6 @@ a.ficha:hover {
   .filtros__acoes .botao { flex: 1; }
   .lista-cabecalho { padding: var(--esp-3) var(--esp-4); }
   .filtros-ativos { padding: var(--esp-3) var(--esp-4) var(--esp-1); }
-  .filtros-ativos__limpar { padding-right: var(--esp-4); }
   /* Refino da busca no celular: também numa linha só, rolando de lado. */
   .refino[data-rola-lado] {
     flex-wrap: nowrap;
