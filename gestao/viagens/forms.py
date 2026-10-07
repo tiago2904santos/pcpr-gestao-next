@@ -648,27 +648,6 @@ class FormularioJustificativa(forms.Form):
         return dados
 
 
-class FormularioPiso(forms.Form):
-    """Piso (número inicial) da numeração de um ano (página Numeração, LP-32). As mensagens
-    dizem como resolver; a regra (limites e permissão) é de services.definir_piso."""
-
-    ano = forms.IntegerField(widget=forms.HiddenInput, min_value=2000, max_value=2100,
-                             error_messages={"invalid": "Escolha o ano na lista de anos acima.",
-                                             "required": "Escolha o ano na lista de anos acima.",
-                                             "min_value": "Escolha um ano entre 2000 e 2100.",
-                                             "max_value": "Escolha um ano entre 2000 e 2100."})
-    piso = forms.IntegerField(
-        label="Número inicial do ano", min_value=1, max_value=99999,
-        widget=forms.TextInput(attrs=_attrs("entrada", inputmode="numeric",
-                                            autocomplete="off", maxlength="5")),
-        error_messages={
-            "required": "Informe o número inicial — ex.: 100 faz o primeiro ofício sair 100.",
-            "invalid": "Use só algarismos, sem ponto nem barra — ex.: 100.",
-            "min_value": "O número inicial começa em 1. Para voltar ao padrão, use 1.",
-            "max_value": "O número inicial vai até 99999. Confira se não sobrou um dígito.",
-        })
-
-
 # ---------------------------------------------------------------- termos de autorização
 MAX_DESTINOS_TERMO = 30
 MAX_SERVIDORES_TERMO = 50

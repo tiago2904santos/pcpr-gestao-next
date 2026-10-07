@@ -880,7 +880,7 @@ class TestExportarPlanilha:
 
 
 class TestNumeracaoAnual:
-    """Piso da numeração (regra D5). A página está em test_numeracao.py (LP-32)."""
+    """Piso da numeração (regra D5). A tela "Numeração dos ofícios" saiu; o serviço fica."""
 
     def test_piso_acima_do_maior_muda_o_proximo_sem_renumerar(self, cenario):
         from gestao.viagens.models import NumeracaoAnual
@@ -893,6 +893,9 @@ class TestNumeracaoAnual:
         proximo = next(a for a in services.resumo_numeracao() if a.ano == ano).proximo
         assert proximo == 500
         assert services.criar_rascunho(cenario.usuarios["operador"]).numero == 500
+
+    def test_a_tela_de_numeracao_nao_existe_mais(self, gestor):
+        assert gestor.get("/viagens/oficios/numeracao/").status_code == 404
 
 
 class TestFiltroPorDataDoOficio:

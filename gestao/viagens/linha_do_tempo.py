@@ -16,7 +16,6 @@ from gestao.plataforma.auditoria import Passo, passos_do_registro
 from .models import (
     EfetivoPlano,
     EventoPlano,
-    NumeracaoAnual,
     OrdemServico,
     OrdemServicoDestino,
     PlanoDestino,
@@ -203,30 +202,3 @@ def do_plano(plano: PlanoTrabalho) -> list[Evento]:
                                 marcos=MARCOS)
     return _eventos(passos, criado="Plano de trabalho criado", cancelado="Cancelado",
                     reativado="Reativado", campos=campos, filhas=filhas)
-
-
-# ---------------------------------------------------------------- numeração (LP-32)
-@dataclass(frozen=True)
-class MudancaDePiso:
-    em: datetime
-    usuario: object | None
-    de: int | None  # None: o ano nasceu já com este piso
-    para: int
-
-
-def do_piso(ano: int) -> list[MudancaDePiso]:
-    """Quem mudou o piso de um ano, quando, de quanto para quanto — da trilha do banco (a
-    tabela de numeração é auditada). A linha que a primeira reserva do ano cria com o piso
-    padrão (1) não é uma decisão de ninguém e fica de fora."""
-    numeracao = NumeracaoAnual.objects.filter(ano=ano).only("pk").first()
-    if numeracao is None:
-        return []
-    mudancas = []
-    for p in passos_do_registro(NumeracaoAnual._meta.db_table, numeracao.pk, marcos=("piso",)):
-        para = p.depois.get("piso")
-        if p.operacao == "INSERT":
-            if para and para != 1:
-                mudancas.append(MudancaDePiso(p.em, p.usuario, None, para))
-        elif "piso" in p.campos and para is not None:
-            mudancas.append(MudancaDePiso(p.em, p.usuario, p.antes.get("piso"), para))
-    return mudancas
