@@ -10,6 +10,11 @@
 
 ## 1. O que mudou, por LP
 
+Commits: `923d0e9` (LP-20 domínio) · `930c6a2` (LP-21/23 componentes na origem + UI Lab) ·
+`4758843` (LP-20/21/22/25/26 lista) · `fc8d07f` (LP-24) · `117a387` (LP-27) · `cc82a05` (e2e/evidências).
+Linha de base do Lote 1 para o QA: worktree `/home/claude/l1-wt` (`ddc9daf`), servidor
+`bash /home/claude/tools/l1_server.sh` → `:8003`.
+
 | LP | O quê | Arquivos principais |
 |---|---|---|
 | LP-20 | **Abas temporais** canônicas — Todos · Que vão acontecer · Em andamento e realizados · Contas prestadas · Cancelados — com a regra exata do legado (`abas.py:73-85`): cancelado vence tudo; depois contas prestadas; o resto pela 1ª saída — depois do fim de hoje **ou sem data** → "Que vão acontecer"; até o fim de hoje → "Em andamento e realizados". Regra em **domínio puro** (`dominio/recorte.py`: `aba_do_oficio`, `documento_do_oficio`, `no_recorte`) e a mesma conta em SQL (`queries.q_da_aba`/`q_do_documento`, 1ª saída por subconsulta). **Documento** (Todos · Rascunhos · Emitidos · Arquivados) é um segmentado de rádios sempre visível, um clique, com contagem; arquivado fica fora de "Todos" até ser pedido e continua no seu tempo (arquivado + "Que vão acontecer" funciona). **Contadores** das abas e do Documento acompanham busca e filtros, ignorando só a própria dimensão, numa agregação condicional (`contagens_do_recorte`). Parâmetros novos `aba=` e `documento=`; **endereços antigos** (`?situacao=rascunho|emitido|arquivado|cancelado|proximos|prestadas`) redirecionam (302) para o equivalente, preservando o resto — na lista e no Exportar. Links de outras telas migrados: painel (Rascunhos → `?documento=rascunho`; "Viagens em 30 dias" → `?aba=futuros&ordem=saida`; o indicador de rascunhos deixou de contar arquivados), busca global Ctrl+K, conflitos, vias assinadas e o retorno das ações, todos por `enderecos.url_na_lista` (arquivado já leva `documento=arquivado` — antes caía numa lista onde ele não aparecia) | `dominio/recorte.py`, `queries.py`, `views.py`, `enderecos.py`, `busca.py`, `conflitos.py`, `views_assinados.py`, `painel.html`, `oficios/_abas.html` |
