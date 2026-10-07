@@ -175,3 +175,47 @@ outra unidade → 404 em `/acoes/`, `/marcar/`, `/arquivar/`; operador canceland
 ## 9. Para fechar o lote
 Corrigir I1 e mostrar `l3_sessao.py` sem a tela de login dentro do menu (com o aviso de sessão
 encerrada). Os menores vão para as pendências; M6(a) é uma linha de teste.
+
+---
+
+## Re-QA — `9f08506` · veredito: **APROVADO**
+
+> Agente 3 · 2026-10-07. Scripts: `l3r_sessao_real.py` (porta 8000 × 8004), `l3r_termo.py`,
+> `l3r_grupos.py`, `l3r_menores.py`, mais `l3_axe.py`, `regressao_l3.py` reexecutados. Sessão
+> "expirada" simulada como na vida real: só o cookie `pcpr_sessao` sai (o `pcpr_csrf` fica) e
+> `pcpr_demo_saiu=1` desliga a entrada automática da DEMO.
+
+**I1 corrigido.**
+| Pedido sem sessão | Antes (Lote 2/3, `:8004`) | Agora |
+|---|---|---|
+| Navegação comum (`/viagens/oficios/`, `/viagens/oficios/exportar/`, `Sec-Fetch-Dest: document`) | 302 → login | **302 → login** (inalterado) |
+| Busca ao vivo (HTMX) | 302 seguido; página ia ao login | **401 + `HX-Redirect`** → login com `next` da lista |
+| Janela de resumo (HTMX) | **tela de login dentro da janela** | 401 → login com `next=/viagens/oficios/` |
+| ⋮ (`fetch`) | tela de login dentro do menu | item "Entrar de novo" focado e anunciado + aviso com link |
+| Autosave da folha do ofício | "Não foi possível salvar agora" sem dizer por quê | o mesmo texto **+ aviso "Sua sessão terminou — Entrar de novo"** (`next` = a folha) |
+| Autosave da folha do termo | idem, via 302 | 401 + aviso com "Entrar de novo" |
+| `/busca/` (JSON), `X-Requested-With`, `Sec-Fetch-Dest: empty` | 302 | 401 JSON com `entrar` |
+| Rotas públicas: `/conta/entrar/`, `/saude/` (também com `Accept: application/json`), `/agenda/ics/<token>.ics`, `/static/…`; entrada DEMO | — | **inalteradas** (200 / 404 do token desconhecido / DEMO entra). Não há `/pedido/` nem `/fornecedor/` públicos no novo; os únicos `@login_not_required` são login, saúde e o feed ICS |
+| POST sem sessão (form comum) | 403 do CSRF | 403 do CSRF (inalterado, anterior ao lote) |
+O middleware novo herda o `LoginRequiredMiddleware` e só troca a resposta do pedido assíncrono;
+`test_sessao_expirada.py` + identidade: 50 verdes (a falha de `test_demo` é a de sempre:
+nome do banco no `.env`, igual no `main`).
+
+**Menores**: M1 varrer 6 ⋮ rapidamente = 0 pedidos, parar 300 ms = 1 · M3 região viva
+`aria-live=polite` com o texto da falha · M4 toque no véu: fecha, nada por trás é acionado,
+foco volta ao ⋮ · M5 "… deste ofício" só quando existem (104/2026: nenhum; 155/2026: os três) ·
+M6 conferido no relatório do Designer (o teste agora para na folha — ver final).
+
+**Menu agrupado** (`l3r_grupos.py`): com os grupos fechados, ↓ percorre 10 itens e pula o
+conteúdo recolhido; no título do grupo `aria-expanded=false`; → e Enter/Espaço abrem e focam o 1º
+item; ↓ anda dentro; ← recolhe e volta ao título; Esc fecha o menu e devolve o foco ao ⋮. Leitor:
+`menuitem "Criar a partir deste ofício"` (descrição "Termo, ordem de serviço, plano, cópia") e
+`group "Retificado ou complementar"` com os dois itens; a descrição do grupo das marcas diz a de
+hoje ("Hoje sai sem marca"). Toque a 390/360 abre o grupo; painel dentro da tela (rola por dentro
+a 360). axe com grupo aberto a 1440/768/390/360: 0. Perfis: operador vê 9 itens (sem Cancelar),
+Consulta 2, nenhum grupo vazio. `l3_axe.py` (68 execuções): 0 violações. Regressão 26 rotas ×
+1440/768/390 contra o Lote 2: 0 diferenças (só a rolagem de UI Lab/Notificações que sumiu).
+
+Menores novos: (a) com a sessão expirada, a busca ao vivo volta ao login com o `next` de **antes**
+do termo digitado (o Lote 2 levava o termo); (b) um grupo aberto continua aberto ao reabrir o
+mesmo menu (o padrão anunciado é recolhido).
