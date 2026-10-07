@@ -29,6 +29,25 @@
 | Roteiro / Diárias | sem trechos; erro de cálculo | — |
 | Justificativa | obrigatória e vazia | — |
 
+### Assinantes na montagem e nas versões emitidas
+
+Cada montagem de dados atuais (minuta, revisão ou nova emissão) consulta as substituições
+de assinante vigentes para a data do ofício, mesmo quando reutiliza a mesma instância do
+ofício e da configuração institucional. Criar, alterar ou desativar uma substituição entre
+duas montagens deve aparecer na segunda montagem. Ofício e justificativa compartilham a
+mesma lista de substituições da montagem, com servidor e cargo carregados juntos; cada
+tipo mantém sua regra de substituto do período, titular escolhido ou chefia.
+
+O instantâneo já gravado em `Documento.dados` permanece imutável: mudanças posteriores
+nas substituições não alteram os dados nem o PDF de uma versão emitida. Uma nova emissão
+produz outro instantâneo usando as substituições então vigentes.
+
+Fontes locais: `gestao/cadastros/models.py` (`SubstituicaoAssinante.vale_em`),
+`gestao/cadastros/services.py` (`quem_assina`),
+`gestao/viagens/documentos/dados.py` (`dados_do_oficio`) e
+`gestao/viagens/services.py` (`emitir`). A regressão observada no ciclo H e os testes de
+proteção estão registrados em `docs/quality/oficios-assinantes-cache.md`.
+
 ### Estados
 
 ```mermaid

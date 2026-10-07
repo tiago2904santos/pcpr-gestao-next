@@ -35,6 +35,11 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     )
 
     config = configuracao_da_unidade(oficio)
+    # A configuração pode sobreviver entre montagens na mesma instância de ofício.
+    # Renove apenas esta relação: novas substituições não podem ficar ocultas no cache.
+    cache = getattr(config, "_prefetched_objects_cache", None)
+    if cache is not None:
+        cache.pop("substituicoes", None)
     # Ofício e justificativa usam a mesma lista; o cargo do substituto vem junto.
     prefetch_related_objects([config], Prefetch(
         "substituicoes", queryset=SubstituicaoAssinante.objects.select_related("servidor__cargo")))

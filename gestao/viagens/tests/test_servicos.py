@@ -528,8 +528,24 @@ def test_desativar_viatura_nao_trava_o_rascunho_que_a_usa():
 def test_documentos_saem_com_o_assinante_de_cada_tipo():
     """Módulo 2: ofício e justificativa podem ter assinantes diferentes; no período de uma
     substituição, sai o substituto (data do ofício)."""
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
     from gestao.cadastros.models import ConfiguracaoInstitucional, Servidor, SubstituicaoAssinante
     from gestao.viagens.documentos.dados import dados_do_oficio
+
+    def montar(oficio, *, aquecido=False):
+        with CaptureQueriesContext(connection) as consultas:
+            dados = dados_do_oficio(oficio)
+        # Uma consulta por montagem, compartilhada pelos dois tipos de documento;
+        # também protege a primeira montagem contra duplicar a consulta de substituições.
+        tabela = SubstituicaoAssinante._meta.db_table
+        assert sum(tabela in consulta["sql"] for consulta in consultas) == 1
+        if aquecido:
+            # Mesmo com dois tipos de substituição, servidor e cargo vêm na consulta
+            # compartilhada. As demais relações já foram carregadas na primeira montagem.
+            assert len(consultas) == 1
+        return dados
 
     c = cenario_completo()
     oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
@@ -537,11 +553,48 @@ def test_documentos_saem_com_o_assinante_de_cada_tipo():
     titular, substituto = Servidor.objects.all()[:2]
     config.assina_justificativa = titular
     config.save()
-    dados = dados_do_oficio(oficio)
+    dados = montar(oficio)
     assert dados["chefia"]["nome"] == config.chefia_nome
     assert dados["assina_justificativa"]["nome"] == titular.nome
-    SubstituicaoAssinante.objects.create(configuracao=config, servidor=substituto,
-                                         tipo="oficio", inicio=oficio.data_oficio)
-    dados = dados_do_oficio(oficio)
+    substituicao = SubstituicaoAssinante.objects.create(
+        configuracao=config, servidor=substituto, tipo="oficio", inicio=oficio.data_oficio)
+    dados = montar(oficio, aquecido=True)
     assert dados["chefia"]["nome"] == substituto.nome
     assert dados["assina_justificativa"]["nome"] == titular.nome
+
+    justificativa = SubstituicaoAssinante.objects.create(
+        configuracao=config, servidor=substituto,
+        tipo="justificativa", inicio=oficio.data_oficio)
+    dados = montar(oficio, aquecido=True)
+    assert dados["chefia"]["nome"] == substituto.nome
+    assert dados["assina_justificativa"]["nome"] == substituto.nome
+    assert dados["chefia"]["cargo"] == substituto.cargo.nome
+    assert dados["assina_justificativa"]["cargo"] == substituto.cargo.nome
+
+    SubstituicaoAssinante.objects.filter(pk__in=[substituicao.pk, justificativa.pk]).update(
+        ativo=False)
+    dados = montar(oficio, aquecido=True)
+    assert dados["chefia"]["nome"] == config.chefia_nome
+    assert dados["assina_justificativa"]["nome"] == titular.nome
+
+
+def test_remontar_assinantes_atuais_nao_altera_snapshot_emitido(cenario):
+    from gestao.cadastros.models import Servidor, SubstituicaoAssinante
+    from gestao.viagens.documentos.dados import dados_do_oficio
+
+    oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+    documento = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+    snapshot = documento.dados
+    versao = documento.versao
+    dados_do_oficio(oficio)  # Aquece a relação antes da mudança, como na regressão.
+    config = services.configuracao_da_unidade(oficio)
+    substituto = Servidor.objects.exclude(nome=snapshot["chefia"]["nome"]).first()
+    assert substituto is not None
+    SubstituicaoAssinante.objects.create(
+        configuracao=config, servidor=substituto, tipo="oficio", inicio=oficio.data_oficio)
+
+    atuais = dados_do_oficio(oficio)
+    assert atuais["chefia"]["nome"] == substituto.nome
+    documento.refresh_from_db()
+    assert documento.dados == snapshot
+    assert documento.versao == versao
