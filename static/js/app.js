@@ -14,6 +14,7 @@ import "./componentes/acao.js";
 
 /** @type {Array<[string, () => Promise<unknown>]>} */
 const sobDemanda = [
+  ["[data-copiar-alvo]", () => import("./componentes/copiar.js")],
   ["pc-combobox", () => import("./componentes/combobox.js")],
   ["pc-abas", () => import("./componentes/abas.js")],
   [".abas, [data-rola-lado]", () => import("./componentes/abas-rolagem.js")],
@@ -42,7 +43,6 @@ const sobDemanda = [
   ["#dialogo-assinado", () => import("./componentes/assinado.js")],
   ["#dialogo-baixar", () => import("./componentes/baixar.js")],
   ["[data-baixar-arquivo]", () => import("./componentes/baixar-arquivo.js")],
-  ["[data-editores]", () => import("./componentes/editores.js")],
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
   ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
@@ -63,29 +63,59 @@ document.body.addEventListener("htmx:afterSwap", carregarSobDemanda);
  * Componentes pesados que ficam longe do topo só carregam quando chegam perto da tela
  * (ex.: o editor de documento, 39 KB, no fim da folha do ofício). Sem IntersectionObserver,
  * carregam na hora.
- * @type {Array<[string, () => Promise<unknown>]>}
+ * @type {Array<[string, (alvo: Element) => Promise<unknown>]>}
  */
 const quandoVisivel = [
+  ["[data-editores]", async (alvo) => {
+    const { iniciarBloco } = await import("./componentes/editores.js");
+    if (alvo instanceof HTMLElement && alvo.isConnected) iniciarBloco(alvo);
+  }],
   ["pc-editor-documento", () => import("./componentes/editor-documento.js")],
 ];
-function carregarQuandoVisivel() {
+/** @type {Map<string, WeakSet<Element>>} */
+const iniciadosVisiveis = new Map();
+/** @type {Map<string, IntersectionObserver>} */
+const observadoresVisiveis = new Map();
+/** @param {Event} [evento] */
+function carregarQuandoVisivel(evento) {
   for (const [seletor, carregar] of quandoVisivel) {
-    const alvos = document.querySelectorAll(seletor);
-    if (carregados.has(seletor) || !alvos.length) continue;
-    carregados.add(seletor);
-    if (!("IntersectionObserver" in window)) { carregar(); continue; }
+    // Desliga caixas removidas e observa os alvos atuais, inclusive HTMX antes do import.
+    observadoresVisiveis.get(seletor)?.disconnect();
+    const iniciados = iniciadosVisiveis.get(seletor) || new WeakSet();
+    iniciadosVisiveis.set(seletor, iniciados);
+    const alvos = new Set(Array.from(document.querySelectorAll(seletor),
+      (alvo) => alvo.closest("[data-editores]") || alvo));
+    const trocado = /** @type {CustomEvent | undefined} */ (evento)?.detail?.target || evento?.target;
+    if (evento?.type === "htmx:afterSwap" && trocado instanceof Element) {
+      alvos.forEach((alvo) => {
+        if (trocado.contains(alvo) || alvo.contains(trocado)) iniciados.delete(alvo);
+      });
+    }
+    const carregarAlvo = (/** @type {Element} */ alvo) => {
+      if (!alvo.isConnected || iniciados.has(alvo)) return;
+      iniciados.add(alvo);
+      carregar(alvo).catch((erro) => {
+        iniciados.delete(alvo);  // próximo swap pode tentar novamente se o import falhou
+        console.error("Não foi possível carregar o editor do documento.", erro);
+      });
+    };
+    if (!("IntersectionObserver" in window)) { alvos.forEach(carregarAlvo); continue; }
     const observador = new IntersectionObserver((entradas) => {
-      if (!entradas.some((e) => e.isIntersecting)) return;
-      observador.disconnect();
-      carregar();
+      for (const entrada of entradas) {
+        if (!entrada.isIntersecting) continue;
+        observador.unobserve(entrada.target);
+        carregarAlvo(entrada.target);
+      }
     }, { rootMargin: "400px 0px" });
+    observadoresVisiveis.set(seletor, observador);
     // Num bloco de vários editores (o termo), o editor não tem caixa própria
     // (display: contents) e nunca "apareceria": observa-se o bloco.
-    alvos.forEach((alvo) => observador.observe(alvo.closest("[data-editores]") || alvo));
+    alvos.forEach((alvo) => { if (!iniciados.has(alvo)) observador.observe(alvo); });
   }
 }
 carregarQuandoVisivel();
 document.body.addEventListener("htmx:afterSwap", carregarQuandoVisivel);
+document.addEventListener("pcpr:editores-repostos", carregarQuandoVisivel);
 
 // Com JavaScript, o que só serve sem ele some (ex.: "Aplicar" numa busca que já é ao vivo).
 document.querySelectorAll("[data-so-sem-js]").forEach((e) => { /** @type {HTMLElement} */ (e).hidden = true; });

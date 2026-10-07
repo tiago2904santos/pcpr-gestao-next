@@ -56,13 +56,16 @@ export class MapaDaRota {
    * pela metade, e reenquadrar por ela jogaria o mapa em cima de um único ponto. */
   observar() {
     if (!this.caixa) return;
-    new IntersectionObserver((entradas) => {
-      if (entradas.some((e) => e.isIntersecting)) {
-        this.visivel = true;
-        if (this.ultimaRota) this.desenhar(this.ultimaRota);
-        else if (this.sedeNoMapa) this.centrarNaSede(this.sedeNoMapa, true);
-      }
-    }, { rootMargin: "200px" }).observe(this.caixa);
+    const aoAparecer = () => {
+      this.visivel = true;
+      if (this.ultimaRota) this.desenhar(this.ultimaRota);
+      else if (this.sedeNoMapa) this.centrarNaSede(this.sedeNoMapa, true);
+    };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((entradas) => {
+        if (entradas.some((e) => e.isIntersecting)) aoAparecer();
+      }, { rootMargin: "200px" }).observe(this.caixa);
+    } else aoAparecer();
     new ResizeObserver(() => {
       if (!this.mapa) return;
       this.mapa.invalidateSize();

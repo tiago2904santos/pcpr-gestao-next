@@ -8,7 +8,8 @@
  */
 const faixa = /** @type {HTMLElement | null} */ (document.querySelector(".progresso--fixo"));
 
-if (faixa) {
+// Sem o observador, os links continuam levando às seções pelo href nativo.
+if (faixa && "IntersectionObserver" in window) {
   const links = /** @type {HTMLAnchorElement[]} */ (Array.from(faixa.querySelectorAll(".progresso__etapa > a")));
   const secoes = links
     .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))

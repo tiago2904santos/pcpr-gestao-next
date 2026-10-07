@@ -63,6 +63,7 @@ function carregarMiniatura(caixa) {
  * @param {HTMLElement} raiz
  */
 function iniciar(raiz) {
+  const eventos = new AbortController();
   const editores = /** @type {HTMLElement[]} */ (Array.from(raiz.querySelectorAll("pc-editor-documento")));
   const botoes = /** @type {HTMLButtonElement[]} */ (Array.from(raiz.querySelectorAll("[data-ir-pagina]")));
   const chaveDe = (/** @type {HTMLElement} */ ed) =>
@@ -83,7 +84,7 @@ function iniciar(raiz) {
   raiz.addEventListener("pc-editor:ativo", (e) => {
     const editor = /** @type {HTMLElement} */ (e.target).closest("pc-editor-documento");
     if (editor) ativar(/** @type {HTMLElement} */ (editor));
-  });
+  }, { signal: eventos.signal });
 
   // Navegador: leva ao título da página e a torna a ativa.
   raiz.addEventListener("click", (e) => {
@@ -94,19 +95,19 @@ function iniciar(raiz) {
     const titulo = item?.querySelector(".editores__titulo");
     if (editor) ativar(editor);
     titulo?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-  });
+  }, { signal: eventos.signal });
 
   // Rolando: a página que ocupa o meio da tela passa a ser a ativa (barra e navegador).
-  const observador = new IntersectionObserver((entradas) => {
+  const observador = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
     for (const entrada of entradas) {
       if (!entrada.isIntersecting) continue;
       const editor = /** @type {HTMLElement} */ (entrada.target).closest("pc-editor-documento");
       if (editor) ativar(/** @type {HTMLElement} */ (editor));
     }
-  }, { rootMargin: "-45% 0px -50% 0px" });
+  }, { rootMargin: "-45% 0px -50% 0px" }) : null;
   for (const e of editores) {
     const folha = e.querySelector(".editor__folha");
-    if (folha) observador.observe(folha);
+    if (folha) observador?.observe(folha);
   }
 
   // "Texto" / "PDF" valem para o bloco todo: no PDF, um arquivo só com todos os documentos
@@ -137,14 +138,15 @@ function iniciar(raiz) {
     if (!(botao instanceof HTMLElement) || !pdf) return;
     e.stopPropagation();
     mudarModo(botao.dataset.modo || "texto");
-  }, true);
+  }, { capture: true, signal: eventos.signal });
 
   // A barra é o cabeçalho do bloco: o índice gruda logo abaixo dela (editor.css).
   const medirBarra = () => {
     const barra = raiz.querySelector(".editor--ativo > .editor__barra");
     if (barra instanceof HTMLElement && barra.offsetHeight) raiz.style.setProperty("--altura-barra", `${barra.offsetHeight}px`);
   };
-  new ResizeObserver(medirBarra).observe(raiz);
+  const observaBarra = new ResizeObserver(medirBarra);
+  observaBarra.observe(raiz);
 
   // Mostrar/esconder o índice (o botão de painel da barra). Lembra a escolha neste navegador;
   // em tela estreita começa fechado.
@@ -160,7 +162,7 @@ function iniciar(raiz) {
     const aberto = raiz.classList.contains("editores--sem-indice");
     mostrarIndice(aberto);
     try { localStorage.setItem(CHAVE_INDICE, aberto ? "aberto" : "fechado"); } catch { /* sem armazenamento */ }
-  });
+  }, { signal: eventos.signal });
 
   // Miniaturas do índice (uma caixa por página; o quadro dentro dela é trocado a cada recarga).
   const caixas = /** @type {HTMLElement[]} */ (Array.from(raiz.querySelectorAll(".editores__miniatura")));
@@ -177,13 +179,19 @@ function iniciar(raiz) {
     const editor = /** @type {HTMLElement} */ (e.target).closest("pc-editor-documento");
     const caixa = editor && caixaDe(chaveDe(/** @type {HTMLElement} */ (editor)));
     if (caixa) carregarMiniatura(caixa);
-  });
+  }, { signal: eventos.signal });
 
   /** @type {string | null} */
   let preferencia = null;
   try { preferencia = localStorage.getItem(CHAVE_INDICE); } catch { /* sem armazenamento */ }
   mostrarIndice(preferencia ? preferencia === "aberto" : !matchMedia("(max-width: 767.98px)").matches);
   return {
+    desligar: () => {
+      eventos.abort();
+      observador?.disconnect();
+      observaBarra.disconnect();
+      observaCaixas.disconnect();
+    },
     // Dados ou texto mudaram: as miniaturas — e o PDF, se é ele que está na tela — se refazem.
     recarregarMiniaturas: () => {
       caixas.forEach(carregarMiniatura);
@@ -196,13 +204,47 @@ function iniciar(raiz) {
 const chavesDe = (onde) => Array.from(onde.querySelectorAll("[data-editores] [data-ir-pagina]"),
   (b) => /** @type {HTMLElement} */ (b).dataset.irPagina).join(" ");
 
-const inicial = /** @type {HTMLElement | null} */ (document.querySelector("[data-editores]"));
-let bloco = inicial ? iniciar(inicial) : null;
+/** @type {WeakMap<HTMLElement, ReturnType<typeof iniciar> & { membros: Element[] }>} */
+const blocos = new WeakMap();
+
+/** O import é compartilhado, mas cada caixa nova espera a sua própria visibilidade.
+ * @param {HTMLElement} raiz
+ */
+export function iniciarBloco(raiz) {
+  if (!raiz.isConnected) return;
+  const membros = Array.from(raiz.querySelectorAll("pc-editor-documento, .editores__miniatura"));
+  const atual = blocos.get(raiz);
+  if (atual && atual.membros.length === membros.length
+      && atual.membros.every((membro, i) => membro === membros[i])) return;
+  atual?.desligar();
+  blocos.set(raiz, { ...iniciar(raiz), membros });
+}
+
+function recarregarBlocos() {
+  document.querySelectorAll("[data-editores]").forEach((raiz) => {
+    blocos.get(/** @type {HTMLElement} */ (raiz))?.recarregarMiniaturas();
+  });
+}
+
+// HTMX pode substituir a própria caixa ou o seu conteúdo. Solta observadores e
+// handlers antigos; app.js liga a caixa refeita quando ela estiver perto da tela.
+document.body.addEventListener("htmx:beforeSwap", (e) => {
+  const detalhe = /** @type {CustomEvent} */ (e).detail;
+  if (e.defaultPrevented || detalhe?.shouldSwap === false) return;
+  const alvo = detalhe?.target;
+  if (!(alvo instanceof Element)) return;
+  document.querySelectorAll("[data-editores]").forEach((raiz) => {
+    if (!alvo.contains(raiz) && !raiz.contains(alvo)) return;
+    const caixa = /** @type {HTMLElement} */ (raiz);
+    blocos.get(caixa)?.desligar();
+    blocos.delete(caixa);
+  });
+});
 
 // Texto levado para todas as páginas, ou dados do termo gravados: as miniaturas se refazem
 // (as folhas dos editores se refazem sozinhas — editor-documento.js).
-document.addEventListener("pc-editor:texto-aplicado", () => bloco?.recarregarMiniaturas());
-document.addEventListener("pcpr:dados-salvos", () => bloco?.recarregarMiniaturas());
+document.addEventListener("pc-editor:texto-aplicado", recarregarBlocos);
+document.addEventListener("pcpr:dados-salvos", recarregarBlocos);
 
 // A gravação mudou QUAIS documentos o termo emite (um servidor a mais, a viatura): o bloco
 // vem da página refeita (autosave.js) com as páginas novas — que já nascem com o texto
@@ -213,9 +255,9 @@ document.addEventListener("pcpr:pagina-refeita", (e) => {
   if (!atual || chavesDe(document) === chavesDe(pagina)) return;
   const novo = pagina.getElementById(atual.id);
   if (!novo || atual.contains(document.activeElement)) return;
+  atual.querySelectorAll("[data-editores]").forEach((raiz) => {
+    blocos.get(/** @type {HTMLElement} */ (raiz))?.desligar();
+  });
   atual.replaceWith(document.adoptNode(novo));
-  const raiz = /** @type {HTMLElement | null} */ (document.querySelector("[data-editores]"));
-  bloco = raiz ? iniciar(raiz) : null;
+  document.dispatchEvent(new CustomEvent("pcpr:editores-repostos"));
 });
-
-export {};
