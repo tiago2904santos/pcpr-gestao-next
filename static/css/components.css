@@ -2670,6 +2670,17 @@ fieldset.campo--escolhas > .campo__erro {
   text-decoration: none;
 }
 
+/* Aba sem nada no recorte de agora (ex.: "Cancelados 0" com uma busca): continua
+   clicável, mas recua — o olho vai para onde há resultado. */
+.aba--vazia {
+  color: var(--cor-texto-terciario);
+}
+
+.aba--vazia .aba__contagem {
+  background: transparent;
+  color: var(--cor-texto-terciario);
+}
+
 /* Foco com o anel do Design System (LP-11), por dentro: a fileira rola de lado e cortaria
    um anel de fora. Antes era um retângulo de cantos vivos (outline com recuo negativo). */
 .aba:focus-visible {
@@ -2823,8 +2834,66 @@ fieldset.campo--escolhas > .campo__erro {
 }
 
 .segmentado > input:focus-visible + label {
-  outline: var(--foco-espessura) solid var(--foco-cor);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--anel-foco-interno); /* por dentro: o trilho pode rolar de lado */
+}
+
+/* Com contagem (filtro Documento da lista): cada opção diz quantos itens traz; a altura é a
+   de um controle comum, para alinhar com a busca ao lado. */
+.segmentado--contagem > label {
+  gap: var(--esp-2);
+  min-width: 0;
+  min-height: calc(var(--altura-controle) - 0.375rem);
+  padding: 0 var(--esp-3);
+  font-weight: var(--peso-medio);
+}
+
+.segmentado--contagem > input:checked + label {
+  font-weight: var(--peso-semi);
+}
+
+.segmentado__conta {
+  min-width: 1.25rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmentado > input:checked + label .segmentado__conta {
+  background: var(--grafite-700);
+  color: var(--neutro-0);
+}
+
+.segmentado--contagem > input:not(:checked) + label .segmentado__conta {
+  background: var(--cor-superficie-realce);
+}
+
+/* Trilho que rola de lado quando não cabe (`data-rola-lado`: o segmentado Documento e as
+   fichas de filtro no celular): sem barra visível, com a borda que esconde itens esmaecida
+   (abas-rolagem.js marca data-rola, como nas abas). */
+.segmentado[data-rola-lado] {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+[data-rola-lado]::-webkit-scrollbar { display: none; }
+
+[data-rola-lado][data-rola="fim"] {
+  mask-image: linear-gradient(to right, var(--cor-texto) calc(100% - 2rem), transparent);
+}
+
+[data-rola-lado][data-rola="inicio"] {
+  mask-image: linear-gradient(to left, var(--cor-texto) calc(100% - 2rem), transparent);
+}
+
+[data-rola-lado][data-rola="inicio fim"] {
+  mask-image: linear-gradient(to right, transparent, var(--cor-texto) 2rem,
+    var(--cor-texto) calc(100% - 2rem), transparent);
 }
 
 /* Opção que não vale agora (ex.: "Um PDF só" com um documento): some do caminho sem sumir. */

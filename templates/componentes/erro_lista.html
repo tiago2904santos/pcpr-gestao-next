@@ -1,0 +1,14 @@
+{% comment %}
+Erro da atualização ao vivo de uma lista (busca/filtros por HTMX): sem rede ou com o
+servidor falhando, a lista não pode continuar mostrando o resultado velho como se fosse o
+novo. filtros.js mostra este aviso NO LUGAR de #resultados e "Tentar de novo" refaz o mesmo
+pedido. Mora no arquétipo LIST: toda lista com busca ao vivo ganha o mesmo tratamento.
+{% endcomment %}
+<div class="alerta alerta--perigo lista-erro" id="erro-busca" role="alert" hidden data-erro-lista>
+  {% icone "alert-triangle" %}
+  <div class="alerta__corpo">
+    <p class="alerta__titulo">Não deu para atualizar a lista</p>
+    <p data-erro-detalhe>Confira a conexão e tente de novo. Nada do que você filtrou se perdeu.</p>
+  </div>
+  <button type="button" class="botao alerta__acao" data-tentar-de-novo>{% icone "refresh-cw" %}Tentar de novo</button>
+</div>

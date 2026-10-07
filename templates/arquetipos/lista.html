@@ -19,6 +19,7 @@ Contexto esperado: migalhas, page_obj, querystring_base, total.
 <section class="cartao mt-4" aria-labelledby="titulo-resultados">
   {% block filtros %}{% endblock %}
   <div class="lista-resultados">
+    {% include "componentes/erro_lista.html" %}
     {% block resultados %}{% endblock %}
   </div>
 </section>

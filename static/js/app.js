@@ -16,7 +16,8 @@ import "./componentes/acao.js";
 const sobDemanda = [
   ["pc-combobox", () => import("./componentes/combobox.js")],
   ["pc-abas", () => import("./componentes/abas.js")],
-  [".abas", () => import("./componentes/abas-rolagem.js")],
+  [".abas, [data-rola-lado]", () => import("./componentes/abas-rolagem.js")],
+  [".filtros__mais, [data-erro-lista]", () => import("./componentes/filtros.js")],
   ["[data-mascara]", () => import("./componentes/mascara.js")],
   ["input[type='search'].entrada, input[data-limpavel]", () => import("./componentes/limpar.js")],
   ["form[data-proteger]", () => import("./componentes/protecao.js")],

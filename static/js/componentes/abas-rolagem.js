@@ -5,8 +5,9 @@
  *   essa borda, o indício de que há mais para o lado;
  * - trazem a aba ativa para a vista ao carregar (antes "Cancelados" ou "Arquivados" ativa
  *   podia ficar fora da tela, sem nenhum sinal).
- * Vale para `nav.abas` (links) e para o `tablist` do <pc-abas>; as abas trocadas pelo HTMX
- * (busca ao vivo) são preparadas de novo.
+ * Vale para `nav.abas` (links), para o `tablist` do <pc-abas> e para qualquer trilho marcado
+ * com `data-rola-lado` (ex.: o segmentado "Documento" da lista de ofícios no celular); as
+ * abas trocadas pelo HTMX (busca ao vivo) são preparadas de novo.
  */
 
 /** @param {HTMLElement} abas */
@@ -19,7 +20,7 @@ function medir(abas) {
 
 /** @param {HTMLElement} abas */
 function centralizarAtiva(abas) {
-  const ativa = abas.querySelector("[aria-current='page'], [aria-selected='true']");
+  const ativa = abas.querySelector("[aria-current='page'], [aria-selected='true'], :checked + label");
   if (!(ativa instanceof HTMLElement) || abas.scrollWidth <= abas.clientWidth) return;
   const caixa = abas.getBoundingClientRect();
   const aba = ativa.getBoundingClientRect();
@@ -42,7 +43,7 @@ function preparar(abas) {
 }
 
 function prepararTodas() {
-  document.querySelectorAll(".abas").forEach((abas) => {
+  document.querySelectorAll(".abas, [data-rola-lado]").forEach((abas) => {
     if (abas instanceof HTMLElement) preparar(abas);
   });
 }

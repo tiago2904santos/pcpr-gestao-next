@@ -627,6 +627,12 @@ html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
   margin-right: auto;
 }
 
+/* Grupo trocado por inteiro pela busca ao vivo (status + ação que depende do recorte):
+   para o layout da barra, os filhos continuam sendo filhos diretos. */
+.barra-acoes__conteudo {
+  display: contents;
+}
+
 /* Base 0: o texto do status quebra linha antes de empurrar os botões para baixo. */
 /* Rodapé de lista (cadastros): a ação "Novo…" fica no fim da lista, como na referência, e
    não flutua por cima das linhas (a barra fixa cobriria o menu da última linha visível). */

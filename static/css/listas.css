@@ -77,6 +77,50 @@ a.ficha:hover {
   background: var(--cor-primaria-hover);
 }
 
+/* =============== Filtros valendo (fichas removíveis, D6) =============== */
+/* Logo abaixo da barra: o que está filtrando a lista, cada um com o X que tira só ele, e
+   "Limpar tudo" (que não apaga a busca nem a aba). A gaveta pode ficar fechada: nada fica
+   filtrado sem dizer por quê. */
+.filtros-ativos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-3) var(--esp-5) 0;
+}
+
+.filtros-ativos__rotulo {
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-sm);
+}
+
+.ficha--filtro {
+  padding-right: var(--esp-1);
+  border-color: var(--cor-borda-forte);
+  font-weight: var(--peso-medio);
+}
+
+.ficha--filtro .ficha__remover {
+  width: 1.5rem;   /* alvo ≥ 24px (WCAG 2.5.8) */
+  height: 1.5rem;
+  margin-right: 0;
+  color: var(--cor-texto-secundario);
+}
+
+.ficha--filtro .ficha__remover:hover {
+  background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.ficha__remover:focus-visible {
+  outline: none;
+  box-shadow: var(--anel-foco);
+}
+
+.filtros-ativos__limpar {
+  margin-left: var(--esp-1);
+}
+
 /* =============== Lista de registros (linha-cartão) =============== */
 .registros {
   list-style: none;
@@ -184,6 +228,19 @@ a.ficha:hover {
   height: 0.75rem;
   border-radius: var(--raio-xs);
   background: var(--cor-marca);
+}
+
+/* Quantos ofícios do mês estão nesta página (LP-26): número discreto, sem caixa alta —
+   não compete com o nome do mês. "nesta página" quando o mês continua na vizinha. */
+.registros__grupo-conta {
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-weight: var(--peso-semi);
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Recém-alterado: ao voltar da edição, a linha acende em dourado e assenta (registro.js). */
@@ -1198,6 +1255,157 @@ a.ficha:hover {
   align-self: center;
 }
 
+/* Quantos filtros da gaveta valem: a pílula grafite no botão (OOB na busca ao vivo). */
+.filtros__mais-conta {
+  min-width: 1.25rem;
+  padding: 0 var(--esp-1);
+  border-radius: var(--raio-pilula);
+  background: var(--grafite-900);
+  color: var(--neutro-0);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  line-height: 1.25rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.filtros__mais:has(.filtros__mais-conta:not([hidden])) .filtros__mais-resumo {
+  border-color: var(--grafite-800);
+  color: var(--cor-texto);
+}
+
+/* Cabeçalho e rodapé da gaveta (Ofícios): o rodapé sempre em linha própria, "Limpar" à
+   esquerda e "Fechar" à direita; o título só aparece na folha inferior do celular. */
+.filtros__gaveta-cabecalho {
+  display: none;
+}
+
+.filtros__gaveta-titulo {
+  margin: 0;
+  font-size: var(--texto-md);
+  font-weight: var(--peso-semi);
+}
+
+.filtros__gaveta-rodape {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  padding-top: var(--esp-3);
+  border-top: var(--borda-sutil);
+}
+
+.filtros__gaveta-rodape > .botao--texto {
+  margin-right: auto;
+}
+
+@media (min-width: 1024px) {
+  .filtros__avancados--rodape {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Faixa de valores com o rótulo na borda (fieldset/legend): por fora parece um campo só,
+   com "a" entre as pontas — o mesmo desenho dos outros campos da gaveta. */
+.filtros__faixa-campo {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0 0;
+  border: 0;
+}
+
+.filtros__faixa-rotulo {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--esp-2);
+  padding: 0 var(--esp-1);
+  background: linear-gradient(var(--cor-superficie-elevada) 50%, var(--cor-superficie) 50%);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  line-height: 1rem;
+}
+
+.filtros__faixa-campo:focus-within > .filtros__faixa-rotulo {
+  color: var(--cor-texto);
+}
+
+.filtros__faixa--caixa {
+  height: var(--altura-controle);
+  padding: 0 var(--esp-2);
+  border: 1px solid var(--cor-borda-campo);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+}
+
+.filtros__faixa--caixa:focus-within {
+  border-color: var(--grafite-800);
+  box-shadow: var(--sombra-foco-campo);
+}
+
+.filtros__faixa--caixa .entrada {
+  height: calc(var(--altura-controle) - 2px);
+  padding: 0 var(--esp-1);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.filtros__faixa--caixa .entrada:focus-visible {
+  box-shadow: none;
+}
+
+/* Documento (D1): um clique, sempre à vista, com a contagem de cada situação. Desenhado
+   como os campos ao lado — contorno de campo e rótulo na borda, na mesma altura do
+   "Buscar" —, com a opção marcada em grafite por dentro. */
+.filtros__documento {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem 0 0;
+  border: 0;
+}
+
+.filtros__documento-rotulo {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--esp-2);
+  padding: 0 var(--esp-1);
+  background: linear-gradient(var(--cor-superficie-sutil) 50%, var(--cor-superficie) 50%);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-xs);
+  font-weight: var(--peso-semi);
+  line-height: 1rem;
+}
+
+.filtros__documento:focus-within > .filtros__documento-rotulo {
+  color: var(--cor-texto);
+}
+
+.filtros__documento > .segmentado {
+  height: var(--altura-controle);
+  align-items: center;
+  padding: 0 var(--esp-1);
+  border: 1px solid var(--cor-borda-campo);
+  background: var(--cor-superficie);
+}
+
+/* 1,75rem: a opção marcada não encosta no rótulo da borda (e segue ≥ 24px de alvo). */
+.filtros__documento > .segmentado > label {
+  flex: 0 0 auto;
+  min-height: 1.75rem;
+}
+
+.filtros__documento > .segmentado > input:not(:checked) + label:hover {
+  background: var(--cor-superficie-realce);
+}
+
 /* Faixa de valores (de … a …): dois campos curtos que se leem como um. */
 .filtros__faixa {
   display: flex;
@@ -1240,6 +1448,11 @@ a.ficha:hover {
   transition: opacity var(--duracao-media) var(--curva-padrao);
 }
 
+/* Erro da busca ao vivo (componentes/erro_lista.html): no lugar dos resultados. */
+.lista-erro {
+  margin: var(--esp-4) var(--esp-5);
+}
+
 .lista-resultados.htmx-request {
   opacity: 0.6;
   pointer-events: none;
@@ -1263,6 +1476,76 @@ a.ficha:hover {
   .filtros__acoes { width: 100%; }
   .filtros__acoes .botao { flex: 1; }
   .lista-cabecalho { padding: var(--esp-3) var(--esp-4); }
+  /* Fichas numa linha só, rolando de lado: com cinco filtros, a pilha empurrava a lista
+     para fora da primeira tela. */
+  .filtros-ativos {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: var(--esp-3) var(--esp-4) var(--esp-1);
+    scrollbar-width: none;
+  }
+  .filtros-ativos > * { flex: none; white-space: nowrap; }
+  .filtros-ativos__rotulo { display: none; }
+
+  /* Barra de Ofícios no celular: Busca e Filtros na mesma linha; Documento embaixo, na
+     largura toda, rolando de lado se não couber (com a borda esmaecida como nas abas). */
+  .filtros--barra { row-gap: var(--esp-2); }
+  .filtros--barra .filtros__busca { flex: 1 1 0; min-width: 0; order: 1; }
+  .filtros--barra .filtros__mais { order: 2; }
+  .filtros--barra .filtros__documento { flex: 1 1 100%; order: 3; }
+  .filtros--barra .filtros__documento > .segmentado { display: flex; width: 100%; }
+  .filtros--barra .filtros__mais-resumo { padding: 0 var(--esp-2); }
+
+  /* A gaveta vira folha inferior sobre um véu: a lista não fica coberta pela metade. */
+  .filtros__mais[open]:has(> .filtros__avancados--rodape)::before {
+    content: "";
+    position: fixed;
+    z-index: var(--z-gaveta);
+    inset: 0;
+    background: var(--cor-veu);
+    animation: aparecer var(--duracao-media) var(--curva-padrao);
+  }
+
+  .filtros__mais[open] > .filtros__avancados--rodape {
+    position: fixed;
+    z-index: var(--z-gaveta);
+    inset: auto 0 0;
+    max-height: min(85dvh, 44rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 0 var(--esp-4);
+    border-radius: var(--raio-xl) var(--raio-xl) 0 0;
+    transform-origin: bottom center;
+    animation: folha-subir var(--duracao-media) var(--curva-padrao);
+  }
+
+  .filtros__avancados--rodape > * { grid-column: 1 / -1; }
+  .filtros__avancados--rodape > .campo:has(#id_ano),
+  .filtros__avancados--rodape > .campo:has(#id_protocolo) { grid-column: auto; }
+
+  .filtros__avancados--rodape .filtros__gaveta-cabecalho {
+    position: sticky;
+    z-index: 3;
+    top: 0;
+    display: block;
+    margin: 0 calc(-1 * var(--esp-4));
+    padding: var(--esp-4) var(--esp-4) var(--esp-2);
+    background: var(--cor-superficie-elevada);
+  }
+
+  .filtros__avancados--rodape .filtros__gaveta-rodape {
+    position: sticky;
+    z-index: 3;
+    bottom: 0;
+    margin: 0 calc(-1 * var(--esp-4));
+    padding: var(--esp-3) var(--esp-4) calc(var(--esp-3) + env(safe-area-inset-bottom));
+    background: var(--cor-superficie-elevada);
+  }
+}
+
+@keyframes folha-subir {
+  from { translate: 0 100%; }
 }
 
 /* =============== Paginação =============== */

@@ -112,41 +112,7 @@
 /* ---- Catálogo: componentes do Design System ainda sem uso nas telas do produto ----
    Ficam só na vitrine para não pesar no CSS compartilhado; ao usar numa tela, mova o bloco
    de volta para components.css. ---- */
-.filtros-ativos {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--esp-2);
-  padding: var(--esp-2) var(--esp-5);
-  border-bottom: var(--borda);
-  background: var(--cor-superficie-sutil);
-  font-size: var(--texto-sm);
-}
-
-.ficha {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-1);
-  padding: var(--esp-05) var(--esp-1) var(--esp-05) var(--esp-2);
-  border: var(--borda);
-  border-radius: var(--raio-pilula);
-  background: var(--cor-superficie);
-  font-size: var(--texto-xs);
-  font-weight: var(--peso-medio);
-  color: var(--cor-texto);
-  text-decoration: none;
-}
-
-.ficha:hover {
-  border-color: var(--cor-borda-forte);
-  text-decoration: none;
-}
-
-.ficha .icone {
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--cor-texto-secundario);
-}
+/* .filtros-ativos e .ficha saíram daqui: viraram componentes de listas.css (Lote 2, D6). */
 
 .tabela__ordenar {
   display: inline-flex;
