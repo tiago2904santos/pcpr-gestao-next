@@ -115,16 +115,33 @@ def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e):
     pg = logado
     _abrir_folha(pg, pk)
     pg.click("#editor-oficio [data-modo='pdf']")
-    pdf = pg.locator("#editor-oficio iframe[data-quadro='pdf']")
+    # O bloco unido usa um PDF com ofício + justificativa (editores.js).
+    # O iframe individual continua oculto para não baixar os documentos duas vezes.
+    pdf = pg.locator("[data-editores] iframe[data-pdf-bloco]")
     expect(pdf).to_be_visible()
-    assert f"/viagens/oficios/{pk}/minuta.pdf?tipo=oficio" in (pdf.get_attribute("src") or "")
+    assert f"/viagens/oficios/{pk}/minuta.pdf?tipo=todos" in (pdf.get_attribute("src") or "")
+    expect(pg.locator("#editor-oficio iframe[data-quadro='pdf']")).to_be_hidden()
     expect(pg.locator("#folha-oficio")).to_be_hidden()
     expect(pg.locator("#editor-oficio .editor__linha--ferramentas")).to_be_hidden()
     pg.click("#editor-oficio [data-modo='texto']")
     expect(pg.locator("#folha-oficio")).to_be_visible()
-    # Toolbar: só o primeiro botão entra na tabulação; a seta anda.
-    primeiro = pg.locator("#editor-oficio [role='toolbar'] button").first
+    # Páginas e avisos de pendência precedem as ações e o par Texto/PDF.
+    # Confirmar os dois primeiros controles visíveis e o único tabstop.
+    barra = pg.locator("#editor-oficio [role='toolbar']")
+    botoes = barra.locator("button:visible:not([disabled])")
+    primeiro = botoes.first
     primeiro.focus()
+    pg.keyboard.press("Home")
+    expect(primeiro).to_be_focused()
+    pg.keyboard.press("ArrowRight")
+    expect(botoes.nth(1)).to_be_focused()
+    assert barra.evaluate("""el => [...el.querySelectorAll('button')]
+        .filter(b => b.getClientRects().length && b.tabIndex === 0).length""") == 1
+    pg.keyboard.press("End")
+    expect(botoes.last).to_be_focused()
+    pg.keyboard.press("ArrowRight")
+    expect(primeiro).to_be_focused()
+    barra.locator("[data-modo='texto']").focus()
     pg.keyboard.press("ArrowRight")
     assert pg.evaluate("document.activeElement.dataset.modo") == "pdf"
     pg.keyboard.press("ArrowLeft")

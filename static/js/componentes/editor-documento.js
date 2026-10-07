@@ -129,6 +129,7 @@ export class PcEditorDocumento extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.observadorBarra?.disconnect();
     if (this.aoAplicarNoutro) document.removeEventListener("pc-editor:texto-aplicado", this.aoAplicarNoutro);
     window.clearInterval(this.timerPresenca);
     window.clearTimeout(this.timerSalvar);
@@ -357,19 +358,37 @@ export class PcEditorDocumento extends HTMLElement {
       this.focarFolha();
     });
     // Padrão "toolbar" da WAI-ARIA: um só tabstop; setas andam entre os botões.
-    const botoes = () => /** @type {HTMLButtonElement[]} */ (Array.from(barra.querySelectorAll("button:not([disabled])")));
-    botoes().forEach((b, i) => b.setAttribute("tabindex", i === 0 ? "0" : "-1"));
+    const controles = () => /** @type {HTMLElement[]} */ (Array.from(
+      barra.querySelectorAll("button, a[href], select, input")))
+      .filter((b) => !b.closest("[role='menu'], [role='listbox']"));
+    const elegiveis = () => controles().filter((b) => !b.matches(":disabled, [aria-hidden='true']")
+      && !b.closest("[hidden], [role='menu'], [role='listbox']"));
+    let tabulavel = elegiveis()[0];
+    const atualizarTabulacao = () => {
+      const lista = elegiveis();
+      const foco = /** @type {HTMLElement} */ (document.activeElement);
+      if (lista.includes(foco)) tabulavel = foco;
+      else if (!lista.includes(tabulavel)) tabulavel = lista[0];
+      controles().forEach((b) => b.setAttribute("tabindex", b === tabulavel ? "0" : "-1"));
+    };
+    atualizarTabulacao();
+    // pc-select e as pendências inserem controles depois da inicialização.
+    this.observadorBarra?.disconnect();
+    this.observadorBarra = new MutationObserver(atualizarTabulacao);
+    this.observadorBarra.observe(barra, { childList: true, subtree: true,
+      attributes: true, attributeFilter: ["hidden", "disabled", "aria-hidden"] });
     barra.addEventListener("keydown", (e) => {
+      if (e.defaultPrevented || /** @type {HTMLElement} */ (e.target).closest("[role='menu'], [role='listbox']")) return;
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
-      const lista = botoes();
-      const i = lista.indexOf(/** @type {HTMLButtonElement} */ (document.activeElement));
+      const lista = elegiveis().filter((b) => b.getClientRects().length);
+      const i = lista.indexOf(/** @type {HTMLElement} */ (document.activeElement));
       if (i < 0) return;
       e.preventDefault();
       const alvo = e.key === "Home" ? 0 : e.key === "End" ? lista.length - 1
         : e.key === "ArrowRight" ? (i + 1) % lista.length : (i - 1 + lista.length) % lista.length;
-      lista.forEach((b) => b.setAttribute("tabindex", "-1"));
-      lista[alvo].setAttribute("tabindex", "0");
-      lista[alvo].focus();
+      tabulavel = lista[alvo];
+      tabulavel.focus();
+      atualizarTabulacao();
     });
     const tabela = /** @type {HTMLFormElement | null} */ (this.querySelector("form[data-tabela]"));
     if (tabela) tabela.addEventListener("submit", (e) => { e.preventDefault(); this.inserirTabela(tabela); });
