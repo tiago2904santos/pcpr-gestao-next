@@ -723,13 +723,39 @@ a.ficha:hover {
   font-variant-numeric: tabular-nums;
 }
 
-/* Motorista: um volante (círculo com o cubo) antes do nome; o leitor de tela ouve
-   "(motorista)". O ícone herda a cor do texto para não sumir ao lado do nome. */
+/* Motorista (I3): "(motorista)" por extenso depois do nome — visível para quem enxerga e
+   lido uma vez só pelo leitor de tela (um ícone não dizia "motorista" sem o mouse). Na
+   linha, o motorista vem primeiro e a marca nunca corta: o bloco do motorista não encolhe
+   (só é limitado à largura da célula — aí o NOME dele corta, nunca a marca) e os outros
+   nomes ficam com o que sobra. */
 .registro__motorista {
-  display: inline-block; /* o reset deixa svg em bloco: aqui ele corre com o texto */
-  margin-right: var(--esp-1);
-  vertical-align: -0.15em;
+  flex: none;
   color: var(--cor-texto-secundario);
+  /* o espaço do texto (para o leitor de tela) some no início do item: a margem o repõe */
+  margin-left: var(--esp-1);
+  white-space: nowrap;
+}
+
+.registro__equipe {
+  display: flex;
+}
+
+.registro__equipe-motorista {
+  display: flex;
+  flex: none;
+  max-width: 100%;
+}
+
+.registro__equipe-nome,
+.registro__equipe-resto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.registro__equipe-resto {
+  flex: 0 1 auto;
 }
 
 /* Cada item no seu lugar da grade (as listas declaram as colunas abaixo). */

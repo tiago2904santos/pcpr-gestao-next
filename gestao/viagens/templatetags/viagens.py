@@ -136,6 +136,14 @@ def motorista_de_fora(oficio) -> str:
 
 
 @register.filter
+def motorista_primeiro(viajantes) -> list:
+    """A equipe com o motorista na frente (ordem estável para os demais): na linha da lista
+    os nomes cortam com reticências, e "(motorista)" no fim da fila sumia no celular. O
+    title do item continua na ordem do ofício."""
+    return sorted(viajantes, key=lambda v: not v.motorista)
+
+
+@register.filter
 def data_iso(valor: str) -> str:
     """'2026-10-08T09:00:00-03:00' → '08/10/2026 09:00' (memória de cálculo)."""
     try:

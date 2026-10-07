@@ -1319,12 +1319,18 @@ class TestLinhaDaLista:
         html = operador.get(reverse("viagens:oficios")).content.decode()
         inicio = html.index(f"Ofício {emitido.numero_formatado} · ")
         linha = html[inicio:html.index("</li>", inicio)]
-        assert "registro__motorista" in linha and '<span class="sr-only"> (motorista)</span>' in linha
+        # I3: "(motorista)" visível por extenso, lido uma vez só (sem cópia para leitor de tela)
+        assert '<span class="registro__motorista"> (motorista)</span>' in linha
+        # o motorista vem primeiro na linha (a marca não some no corte do celular)
+        equipe = linha.split('class="registro__meta-texto registro__equipe">')[1]
+        assert equipe.startswith('<span class="registro__equipe-motorista">')
+        assert "sr-only\"> (motorista)" not in linha
         assert "(motorista)" in linha.split("registro__meta-item--equipe")[1]  # no title também
         Oficio.objects.filter(pk=emitido.pk).update(
             motorista_externo="manual", motorista_externo_nome="Fulano de Fora")
         html = operador.get(reverse("viagens:oficios")).content.decode()
-        assert "Fulano de Fora" in html and "(motorista de fora da equipe)" in html
+        assert "Fulano de Fora" in html and "(motorista de fora da equipe)" in html  # title
+        assert '(motorista<span class="sr-only"> de fora da equipe</span>)' in html
 
     def test_termo_com_periodo_no_meta_e_destinos_no_titulo(self, operador, cenario):
         from gestao.viagens import termos
