@@ -132,7 +132,8 @@ def test_erro_de_validacao_aparece_no_resumo_e_no_campo(logado, dados_e2e):
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/")
     pg.locator("#id_protocolo").fill("123")
-    pg.get_by_role("button", name="Salvar rascunho").click()
+    # A folha grava sozinha; "Finalizar" é o envio explícito (e o que valida tudo de novo).
+    pg.get_by_role("button", name="Finalizar").click()
     resumo = pg.locator("#resumo-erros")
     expect(resumo).to_contain_text("O protocolo tem 9 dígitos")
     expect(resumo).to_be_focused()  # leitor de tela anuncia os erros logo após salvar
@@ -283,7 +284,7 @@ def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e
     expect(janela).to_be_visible()
     expect(janela.locator(".resumo")).to_contain_text("Roteiro")
     expect(janela.locator(".resumo")).to_contain_text("Equipe")
-    expect(janela.locator(".dialogo__rodape")).to_contain_text("Minuta")
+    expect(janela.locator(".dialogo__rodape")).to_contain_text("Ver minuta")
     pg.keyboard.press("Escape")
     expect(janela).to_be_hidden()
     assert pg.url.endswith("/viagens/oficios/")  # a lista continua onde estava

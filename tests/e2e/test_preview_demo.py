@@ -24,6 +24,10 @@ PREVIEW_URL = os.environ.get("PREVIEW_URL", "").rstrip("/")
 # Local: banco de teste transacional (o servidor de teste roda em outra conexão).
 pytestmark = [pytest.mark.e2e] + ([] if PREVIEW_URL else [pytest.mark.django_db(transaction=True)])
 ORCAMENTO_SQL = 25
+# A folha do ofício tem teto próprio, o mesmo de test_views.TestOrcamentoDeConsultas (janelas
+# de cadastro rápido e conflitos de agenda, constantes — não crescem com o ofício).
+ORCAMENTO_SQL_FOLHA = 32
+FOLHA = re.compile(r"/viagens/oficios/\d+/editar/")
 
 
 @pytest.fixture
@@ -58,7 +62,8 @@ def _pagina(navegador: Browser, base: str, largura: int) -> Page:
             pg.problemas.append(f"HTTP {r.status} {r.url}")  # type: ignore[attr-defined]
         timing = r.headers.get("server-timing", "")
         consultas = re.search(r'"(\d+) consultas"', timing)
-        if consultas and int(consultas.group(1)) > ORCAMENTO_SQL:
+        teto = ORCAMENTO_SQL_FOLHA if FOLHA.search(r.url) else ORCAMENTO_SQL
+        if consultas and int(consultas.group(1)) > teto:
             pg.problemas.append(f"{consultas.group(1)} consultas em {r.url}")  # type: ignore[attr-defined]
 
     pg.on("response", resposta)
@@ -160,9 +165,10 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     janela.get_by_role("link", name="Abrir o ofício").click()  # …e editar é ação explícita
     motivo = pg.get_by_label("Motivo da viagem")
     motivo.fill(f"Reunião regional de alinhamento (teste E2E em {largura}px).")
-    pg.get_by_role("button", name=re.compile(r"^Salvar( rascunho)?$")).click()  # "rascunho" some no celular
-    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
+    # A folha grava sozinha a cada pausa; "Finalizar" grava o que faltar e volta à lista.
     _sem_rolagem_lateral(pg)
+    pg.get_by_role("button", name="Finalizar").click()
+    expect(pg.get_by_text(re.compile(r"Ofício \d+/\d{4} salvo\."))).to_be_visible()
 
     # Sair → login; a entrada automática não volta depois de sair.
     pg.get_by_role("button", name=re.compile("Menu do usuário")).click()

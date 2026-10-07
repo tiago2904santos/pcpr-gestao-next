@@ -21,7 +21,13 @@ seletor de módulo, links diretos e menus suspensos para grupos (em_menu).
         {% endfor %}
       </div>
     </pc-menu>
-    <ul class="navegacao__lista">
+    {% comment %}
+    Fora de um módulo (Início, Notificações, UI Lab) a lista traz todos os módulos e não cabe
+    de 768 a ~1100px: ela rola de lado com a borda esmaecida (abas-rolagem.js), como as abas,
+    em vez de alargar a página. Dentro de um módulo há menus suspensos, que um trilho com
+    rolagem recortaria — e lá os grupos cabem.
+    {% endcomment %}
+    <ul class="navegacao__lista{% if not modulo %} navegacao__lista--modulos{% endif %}"{% if not modulo %} data-rola-lado{% endif %}>
       {% if modulo %}
         {% for grupo in modulo.grupos %}
           {% if grupo.em_menu %}

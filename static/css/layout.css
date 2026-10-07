@@ -328,6 +328,21 @@
   display: flex;
 }
 
+/* Lista de módulos (fora de um módulo): rola de lado quando não cabe — sem barra visível,
+   com a borda esmaecida (ver [data-rola-lado] em components.css). O filete do item atual
+   sobe 1px para não ser recortado pela rolagem. */
+@media (min-width: 768px) {
+  .navegacao__lista--modulos {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .navegacao__lista--modulos .navegacao__link[aria-current="page"]::after {
+    bottom: 0;
+  }
+}
+
 .navegacao__lista .menu {
   display: flex;
 }

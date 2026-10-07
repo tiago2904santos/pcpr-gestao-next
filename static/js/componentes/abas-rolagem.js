@@ -29,6 +29,22 @@ function centralizarAtiva(abas) {
   abas.scrollLeft += aba.left - caixa.left - (caixa.width - aba.width) / 2;
 }
 
+/**
+ * Quem chega pelo Tab a um item meio escondido na borda esmaecida o vê inteiro, com folga
+ * do esmaecido (o navegador só rola o "mínimo": o anel de foco ficava sob a máscara — ex.:
+ * o × de uma ficha a 390px, a lista de módulos a 768px).
+ * @param {HTMLElement} abas @param {FocusEvent} e
+ */
+function mostrarFocado(abas, e) {
+  const alvo = e.target;
+  if (!(alvo instanceof HTMLElement) || abas.scrollWidth <= abas.clientWidth) return;
+  const folga = 40; // um pouco mais que o esmaecido (2–2,5rem)
+  const caixa = abas.getBoundingClientRect();
+  const item = alvo.getBoundingClientRect();
+  if (item.left < caixa.left + folga) abas.scrollLeft -= caixa.left + folga - item.left;
+  else if (item.right > caixa.right - folga) abas.scrollLeft += item.right - (caixa.right - folga);
+}
+
 /** @param {HTMLElement} abas */
 function preparar(abas) {
   if (abas.dataset.rolaPronta) {
@@ -39,6 +55,7 @@ function preparar(abas) {
   centralizarAtiva(abas);
   medir(abas);
   abas.addEventListener("scroll", () => medir(abas), { passive: true });
+  abas.addEventListener("focusin", (e) => mostrarFocado(abas, e));
   new ResizeObserver(() => medir(abas)).observe(abas);
 }
 
