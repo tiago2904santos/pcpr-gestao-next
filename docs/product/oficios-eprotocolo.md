@@ -219,3 +219,75 @@ de consultas de fallback quando listas são fornecidas. Não estão conectados �
 tela, não demonstram orçamento SQL real e não substituem testes de autorização.
 Arquivos: `gestao/viagens/eprotocolo.py` e
 `gestao/viagens/tests/test_eprotocolo_dados.py`.
+
+### Comportamento do componente de cópia — integração em andamento
+
+Folha e resumo reutilizam `componentes/dados_eprotocolo.html`, com IDs distintos.
+Campos readonly não têm nome de envio. O botão mantém o rótulo mutável e o nome
+do campo em texto para leitor de tela; a confirmação é anunciada por aria-live.
+Na revisão D13, a legenda identifica os dados para a emissão revisada, após
+preparar a data. Formulário com erro ou roteiro ainda não salvo pede salvar antes
+da cópia, em vez de misturar valores enviados com trechos persistidos.
+
+O módulo compartilhado `copiar.js` entra pelo carregamento sob demanda de
+`app.js`, inclusive após HTMX. Se Clipboard falhar, Copiar tudo revela sua área
+de texto antes de focar e selecionar; os botões individuais selecionam seu
+próprio campo. A pessoa recebe a instrução de Ctrl+C. O estado aberto da
+divulgação é preservado após atualização do autosave ou troca HTMX, usando os
+IDs próprios do componente. Valores continuam vindo do servidor autorizado.
+Esta seção descreve a implementação proposta; browser e autorização real ainda
+precisam ser executados para validar o lote.
+
+## Integração de leitura RS-01 — regra antes da tela, 07/10/2026
+
+A folha de edição e a janela de resumo usam o mesmo componente do Design System,
+com identificadores de cópia distintos (`eprotocolo-folha` e `eprotocolo-resumo`).
+O bloco fica junto de Documentos. A folha usa a região `dados-eprotocolo-folha`
+com `data-vivo`, atualizada pela página refeita após autosave; alterações de equipe
+retornam o mesmo bloco fora de banda (OOB), sem criar endpoint.
+
+O contexto da folha reutiliza as listas de equipe, trechos e documentos já carregadas;
+o resumo passa a lista de documentos que já alimenta suas versões/PDF. A revisão
+projeta a cópia depois de `preparar_data_emissao`, sobre a data efetiva e as listas da
+folha. A projeção não chama `dados_do_oficio` nem adiciona consultas. Dados da revisão
+são identificados como “Dados para a emissão revisada”, pois a data preparada ainda
+não foi gravada. A folha normal continua mostrando os dados salvos do rascunho.
+
+Um formulário bound ou uma prévia de cálculo pode conter valores em memória que
+ainda não foram gravados (inclusive pela mutação de `ModelForm.is_valid`). Nesse
+render, a cópia fica indisponível e orienta: “Salve o rascunho antes de copiar os
+dados para o eProtocolo.” Não misturar esses valores com roteiro persistido nem
+anunciá-los como dados salvos. Voltar à folha salva disponibiliza novamente a cópia.
+
+O fragmento de equipe usa equipe/trechos já carregados pela prontidão e
+`documentos=()` para o rascunho. Ao trocar uma região viva/OOB, o cliente deve
+preservar a divulgação aberta e o foco quando o respectivo controle ainda existir.
+O clique em Copiar não submete formulário. GET de folha, revisão ou resumo não
+altera Ofício, Documento, histórico de negócio ou outbox; aplica a autorização
+existente antes da projeção. Cópia no resumo é permitida ao leitor autorizado,
+sem exigir permissão de edição; escopo de outra unidade continua retornando 404.
+
+Testes HTTP preparados para escopo/permite leitura, GET sem escrita de negócio,
+snapshot v1 após alteração de cadastros, v2 falhou como fonte mais recente,
+revisão com assunto da data efetiva e indisponibilidade em erros/prévias.
+Os testes e o orçamento SQL ainda precisam ser executados no LAB pelo coordenador;
+esta especificação não constitui evidência de execução ou validação de navegador.
+
+Verificação estática da integração: Ruff em `views.py` e `test_eprotocolo_http.py`
+aprovado; `git diff --check` dos arquivos versionados deste escopo sem erros.
+O arquivo HTTP inclui uma observação em torno de cada projeção chamada pela view:
+recebe todas as listas explicitamente e exige zero consultas durante a projeção.
+Essa asserção está preparada, ainda não executada. Nenhum banco ou navegador foi
+usado nesta implementação; validação HTTP/SQL e de interação permanece pendente.
+
+## Validação pelo principal — checkpoint 07/10/2026
+
+Resultados reais e falhas preservadas em
+`docs/quality/oficios-eprotocolo-integracao.md`. HTTP: 25 passaram, uma fixture
+falhou por unicidade e o caso corrigido passou separadamente. Projeções com
+listas explícitas zeraram SQL, sem aumentar os sete tetos de consultas existentes.
+Cópia Clipboard em 360/1440, fallback no resumo, autosave e OOB real passaram.
+Capturas Folha/Resumo nas cinco larguras estão em
+`docs/visual-agents/evidencias/eprotocolo-editor/`; 360/1440 revisadas pelo principal.
+Ainda não há verificador geral ou orçamento de desempenho verde; validação
+funcional desta cópia não implica aprovação integral das páginas.

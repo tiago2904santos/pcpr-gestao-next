@@ -502,3 +502,16 @@ Resultado: **6 falharam, 20 passaram** (640 s).
   topo/barra (e2e existente).
 - Benchmark com o legado: criar → preencher → emitir em menos passos e menos tempo; mesmos
   valores de diárias para os mesmos trechos (após a decisão E44/E45).
+
+## Checkpoint de implementação — 07/10/2026
+
+E44/E45: Tiago autorizou copiar a regra do legado; domínio, cache versionado e
+fluxo real incorporados em `df93e90`. Evidência em
+`docs/quality/qa-rota-legado-layout.md` e `docs/parity/oficio.md`. Sem
+recalcular automaticamente trechos/snapshots antigos nem substituir ajuste manual.
+
+E64: componente de cinco campos e Copiar tudo na Folha/Resumo. HTTP, Clipboard,
+fallback, autosave/OOB e capturas em `docs/quality/oficios-eprotocolo-integracao.md`.
+Dados da emissão vêm da maior versão, inclusive gerando/falhou; erro/prévia do
+formulário pede salvar antes de copiar. Nenhuma abertura externa de protocolo.
+Folha ainda excede budgets de HTML/JS/SQL/requisições; não está integralmente aceita.

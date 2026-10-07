@@ -43,6 +43,7 @@ from .dominio import busca as dominio_busca
 from .dominio import recorte
 from .dominio.diarias import Faixa
 from .enderecos import url_na_lista
+from .eprotocolo import ProjecaoEprotocolo, projetar_dados_eprotocolo
 from .forms import (
     FORM_ID,
     FiltrosOficio,
@@ -397,6 +398,15 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", cal
     # Documentos numa consulta só: o cartão Documentos lista; `policies.pode_excluir`
     # pergunta se existe algum. Com o prefetch os dois leem do cache do ofício.
     prefetch_related_objects([oficio], "documentos")
+    viajantes = viajantes_de(oficio)
+    trechos = trechos_de(oficio)
+    documentos = list(oficio.documentos.all())
+    copia = (ProjecaoEprotocolo(
+        dados=None, fonte="rascunho",
+        aviso="Salve o rascunho antes de copiar os dados para o eProtocolo.")
+        if (form is not None and form.is_bound) or calculo is not None
+        else projetar_dados_eprotocolo(
+            oficio, documentos=documentos, viajantes=viajantes, trechos=trechos))
     prontidao = services.verificar_prontidao(oficio)
     prazo = services.avaliar_prazo_do_oficio(oficio)
     mostrar_justificativa = _mostrar_justificativa(oficio, prazo, form)
@@ -429,11 +439,12 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", cal
         "form": form or FormularioOficio(instance=oficio),
         "secoes": secoes,
         **itin.contexto(),
-        "trechos": trechos_de(oficio),
+        "trechos": trechos,
         "secoes_ok": sum(1 for sec in secoes if sec["ok"]),
         "recem_salvo": request.GET.get("salvo") == "1",
         "erro_roteiro": erro_roteiro,
-        "viajantes": viajantes_de(oficio),
+        "viajantes": viajantes,
+        "copia": copia,
         "prontidao": prontidao,
         "prazo": prazo,
         "mostrar_justificativa": mostrar_justificativa,
@@ -455,7 +466,7 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", cal
         "pode_criar_roteiro": policies.pode_criar_roteiro(request.user),
         "historico": list(oficio.historico.select_related("usuario")[:30]),
         # O cartão Documentos lista o que já saiu em papel (do cache do prefetch acima).
-        "documentos": list(oficio.documentos.all()),
+        "documentos": documentos,
         "migalhas": _migalhas(("Ofícios", reverse("viagens:oficios")),
                               (oficio.numero_formatado, "")),
     }
@@ -590,13 +601,16 @@ def _usar_roteiro(request, oficio) -> HttpResponse:
 # ------------------------------------------------------------------ equipe (HTMX)
 def _secao_equipe(request, oficio, erro: str = "") -> HttpResponse:
     oficio.refresh_from_db()
+    viajantes = viajantes_de(oficio)
     contexto = {
         "oficio": oficio, "erro_equipe": erro, "oob": True,
-        "viajantes": viajantes_de(oficio),
+        "viajantes": viajantes,
         "prontidao": services.verificar_prontidao(oficio),
         # Mexer na equipe é uma gravação: daqui em diante a pendência pode falar.
         "mostrar_pendencias": True,
     }
+    contexto["copia"] = projetar_dados_eprotocolo(
+        oficio, documentos=(), viajantes=viajantes, trechos=trechos_de(oficio))
     resposta = render(request, "viagens/oficios/_equipe.html", contexto)
     resposta["HX-Trigger"] = "equipe-alterada"
     return resposta
@@ -666,7 +680,10 @@ def _revisao_pedida(request: HttpRequest, oficio, folha: dict) -> dict:
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "data_anterior": data_anterior, "data_atualizada": data_anterior != oficio.data_oficio,
         "calculo": oficio.diarias_calculo, "viajantes": folha["viajantes"],
-        "trechos": folha["trechos"], "documentos": list(oficio.documentos.all()),
+        "trechos": folha["trechos"], "documentos": folha["documentos"],
+        "copia": projetar_dados_eprotocolo(
+            oficio, documentos=folha["documentos"],
+            viajantes=folha["viajantes"], trechos=folha["trechos"]),
         "prontidao": (folha["prontidao"] if data_anterior == oficio.data_oficio
                       else services.verificar_prontidao(oficio)),
     }}
@@ -861,6 +878,8 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
     from . import assinados
 
     documentos = list(oficio.documentos.select_related("emitido_por").order_by("tipo", "-versao"))
+    viajantes = viajantes_de(oficio)
+    trechos = trechos_de(oficio)
     pdf = next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
                 and d.situacao == Documento.Situacao.PRONTO), None)
     # Vias assinadas em vigor: uma consulta, e só quando há PDF (sem PDF não há via).
@@ -873,8 +892,10 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "assunto": services.assunto_do_oficio(oficio),
         "prazo": services.avaliar_prazo_do_oficio(oficio),
         "calculo": oficio.diarias_calculo,
-        "viajantes": viajantes_de(oficio),
-        "trechos": trechos_de(oficio),
+        "viajantes": viajantes,
+        "trechos": trechos,
+        "copia": projetar_dados_eprotocolo(
+            oficio, documentos=documentos, viajantes=viajantes, trechos=trechos),
         "documentos": documentos,
         "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
         "pode_regenerar_documentos": policies.pode_regenerar_documentos(request.user, oficio),

@@ -260,6 +260,10 @@ confirmação — e é ele que escreve no histórico.
       <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido, editar abre uma retificação: o ofício volta a rascunho marcado como retificado e a correção fica no histórico.</p>
     </div>
 
+    <div id="dados-eprotocolo-folha" data-vivo>
+      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" %}
+    </div>
+
     {# Conferência: o mesmo aviso que abre a janela de resumo; aqui cada pendência é um atalho para o cartão. #}
     <div class="alerta {% if prontidao.pode_emitir %}alerta--sucesso{% else %}alerta--aviso{% endif %}" role="status" id="conferencia">
       {% if prontidao.pode_emitir %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}

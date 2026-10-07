@@ -268,3 +268,14 @@ por fragmento. Janela 749 px em 1440; folha de baixo em 390.
   `legado-eprotocolo.png`, `novo-resumo-{rascunho,emitido+just,via-assinada,cancelado,arquivado}-{1440,390}.png`.
 - Ambiente: durante a rodada o PREVIEW passou a responder 500 por "too many clients" no
   PostgreSQL (suíte paralela de outro agente); a verificação de R37 ficou por leitura de código.
+
+## Checkpoint RS-01 — 07/10/2026
+
+Dados para eProtocolo ligados ao Resumo pelo mesmo componente da Folha, IDs
+distintos e JS carregado após HTMX. Cinco campos e Copiar tudo, aviso de origem
+de protocolo, fonte/versão/geração identificadas. Snapshot mais recente em emitido
+ou cancelado; rascunho usa dados salvos. Cópia não abre protocolo externamente.
+Testes HTTP de escopo/leitura/sem escrita, fallback de Clipboard e capturas nas
+cinco larguras em `docs/quality/oficios-eprotocolo-integracao.md`.
+Os demais critérios deste documento e os budgets ainda precisam de fechamento;
+este checkpoint não declara o Resumo completo ou esteticamente aprovado.

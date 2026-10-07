@@ -83,3 +83,8 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
   </div>
 </div>
 {% endwith %}
+{% if oob %}
+<div id="dados-eprotocolo-folha" data-vivo hx-swap-oob="outerHTML">
+  {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" %}
+</div>
+{% endif %}

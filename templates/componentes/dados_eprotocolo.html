@@ -1,0 +1,39 @@
+{% comment %}
+Projeção autorizada de leitura: `copia` (ProjecaoEprotocolo), `copiar_id` único na página.
+Componente único da Folha e do Resumo, usando campos e divulgação do Design System.
+Copiar tudo tem região de seleção de texto para fallback quando Clipboard não estiver disponível.
+{% endcomment %}
+<details class="divulgacao" id="{{ copiar_id }}-bloco" data-dados-eprotocolo>
+  <summary id="{{ copiar_id }}-abrir">{% icone "copy" classe="icone--sm" %}Dados para o eProtocolo</summary>
+  <div class="divulgacao__corpo pilha">
+    {% if copia.disponivel %}
+      <p class="texto-secundario">{% if copia.fonte == "emissao" %}Dados da emissão v{{ copia.versao }}.{% if copia.situacao_documento == "gerando" %} PDF em geração.{% elif copia.situacao_documento == "falhou" %} A geração do PDF falhou.{% endif %}{% elif revisao %}Dados para a emissão revisada.{% else %}Dados salvos do rascunho.{% endif %} Copiar não abre nem altera o protocolo.</p>
+      {% if copia.aviso %}<p id="{{ copiar_id }}-origem" class="{% if oficio.protocolo_origem == 'simulado' or oficio.protocolo_origem == 'treinamento' %}alerta alerta--aviso{% else %}campo__ajuda{% endif %}">{{ copia.aviso }}</p>{% endif %}
+      {% for campo in copia.dados.campos %}
+        <div class="campo">
+          <label class="campo__rotulo" for="{{ copiar_id }}-{{ forloop.counter }}">{{ campo.rotulo }}</label>
+          <div class="linha">
+            {% if forloop.last %}
+              <textarea class="entrada" id="{{ copiar_id }}-{{ forloop.counter }}" rows="4" readonly>{{ campo.valor }}</textarea>
+            {% else %}
+              <input class="entrada" id="{{ copiar_id }}-{{ forloop.counter }}" value="{{ campo.valor }}" readonly{% if forloop.counter == 4 and copia.aviso %} aria-describedby="{{ copiar_id }}-origem"{% endif %}>
+            {% endif %}
+            <button type="button" class="botao botao--sm" data-copiar-alvo="{{ copiar_id }}-{{ forloop.counter }}" aria-live="polite">
+              {% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> {{ campo.rotulo }}</span>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+      <button type="button" class="botao" data-copiar-alvo="{{ copiar_id }}-tudo" data-copiar-revelar="{{ copiar_id }}-selecao" aria-controls="{{ copiar_id }}-selecao" aria-live="polite">
+        {% icone "copy" %}<span data-copiar-rotulo>Copiar tudo</span>
+      </button>
+      <div class="campo" id="{{ copiar_id }}-selecao" hidden>
+        <label class="campo__rotulo" for="{{ copiar_id }}-tudo">Todos os dados para copiar</label>
+        <textarea class="entrada" id="{{ copiar_id }}-tudo" rows="6" readonly>{{ copia.dados.copiar_tudo }}</textarea>
+        <p class="campo__ajuda">O texto foi selecionado. Pressione Ctrl+C para copiar.</p>
+      </div>
+    {% else %}
+      <p class="vazio-inline">{{ copia.aviso }}</p>
+    {% endif %}
+  </div>
+</details>

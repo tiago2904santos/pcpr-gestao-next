@@ -154,6 +154,8 @@ continua sendo a edição; aqui só se lê e se decide.
       {% endwith %}{% endwith %}
     </section>
 
+    {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" %}
+
     {# Linha 3: o que saiu em papel. #}
     <section id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-swap="outerHTML"{% endif %}>
       <h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
