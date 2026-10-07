@@ -51,6 +51,9 @@ from .models import (
 from .queries import (
     aplicar_leitura,
     buscar_tabelas_vigentes,
+    q_destino,
+    q_placa,
+    q_servidor,
     trechos_de,
     trechos_do_roteiro,
     viajantes_de,
@@ -1008,10 +1011,11 @@ def excluir_rascunho(oficio: Oficio, usuario) -> str:
 
 
 def buscar_por_texto(qs, termo: str, escopo: str = ""):
-    """Busca por número (131 ou 131/2026), protocolo, motivo, destino ou servidor.
+    """Busca por número (131 ou 131/2026), protocolo, placa, motivo, destino ou servidor.
 
     Com `escopo`, procura só onde foi pedido (dominio.busca): é o que tira da frente as
-    dezenas de ofícios que casam com "26" por acaso."""
+    dezenas de ofícios que casam com "26" por acaso. Texto sem acento casa com acento
+    (motivo, destino e servidor); destino não conta a volta à sede (F2)."""
     termo = (termo or "").strip()
     if not termo:
         return qs
@@ -1021,8 +1025,8 @@ def buscar_por_texto(qs, termo: str, escopo: str = ""):
              if leitura.escopo == escopo), None)
         if escolhida:
             return aplicar_leitura(qs, escolhida)
-    filtro = (Q(motivo__icontains=termo) | Q(trechos__destino__nome__unaccent__icontains=termo)
-              | Q(viajantes__servidor__nome__unaccent__icontains=termo))
+    filtro = (Q(motivo__unaccent__icontains=termo) | q_destino(termo)
+              | q_servidor(termo))
     digitos = "".join(c for c in termo if c.isdigit())
     numero = re.match(r"^(\d{1,5})(?:\s*/\s*(\d{4})?)?$", termo)
     if numero:
@@ -1032,7 +1036,9 @@ def buscar_por_texto(qs, termo: str, escopo: str = ""):
         filtro |= por_numero
     if len(digitos) >= 5:
         filtro |= Q(protocolo__contains=digitos)
-    return qs.filter(filtro).distinct()
+    if dominio_busca.parece_placa(termo):
+        filtro |= q_placa(termo)  # F1: a placa inteira não achava nada
+    return qs.filter(filtro)
 
 
 __all__ = ["IntegrityError"]

@@ -5,16 +5,24 @@ página separada só para ler — ela repetia a folha e dividia a atenção."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from itertools import pairwise
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
-from django.db.models import F, Prefetch, Q, prefetch_related_objects
+from django.db.models import F, Prefetch, Q, QuerySet, prefetch_related_objects
 from django.db.models.expressions import OrderBy
-from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import (
+    FileResponse,
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    JsonResponse,
+    QueryDict,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -32,7 +40,9 @@ from . import exportacao, itinerario, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, buscar_recurso, html_do_documento
 from .dominio import busca as dominio_busca
+from .dominio import recorte
 from .dominio.diarias import Faixa
+from .enderecos import url_na_lista
 from .forms import (
     FORM_ID,
     FiltrosOficio,
@@ -87,9 +97,8 @@ def _voltar(request: HttpRequest, oficio) -> str:
 def _na_lista(oficio) -> str:
     """A lista filtrada neste ofício. É o destino de quem termina uma ação (emitir,
     cancelar) e de quem não pode editar: a leitura completa é a janela de resumo, que
-    abre na própria lista. Arquivado só aparece na aba Arquivados."""
-    aba = "situacao=arquivado&" if oficio.arquivado_em else ""
-    return f"{reverse('viagens:oficios')}?{aba}q={oficio.numero_formatado}"
+    abre na própria lista. Arquivado só aparece com Documento = Arquivados."""
+    return url_na_lista(oficio)
 
 
 def _migalhas(*itens: tuple[str, str]) -> list[tuple[str, str]]:
@@ -126,21 +135,52 @@ ORDENS_DA_LISTA: dict[str, tuple[str | OrderBy, ...]] = {
 }
 
 
-def _recorte_da_lista(request: HttpRequest, base):
-    """O que a lista mostra (busca, situação, filtros avançados e ordem) — a mesma conta
-    serve à tela e à planilha, para quem exporta levar exatamente o que estava vendo."""
-    situacao = request.GET.get("situacao") or ""
-    termo = (request.GET.get("q") or "").strip()
-    escopo = request.GET.get("escopo") or ""
-    qs = queries.aplicar_filtro_situacao(base, situacao)
-    qs = services.buscar_por_texto(qs, termo, escopo)
-    avancados = FiltrosOficio(request.GET)
-    qs = queries.aplicar_filtros_avancados(
-        qs, avancados.cleaned_data if avancados.is_valid() else {})
-    ordem = request.GET.get("ordem") or "-numero"
-    qs = queries.com_dados_de_lista(qs).order_by(
-        *ORDENS_DA_LISTA.get(ordem, ORDENS_DA_LISTA["-numero"]))
-    return qs, situacao, termo, escopo, avancados, ordem
+@dataclass
+class RecorteDaLista:
+    """O que a lista mostra — a mesma conta serve à tela e à planilha, para quem exporta
+    levar exatamente o que estava vendo (abas, documento, busca, filtros e ordem)."""
+
+    qs: QuerySet[Oficio]
+    filtrado: QuerySet[Oficio]       # base + busca + filtros (sem aba nem documento)
+    aba: str
+    documento: str
+    termo: str
+    escopo: str
+    avancados: FiltrosOficio
+    ordem: str
+
+    @property
+    def tem_filtro(self) -> bool:
+        """Algo além da aba restringe a lista (o que pede "N de M" e o vazio de busca)."""
+        return bool(self.termo or self.documento or self.avancados.fichas)
+
+
+def _recorte_da_lista(request: HttpRequest, base, anos: list[int]) -> RecorteDaLista:
+    get = request.GET
+    aba = get.get("aba") or ""
+    aba = aba if aba in recorte.CHAVES_ABAS else ""
+    documento = get.get("documento") or ""
+    documento = documento if documento in recorte.CHAVES_DOCUMENTOS else ""
+    termo = (get.get("q") or "").strip()
+    escopo = (get.get("escopo") or "") if termo else ""
+    avancados = FiltrosOficio(get, anos=anos)
+    filtrado = queries.aplicar_filtros_avancados(
+        services.buscar_por_texto(base, termo, escopo), avancados.validos)
+    ordem = get.get("ordem") or recorte.ORDEM_PADRAO
+    ordem = ordem if ordem in recorte.CHAVES_ORDENS else recorte.ORDEM_PADRAO
+    qs = queries.com_dados_de_lista(queries.aplicar_recorte(filtrado, aba, documento)).order_by(
+        *ORDENS_DA_LISTA[ordem])
+    return RecorteDaLista(qs, filtrado, aba, documento, termo, escopo, avancados, ordem)
+
+
+def _endereco_antigo(request: HttpRequest) -> HttpResponse | None:
+    """`?situacao=rascunho` (abas de antes do Lote 2) → o mesmo recorte no vocabulário novo.
+    Favoritos, o painel antigo e outras telas continuam chegando onde queriam."""
+    novos = recorte.traduzir_endereco_antigo(request.GET.dict())
+    if novos is None:
+        return None
+    destino = reverse("viagens:oficios")
+    return redirect(f"{destino}?{urlencode(novos)}" if novos else destino)
 
 
 @require_GET
@@ -148,7 +188,11 @@ def exportar(request: HttpRequest) -> HttpResponse:
     """A lista de agora (com os mesmos filtros) numa planilha Excel."""
     if not policies.pode_listar(request.user):
         raise PermissionDenied
-    qs = _recorte_da_lista(request, policies.oficios_visiveis(request.user))[0]
+    base = policies.oficios_visiveis(request.user)
+    get = request.GET
+    if (novos := recorte.traduzir_endereco_antigo(get.dict())) is not None:
+        request.GET = QueryDict(urlencode(novos))  # type: ignore[misc]  # link antigo
+    qs = _recorte_da_lista(request, base, queries.anos_dos_numeros(base)).qs
     nome = f"oficios-{timezone.localdate():%Y-%m-%d}.xlsx"
     resposta = HttpResponse(
         exportacao.planilha_de_oficios(qs.iterator(chunk_size=200)),
@@ -157,55 +201,137 @@ def exportar(request: HttpRequest) -> HttpResponse:
     return resposta
 
 
+def _sem(get: QueryDict, *chaves: str, so: tuple[str, ...] | None = None) -> str:
+    """A lista com os parâmetros de agora menos `chaves` (ou só com `so`), na página 1."""
+    copia = get.copy()
+    copia.pop("pagina", None)
+    for chave in list(copia.keys()):
+        if chave in chaves or (so is not None and chave not in so) or not copia.get(chave):
+            copia.pop(chave)
+    consulta = copia.urlencode()
+    return f"{reverse('viagens:oficios')}?{consulta}" if consulta else reverse("viagens:oficios")
+
+
+def _trocar(get: QueryDict, chave: str, valor: str) -> str:
+    """A lista com `chave` = `valor` (vazio tira a chave) e o resto como está."""
+    copia = QueryDict(mutable=True)
+    if valor:
+        copia[chave] = valor  # a chave trocada vem primeiro: endereço fácil de ler
+    for outra, valores in get.lists():
+        if outra != chave:
+            copia.setlist(outra, valores)
+    return _sem(copia)
+
+
+def _fichas(get: QueryDict, r: RecorteDaLista, refino_atual: dict | None) -> list[dict]:
+    """Uma ficha por filtro valendo (D6), cada uma tira só o que diz. A busca e a aba não
+    são fichas: a busca tem o próprio campo (com o X) e a aba se troca na fileira."""
+    fichas: list[tuple[str, tuple[str, ...]]] = []
+    if r.documento:
+        fichas.append(("Documento: " + recorte.rotulo(recorte.DOCUMENTOS, r.documento),
+                       ("documento",)))
+    if refino_atual:
+        fichas.append((f"Buscando em: {refino_atual['rotulo']}", ("escopo",)))
+    fichas += r.avancados.fichas
+    if r.ordem != recorte.ORDEM_PADRAO:
+        fichas.append(("Ordem: " + recorte.rotulo(recorte.ORDENS, r.ordem), ("ordem",)))
+    return [{"rotulo": rotulo, "url": _sem(get, *chaves)} for rotulo, chaves in fichas]
+
+
+def _grupos_por_mes(oficios: list, ordem: str, pagina) -> None:
+    """Cabeçalho de mês com quantos ofícios do mês estão nesta página (LP-26). O grupo que
+    continua na página vizinha diz "nesta página" — a conta não finge ser do mês todo."""
+    por_saida = ordem in ("saida", "-saida")
+
+    def chave(o):
+        if por_saida:
+            return timezone.localtime(o.primeira_saida).strftime("%Y-%m") if o.primeira_saida \
+                else ""
+        return o.data_oficio.strftime("%Y-%m")
+
+    grupos: list[list] = []
+    for o in oficios:
+        if grupos and chave(grupos[-1][0]) == chave(o):
+            grupos[-1].append(o)
+        else:
+            grupos.append([o])
+    for i, grupo in enumerate(grupos):
+        parcial = (i == 0 and pagina.has_previous()) or (
+            i == len(grupos) - 1 and pagina.has_next())
+        grupo[0].grupo = {"quantidade": len(grupo), "parcial": parcial}
+
+
 @require_GET
 @vary_on_headers("HX-Request", "HX-Target")  # senão o "Voltar" do navegador reusa o fragmento
 def lista(request: HttpRequest) -> HttpResponse:
     if not policies.pode_listar(request.user):
         raise PermissionDenied
+    if (antigo := _endereco_antigo(request)) is not None:
+        return antigo
     base = policies.oficios_visiveis(request.user)
-    qs, situacao, termo, escopo, avancados, ordem = _recorte_da_lista(request, base)
+    anos = queries.anos_dos_numeros(base)
+    r = _recorte_da_lista(request, base, anos)
     # Leituras do termo ("26" é número de ofício? protocolo?) com quantos ofícios cada uma
-    # traria: a tela oferece o refino em vez de despejar tudo o que casou por acaso.
-    leituras = dominio_busca.ler(termo, timezone.localdate().year)
-    contagem_leituras = queries.contar_leituras(
-        queries.aplicar_filtro_situacao(base, situacao), leituras) if leituras else {}
+    # traria dentro do recorte de agora: a tela oferece o refino em vez de despejar tudo o
+    # que casou por acaso.
+    leituras = dominio_busca.ler(r.termo, timezone.localdate().year)
+    contagem_leituras = queries.contar_leituras(queries.aplicar_recorte(
+        queries.aplicar_filtros_avancados(base, r.avancados.validos), r.aba, r.documento),
+        leituras) if leituras else {}
     refinos = [
         {"escopo": leitura.escopo, "rotulo": leitura.rotulo,
          "quantidade": contagem_leituras.get(leitura.escopo, 0)}
         for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
     ]
-    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    refino_atual = next((x for x in refinos if x["escopo"] == r.escopo), None)
+    pagina = Paginator(r.qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
     for o in pagina.object_list:  # o menu de cada linha vem da política, por objeto
         o.acoes = policies.acoes_do_oficio(  # type: ignore[attr-defined]
             request.user, o, com_exclusao=True)
-    filtros = request.GET.copy()
+    _grupos_por_mes(pagina.object_list, r.ordem, pagina)
+    contagens = queries.contagens_do_recorte(
+        base, r.filtrado if (r.termo or r.avancados.validos) else None, r.aba, r.documento)
+    get = request.GET
+    filtros = get.copy()
     filtros.pop("pagina", None)
-    # As abas trocam só a situação: tudo o mais que a pessoa filtrou continua valendo.
-    das_abas = filtros.copy()
-    das_abas.pop("situacao", None)
-    # As fichas de refino trocam só o escopo da busca.
-    do_refino = filtros.copy()
-    do_refino.pop("escopo", None)
+    fichas = _fichas(get, r, refino_atual)
     contexto = {
         "page_obj": pagina,
         "oficios": pagina.object_list,
-        "contagens": queries.contagens(base),
-        "situacao": situacao,
-        "termo": termo,
-        "ordem": ordem,
-        "escopo": escopo,
+        "contagens": contagens,
+        # As abas trocam só a aba: tudo o mais que a pessoa filtrou continua valendo.
+        "abas": [(chave, rotulo, f"aba-{chave or 'todos'}", _trocar(get, "aba", chave))
+                 for chave, rotulo in recorte.ABAS],
+        "documentos": [(chave, rotulo, f"doc-{chave or 'todos'}")
+                       for chave, rotulo in recorte.DOCUMENTOS],
+        "ordens": recorte.ORDENS,
+        "aba": r.aba,
+        "documento": r.documento,
+        "termo": r.termo,
+        "ordem": r.ordem,
+        "escopo": r.escopo,
+        "por_saida": r.ordem in ("saida", "-saida"),
+        "tem_filtro": r.tem_filtro,
         # Outra tela mandou abrir a janela de um ofício (roteiros → "usado em…"): ela já
         # vai desenhada no HTML, para abrir pronta em vez de piscar o esqueleto.
         **_resumo_pedido(request),
         "refinos": refinos,
-        "refino_atual": next((r for r in refinos if r["escopo"] == escopo), None),
+        "refino_atual": refino_atual,
+        # Uma leitura só também aparece quando a busca ampla não achou nada ("1234" não é
+        # protocolo para a busca ampla, que pede 5 dígitos, mas é "Protocolo com 1234").
+        "mostrar_refino": not r.escopo and (len(refinos) > 1 or (
+            bool(refinos) and not pagina.paginator.count)),
+        "fichas": fichas,
+        "filtros_na_gaveta": r.avancados.ativos + (r.ordem != recorte.ORDEM_PADRAO),
+        # "Limpar" nunca apaga a busca nem a aba (F8); cada um diz o que tira.
+        "url_limpar_tudo": _sem(get, so=("q", "aba")),
+        "url_limpar_gaveta": _sem(get, "ordem", *FiltrosOficio.base_fields),
+        "url_limpar_busca": _sem(get, "q", "escopo"),
+        "url_ver_todos": reverse("viagens:oficios"),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
-        "querystring_abas": das_abas.urlencode(),
-        "querystring_refino": (do_refino.urlencode() + "&") if do_refino else "",
-        "avancados": avancados,
-        "abas": [("", "Todos", "todos")] + [
-            (chave, rotulo, chave) for chave, (rotulo, _) in queries.FILTROS_SITUACAO.items()],
+        "querystring_refino": _sem(get, "escopo").partition("?")[2],
+        "avancados": r.avancados,
         "pode_criar": policies.pode_criar(request.user),
         "pode_editar_oficios": policies.edita_oficios(request.user),
         "migalhas": _migalhas(("Ofícios", "")),

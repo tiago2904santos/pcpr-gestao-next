@@ -17,6 +17,7 @@ from django.urls import reverse
 from gestao.plataforma import conflitos as agenda_conflitos
 from gestao.plataforma.conflitos import Conflito, Consulta, periodo_de_datas
 
+from .enderecos import url_na_lista
 from .models import Oficio, OrdemServico, TermoAutorizacao, Trecho, Viajante
 from .queries import trechos_de, viajantes_de
 
@@ -43,7 +44,7 @@ def _oficios(c: Consulta) -> list[Conflito]:
         base = {"no_documento": f"no {documento}", "documento": documento, "inicio": o._ini,
                 "fim": max(o._ini, o._fim), "local": ", ".join(destinos[:3]),
                 "url": (reverse("viagens:editar", args=[o.pk]) if o.editavel
-                        else f"{reverse('viagens:oficios')}?q={o.numero_formatado}"),
+                        else url_na_lista(o)),
                 "chave": ("oficio", o.pk)}
         for v in o.viajantes.all():
             if v.servidor_id in c.servidores:

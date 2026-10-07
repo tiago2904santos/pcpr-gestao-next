@@ -1,0 +1,10 @@
+{% comment %}
+Contagem e Exportar na barra fixa (OOB na busca ao vivo: antes ficavam com o número e o
+link da carga da página). Filtrado: "N de M ofícios" — M é a aba sem busca nem filtros;
+sem filtro, a aba já diz o total e a barra diz a página.
+{% endcomment %}
+<div class="barra-acoes__conteudo" id="barra-oficios"{% if oob %} hx-swap-oob="true"{% endif %}>
+  <p class="barra-acoes__status" role="status">{% if tem_filtro %}{{ page_obj.paginator.count }} de {{ contagens.universo|pluralizar:"ofício,ofícios" }}{% elif page_obj.paginator.num_pages > 1 %}Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}{% else %}{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% endif %}</p>
+  {# Exportar leva exatamente o recorte da tela (aba, documento, busca, filtros e ordem). #}
+  {% if page_obj.paginator.count %}<a class="botao" href="{% url 'viagens:exportar_oficios' %}?{{ querystring_base }}" download>{% icone "download" %}<span>Exportar <span class="barra-acoes__extra">planilha</span></span></a>{% endif %}
+</div>

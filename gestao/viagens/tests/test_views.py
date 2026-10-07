@@ -77,9 +77,12 @@ class TestListaEPainel:
         r = operador.get(reverse("viagens:painel"))
         assert r.status_code == 200 and "Para concluir" in r.content.decode()
 
-    @pytest.mark.parametrize("filtro", ["", "rascunho", "emitido", "proximos", "cancelado"])
-    def test_abas_de_situacao(self, operador, filtro):
-        r = operador.get(reverse("viagens:oficios"), {"situacao": filtro})
+    @pytest.mark.parametrize("filtro", [{}, {"aba": "futuros"}, {"aba": "andamento"},
+                                        {"aba": "prestadas"}, {"aba": "cancelados"},
+                                        {"documento": "rascunho"}, {"documento": "emitido"},
+                                        {"documento": "arquivado"}, {"aba": "inventada"}])
+    def test_abas_e_documento(self, operador, filtro):
+        r = operador.get(reverse("viagens:oficios"), filtro)
         assert r.status_code == 200
 
     def test_busca_e_parcial_htmx(self, operador, cenario):
@@ -128,19 +131,18 @@ class TestListaEPainel:
 
     def test_filtro_avancado_por_protocolo(self, operador, cenario):
         """O protocolo é comparado só pelos dígitos: a pontuação é da tela."""
-        html = operador.get(reverse("viagens:oficios"),
-                            {"protocolo": "12.345"}).content.decode()
-        assert "1 ofício" in html and "Arapongas" in html
+        r = operador.get(reverse("viagens:oficios"), {"protocolo": "12.345"})
+        assert len(_numeros_da_lista(r)) == 1 and "Arapongas" in r.content.decode()
 
     def test_filtro_avancado_por_veiculo_sem_transporte(self, operador, cenario):
-        html = operador.get(reverse("viagens:oficios"), {"veiculo": "sem"}).content.decode()
-        assert "1 ofício" in html and "Sem transporte" in html
+        r = operador.get(reverse("viagens:oficios"), {"veiculo": "sem"})
+        assert len(_numeros_da_lista(r)) == 1 and "Sem transporte" in r.content.decode()
 
     def test_filtro_avancado_por_veiculo_pela_descricao(self, operador, cenario):
         """Ônibus, caminhão e unidade móvel não são campo no cadastro: valem pelo que está
         escrito no modelo da viatura ou na descrição do transporte."""
-        html = operador.get(reverse("viagens:oficios"), {"veiculo": "onibus"}).content.decode()
-        assert "1 ofício" in html and "Ônibus de linha" in html
+        r = operador.get(reverse("viagens:oficios"), {"veiculo": "onibus"})
+        assert len(_numeros_da_lista(r)) == 1 and "Ônibus de linha" in r.content.decode()
 
     def test_filtro_avancado_por_valor_de_diarias(self, operador, cenario):
         emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
@@ -158,14 +160,14 @@ class TestListaEPainel:
     def test_abas_preservam_os_filtros_avancados(self, operador, cenario):
         html = operador.get(reverse("viagens:oficios"),
                             {"protocolo": "12345"}).content.decode()
-        assert "situacao=emitido&amp;protocolo=12345" in html
+        assert "?aba=cancelados&amp;protocolo=12345" in html
 
     def test_sem_resultado_mostra_estado_vazio(self, operador):
         r = operador.get(reverse("viagens:oficios"), {"q": "zzz-inexistente"})
         assert "Nenhum ofício encontrado" in r.content.decode()
 
     def test_lista_tem_orcamento_de_consultas(self, operador, django_assert_max_num_queries):
-        with django_assert_max_num_queries(16):  # 16: +1 do sino (avisos não lidos)
+        with django_assert_max_num_queries(19):  # +1 sino, +1 anos do número, +1 contadores
             operador.get(reverse("viagens:oficios"))
 
     def test_busca_global_json(self, operador, cenario):
@@ -680,7 +682,7 @@ class TestProvasDaRevisaoDeUX:
                          HTTP_HX_REQUEST="true", HTTP_HX_TARGET="resultados")
         html = r.content.decode()
         assert 'id="abas-filtro"' in html and 'hx-swap-oob="true"' in html
-        assert "?situacao=rascunho&amp;q=arapongas&amp;ordem=saida" in html
+        assert "?aba=futuros&amp;q=arapongas&amp;ordem=saida" in html
 
     def test_adicionar_destino_e_erro_marcam_alteracoes_nao_salvas(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
@@ -930,7 +932,7 @@ class TestFiltroPorDataDoOficio:
     def test_combina_com_situacao_busca_e_ordem(self, operador, cenario):
         ano, a, b, c = self._com_datas(cenario)
         filtros = {"criacao_de": f"01/01/{ano}", "criacao_ate": f"31/01/{ano}",
-                   "situacao": "rascunho", "ordem": "criacao"}
+                   "documento": "rascunho", "ordem": "criacao"}
         numeros = self._numeros(operador.get(reverse("viagens:oficios"), filtros))
         assert numeros[:3] == [a.numero_formatado, b.numero_formatado, c.numero_formatado]
         numeros = self._numeros(operador.get(reverse("viagens:oficios"),
@@ -939,7 +941,8 @@ class TestFiltroPorDataDoOficio:
         r = operador.get(reverse("viagens:oficios"),
                          {**filtros, "q": b.numero_formatado, "escopo": "numero"})
         assert self._numeros(r) == [b.numero_formatado]
-        r = operador.get(reverse("viagens:oficios"), {**filtros, "situacao": "cancelado"})
+        r = operador.get(reverse("viagens:oficios"), {**filtros, "documento": "",
+                                                      "aba": "cancelados"})
         assert a.numero_formatado not in self._numeros(r)
 
     def test_periodo_conta_como_um_filtro_ativo(self):
@@ -964,12 +967,12 @@ class TestCicloDeVidaNaTela:
         html = operador.get(reverse("viagens:oficios")).content.decode()
         assert 'id="dialogo-motivo"' in html and "Arquivar" in html
         assert "Reativar ofício" not in html  # operador não reativa
-        html = operador.get(reverse("viagens:oficios") + "?situacao=cancelado").content.decode()
-        assert "Reativar ofício" not in html
+        html = operador.get(reverse("viagens:oficios") + "?aba=cancelados").content.decode()
+        assert 'id="dialogo-motivo"' in html and "Reativar ofício" not in html
 
     def test_gestor_reativa_pela_tela_e_sem_justificativa_volta_com_erro(self, gestor, cenario):
         cancelado = Oficio.objects.get(pk=cenario.ids["oficio_cancelado"])
-        html = gestor.get(reverse("viagens:oficios") + "?situacao=cancelado").content.decode()
+        html = gestor.get(reverse("viagens:oficios") + "?aba=cancelados").content.decode()
         assert f'data-pedir-motivo="{reverse("viagens:reativar", args=[cancelado.pk])}"' in html
         r = gestor.post(reverse("viagens:reativar", args=[cancelado.pk]), {"justificativa": ""},
                         follow=True)
@@ -999,10 +1002,10 @@ class TestCicloDeVidaNaTela:
     def test_arquivar_leva_para_a_aba_arquivados(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
         r = operador.post(reverse("viagens:arquivar", args=[oficio.pk]))
-        assert "situacao=arquivado" in r["Location"]
+        assert "documento=arquivado" in r["Location"]
         lista = operador.get(reverse("viagens:oficios")).content.decode()
         assert f">{oficio.numero_formatado}<" not in lista
-        arquivados = operador.get(reverse("viagens:oficios") + "?situacao=arquivado")
+        arquivados = operador.get(reverse("viagens:oficios") + "?documento=arquivado")
         assert f">{oficio.numero_formatado}<" in arquivados.content.decode()
         assert "Desarquivar" in arquivados.content.decode()
 
@@ -1169,7 +1172,7 @@ class TestBaixarDocx:
 class TestRevisaoDeUXDoCicloDeVida:
     def test_arquivar_volta_para_a_lista_onde_estava(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
-        voltar = reverse("viagens:oficios") + "?situacao=emitido&pagina=1"
+        voltar = reverse("viagens:oficios") + "?documento=emitido&pagina=1"
         r = operador.post(reverse("viagens:arquivar", args=[oficio.pk]), {"voltar": voltar})
         assert r["Location"] == voltar
         r = operador.post(reverse("viagens:desarquivar", args=[oficio.pk]),
@@ -1194,7 +1197,7 @@ class TestRevisaoDeUXDoCicloDeVida:
         assert r.status_code == 422 and "Escreva a justificativa" in r.content.decode()
 
     def test_aba_arquivados_vazia_tem_mensagem_propria(self, operador, cenario):
-        html = operador.get(reverse("viagens:oficios") + "?situacao=arquivado").content.decode()
+        html = operador.get(reverse("viagens:oficios") + "?documento=arquivado").content.decode()
         assert "Nenhum ofício arquivado" in html
 
 
@@ -1342,3 +1345,296 @@ class TestLinhaDaLista:
         assert ">+2</span>" in html and "começa hoje" in html
         assert f"{hoje:%d/%m} a {hoje + timedelta(days=2):%d/%m/%Y}" in html
         assert "registro__meta--termo" in html and ">Avulso<" in html
+
+
+# ---------------------------------------------------------------- Lote 2 da lista (LP-20…27)
+def _numeros_da_lista(resposta) -> list[str]:
+    return re.findall(r'class="placa__numero">([^<]+)<', resposta.content.decode())
+
+
+def _contagem(html: str, chave: str) -> int:
+    """Contador de uma aba (`aba-<chave>`) ou do filtro Documento (`doc-<chave>`)."""
+    achado = re.search(rf'id="conta-{chave}"[^>]*>(\d+)<', html)
+    assert achado, f"contador {chave} não encontrado"
+    return int(achado.group(1))
+
+
+class TestAbasTemporaisEDocumento:
+    """LP-20 (D1/D2): abas pelo tempo da viagem, com a regra exata da referência, e a
+    situação do documento como filtro de um clique."""
+
+    def _ids(self, cenario, *chaves):
+        return [Oficio.objects.get(pk=cenario.ids[c]).numero_formatado for c in chaves]
+
+    def test_que_vao_acontecer_inclui_rascunho_sem_data(self, operador, cenario):
+        emitido, rascunho, vazio, cancelado = self._ids(
+            cenario, "oficio_emitido", "oficio_rascunho", "oficio_vazio", "oficio_cancelado")
+        numeros = _numeros_da_lista(operador.get(reverse("viagens:oficios"), {"aba": "futuros"}))
+        assert {emitido, rascunho, vazio} <= set(numeros) and cancelado not in numeros
+        numeros = _numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                 {"aba": "cancelados"}))
+        assert numeros == [cancelado]
+
+    def test_em_andamento_e_realizados_pela_primeira_saida(self, operador, cenario):
+        from gestao.viagens.models import Trecho
+
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        ontem = timezone.now() - timedelta(days=1)
+        Trecho.objects.filter(oficio=rascunho, ordem=1).update(saida_em=ontem)
+        andamento = _numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                   {"aba": "andamento"}))
+        futuros = _numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                 {"aba": "futuros"}))
+        assert andamento == [rascunho.numero_formatado]
+        assert rascunho.numero_formatado not in futuros
+
+    def test_documento_filtra_e_arquivado_so_quando_pedido(self, operador, cenario):
+        emitido, rascunho, vazio = self._ids(cenario, "oficio_emitido", "oficio_rascunho",
+                                             "oficio_vazio")
+        numeros = _numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                 {"documento": "rascunho"}))
+        assert set(numeros) == {rascunho, vazio}
+        operador.post(reverse("viagens:arquivar", args=[cenario.ids["oficio_emitido"]]))
+        assert emitido not in _numeros_da_lista(operador.get(reverse("viagens:oficios")))
+        arquivados = operador.get(reverse("viagens:oficios"), {"documento": "arquivado"})
+        assert _numeros_da_lista(arquivados) == [emitido]
+        # Arquivado continua no seu tempo: a viagem ainda vai acontecer.
+        r = operador.get(reverse("viagens:oficios"),
+                         {"documento": "arquivado", "aba": "futuros"})
+        assert _numeros_da_lista(r) == [emitido]
+
+    def test_contadores_acompanham_a_busca(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"), {"q": "arapongas"}).content.decode()
+        assert _contagem(html, "aba-todos") == 1 and _contagem(html, "aba-futuros") == 1
+        assert _contagem(html, "aba-cancelados") == 0
+        assert _contagem(html, "doc-todos") == 1 and _contagem(html, "doc-emitido") == 1
+        assert _contagem(html, "doc-rascunho") == 0
+
+    def test_contadores_ignoram_so_a_propria_dimensao(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"),
+                            {"documento": "rascunho"}).content.decode()
+        # Abas contam dentro de Rascunhos…
+        assert _contagem(html, "aba-todos") == 2 and _contagem(html, "aba-futuros") == 2
+        assert _contagem(html, "aba-cancelados") == 0
+        # …e o Documento conta dentro da aba (Todos), sem se filtrar por ele mesmo.
+        assert _contagem(html, "doc-todos") == 4 and _contagem(html, "doc-rascunho") == 2
+        assert _contagem(html, "doc-emitido") == 1 and _contagem(html, "doc-arquivado") == 0
+        html = operador.get(reverse("viagens:oficios"),
+                            {"aba": "cancelados", "protocolo": "999"}).content.decode()
+        assert _contagem(html, "doc-todos") == 0 and _contagem(html, "aba-todos") == 0
+
+    def test_busca_ao_vivo_atualiza_os_contadores_sem_trocar_o_controle(self, operador):
+        r = operador.get(reverse("viagens:oficios"), {"q": "arapongas"},
+                         HTTP_HX_REQUEST="true", HTTP_HX_TARGET="resultados")
+        html = r.content.decode()
+        assert 'id="abas-filtro"' in html and re.search(
+            r'id="conta-doc-emitido" hx-swap-oob="true"[^>]*>1<', html)
+        assert "?aba=futuros&amp;q=arapongas" in html
+
+    @pytest.mark.parametrize(("antigo", "esperado"), [
+        ({"situacao": "rascunho", "q": "x"}, {"documento": "rascunho", "q": "x"}),
+        ({"situacao": "emitido"}, {"documento": "emitido"}),
+        ({"situacao": "arquivado"}, {"documento": "arquivado"}),
+        ({"situacao": "cancelado", "ordem": "saida"}, {"aba": "cancelados", "ordem": "saida"}),
+        ({"situacao": "proximos"}, {"aba": "futuros"}),
+        ({"situacao": "prestadas"}, {"aba": "prestadas"}),
+    ])
+    def test_enderecos_antigos_continuam_funcionando(self, operador, antigo, esperado):
+        from urllib.parse import parse_qs, urlsplit
+
+        r = operador.get(reverse("viagens:oficios"), antigo)
+        assert r.status_code == 302
+        destino = urlsplit(r["Location"])
+        assert destino.path == reverse("viagens:oficios")
+        assert {k: v[0] for k, v in parse_qs(destino.query).items()} == esperado
+
+    def test_links_de_outras_telas_usam_o_vocabulario_novo(self, operador, cenario):
+        painel = operador.get(reverse("viagens:painel")).content.decode()
+        assert "situacao=" not in painel and "?documento=rascunho" in painel
+        operador.post(reverse("viagens:arquivar", args=[cenario.ids["oficio_emitido"]]))
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        r = operador.get(reverse("painel:busca"), {"q": oficio.numero_formatado})
+        url = r.json()["resultados"][0]["url"]
+        assert "documento=arquivado" in url
+        assert oficio.numero_formatado in "".join(
+            _numeros_da_lista(operador.get(url)))
+
+
+class TestGavetaEFichas:
+    """LP-21 (D6): barra Busca · Documento · Filtros (n); gaveta fechada; fichas removíveis;
+    "Limpar" que não apaga a busca nem a aba (F8)."""
+
+    def test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade(self, operador):
+        html = operador.get(reverse("viagens:oficios"),
+                            {"protocolo": "12345", "ordem": "numero"}).content.decode()
+        assert re.search(r'<details class="filtros__mais" id="filtros-mais"\s*>', html)
+        assert re.search(r'id="conta-filtros"[^>]*>2<', html)  # protocolo + ordem
+
+    def test_ordem_e_ano_moram_na_gaveta_com_rotulos_honestos(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "Saída, mais antiga primeiro" in html and "(próximas)" not in html
+        ano = timezone.localdate().year
+        assert f'<option value="{ano}"' in html and "Ano do número" in html
+        assert "<legend" in html and "Diárias (R$)" in html
+
+    def test_filtro_por_ano_do_numero(self, operador, cenario):
+        ano = timezone.localdate().year
+        assert len(_numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                  {"ano": str(ano)}))) == 4
+        # Ano que não existe é ignorado sem derrubar os outros filtros.
+        r = operador.get(reverse("viagens:oficios"), {"ano": "1999", "protocolo": "12.345"})
+        assert len(_numeros_da_lista(r)) == 1
+
+    def test_fichas_removem_um_filtro_de_cada_vez(self, operador, cenario):
+        from html import unescape
+        from urllib.parse import parse_qs, urlsplit
+
+        html = operador.get(reverse("viagens:oficios"), {
+            "q": "a", "aba": "futuros", "documento": "emitido", "protocolo": "12345",
+            "ordem": "numero"}).content.decode()
+        fichas = {rotulo: unescape(href) for href, rotulo in re.findall(
+            r'<a class="ficha__remover" href="([^"]+)"[^>]*aria-label="Remover ([^"]+)"', html)}
+        assert set(fichas) >= {"Documento: Emitidos", "Protocolo: 12345",
+                               "Ordem: Número, mais antigo primeiro"}
+        sem_protocolo = parse_qs(urlsplit(fichas["Protocolo: 12345"]).query)
+        assert "protocolo" not in sem_protocolo
+        assert sem_protocolo["q"] == ["a"] and sem_protocolo["aba"] == ["futuros"]
+        assert sem_protocolo["documento"] == ["emitido"]
+        limpar = re.search(r'filtros-ativos__limpar" href="([^"]+)">Limpar tudo', html)
+        assert limpar
+        tudo = parse_qs(urlsplit(unescape(limpar.group(1))).query)
+        assert tudo == {"q": ["a"], "aba": ["futuros"]}
+
+    def test_ficha_do_escopo_da_busca(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"),
+                            {"q": "456", "escopo": "protocolo"}).content.decode()
+        assert 'aria-label="Remover Buscando em: Protocolo com 456"' in html
+
+
+class TestBuscaDaLista:
+    """LP-22: placa na busca ampla (F1), destino sem a sede (F2), motivo sem acento (F4),
+    refino mesmo com uma leitura quando a ampla vem vazia."""
+
+    def test_placa_na_busca_ampla(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        for termo in ("ABC1D23", "abc-1d23"):
+            numeros = _numeros_da_lista(operador.get(reverse("viagens:oficios"), {"q": termo}))
+            assert set(numeros) == {emitido.numero_formatado, rascunho.numero_formatado}
+
+    def test_destino_nao_casa_a_volta_a_sede(self, operador, cenario):
+        """Todos voltam a Curitiba (sede): buscar "curitiba" não pode trazer todos."""
+        assert _numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                              {"q": "curitiba"})) == []
+        r = operador.get(reverse("viagens:oficios"), {"q": "curitiba", "escopo": "destino"})
+        assert _numeros_da_lista(r) == []
+        assert len(_numeros_da_lista(operador.get(reverse("viagens:oficios"),
+                                                  {"q": "maringa"}))) == 1
+
+    def test_motivo_sem_acento(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        r = operador.get(reverse("viagens:oficios"), {"q": "conducao da unidade"})
+        assert _numeros_da_lista(r) == [emitido.numero_formatado]
+
+    def test_refino_com_uma_leitura_quando_a_ampla_vem_vazia(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios"), {"q": "1234"}).content.decode()
+        assert "Nenhum ofício encontrado" in html
+        assert "Protocolo com 1234" in html and "escopo=protocolo" in html
+
+    def test_placeholder_diz_onde_procura(self, operador):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        achado = re.search(r'id="busca-oficios"[^>]*placeholder="([^"]+)"', html)
+        assert achado
+        for campo in ("Número", "protocolo", "destino", "servidor", "placa", "motivo"):
+            assert campo in achado.group(1)
+
+
+class TestVaziosEContagens:
+    """LP-23 (F5/F8) e LP-26: vazio certo para qualquer filtro, ações que limpam só o que
+    dizem, contagens sem repetição."""
+
+    def test_vazio_so_com_filtro_da_gaveta(self, operador, cenario):
+        from html import unescape
+        from urllib.parse import parse_qs, urlsplit
+
+        html = operador.get(reverse("viagens:oficios"), {
+            "q": "arapongas", "aba": "futuros", "diarias_de": "99999999"}).content.decode()
+        assert "Nenhum ofício encontrado" in html and "Crie o primeiro" not in html
+        acoes = {rot: parse_qs(urlsplit(unescape(href)).query) for href, rot in re.findall(
+            r'<a class="botao[^"]*" href="([^"]+)"[^>]*>(?:<svg.*?</svg>)?([^<]+)</a>', html)}
+        assert acoes["Limpar filtros"] == {"q": ["arapongas"], "aba": ["futuros"]}
+        assert acoes["Limpar busca"] == {"aba": ["futuros"], "diarias_de": ["99999999"]}
+        assert acoes["Ver todos"] == {}
+
+    def test_h2_so_para_leitor_sem_busca_e_barra_com_n_de_m(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert re.search(r'<h2 class="sr-only" id="titulo-resultados">', html)
+        html = operador.get(reverse("viagens:oficios"), {"documento": "rascunho"}).content.decode()
+        assert "2 de 4 ofícios" in html
+        html = operador.get(reverse("viagens:oficios"), {"q": "arapongas"}).content.decode()
+        assert "Resultados para “arapongas”" in html and "1 de 4 ofícios" in html
+
+    def test_cabecalho_do_mes_conta_o_grupo(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert re.search(r'class="registros__grupo-conta">(?:<span class="sr-only">[^<]*</span>)?'
+                         r"4<span class=\"sr-only\"> ofícios</span></span>", html)
+
+
+class TestVoltarVivoEErroDaBusca:
+    """LP-23/LP-24: o diálogo de motivo pega o endereço da hora (busca HTMX muda a URL) e a
+    busca ao vivo tem para onde mostrar um erro."""
+
+    def test_dialogos_marcam_o_voltar_para_atualizar(self, operador):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert re.search(r'<input type="hidden" name="voltar" value="[^"]*" data-voltar-vivo>',
+                         html)
+        assert 'id="erro-busca"' in html and "Tentar de novo" in html
+
+
+class TestConsultasDaListaLote2:
+    """LP-25: consultas constantes com 20 e 200 ofícios, com busca, filtros e contadores."""
+
+    @pytest.mark.parametrize("quantidade", [20, 200])
+    def test_consultas_constantes(self, operador, cenario, quantidade,
+                                  django_assert_max_num_queries):
+        usuario = cenario.usuarios["operador"]
+        for _ in range(quantidade - 4):
+            services.criar_rascunho(usuario)
+        for params in ({}, {"q": "a"}, {"documento": "rascunho", "aba": "futuros",
+                                          "protocolo": "1", "ano": "2026", "ordem": "saida"}):
+            with django_assert_max_num_queries(20):
+                assert operador.get(reverse("viagens:oficios"), params).status_code == 200
+        with django_assert_max_num_queries(12):
+            assert operador.get(reverse("viagens:exportar_oficios")).status_code == 200
+
+
+class TestPlanilhaLote2:
+    """LP-27: Situação "Arquivado", tipo com a marca e o mesmo recorte da tela."""
+
+    def _ler(self, resposta):
+        from io import BytesIO
+
+        from openpyxl import load_workbook
+
+        return list(load_workbook(BytesIO(resposta.content)).active.values)
+
+    def test_arquivado_e_recorte_novo(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        operador.post(reverse("viagens:arquivar", args=[emitido.pk]))
+        linhas = self._ler(operador.get(reverse("viagens:exportar_oficios"),
+                                        {"documento": "arquivado"}))
+        assert [(linha[0], linha[3]) for linha in linhas[1:]] == [
+            (emitido.numero_formatado, "Arquivado")]
+        linhas = self._ler(operador.get(reverse("viagens:exportar_oficios")))
+        assert emitido.numero_formatado not in {linha[0] for linha in linhas[1:]}
+        linhas = self._ler(operador.get(reverse("viagens:exportar_oficios"),
+                                        {"aba": "cancelados"}))
+        assert {linha[3] for linha in linhas[1:]} == {"Cancelado"}
+
+    def test_tipo_com_a_marca(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        Oficio.objects.filter(pk=rascunho.pk).update(marcador="complementar")
+        linhas = self._ler(operador.get(reverse("viagens:exportar_oficios"),
+                                        {"documento": "rascunho"}))
+        tipos = {linha[0]: linha[4] for linha in linhas[1:]}
+        assert tipos[rascunho.numero_formatado].endswith("· Complementar")

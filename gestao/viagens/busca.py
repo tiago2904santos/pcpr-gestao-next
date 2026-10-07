@@ -10,6 +10,7 @@ from django.urls import reverse
 from gestao.plataforma.busca import Fonte, Resultado, registrar_fonte
 
 from . import policies
+from .enderecos import url_na_lista
 from .services import buscar_por_texto
 
 
@@ -20,7 +21,7 @@ def _oficios(usuario, termo: str, limite: int) -> list[Resultado]:
         # Emitido ou cancelado não tem folha para abrir: a busca leva à lista filtrada
         # nele, onde a janela de resumo mostra tudo.
         url = (reverse("viagens:editar", args=[o.pk]) if o.editavel
-               else f"{reverse('viagens:oficios')}?q={o.numero_formatado}")
+               else url_na_lista(o))
         saida.append(Resultado(f"Ofício {o.numero_formatado}", url,
                                f"{o.get_situacao_display()} · {o.motivo[:60]}", "file-text"))
     return saida

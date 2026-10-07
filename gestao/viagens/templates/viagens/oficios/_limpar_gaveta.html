@@ -1,0 +1,2 @@
+{# "Limpar" da gaveta: tira o que mora nela (filtros e ordem) — busca, aba e documento ficam (F8). #}
+<a class="botao botao--texto" id="limpar-gaveta" href="{{ url_limpar_gaveta }}"{% if oob %} hx-swap-oob="true"{% endif %}{% if not filtros_na_gaveta %} hidden{% endif %}>{% icone "x" %}Limpar filtros</a>

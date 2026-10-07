@@ -13,6 +13,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from . import assinados, policies, termos
+from .enderecos import url_na_lista
 from .models import Oficio, OrdemServico, TermoAutorizacao, ViaAssinada
 
 
@@ -41,8 +42,7 @@ def _alvo(request: HttpRequest, tipo: str, pk: int, chave: str) -> assinados.Alv
 def destino_padrao(alvo: assinados.Alvo) -> str:
     dono = alvo.dono
     if isinstance(dono, Oficio):
-        aba = "situacao=arquivado&" if dono.arquivado_em else ""
-        return f"{reverse('viagens:oficios')}?{aba}q={dono.numero_formatado}&resumo={dono.pk}"
+        return url_na_lista(dono, resumo=dono.pk)
     if isinstance(dono, TermoAutorizacao):
         return f"{reverse('viagens:editar_termo', args=[dono.pk])}?previa={alvo.chave}#documentos"
     return f"{reverse('viagens:editar_ordem', args=[dono.pk])}#documento"

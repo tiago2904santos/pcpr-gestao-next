@@ -1,0 +1,2 @@
+{# Quantos filtros da gaveta valem (ordem fora do padrão conta). OOB na busca ao vivo. #}
+<span class="filtros__mais-conta" id="conta-filtros"{% if oob %} hx-swap-oob="true"{% endif %}{% if not filtros_na_gaveta %} hidden{% endif %}>{{ filtros_na_gaveta }}</span>

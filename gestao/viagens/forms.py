@@ -50,12 +50,13 @@ def _attrs(classe: str = "entrada", **extra) -> dict:
 
 
 class FiltrosOficio(forms.Form):
-    """Gaveta "Mais filtros" da lista de ofícios — o que a busca por texto não resolve.
+    """Gaveta "Filtros" da lista de ofícios — o que a busca por texto não resolve.
 
-    Destino, servidor e número ficaram na busca de cima (ela já pergunta "é destino ou
-    servidor?"); aqui ficam os cortes: período, protocolo, veículo e valor de diárias.
-    Tudo é opcional, e valor inválido é ignorado em vez de dar erro — uma lista nunca deve
-    recusar a busca de quem está procurando.
+    Destino, servidor, placa e número ficaram na busca de cima (ela já pergunta "é destino
+    ou servidor?"); aqui ficam os cortes: período, data do ofício, ano do número, protocolo,
+    veículo e valor de diárias (a ordem também mora na gaveta, mas é outro parâmetro).
+    Tudo é opcional, e valor inválido é ignorado **sozinho** em vez de dar erro ou derrubar
+    os outros — uma lista nunca deve recusar a busca de quem está procurando.
     """
 
     # O período é um campo só na tela (<pc-data data-periodo>): estes dois levam as pontas.
@@ -68,9 +69,13 @@ class FiltrosOficio(forms.Form):
                                  widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
     criacao_ate = forms.DateField(required=False, input_formats=FORMATOS_DATA,
                                   widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    # Ano do NÚMERO (≠ data do ofício: rascunho de dezembro emitido em janeiro). As opções
+    # são os anos que existem na numeração; outro ano é ignorado.
+    ano = forms.TypedChoiceField(label="Ano do número", required=False, coerce=int,
+                                 empty_value=None, widget=Selecao(), choices=[("", "Qualquer")])
     protocolo = forms.CharField(label="Protocolo", required=False, max_length=20,
                                 widget=forms.TextInput(attrs=_attrs(
-                                    inputmode="numeric", placeholder="00.366.136-8")))
+                                    inputmode="numeric", placeholder="Dígitos do protocolo")))
     veiculo = forms.ChoiceField(
         label="Veículo", required=False, widget=Selecao(),
         choices=[("", "Qualquer"), ("unidade_movel", "Unidade móvel"), ("onibus", "Ônibus"),
@@ -87,10 +92,22 @@ class FiltrosOficio(forms.Form):
         localize=True, widget=forms.TextInput(attrs=_attrs(
             inputmode="decimal", placeholder="máximo", **{"aria-label": "Diárias até"})))
 
-    def __init__(self, *args, form_id: str | None = None, **kwargs):
+    VEICULOS: dict[str, str] = dict(veiculo.choices)  # type: ignore[arg-type]
+
+    def __init__(self, *args, form_id: str | None = None, anos: list[int] | None = None,
+                 **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["ano"].choices = [("", "Qualquer")] + [  # type: ignore[attr-defined]
+            (str(a), str(a)) for a in anos or []]
         for campo in self.fields.values():
             campo.widget.attrs["form"] = form_id or "filtros-oficios"
+
+    @property
+    def validos(self) -> dict:
+        """Os filtros que valem: os campos inválidos ficam de fora, os outros continuam."""
+        self.is_valid()
+        return {chave: valor for chave, valor in self.cleaned_data.items()
+                if valor not in (None, "")}
 
     def clean(self):
         dados = super().clean() or {}
@@ -103,9 +120,8 @@ class FiltrosOficio(forms.Form):
         return dados
 
     def _texto_do_periodo(self, de_nome: str, ate_nome: str) -> str:
-        if not self.is_valid():
-            return ""
-        de, ate = self.cleaned_data.get(de_nome), self.cleaned_data.get(ate_nome)
+        validos = self.validos
+        de, ate = validos.get(de_nome), validos.get(ate_nome)
         if not de:
             return ""
         return f"{de:%d/%m/%Y} a {ate:%d/%m/%Y}" if ate else f"{de:%d/%m/%Y}"
@@ -123,16 +139,43 @@ class FiltrosOficio(forms.Form):
     @property
     def ativos(self) -> int:
         """Quantos filtros estão valendo — o número que aparece no botão da gaveta. O
-        período conta como um só, que é como quem filtra enxerga."""
-        if not self.is_valid():
-            return 0
-        dados = dict(self.cleaned_data)
-        periodos = 0
-        for de, ate in (("saida_de", "saida_ate"), ("criacao_de", "criacao_ate")):
-            # pop dos dois sempre (um `or` deixaria a outra ponta contando sozinha)
-            pontas = [dados.pop(de, None), dados.pop(ate, None)]
-            periodos += 1 if any(pontas) else 0
-        return sum(1 for valor in dados.values() if valor not in (None, "")) + periodos
+        período (e a faixa de diárias) conta como um só, que é como quem filtra enxerga."""
+        return len(self.fichas)
+
+    @property
+    def fichas(self) -> list[tuple[str, tuple[str, ...]]]:
+        """Uma ficha por filtro valendo: o texto e os parâmetros que ela tira ao remover."""
+        validos = self.validos
+        fichas: list[tuple[str, tuple[str, ...]]] = []
+
+        def faixa(de, ate, formato) -> str:
+            if de is not None and ate is not None:
+                return f"{formato(de)} a {formato(ate)}"
+            return f"a partir de {formato(de)}" if de is not None else f"até {formato(ate)}"
+
+        def data(d) -> str:
+            return f"{d:%d/%m/%Y}"
+
+        def moeda(v) -> str:
+            inteiro, _, centavos = f"{v:,.2f}".partition(".")
+            return f"R$ {inteiro.replace(',', '.')},{centavos}"
+
+        for de, ate, rotulo, formato in (("saida_de", "saida_ate", "Saída", data),
+                                         ("criacao_de", "criacao_ate", "Data do ofício", data)):
+            if validos.get(de) or validos.get(ate):
+                fichas.append((f"{rotulo}: {faixa(validos.get(de), validos.get(ate), formato)}",
+                               (de, ate)))
+        if validos.get("ano"):
+            fichas.append((f"Ano do número: {validos['ano']}", ("ano",)))
+        if validos.get("protocolo"):
+            fichas.append((f"Protocolo: {validos['protocolo']}", ("protocolo",)))
+        if validos.get("veiculo"):
+            fichas.append((f"Veículo: {self.VEICULOS.get(validos['veiculo'], '')}",
+                           ("veiculo",)))
+        if "diarias_de" in validos or "diarias_ate" in validos:
+            fichas.append((f"Diárias: {faixa(validos.get('diarias_de'), validos.get('diarias_ate'), moeda)}",  # noqa: E501
+                           ("diarias_de", "diarias_ate")))
+        return fichas
 
 
 class AssociadoAoFormularioDoOficio:

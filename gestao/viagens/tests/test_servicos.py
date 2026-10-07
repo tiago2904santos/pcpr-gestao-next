@@ -307,9 +307,9 @@ class TestArquivar:
         assert not policies.pode_editar(operador, arquivado)
         assert not policies.pode_cancelar(operador, arquivado)
         base = policies.oficios_visiveis(operador)
-        assert not queries.aplicar_filtro_situacao(base, "").filter(pk=oficio.pk).exists()
-        assert queries.aplicar_filtro_situacao(base, "arquivado").filter(pk=oficio.pk).exists()
-        assert queries.contagens(base)["arquivado"] == 1
+        assert not queries.aplicar_recorte(base, "", "").filter(pk=oficio.pk).exists()
+        assert queries.aplicar_recorte(base, "", "arquivado").filter(pk=oficio.pk).exists()
+        assert queries.contagens_do_recorte(base, None, "", "")["doc-arquivado"] == 1
         with pytest.raises(PermissionDenied):
             services.arquivar(arquivado, operador)  # já arquivado
         volta = services.desarquivar(arquivado, operador)

@@ -13,13 +13,13 @@
 {% endblock %}
 {% block indicadores %}
   <a class="indicador" href="{% url 'viagens:oficios' %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-text" classe="icone--sm" %}Ofícios no mês</span><span class="indicador__valor">{{ indicadores.oficios_mes }}</span><span class="indicador__nota">Emitidos e em preparo, sem cancelados</span></a>
-  <a class="indicador{% if indicadores.rascunhos %} indicador--atencao{% endif %}" href="{% url 'viagens:oficios' %}?situacao=rascunho"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-pen-line" classe="icone--sm" %}Rascunhos</span><span class="indicador__valor">{{ indicadores.rascunhos }}</span><span class="indicador__nota">Aguardando conclusão</span></a>
-  <a class="indicador" href="{% url 'viagens:oficios' %}?situacao=proximos"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Viagens em 30 dias</span><span class="indicador__valor">{{ indicadores.viagens_30_dias }}</span><span class="indicador__nota">Saídas programadas</span></a>
+  <a class="indicador{% if indicadores.rascunhos %} indicador--atencao{% endif %}" href="{% url 'viagens:oficios' %}?documento=rascunho"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-pen-line" classe="icone--sm" %}Rascunhos</span><span class="indicador__valor">{{ indicadores.rascunhos }}</span><span class="indicador__nota">Aguardando conclusão</span></a>
+  <a class="indicador" href="{% url 'viagens:oficios' %}?aba=futuros&amp;ordem=saida"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "calendar" classe="icone--sm" %}Viagens em 30 dias</span><span class="indicador__valor">{{ indicadores.viagens_30_dias }}</span><span class="indicador__nota">Saídas programadas</span></a>
   <div class="indicador"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Diárias emitidas no mês</span><span class="indicador__valor">{{ indicadores.diarias_mes|moeda }}</span><span class="indicador__nota">Soma dos ofícios emitidos</span></div>
 {% endblock %}
 {% block principal %}
 <section class="cartao" aria-labelledby="t-pendentes">
-  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pendentes">Para concluir</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'viagens:oficios' %}?situacao=rascunho">Ver todos</a></div></div>
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pendentes">Para concluir</h2><div class="cartao__acoes"><a class="botao botao--sm botao--sutil" href="{% url 'viagens:oficios' %}?documento=rascunho">Ver todos</a></div></div>
   {% if pendentes %}<ul class="registros">{% for o in pendentes %}{% include "viagens/oficios/_registro.html" with vt_prefixo="r" %}{% endfor %}</ul>
   {% else %}{% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhum rascunho pendente" texto="Tudo em dia por aqui." %}{% endif %}
 </section>

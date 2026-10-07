@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import models
@@ -28,7 +28,7 @@ from django.utils import timezone
 from gestao.cadastros.models import TabelaDiaria
 
 from . import prestacao
-from .dominio import busca
+from .dominio import busca, recorte
 from .dominio.diarias import Faixa, ValorVigente
 from .models import Documento, Oficio, Roteiro, Trecho, TrechoRoteiro, Viajante
 
@@ -81,39 +81,113 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
     )
 
 
-FILTROS_SITUACAO = {
-    "rascunho": ("Rascunhos", Q(situacao=Oficio.Situacao.RASCUNHO)),
-    "emitido": ("Emitidos", Q(situacao=Oficio.Situacao.EMITIDO)),
-    "proximos": ("Próximas viagens", Q(situacao__in=["rascunho", "emitido"])),
-    # Prestação de contas de todos da equipe finalizada (referência: "Contas prestadas").
-    # As abas daqui são da situação do documento: o emitido continua em Emitidos.
-    "prestadas": ("Contas prestadas", Q(situacao=Oficio.Situacao.EMITIDO)
-                  & prestacao.prestadas("oficio")),
-    "cancelado": ("Cancelados", Q(situacao=Oficio.Situacao.CANCELADO)),
-    # D1: arquivados saem de todas as outras abas e moram só aqui.
-    "arquivado": ("Arquivados", Q(arquivado_em__isnull=False)),
-}
 NAO_ARQUIVADO = Q(arquivado_em__isnull=True)
 
 
-def contagens(qs: QuerySet[Oficio]) -> dict[str, int]:
-    agora = timezone.now()
-    proximos = qs.filter(FILTROS_SITUACAO["proximos"][1], NAO_ARQUIVADO, trechos__ordem=1,
-                         trechos__saida_em__gte=agora)
-    resultado = qs.aggregate(
-        todos=Count("pk", filter=NAO_ARQUIVADO),
-        rascunho=Count("pk", filter=FILTROS_SITUACAO["rascunho"][1] & NAO_ARQUIVADO),
-        emitido=Count("pk", filter=FILTROS_SITUACAO["emitido"][1] & NAO_ARQUIVADO),
-        prestadas=Count("pk", filter=FILTROS_SITUACAO["prestadas"][1] & NAO_ARQUIVADO),
-        cancelado=Count("pk", filter=FILTROS_SITUACAO["cancelado"][1] & NAO_ARQUIVADO),
-        arquivado=Count("pk", filter=FILTROS_SITUACAO["arquivado"][1]),
-    )
-    resultado["proximos"] = proximos.count()
+# ---------------------------------------------------------------- recortes (D1/D2)
+# As regras estão em dominio/recorte.py; aqui, a mesma conta em SQL. `_saida` é a 1ª saída
+# (a mesma que a linha mostra), por subconsulta: entra em filtro e em contagem condicional
+# sem juntar trechos (nem repetir o ofício).
+def com_primeira_saida(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
+    primeira = (Trecho.objects.filter(oficio=OuterRef("pk")).order_by()
+                .values("oficio").annotate(m=Min("saida_em")).values("m"))
+    return qs.annotate(_saida=Subquery(primeira, output_field=models.DateTimeField()))
+
+
+def fim_de_hoje() -> datetime:
+    hoje = timezone.localdate()
+    return timezone.make_aware(datetime.combine(hoje, time.max))
+
+
+def _contas_prestadas() -> Q:
+    # Prestação de contas de todos da equipe finalizada (referência: "Contas prestadas").
+    return Q(situacao=Oficio.Situacao.EMITIDO) & prestacao.prestadas("oficio")
+
+
+def q_da_aba(aba: str, limite: datetime) -> Q:
+    """Aba temporal (dominio.recorte.aba_do_oficio) — exige `com_primeira_saida`."""
+    cancelado = Q(situacao=Oficio.Situacao.CANCELADO)
+    if aba == recorte.CANCELADOS:
+        return cancelado
+    if aba == recorte.PRESTADAS:
+        return ~cancelado & _contas_prestadas()
+    pendente = ~cancelado & ~_contas_prestadas()
+    if aba == recorte.FUTUROS:
+        return pendente & (Q(_saida__gt=limite) | Q(_saida__isnull=True))
+    if aba == recorte.ANDAMENTO:
+        return pendente & Q(_saida__lte=limite)
+    return Q()
+
+
+def q_do_documento(documento: str) -> Q:
+    """Documento (dominio.recorte.documento_do_oficio): arquivado só quando pedido."""
+    if documento == recorte.ARQUIVADO:
+        return Q(arquivado_em__isnull=False)
+    if documento == recorte.RASCUNHO:
+        return NAO_ARQUIVADO & Q(situacao=Oficio.Situacao.RASCUNHO)
+    if documento == recorte.EMITIDO:
+        return NAO_ARQUIVADO & Q(situacao=Oficio.Situacao.EMITIDO)
+    return NAO_ARQUIVADO
+
+
+def aplicar_recorte(qs: QuerySet[Oficio], aba: str, documento: str) -> QuerySet[Oficio]:
+    return com_primeira_saida(qs).filter(q_da_aba(aba, fim_de_hoje()),
+                                         q_do_documento(documento))
+
+
+def contagens_do_recorte(base: QuerySet[Oficio], filtrado: QuerySet[Oficio] | None,
+                         aba: str, documento: str) -> dict[str, int]:
+    """Contadores das abas e do filtro Documento numa agregação condicional só.
+
+    Cada dimensão conta com a busca e os filtros (`filtrado`) e com a escolha da OUTRA
+    dimensão, ignorando a própria — é o que a referência fazia com as abas. `universo` é a
+    aba atual sem busca nem filtros (o "de M" da barra): sem nada filtrado (`filtrado` é
+    None) sai na mesma consulta; com filtro, numa segunda (contar sobre `pk IN (busca)`
+    repetia a busca em cada contador — 0,6 s com "curitiba" no PREVIEW)."""
+    limite = fim_de_hoje()
+    contas = {f"aba-{chave or 'todos'}": Count(
+        "pk", filter=q_do_documento(documento) & q_da_aba(chave, limite))
+        for chave, _ in recorte.ABAS}
+    contas.update({f"doc-{chave or 'todos'}": Count(
+        "pk", filter=q_da_aba(aba, limite) & q_do_documento(chave))
+        for chave, _ in recorte.DOCUMENTOS})
+    universo = Count("pk", filter=q_da_aba(aba, limite) & (
+        Q() if documento == recorte.ARQUIVADO else NAO_ARQUIVADO))
+    if filtrado is None:
+        return com_primeira_saida(base.order_by()).aggregate(**contas, universo=universo)
+    resultado = com_primeira_saida(filtrado.order_by()).aggregate(**contas)
+    resultado.update(com_primeira_saida(base.order_by()).aggregate(universo=universo))
     return resultado
 
 
+def anos_dos_numeros(qs: QuerySet[Oficio]) -> list[int]:
+    """Anos que existem na numeração (opções do filtro "Ano do número"), do mais novo."""
+    return list(qs.order_by("-ano").values_list("ano", flat=True).distinct())
+
+
+def q_destino(termo: str) -> Q:
+    """Algum trecho vai a uma cidade com esse nome — sem contar a volta à sede (F2: com a
+    sede em Curitiba, "curitiba" trazia quase todos os ofícios só porque voltam para lá).
+    Subconsulta não correlacionada (o banco a resolve uma vez, não por ofício)."""
+    trechos = Trecho.objects.filter(destino__nome__unaccent__icontains=termo).filter(
+        Q(oficio__sede__isnull=True) | ~Q(destino_id=F("oficio__sede_id")))
+    return Q(pk__in=trechos.values("oficio_id"))
+
+
+def q_servidor(termo: str) -> Q:
+    return Q(pk__in=Viajante.objects.filter(
+        servidor__nome__unaccent__icontains=termo).values("oficio_id"))
+
+
+def q_placa(termo: str) -> Q:
+    placa = busca.placa_normalizada(termo)
+    return Q(viatura__placa__icontains=placa) | Q(transporte_placa__icontains=placa)
+
+
 def filtro_de_leitura(leitura: busca.Leitura) -> Q:
-    """O Q de cada leitura do termo (dominio.busca diz quais existem)."""
+    """O Q de cada leitura do termo (dominio.busca diz quais existem). Destino e servidor
+    vão por subconsulta (IN): nada de juntar tabelas, então nada de ofício repetido nem
+    DISTINCT."""
     termo = leitura.termo
     if leitura.escopo == busca.NUMERO_ESCOPO:
         numero, ano = termo.split("/")
@@ -121,20 +195,14 @@ def filtro_de_leitura(leitura: busca.Leitura) -> Q:
     if leitura.escopo == busca.PROTOCOLO:
         return Q(protocolo__contains=termo)
     if leitura.escopo == busca.PLACA_ESCOPO:
-        placa = termo.replace("-", "").replace(" ", "").upper()
-        return Q(viatura__placa__icontains=placa) | Q(transporte_placa__icontains=placa)
+        return q_placa(termo)
     if leitura.escopo == busca.DESTINO:
-        return Q(trechos__destino__nome__unaccent__icontains=termo)
-    return Q(viajantes__servidor__nome__unaccent__icontains=termo)
-
-
-# Leituras que juntam tabelas: filtrar por elas repete o ofício uma vez por linha casada.
-_COM_JUNCAO = {busca.DESTINO, busca.SERVIDOR}
+        return q_destino(termo)
+    return q_servidor(termo)
 
 
 def aplicar_leitura(qs: QuerySet[Oficio], leitura: busca.Leitura) -> QuerySet[Oficio]:
-    filtrado = qs.filter(filtro_de_leitura(leitura))
-    return filtrado.distinct() if leitura.escopo in _COM_JUNCAO else filtrado
+    return qs.filter(filtro_de_leitura(leitura))
 
 
 def contar_leituras(qs: QuerySet[Oficio], leituras: list[busca.Leitura]) -> dict[str, int]:
@@ -142,8 +210,8 @@ def contar_leituras(qs: QuerySet[Oficio], leituras: list[busca.Leitura]) -> dict
     "Ofício 26/2026 (1)" e "Protocolo com 26 (12)" antes de a pessoa escolher."""
     if not leituras:
         return {}
-    return qs.aggregate(**{
-        leitura.escopo: Count("pk", filter=filtro_de_leitura(leitura), distinct=True)
+    return qs.order_by().aggregate(**{
+        leitura.escopo: Count("pk", filter=filtro_de_leitura(leitura))
         for leitura in leituras
     })
 
@@ -171,21 +239,23 @@ def _filtro_de_veiculo(chave: str) -> Q:
 
 
 def aplicar_filtros_avancados(qs: QuerySet[Oficio], filtros: dict) -> QuerySet[Oficio]:
-    """Filtros da gaveta "Mais filtros" (forms.FiltrosOficio já validado). Chave ausente ou
-    vazia não filtra nada."""
+    """Filtros da gaveta (forms.FiltrosOficio.validos). Chave ausente ou vazia não filtra
+    nada."""
     de, ate = filtros.get("saida_de"), filtros.get("saida_ate")
     if de or ate:
-        # Tudo na mesma chamada: é o mesmo trecho (a ida) que tem de cair no período.
-        periodo = Q(trechos__ordem=1)
+        # É o mesmo trecho (a ida) que tem de cair no período; EXISTS não repete o ofício.
+        ida = Trecho.objects.filter(oficio=OuterRef("pk"), ordem=1)
         if de:
-            periodo &= Q(trechos__saida_em__date__gte=de)
+            ida = ida.filter(saida_em__date__gte=de)
         if ate:
-            periodo &= Q(trechos__saida_em__date__lte=ate)
-        qs = qs.filter(periodo)
+            ida = ida.filter(saida_em__date__lte=ate)
+        qs = qs.filter(Exists(ida))
     if filtros.get("criacao_de"):
         qs = qs.filter(data_oficio__gte=filtros["criacao_de"])
     if filtros.get("criacao_ate"):
         qs = qs.filter(data_oficio__lte=filtros["criacao_ate"])
+    if filtros.get("ano"):
+        qs = qs.filter(ano=filtros["ano"])
     protocolo = "".join(c for c in (filtros.get("protocolo") or "") if c.isdigit())
     if protocolo:
         qs = qs.filter(protocolo__contains=protocolo)
@@ -195,19 +265,6 @@ def aplicar_filtros_avancados(qs: QuerySet[Oficio], filtros: dict) -> QuerySet[O
         qs = qs.filter(diarias_total__gte=filtros["diarias_de"])
     if filtros.get("diarias_ate") is not None:
         qs = qs.filter(diarias_total__lte=filtros["diarias_ate"])
-    # Juntar com trechos repete o ofício uma vez por linha casada.
-    return qs.distinct() if (de or ate) else qs
-
-
-def aplicar_filtro_situacao(qs: QuerySet[Oficio], chave: str | None) -> QuerySet[Oficio]:
-    if chave == "arquivado":
-        return qs.filter(FILTROS_SITUACAO["arquivado"][1])
-    qs = qs.filter(NAO_ARQUIVADO)
-    if not chave or chave not in FILTROS_SITUACAO:
-        return qs
-    qs = qs.filter(FILTROS_SITUACAO[chave][1])
-    if chave == "proximos":
-        qs = qs.filter(trechos__ordem=1, trechos__saida_em__gte=timezone.now())
     return qs
 
 
@@ -218,7 +275,7 @@ def indicadores_do_painel(qs: QuerySet[Oficio]) -> dict[str, object]:
     return {
         "oficios_mes": qs.filter(data_oficio__gte=inicio_mes).exclude(
             situacao=Oficio.Situacao.CANCELADO).count(),
-        "rascunhos": qs.filter(situacao=Oficio.Situacao.RASCUNHO).count(),
+        "rascunhos": qs.filter(NAO_ARQUIVADO, situacao=Oficio.Situacao.RASCUNHO).count(),
         "viagens_30_dias": qs.exclude(situacao=Oficio.Situacao.CANCELADO).filter(
             trechos__ordem=1, trechos__saida_em__gte=timezone.now(),
             trechos__saida_em__lte=em_30).count(),

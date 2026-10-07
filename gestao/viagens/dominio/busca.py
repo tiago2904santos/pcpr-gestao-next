@@ -51,6 +51,18 @@ def _protocolo_formatado(digitos: str) -> str:
     return f"{digitos[:2]}.{digitos[2:5]}.{digitos[5:8]}-{digitos[8]}"
 
 
+def parece_placa(termo: str) -> bool:
+    """"ABC1D23", "abc-1d23", "ABC 1234" — ou um pedaço com letras e algarismos ("ABC1")."""
+    termo = (termo or "").strip()
+    letras = sum(1 for c in termo if c.isalpha())
+    return bool(PLACA.match(termo) or (letras and PLACA_PARCIAL.match(termo)))
+
+
+def placa_normalizada(termo: str) -> str:
+    """Como a frota guarda a placa: sem hífen nem espaço, em maiúsculas."""
+    return termo.replace("-", "").replace(" ", "").upper()
+
+
 def ler(termo: str, ano_corrente: int) -> list[Leitura]:
     """Leituras possíveis do termo, da mais específica para a mais ampla."""
     termo = (termo or "").strip()
@@ -70,7 +82,7 @@ def ler(termo: str, ano_corrente: int) -> list[Leitura]:
     if not letras and len(digitos) >= 2:
         leituras.append(Leitura(PROTOCOLO, f"Protocolo com {_protocolo_formatado(digitos)}",
                                 digitos))
-    if PLACA.match(termo) or (letras and PLACA_PARCIAL.match(termo)):
+    if parece_placa(termo):
         leituras.append(Leitura(PLACA_ESCOPO, f"Placa {termo.upper()}", termo))
     if letras >= 2:
         leituras.append(Leitura(DESTINO, f"Destino “{termo}”", termo))

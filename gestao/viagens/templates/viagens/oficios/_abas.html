@@ -1,12 +1,15 @@
 {% comment %}
-Abas de situação; trocam só a situação e preservam o resto dos filtros (querystring_abas).
-Atualizadas fora de banda (OOB) pela busca ao vivo. O separador vai como &amp; — é assim
-que se escreve "&" dentro de um atributo HTML.
+Abas temporais (D1/D2), vocabulário canônico do módulo — o mesmo de Roteiros e Termos.
+Cada aba troca só a aba e preserva busca, documento, filtros e ordem; os contadores contam
+o recorte de agora (busca + filtros + documento), ignorando só a própria aba. Atualizadas
+fora de banda (OOB) pela busca ao vivo.
 {% endcomment %}
-<nav class="abas" id="abas-filtro" aria-label="Filtrar por situação"{% if oob %} hx-swap-oob="true"{% endif %}>
-  {% for chave, rotulo, contador in abas %}
-    <a class="aba" href="?{% if chave %}situacao={{ chave }}{% if querystring_abas %}&amp;{% endif %}{% endif %}{{ querystring_abas }}"{% if chave == situacao %} aria-current="page"{% endif %}>
-      {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
+<nav class="abas" id="abas-filtro" aria-label="Filtrar pelo tempo da viagem"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% for chave, rotulo, contador, url in abas %}
+    {% with n=contagens|get_item:contador %}
+    <a class="aba{% if not n and chave != aba %} aba--vazia{% endif %}" href="{{ url }}"{% if chave == aba %} aria-current="page"{% endif %}>
+      {{ rotulo }} <span class="aba__contagem" id="conta-{{ contador }}">{{ n }}</span>
     </a>
+    {% endwith %}
   {% endfor %}
 </nav>

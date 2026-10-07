@@ -427,7 +427,7 @@ def test_contas_prestadas_nos_outros_modulos(c):
         return {
             "roteiro": set(queries.filtrar_roteiros(Roteiro.objects.all(), "finalizados")
                            .values_list("pk", flat=True)),
-            "oficio": set(Oficio.objects.filter(queries.FILTROS_SITUACAO["prestadas"][1])
+            "oficio": set(queries.aplicar_recorte(Oficio.objects.all(), "prestadas", "")
                           .values_list("pk", flat=True)),
             "ordem": set(OrdemServico.objects.filter(prestacao.prestadas("ordem"))
                          .values_list("pk", flat=True)),
@@ -474,7 +474,7 @@ def test_abas_de_quando_excluem_as_contas_prestadas(c):
                          ("viagens:ordens", "Finalizadas"), ("viagens:planos", "Finalizados"),
                          ("viagens:oficios", "Contas prestadas")):
         assert rotulo in cliente.get(reverse(rota)).content.decode(), rota
-    oficios = cliente.get(reverse("viagens:oficios"), {"situacao": "prestadas"})
+    oficios = cliente.get(reverse("viagens:oficios"), {"aba": "prestadas"})
     assert Oficio.objects.get(pk=c.ids["oficio_emitido"]).numero_formatado in (
         oficios.content.decode())
 
