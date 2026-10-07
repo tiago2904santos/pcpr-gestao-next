@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Numeração de ofícios{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}">{% endblock %}
+{% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
+{% comment %}
+Numeração de ofícios (LP-32, D9) — arquétipo SETTINGS em uma coluna: o ano escolhido em
+números (próximo, último ocupado, número inicial, lacunas), o porquê do próximo, o
+formulário curto do número inicial, as lacunas, o histórico (trilha do banco) e todos os
+anos. A regra é do domínio (dominio/numeracao.py); nada aqui renumera ofícios.
+{% endcomment %}
+{% block conteudo %}
+{% include "componentes/pagina_cabecalho.html" with titulo="Numeração de ofícios" icone="list-ordered" descricao="De onde sai o número de cada ofício novo. O número inicial escolhe onde a sequência do ano começa; nenhum ofício já numerado muda." %}
+
+{% comment %}Anos como abas: o atual, o próximo (para preparar a virada) e todo ano com ofício, piso ou lacuna.{% endcomment %}
+<nav class="abas mt-4" aria-label="Ano da numeração">
+  {% for a in anos %}<a class="aba" href="?ano={{ a.ano }}"{% if a.ano == ano %} aria-current="page"{% endif %}>{{ a.ano }}{% if a.ano == ano_atual %}<span class="sr-only"> (ano atual)</span><span class="aba__contagem" aria-hidden="true">atual</span>{% endif %}</a>{% endfor %}
+</nav>
+
+<section class="mt-4" aria-labelledby="t-numeros">
+  <h2 class="sr-only" id="t-numeros">Numeração de {{ ano }}</h2>
+  <div class="grade grade--kpi">
+    <div class="indicador{% if not encerrado %} indicador--atencao{% endif %}">
+      <span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-plus-2" classe="icone--sm" %}Próximo número</span>
+      {% if encerrado %}<span class="indicador__valor">—</span><span class="indicador__nota">Ano encerrado</span>
+      {% else %}<span class="indicador__valor">{{ explicacao.proximo|stringformat:"02d" }}/{{ ano }}</span>
+      <span class="indicador__nota">{% if explicacao.origem == "lacuna" %}A menor lacuna livre{% elif explicacao.origem == "piso" %}{% if do_ano.maior %}O número inicial do ano{% else %}O ano começa nele{% endif %}{% else %}O último ocupado + 1{% endif %}</span>{% endif %}
+    </div>
+    <div class="indicador">
+      <span class="indicador__rotulo rotulo-caixa-alta">{% icone "file-check-2" classe="icone--sm" %}Último ocupado</span>
+      <span class="indicador__valor">{% if do_ano.maior %}{{ do_ano.maior|stringformat:"02d" }}/{{ ano }}{% else %}—{% endif %}</span>
+      <span class="indicador__nota">{% if do_ano.total %}{{ do_ano.total|pluralizar:"ofício numerado,ofícios numerados" }} (cancelados contam){% else %}Nenhum ofício numerado ainda{% endif %}</span>
+    </div>
+    <div class="indicador">
+      <span class="indicador__rotulo rotulo-caixa-alta">{% icone "flag" classe="icone--sm" %}Número inicial</span>
+      <span class="indicador__valor">{{ do_ano.piso }}</span>
+      <span class="indicador__nota">{% if do_ano.piso == 1 %}O padrão{% elif explicacao.piso_sem_efeito %}Abaixo do último: não muda nada agora{% else %}Definido pelo gestor{% endif %}</span>
+    </div>
+    <div class="indicador">
+      <span class="indicador__rotulo rotulo-caixa-alta">{% icone "undo-2" classe="icone--sm" %}Lacunas livres</span>
+      <span class="indicador__valor">{{ explicacao.lacunas_validas|length }}</span>
+      <span class="indicador__nota">{% if explicacao.lacunas_validas %}Usadas antes da sequência{% else %}Nenhum número para reaproveitar{% endif %}</span>
+    </div>
+  </div>
+</section>
+
+<div class="layout-detalhe mt-6">
+  <div class="pilha-lg">
+    <section class="cartao" aria-labelledby="t-piso">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-piso">Número inicial de {{ ano }}</h2></div>
+      {% if encerrado %}
+      <div class="cartao__corpo"><p class="texto-secundario">{{ ano }} já passou: ofícios novos saem com o ano da data de hoje, então o número inicial de {{ ano }} não muda mais nada. Fica aqui para consulta.</p></div>
+      {% else %}
+      <form class="cartao__corpo pilha" method="post" action="?ano={{ ano }}" novalidate>
+        {% include "componentes/resumo_erros.html" %}
+        <p class="texto-secundario">
+          {% if explicacao.origem == "lacuna" %}O próximo ofício de {{ ano }} reaproveita o <strong>{{ explicacao.proximo|stringformat:"02d" }}/{{ ano }}</strong>, liberado pela exclusão de um rascunho.
+          {% elif explicacao.origem == "piso" %}O próximo ofício de {{ ano }} sai com o número inicial: <strong>{{ explicacao.proximo|stringformat:"02d" }}/{{ ano }}</strong>.
+          {% else %}O próximo ofício de {{ ano }} continua a sequência: <strong>{{ explicacao.proximo|stringformat:"02d" }}/{{ ano }}</strong>.{% endif %}
+          Um número inicial maior que o último ocupado faz a sequência pular para ele; menor ou igual, não muda nada agora.
+        </p>
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.piso classe="campo--md" ajuda=ajuda_piso %}
+        </div>
+        <div class="grupo-botoes"><button type="submit" class="botao botao--primario">{% icone "save" %}Salvar número inicial</button></div>
+        {% csrf_token %}{{ form.ano }}
+      </form>
+      {% endif %}
+    </section>
+
+    <section class="cartao" aria-labelledby="t-lacunas">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-lacunas">Lacunas de {{ ano }}</h2></div>
+      <div class="cartao__corpo pilha">
+        <p class="texto-secundario">Só o número de um <strong>rascunho excluído</strong> volta para a fila — o menor primeiro, desde que não esteja abaixo do número inicial. Números pulados de outra forma (digitados à mão, dados migrados) não são reaproveitados.</p>
+        {% if explicacao.lacunas_validas or explicacao.lacunas_abaixo %}
+          <ul class="pilha-sm" role="list" aria-label="Lacunas de {{ ano }}">
+            {% for n in explicacao.lacunas_validas %}<li><span class="selo selo--neutro selo--sem-ponto">{{ n|stringformat:"02d" }}/{{ ano }}</span>{% if forloop.first %} <span class="texto-sm texto-secundario">o próximo a ser usado</span>{% endif %}</li>{% endfor %}
+            {% for n in explicacao.lacunas_abaixo %}<li><span class="selo selo--neutro selo--sem-ponto">{{ n|stringformat:"02d" }}/{{ ano }}</span> <span class="texto-sm texto-secundario">abaixo do número inicial: não será usado</span></li>{% endfor %}
+          </ul>
+        {% else %}
+          <p class="vazio-inline">Nenhuma lacuna em {{ ano }}.</p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <aside class="layout-detalhe__lateral" aria-labelledby="t-hist-piso">
+    <section class="cartao">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-hist-piso">{% icone "history" classe="icone--sm" %}Histórico do número inicial</h2></div>
+      <div class="cartao__corpo">
+        <ol class="historico__linhas" aria-label="Mudanças do número inicial de {{ ano }}">
+          {% for h in historico %}
+            <li class="historico__linha">
+              <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{{ h.em|date:"d/m/Y" }}</b><small>{{ h.em|date:"H:i" }}</small></time>
+              <span class="historico__texto">{% if h.de %}De {{ h.de }} para {{ h.para }}{% else %}Começou em {{ h.para }}{% endif %}</span>
+              <span class="historico__quem">{% if h.usuario %}{{ h.usuario.nome }}{% else %}sistema{% endif %}</span>
+            </li>
+          {% empty %}
+            <li class="historico__linha historico__linha--vazia">{{ ano }} nunca teve o número inicial alterado: vale o padrão, 1.</li>
+          {% endfor %}
+        </ol>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<section class="cartao mt-6" aria-labelledby="t-anos">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-anos">Todos os anos</h2></div>
+  <div class="tabela-rolagem">
+    <table class="tabela tabela--responsiva">
+      <caption class="sr-only">Numeração de ofícios por ano</caption>
+      <thead><tr><th scope="col">Ano</th><th scope="col" class="num">Número inicial</th><th scope="col" class="num">Último ocupado</th><th scope="col" class="num">Ofícios</th><th scope="col" class="num">Lacunas</th><th scope="col" class="num">Próximo</th></tr></thead>
+      <tbody>
+        {% for a in anos %}
+        <tr>
+          <td class="tabela__celula-principal" data-rotulo="Ano"><a class="tabela__principal" href="?ano={{ a.ano }}"{% if a.ano == ano %} aria-current="page"{% endif %}>{{ a.ano }}</a>{% if a.ano == ano_atual %} <span class="selo selo--info selo--sem-ponto">atual</span>{% endif %}</td>
+          <td data-rotulo="Número inicial" class="num">{{ a.piso }}</td>
+          <td data-rotulo="Último ocupado" class="num">{% if a.maior %}{{ a.maior|stringformat:"02d" }}/{{ a.ano }}{% else %}—{% endif %}</td>
+          <td data-rotulo="Ofícios" class="num">{{ a.total }}</td>
+          <td data-rotulo="Lacunas" class="num">{{ a.lacunas|length }}</td>
+          <td data-rotulo="Próximo" class="num">{% if a.ano < ano_atual %}<span class="vazio-inline" title="Ano encerrado">—</span>{% else %}<b>{{ a.proximo|stringformat:"02d" }}/{{ a.ano }}</b>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{# Depois de um envio com erro, o resumo dos erros recebe o foco: o leitor de tela anuncia. #}
+{% if form.errors %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("resumo-erros")?.focus();</script>{% endif %}
+{% endblock %}

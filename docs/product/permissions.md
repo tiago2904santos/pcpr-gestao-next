@@ -26,7 +26,7 @@ bloqueio progressivo (5 falhas em 15 min); sessão de 10 h.
 | Excluir rascunho sem documento (`delete_oficio`) | ✓ | ✓ | — | — |
 | Reabrir emitido (`reabrir_oficio`) | — | ✓ | — | — |
 | Cancelar (`cancelar_oficio`) | — | ✓ | — | — |
-| Gerir numeração (`gerir_numeracao`) | — | ✓ (sem tela ainda) | — | — |
+| Gerir numeração (`gerir_numeracao`) | — | ✓ (`/viagens/oficios/numeracao/`, "Mais" da lista) | — | — |
 | Ver roteiros (`view_roteiro`) | ✓ (só da unidade) | ✓ | ✓ | — |
 | Criar/alterar/cancelar roteiros (`add_roteiro`, `change_roteiro`) | ✓ | ✓ | — | — |
 | Excluir roteiro não usado (`delete_roteiro`) | ✓ | ✓ | — | — |

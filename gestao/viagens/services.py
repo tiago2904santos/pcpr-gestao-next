@@ -33,7 +33,7 @@ from .documentos.regioes import (
 from .dominio import bate_volta as dominio_bate_volta
 from .dominio import busca as dominio_busca
 from .dominio import diarias as dominio_diarias
-from .dominio.numeracao import proximo_numero
+from .dominio.numeracao import ExplicacaoDoProximo, explicar_proximo, proximo_numero
 from .dominio.prazos import AvaliacaoPrazo, avaliar_prazo
 from .models import (
     BateVoltaRoteiro,
@@ -105,6 +105,11 @@ class AnoDeNumeracao:
     total: int              # ofícios numerados no ano (cancelados contam)
     lacunas: list[int]      # liberados por exclusão, ainda livres
     proximo: int            # o número que o próximo "Novo ofício" do ano recebe
+
+    @property
+    def explicacao(self) -> ExplicacaoDoProximo:
+        """De onde vem o próximo número (lacuna, piso ou sequência) — página Numeração."""
+        return explicar_proximo(self.maior, self.piso, self.lacunas)
 
 
 def resumo_numeracao(anos: list[int] | None = None) -> list[AnoDeNumeracao]:
