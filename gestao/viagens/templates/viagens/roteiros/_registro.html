@@ -48,7 +48,7 @@
         <span class="registro__meta-item registro__meta-item--uso registro__meta-item--vazio">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Ainda não usado</span></span>
       {% endif %}
       {% if r.diarias_resumo %}<span class="registro__meta-item registro__meta-item--diarias" title="Diárias: {{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">{{ r.diarias_total|moeda }}</span><span class="registro__meta-detalhe"> · {{ r.diarias_resumo }}</span></span></span>
-      {% else %}<span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias calculadas</span></span>{% endif %}
+      {% else %}<span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias</span></span>{% endif %}
       {% if r.observacoes %}<span class="registro__meta-item registro__meta-item--notas" title="{{ r.observacoes }}">{% icone "info" classe="icone--sm" %}<span class="sr-only">Observações: </span><span class="registro__meta-texto">{{ r.observacoes }}</span></span>{% endif %}
     </div>
   </div>

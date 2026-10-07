@@ -724,7 +724,7 @@
 
     <!-- 21. LINHA DAS LISTAS DE VIAGENS (Lote 1 da lista de ofícios: LP-01…LP-11) -->
     <section class="cartao" id="registro-lab" aria-labelledby="t-registro-lab">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-registro-lab"><span class="cartao__numero">21</span>Linha das listas de Viagens</h2><span class="texto-secundario texto-sm">Ofícios, Roteiros e Termos usam a mesma linha: placa, título (destinos, até três e "+N"), selos (situação + tipo incomum + no máximo um alerta) e metadados em colunas fixas a partir de 1024px (duas faixas de 768 a 1023px; duas faixas de texto-sm no celular, com placa, título e ⋮ na mesma linha). Passe o mouse (fundo + trilho dourado) e use Tab (anel na linha inteira); reduza a janela para ver o celular.</span></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-registro-lab"><span class="cartao__numero">21</span>Linha das listas de Viagens</h2><span class="texto-secundario texto-sm">Ofícios, Roteiros e Termos usam a mesma linha: placa, título (destinos, até três e "+N"), selos (situação + tipo incomum + no máximo um alerta) e metadados em colunas fixas. As faixas seguem a largura da LISTA (container query), não a da janela: uma faixa a partir de 950px de lista, duas faixas de 640 a 949px, duas colunas abaixo disso e no celular (com placa, título e ⋮ na mesma linha). Diárias: o valor nunca corta; o detalhe só aparece inteiro, na coluna larga (lista ≥ 1180px). Motorista marcado por extenso, "(motorista)". Passe o mouse (fundo + trilho dourado) e use Tab (anel na linha inteira); reduza a janela para ver o celular.</span></div>
       <div class="cartao__corpo pilha-lg">
         <div>
           <h3 class="subtitulo-secao">Selo de tempo — o mesmo vocabulário nas três listas</h3>
@@ -753,7 +753,7 @@
                 <div class="registro__meta registro__meta--colunas registro__meta--oficio">
                   <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ lab_dia.mais30|date:"d/m" }} a {{ lab_dia.mais32|date:"d/m/Y" }}</span></span>
                   <span class="registro__meta-item registro__meta-item--protocolo" title="Protocolo 12.345.678-9">{% icone "stamp" classe="icone--sm" %}<span class="sr-only">Protocolo </span><span class="registro__meta-texto">12.345.678-9</span></span>
-                  <span class="registro__meta-item registro__meta-item--equipe" title="Ana Beatriz Correia Lima, Bruno Henrique Martins (motorista), Carla Regina Duarte, Diego Fernandes Rocha">{% icone "users" classe="icone--sm" %}<span class="sr-only">Equipe: </span><span class="registro__meta-texto">Ana Beatriz Correia Lima, {% icone "circle-dot" classe="icone--sm registro__motorista" %}Bruno Henrique Martins<span class="sr-only"> (motorista)</span>, Carla Regina Duarte</span><span class="registro__mais" aria-hidden="true">+1</span><span class="sr-only"> e mais 1</span></span>
+                  <span class="registro__meta-item registro__meta-item--equipe" title="Ana Beatriz Correia Lima, Bruno Henrique Martins (motorista), Carla Regina Duarte, Diego Fernandes Rocha">{% icone "users" classe="icone--sm" %}<span class="sr-only">Equipe: </span><span class="registro__meta-texto">Ana Beatriz Correia Lima, Bruno Henrique Martins <span class="registro__motorista">(motorista)</span>, Carla Regina Duarte</span><span class="registro__mais" aria-hidden="true">+1</span><span class="sr-only"> e mais 1</span></span>
                   <span class="registro__meta-item registro__meta-item--transporte" title="ZZZ-0000 · Renault Master">{% icone "car" classe="icone--sm" %}<span class="sr-only">Transporte: </span><span class="registro__meta-texto">ZZZ-0000 · Renault Master</span></span>
                   <span class="registro__meta-item registro__meta-item--diarias" title="Diárias: R$ 2.411,56 · 4 × 100% + 1 × 15%">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">R$ 2.411,56</span><span class="registro__meta-detalhe"> · 4 × 100% + 1 × 15%</span></span></span>
                 </div>
@@ -770,9 +770,9 @@
                 <div class="registro__meta registro__meta--colunas registro__meta--oficio">
                   <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ lab_dia.menos2|date:"d/m" }} a {{ lab_dia.mais4|date:"d/m/Y" }}</span></span>
                   <span class="registro__meta-item registro__meta-item--protocolo registro__meta-item--vazio">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">Sem protocolo</span></span>
-                  <span class="registro__meta-item registro__meta-item--equipe" title="Carla Regina Duarte, Elaine Moraes (motorista de fora da equipe)">{% icone "users" classe="icone--sm" %}<span class="sr-only">Equipe: </span><span class="registro__meta-texto">Carla Regina Duarte, {% icone "circle-dot" classe="icone--sm registro__motorista" %}Elaine Moraes<span class="sr-only"> (motorista de fora da equipe)</span></span></span>
+                  <span class="registro__meta-item registro__meta-item--equipe" title="Carla Regina Duarte, Elaine Moraes (motorista de fora da equipe)">{% icone "users" classe="icone--sm" %}<span class="sr-only">Equipe: </span><span class="registro__meta-texto">Carla Regina Duarte, Elaine Moraes <span class="registro__motorista">(motorista<span class="sr-only"> de fora da equipe</span>)</span></span></span>
                   <span class="registro__meta-item registro__meta-item--transporte" title="Veículo cedido pela Prefeitura de Antonina">{% icone "bus" classe="icone--sm" %}<span class="sr-only">Transporte: </span><span class="registro__meta-texto">Veículo cedido pela Prefeitura de Antonina</span></span>
-                  <span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias calculadas</span></span>
+                  <span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias</span></span>
                 </div>
               </div>
               <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do Ofício 129/2026 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
@@ -794,11 +794,11 @@
               </div>
               <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do roteiro #60 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
             </li>
-            <li class="registro">
+            <li class="registro registro--inativo">
               <span class="placa placa--cancelada" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">126/2026</span></span>
               <div class="registro__corpo">
                 <div class="registro__titulo">
-                  <a class="registro__link" href="#registro-lab"><span class="sr-only">Ofício 126/2026 · </span><span class="registro__link-texto">Fortaleza/CE</span></a>
+                  <a class="registro__link" href="#registro-lab"><span class="sr-only">Ofício 126/2026 · </span><span class="registro__link-texto"><span class="vazio-inline">Sem destino</span></span></a>
                   <span class="registro__selos"><span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span></span>
                 </div>
                 <div class="registro__meta registro__meta--colunas registro__meta--oficio">
@@ -806,7 +806,7 @@
                   <span class="registro__meta-item registro__meta-item--protocolo registro__meta-item--vazio">{% icone "stamp" classe="icone--sm" %}<span class="registro__meta-texto">Sem protocolo</span></span>
                   <span class="registro__meta-item registro__meta-item--equipe registro__meta-item--vazio">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">Sem servidores</span></span>
                   <span class="registro__meta-item registro__meta-item--transporte registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">Sem transporte</span></span>
-                  <span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias calculadas</span></span>
+                  <span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias</span></span>
                 </div>
               </div>
               <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do Ofício 126/2026 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>

@@ -669,6 +669,17 @@ a.ficha:hover {
   font-style: italic;
 }
 
+/* "Sem destino" no título fala a mesma língua do "Sem período" ao lado (M4); no hover da
+   linha acende como o resto do link. */
+.registro__link-texto > .vazio-inline {
+  font-style: italic;
+  font-weight: var(--peso-normal);
+}
+
+.registro:hover .registro__link-texto > .vazio-inline {
+  color: inherit;
+}
+
 /* --- Título e metadados de uma linha só (LP-08/LP-09) ---------------------------------
    O texto que pode crescer (destinos, equipe, transporte) fica num span que corta com
    reticências; o texto inteiro vai no `title` do item. O "+N" fica fora do corte, sempre
@@ -935,7 +946,9 @@ a.ficha:hover {
   gap: var(--esp-2);
 }
 
-.registro:hover .registro__acoes .botao--sutil:not(:hover) {
+/* Só o botão de ícone (⋮): botões de texto ("Despachar", "Abrir") com fundo pareceriam
+   pressionados (M1). */
+.registro:hover .registro__acoes .botao--icone.botao--sutil:not(:hover) {
   background: var(--cor-superficie-realce);
 }
 
@@ -1298,6 +1311,11 @@ a.ficha:hover {
 
 .registro:hover .registro__link--estatico {
   color: var(--cor-texto);
+}
+
+/* Inativo e sem link (roteiro cancelado): o hover não "acende" o que não se clica (M6). */
+.registro--inativo:hover .registro__link--estatico {
+  color: var(--cor-texto-terciario);
 }
 
 .lista-simples {
