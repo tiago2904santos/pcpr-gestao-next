@@ -6,9 +6,15 @@ Documento) e mantém a busca e a aba (F8). Links comuns (página inteira): a bar
 {% if fichas %}
   <div class="filtros-ativos" role="group" aria-label="Filtros valendo" data-rola-lado>
     <span class="filtros-ativos__rotulo">Filtrando por</span>
+    {% comment %}
+    "Limpar tudo" mora em dois lugares e só um aparece: no começo do trilho abaixo de 1280px
+    (o trilho rola e o fim fica sob o esmaecido) e no fim acima disso. Assim a ordem do Tab é
+    a mesma que se vê nas duas larguras (QA Lote 2, M-R2).
+    {% endcomment %}
+    {% if fichas|length > 1 or documento %}<a class="botao botao--texto botao--sm filtros-ativos__limpar filtros-ativos__limpar--inicio" href="{{ url_limpar_tudo }}">Limpar tudo</a>{% endif %}
     {% for f in fichas %}
       <span class="ficha ficha--filtro">{{ f.rotulo }}<a class="ficha__remover" href="{{ f.url }}" aria-label="Remover {{ f.rotulo }}">{% icone "x" classe="icone--sm" %}</a></span>
     {% endfor %}
-    {% if fichas|length > 1 or documento %}<a class="botao botao--texto botao--sm filtros-ativos__limpar" href="{{ url_limpar_tudo }}">Limpar tudo</a>{% endif %}
+    {% if fichas|length > 1 or documento %}<a class="botao botao--texto botao--sm filtros-ativos__limpar filtros-ativos__limpar--fim" href="{{ url_limpar_tudo }}">Limpar tudo</a>{% endif %}
   </div>
 {% endif %}

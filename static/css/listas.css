@@ -121,6 +121,9 @@ a.ficha:hover {
   margin-left: var(--esp-1);
 }
 
+/* Um "Limpar tudo" por largura (_fichas.html): no fim a partir de 1280, no começo abaixo. */
+.filtros-ativos__limpar--inicio { display: none; }
+
 /* Abaixo de 1280: fichas numa linha só, rolando de lado (borda esmaecida, data-rola-lado) —
    com seis filtros a pilha ocupava duas ou três linhas e empurrava a lista para fora da
    1ª tela (QA Lote 2, I5: 3,23 ofícios a 900). */
@@ -131,10 +134,11 @@ a.ficha:hover {
     scrollbar-width: none;
   }
   .filtros-ativos > * { flex: none; white-space: nowrap; }
-  /* "Limpar tudo" vem antes das fichas: sempre à vista no começo do trilho, sem nada por
-     cima de nenhum "×" (um botão preso à direita encobria os alvos — WCAG 2.5.8/2.4.11). */
-  .filtros-ativos__rotulo { order: -2; }
-  .filtros-ativos__limpar { order: -1; margin-left: 0; }
+  /* "Limpar tudo" vem antes das fichas — no DOM também, para o Tab seguir o que se vê:
+     sempre à vista no começo do trilho, sem nada por cima de nenhum "×" (um botão preso à
+     direita encobria os alvos — WCAG 2.5.8/2.4.11). */
+  .filtros-ativos__limpar--inicio { display: inline-flex; margin-left: 0; }
+  .filtros-ativos__limpar--fim { display: none; }
 }
 
 /* =============== Lista de registros (linha-cartão) =============== */

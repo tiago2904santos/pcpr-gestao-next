@@ -1296,6 +1296,13 @@ a.resumo__documento:hover {
   --selo-borda: var(--cor-perigo-borda);
 }
 
+/* Contorno: o selo diz uma CARACTERÍSTICA do registro, não o estado dele (ex.: o tipo do
+   ofício — Convalidação, Retificado, Complementar). Sem fundo, ao lado do selo de situação
+   (cheio), os dois não se confundem de relance (QA M5). */
+.selo--contorno {
+  --selo-fundo: transparent;
+}
+
 .selo--forte {
   --selo-fundo: var(--grafite-900);
   --selo-texto: var(--neutro-0);

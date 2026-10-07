@@ -11,6 +11,9 @@
  *    a lista velha não fica fingindo ser o resultado novo — e "Tentar de novo" refaz o
  *    mesmo pedido (o formulário ou o link que o disparou).
  * 3. Escopo da busca (refino): digitar outro termo volta à busca ampla.
+ * 4. Dica curta (`data-dica-curta="a|b"`): quando a caixa da busca fica estreita (768–900px,
+ *    a busca divide a linha com Documento e Filtros; o celular), o texto de exemplo cortado
+ *    ("Número, protocol") dá lugar à primeira versão curta que cabe (QA Lote 2, M-R4).
  */
 
 /** @param {HTMLDetailsElement} gaveta @param {boolean} devolverFoco */
@@ -241,4 +244,20 @@ document.addEventListener("input", (e) => {
 });
 
 // Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
+// 4. Dica curta: troca o placeholder pela versão curta quando a longa não cabe na caixa.
+document.querySelectorAll("input[data-dica-curta]").forEach((el) => {
+  const campo = /** @type {HTMLInputElement} */ (el);
+  // Da mais longa à mais curta ("a|b|c"): vale a primeira que cabe; nenhuma cabe, a última.
+  const dicas = [campo.placeholder, ...(campo.dataset.dicaCurta || "").split("|").filter(Boolean)];
+  const regua = document.createElement("canvas").getContext("2d");
+  const medir = () => {
+    if (!regua) return;
+    const estilo = getComputedStyle(campo);
+    regua.font = `${estilo.fontWeight} ${estilo.fontSize} ${estilo.fontFamily}`;
+    const util = campo.clientWidth - parseFloat(estilo.paddingLeft) - parseFloat(estilo.paddingRight);
+    campo.placeholder = dicas.find((d) => regua.measureText(d).width <= util) || dicas[dicas.length - 1];
+  };
+  new ResizeObserver(medir).observe(campo);
+});
+
 export {};

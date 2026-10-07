@@ -277,7 +277,8 @@ def selo_tipo(oficio_ou_tipo) -> str:
             else tipo_oficio(oficio_ou_tipo))
     if not tipo.incomum:
         return ""
-    return format_html('<span class="selo selo--neutro selo--sem-ponto" title="{}">{}{}</span>',
+    return format_html('<span class="selo selo--neutro selo--contorno selo--sem-ponto" '
+                       'title="{}">{}{}</span>',
                        tipo.porque, icone(ICONE_TIPO.get(tipo.marca, "history"),
                                           classe="icone--sm"), tipo.selo)
 

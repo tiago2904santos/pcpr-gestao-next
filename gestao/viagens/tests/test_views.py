@@ -1503,7 +1503,7 @@ class TestGavetaEFichas:
         assert "protocolo" not in sem_protocolo
         assert sem_protocolo["q"] == ["a"] and sem_protocolo["aba"] == ["futuros"]
         assert sem_protocolo["documento"] == ["emitido"]
-        limpar = re.search(r'filtros-ativos__limpar" href="([^"]+)">Limpar tudo', html)
+        limpar = re.search(r'filtros-ativos__limpar[^"]*" href="([^"]+)">Limpar tudo', html)
         assert limpar
         tudo = parse_qs(urlsplit(unescape(limpar.group(1))).query)
         assert tudo == {"q": ["a"], "aba": ["futuros"]}
