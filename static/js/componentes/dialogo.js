@@ -110,6 +110,13 @@ document.addEventListener("click", (e) => {
   janela.showModal();
   texto.focus();
 });
+// "voltar" vivo (F3): a lista muda de endereço sem recarregar (busca ao vivo, HTMX), então
+// o endereço gravado na carga da página fica velho. Na hora de enviar, vale o de agora.
+document.addEventListener("submit", (e) => {
+  const form = /** @type {HTMLFormElement} */ (e.target);
+  const voltar = /** @type {HTMLInputElement | null} */ (form.querySelector("input[name=voltar][data-voltar-vivo]"));
+  if (voltar) voltar.value = window.location.pathname + window.location.search;
+}, true);
 document.addEventListener("submit", (e) => {
   const form = /** @type {HTMLFormElement} */ (e.target);
   if (!form.matches("[data-motivo-form]")) return;

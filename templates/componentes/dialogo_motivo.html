@@ -9,7 +9,7 @@ dialogo.js preenche e abre; o texto é obrigatório (o servidor também confere)
 <dialog id="dialogo-motivo" class="dialogo" aria-labelledby="dialogo-motivo-titulo">
   <form method="post" action="" novalidate data-motivo-form>
     {% csrf_token %}
-    <input type="hidden" name="voltar" value="{{ request.get_full_path }}">
+    <input type="hidden" name="voltar" value="{{ request.get_full_path }}" data-voltar-vivo>
     <div class="dialogo__cabecalho">
       <h2 class="dialogo__titulo" id="dialogo-motivo-titulo">Confirmar</h2>
     </div>
