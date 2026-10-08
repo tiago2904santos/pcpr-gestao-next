@@ -2,6 +2,18 @@
 
 Só entra aqui o que cumpriu a Definição de concluído (`mission.md`).
 
+## Piloto de leitura operacional de Ofícios — 08/10/2026
+
+Lista e Resumo: **aprovados com ressalvas pelo agente**, na branch
+`codex/oficios-leitura-operacional`, implementação `a2c5e42`, base `0213d75`.
+Identidade compacta, régua de colunas e metadados compartilhados demonstrados
+na segunda tela e no UI Lab. Gate integral 2.197 verdes / zero falhas; HTTP31,
+navegador, teclado/foco e axe nas cinco larguras. 25 comparações reais revisadas.
+Folha e Documentos revalidados, sem nova frente de desenho nesta rodada.
+Ressalvas/medições/limites: `qa/oficios-leitura-operacional-2026-10-08.md`.
+Imagens: `qa/oficios-leitura-operacional-evidencias.md`. Não presume aprovação
+estética do usuário nem conclusão de toda a missão de Viagens. Sem push/merge/deploy.
+
 ## Bloco visual de Ofícios — 08/10/2026
 
 Lista, Resumo, Folha e painel Documentos redesenhados e componentizados.

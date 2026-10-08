@@ -1,0 +1,43 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 171 items / 140 deselected / 31 selected
+
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro0] PASSED [  3%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro1] PASSED [  6%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro2] PASSED [  9%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro3] PASSED [ 12%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro4] PASSED [ 16%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro5] PASSED [ 19%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro6] PASSED [ 22%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro7] PASSED [ 25%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_e_documento[filtro8] PASSED [ 29%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_ordenacao[numero] PASSED [ 32%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_ordenacao[-numero] PASSED [ 35%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_ordenacao[saida] PASSED [ 38%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_ordenacao[-saida] PASSED [ 41%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_ordenacao[invalida] PASSED [ 45%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_avancado_por_periodo_de_saida PASSED [ 48%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_avancado_por_protocolo PASSED [ 51%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_avancado_por_veiculo_sem_transporte PASSED [ 54%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_avancado_por_veiculo_pela_descricao PASSED [ 58%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_avancado_por_valor_de_diarias PASSED [ 61%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_filtro_rabiscado_nao_derruba_a_lista PASSED [ 64%]
+gestao/viagens/tests/test_views.py::TestListaEPainel::test_abas_preservam_os_filtros_avancados PASSED [ 67%]
+gestao/viagens/tests/test_views.py::TestExportarPlanilha::test_respeita_os_filtros_da_lista PASSED [ 70%]
+gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_limites_sao_inclusivos PASSED [ 74%]
+gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_pontas_invertidas_e_data_invalida PASSED [ 77%]
+gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_combina_com_situacao_busca_e_ordem PASSED [ 80%]
+gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_periodo_conta_como_um_filtro_ativo PASSED [ 83%]
+gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_paginacao_preserva_o_filtro PASSED [ 87%]
+gestao/viagens/tests/test_views.py::TestGavetaEFichas::test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade PASSED [ 90%]
+gestao/viagens/tests/test_views.py::TestGavetaEFichas::test_filtro_por_ano_do_numero PASSED [ 93%]
+gestao/viagens/tests/test_views.py::TestGavetaEFichas::test_fichas_removem_um_filtro_de_cada_vez PASSED [ 96%]
+gestao/viagens/tests/test_views.py::TestVaziosEContagens::test_vazio_so_com_filtro_da_gaveta PASSED [100%]
+
+=============== 31 passed, 140 deselected in 691.43s (0:11:31) ================

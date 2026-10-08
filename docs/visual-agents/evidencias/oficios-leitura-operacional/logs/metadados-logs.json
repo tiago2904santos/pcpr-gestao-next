@@ -1,0 +1,98 @@
+[
+  {
+    "arquivo": "operacional-tokens.log",
+    "sha256_bruto": "526e65b22697fde94a09285efffb37015d90e9fb1ff8329b8b7af8f9d21516c2",
+    "sha256_arquivado": "365c46f742833718b2653a0ce87346cc4dee733e85c8da67a026762ebb7f3dff",
+    "linhas": 2
+  },
+  {
+    "arquivo": "operacional-tokens-final.log",
+    "sha256_bruto": "92bfcb3c492ae2cc8f7c06f908f4863f04d030916d927a081fc5d09fe3b5f47c",
+    "sha256_arquivado": "47a7595ce01c3afa599bc8a20aa0a40c824d60f418dbb8ab4e231319c73e733f",
+    "linhas": 2
+  },
+  {
+    "arquivo": "operacional-browser.log",
+    "sha256_bruto": "bc092f9218f2ca6f5d65d3e336b67c556cc4e926e2c3d9c8f0f4f4ba0f5ca432",
+    "sha256_arquivado": "a41cdec5bd41990576be3252566a8582aeb4bb2b37ba57a45079464c3ac238c3",
+    "linhas": 202
+  },
+  {
+    "arquivo": "operacional-final.log",
+    "sha256_bruto": "f739e5b9077abd8231c5cf3dbe3c0f60b767089ffbc28660dfafedc942d4e0ff",
+    "sha256_arquivado": "bca455aff1d573644437f7f5ea3202ccf599005d57b46780fff1add11f6f1533",
+    "linhas": 25
+  },
+  {
+    "arquivo": "operacional-consolidado.log",
+    "sha256_bruto": "aec5a692d5ec5ab1ac0435767a32688cdc68cf5165b1bd77687c9a30e8b6bb7a",
+    "sha256_arquivado": "e7e8143fb1ec87f3cf8c9136ee31a1f39fd90a30e6c9f68b63d7a2303bb02b4e",
+    "linhas": 76
+  },
+  {
+    "arquivo": "operacional-identidade-final.log",
+    "sha256_bruto": "165958d59de3299c6a438a71c4e29d073853564d9f0b563a3fae520e7b3dddac",
+    "sha256_arquivado": "86317660e8c4f8d8020990d1d7f37788827f259db9a196e4cbf3e327f68539b4",
+    "linhas": 23
+  },
+  {
+    "arquivo": "operacional-filtros.log",
+    "sha256_bruto": "45e305d4ebb7e68b6141cff4f61064107d37a8c302c7590f10494336729adb56",
+    "sha256_arquivado": "6b93434e150461d29887b37280d824cba56fdd6e0565154a9088d8eb58c8070b",
+    "linhas": 43
+  },
+  {
+    "arquivo": "operacional-ui-lab-360-final.log",
+    "sha256_bruto": "b59cd30d231b5d615d4b97a237fd45858fc58c34b966fb5cb7bc478623c53eda",
+    "sha256_arquivado": "812c785c90333b37bedd34dbffcca7602b4b8646d73e3c3ece3b11d1b63c8869",
+    "linhas": 13
+  },
+  {
+    "arquivo": "operacional-ui-lab-1440-final.log",
+    "sha256_bruto": "eb1c03bd3dd1ab8bc9f0c4b9d7cc68ad5fe715510a8effa5f7dcebc8d8c94737",
+    "sha256_arquivado": "719f2befdc4f2cf38b93a5170da5a56f5a167eab3d2e142232b5ef3a1d4dab37",
+    "linhas": 13
+  },
+  {
+    "arquivo": "operacional-verificar-integral.log",
+    "sha256_bruto": "fa2e3fa48939bc18f6e9590eb849e43e9c8877848bcaee5e0845a5c757d115c4",
+    "sha256_arquivado": "2cafdee5c80fa169549dadc48186936e167022da8dc44478b0f9170ea41fb036",
+    "linhas": 164
+  },
+  {
+    "arquivo": "operacional-verificar-final.log",
+    "sha256_bruto": "af96b4dc7362057e1877e9bc9bb473add54dfff8216e35272e4e96d498226e40",
+    "sha256_arquivado": "062d1681171338981254d97ed0c52aef2d3a8da1d236e7ec564c56ff72826dc2",
+    "linhas": 146
+  },
+  {
+    "arquivo": "operacional-perf-antes.log",
+    "sha256_bruto": "d828d5a41d187c5ba1825dc507190993257bb04d40a13d990d125984cba9593b",
+    "sha256_arquivado": "33d1925e7748262bc2fc28407ba835fbb0fafd8c5ddf981a3cded10168de1221",
+    "linhas": 441
+  },
+  {
+    "arquivo": "operacional-perf-depois.log",
+    "sha256_bruto": "53da347e3a16db827d143bd16c3ebd2f71a68261aaac3d09b817d4b65536e4e6",
+    "sha256_arquivado": "c4096a5dde0172bc2a7ad977b6651e6266a0823bc62dea0380b281c77db8cf86",
+    "linhas": 441
+  },
+  {
+    "arquivo": "operacional-perf-final.log",
+    "sha256_bruto": "d30673f7ec46c69bd50ddbccc10fa3096499a25c99da40ecf7e005cda8f98373",
+    "sha256_arquivado": "45610374a3ed10abdd1f809a7567357c367e27368e08a2705742022dfd09e9f1",
+    "linhas": 441
+  },
+  {
+    "arquivo": "operacional-perf-fechamento.log",
+    "sha256_bruto": "2c1209e871f90c3d0d49a75148eb3f0b411123b2cb54a7736fe294896881290f",
+    "sha256_arquivado": "ef22f6ad4143b272374bb9c4181c607e15b276592ba5b47b958f54f4cd393f0b",
+    "linhas": 441
+  },
+  {
+    "arquivo": "operacional-perf-folha-repeticao.log",
+    "sha256_bruto": "eb185bd4b064b8f6eb1fe197d49bb02572dfe6d84f76a384292776d79d6b60eb",
+    "sha256_arquivado": "350e29be80f7c112dd4de3835d420d35ccf69b509f3e13fc3e2acef471aed2ee",
+    "linhas": 245
+  }
+]

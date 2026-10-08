@@ -1,5 +1,33 @@
 # Página atual
 
+## Leitura operacional de Ofícios — rodada atual de 08/10/2026
+
+Branch `codex/oficios-leitura-operacional`, base `0213d75`. Piloto: Lista;
+segunda tela: Resumo. Identidade compacta, régua de colunas, metadados rotulados
+e agenda compartilhada. Folha/Documentos apenas observados e revalidados.
+Sem alterações de negócio, JS, documentos oficiais, permissões ou integrações.
+
+**Bloco concluído, aprovado com ressalvas pelo agente.** Implementação validada
+em `a2c5e42`. Código congelado após restaurar `placa__numero`; 31 HTTP e 5 casos finais de navegador passaram.
+Resumo nas cinco larguras e quatro dossiês do UI Lab passaram no consolidado.
+UI Lab completo passou nas repetições originais 360/1440; contraste durante
+carregamento do itinerário registrado como preexistente, com fontes idênticas à base.
+Capturas finais e 25 comparações em cinco larguras, console limpo, zero overflow.
+20 relatórios axe de Ofícios e 2 do UI Lab sem violações nas últimas medições.
+
+Gate integral verde: 2.197 passaram, zero falhas, 7 avisos, 48min45s; todos os
+checks passaram. Logs completos arquivados em `evidencias/oficios-leitura-operacional/logs/`.
+Performance isolada final: três orçamentos de recursos reprovados, como na base;
+CSS da Lista/Resumo +3,6 KB minificados / +0,4 KB gzip. Nenhum JS, pedido ou consulta
+adicionado. DB da Folha 84 ms na coleta completa e 24,8 ms na repetição focada,
+sem alterar código, com 21 consultas. Ambas as coletas preservadas.
+Próxima página recomendada: Folha/Cadastro, dentro de Ofícios, após este pacote.
+Ressalvas: CSP anterior, contraste transitório do itinerário preexistente e peso
+de recursos anterior, acrescido do custo CSS explícito desta rodada. Sem CI global verde.
+Relatório: `qa/oficios-leitura-operacional-2026-10-08.md`; galeria:
+`qa/oficios-leitura-operacional-evidencias.md`. Prévia própria em 8012.
+Termos e demais módulos permanecem fora do escopo; sem push/merge/deploy.
+
 ## Missão visual exclusiva de Ofícios — 08/10/2026
 
 O pedido posterior substituiu o avanço visual anterior: Lista, Resumo, Folha

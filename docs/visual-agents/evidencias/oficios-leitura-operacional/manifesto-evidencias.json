@@ -1,0 +1,618 @@
+{
+  "base": "0213d75",
+  "implementacao": "a2c5e42",
+  "arquivos": {
+    ".gitattributes": {
+      "bytes": 64,
+      "sha256": "7dec79f2dfb95c80cb0f502962728963b56109447ec717a7fc0df1ef53d59b28"
+    },
+    "antes/1024/copia-6.png": {
+      "bytes": 127853,
+      "sha256": "90616002e22fefc46806d11227fad8daaf901c3785a59527615e1b97cd2398d8"
+    },
+    "antes/1024/documentos-6.png": {
+      "bytes": 129603,
+      "sha256": "ccf4744230512f92ac4ee993ed44f8d12d65620c4c190fd67ba5e0e2274fb3b7"
+    },
+    "antes/1024/documentos.png": {
+      "bytes": 107280,
+      "sha256": "2dd1a0770447d40f522094520aef3f3498cf39c1ccdef111df031bc75651f8d9"
+    },
+    "antes/1024/folha.png": {
+      "bytes": 109818,
+      "sha256": "862af503381e7673b5d7c302bd0805ec011af5a9c7e8a145a9b5670ee39d5aa4"
+    },
+    "antes/1024/lista.png": {
+      "bytes": 144640,
+      "sha256": "9d5e7b5155179b2eb5136a7f4a705c9c10bc7b5f039a2b963780764cc29abfd6"
+    },
+    "antes/1024/viagens-oficios-resumo-6.png": {
+      "bytes": 128926,
+      "sha256": "c951636f2da56e79bdfd98b98530fa99210b619f89ac72fb36307aff56d84751"
+    },
+    "antes/1440/copia-6.png": {
+      "bytes": 188709,
+      "sha256": "474b49814fb2c3486dfa945fb5fb01aaa65b4ef0648c508dadda438972c357ef"
+    },
+    "antes/1440/documentos-6.png": {
+      "bytes": 190640,
+      "sha256": "4a88c26e7620e65558439b007cee6e9eb9c50a4a6a96433fef840b3f34be2e63"
+    },
+    "antes/1440/documentos.png": {
+      "bytes": 118480,
+      "sha256": "9d6b875df64e0c66d8bf83b4f1ecface33b35558c6905ea2fe84c9a8344d702c"
+    },
+    "antes/1440/folha.png": {
+      "bytes": 126061,
+      "sha256": "59663a9befee075b488dff8abb8fa0bce470e86656ab7a1838bd5afa2286d8d4"
+    },
+    "antes/1440/lista.png": {
+      "bytes": 160897,
+      "sha256": "adb71bf0984c82d458e9ff63160990b201f0554f9fd429610e6685db9def6160"
+    },
+    "antes/1440/viagens-oficios-resumo-6.png": {
+      "bytes": 189199,
+      "sha256": "761f03ac73c69ff6736436584f33e878b51d175ffa47f73b1282d916e70e63fc"
+    },
+    "antes/360/copia-6.png": {
+      "bytes": 65678,
+      "sha256": "a8df3b525925513a82c43c5be11fea83ed7e2fac3119196826a4650e049a40b1"
+    },
+    "antes/360/documentos-6.png": {
+      "bytes": 65741,
+      "sha256": "f35059b532f32e0e278cd859ca4cff5d9323e5cc07d116af3fe9c57e1e1117db"
+    },
+    "antes/360/documentos.png": {
+      "bytes": 67735,
+      "sha256": "299127fa2a7a0677fa8b7c5e91ea0a6756122a24b1216cff3a2a57a1e94241f1"
+    },
+    "antes/360/folha.png": {
+      "bytes": 80186,
+      "sha256": "02342792658b2c5b24ce02b358b1579f48919f5c8e26e2081c3b77dede0dbbde"
+    },
+    "antes/360/lista.png": {
+      "bytes": 85263,
+      "sha256": "388b53f86840113ef8515317e8dabf65902c6d2e54b52877073fa02c996ee987"
+    },
+    "antes/360/viagens-oficios-resumo-6.png": {
+      "bytes": 73332,
+      "sha256": "efa4f3d8ce6d5349c8fb67c24b79d0b2cbc0246e9328a27396373e1df4b3966f"
+    },
+    "antes/390/copia-6.png": {
+      "bytes": 66352,
+      "sha256": "1db0777dc0e47f1015864cdb68d4cc1dd46ed7c0cccf95cac54b7aa5ec8eaac5"
+    },
+    "antes/390/documentos-6.png": {
+      "bytes": 66085,
+      "sha256": "52fcf895e1a37744c289f45d7453a3d298a2bf4d1de7e97567602a8e38650f0d"
+    },
+    "antes/390/documentos.png": {
+      "bytes": 67645,
+      "sha256": "14cb920c988ff8cd990fca199ed48ae9ce05258f5287a441a013b2261291d53a"
+    },
+    "antes/390/folha.png": {
+      "bytes": 80276,
+      "sha256": "2802fe05d8936d2ec93f996305de124ff81981d879ae976bdc508a947ab1a073"
+    },
+    "antes/390/lista.png": {
+      "bytes": 87381,
+      "sha256": "495e891321a60a19c5c109a3e5c837bec03306c82f969451f46650c33cd95e11"
+    },
+    "antes/390/viagens-oficios-resumo-6.png": {
+      "bytes": 76495,
+      "sha256": "9135b138e30d60194113c995b0cd41dffb8e66c7af6e1d2c01efe5468b998e86"
+    },
+    "antes/768/copia-6.png": {
+      "bytes": 103456,
+      "sha256": "d4d4a00df0536a98f216f4c92c76c77fbbc480c38b5956ef723f325397ddab22"
+    },
+    "antes/768/documentos-6.png": {
+      "bytes": 107600,
+      "sha256": "c468024d1ee68ebe221188aee73fbbf3f8a6ab3bcf91b3e092c94e4acbad8965"
+    },
+    "antes/768/documentos.png": {
+      "bytes": 102484,
+      "sha256": "e3af48d29c6dbf40a9a72ac44b030769c966e9a2d8ee451401070cbe8ad14b1a"
+    },
+    "antes/768/folha.png": {
+      "bytes": 107064,
+      "sha256": "882ab0e8aada693aef641baa2c0c52e1d232abd9ee0a8c14e624b6744a67a7c2"
+    },
+    "antes/768/lista.png": {
+      "bytes": 135407,
+      "sha256": "2348007d89ca0423e3b3b63d6bb8bfb0d3ff6d62af8ef723c7dee32ef57b6ff0"
+    },
+    "antes/768/viagens-oficios-resumo-6.png": {
+      "bytes": 111503,
+      "sha256": "8f9f77867bea97518cd9cae8b047f5e69e2ffaa8dc493820ea49cb88598a7985"
+    },
+    "antes-console.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "antes-medidas.json": {
+      "bytes": 2103,
+      "sha256": "921b0421b5e1b336b918fd2980cfee758bb29ec44a7ad26959f4e6b80f6f11db"
+    },
+    "axe/documentos-1024.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/documentos-1440.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/documentos-360.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/documentos-390.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/documentos-768.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/folha-1024.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/folha-1440.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/folha-360.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/folha-390.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/folha-768.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/lista-1024.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/lista-1440.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/lista-360.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/lista-390.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/lista-768.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/resumo-1024.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/resumo-1440.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/resumo-360.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/resumo-390.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/resumo-768.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/ui-lab-1440.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "axe/ui-lab-360.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "carregamento-itinerario-preexistente.json": {
+      "bytes": 728,
+      "sha256": "684f980edadbd1f8a372b732b9e9029115040a15f3d41cdbc8686deac95d716c"
+    },
+    "comparacoes/documentos-1024.png": {
+      "bytes": 125882,
+      "sha256": "8083f9de07a8d878a6d16161a49d272ebfad1af89f685ac04c3fcb75d593a61b"
+    },
+    "comparacoes/documentos-1440.png": {
+      "bytes": 140451,
+      "sha256": "159b8aae58f38a40c2aa529225da275431c2ac464a196b35bb7a27b7fce3198f"
+    },
+    "comparacoes/documentos-360.png": {
+      "bytes": 125369,
+      "sha256": "b69b46356537ac122744d16b200f923a4410c931cc907bc5d6ac69a2d2fd7bc6"
+    },
+    "comparacoes/documentos-390.png": {
+      "bytes": 84164,
+      "sha256": "80e4716f3067b6b6914d3f82c866e4d6a3c69cee8fbd9d2133a82ab23a69cad8"
+    },
+    "comparacoes/documentos-6-1024.png": {
+      "bytes": 174267,
+      "sha256": "f4fdac65b8b4dc5e78e4d902feba549d2feda3eb7f6103d286be588dda7b79f5"
+    },
+    "comparacoes/documentos-6-1440.png": {
+      "bytes": 275132,
+      "sha256": "5494bddfdd4cd6038a4b113453e2053dc00a215ab2a5649109dbd946a8805ff9"
+    },
+    "comparacoes/documentos-6-360.png": {
+      "bytes": 83738,
+      "sha256": "309e7303db150a86ce275526ca56d2e91c980364457575fd0d86b91493e30175"
+    },
+    "comparacoes/documentos-6-390.png": {
+      "bytes": 84176,
+      "sha256": "d581b40fb77c0aeb45e15c946e8ce020efa2c32957784a7ffed5f27eba2f66b0"
+    },
+    "comparacoes/documentos-6-768.png": {
+      "bytes": 140537,
+      "sha256": "17ccb8a2ff1e1225479ea5d86759c70a2bf66eb6611370bcf0dbbf1612909e98"
+    },
+    "comparacoes/documentos-768.png": {
+      "bytes": 119187,
+      "sha256": "ec43db0d53c4914341b23bb80bb611492c96c21faa9e4191471a63e7fd7c94c3"
+    },
+    "comparacoes/folha-1024.png": {
+      "bytes": 127305,
+      "sha256": "17c78639f59e46967060b68ec729c03aa4196a5be9862f015cb57655f5fb9667"
+    },
+    "comparacoes/folha-1440.png": {
+      "bytes": 146300,
+      "sha256": "7d7fbf14bcb649e189c0ffd7e7c0fe792885a7195f5443818bb14c4de777017b"
+    },
+    "comparacoes/folha-360.png": {
+      "bytes": 93631,
+      "sha256": "6349dd1462884a01d02af548a9c3bcd85b2a68b1144e78cd638fcc8b5769c5ed"
+    },
+    "comparacoes/folha-390.png": {
+      "bytes": 93854,
+      "sha256": "84d91a8e4d5a6baeb5b452967f792aa901e5284f13197c70e51b2a9eba26c1d9"
+    },
+    "comparacoes/folha-768.png": {
+      "bytes": 123219,
+      "sha256": "5880b5b08d66b37e4d8e7199ebc11f6e8f9816ab2338953518242a753cbe25b8"
+    },
+    "comparacoes/lista-1024.png": {
+      "bytes": 263328,
+      "sha256": "39a1a8785c62747c355065e09d0b588e554665f844dcdcc3f720953fa5bb296e"
+    },
+    "comparacoes/lista-1440.png": {
+      "bytes": 286117,
+      "sha256": "f07e08c42c4b57142fb6bc2113163793ebad3cbc7aa7e5218aa94bce31c19a13"
+    },
+    "comparacoes/lista-360.png": {
+      "bytes": 131647,
+      "sha256": "ba5cb3668f209237289177ba99b45a314616668e5b28077253cc37780be99c67"
+    },
+    "comparacoes/lista-390.png": {
+      "bytes": 135127,
+      "sha256": "cfdc7015f66c4b62e6d0ab63f486b43b7531c26df906ce271415dc50be7cae38"
+    },
+    "comparacoes/lista-768.png": {
+      "bytes": 240401,
+      "sha256": "9bddd15168c801a1c2d7005b86a961b979c42509b1bbb406e2f2f71921b60077"
+    },
+    "comparacoes/viagens-oficios-resumo-6-1024.png": {
+      "bytes": 247920,
+      "sha256": "59c1f4cbff1460d1a59f8a4639934918588a3e35f4170811ba4a9e1187163e69"
+    },
+    "comparacoes/viagens-oficios-resumo-6-1440.png": {
+      "bytes": 352207,
+      "sha256": "3cad19deb5d28fc1b3cc8da81e5cc8e24f147b73c553949d8340af49ab588234"
+    },
+    "comparacoes/viagens-oficios-resumo-6-360.png": {
+      "bytes": 142133,
+      "sha256": "9ecb3334c4628ba053b2a5fea015aba1d61f5ca42cbeb37cd2ce3c984391686d"
+    },
+    "comparacoes/viagens-oficios-resumo-6-390.png": {
+      "bytes": 146828,
+      "sha256": "a8d37d79a64b8bf8d2f1c0929e4566ae0fe1a7b97bf84e3355156c2ac14e91fc"
+    },
+    "comparacoes/viagens-oficios-resumo-6-768.png": {
+      "bytes": 208017,
+      "sha256": "9fc8dd01f08e158f14bde23c190fc534d08ddf2cd6da925242521334214eb16f"
+    },
+    "custo-fontes.json": {
+      "bytes": 346,
+      "sha256": "d4e42d31f90eaa55d563c3f12522a3a04a8ee26a4cb2687bc3ee522a6fa8d4ab"
+    },
+    "depois/1024/copia-6.png": {
+      "bytes": 132523,
+      "sha256": "12e586350b0139297e790d5b46749077339c8cfd45990aaca4a95146623910a2"
+    },
+    "depois/1024/documentos-6.png": {
+      "bytes": 132157,
+      "sha256": "4b062e6be224b03c5b3952f198cbd41707ed5290cc3de11acd7e9362b54c81c7"
+    },
+    "depois/1024/documentos.png": {
+      "bytes": 107276,
+      "sha256": "8bb49e47cea52d48af8ba7a18b857009cd0d44501ee7bbb9985b379076728a99"
+    },
+    "depois/1024/folha.png": {
+      "bytes": 109818,
+      "sha256": "862af503381e7673b5d7c302bd0805ec011af5a9c7e8a145a9b5670ee39d5aa4"
+    },
+    "depois/1024/lista.png": {
+      "bytes": 152249,
+      "sha256": "6b00c9593347814828b7223449ac83ffe4eaab645c3a2b59a67822cf2bf727de"
+    },
+    "depois/1024/viagens-oficios-resumo-6.png": {
+      "bytes": 132022,
+      "sha256": "4e5161c5800a3ad4f8f483c211fe00d2ff012c8650171e901ccf92c135a8b421"
+    },
+    "depois/1440/copia-6.png": {
+      "bytes": 196562,
+      "sha256": "2e03ece8a0fdc2c91bed7942aa9583f2a8b8b608652ad07c4a9959a67b410593"
+    },
+    "depois/1440/documentos-6.png": {
+      "bytes": 198192,
+      "sha256": "90036b19cd66749ed196937d57353e6b4eea5767321087ea9a4ae10e608c051d"
+    },
+    "depois/1440/documentos.png": {
+      "bytes": 118515,
+      "sha256": "a8d4caa8e3d74a6e56af2f20954955ac7ed0f72bb4dfaa5339d4fc0d452e1b05"
+    },
+    "depois/1440/folha.png": {
+      "bytes": 126061,
+      "sha256": "59663a9befee075b488dff8abb8fa0bce470e86656ab7a1838bd5afa2286d8d4"
+    },
+    "depois/1440/lista.png": {
+      "bytes": 165594,
+      "sha256": "982eefba96e0de70d161f77b37e8d57b2fcd9a270aa0deeb1f9b346aae91f556"
+    },
+    "depois/1440/viagens-oficios-resumo-6.png": {
+      "bytes": 197801,
+      "sha256": "3b506f798dfe4c5f4918518236f364a655742ef841832071acfa1b997eebc76d"
+    },
+    "depois/360/copia-6.png": {
+      "bytes": 65962,
+      "sha256": "f76ad03b2f21025e933f7ffacce746de08a5dee6a2891ff7bea268ac829b3421"
+    },
+    "depois/360/documentos-6.png": {
+      "bytes": 66044,
+      "sha256": "d62d6aca971a69531510d56d44f675ed1ed368b64d652e837698a1e3b454cf45"
+    },
+    "depois/360/documentos.png": {
+      "bytes": 64831,
+      "sha256": "e832236c494b1d5e4779d35d7a09f4ec66db39a620f3711dd7fdddb37b54ad94"
+    },
+    "depois/360/folha.png": {
+      "bytes": 80188,
+      "sha256": "cce7ee4cf5b9349f33d6448e5fef2b7161a09e4e75bcadb27c27339950270618"
+    },
+    "depois/360/lista.png": {
+      "bytes": 81019,
+      "sha256": "66c161098bf1008015974f881428c02b7ead53915f7dfb321c9af8f8a7ee704c"
+    },
+    "depois/360/viagens-oficios-resumo-6.png": {
+      "bytes": 73130,
+      "sha256": "c349d4d9047570ad0d4f123e160ff0e7b6f7906f24b468a4a3ce7a4a8cdf8dec"
+    },
+    "depois/390/copia-6.png": {
+      "bytes": 66659,
+      "sha256": "6ea41a28b2f17c78e72f8b05afcd34b52af80fdf55cdc431357830d8da828f25"
+    },
+    "depois/390/documentos-6.png": {
+      "bytes": 66407,
+      "sha256": "aba55df212ad9417b3b45651baa2ac1912cc2df13e2f08b63ae5e63cf2dd601d"
+    },
+    "depois/390/documentos.png": {
+      "bytes": 67645,
+      "sha256": "14cb920c988ff8cd990fca199ed48ae9ce05258f5287a441a013b2261291d53a"
+    },
+    "depois/390/folha.png": {
+      "bytes": 80276,
+      "sha256": "2802fe05d8936d2ec93f996305de124ff81981d879ae976bdc508a947ab1a073"
+    },
+    "depois/390/lista.png": {
+      "bytes": 82769,
+      "sha256": "8ba61c10ce94ba6fc505958a285bfc20fb0a2017b8c87dfb2053b39c731d7301"
+    },
+    "depois/390/viagens-oficios-resumo-6.png": {
+      "bytes": 73482,
+      "sha256": "9f1f3386cbf4cd4ca6a300708e00d19beda6d0a1b4d19c149f21bbec7243a998"
+    },
+    "depois/768/copia-6.png": {
+      "bytes": 103909,
+      "sha256": "ff2c50a69524b03eb1187fb9b84363c9daf035d4e367775369e2eacb49e75d8f"
+    },
+    "depois/768/documentos-6.png": {
+      "bytes": 107455,
+      "sha256": "0204052ba95997d6afec852307fb81ce4692dea1f3eba8e962975c8168bf9d34"
+    },
+    "depois/768/documentos.png": {
+      "bytes": 102484,
+      "sha256": "e3af48d29c6dbf40a9a72ac44b030769c966e9a2d8ee451401070cbe8ad14b1a"
+    },
+    "depois/768/folha.png": {
+      "bytes": 107064,
+      "sha256": "882ab0e8aada693aef641baa2c0c52e1d232abd9ee0a8c14e624b6744a67a7c2"
+    },
+    "depois/768/lista.png": {
+      "bytes": 136832,
+      "sha256": "114f0fcb000676815157461402bb1b4b6fca40e84e7030f3127c5ea8f50ec1f2"
+    },
+    "depois/768/viagens-oficios-resumo-6.png": {
+      "bytes": 111522,
+      "sha256": "fec63266740c32de11c938a4976aaebcc2810bf00a31008884857c52645a4a4d"
+    },
+    "depois-console.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "depois-medidas.json": {
+      "bytes": 2103,
+      "sha256": "921b0421b5e1b336b918fd2980cfee758bb29ec44a7ad26959f4e6b80f6f11db"
+    },
+    "fontes-validadas.json": {
+      "bytes": 1250,
+      "sha256": "36ba41039c1ce48becc0885dffc387eeeed9df2fbab69f27559dd3c9313f1a0f"
+    },
+    "logs/metadados-logs.json": {
+      "bytes": 4060,
+      "sha256": "b7ecad1c850e16bbefae24e94be32524f7f730e068bb605b6d8d85036f6cd0b0"
+    },
+    "logs/operacional-browser.log": {
+      "bytes": 21801,
+      "sha256": "a41cdec5bd41990576be3252566a8582aeb4bb2b37ba57a45079464c3ac238c3"
+    },
+    "logs/operacional-consolidado.log": {
+      "bytes": 14756,
+      "sha256": "e7e8143fb1ec87f3cf8c9136ee31a1f39fd90a30e6c9f68b63d7a2303bb02b4e"
+    },
+    "logs/operacional-filtros.log": {
+      "bytes": 3905,
+      "sha256": "6b93434e150461d29887b37280d824cba56fdd6e0565154a9088d8eb58c8070b"
+    },
+    "logs/operacional-final.log": {
+      "bytes": 1858,
+      "sha256": "bca455aff1d573644437f7f5ea3202ccf599005d57b46780fff1add11f6f1533"
+    },
+    "logs/operacional-identidade-final.log": {
+      "bytes": 1657,
+      "sha256": "86317660e8c4f8d8020990d1d7f37788827f259db9a196e4cbf3e327f68539b4"
+    },
+    "logs/operacional-perf-antes.log": {
+      "bytes": 26707,
+      "sha256": "33d1925e7748262bc2fc28407ba835fbb0fafd8c5ddf981a3cded10168de1221"
+    },
+    "logs/operacional-perf-depois.log": {
+      "bytes": 26813,
+      "sha256": "c4096a5dde0172bc2a7ad977b6651e6266a0823bc62dea0380b281c77db8cf86"
+    },
+    "logs/operacional-perf-fechamento.log": {
+      "bytes": 26813,
+      "sha256": "ef22f6ad4143b272374bb9c4181c607e15b276592ba5b47b958f54f4cd393f0b"
+    },
+    "logs/operacional-perf-final.log": {
+      "bytes": 26719,
+      "sha256": "45610374a3ed10abdd1f809a7567357c367e27368e08a2705742022dfd09e9f1"
+    },
+    "logs/operacional-perf-folha-repeticao.log": {
+      "bytes": 14100,
+      "sha256": "350e29be80f7c112dd4de3835d420d35ccf69b509f3e13fc3e2acef471aed2ee"
+    },
+    "logs/operacional-tokens-final.log": {
+      "bytes": 99,
+      "sha256": "47a7595ce01c3afa599bc8a20aa0a40c824d60f418dbb8ab4e231319c73e733f"
+    },
+    "logs/operacional-tokens.log": {
+      "bytes": 99,
+      "sha256": "365c46f742833718b2653a0ce87346cc4dee733e85c8da67a026762ebb7f3dff"
+    },
+    "logs/operacional-ui-lab-1440-final.log": {
+      "bytes": 731,
+      "sha256": "719f2befdc4f2cf38b93a5170da5a56f5a167eab3d2e142232b5ef3a1d4dab37"
+    },
+    "logs/operacional-ui-lab-360-final.log": {
+      "bytes": 730,
+      "sha256": "812c785c90333b37bedd34dbffcca7602b4b8646d73e3c3ece3b11d1b63c8869"
+    },
+    "logs/operacional-verificar-final.log": {
+      "bytes": 9796,
+      "sha256": "062d1681171338981254d97ed0c52aef2d3a8da1d236e7ec564c56ff72826dc2"
+    },
+    "logs/operacional-verificar-integral.log": {
+      "bytes": 10351,
+      "sha256": "2cafdee5c80fa169549dadc48186936e167022da8dc44478b0f9170ea41fb036"
+    },
+    "performance-antes/desempenho-viagens_oficios.json": {
+      "bytes": 7138,
+      "sha256": "a73939f15ff232cda9d7c48a3d71184c82ab39646c904fd648c4664947d8c79b"
+    },
+    "performance-antes/desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 11091,
+      "sha256": "a0f9e90e59c0a575eb9d505fa275af523b451e76181fb49937ebd72ab834ed70"
+    },
+    "performance-antes/desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7423,
+      "sha256": "265e7a2615a88dc72b8b379b92d1094d030379ba44b5c9a0775494c5732c5f4d"
+    },
+    "performance-antes/recursos-desempenho-viagens_oficios.json": {
+      "bytes": 6807,
+      "sha256": "888b5f14e78d50a1c5cf2c793e88d7332b5c7613e9cf8c0a97ec6de8a502d920"
+    },
+    "performance-antes/recursos-desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 10766,
+      "sha256": "d2d7960b3132eb276540143cc849c4f0b55a2b204658a09c42eb64a7b57218f0"
+    },
+    "performance-antes/recursos-desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7100,
+      "sha256": "2b4d834b2154bede144ffd23b7cbbed0b977154afefb8090b3cd82cf883a3034"
+    },
+    "performance-comparacao.json": {
+      "bytes": 3577,
+      "sha256": "87944ba1dd273263ddbc5e5e3f69af2a4e8b0bce50ff62fa8f16d6b0aad2ecc3"
+    },
+    "performance-depois/desempenho-viagens_oficios.json": {
+      "bytes": 7140,
+      "sha256": "86ed5901d0391adbf170dd191671aeacd131342876387225623e88b347a0d1ea"
+    },
+    "performance-depois/desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 11093,
+      "sha256": "23d96456c60dbd36595bd9b2b37129d2cd21feca697b5f7297214cef171a6ec9"
+    },
+    "performance-depois/desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7421,
+      "sha256": "3dffd9d90f74bf1cab4676423cb49da1d8f9a021c4bb44430c6f47ccb6eb1159"
+    },
+    "performance-depois/recursos-desempenho-viagens_oficios.json": {
+      "bytes": 6807,
+      "sha256": "0a10ac53a9d711828ac8215bc725abea8ef694bfd7faa5c7ef74cd31e1c6e3e8"
+    },
+    "performance-depois/recursos-desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 10767,
+      "sha256": "b80008d349642279691ad3c96807f31d0fec25f69e639cc5c37fdeb9d555f1ee"
+    },
+    "performance-depois/recursos-desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7098,
+      "sha256": "5308cd768e54f00a0aba7c4c8944c1ebabc9409a9d120c72544c81b88dd189d1"
+    },
+    "performance-depois-concorrente/desempenho-viagens_oficios.json": {
+      "bytes": 7144,
+      "sha256": "17edb527ce5ce01be09014bb34b09423c462576f59efb223ca16cbed15866da0"
+    },
+    "performance-depois-concorrente/desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 11095,
+      "sha256": "8e0a299c52b2360a38e9c4b42920ed77a84101bea2b75e924d3b4bc632e32647"
+    },
+    "performance-depois-concorrente/desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7426,
+      "sha256": "d0cfeee5c0a0642c745c568cbd13016bcaa6284ea67d4f7fecbb1991096ff211"
+    },
+    "performance-depois-concorrente/recursos-desempenho-viagens_oficios.json": {
+      "bytes": 6808,
+      "sha256": "e20c5e712f1e65f7bbc150ffa9e4f958ed4408d9c343714b32ed11d7b502eefc"
+    },
+    "performance-depois-concorrente/recursos-desempenho-viagens_oficios_12_editar.json": {
+      "bytes": 10767,
+      "sha256": "dfda6fef31f8c7591c8e0c4e9d1f3e7f1ffd149fab6d0b8c6f81725c6f5ae9e4"
+    },
+    "performance-depois-concorrente/recursos-desempenho-viagens_oficios__resumo_6.json": {
+      "bytes": 7099,
+      "sha256": "339f47184938bdb978f282942d4f778377123024b7a6e535b4af4d0b87ed11de"
+    },
+    "performance-folha-repeticao/desempenho-viagens_oficios_2_editar.json": {
+      "bytes": 11091,
+      "sha256": "500034038f5c818a2dc38194a3c6deb331890b21ad1708f4d0b26126caa0762c"
+    },
+    "performance-folha-repeticao/recursos-desempenho-viagens_oficios_2_editar.json": {
+      "bytes": 10764,
+      "sha256": "2de48a2a7840029a3f08e08033859868e3731a79590e0db70eff5a2f3d729677"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "arquivo": "static/css/components.css",
+    "antes_bytes_lf": 99832,
+    "depois_bytes_lf": 100686,
+    "delta_bytes_lf": 854,
+    "delta_gzip_fonte_bytes": 145
+  },
+  {
+    "arquivo": "static/css/listas.css",
+    "antes_bytes_lf": 60234,
+    "depois_bytes_lf": 63677,
+    "delta_bytes_lf": 3443,
+    "delta_gzip_fonte_bytes": 519
+  }
+]

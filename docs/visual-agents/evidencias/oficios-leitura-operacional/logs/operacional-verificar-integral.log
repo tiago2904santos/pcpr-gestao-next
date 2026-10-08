@@ -1,0 +1,164 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 578 files, 3062 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (15 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de CadastrosKEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 303 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao\viagens\management\commands\semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+.......................................................F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_limites_sao_inclusivos
+self = <gestao.viagens.tests.test_views.TestFiltroPorDataDoOficio object at 0x0000021139178550>
+operador = <django.test.client.Client object at 0x00000211418EDEF0>
+cenario = Cenario(ids={'oficio_emitido': 722, 'oficio_rascunho': 723, 'oficio_vazio': 724, 'oficio_cancelado': 725, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_limites_sao_inclusivos(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        r = operador.get(reverse("viagens:oficios"),
+                         {"criacao_de": f"10/01/{ano}", "criacao_ate": f"20/01/{ano}"})
+        numeros = self._numeros(r)
+>       assert a.numero_formatado in numeros and b.numero_formatado in numeros
+E       AssertionError: assert ('06/2026' in [])
+E        +  where '06/2026' = <Oficio: Ofício 06/2026>.numero_formatado
+
+gestao\viagens\tests\test_views.py:929: AssertionError
+...F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_pontas_invertidas_e_data_invalida
+self = <gestao.viagens.tests.test_views.TestFiltroPorDataDoOficio object at 0x0000021139178690>
+operador = <django.test.client.Client object at 0x000002114174C7D0>
+cenario = Cenario(ids={'oficio_emitido': 730, 'oficio_rascunho': 731, 'oficio_vazio': 732, 'oficio_cancelado': 733, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_pontas_invertidas_e_data_invalida(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        r = operador.get(reverse("viagens:oficios"),
+                         {"criacao_de": f"31/01/{ano}", "criacao_ate": f"20/01/{ano}"})
+>       assert set(self._numeros(r)) >= {b.numero_formatado, c.numero_formatado}
+E       AssertionError: assert set() >= {'07/2026', '08/2026'}
+E
+E         Extra items in the right set:
+E         '07/2026'
+E         '08/2026'
+
+gestao\viagens\tests\test_views.py:936: AssertionError
+...F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_views.py::TestFiltroPorDataDoOficio::test_combina_com_situacao_busca_e_ordem
+self = <gestao.viagens.tests.test_views.TestFiltroPorDataDoOficio object at 0x0000021139164B00>
+operador = <django.test.client.Client object at 0x000002114179C910>
+cenario = Cenario(ids={'oficio_emitido': 738, 'oficio_rascunho': 739, 'oficio_vazio': 740, 'oficio_cancelado': 741, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_combina_com_situacao_busca_e_ordem(self, operador, cenario):
+        ano, a, b, c = self._com_datas(cenario)
+        filtros = {"criacao_de": f"01/01/{ano}", "criacao_ate": f"31/01/{ano}",
+                   "documento": "rascunho", "ordem": "criacao"}
+        numeros = self._numeros(operador.get(reverse("viagens:oficios"), filtros))
+>       assert numeros[:3] == [a.numero_formatado, b.numero_formatado, c.numero_formatado]
+E       AssertionError: assert [] == ['06/2026', '...6', '08/2026']
+E
+E         Right contains 3 more items, first extra item: '06/2026'
+E         Use -v to get more diff
+
+gestao\viagens\tests\test_views.py:945: AssertionError
+........ [ 32%]
+...........[gw2] node down: Not properly terminated
+F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_lote_h.py::test_salvamento_preserva_motorista_com_bloco_fechado[editar]
+worker 'gw2' crashed while running 'gestao/viagens/tests/test_lote_h.py::test_salvamento_preserva_motorista_com_bloco_fechado[editar]'

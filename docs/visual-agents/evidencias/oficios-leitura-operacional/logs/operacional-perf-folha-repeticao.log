@@ -1,0 +1,245 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 6 items / 5 deselected / 1 selected
+
+tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/] FAILED [100%]
+
+================================== FAILURES ===================================
+__ test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/] ___
+
+logado = <Page url='http://localhost:54552/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = '/viagens/oficios/{oficio_rascunho}/editar/'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_orcamento_de_desempenho(logado, dados_e2e, rota):
+        pg = logado
+        url = resolver(rota, dados_e2e.ids)
+        relatorio = f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json"
+        requisicoes: list[Request] = []
+        terminadas: list[Request] = []
+        falhas: list[Request] = []
+        # Drena a entrada da fixture antes de delimitar a navegação medida. Callbacks só
+        # guardam referências: body() dentro de response pode continuar pendente no goto
+        # das amostras seguintes, perdendo o identificador do recurso no Chromium.
+        pg.wait_for_load_state("networkidle")
+        # Playwright anota o handler com metadados; métodos nativos de list não aceitam
+        # esses atributos. As funções também preservam a mesma referência na remoção.
+        listeners = {"request": lambda r: requisicoes.append(r),
+                     "requestfinished": lambda r: terminadas.append(r),
+                     "requestfailed": lambda r: falhas.append(r)}
+        for evento, callback in listeners.items():
+            pg.on(evento, callback)
+        try:
+            pg.add_init_script(f"({OBSERVADORES})()")
+            pg.goto(url, wait_until="networkidle")
+            # Interação real para INP: menu do usuário e, na lista, resumo de um registro.
+            if pg.locator("dialog:modal").count():  # fecha a janela aberta pela URL (resto inerte)
+                pg.keyboard.press("Escape")
+                pg.wait_for_function("() => !document.querySelector('dialog:modal')")
+            pg.click(".perfil")
+            pg.keyboard.press("Escape")
+            janela = pg.locator("#dialogo-resumo")
+            if (janela.count() and not janela.evaluate("d => d.open")
+                    and pg.locator(".registro__link").count()):
+                pg.locator(".registro__link").first.click()
+                pg.wait_for_selector("#dialogo-resumo[open] .resumo")
+            pg.wait_for_timeout(200)
+            pg.wait_for_load_state("networkidle")
+            nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
+                const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+                return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
+                        lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+        finally:
+            for evento, callback in listeners.items():
+                pg.remove_listener(evento, callback)
+        recursos = _medir_recursos(requisicoes, terminadas, falhas)
+        salvar_relatorio(f"recursos-{relatorio}", {"rota": url,
+                         "escopo": "Uma navegação e as interações, antes das amostras de servidor.",
+                         "recursos": recursos})
+        erros = [{"url": r["url"], "erro": r["erro"]} for r in recursos if "erro" in r]
+        assert not erros, f"{url}: coleta de recursos incompleta: {erros}"
+        todos_recursos = recursos
+        doc = next(r for r in recursos if r["tipo"] == "document")
+        timing = doc["server_timing"]
+        sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
+        db_ms = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
+
+        itinerario = [r for r in recursos if ITINERARIO.search(r["url"])]
+        recursos = [r for r in recursos if not ITINERARIO.search(r["url"])]
+
+        def kb(tipo: str) -> float:
+            return round(sum(r["tamanho"] for r in recursos if r["tipo"] == tipo) / 1024, 1)
+
+        medido = {
+            "ttfb_ms": round(nav["ttfb"]), "fcp_ms": round(nav["fcp"]), "lcp_ms": round(nav["lcp"]),
+            "cls": round(nav["cls"], 3), "inp_ms": round(nav["inp"]),
+            "html_kb": kb("document"), "css_kb": kb("stylesheet"), "js_kb": kb("script"),
+            "css_gzip_kb": round(sum(r["gzip"] for r in recursos
+                                     if r["tipo"] == "stylesheet") / 1024, 1),
+            "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
+            "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
+            "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
+            "itinerario_requisicoes": len(itinerario),
+        }
+        amostras = [(medido["ttfb_ms"], db_ms, sql)]
+        amostras += [_amostra_do_servidor(pg, url) for _ in range(AMOSTRAS - 1)]
+        medido["ttfb_ms"] = round(sorted(a[0] for a in amostras)[len(amostras) // 2])
+        medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
+        medido["sql"] = max(a[2] for a in amostras)
+        medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
+        medido["recursos"] = todos_recursos
+        salvar_relatorio(relatorio, medido)
+        orcamento = dict(ORCAMENTO)
+        if FOLHAS_DE_EDICAO.search(url):
+            orcamento["requisicoes"] = REQUISICOES_FOLHA
+        estourados = {k: (v, orcamento[k]) for k, v in medido.items()
+                      if k in orcamento and v > orcamento[k]}
+>       assert not estourados, f"{url}: orçamento estourado {estourados}"
+E       AssertionError: /viagens/oficios/2/editar/: orçamento estourado {'html_kb': (129.6, 120), 'css_kb': (151.7, 140), 'js_kb': (151.2, 130), 'css_gzip_kb': (30.3, 30), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+E       assert not {'html_kb': (129.6, 120), 'css_kb': (151.7, 140), 'js_kb': (151.2, 130), 'css_gzip_kb': (30.3, 30), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+
+tests\e2e\test_desempenho.py:215: AssertionError
+---------------------------- Captured stdout setup ----------------------------
+Operations to perform:
+  Synchronize unmigrated apps: django_htmx, integracoes, messages, postgres, staticfiles
+  Apply all migrations: auth, cadastros, coffee, contenttypes, eventos, identidade, imprensa, palestras, plataforma, publicacoes, sessions, viagens
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying plataforma.0001_auditoria_outbox... OK
+  Applying identidade.0001_initial... OK
+  Applying cadastros.0001_initial... OK
+  Applying cadastros.0002_auditoria_municipios... OK
+  Applying cadastros.0003_coordenadas_municipios... OK
+  Applying cadastros.0004_editor_de_documento... OK
+  Applying cadastros.0005_viatura_motoristas... OK
+  Applying cadastros.0006_modelo_texto_ordem_e_padrao... OK
+  Applying cadastros.0007_permissao_padrao_texto... OK
+  Applying cadastros.0008_cadastro_incompleto_e_padrao... OK
+  Applying cadastros.0009_assinantes_e_endereco... OK
+  Applying cadastros.0010_delegado_geral... OK
+  Applying cadastros.0011_catalogos_do_plano... OK
+  Applying cadastros.0012_catalogos_do_plano_auditoria_e_carga... OK
+  Applying cadastros.0013_coordenador_plano_genero... OK
+  Applying cadastros.0014_tipos_de_viagem... OK
+  Applying cadastros.0015_tipos_de_viagem_auditoria... OK
+  Applying cadastros.0016_textos_do_rt... OK
+  Applying coffee.0001_initial... OK
+  Applying coffee.0002_auditoria... OK
+  Applying coffee.0003_solicitacao... OK
+  Applying coffee.0004_auditoria_solicitacao... OK
+  Applying coffee.0005_fluxo_financeiro... OK
+  Applying coffee.0006_pagamento_conjunto... OK
+  Applying coffee.0007_vias... OK
+  Applying coffee.0008_auditoria_vias... OK
+  Applying coffee.0009_certidoes... OK
+  Applying coffee.0010_auditoria_certidoes... OK
+  Applying coffee.0011_pdfs_nota_ob... OK
+  Applying coffee.0012_entregas... OK
+  Applying coffee.0013_auditoria_entregas... OK
+  Applying coffee.0014_origem_do_pedido... OK
+  Applying coffee.0015_email_do_pedido... OK
+  Applying viagens.0001_initial... OK
+  Applying viagens.0002_auditoria... OK
+  Applying viagens.0003_assunto_calculado_marcador... OK
+  Applying viagens.0004_lacuna_numeracao... OK
+  Applying viagens.0005_roteiros... OK
+  Applying viagens.0006_distancias... OK
+  Applying viagens.0007_itinerario_tempos... OK
+  Applying viagens.0008_bate_volta... OK
+  Applying viagens.0009_editor_de_documento... OK
+  Applying viagens.0010_origem_do_protocolo... OK
+  Applying viagens.0011_arquivar_e_reativar... OK
+  Applying viagens.0012_motorista_externo... OK
+  Applying viagens.0013_rotulo_motorista_externo... OK
+  Applying viagens.0014_rotulo_participacao... OK
+  Applying viagens.0015_termos_de_autorizacao... OK
+  Applying viagens.0016_ordens_de_servico... OK
+  Applying viagens.0017_planos_de_trabalho... OK
+  Applying viagens.0018_planos_auditoria... OK
+  Applying viagens.0019_plano_genero_sem_padrao... OK
+  Applying viagens.0020_eventos_do_plano... OK
+  Applying viagens.0021_eventos_auditoria... OK
+  Applying viagens.0022_resultados_do_plano... OK
+  Applying viagens.0023_resultados_auditoria... OK
+  Applying viagens.0024_vias_assinadas... OK
+  Applying viagens.0025_vias_assinadas_auditoria... OK
+  Applying viagens.0026_viagem... OK
+  Applying viagens.0027_viagem_auditoria... OK
+  Applying viagens.0028_prestacao_de_contas... OK
+  Applying viagens.0029_prestacao_auditoria... OK
+  Applying viagens.0030_diario_de_bordo... OK
+  Applying viagens.0031_diario_auditoria... OK
+  Applying viagens.0032_relatorio_tecnico... OK
+  Applying viagens.0033_relatorio_auditoria... OK
+  Applying viagens.0034_anexos_da_prestacao... OK
+  Applying viagens.0035_anexos_auditoria... OK
+  Applying viagens.0036_trechos_realizados... OK
+  Applying viagens.0037_realizados_auditoria... OK
+  Applying viagens.0038_carimbo_da_solicitacao... OK
+  Applying viagens.0039_carimbo_auditoria... OK
+  Applying plataforma.0002_extensoes... OK
+  Applying plataforma.0003_auditoria_requisicao... OK
+  Applying plataforma.0004_notificacoes... OK
+  Applying plataforma.0005_rotina_do_dia... OK
+  Applying eventos.0001_initial... OK
+  Applying eventos.0002_auditoria... OK
+  Applying eventos.0003_carga_inicial... OK
+  Applying eventos.0004_solicitacao... OK
+  Applying eventos.0005_auditoria_solicitacao... OK
+  Applying eventos.0006_lembrete... OK
+  Applying eventos.0007_viagem_gerada... OK
+  Applying identidade.0002_auditoria_e_papeis... OK
+  Applying imprensa.0001_initial... OK
+  Applying imprensa.0002_auditoria... OK
+  Applying palestras.0001_initial... OK
+  Applying palestras.0002_auditoria... OK
+  Applying palestras.0003_encaminhamento_dg... OK
+  Applying plataforma.0006_assinatura_agenda... OK
+  Applying plataforma.0007_auditoria_assinatura_agenda... OK
+  Applying publicacoes.0001_initial... OK
+  Applying publicacoes.0002_auditoria... OK
+  Applying sessions.0001_initial... OK
+  Applying viagens.0040_meio_de_transporte... OK
+  Applying viagens.0041_edicao_termo... OK
+  Applying viagens.0042_edicao_ordem... OK
+  Applying viagens.0043_edicao_plano... OK
+  Applying viagens.0044_edicao_termo_modelos... OK
+  Applying viagens.0045_termo_oficios... OK
+  Applying viagens.0046_plano_programas... OK
+  Applying viagens.0047_evento_efetivo_e_diarias... OK
+  Applying viagens.0048_evento_programas... OK
+  Applying viagens.0049_data_manual_oficio... OK
+  Applying viagens.0050_regra_tempo_cache... OK
+---------------------------- Captured stderr setup ----------------------------
+Creating test database for alias 'default' ('test_pcpr_lab_operacional_perf_folha')...
+
+-------------------------- Captured stderr teardown ---------------------------
+Destroying test database for alias 'default' ('test_pcpr_lab_operacional_perf_folha')...
+
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/] - AssertionError: /viagens/oficios/2/editar/: orçamento estourado {'html_kb': (129.6, 120), 'css_kb': (151.7, 140), 'js_kb': (151.2, 130), 'css_gzip_kb': (30.3, 30), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+assert not {'html_kb': (129.6, 120), 'css_kb': (151.7, 140), 'js_kb': (151.2, 130), 'css_gzip_kb': (30.3, 30), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+====================== 1 failed, 5 deselected in 34.70s =======================

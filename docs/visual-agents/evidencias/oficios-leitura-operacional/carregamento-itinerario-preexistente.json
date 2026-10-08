@@ -1,0 +1,19 @@
+{
+  "fontes": [
+    {
+      "arquivo": "static/css/itinerario.css",
+      "base": "0213d75",
+      "identico_a_base": true,
+      "sha256_conteudo_lf": "4ddabb150733b78c6e54b8f3a10ede365ce871b92bbb872e20568bc3f33058f9"
+    },
+    {
+      "arquivo": "static/js/componentes/itinerario.js",
+      "base": "0213d75",
+      "identico_a_base": true,
+      "sha256_conteudo_lf": "13361fb9b322a77167a86ada726e5b594ae145a9213b9c3f0da3faa1d1a74a45"
+    }
+  ],
+  "regra": ".itin[aria-busy=\"true\"] .itin__totais: opacity 0.45; .itin__total-valor: opacity 0.5",
+  "falha_observada": "operacional-consolidado.log — UI Lab 360, color-contrast",
+  "repeticao": "operacional-ui-lab-360-final.log — teste original passou sem exclusao axe"
+}

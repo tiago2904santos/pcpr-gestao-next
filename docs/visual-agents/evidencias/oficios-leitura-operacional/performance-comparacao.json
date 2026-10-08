@@ -1,0 +1,197 @@
+[
+  {
+    "pagina": "desempenho-viagens_oficios.json",
+    "metricas": {
+      "ttfb_ms": {
+        "antes": 70,
+        "depois": 104
+      },
+      "fcp_ms": {
+        "antes": 224,
+        "depois": 272
+      },
+      "lcp_ms": {
+        "antes": 648,
+        "depois": 692
+      },
+      "cls": {
+        "antes": 0,
+        "depois": 0
+      },
+      "inp_ms": {
+        "antes": 88,
+        "depois": 96
+      },
+      "html_kb": {
+        "antes": 50.0,
+        "depois": 51.2
+      },
+      "css_kb": {
+        "antes": 161.3,
+        "depois": 164.9
+      },
+      "js_kb": {
+        "antes": 104.4,
+        "depois": 104.4
+      },
+      "css_gzip_kb": {
+        "antes": 30.7,
+        "depois": 31.1
+      },
+      "js_gzip_kb": {
+        "antes": 35.1,
+        "depois": 35.1
+      },
+      "requisicoes": {
+        "antes": 23,
+        "depois": 23
+      },
+      "sql": {
+        "antes": 12,
+        "depois": 12
+      },
+      "db_ms": {
+        "antes": 22.5,
+        "depois": 36.5
+      },
+      "itinerario_gzip_kb": {
+        "antes": 0.0,
+        "depois": 0.0
+      },
+      "itinerario_requisicoes": {
+        "antes": 0,
+        "depois": 0
+      }
+    }
+  },
+  {
+    "pagina": "desempenho-viagens_oficios__resumo_6.json",
+    "metricas": {
+      "ttfb_ms": {
+        "antes": 91,
+        "depois": 96
+      },
+      "fcp_ms": {
+        "antes": 272,
+        "depois": 392
+      },
+      "lcp_ms": {
+        "antes": 272,
+        "depois": 804
+      },
+      "cls": {
+        "antes": 0,
+        "depois": 0
+      },
+      "inp_ms": {
+        "antes": 176,
+        "depois": 176
+      },
+      "html_kb": {
+        "antes": 69.2,
+        "depois": 70.5
+      },
+      "css_kb": {
+        "antes": 161.3,
+        "depois": 164.9
+      },
+      "js_kb": {
+        "antes": 106.8,
+        "depois": 106.8
+      },
+      "css_gzip_kb": {
+        "antes": 30.7,
+        "depois": 31.1
+      },
+      "js_gzip_kb": {
+        "antes": 36.0,
+        "depois": 36.0
+      },
+      "requisicoes": {
+        "antes": 24,
+        "depois": 24
+      },
+      "sql": {
+        "antes": 18,
+        "depois": 18
+      },
+      "db_ms": {
+        "antes": 27.6,
+        "depois": 30.4
+      },
+      "itinerario_gzip_kb": {
+        "antes": 0.0,
+        "depois": 0.0
+      },
+      "itinerario_requisicoes": {
+        "antes": 0,
+        "depois": 0
+      }
+    }
+  },
+  {
+    "pagina": "desempenho-viagens_oficios_12_editar.json",
+    "metricas": {
+      "ttfb_ms": {
+        "antes": 133,
+        "depois": 150
+      },
+      "fcp_ms": {
+        "antes": 336,
+        "depois": 476
+      },
+      "lcp_ms": {
+        "antes": 716,
+        "depois": 864
+      },
+      "cls": {
+        "antes": 0,
+        "depois": 0
+      },
+      "inp_ms": {
+        "antes": 32,
+        "depois": 32
+      },
+      "html_kb": {
+        "antes": 129.6,
+        "depois": 129.6
+      },
+      "css_kb": {
+        "antes": 151.0,
+        "depois": 151.7
+      },
+      "js_kb": {
+        "antes": 151.2,
+        "depois": 151.2
+      },
+      "css_gzip_kb": {
+        "antes": 30.2,
+        "depois": 30.3
+      },
+      "js_gzip_kb": {
+        "antes": 52.8,
+        "depois": 52.8
+      },
+      "requisicoes": {
+        "antes": 34,
+        "depois": 34
+      },
+      "sql": {
+        "antes": 21,
+        "depois": 21
+      },
+      "db_ms": {
+        "antes": 71.8,
+        "depois": 84.0
+      },
+      "itinerario_gzip_kb": {
+        "antes": 12.4,
+        "depois": 12.4
+      },
+      "itinerario_requisicoes": {
+        "antes": 3,
+        "depois": 3
+      }
+    }
+  }
+]

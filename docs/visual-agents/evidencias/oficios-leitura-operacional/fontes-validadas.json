@@ -1,0 +1,16 @@
+{
+  "base": "0213d75",
+  "normalizacao_texto": "LF",
+  "fontes": {
+    "gestao/ui_lab/templates/ui_lab/_dossie.html": "12baa350220ccf48900ff6969a4864214ea92c42c3672583e33e13481348fe4a",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "207038d40820b57940ea4bb0f1c3efe9695a1d61b1e199fa6db208691cea2ac3",
+    "gestao/viagens/templates/viagens/oficios/_registro.html": "f1c2bb3b27e139951bade6421f80050b0805bf7a9e5944389ecc11e615264d77",
+    "gestao/viagens/templates/viagens/oficios/_resumo.html": "b143da6c3e5e2eae43352f3d6bcabe5d8059c54f04504d877fb4262aceb377b0",
+    "gestao/viagens/templates/viagens/oficios/lista.html": "f691c52251a30b6fbe556ce076c8ba9449a334ca21566312c92faa2a755e9eb6",
+    "static/css/components.css": "28a5114b5f4f4accd423016b55c4f8c02fcaa070114d475d33494bacee1e138b",
+    "static/css/listas.css": "1143421b92302ed4f528f56e53bfe63c20dd5b9b15f14b8c63c5e97015872656",
+    "templates/componentes/cabecalho_registros.html": "d9db9c1815a86d851c0bbd4635a2d2973c7a4e2cf9ee34b526377875c6d676cb",
+    "templates/componentes/identidade_documental.html": "bb7a8f84769e16d487d298fb0559815ac92045271f37848d5e3f2f8d0835c53d",
+    "templates/componentes/metadado.html": "aa24732bbe2dbcebf0bcd3ef9226b3522c322c7768bf172865db34ad979304ac"
+  }
+}

@@ -1,0 +1,76 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 16 items
+
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] PASSED [  6%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] PASSED [ 12%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] PASSED [ 18%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1024] PASSED [ 25%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1440] PASSED [ 31%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[360] PASSED [ 37%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] PASSED [ 43%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] PASSED [ 50%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] PASSED [ 56%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1440] PASSED [ 62%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-360] PASSED [ 68%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-1440] PASSED [ 75%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-360] PASSED [ 81%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-1440] PASSED [ 87%]
+tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[360] FAILED [ 93%]
+tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[1440] PASSED [100%]
+
+================================== FAILURES ===================================
+_____________ test_ui_lab_sem_violacoes_em_todas_as_larguras[360] _____________
+
+logado = <Page url='http://localhost:64381/ui-lab/'>, largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_ui_lab_sem_violacoes_em_todas_as_larguras(logado, largura):
+        logado.set_viewport_size({"width": largura, "height": 900})
+>       _avaliar(logado, "/ui-lab/")
+
+tests\e2e\test_acessibilidade.py:90:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:64381/ui-lab/'>, rota = '/ui-lab/'
+antes = None
+
+    def _avaliar(pg, rota, antes=None):
+        pg.goto(rota, wait_until="networkidle")
+        if antes is not None:  # ex.: rolar até um componente que carrega ao aparecer
+            antes(pg)
+        # A barra de ações flutua sobre o fim da tela; o controle que calhar na borda dela sai
+        # "pequeno demais" (alvo encoberto), conforme a altura da janela. Mede com a barra em
+        # repouso, no lugar dela no fim do formulário (estilo via CSSOM, que a CSP permite) — o
+        # campo focado já rola para fora dela (protecao.js); a própria barra continua medida.
+        pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
+        # Janelas que abrem ao carregar entram com animação de escala: medir no meio dela
+        # dá alvos menores do que são. Espera as animações finitas acabarem (as infinitas, como
+        # o pulso de "processando", ficam de fora).
+        pg.wait_for_function("() => document.getAnimations().every(a => a.playState !== 'running'"
+                             " || a.effect.getTiming().iterations === Infinity)")
+        violacoes = rodar_axe(pg)
+        graves = [v for v in violacoes if v["impact"] in GRAVES]
+        salvar_relatorio(f"axe-{rota.strip('/').replace('/', '_') or 'raiz'}.json", violacoes)
+        detalhes = [(v["id"], v["help"], [n["target"] for n in v["nodes"]][:3]) for v in graves]
+>       assert not graves, f"{rota}: {detalhes}"
+E       AssertionError: /ui-lab/: [('color-contrast', 'Elements must meet minimum color contrast ratio thresholds', [['.itin__total:nth-child(1) > .itin__total-rotulo'], ['span[data-ida-tempo=""]'], ['.itin__total-rotulo.itin__so-destinos']])]
+E       assert not [{'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-549', 'EN-9.1.4.3', 'ACT', 'RGAAv4', 'RGAA-3.2.1'], 'description': 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', 'help': 'Elements must meet minimum color contrast ratio thresholds', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI', 'nodes': [{'any': [{'id': 'color-contrast', 'data': {'fgColor': '#b5b2ae', 'bgColor': '#fbfaf8', 'contrastRatio': 2.02, 'fontSize': '8.1pt (10.8px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-rotulo">Ida</span>', 'target': ['.itin__total:nth-child(1) > .itin__total-rotulo'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#cac9c6', 'bgColor': '#fbfaf8', 'contrastRatio': 1.58, 'fontSize': '8.8pt (11.7px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-valor" data-ida-tempo="">2 h 15</span>', 'target': ['span[data-ida-tempo=""]'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#b5b2ae', 'bgColor': '#fbfaf8', 'contrastRatio': 2.02, 'fontSize': '8.1pt (10.8px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-rotulo itin__so-destinos">Ida e volta</span>', 'target': ['.itin__total-rotulo.itin__so-destinos'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#cac9c6', 'bgColor': '#fbfaf8', 'contrastRatio': 1.58, 'fontSize': '8.8pt (11.7px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-valor" data-total-tempo="">4 h 30</span>', 'target': ['span[data-total-tempo=""]'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}]}]
+
+tests\e2e\test_acessibilidade.py:33: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[360] - AssertionError: /ui-lab/: [('color-contrast', 'Elements must meet minimum color contrast ratio thresholds', [['.itin__total:nth-child(1) > .itin__total-rotulo'], ['span[data-ida-tempo=""]'], ['.itin__total-rotulo.itin__so-destinos']])]
+assert not [{'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-549', 'EN-9.1.4.3', 'ACT', 'RGAAv4', 'RGAA-3.2.1'], 'description': 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', 'help': 'Elements must meet minimum color contrast ratio thresholds', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI', 'nodes': [{'any': [{'id': 'color-contrast', 'data': {'fgColor': '#b5b2ae', 'bgColor': '#fbfaf8', 'contrastRatio': 2.02, 'fontSize': '8.1pt (10.8px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-rotulo">Ida</span>', 'target': ['.itin__total:nth-child(1) > .itin__total-rotulo'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#cac9c6', 'bgColor': '#fbfaf8', 'contrastRatio': 1.58, 'fontSize': '8.8pt (11.7px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-valor" data-ida-tempo="">2 h 15</span>', 'target': ['span[data-ida-tempo=""]'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#b5b2ae', 'bgColor': '#fbfaf8', 'contrastRatio': 2.02, 'fontSize': '8.1pt (10.8px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-rotulo itin__so-destinos">Ida e volta</span>', 'target': ['.itin__total-rotulo.itin__so-destinos'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #b5b2ae, background color: #fbfaf8, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1'}, {'any': [{'id': 'color-contrast', 'data': {'fgColor': '#cac9c6', 'bgColor': '#fbfaf8', 'contrastRatio': 1.58, 'fontSize': '8.8pt (11.7px)', 'fontWeight': 'normal', 'messageKey': None, 'expectedContrastRatio': '4.5:1', 'shadowColor': None, 'colorParse': None}, 'relatedNodes': [{'html': '<section class="itin__bloco itin__painel" aria-labelledby="itin-t-rota">', 'target': ['.itin__painel']}], 'impact': 'serious', 'message': 'Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<span class="itin__total-valor" data-total-tempo="">4 h 30</span>', 'target': ['span[data-total-tempo=""]'], 'failureSummary': 'Fix any of the following:\n  Element has insufficient color contrast of 1.58 (foreground color: #cac9c6, background color: #fbfaf8, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1'}]}]
+============= 1 failed, 15 passed, 1 warning in 634.46s (0:10:34) =============
