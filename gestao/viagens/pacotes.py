@@ -19,6 +19,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from . import assinados, services, termos
+from .documentos_versoes import projetar_documentos
 from .models import Oficio, TermoAutorizacao, ViaAssinada
 
 FORMATOS = ("pdf", "docx")
@@ -54,27 +55,55 @@ def _itens_do_oficio_proprio(oficio: Oficio) -> list[Item]:
     from .documentos.docx import docx_do_html
     from .documentos.pdf import ASSETS, buscar_recurso, html_do_documento
 
-    vias = assinados.vigentes_do(oficio)
-    tipos = ["oficio"] + (["justificativa"] if oficio.justificativa.strip() else [])
     rascunho = oficio.situacao == Oficio.Situacao.RASCUNHO
+    projecao = (None if rascunho else projetar_documentos(
+        oficio, documentos=list(oficio.documentos.all()),
+        vias=list(assinados.vigentes_do(oficio).values())))
+    justificativa = projecao.por_tipo("justificativa") if projecao else None
+    oficio_emitido = projecao.por_tipo("oficio") if projecao else None
+    justificativa_esperada = bool(
+        oficio.situacao == Oficio.Situacao.EMITIDO and oficio_emitido
+        and oficio_emitido.ultima_emissao
+        and oficio_emitido.ultima_emissao.tem_justificativa is True)
+    tipos = ["oficio"] + (["justificativa"] if (
+        oficio.justificativa.strip() if rascunho else
+        justificativa_esperada or (justificativa is not None
+                                  and justificativa.corrente is not None)) else [])
     saida = []
     for tipo in tipos:
-        emitido = None if rascunho else assinados.documento_emitido(oficio, tipo)
-        via = vias.get((tipo, "")) if emitido is not None else None
+        emitido = projecao.docx_corrente(tipo) if projecao else None
+        original = projecao.pdf_original(tipo) if projecao else None
+        via = projecao.via_assinada(tipo) if projecao else None
+        selecao = projecao.por_tipo(tipo) if projecao else None
+        estado = selecao.estado_geracao if selecao else ""
+        erro = (f"A geração de {tipo} falhou; solicite gerar novamente no ofício."
+                if estado == "falhou" else
+                f"O documento {tipo} ainda está sendo gerado; tente em instantes."
+                if estado == "gerando" else
+                f"O documento {tipo} está indisponível; confira os documentos do ofício.")
         rotulo = "Ofício" if tipo == "oficio" else "Justificativa"
 
-        def pdf(tipo=tipo, emitido=emitido) -> bytes:
-            if emitido is not None:
-                with emitido.arquivo.open("rb") as f:
-                    return f.read()
+        def pdf(tipo=tipo, original=original, erro=erro) -> bytes:
+            if not rascunho:
+                if original is None:
+                    raise PacoteInvalido(erro)
+                try:
+                    with original.arquivo.open("rb") as f:
+                        return f.read()
+                except OSError:
+                    raise PacoteInvalido(
+                        f"O arquivo de {tipo} está indisponível; "
+                        "solicite gerar novamente.") from None
             from weasyprint import HTML
             html = html_do_documento(tipo, dados_do_oficio(oficio), previa=True,
                                      regioes=services.regioes_vigentes(oficio, tipo))
             return HTML(string=html, base_url=str(ASSETS),
                         url_fetcher=buscar_recurso()).write_pdf()
 
-        def docx(tipo=tipo, emitido=emitido) -> bytes:
-            if emitido is not None:
+        def docx(tipo=tipo, emitido=emitido, erro=erro) -> bytes:
+            if not rascunho:
+                if emitido is None:
+                    raise PacoteInvalido(erro)
                 return docx_do_html(html_do_documento(tipo, emitido.dados),
                                     base_imagens=ASSETS)
             html = html_do_documento(tipo, dados_do_oficio(oficio),
@@ -86,9 +115,11 @@ def _itens_do_oficio_proprio(oficio: Oficio) -> list[Item]:
             valor=tipo, nome=rotulo,
             detalhe=(f"Ofício {oficio.numero_formatado}" if tipo == "oficio"
                      else "Justificativa de prazo"),
-            estado=("Minuta" if emitido is None else
-                    "Assinado" if via is not None else f"PDF emitido · v{emitido.versao}"),
-            arquivo=base if emitido is not None else f"minuta-{base}",
+            estado=("Minuta" if rascunho else "Assinado" if via is not None else
+                    f"PDF emitido · v{emitido.versao}" if original is not None and emitido else
+                    "Geração falhou" if estado == "falhou" else
+                    "Gerando PDF" if estado == "gerando" else "PDF indisponível"),
+            arquivo=f"minuta-{base}" if rascunho else base,
             pdf=pdf, docx=docx, via=via))
     return saida
 

@@ -21,9 +21,13 @@ from typing import Any
 
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.db.models import F, OuterRef, Subquery
+from django.db.models.functions import Trim
 from django.utils import timezone
 
 from . import policies
+from .documentos_versoes import ProjecaoDocumentos, projetar_documentos
+from .dominio.documentos_versoes import presenca_justificativa
 from .models import Documento, Oficio, OrdemServico, TermoAutorizacao, ViaAssinada
 
 TAMANHO_MAXIMO = 15 * 1024 * 1024  # referência: "Arquivo maior que 15MB."
@@ -92,10 +96,16 @@ def impressao(dados: dict) -> str:
     return hashlib.sha256(texto.encode()).hexdigest()
 
 
-def documento_emitido(oficio: Oficio, tipo: str) -> Documento | None:
-    """A versão PDF/A pronta mais recente do ofício (ou da justificativa)."""
-    return (oficio.documentos.filter(tipo=tipo, situacao=Documento.Situacao.PRONTO)
-            .order_by("-versao").first())
+def documento_emitido(oficio: Oficio, tipo: str, *,
+                      projecao: ProjecaoDocumentos | None = None) -> Documento | None:
+    """PDF da identidade corrente pronta, nunca uma emissão anterior à falha/espera.
+
+    A anexação chama depois de travar o dono. Não guardar projeção entre montagens:
+    reabertura ou emissão posterior precisam aparecer na próxima leitura.
+    """
+    if projecao is None:
+        projecao = projetar_documentos(oficio, documentos=list(oficio.documentos.all()), vias=())
+    return projecao.pdf_original(tipo)
 
 
 def impressao_atual(alvo: Alvo) -> str:
@@ -164,15 +174,30 @@ def pode_abrir(usuario, via: ViaAssinada) -> bool:
 
 # ---------------------------------------------------------------- leitura
 def vigente(alvo: Alvo) -> ViaAssinada | None:
-    return (ViaAssinada.objects.filter(**alvo.filtro, revogada_em__isnull=True)
-            .select_related("enviado_por").order_by("-enviado_em").first())
+    return vigentes_do(alvo.dono).get((alvo.tipo, alvo.chave))
 
 
 def vigentes_do(dono: Dono) -> dict[tuple[str, str], ViaAssinada]:
     """Uma consulta: {(tipo, chave): via vigente} de todos os documentos do registro."""
     vias = (ViaAssinada.objects.filter(**{_campo(dono): dono}, revogada_em__isnull=True)
             .select_related("enviado_por").order_by("enviado_em"))
-    return {(v.tipo, v.chave): v for v in vias}  # a mais recente vence
+    if isinstance(dono, Oficio):
+        ultima = (Documento.objects.filter(oficio_id=OuterRef("oficio_id"),
+                                           tipo=OuterRef("tipo")).order_by("-versao"))
+        ultimo_oficio = (Documento.objects.filter(oficio_id=OuterRef("oficio_id"),
+                                                  tipo="oficio").order_by("-versao"))
+        # Uma consulta também para os consumidores de prestação/conferência: assinatura
+        # antiga não transforma a última emissão falha/pendente em documento corrente.
+        vias = (vias.filter(oficio__situacao=Oficio.Situacao.EMITIDO,
+                            documento_id=Subquery(ultima.values("pk")[:1]),
+                            documento__oficio=dono, documento__tipo=F("tipo"),
+                            documento__situacao=Documento.Situacao.PRONTO, chave="")
+                .alias(_caminho=Trim("arquivo")).exclude(_caminho="")
+                .annotate(snapshot_justificativa=Subquery(
+                    ultimo_oficio.values("dados__justificativa")[:1])))
+    return {(v.tipo, v.chave): v for v in vias if not isinstance(dono, Oficio)
+            or v.tipo == "oficio"
+            or presenca_justificativa(getattr(v, "snapshot_justificativa", None)) is True}
 
 
 def dados_mudaram(via: ViaAssinada, alvo: Alvo | None = None) -> bool:

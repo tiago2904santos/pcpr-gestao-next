@@ -8,6 +8,9 @@
 import { fecharDialogo } from "./dialogo.js";
 
 const CHAVE = "baixar-documentos:escolhas";
+let geracaoAbertura = 0;
+/** @type {AbortController | null} */
+let listaPendente = null;
 
 /** @typedef {{valor: string, nome: string, detalhe: string, estado: string, assinado: boolean}} Item */
 
@@ -112,21 +115,18 @@ function nomeDoArquivo(resposta) {
   return simples ? simples[1] : "documentos";
 }
 
-document.addEventListener("click", async (e) => {
-  const alvo = /** @type {HTMLElement} */ (e.target);
-  const botao = /** @type {HTMLElement | null} */ (alvo.closest("[data-baixar-documentos]"));
+/** O app carrega este módulo e entrega o primeiro comando diretamente.
+ * @param {HTMLElement} botao */
+export async function abrirDialogo(botao) {
   const janela = /** @type {HTMLDialogElement | null} */ (document.getElementById("dialogo-baixar"));
-  if (!janela) return;
+  if (!janela || janela.open) return;
   const form = /** @type {HTMLFormElement} */ (janela.querySelector("form"));
-  if (alvo.closest("[data-baixar-todos]")) {
-    const caixas = /** @type {HTMLInputElement[]} */ (Array.from(form.querySelectorAll("input[name=itens]")));
-    const marcar = caixas.some((c) => !c.checked);
-    caixas.forEach((c) => { c.checked = marcar; });
-    atualizar(form);
-    return;
-  }
-  if (!botao) return;
-  e.preventDefault();
+  listaPendente?.abort();
+  const leitura = new AbortController();
+  listaPendente = leitura;
+  const geracao = ++geracaoAbertura;
+  const vigente = () => geracao === geracaoAbertura && !leitura.signal.aborted && janela.isConnected;
+  const cancelarLeitura = () => leitura.abort();
   const url = botao.dataset.baixarDocumentos || "";
   form.reset();
   form.action = url;
@@ -148,25 +148,47 @@ document.addEventListener("click", async (e) => {
   const menu = /** @type {any} */ (botao.closest("pc-menu"));
   if (menu && typeof menu.fechar === "function") menu.fechar(false);
   janela.showModal();
+  janela.addEventListener("close", cancelarLeitura, { once: true });
   // Enquanto a lista não chega, só o "Baixar" fica parado: recalcular as regras agora
   // (sem itens) desfaria a escolha lembrada de "um PDF só".
   /** @type {HTMLButtonElement} */ (um(form, "[data-baixar-enviar]")).disabled = true;
   try {
-    const resposta = await fetch(url, { headers: { Accept: "application/json" } });
+    const resposta = await fetch(url, { headers: { Accept: "application/json" }, signal: leitura.signal });
+    if (!vigente()) return;
     if (resposta.redirected) { window.location.href = resposta.url; return; }
     if (!resposta.ok) throw new Error(String(resposta.status));
-    desenhar(caixa, (await resposta.json()).itens);
+    const dados = await resposta.json();
+    if (!vigente()) return;
+    desenhar(caixa, dados.itens);
     limitarAltura(caixa);
   } catch {
+    if (!vigente()) return;
     const erro = um(form, "[data-baixar-erro]");
     erro.textContent = "Não foi possível carregar os documentos. Tente de novo.";
     erro.hidden = false;
   } finally {
-    carregando.hidden = true;
-    atualizar(form);
+    janela.removeEventListener("close", cancelarLeitura);
+    if (listaPendente === leitura) listaPendente = null;
+    if (geracao === geracaoAbertura) {
+      carregando.hidden = true;
+      atualizar(form);
+    }
   }
   // O foco fica no "Baixar": abrir já com o primeiro cartão realçado parecia uma escolha.
-  /** @type {HTMLElement} */ (um(form, "[data-baixar-enviar]")).focus(/** @type {FocusOptions} */ ({ focusVisible: false }));
+  if (vigente() && janela.open && !janela.classList.contains("dialogo--saindo")) {
+    /** @type {HTMLElement} */ (um(form, "[data-baixar-enviar]")).focus(/** @type {FocusOptions} */ ({ focusVisible: false }));
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const alvo = /** @type {HTMLElement} */ (e.target);
+  if (!alvo.closest("[data-baixar-todos]")) return;
+  const form = /** @type {HTMLFormElement | null} */ (alvo.closest("form[data-baixar-form]"));
+  if (!form) return;
+  const caixas = /** @type {HTMLInputElement[]} */ (Array.from(form.querySelectorAll("input[name=itens]")));
+  const marcar = caixas.some((c) => !c.checked);
+  caixas.forEach((c) => { c.checked = marcar; });
+  atualizar(form);
 });
 
 document.addEventListener("change", (e) => {
@@ -201,6 +223,11 @@ document.addEventListener("submit", async (e) => {
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
       fecharDialogo(janela);
+    } else if (!resposta.ok && resposta.headers.get("Content-Type")?.includes("application/json")) {
+      const falha = await resposta.json();
+      erro.textContent = typeof falha.erro === "string" && falha.erro.trim()
+        ? falha.erro : "Não foi possível gerar os documentos. Tente de novo.";
+      erro.hidden = false;
     } else if (resposta.redirected || resposta.ok) {
       window.location.href = resposta.url;  // mensagem do servidor (ex.: nada marcado)
     } else {

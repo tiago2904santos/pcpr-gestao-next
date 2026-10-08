@@ -72,7 +72,7 @@ class TestPolitica:
     def test_emitido_sem_pdf_pronto_explica_a_espera(self, cenario):
         m = policies.menu_do_oficio(cenario.usuarios["gestor"],
                                     _da_lista(cenario.ids["oficio_emitido"]))
-        assert m.minuta and m.anexar == "inativo" and "sendo gerado" in m.anexar_motivo
+        assert not m.minuta and m.anexar == "inativo" and "sendo gerado" in m.anexar_motivo
 
     def test_cancelado_so_le_e_reativa(self, cenario):
         m = policies.menu_do_oficio(cenario.usuarios["gestor"],

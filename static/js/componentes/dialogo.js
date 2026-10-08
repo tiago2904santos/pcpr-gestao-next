@@ -41,6 +41,13 @@ document.addEventListener("click", (e) => {
     if (d) {
       e.preventDefault();
       d.showModal();
+      if (d.dataset.cadastroUrl) {
+        import("./cadastro-rapido.js").then((m) => m.carregarFormulario(d, abrir)).catch(() => {
+          const aviso = d.querySelector("[data-cadastro-estado]");
+          if (aviso) aviso.textContent = "Não foi possível carregar. Feche e abra "
+            + "novamente para tentar.";
+        });
+      }
     }
     return;
   }
@@ -199,4 +206,78 @@ document.addEventListener("submit", (evento) => {
     form.requestSubmit(/** @type {HTMLButtonElement | null} */ (submissor));
     delete form.dataset.confirmado;
   });
+});
+
+// Resumo: só consultar geração enquanto a janela está operável. O filtro de hx-trigger
+// exigiria eval, desabilitado pela CSP da aplicação; cancelar pelo evento oficial HTMX.
+/** @type {WeakMap<XMLHttpRequest, HTMLDialogElement>} */
+const pedidosResumo = new WeakMap();
+/** @type {WeakMap<HTMLDialogElement, Set<XMLHttpRequest>>} */
+const pendentesResumo = new WeakMap();
+document.body.addEventListener("htmx:beforeRequest", (evento) => {
+  const detalhe = /** @type {CustomEvent} */ (evento).detail;
+  const origem = detalhe?.elt;
+  if (!(origem instanceof Element) || !origem.matches("[data-resumo-poll]")) return;
+  const janela = origem.closest("dialog");
+  if (!(janela instanceof HTMLDialogElement)) return;
+  if (!janela.open || janela.classList.contains("dialogo--saindo")) {
+    evento.preventDefault();
+    return;
+  }
+  const xhr = detalhe.xhr;
+  pedidosResumo.set(xhr, janela);
+  const pendentes = pendentesResumo.get(janela) || new Set();
+  pendentes.add(xhr);
+  pendentesResumo.set(janela, pendentes);
+});
+document.body.addEventListener("htmx:beforeSwap", (evento) => {
+  const xhr = /** @type {CustomEvent} */ (evento).detail?.xhr;
+  const janela = xhr && pedidosResumo.get(xhr);
+  if (janela && (!janela.isConnected || !janela.open
+      || janela.classList.contains("dialogo--saindo"))) evento.preventDefault();
+});
+document.body.addEventListener("htmx:afterRequest", (evento) => {
+  const xhr = /** @type {CustomEvent} */ (evento).detail?.xhr;
+  const janela = xhr && pedidosResumo.get(xhr);
+  if (janela) pendentesResumo.get(janela)?.delete(xhr);
+});
+document.addEventListener("close", (evento) => {
+  const janela = evento.target;
+  if (!(janela instanceof HTMLDialogElement)) return;
+  pendentesResumo.get(janela)?.forEach((xhr) => xhr.abort());
+  pendentesResumo.delete(janela);
+}, true);
+
+/** @type {{id: string, menuId: string, janela: HTMLDialogElement} | null} */
+let focoRodapeResumo = null;
+document.body.addEventListener("htmx:oobBeforeSwap", (evento) => {
+  const alvo = /** @type {CustomEvent} */ (evento).detail?.target;
+  const foco = document.activeElement;
+  if (!(alvo instanceof HTMLElement) || alvo.id !== "resumo-rodape"
+      || !(foco instanceof HTMLElement) || !alvo.contains(foco)) return;
+  const janela = alvo.closest("dialog");
+  if (janela instanceof HTMLDialogElement) {
+    const gatilho = foco.closest("pc-menu")?.querySelector("[data-menu-botao]");
+    focoRodapeResumo = { id: foco.id, janela,
+      menuId: gatilho instanceof HTMLElement ? gatilho.id : "" };
+  }
+});
+document.body.addEventListener("htmx:oobAfterSwap", (evento) => {
+  if (/** @type {CustomEvent} */ (evento).detail?.target?.id !== "resumo-rodape") return;
+  const antes = focoRodapeResumo;
+  focoRodapeResumo = null;
+  if (!antes?.janela.open || antes.janela.classList.contains("dialogo--saindo")) return;
+  if (document.activeElement !== document.body && document.activeElement?.isConnected) return;
+  const rodape = document.getElementById("resumo-rodape");
+  const novo = antes.id && document.getElementById(antes.id);
+  if (novo instanceof HTMLElement && rodape?.contains(novo)
+      && !novo.closest("[hidden]") && novo.getClientRects().length
+      && getComputedStyle(novo).visibility !== "hidden") novo.focus({ preventScroll: true });
+  else {
+    // O menu recém-renderizado pode estar fechado: um item oculto não recebe foco.
+    const gatilho = antes.menuId && document.getElementById(antes.menuId);
+    if (gatilho instanceof HTMLElement && rodape?.contains(gatilho)) {
+      gatilho.focus({ preventScroll: true });
+    } else rodape?.focus({ preventScroll: true });
+  }
 });

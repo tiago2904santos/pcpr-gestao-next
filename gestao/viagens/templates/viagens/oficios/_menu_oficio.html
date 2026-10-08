@@ -28,7 +28,7 @@ retificado); no rascunho, "Marcar como retificado" liga a marca — como no lega
 {% endif %}
 {% if m.pdf %}
 <a class="menu__item" role="menuitem" href="{% url 'viagens:baixar_documento' m.pdf.0 %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver PDF v{{ m.pdf.1 }}<span class="sr-only"> (nova aba)</span></a>
-{% else %}
+{% elif m.minuta %}
 <a class="menu__item" role="menuitem" href="{% url 'viagens:previa' o.pk %}" target="_blank" rel="noopener">{% icone "printer" %}Ver minuta<span class="sr-only"> (nova aba)</span></a>
 {% endif %}
 {% endif %}

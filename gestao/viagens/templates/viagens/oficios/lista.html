@@ -1,6 +1,7 @@
 {% extends "arquetipos/lista.html" %}
-{# Além da lista, esta tela tem campos de formulário (a gaveta de filtros usa data e seleção). #}
+{# Filtros e divulgação do eProtocolo no Resumo usam o CSS de formulário aprovado. #}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
+{% block preload_seletor %}{% endblock %}
 {% block titulo %}Ofícios{% endblock %}
 {% block titulo_lista %}Ofícios{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios de viagem com cálculo de diárias, justificativa e documentos.</p>{% endblock %}
@@ -40,7 +41,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
     </div>
   </fieldset>
   <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
-  <details class="filtros__mais" id="filtros-mais">
+  <details class="filtros__mais" id="filtros-mais" data-controladores-adiados>
     <summary class="filtros__mais-resumo" aria-controls="filtros-avancados">
       {% icone "sliders-horizontal" classe="icone--sm" %}<span>Filtros</span>
       {% include "viagens/oficios/_conta_filtros.html" %}

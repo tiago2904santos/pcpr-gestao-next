@@ -1,0 +1,6 @@
+{% comment %}Casca do diálogo canônico; cadastro-rapido.js conserva este elemento ao preencher.{% endcomment %}
+<dialog id="{{ id }}" class="dialogo{% if largo %} dialogo--largo{% endif %}" aria-labelledby="{{ id }}-titulo" data-cadastro-url="{{ cadastro_url }}" data-controladores-adiados>
+  <div class="dialogo__cabecalho"><h2 class="dialogo__titulo" id="{{ id }}-titulo">{{ titulo }}</h2></div>
+  <div class="dialogo__corpo"><p role="status" data-cadastro-estado>Carregando o formulário…</p></div>
+  <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Fechar</button></div>
+</dialog>

@@ -1,5 +1,15 @@
 # Ofícios — seleção de versões e reabertura (RS-02)
 
+## Erro visível ao baixar pacote incompleto
+
+07/10/2026, teste real do candidato: pacote com justificativa esperada ausente
+deve ser recusado sem arquivo/minuta/versão nova. O motivo precisa aparecer na
+janela Baixar. Para o POST fetch existente (X-Requested-With: fetch), responder
+422 JSON com erro, sem redirecionar/consumir mensagem numa navegação intermediária.
+POST de formulário normal mantém mensagem e redirecionamento. A janela conserva
+as escolhas e exibe o erro em seu role=alert existente; permite fechar ou tentar
+depois de corrigir o documento. Não criar nova UI nem mudar seleção de documentos.
+
 Registro iniciado por investigação de código local em 07/10/2026, sem banco,
 navegador, produção ou arquivo documental. As etapas de domínio, adaptador e
 integração incremental autorizadas depois estão registradas abaixo; a validação

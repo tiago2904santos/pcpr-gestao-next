@@ -14,6 +14,7 @@ from django.utils import timezone
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.models import Lotacao, Unidade
 
+from .documentos_versoes import ProjecaoDocumentos, projetar_documentos
 from .dominio.assunto import OpcaoDeMarca, marcas_do_menu, resolver_assunto
 from .models import (
     Documento,
@@ -167,18 +168,6 @@ def pode_anexar_assinado(usuario, oficio: Oficio) -> bool:
             and pode_ver(usuario, oficio) and usuario.has_perm("viagens.change_oficio"))
 
 
-def _pdf_do_oficio(oficio: Oficio) -> tuple[int, int] | None:
-    """(id, versão) do PDF do ofício que vale — anotado pela lista (`pdf_oficio_id`), senão
-    uma consulta (a janela de um ofício)."""
-    if hasattr(oficio, "pdf_oficio_id"):
-        pk = oficio.pdf_oficio_id
-        return (pk, oficio.pdf_oficio_versao) if pk else None  # type: ignore[attr-defined]
-    doc = (oficio.documentos.filter(tipo=Documento.Tipo.OFICIO,
-                                    situacao=Documento.Situacao.PRONTO)
-           .order_by("-versao").values_list("pk", "versao").first())
-    return (doc[0], doc[1]) if doc else None
-
-
 @dataclass(frozen=True)
 class MenuDoOficio:
     """O menu ⋮ canônico de um ofício (D7), na ordem dos grupos. O template só desenha o que
@@ -228,34 +217,43 @@ class MenuDoOficio:
 _CONSULTAR = object()
 
 
-def _justificativa_emitida(oficio: Oficio) -> int | None:
-    if hasattr(oficio, "pdf_justificativa_versao"):
-        return oficio.pdf_justificativa_versao  # type: ignore[attr-defined]
-    return (oficio.documentos.filter(tipo=Documento.Tipo.JUSTIFICATIVA,
-                                     situacao=Documento.Situacao.PRONTO)
-            .order_by("-versao").values_list("versao", flat=True).first())
-
-
 def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR, via: bool | None = None,
                    justificativa=_CONSULTAR,
-                   via_justificativa: bool | None = None) -> MenuDoOficio:
+                   via_justificativa: bool | None = None,
+                   projecao: ProjecaoDocumentos | None = None) -> MenuDoOficio:
     """Tudo o que o ⋮ de um ofício oferece a este usuário (lista e janela de resumo). Na
     lista, sem consulta por linha: PDF, via em vigor e documentos vêm anotados
     (`queries.com_dados_de_lista`); a janela de resumo, que já carregou os documentos e as
-    vias, passa `pdf` ((id, versão) ou None) e `via`."""
+    vias, passa `projecao`. Os argumentos anteriores são compatibilidade dos chamadores
+    que já forneceram a seleção; a projeção explícita tem precedência."""
+    from .queries import pdf_corrente_da_lista, selecao_documental_da_lista
+
     situacao = oficio.situacao
     cancelado = situacao == Oficio.Situacao.CANCELADO
+    if projecao is None and pdf is _CONSULTAR and not hasattr(oficio, "pdf_oficio_id"):
+        projecao = projetar_documentos(oficio, documentos=list(oficio.documentos.all()), vias=())
+    selecao = None
+    if projecao is not None:
+        documento = projecao.pdf_original("oficio")
+        pdf = (documento.pk, documento.versao) if documento else None
+        via = projecao.via_assinada("oficio") is not None
+        documento_justificativa = projecao.pdf_original("justificativa")
+        justificativa = documento_justificativa.versao if documento_justificativa else None
+        via_justificativa = projecao.via_assinada("justificativa") is not None
+        selecao = projecao.por_tipo("oficio")
     if pdf is _CONSULTAR:
-        pdf = _pdf_do_oficio(oficio)
+        pdf = pdf_corrente_da_lista(oficio, "oficio")
+        selecao = selecao_documental_da_lista(oficio, "oficio")
     if via is None:
         via = bool(getattr(oficio, "via_oficio", False))
     just = None
     if pdf and situacao == Oficio.Situacao.EMITIDO:  # sem ofício emitido, não há justificativa
-        just = (_justificativa_emitida(oficio) if justificativa is _CONSULTAR
-                else justificativa)
-    # "Ver minuta" é o rascunho como está agora; emitido (ou cancelado depois de emitido)
-    # mostra o PDF que vale.
-    minuta = situacao == Oficio.Situacao.RASCUNHO or pdf is None
+        just_pdf = (pdf_corrente_da_lista(oficio, "justificativa")
+                    if justificativa is _CONSULTAR else None)
+        just = just_pdf[1] if just_pdf else (
+            None if justificativa is _CONSULTAR else justificativa)
+    # Emissão pendente/falha não vira minuta nem promove PDF de versão anterior.
+    minuta = situacao == Oficio.Situacao.RASCUNHO
     anexar, motivo = "", ""
     if edita_oficios(usuario) and not cancelado and pode_ver(usuario, oficio):
         if pode_anexar_assinado(usuario, oficio) and pdf:
@@ -265,7 +263,14 @@ def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR, via: bool | None 
         elif situacao == Oficio.Situacao.RASCUNHO:
             anexar, motivo = "inativo", "Emita o ofício primeiro: a via é a do PDF emitido"
         else:
-            anexar, motivo = "inativo", "O PDF ainda está sendo gerado; tente em instantes"
+            estado = selecao.estado_geracao if selecao else ""
+            if estado == Documento.Situacao.GERANDO:
+                motivo = "O PDF ainda está sendo gerado; tente em instantes"
+            elif estado == Documento.Situacao.FALHOU:
+                motivo = "A geração do PDF falhou; abra o ofício e solicite gerar novamente"
+            else:
+                motivo = "O PDF está indisponível; abra o ofício e confira os documentos"
+            anexar = "inativo"
     marcas: list[OpcaoDeMarca] = []
     if pode_marcar(usuario, oficio):
         from .queries import trechos_de  # (os trechos já vêm juntos na lista)

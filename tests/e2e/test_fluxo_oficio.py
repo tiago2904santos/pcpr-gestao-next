@@ -288,7 +288,9 @@ def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e
     pg.goto("/viagens/oficios/")
     janela = pg.locator("#dialogo-resumo")
     expect(janela).to_be_hidden()
-    pg.locator(".registro__link").first.click()
+    # O primeiro registro pode ser cancelado: minuta pertence somente ao rascunho.
+    rascunho = dados_e2e.ids["oficio_rascunho"]
+    pg.locator(f'.registro__link[href="/viagens/oficios/{rascunho}/editar/"]').click()
     expect(janela).to_be_visible()
     expect(janela.locator(".resumo")).to_contain_text("Roteiro")
     expect(janela.locator(".resumo")).to_contain_text("Equipe")

@@ -41,23 +41,107 @@ const sobDemanda = [
   ["pc-linhas", () => import("./componentes/linhas.js")],
   ["[data-esvaziar]", () => import("./componentes/esvaziar.js")],
   ["#dialogo-assinado", () => import("./componentes/assinado.js")],
-  ["#dialogo-baixar", () => import("./componentes/baixar.js")],
   ["[data-baixar-arquivo]", () => import("./componentes/baixar-arquivo.js")],
   ["[data-conjuntos]", () => import("./componentes/conjuntos.js")],
   ["[data-diaria-base]", () => import("./componentes/diaria.js")],
   ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
 ];
 const carregados = new Set();
+/** @type {{botao: HTMLElement, cancelada: boolean} | null} */
+let aberturaBaixar = null;
+document.addEventListener("click", async (evento) => {
+  const botao = evento.target instanceof Element ? evento.target.closest("[data-baixar-documentos]") : null;
+  if (!(botao instanceof HTMLElement) || botao.getAttribute("aria-disabled") === "true"
+      || !document.getElementById("dialogo-baixar")) return;
+  evento.preventDefault();
+  if (aberturaBaixar && !aberturaBaixar.cancelada) return;
+  const pedido = { botao, cancelada: false };
+  aberturaBaixar = pedido;
+  botao.setAttribute("aria-busy", "true");
+  const foco = document.activeElement;
+  try {
+    const modulo = await import("./componentes/baixar.js");
+    if (pedido.cancelada || !botao.isConnected) return;
+    const aberta = modulo.abrirDialogo(botao);
+    // A janela já abriu: o GET pertence a ela, e fechar/reabrir pode tentar outra leitura.
+    if (aberturaBaixar === pedido) {
+      aberturaBaixar = null;
+      botao.removeAttribute("aria-busy");
+    }
+    await aberta;
+  } catch (erro) {
+    if (pedido.cancelada || !botao.isConnected) return;
+    document.body.dispatchEvent(new CustomEvent("toast", { detail: {
+      nivel: "perigo", mensagem: "Não foi possível abrir os documentos. Recarregue a página e tente de novo.",
+    } }));
+    if (document.activeElement === foco || document.activeElement === document.body) {
+      const origem = botao.closest("pc-menu")?.querySelector("[data-menu-botao]") || botao;
+      if (origem instanceof HTMLElement) origem.focus({ preventScroll: true });
+    }
+    console.error("Não foi possível carregar a janela de documentos.", erro);
+  } finally {
+    if (aberturaBaixar === pedido) {
+      aberturaBaixar = null;
+      botao.removeAttribute("aria-busy");
+    }
+  }
+});
+document.addEventListener("keydown", (evento) => {
+  if (evento.key === "Escape" && aberturaBaixar && !document.querySelector("#dialogo-baixar[open]")) {
+    aberturaBaixar.cancelada = true;
+    aberturaBaixar.botao.removeAttribute("aria-busy");
+  }
+});
+/** @type {HTMLElement | null} */
+let focoAdiado = null;
+/** @param {Element} alvo */
+function disponivel(alvo) {
+  if (!alvo.closest("[data-controladores-adiados]")) return true;
+  // No navegador testado, a geometria sozinha não excluiu controles de details fechado.
+  // O summary e a própria raiz continuam disponíveis (abrir a gaveta é carga inicial).
+  for (let no = alvo.parentElement; no; no = no.parentElement) {
+    if (no instanceof HTMLDetailsElement && !no.open
+        && !no.querySelector(":scope > summary")?.contains(alvo)) return false;
+  }
+  return alvo.getClientRects().length > 0 && getComputedStyle(alvo).visibility !== "hidden";
+}
+function preservarFocoAdiado() {
+  // Registrar um seletor pode ocultar o select nativo que recebeu Tab durante o import.
+  const campo = focoAdiado;
+  if (!campo?.isConnected || !campo.hidden || document.activeElement !== document.body) return;
+  const componente = campo.closest("pc-select, pc-combobox, pc-multiescolha");
+  const substituto = /** @type {HTMLElement | undefined} */ (
+    Array.from(componente?.querySelectorAll("button[role='combobox'], input:not([type='hidden'])") || [])
+      .find((alvo) => alvo.getClientRects().length > 0));
+  substituto?.focus({ preventScroll: true });
+}
 function carregarSobDemanda() {
   for (const [seletor, carregar] of sobDemanda) {
-    if (carregados.has(seletor) || !document.querySelector(seletor)) continue;
+    if (carregados.has(seletor)
+        || !Array.from(document.querySelectorAll(seletor)).some(disponivel)) continue;
     carregados.add(seletor);
-    carregar();
+    carregar().then(preservarFocoAdiado).catch((erro) => {
+      carregados.delete(seletor);
+      console.error("Não foi possível carregar os controles da página.", erro);
+    });
   }
 }
 carregarSobDemanda();
 // Fragmentos HTMX podem trazer um componente que a tela ainda não tinha.
 document.body.addEventListener("htmx:afterSwap", carregarSobDemanda);
+// Opt-in: abrir/focar uma gaveta ou diálogo torna seus controles disponíveis.
+document.addEventListener("toggle", (evento) => {
+  if (evento.target instanceof Element && evento.target.matches("[data-controladores-adiados]")) {
+    carregarSobDemanda();
+  }
+}, true);
+document.addEventListener("focusin", (evento) => {
+  const alvo = evento.target;
+  focoAdiado = alvo instanceof HTMLElement && alvo.closest("[data-controladores-adiados]")
+    ? alvo : null;
+  if (focoAdiado) carregarSobDemanda();
+});
+document.addEventListener("pcpr:controladores-repostos", carregarSobDemanda);
 
 /**
  * Componentes pesados que ficam longe do topo só carregam quando chegam perto da tela

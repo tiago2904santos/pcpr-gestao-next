@@ -26,6 +26,55 @@ import { fecharDialogo } from "./dialogo.js";
 
 /** O "+" que abriu cada diálogo (o campo ao lado dele é quem recebe o criado). */
 const origens = new WeakMap();
+/** @type {Map<string, Promise<void>>} */
+const carregamentos = new Map();
+
+/** @param {HTMLDialogElement} janela @param {HTMLElement} origem */
+export async function carregarFormulario(janela, origem) {
+  origens.set(janela, origem);
+  const url = janela.dataset.cadastroUrl;
+  if (!url) return;
+  try {
+    let carregamento = carregamentos.get(url);
+    if (!carregamento) {
+      carregamento = (async () => {
+        const resposta = await fetch(url, { credentials: "same-origin",
+          headers: { "X-Requested-With": "fetch" } });
+        if (!resposta.ok || resposta.redirected) throw new Error("Formulário indisponível");
+        const recebido = new DOMParser().parseFromString(await resposta.text(), "text/html");
+        const destinos = /** @type {HTMLDialogElement[]} */ (Array.from(
+          document.querySelectorAll("dialog[data-cadastro-url]"))).filter(
+          (d) => d.dataset.cadastroUrl === url);
+        // Validar o pacote inteiro antes de trocar qualquer diálogo.
+        const pares = destinos.map((d) => [d, recebido.getElementById(d.id)]);
+        if (pares.some(([, fonte]) => !fonte?.matches("dialog[data-cadastro-rapido]")
+            || !fonte.querySelector("form"))) throw new Error("Formulário incompleto");
+        const focada = destinos.find((d) => d.contains(document.activeElement));
+        for (const [destino, fonte] of pares) {
+          if (!(destino instanceof HTMLDialogElement) || !fonte) continue;
+          destino.innerHTML = fonte.innerHTML;
+          for (const atributo of fonte.attributes) {
+            if (atributo.name !== "open") destino.setAttribute(atributo.name, atributo.value);
+          }
+          destino.removeAttribute("data-cadastro-url");
+          ligar(destino);
+          /** @type {any} */ (window).htmx?.process(destino);
+        }
+        document.dispatchEvent(new CustomEvent("pcpr:pagina-refeita"));
+        document.dispatchEvent(new CustomEvent("pcpr:controladores-repostos"));
+        const primeiro = focada?.querySelector("input:not([type='hidden'])");
+        if (focada?.open && primeiro instanceof HTMLElement) primeiro.focus();
+      })();
+      carregamentos.set(url, carregamento);
+    }
+    await carregamento;
+  } catch {
+    carregamentos.delete(url);
+    const aviso = janela.querySelector("[data-cadastro-estado]");
+    if (aviso) aviso.textContent = "Não foi possível carregar o formulário. Feche e abra "
+      + "novamente para tentar. Se a sessão expirou, entre de novo.";
+  }
+}
 document.addEventListener("click", (evento) => {
   const botao = /** @type {HTMLElement} */ (evento.target).closest?.("[data-abrir-dialogo]");
   const janela = botao && document.getElementById(/** @type {HTMLElement} */ (botao).dataset.abrirDialogo || "");
@@ -55,9 +104,9 @@ function mostrarErro(form, mensagem) {
 /** @param {HTMLDialogElement} janela */
 function ligar(janela) {
   if (janela.dataset.pronto) return;
-  janela.dataset.pronto = "1";
   const form = /** @type {HTMLFormElement | null} */ (janela.querySelector("form"));
   if (!form) return;
+  janela.dataset.pronto = "1";
 
   // Fechar devolve o formulário em branco: a próxima vez começa limpa.
   janela.addEventListener("close", () => { form.reset(); mostrarErro(form, ""); });

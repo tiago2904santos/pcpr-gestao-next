@@ -24,36 +24,40 @@ def _os_gerada(dados_e2e):
     return ordem
 
 
-def test_anexar_e_remover_a_via_da_os(logado, dados_e2e, tmp_path):
+def test_anexar_via_da_os_pela_barra_e_revogar_por_http(logado, dados_e2e, tmp_path):
     ordem = _os_gerada(dados_e2e)
     pg = logado
-    pg.goto(f"/viagens/ordens/{ordem.pk}/#via-assinada")
-    bloco = pg.locator("#via-assinada")
-    expect(bloco).to_contain_text("Sem via assinada")
+    pg.goto(f"/viagens/ordens/{ordem.pk}/#documento")
+    bloco = pg.locator("#editor-ordem")
+    pg.locator("#documento").scroll_into_view_if_needed()
+    expect(bloco.get_by_role("link", name="Anexar", exact=True)).to_be_visible(timeout=15000)
+    expect(bloco.locator("[data-anexar-assinado]")).to_have_text("Anexar")
 
     # Arquivo que não é PDF: a janela recusa antes de enviar.
     errado = tmp_path / "foto.png"
     errado.write_bytes(b"\x89PNG")
-    bloco.get_by_role("link", name="Anexar via assinada").click()
+    bloco.get_by_role("link", name="Anexar", exact=True).click()
     janela = pg.get_by_role("dialog", name="Anexar via assinada")
     expect(janela).to_be_visible()
     expect(janela).to_contain_text(str(ordem))
-    janela.get_by_label("PDF assinado").set_input_files(str(errado))
+    janela.locator('input[type="file"]').set_input_files(str(errado))
     janela.get_by_role("button", name="Anexar via assinada").click()
     expect(janela.locator("#dialogo-assinado-erro")).to_contain_text("Envie um arquivo PDF.")
     assert not ViaAssinada.objects.exists()
 
     certo = tmp_path / "os-assinada.pdf"
     certo.write_bytes(PDF)
-    janela.get_by_label("PDF assinado").set_input_files(str(certo))
+    janela.locator('input[type="file"]').set_input_files(str(certo))
     janela.get_by_role("button", name="Anexar via assinada").click()
     expect(pg.locator(".toast").first).to_contain_text("Via assinada anexada")
     # A conferência do PDF (ADR 0022) avisa, sem bloquear: este PDF de teste não tem assinatura.
     expect(pg.locator(".toast--aviso").first).to_contain_text("não tem assinatura digital")
-    expect(pg.locator("#via-assinada")).to_contain_text("os-assinada.pdf")
-    expect(pg.locator("#via-assinada .selo")).to_have_text("Assinado")
+    pg.locator("#documento").scroll_into_view_if_needed()
+    expect(bloco.locator(".editor__estado").get_by_text("Assinado", exact=True)).to_be_visible()
+    expect(bloco.locator("[data-anexar-assinado]")).to_have_text("Trocar via")
     via = ViaAssinada.objects.get()
     assert via.ordem_id == ordem.pk and via.revogada_em is None
+    assert via.nome_original == "os-assinada.pdf"
 
     # A via abre pela rota própria; "Gerar a OS" continua gerando o documento atual.
     assert pg.request.get(f"/viagens/assinados/via/{via.pk}/").body() == PDF
@@ -61,12 +65,15 @@ def test_anexar_e_remover_a_via_da_os(logado, dados_e2e, tmp_path):
     assert gerado.body() != PDF and gerado.body().startswith(b"%PDF")
     expect(pg.locator("#frase-ordem")).to_contain_text("Assinado")
 
-    # Remover: confirmação no diálogo do sistema; o arquivo fica guardado.
-    pg.locator("#via-assinada").get_by_role("button", name="Ações da via assinada").click()
-    pg.get_by_role("menuitem", name="Remover via assinada").click()
-    pg.get_by_role("dialog", name="Remover a via assinada").get_by_role(
-        "button", name="Remover via assinada").click()
-    expect(pg.locator(".toast").last).to_contain_text("o PDF gerado volta a valer")
+    # Ação visual de remover ausente também em d566; dívida documentada, sem simular UI.
+    # Exercita o POST real com a sessão/CSRF do navegador, preservando o arquivo.
+    csrf = pg.locator('input[name="csrfmiddlewaretoken"]').first.input_value()
+    resposta = pg.request.post(f"/viagens/assinados/via/{via.pk}/remover/", form={
+        "csrfmiddlewaretoken": csrf, "voltar": f"/viagens/ordens/{ordem.pk}/"})
+    assert resposta.ok
     via.refresh_from_db()
     assert via.revogada_em is not None
-    expect(pg.locator("#via-assinada")).to_contain_text("Sem via assinada")
+    assert via.arquivo.storage.exists(via.arquivo.name)
+    pg.reload()
+    pg.locator("#documento").scroll_into_view_if_needed()
+    expect(bloco.locator("[data-anexar-assinado]")).to_have_text("Anexar")

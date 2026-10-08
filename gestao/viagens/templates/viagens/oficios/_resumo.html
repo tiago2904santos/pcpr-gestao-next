@@ -154,96 +154,11 @@ continua sendo a edição; aqui só se lê e se decide.
       {% endwith %}{% endwith %}
     </section>
 
-    {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" %}
+    <div id="resumo-copia-area">
+      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" %}
+    </div>
 
-    {# Linha 3: o que saiu em papel. #}
-    <section id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-swap="outerHTML"{% endif %}>
-      <h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
-      {% if documentos %}
-        <ul class="resumo__documentos" role="list">
-          {% for d in documentos %}
-            <li>
-              {% if d.situacao == "pronto" %}
-                <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">
-                  {% icone "file-text" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span>
-                </a>
-              {% else %}
-                <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({{ d.get_situacao_display|lower }})</span></span>
-              {% endif %}
-              {% include "viagens/oficios/_regenerar_documento.html" %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}<p class="vazio-inline">{% if prontidao %}Nenhum ainda — aparecem na emissão.{% else %}Nenhum documento.{% endif %}</p>{% endif %}
-      {% if vias %}<ul class="registros" aria-label="Vias assinadas">{% for c in vias %}{% include "viagens/assinados/_registro.html" with c=c vazio="Só o ofício emitido recebe a via assinada." menu_acima=True %}{% endfor %}</ul>
-        {% for c in vias %}{% if c.s.via and c.pode %}{% include "viagens/assinados/_form_remover.html" with s=c.s titulo=c.titulo voltar=c.voltar %}{% endif %}{% endfor %}{% endif %}
-    </section>
+    {% include "viagens/oficios/_resumo_documentos.html" %}
   </div>
 </div>
-{% comment %}
-"Abrir o ofício" leva direto à folha de edição — é lá que se trabalha. Quando o ofício já
-foi emitido ou cancelado (ou quem olha não edita), não há o que abrir para mexer: a leitura
-completa continua na página do ofício.
-{% endcomment %}
-{% if revisao %}
-{% comment %}
-Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir gera o PDF oficial.
-{% endcomment %}
-<div class="dialogo__rodape">
-  <button type="button" class="botao botao--texto" data-fechar-dialogo>{% icone "arrow-left" %}Voltar e corrigir</button>
-  <a class="botao" href="{% url 'viagens:previa' oficio.pk %}?emissao=1" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>
-  {% comment %}
-  A janela já é a confirmação (número, valor e destinatário estão à vista): emitir não abre
-  uma segunda janela por cima. Emitido, o ofício ainda se corrige por retificação.
-  {% endcomment %}
-  {% if pode_emitir %}
-    <form method="post" action="{% url 'viagens:emitir' oficio.pk %}" class="dialogo__acao">
-      {% csrf_token %}
-      <input type="hidden" name="versao" value="{{ oficio.versao }}">
-      <button type="submit" class="botao botao--marca" data-vt="emissao-{{ oficio.pk }}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}>{% icone "stamp" %}Emitir ofício</button>
-    </form>
-  {% endif %}
-</div>
-{% else %}
-{% comment %}
-Rodapé com três controles, não cinco: ler o documento à esquerda, o resto no menu e a ação
-de abrir à direita. Minuta, Word e "Baixar documentos" são a mesma família (levar o
-documento embora) e viraram um grupo dentro de "Mais ações".
-{% endcomment %}
-<div class="dialogo__rodape">
-  {% for d in documentos %}{% if d.tipo == "oficio" and d.situacao == "pronto" and d == pdf_oficio %}
-    {# Sem `?baixar=1`: abre o PDF na aba, para ler. Baixar é escolha de quem lê. #}
-    <a class="botao botao--texto" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">{% icone "file-text" %}Ver o PDF</a>
-  {% endif %}{% endfor %}
-  {% if not pdf_oficio %}<a class="botao botao--texto" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-label="Minuta do Ofício {{ oficio.numero_formatado }} (PDF, nova aba)">{% icone "printer" %}Ver minuta</a>{% endif %}
-  {% comment %}
-  "Mais ações" é o mesmo menu ⋮ da linha da lista (D7, _menu_oficio.html), menos o que já
-  está à vista no rodapé (resumo, abrir/editar, ver o PDF ou a minuta); a janela acrescenta
-  a minuta e o Word (levar o documento embora) e os registros que nasceram do ofício.
-  {% endcomment %}
-  <pc-menu class="menu" data-menu-flutuante>
-    <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
-    <div class="menu__painel menu__painel--descrito menu__painel--acima" role="menu" hidden>
-      <p class="menu__folha-titulo" aria-hidden="true">Ofício {{ oficio.numero_formatado }}</p>
-      {% if pdf_oficio %}<a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener" aria-describedby="r{{ oficio.pk }}-mi">{% icone "printer" %}<span class="menu__item-texto"><span>Ver minuta</span><span class="menu__item-descricao" id="r{{ oficio.pk }}-mi" aria-hidden="true">Como está agora, com marca d’água</span></span></a>{% endif %}
-      {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
-      <a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download aria-describedby="r{{ oficio.pk }}-wd">{% icone "download" %}<span class="menu__item-texto"><span>Baixar em Word</span><span class="menu__item-descricao" id="r{{ oficio.pk }}-wd" aria-hidden="true">{% if pdf_oficio %}A via emitida (v{{ pdf_oficio.versao }}), editável{% else %}A minuta como está agora, editável{% endif %}</span></span></a>
-      {% include "viagens/oficios/_menu_oficio.html" with o=oficio m=menu p="r" no_resumo=True %}
-    </div>
-  </pc-menu>
-  {% if pode_editar %}
-    <a class="botao botao--primario" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
-  {% elif pode_retificar %}
-    {% comment %}
-    Ofício já emitido também se edita: ao confirmar, ele volta a rascunho marcado como
-    retificado e ganha uma versão nova — é a retificação do mundo real.
-    {% endcomment %}
-    <form method="post" action="{% url 'viagens:retificar' oficio.pk %}"
-          data-confirmar="O Ofício {{ oficio.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."
-          data-confirmar-titulo="Editar um ofício emitido?" data-confirmar-rotulo="Editar e retificar">
-      {% csrf_token %}
-      <button type="submit" class="botao botao--primario">{% icone "pencil" %}Editar ofício</button>
-    </form>
-  {% endif %}
-</div>
-{% endif %}
+{% include "viagens/oficios/_resumo_rodape.html" %}

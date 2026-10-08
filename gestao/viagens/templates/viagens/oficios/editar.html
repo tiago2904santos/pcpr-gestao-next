@@ -373,7 +373,7 @@ escolha já selecionada. Os "+" de cargo, unidade e combustível ficam dentro de
 os cadastros rápidos desses catálogos também precisam estar aqui. Ver cadastro-rapido.js.
 {% endcomment %}
 {% if pode_editar_texto %}
-{% include "componentes/dialogos_cadastro.html" with envio_url=url_adicionar_viajante alvo="#equipe" destino=form.viatura.auto_id %}
+{% include "componentes/dialogos_cadastro_adiados.html" %}
 {% endif %}
 {% if foco %}<script type="module" nonce="{{ csp_nonce }}">document.getElementById("{{ foco }}")?.focus();</script>{% endif %}
 {% endblock %}

@@ -43,6 +43,10 @@ def _responder(request: HttpRequest, itens: Callable[[], list[pacotes.Item]], *,
     except KeyError:
         raise Http404 from None
     except pacotes.PacoteInvalido as exc:
+        if request.headers.get("X-Requested-With") == "fetch":
+            resposta = JsonResponse({"erro": str(exc)}, status=422)
+            resposta["Cache-Control"] = "no-store"
+            return resposta
         messages.error(request, str(exc))
         return redirect(_voltar(request, padrao))
     resposta = HttpResponse(conteudo, content_type=tipo)

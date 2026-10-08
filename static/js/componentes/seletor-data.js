@@ -325,6 +325,7 @@ export class PcData extends SeletorFlutuante {
       this.definir(d, null);
       this.aguardandoFim = true;
       this.renderizar();
+      this.focarInicial();
       return;
     }
     // Segundo clique fecha o período; clicar antes do começo inverte os dois.

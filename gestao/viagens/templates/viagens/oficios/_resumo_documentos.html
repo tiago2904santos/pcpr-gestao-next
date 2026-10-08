@@ -1,0 +1,21 @@
+<section id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} data-resumo-poll hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-select-oob="#resumo-rodape,#resumo-copia-area" hx-swap="outerHTML"{% endif %}>
+  <h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>
+  {% for aviso in projecao_documentos.avisos %}<p class="vazio-inline" role="status">{{ aviso }}</p>{% endfor %}
+  {% if documentos_correntes %}
+    <ul class="resumo__documentos" role="list" aria-label="Documentos da emissão corrente">
+      {% for linha in documentos_correntes %}{% include "viagens/oficios/_resumo_documento.html" with historico=False %}{% endfor %}
+    </ul>
+  {% elif oficio.situacao == "rascunho" %}<p class="vazio-inline">Nenhum documento corrente — a minuta mostra os dados do rascunho.</p>
+  {% elif oficio.situacao == "cancelado" %}<p class="vazio-inline">Ofício cancelado: os documentos emitidos permanecem no histórico.</p>
+  {% else %}<p class="vazio-inline">A emissão corrente está indisponível. Confira o histórico e os documentos.</p>{% endif %}
+  {% if vias %}
+    <ul class="registros" aria-label="Vias assinadas da emissão corrente">{% for c in vias %}{% include "viagens/assinados/_registro.html" with c=c vazio="Só o ofício emitido recebe a via assinada." menu_acima=True %}{% endfor %}</ul>
+    {% for c in vias %}{% if c.s.via and c.pode %}{% include "viagens/assinados/_form_remover.html" with s=c.s titulo=c.titulo voltar=c.voltar %}{% endif %}{% endfor %}
+  {% endif %}
+  {% if documentos_historicos %}
+    <h4 class="resumo__titulo">Histórico de documentos</h4>
+    <ul class="resumo__documentos" role="list" aria-label="Documentos históricos">
+      {% for linha in documentos_historicos %}{% include "viagens/oficios/_resumo_documento.html" with historico=True %}{% endfor %}
+    </ul>
+  {% endif %}
+</section>

@@ -18,7 +18,9 @@ def test_baixar_documentos_do_termo(logado, dados_e2e):
                           oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
     pg = logado
     pg.goto(f"/viagens/termos/{termo.pk}/")
-    pg.locator("#lista-documentos").get_by_role("button", name="Baixar documentos").click()
+    acoes = pg.locator(".pagina-cabecalho__acoes")
+    acoes.locator("[data-menu-botao]").click()
+    acoes.get_by_role("menuitem", name="Baixar documentos", exact=True).click()
     janela = pg.get_by_role("dialog", name="Baixar documentos")
     expect(janela).to_be_visible()
     caixas = janela.locator("input[name=itens]")
@@ -41,12 +43,20 @@ def test_baixar_documentos_do_termo(logado, dados_e2e):
     assert baixado.value.suggested_filename == f"termo-{termo.pk}-documentos.pdf"
     expect(janela).to_be_hidden()
     # A escolha fica lembrada na próxima abertura.
-    pg.locator("#lista-documentos").get_by_role("button", name="Baixar documentos").click()
+    acoes.locator("[data-menu-botao]").click()
+    acoes.get_by_role("menuitem", name="Baixar documentos", exact=True).click()
     expect(pg.get_by_role("dialog", name="Baixar documentos").get_by_role(
         "radio", name="Um PDF só")).to_be_checked()
 
 
 def test_baixar_documentos_pelo_resumo_do_oficio(logado, dados_e2e):
+    from gestao.plataforma import outbox
+    from gestao.viagens.models import Documento
+
+    while outbox.processar_lote():
+        pass
+    assert Documento.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"],
+                                 tipo="oficio").situacao == "pronto"
     pg = logado
     pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
     # "Baixar documentos…" mora em "Mais ações" (o mesmo menu ⋮ da linha, D7).

@@ -1,0 +1,8 @@
+{% url 'viagens:editar' oficio.pk as editar_url %}
+{% with cadastro_url=editar_url|add:"?cadastros=1" %}
+{% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-servidor" titulo="Novo servidor" largo=True %}
+{% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-viatura" titulo="Nova viatura" largo=True %}
+{% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-cargo" titulo="Cadastrar cargo" %}
+{% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-combustivel" titulo="Cadastrar combustível" %}
+{% include "componentes/dialogo_cadastro_adiado.html" with id="dialogo-unidade" titulo="Cadastrar unidade" %}
+{% endwith %}

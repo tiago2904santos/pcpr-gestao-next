@@ -152,7 +152,7 @@ def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situaca
     assert copia.situacao_documento == situacao
     assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
     assert "Dados da emissão v2" in _bloco(resposta)
-    assert resposta.context["pdf_oficio"].pk == anterior.pk
+    assert resposta.context["pdf_oficio"] is None
 
 
 def test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos(client, cenario):

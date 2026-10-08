@@ -425,11 +425,8 @@ def _contexto_edicao(request, oficio, form=None, itin=None, erro_roteiro="", cal
         "rotulo_de_volta": f"o ofício {oficio.numero_formatado}",
         # Cadastrar sem sair da folha: são os mesmos diálogos das telas de Cadastros, e
         # por isso levam os mesmos formulários (ver componentes/dialogo_*.html).
-        "form_servidor": FormularioServidor(),
         # Para onde o servidor recém-cadastrado vai: direto para a equipe deste ofício.
         "url_adicionar_viajante": reverse("viagens:adicionar_viajante", args=[oficio.pk]),
-        "form_viatura": FormularioViatura(
-            fonte_motoristas=reverse("cadastros:buscar_servidores")),
         # Pendências em vermelho só depois de salvar ou de pedir para emitir: abrir um
         # rascunho novo não é erro de ninguém.
         "mostrar_pendencias": bool(form is not None
@@ -483,6 +480,14 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
                                    "editado; abra o resumo na lista para conferir.")
         return redirect(_na_lista(oficio))
     if request.method != "POST":
+        if request.GET.get("cadastros") == "1":
+            return render(request, "componentes/dialogos_cadastro.html", {
+                "form_servidor": FormularioServidor(),
+                "form_viatura": FormularioViatura(
+                    fonte_motoristas=reverse("cadastros:buscar_servidores")),
+                "envio_url": reverse("viagens:adicionar_viajante", args=[oficio.pk]),
+                "alvo": "#equipe", "destino": "id_viatura",
+            })
         contexto = _contexto_edicao(request, oficio)
         contexto.update(_revisao_pedida(request, oficio, contexto))
         return render(request, "viagens/oficios/editar.html", contexto)
@@ -875,16 +880,39 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
     Em `revisao` (antes de emitir) ela também mostra o que vai no papel e não está na
     folha — destinatário e quem assina — e troca o rodapé pelo botão de emitir.
     """
-    from . import assinados
+    from django.db.models import Exists
 
-    documentos = list(oficio.documentos.select_related("emitido_por").order_by("tipo", "-versao"))
+    from .documentos_versoes import projetar_documentos
+    from .models import ViaAssinada
+
+    documentos = list(oficio.documentos.select_related("emitido_por")
+                      .annotate(_tem_vias=Exists(ViaAssinada.objects.filter(oficio=oficio)))
+                      .order_by("tipo", "-versao"))
     viajantes = viajantes_de(oficio)
     trechos = trechos_de(oficio)
-    pdf = next((d for d in documentos if d.tipo == Documento.Tipo.OFICIO
-                and d.situacao == Documento.Situacao.PRONTO), None)
-    # Vias assinadas em vigor: uma consulta, e só quando há PDF (sem PDF não há via).
-    vigentes = assinados.vigentes_do(oficio) if any(
-        d.situacao == Documento.Situacao.PRONTO for d in documentos) else {}
+    # A existência vem na consulta documental: primeira emissão sem vias não paga uma
+    # consulta vazia. Quando existem, trazer todas (inclusive revogadas) uma vez só.
+    vias = list(oficio.vias_assinadas.select_related("enviado_por").order_by("enviado_em", "pk")) \
+        if documentos and getattr(documentos[0], "_tem_vias", False) else []
+    projecao = projetar_documentos(oficio, documentos=documentos, vias=vias)
+    correntes: list[dict] = []
+    historicos: list[dict] = []
+
+    def linha_documental(versao):
+        documento = projecao.documentos_por_id[versao.documento.id]
+        return {"documento": documento,
+                "pdf_disponivel": projecao.pdf_disponivel(documento.pk),
+                "vias": [{"via": projecao.vias_por_id[via.id], "revogada": via.revogada}
+                         for via in versao.vias if projecao.via_disponivel(via.id)]}
+
+    for selecao in projecao.selecoes:
+        if selecao.corrente is not None:
+            correntes.append(linha_documental(selecao.corrente))
+        historicos.extend(linha_documental(versao) for versao in selecao.historico)
+    pdf = projecao.pdf_original("oficio")
+    via_pdf = projecao.via_assinada("oficio")
+    pdf_url = (reverse("viagens:abrir_via_assinada", args=[via_pdf.pk]) if via_pdf else
+               reverse("viagens:baixar_documento", args=[pdf.pk]) if pdf else "")
     extras = {"revisao": True, "dados": dados_do_oficio(oficio),
               "pode_emitir": policies.pode_emitir(request.user, oficio)} if revisao else {}
     return {**extras,
@@ -897,7 +925,12 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "copia": projetar_dados_eprotocolo(
             oficio, documentos=documentos, viajantes=viajantes, trechos=trechos),
         "documentos": documentos,
-        "gerando": any(d.situacao == Documento.Situacao.GERANDO for d in documentos),
+        "projecao_documentos": projecao,
+        "selecao_oficio": projecao.por_tipo("oficio"),
+        "documentos_correntes": correntes,
+        "documentos_historicos": historicos,
+        "gerando": any(selecao.estado_geracao == Documento.Situacao.GERANDO
+                       for selecao in projecao.selecoes),
         "pode_regenerar_documentos": policies.pode_regenerar_documentos(request.user, oficio),
         "prontidao": services.verificar_prontidao(oficio) if oficio.editavel else None,
         "pode_editar": policies.pode_editar(request.user, oficio),
@@ -905,17 +938,12 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         # Os registros que nasceram do ofício e que quem pede vê — só quando existem (o link
         # levava a uma lista vazia; QA Lote 3, M5). Uma consulta para os três.
         **_registros_do_oficio(request, oficio),
-        # O PDF do ofício que vale (o primeiro ofício pronto, não o primeiro documento).
+        # PDF original corrente: identidade máxima pronta com caminho preenchido.
         "pdf_oficio": pdf,
-        "vias": _vias_do_oficio(request, oficio, documentos, vigentes),
-        # O ⋮ canônico (D7) — "Mais ações" — com o PDF e a via que a janela já carregou.
-        "menu": policies.menu_do_oficio(
-            request.user, oficio, pdf=(pdf.pk, pdf.versao) if pdf else None,
-            via=("oficio", "") in vigentes,
-            justificativa=next((d.versao for d in documentos if d.tipo == Documento.Tipo
-                                .JUSTIFICATIVA and d.situacao == Documento.Situacao.PRONTO),
-                               None),
-            via_justificativa=("justificativa", "") in vigentes),
+        "pdf_oficio_url": pdf_url,
+        "docx_oficio": projecao.docx_corrente("oficio"),
+        "vias": _vias_do_oficio(request, oficio, projecao),
+        "menu": policies.menu_do_oficio(request.user, oficio, projecao=projecao),
     }
 
 
@@ -937,26 +965,29 @@ def _registros_do_oficio(request: HttpRequest, oficio) -> dict[str, bool]:
                     strict=True))
 
 
-def _vias_do_oficio(request: HttpRequest, oficio, documentos, vigentes: dict) -> list[dict]:
-    """A via assinada de cada documento emitido (o PDF pronto mais recente de cada tipo)."""
+def _vias_do_oficio(request: HttpRequest, oficio, projecao) -> list[dict]:
+    """Cartões somente das identidades correntes prontas com arquivo disponível."""
     from . import assinados, views_assinados
 
-    prontos: dict[str, Documento] = {}
-    for d in documentos:  # já vêm do mais novo para o mais velho
-        if d.situacao == Documento.Situacao.PRONTO:
-            prontos.setdefault(d.tipo, d)
-    if not prontos:
-        return []
-    vias = vigentes
     # O resumo é um fragmento: remover volta para a lista com o resumo aberto.
     voltar = f"{reverse('viagens:oficios')}?resumo={oficio.pk}"
-    ordem: list[str] = ["oficio", "justificativa"]  # o ofício primeiro
-    return [views_assinados.cartao(
-        request, assinados.Alvo(tipo, oficio), vias.get((tipo, "")),
-        titulo=(f"Ofício {oficio.numero_formatado} · v{doc.versao}" if tipo == "oficio"
-                else f"Justificativa do Ofício {oficio.numero_formatado} · v{doc.versao}"),
-        original_url=reverse("viagens:baixar_documento", args=[doc.pk]), voltar=voltar)
-        for tipo, doc in sorted(prontos.items(), key=lambda par: ordem.index(par[0]))]
+    cartoes = []
+    for tipo in ("oficio", "justificativa"):
+        documento = projecao.pdf_original(tipo)
+        via = projecao.via_assinada(tipo)
+        if documento is None and via is None:
+            continue
+        selecao = projecao.por_tipo(tipo)
+        if selecao is None or selecao.corrente is None:
+            continue
+        versao = selecao.corrente.documento.versao
+        cartoes.append(views_assinados.cartao(
+            request, assinados.Alvo(tipo, oficio), via,
+            titulo=(f"Ofício {oficio.numero_formatado} · v{versao}" if tipo == "oficio"
+                    else f"Justificativa do Ofício {oficio.numero_formatado} · v{versao}"),
+            original_url=reverse("viagens:baixar_documento", args=[documento.pk])
+            if documento else "", voltar=voltar))
+    return cartoes
 
 
 @require_GET
@@ -1000,11 +1031,22 @@ def baixar_documento(request: HttpRequest, documento_id: int) -> FileResponse:
     if doc.situacao != Documento.Situacao.PRONTO:
         raise Http404("Documento ainda não gerado.")
     if request.GET.get("versao") != "original":
-        via = doc.vias_assinadas.filter(revogada_em__isnull=True).order_by("-enviado_em").first()
-        if via is not None:
+        via = doc.vias_assinadas.filter(
+            oficio_id=doc.oficio_id, tipo=doc.tipo, revogada_em__isnull=True,
+        ).select_related("oficio").order_by("-enviado_em").first()
+        from . import assinados
+
+        if (via is not None and str(via.arquivo.name or "").strip()
+                and assinados.pode_abrir(request.user, via)):
             from .views_assinados import resposta_da_via
             return resposta_da_via(via, baixar=request.GET.get("baixar") == "1")
-    resposta = FileResponse(doc.arquivo.open("rb"), content_type="application/pdf",
+    if not str(doc.arquivo.name or "").strip():
+        raise Http404("O arquivo deste documento está indisponível.")
+    try:
+        arquivo = doc.arquivo.open("rb")
+    except FileNotFoundError:
+        raise Http404("O arquivo deste documento está indisponível.") from None
+    resposta = FileResponse(arquivo, content_type="application/pdf",
                             as_attachment=request.GET.get("baixar") == "1",
                             filename=doc.nome_arquivo)
     resposta["X-Content-SHA256"] = doc.sha256
@@ -1054,10 +1096,24 @@ def baixar_docx(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
     if tipo not in {"oficio", "justificativa"}:
         raise Http404
     from .documentos.docx import docx_do_html
+    from .documentos_versoes import projetar_documentos
 
-    emitido = (oficio.documentos.filter(tipo=tipo, situacao=Documento.Situacao.PRONTO)
-               .order_by("-versao").first() if oficio.situacao != Oficio.Situacao.RASCUNHO
-               else None)
+    rascunho = oficio.situacao == Oficio.Situacao.RASCUNHO
+    emitido = None
+    if not rascunho:
+        projecao = projetar_documentos(oficio, documentos=list(oficio.documentos.all()), vias=())
+        emitido = projecao.docx_corrente(tipo)
+        selecao = projecao.por_tipo(tipo)
+        if oficio.situacao == Oficio.Situacao.CANCELADO and selecao is not None:
+            # Leitura histórica já autorizada pela rota: não chama isso de corrente.
+            ultima = selecao.ultima_emissao
+            if ultima is not None and ultima.situacao == Documento.Situacao.PRONTO:
+                emitido = projecao.documentos_por_id[ultima.id]
+        if emitido is None:
+            return HttpResponse(
+                "O DOCX desta versão está indisponível. Confira os documentos do ofício; "
+                "se a geração falhou, solicite gerar novamente.",
+                status=422, content_type="text/plain; charset=utf-8")
     if emitido is not None:
         html = html_do_documento(tipo, emitido.dados)
         nome = f"{tipo}-{oficio.numero:02d}-{oficio.ano}-v{emitido.versao}.docx"
@@ -1152,14 +1208,16 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
     qs = (queries.com_dados_de_lista(qs).select_related("justificativa_modelo")
           .prefetch_related(Prefetch("documentos", to_attr="docs_justificativa",
                                      queryset=Documento.objects.filter(
-                                         tipo=Documento.Tipo.JUSTIFICATIVA,
-                                         situacao=Documento.Situacao.PRONTO).order_by("-versao")))
+                                         tipo=Documento.Tipo.JUSTIFICATIVA).order_by("-versao")))
           # Pendentes pela saída mais próxima (urgência); as demais, pelo número.
           .order_by(*((F("saida_dia").asc(nulls_last=True), "-ano", "-numero")
                       if aba == "pendentes" else ("-ano", "-numero"))))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)
     for o in pagina.object_list:  # o que cada linha oferece vem da política
+        corrente = queries.pdf_corrente_da_lista(o, "justificativa")
+        o.docs_justificativa = [  # type: ignore[attr-defined]
+            d for d in o.docs_justificativa if corrente and d.pk == corrente[0]]  # type: ignore[attr-defined]
         o.editavel_aqui = policies.pode_editar(request.user, o)  # type: ignore[attr-defined]
         saida_dia = getattr(o, "saida_dia", None)  # anotado por queries.com_regra_de_prazo
         o.antecedencia = (  # type: ignore[attr-defined]

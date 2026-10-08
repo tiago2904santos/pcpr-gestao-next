@@ -1,5 +1,6 @@
 """Campos copiáveis da Folha/Resumo: Clipboard, fallback e atualização real HTMX."""
 
+import json
 import re
 from pathlib import Path
 
@@ -64,6 +65,11 @@ def test_folha_copia_campos_e_tudo_sem_dados_pessoais(logado, dados_e2e, largura
 
 def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e):
     pg = logado
+    pg.add_init_script("""window.__cspCopia = [];
+        document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
+          fonte: e.sourceFile, linha: e.lineNumber, diretiva: e.effectiveDirective,
+          bloqueado: e.blockedURI, amostra: e.sample
+        }));""")
     oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
     pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
     pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
@@ -93,7 +99,9 @@ def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e)
         pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
     violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
     assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
-    assert pg.erros_console == []
+    csp = pg.evaluate("window.__cspCopia")
+    (pasta / "csp-resumo.json").write_text(json.dumps(csp, indent=2), encoding="utf-8")
+    assert pg.erros_console == [], csp
 
 
 def test_autosave_atualiza_texto_e_preserva_divulgacao_aberta(logado, dados_e2e):

@@ -1480,7 +1480,10 @@ class TestGavetaEFichas:
     def test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade(self, operador):
         html = operador.get(reverse("viagens:oficios"),
                             {"protocolo": "12345", "ordem": "numero"}).content.decode()
-        assert re.search(r'<details class="filtros__mais" id="filtros-mais"\s*>', html)
+        gaveta = re.search(r'<details class="filtros__mais" id="filtros-mais"([^>]*)>', html)
+        assert gaveta
+        assert not re.search(r"(?:^|\s)open(?:\s|=|$)", gaveta.group(1))
+        assert "data-controladores-adiados" in gaveta.group(1)
         assert re.search(r'id="conta-filtros"[^>]*>2<', html)  # protocolo + ordem
 
     def test_ordem_e_ano_moram_na_gaveta_com_rotulos_honestos(self, operador, cenario):

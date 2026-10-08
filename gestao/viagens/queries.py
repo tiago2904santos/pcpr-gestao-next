@@ -22,7 +22,7 @@ from django.db.models import (
     Value,
     prefetch_related_objects,
 )
-from django.db.models.functions import Coalesce, Concat, TruncDate
+from django.db.models.functions import Coalesce, Concat, Trim, TruncDate
 from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
@@ -30,6 +30,12 @@ from gestao.cadastros.models import TabelaDiaria
 from . import prestacao
 from .dominio import busca, recorte
 from .dominio.diarias import Faixa, ValorVigente
+from .dominio.documentos_versoes import (
+    DocumentoVersao,
+    SelecaoPorTipo,
+    presenca_justificativa,
+    selecionar_versoes,
+)
 from .models import (
     Documento,
     Oficio,
@@ -74,17 +80,45 @@ def viajantes_de(oficio: Oficio) -> list[Viajante]:
     return list(oficio.viajantes.all())
 
 
-_pdf_do_oficio = (Documento.objects.filter(oficio=OuterRef("pk"), tipo=Documento.Tipo.OFICIO,
-                                          situacao=Documento.Situacao.PRONTO)
+_pdf_do_oficio = (Documento.objects.filter(oficio=OuterRef("pk"), tipo=Documento.Tipo.OFICIO)
                   .order_by("-versao"))
 _pdf_da_justificativa = (Documento.objects.filter(
-    oficio=OuterRef("pk"), tipo=Documento.Tipo.JUSTIFICATIVA,
-    situacao=Documento.Situacao.PRONTO).order_by("-versao"))
+    oficio=OuterRef("pk"), tipo=Documento.Tipo.JUSTIFICATIVA).order_by("-versao"))
 
 
 def _via(tipo: str) -> Exists:
+    identidade = "pdf_oficio_id" if tipo == "oficio" else "pdf_justificativa_id"
     return Exists(ViaAssinada.objects.filter(oficio=OuterRef("pk"), tipo=tipo,
-                                             revogada_em__isnull=True))
+                                             oficio__situacao=Oficio.Situacao.EMITIDO,
+                                             documento_id=OuterRef(identidade), chave="",
+                                             documento__oficio_id=OuterRef("pk"),
+                                             documento__tipo=tipo,
+                                             documento__situacao=Documento.Situacao.PRONTO,
+                                             revogada_em__isnull=True)
+                  .alias(_caminho=Trim("arquivo")).exclude(_caminho=""))
+
+
+def selecao_documental_da_lista(oficio: Oficio, tipo: str) -> SelecaoPorTipo | None:
+    """Mesmo domínio do detalhe, só com metadados anotados; nenhuma relação/SQL."""
+    documentos = []
+    for chave in ("oficio", "justificativa"):
+        pk = getattr(oficio, f"pdf_{chave}_id", None)
+        if pk is not None:
+            documentos.append(DocumentoVersao(
+                pk, chave, getattr(oficio, f"pdf_{chave}_versao"),
+                getattr(oficio, f"pdf_{chave}_situacao"),
+                presenca_justificativa(getattr(oficio, "snapshot_justificativa", None))
+                if chave == "oficio" else None))
+    selecoes = selecionar_versoes(situacao_oficio=oficio.situacao, documentos=documentos)
+    return next((selecao for selecao in selecoes if selecao.tipo == tipo), None)
+
+
+def pdf_corrente_da_lista(oficio: Oficio, tipo: str) -> tuple[int, int] | None:
+    selecao = selecao_documental_da_lista(oficio, tipo)
+    documento = selecao.pdf_corrente if selecao else None
+    caminho = getattr(oficio, f"pdf_{tipo}_arquivo", "")
+    return ((documento.id, documento.versao)
+            if documento and isinstance(caminho, str) and caminho.strip() else None)
 
 
 def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
@@ -103,8 +137,17 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
                   # via assinada — subconsultas na mesma consulta, nenhuma por linha.
                   pdf_oficio_id=Subquery(_pdf_do_oficio.values("pk")[:1]),
                   pdf_oficio_versao=Subquery(_pdf_do_oficio.values("versao")[:1]),
-                  via_oficio=_via(ViaAssinada.Tipo.OFICIO),
+                  pdf_oficio_situacao=Subquery(_pdf_do_oficio.values("situacao")[:1]),
+                  pdf_oficio_arquivo=Subquery(_pdf_do_oficio.values("arquivo")[:1]),
+                  snapshot_justificativa=Subquery(
+                      _pdf_do_oficio.values("dados__justificativa")[:1]),
+                  pdf_justificativa_id=Subquery(_pdf_da_justificativa.values("pk")[:1]),
                   pdf_justificativa_versao=Subquery(_pdf_da_justificativa.values("versao")[:1]),
+                  pdf_justificativa_situacao=Subquery(
+                      _pdf_da_justificativa.values("situacao")[:1]),
+                  pdf_justificativa_arquivo=Subquery(
+                      _pdf_da_justificativa.values("arquivo")[:1]),
+                  via_oficio=_via(ViaAssinada.Tipo.OFICIO),
                   via_justificativa=_via(ViaAssinada.Tipo.JUSTIFICATIVA))
     )
 
