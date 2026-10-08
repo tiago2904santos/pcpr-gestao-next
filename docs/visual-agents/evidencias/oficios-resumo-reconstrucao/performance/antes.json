@@ -1,0 +1,307 @@
+{
+  "ttfb_ms": 127,
+  "fcp_ms": 360,
+  "lcp_ms": 824,
+  "cls": 0,
+  "inp_ms": 152,
+  "html_kb": 70.5,
+  "css_kb": 164.9,
+  "js_kb": 106.8,
+  "css_gzip_kb": 31.1,
+  "js_gzip_kb": 36.0,
+  "requisicoes": 24,
+  "sql": 18,
+  "db_ms": 45.0,
+  "itinerario_gzip_kb": 0.0,
+  "itinerario_requisicoes": 0,
+  "amostras": [
+    [
+      237,
+      107.7,
+      18
+    ],
+    [
+      117,
+      45.0,
+      18
+    ],
+    [
+      127,
+      36.8,
+      18
+    ]
+  ],
+  "recursos": [
+    {
+      "url": "http://localhost:54436/viagens/oficios/?resumo=1",
+      "tipo": "document",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 72149,
+      "fonte_bytes": 72149,
+      "gzip": 11842,
+      "server_timing": "app;dur=232.1, db;dur=107.7;desc=\"18 consultas\"",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/fonts/inter-latin-wght-normal.woff2",
+      "tipo": "font",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": null,
+      "fonte_bytes": null,
+      "gzip": null,
+      "server_timing": "",
+      "itinerario": false,
+      "medicao_conteudo": "Não aplicável ao orçamento: body de fonte não lido; bytes de rede medidos separadamente.",
+      "rede_tamanhos": {
+        "requestBodySize": 0,
+        "requestHeadersSize": 441,
+        "responseBodySize": -276,
+        "responseHeadersSize": 276
+      }
+    },
+    {
+      "url": "http://localhost:54436/static/css/tokens.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 7499,
+      "fonte_bytes": 13483,
+      "gzip": 2409,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/css/base.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 6788,
+      "fonte_bytes": 13070,
+      "gzip": 2401,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/css/layout.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 18215,
+      "fonte_bytes": 26780,
+      "gzip": 3675,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/css/components.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 70725,
+      "fonte_bytes": 104319,
+      "gzip": 11870,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/css/listas.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 39956,
+      "fonte_bytes": 65719,
+      "gzip": 6591,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/css/formulario.css",
+      "tipo": "stylesheet",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 25714,
+      "fonte_bytes": 40536,
+      "gzip": 4950,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/shell.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 2034,
+      "fonte_bytes": 3414,
+      "gzip": 835,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/menu.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 11017,
+      "fonte_bytes": 19412,
+      "gzip": 3559,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/dialogo.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 7996,
+      "fonte_bytes": 13064,
+      "gzip": 2381,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/toasts.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 2641,
+      "fonte_bytes": 4382,
+      "gzip": 1132,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/comandos.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 3952,
+      "fonte_bytes": 6065,
+      "gzip": 1655,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/acao.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 2429,
+      "fonte_bytes": 4569,
+      "gzip": 892,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/vendor/htmx.min.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 52182,
+      "fonte_bytes": 52182,
+      "gzip": 16896,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/app.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 8918,
+      "fonte_bytes": 13632,
+      "gzip": 2733,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/registro.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 2208,
+      "fonte_bytes": 3912,
+      "gzip": 966,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/img/brasao-pcpr-96.webp",
+      "tipo": "image",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 5450,
+      "fonte_bytes": 5450,
+      "gzip": 5473,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/copiar.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 2468,
+      "fonte_bytes": 3740,
+      "gzip": 916,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/abas-rolagem.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 1601,
+      "fonte_bytes": 3081,
+      "gzip": 656,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/filtros.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 6569,
+      "fonte_bytes": 12297,
+      "gzip": 2332,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/limpar.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 1169,
+      "fonte_bytes": 2156,
+      "gzip": 501,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/static/js/componentes/assinado.js",
+      "tipo": "script",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 4172,
+      "fonte_bytes": 6673,
+      "gzip": 1393,
+      "server_timing": "",
+      "itinerario": false
+    },
+    {
+      "url": "http://localhost:54436/viagens/oficios/4/resumo/",
+      "tipo": "xhr",
+      "metodo": "GET",
+      "status": 200,
+      "tamanho": 9230,
+      "fonte_bytes": 9230,
+      "gzip": 2388,
+      "server_timing": "app;dur=208.4, db;dur=181.4;desc=\"11 consultas\"",
+      "itinerario": false
+    }
+  ]
+}

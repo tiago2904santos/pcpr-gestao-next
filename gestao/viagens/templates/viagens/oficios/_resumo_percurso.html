@@ -1,0 +1,16 @@
+{% load viagens %}
+{% if trechos %}
+          <div class="resumo__moldura">
+          <ol class="resumo__trechos percurso-registro" aria-label="Trechos da viagem">
+            {% for t in trechos %}
+              <li class="percurso-registro__trecho">
+                <div class="percurso-registro__dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small></div>
+                <div class="percurso-registro__trajeto">
+                  <div class="percurso-registro__ponto"><time datetime="{{ t.saida_em|date:'c' }}">{{ t.saida_em|date:"H:i" }}</time><span>{{ t.origem }}</span></div>
+                  <div class="percurso-registro__ponto percurso-registro__ponto--destino"><time datetime="{{ t.chegada_em|date:'c' }}">{{ t.chegada_em|date:"H:i" }}{% if t.chegada_em.date != t.saida_em.date %}<small>{{ t.chegada_em|date:"d/m" }}</small>{% endif %}</time><strong>{{ t.destino }}</strong></div>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+          </div>
+        {% else %}<p class="vazio-inline">Roteiro não informado.</p>{% endif %}

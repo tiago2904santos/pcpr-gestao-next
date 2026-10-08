@@ -1,21 +1,16 @@
 {% with identificador=vazio|yesno:"lab-dossie-vazio,lab-dossie" %}
-<dialog id="{{ identificador }}" class="dialogo dialogo--resumo dialogo--dossie" aria-label="Dossiê de viagem — exemplo">
+<dialog id="{{ identificador }}" class="dialogo dialogo--resumo dialogo--mesa" aria-label="Dossiê de viagem — exemplo">
   <button class="botao botao--icone botao--sutil dialogo__fechar" type="button" data-fechar-dialogo aria-label="Fechar exemplo">{% icone "x" %}</button>
   <div class="dialogo__conteudo">
-    <div class="dialogo__cabecalho">
-      {% include "componentes/identidade_documental.html" with rotulo="Ofício de viagem" numero="131/2026" %}
-      <div class="dialogo__cabecalho-texto"><p class="resumo__sobretitulo">Resumo da viagem</p><h2 class="dialogo__titulo">{% if vazio %}Sem destino{% else %}Santo Antônio da Platina/PR, São José dos Pinhais/PR{% endif %}</h2><div class="dialogo__linha-selos"><span class="selo selo--neutro selo--situacao-rascunho">Rascunho</span></div></div>
-    </div>
+    {% with titulo=vazio|yesno:"Sem destino,Santo Antônio da Platina/PR e São José dos Pinhais/PR" %}{% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero="131/2026" contexto="Resumo da viagem" titulo=titulo situacao_template="ui_lab/_mesa_situacao.html" %}{% endwith %}
     <div class="dialogo__corpo">
       {% if vazio %}<div class="alerta alerta--aviso resumo__aviso" role="status"><div class="alerta__corpo"><p class="alerta__titulo">Complete os dados antes de emitir</p><p>Abra o ofício para informar a equipe, o transporte e o roteiro.</p></div></div>{% endif %}
-      <dl class="resumo__definicoes metadados">
-        {% include "componentes/metadado.html" with rotulo="Data" valor="08/10/2026" only %}
-        {% if vazio %}{% include "componentes/metadado.html" with rotulo="Protocolo" only %}{% else %}{% include "componentes/metadado.html" with rotulo="Protocolo" valor="12.345.678-9" only %}{% endif %}
-        {% include "componentes/metadado.html" with rotulo="Custeio" valor="Unidade" only %}
-        {% include "componentes/metadado.html" with rotulo="Porte de arma" valor="Sim" only %}
-        <div class="resumo__largo resumo__motivo"><dt>Motivo da viagem</dt><dd>{% if vazio %}—{% else %}Apoio às atividades institucionais e atendimento itinerante às comunidades participantes do evento de segurança pública.{% endif %}</dd></div>
-      </dl>
-      <div class="resumo"><section><h3 class="resumo__titulo">Roteiro</h3><p>{% if vazio %}Roteiro não informado.{% else %}Curitiba/PR → Santo Antônio da Platina/PR → São José dos Pinhais/PR{% endif %}</p></section><section><h3 class="resumo__titulo">Diárias</h3>{% if vazio %}<p class="vazio-inline">Sem diárias calculadas.</p>{% else %}{% include "componentes/conferencia_valores.html" with calculo=lab_conferencia vertical=True %}{% endif %}</section></div>
+      <div class="mesa-registro"><div class="resumo">
+        <div class="mesa-registro__documentos">{% include "ui_lab/_mesa_documentos.html" %}</div>
+        <section class="missao-registro" aria-label="Motivo da viagem"><h3 class="missao-registro__rotulo">Motivo da viagem</h3><p class="missao-registro__texto">{% if vazio %}Motivo não informado.{% else %}Apoio às atividades institucionais e atendimento itinerante às comunidades participantes do evento de segurança pública.{% endif %}</p></section>
+        <div class="mesa-registro__principal">{% with id_titulo=identificador|add:"-roteiro" %}{% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" conteudo="ui_lab/_mesa_percurso.html" %}{% endwith %}</div>
+        <div class="mesa-registro__coluna"><aside class="mesa-registro__contexto" aria-label="Conferência sintética">{% with id_titulo=identificador|add:"-diarias" %}{% include "componentes/bloco_registro.html" with titulo="Diárias" conteudo="ui_lab/_mesa_conferencia.html" %}{% endwith %}{% with id_titulo=identificador|add:"-registro" %}{% include "componentes/bloco_registro.html" with titulo="Registro institucional" conteudo="ui_lab/_mesa_registro.html" %}{% endwith %}</aside></div>
+      </div></div>
     </div>
     <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Voltar</button><button class="botao botao--primario" type="button" disabled>Emitir ofício</button></div>
   </div>

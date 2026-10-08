@@ -16,7 +16,9 @@ pytestmark = pytest.mark.e2e
 
 
 def _abrir(bloco):
-    bloco.locator("summary").click()
+    # O bloco nasce aberto (resumo e folha); só clica quando alguém o fechou.
+    if bloco.get_attribute("open") is None:
+        bloco.locator("summary").click()
     expect(bloco).to_have_attribute("open", "")
 
 

@@ -1,0 +1,18 @@
+{
+  "csp-atual": [
+    {
+      "fonte_estatica": "vendor/htmx.min.js",
+      "diretiva": "style-src-attr",
+      "bloqueado": "inline",
+      "ocorrencias": 12
+    }
+  ],
+  "csp-c027493": [
+    {
+      "fonte_estatica": "vendor/htmx.min.js",
+      "diretiva": "style-src-attr",
+      "bloqueado": "inline",
+      "ocorrencias": 12
+    }
+  ]
+}

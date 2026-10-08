@@ -308,3 +308,68 @@ fieldset.grupo-campos > legend {
 .lab__abas-estreitas {
   max-width: 28rem;
 }
+
+/* Exploração de composições no UI Lab. Dados sintéticos, sem operações. */
+.exploracao__navegacao { display: flex; flex-wrap: wrap; gap: var(--esp-3) var(--esp-6); padding: var(--esp-4) 0; font-size: var(--texto-sm); }
+.exploracao__navegacao a { color: var(--cor-marca-texto); text-decoration: underline; text-underline-offset: .2em; }
+.exploracao__navegacao [aria-current] { font-weight: var(--peso-forte); }
+.exploracao { border: var(--borda); background: var(--cor-superficie); border-radius: var(--raio-lg); overflow: hidden; }
+.exploracao__hero { display: flex; align-items: center; gap: var(--esp-10); padding: var(--esp-8); border-bottom: var(--borda); }
+.exploracao__identidade { display: grid; gap: var(--esp-2); }
+.exploracao__identidade > strong { font-size: var(--texto-4xl); letter-spacing: var(--rastreio-display); }
+.exploracao__identidade p, .exploracao__titulo > p, .exploracao__rotulo { font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); font-weight: var(--peso-semi); text-transform: uppercase; margin: 0 0 var(--esp-2); }
+.exploracao__titulo h1 { margin-bottom: var(--esp-2); font-size: var(--texto-4xl); }
+.exploracao__composicao { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); padding: var(--esp-8); gap: var(--esp-8); }
+.exploracao__composicao > section { min-width: 0; }
+.exploracao h2 { font-size: var(--texto-xl); line-height: var(--altura-linha); margin-bottom: var(--esp-4); }
+.exploracao__missao { grid-column: 1; }
+.exploracao__arquivos { grid-column: 2; grid-row: 1; }
+.exploracao__roteiro, .exploracao__equipe { grid-column: 1; }
+.exploracao__conferencia { grid-column: 2; grid-row: 2 / span 2; padding: var(--esp-6); background: var(--cor-superficie-sutil); border-top: var(--filete) solid var(--cor-marca); }
+.exploracao__metadados { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-4); padding-top: var(--esp-4); border-top: var(--borda); }
+.exploracao dt, .exploracao__peca > span { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.exploracao dd { margin: var(--esp-1) 0 var(--esp-3); font-weight: var(--peso-semi); }
+.exploracao__pecas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+.exploracao__peca { display: grid; gap: var(--esp-3); border: var(--borda); padding: var(--esp-4); background: var(--cor-superficie); border-radius: var(--raio-md); }
+.exploracao__peca > .icone { width: var(--esp-8); height: var(--esp-10); color: var(--cor-marca-texto); }
+.exploracao__arquivos > p:last-child { font-size: var(--texto-xs); margin-top: var(--esp-3); }
+.exploracao__percurso { margin: 0; padding: 0; list-style: none; }
+.exploracao__percurso li { display: flex; gap: var(--esp-6); padding: var(--esp-4) 0; border-bottom: var(--borda-sutil); }
+.exploracao__percurso time { flex: none; font-size: var(--texto-sm); color: var(--cor-marca-texto); }
+.exploracao__percurso li div { display: grid; gap: var(--esp-1); }
+.exploracao__pessoas { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-3) 0; }
+.exploracao__pessoas p { font-size: var(--texto-sm); margin: var(--esp-1) 0 0; color: var(--cor-texto-secundario); }
+.exploracao__valor { display: block; font-size: var(--texto-4xl); letter-spacing: var(--rastreio-display); }
+.exploracao__acoes { display: flex; justify-content: space-between; align-items: center; gap: var(--esp-4); padding: var(--esp-4) var(--esp-8); background: var(--cor-superficie-sutil); border-top: var(--borda); font-size: var(--texto-xs); }
+.exploracao--documento { max-width: 66rem; margin: 0 auto; border-top: var(--filete) solid var(--cor-marca); }
+.exploracao--documento .exploracao__hero { flex-direction: column; align-items: flex-start; gap: var(--esp-4); }
+.exploracao--documento .exploracao__identidade { grid-template-columns: auto auto auto; align-items: center; gap: var(--esp-6); width: 100%; }
+.exploracao--documento .exploracao__identidade > strong { font-size: var(--texto-xl); }
+.exploracao--documento .exploracao__composicao { grid-template-columns: minmax(0, 1fr); }
+.exploracao--documento .exploracao__composicao > section { grid-column: 1; grid-row: auto; }
+.exploracao--documento .exploracao__arquivos { order: 5; }
+.exploracao--documento .exploracao__conferencia { order: 4; }
+.exploracao--mesa .exploracao__hero { background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.exploracao--mesa .exploracao__identidade { border-right: var(--filete-fino) solid var(--cor-marca); padding-right: var(--esp-10); }
+.exploracao--mesa .exploracao__titulo > p, .exploracao--mesa .exploracao__identidade p { color: var(--cor-texto-inverso-sutil); }
+.exploracao--registro .exploracao__identidade > strong { font-size: calc(var(--texto-4xl) * 1.7); font-weight: var(--peso-medio); }
+.exploracao--registro .exploracao__hero { border-top: var(--esp-2) solid var(--cor-marca); padding: var(--esp-10); }
+.exploracao--registro .exploracao__composicao { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: var(--esp-10); }
+.exploracao--registro .exploracao__missao { grid-column: 1 / -1; }
+.exploracao--registro .exploracao__arquivos { grid-column: 2; grid-row: 3; }
+.exploracao--registro .exploracao__conferencia { grid-column: 2; grid-row: 2; background: transparent; border-left: var(--borda); border-top: 0; }
+.exploracao--registro .exploracao__pecas { grid-template-columns: minmax(0, 1fr); }
+.exploracao--registro .exploracao__peca { display: flex; align-items: center; border: 0; border-bottom: var(--borda); border-radius: 0; padding: var(--esp-3) 0; }
+@media (max-width: 767.98px) {
+  .exploracao__hero, .exploracao--registro .exploracao__hero { flex-direction: column; align-items: flex-start; gap: var(--esp-4); padding: var(--esp-5); }
+  .exploracao__titulo h1 { font-size: var(--texto-3xl); }
+  .exploracao__composicao, .exploracao--registro .exploracao__composicao { grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); padding: var(--esp-5); }
+  .exploracao__composicao > section, .exploracao--registro .exploracao__composicao > section { grid-column: 1; grid-row: auto; }
+  .exploracao--mesa .exploracao__arquivos { grid-row: 1; }
+  .exploracao__metadados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .exploracao__acoes { flex-wrap: wrap; padding: var(--esp-4) var(--esp-5); }
+  .exploracao--mesa .exploracao__identidade { border: 0; padding: 0; }
+  .exploracao--documento .exploracao__identidade { grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); }
+  .exploracao--documento .exploracao__identidade .selo { grid-column: 1; }
+  .exploracao--registro .exploracao__identidade > strong { font-size: var(--texto-4xl); }
+}

@@ -1,0 +1,26 @@
+{% load viagens %}
+{% if revisao and data_atualizada %}
+    <div class="alerta alerta--info resumo__aviso" role="status">{% icone "calendar" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">A emissão usará a data de hoje: {{ oficio.data_oficio|date:"d/m/Y" }}</p>
+      <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para manter outra data, volte à folha e marque “Manter esta data na emissão”.</p>
+    </div></div>
+  {% endif %}
+  {% if prontidao and not prontidao.pode_emitir %}
+    <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-circle" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</p>
+      <ul class="resumo__lista">{% for p in prontidao.bloqueantes %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
+    </div></div>
+  {% endif %}
+  {% if oficio.situacao == "cancelado" %}
+    <div class="alerta alerta--perigo resumo__aviso" role="note">{% icone "ban" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">Cancelado{% if oficio.cancelado_em %} em {{ oficio.cancelado_em|date:"d/m/Y" }}{% endif %}</p>
+      <p>{{ oficio.motivo_cancelamento }}</p>
+    </div></div>
+  {% endif %}
+  {% if revisao and prontidao.avisos %}
+    {# Não impedem a emissão, mas a decisão é agora: quem emite precisa ver. #}
+    <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo">
+      <p class="alerta__titulo">{{ prontidao.avisos|length|pluralizar:"aviso,avisos" }} <span class="texto-sm peso-normal">(não impedem a emissão)</span></p>
+      <ul class="resumo__lista">{% for p in prontidao.avisos %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
+    </div></div>
+  {% endif %}

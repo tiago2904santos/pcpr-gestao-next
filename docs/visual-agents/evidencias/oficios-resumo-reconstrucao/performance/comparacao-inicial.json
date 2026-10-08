@@ -1,0 +1,71 @@
+{
+  "base": "c027493",
+  "coleta": "Mesmo teste original, uma rota Resumo, sequencial e sem suítes concorrentes.",
+  "metricas": {
+    "html_kb": {
+      "antes": 70.5,
+      "depois": 72.3,
+      "delta": 1.8
+    },
+    "css_kb": {
+      "antes": 164.9,
+      "depois": 171.5,
+      "delta": 6.6
+    },
+    "css_gzip_kb": {
+      "antes": 31.1,
+      "depois": 32.0,
+      "delta": 0.9
+    },
+    "js_kb": {
+      "antes": 106.8,
+      "depois": 106.8,
+      "delta": 0.0
+    },
+    "js_gzip_kb": {
+      "antes": 36.0,
+      "depois": 36.0,
+      "delta": 0.0
+    },
+    "requisicoes": {
+      "antes": 24,
+      "depois": 24,
+      "delta": 0
+    },
+    "sql": {
+      "antes": 18,
+      "depois": 18,
+      "delta": 0
+    },
+    "ttfb_ms": {
+      "antes": 125,
+      "depois": 704,
+      "delta": 579
+    },
+    "db_ms": {
+      "antes": 42.9,
+      "depois": 162.6,
+      "delta": 119.7
+    },
+    "fcp_ms": {
+      "antes": 676,
+      "depois": 884,
+      "delta": 208
+    },
+    "lcp_ms": {
+      "antes": 1108,
+      "depois": 1600,
+      "delta": 492
+    },
+    "inp_ms": {
+      "antes": 168,
+      "depois": 408,
+      "delta": 240
+    },
+    "cls": {
+      "antes": 0,
+      "depois": 0,
+      "delta": 0
+    }
+  }
+}

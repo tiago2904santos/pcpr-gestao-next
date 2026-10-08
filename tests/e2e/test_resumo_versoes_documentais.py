@@ -190,6 +190,76 @@ def test_historico_gerando_isolado_nao_faz_polling(logado, dados_e2e):
     assert pg.erros_console == []
 
 
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_via_corrente_sem_original_permanece_acessivel_com_acoes(
+        logado, dados_e2e, largura):
+    """Recompor a peça não pode perder a via quando o original está indisponível."""
+    pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
+    oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)
+    Documento.objects.filter(pk=atual.pk).update(arquivo="")
+    via = ViaAssinada.objects.create(
+        oficio=oficio, tipo="oficio", documento=atual, arquivo="assinados/mesa-corrente.pdf",
+        sha256="c" * 64, tamanho=10, enviado_por=dados_e2e.usuarios["operador"])
+    janela, _ = _abrir(pg, oficio)
+    grupo = janela.get_by_role("group", name=f"Via assinada: Ofício {oficio.numero_formatado} · v2")
+    expect(grupo).to_have_count(1)
+    link = grupo.get_by_role("link", name=re.compile("Abrir via assinada"))
+    expect(link).to_have_attribute("href", reverse("viagens:abrir_via_assinada", args=[via.pk]))
+    expect(janela.locator(f'a[href="{reverse("viagens:baixar_documento", args=[atual.pk])}"]')) \
+        .to_have_count(0)
+    gatilho = grupo.get_by_role("button", name=re.compile("Ações da via assinada"))
+    gatilho.press("Enter")
+    expect(grupo.locator(".menu__painel:popover-open")).to_be_visible()
+    expect(grupo.get_by_role("menuitem", name="Trocar via assinada", exact=True)).to_be_visible()
+    expect(grupo.get_by_role("menuitem", name="Remover via assinada", exact=True)).to_be_visible()
+    pg.keyboard.press("Escape")
+    expect(gatilho).to_be_focused()
+    assert not rodar_axe(pg)
+    pasta = Path("artifacts/mesa-resumo")
+    pasta.mkdir(parents=True, exist_ok=True)
+    pg.screenshot(path=str(pasta / f"via-sem-original-{largura}.png"))
+    assert pg.erros_console == []
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_anexar_e_revogar_via_pela_peca_documental(logado, dados_e2e, tmp_path, largura):
+    """Operação real da peça, somente em dados descartáveis do LAB."""
+    pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
+    oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)
+    janela, _ = _abrir(pg, oficio)
+    grupo = janela.get_by_role("group", name=f"Via assinada: Ofício {oficio.numero_formatado} · v2")
+    grupo.get_by_role("link", name="Anexar via assinada", exact=True).click()
+    anexar = pg.get_by_role("dialog", name="Anexar via assinada", exact=True)
+    expect(anexar).to_be_visible()
+    arquivo = tmp_path / "via-sintetica.pdf"
+    conteudo = b"%PDF-1.7\n% via de teste\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+    arquivo.write_bytes(conteudo)
+    anexar.locator('input[type="file"]').set_input_files(str(arquivo))
+    anexar.get_by_role("button", name="Anexar via assinada", exact=True).click()
+    expect(pg.locator(".toast").first).to_contain_text("Via assinada anexada")
+    expect(janela).to_be_visible()
+    via = ViaAssinada.objects.get(documento=atual, revogada_em__isnull=True)
+    expect(grupo.get_by_role("link", name=re.compile("Abrir via assinada"))).to_have_attribute(
+        "href", reverse("viagens:abrir_via_assinada", args=[via.pk]))
+    assert pg.request.get(reverse("viagens:abrir_via_assinada", args=[via.pk])).body() == conteudo
+    pasta = Path("artifacts/mesa-resumo")
+    pasta.mkdir(parents=True, exist_ok=True)
+    pg.screenshot(path=str(pasta / f"via-anexada-{largura}.png"))
+    assert not rodar_axe(pg)
+    grupo.get_by_role("button", name=re.compile("Ações da via assinada")).press("Enter")
+    grupo.get_by_role("menuitem", name="Remover via assinada", exact=True).click()
+    confirmacao = pg.get_by_role("dialog", name=re.compile("Remover a via assinada de"))
+    expect(confirmacao).to_be_visible()
+    confirmacao.get_by_role("button", name="Remover via assinada", exact=True).click()
+    expect(pg.locator(".toast").first).to_contain_text("Via assinada removida")
+    via.refresh_from_db()
+    assert via.revogada_em is not None and via.arquivo.storage.exists(via.arquivo.name)
+    expect(grupo.get_by_role("link", name="Anexar via assinada", exact=True)).to_be_visible()
+    assert pg.erros_console == []
+
+
 def test_reaberto_preserva_minuta_e_documentos_assinados_historicos(logado, dados_e2e):
     pg = logado
     oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)

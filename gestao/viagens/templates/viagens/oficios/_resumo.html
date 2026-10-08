@@ -1,157 +1,35 @@
 {% load viagens %}
-{% comment %}
-Janela de resumo do ofício (lista → clique no registro). É a leitura completa do ofício:
-identificação, roteiro, equipe e transporte, diárias e documentos — na mesma ordem da
-folha do ofício, para quem alterna entre as duas não se perder. O que muda o ofício
-continua sendo a edição; aqui só se lê e se decide.
-{% endcomment %}
-<div class="dialogo__cabecalho">
-  {% include "componentes/identidade_documental.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao %}
-  <div class="dialogo__cabecalho-texto">
-    <p class="resumo__sobretitulo">{% if revisao %}Revisar antes de emitir{% else %}Resumo da viagem{% endif %}</p>
-    {# O período já está nos trechos, logo abaixo: aqui ficam o destino e o estado. #}
-    <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}</h2>
-    <div class="dialogo__linha-selos">
-      <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
-      {% if oficio.arquivado %}<span class="selo selo--neutro selo--sem-ponto">{% icone "inbox" classe="icone--sm" %}Arquivado</span>{% endif %}
-      {# Os mesmos selos da linha da lista (D3/D4): quem abre a janela lê as mesmas palavras. #}
-      {% selo_tipo oficio %}{% alerta_oficio oficio %}
-    </div>
-  </div>
-</div>
+{% comment %}Mesa operacional: identidade, decisões documentais e leitura da missão.
+Contratos institucionais preservados nas parciais; a ordem é de apresentação.{% endcomment %}
+{% with destino=oficio|destinos %}
+{% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao contexto=revisao|yesno:"Revisar antes de emitir,Resumo da viagem" titulo=destino|default:"Sem destino" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_resumo_periodo.html" %}
+{% endwith %}
 <div class="dialogo__corpo">
-  {% if revisao and data_atualizada %}
-    <div class="alerta alerta--info resumo__aviso" role="status">{% icone "calendar" %}<div class="alerta__corpo">
-      <p class="alerta__titulo">A emissão usará a data de hoje: {{ oficio.data_oficio|date:"d/m/Y" }}</p>
-      <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para manter outra data, volte à folha e marque “Manter esta data na emissão”.</p>
-    </div></div>
-  {% endif %}
-  {% if prontidao and not prontidao.pode_emitir %}
-    <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-circle" %}<div class="alerta__corpo">
-      <p class="alerta__titulo">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }} antes de emitir</p>
-      <ul class="resumo__lista">{% for p in prontidao.bloqueantes %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
-    </div></div>
-  {% endif %}
-  {% if oficio.situacao == "cancelado" %}
-    <div class="alerta alerta--perigo resumo__aviso" role="note">{% icone "ban" %}<div class="alerta__corpo">
-      <p class="alerta__titulo">Cancelado{% if oficio.cancelado_em %} em {{ oficio.cancelado_em|date:"d/m/Y" }}{% endif %}</p>
-      <p>{{ oficio.motivo_cancelamento }}</p>
-    </div></div>
-  {% endif %}
-  {% if revisao and prontidao.avisos %}
-    {# Não impedem a emissão, mas a decisão é agora: quem emite precisa ver. #}
-    <div class="alerta alerta--aviso resumo__aviso" role="status">{% icone "alert-triangle" %}<div class="alerta__corpo">
-      <p class="alerta__titulo">{{ prontidao.avisos|length|pluralizar:"aviso,avisos" }} <span class="texto-sm peso-normal">(não impedem a emissão)</span></p>
-      <ul class="resumo__lista">{% for p in prontidao.avisos %}<li>{{ p.mensagem }}</li>{% endfor %}</ul>
-    </div></div>
-  {% endif %}
-
-  <dl class="resumo__definicoes metadados">
-    {% include "componentes/metadado.html" with rotulo="Data" valor=oficio.data_oficio|date:"d/m/Y" only %}
-    {% include "componentes/metadado.html" with rotulo="Protocolo" valor=oficio.protocolo_formatado only %}
-    <div class="metadado"><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
-    {% include "componentes/metadado.html" with rotulo="Porte de arma" valor=oficio.porte_arma|yesno:"Sim,Não" only %}
-    <div class="resumo__largo resumo__motivo"><dt>Motivo da viagem</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
-    {% tipo_oficio oficio as tipo %}
-    {# O tipo sempre (inclusive Autorização, que a lista não marca) e o porquê, por escrito. #}
-    <div class="resumo__largo resumo__tipo"><dt>Tipo</dt><dd><strong>{{ tipo.completo }}</strong>. {{ tipo.porque }}</dd></div>
-    {% comment %}
-    O prazo por escrito — menos quando a justificativa está pendente num rascunho: aí o
-    alerta de pendências, logo acima, já diz a mesma frase (não repetir três vezes).
-    {% endcomment %}
-    {% if prazo.primeira_saida %}{% if not prazo.justificativa_obrigatoria or oficio.justificativa.strip or not oficio.editavel %}<div class="resumo__largo resumo__prazo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}{% endif %}
-    {% if revisao %}
-      {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
-      {# Nome com cargo é longo: duas colunas, senão quebra em três linhas ao lado de um vão. #}
-      <div class="resumo__medio"><dt>Destinatário</dt><dd>{{ dados.destinatario.nome }}{% if dados.destinatario.cargo %}, {{ dados.destinatario.cargo }}{% endif %}</dd></div>
-      <div class="resumo__medio"><dt>Assina</dt><dd>{{ dados.chefia.nome }}{% if dados.chefia.cargo %} — {{ dados.chefia.cargo }}{% endif %}</dd></div>
-      <div class="resumo__medio"><dt>Valor por extenso</dt><dd>{{ dados.diarias.extenso|default:"—" }}</dd></div>
-      <div class="resumo__medio"><dt>Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
-    {% endif %}
-  </dl>
-
-  <div class="resumo">
-    {% comment %}
-    Dossiê: percurso e conferência financeira, seguidos da equipe e dos documentos.
-    A variante visual resolve a composição sem alterar dados ou fluxo de conferência.
-    {% endcomment %}
-    <div class="{% if trechos|length > 3 %}resumo__linha{% else %}resumo__empilhado{% endif %}">
-      <section class="resumo__coluna" aria-labelledby="resumo-roteiro">
-        <h3 class="resumo__titulo" id="resumo-roteiro">{% icone "route" classe="icone--sm" %}Roteiro</h3>
-        {% if trechos %}
-          {% comment %}
-          Uma linha por trecho, como na conferência do bate-volta. Lado a lado com as
-          diárias, a moldura trava a altura e a lista rola dentro dela.
-          {% endcomment %}
-          <div class="resumo__moldura">
-          <ol class="resumo__trechos" aria-label="Trechos da viagem">
-            {% for t in trechos %}
-              <li class="resumo__trecho-linha">
-                <span class="resumo__trecho-dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small></span>
-                <span class="resumo__trecho-rota">{{ t.origem }} <span class="resumo__trecho-seta" aria-hidden="true">→</span> <b>{{ t.destino }}</b></span>
-                <span class="resumo__trecho-horas">{{ t.saida_em|date:"H:i" }}<span class="resumo__trecho-seta" aria-hidden="true">→</span>{{ t.chegada_em|date:"H:i" }}</span>
-              </li>
-            {% endfor %}
-          </ol>
-          </div>
-        {% else %}<p class="vazio-inline">Roteiro não informado.</p>{% endif %}
-      </section>
-
-      <section class="resumo__coluna" aria-labelledby="resumo-diarias">
-        <h3 class="resumo__titulo" id="resumo-diarias">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
-        {% if calculo.total %}
-          {# Os mesmos quadros da folha do ofício e do roteiro, empilhados na coluna. #}
-          {% include "componentes/conferencia_valores.html" with vertical=True sempre_por_servidor=True %}
-        {% elif oficio.diarias_erro %}
-          <p class="vazio-inline">{{ oficio.diarias_erro }}</p>
-        {% else %}<p class="vazio-inline">Sem diárias calculadas.</p>{% endif %}
-      </section>
+  {% include "viagens/oficios/_resumo_avisos.html" %}
+  <div class="mesa-registro"><div class="resumo">
+    <div class="mesa-registro__documentos">
+      {% include "viagens/oficios/_resumo_documentos.html" %}
     </div>
-
-    {% comment %}
-    Linha 2: quem vai e com o quê, na mesma grade. As larguras vêm de larguras_de_cartoes
-    (seis colunas de base): até três por linha, e a última linha sempre cheia — quatro
-    cartões viram 2+2, cinco viram 3+2.
-    {% endcomment %}
-    <section aria-labelledby="resumo-equipe">
-      <h3 class="resumo__titulo" id="resumo-equipe">{% icone "users" classe="icone--sm" %}Equipe e transporte</h3>
-      {% with quantos=viajantes|length %}
-      {% with larguras=quantos|add:1|larguras_de_cartoes %}
-        <ul class="resumo__cartoes pessoas--faixa" role="list">
-          {% for v in viajantes %}
-            <li class="pessoa resumo__cartao--{{ larguras|get_item:forloop.counter0 }}">
-              <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
-              <span class="pessoa__texto">
-                <span class="pessoa__nome">{{ v.servidor.nome }}</span>
-                <span class="pessoa__meta">{% if v.motorista %}Motorista{% else %}{{ v.servidor.cargo.nome|default:"Sem cargo" }}{% endif %}</span>
-              </span>
-            </li>
-          {% endfor %}
-          <li class="pessoa resumo__cartao--{{ larguras|get_item:quantos }}">
-            <span class="avatar" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
-            <span class="pessoa__texto">
-              {% if oficio.viatura %}
-                <span class="pessoa__nome">{{ oficio.viatura.modelo|default:"Viatura" }}</span>
-                <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }}{% if oficio.viatura.tipo %} · {{ oficio.viatura.get_tipo_display|lower }}{% endif %}</span>
-                {% if oficio.motorista_externo %}<span class="pessoa__meta">Motorista: {% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% else %}{{ oficio.motorista_externo_nome }}{% endif %} (de outro ofício)</span>{% endif %}
-              {% elif oficio.transporte_texto %}
-                <span class="pessoa__nome">{{ oficio.transporte_texto }}</span>
-                <span class="pessoa__meta">Transporte informado</span>
-              {% else %}
-                <span class="pessoa__nome">Sem transporte</span>
-                <span class="pessoa__meta">Nada informado</span>
-              {% endif %}
-            </span>
-          </li>
-        </ul>
-      {% endwith %}{% endwith %}
+    {# O motivo abre a mesa na faixa inteira: é a frase que explica tudo o que vem abaixo. #}
+    <section class="missao-registro" aria-labelledby="resumo-missao">
+      <h3 class="missao-registro__rotulo" id="resumo-missao">Motivo da viagem</h3>
+      <p class="missao-registro__texto">{{ oficio.motivo|default:"Motivo não informado." }}</p>
     </section>
-
-    <div id="resumo-copia-area">
-      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" %}
+    <div class="mesa-registro__principal">
+      {% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" id_titulo="resumo-roteiro" conteudo="viagens/oficios/_resumo_percurso.html" %}
+      {# Quem vai e em quê vem logo abaixo do roteiro: a mesma coluna de leitura da viagem. #}
+      {% include "componentes/bloco_registro.html" with indice="02" titulo="Equipe e transporte" id_titulo="resumo-equipe" conteudo="viagens/oficios/_resumo_equipe.html" %}
     </div>
-
-    {% include "viagens/oficios/_resumo_documentos.html" %}
-  </div>
+    {# O wrapper prende o painel à sua célula: grudado, ele para no fim do roteiro e nunca cobre a cópia. #}
+    <div class="mesa-registro__coluna">
+      <aside class="mesa-registro__contexto" aria-label="Conferência e registro do ofício">
+        {% include "componentes/bloco_registro.html" with titulo="Diárias" icone="banknote" id_titulo="resumo-diarias" variante="conferencia" conteudo="viagens/oficios/_resumo_conferencia.html" %}
+        {% include "componentes/bloco_registro.html" with titulo="Registro institucional" icone="landmark" id_titulo="resumo-registro" conteudo="viagens/oficios/_resumo_registro.html" %}
+      </aside>
+    </div>
+    <div class="mesa-registro__copia" id="resumo-copia-area">
+      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" compacto=True %}
+    </div>
+  </div></div>
 </div>
 {% include "viagens/oficios/_resumo_rodape.html" %}

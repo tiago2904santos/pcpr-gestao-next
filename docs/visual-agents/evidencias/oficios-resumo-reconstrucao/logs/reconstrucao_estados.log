@@ -1,0 +1,18 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 19 items / 13 deselected / 6 selected
+
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-360] PASSED [ 16%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-1440] PASSED [ 33%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-360] PASSED [ 50%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-1440] PASSED [ 66%]
+tests/e2e/test_resumo_versoes_documentais.py::test_via_corrente_sem_original_permanece_acessivel_com_acoes[360] PASSED [ 83%]
+tests/e2e/test_resumo_versoes_documentais.py::test_via_corrente_sem_original_permanece_acessivel_com_acoes[1440] PASSED [100%]
+
+================ 6 passed, 13 deselected in 441.11s (0:07:21) =================

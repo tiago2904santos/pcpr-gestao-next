@@ -1,0 +1,8 @@
+{% load viagens %}
+<section class="bloco-registro{% if variante %} bloco-registro--{{ variante }}{% endif %}" aria-labelledby="{{ id_titulo }}">
+  <header class="bloco-registro__cabecalho">
+    {% if indice %}<span class="bloco-registro__indice" aria-hidden="true">{{ indice }}</span>{% endif %}
+    <h3 class="resumo__titulo bloco-registro__titulo" id="{{ id_titulo }}">{% if icone %}{% icone icone classe="icone--sm" %}{% endif %}{{ titulo }}</h3>
+  </header>
+  {% include conteudo %}
+</section>

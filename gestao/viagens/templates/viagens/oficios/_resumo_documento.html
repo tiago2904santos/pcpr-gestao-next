@@ -1,13 +1,14 @@
 {% with d=linha.documento %}
-<li>
+<li{% if not historico %} class="estacao-documental__peca"{% endif %}>
   {% if linha.pdf_disponivel %}
-    <a class="resumo__documento" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">
+    <a class="resumo__documento peca-documental" href="{% url 'viagens:baixar_documento' d.pk %}" target="_blank" rel="noopener">
       {% icone "file-text" %}<span class="ficha-documental__texto"><span>{{ d.get_tipo_display }} v{{ d.versao }}{% if historico %} (histórico){% endif %}</span><small class="ficha-documental__meta">PDF · {{ d.emitido_em|date:"d/m/Y" }}</small></span><span class="sr-only"> (nova aba)</span>
     </a>
   {% else %}
-    <span class="resumo__documento resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({% if d.situacao == "pronto" %}PDF indisponível{% else %}{{ d.get_situacao_display|lower }}{% endif %}){% if historico %} · histórico{% endif %}</span></span>
+    <span class="resumo__documento peca-documental resumo__documento--parado">{% icone "file-clock" classe="icone--sm" %}<span>{{ d.get_tipo_display }} v{{ d.versao }} ({% if d.situacao == "pronto" %}PDF indisponível{% else %}{{ d.get_situacao_display|lower }}{% endif %}){% if historico %} · histórico{% endif %}</span></span>
   {% endif %}
   {% if not historico %}{% include "viagens/oficios/_regenerar_documento.html" %}{% endif %}
+  {% if not historico %}{% url 'viagens:baixar_documento' d.pk as documento_url %}{% for c in vias %}{% if c.original_url == documento_url or c.s.via.documento_id == d.pk %}{% include "componentes/documento_assinatura.html" with vazio="Só o ofício emitido recebe a via assinada." %}{% endif %}{% endfor %}{% endif %}
   {% if historico %}{% for registro in linha.vias %}
     <a class="resumo__documento" href="{% url 'viagens:abrir_via_assinada' registro.via.pk %}" target="_blank" rel="noopener">
       {% icone "file-signature" classe="icone--sm" %}<span>Via assinada histórica{% if registro.revogada %} · revogada{% endif %} de {{ d.get_tipo_display|lower }} v{{ d.versao }}</span><span class="sr-only"> (nova aba)</span>

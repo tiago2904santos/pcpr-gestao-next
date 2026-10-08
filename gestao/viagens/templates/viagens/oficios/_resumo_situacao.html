@@ -1,0 +1,6 @@
+{% load viagens %}
+<div class="dialogo__linha-selos">
+  <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
+  {% if oficio.arquivado %}<span class="selo selo--neutro selo--sem-ponto">{% icone "inbox" classe="icone--sm" %}Arquivado</span>{% endif %}
+  {% selo_tipo oficio %}{% alerta_oficio oficio %}
+</div>

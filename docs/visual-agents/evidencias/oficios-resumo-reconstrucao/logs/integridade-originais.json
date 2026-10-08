@@ -1,0 +1,50 @@
+[
+  {
+    "arquivo": "reconstrucao_tokens.log",
+    "sha256_original": "88b1e0738fd035f337271ee3b6dd4360bd1e85acad2f585ae76f7515f1e7daf3",
+    "sha256_arquivado": "c9bcf329b5ace0228d1f68ea62e73aa5b6cd7ae1f07dc86306d4747eba6f200b",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao_focused.log",
+    "sha256_original": "02a169eef928088165c3dec3f9a5b30a1239559918e02edee6ed712de0755839",
+    "sha256_arquivado": "af96f85836d9b34013cad37b6907ff62799b1a175c382b5e63576c23ae20392e",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao_browser.log",
+    "sha256_original": "85a2586328c76d29787450fa012f6a59ea1e5a08e81d4e98da73f4411ab4ea87",
+    "sha256_arquivado": "f6910f223a57e0ca9c9d3da1d9ab1be29458875dadbce1f99cdb5c611be433fa",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao_estados.log",
+    "sha256_original": "ef50cfdf80427898f4ba6efddb23f633d28502ebb3d6d4626b535320b7dff1f8",
+    "sha256_arquivado": "51b19e97f53f2d271cd798b1b54365fd34f0fc88f71a6460deade6b3e152a584",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao_jornada.log",
+    "sha256_original": "98b184597d6428fbbcc6610a8c6b874f401fc8986b19ebb8d0fd7e610d23ec29",
+    "sha256_arquivado": "91cbcbcb8a9aafb81642e8881d6137b3beaee67e8549ad4dd66d8152051d4f69",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao-csp-c027.log",
+    "sha256_original": "26cc98236c2c668641f7273ae761afc099f4168dd89aa71e6cf33a4fa62d32e8",
+    "sha256_arquivado": "37738bf75414436b4b6b6543c7c146619cae136c770ce9e8f54c00eb70f1a38f",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao_anexacao.log",
+    "sha256_original": "65212a53b711d2a564c2fd0409238c25b229ef86c6dee4edd321d0699b9d2e55",
+    "sha256_arquivado": "b4f3c634e9e91dc4e4a0f4bd5ea9afe620e7301be5137880685ecd1ce9a4fe9b",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  },
+  {
+    "arquivo": "reconstrucao-verificar-integral.log",
+    "sha256_original": "ec7d6e74c84c42596d05e5cd23acef10ebf1011bbf712ccdb0ab5e230f9b5982",
+    "sha256_arquivado": "1de7d9c7aa782e22038d520499471f5bb127fd3eb60ea2cd482dafae57d50d76",
+    "normalizacao": "LF e remoção somente de espaços finais"
+  }
+]

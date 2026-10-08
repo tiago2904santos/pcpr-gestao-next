@@ -1,5 +1,48 @@
 # Página atual
 
+## Reconstrução do Resumo após reprovação — 08/10/2026
+
+A última entrega foi **REPROVADA VISUALMENTE pelo usuário**. A avaliação estética
+anterior pelo agente foi superada por essa decisão; evidências funcionais continuam
+históricas. Branch atual: `codex/oficios-resumo-reconstrucao`, base `c027493`.
+
+Piloto único: Resumo do Ofício. Três conceitos renderizados no UI Lab; escolha B,
+mesa operacional. Duas iterações reais: primeira com documentos laterais; segunda
+com estação documental inicial, arquivo/assinatura integrados, percurso em sequência,
+conferência lateral clara e composição própria para tablet/celular.
+
+Capturas novas antes/iteração 1/depois nas cinco larguras em
+`evidencias/oficios-resumo-reconstrucao/`. Validação em andamento. Não presumir
+aprovação estética; não propagar para outra página antes da aprovação do usuário.
+Sem push/merge/deploy, sem alteração de negócio ou documentos oficiais.
+
+### Checkpoint de recuperação — 08/10/2026, 16h33
+
+- O usuário aprovou a base visual como direção e solicitou refinamento do mesmo
+  piloto. Refinamentos implementados: cópia compacta, rolagem restrita ao corpo,
+  conferência de valores, equipe/transporte e explicações institucionais. A pedido
+  posterior, foram removidos os números visíveis dos trechos, inclusive no UI Lab.
+  A aprovação visual final ainda não foi dada.
+- Atualização contínua no DEV :8000 resolvida ao iniciar o worker local existente:
+  dois PDFs prontos, fila vazia, polling encerrado no navegador. Evidência em
+  `qa/oficios-dev-geracao-2026-10-08.md`. Worker supervisor PID26704 permanece ativo.
+  A ferramenta Anotar do Codex segue com falha não resolvida.
+- PostgreSQL LAB :55432 caiu às 16h08 com exceções Windows; recuperação terminou
+  às 16h25. Execuções interrompidas e erros durante recuperação não comprovam
+  regressão funcional e não são resultados aprovados. Nenhum dataset foi resetado.
+- PREVIEW próprio retomado em :8012 (supervisor PID25632). O servidor DEV do usuário
+  não foi reiniciado.
+- Validação do código final retomada: `var/refinamento-verificar-pos-recuperacao.log`
+  (supervisor PID22588) e 27 casos de navegador selecionados em
+  `var/refinamento-browser-pos-recuperacao.log` (supervisor PID28476). Resultados
+  ainda pendentes; gate integral verde anterior precede os últimos refinamentos.
+- Próxima ação: verificar conclusões desses processos; regenerar capturas finais
+  após remoção dos números; repetir axe/foco e CSP separadamente; medir performance
+  sem cache após os testes concorrentes; atualizar manifestos e evidências; só
+  commitar fontes validadas. Nenhum commit novo neste checkpoint.
+
+Os registros abaixo descrevem entregas anteriores e seus resultados históricos.
+
 ## Leitura operacional de Ofícios — rodada atual de 08/10/2026
 
 Branch `codex/oficios-leitura-operacional`, base `0213d75`. Piloto: Lista;

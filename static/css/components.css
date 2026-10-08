@@ -362,6 +362,13 @@
   cursor: default;
 }
 
+/* Campos de cópia continuam navegáveis por teclado: preservar o halo de foco
+   também na leitura, sem dar aparência de campo desabilitado. */
+.entrada[readonly]:focus-visible {
+  background-color: var(--cor-superficie);
+  box-shadow: var(--sombra-foco-campo);
+}
+
 /* Campo de arquivo (via assinada): a caixa do campo com o botão de escolher no idioma do
    sistema visual (o botão nativo do navegador destoava). O nome do arquivo escolhido fica
    ao lado, como o navegador escreve. */
@@ -1017,7 +1024,6 @@ a.resumo__documento:hover {
 .interruptor input:checked::after {
   transform: translateX(1rem);
 }
-
 
 /* Interruptor com descrição: o texto em duas linhas, alinhado ao topo. */
 .interruptor--descrito {
@@ -2430,7 +2436,6 @@ kbd {
   width: 30%;
 }
 
-
 .girando {
   animation: girar 800ms linear infinite;
 }
@@ -3423,28 +3428,13 @@ fieldset.campo--escolhas > .campo__erro {
   color: var(--cor-texto-secundario);
 }
 
-/* Dossiê de viagem: variante DETAIL. A composição é restrita ao Resumo,
-   inclusive quando ele abre sobre a Folha ou sobre a lista de Roteiros. */
-dialog.dialogo--dossie {
-  width: min(72rem, calc(100vw - 2 * var(--esp-6)));
-  max-height: calc(100dvh - 2 * var(--esp-6));
-  border-top: var(--filete) solid var(--cor-marca-viva);
-}
-
-.dialogo--dossie .dialogo__cabecalho {
-  align-items: center;
-  gap: var(--esp-8);
-  padding: var(--esp-8) var(--esp-16) var(--esp-6) var(--esp-8);
-  background: var(--cor-superficie-sutil);
-  border-bottom: var(--borda);
-}
+/* Identidade documental e leitura dos metadados — padrões compartilhados. */
 
 .identidade-documental {
   display: grid;
   flex: none;
   gap: var(--esp-1);
 }
-.dialogo--dossie .identidade-documental { padding-right: var(--esp-8); border-right: var(--borda); }
 
 .resumo__sobretitulo,
 .identidade-documental__rotulo {
@@ -3475,49 +3465,6 @@ dialog.dialogo--dossie {
 .metadado dd { margin: 0; color: var(--cor-texto); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .resumo__definicoes.metadados > .metadado dt { text-transform: none; letter-spacing: normal; font-size: var(--texto-xs); }
 .resumo__definicoes.metadados > .metadado dd { font-weight: var(--peso-semi); }
-.dialogo--dossie .dialogo__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); }
-.dialogo--dossie .dialogo__linha-selos { margin-top: var(--esp-2); }
-.dialogo--dossie .dialogo__fechar { top: var(--esp-4); right: var(--esp-4); }
-.dialogo--dossie .dialogo__corpo { padding: var(--esp-6) var(--esp-8) var(--esp-8); color: var(--cor-texto); }
-
-.dialogo--dossie .resumo__definicoes {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--esp-4) var(--esp-6);
-  padding-bottom: var(--esp-6);
-  margin-bottom: var(--esp-6);
-  font-size: var(--texto-md);
-}
-
-.dialogo--dossie .resumo__definicoes dd { overflow-wrap: anywhere; }
-.dialogo--dossie .resumo__definicoes .resumo__motivo { grid-column: 1 / 3; grid-row: 2 / span 2; padding: var(--esp-2) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca-borda); }
-.dialogo--dossie .resumo__motivo dd { max-width: var(--largura-leitura); font-size: var(--texto-lg); line-height: var(--altura-linha); }
-.dialogo--dossie .resumo__definicoes .resumo__tipo,
-.dialogo--dossie .resumo__definicoes .resumo__prazo { grid-column: 3 / -1; font-size: var(--texto-sm); }
-
-.dialogo--dossie .resumo {
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--esp-6) var(--esp-8);
-  font-size: var(--texto-md);
-}
-
-.dialogo--dossie .resumo__linha,
-.dialogo--dossie .resumo__empilhado { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--esp-8); }
-.dialogo--dossie #resumo-copia-area,
-.dialogo--dossie #resumo-documentos-area { grid-column: 1 / -1; }
-
-.dialogo--dossie .resumo__titulo {
-  gap: var(--esp-2);
-  margin-bottom: var(--esp-3);
-  color: var(--cor-texto);
-  font-size: var(--texto-sm);
-}
-
-.dialogo--dossie .resumo .resumo__moldura { position: static; flex: none; min-height: 0; }
-.dialogo--dossie .resumo .resumo__trechos { position: static; border: 0; border-radius: 0; overflow: visible; }
-.dialogo--dossie .resumo__trecho-linha { padding: var(--esp-3) 0; gap: var(--esp-2) var(--esp-4); }
-.dialogo--dossie .resumo__trecho-dia { border-right: var(--filete-fino) solid var(--cor-marca-borda); }
-.dialogo--dossie .resumo__trecho-dia b { font-size: var(--texto-lg); }
-.dialogo--dossie .resumo__trecho-horas { font-size: var(--texto-xs); }
 
 .grade.conferencia-valores {
   display: grid;
@@ -3550,54 +3497,17 @@ dialog.dialogo--dossie {
 
 .pessoas--faixa { gap: var(--esp-4); }
 .pessoas--faixa > .pessoa { padding: var(--esp-3) 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
-.dialogo--dossie .resumo__documentos { gap: var(--esp-3); }
-.dialogo--dossie .resumo__documento { min-height: var(--altura-controle-lg); padding: var(--esp-3) var(--esp-4); border: var(--borda); background: var(--cor-superficie-sutil); }
-.dialogo--dossie .resumo__documento > .icone { color: var(--cor-marca-texto); }
-.dialogo--dossie #resumo-documentos-area { padding-top: var(--esp-5); border-top: var(--borda); }
-.dialogo--dossie #resumo-documentos-area h4 { margin-top: var(--esp-5); }
-.dialogo--dossie #resumo-copia-area { padding-top: var(--esp-4); border-top: var(--borda-sutil); }
-.dialogo--dossie .dialogo__rodape { padding: var(--esp-4) var(--esp-8); border-top: var(--borda); box-shadow: var(--sombra-3); }
-.dialogo--dossie #resumo-rodape > a:first-child { margin-right: auto; }
-
-@media (max-width: 1023.98px) {
-  .dialogo--dossie .dialogo__cabecalho { gap: var(--esp-5); padding-left: var(--esp-6); }
-  .dialogo--dossie .identidade-documental { padding-right: var(--esp-5); }
-  .dialogo--dossie .dialogo__corpo { padding: var(--esp-5) var(--esp-6); }
-  .dialogo--dossie .resumo { gap: var(--esp-5); }
-  .dialogo--dossie .resumo__definicoes .resumo__motivo,
-  .dialogo--dossie .resumo__definicoes .resumo__tipo,
-  .dialogo--dossie .resumo__definicoes .resumo__prazo { grid-column: 1 / -1; grid-row: auto; }
-  .dialogo--dossie .resumo__linha,
-  .dialogo--dossie .resumo__empilhado { gap: var(--esp-5); }
-  .dialogo--dossie .resumo__trecho-linha { grid-template-columns: 3.25rem minmax(0, 1fr); }
-  .dialogo--dossie .resumo__trecho-horas { grid-column: 2; justify-self: start; }
-}
 
 @media (max-width: 767.98px) {
-  dialog.dialogo--dossie { width: calc(100vw - 2 * var(--esp-2)); max-height: calc(100dvh - 2 * var(--esp-2)); }
-  .dialogo.dialogo--dossie .dialogo__cabecalho { flex-direction: column; align-items: flex-start; gap: var(--esp-4); padding: var(--esp-5); }
-  .dialogo--dossie .identidade-documental { border: 0; padding-right: var(--esp-12); }
+
   .identidade-documental__numero { font-size: var(--texto-3xl); }
-  .dialogo--dossie .dialogo__titulo { font-size: var(--texto-2xl); }
-  .dialogo--dossie .dialogo__corpo { padding: var(--esp-5); }
-  .dialogo--dossie .resumo__definicoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4); }
-  .dialogo--dossie .resumo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
-  .dialogo--dossie .resumo__linha,
-  .dialogo--dossie .resumo__empilhado { grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
+
   .pessoas--faixa { gap: 0; }
   .pessoas--faixa > .pessoa { border-bottom: var(--borda-sutil); }
   .pessoas--faixa > .pessoa:last-child { border-bottom: 0; }
   .grade.conferencia-valores { grid-template-columns: minmax(0, 1fr); }
   .conferencia-valores .indicador + .indicador { border-left: 0; border-top: var(--borda); }
-  .dialogo--dossie .dialogo__rodape { flex-direction: row; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); }
-  .dialogo--dossie .dialogo__rodape .botao { flex: 0 1 auto; }
-  .dialogo--dossie #resumo-rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .dialogo--dossie #resumo-rodape > a:first-child { margin-right: 0; }
-  .dialogo--dossie #resumo-rodape > .botao--primario,
-  .dialogo--dossie #resumo-rodape > .dialogo__acao { grid-column: 1 / -1; }
-  .dialogo--dossie #resumo-rodape .menu > .botao { width: 100%; }
-  .dialogo--dossie .resumo__documentos { flex-direction: column; }
-  .dialogo--dossie .resumo__documento { width: 100%; }
+
 }
 
 /* Padrões documentais compartilhados: identidade, folha contínua e ações.
@@ -3630,4 +3540,159 @@ dialog.dialogo--dossie {
   .documento.documento--continuo > .secao { padding: var(--esp-5); }
   .documento--continuo .secao__cabecalho { gap: var(--esp-3); margin-bottom: var(--esp-5); }
   .documento--continuo .secao__estado { justify-content: flex-start; }
+}
+
+/* Mesa de registro oficial — composição DETAIL com estação documental. */
+dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); max-height: calc(100dvh - 2 * var(--esp-5)); border-top: var(--filete) solid var(--cor-marca-viva); }
+/* A mesa ampla entra sem deslocar seus alvos sob o ponteiro. A saída mantém o
+   contrato do diálogo; duração também obedece ao movimento reduzido dos tokens. */
+dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }
+dialog.dialogo--mesa::backdrop { backdrop-filter: none; animation: none; }
+dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instantanea) var(--curva-saida) forwards; }
+.registro-hero { display: flex; align-items: center; gap: var(--esp-8); padding: var(--esp-8) var(--esp-16) var(--esp-8) var(--esp-8); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.registro-hero__identidade { flex: none; padding-right: var(--esp-8); border-right: var(--filete-fino) solid var(--cor-marca); }
+.registro-hero .identidade-documental__rotulo, .registro-hero__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; margin: 0 0 var(--esp-2); font-weight: var(--peso-semi); }
+.registro-hero .identidade-documental__numero { color: var(--cor-texto-inverso); font-size: calc(var(--texto-4xl) * 1.5); line-height: var(--altura-linha-justa); }
+.registro-hero__conteudo { min-width: 0; }
+.registro-hero .registro-hero__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
+.registro-hero__complemento { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-sm); margin: var(--esp-2) 0 0; font-variant-numeric: tabular-nums; }
+.registro-hero__complemento > .icone { color: var(--shell-filete-claro); }
+/* Título e selos dividem a mesma linha: o estado pertence ao nome do registro. */
+.registro-hero__linha { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); }
+.registro-hero .dialogo__linha-selos { margin: 0; padding: 0; border: 0; gap: var(--esp-2); }
+.registro-hero .dialogo__linha-selos > .texto-secundario { font-size: var(--texto-xs); }
+/* Sobre o cabeçalho escuro o selo não carrega fundo claro: vira contorno de luz, e quem
+   diz o estado é a FORMA do marcador (anel, ✓, ×) e o texto, como no claro. */
+.registro-hero .selo { --selo-fundo: var(--luz-10); --selo-borda: var(--luz-28); --selo-texto: var(--cor-texto-inverso); }
+.registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
+.dialogo--mesa .dialogo__fechar { top: var(--esp-4); right: var(--esp-4); --botao-texto: var(--cor-texto-inverso); --botao-fundo: var(--cor-primaria); --botao-borda: var(--luz-28); }
+.dialogo--mesa .dialogo__fechar:hover { background: var(--cor-primaria-hover); color: var(--cor-texto-inverso); }
+.dialogo--mesa .dialogo__fechar:focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
+.dialogo--mesa .dialogo__corpo { padding: var(--esp-8); color: var(--cor-texto); }
+.dialogo--mesa .dialogo__conteudo { display: flex; flex-direction: column; overflow: hidden; }
+.dialogo--mesa .dialogo__conteudo > .registro-hero, .dialogo--mesa .dialogo__rodape { flex: none; }
+.dialogo--mesa .dialogo__conteudo > .dialogo__corpo { min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
+.mesa-registro :is(a, button, input, textarea, summary) { scroll-margin-block: var(--esp-4); }
+.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "missao contexto" "principal contexto" "copia copia"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
+.mesa-registro__principal { grid-area: principal; min-width: 0; display: grid; gap: var(--esp-6); }
+.mesa-registro__documentos { grid-area: documentos; min-width: 0; }
+/* O painel de conferência abre na mesma linha do Roteiro e acompanha a leitura enquanto a mesa rola. */
+/* A coluna acompanha o motivo e o roteiro: começa na linha do motivo e, ao rolar, o painel
+   mantém sob o cabeçalho escuro o MESMO respiro que tem parado (o gap da mesa): o top
+   desconta o padding do corpo rolável e devolve esse gap. */
+.mesa-registro__coluna { grid-area: contexto; min-width: 0; height: 100%; }
+.mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); padding: var(--esp-6); background: var(--cor-superficie-sutil); border-top: var(--filete) solid var(--cor-marca); border-radius: var(--raio-md); position: sticky; top: calc(var(--esp-6) - var(--esp-8)); align-self: start; max-height: 100%; overflow: auto; }
+.mesa-registro__copia { grid-area: copia; min-width: 0; border-top: var(--borda); padding-top: var(--esp-5); }
+.missao-registro { grid-area: missao; min-width: 0; border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-5); }
+.missao-registro__rotulo, .estacao-documental__rotulo { margin: 0 0 var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.missao-registro__texto { font-size: var(--texto-xl); line-height: var(--altura-linha); letter-spacing: var(--rastreio-titulo); margin: 0; }
+.bloco-registro { min-width: 0; }
+.bloco-registro__cabecalho { display: flex; align-items: center; gap: var(--esp-3); padding-bottom: var(--esp-3); margin-bottom: var(--esp-4); border-bottom: var(--borda); }
+.bloco-registro__indice { color: var(--cor-marca-texto); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
+.dialogo--mesa .resumo__titulo { color: var(--cor-texto); font-size: var(--texto-sm); margin: 0; }
+.dialogo--mesa .resumo__moldura { min-width: 0; }
+.dialogo--mesa .resumo__trechos { position: static; overflow: visible; border: 0; border-radius: 0; }
+.percurso-registro__trecho { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: var(--esp-5); padding: var(--esp-4) 0; }
+.percurso-registro__dia { position: relative; display: grid; align-content: start; gap: var(--esp-1); padding-top: var(--esp-3); font-variant-numeric: tabular-nums; }
+.percurso-registro__dia b { font-size: var(--texto-lg); line-height: var(--altura-linha-justa); }
+.percurso-registro__dia small { font-size: var(--texto-2xs); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.percurso-registro__trajeto { display: grid; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca-borda); background: var(--cor-superficie-sutil); border-radius: 0 var(--raio-md) var(--raio-md) 0; }
+.percurso-registro__ponto { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: var(--esp-3); font-size: var(--texto-md); }
+.percurso-registro__ponto time { color: var(--cor-texto-secundario); font-size: var(--texto-sm); font-variant-numeric: tabular-nums; }
+.percurso-registro__ponto time small { display: block; font-size: var(--texto-2xs); color: var(--cor-marca-texto); }
+.percurso-registro__ponto span, .percurso-registro__ponto strong { overflow-wrap: anywhere; }
+.percurso-registro__ponto--destino { padding-top: var(--esp-3); border-top: var(--borda-sutil); }
+.dialogo--mesa .resumo__cartoes { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+.dialogo--mesa .resumo__cartoes > li { grid-column: auto; align-items: flex-start; }
+.equipe-transporte { display: grid; gap: var(--esp-4); }
+.equipe-transporte__rotulo { margin: 0 0 var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
+.equipe-transporte__transporte { padding: var(--esp-4) var(--esp-5); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); align-self: start; }
+.equipe-transporte__transporte .pessoa { padding: 0; border: 0; background: none; box-shadow: none; }
+/* Servidor e viatura leem igual: cada um no seu cartão de superfície sutil. */
+.dialogo--mesa .pessoas--faixa > .pessoa { padding: var(--esp-4) var(--esp-5); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); }
+.estacao-documental { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--esp-4) var(--esp-6); padding-bottom: var(--esp-6); border-bottom: var(--borda); }
+.estacao-documental > :not(header):not(.resumo__documentos) { grid-column: 1 / -1; }
+.estacao-documental__cabecalho { padding-top: var(--esp-3); }
+.dialogo--mesa .estacao-documental__cabecalho .resumo__titulo { font-size: var(--texto-xl); text-transform: none; letter-spacing: var(--rastreio-titulo); }
+.estacao-documental .resumo__documentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: var(--esp-4); }
+.estacao-documental .resumo__documentos > li { min-width: 0; }
+.estacao-documental__peca { border: var(--borda); border-radius: var(--raio-lg); overflow: hidden; background: var(--cor-superficie); }
+.peca-documental { width: 100%; display: flex; align-items: center; gap: var(--esp-4); padding: var(--esp-4); background: var(--cor-superficie); min-height: var(--esp-20); overflow-wrap: anywhere; }
+.peca-documental > .icone { flex: none; width: var(--esp-10); height: var(--esp-12); padding: var(--esp-2); border: var(--borda); border-radius: var(--raio-sm); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.peca-documental .ficha-documental__texto { gap: var(--esp-1); font-size: var(--texto-md); }
+.assinatura-documental { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); border-top: var(--borda-sutil); background: var(--cor-superficie-sutil); font-size: var(--texto-xs); }
+.assinatura-documental__estado { display: grid; gap: var(--esp-2); }
+.assinatura-documental__ausente { color: var(--cor-texto-secundario); }
+.assinatura-documental__abrir { display: flex; gap: var(--esp-2); align-items: center; color: var(--cor-marca-texto); font-weight: var(--peso-semi); }
+.assinatura-documental__detalhes { display: grid; gap: var(--esp-1); width: 100%; overflow-wrap: anywhere; color: var(--cor-texto-secundario); }
+.assinatura-documental .registro__notas { width: 100%; }
+.bloco-registro--conferencia .bloco-registro__cabecalho { margin-bottom: var(--esp-3); border: 0; padding: 0; }
+.conferencia-serena__total { display: grid; gap: var(--esp-2); margin: 0 0 var(--esp-4); }
+.conferencia-serena__total > span { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); }
+.conferencia-serena__total > strong { font-size: var(--texto-4xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); line-height: var(--altura-linha-justa); font-variant-numeric: tabular-nums; }
+.conferencia-serena__dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-5); margin: 0; padding-top: var(--esp-5); border-top: var(--borda); }
+.conferencia-serena__dados dt { color: var(--cor-texto-secundario); font-size: var(--texto-sm); margin-bottom: var(--esp-1); }
+.conferencia-serena__dados dd { margin: 0; font-weight: var(--peso-semi); font-size: var(--texto-lg); overflow-wrap: anywhere; }
+.conferencia-serena__quantidade { grid-column: 1 / -1; }
+.estacao-documental h4 { margin-top: var(--esp-5); }
+.estacao-documental .registros { margin-top: var(--esp-4); }
+.dialogo--mesa .resumo__definicoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4); padding: 0; margin: 0; border: 0; }
+.dialogo--mesa .resumo__definicoes dt { text-transform: none; letter-spacing: normal; font-size: var(--texto-xs); }
+/* No painel de conferência os dados já estão agrupados: filete por item vira ruído. */
+.dialogo--mesa .resumo__definicoes.metadados > .metadado { padding-bottom: 0; border-bottom: 0; }
+.dialogo--mesa .resumo__definicoes dd { overflow-wrap: anywhere; }
+.divulgacao--copiavel .divulgacao__corpo { gap: var(--esp-4); }
+.divulgacao--copiavel .divulgacao__corpo > .texto-secundario { margin: 0; font-size: var(--texto-xs); }
+.dados-copiaveis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-6); }
+.dado-copiavel { min-width: 0; padding-block: var(--esp-3); border-bottom: var(--borda-sutil); gap: var(--esp-1); }
+.dado-copiavel--largo { grid-column: 1 / -1; }
+.dado-copiavel .campo__rotulo { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.dado-copiavel .linha { flex-wrap: nowrap; gap: var(--esp-3); align-items: start; }
+.dado-copiavel .entrada[readonly] { min-width: 0; flex: 1; padding: var(--esp-2); border-color: transparent; background: var(--cor-superficie-sutil); font-size: var(--texto-sm); font-weight: var(--peso-medio); }
+.dado-copiavel textarea { resize: vertical; }
+.dado-copiavel .botao { flex: none; }
+.divulgacao--copiavel .divulgacao__corpo > .botao { align-self: start; }
+.dialogo--mesa .dialogo__rodape { padding: var(--esp-4) var(--esp-8); box-shadow: var(--sombra-3); gap: var(--esp-3); }
+.dialogo--mesa .dialogo__rodape > a:first-child { margin-right: auto; }
+@media (max-width: 1023.98px) {
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "missao" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
+  .registro-hero__identidade { padding-right: var(--esp-5); }
+  .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }
+  .dialogo--mesa .dialogo__corpo { padding: var(--esp-6); }
+  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-6); position: static; max-height: none; overflow: visible; }
+  .estacao-documental { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767.98px) {
+  dialog.dialogo--mesa { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; margin: 0; inset: 0; }
+  .registro-hero { display: grid; gap: var(--esp-3); padding: var(--esp-5); }
+  .registro-hero__identidade { border: 0; padding: 0 var(--esp-12) 0 0; }
+  .registro-hero__identidade .identidade-documental { display: flex; align-items: center; gap: var(--esp-3); }
+  .registro-hero__identidade .identidade-documental__numero { order: -1; font-size: var(--texto-3xl); }
+  .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
+  .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
+  .dialogo--mesa .dialogo__corpo { padding: var(--esp-5); }
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "missao" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .mesa-registro__principal, .mesa-registro__contexto { gap: var(--esp-6); }
+  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr); padding: var(--esp-5); }
+  .estacao-documental { display: block; }
+  .estacao-documental__cabecalho { padding: 0; margin-bottom: var(--esp-3); }
+  .estacao-documental .resumo__documentos { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+  .peca-documental { min-height: 0; padding: var(--esp-3) var(--esp-4); }
+  .peca-documental > .icone { width: var(--esp-8); height: var(--esp-10); }
+  .assinatura-documental { gap: var(--esp-2); padding: var(--esp-2) var(--esp-3); }
+  .assinatura-documental > .botao { font-size: var(--texto-xs); padding: 0 var(--esp-2); }
+  .dialogo--mesa .resumo__cartoes { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .equipe-transporte, .dados-copiaveis { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+  .dado-copiavel textarea { min-height: calc(var(--esp-20) + var(--esp-4)); }
+  .percurso-registro__trecho { grid-template-columns: 3.25rem minmax(0, 1fr); gap: var(--esp-3); }
+  .percurso-registro__trajeto { padding: var(--esp-3); }
+  .percurso-registro__ponto { grid-template-columns: 3rem minmax(0, 1fr); gap: var(--esp-2); }
+  .missao-registro__texto { font-size: var(--texto-lg); }
+  .dialogo--mesa .dialogo__rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: var(--esp-3) var(--esp-4); gap: var(--esp-2); }
+  .dialogo--mesa .dialogo__rodape > a:first-child { margin-right: 0; }
+  .dialogo--mesa .dialogo__rodape > .botao--primario, .dialogo--mesa .dialogo__rodape > .dialogo__acao { grid-column: 1 / -1; }
+  .dialogo--mesa .dialogo__rodape > form:has(> .botao--primario) { grid-column: 1 / -1; }
+  .dialogo--mesa .dialogo__rodape .botao { width: 100%; }
 }

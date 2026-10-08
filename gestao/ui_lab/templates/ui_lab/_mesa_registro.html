@@ -1,0 +1,6 @@
+<dl class="resumo__definicoes metadados">
+  {% include "componentes/metadado.html" with rotulo="Data" valor="08/10/2026" only %}
+  {% if vazio %}{% include "componentes/metadado.html" with rotulo="Protocolo" only %}{% else %}{% include "componentes/metadado.html" with rotulo="Protocolo" valor="12.345.678-9" only %}{% endif %}
+  {% include "componentes/metadado.html" with rotulo="Custeio" valor="Unidade" only %}
+  {% include "componentes/metadado.html" with rotulo="Porte de arma" valor="Sim" only %}
+</dl>

@@ -1,0 +1,36 @@
+{% load viagens %}
+<div class="equipe-transporte">
+  <div class="equipe-transporte__pessoas">
+    <p class="equipe-transporte__rotulo">Equipe · {{ viajantes|length|pluralizar:"servidor,servidores" }}</p>
+        <ul class="resumo__cartoes pessoas--faixa" role="list">
+          {% for v in viajantes %}
+            <li class="pessoa">
+              <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+              <span class="pessoa__texto">
+                <span class="pessoa__nome">{{ v.servidor.nome }}</span>
+                <span class="pessoa__meta">{% if v.motorista %}Motorista{% else %}{{ v.servidor.cargo.nome|default:"Sem cargo" }}{% endif %}</span>
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+  </div>
+  <div class="equipe-transporte__transporte">
+    <p class="equipe-transporte__rotulo">Transporte</p>
+          <div class="pessoa">
+            <span class="avatar" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+            <span class="pessoa__texto">
+              {% if oficio.viatura %}
+                <span class="pessoa__nome">{{ oficio.viatura.modelo|default:"Viatura" }}</span>
+                <span class="pessoa__meta">{{ oficio.viatura.placa_formatada }}{% if oficio.viatura.tipo %} · {{ oficio.viatura.get_tipo_display|lower }}{% endif %}</span>
+                {% if oficio.motorista_externo %}<span class="pessoa__meta">Motorista: {% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% else %}{{ oficio.motorista_externo_nome }}{% endif %} (de outro ofício)</span>{% endif %}
+              {% elif oficio.transporte_texto %}
+                <span class="pessoa__nome">{{ oficio.transporte_texto }}</span>
+                <span class="pessoa__meta">Transporte informado</span>
+              {% else %}
+                <span class="pessoa__nome">Sem transporte</span>
+                <span class="pessoa__meta">Nada informado</span>
+              {% endif %}
+            </span>
+          </div>
+  </div>
+</div>

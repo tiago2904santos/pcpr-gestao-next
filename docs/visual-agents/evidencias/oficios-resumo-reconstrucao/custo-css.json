@@ -1,0 +1,20 @@
+[
+  {
+    "arquivo": "static/css/components.css",
+    "antes_min_bytes": 70725,
+    "depois_min_bytes": 77476,
+    "delta_min_bytes": 6751,
+    "antes_gzip_bytes": 11870,
+    "depois_gzip_bytes": 12780,
+    "delta_gzip_bytes": 910
+  },
+  {
+    "arquivo": "static/css/ui-lab.css",
+    "antes_min_bytes": 5664,
+    "depois_min_bytes": 11809,
+    "delta_min_bytes": 6145,
+    "antes_gzip_bytes": 1630,
+    "depois_gzip_bytes": 2568,
+    "delta_gzip_bytes": 938
+  }
+]

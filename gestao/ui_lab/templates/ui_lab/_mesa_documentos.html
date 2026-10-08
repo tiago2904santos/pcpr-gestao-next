@@ -1,0 +1,6 @@
+{% load viagens %}
+<section class="estacao-documental" aria-labelledby="{{ identificador }}-documentos">
+  <header class="estacao-documental__cabecalho"><p class="estacao-documental__rotulo">Exemplo sintético</p><h3 class="resumo__titulo" id="{{ identificador }}-documentos">Documentos</h3></header>
+  {% if vazio %}<p class="vazio-inline">Nenhum documento corrente — a minuta mostra os dados do rascunho.</p>
+  {% else %}<ul class="resumo__documentos" role="list"><li class="estacao-documental__peca"><span class="resumo__documento peca-documental">{% icone "file-clock" %}<span>Ofício v2 (gerando)</span></span></li><li class="estacao-documental__peca"><span class="resumo__documento peca-documental">{% icone "file-clock" %}<span>Justificativa v2 (falhou)</span></span><div class="assinatura-documental"><span>Geração não concluída</span><button class="botao botao--sm" type="button" disabled>Tentar de novo</button></div></li></ul>{% endif %}
+</section>

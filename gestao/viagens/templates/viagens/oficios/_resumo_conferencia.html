@@ -1,0 +1,7 @@
+{% load viagens %}
+{% if calculo.total %}
+          {# Os mesmos quadros da folha do ofício e do roteiro, empilhados na coluna. #}
+          {% include "componentes/conferencia_valores.html" with vertical=True sempre_por_servidor=True serena=True %}
+        {% elif oficio.diarias_erro %}
+          <p class="vazio-inline">{{ oficio.diarias_erro }}</p>
+        {% else %}<p class="vazio-inline">Sem diárias calculadas.</p>{% endif %}

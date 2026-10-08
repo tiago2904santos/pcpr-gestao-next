@@ -424,6 +424,7 @@
         <button class="botao" type="button" data-abrir-dialogo="lab-dialogo">{% icone "info" %}Abrir diálogo</button>
         <button class="botao" type="button" data-abrir-dialogo="lab-dossie">{% icone "file-text" %}Dossiê de viagem</button>
         <button class="botao" type="button" data-abrir-dialogo="lab-dossie-vazio">{% icone "file-text" %}Dossiê sem dados</button>
+        <a class="botao" href="?oficio-direcao=documento">Explorar as três composições do Resumo</a>
         <form method="post" action="#sobreposicoes" data-confirmar="O ofício 131/2026 será cancelado. O número não volta a ser usado e a ação fica registrada no histórico." data-confirmar-titulo="Cancelar ofício?" data-confirmar-rotulo="Cancelar ofício" data-confirmar-perigo>
           <button class="botao botao--perigo-contorno" type="submit" data-lab="confirmar-perigo">{% icone "ban" %}Confirmação destrutiva</button>
         </form>
@@ -768,6 +769,7 @@
           <label class="campo__rotulo" for="lab-copiar">Detalhamento (exemplo)</label>
           <div class="linha"><input class="entrada campo--cresce" id="lab-copiar" value="ENVIO P/ PAGAMENTO DA NOTA FISCAL N 8957 - (BUFFET EXEMPLO)" readonly><button type="button" class="botao botao--sm" data-copiar-alvo="lab-copiar" aria-live="polite">{% icone "copy" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> o detalhamento</span></button></div>
         </div>
+        {% include "componentes/dados_eprotocolo.html" with copia=lab_copia copiar_id="lab-eprotocolo" compacto=True %}
       </div>
     </section>
 

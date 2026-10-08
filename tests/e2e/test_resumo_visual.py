@@ -66,6 +66,27 @@ def test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis(
     for tecla in ["Tab", "Shift+Tab"]:
         pg.keyboard.press(tecla)
         assert janela.evaluate("e => e.contains(document.activeElement)")
+    # O dock não pode encobrir o campo que o teclado leva para a área de cópia.
+    abrir_copia = janela.locator("#eprotocolo-resumo-abrir")
+    assert janela.locator("#eprotocolo-resumo-bloco").get_attribute("open") is not None
+    abrir_copia.focus()
+    pg.keyboard.press("Tab")
+    campo = janela.locator("#eprotocolo-resumo-1")
+    expect(campo).to_be_focused()
+    campo_caixa = campo.bounding_box()
+    dock_caixa = acoes.bounding_box()
+    assert campo_caixa and dock_caixa
+    assert campo_caixa["y"] + campo_caixa["height"] <= dock_caixa["y"] + 1
+    cabecalho = janela.locator(".registro-hero").bounding_box()
+    corpo = janela.locator(".dialogo__corpo").bounding_box()
+    assert cabecalho and corpo
+    assert cabecalho["y"] >= caixa["y"]
+    assert corpo["y"] >= cabecalho["y"] + cabecalho["height"] - 1
+    assert campo_caixa["y"] >= corpo["y"] - 1
+    assert janela.locator(".dialogo__conteudo").evaluate(
+        "e => getComputedStyle(e).overflowY === 'hidden'"
+    ), "A barra do corpo não deve atravessar o cabeçalho escuro."
+    assert campo.evaluate("e => getComputedStyle(e).boxShadow") != "none"
     pg.keyboard.press("Escape")
     expect(janela).not_to_be_visible()
     assert pg.erros_console == []

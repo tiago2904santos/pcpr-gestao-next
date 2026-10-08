@@ -186,3 +186,22 @@ preservam a paridade existente. Nenhum cálculo, permissão, documento oficial o
 integração foi alterado. Evidências em
 `docs/visual-agents/evidencias/oficios-leitura-operacional/` e diagnóstico em
 `docs/visual-agents/visual/oficios-leitura-operacional.md`.
+
+## Reconstrução visual do piloto após reprovação — 08/10/2026
+
+A composição anterior foi reprovada visualmente pelo usuário. Novo piloto único no
+Resumo/revisão: identidade institucional, documentos antes da missão, arquivo e assinatura
+na mesma peça, percurso por saída/chegada, equipe em faixas e conferência contextual.
+São mudanças de apresentação. Regras D13/D16, permissões, dados, documentos oficiais,
+versões, retry, histórico, transporte/motorista e geração permanecem na implementação
+funcional anterior. Domínio, queries, services, views de Ofícios e JavaScript não mudaram.
+
+Preservados os contratos HTML/HTMX/OOB e o marcador `class="resumo"`, após corrigir
+regressão detectada no gate. Nove HTTP finais e 27 casos finais de navegador passaram
+(incluindo proteções de componentes compartilhados). Fallback de cópia mantém uma
+falha preexistente de console CSP, reproduzida na base e na fonte final, com função e axe
+passando; não relaxar segurança. Fechamento integral/performance e evidências em
+`docs/visual-agents/qa/oficios-resumo-reconstrucao-2026-10-08.md`.
+
+Aprovação visual pendente do usuário. Não alterar status de paridade funcional do restante
+do módulo nem propagar a composição para outra página a partir deste checkpoint.

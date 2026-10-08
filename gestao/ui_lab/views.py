@@ -141,6 +141,10 @@ def _linha_de_registro() -> dict:
 
 
 def indice(request: HttpRequest) -> HttpResponse:
+    # Explorações sintéticas de composição: nenhuma operação ou regra de negócio.
+    direcao = request.GET.get("oficio-direcao")
+    if direcao in {"documento", "mesa", "registro"}:
+        return render(request, "ui_lab/oficio_direcoes.html", {"direcao": direcao})
     form_vazio = FormularioExemplo()
     # Prefixo: os mesmos campos aparecem duas vezes na página (padrão e erro) sem ids repetidos.
     form_erro = FormularioExemplo(
@@ -168,7 +172,20 @@ def indice(request: HttpRequest) -> HttpResponse:
         ]
     ]
     pagina = Paginator(range(1, 241), 20).get_page(request.GET.get("pagina", 5))
+    dados_copiaveis = [
+        ("Interessados", "Ana Beatriz Correia Lima, Bruno Henrique Martins"),
+        ("Assunto", "Solicitação de autorização e concessão de diárias. (Autorização)"),
+        ("Nº/Ano do ofício", "131/2026"),
+        ("Protocolo", "00.000.000-0"),
+        ("Detalhamento", "OFÍCIO Nº 131/2026 — EXEMPLO SINTÉTICO DO UI LAB\n"
+         "Apoio às atividades institucionais. Não corresponde a um documento emitido."),
+    ]
     contexto = {
+        "lab_copia": {"disponivel": True, "fonte": "rascunho", "aviso": "",
+                      "dados": {"campos": [{"rotulo": r, "valor": v}
+                                           for r, v in dados_copiaveis],
+                                "copiar_tudo": "\n".join(f"{r}: {v}"
+                                                        for r, v in dados_copiaveis)}},
         "lab_conferencia": {"total": Decimal("12345.68"), "por_servidor": Decimal("6172.84"),
                             "servidores": 2, "tipo_destino": "INTERIOR + CAPITAL",
                             "resumo": "4 x 100% + 1 x 15%"},

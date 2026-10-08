@@ -1,0 +1,5 @@
+{% if vazio %}<p class="vazio-inline">Roteiro não informado.</p>{% else %}
+<ol class="resumo__trechos percurso-registro" aria-label="Percurso sintético">
+  <li class="percurso-registro__trecho"><div class="percurso-registro__dia"><b>08/10</b><small>Qui</small></div><div class="percurso-registro__trajeto"><div class="percurso-registro__ponto"><time>07:00</time><span>Curitiba/PR</span></div><div class="percurso-registro__ponto percurso-registro__ponto--destino"><time>11:00</time><strong>Santo Antônio da Platina/PR</strong></div></div></li>
+  <li class="percurso-registro__trecho"><div class="percurso-registro__dia"><b>09/10</b><small>Sex</small></div><div class="percurso-registro__trajeto"><div class="percurso-registro__ponto"><time>18:00</time><span>Santo Antônio da Platina/PR</span></div><div class="percurso-registro__ponto percurso-registro__ponto--destino"><time>00:30<small>10/10</small></time><strong>São José dos Pinhais/PR</strong></div></div></li>
+</ol>{% endif %}

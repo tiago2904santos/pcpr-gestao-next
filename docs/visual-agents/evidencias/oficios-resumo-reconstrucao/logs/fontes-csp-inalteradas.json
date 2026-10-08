@@ -1,0 +1,11 @@
+{
+  "base": "c027493",
+  "normalizacao": "LF",
+  "fontes": {
+    "static/vendor/htmx.min.js": "d6fdc75f204e6bdefa99b69bf1e6d4ac69b8a364f77929f45c13476b4000f717",
+    "static/js/componentes/copiar.js": "4c052fdddf5d1b803d029b0d879c7b525006a803b19467ae281dd089c6caae6b",
+    "static/js/componentes/dialogo.js": "37867e903887ff97390c3eee798c66d37db4acb5b4385d6636636dd6992027ed",
+    "static/js/app.js": "03e6363861cb8f1333de014468248ec2b12bc73cc39ff75c8908db4f93d2d2b7",
+    "config/settings/base.py": "4581a3b2dc272a34a94d0cf339f81222980fc4a55d19ea433a3ab679bac15609"
+  }
+}

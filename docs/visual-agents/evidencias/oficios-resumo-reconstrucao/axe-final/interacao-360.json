@@ -1,0 +1,22 @@
+{
+  "largura": 360,
+  "console": [],
+  "foco": {
+    "outline": "none",
+    "shadow": "rgba(191, 154, 69, 0.32) 0px 0px 0px 3px"
+  },
+  "campo": {
+    "x": 18,
+    "y": 472.42523193359375,
+    "width": 230.546875,
+    "height": 39.59375
+  },
+  "dock": {
+    "x": 0,
+    "y": 798.21875,
+    "width": 360,
+    "height": 101.78125
+  },
+  "overflow": 0,
+  "route": 0
+}

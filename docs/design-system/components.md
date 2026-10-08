@@ -104,6 +104,9 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
 
 ## Leitura operacional de documentos — 08/10/2026
 
+**Avaliação posterior:** o usuário reprovou visualmente a composição desta entrega.
+Os contratos funcionais permanecem; a reconstrução abaixo substitui o padrão do piloto.
+
 - `identidade_documental.html`: `compacta=True` adapta a assinatura ao registro de lista;
   mantém a variante de cabeçalho e o estado cancelado. Número acessível pertence ao link.
 - `metadado.html`: par `dt/dd` escapado, para uso dentro de `dl`. Parâmetros `rotulo`,
@@ -117,3 +120,50 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
   Diárias completas no desktop, dinheiro alinhado à direita, sem novos scripts/requisições.
   Vitrine na seção 21 e nos dossiês do UI Lab. Comparações em
   `docs/visual-agents/evidencias/oficios-leitura-operacional/`.
+
+## Mesa de registro oficial — piloto após reprovação
+
+- `registro_hero.html`: identidade, título, contexto, complemento e situação recebidos
+  pelo chamador. Superfície grafite, filete institucional, número forte. Não infere status.
+- `bloco_registro.html`: seção com heading e `aria-labelledby`, índice opcional e parcial
+  de conteúdo. Reúne roteiro, equipe, conferência e registro sem duplicar contêineres.
+- `.mesa-registro`: estação documental seguida de missão/contexto em duas colunas largas;
+  tablet usa leitura principal inteira e contexto em duas colunas; celular ocupa a tela
+  e mantém uma rolagem e dock de ações. Ordem DOM começa pelos documentos em todas as larguras.
+- `.estacao-documental`, `.peca-documental` e `documento_assinatura.html`: arquivo e
+  assinatura na mesma peça. Disponibilidade, versão, metadados, avisos e permissões vêm
+  da projeção existente. Menu canônico da via, nomes acessíveis e forms preservados.
+- `.percurso-registro`: lista ordenada de trechos com data, origem/saída e destino/chegada.
+  Virada de dia explícita; textos completos; sem rolagem interna ou mapa decorativo.
+- `conferencia_valores.html`, `serena=True`: leitura financeira aberta sobre superfície
+  clara, com total, por servidor, tipo e quantidade integrais. Outras variantes mantidas.
+- UI Lab: dossiês vazio/conteúdo longo e documentos gerando/falhou; exploração A/B/C
+  por `?oficio-direcao=documento|mesa|registro`. Nenhuma operação nos protótipos.
+
+Uso limitado ao Resumo até aprovação visual do usuário. CSS na origem, tokens existentes,
+sem biblioteca ou JavaScript novo. Evidências: `oficios-resumo-reconstrucao/`.
+
+Campos `.entrada[readonly]` continuam focáveis para seleção/cópia: a variante preserva
+o halo de teclado e o fundo de foco. Não tratar campo somente leitura como desabilitado.
+
+### Refinamento da mesa — feedback humano
+
+- Modal da mesa: `.dialogo__conteudo` é coluna; somente `.dialogo__corpo` rola.
+  Identidade e ações ficam fora do scroll. A barra começa abaixo do cabeçalho;
+  foco de campos precisa permanecer entre cabeçalho e rodapé.
+- `dados_eprotocolo.html`, `compacto=True`: `.dados-copiaveis` usa duas colunas
+  acima de 768 px, descrição inteira na linha final e ações de cópia em cada dado.
+  A seleção nativa e todos os IDs/avisos permanecem. A variante padrão da Folha
+  continua disponível. Não simular um input com texto solto ou remover seu foco.
+- `.equipe-transporte`: servidores e transporte em cartões iguais (superfície sutil),
+  empilhados logo abaixo do roteiro, na mesma coluna de leitura da viagem.
+- O motivo da viagem abre a mesa na faixa inteira; o painel de conferência abre na
+  linha do Roteiro e acompanha a rolagem (sticky) acima de 1024 px.
+- Conferência serena usa total e `dl` financeiro, sem os filetes herdados da
+  variante de indicadores. O UI Lab também usa a mesma variante de conferência.
+- Registro institucional traz só os dados do documento (data, protocolo, custeio,
+  porte): tipo é selo no cabeçalho e prazo pendente é alerta — não repetir em texto.
+- `.registro-hero__linha`: selos ao lado do título, sem filete separando; sobre o
+  cabeçalho escuro o selo é contorno de luz, nunca pastilha de fundo claro.
+
+As cinco larguras e as provas de interação estão na galeria de refinamento.

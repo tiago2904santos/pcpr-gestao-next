@@ -1,0 +1,19 @@
+{% load viagens %}
+<dl class="resumo__definicoes metadados">
+    {% include "componentes/metadado.html" with rotulo="Data" valor=oficio.data_oficio|date:"d/m/Y" only %}
+    {% include "componentes/metadado.html" with rotulo="Protocolo" valor=oficio.protocolo_formatado only %}
+    <div class="metadado"><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
+    {% include "componentes/metadado.html" with rotulo="Porte de arma" valor=oficio.porte_arma|yesno:"Sim,Não" only %}
+    {% comment %}
+    Tipo e prazo não entram aqui: o tipo já é selo no cabeçalho e a pendência de
+    justificativa já aparece no alerta, logo acima (não repetir a mesma frase três vezes).
+    {% endcomment %}
+    {% if revisao %}
+      {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
+      {# Nome com cargo é longo: duas colunas, senão quebra em três linhas ao lado de um vão. #}
+      <div class="resumo__medio"><dt>Destinatário</dt><dd>{{ dados.destinatario.nome }}{% if dados.destinatario.cargo %}, {{ dados.destinatario.cargo }}{% endif %}</dd></div>
+      <div class="resumo__medio"><dt>Assina</dt><dd>{{ dados.chefia.nome }}{% if dados.chefia.cargo %} — {{ dados.chefia.cargo }}{% endif %}</dd></div>
+      <div class="resumo__medio"><dt>Valor por extenso</dt><dd>{{ dados.diarias.extenso|default:"—" }}</dd></div>
+      <div class="resumo__medio"><dt>Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
+    {% endif %}
+  </dl>

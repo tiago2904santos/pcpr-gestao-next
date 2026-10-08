@@ -2,6 +2,13 @@
 
 Só entra aqui o que cumpriu a Definição de concluído (`mission.md`).
 
+## Decisão posterior do usuário — 08/10/2026
+
+As mudanças da entrega visual anterior foram **reprovadas pelo usuário** por impacto
+insuficiente. Os registros abaixo preservam resultados técnicos históricos e avaliações
+do agente; não significam aprovação estética atual. O novo piloto está em
+`current-page.md`, com propagação suspensa até aprovação visual do usuário.
+
 ## Piloto de leitura operacional de Ofícios — 08/10/2026
 
 Lista e Resumo: **aprovados com ressalvas pelo agente**, na branch

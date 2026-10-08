@@ -1,0 +1,26 @@
+{% extends "arquetipos/detalhe.html" %}
+{% load viagens %}
+{% block titulo %}Exploração do Resumo · UI Lab{% endblock %}
+{% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/ui-lab.css' %}">{% endblock %}
+{% block conteudo %}
+<nav class="exploracao__navegacao" aria-label="Direções do Resumo">
+  <strong>UI Lab · exploração sintética</strong>
+  <a href="?oficio-direcao=documento" {% if direcao == "documento" %}aria-current="page"{% endif %}>A · Documento</a>
+  <a href="?oficio-direcao=mesa" {% if direcao == "mesa" %}aria-current="page"{% endif %}>B · Mesa operacional</a>
+  <a href="?oficio-direcao=registro" {% if direcao == "registro" %}aria-current="page"{% endif %}>C · Registro</a>
+</nav>
+<article class="exploracao exploracao--{{ direcao }}" aria-label="Protótipo sintético do Resumo">
+  <header class="exploracao__hero">
+    <div class="exploracao__identidade"><p>PCPR · OFÍCIO DE VIAGEM</p><strong>06/2024</strong><span class="selo selo--sucesso">Emitido</span></div>
+    <div class="exploracao__titulo"><p>REGISTRO INSTITUCIONAL</p><h1>Douradina/PR</h1><span>18 de maio de 2024 · ida e volta</span></div>
+  </header>
+  <div class="exploracao__composicao">
+    <section class="exploracao__missao"><p class="exploracao__rotulo">01 · Missão</p><h2>Entrega de equipamentos e vistoria das instalações da delegacia de Douradina.</h2><dl class="exploracao__metadados"><div><dt>Protocolo</dt><dd>00.232.280-7</dd></div><div><dt>Data do ofício</dt><dd>13/05/2024</dd></div><div><dt>Custeio</dt><dd>Unidade</dd></div><div><dt>Porte de arma</dt><dd>Sim</dd></div></dl></section>
+    <section class="exploracao__arquivos"><p class="exploracao__rotulo">Documentos da emissão</p><h2>Peças do ofício</h2><div class="exploracao__pecas"><div class="exploracao__peca">{% icone "file-text" %}<strong>Ofício · v1</strong><span>PDF · 13/05/2024</span></div><div class="exploracao__peca">{% icone "file-text" %}<strong>Justificativa · v1</strong><span>PDF · 13/05/2024</span></div></div><p>Estado documental separado da situação do registro.</p></section>
+    <section class="exploracao__roteiro"><p class="exploracao__rotulo">02 · Percurso</p><h2>Uma missão. Dois trechos.</h2><ol class="exploracao__percurso"><li><time>18/05<br>07:15 → 17:00</time><div><span>Curitiba/PR</span><strong>→ Douradina/PR</strong></div></li><li><time>18/05<br>17:15 → 03:00</time><div><span>Douradina/PR</span><strong>→ Curitiba/PR</strong></div></li></ol></section>
+    <section class="exploracao__equipe"><p class="exploracao__rotulo">03 · Equipe e transporte</p><h2>Pessoas e deslocamento</h2><div class="exploracao__pessoas"><span class="avatar" aria-hidden="true">AL</span><div><strong>Ana Luiza de Souza</strong><p>Agente de Polícia Judiciária</p></div></div><div class="exploracao__pessoas"><span class="avatar" aria-hidden="true">{% icone "car" %}</span><div><strong>Renault Duster</strong><p>ABC-1D23 · Viatura</p></div></div></section>
+    <section class="exploracao__conferencia"><p class="exploracao__rotulo">Conferência</p><h2>Diárias da viagem</h2><strong class="exploracao__valor">R$ 1.260,00</strong><p>R$ 630,00 por servidor</p><dl><div><dt>Tipo de destino</dt><dd>Interior</dd></div><div><dt>Quantidade por servidor</dt><dd>1 × 100% + 1 × 15%</dd></div></dl><hr><strong>Autorização</strong><p>A viagem começa cinco dias depois do ofício. Justificativa escrita.</p></section>
+  </div>
+  <footer class="exploracao__acoes"><span>Prévia de composição · sem operações</span><a class="botao botao--primario" href="/ui-lab/">Voltar ao UI Lab</a></footer>
+</article>
+{% endblock %}
