@@ -7,7 +7,7 @@ Contexto esperado: migalhas, page_obj, querystring_base, total.
 {% endcomment %}
 {% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
+<header class="pagina-cabecalho {% block variante_cabecalho %}{% endblock %}">
   <div class="pagina-cabecalho__texto">
     {% block sobretitulo %}{% endblock %}
     <h1 class="pagina-cabecalho__titulo">{% block titulo_lista %}{% endblock %}</h1>

@@ -744,6 +744,8 @@ a.resumo__documento:hover {
 .resumo__documento--parado {
   color: var(--cor-texto-secundario);
 }
+.ficha-documental__texto { display: grid; gap: var(--esp-1); font-weight: var(--peso-semi); }
+.ficha-documental__meta { color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
 
 /* =============== Campo composto, linha de campos, escolhas e resumo de erros =============== */
 /* Campo com ícone/prefixo/sufixo. */
@@ -2745,6 +2747,11 @@ fieldset.campo--escolhas > .campo__erro {
    ocupando a linha inteira. */
 .campos--iguais > .condicional { flex-basis: 100%; }
 
+/* Variante: a linha quebra antes de comprimir rótulos em tablet/desktop. */
+@media (min-width: 768px) {
+  .campos--legiveis > :not(.condicional) { flex-basis: 12rem; }
+}
+
 @media (max-width: 767.98px) {
   .campos--iguais > * { flex: 1 1 calc(50% - var(--esp-4)); }
 }
@@ -3416,3 +3423,202 @@ fieldset.campo--escolhas > .campo__erro {
   color: var(--cor-texto-secundario);
 }
 
+/* Dossiê de viagem: variante DETAIL. A composição é restrita ao Resumo,
+   inclusive quando ele abre sobre a Folha ou sobre a lista de Roteiros. */
+dialog.dialogo--dossie {
+  width: min(72rem, calc(100vw - 2 * var(--esp-6)));
+  max-height: calc(100dvh - 2 * var(--esp-6));
+  border-top: var(--filete) solid var(--cor-marca-viva);
+}
+
+.dialogo--dossie .dialogo__cabecalho {
+  align-items: center;
+  gap: var(--esp-8);
+  padding: var(--esp-8) var(--esp-16) var(--esp-6) var(--esp-8);
+  background: var(--cor-superficie-sutil);
+  border-bottom: var(--borda);
+}
+
+.identidade-documental {
+  display: grid;
+  flex: none;
+  gap: var(--esp-1);
+}
+.dialogo--dossie .identidade-documental { padding-right: var(--esp-8); border-right: var(--borda); }
+
+.resumo__sobretitulo,
+.identidade-documental__rotulo {
+  margin: 0 0 var(--esp-1);
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+}
+
+.identidade-documental__numero {
+  color: var(--cor-texto);
+  font-size: var(--texto-4xl);
+  font-weight: var(--peso-forte);
+  line-height: var(--altura-linha-justa);
+  letter-spacing: var(--rastreio-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.identidade-documental__numero--cancelado { text-decoration: line-through; }
+.dialogo--dossie .dialogo__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); }
+.dialogo--dossie .dialogo__linha-selos { margin-top: var(--esp-2); }
+.dialogo--dossie .dialogo__fechar { top: var(--esp-4); right: var(--esp-4); }
+.dialogo--dossie .dialogo__corpo { padding: var(--esp-6) var(--esp-8) var(--esp-8); color: var(--cor-texto); }
+
+.dialogo--dossie .resumo__definicoes {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--esp-4) var(--esp-6);
+  padding-bottom: var(--esp-6);
+  margin-bottom: var(--esp-6);
+  font-size: var(--texto-md);
+}
+
+.dialogo--dossie .resumo__definicoes dd { overflow-wrap: anywhere; }
+.dialogo--dossie .resumo__definicoes .resumo__motivo { grid-column: 1 / 3; grid-row: 2 / span 2; padding: var(--esp-2) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca-borda); }
+.dialogo--dossie .resumo__motivo dd { max-width: var(--largura-leitura); font-size: var(--texto-lg); line-height: var(--altura-linha); }
+.dialogo--dossie .resumo__definicoes .resumo__tipo,
+.dialogo--dossie .resumo__definicoes .resumo__prazo { grid-column: 3 / -1; font-size: var(--texto-sm); }
+
+.dialogo--dossie .resumo {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--esp-6) var(--esp-8);
+  font-size: var(--texto-md);
+}
+
+.dialogo--dossie .resumo__linha,
+.dialogo--dossie .resumo__empilhado { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--esp-8); }
+.dialogo--dossie #resumo-copia-area,
+.dialogo--dossie #resumo-documentos-area { grid-column: 1 / -1; }
+
+.dialogo--dossie .resumo__titulo {
+  gap: var(--esp-2);
+  margin-bottom: var(--esp-3);
+  color: var(--cor-texto);
+  font-size: var(--texto-sm);
+}
+
+.dialogo--dossie .resumo .resumo__moldura { position: static; flex: none; min-height: 0; }
+.dialogo--dossie .resumo .resumo__trechos { position: static; border: 0; border-radius: 0; overflow: visible; }
+.dialogo--dossie .resumo__trecho-linha { padding: var(--esp-3) 0; gap: var(--esp-2) var(--esp-4); }
+.dialogo--dossie .resumo__trecho-dia { border-right: var(--filete-fino) solid var(--cor-marca-borda); }
+.dialogo--dossie .resumo__trecho-dia b { font-size: var(--texto-lg); }
+.dialogo--dossie .resumo__trecho-horas { font-size: var(--texto-xs); }
+
+.grade.conferencia-valores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  border: var(--borda);
+  overflow: hidden;
+}
+.grade.conferencia-valores.conferencia-valores--vertical { grid-template-columns: minmax(0, 1fr); }
+
+.conferencia-valores .indicador {
+  padding: var(--esp-4) var(--esp-5);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  container-type: normal;
+}
+
+.conferencia-valores .indicador + .indicador { border-left: var(--borda); }
+.conferencia-valores--vertical .indicador + .indicador { border-left: 0; border-top: var(--borda); }
+.conferencia-valores .indicador--atencao { padding: var(--esp-5); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.conferencia-valores .indicador--atencao .indicador__rotulo,
+.conferencia-valores .indicador--atencao .indicador__nota { color: var(--cor-texto-inverso-sutil); }
+.conferencia-valores .indicador--atencao .icone { color: var(--shell-filete-claro); }
+.conferencia-valores .indicador--atencao .indicador__valor { color: var(--cor-texto-inverso); font-size: var(--texto-3xl); }
+.grade.conferencia-valores .indicador--compacto .indicador__valor { white-space: normal; overflow-wrap: anywhere; font-size: var(--texto-lg); }
+
+.pessoas--faixa { gap: var(--esp-4); }
+.pessoas--faixa > .pessoa { padding: var(--esp-3) 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.dialogo--dossie .resumo__documentos { gap: var(--esp-3); }
+.dialogo--dossie .resumo__documento { min-height: var(--altura-controle-lg); padding: var(--esp-3) var(--esp-4); border: var(--borda); background: var(--cor-superficie-sutil); }
+.dialogo--dossie .resumo__documento > .icone { color: var(--cor-marca-texto); }
+.dialogo--dossie #resumo-documentos-area { padding-top: var(--esp-5); border-top: var(--borda); }
+.dialogo--dossie #resumo-documentos-area h4 { margin-top: var(--esp-5); }
+.dialogo--dossie #resumo-copia-area { padding-top: var(--esp-4); border-top: var(--borda-sutil); }
+.dialogo--dossie .dialogo__rodape { padding: var(--esp-4) var(--esp-8); border-top: var(--borda); box-shadow: var(--sombra-3); }
+.dialogo--dossie #resumo-rodape > a:first-child { margin-right: auto; }
+
+@media (max-width: 1023.98px) {
+  .dialogo--dossie .dialogo__cabecalho { gap: var(--esp-5); padding-left: var(--esp-6); }
+  .dialogo--dossie .identidade-documental { padding-right: var(--esp-5); }
+  .dialogo--dossie .dialogo__corpo { padding: var(--esp-5) var(--esp-6); }
+  .dialogo--dossie .resumo { gap: var(--esp-5); }
+  .dialogo--dossie .resumo__definicoes .resumo__motivo,
+  .dialogo--dossie .resumo__definicoes .resumo__tipo,
+  .dialogo--dossie .resumo__definicoes .resumo__prazo { grid-column: 1 / -1; grid-row: auto; }
+  .dialogo--dossie .resumo__linha,
+  .dialogo--dossie .resumo__empilhado { gap: var(--esp-5); }
+  .dialogo--dossie .resumo__trecho-linha { grid-template-columns: 3.25rem minmax(0, 1fr); }
+  .dialogo--dossie .resumo__trecho-horas { grid-column: 2; justify-self: start; }
+}
+
+@media (max-width: 767.98px) {
+  dialog.dialogo--dossie { width: calc(100vw - 2 * var(--esp-2)); max-height: calc(100dvh - 2 * var(--esp-2)); }
+  .dialogo.dialogo--dossie .dialogo__cabecalho { flex-direction: column; align-items: flex-start; gap: var(--esp-4); padding: var(--esp-5); }
+  .dialogo--dossie .identidade-documental { border: 0; padding-right: var(--esp-12); }
+  .identidade-documental__numero { font-size: var(--texto-3xl); }
+  .dialogo--dossie .dialogo__titulo { font-size: var(--texto-2xl); }
+  .dialogo--dossie .dialogo__corpo { padding: var(--esp-5); }
+  .dialogo--dossie .resumo__definicoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4); }
+  .dialogo--dossie .resumo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
+  .dialogo--dossie .resumo__linha,
+  .dialogo--dossie .resumo__empilhado { grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
+  .pessoas--faixa { gap: 0; }
+  .pessoas--faixa > .pessoa { border-bottom: var(--borda-sutil); }
+  .pessoas--faixa > .pessoa:last-child { border-bottom: 0; }
+  .grade.conferencia-valores { grid-template-columns: minmax(0, 1fr); }
+  .conferencia-valores .indicador + .indicador { border-left: 0; border-top: var(--borda); }
+  .dialogo--dossie .dialogo__rodape { flex-direction: row; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); }
+  .dialogo--dossie .dialogo__rodape .botao { flex: 0 1 auto; }
+  .dialogo--dossie #resumo-rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .dialogo--dossie #resumo-rodape > a:first-child { margin-right: 0; }
+  .dialogo--dossie #resumo-rodape > .botao--primario,
+  .dialogo--dossie #resumo-rodape > .dialogo__acao { grid-column: 1 / -1; }
+  .dialogo--dossie #resumo-rodape .menu > .botao { width: 100%; }
+  .dialogo--dossie .resumo__documentos { flex-direction: column; }
+  .dialogo--dossie .resumo__documento { width: 100%; }
+}
+
+/* Padrões documentais compartilhados: identidade, folha contínua e ações.
+   As variantes só se aplicam quando solicitadas pelo template consumidor. */
+.pagina-cabecalho.pagina-cabecalho--documental {
+  align-items: center;
+  gap: var(--esp-6);
+  padding-bottom: var(--esp-6);
+  border-bottom: var(--borda);
+}
+.pagina-cabecalho--documental .identidade-documental { padding-right: var(--esp-6); border-right: var(--borda); }
+.pagina-cabecalho--documental .pagina-cabecalho__titulo { font-size: var(--texto-4xl); letter-spacing: var(--rastreio-display); }
+.pagina-cabecalho--documental .frase-oficio { margin-top: var(--esp-3); gap: var(--esp-2) var(--esp-4); }
+.pagina--documental [data-status-salvamento] { padding: var(--esp-3) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca); background: var(--cor-superficie-sutil); }
+.documento.documento--continuo { padding: 0; border: var(--borda); box-shadow: var(--sombra-2); }
+.documento.documento--continuo > .secao { padding: var(--esp-8); border-top: var(--borda); }
+.documento.documento--continuo > .secao:first-child,
+.documento.documento--continuo > .documento__guia + .secao { border-top: 0; }
+.documento--continuo .secao__cabecalho { margin-bottom: var(--esp-6); }
+.documento--continuo .secao__titulo { font-size: var(--texto-2xl); letter-spacing: var(--rastreio-titulo); }
+.documento--continuo .secao__numero { width: var(--esp-8); height: var(--esp-8); font-size: var(--texto-sm); background: var(--cor-superficie-sutil); }
+.documento--continuo .secao__bloco { padding-top: var(--esp-6); margin-top: var(--esp-6); }
+.documento--continuo .secao__bloco-titulo { font-size: var(--texto-sm); }
+.barra-acoes.barra-acoes--documental { border: var(--borda); border-top: var(--filete-fino) solid var(--cor-marca); border-radius: var(--raio-lg); }
+
+@media (max-width: 767.98px) {
+  .pagina-cabecalho.pagina-cabecalho--documental { gap: var(--esp-4); padding-bottom: var(--esp-5); }
+  .pagina-cabecalho--documental .identidade-documental { width: 100%; border: 0; }
+  .pagina-cabecalho--documental .pagina-cabecalho__titulo { font-size: var(--texto-3xl); }
+  .documento.documento--continuo > .secao { padding: var(--esp-5); }
+  .documento--continuo .secao__cabecalho { gap: var(--esp-3); margin-bottom: var(--esp-5); }
+  .documento--continuo .secao__estado { justify-content: flex-start; }
+}

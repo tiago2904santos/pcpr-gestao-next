@@ -8,6 +8,33 @@
   display: block;
 }
 
+/* Estação documental: moldura institucional, sem tocar a folha oficial do iframe. */
+.editores.editores--documental { border-radius: var(--raio-lg); border: var(--borda-forte); background: var(--cor-superficie-realce); box-shadow: var(--sombra-2); }
+.editores--documental .editores__indice { background: var(--cor-superficie-sutil); }
+.editores--documental.editores--unidos .editor > .editor__barra { padding: var(--esp-3) var(--esp-4); border-bottom: var(--filete-fino) solid var(--cor-marca); background: var(--cor-superficie-sutil); }
+.editores--documental .editores__pagina { border-radius: var(--raio-md); padding: var(--esp-2); }
+.editores--documental .editores__pagina[aria-current="true"] { background: var(--cor-marca-fundo); }
+.editores--documental .editores__legenda { font-weight: var(--peso-semi); }
+.editores--documental.editores--unidos .editores__titulo { padding-top: var(--esp-5); color: var(--cor-texto-secundario); }
+
+@media (max-width: 767.98px) {
+  .editores.editores--documental { grid-template-columns: minmax(0, 1fr); }
+  .editores--documental:not(.editores--sem-indice):not(.editores--pdf) .editores__indice {
+    grid-column: 1;
+    grid-row: 2;
+    position: static;
+    flex-direction: row;
+    max-height: none;
+    padding: var(--esp-3);
+    border-right: 0;
+    border-bottom: var(--borda);
+    overflow-x: auto;
+  }
+  .editores--documental .editores__pagina { flex: 0 0 6rem; }
+  .editores--documental.editores--unidos .editor > *,
+  .editores--documental.editores--unidos .editores__titulo { grid-column: 1; }
+}
+
 .editor__barra {
   display: flex;
   flex-direction: column;
@@ -31,6 +58,11 @@
   padding-top: var(--esp-2);
   border-top: 1px solid var(--cor-borda-sutil);
 }
+.editor__ferramentas { border-top: var(--borda-sutil); padding-top: var(--esp-2); }
+.editor__ferramentas > summary { width: fit-content; list-style: none; }
+.editor__ferramentas > summary::-webkit-details-marker { display: none; }
+.editor__ferramentas[open] > summary > .icone:last-child { rotate: 180deg; }
+.editor__ferramentas .editor__linha--ferramentas { border-top: 0; padding-top: var(--esp-3); }
 
 .editor__linha--ferramentas[hidden] {
   display: none;

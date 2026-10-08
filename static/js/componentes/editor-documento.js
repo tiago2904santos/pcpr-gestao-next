@@ -82,6 +82,10 @@ export class PcEditorDocumento extends HTMLElement {
     this.historico = /** @type {HTMLDialogElement | null} */ (this.querySelector("dialog[data-historico]"));
     this.dialogoTexto = /** @type {HTMLDialogElement | null} */ (this.querySelector("dialog[data-guardar-texto]"));
     if (this.barra) this.barra.hidden = false;
+    const ferramentas = this.querySelector("details[data-ferramentas-recolhiveis]");
+    if (ferramentas instanceof HTMLDetailsElement) {
+      ferramentas.open = !window.matchMedia("(max-width: 767.98px)").matches;
+    }
     this.prepararBarra();
     // A folha chega sem `src` (só carrega quando o editor entra na tela — app.js).
     if (this.quadro && this.quadro.dataset.src && !this.quadro.getAttribute("src")) {
@@ -359,10 +363,11 @@ export class PcEditorDocumento extends HTMLElement {
     });
     // Padrão "toolbar" da WAI-ARIA: um só tabstop; setas andam entre os botões.
     const controles = () => /** @type {HTMLElement[]} */ (Array.from(
-      barra.querySelectorAll("button, a[href], select, input")))
+      barra.querySelectorAll("button, a[href], select, input, summary")))
       .filter((b) => !b.closest("[role='menu'], [role='listbox']"));
     const elegiveis = () => controles().filter((b) => !b.matches(":disabled, [aria-hidden='true']")
-      && !b.closest("[hidden], [role='menu'], [role='listbox']"));
+        && !b.closest("[hidden], [role='menu'], [role='listbox']")
+        && (!b.closest("details:not([open])") || b.matches("summary")));
     let tabulavel = elegiveis()[0];
     const atualizarTabulacao = () => {
       const lista = elegiveis();
@@ -376,7 +381,7 @@ export class PcEditorDocumento extends HTMLElement {
     this.observadorBarra?.disconnect();
     this.observadorBarra = new MutationObserver(atualizarTabulacao);
     this.observadorBarra.observe(barra, { childList: true, subtree: true,
-      attributes: true, attributeFilter: ["hidden", "disabled", "aria-hidden"] });
+      attributes: true, attributeFilter: ["hidden", "disabled", "aria-hidden", "open"] });
     barra.addEventListener("keydown", (e) => {
       if (e.defaultPrevented || /** @type {HTMLElement} */ (e.target).closest("[role='menu'], [role='listbox']")) return;
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;

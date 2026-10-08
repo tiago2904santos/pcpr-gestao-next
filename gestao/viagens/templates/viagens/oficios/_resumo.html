@@ -6,19 +6,17 @@ folha do ofício, para quem alterna entre as duas não se perder. O que muda o o
 continua sendo a edição; aqui só se lê e se decide.
 {% endcomment %}
 <div class="dialogo__cabecalho">
-  <span class="placa{% if oficio.situacao == 'cancelado' %} placa--cancelada{% endif %}" aria-hidden="true">
-    <span class="placa__rotulo">Ofício</span>
-    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
-  </span>
+  {% include "componentes/identidade_documental.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao %}
   <div class="dialogo__cabecalho-texto">
-    {% if revisao %}<p class="rotulo-caixa-alta dialogo__sobretitulo">Revisar antes de emitir</p>{% endif %}
+    <p class="resumo__sobretitulo">{% if revisao %}Revisar antes de emitir{% else %}Resumo da viagem{% endif %}</p>
     {# O período já está nos trechos, logo abaixo: aqui ficam o destino e o estado. #}
-    <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}
+    <h2 class="dialogo__titulo">{% with d=oficio|destinos %}{% if d %}{{ d }}{% else %}Sem destino{% endif %}{% endwith %}</h2>
+    <div class="dialogo__linha-selos">
       <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
       {% if oficio.arquivado %}<span class="selo selo--neutro selo--sem-ponto">{% icone "inbox" classe="icone--sm" %}Arquivado</span>{% endif %}
       {# Os mesmos selos da linha da lista (D3/D4): quem abre a janela lê as mesmas palavras. #}
       {% selo_tipo oficio %}{% alerta_oficio oficio %}
-    </h2>
+    </div>
   </div>
 </div>
 <div class="dialogo__corpo">
@@ -53,15 +51,15 @@ continua sendo a edição; aqui só se lê e se decide.
     <div><dt>Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
     <div><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
     <div><dt>Porte de arma</dt><dd>{{ oficio.porte_arma|yesno:"Sim,Não" }}</dd></div>
+    <div class="resumo__largo resumo__motivo"><dt>Motivo da viagem</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     {% tipo_oficio oficio as tipo %}
     {# O tipo sempre (inclusive Autorização, que a lista não marca) e o porquê, por escrito. #}
-    <div class="resumo__largo"><dt>Tipo</dt><dd><strong>{{ tipo.completo }}</strong>. {{ tipo.porque }}</dd></div>
+    <div class="resumo__largo resumo__tipo"><dt>Tipo</dt><dd><strong>{{ tipo.completo }}</strong>. {{ tipo.porque }}</dd></div>
     {% comment %}
     O prazo por escrito — menos quando a justificativa está pendente num rascunho: aí o
     alerta de pendências, logo acima, já diz a mesma frase (não repetir três vezes).
     {% endcomment %}
-    {% if prazo.primeira_saida %}{% if not prazo.justificativa_obrigatoria or oficio.justificativa.strip or not oficio.editavel %}<div class="resumo__largo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}{% endif %}
-    <div class="resumo__largo"><dt>Motivo</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
+    {% if prazo.primeira_saida %}{% if not prazo.justificativa_obrigatoria or oficio.justificativa.strip or not oficio.editavel %}<div class="resumo__largo resumo__prazo"><dt>Prazo</dt><dd>{{ prazo.mensagem }}{% if prazo.justificativa_obrigatoria and oficio.situacao != "cancelado" %} {% if oficio.justificativa.strip %}Já está escrita.{% else %}<strong>Pendente: ainda não foi escrita.</strong>{% endif %}{% endif %}</dd></div>{% endif %}{% endif %}
     {% if revisao %}
       {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
       {# Nome com cargo é longo: duas colunas, senão quebra em três linhas ao lado de um vão. #}
@@ -74,9 +72,8 @@ continua sendo a edição; aqui só se lê e se decide.
 
   <div class="resumo">
     {% comment %}
-    Caminho e dinheiro: lado a lado só quando o roteiro é longo o bastante para encher a
-    coluna. Com até três trechos, o roteiro ocupa a linha toda e as diárias descem para a
-    de baixo, em três quadros — melhor isso do que meia coluna em branco.
+    Dossiê: percurso e conferência financeira, seguidos da equipe e dos documentos.
+    A variante visual resolve a composição sem alterar dados ou fluxo de conferência.
     {% endcomment %}
     <div class="{% if trechos|length > 3 %}resumo__linha{% else %}resumo__empilhado{% endif %}">
       <section class="resumo__coluna" aria-labelledby="resumo-roteiro">
@@ -104,11 +101,7 @@ continua sendo a edição; aqui só se lê e se decide.
         <h3 class="resumo__titulo" id="resumo-diarias">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
         {% if calculo.total %}
           {# Os mesmos quadros da folha do ofício e do roteiro, empilhados na coluna. #}
-          <div class="grade resumo__indicadores">
-            <div class="indicador indicador--atencao"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor total</span><span class="indicador__valor">{{ calculo.total|moeda }}</span><span class="indicador__nota">{{ calculo.por_servidor|moeda }} por servidor</span></div>
-            <div class="indicador indicador--compacto"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "map-pin" classe="icone--sm" %}Tipo de destino</span><span class="indicador__valor indicador__valor--grande">{{ calculo.tipo_destino }}</span></div>
-            <div class="indicador indicador--compacto"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "list-checks" classe="icone--sm" %}Quantidade por servidor</span><span class="indicador__valor" title="{{ calculo.resumo }}">{{ calculo.resumo }}</span></div>
-          </div>
+          {% include "componentes/conferencia_valores.html" with vertical=True sempre_por_servidor=True %}
         {% elif oficio.diarias_erro %}
           <p class="vazio-inline">{{ oficio.diarias_erro }}</p>
         {% else %}<p class="vazio-inline">Sem diárias calculadas.</p>{% endif %}
@@ -124,7 +117,7 @@ continua sendo a edição; aqui só se lê e se decide.
       <h3 class="resumo__titulo" id="resumo-equipe">{% icone "users" classe="icone--sm" %}Equipe e transporte</h3>
       {% with quantos=viajantes|length %}
       {% with larguras=quantos|add:1|larguras_de_cartoes %}
-        <ul class="resumo__cartoes" role="list">
+        <ul class="resumo__cartoes pessoas--faixa" role="list">
           {% for v in viajantes %}
             <li class="pessoa resumo__cartao--{{ larguras|get_item:forloop.counter0 }}">
               <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>

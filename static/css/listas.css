@@ -1976,3 +1976,28 @@ html.rolagem-presa {
   z-index: 1;
   min-height: var(--alvo-minimo);
 }
+
+/* Variante documental do arquétipo LIST: separação por faixas e número editorial. */
+.lista--documental > .cartao { border: var(--borda); box-shadow: var(--sombra-2); }
+.lista--documental > .abas { gap: var(--esp-2); border-bottom: 0; padding-bottom: var(--esp-2); }
+.lista--documental > .abas .aba { padding: var(--esp-3) var(--esp-4); border-radius: var(--raio-md); }
+.lista--documental > .abas .aba[aria-current="page"] { background: var(--cor-primaria); color: var(--cor-texto-inverso); border-color: transparent; }
+.lista--documental > .abas .aba[aria-current="page"] .aba__contagem { color: var(--cor-texto-inverso); background: var(--luz-16); }
+.lista--documental .filtros--barra { padding: var(--esp-6); border-bottom: var(--borda); background: var(--cor-superficie-sutil); }
+.lista--documental .registros__grupo { padding: var(--esp-3) var(--esp-6); background: var(--cor-superficie-sutil); }
+.registro.registro--documental { padding: var(--esp-5) var(--esp-6); column-gap: var(--esp-6); }
+.registro--documental > .placa { min-width: 6.5rem; padding: 0; border: 0; background: transparent; box-shadow: none; align-self: start; }
+.registro--documental > .placa .placa__numero { font-size: var(--texto-xl); }
+.registro--documental .registro__link-texto { font-size: var(--texto-lg); font-weight: var(--peso-semi); }
+.registro--documental .registro__meta { margin-top: var(--esp-3); }
+.registro--documental .registro__valor { font-weight: var(--peso-forte); }
+
+@media (max-width: 767.98px) {
+  .lista--documental .filtros--barra { padding: var(--esp-4); }
+  .lista--documental .registro.registro--documental { padding: var(--esp-4); row-gap: var(--esp-2); }
+  .lista--documental .registro.registro--documental > .placa { grid-area: 1 / 1 / 2 / 3; min-width: 0; justify-self: start; }
+  .lista--documental .registro.registro--documental > .registro__acoes { grid-area: 1 / 3; }
+  .lista--documental .registro.registro--documental .registro__titulo > .registro__link { grid-area: auto; grid-column: 1 / -1; grid-row: 2; }
+  .lista--documental .registro.registro--documental .registro__titulo > .registro__selos { grid-column: 1 / -1; grid-row: 3; }
+  .lista--documental .registro.registro--documental .registro__meta { grid-row: 4; }
+}

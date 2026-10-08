@@ -1,0 +1,5 @@
+{% comment %}Identificação editorial reutilizável em cabeçalhos de leitura e edição.{% endcomment %}
+<div class="identidade-documental{% if classe %} {{ classe }}{% endif %}">
+  <span class="identidade-documental__rotulo">{{ rotulo|default:"Documento" }}</span>
+  <span class="identidade-documental__numero{% if situacao == 'cancelado' %} identidade-documental__numero--cancelado{% endif %}">{{ numero }}</span>
+</div>

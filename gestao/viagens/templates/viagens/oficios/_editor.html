@@ -46,7 +46,7 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
       </div>
     </div>
     {% if pode_editar_texto %}
-    <div class="editor__linha editor__linha--ferramentas" data-so-texto>
+    {% if ferramentas_recolhiveis %}<details class="editor__ferramentas" data-so-texto data-ferramentas-recolhiveis open><summary class="botao botao--sm">{% icone "sliders-horizontal" classe="icone--sm" %}Formatar texto{% icone "chevron-down" classe="icone--sm" %}</summary><div class="editor__linha editor__linha--ferramentas">{% else %}<div class="editor__linha editor__linha--ferramentas" data-so-texto>{% endif %}
     <div class="editor__grupo" role="group" aria-label="Formatação">
       <button type="button" class="botao botao--sm botao--icone" data-comando="bold" aria-pressed="false" aria-label="Negrito (Ctrl+B)" title="Negrito (Ctrl+B)">{% icone "bold" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="italic" aria-pressed="false" aria-label="Itálico (Ctrl+I)" title="Itálico (Ctrl+I)">{% icone "italic" classe="icone--sm" %}</button>
@@ -134,7 +134,7 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
       <button type="button" class="botao botao--sm botao--icone" data-acao="modelo" aria-label="Voltar ao modelo" title="Voltar ao modelo" disabled>{% icone "file-x-2" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-acao="historico" aria-label="Histórico do texto" title="Histórico do texto">{% icone "history" classe="icone--sm" %}</button>
     </div>
-    </div>
+    </div>{% if ferramentas_recolhiveis %}</details>{% endif %}
     {% endif %}
   </div>
   <div class="editor__avisos" data-avisos></div>

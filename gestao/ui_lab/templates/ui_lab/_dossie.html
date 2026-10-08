@@ -1,0 +1,17 @@
+{% with identificador=vazio|yesno:"lab-dossie-vazio,lab-dossie" %}
+<dialog id="{{ identificador }}" class="dialogo dialogo--resumo dialogo--dossie" aria-label="Dossiê de viagem — exemplo">
+  <button class="botao botao--icone botao--sutil dialogo__fechar" type="button" data-fechar-dialogo aria-label="Fechar exemplo">{% icone "x" %}</button>
+  <div class="dialogo__conteudo">
+    <div class="dialogo__cabecalho">
+      {% include "componentes/identidade_documental.html" with rotulo="Ofício de viagem" numero="131/2026" %}
+      <div class="dialogo__cabecalho-texto"><p class="resumo__sobretitulo">Resumo da viagem</p><h2 class="dialogo__titulo">{% if vazio %}Sem destino{% else %}Santo Antônio da Platina/PR, São José dos Pinhais/PR{% endif %}</h2><div class="dialogo__linha-selos"><span class="selo selo--neutro selo--situacao-rascunho">Rascunho</span></div></div>
+    </div>
+    <div class="dialogo__corpo">
+      {% if vazio %}<div class="alerta alerta--aviso resumo__aviso" role="status"><div class="alerta__corpo"><p class="alerta__titulo">Complete os dados antes de emitir</p><p>Abra o ofício para informar a equipe, o transporte e o roteiro.</p></div></div>{% endif %}
+      <dl class="resumo__definicoes"><div><dt>Data</dt><dd>08/10/2026</dd></div><div><dt>Protocolo</dt><dd>{% if vazio %}Não informado{% else %}12.345.678-9{% endif %}</dd></div><div><dt>Custeio</dt><dd>Unidade</dd></div><div><dt>Porte de arma</dt><dd>Sim</dd></div><div class="resumo__largo resumo__motivo"><dt>Motivo da viagem</dt><dd>{% if vazio %}—{% else %}Apoio às atividades institucionais e atendimento itinerante às comunidades participantes do evento de segurança pública.{% endif %}</dd></div></dl>
+      <div class="resumo"><section><h3 class="resumo__titulo">Roteiro</h3><p>{% if vazio %}Roteiro não informado.{% else %}Curitiba/PR → Santo Antônio da Platina/PR → São José dos Pinhais/PR{% endif %}</p></section><section><h3 class="resumo__titulo">Diárias</h3>{% if vazio %}<p class="vazio-inline">Sem diárias calculadas.</p>{% else %}{% include "componentes/conferencia_valores.html" with calculo=lab_conferencia vertical=True %}{% endif %}</section></div>
+    </div>
+    <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Voltar</button><button class="botao botao--primario" type="button" disabled>Emitir ofício</button></div>
+  </div>
+</dialog>
+{% endwith %}

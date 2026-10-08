@@ -1,0 +1,7 @@
+{% load viagens %}
+{% comment %}Uma conferência, três dados. Variante vertical para leitura; horizontal para cadastro.{% endcomment %}
+<div class="grade{% if documental or vertical %} conferencia-valores{% if vertical %} conferencia-valores--vertical resumo__indicadores{% endif %}{% else %} grade--3{% endif %}">
+  <div class="indicador{% if not documental and not vertical %} indicador--centro{% endif %} indicador--atencao"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "banknote" classe="icone--sm" %}Valor total</span><span class="indicador__valor">{{ calculo.total|moeda }}</span>{% if sempre_por_servidor or calculo.servidores > 1 %}<span class="indicador__nota">{{ calculo.por_servidor|moeda }} por servidor</span>{% endif %}</div>
+  <div class="indicador{% if documental or vertical %} indicador--compacto{% else %} indicador--centro{% endif %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "map-pin" classe="icone--sm" %}Tipo de destino</span><span class="indicador__valor{% if vertical %} indicador__valor--grande{% endif %}">{{ calculo.tipo_destino }}</span></div>
+  <div class="indicador{% if documental or vertical %} indicador--compacto{% else %} indicador--centro{% endif %}"><span class="indicador__rotulo rotulo-caixa-alta">{% icone "list-checks" classe="icone--sm" %}Quantidade por servidor</span><span class="indicador__valor" title="{{ calculo.resumo }}">{{ calculo.resumo }}</span></div>
+</div>

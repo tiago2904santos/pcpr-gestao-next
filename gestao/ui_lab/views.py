@@ -8,6 +8,8 @@ nas larguras de referência antes de qualquer tela de negócio.
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django import forms
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -167,6 +169,9 @@ def indice(request: HttpRequest) -> HttpResponse:
     ]
     pagina = Paginator(range(1, 241), 20).get_page(request.GET.get("pagina", 5))
     contexto = {
+        "lab_conferencia": {"total": Decimal("12345.68"), "por_servidor": Decimal("6172.84"),
+                            "servidores": 2, "tipo_destino": "INTERIOR + CAPITAL",
+                            "resumo": "4 x 100% + 1 x 15%"},
         **_linha_de_registro(),
         "tons_status": TONS_STATUS,
         "form_vazio": form_vazio,

@@ -422,6 +422,8 @@
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-sobreposicoes"><span class="cartao__numero">8</span>Diálogos, gaveta, menu e paleta de comandos</h2></div>
       <div class="cartao__corpo linha">
         <button class="botao" type="button" data-abrir-dialogo="lab-dialogo">{% icone "info" %}Abrir diálogo</button>
+        <button class="botao" type="button" data-abrir-dialogo="lab-dossie">{% icone "file-text" %}Dossiê de viagem</button>
+        <button class="botao" type="button" data-abrir-dialogo="lab-dossie-vazio">{% icone "file-text" %}Dossiê sem dados</button>
         <form method="post" action="#sobreposicoes" data-confirmar="O ofício 131/2026 será cancelado. O número não volta a ser usado e a ação fica registrada no histórico." data-confirmar-titulo="Cancelar ofício?" data-confirmar-rotulo="Cancelar ofício" data-confirmar-perigo>
           <button class="botao botao--perigo-contorno" type="submit" data-lab="confirmar-perigo">{% icone "ban" %}Confirmação destrutiva</button>
         </form>
@@ -503,6 +505,13 @@
     <section class="cartao" id="pecas-formulario" aria-labelledby="t-pecas">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-pecas"><span class="cartao__numero">12</span>Peças do formulário do ofício</h2></div>
       <div class="cartao__corpo pilha-lg">
+        <div class="campos campos--iguais campos--legiveis" aria-label="Campos com largura de leitura">
+          <div class="campo"><label class="campo__rotulo" for="lab-legivel-numero">Número do ofício</label><input class="entrada" id="lab-legivel-numero" value="131" readonly></div>
+          <div class="campo"><label class="campo__rotulo" for="lab-legivel-data">Data do ofício</label><input class="entrada" id="lab-legivel-data" value="08/10/2026" readonly></div>
+          <div class="campo"><label class="campo__rotulo" for="lab-legivel-protocolo">Protocolo (para emitir)</label><input class="entrada" id="lab-legivel-protocolo" value="12.345.678-9" readonly></div>
+          <div class="campo"><label class="campo__rotulo" for="lab-legivel-tipo">Tipo de documento</label><input class="entrada" id="lab-legivel-tipo" value="Autorização" readonly></div>
+          <div class="campo"><label class="campo__rotulo" for="lab-legivel-custeio">Custeio</label><input class="entrada" id="lab-legivel-custeio" value="Unidade" readonly></div>
+        </div>
         <fieldset class="opcoes" data-lab="opcoes">
           <legend>Cartões de escolha (rádio nativo; teclado com setas)</legend>
           <label class="opcao" for="lab-op-1"><input type="radio" name="lab-op" id="lab-op-1" checked><span class="opcao__icone" aria-hidden="true">{% icone "car" %}</span><span class="opcao__texto"><span class="opcao__titulo">Viatura oficial</span><span class="opcao__descricao">Escolha pela placa ou pelo modelo</span></span></label>
@@ -619,7 +628,7 @@
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-editor"><span class="cartao__numero">13</span>Editor de documento no visualizador</h2><span class="texto-secundario texto-sm">A folha do documento (a mesma que vira PDF) com as regiões editáveis, campos vivos, blocos, quebras, textos prontos e histórico. Aqui é vitrine: edita, formata e insere, mas nada é salvo.</span></div>
       <div class="cartao__corpo">
         {% url 'ui_lab:folha_exemplo' as folha_exemplo %}
-        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True %}
+        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True ferramentas_recolhiveis=True %}
       </div>
     </section>
 
@@ -937,6 +946,8 @@
 </div>
 </div>
 
+{% include "ui_lab/_dossie.html" with vazio=False %}
+{% include "ui_lab/_dossie.html" with vazio=True %}
 <dialog id="lab-dialogo" class="dialogo" aria-labelledby="lab-dialogo-titulo">
   <div class="dialogo__cabecalho"><span class="dialogo__icone">{% icone "info" %}</span><h2 class="dialogo__titulo" id="lab-dialogo-titulo">Emitir ofício 131/2026?</h2></div>
   <div class="dialogo__corpo"><p>Depois de emitido, os dados ficam travados e uma nova versão só pode ser gerada reabrindo o ofício (ação registrada).</p></div>

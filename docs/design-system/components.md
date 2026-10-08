@@ -1,5 +1,44 @@
 # Catálogo de componentes
 
+## Padrão documental de Ofícios — 08/10/2026
+
+`componentes/identidade_documental.html` reúne rótulo e número editorial. Aceita
+`rotulo`, `numero` e `situacao`; cancelado mantém o número tachado. Reutilizado
+no cabeçalho da Folha, no Resumo e na vitrine de dossiês do UI Lab.
+
+`componentes/conferencia_valores.html` apresenta total, destino e quantidade
+com os mesmos valores do cálculo existente. `documental=True` produz a faixa
+horizontal da Folha; `vertical=True` produz o painel lateral do Resumo.
+`sempre_por_servidor=True` mantém a nota já existente no Resumo. Sem variante,
+o componente preserva a grade clássica dos outros consumidores.
+
+`dialogo--dossie` é variante do diálogo DETAIL: número e destino separados,
+metadados legíveis, roteiro sem segunda rolagem, equipe em linhas, rodapé com
+ações disponíveis. UI Lab demonstra dados longos, dados ausentes e ação
+desabilitada; testes cobrem leitura, revisão de emissão, cancelamento e
+estados de geração pelos fluxos reais existentes.
+
+`pagina--documental`, `pagina-cabecalho--documental`, `documento--continuo`,
+`pessoas--faixa` e `barra-acoes--documental` compõem o padrão da Folha.
+`lista--documental`/`registro--documental` aplicam a mesma linguagem à Lista:
+o destino ocupa uma linha própria no celular, sem truncamento estreito.
+O arquétipo de Lista aceita `variante_cabecalho` sem alterar seu padrão.
+`campos--legiveis` complementa `campos--iguais`: acima de 768 px, largura
+mínima de composição faz a linha quebrar antes de cortar rótulos longos.
+As linhas condicionais seguem inteiras e o celular conserva duas colunas.
+
+`editores--documental` organiza a estação de documentos. O parcial existente
+`viagens/oficios/_editor.html` aceita `ferramentas_recolhiveis=True`: disclosure
+nativo “Formatar texto”, fechado inicialmente abaixo de 768 px, aberto acima.
+Enter/Espaço alternam o estado; a toolbar continua com um único tabstop e
+setas/Home/End. O observador acompanha `open` e exclui comandos recolhidos;
+a troca de documento ativo conserva a tabulação. Outros consumidores não
+ativam a variante. UI Lab usa o mesmo parcial, sem persistir dados.
+
+Todas as variantes usam tokens existentes. Nenhuma folha oficial, regra de
+cálculo, permissão ou API foi alterada. Evidências e limites:
+`../visual-agents/qa/oficios-premium-2026-10-08.md`.
+
 O compartilhado vive em `static/css/components.css` (botões, campos, selos, alertas, toasts, tabelas, diálogos, menus, paleta); o que só algumas telas usam vai em pacotes carregados por `{% block estilos %}`: `formulario.css` (seletores de data/hora/lista, combobox, progresso, cartões de escolha, conferência), `documento.css` (folha única e seções, trilho de processo, histórico, definições, pessoa), `listas.css` (registros, filtros, paginação, abas), `painel.css` (central e coluna de contexto), `assistente.css` (etapas) e `itinerario.css`. Controles nativos neutralizados em `base.css`.
 sem o "x" do campo de busca, sem setas no campo numérico, sem o amarelo do preenchimento
 automático, barras de rolagem finas) e são exercitados em **/ui-lab/** (estados:

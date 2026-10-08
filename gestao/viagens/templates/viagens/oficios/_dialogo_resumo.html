@@ -7,7 +7,7 @@ do pedaço que o HTMX troca, para a janela sempre ter um controle enquanto carre
 Aberta pelo servidor, a janela já vem com `open`: sem JavaScript ela aparece no lugar (e dá
 para emitir); com JavaScript, dialogo.js a reabre como modal.
 {% endcomment %}
-<dialog id="dialogo-resumo" class="dialogo dialogo--resumo" aria-label="{% if resumo.revisao %}Revisar e emitir o ofício{% else %}Resumo do ofício{% endif %}"{% if abrir_resumo %} data-abrir-ao-carregar open{% endif %}>
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo dialogo--dossie" aria-label="{% if resumo.revisao %}Revisar e emitir o ofício{% else %}Resumo do ofício{% endif %}"{% if abrir_resumo %} data-abrir-ao-carregar open{% endif %}>
   <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="{% if resumo.revisao %}Voltar e corrigir{% else %}Fechar o resumo{% endif %}">{% icone "x" %}</button>
   <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>
     {% comment %}

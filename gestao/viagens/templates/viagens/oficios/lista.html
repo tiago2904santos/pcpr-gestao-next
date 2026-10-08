@@ -3,6 +3,9 @@
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block preload_seletor %}{% endblock %}
 {% block titulo %}Ofícios{% endblock %}
+{% block classe_conteudo %}pagina--documental lista--documental{% endblock %}
+{% block variante_cabecalho %}pagina-cabecalho--documental{% endblock %}
+{% block sobretitulo %}<p class="resumo__sobretitulo">Gestão de viagens</p>{% endblock %}
 {% block titulo_lista %}Ofícios{% endblock %}
 {% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ofícios de viagem com cálculo de diárias, justificativa e documentos.</p>{% endblock %}
 {% comment %}
