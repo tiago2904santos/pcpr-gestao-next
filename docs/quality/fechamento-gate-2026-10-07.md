@@ -245,3 +245,29 @@ Primeiro launcher esqueceu PYTHONPATH e recusou importar config; corrigido só
 ambiente, nenhuma fonte alterada. HTTP de lista confirma200, opt-in final e
 ausência de seletores.css. Fonte já validada pronta para commitar/incorporar;
 guardas/foco/pacote/via e navegadores anteriores permanecem com logs explícitos.
+
+## Incorporação final — 07/10/2026
+
+Worktree fechou fontes em cddc299 (codex/viagens-fechamento-gate), depois de
+verificar integral verde e HTTP200 em lista/Resumo262/Folha262 no candidato.
+Original estava limpo/08d46c7; preview próprio8010 parado para evitar Python
+antigo misturado a templates novos. Cherry-pick e5e48cc→feb35e2 e
+cddc299→bea84e3 sem conflito; coletor já existente08 não duplicou mudança.
+Manifesto congelado43/zero divergências; árvores Git de897fontes idênticas entre
+worktree e original. Prova em gate-final/fontes-integradas.json, sem extrapolar
+esse check de conteúdo para um teste que não foi executado. Não repetir integral
+em código idêntico sem nova alteração/falha, nem usar resultados em fonte diversa.
+Preview original próprio8010 reiniciado: HTTP200 nos mesmos três GETs, sem
+semear/resetar DEMO/DEV. UTF/PYTHONPATH corrigidos só no launcher. A rotação da
+chave sintética local invalida sessão antiga do preview, que usa entrada DEMO;
+não altera .env, dados pessoais ou segredo do DEV/PRODUCTION. Para obter os novos
+módulos JS em uma aba já aberta, recarregar quando não houver edição pendente.
+Main/origin_main locais8d1d77e preservadas, nenhum push/merge. Decisão do bloco:
+aprovado com ressalvas; limites/performance3falhas/CSP/incidente de mídia no pacote.
+
+Integridade do checkpoint: logs gerados conservam os espaços finais/linhas vazias
+emitidos por pytest/lint-imports, inclusive tracebacks reprovados. O diff --check
+do checkpoint apontou esses espaços nos logs; não editar a evidência para limpar
+saída. Check de whitespace aplicado às fontes/documentação editadas excluindo
+somente gate-final/logs/*; sem alteração de configuração global/check do gate.
+Trinta links do índice final conferidos com arquivos existentes.

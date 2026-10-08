@@ -1,0 +1,325 @@
+{
+  "nodes": [
+    {
+      "nodeId": "287",
+      "ignored": true,
+      "ignoredReasons": [
+        {
+          "name": "activeModalDialog",
+          "value": {
+            "type": "idref",
+            "relatedNodes": [
+              {
+                "backendDOMNodeId": 135,
+                "idref": "dialogo-servidor"
+              }
+            ]
+          }
+        }
+      ],
+      "role": {
+        "type": "role",
+        "value": "none"
+      },
+      "chromeRole": {
+        "type": "internalRole",
+        "value": 0
+      },
+      "parentId": "94",
+      "childIds": [
+        "780"
+      ],
+      "backendDOMNodeId": 287
+    },
+    {
+      "nodeId": "94",
+      "ignored": true,
+      "ignoredReasons": [
+        {
+          "name": "activeModalDialog",
+          "value": {
+            "type": "idref",
+            "relatedNodes": [
+              {
+                "backendDOMNodeId": 135,
+                "idref": "dialogo-servidor"
+              }
+            ]
+          }
+        }
+      ],
+      "role": {
+        "type": "role",
+        "value": "none"
+      },
+      "chromeRole": {
+        "type": "internalRole",
+        "value": 0
+      },
+      "parentId": "223",
+      "childIds": [
+        "287",
+        "90",
+        "97",
+        "739",
+        "99",
+        "746",
+        "747",
+        "749",
+        "102",
+        "765",
+        "104",
+        "769",
+        "780",
+        "107",
+        "786",
+        "802",
+        "805",
+        "807",
+        "808",
+        "809",
+        "110",
+        "816",
+        "829",
+        "834",
+        "839",
+        "114",
+        "844",
+        "166",
+        "847",
+        "855",
+        "859",
+        "865",
+        "869",
+        "870",
+        "874",
+        "883",
+        "890",
+        "905",
+        "915",
+        "930",
+        "940",
+        "946",
+        "954",
+        "159",
+        "121",
+        "124",
+        "969",
+        "982",
+        "127",
+        "991",
+        "1008",
+        "1009",
+        "1011",
+        "1018",
+        "1022",
+        "1029",
+        "1067",
+        "1071",
+        "1073",
+        "1074",
+        "1076",
+        "1078"
+      ],
+      "backendDOMNodeId": 94
+    },
+    {
+      "nodeId": "223",
+      "ignored": true,
+      "ignoredReasons": [
+        {
+          "name": "activeModalDialog",
+          "value": {
+            "type": "idref",
+            "relatedNodes": [
+              {
+                "backendDOMNodeId": 135,
+                "idref": "dialogo-servidor"
+              }
+            ]
+          }
+        }
+      ],
+      "role": {
+        "type": "role",
+        "value": "none"
+      },
+      "chromeRole": {
+        "type": "internalRole",
+        "value": 0
+      },
+      "parentId": "89",
+      "childIds": [
+        "331",
+        "347",
+        "356",
+        "361",
+        "362",
+        "365",
+        "369",
+        "401",
+        "407",
+        "463",
+        "472",
+        "477",
+        "490",
+        "496",
+        "501",
+        "546",
+        "551",
+        "636",
+        "638",
+        "640",
+        "237",
+        "244",
+        "94",
+        "131",
+        "259",
+        "263",
+        "2983",
+        "2987",
+        "2994",
+        "3016",
+        "3017",
+        "3027",
+        "3035",
+        "3037",
+        "3042",
+        "3044",
+        "3049",
+        "3051",
+        "3056",
+        "3065",
+        "3076",
+        "3080",
+        "3083",
+        "3084",
+        "3085",
+        "3087",
+        "3089",
+        "3103",
+        "135",
+        "3225",
+        "3232",
+        "3234",
+        "3235",
+        "3236",
+        "3238",
+        "3239",
+        "3241",
+        "3246",
+        "3260",
+        "3264",
+        "3270",
+        "3287",
+        "3293",
+        "3297",
+        "3303",
+        "3318",
+        "3319",
+        "3323",
+        "3332",
+        "3335",
+        "3341",
+        "3345",
+        "3346",
+        "3350",
+        "3359",
+        "3366",
+        "3373",
+        "3378",
+        "3380",
+        "3386",
+        "3393",
+        "3398",
+        "3400",
+        "3406",
+        "3413",
+        "3417",
+        "3419",
+        "3421",
+        "3422",
+        "3423",
+        "3430",
+        "3437",
+        "3442",
+        "3450",
+        "3463",
+        "3467",
+        "3468",
+        "3476",
+        "3479",
+        "3481",
+        "3482"
+      ],
+      "backendDOMNodeId": 223
+    },
+    {
+      "nodeId": "89",
+      "ignored": false,
+      "role": {
+        "type": "internalRole",
+        "value": "RootWebArea"
+      },
+      "chromeRole": {
+        "type": "internalRole",
+        "value": 144
+      },
+      "name": {
+        "type": "computedString",
+        "value": "Ofício 02/2026 — edição · PCPR — Gestão de Eventos e Viagens",
+        "sources": [
+          {
+            "type": "relatedElement",
+            "attribute": "aria-labelledby"
+          },
+          {
+            "type": "attribute",
+            "attribute": "aria-label"
+          },
+          {
+            "type": "attribute",
+            "attribute": "aria-label",
+            "superseded": true
+          },
+          {
+            "type": "relatedElement",
+            "value": {
+              "type": "computedString",
+              "value": "Ofício 02/2026 — edição · PCPR — Gestão de Eventos e Viagens"
+            },
+            "nativeSource": "title"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "focusable",
+          "value": {
+            "type": "booleanOrUndefined",
+            "value": true
+          }
+        },
+        {
+          "name": "focused",
+          "value": {
+            "type": "booleanOrUndefined",
+            "value": true
+          }
+        },
+        {
+          "name": "url",
+          "value": {
+            "type": "string",
+            "value": "http://localhost:55101/viagens/oficios/749/editar/"
+          }
+        }
+      ],
+      "childIds": [
+        "223"
+      ],
+      "backendDOMNodeId": 89,
+      "frameId": "DDBF10BDE3B13FE7207A19D4DB4A2C2A"
+    }
+  ]
+}

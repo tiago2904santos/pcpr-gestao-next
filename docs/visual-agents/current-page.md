@@ -3,15 +3,25 @@
 | Campo | Valor |
 |---|---|
 | Módulo | Viagens → **Ofícios** |
-| Página | **Folha do ofício — Lote H (correções urgentes)**, depois Resumo → Folha → Documentos |
+| Página | **Fechamento do mesmo bloco H/tempo/Resumo/Documentos/Folha**; nenhuma nova página |
 | Agente responsável | Codex principal; paridade/recuperação e QA como revisões delimitadas |
 | Análise do legado | **concluída** — `parity/oficios-folha.md`, `parity/oficios-resumo.md`, `parity/oficios-documentos.md` |
-| Implementação | HEAD local `d5663f2`: H, D16 tempos do legado, cache versionado, barra acessível, carga adiada do editor e RS-01 cópia na Folha/Resumo. D13/D16 confirmadas por Tiago. H ainda não integralmente aceito |
-| Testes executados | H navegador 30 verdes; última suíte completa 1897 verdes/1 falha corrigida e 53 testes posteriores verdes; RS-01 HTTP e cópia validados; medições posteriores com 3 falhas de orçamento |
-| Problemas encontrados | G1 salvar desmarca o motorista (perda de dado, desde `afcf0dd`); F1 geração que falha fica "gerando" para sempre; G2 data do ofício na emissão; G3 "Outro meio"; 6 e2e vermelhos da folha |
-| Problemas resolvidos | Lista de ofícios concluída (ver `completed-pages.md`) |
-| Pendências | Lotes H, RS, FL, DC; perguntas ao dono no plano |
-| Próximo passo | Validar filtros/cadastros adiados, repetir budgets, integrar seleção documental RS-02 e Resumo; ao fechar mudanças, executar novamente verificar.sh |
+| Implementação | Incorporada em `viagens/reconstrucao`: `feb35e2` domínio RS02 + `bea84e3` consumidores/guards/carga/foco. D13/D16 confirmadas e implementadas. CSS separado rejeitado/restaurado |
+| Testes executados | Integral final 2187 verdes/zero falhas/7 avisos, 40min21s, todos os checks verdes. Focused/HTTP/Baixar/7 Resumo+guard, teclado/capturas360/1440 e performance por blocos no pacote final |
+| Problemas encontrados | Primeiro integral 2184 verdes/3 falhas: codificação Windows (2) e contrato de tag (1), três focados posteriores verdes. Reuso do banco esvaziado interrompido; logs preservados |
+| Problemas resolvidos | Bloco H/tempo/correções existentes Resumo/Documentos/Folha fechado: aprovado com ressalvas. Nenhum bloqueante funcional comprovado restante nas suítes executadas |
+| Pendências | Performance anterior ao candidato, CSP intermitente sem origem confirmada, paridade editorial PDF/A/DOCX e incidente anterior de mídia explicitados; não implicam avanço automático |
+| Próximo passo | Entregar/avaliar pacote final. Termos de Autorização suspenso; nenhuma nova página iniciada |
+
+## Gate delimitado — 07/10/2026
+
+Pacote final: `qa/fechamento-gate-final-2026-10-07.md`; histórico da
+sequência/tests/falhas/correções em `../quality/fechamento-gate-2026-10-07.md`.
+Main preservada; fontes validadas incorporadas no original depois da integral
+verde. Manifesto43/zero divergências e árvores completas897fontes idênticas.
+Decisão final aprovado com ressalvas, sem soma artificial de rodadas, sem dizer
+CI global verde: performance continua3falhas. Histórico anterior abaixo permanece
+datado e é substituído por este fechamento no escopo autorizado.
 
 ## Fechamento solicitado — 07/10/2026 19:09
 

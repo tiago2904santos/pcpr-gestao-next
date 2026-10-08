@@ -1,0 +1,148 @@
+bringing up nodes...
+bringing up nodes...
+
+......................................F................................. [ 45%]
+........................................................................ [ 91%]
+.............                                                            [100%]
+================================== FAILURES ===================================
+_ test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] _
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+self = <django.db.backends.utils.CursorWrapper object at 0x0000029FFE9E6AB0>
+sql = 'INSERT INTO "viagens_documento" ("oficio_id", "tipo", "versao", "situacao", "dados", "arquivo", "sha256", "tamanho", ...erado_em", "edicao_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "viagens_documento"."id"'
+params = (745, 'oficio', Int2(2), 'pronto', Jsonb({'ano': 2026, 'ida': [{'saida': {'d ... (3249 chars)), '', ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x0000029FFE9E6AB0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_rs02_gw1) at 0x29ffc76b590>
+query = 'INSERT INTO "viagens_documento" ("oficio_id", "tipo", "versao", "situacao", "dados", "arquivo", "sha256", "tamanho", ...erado_em", "edicao_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "viagens_documento"."id"'
+params = (745, 'oficio', Int2(2), 'pronto', Jsonb({'ano': 2026, 'ida': [{'saida': {'d ... (3249 chars)), '', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.CheckViolation: new row for relation "viagens_documento" violates check constraint "documento_pronto_tem_hash"
+E           DETAIL:  Failing row contains (106, oficio, 2, pronto, {"ano": 2026, "ida": [{"saida": {"data": "27/10/2026", "hora": "..., , , 0, , 2026-10-07 22:25:14.475392+00, null, 257, 745, null).
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py:117: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+client = <django.test.client.Client object at 0x0000029FFD35B750>
+cenario = Cenario(ids={'oficio_emitido': 745, 'oficio_rascunho': 746, 'oficio_vazio': 747, 'oficio_cancelado': 748, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+original = <Documento: Ofício 01/2026 v1>, estado = 'cancelado'
+
+    @pytest.mark.parametrize("estado", ["gerando", "falhou", "cancelado"])
+    def test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel(
+            client, cenario, original, estado):
+        oficio = original.oficio
+>       Documento.objects.create(oficio=oficio, tipo="oficio", versao=2,
+                                 situacao="pronto" if estado == "cancelado" else estado,
+                                 dados=deepcopy(original.dados), emitido_por=oficio.criado_por)
+
+gestao\viagens\tests\test_leitura_documental.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:752: in create
+    obj.save(force_insert=True, using=self.db)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:904: in save
+    self.save_base(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:996: in save_base
+    updated = self._save_table(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:1201: in _save_table
+    results = self._do_insert(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:1253: in _do_insert
+    return manager._insert(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:2166: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py:1954: in execute_sql
+    cursor.execute(sql, params)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_rs02_gw1) at 0x29ffc76b590>
+query = 'INSERT INTO "viagens_documento" ("oficio_id", "tipo", "versao", "situacao", "dados", "arquivo", "sha256", "tamanho", ...erado_em", "edicao_id") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "viagens_documento"."id"'
+params = (745, 'oficio', Int2(2), 'pronto', Jsonb({'ano': 2026, 'ida': [{'saida': {'d ... (3249 chars)), '', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: new row for relation "viagens_documento" violates check constraint "documento_pronto_tem_hash"
+E           DETAIL:  Failing row contains (106, oficio, 2, pronto, {"ano": 2026, "ida": [{"saida": {"data": "27/10/2026", "hora": "..., , , 0, , 2026-10-07 22:25:14.475392+00, null, 257, 745, null).
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py:117: IntegrityError
+============================== warnings summary ===============================
+tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado]
+1 failed, 156 passed, 1 warning in 360.74s (0:06:00)

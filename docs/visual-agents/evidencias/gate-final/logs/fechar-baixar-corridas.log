@@ -1,0 +1,15 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 3 items
+
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[repetir] PASSED [ 33%]
+tests/e2e/test_baixar_carga.py::test_fechar_durante_get_nao_rouba_foco_ao_concluir PASSED [ 66%]
+tests/e2e/test_baixar_carga.py::test_reabrir_durante_get_descarta_resposta_antiga_divergente PASSED [100%]
+
+============================= 3 passed in 30.31s ==============================

@@ -1,0 +1,308 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 3 items
+
+tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/] FAILED [ 33%]
+tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/?resumo={oficio_emitido}] FAILED [ 66%]
+tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/] FAILED [100%]
+
+================================== FAILURES ===================================
+_______________ test_orcamento_de_desempenho[/viagens/oficios/] _______________
+
+logado = <Page url='http://localhost:61085/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 888, 'oficio_rascunho': 889, 'oficio_vazio': 890, 'oficio_cancelado': 891, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = '/viagens/oficios/'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_orcamento_de_desempenho(logado, dados_e2e, rota):
+        pg = logado
+        url = resolver(rota, dados_e2e.ids)
+        relatorio = f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json"
+        requisicoes: list[Request] = []
+        terminadas: list[Request] = []
+        falhas: list[Request] = []
+        # Drena a entrada da fixture antes de delimitar a navegação medida. Callbacks só
+        # guardam referências: body() dentro de response pode continuar pendente no goto
+        # das amostras seguintes, perdendo o identificador do recurso no Chromium.
+        pg.wait_for_load_state("networkidle")
+        # Playwright anota o handler com metadados; métodos nativos de list não aceitam
+        # esses atributos. As funções também preservam a mesma referência na remoção.
+        listeners = {"request": lambda r: requisicoes.append(r),
+                     "requestfinished": lambda r: terminadas.append(r),
+                     "requestfailed": lambda r: falhas.append(r)}
+        for evento, callback in listeners.items():
+            pg.on(evento, callback)
+        try:
+            pg.add_init_script(f"({OBSERVADORES})()")
+            pg.goto(url, wait_until="networkidle")
+            # Interação real para INP: menu do usuário e, na lista, resumo de um registro.
+            if pg.locator("dialog:modal").count():  # fecha a janela aberta pela URL (resto inerte)
+                pg.keyboard.press("Escape")
+                pg.wait_for_function("() => !document.querySelector('dialog:modal')")
+            pg.click(".perfil")
+            pg.keyboard.press("Escape")
+            janela = pg.locator("#dialogo-resumo")
+            if (janela.count() and not janela.evaluate("d => d.open")
+                    and pg.locator(".registro__link").count()):
+                pg.locator(".registro__link").first.click()
+                pg.wait_for_selector("#dialogo-resumo[open] .resumo")
+            pg.wait_for_timeout(200)
+            pg.wait_for_load_state("networkidle")
+            nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
+                const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+                return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
+                        lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+        finally:
+            for evento, callback in listeners.items():
+                pg.remove_listener(evento, callback)
+        recursos = _medir_recursos(requisicoes, terminadas, falhas)
+        salvar_relatorio(f"recursos-{relatorio}", {"rota": url,
+                         "escopo": "Uma navegação e as interações, antes das amostras de servidor.",
+                         "recursos": recursos})
+        erros = [{"url": r["url"], "erro": r["erro"]} for r in recursos if "erro" in r]
+        assert not erros, f"{url}: coleta de recursos incompleta: {erros}"
+        todos_recursos = recursos
+        doc = next(r for r in recursos if r["tipo"] == "document")
+        timing = doc["server_timing"]
+        sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
+        db_ms = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
+    
+        itinerario = [r for r in recursos if ITINERARIO.search(r["url"])]
+        recursos = [r for r in recursos if not ITINERARIO.search(r["url"])]
+    
+        def kb(tipo: str) -> float:
+            return round(sum(r["tamanho"] for r in recursos if r["tipo"] == tipo) / 1024, 1)
+    
+        medido = {
+            "ttfb_ms": round(nav["ttfb"]), "fcp_ms": round(nav["fcp"]), "lcp_ms": round(nav["lcp"]),
+            "cls": round(nav["cls"], 3), "inp_ms": round(nav["inp"]),
+            "html_kb": kb("document"), "css_kb": kb("stylesheet"), "js_kb": kb("script"),
+            "css_gzip_kb": round(sum(r["gzip"] for r in recursos
+                                     if r["tipo"] == "stylesheet") / 1024, 1),
+            "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
+            "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
+            "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
+            "itinerario_requisicoes": len(itinerario),
+        }
+        amostras = [(medido["ttfb_ms"], db_ms, sql)]
+        amostras += [_amostra_do_servidor(pg, url) for _ in range(AMOSTRAS - 1)]
+        medido["ttfb_ms"] = round(sorted(a[0] for a in amostras)[len(amostras) // 2])
+        medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
+        medido["sql"] = max(a[2] for a in amostras)
+        medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
+        medido["recursos"] = todos_recursos
+        salvar_relatorio(relatorio, medido)
+        orcamento = dict(ORCAMENTO)
+        if FOLHAS_DE_EDICAO.search(url):
+            orcamento["requisicoes"] = REQUISICOES_FOLHA
+        estourados = {k: (v, orcamento[k]) for k, v in medido.items()
+                      if k in orcamento and v > orcamento[k]}
+>       assert not estourados, f"{url}: orçamento estourado {estourados}"
+E       AssertionError: /viagens/oficios/: orçamento estourado {'css_kb': (149.5, 140)}
+E       assert not {'css_kb': (149.5, 140)}
+
+tests\e2e\test_desempenho.py:215: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+Using existing test database for alias 'default'...
+
+___ test_orcamento_de_desempenho[/viagens/oficios/?resumo={oficio_emitido}] ___
+
+logado = <Page url='http://localhost:61085/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 893, 'oficio_rascunho': 894, 'oficio_vazio': 895, 'oficio_cancelado': 896, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = '/viagens/oficios/?resumo={oficio_emitido}'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_orcamento_de_desempenho(logado, dados_e2e, rota):
+        pg = logado
+        url = resolver(rota, dados_e2e.ids)
+        relatorio = f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json"
+        requisicoes: list[Request] = []
+        terminadas: list[Request] = []
+        falhas: list[Request] = []
+        # Drena a entrada da fixture antes de delimitar a navegação medida. Callbacks só
+        # guardam referências: body() dentro de response pode continuar pendente no goto
+        # das amostras seguintes, perdendo o identificador do recurso no Chromium.
+        pg.wait_for_load_state("networkidle")
+        # Playwright anota o handler com metadados; métodos nativos de list não aceitam
+        # esses atributos. As funções também preservam a mesma referência na remoção.
+        listeners = {"request": lambda r: requisicoes.append(r),
+                     "requestfinished": lambda r: terminadas.append(r),
+                     "requestfailed": lambda r: falhas.append(r)}
+        for evento, callback in listeners.items():
+            pg.on(evento, callback)
+        try:
+            pg.add_init_script(f"({OBSERVADORES})()")
+            pg.goto(url, wait_until="networkidle")
+            # Interação real para INP: menu do usuário e, na lista, resumo de um registro.
+            if pg.locator("dialog:modal").count():  # fecha a janela aberta pela URL (resto inerte)
+                pg.keyboard.press("Escape")
+                pg.wait_for_function("() => !document.querySelector('dialog:modal')")
+            pg.click(".perfil")
+            pg.keyboard.press("Escape")
+            janela = pg.locator("#dialogo-resumo")
+            if (janela.count() and not janela.evaluate("d => d.open")
+                    and pg.locator(".registro__link").count()):
+                pg.locator(".registro__link").first.click()
+                pg.wait_for_selector("#dialogo-resumo[open] .resumo")
+            pg.wait_for_timeout(200)
+            pg.wait_for_load_state("networkidle")
+            nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
+                const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+                return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
+                        lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+        finally:
+            for evento, callback in listeners.items():
+                pg.remove_listener(evento, callback)
+        recursos = _medir_recursos(requisicoes, terminadas, falhas)
+        salvar_relatorio(f"recursos-{relatorio}", {"rota": url,
+                         "escopo": "Uma navegação e as interações, antes das amostras de servidor.",
+                         "recursos": recursos})
+        erros = [{"url": r["url"], "erro": r["erro"]} for r in recursos if "erro" in r]
+        assert not erros, f"{url}: coleta de recursos incompleta: {erros}"
+        todos_recursos = recursos
+        doc = next(r for r in recursos if r["tipo"] == "document")
+        timing = doc["server_timing"]
+        sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
+        db_ms = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
+    
+        itinerario = [r for r in recursos if ITINERARIO.search(r["url"])]
+        recursos = [r for r in recursos if not ITINERARIO.search(r["url"])]
+    
+        def kb(tipo: str) -> float:
+            return round(sum(r["tamanho"] for r in recursos if r["tipo"] == tipo) / 1024, 1)
+    
+        medido = {
+            "ttfb_ms": round(nav["ttfb"]), "fcp_ms": round(nav["fcp"]), "lcp_ms": round(nav["lcp"]),
+            "cls": round(nav["cls"], 3), "inp_ms": round(nav["inp"]),
+            "html_kb": kb("document"), "css_kb": kb("stylesheet"), "js_kb": kb("script"),
+            "css_gzip_kb": round(sum(r["gzip"] for r in recursos
+                                     if r["tipo"] == "stylesheet") / 1024, 1),
+            "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
+            "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
+            "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
+            "itinerario_requisicoes": len(itinerario),
+        }
+        amostras = [(medido["ttfb_ms"], db_ms, sql)]
+        amostras += [_amostra_do_servidor(pg, url) for _ in range(AMOSTRAS - 1)]
+        medido["ttfb_ms"] = round(sorted(a[0] for a in amostras)[len(amostras) // 2])
+        medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
+        medido["sql"] = max(a[2] for a in amostras)
+        medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
+        medido["recursos"] = todos_recursos
+        salvar_relatorio(relatorio, medido)
+        orcamento = dict(ORCAMENTO)
+        if FOLHAS_DE_EDICAO.search(url):
+            orcamento["requisicoes"] = REQUISICOES_FOLHA
+        estourados = {k: (v, orcamento[k]) for k, v in medido.items()
+                      if k in orcamento and v > orcamento[k]}
+>       assert not estourados, f"{url}: orçamento estourado {estourados}"
+E       AssertionError: /viagens/oficios/?resumo=893: orçamento estourado {'css_kb': (149.5, 140)}
+E       assert not {'css_kb': (149.5, 140)}
+
+tests\e2e\test_desempenho.py:215: AssertionError
+__ test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/] ___
+
+logado = <Page url='http://localhost:61085/viagens/oficios/899/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 898, 'oficio_rascunho': 899, 'oficio_vazio': 900, 'oficio_cancelado': 901, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = '/viagens/oficios/{oficio_rascunho}/editar/'
+
+    @pytest.mark.parametrize("rota", ROTAS)
+    def test_orcamento_de_desempenho(logado, dados_e2e, rota):
+        pg = logado
+        url = resolver(rota, dados_e2e.ids)
+        relatorio = f"desempenho-{url.strip('/').replace('/', '_') or 'raiz'}.json"
+        requisicoes: list[Request] = []
+        terminadas: list[Request] = []
+        falhas: list[Request] = []
+        # Drena a entrada da fixture antes de delimitar a navegação medida. Callbacks só
+        # guardam referências: body() dentro de response pode continuar pendente no goto
+        # das amostras seguintes, perdendo o identificador do recurso no Chromium.
+        pg.wait_for_load_state("networkidle")
+        # Playwright anota o handler com metadados; métodos nativos de list não aceitam
+        # esses atributos. As funções também preservam a mesma referência na remoção.
+        listeners = {"request": lambda r: requisicoes.append(r),
+                     "requestfinished": lambda r: terminadas.append(r),
+                     "requestfailed": lambda r: falhas.append(r)}
+        for evento, callback in listeners.items():
+            pg.on(evento, callback)
+        try:
+            pg.add_init_script(f"({OBSERVADORES})()")
+            pg.goto(url, wait_until="networkidle")
+            # Interação real para INP: menu do usuário e, na lista, resumo de um registro.
+            if pg.locator("dialog:modal").count():  # fecha a janela aberta pela URL (resto inerte)
+                pg.keyboard.press("Escape")
+                pg.wait_for_function("() => !document.querySelector('dialog:modal')")
+            pg.click(".perfil")
+            pg.keyboard.press("Escape")
+            janela = pg.locator("#dialogo-resumo")
+            if (janela.count() and not janela.evaluate("d => d.open")
+                    and pg.locator(".registro__link").count()):
+                pg.locator(".registro__link").first.click()
+                pg.wait_for_selector("#dialogo-resumo[open] .resumo")
+            pg.wait_for_timeout(200)
+            pg.wait_for_load_state("networkidle")
+            nav = pg.evaluate("""() => { const n = performance.getEntriesByType('navigation')[0];
+                const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+                return {ttfb: n.responseStart - n.requestStart, fcp: fcp ? fcp.startTime : 0,
+                        lcp: window.__lcp, cls: window.__cls, inp: window.__inp}; }""")
+        finally:
+            for evento, callback in listeners.items():
+                pg.remove_listener(evento, callback)
+        recursos = _medir_recursos(requisicoes, terminadas, falhas)
+        salvar_relatorio(f"recursos-{relatorio}", {"rota": url,
+                         "escopo": "Uma navegação e as interações, antes das amostras de servidor.",
+                         "recursos": recursos})
+        erros = [{"url": r["url"], "erro": r["erro"]} for r in recursos if "erro" in r]
+        assert not erros, f"{url}: coleta de recursos incompleta: {erros}"
+        todos_recursos = recursos
+        doc = next(r for r in recursos if r["tipo"] == "document")
+        timing = doc["server_timing"]
+        sql = int(re.search(r'"(\d+) consultas"', timing).group(1)) if "consultas" in timing else 0
+        db_ms = float(re.search(r"db;dur=([\d.]+)", timing).group(1)) if "db;dur" in timing else 0.0
+    
+        itinerario = [r for r in recursos if ITINERARIO.search(r["url"])]
+        recursos = [r for r in recursos if not ITINERARIO.search(r["url"])]
+    
+        def kb(tipo: str) -> float:
+            return round(sum(r["tamanho"] for r in recursos if r["tipo"] == tipo) / 1024, 1)
+    
+        medido = {
+            "ttfb_ms": round(nav["ttfb"]), "fcp_ms": round(nav["fcp"]), "lcp_ms": round(nav["lcp"]),
+            "cls": round(nav["cls"], 3), "inp_ms": round(nav["inp"]),
+            "html_kb": kb("document"), "css_kb": kb("stylesheet"), "js_kb": kb("script"),
+            "css_gzip_kb": round(sum(r["gzip"] for r in recursos
+                                     if r["tipo"] == "stylesheet") / 1024, 1),
+            "js_gzip_kb": round(sum(r["gzip"] for r in recursos if r["tipo"] == "script") / 1024, 1),
+            "requisicoes": len(recursos), "sql": sql, "db_ms": db_ms,
+            "itinerario_gzip_kb": round(sum(r["gzip"] for r in itinerario) / 1024, 1),
+            "itinerario_requisicoes": len(itinerario),
+        }
+        amostras = [(medido["ttfb_ms"], db_ms, sql)]
+        amostras += [_amostra_do_servidor(pg, url) for _ in range(AMOSTRAS - 1)]
+        medido["ttfb_ms"] = round(sorted(a[0] for a in amostras)[len(amostras) // 2])
+        medido["db_ms"] = round(sorted(a[1] for a in amostras)[len(amostras) // 2], 1)
+        medido["sql"] = max(a[2] for a in amostras)
+        medido["amostras"] = [[round(a[0]), round(a[1], 1), a[2]] for a in amostras]
+        medido["recursos"] = todos_recursos
+        salvar_relatorio(relatorio, medido)
+        orcamento = dict(ORCAMENTO)
+        if FOLHAS_DE_EDICAO.search(url):
+            orcamento["requisicoes"] = REQUISICOES_FOLHA
+        estourados = {k: (v, orcamento[k]) for k, v in medido.items()
+                      if k in orcamento and v > orcamento[k]}
+>       assert not estourados, f"{url}: orçamento estourado {estourados}"
+E       AssertionError: /viagens/oficios/899/editar/: orçamento estourado {'html_kb': (128.7, 120), 'js_kb': (151.2, 130), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+E       assert not {'html_kb': (128.7, 120), 'js_kb': (151.2, 130), 'js_gzip_kb': (52.8, 45), 'requisicoes': (34, 32)}
+
+tests\e2e\test_desempenho.py:215: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/]
+FAILED tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/?resumo={oficio_emitido}]
+FAILED tests/e2e/test_desempenho.py::test_orcamento_de_desempenho[/viagens/oficios/{oficio_rascunho}/editar/]
+============================= 3 failed in 37.24s ==============================

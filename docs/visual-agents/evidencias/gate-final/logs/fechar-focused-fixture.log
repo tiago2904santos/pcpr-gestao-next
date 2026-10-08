@@ -1,0 +1,137 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0x0000015E1F741190>
+sql = 'UPDATE "viagens_oficio" SET "situacao" = %s WHERE "viagens_oficio"."id" = %s'
+params = ('cancelado', 1)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x0000015E1F741190>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_rs02) at 0x15e1f6ac650>
+query = 'UPDATE "viagens_oficio" SET "situacao" = %s WHERE "viagens_oficio"."id" = %s'
+params = ('cancelado', 1), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.CheckViolation: new row for relation "viagens_oficio" violates check constraint "oficio_cancelado_tem_motivo"
+E           DETAIL:  Failing row contains (1, 2026, 1, 2026-10-07, 123456789, Apoio e condução da Unidade Móvel no evento Expoara., unidade, , viatura, , , t, , 2411.56, 4 x 100% + 1 x 15%, {"total": "2411.56", "resumo": "4 x 100% + 1 x 15%", "extenso": ..., , cancelado, 7, 2026-10-07 22:29:13.39113+00, 2026-10-07 22:29:13.494835+00, 2026-10-07 22:29:13.494672+00, null, , 1, null, 3287, null, 1, 1, , null, f, manual, null, null, , , , , , , , null, , , , null, , t).
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py:117: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+client = <django.test.client.Client object at 0x0000015E1E612210>
+cenario = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+original = <Documento: Ofício 01/2026 v1>, estado = 'cancelado'
+
+    @pytest.mark.parametrize("estado", ["gerando", "falhou", "cancelado"])
+    def test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel(
+            client, cenario, original, estado):
+        oficio = original.oficio
+        Documento.objects.create(oficio=oficio, tipo="oficio", versao=2,
+                                 situacao="pronto" if estado == "cancelado" else estado,
+                                 sha256="b" * 64 if estado == "cancelado" else "",
+                                 dados=deepcopy(original.dados), emitido_por=oficio.criado_por)
+        if estado == "cancelado":
+            oficio.situacao = "cancelado"
+>           oficio.save(update_fields=["situacao"])
+
+gestao\viagens\tests\test_leitura_documental.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:904: in save
+    self.save_base(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:996: in save_base
+    updated = self._save_table(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:1142: in _save_table
+    results = self._do_update(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py:1246: in _do_update
+    return filtered._update(values, returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:1473: in _update
+    return query.get_compiler(self.db).execute_returning_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py:2168: in execute_returning_sql
+    row_count = self.execute_sql(ROW_COUNT)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py:2139: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py:1643: in execute_sql
+    cursor.execute(sql, params)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_rs02) at 0x15e1f6ac650>
+query = 'UPDATE "viagens_oficio" SET "situacao" = %s WHERE "viagens_oficio"."id" = %s'
+params = ('cancelado', 1), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: new row for relation "viagens_oficio" violates check constraint "oficio_cancelado_tem_motivo"
+E           DETAIL:  Failing row contains (1, 2026, 1, 2026-10-07, 123456789, Apoio e condução da Unidade Móvel no evento Expoara., unidade, , viatura, , , t, , 2411.56, 4 x 100% + 1 x 15%, {"total": "2411.56", "resumo": "4 x 100% + 1 x 15%", "extenso": ..., , cancelado, 7, 2026-10-07 22:29:13.39113+00, 2026-10-07 22:29:13.494835+00, 2026-10-07 22:29:13.494672+00, null, , 1, null, 3287, null, 1, 1, , null, f, manual, null, null, , , , , , , , null, , , , null, , t).
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py:117: IntegrityError
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado]
+1 failed in 22.16s

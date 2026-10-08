@@ -1,0 +1,13 @@
+{
+  "fontes_manifesto": 43,
+  "divergencias_manifesto": [],
+  "normalizacao": "CRLF para LF; nenhum outro caractere alterado",
+  "head_worktree": "cddc299c5df5641a353bda2b30eebcf66a41b45f",
+  "head_original": "bea84e300fc2828e7bcceda3b6d112fe89f94e41",
+  "arvores_fontes_identicas": true,
+  "arquivos_arvore": 897,
+  "sha256_lista_arvore": "655142b20ce22579aefbf378790382ba459b21c2a9f1b3990b289aa4ec1d99a1",
+  "branch_original": "viagens/reconstrucao",
+  "main": "8d1d77efb1e5785553fd74b9906bddc6369207c9",
+  "origin_main": "8d1d77efb1e5785553fd74b9906bddc6369207c9"
+}

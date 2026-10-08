@@ -1,0 +1,3 @@
+HTTP 200 http://127.0.0.1:8010/viagens/oficios/
+HTTP 200 http://127.0.0.1:8010/viagens/oficios/?resumo=262
+HTTP 200 http://127.0.0.1:8010/viagens/oficios/262/editar/

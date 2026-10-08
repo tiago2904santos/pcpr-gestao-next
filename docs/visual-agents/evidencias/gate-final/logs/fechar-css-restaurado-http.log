@@ -1,0 +1,95 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+created: 2/2 workers
+2 workers [37 items]
+
+scheduling tests via LoadScheduling
+
+gestao/viagens/tests/test_resumo_documentos.py::test_retry_so_da_corrente_falha_nao_da_historica 
+tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa 
+[gw1] [  2%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_retry_so_da_corrente_falha_nao_da_historica 
+gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[pronto] 
+[gw1] [  5%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[pronto] 
+[gw0] [  8%] PASSED tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa 
+gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[gerando] 
+gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[falhou] 
+[gw0] [ 10%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[gerando] 
+[gw1] [ 13%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[falhou] 
+gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[falhou] 
+gestao/viagens/tests/test_resumo_documentos.py::test_pronto_sem_caminho_nao_cria_link_pdf_mas_preserva_word 
+[gw0] [ 16%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[falhou] 
+[gw1] [ 18%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_pronto_sem_caminho_nao_cria_link_pdf_mas_preserva_word 
+gestao/viagens/tests/test_resumo_documentos.py::test_historico_gerando_nao_mantem_polling_da_emissao_pronta 
+gestao/viagens/tests/test_resumo_documentos.py::test_via_exata_e_original_sem_caminho_tem_leitura_assinada 
+[gw0] [ 21%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_historico_gerando_nao_mantem_polling_da_emissao_pronta 
+[gw1] [ 24%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_via_exata_e_original_sem_caminho_tem_leitura_assinada 
+gestao/viagens/tests/test_resumo_documentos.py::test_projecao_materializada_uma_vez_com_todas_as_vias_sem_sql 
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[] 
+[gw0] [ 27%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_projecao_materializada_uma_vez_com_todas_as_vias_sem_sql 
+[gw1] [ 29%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[] 
+gestao/viagens/tests/test_resumo_documentos.py::test_polling_atualiza_documentos_rodape_e_copia_em_ids_estaveis 
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[None] 
+[gw0] [ 32%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_polling_atualiza_documentos_rodape_e_copia_em_ids_estaveis 
+[gw1] [ 35%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[None] 
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[consulta-200] 
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[justificativa2] 
+[gw0] [ 37%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[consulta-200] 
+[gw1] [ 40%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[justificativa2] 
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[operador-200] 
+gestao/viagens/tests/test_resumo_documentos.py::test_reaberto_mostra_minuta_e_vias_revogadas_no_historico 
+[gw0] [ 43%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[operador-200] 
+[gw1] [ 45%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_reaberto_mostra_minuta_e_vias_revogadas_no_historico 
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[gestor-200] 
+gestao/viagens/tests/test_resumo_documentos.py::test_cancelado_conserva_links_exatos_sem_corrente 
+[gw0] [ 48%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[gestor-200] 
+[gw1] [ 51%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_cancelado_conserva_links_exatos_sem_corrente 
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[outra-404] 
+gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_rascunho-20] 
+[gw0] [ 54%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[outra-404] 
+[gw1] [ 56%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_rascunho-20] 
+gestao/viagens/tests/test_resumo_documentos.py::test_leitura_do_resumo_nao_escreve_negocio 
+gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_emitido-15] 
+[gw1] [ 59%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_emitido-15] 
+[gw0] [ 62%] PASSED gestao/viagens/tests/test_resumo_documentos.py::test_leitura_do_resumo_nao_escreve_negocio 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[falhou] 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[gerando] 
+[gw0] [ 64%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[falhou] 
+[gw1] [ 67%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[gerando] 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_rascunho_preserva_minuta 
+[gw0] [ 70%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] 
+[gw1] [ 72%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_rascunho_preserva_minuta 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[vazio] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[branco] 
+[gw0] [ 75%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[vazio] 
+[gw1] [ 78%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[branco] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[dono] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[tipo] 
+[gw0] [ 81%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[dono] 
+[gw1] [ 83%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[tipo] 
+gestao/viagens/tests/test_leitura_documental.py::test_via_exata_valida_e_opcao_original_preservadas 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[] 
+[gw0] [ 86%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_via_exata_valida_e_opcao_original_preservadas 
+[gw1] [ 89%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[] 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[   ] 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[documentos/arquivo-ausente.pdf] 
+[gw0] [ 91%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[   ] 
+[gw1] [ 94%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[documentos/arquivo-ausente.pdf] 
+gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[pdf] 
+gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[docx] 
+[gw0] [ 97%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[pdf] 
+[gw1] [100%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[docx] 
+
+============================== warnings summary ===============================
+tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 37 passed, 1 warning in 189.52s (0:03:09) ==================

@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 10 items
+
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[360] PASSED [ 10%]
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[1440] PASSED [ 20%]
+tests/e2e/test_cadastro_adiado.py::test_falha_de_carga_orienta_e_nova_abertura_tenta_de_novo PASSED [ 30%]
+tests/e2e/test_cadastro_adiado.py::test_fechar_durante_carga_nao_reabre_nem_rouba_foco PASSED [ 40%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[360] PASSED [ 50%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[1440] PASSED [ 60%]
+tests/e2e/test_filtros_carga.py::test_resumo_frio_nao_antecipa_gaveta PASSED [ 70%]
+tests/e2e/test_filtros_carga.py::test_reposicao_htmx_fechada_e_com_modulos_em_cache PASSED [ 80%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[360] PASSED [ 90%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[1440] PASSED [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 10 passed, 1 warning in 101.77s (0:01:41) ==================

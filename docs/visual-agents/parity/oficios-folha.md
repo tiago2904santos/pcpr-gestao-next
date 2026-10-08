@@ -515,3 +515,19 @@ fallback, autosave/OOB e capturas em `docs/quality/oficios-eprotocolo-integracao
 Dados da emissão vêm da maior versão, inclusive gerando/falhou; erro/prévia do
 formulário pede salvar antes de copiar. Nenhuma abertura externa de protocolo.
 Folha ainda excede budgets de HTML/JS/SQL/requisições; não está integralmente aceita.
+
+## Fechamento delimitado H/Folha/tempo — 07/10/2026
+
+H funcional (motorista/autosave/rollback-retry/data/outro transporte), D13/D16 e
+correções existentes de Folha/Resumo/Documentos fechados com ressalvas. Integral
+final2187verde/zero falhas e checks completos verdes; navegador por blocos,
+capturas360/1440 revisadas e teclado/cadastros sobrepostos registrados no pacote
+../qa/fechamento-gate-final-2026-10-07.md. Canonical cadastro por primeiro uso,
+filtros JS adiados e Baixar no primeiro comando incorporados em bea84e3;
+CSS separado rejeitado/restaurado. Tempos legados preservam ajustes manuais e
+histórico, cache versionado; dois casos Chromium de rota reexecutados verdes.
+Medição final equivalente ao baseline08: Folha SQL26→21/DBmediano95,1→68,2ms
+passaram tetos25/80, substituindo a pendência SQL do checkpoint anterior.
+HTML140→128,7KB, JS155,3→151,2KB e pedidos36→34 ainda excedem120/130/32;
+preexistentes ao último candidato, com contribuição anterior não isolada.
+Sem CI global verde, sem aprovação estética integral e sem avanço a Termos.

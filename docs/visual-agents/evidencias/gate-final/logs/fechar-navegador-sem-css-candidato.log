@@ -1,0 +1,106 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 36 items
+
+tests/e2e/test_lote_h_visual.py::test_lote_h_capturas PASSED             [  2%]
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste PASSED [  5%]
+tests/e2e/test_editor.py::test_campo_vivo_grava_no_oficio_e_o_formulario_acompanha PASSED [  8%]
+tests/e2e/test_editor.py::test_voltar_ao_modelo_e_restaurar PASSED       [ 11%]
+tests/e2e/test_editor.py::test_modo_pdf_e_barra_acessivel PASSED         [ 13%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[360] PASSED [ 16%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[1440] PASSED [ 19%]
+tests/e2e/test_editor_carga.py::test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado PASSED [ 22%]
+tests/e2e/test_editor_carga.py::test_reposicao_durante_import_nao_inicializa_caixa_removida PASSED [ 25%]
+tests/e2e/test_editor_carga.py::test_fallback_sem_intersection_observer PASSED [ 27%]
+tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[360] PASSED [ 30%]
+tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[1440] PASSED [ 33%]
+tests/e2e/test_eprotocolo_copia.py::test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto FAILED [ 36%]
+tests/e2e/test_eprotocolo_copia.py::test_autosave_atualiza_texto_e_preserva_divulgacao_aberta PASSED [ 38%]
+tests/e2e/test_eprotocolo_copia.py::test_equipe_htmx_preserva_foco_na_copia_durante_resposta PASSED [ 41%]
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[360] PASSED [ 44%]
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[1440] PASSED [ 47%]
+tests/e2e/test_cadastro_adiado.py::test_falha_de_carga_orienta_e_nova_abertura_tenta_de_novo PASSED [ 50%]
+tests/e2e/test_cadastro_adiado.py::test_fechar_durante_carga_nao_reabre_nem_rouba_foco PASSED [ 52%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[360] PASSED [ 55%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[1440] PASSED [ 58%]
+tests/e2e/test_filtros_carga.py::test_resumo_frio_nao_antecipa_gaveta PASSED [ 61%]
+tests/e2e/test_filtros_carga.py::test_reposicao_htmx_fechada_e_com_modulos_em_cache PASSED [ 63%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[360] PASSED [ 66%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[1440] PASSED [ 69%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[360] PASSED [ 72%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[1440] PASSED [ 75%]
+tests/e2e/test_resumo_versoes_documentais.py::test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto PASSED [ 77%]
+tests/e2e/test_resumo_versoes_documentais.py::test_fechar_aborta_resposta_real_em_voo_e_interrompe_pedidos PASSED [ 80%]
+tests/e2e/test_resumo_versoes_documentais.py::test_historico_gerando_isolado_nao_faz_polling PASSED [ 83%]
+tests/e2e/test_resumo_versoes_documentais.py::test_reaberto_preserva_minuta_e_documentos_assinados_historicos PASSED [ 86%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id] PASSED [ 88%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id] PASSED [ 91%]
+tests/e2e/test_fluxo_oficio.py::test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc PASSED [ 94%]
+tests/e2e/test_rota_legado.py::test_rota_legada_sugere_tempos_e_preserva_edicao_manual[360] PASSED [ 97%]
+tests/e2e/test_rota_legado.py::test_rota_legada_sugere_tempos_e_preserva_edicao_manual[1440] PASSED [100%]
+
+================================== FAILURES ===================================
+__________ test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto __________
+
+logado = <Page url='http://localhost:55101/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 733, 'oficio_rascunho': 734, 'oficio_vazio': 735, 'oficio_cancelado': 736, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e):
+        pg = logado
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
+        pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
+        pg.locator(".registro__link").first.click()
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        bloco = janela.locator("#eprotocolo-resumo-bloco")
+        _abrir(bloco)
+        expect(bloco).to_contain_text("Dados da emissão v1")
+        botao = bloco.locator("button[data-copiar-revelar]")
+        botao.click()
+        campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
+        expect(campo).to_be_visible()
+        expect(campo).to_be_focused()
+        assert campo.evaluate("q => q.selectionStart === 0 && q.selectionEnd === q.value.length")
+        expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Selecionado — use Ctrl+C")
+        primeiro = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])").first
+        primeiro.click()
+        individual = pg.locator("#" + primeiro.get_attribute("data-copiar-alvo"))
+        expect(individual).to_be_focused()
+        assert individual.evaluate("q => q.selectionEnd === q.value.length")
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for largura in [360, 390, 768, 1024, 1440]:
+            pg.set_viewport_size({"width": largura, "height": 900})
+            assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
+        violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+        assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
+>       assert pg.erros_console == []
+E       assert ['Refused to ...s present.\n'] == []
+E         
+E         Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+E         
+E         Full diff:
+E         - []
+E         + [
+E         +     'Refused to apply inline style because it violates the following Content '...
+E         
+E         ...Full output truncated (42 lines hidden), use '-vv' to show
+
+tests\e2e\test_eprotocolo_copia.py:96: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_eprotocolo_copia.py::test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto
+============= 1 failed, 35 passed, 1 warning in 417.10s (0:06:57) =============

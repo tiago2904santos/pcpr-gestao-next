@@ -1,0 +1,156 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 15 items
+
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[lista] PASSED [  6%]
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[resumo] PASSED [ 13%]
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[folha] PASSED [ 20%]
+tests/e2e/test_baixar_carga.py::test_primeiro_enter_abre_cache_regras_preferencias_e_arquivo[360] PASSED [ 26%]
+tests/e2e/test_baixar_carga.py::test_primeiro_enter_abre_cache_regras_preferencias_e_arquivo[1440] PASSED [ 33%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[repetir] PASSED [ 40%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[cancelar] PASSED [ 46%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[remover] PASSED [ 53%]
+tests/e2e/test_baixar_carga.py::test_falha_do_import_anuncia_orienta_recarregar_e_preserva_foco PASSED [ 60%]
+tests/e2e/test_baixar_carga.py::test_fechar_durante_get_nao_rouba_foco_ao_concluir PASSED [ 66%]
+tests/e2e/test_baixar_carga.py::test_reabrir_durante_get_descarta_resposta_antiga_divergente PASSED [ 73%]
+tests/e2e/test_baixar.py::test_baixar_documentos_do_termo PASSED         [ 80%]
+tests/e2e/test_baixar.py::test_baixar_documentos_pelo_resumo_do_oficio PASSED [ 86%]
+tests/e2e/test_assinados.py::test_anexar_via_da_os_pela_barra_e_revogar_por_http FAILED [ 93%]
+tests/e2e/test_resumo_versoes_documentais.py::test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto FAILED [100%]
+
+================================== FAILURES ===================================
+_____________ test_anexar_via_da_os_pela_barra_e_revogar_por_http _____________
+
+logado = <Page url='http://localhost:62910/viagens/ordens/3/#documento'>
+dados_e2e = Cenario(ids={'oficio_emitido': 326, 'oficio_rascunho': 327, 'oficio_vazio': 328, 'oficio_cancelado': 329, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-11/test_anexar_via_da_os_pela_bar0')
+
+    def test_anexar_via_da_os_pela_barra_e_revogar_por_http(logado, dados_e2e, tmp_path):
+        ordem = _os_gerada(dados_e2e)
+        pg = logado
+        pg.goto(f"/viagens/ordens/{ordem.pk}/#documento")
+        bloco = pg.locator("#editor-ordem")
+>       bloco.scroll_into_view_if_needed()
+
+tests\e2e\test_assinados.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_generated.py:17481: in scroll_into_view_if_needed
+    self._sync(self._impl_obj.scroll_into_view_if_needed(timeout=timeout))
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:563: in scroll_into_view_if_needed
+    return await self._with_element(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:116: in _with_element
+    return await task(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_element_handle.py:113: in scroll_into_view_if_needed
+    await self._channel.send(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001307C489BE0>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000013001A979C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.scroll_into_view_if_needed: Timeout 29908ms exceeded.
+E           Call log:
+E             - attempting scroll into view action
+E               2 × waiting for element to be stable
+E                 - element is not visible
+E               - retrying scroll into view action
+E               - waiting 20ms
+E               2 × waiting for element to be stable
+E                 - element is not visible
+E               - retrying scroll into view action
+E                 - waiting 100ms
+E               57 × waiting for element to be stable
+E                  - element is not visible
+E                - retrying scroll into view action
+E                  - waiting 500ms
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-07 19:44:02,850 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/3/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/3/: 35 consultas (limite 25)
+_______ test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto _______
+
+logado = <Page url='http://localhost:62910/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 331, 'oficio_rascunho': 332, 'oficio_vazio': 333, 'oficio_cancelado': 334, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto(logado, dados_e2e):
+        """Guards pelo link real, bytes HTTP e comando Baixar, sem geração de minuta viva."""
+        pg = logado
+        oficio, _, atual = _versoes(dados_e2e)
+        original = b"%PDF-1.7\n% original sintetico do oficio corrente\n%%EOF\n"
+        atual.dados["justificativa"] = "Justificativa esperada na emissão, ainda sem documento."
+        atual.situacao = "pronto"
+        atual.sha256 = sha256(original).hexdigest()
+        atual.arquivo.save("guard-corrente.pdf", ContentFile(original))
+        via = ViaAssinada.objects.create(
+            oficio_id=dados_e2e.ids["oficio_outra_unidade"], documento=atual, tipo="oficio",
+            enviado_por=dados_e2e.usuarios["outra"], sha256="c" * 64, tamanho=10)
+        via.arquivo.save("guard-outro-dono.pdf", ContentFile(b"%PDF-via-de-outra-unidade"))
+        janela, _ = _abrir(pg, oficio)
+        rodape = janela.locator("#resumo-rodape")
+        pdf = rodape.get_by_text("Ver o PDF", exact=True)
+        expect(pdf).to_have_attribute("href", reverse("viagens:baixar_documento", args=[atual.pk]))
+        resposta = pg.request.get(pdf.get_attribute("href"))
+        assert resposta.status == 200 and resposta.body() == original
+        assert resposta.headers["x-content-sha256"] == atual.sha256
+    
+        downloads = []
+        pg.on("download", lambda download: downloads.append(download))
+        documentos_antes = Documento.objects.filter(oficio=oficio).count()
+        rodape.get_by_role("button", name="Mais ações", exact=True).click()
+        rodape.get_by_role("menuitem", name="Baixar documentos…", exact=True).click()
+        baixar = pg.get_by_role("dialog", name="Baixar documentos", exact=True)
+        expect(baixar.locator('input[name="itens"][value="justificativa"]')).to_be_checked()
+        expect(baixar).to_contain_text("PDF indisponível")
+        baixar.get_by_role("button", name="Baixar", exact=True).click()
+>       expect(pg.locator(".toast--perigo")).to_contain_text(
+            re.compile("justificativa.*indisponível"))
+E       AssertionError: Locator expected to contain text 're.compile('justificativa.*indisponível')'
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".toast--perigo")
+E           - waiting for" http://localhost:62910/viagens/oficios/?q=01/2026&escopo=numero" navigation to finish...
+E           - navigated to "http://localhost:62910/viagens/oficios/?q=01/2026&escopo=numero"
+
+tests\e2e\test_resumo_versoes_documentais.py:129: AssertionError
+-------------------------- Captured stderr teardown ---------------------------
+[07/Oct/2026 19:44:50,383] - Broken pipe from ('127.0.0.1', 64145)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 64145)
+============================== warnings summary ===============================
+tests/e2e/test_baixar.py::test_baixar_documentos_do_termo
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_assinados.py::test_anexar_via_da_os_pela_barra_e_revogar_por_http
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto
+============= 2 failed, 13 passed, 1 warning in 181.25s (0:03:01) =============

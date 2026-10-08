@@ -1,0 +1,19 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 7 items
+
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[360] PASSED [ 14%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[1440] PASSED [ 28%]
+tests/e2e/test_resumo_versoes_documentais.py::test_fechar_aborta_resposta_real_em_voo_e_interrompe_pedidos PASSED [ 42%]
+tests/e2e/test_resumo_versoes_documentais.py::test_historico_gerando_isolado_nao_faz_polling PASSED [ 57%]
+tests/e2e/test_resumo_versoes_documentais.py::test_reaberto_preserva_minuta_e_documentos_assinados_historicos PASSED [ 71%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id] PASSED [ 85%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id] PASSED [100%]
+
+======================== 7 passed in 75.05s (0:01:15) =========================

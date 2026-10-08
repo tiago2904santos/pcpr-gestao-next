@@ -1,5 +1,21 @@
 # Paridade — Documentos do ofício (ofício, justificativa, termos)
 
+## RS-02 — seleção e resumo em validação (07/10/2026)
+
+Conectados domínio/adaptador, listas/menu, anexação, DOCX, pacotes e resumo: maior
+identidade sem filtrar pronto, justificativa pelo snapshot do último ofício, vias
+por ID exato, caminhos de arquivo separados da geração. Emitido gerando/falhou não
+promove v1 nem minuta; histórico conserva leitura autorizada por identidade exata,
+inclusive cancelado/revogado. A cópia RS-01 continua independente da prontidão PDF.
+Retry não aparece nas versões históricas rejeitadas pelo serviço.
+
+Polling de resumo troca documentos/rodapé/cópia e é condicionado ao diálogo aberto
+por hook externo. Há testes HTTP/E2E novos para validação pelo coordenador e capturas
+360/1440 previstas; não declarar esses cenários comprovados antes da execução real.
+Sem emissão automática/nova emissão D17, novo modelo ou mudança de permissões.
+Fontes e evidências em `../../product/oficios-documentos-versoes.md` e
+`../../quality/oficios-documentos-projecao.md`. A matriz inicial abaixo é histórica.
+
 ## Atualização H — checkpoint `44b3186`, 07/10/2026
 
 - **F1 — COMPROVADO no LAB:** falha controlada persiste após rollback do assinante.
@@ -362,3 +378,20 @@ vazio). Proposta em P2-14. Para QA: capturas da seção 4 devem rolar até `#min
 - Capturas: `/home/claude/caps/res-doc/{legado-cartao-oficio,novo-minuta-256-1440,crop-semrolar,cmp-docx,cmp-minuta,mm-zoom-1}.png`.
 - Efeito no LEGADO (cópia descartável): a geração do ofício de teste criou a via v1 e artefatos
   (comportamento do próprio legado); recriável de `/tmp/legado.sql`.
+
+## Fechamento do bloco documental — 07/10/2026
+
+Domínio/consumidores RS02 incorporados em feb35e2/bea84e3: maior identidade de
+cada tipo, sem promover pronto antigo, DOCX por snapshot, leitura histórica pelo
+ID pedido com dono/tipo/caminho exatos, via inválida sem substituir original.
+Justificativa esperada ausente é indisponível e pacote pedido aborta com orientação;
+fetch422 JSON fica no diálogo, POST comum preserva mensagens/redirect existentes.
+64 consumidores/guards HTTP verdes; dois contratos PDF/DOCX de pacote verdes.
+14 Baixar/assinados passaram na consolidação, oito Resumo/guard em duas rodadas.
+Upload OS é navegador real/bytes; revogação é HTTP real pois a barra antiga não
+tem Remover, limitação explícita no nome/evidência. Não foi adicionada essa ação.
+Integral2187verde, 43hashes e897fontes idênticas depois da incorporação.
+Pacote: ../qa/fechamento-gate-final-2026-10-07.md. Aprovação com ressalvas deste
+bloco não comprova PDF/A externo ou conversão editorial completa DOCX→PDF;
+essas dívidas permanecem. Não reprocessar documentos históricos, não avançar
+Termos/novas páginas nem chamar a suíte de performance vermelha de verde.

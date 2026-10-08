@@ -1,0 +1,195 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 578 files, 3061 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (15 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de CadastrosKEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 303 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao\viagens\management\commands\semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  3%]
+...........................................................F....F....... [  6%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+............................................F........................... [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 55%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 98%]
+...........................                                              [100%]
+================================== FAILURES ===================================
+_ test_production_e_staging_nao_carregam_com_demo_mode[config.settings.production] _
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+modulo = 'config.settings.production'
+
+    @pytest.mark.parametrize("modulo", ["config.settings.production", "config.settings.staging"])
+    def test_production_e_staging_nao_carregam_com_demo_mode(modulo):
+        r = _carregar_settings(modulo, DEMO_MODE="true", DJANGO_SECRET_KEY="k" * 60,
+                               POSTGRES_PASSWORD="x")
+>       assert r.returncode != 0 and "DEMO_MODE=true é proibido" in r.stderr
+E       assert (1 != 0 and 'DEMO_MODE=true é proibido' in 'Traceback (most recent call last):\n  File "<string>", line 6, in <module>\n    import config.settings.production as ... em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n')
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\.venv\\Scripts\\python.exe', '-c', "...em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n').returncode
+E        +  and   'Traceback (most recent call last):\n  File "<string>", line 6, in <module>\n    import config.settings.production as ... em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n' = CompletedProcess(args=['C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\.venv\\Scripts\\python.exe', '-c', "...em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n').stderr
+
+gestao\identidade\tests\test_demo.py:214: AssertionError
+_ test_production_e_staging_nao_carregam_com_demo_mode[config.settings.staging] _
+[gw1] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+modulo = 'config.settings.staging'
+
+    @pytest.mark.parametrize("modulo", ["config.settings.production", "config.settings.staging"])
+    def test_production_e_staging_nao_carregam_com_demo_mode(modulo):
+        r = _carregar_settings(modulo, DEMO_MODE="true", DJANGO_SECRET_KEY="k" * 60,
+                               POSTGRES_PASSWORD="x")
+>       assert r.returncode != 0 and "DEMO_MODE=true é proibido" in r.stderr
+E       assert (1 != 0 and 'DEMO_MODE=true é proibido' in 'Traceback (most recent call last):\n  File "<string>", line 6, in <module>\n    import config.settings.staging as s\n... em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n')
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\.venv\\Scripts\\python.exe', '-c', "...em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n').returncode
+E        +  and   'Traceback (most recent call last):\n  File "<string>", line 6, in <module>\n    import config.settings.staging as s\n... em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n' = CompletedProcess(args=['C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\.venv\\Scripts\\python.exe', '-c', "...em STAGING/PRODUCTION: a entrada sem senha existe sÃ³ no ambiente PREVIEW (docs/adr/0011-ambiente-preview-demo.md).\n').stderr
+
+gestao\identidade\tests\test_demo.py:214: AssertionError
+_ TestGavetaEFichas.test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade _
+[gw3] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+self = <gestao.viagens.tests.test_views.TestGavetaEFichas object at 0x000001CA95F9D310>
+operador = <django.test.client.Client object at 0x000001CA9E9A1270>
+
+    def test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade(self, operador):
+        html = operador.get(reverse("viagens:oficios"),
+                            {"protocolo": "12345", "ordem": "numero"}).content.decode()
+>       assert re.search(r'<details class="filtros__mais" id="filtros-mais"\s*>', html)
+E       assert None
+E        +  where None = <function search at 0x000001CA8DAA1A80>('<details class="filtros__mais" id="filtros-mais"\\s*>', '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n')
+E        +    where <function search at 0x000001CA8DAA1A80> = re.search
+
+gestao\viagens\tests\test_views.py:1483: AssertionError
+============================== warnings summary ===============================
+gestao/coffee/tests/test_pdfs.py::test_nota_le_o_numero_e_confere
+gestao/viagens/tests/test_agenda.py::test_pauta_da_semana
+gestao/viagens/tests/test_ordens.py::TestTelas::test_nova_pela_tela_e_documento
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pypdf\_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED gestao/identidade/tests/test_demo.py::test_production_e_staging_nao_carregam_com_demo_mode[config.settings.production]
+FAILED gestao/identidade/tests/test_demo.py::test_production_e_staging_nao_carregam_com_demo_mode[config.settings.staging]
+FAILED gestao/viagens/tests/test_views.py::TestGavetaEFichas::test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade
+3 failed, 2184 passed, 7 warnings in 2414.51s (0:40:14)

@@ -1,0 +1,156 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+created: 2/2 workers
+2 workers [64 items]
+
+scheduling tests via LoadScheduling
+
+gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.docx-10-%PDF--Envie um arquivo PDF.] 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_reabrir_e_retificar_revogam_a_via 
+[gw0] [  1%] PASSED gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.docx-10-%PDF--Envie um arquivo PDF.] 
+gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.pdf-15728641-%PDF--Arquivo maior que 15MB.] 
+[gw0] [  3%] PASSED gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.pdf-15728641-%PDF--Arquivo maior que 15MB.] 
+gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.pdf-10-GIF89-O arquivo n\xe3o parece ser um PDF v\xe1lido.] 
+[gw0] [  4%] PASSED gestao/viagens/tests/test_assinados.py::TestValidacao::test_as_tres_conferencias_da_referencia[assinado.pdf-10-GIF89-O arquivo n\xe3o parece ser um PDF v\xe1lido.] 
+gestao/viagens/tests/test_assinados.py::TestValidacao::test_extensao_em_maiusculas_vale 
+[gw0] [  6%] PASSED gestao/viagens/tests/test_assinados.py::TestValidacao::test_extensao_em_maiusculas_vale 
+gestao/viagens/tests/test_assinados.py::TestValidacao::test_impressao_ignora_a_marca_de_previa 
+[gw0] [  7%] PASSED gestao/viagens/tests/test_assinados.py::TestValidacao::test_impressao_ignora_a_marca_de_previa 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_anexar_prevalece_no_pdf_e_remover_volta_ao_gerado 
+[gw1] [  9%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_reabrir_e_retificar_revogam_a_via 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_tela_anexa_pela_janela_e_volta_para_a_lista 
+[gw0] [ 10%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_anexar_prevalece_no_pdf_e_remover_volta_ao_gerado 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_trocar_cria_versao_nova_e_a_mais_recente_vale 
+[gw1] [ 12%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_tela_anexa_pela_janela_e_volta_para_a_lista 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_erro_da_janela_volta_como_mensagem_e_sem_janela_mostra_a_pagina 
+[gw0] [ 14%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_trocar_cria_versao_nova_e_a_mais_recente_vale 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_rascunho_nao_recebe_via 
+[gw0] [ 15%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_rascunho_nao_recebe_via 
+gestao/viagens/tests/test_assinados.py::TestTermo::test_chave_que_nao_e_do_termo_da_404 
+[gw1] [ 17%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_erro_da_janela_volta_como_mensagem_e_sem_janela_mostra_a_pagina 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_voltar_externo_e_ignorado 
+[gw0] [ 18%] PASSED gestao/viagens/tests/test_assinados.py::TestTermo::test_chave_que_nao_e_do_termo_da_404 
+gestao/viagens/tests/test_assinados.py::TestOrdem::test_so_depois_de_gerada 
+[gw1] [ 20%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_voltar_externo_e_ignorado 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_permissoes_por_objeto 
+[gw0] [ 21%] PASSED gestao/viagens/tests/test_assinados.py::TestOrdem::test_so_depois_de_gerada 
+gestao/viagens/tests/test_assinados.py::TestOrdem::test_via_prevalece_e_dados_mudados 
+[gw1] [ 23%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_permissoes_por_objeto 
+gestao/viagens/tests/test_assinados.py::TestOficio::test_remover_pela_tela 
+[gw0] [ 25%] PASSED gestao/viagens/tests/test_assinados.py::TestOrdem::test_via_prevalece_e_dados_mudados 
+gestao/viagens/tests/test_assinados.py::TestOrdem::test_os_cancelada_nao_recebe_via 
+[gw0] [ 26%] PASSED gestao/viagens/tests/test_assinados.py::TestOrdem::test_os_cancelada_nao_recebe_via 
+gestao/viagens/tests/test_assinados.py::TestOrdem::test_consulta_nao_abre_a_via_da_os 
+[gw1] [ 28%] PASSED gestao/viagens/tests/test_assinados.py::TestOficio::test_remover_pela_tela 
+gestao/viagens/tests/test_assinados.py::TestTermo::test_via_por_documento_e_aviso_de_dados_que_mudaram 
+[gw0] [ 29%] PASSED gestao/viagens/tests/test_assinados.py::TestOrdem::test_consulta_nao_abre_a_via_da_os 
+gestao/viagens/tests/test_assinados.py::test_constraint_um_dono_do_tipo 
+[gw1] [ 31%] PASSED gestao/viagens/tests/test_assinados.py::TestTermo::test_via_por_documento_e_aviso_de_dados_que_mudaram 
+gestao/viagens/tests/test_assinados.py::TestTermo::test_termo_com_via_nao_se_exclui 
+[gw0] [ 32%] PASSED gestao/viagens/tests/test_assinados.py::test_constraint_um_dono_do_tipo 
+gestao/viagens/tests/test_assinados.py::test_abrir_a_via_e_pagina_sem_janela 
+[gw1] [ 34%] PASSED gestao/viagens/tests/test_assinados.py::TestTermo::test_termo_com_via_nao_se_exclui 
+gestao/viagens/tests/test_assinados.py::test_remover_pelo_resumo_volta_para_a_lista_com_o_resumo 
+[gw0] [ 35%] PASSED gestao/viagens/tests/test_assinados.py::test_abrir_a_via_e_pagina_sem_janela 
+gestao/viagens/tests/test_pacotes.py::test_pdf_unico_na_ordem_da_tela_e_zip_com_nomes 
+[gw1] [ 37%] PASSED gestao/viagens/tests/test_assinados.py::test_remover_pelo_resumo_volta_para_a_lista_com_o_resumo 
+gestao/viagens/tests/test_assinados.py::test_corpo_acima_do_limite_e_recusado_antes_do_upload 
+[gw0] [ 39%] PASSED gestao/viagens/tests/test_pacotes.py::test_pdf_unico_na_ordem_da_tela_e_zip_com_nomes 
+gestao/viagens/tests/test_pacotes.py::test_rascunho_sai_como_minuta_e_nao_emite 
+[gw1] [ 40%] PASSED gestao/viagens/tests/test_assinados.py::test_corpo_acima_do_limite_e_recusado_antes_do_upload 
+gestao/viagens/tests/test_assinados.py::TestConferencia::test_carimbo_e_numero_errado_viram_avisos 
+[gw0] [ 42%] PASSED gestao/viagens/tests/test_pacotes.py::test_rascunho_sai_como_minuta_e_nao_emite 
+gestao/viagens/tests/test_pacotes.py::test_nada_marcado_item_desconhecido_e_formato 
+[gw1] [ 43%] PASSED gestao/viagens/tests/test_assinados.py::TestConferencia::test_carimbo_e_numero_errado_viram_avisos 
+gestao/viagens/tests/test_assinados.py::TestConferencia::test_campo_de_assinatura_do_pdf 
+[gw0] [ 45%] PASSED gestao/viagens/tests/test_pacotes.py::test_nada_marcado_item_desconhecido_e_formato 
+gestao/viagens/tests/test_pacotes.py::test_permissoes_e_cancelado 
+[gw1] [ 46%] PASSED gestao/viagens/tests/test_assinados.py::TestConferencia::test_campo_de_assinatura_do_pdf 
+gestao/viagens/tests/test_assinados.py::TestConferencia::test_pdf_sem_assinatura_avisa_e_nao_bloqueia 
+[gw0] [ 48%] PASSED gestao/viagens/tests/test_pacotes.py::test_permissoes_e_cancelado 
+gestao/viagens/tests/test_pacotes.py::test_termo_e_justificativa 
+[gw1] [ 50%] PASSED gestao/viagens/tests/test_assinados.py::TestConferencia::test_pdf_sem_assinatura_avisa_e_nao_bloqueia 
+gestao/viagens/tests/test_assinados.py::TestConferencia::test_pdf_quebrado_nao_derruba_o_anexo 
+[gw1] [ 51%] PASSED gestao/viagens/tests/test_assinados.py::TestConferencia::test_pdf_quebrado_nao_derruba_o_anexo 
+gestao/viagens/tests/test_assinados.py::TestConferencia::test_termo_confere_o_nome_do_servidor 
+[gw0] [ 53%] PASSED gestao/viagens/tests/test_pacotes.py::test_termo_e_justificativa 
+gestao/viagens/tests/test_pacotes.py::test_nomes_repetidos_no_zip_ganham_numero 
+[gw0] [ 54%] PASSED gestao/viagens/tests/test_pacotes.py::test_nomes_repetidos_no_zip_ganham_numero 
+gestao/viagens/tests/test_pacotes.py::test_via_que_nao_abre_nao_junta_e_avisa 
+[gw1] [ 56%] PASSED gestao/viagens/tests/test_assinados.py::TestConferencia::test_termo_confere_o_nome_do_servidor 
+gestao/viagens/tests/test_pacotes.py::test_lista_do_oficio_com_termos_e_estados 
+[gw0] [ 57%] PASSED gestao/viagens/tests/test_pacotes.py::test_via_que_nao_abre_nao_junta_e_avisa 
+gestao/viagens/tests/test_pacotes.py::test_viagem_baixar_documentos_e_baixar_tudo 
+[gw1] [ 59%] PASSED gestao/viagens/tests/test_pacotes.py::test_lista_do_oficio_com_termos_e_estados 
+gestao/viagens/tests/test_pacotes.py::test_um_documento_pdf_assinado_e_original 
+[gw1] [ 60%] PASSED gestao/viagens/tests/test_pacotes.py::test_um_documento_pdf_assinado_e_original 
+gestao/viagens/tests/test_viagem_conferencia.py::test_quadro_da_viagem_vazia_lista_as_etapas_na_ordem 
+[gw0] [ 62%] PASSED gestao/viagens/tests/test_pacotes.py::test_viagem_baixar_documentos_e_baixar_tudo 
+gestao/viagens/tests/test_pacotes.py::test_viagem_sem_documentos_e_cancelada 
+[gw1] [ 64%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_quadro_da_viagem_vazia_lista_as_etapas_na_ordem 
+gestao/viagens/tests/test_viagem_conferencia.py::test_quadro_com_oficio_emitido_pede_assinatura_e_termos 
+[gw1] [ 65%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_quadro_com_oficio_emitido_pede_assinatura_e_termos 
+gestao/viagens/tests/test_viagem_conferencia.py::test_coerencia_da_os_e_do_termo 
+[gw0] [ 67%] PASSED gestao/viagens/tests/test_pacotes.py::test_viagem_sem_documentos_e_cancelada 
+gestao/viagens/tests/test_carimbo.py::test_pendencia_e_posicao 
+[gw1] [ 68%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_coerencia_da_os_e_do_termo 
+gestao/viagens/tests/test_viagem_conferencia.py::test_aplicar_em_todos_poupa_o_assinado 
+[gw0] [ 70%] PASSED gestao/viagens/tests/test_carimbo.py::test_pendencia_e_posicao 
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via 
+[gw1] [ 71%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_aplicar_em_todos_poupa_o_assinado 
+gestao/viagens/tests/test_viagem_conferencia.py::test_tela_mostra_conferencia_e_aplica 
+[gw0] [ 73%] PASSED gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via 
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes 
+[gw1] [ 75%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_tela_mostra_conferencia_e_aplica 
+gestao/viagens/tests/test_viagem_conferencia.py::test_consulta_nao_aplica 
+[gw1] [ 76%] PASSED gestao/viagens/tests/test_viagem_conferencia.py::test_consulta_nao_aplica 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[gerando] 
+[gw0] [ 78%] PASSED gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[falhou] 
+[gw1] [ 79%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[gerando] 
+[gw0] [ 81%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[falhou] 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_rascunho_preserva_minuta 
+gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] 
+[gw1] [ 82%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_rascunho_preserva_minuta 
+[gw0] [ 84%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_menu_html_nao_oferece_minuta_nem_v1_com_emissao_indisponivel[cancelado] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[vazio] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[branco] 
+[gw1] [ 85%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[vazio] 
+[gw0] [ 87%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[branco] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[dono] 
+gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[tipo] 
+[gw1] [ 89%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[dono] 
+[gw0] [ 90%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pdf_exato_nao_entrega_via_invalida[tipo] 
+gestao/viagens/tests/test_leitura_documental.py::test_via_exata_valida_e_opcao_original_preservadas 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[] 
+[gw1] [ 92%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_via_exata_valida_e_opcao_original_preservadas 
+[gw0] [ 93%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[] 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[   ] 
+gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[documentos/arquivo-ausente.pdf] 
+[gw1] [ 95%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[   ] 
+[gw0] [ 96%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_arquivo_original_indisponivel_retorna_404[documentos/arquivo-ausente.pdf] 
+gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[pdf] 
+gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[docx] 
+[gw1] [ 98%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[pdf] 
+[gw0] [100%] PASSED gestao/viagens/tests/test_leitura_documental.py::test_pacote_inclui_justificativa_esperada_ausente_sem_minuta[docx] 
+
+============================== warnings summary ===============================
+gestao/viagens/tests/test_assinados.py::TestOficio::test_reabrir_e_retificar_revogam_a_via
+gestao/viagens/tests/test_assinados.py::TestOficio::test_anexar_prevalece_no_pdf_e_remover_volta_ao_gerado
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pypdf\_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 64 passed, 5 warnings in 103.39s (0:01:43) ==================

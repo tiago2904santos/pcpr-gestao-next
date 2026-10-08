@@ -1,0 +1,1269 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 578 files, 3061 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (15 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de CadastrosKEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 303 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao\viagens\management\commands\semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+...F
+DIAGNÓSTICO DO GATE: gestao/cadastros/tests/test_catalogos_plano.py::TestCargaInicial::test_programas_horarios_e_onze_atividades
+self = <gestao.cadastros.tests.test_catalogos_plano.TestCargaInicial object at 0x0000028768896850>
+
+    def test_programas_horarios_e_onze_atividades(self):
+>       assert set(ProgramaSolicitante.objects.values_list("nome", flat=True)) >= {
+            "PROGRAMA PARANÁ EM AÇÃO", "PROGRAMA JUSTIÇA NO BAIRRO", "PCPR NA COMUNIDADE"}
+E       AssertionError: assert set() >= {'PCPR NA COM...RANÁ EM AÇÃO'}
+E         
+E         Extra items in the right set:
+E         'PROGRAMA JUSTIÇA NO BAIRRO'
+E         'PCPR NA COMUNIDADE'
+E         'PROGRAMA PARANÁ EM AÇÃO'
+
+gestao\cadastros\tests\test_catalogos_plano.py:58: AssertionError
+................F
+DIAGNÓSTICO DO GATE: gestao/cadastros/tests/test_catalogos_plano.py::TestRegras::test_editar_horario_abre_com_inicio_e_fim
+self = <gestao.cadastros.tests.test_catalogos_plano.TestRegras object at 0x00000287685BF490>
+base = {'ascom': <Unidade: ASCOM>, 'operador': <Usuario: Operador>, 'gestor': <Usuario: Gestor>, 'consulta': <Usuario: Consulta>}
+
+    def test_editar_horario_abre_com_inicio_e_fim(self, base):
+>       h = HorarioAtendimento.objects.get(nome="09:00 até 17:00")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\cadastros\tests\test_catalogos_plano.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': '09:00 até 17:00'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.cadastros.models.HorarioAtendimento.DoesNotExist: HorarioAtendimento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+..........F
+DIAGNÓSTICO DO GATE: gestao/cadastros/tests/test_catalogos_plano.py::TestRegras::test_conjunto_exige_atividade_e_um_so_padrao
+self = <gestao.cadastros.tests.test_catalogos_plano.TestRegras object at 0x0000028768867020>
+base = {'ascom': <Unidade: ASCOM>, 'operador': <Usuario: Operador>, 'gestor': <Usuario: Gestor>, 'consulta': <Usuario: Consulta>}
+
+    def test_conjunto_exige_atividade_e_um_so_padrao(self, base):
+        c = _cliente(base["operador"])
+        url = reverse("cadastros:salvar_catalogo", args=["conjuntos"])
+        r = c.post(url, {"nome": "básico"})
+        assert r.status_code == 422 and "Selecione ao menos uma atividade." in r.content.decode()
+>       cin, bo = (AtividadePlano.objects.get(codigo=x) for x in ("CIN", "BO"))
+        ^^^^^^^
+
+gestao\cadastros\tests\test_catalogos_plano.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\cadastros\tests\test_catalogos_plano.py:115: in <genexpr>
+    cin, bo = (AtividadePlano.objects.get(codigo=x) for x in ("CIN", "BO"))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'codigo': 'CIN'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.cadastros.models.AtividadePlano.DoesNotExist: AtividadePlano matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+......F
+DIAGNÓSTICO DO GATE: gestao/cadastros/tests/test_catalogos_plano.py::TestRegras::test_atividade_usada_num_conjunto_nao_se_exclui_na_lista
+self = <gestao.cadastros.tests.test_catalogos_plano.TestRegras object at 0x0000028768867130>
+base = {'ascom': <Unidade: ASCOM>, 'operador': <Usuario: Operador>, 'gestor': <Usuario: Gestor>, 'consulta': <Usuario: Consulta>}
+
+    def test_atividade_usada_num_conjunto_nao_se_exclui_na_lista(self, base):
+>       cin = AtividadePlano.objects.get(codigo="CIN")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\cadastros\tests\test_catalogos_plano.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'codigo': 'CIN'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.cadastros.models.AtividadePlano.DoesNotExist: AtividadePlano matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+...F
+DIAGNÓSTICO DO GATE: gestao/cadastros/tests/test_catalogos_plano.py::TestRegras::test_conjunto_mantem_atividade_desativada_ao_editar
+self = <gestao.cadastros.tests.test_catalogos_plano.TestRegras object at 0x00000287685D7350>
+base = {'ascom': <Unidade: ASCOM>, 'operador': <Usuario: Operador>, 'gestor': <Usuario: Gestor>, 'consulta': <Usuario: Consulta>}
+
+    def test_conjunto_mantem_atividade_desativada_ao_editar(self, base):
+>       cin = AtividadePlano.objects.get(codigo="CIN")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\cadastros\tests\test_catalogos_plano.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'codigo': 'CIN'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.cadastros.models.AtividadePlano.DoesNotExist: AtividadePlano matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+........................F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_catalogos.py::test_carga_inicial
+def test_carga_inicial():
+>       assert TipoEvento.objects.filter(nome="PCPR na Comunidade").exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = <QuerySet []>.exists
+E        +      where <QuerySet []> = filter(nome='PCPR na Comunidade')
+E        +        where filter = <django.db.models.manager.Manager object at 0x00000191A638ED50>.filter
+E        +          where <django.db.models.manager.Manager object at 0x00000191A638ED50> = TipoEvento.objects
+
+gestao\eventos\tests\test_catalogos.py:28: AssertionError
+...F [  3%]
+
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_catalogos.py::test_modelo_do_tipo
+def test_modelo_do_tipo():
+        admin = _usuario("admin", "ADMINISTRADOR")
+        c = Client()
+        c.force_login(admin)
+>       tipo = TipoEvento.objects.get(nome="Palestra")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\eventos\tests\test_catalogos.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Palestra'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+......E
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_pedir_coffee.py::test_pedir_a_partir_do_evento
+@pytest.fixture
+    def cenario():
+        hoje = timezone.localdate()
+        cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                              defaults={"nome": "Curitiba", "uf": "PR"})[0]
+        f = Fornecedor.objects.create(razao_social="Buffet Exemplo Ltda", cnpj="11222333000181")
+        c = Contrato.objects.create(fornecedor=f, numero="12/2025", valor_unitario=Decimal("20"),
+                                    vigencia_fim=hoje + timedelta(days=300))
+        lote = Lote.objects.create(contrato=c, numero=1, exercicio=str(hoje.year),
+                                   quantidade_total=500)
+        lote.municipios.set([cwb])
+        ana = _usuario("ana", "ASCOM_COFFEE_BREAK")
+        evento = Evento.objects.create(
+            data_solicitacao=hoje, data_inicio_evento=hoje + timedelta(days=20), municipio=cwb,
+>           tipo_evento=TipoEvento.objects.get(nome="Feira"), solicitante_nome="Escola X",
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            contato="(41) 3000-0000", local_evento="Ginásio", endereco="Rua A, 10", criado_por=ana)
+
+gestao\eventos\tests\test_pedir_coffee.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+E
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_pedir_coffee.py::test_origem_invisivel_ou_sem_modulo
+@pytest.fixture
+    def cenario():
+        hoje = timezone.localdate()
+        cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                              defaults={"nome": "Curitiba", "uf": "PR"})[0]
+        f = Fornecedor.objects.create(razao_social="Buffet Exemplo Ltda", cnpj="11222333000181")
+        c = Contrato.objects.create(fornecedor=f, numero="12/2025", valor_unitario=Decimal("20"),
+                                    vigencia_fim=hoje + timedelta(days=300))
+        lote = Lote.objects.create(contrato=c, numero=1, exercicio=str(hoje.year),
+                                   quantidade_total=500)
+        lote.municipios.set([cwb])
+        ana = _usuario("ana", "ASCOM_COFFEE_BREAK")
+        evento = Evento.objects.create(
+            data_solicitacao=hoje, data_inicio_evento=hoje + timedelta(days=20), municipio=cwb,
+>           tipo_evento=TipoEvento.objects.get(nome="Feira"), solicitante_nome="Escola X",
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            contato="(41) 3000-0000", local_evento="Ginásio", endereco="Rua A, 10", criado_por=ana)
+
+gestao\eventos\tests\test_pedir_coffee.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_rascunho_pela_tela_e_autosave
+ana = <Usuario: Ana>, curitiba = <Municipio: Curitiba/PR>
+
+    def test_rascunho_pela_tela_e_autosave(ana, curitiba):
+        c = Client()
+        c.force_login(ana)
+>       cin = Servico.objects.get(nome="Emissão de CIN")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Emissão de CIN'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.Servico.DoesNotExist: Servico matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+.F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_envio_exige_o_necessario_e_avisa_a_dg
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+django_capture_on_commit_callbacks = <bound method TestCase.captureOnCommitCallbacks of <class 'django.test.testcases.TestCase'>>
+
+    def test_envio_exige_o_necessario_e_avisa_a_dg(ana, dg, django_capture_on_commit_callbacks):
+        s = solicitacoes.criar(ana, {"solicitante_nome": "X"})
+        with pytest.raises(solicitacoes.SolicitacaoInvalida, match="Preencha os campos obrigatórios"):
+            solicitacoes.enviar(ana, s.pk)
+>       solicitacoes.salvar(ana, s.pk, _completa(), _estrutura(None))
+                                       ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_visibilidade
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_visibilidade(ana, dg):
+        bia = _usuario("bia")
+>       s = solicitacoes.criar(ana, _completa(), _estrutura())
+                                    ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+.F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_despacho_devolucao_reenvio_e_proxima
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+django_capture_on_commit_callbacks = <bound method TestCase.captureOnCommitCallbacks of <class 'django.test.testcases.TestCase'>>
+
+    def test_despacho_devolucao_reenvio_e_proxima(ana, dg, django_capture_on_commit_callbacks):
+>       s = solicitacoes.criar(ana, _completa(), _estrutura())
+                                    ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_concluir_cancelar_transferir_duplicar_excluir
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+django_capture_on_commit_callbacks = <bound method TestCase.captureOnCommitCallbacks of <class 'django.test.testcases.TestCase'>>
+
+    def test_concluir_cancelar_transferir_duplicar_excluir(ana, dg,
+                                                          django_capture_on_commit_callbacks):
+        hoje = timezone.localdate()
+>       s = solicitacoes.criar(ana, _completa(), _estrutura())
+                                    ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+.F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_anexos
+ana = <Usuario: Ana>
+settings = <pytest_django.fixtures.Settings object at 0x00000191A8C32750>
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-17/popen-gw1/test_anexos0')
+
+    def test_anexos(ana, settings, tmp_path):
+        settings.MEDIA_ROOT = tmp_path
+>       s = solicitacoes.criar(ana, _completa(), _estrutura())
+                                    ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:213: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_lista_filas_busca_e_exportacao
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_lista_filas_busca_e_exportacao(ana, dg):
+>       a = solicitacoes.criar(ana, _completa(solicitante_nome="Colégio Azul"), _estrutura())
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:228: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_agenda_e_conflitos
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_agenda_e_conflitos(ana, dg):
+        um = UnidadeMovel.objects.create(nome="Caminhão 1")
+>       a = solicitacoes.criar(ana, _completa(unidade_movel=True, unidade_movel_designada=um),
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               _estrutura())
+
+gestao\eventos\tests\test_solicitacoes.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_entradas_hostis_nao_quebram_nem_viram_formula
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_entradas_hostis_nao_quebram_nem_viram_formula(ana, dg):
+        """Revisão de segurança do E2: fórmula em qualquer coluna do CSV, algarismos que não
+        são ASCII, quantidade enorme, serviço inativo pelo POST e anexo que só some depois do
+        commit."""
+        from gestao.eventos.forms import estrutura_do_post, quantidade
+    
+>       s = solicitacoes.criar(ana, _completa(bairro='=HYPERLINK("https://x.invalid")',
+                                              cep="\t=1+1"), _estrutura())
+
+gestao\eventos\tests\test_solicitacoes.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+..F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_fila_do_despacho_pelo_evento_mais_proximo_e_escolha_que_volta_uma_vez
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_fila_do_despacho_pelo_evento_mais_proximo_e_escolha_que_volta_uma_vez(ana, dg):
+        """Revisão de UX do E2: a fila do despacho na ordem do "abrir a próxima"; depois de um
+        erro no despacho a decisão e a observação voltam na tela, uma vez só."""
+        hoje = timezone.localdate()
+>       longe = solicitacoes.criar(ana, _completa(data_inicio_evento=hoje + timedelta(days=40),
+                                                  data_fim_evento=hoje + timedelta(days=40)),
+                                   _estrutura())
+
+gestao\eventos\tests\test_solicitacoes.py:318: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/eventos/tests/test_solicitacoes.py::test_rodape_padrao_e_cancelar_pelo_dialogo
+ana = <Usuario: Ana>, dg = <Usuario: Dg>
+
+    def test_rodape_padrao_e_cancelar_pelo_dialogo(ana, dg):
+        """Rodapé igual em toda folha (06/10): Finalizar e Ações (Duplicar, Cancelar, Excluir);
+        o cancelamento pela janela de motivo manda `motivo`."""
+>       s = solicitacoes.criar(ana, _completa(), _estrutura())
+                                    ^^^^^^^^^^^
+
+gestao\eventos\tests\test_solicitacoes.py:344: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\eventos\tests\test_solicitacoes.py:69: in _completa
+    "tipo_evento": TipoEvento.objects.get(nome="Feira"),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'Feira'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+................................................ [  6%]
+...........................................................E
+DIAGNÓSTICO DO GATE: gestao/painel/tests/test_relatorio_consolidado.py::test_secoes_e_numeros
+@pytest.fixture
+    def cenario():
+        hoje = timezone.localdate()
+        ano = hoje.year
+        cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                              defaults={"nome": "Curitiba", "uf": "PR"})[0]
+        todos = Usuario.objects.create_user("chefe", "chefe@teste.invalid", None, nome="Chefe")
+        for papel in ("ASCOM_PALESTRAS", "ASCOM_COFFEE_BREAK", "ASCOM_IMPRENSA", "GESTOR_DG"):
+            todos.groups.add(Group.objects.get(name=papel))
+        from gestao.eventos import dominio
+        from gestao.eventos.models import Solicitacao, TipoEvento
+        from gestao.palestras.models import Palestra
+    
+        dia = hoje  # o mesmo ano sempre (a palestra do PCPR cai no período da solicitação)
+        pcpr = Solicitacao.objects.create(
+            data_solicitacao=dia, data_inicio_evento=dia, data_fim_evento=dia + timedelta(days=1),
+>           municipio=cwb, tipo_evento=TipoEvento.objects.get(nome="PCPR na Comunidade"),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            quantidade_cin=120, status=dominio.ATENDIDA, criado_por=todos)
+
+gestao\painel\tests\test_relatorio_consolidado.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'PCPR na Comunidade'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+E
+DIAGNÓSTICO DO GATE: gestao/painel/tests/test_relatorio_consolidado.py::test_secao_so_para_quem_tem_o_modulo
+@pytest.fixture
+    def cenario():
+        hoje = timezone.localdate()
+        ano = hoje.year
+        cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                              defaults={"nome": "Curitiba", "uf": "PR"})[0]
+        todos = Usuario.objects.create_user("chefe", "chefe@teste.invalid", None, nome="Chefe")
+        for papel in ("ASCOM_PALESTRAS", "ASCOM_COFFEE_BREAK", "ASCOM_IMPRENSA", "GESTOR_DG"):
+            todos.groups.add(Group.objects.get(name=papel))
+        from gestao.eventos import dominio
+        from gestao.eventos.models import Solicitacao, TipoEvento
+        from gestao.palestras.models import Palestra
+    
+        dia = hoje  # o mesmo ano sempre (a palestra do PCPR cai no período da solicitação)
+        pcpr = Solicitacao.objects.create(
+            data_solicitacao=dia, data_inicio_evento=dia, data_fim_evento=dia + timedelta(days=1),
+>           municipio=cwb, tipo_evento=TipoEvento.objects.get(nome="PCPR na Comunidade"),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            quantidade_cin=120, status=dominio.ATENDIDA, criado_por=todos)
+
+gestao\painel\tests\test_relatorio_consolidado.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'PCPR na Comunidade'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+E
+DIAGNÓSTICO DO GATE: gestao/painel/tests/test_relatorio_consolidado.py::test_tela_e_planilha
+@pytest.fixture
+    def cenario():
+        hoje = timezone.localdate()
+        ano = hoje.year
+        cwb = Municipio.objects.get_or_create(codigo_ibge="4106902",
+                                              defaults={"nome": "Curitiba", "uf": "PR"})[0]
+        todos = Usuario.objects.create_user("chefe", "chefe@teste.invalid", None, nome="Chefe")
+        for papel in ("ASCOM_PALESTRAS", "ASCOM_COFFEE_BREAK", "ASCOM_IMPRENSA", "GESTOR_DG"):
+            todos.groups.add(Group.objects.get(name=papel))
+        from gestao.eventos import dominio
+        from gestao.eventos.models import Solicitacao, TipoEvento
+        from gestao.palestras.models import Palestra
+    
+        dia = hoje  # o mesmo ano sempre (a palestra do PCPR cai no período da solicitação)
+        pcpr = Solicitacao.objects.create(
+            data_solicitacao=dia, data_inicio_evento=dia, data_fim_evento=dia + timedelta(days=1),
+>           municipio=cwb, tipo_evento=TipoEvento.objects.get(nome="PCPR na Comunidade"),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            quantidade_cin=120, status=dominio.ATENDIDA, criado_por=todos)
+
+gestao\painel\tests\test_relatorio_consolidado.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <QuerySet []>, args = (), kwargs = {'nome': 'PCPR na Comunidade'}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           gestao.eventos.models.TipoEvento.DoesNotExist: TipoEvento matching query does not exist.
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py:722: DoesNotExist
+F
+DIAGNÓSTICO DO GATE: gestao/palestras/tests/test_encaminhamento.py::test_encaminhar_cria_o_rascunho_ligado
+cenario = (<Usuario: Ascom>, <Palestra: PCPR na Comunidade #45>, datetime.date(2026, 10, 22))
+
+    def test_encaminhar_cria_o_rascunho_ligado(cenario):
+        u, p, dia = cenario
+        s = encaminhamento.encaminhar(u, p.pk)
+        assert s.status == Solicitacao.Status.RASCUNHO and s.criado_por == u
+        assert (s.data_inicio_evento, s.data_fim_evento) == (dia, dia)
+>       assert s.municipio == p.municipio and "COMUNIDADE" in s.tipo_evento.nome.upper()
+                                                              ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'nome'
+
+gestao\palestras\tests\test_encaminhamento.py:48: AttributeError
+......... [  9%]
+........................................................................ [ 13%]
+............................................................[gw3] node down: Not properly terminated
+F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_pacote_prestacao.py::test_zip_da_equipe_com_pendencias
+worker 'gw3' crashed while running 'gestao/viagens/tests/test_pacote_prestacao.py::test_zip_da_equipe_com_pendencias'

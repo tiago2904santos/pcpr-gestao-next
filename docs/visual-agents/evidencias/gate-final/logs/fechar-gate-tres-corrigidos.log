@@ -1,0 +1,15 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 3 items
+
+gestao/identidade/tests/test_demo.py::test_production_e_staging_nao_carregam_com_demo_mode[config.settings.production] PASSED [ 33%]
+gestao/identidade/tests/test_demo.py::test_production_e_staging_nao_carregam_com_demo_mode[config.settings.staging] PASSED [ 66%]
+gestao/viagens/tests/test_views.py::TestGavetaEFichas::test_gaveta_fechada_mesmo_com_filtro_e_botao_com_a_quantidade PASSED [100%]
+
+============================= 3 passed in 13.02s ==============================

@@ -1,0 +1,219 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\.codex\worktrees\viagens-tempo-legado\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 55 items
+
+tests/e2e/test_lote_h_visual.py::test_lote_h_capturas PASSED             [  1%]
+tests/e2e/test_lote_h_visual.py::test_motorista_autosave_e_conflito_entre_abas PASSED [  3%]
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao PASSED [  5%]
+tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio PASSED [  7%]
+tests/e2e/test_fluxo_oficio.py::test_emissao_bloqueada_sem_justificativa_mostra_o_motivo PASSED [  9%]
+tests/e2e/test_fluxo_oficio.py::test_enter_salva_e_alteracao_nao_salva_e_avisada PASSED [ 10%]
+tests/e2e/test_fluxo_oficio.py::test_erro_de_validacao_aparece_no_resumo_e_no_campo PASSED [ 12%]
+tests/e2e/test_fluxo_oficio.py::test_teclado_pular_conteudo_menu_e_dialogo PASSED [ 14%]
+tests/e2e/test_fluxo_oficio.py::test_consulta_ve_mas_nao_cria_nem_edita PASSED [ 16%]
+tests/e2e/test_fluxo_oficio.py::test_operador_nao_ve_oficio_de_outra_unidade PASSED [ 18%]
+tests/e2e/test_fluxo_oficio.py::test_gaveta_de_navegacao_no_celular PASSED [ 20%]
+tests/e2e/test_fluxo_oficio.py::test_menu_superior_com_item_ativo_e_submenu_por_teclado PASSED [ 21%]
+tests/e2e/test_fluxo_oficio.py::test_seletor_de_modulo_leva_a_central PASSED [ 23%]
+tests/e2e/test_fluxo_oficio.py::test_sistema_nao_muda_com_sistema_operacional_em_modo_escuro PASSED [ 25%]
+tests/e2e/test_fluxo_oficio.py::test_ctrl_s_salva_o_rascunho PASSED      [ 27%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[360] PASSED [ 29%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[768] PASSED [ 30%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[1440] PASSED [ 32%]
+tests/e2e/test_fluxo_oficio.py::test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc FAILED [ 34%]
+tests/e2e/test_fluxo_oficio.py::test_gaveta_de_filtros_filtra_por_protocolo PASSED [ 36%]
+tests/e2e/test_fluxo_oficio.py::test_lista_agrupa_por_mes_e_nomeia_transicoes PASSED [ 38%]
+tests/e2e/test_fluxo_oficio.py::test_formulario_do_oficio_escolhas_itinerario_e_conferencia PASSED [ 40%]
+tests/e2e/test_fluxo_oficio.py::test_clique_em_texto_nao_rola_a_pagina PASSED [ 41%]
+tests/e2e/test_fluxo_oficio.py::test_novo_oficio_cria_e_abre_a_folha_completa PASSED [ 43%]
+tests/e2e/test_fluxo_oficio.py::test_sem_seletores_nativos_de_data_hora_ou_lista PASSED [ 45%]
+tests/e2e/test_fluxo_oficio.py::test_calendario_por_teclado PASSED       [ 47%]
+tests/e2e/test_fluxo_oficio.py::test_relogio_e_lista_propria PASSED      [ 49%]
+tests/e2e/test_fluxo_oficio.py::test_folha_mostra_a_minuta_emoldurada PASSED [ 50%]
+tests/e2e/test_fluxo_oficio.py::test_marcar_motorista_escolhe_a_viatura_dele PASSED [ 52%]
+tests/e2e/test_itinerario.py::test_rota_preenche_tempos_e_chegada_e_a_ordem_muda_arrastando PASSED [ 54%]
+tests/e2e/test_itinerario.py::test_uf_filtra_municipios_e_troca_de_uf_limpa_a_cidade PASSED [ 56%]
+tests/e2e/test_itinerario.py::test_calendario_unico_preenche_as_saidas_de_todos_os_trechos PASSED [ 58%]
+tests/e2e/test_itinerario.py::test_sede_pode_ser_trocada PASSED          [ 60%]
+tests/e2e/test_baixar.py::test_baixar_documentos_do_termo PASSED         [ 61%]
+tests/e2e/test_baixar.py::test_baixar_documentos_pelo_resumo_do_oficio PASSED [ 63%]
+tests/e2e/test_assinados.py::test_anexar_via_da_os_pela_barra_e_revogar_por_http PASSED [ 65%]
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[lista] PASSED [ 67%]
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[resumo] PASSED [ 69%]
+tests/e2e/test_baixar_carga.py::test_baixar_nao_entra_ao_visitar_tela_ou_menu[folha] PASSED [ 70%]
+tests/e2e/test_baixar_carga.py::test_primeiro_enter_abre_cache_regras_preferencias_e_arquivo[360] PASSED [ 72%]
+tests/e2e/test_baixar_carga.py::test_primeiro_enter_abre_cache_regras_preferencias_e_arquivo[1440] PASSED [ 74%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[repetir] PASSED [ 76%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[cancelar] PASSED [ 78%]
+tests/e2e/test_baixar_carga.py::test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[remover] PASSED [ 80%]
+tests/e2e/test_baixar_carga.py::test_falha_do_import_anuncia_orienta_recarregar_e_preserva_foco PASSED [ 81%]
+tests/e2e/test_baixar_carga.py::test_fechar_durante_get_nao_rouba_foco_ao_concluir PASSED [ 83%]
+tests/e2e/test_baixar_carga.py::test_reabrir_durante_get_descarta_resposta_antiga_divergente PASSED [ 85%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[360] PASSED [ 87%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia[1440] PASSED [ 89%]
+tests/e2e/test_resumo_versoes_documentais.py::test_link_corrente_recusa_via_de_outro_dono_e_pacote_incompleto PASSED [ 90%]
+tests/e2e/test_resumo_versoes_documentais.py::test_fechar_aborta_resposta_real_em_voo_e_interrompe_pedidos PASSED [ 92%]
+tests/e2e/test_resumo_versoes_documentais.py::test_historico_gerando_isolado_nao_faz_polling PASSED [ 94%]
+tests/e2e/test_resumo_versoes_documentais.py::test_reaberto_preserva_minuta_e_documentos_assinados_historicos PASSED [ 96%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id] PASSED [ 98%]
+tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id] PASSED [100%]
+
+================================== FAILURES ===================================
+________ test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc _________
+
+logado = <Page url='http://localhost:57635/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 487, 'oficio_rascunho': 488, 'oficio_vazio': 489, 'oficio_cancelado': 490, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc(logado, dados_e2e):
+        """Clicar no registro mostra roteiro/equipe/documentos numa janela, sem sair da lista."""
+        pg = logado
+        pg.goto("/viagens/oficios/")
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_hidden()
+        pg.locator(".registro__link").first.click()
+        expect(janela).to_be_visible()
+        expect(janela.locator(".resumo")).to_contain_text("Roteiro")
+        expect(janela.locator(".resumo")).to_contain_text("Equipe")
+>       expect(janela.locator(".dialogo__rodape")).to_contain_text("Ver minuta")
+E       AssertionError: Locator expected to contain text 'Ver minuta'
+E       Actual value: 
+E         
+E         
+E         
+E           Mais ações
+E           
+E             Ofício 04/2026
+E             
+E             
+E             
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E         
+E         DuplicarRascunho novo, com outro número
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E         
+E         
+E         
+E           
+E             
+E             ArquivarSai das abas de trabalho; nada é apagado
+E           
+E         
+E         
+E         
+E       
+E       
+E       
+E       
+E           
+E         
+E         
+E        
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator(".dialogo__rodape")
+E           9 × locator resolved to <div role="group" tabindex="-1" id="resumo-rodape" class="dialogo__rodape" aria-label="Ações do ofício">…</div>
+E             - unexpected value "
+E         
+E         
+E         
+E           Mais ações
+E           
+E             Ofício 04/2026
+E             
+E             
+E             
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E         
+E         DuplicarRascunho novo, com outro número
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E       
+E         
+E         
+E         
+E           
+E             
+E             ArquivarSai das abas de trabalho; nada é apagado
+E           
+E         
+E         
+E         
+E       
+E       
+E       
+E       
+E           
+E         
+E         
+E       "
+
+tests\e2e\test_fluxo_oficio.py:295: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_fluxo_oficio.py::test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc
+============= 1 failed, 54 passed, 1 warning in 505.55s (0:08:25) =============

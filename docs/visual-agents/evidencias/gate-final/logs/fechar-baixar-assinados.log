@@ -1,0 +1,317 @@
+.....F...FFFFF                                                           [100%]
+================================== FAILURES ===================================
+___ test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento[repetir] ____
+
+logado = <Page url='http://localhost:53364/ui-lab/'>, durante_import = 'repetir'
+
+    @pytest.mark.parametrize("durante_import", ["repetir", "cancelar", "remover"])
+    def test_primeiro_import_nao_duplica_acao_e_respeita_cancelamento(logado, durante_import):
+        pg = logado
+        pedidos = _observar(pg)
+        pg.goto("/ui-lab/", wait_until="networkidle")
+        botao = _origem(pg)
+        url = urljoin(pg.url, botao.get_attribute("data-baixar-documentos"))
+    
+        def entregar(rota: Route):
+            resposta = _buscar_resposta(rota)
+            try:
+                expect(botao).to_have_attribute("aria-busy", "true")
+                if durante_import == "repetir":
+                    botao.click(timeout=5000)
+                elif durante_import == "cancelar":
+                    pg.keyboard.press("Escape")
+                else:
+                    botao.evaluate("e => e.remove()")
+            finally:
+                try:
+                    rota.fulfill(response=resposta)
+                finally:
+                    resposta.dispose()
+    
+        handler, aguardar = _acompanhar_rota(pg, entregar)
+        pg.route("**/componentes/baixar.js", handler, times=1)
+        botao.click()
+>       aguardar()
+
+tests\e2e\test_baixar_carga.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_baixar_carga.py:60: in aguardar
+    raise erros[0]
+tests\e2e\test_baixar_carga.py:48: in acompanhada
+    handler(rota)
+tests\e2e\test_baixar_carga.py:185: in entregar
+    botao.click(timeout=5000)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000183B40ED400>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000183B6022520>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 5000ms exceeded.
+E           Call log:
+E             - waiting for locator("[data-baixar-documentos]").first
+E               - locator resolved to <button class="botao" type="button" aria-busy="true" data-baixar-titulo="Ofício 131/2026" data-baixar-documentos="/ui-lab/baixar-exemplo/">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <div class="cartao__corpo linha">…</div> intercepts pointer events
+E               - retrying click action
+E               - waiting 20ms
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <div class="cartao__corpo linha">…</div> intercepts pointer events
+E               - retrying click action
+E                 - waiting 100ms
+E               9 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <div class="cartao__corpo linha">…</div> intercepts pointer events
+E               - retrying click action
+E                 - waiting 500ms
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_____________ test_fechar_durante_get_nao_rouba_foco_ao_concluir ______________
+
+logado = <Page url='http://localhost:53364/ui-lab/'>
+
+    def test_fechar_durante_get_nao_rouba_foco_ao_concluir(logado):
+        pg = logado
+        pg.goto("/ui-lab/", wait_until="networkidle")
+        botao = _origem(pg)
+        url = urljoin(pg.url, botao.get_attribute("data-baixar-documentos"))
+        janela = pg.locator("#dialogo-baixar")
+    
+        def entregar(rota: Route):
+            resposta = _buscar_resposta(rota)
+            try:
+                expect(janela).to_be_visible()
+                janela.get_by_role("button", name="Voltar", exact=True).click(timeout=5000)
+                expect(janela).to_be_hidden()
+                pg.locator(".perfil").focus()
+            finally:
+                try:
+                    _entregar_apos_cancelamento(pg, rota, response=resposta)
+                finally:
+                    resposta.dispose()
+    
+        handler, aguardar = _acompanhar_rota(pg, entregar)
+        pg.route(url, handler, times=1)
+        botao.click()
+>       aguardar()
+
+tests\e2e\test_baixar_carga.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_baixar_carga.py:60: in aguardar
+    raise erros[0]
+tests\e2e\test_baixar_carga.py:48: in acompanhada
+    handler(rota)
+tests\e2e\test_baixar_carga.py:254: in entregar
+    janela.get_by_role("button", name="Voltar", exact=True).click(timeout=5000)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000183B40ED400>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000183B4FA4C20>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 5000ms exceeded.
+E           Call log:
+E             - waiting for locator("#dialogo-baixar").get_by_role("button", name="Voltar", exact=True)
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+________ test_reabrir_durante_get_descarta_resposta_antiga_divergente _________
+
+logado = <Page url='http://localhost:53364/ui-lab/'>
+
+    def test_reabrir_durante_get_descarta_resposta_antiga_divergente(logado):
+        pg = logado
+        pedidos = _observar(pg)
+        pg.goto("/ui-lab/", wait_until="networkidle")
+        botao = _origem(pg)
+        url = urljoin(pg.url, botao.get_attribute("data-baixar-documentos"))
+        janela = pg.locator("#dialogo-baixar")
+    
+        def entregar_antiga(rota: Route):
+            # Completa esta rota no próprio handler. A segunda leitura usa o endpoint real.
+            try:
+                expect(janela).to_be_visible()
+                janela.get_by_role("button", name="Voltar", exact=True).click(timeout=5000)
+                expect(janela).to_be_hidden()
+                botao.click(timeout=5000)
+                _pronto(pg)
+            finally:
+                _entregar_apos_cancelamento(pg, rota, status=200, json={"itens": [{
+                    "valor": "antigo", "nome": "Resposta antiga que deve ser descartada",
+                    "detalhe": "", "estado": "", "assinado": False,
+                }]})
+    
+        handler, aguardar = _acompanhar_rota(pg, entregar_antiga)
+        pg.route(url, handler, times=1)
+        botao.click()
+>       aguardar()
+
+tests\e2e\test_baixar_carga.py:297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_baixar_carga.py:60: in aguardar
+    raise erros[0]
+tests\e2e\test_baixar_carga.py:48: in acompanhada
+    handler(rota)
+tests\e2e\test_baixar_carga.py:284: in entregar_antiga
+    janela.get_by_role("button", name="Voltar", exact=True).click(timeout=5000)
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000183B40ED400>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000183B60542C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 5000ms exceeded.
+E           Call log:
+E             - waiting for locator("#dialogo-baixar").get_by_role("button", name="Voltar", exact=True)
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_______________________ test_baixar_documentos_do_termo _______________________
+
+logado = <Page url='http://localhost:53364/viagens/termos/2/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 196, 'oficio_rascunho': 197, 'oficio_vazio': 198, 'oficio_cancelado': 199, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_baixar_documentos_do_termo(logado, dados_e2e):
+        from gestao.identidade.models import Usuario
+        from gestao.viagens import termos
+        from gestao.viagens.models import Oficio
+    
+        termo = termos.salvar(Usuario.objects.get(login="operador"),
+                              oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
+        pg = logado
+        pg.goto(f"/viagens/termos/{termo.pk}/")
+>       pg.locator("#lista-documentos").get_by_role("button", name="Baixar documentos").click()
+
+tests\e2e\test_baixar.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000183B40ED400>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000183B5F80900>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("#lista-documentos").get_by_role("button", name="Baixar documentos")
+
+..\..\..\..\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-07 19:32:39,895 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+________________ test_baixar_documentos_pelo_resumo_do_oficio _________________
+
+logado = <Page url='http://localhost:53364/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 201, 'oficio_rascunho': 202, 'oficio_vazio': 203, 'oficio_cancelado': 204, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_baixar_documentos_pelo_resumo_do_oficio(logado, dados_e2e):
+        pg = logado
+        pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
+        # "Baixar documentos…" mora em "Mais ações" (o mesmo menu ⋮ da linha, D7).

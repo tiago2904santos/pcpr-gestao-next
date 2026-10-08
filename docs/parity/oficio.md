@@ -156,3 +156,16 @@ Evidência: 101 testes de domínio/integração e 2 testes Chromium aprovados;
 capturas antes/depois do ajuste de largura e medidas dos inputs em cinco larguras.
 Esta evidência cobre D16; a reconstrução completa e seus outros itens de paridade
 continuam com seus estados individuais. Não implica aprovação da suíte integral.
+
+## Gate do bloco fechado — 07/10/2026
+
+Regra D16 reexercitada em dois Chromium no fechamento e na integral final:
+2187testes passaram, zero falhas, checks completos verdes. Dados/tempos manuais
+e históricos preservados; nenhum recálculo/seed em DEV ou documentos antigos.
+RS02/guards/carga/foco incorporados em feb35e2/bea84e3 na branch de entrega
+viagens/reconstrucao, com43hashes/897fontes idênticas ao candidato validado.
+Decisão H/correções existentes: aprovado com ressalvas, segundo pacote
+`docs/visual-agents/qa/fechamento-gate-final-2026-10-07.md`. Performance anterior
+ao candidato, CSP intermitente e paridade editorial permanecem delimitados;
+main preservada e Termos de Autorização suspenso. Não declarar toda a reconstrução
+concluída nem CI/performance global verdes a partir desse gate local.

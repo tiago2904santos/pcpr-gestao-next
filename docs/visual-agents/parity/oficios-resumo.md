@@ -1,5 +1,20 @@
 # Paridade — Resumo / detalhes do ofício
 
+## RS-02 — código conectado, validação em andamento (07/10/2026)
+
+O resumo usa a projeção materializada com maior identidade, correntes/históricos
+separados, assinatura pelo ID exato e arquivos com caminho. R34/R36/R37 têm correção
+implementada; comprovação HTTP, polling, foco e capturas desta integração permanece
+pendente do coordenador. O polling atualiza Documentos, rodapé e cópia por OOB e o
+hook de diálogo interrompe pedidos ao fechar. Retry é oferecido só à corrente falha.
+
+R28 está conectado com a base RS-01: texto válido da maior emissão continua copiável
+mesmo gerando/falhou, sem promover dados antigos. Rascunho/revisão conservam D13.
+Histórico documental não equivale à trilha de ações de negócio (R29). R30, termos,
+redundância R35 e alteração da posição dos documentos não foram implementados aqui.
+Contrato/limites em `../../product/oficios-documentos-versoes.md`; evidência estática
+e testes entregues em `../../quality/oficios-documentos-projecao.md`.
+
 ## Estado após H — checkpoint `b0829d6`, 07/10/2026
 
 Falha/retry documental já foram testados no LAB, com capturas de cinco larguras;
@@ -279,3 +294,18 @@ Testes HTTP de escopo/leitura/sem escrita, fallback de Clipboard e capturas nas
 cinco larguras em `docs/quality/oficios-eprotocolo-integracao.md`.
 Os demais critérios deste documento e os budgets ainda precisam de fechamento;
 este checkpoint não declara o Resumo completo ou esteticamente aprovado.
+
+## Fechamento do bloco RS02 — 07/10/2026
+
+Correções existentes incorporadas em viagens/reconstrucao (feb35e2/bea84e3):
+identidade máxima separada da prontidão, corrente/histórico separados, retry só
+da corrente, rodapé/cópia OOB e foco operável, cancelamento de pedidos fechados/
+saindo e descarte de resposta obsoleta. Via de outro dono/tipo ou caminho inválido
+não substitui original. Sete E2E passaram juntos; oito, incluindo guard pacote/
+via, passaram nas consolidações. Dois casos de estilo real360/1440 passaram após
+retirada do CSS candidato. HTTP64 consumidores/guards verdes, integral2187verde.
+Relatório e evidências: ../qa/fechamento-gate-final-2026-10-07.md.
+Decisão do bloco: aprovado com ressalvas, não aprovação de todos os critérios
+da página. Performance permanece3falhas; CSP intermitente tem origem não
+confirmada e reexecuções estritas verdes, preservadas no pacote. Demais itens
+do plano fora deste bloco e Termos de Autorização não foram iniciados.
