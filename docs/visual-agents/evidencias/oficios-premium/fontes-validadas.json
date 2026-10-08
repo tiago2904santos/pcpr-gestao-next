@@ -1,0 +1,21 @@
+{
+  "gestao/ui_lab/templates/ui_lab/_dossie.html": "615925c8516e319ddeb27609870f0d8e5f361d7329dc048f90715a3eba1cb005",
+  "gestao/ui_lab/templates/ui_lab/indice.html": "f6af5fbddab6055961fddbe58ff42cf39b3b939a110f93fd4d90768f4b9e0f20",
+  "gestao/ui_lab/views.py": "e9e30e4c0bd1677ebdf19c3deb814ef72fa927a186fda7b4a643f93a547a073e",
+  "gestao/viagens/templates/viagens/oficios/_dialogo_resumo.html": "696156b40183fb359a8bb726b83d4a749a0d5ba620458116c641bcc0bb52fc7f",
+  "gestao/viagens/templates/viagens/oficios/_diarias_corpo.html": "52907c9aeed6d949d9bea1c9f2bce78682e81fa90f71a89b1f762be98249dbd6",
+  "gestao/viagens/templates/viagens/oficios/_editor.html": "3d095856b843614e2e2b8c351fde7662f8c9c70642dcc35fa3de8769c8171389",
+  "gestao/viagens/templates/viagens/oficios/_equipe.html": "475cccc2636cdfb7a4243e515a2428f5d09c21ae084c8e37ae2a49097ea0b33c",
+  "gestao/viagens/templates/viagens/oficios/_registro.html": "1056b45687b3dc13441a8bbcc0493b70b18eb2aeb73e5bfcc6291e698478a76d",
+  "gestao/viagens/templates/viagens/oficios/_resumo.html": "e6644128e7ba3bc7bd38547454f6a3e0717ae93fa2999f2a1ecaab461f912ced",
+  "gestao/viagens/templates/viagens/oficios/_resumo_documento.html": "e8e38808331582b274f2dc89c50ddd536443da2d6679f24bead5852c6e0a909e",
+  "gestao/viagens/templates/viagens/oficios/editar.html": "906dd6ab4621e12f2fad6984769affe9a96793b6dcb7cb351423132b5f1483c7",
+  "gestao/viagens/templates/viagens/oficios/lista.html": "8c192ba24ff0c328785ab7016f157333c37d148e7c7b6c4719144e048f259da8",
+  "static/css/components.css": "1ebf81d55cf1fe923195ea61ce9c5767b4b3300248e2b16e77d4340280a01227",
+  "static/css/editor.css": "a3b6d42747583725c68928589ea78c43231dc3c67d9454a5cf411ee1a516d1f3",
+  "static/css/listas.css": "ac019e645675909cf19aaadeeb0429087cae342e4ce6425fc35bca1aa1f31f3b",
+  "static/js/componentes/editor-documento.js": "ace090023e6e7e41671870465c41f9317114b30aa22e8dfd4d3be6a7d8770c5b",
+  "templates/arquetipos/lista.html": "73d0590f0f2805f50ed95e837e21ca70092893c28634f75de0e3ed7d3c9935ee",
+  "templates/componentes/conferencia_valores.html": "a16c680828c5c71a3802ee315d389d01e0d56f6fdc4d13d0a516c912066fa63e",
+  "templates/componentes/identidade_documental.html": "525a519084e3599c67731d660e01776c924db77abd1436e1824577ffdea77ddd"
+}

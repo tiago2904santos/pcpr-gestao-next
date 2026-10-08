@@ -1,5 +1,13 @@
 # Paridade — Folha do ofício (cadastro/edição, `/viagens/oficios/<pk>/editar/`)
 
+## Apresentação documental — 08/10/2026
+
+Folha contínua, identidade e conferência de valores compartilhadas com o
+Resumo; equipe em linhas e campos proporcionais em tablet. Campos, autosave,
+motorista, outro meio, D13 e tempo/adicional do legado mantêm as regras da
+base `fdc662f`. Nenhuma alteração de dados históricos ou regra institucional.
+Capturas e validação: `../qa/oficios-premium-2026-10-08.md`.
+
 ## Atualização do Lote H — checkpoint `44b3186`, 07/10/2026
 
 Esta atualização prevalece sobre o diagnóstico inicial nos itens abaixo. Fechamento

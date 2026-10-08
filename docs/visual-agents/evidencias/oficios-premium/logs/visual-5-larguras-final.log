@@ -1,0 +1,392 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 84 items
+
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] FAILED [  1%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] FAILED [  2%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] FAILED [  3%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1024] PASSED [  4%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1440] PASSED [  5%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[360] PASSED [  7%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] PASSED [  8%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] PASSED [  9%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] PASSED [ 10%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1440] PASSED [ 11%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-360] PASSED [ 13%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-1440] PASSED [ 14%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-360] PASSED [ 15%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-1440] PASSED [ 16%]
+tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[360] PASSED [ 17%]
+tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[1440] PASSED [ 19%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[agenda.css] PASSED [ 20%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[assistente.css] PASSED [ 21%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[base.css] PASSED [ 22%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[components.css] PASSED [ 23%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[documento.css] PASSED [ 25%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[editor.css] PASSED [ 26%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[folha.css] PASSED [ 27%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[formulario.css] PASSED [ 28%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[graficos.css] PASSED [ 29%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[impresso.css] PASSED [ 30%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[itinerario.css] PASSED [ 32%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[layout.css] PASSED [ 33%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[listas.css] PASSED [ 34%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[painel.css] PASSED [ 35%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[progresso.css] PASSED [ 36%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[publica.css] PASSED [ 38%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[ui-lab.css] PASSED [ 39%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[agenda.css] PASSED [ 40%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[assistente.css] PASSED [ 41%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[base.css] PASSED [ 42%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[components.css] PASSED [ 44%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[documento.css] PASSED [ 45%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[editor.css] PASSED [ 46%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[folha.css] PASSED [ 47%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[formulario.css] PASSED [ 48%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[graficos.css] PASSED [ 50%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[impresso.css] PASSED [ 51%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[itinerario.css] PASSED [ 52%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[layout.css] PASSED [ 53%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[listas.css] PASSED [ 54%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[painel.css] PASSED [ 55%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[progresso.css] PASSED [ 57%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[publica.css] PASSED [ 58%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[ui-lab.css] PASSED [ 59%]
+tests/test_design_tokens.py::test_todos_os_tokens_usados_existem PASSED  [ 60%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-900/--neutro-0] PASSED [ 61%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-900/--neutro-50] PASSED [ 63%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-0] PASSED [ 64%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-50] PASSED [ 65%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-0_0] PASSED [ 66%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-50] PASSED [ 67%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-100] PASSED [ 69%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-300/--grafite-800] PASSED [ 70%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-0/--grafite-900] PASSED [ 71%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-950/--dourado-500] PASSED [ 72%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-700/--neutro-0] PASSED [ 73%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-700/--dourado-50] PASSED [ 75%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-300/--grafite-900_0] PASSED [ 76%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--verde-700/--verde-50] PASSED [ 77%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--ambar-700/--ambar-50] PASSED [ 78%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--vermelho-700/--vermelho-50] PASSED [ 79%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--azul-700/--azul-50] PASSED [ 80%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--azul-700/--neutro-0] PASSED [ 82%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-0/--vermelho-600] PASSED [ 83%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-400/--neutro-0] PASSED [ 84%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-0_1] PASSED [ 85%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-900/--neutro-0] PASSED [ 86%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-900/--neutro-50] PASSED [ 88%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-300/--grafite-900_1] PASSED [ 89%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-800/--neutro-0] PASSED [ 90%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-600/--neutro-0] PASSED [ 91%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-600/--dourado-50] PASSED [ 92%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-400/--neutro-50] PASSED [ 94%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-500/--grafite-900] PASSED [ 95%]
+tests/test_design_tokens.py::test_sem_modo_escuro PASSED                 [ 96%]
+tests/test_design_tokens.py::test_sistema_de_foco_proprio_definido_em_tokens PASSED [ 97%]
+tests/test_design_tokens.py::test_focus_visible_global_usa_os_tokens_de_foco PASSED [ 98%]
+tests/test_design_tokens.py::test_view_transitions_respeitam_movimento_reduzido PASSED [100%]
+
+================================== FAILURES ===================================
+___________ test_lista_folha_documentos_coerentes_e_operaveis[360] ____________
+
+logado = <Page url='http://localhost:61479/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/oficios/")
+        _avaliar(pg, "lista", largura)
+        botao = pg.locator(".registro__acoes [data-menu-botao]").first
+        botao.press("Enter")
+        expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        _avaliar(pg, "folha", largura)
+        campo = pg.locator("#id_protocolo")
+        campo.focus()
+        expect(campo).to_be_focused()
+        caixa = campo.bounding_box()
+        assert caixa and caixa["y"] >= 0 and caixa["y"] + caixa["height"] < 900
+
+        pg.locator("#minuta").scroll_into_view_if_needed()
+        pg.frame_locator("#folha-oficio").locator("[data-regiao='corpo']").wait_for()
+        barra = pg.locator("#editor-oficio .editor__barra")
+>       expect(barra).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: hidden
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator("#editor-oficio .editor__barra")
+E           9 × locator resolved to <div role="toolbar" class="editor__barra" aria-controls="folha-oficio" aria-label="Ferramentas do ofício">…</div>
+E             - unexpected value "hidden"
+
+tests\e2e\test_oficios_visual.py:55: AssertionError
+---------------------------- Captured stdout setup ----------------------------
+Operations to perform:
+  Synchronize unmigrated apps: django_htmx, integracoes, messages, postgres, staticfiles
+  Apply all migrations: auth, cadastros, coffee, contenttypes, eventos, identidade, imprensa, palestras, plataforma, publicacoes, sessions, viagens
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying plataforma.0001_auditoria_outbox... OK
+  Applying identidade.0001_initial... OK
+  Applying cadastros.0001_initial... OK
+  Applying cadastros.0002_auditoria_municipios... OK
+  Applying cadastros.0003_coordenadas_municipios... OK
+  Applying cadastros.0004_editor_de_documento... OK
+  Applying cadastros.0005_viatura_motoristas... OK
+  Applying cadastros.0006_modelo_texto_ordem_e_padrao... OK
+  Applying cadastros.0007_permissao_padrao_texto... OK
+  Applying cadastros.0008_cadastro_incompleto_e_padrao... OK
+  Applying cadastros.0009_assinantes_e_endereco... OK
+  Applying cadastros.0010_delegado_geral... OK
+  Applying cadastros.0011_catalogos_do_plano... OK
+  Applying cadastros.0012_catalogos_do_plano_auditoria_e_carga... OK
+  Applying cadastros.0013_coordenador_plano_genero... OK
+  Applying cadastros.0014_tipos_de_viagem... OK
+  Applying cadastros.0015_tipos_de_viagem_auditoria... OK
+  Applying cadastros.0016_textos_do_rt... OK
+  Applying coffee.0001_initial... OK
+  Applying coffee.0002_auditoria... OK
+  Applying coffee.0003_solicitacao... OK
+  Applying coffee.0004_auditoria_solicitacao... OK
+  Applying coffee.0005_fluxo_financeiro... OK
+  Applying coffee.0006_pagamento_conjunto... OK
+  Applying coffee.0007_vias... OK
+  Applying coffee.0008_auditoria_vias... OK
+  Applying coffee.0009_certidoes... OK
+  Applying coffee.0010_auditoria_certidoes... OK
+  Applying coffee.0011_pdfs_nota_ob... OK
+  Applying coffee.0012_entregas... OK
+  Applying coffee.0013_auditoria_entregas... OK
+  Applying coffee.0014_origem_do_pedido... OK
+  Applying coffee.0015_email_do_pedido... OK
+  Applying viagens.0001_initial... OK
+  Applying viagens.0002_auditoria... OK
+  Applying viagens.0003_assunto_calculado_marcador... OK
+  Applying viagens.0004_lacuna_numeracao... OK
+  Applying viagens.0005_roteiros... OK
+  Applying viagens.0006_distancias... OK
+  Applying viagens.0007_itinerario_tempos... OK
+  Applying viagens.0008_bate_volta... OK
+  Applying viagens.0009_editor_de_documento... OK
+  Applying viagens.0010_origem_do_protocolo... OK
+  Applying viagens.0011_arquivar_e_reativar... OK
+  Applying viagens.0012_motorista_externo... OK
+  Applying viagens.0013_rotulo_motorista_externo... OK
+  Applying viagens.0014_rotulo_participacao... OK
+  Applying viagens.0015_termos_de_autorizacao... OK
+  Applying viagens.0016_ordens_de_servico... OK
+  Applying viagens.0017_planos_de_trabalho... OK
+  Applying viagens.0018_planos_auditoria... OK
+  Applying viagens.0019_plano_genero_sem_padrao... OK
+  Applying viagens.0020_eventos_do_plano... OK
+  Applying viagens.0021_eventos_auditoria... OK
+  Applying viagens.0022_resultados_do_plano... OK
+  Applying viagens.0023_resultados_auditoria... OK
+  Applying viagens.0024_vias_assinadas... OK
+  Applying viagens.0025_vias_assinadas_auditoria... OK
+  Applying viagens.0026_viagem... OK
+  Applying viagens.0027_viagem_auditoria... OK
+  Applying viagens.0028_prestacao_de_contas... OK
+  Applying viagens.0029_prestacao_auditoria... OK
+  Applying viagens.0030_diario_de_bordo... OK
+  Applying viagens.0031_diario_auditoria... OK
+  Applying viagens.0032_relatorio_tecnico... OK
+  Applying viagens.0033_relatorio_auditoria... OK
+  Applying viagens.0034_anexos_da_prestacao... OK
+  Applying viagens.0035_anexos_auditoria... OK
+  Applying viagens.0036_trechos_realizados... OK
+  Applying viagens.0037_realizados_auditoria... OK
+  Applying viagens.0038_carimbo_da_solicitacao... OK
+  Applying viagens.0039_carimbo_auditoria... OK
+  Applying plataforma.0002_extensoes... OK
+  Applying plataforma.0003_auditoria_requisicao... OK
+  Applying plataforma.0004_notificacoes... OK
+  Applying plataforma.0005_rotina_do_dia... OK
+  Applying eventos.0001_initial... OK
+  Applying eventos.0002_auditoria... OK
+  Applying eventos.0003_carga_inicial... OK
+  Applying eventos.0004_solicitacao... OK
+  Applying eventos.0005_auditoria_solicitacao... OK
+  Applying eventos.0006_lembrete... OK
+  Applying eventos.0007_viagem_gerada... OK
+  Applying identidade.0002_auditoria_e_papeis... OK
+  Applying imprensa.0001_initial... OK
+  Applying imprensa.0002_auditoria... OK
+  Applying palestras.0001_initial... OK
+  Applying palestras.0002_auditoria... OK
+  Applying palestras.0003_encaminhamento_dg... OK
+  Applying plataforma.0006_assinatura_agenda... OK
+  Applying plataforma.0007_auditoria_assinatura_agenda... OK
+  Applying publicacoes.0001_initial... OK
+  Applying publicacoes.0002_auditoria... OK
+  Applying sessions.0001_initial... OK
+  Applying viagens.0040_meio_de_transporte... OK
+  Applying viagens.0041_edicao_termo... OK
+  Applying viagens.0042_edicao_ordem... OK
+  Applying viagens.0043_edicao_plano... OK
+  Applying viagens.0044_edicao_termo_modelos... OK
+  Applying viagens.0045_termo_oficios... OK
+  Applying viagens.0046_plano_programas... OK
+  Applying viagens.0047_evento_efetivo_e_diarias... OK
+  Applying viagens.0048_evento_programas... OK
+  Applying viagens.0049_data_manual_oficio... OK
+  Applying viagens.0050_regra_tempo_cache... OK
+---------------------------- Captured stderr setup ----------------------------
+Creating test database for alias 'default' ('test_pcpr_lab_visual_final')...
+
+___________ test_lista_folha_documentos_coerentes_e_operaveis[390] ____________
+
+logado = <Page url='http://localhost:61479/viagens/oficios/7/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 390
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/oficios/")
+        _avaliar(pg, "lista", largura)
+        botao = pg.locator(".registro__acoes [data-menu-botao]").first
+        botao.press("Enter")
+        expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        _avaliar(pg, "folha", largura)
+        campo = pg.locator("#id_protocolo")
+        campo.focus()
+        expect(campo).to_be_focused()
+        caixa = campo.bounding_box()
+        assert caixa and caixa["y"] >= 0 and caixa["y"] + caixa["height"] < 900
+
+        pg.locator("#minuta").scroll_into_view_if_needed()
+        pg.frame_locator("#folha-oficio").locator("[data-regiao='corpo']").wait_for()
+        barra = pg.locator("#editor-oficio .editor__barra")
+>       expect(barra).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: hidden
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator("#editor-oficio .editor__barra")
+E           9 × locator resolved to <div role="toolbar" class="editor__barra" aria-controls="folha-oficio" aria-label="Ferramentas do ofício">…</div>
+E             - unexpected value "hidden"
+
+tests\e2e\test_oficios_visual.py:55: AssertionError
+___________ test_lista_folha_documentos_coerentes_e_operaveis[768] ____________
+
+logado = <Page url='http://localhost:61479/viagens/oficios/12/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/oficios/")
+        _avaliar(pg, "lista", largura)
+        botao = pg.locator(".registro__acoes [data-menu-botao]").first
+        botao.press("Enter")
+        expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        _avaliar(pg, "folha", largura)
+        campo = pg.locator("#id_protocolo")
+        campo.focus()
+        expect(campo).to_be_focused()
+        caixa = campo.bounding_box()
+        assert caixa and caixa["y"] >= 0 and caixa["y"] + caixa["height"] < 900
+
+        pg.locator("#minuta").scroll_into_view_if_needed()
+        pg.frame_locator("#folha-oficio").locator("[data-regiao='corpo']").wait_for()
+        barra = pg.locator("#editor-oficio .editor__barra")
+        expect(barra).to_be_visible()
+        paginas = barra.locator("[data-alternar-indice]")
+        paginas.click()
+        expect(paginas).to_have_attribute("aria-expanded", "false")
+        expect(pg.locator("#indice-oficio")).to_be_hidden()
+        paginas.click()
+        expect(paginas).to_have_attribute("aria-expanded", "true")
+        expect(pg.locator("#indice-oficio")).to_be_visible()
+>       _avaliar(pg, "documentos", largura)
+
+tests\e2e\test_oficios_visual.py:63:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:61479/viagens/oficios/12/editar/'>
+nome = 'documentos', largura = 768
+
+    def _avaliar(pg, nome, largura):
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+        assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        violacoes = rodar_axe(pg)
+        pasta = Path("artifacts/oficios-premium")
+        pasta.mkdir(parents=True, exist_ok=True)
+        (pasta / f"axe-{nome}-{largura}.json").write_text(
+            json.dumps(violacoes, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        pg.screenshot(path=str(pasta / f"{nome}-{largura}.png"))
+>       assert not violacoes
+E       assert not [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', 'help': 'All touch targets must be 24px large, or leave sufficient space', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI', 'nodes': [{'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 170, 'height': 6.1}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__seletor" data-menu-botao="" aria-haspopup="menu" aria-label="M\xf3dulo atual: Viagens. Trocar de m\xf3dulo" aria-controls="menu-ijhaf03" aria-expanded="false" id="menu-ijhaf03-botao">', 'target': ['#menu-ijhaf03-botao']}, {'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 170px by 6.1px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 7, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<summary id="eprotocolo-folha-abrir"><svg class="icone icone--sm" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-copy"></use></svg>Dados para o eProtocolo</summary>', 'target': ['#eprotocolo-folha-abrir'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 170px by 6.1px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7px instead of at least 24px.'}]}]
+
+tests\e2e\test_oficios_visual.py:27: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] - AssertionError: Locator expected to be visible
+Actual value: hidden
+Call log:
+  - Expect "to_be_visible" with timeout 5000ms
+  - waiting for locator("#editor-oficio .editor__barra")
+    9 × locator resolved to <div role="toolbar" class="editor__barra" aria-controls="folha-oficio" aria-label="Ferramentas do ofício">…</div>
+      - unexpected value "hidden"
+FAILED tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] - AssertionError: Locator expected to be visible
+Actual value: hidden
+Call log:
+  - Expect "to_be_visible" with timeout 5000ms
+  - waiting for locator("#editor-oficio .editor__barra")
+    9 × locator resolved to <div role="toolbar" class="editor__barra" aria-controls="folha-oficio" aria-label="Ferramentas do ofício">…</div>
+      - unexpected value "hidden"
+FAILED tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] - assert not [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', 'help': 'All touch targets must be 24px large, or leave sufficient space', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI', 'nodes': [{'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 170, 'height': 6.1}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__seletor" data-menu-botao="" aria-haspopup="menu" aria-label="M\xf3dulo atual: Viagens. Trocar de m\xf3dulo" aria-controls="menu-ijhaf03" aria-expanded="false" id="menu-ijhaf03-botao">', 'target': ['#menu-ijhaf03-botao']}, {'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 170px by 6.1px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 7, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<summary id="eprotocolo-folha-abrir"><svg class="icone icone--sm" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-copy"></use></svg>Dados para o eProtocolo</summary>', 'target': ['#eprotocolo-folha-abrir'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 170px by 6.1px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7px instead of at least 24px.'}]}]
+============= 3 failed, 81 passed, 1 warning in 300.52s (0:05:00) =============

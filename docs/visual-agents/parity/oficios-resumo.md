@@ -1,5 +1,13 @@
 # Paridade — Resumo / detalhes do ofício
 
+## Apresentação documental — 08/10/2026
+
+Piloto do novo padrão visual: identidade, metadados, percurso contínuo,
+equipe e valores compartilhados com a Folha. Documentos, versões, ações,
+polling, assinatura, cópia e D13 permanecem os da base `fdc662f`; mudanças
+são de composição e apresentação. Geração/guards exercitados pelas suítes
+existentes. Evidências e limites: `../qa/oficios-premium-2026-10-08.md`.
+
 ## RS-02 — código conectado, validação em andamento (07/10/2026)
 
 O resumo usa a projeção materializada com maior identidade, correntes/históricos

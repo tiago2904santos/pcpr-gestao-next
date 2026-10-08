@@ -1,5 +1,12 @@
 # Paridade — Lista de ofícios (`/viagens/oficios/`)
 
+## Apresentação documental — 08/10/2026
+
+Lista recebe o padrão visual compartilhado de Ofícios. Filtros, ordenação,
+menus, paginação, consultas e permissões permanecem os da base validada
+`fdc662f`. Não há regra de paridade nova. Capturas reais antes/depois nas
+cinco larguras e validação: `../qa/oficios-premium-2026-10-08.md`.
+
 > Agente 1 — Legacy/Parity Analyst · 06/10/2026 · ponto de partida: `docs/parity/oficio.md`
 > (matriz do recorte vertical; a linha "Lista / busca" de lá está **desatualizada** — o NOVO já
 > tem filtros de período e ordenação; ver §3).

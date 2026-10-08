@@ -1,0 +1,9 @@
+"""Probe temporário na referência: console do fechamento em voo."""
+from .test_resumo_versoes_documentais import (
+    test_fechar_aborta_resposta_real_em_voo_e_interrompe_pedidos as _fechar,
+)
+
+
+def test_console_ao_fechar_polling_em_voo(logado, dados_e2e):
+    _fechar(logado, dados_e2e)
+    assert logado.erros_console == []

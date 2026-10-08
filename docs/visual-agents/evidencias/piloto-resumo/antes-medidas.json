@@ -1,0 +1,75 @@
+{
+  "telas": [
+    {
+      "largura": 360,
+      "overflow": 0,
+      "roteiroOverflow": 102,
+      "documentos": 2,
+      "actions": [
+        "Ver o PDF",
+        "Mais ações",
+        "Baixar em WordA via emitida (v1), editável",
+        "Anexar ofício assinado…O PDF do ofício com as assinaturas",
+        "Anexar justificativa assinada…A justificativa v1 com as assinaturas",
+        "Editar ofício"
+      ]
+    },
+    {
+      "largura": 390,
+      "overflow": 0,
+      "roteiroOverflow": 102,
+      "documentos": 2,
+      "actions": [
+        "Ver o PDF",
+        "Mais ações",
+        "Baixar em WordA via emitida (v1), editável",
+        "Anexar ofício assinado…O PDF do ofício com as assinaturas",
+        "Anexar justificativa assinada…A justificativa v1 com as assinaturas",
+        "Editar ofício"
+      ]
+    },
+    {
+      "largura": 768,
+      "overflow": 0,
+      "roteiroOverflow": 457,
+      "documentos": 2,
+      "actions": [
+        "Ver o PDF",
+        "Mais ações",
+        "Baixar em WordA via emitida (v1), editável",
+        "Anexar ofício assinado…O PDF do ofício com as assinaturas",
+        "Anexar justificativa assinada…A justificativa v1 com as assinaturas",
+        "Editar ofício"
+      ]
+    },
+    {
+      "largura": 1024,
+      "overflow": 0,
+      "roteiroOverflow": 0,
+      "documentos": 2,
+      "actions": [
+        "Ver o PDF",
+        "Mais ações",
+        "Baixar em WordA via emitida (v1), editável",
+        "Anexar ofício assinado…O PDF do ofício com as assinaturas",
+        "Anexar justificativa assinada…A justificativa v1 com as assinaturas",
+        "Editar ofício"
+      ]
+    },
+    {
+      "largura": 1440,
+      "overflow": 0,
+      "roteiroOverflow": 0,
+      "documentos": 2,
+      "actions": [
+        "Ver o PDF",
+        "Mais ações",
+        "Baixar em WordA via emitida (v1), editável",
+        "Anexar ofício assinado…O PDF do ofício com as assinaturas",
+        "Anexar justificativa assinada…A justificativa v1 com as assinaturas",
+        "Editar ofício"
+      ]
+    }
+  ],
+  "console": []
+}

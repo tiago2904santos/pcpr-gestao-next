@@ -1,5 +1,13 @@
 # Paridade — Documentos do ofício (ofício, justificativa, termos)
 
+## Apresentação documental de Ofícios — 08/10/2026
+
+Painel existente na Folha recebe a estação documental compartilhada e
+formatação recolhível por teclado no celular. Editor, histórico, Texto/PDF,
+Baixar, arquivos emitidos, assinatura e guards conservam a base `fdc662f`.
+Nenhuma folha oficial, template PDF/DOCX ou tela de Termos foi alterada.
+Evidências e limites: `../qa/oficios-premium-2026-10-08.md`.
+
 ## RS-02 — seleção e resumo em validação (07/10/2026)
 
 Conectados domínio/adaptador, listas/menu, anexação, DOCX, pacotes e resumo: maior

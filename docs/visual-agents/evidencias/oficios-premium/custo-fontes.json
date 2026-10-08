@@ -1,0 +1,30 @@
+[
+  {
+    "arquivo": "static/css/components.css",
+    "antes_bytes": 88496,
+    "depois_bytes": 99832,
+    "delta_bytes": 11336,
+    "delta_gzip_fonte_bytes": 1767
+  },
+  {
+    "arquivo": "static/css/listas.css",
+    "antes_bytes": 57988,
+    "depois_bytes": 60234,
+    "delta_bytes": 2246,
+    "delta_gzip_fonte_bytes": 347
+  },
+  {
+    "arquivo": "static/css/editor.css",
+    "antes_bytes": 16019,
+    "depois_bytes": 17972,
+    "delta_bytes": 1953,
+    "delta_gzip_fonte_bytes": 420
+  },
+  {
+    "arquivo": "static/js/componentes/editor-documento.js",
+    "antes_bytes": 50242,
+    "depois_bytes": 50554,
+    "delta_bytes": 312,
+    "delta_gzip_fonte_bytes": 121
+  }
+]

@@ -1,5 +1,12 @@
 # Matriz de paridade — Ofício de viagem (referência × novo)
 
+## Atualização visual — 08/10/2026
+
+Lista, Resumo, Folha e painel Documentos usam o novo padrão documental.
+Esta missão preserva regras, permissões, dados, geração e documentos da base
+`fdc662f`; não acrescenta regra institucional ou integração. Testes e imagens
+reais em `../visual-agents/qa/oficios-premium-2026-10-08.md`.
+
 Revisão cética do recorte vertical do Ofício (Fase 8), feita lendo o código da
 referência (somente leitura) e o deste repositório. Números de linha são do momento
 da revisão (01/10/2026) e servem como ponto de partida, não como contrato.

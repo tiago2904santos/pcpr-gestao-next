@@ -1,5 +1,26 @@
 # Página atual
 
+## Missão visual exclusiva de Ofícios — 08/10/2026
+
+O pedido posterior substituiu o avanço visual anterior: Lista, Resumo, Folha
+e painel Documentos redesenhados na branch `codex/viagens-piloto-resumo`,
+base `fdc662f`. Identidade e conferência de valores compartilhadas; variantes
+documentais, equipe em linhas, formatação recolhível e campos legíveis no
+tablet. Nenhuma nova página de outro módulo neste bloco.
+
+Estado: **bloco concluído, aprovado com ressalvas pelo agente**. Integral
+verde (2.193 testes / zero falhas / 7 avisos / 47min58s), 16/16 casos finais
+de navegador/UI Lab e revalidação 73/73 do último ajuste. Vinte relatórios
+axe sem violações e manifesto de 19 fontes sem divergências.
+Relatório: `qa/oficios-premium-2026-10-08.md`; imagens:
+`qa/oficios-premium-evidencias.md`. Implementação validada em `e219222`;
+documentação/evidências em commit seguinte. Próxima ação: revisão humana
+das quatro áreas de Ofícios. Ressalvas: CSP/abort demonstrados na referência,
+orçamentos anteriores de performance e leitura da folha A4 no celular.
+Sem push, merge ou deploy. Termos permanece suspenso.
+
+Histórico funcional anterior preservado abaixo.
+
 | Campo | Valor |
 |---|---|
 | Módulo | Viagens → **Ofícios** |

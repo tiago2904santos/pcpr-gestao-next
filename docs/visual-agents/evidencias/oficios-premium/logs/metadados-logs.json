@@ -1,0 +1,56 @@
+[
+  {
+    "arquivo": "oficios-premium-gate-interrompido-teclado.log",
+    "sha256_bruto": "25d5923a60995e95c0918925f6b5de30d4f2cea30baf5bf201674c8a719d31c6",
+    "sha256_arquivado": "488d2cc0a2acf7da1d87394ef5db6d79a08897dd320c1cafcc283966816dbb76",
+    "linhas": 104
+  },
+  {
+    "arquivo": "oficios-premium-verificar-integral.log",
+    "sha256_bruto": "e06b4c865c9805566a9517dc3af74bcaa0354850627132950118aca7d36a2005",
+    "sha256_arquivado": "ed1a2357e89717bd4da3794b2ea4b9fbef5a6cf11da1ee2d3b21b897f7362c6c",
+    "linhas": 146
+  },
+  {
+    "arquivo": "visual-5-larguras-final.log",
+    "sha256_bruto": "9db264b77fc507cfae4bb1bdb0914f6c63506b77723751261f9a8a7ed1d20fb2",
+    "sha256_arquivado": "21658f68514acd338afef45213477d9cd867c6b2543dd577e2238bd91d6c2a2e",
+    "linhas": 392
+  },
+  {
+    "arquivo": "visual-abort-baseline.log",
+    "sha256_bruto": "07a5b50eea3434bb0cb1d4bc9e53567888f1daf7c1d802321f8986682b9fca8a",
+    "sha256_arquivado": "e3edcfe8a719487b846280e4186841ea45f484190ad5dcb33b04d4cd45a73662",
+    "linhas": 186
+  },
+  {
+    "arquivo": "visual-campos-tokens-final.log",
+    "sha256_bruto": "82bdcb7b92bbfcdf97d58337373d63391301db897304964fe3f3113162f04821",
+    "sha256_arquivado": "d8a53352660d0cbaea64e04cee909b02a21151bf4706ed485af52bf94a5e49d3",
+    "linhas": 91
+  },
+  {
+    "arquivo": "visual-consolidado.log",
+    "sha256_bruto": "c8fa596b32ada5eea3b7267defd2ea0d867ae541e681cbfb71cc86fce6085340",
+    "sha256_arquivado": "fb69ac641e2eb35676bba8a7ca773e0165285583c3049556285cb8fc07519e6c",
+    "linhas": 64
+  },
+  {
+    "arquivo": "visual-csp-baseline.log",
+    "sha256_bruto": "87861e008f2dd9a1456cb3dda80591b249cf28dd9717ae75208d199ec5730757",
+    "sha256_arquivado": "520171ba4b245d7a2f8f8ca060351d87cf8bf3f1f2989ecdae3209145d7c3359",
+    "linhas": 56
+  },
+  {
+    "arquivo": "visual-editor-responsivo-validado.log",
+    "sha256_bruto": "cc3e707e443a4549dc6831acf2335a26de711180adfaba21869257d28a17d967",
+    "sha256_arquivado": "110f0a0e2c473a7b45ce186e7e75c55fefe27680a8900aa66199a47938685e23",
+    "linhas": 441
+  },
+  {
+    "arquivo": "visual-validacao-final.log",
+    "sha256_bruto": "cfe669309d1ae2e0512a6cde2409f56304015b34a40ae5b3a366c0206a622d1c",
+    "sha256_arquivado": "af0ff8f74f7008d14be067022e2c536ff8ad181148cc00aeb1554b1155fb2f15",
+    "linhas": 34
+  }
+]

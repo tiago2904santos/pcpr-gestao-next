@@ -1,0 +1,56 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________ test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto __________
+
+logado = <Page url='http://localhost:51677/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e):
+        pg = logado
+        pg.add_init_script("""window.__cspCopia = [];
+            document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
+              fonte: e.sourceFile, linha: e.lineNumber, diretiva: e.effectiveDirective,
+              bloqueado: e.blockedURI, amostra: e.sample
+            }));""")
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
+        pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
+        pg.locator(".registro__link").first.click()
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        bloco = janela.locator("#eprotocolo-resumo-bloco")
+        _abrir(bloco)
+        expect(bloco).to_contain_text("Dados da emissão v1")
+        botao = bloco.locator("button[data-copiar-revelar]")
+        botao.click()
+        campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
+        expect(campo).to_be_visible()
+        expect(campo).to_be_focused()
+        assert campo.evaluate("q => q.selectionStart === 0 && q.selectionEnd === q.value.length")
+        expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Selecionado — use Ctrl+C")
+        primeiro = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])").first
+        primeiro.click()
+        individual = pg.locator("#" + primeiro.get_attribute("data-copiar-alvo"))
+        expect(individual).to_be_focused()
+        assert individual.evaluate("q => q.selectionEnd === q.value.length")
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for largura in [360, 390, 768, 1024, 1440]:
+            pg.set_viewport_size({"width": largura, "height": 900})
+            assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
+        violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+        assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
+        csp = pg.evaluate("window.__cspCopia")
+        (pasta / "csp-resumo.json").write_text(json.dumps(csp, indent=2), encoding="utf-8")
+>       assert pg.erros_console == [], csp
+E       AssertionError: [{'fonte': 'http://localhost:51677/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': ...tp://localhost:51677/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}]
+E       assert ['Refused to ...s present.\n'] == []
+E
+E         Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+E         Use -v to get more diff
+
+tests\e2e\test_eprotocolo_copia.py:104: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_eprotocolo_copia.py::test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto
+1 failed in 39.14s

@@ -1,0 +1,441 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 23 items
+
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] PASSED [  4%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] PASSED [  8%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] PASSED [ 13%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1024] PASSED [ 17%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1440] PASSED [ 21%]
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste PASSED [ 26%]
+tests/e2e/test_editor.py::test_campo_vivo_grava_no_oficio_e_o_formulario_acompanha PASSED [ 30%]
+tests/e2e/test_editor.py::test_voltar_ao_modelo_e_restaurar PASSED       [ 34%]
+tests/e2e/test_editor.py::test_modo_pdf_e_barra_acessivel PASSED         [ 39%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[360] PASSED [ 43%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[1440] PASSED [ 47%]
+tests/e2e/test_editor_carga.py::test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado PASSED [ 52%]
+tests/e2e/test_editor_carga.py::test_reposicao_durante_import_nao_inicializa_caixa_removida PASSED [ 56%]
+tests/e2e/test_editor_carga.py::test_fallback_sem_intersection_observer PASSED [ 60%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[360] PASSED [ 65%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] FAILED [ 69%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] FAILED [ 73%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] FAILED [ 78%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1440] PASSED [ 82%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-360] PASSED [ 86%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-1440] PASSED [ 91%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-360] PASSED [ 95%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-1440] PASSED [100%]
+
+================================== FAILURES ===================================
+_____ test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] ______
+
+logado = <Page url='http://localhost:59520/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 76, 'oficio_rascunho': 77, 'oficio_vazio': 78, 'oficio_cancelado': 79, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 390
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis(
+        logado, dados_e2e, largura,
+    ):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.goto(f"/viagens/oficios/?resumo={oficio.pk}")
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        expect(janela.locator(".identidade-documental__numero")).to_have_text(oficio.numero_formatado)
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+        caixa = janela.bounding_box()
+        assert caixa and caixa["x"] >= 0 and caixa["x"] + caixa["width"] <= largura + 1
+        assert caixa["y"] >= 0 and caixa["y"] + caixa["height"] <= 901
+        assert janela.evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+        assert janela.locator(".resumo__trechos").evaluate(
+            "e => e.scrollHeight <= e.clientHeight + 1"
+        ), "O roteiro deve poder ser lido na rolagem única do dossiê."
+        for alvo in [".resumo__definicoes", ".resumo__indicadores", ".resumo__cartoes"]:
+            assert janela.locator(alvo).evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+
+        pasta = Path("artifacts/piloto-resumo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / f"dossie-{largura}.png"))
+        violacoes = rodar_axe(pg)
+        (pasta / f"axe-{largura}.json").write_text(
+            json.dumps(violacoes, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        assert not violacoes
+        # A leitura longa não pode tirar do alcance as decisões do rodapé.
+        janela.locator("#resumo-documentos-area").scroll_into_view_if_needed()
+        acoes = janela.locator("#resumo-rodape")
+        expect(acoes).to_be_in_viewport()
+        botao = acoes.get_by_role("button", name="Mais ações", exact=True)
+        botao.press("Enter")
+        painel = pg.locator(".menu__painel:popover-open")
+        expect(painel).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        # Tab e Shift+Tab permanecem na janela; Escape volta para a página.
+        for tecla in ["Tab", "Shift+Tab"]:
+            pg.keyboard.press(tecla)
+            assert janela.evaluate("e => e.contains(document.activeElement)")
+        pg.keyboard.press("Escape")
+        expect(janela).not_to_be_visible()
+>       assert pg.erros_console == []
+E       AssertionError: assert ['htmx:afterRequest, [object HTMLElement]', 'htmx:sendAbort, [object HTMLElement]'] == []
+E
+E         Left contains 2 more items, first extra item: 'htmx:afterRequest, [object HTMLElement]'
+E
+E         Full diff:
+E         - []
+E         + [
+E         +     'htmx:afterRequest, [object HTMLElement]',
+E         +     'htmx:sendAbort, [object HTMLElement]',
+E         + ]
+
+tests\e2e\test_resumo_visual.py:65: AssertionError
+---------------------------- Captured stderr call -----------------------------
+[08/Oct/2026 01:46:02,649] - Broken pipe from ('127.0.0.1', 61764)
+------------------------------ Captured log call ------------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 61764)
+_____ test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] ______
+
+logado = <Page url='http://localhost:59520/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 81, 'oficio_rascunho': 82, 'oficio_vazio': 83, 'oficio_cancelado': 84, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis(
+        logado, dados_e2e, largura,
+    ):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.goto(f"/viagens/oficios/?resumo={oficio.pk}")
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        expect(janela.locator(".identidade-documental__numero")).to_have_text(oficio.numero_formatado)
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+        caixa = janela.bounding_box()
+        assert caixa and caixa["x"] >= 0 and caixa["x"] + caixa["width"] <= largura + 1
+        assert caixa["y"] >= 0 and caixa["y"] + caixa["height"] <= 901
+        assert janela.evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+        assert janela.locator(".resumo__trechos").evaluate(
+            "e => e.scrollHeight <= e.clientHeight + 1"
+        ), "O roteiro deve poder ser lido na rolagem única do dossiê."
+        for alvo in [".resumo__definicoes", ".resumo__indicadores", ".resumo__cartoes"]:
+            assert janela.locator(alvo).evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+
+        pasta = Path("artifacts/piloto-resumo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / f"dossie-{largura}.png"))
+        violacoes = rodar_axe(pg)
+        (pasta / f"axe-{largura}.json").write_text(
+            json.dumps(violacoes, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        assert not violacoes
+        # A leitura longa não pode tirar do alcance as decisões do rodapé.
+        janela.locator("#resumo-documentos-area").scroll_into_view_if_needed()
+        acoes = janela.locator("#resumo-rodape")
+        expect(acoes).to_be_in_viewport()
+        botao = acoes.get_by_role("button", name="Mais ações", exact=True)
+        botao.press("Enter")
+        painel = pg.locator(".menu__painel:popover-open")
+        expect(painel).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        # Tab e Shift+Tab permanecem na janela; Escape volta para a página.
+        for tecla in ["Tab", "Shift+Tab"]:
+            pg.keyboard.press(tecla)
+            assert janela.evaluate("e => e.contains(document.activeElement)")
+        pg.keyboard.press("Escape")
+        expect(janela).not_to_be_visible()
+>       assert pg.erros_console == []
+E       assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+E
+E         Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+E
+E         Full diff:
+E         - []
+E         + [
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         + ]
+
+tests\e2e\test_resumo_visual.py:65: AssertionError
+_____ test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] _____
+
+logado = <Page url='http://localhost:59520/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 86, 'oficio_rascunho': 87, 'oficio_vazio': 88, 'oficio_cancelado': 89, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1024
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis(
+        logado, dados_e2e, largura,
+    ):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.goto(f"/viagens/oficios/?resumo={oficio.pk}")
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        expect(janela.locator(".identidade-documental__numero")).to_have_text(oficio.numero_formatado)
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+        caixa = janela.bounding_box()
+        assert caixa and caixa["x"] >= 0 and caixa["x"] + caixa["width"] <= largura + 1
+        assert caixa["y"] >= 0 and caixa["y"] + caixa["height"] <= 901
+        assert janela.evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+        assert janela.locator(".resumo__trechos").evaluate(
+            "e => e.scrollHeight <= e.clientHeight + 1"
+        ), "O roteiro deve poder ser lido na rolagem única do dossiê."
+        for alvo in [".resumo__definicoes", ".resumo__indicadores", ".resumo__cartoes"]:
+            assert janela.locator(alvo).evaluate("e => e.scrollWidth <= e.clientWidth + 1")
+
+        pasta = Path("artifacts/piloto-resumo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / f"dossie-{largura}.png"))
+        violacoes = rodar_axe(pg)
+        (pasta / f"axe-{largura}.json").write_text(
+            json.dumps(violacoes, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        assert not violacoes
+        # A leitura longa não pode tirar do alcance as decisões do rodapé.
+        janela.locator("#resumo-documentos-area").scroll_into_view_if_needed()
+        acoes = janela.locator("#resumo-rodape")
+        expect(acoes).to_be_in_viewport()
+        botao = acoes.get_by_role("button", name="Mais ações", exact=True)
+        botao.press("Enter")
+        painel = pg.locator(".menu__painel:popover-open")
+        expect(painel).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        # Tab e Shift+Tab permanecem na janela; Escape volta para a página.
+        for tecla in ["Tab", "Shift+Tab"]:
+            pg.keyboard.press(tecla)
+            assert janela.evaluate("e => e.contains(document.activeElement)")
+        pg.keyboard.press("Escape")
+        expect(janela).not_to_be_visible()
+>       assert pg.erros_console == []
+E       assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+E
+E         Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+E
+E         Full diff:
+E         - []
+E         + [
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         + ]
+
+tests\e2e\test_resumo_visual.py:65: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] - AssertionError: assert ['htmx:afterRequest, [object HTMLElement]', 'htmx:sendAbort, [object HTMLElement]'] == []
+
+  Left contains 2 more items, first extra item: 'htmx:afterRequest, [object HTMLElement]'
+
+  Full diff:
+  - []
+  + [
+  +     'htmx:afterRequest, [object HTMLElement]',
+  +     'htmx:sendAbort, [object HTMLElement]',
+  + ]
+FAILED tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] - assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+
+  Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+
+  Full diff:
+  - []
+  + [
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  + ]
+FAILED tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] - assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+
+  Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+
+  Full diff:
+  - []
+  + [
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  + ]
+============= 3 failed, 20 passed, 1 warning in 534.75s (0:08:54) =============
