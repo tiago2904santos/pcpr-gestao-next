@@ -35,6 +35,12 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
     pg.set_viewport_size({"width": largura, "height": 900})
     pg.goto("/viagens/oficios/")
     _avaliar(pg, "lista", largura)
+    if largura >= 1024:
+        assert pg.locator(".registro--documental .registro__meta-item--diarias .registro__meta-texto").evaluate_all(
+            "els => els.every(e => e.scrollHeight <= e.clientHeight + 1)"
+        ), "Valor e composição das diárias devem aparecer inteiros, sem recorte vertical."
+    else:
+        expect(pg.locator(".registro--documental .registro__meta-item--protocolo").first).to_be_visible()
     botao = pg.locator(".registro__acoes [data-menu-botao]").first
     botao.press("Enter")
     expect(pg.locator(".menu__painel:popover-open")).to_be_visible()

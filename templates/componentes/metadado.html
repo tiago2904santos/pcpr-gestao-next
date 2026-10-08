@@ -1,0 +1,5 @@
+{% comment %}Item de lista de descrição. Usar dentro de dl; valor escapado pelo Django.{% endcomment %}
+<div class="metadado{% if classe %} {{ classe }}{% endif %}">
+  <dt>{{ rotulo }}</dt>
+  <dd{% if titulo %} title="{{ titulo }}"{% endif %}>{% if valor or valor == 0 %}{{ valor }}{% else %}<span class="vazio-inline">{{ ausente|default:"Não informado" }}</span>{% endif %}</dd>
+</div>

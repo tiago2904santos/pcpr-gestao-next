@@ -46,11 +46,11 @@ continua sendo a edição; aqui só se lê e se decide.
     </div></div>
   {% endif %}
 
-  <dl class="resumo__definicoes">
-    <div><dt>Data</dt><dd>{{ oficio.data_oficio|date:"d/m/Y" }}</dd></div>
-    <div><dt>Protocolo</dt><dd>{% if oficio.protocolo %}{{ oficio.protocolo_formatado }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>
-    <div><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
-    <div><dt>Porte de arma</dt><dd>{{ oficio.porte_arma|yesno:"Sim,Não" }}</dd></div>
+  <dl class="resumo__definicoes metadados">
+    {% include "componentes/metadado.html" with rotulo="Data" valor=oficio.data_oficio|date:"d/m/Y" only %}
+    {% include "componentes/metadado.html" with rotulo="Protocolo" valor=oficio.protocolo_formatado only %}
+    <div class="metadado"><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
+    {% include "componentes/metadado.html" with rotulo="Porte de arma" valor=oficio.porte_arma|yesno:"Sim,Não" only %}
     <div class="resumo__largo resumo__motivo"><dt>Motivo da viagem</dt><dd>{{ oficio.motivo|default:"—" }}</dd></div>
     {% tipo_oficio oficio as tipo %}
     {# O tipo sempre (inclusive Autorização, que a lista não marca) e o porquê, por escrito. #}

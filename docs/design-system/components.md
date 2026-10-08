@@ -101,3 +101,19 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
 | Valor | `.valor-destaque`, `.por-extenso` | `--marca` | — |
 | Prévia de documento | `.previa-documento` | iframe do PDF | Título no iframe |
 | Sessão expirada (pedidos assíncronos) | `identidade.middleware.EntradaObrigatoriaMiddleware` + `app.js` + `pc-toasts` | Navegação sem sessão → tela de login; HTMX/fetch/JSON sem sessão → **401** com `X-Sessao-Expirada` e `{"mensagem","entrar"}` (volta para a página de origem, nunca para o fragmento); HTMX recarrega no login (`HX-Redirect`); qualquer `fetch` dispara `pcpr:sessao-expirada` → aviso persistente "Sua sessão terminou — entre de novo." com o link "Entrar de novo" | Aviso de erro não some sozinho (WCAG 2.2.1); link real, focável |
+
+## Leitura operacional de documentos — 08/10/2026
+
+- `identidade_documental.html`: `compacta=True` adapta a assinatura ao registro de lista;
+  mantém a variante de cabeçalho e o estado cancelado. Número acessível pertence ao link.
+- `metadado.html`: par `dt/dd` escapado, para uso dentro de `dl`. Parâmetros `rotulo`,
+  `valor`, `titulo`, `ausente`, `classe`; valor zero é válido. Ausência tem orientação textual.
+  `.metadados` apresenta os itens por filetes, sem caixas adicionais. Resumo e UI Lab usam.
+- `cabecalho_registros.html`: régua visual opcional de `.registro--documental`; rótulos
+  configuráveis `identidade`, `descricao`, `participantes`, `valores`. Não cria papel de
+  tabela: cada registro preserva seus próprios rótulos acessíveis, link e menu.
+- Variante documental: >=1024 organiza identidade/viagem/equipe/valor; 768 conserva
+  metadados em faixas; celular mostra protocolo e dedica linhas inteiras a equipe/transporte.
+  Diárias completas no desktop, dinheiro alinhado à direita, sem novos scripts/requisições.
+  Vitrine na seção 21 e nos dossiês do UI Lab. Comparações em
+  `docs/visual-agents/evidencias/oficios-leitura-operacional/`.

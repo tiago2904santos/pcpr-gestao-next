@@ -1978,7 +1978,8 @@ html.rolagem-presa {
 }
 
 /* Variante documental do arquétipo LIST: separação por faixas e número editorial. */
-.lista--documental > .cartao { border: var(--borda); box-shadow: var(--sombra-2); }
+.lista--documental > .cartao { border: var(--borda); box-shadow: var(--sombra-1); }
+.lista--documental > .pagina-cabecalho.pagina-cabecalho--documental { padding-bottom: var(--esp-3); margin-bottom: var(--esp-4); }
 .lista--documental > .abas { gap: var(--esp-2); border-bottom: 0; padding-bottom: var(--esp-2); }
 .lista--documental > .abas .aba { padding: var(--esp-3) var(--esp-4); border-radius: var(--raio-md); }
 .lista--documental > .abas .aba[aria-current="page"] { background: var(--cor-primaria); color: var(--cor-texto-inverso); border-color: transparent; }
@@ -1991,6 +1992,39 @@ html.rolagem-presa {
 .registro--documental .registro__link-texto { font-size: var(--texto-lg); font-weight: var(--peso-semi); }
 .registro--documental .registro__meta { margin-top: var(--esp-3); }
 .registro--documental .registro__valor { font-weight: var(--peso-forte); }
+.registros__colunas { display: none; }
+.registro__agenda { display: contents; }
+
+/* A variante de registro reorganiza os mesmos dados, sem criar tabela ARIA parcial.
+   As colunas do cabeçalho correspondem às áreas dos registros. */
+@media (min-width: 1024px) {
+  .registros__colunas,
+  .registro.registro--documental {
+    grid-template-columns: 6.5rem minmax(0, 1.35fr) minmax(0, 1fr) 8.5rem 2.25rem;
+    column-gap: var(--esp-6);
+  }
+  .registros__colunas { display: grid; padding: var(--esp-3) var(--esp-6); border-bottom: var(--borda); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
+  .registros__colunas > :last-child { text-align: right; }
+  .registro.registro--documental { grid-template-areas: "identidade titulo equipe diarias acoes" "identidade periodo transporte diarias acoes" "identidade protocolo transporte diarias acoes"; row-gap: var(--esp-1); align-items: start; padding-block: var(--esp-3); }
+  .registro.registro--documental:has(.registro__agenda) { grid-template-areas: "identidade titulo equipe diarias acoes" "identidade agenda transporte diarias acoes"; }
+  .registro--documental .registro__agenda { grid-area: agenda; display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-4); align-items: center; margin-top: var(--esp-1); }
+  .registro--documental > .placa { grid-area: identidade; }
+  .registro--documental > .registro__corpo,
+  .registro--documental .registro__meta--colunas { display: contents; }
+  .registro--documental .registro__corpo > .registro__titulo { grid-area: titulo; flex-wrap: wrap; gap: var(--esp-2); }
+  .registro--documental .registro__titulo > .registro__link { width: 100%; }
+  .registro--documental .registro__link-texto { white-space: normal; line-height: var(--altura-linha-justa); }
+  .registro--documental .registro__titulo > .registro__selos { flex-wrap: wrap; }
+  .registro--documental .registro__meta-item > .icone { display: none; }
+  .registro--documental .registro__meta-item--periodo { margin-top: 0; }
+  .registro--documental .registro__meta-item--transporte { color: var(--cor-texto-terciario); }
+  .registro--documental .registro__meta-item--diarias { justify-content: end; text-align: right; }
+  .registro--documental .registro__meta-item--diarias .registro__meta-texto { display: grid; gap: var(--esp-1); height: auto; white-space: normal; }
+  .registro--documental .registro__valor { font-size: var(--texto-lg); }
+  .registro--documental .registro__meta-item--diarias .registro__meta-detalhe { display: block; font-size: var(--texto-xs); }
+  .registro--documental .registro__meta-separador { display: none; }
+  .registro--documental > .registro__acoes { grid-area: acoes; }
+}
 
 @media (max-width: 767.98px) {
   .lista--documental .filtros--barra { padding: var(--esp-4); }
@@ -2000,4 +2034,9 @@ html.rolagem-presa {
   .lista--documental .registro.registro--documental .registro__titulo > .registro__link { grid-area: auto; grid-column: 1 / -1; grid-row: 2; }
   .lista--documental .registro.registro--documental .registro__titulo > .registro__selos { grid-column: 1 / -1; grid-row: 3; }
   .lista--documental .registro.registro--documental .registro__meta { grid-row: 4; }
+  .lista--documental .registro--documental .registro__meta--oficio { grid-template-areas: "periodo diarias" "protocolo diarias" "equipe equipe" "transporte transporte"; gap: var(--esp-2) var(--esp-3); }
+  .lista--documental .registro--documental .registro__meta-item--protocolo { display: inline-flex; }
+  .registro--documental .registro__meta-item--diarias { justify-content: end; align-self: start; text-align: right; }
+  .registro--documental .registro__valor { font-size: var(--texto-lg); }
+  .registro--documental .registro__meta-item--equipe { padding-top: var(--esp-2); border-top: var(--borda-sutil); }
 }

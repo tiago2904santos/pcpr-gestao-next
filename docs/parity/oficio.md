@@ -176,3 +176,13 @@ Decisão H/correções existentes: aprovado com ressalvas, segundo pacote
 ao candidato, CSP intermitente e paridade editorial permanecem delimitados;
 main preservada e Termos de Autorização suspenso. Não declarar toda a reconstrução
 concluída nem CI/performance global verdes a partir desse gate local.
+
+## Leitura operacional — 08/10/2026
+
+Rodada visual sobre `0213d75`: Lista organiza os mesmos campos em colunas e mostra
+protocolo também no celular; Resumo usa metadados compartilhados. Destinos, estados,
+alertas, motorista interno/externo, transporte, valores, filtros, menus e documentos
+preservam a paridade existente. Nenhum cálculo, permissão, documento oficial ou
+integração foi alterado. Evidências em
+`docs/visual-agents/evidencias/oficios-leitura-operacional/` e diagnóstico em
+`docs/visual-agents/visual/oficios-leitura-operacional.md`.

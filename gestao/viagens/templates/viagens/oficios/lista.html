@@ -124,6 +124,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
   {% endcomment %}
   <h2 class="sr-only" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”: {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% else %}Ofícios{% endif %}</h2>
   {% if oficios %}
+    {% include "componentes/cabecalho_registros.html" only %}
     <ul class="registros" aria-labelledby="titulo-resultados">
       {% for o in oficios %}
         {# Agrupamento por mês: pela saída quando a ordem é por saída; senão pela data do ofício. #}
