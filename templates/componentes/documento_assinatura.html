@@ -2,7 +2,11 @@
 {% comment %}Estado e ações da assinatura dentro da peça documental; mesmas policies e menus.{% endcomment %}
 <div class="assinatura-documental" role="group" aria-label="Via assinada: {{ c.titulo }}">
   <div class="assinatura-documental__estado">
-    {% if c.s.via %}<a href="{% url 'viagens:abrir_via_assinada' c.s.via.pk %}" target="_blank" rel="noopener" class="assinatura-documental__abrir">{% icone "file-signature" classe="icone--sm" %}Abrir via assinada<span class="sr-only"> de {{ c.titulo }} (PDF, nova aba)</span></a>{% include "viagens/assinados/_selo.html" with s=c.s %}
+    {% comment %}
+    O estado e a ação de ler são a MESMA coisa: um selo clicável. Selo e link separados diziam
+    duas vezes o mesmo ("Assinado" + "Abrir via assinada") e disputavam a linha do documento.
+    {% endcomment %}
+    {% if c.s.via %}<a href="{% url 'viagens:abrir_via_assinada' c.s.via.pk %}" target="_blank" rel="noopener" class="selo selo--sem-ponto assinatura-documental__abrir {% if c.s.mudou %}selo--aviso{% else %}selo--sucesso{% endif %}" title="{% if c.s.mudou %}A via assinada foi anexada antes da última alteração: confira se ainda vale ou anexe a nova.{% else %}Via assinada anexada em {{ c.s.via.enviado_em|date:'d/m/Y H:i' }}{% endif %}">{% if c.s.mudou %}{% icone "alert-triangle" classe="icone--sm" %}Assinado · dados mudaram{% else %}{% icone "file-signature" classe="icone--sm" %}Assinado{% endif %}<span class="sr-only"> — Abrir via assinada de {{ c.titulo }} (PDF, nova aba)</span></a>
     {% else %}<span class="assinatura-documental__ausente">Sem via assinada</span>{% endif %}
   </div>
   {% if c.s.via or c.pode %}

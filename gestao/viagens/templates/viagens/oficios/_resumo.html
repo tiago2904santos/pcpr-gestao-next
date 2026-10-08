@@ -18,7 +18,7 @@ Contratos institucionais preservados nas parciais; a ordem é de apresentação.
     <div class="mesa-registro__principal">
       {% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" id_titulo="resumo-roteiro" conteudo="viagens/oficios/_resumo_percurso.html" %}
       {# Quem vai e em quê vem logo abaixo do roteiro: a mesma coluna de leitura da viagem. #}
-      {% include "componentes/bloco_registro.html" with indice="02" titulo="Equipe e transporte" id_titulo="resumo-equipe" conteudo="viagens/oficios/_resumo_equipe.html" %}
+      {% include "componentes/bloco_registro.html" with indice="02" titulo="Equipe e transporte" id_titulo="resumo-equipe" nota=viajantes|length|pluralizar:"servidor,servidores" conteudo="viagens/oficios/_resumo_equipe.html" %}
     </div>
     {# O wrapper prende o painel à sua célula: grudado, ele para no fim do roteiro e nunca cobre a cópia. #}
     <div class="mesa-registro__coluna">

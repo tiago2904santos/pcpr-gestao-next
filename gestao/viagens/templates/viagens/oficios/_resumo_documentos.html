@@ -11,10 +11,8 @@
   {% if vias %}
     {% for c in vias %}{% if c.s.via and c.pode %}{% include "viagens/assinados/_form_remover.html" with s=c.s titulo=c.titulo voltar=c.voltar %}{% endif %}{% endfor %}
   {% endif %}
-  {% if documentos_historicos %}
-    <h4 class="resumo__titulo">Histórico de documentos</h4>
-    <ul class="resumo__documentos" role="list" aria-label="Documentos históricos">
-      {% for linha in documentos_historicos %}{% include "viagens/oficios/_resumo_documento.html" with historico=True %}{% endfor %}
-    </ul>
-  {% endif %}
+  {% comment %}
+  A janela mostra só a emissão CORRENTE: é a mesa de quem vai agir agora. As versões
+  anteriores continuam guardadas e saem pelo menu "Mais ações → Baixar documentos…".
+  {% endcomment %}
 </section>

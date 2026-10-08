@@ -61,13 +61,16 @@ def test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia(
     expect(rodape.get_by_text("Ver minuta", exact=True)).to_have_count(0)
     expect(rodape.get_by_text("Ver o PDF", exact=True)).to_have_count(0)
     expect(rodape.get_by_text("Baixar em Word", exact=True)).to_have_count(0)
-    historia = janela.locator('[aria-label="Documentos históricos"]')
-    expect(historia).to_contain_text("Ofício v1 (histórico)")
-    expect(historia.locator(f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
-        .to_have_count(1)
+    # A janela mostra só a emissão corrente (decisão de produto, 08/10/2026): a v1 continua
+    # guardada, mas não aparece aqui — nem como link para baixar.
+    expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
+    expect(janela.locator(f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
+        .to_have_count(0)
     copia = janela.locator("#eprotocolo-resumo-bloco")
     assert copia.locator("summary").evaluate("el => getComputedStyle(el).display") == "inline-flex"
-    copia.locator("summary").click()
+    # O bloco nasce aberto; o clique no resumo só é necessário se alguém o fechou.
+    if copia.get_attribute("open") is None:
+        copia.locator("summary").click()
     expect(copia).to_have_attribute("open", "")
     expect(copia).to_contain_text("Dados da emissão v2")
     expect(copia.get_by_label("Detalhamento", exact=True)).to_have_value(
@@ -186,7 +189,7 @@ def test_historico_gerando_isolado_nao_faz_polling(logado, dados_e2e):
     pg.wait_for_timeout(4500)
     assert pedidos == []
     expect(janela.locator("#resumo-rodape")).to_contain_text("Ver o PDF")
-    expect(janela.locator('[aria-label="Documentos históricos"]')).to_contain_text("gerando")
+    expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
     assert pg.erros_console == []
 
 
@@ -272,11 +275,11 @@ def test_reaberto_preserva_minuta_e_documentos_assinados_historicos(logado, dado
     expect(janela.locator("[data-resumo-poll]")).to_have_count(0)
     expect(janela.locator("#resumo-rodape")).to_contain_text("Ver minuta")
     expect(janela.locator("#resumo-rodape")).not_to_contain_text("Ver o PDF")
-    historia = janela.locator('[aria-label="Documentos históricos"]')
-    expect(historia).to_contain_text("Ofício v2 (histórico)")
-    expect(historia).to_contain_text("Via assinada histórica · revogada")
-    expect(historia.locator(f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')) \
-        .to_have_count(1)
+    expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
+    expect(janela.locator(f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')) \
+        .to_have_count(0)
+    # Fora da janela, nada se perdeu: a via da emissão anterior continua guardada.
+    assert ViaAssinada.objects.filter(pk=via.pk).exists()
     assert pg.erros_console == []
 
 

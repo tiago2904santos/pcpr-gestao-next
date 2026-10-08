@@ -3,6 +3,8 @@
   <header class="bloco-registro__cabecalho">
     {% if indice %}<span class="bloco-registro__indice" aria-hidden="true">{{ indice }}</span>{% endif %}
     <h3 class="resumo__titulo bloco-registro__titulo" id="{{ id_titulo }}">{% if icone %}{% icone icone classe="icone--sm" %}{% endif %}{{ titulo }}</h3>
+    {# Contagem e afins moram no cabeçalho, não como rótulo solto dentro do conteúdo. #}
+    {% if nota %}<span class="bloco-registro__nota">{{ nota }}</span>{% endif %}
   </header>
   {% include conteudo %}
 </section>

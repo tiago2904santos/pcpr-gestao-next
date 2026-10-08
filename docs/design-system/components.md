@@ -156,14 +156,29 @@ o halo de teclado e o fundo de foco. Não tratar campo somente leitura como desa
   A seleção nativa e todos os IDs/avisos permanecem. A variante padrão da Folha
   continua disponível. Não simular um input com texto solto ou remover seu foco.
 - `.equipe-transporte`: servidores e transporte em cartões iguais (superfície sutil),
-  empilhados logo abaixo do roteiro, na mesma coluna de leitura da viagem.
-- O motivo da viagem abre a mesa na faixa inteira; o painel de conferência abre na
-  linha do Roteiro e acompanha a rolagem (sticky) acima de 1024 px.
+  logo abaixo do roteiro, na mesma coluna de leitura da viagem; acima de 768 px os
+  servidores ocupam duas colunas (`auto-fit`, mínimo 15rem) e a contagem mora no
+  cabeçalho do bloco (`bloco_registro.html`, parâmetro `nota`), não como rótulo solto.
+- O motivo da viagem abre a mesa na coluna do roteiro; o painel de conferência cobre as
+  linhas do motivo e do roteiro e acompanha a rolagem (sticky) acima de 1024 px, preso à
+  sua célula (`.mesa-registro__coluna`) para nunca cobrir a área de cópia. Grudado, ele
+  guarda o MESMO respiro que tem parado: o `top` desconta o padding do corpo rolável.
 - Conferência serena usa total e `dl` financeiro, sem os filetes herdados da
   variante de indicadores. O UI Lab também usa a mesma variante de conferência.
 - Registro institucional traz só os dados do documento (data, protocolo, custeio,
   porte): tipo é selo no cabeçalho e prazo pendente é alerta — não repetir em texto.
-- `.registro-hero__linha`: selos ao lado do título, sem filete separando; sobre o
-  cabeçalho escuro o selo é contorno de luz, nunca pastilha de fundo claro.
+- `.registro-hero__linha`: selos ao lado do título, sem filete separando. Sobre o
+  cabeçalho escuro só a SITUAÇÃO tem contorno; prazo, tipo e arquivado viram texto com
+  ícone em tom sutil — informam sem disputar com o número e o destino.
+- `.estacao-documental__peca` é uma linha só: documento à esquerda, estado da via ao lado
+  do nome e as ações na outra ponta; detalhes da anexação e notas de conferência descem
+  em faixa inteira. O hover acende a peça inteira (`:has`), não a metade esquerda.
+- Estado e leitura da via são o MESMO controle: um selo clicável (`a.selo`), com alvo de
+  toque mínimo (`--alvo-minimo`) e sem comportamento de link (nem sublinhado nem realce).
+- A janela mostra só a emissão corrente. As versões anteriores continuam guardadas e saem
+  por "Mais ações → Baixar documentos…" — decisão de produto de 08/10/2026.
+- `.dado-copiavel`: ficha, não formulário. Rótulo em caixa-alta miúda, valor sem moldura de
+  input e o filete fechando a linha inteira (valor + botão). O detalhamento é bloco de
+  texto (`field-sizing: content`, sem alça de redimensionar) e "Copiar tudo" permanece.
 
 As cinco larguras e as provas de interação estão na galeria de refinamento.

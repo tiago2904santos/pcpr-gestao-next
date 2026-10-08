@@ -3543,7 +3543,7 @@ fieldset.campo--escolhas > .campo__erro {
 }
 
 /* Mesa de registro oficial — composição DETAIL com estação documental. */
-dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); max-height: calc(100dvh - 2 * var(--esp-5)); border-top: var(--filete) solid var(--cor-marca-viva); }
+dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); max-height: calc(100dvh - 2 * var(--esp-5)); }
 /* A mesa ampla entra sem deslocar seus alvos sob o ponteiro. A saída mantém o
    contrato do diálogo; duração também obedece ao movimento reduzido dos tokens. */
 dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }
@@ -3563,7 +3563,10 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero .dialogo__linha-selos > .texto-secundario { font-size: var(--texto-xs); }
 /* Sobre o cabeçalho escuro o selo não carrega fundo claro: vira contorno de luz, e quem
    diz o estado é a FORMA do marcador (anel, ✓, ×) e o texto, como no claro. */
-.registro-hero .selo { --selo-fundo: var(--luz-10); --selo-borda: var(--luz-28); --selo-texto: var(--cor-texto-inverso); }
+.registro-hero .selo { --selo-fundo: transparent; --selo-borda: var(--luz-28); --selo-texto: var(--cor-texto-inverso); padding: var(--esp-05) var(--esp-3); font-weight: var(--peso-medio); }
+/* O primeiro selo é a SITUAÇÃO (único com contorno); os seguintes são circunstância (prazo,
+   tipo, arquivado) e viram texto com ícone — informam sem disputar com o título. */
+.registro-hero .dialogo__linha-selos > .selo ~ .selo { --selo-borda: transparent; --selo-texto: var(--cor-texto-inverso-sutil); padding-inline: 0; }
 .registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
 .dialogo--mesa .dialogo__fechar { top: var(--esp-4); right: var(--esp-4); --botao-texto: var(--cor-texto-inverso); --botao-fundo: var(--cor-primaria); --botao-borda: var(--luz-28); }
 .dialogo--mesa .dialogo__fechar:hover { background: var(--cor-primaria-hover); color: var(--cor-texto-inverso); }
@@ -3589,6 +3592,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .bloco-registro { min-width: 0; }
 .bloco-registro__cabecalho { display: flex; align-items: center; gap: var(--esp-3); padding-bottom: var(--esp-3); margin-bottom: var(--esp-4); border-bottom: var(--borda); }
 .bloco-registro__indice { color: var(--cor-marca-texto); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
+.bloco-registro__nota { margin-left: auto; color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-variant-numeric: tabular-nums; }
 .dialogo--mesa .resumo__titulo { color: var(--cor-texto); font-size: var(--texto-sm); margin: 0; }
 .dialogo--mesa .resumo__moldura { min-width: 0; }
 .dialogo--mesa .resumo__trechos { position: static; overflow: visible; border: 0; border-radius: 0; }
@@ -3602,31 +3606,69 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .percurso-registro__ponto time small { display: block; font-size: var(--texto-2xs); color: var(--cor-marca-texto); }
 .percurso-registro__ponto span, .percurso-registro__ponto strong { overflow-wrap: anywhere; }
 .percurso-registro__ponto--destino { padding-top: var(--esp-3); border-top: var(--borda-sutil); }
-.dialogo--mesa .resumo__cartoes { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
-.dialogo--mesa .resumo__cartoes > li { grid-column: auto; align-items: flex-start; }
+.dialogo--mesa .resumo__cartoes { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: var(--esp-2) var(--esp-3); }
+.dialogo--mesa .resumo__cartoes > li { grid-column: auto; }
 .equipe-transporte { display: grid; gap: var(--esp-4); }
 .equipe-transporte__rotulo { margin: 0 0 var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
-.equipe-transporte__transporte { padding: var(--esp-4) var(--esp-5); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); align-self: start; }
+.equipe-transporte__transporte { padding: var(--esp-2) var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); align-self: start; }
 .equipe-transporte__transporte .pessoa { padding: 0; border: 0; background: none; box-shadow: none; }
 /* Servidor e viatura leem igual: cada um no seu cartão de superfície sutil. */
-.dialogo--mesa .pessoas--faixa > .pessoa { padding: var(--esp-4) var(--esp-5); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
-.equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); }
+.dialogo--mesa .pessoas--faixa > .pessoa { align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.dialogo--mesa .pessoa__texto { display: grid; gap: 0; line-height: var(--altura-linha-justa); }
+.equipe-transporte .avatar { width: var(--esp-8); height: var(--esp-8); font-size: var(--texto-2xs); }
+.dialogo--mesa .pessoa__nome { font-size: var(--texto-sm); }
 .estacao-documental { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--esp-4) var(--esp-6); padding-bottom: var(--esp-6); border-bottom: var(--borda); }
 .estacao-documental > :not(header):not(.resumo__documentos) { grid-column: 1 / -1; }
 .estacao-documental__cabecalho { padding-top: var(--esp-3); }
 .dialogo--mesa .estacao-documental__cabecalho .resumo__titulo { font-size: var(--texto-xl); text-transform: none; letter-spacing: var(--rastreio-titulo); }
 .estacao-documental .resumo__documentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: var(--esp-4); }
 .estacao-documental .resumo__documentos > li { min-width: 0; }
-.estacao-documental__peca { border: var(--borda); border-radius: var(--raio-lg); overflow: hidden; background: var(--cor-superficie); }
-.peca-documental { width: 100%; display: flex; align-items: center; gap: var(--esp-4); padding: var(--esp-4); background: var(--cor-superficie); min-height: var(--esp-20); overflow-wrap: anywhere; }
-.peca-documental > .icone { flex: none; width: var(--esp-10); height: var(--esp-12); padding: var(--esp-2); border: var(--borda); border-radius: var(--raio-sm); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
-.peca-documental .ficha-documental__texto { gap: var(--esp-1); font-size: var(--texto-md); }
-.assinatura-documental { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); border-top: var(--borda-sutil); background: var(--cor-superficie-sutil); font-size: var(--texto-xs); }
-.assinatura-documental__estado { display: grid; gap: var(--esp-2); }
+/* A peça é UMA linha: documento à esquerda, estado da via e ação à direita. Só o que é
+   detalhe (quem anexou, arquivo) e as notas de conferência descem para a faixa inteira. */
+.estacao-documental__peca { display: grid; grid-template-columns: minmax(0, auto) auto minmax(0, 1fr) auto; align-items: center; border: var(--borda); border-radius: var(--raio-lg); overflow: hidden; background: var(--cor-superficie); }
+.estacao-documental__peca > .peca-documental { grid-column: 1; width: auto; }
+.estacao-documental__peca > .assinatura-documental { display: contents; }
+/* O alvo é a peça inteira, não a metade esquerda: o hover acende a linha toda e o nome do
+   documento sublinha — sem a faixa dourada cobrindo meia largura. */
+.estacao-documental__peca:has(> a.peca-documental:hover) { background: var(--cor-superficie-sutil); }
+.estacao-documental__peca > a.peca-documental:hover { background: transparent; }
+.estacao-documental__peca > a.peca-documental:hover .ficha-documental__texto > span:first-child { text-decoration: underline; }
+.peca-documental { width: 100%; display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); background: var(--cor-superficie); overflow-wrap: anywhere; }
+.peca-documental > .icone { flex: none; width: var(--esp-8); height: var(--esp-10); padding: var(--esp-2); border: var(--borda); border-radius: var(--raio-sm); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+/* Documento parado (em geração, falhou, PDF indisponível): o ícone sai do dourado de
+   documento pronto e assume o tom de espera, antes mesmo de ler o texto. */
+.peca-documental.resumo__documento--parado > .icone { background: var(--cor-aviso-fundo); border-color: var(--cor-aviso-borda); color: var(--cor-aviso); }
+.peca-documental .ficha-documental__texto { gap: var(--esp-05); font-size: var(--texto-md); }
+/* Fora da peça (outras telas) o bloco continua sendo um rodapé próprio. */
+.assinatura-documental { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--esp-2) var(--esp-3); padding: var(--esp-3) var(--esp-4); border-top: var(--borda-sutil); background: var(--cor-superficie-sutil); font-size: var(--texto-xs); }
+.assinatura-documental__estado { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); min-width: 0; }
+/* O estado da via anda junto do nome do documento — é atributo dele, não um aviso na outra
+   ponta da linha; as ações é que ficam à direita. */
+.estacao-documental__peca > .assinatura-documental > .assinatura-documental__estado { grid-column: 2; justify-content: flex-start; font-size: var(--texto-xs); }
+.estacao-documental__peca > .assinatura-documental > :is(.botao, pc-menu, .registro__texto) { grid-column: 4; margin-right: var(--esp-4); }
+.estacao-documental__peca > .assinatura-documental > .registro__texto { color: var(--cor-texto-secundario); font-size: var(--texto-xs); margin: 0; }
 .assinatura-documental__ausente { color: var(--cor-texto-secundario); }
-.assinatura-documental__abrir { display: flex; gap: var(--esp-2); align-items: center; color: var(--cor-marca-texto); font-weight: var(--peso-semi); }
-.assinatura-documental__detalhes { display: grid; gap: var(--esp-1); width: 100%; overflow-wrap: anywhere; color: var(--cor-texto-secundario); }
-.assinatura-documental .registro__notas { width: 100%; }
+/* Selo clicável (estado + ação de abrir): usa as cores do próprio estado e não se comporta
+   como link — nem sublinhado nem realce no hover. Anexada a via, o que vale é o estado
+   anexado; abri-la é consequência, não mais um botão. O foco de teclado segue visível. */
+a.selo, a.selo:hover { color: var(--selo-texto); text-decoration: none; }
+/* Selo clicável é alvo de toque: nunca abaixo do mínimo de 24px (WCAG 2.5.8). */
+a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
+.assinatura-documental__detalhes { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-3); min-width: 0; overflow-wrap: anywhere; color: var(--cor-texto-secundario); }
+.estacao-documental__peca > .assinatura-documental > .assinatura-documental__detalhes { padding: 0 var(--esp-4) var(--esp-3); font-size: var(--texto-xs); }
+.assinatura-documental__detalhes > span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.assinatura-documental .registro__notas { grid-column: 1 / -1; margin: 0; padding-top: var(--esp-2); border-top: var(--borda-sutil); }
+.estacao-documental__peca > .assinatura-documental > .registro__notas { padding: var(--esp-2) var(--esp-4); background: var(--cor-superficie-sutil); }
+.assinatura-documental .registro__nota { font-size: var(--texto-xs); }
+/* Histórico: arquivo morto da emissão. Não são cartões soltos e sim uma lista contida,
+   em tom recuado, encostada no mesmo eixo da peça corrente. */
+.estacao-documental > h4.resumo__titulo { grid-column: 2 / -1; margin: var(--esp-2) 0 calc(-1 * var(--esp-2)); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.resumo__documentos--historico { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); overflow: hidden; }
+.resumo__documentos--historico > li + li { border-top: var(--borda-sutil); }
+.resumo__documentos--historico .peca-documental { background: transparent; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); }
+.resumo__documentos--historico .peca-documental > .icone { width: var(--esp-6); height: var(--esp-8); padding: var(--esp-1); background: var(--cor-superficie); border-color: var(--cor-borda); color: var(--cor-texto-secundario); }
+.resumo__documentos--historico .ficha-documental__texto { font-size: var(--texto-sm); }
+.resumo__documentos--historico a.resumo__documento:hover { background: var(--cor-marca-fundo); }
 .bloco-registro--conferencia .bloco-registro__cabecalho { margin-bottom: var(--esp-3); border: 0; padding: 0; }
 .conferencia-serena__total { display: grid; gap: var(--esp-2); margin: 0 0 var(--esp-4); }
 .conferencia-serena__total > span { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); }
@@ -3635,7 +3677,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .conferencia-serena__dados dt { color: var(--cor-texto-secundario); font-size: var(--texto-sm); margin-bottom: var(--esp-1); }
 .conferencia-serena__dados dd { margin: 0; font-weight: var(--peso-semi); font-size: var(--texto-lg); overflow-wrap: anywhere; }
 .conferencia-serena__quantidade { grid-column: 1 / -1; }
-.estacao-documental h4 { margin-top: var(--esp-5); }
+
 .estacao-documental .registros { margin-top: var(--esp-4); }
 .dialogo--mesa .resumo__definicoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4); padding: 0; margin: 0; border: 0; }
 .dialogo--mesa .resumo__definicoes dt { text-transform: none; letter-spacing: normal; font-size: var(--texto-xs); }
@@ -3643,18 +3685,32 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .dialogo--mesa .resumo__definicoes.metadados > .metadado { padding-bottom: 0; border-bottom: 0; }
 .dialogo--mesa .resumo__definicoes dd { overflow-wrap: anywhere; }
 .divulgacao--copiavel .divulgacao__corpo { gap: var(--esp-4); }
-.divulgacao--copiavel .divulgacao__corpo > .texto-secundario { margin: 0; font-size: var(--texto-xs); }
-.dados-copiaveis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3) var(--esp-6); }
+.divulgacao--copiavel .divulgacao__corpo > :is(.texto-secundario, .campo__ajuda) { margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.divulgacao--copiavel .divulgacao__corpo { gap: var(--esp-2); }
+.dados-copiaveis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--esp-8); }
+/* Cada dado é uma linha de ficha: rótulo, valor e a ação de levar embora, com o filete
+   fechando a linha inteira (valor + botão) em vez de parar no meio. */
 .dado-copiavel { min-width: 0; padding-block: var(--esp-3); border-bottom: var(--borda-sutil); gap: var(--esp-1); }
-.dado-copiavel--largo { grid-column: 1 / -1; }
-.dado-copiavel .campo__rotulo { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.dado-copiavel .linha { flex-wrap: nowrap; gap: var(--esp-3); align-items: start; }
-.dado-copiavel .entrada[readonly] { min-width: 0; flex: 1; padding: var(--esp-2); border-color: transparent; background: var(--cor-superficie-sutil); font-size: var(--texto-sm); font-weight: var(--peso-medio); }
-.dado-copiavel textarea { resize: vertical; }
-.dado-copiavel .botao { flex: none; }
+.dado-copiavel--largo { grid-column: 1 / -1; border-bottom: 0; }
+.dado-copiavel .campo__rotulo { font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.dado-copiavel .linha { flex-wrap: nowrap; gap: var(--esp-2); align-items: center; }
+.dado-copiavel--largo .linha { align-items: start; }
+/* O valor é um dado institucional para levar embora, não um campo a preencher: sem moldura
+   de input, só o filete que separa do rótulo seguinte. O foco devolve o campo (halo e fundo). */
+.dado-copiavel .entrada[readonly] { min-width: 0; flex: 1; height: auto; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; font-size: var(--texto-sm); font-weight: var(--peso-semi); text-overflow: ellipsis; }
+.dado-copiavel .entrada[readonly]:focus-visible { padding: var(--esp-1) var(--esp-2); border-radius: var(--raio-sm); }
+.dado-copiavel textarea.entrada[readonly] { padding: var(--esp-2) var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-sm); background: var(--cor-superficie-sutil); font-weight: var(--peso-normal); line-height: var(--altura-linha); text-overflow: clip; }
+.dado-copiavel > .linha > .botao { align-self: center; }
+.dado-copiavel--largo > .linha > .botao { align-self: start; margin-top: var(--esp-1); }
+/* O detalhamento é um BLOCO DE TEXTO para levar embora, não um campo a editar: sem alça de
+   redimensionar, altura pelo conteúdo onde o navegador souber (field-sizing), rows como piso. */
+.dado-copiavel textarea { resize: none; field-sizing: content; max-height: 14rem; }
+.dado-copiavel .botao { flex: none; --botao-fundo: transparent; --botao-borda: transparent; color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
+.dado-copiavel .botao:hover { --botao-fundo: var(--cor-superficie-realce); color: var(--cor-texto); }
 .divulgacao--copiavel .divulgacao__corpo > .botao { align-self: start; }
 .dialogo--mesa .dialogo__rodape { padding: var(--esp-4) var(--esp-8); box-shadow: var(--sombra-3); gap: var(--esp-3); }
-.dialogo--mesa .dialogo__rodape > a:first-child { margin-right: auto; }
+.dialogo--mesa .dialogo__rodape > :first-child { margin-right: auto; }
+.dialogo--mesa .dialogo__rodape > .texto-secundario { align-self: center; }
 @media (max-width: 1023.98px) {
   .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "missao" "principal" "contexto" "copia"; gap: var(--esp-6); }
   .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
@@ -3663,6 +3719,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-6); }
   .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-6); position: static; max-height: none; overflow: visible; }
   .estacao-documental { grid-template-columns: minmax(0, 1fr); }
+  .estacao-documental > h4.resumo__titulo { grid-column: 1 / -1; }
 }
 @media (max-width: 767.98px) {
   dialog.dialogo--mesa { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; margin: 0; inset: 0; }
@@ -3679,11 +3736,13 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .estacao-documental { display: block; }
   .estacao-documental__cabecalho { padding: 0; margin-bottom: var(--esp-3); }
   .estacao-documental .resumo__documentos { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
-  .peca-documental { min-height: 0; padding: var(--esp-3) var(--esp-4); }
-  .peca-documental > .icone { width: var(--esp-8); height: var(--esp-10); }
+  .estacao-documental__peca { grid-template-columns: minmax(0, 1fr); }
+  .estacao-documental__peca > .peca-documental { width: 100%; }
+  .estacao-documental__peca > .assinatura-documental > :is(.assinatura-documental__estado, .botao, pc-menu, .registro__texto) { grid-column: 1; justify-content: flex-start; margin: 0 var(--esp-4) var(--esp-2); }
   .assinatura-documental { gap: var(--esp-2); padding: var(--esp-2) var(--esp-3); }
   .assinatura-documental > .botao { font-size: var(--texto-xs); padding: 0 var(--esp-2); }
-  .dialogo--mesa .resumo__cartoes { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .dialogo--mesa .resumo__cartoes { grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
+  .dialogo--mesa .pessoas--faixa > .pessoa { border-bottom: 0; }
   .equipe-transporte, .dados-copiaveis { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
   .dado-copiavel textarea { min-height: calc(var(--esp-20) + var(--esp-4)); }
   .percurso-registro__trecho { grid-template-columns: 3.25rem minmax(0, 1fr); gap: var(--esp-3); }
@@ -3691,7 +3750,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .percurso-registro__ponto { grid-template-columns: 3rem minmax(0, 1fr); gap: var(--esp-2); }
   .missao-registro__texto { font-size: var(--texto-lg); }
   .dialogo--mesa .dialogo__rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: var(--esp-3) var(--esp-4); gap: var(--esp-2); }
-  .dialogo--mesa .dialogo__rodape > a:first-child { margin-right: 0; }
+  .dialogo--mesa .dialogo__rodape > :first-child { margin-right: 0; }
   .dialogo--mesa .dialogo__rodape > .botao--primario, .dialogo--mesa .dialogo__rodape > .dialogo__acao { grid-column: 1 / -1; }
   .dialogo--mesa .dialogo__rodape > form:has(> .botao--primario) { grid-column: 1 / -1; }
   .dialogo--mesa .dialogo__rodape .botao { width: 100%; }
