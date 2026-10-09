@@ -1359,8 +1359,12 @@ class TestLinhaDaLista:
         Oficio.objects.filter(pk=emitido.pk).update(
             motorista_externo="manual", motorista_externo_nome="Fulano de Fora")
         html = operador.get(reverse("viagens:oficios")).content.decode()
-        assert "Fulano de Fora" in html and "(motorista de fora da equipe)" in html  # title
-        assert '(motorista<span class="sr-only"> de fora da equipe</span>)' in html
+        inicio = html.index(f"Ofício {emitido.numero_formatado} · ")
+        linha = html[inicio:html.index("</li>", inicio)]
+        assert "Fulano de Fora" in linha and "(motorista de fora da equipe)" in linha  # title
+        # A distinção externa é visível, sem repetir o qualificador para leitor de tela.
+        assert '<span class="registro__motorista"> (motorista externo)</span>' in linha
+        assert '(motorista<span class="sr-only">' not in linha
 
     def test_termo_com_periodo_no_meta_e_destinos_no_titulo(self, operador, cenario):
         from gestao.viagens import termos

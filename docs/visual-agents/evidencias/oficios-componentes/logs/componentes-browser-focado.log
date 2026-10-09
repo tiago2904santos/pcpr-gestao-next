@@ -1,0 +1,243 @@
+FF.........FF.......................                                     [100%]
+================================== FAILURES ===================================
+___________ test_lista_folha_documentos_coerentes_e_operaveis[360] ____________
+
+logado = <Page url='http://localhost:49176/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/oficios/")
+        _avaliar(pg, "lista", largura)
+        # Período e protocolo precisam continuar legíveis na nova composição mobile.
+        # Ausência de overflow da página não detecta duas informações sobrepostas.
+        for linha in pg.locator(".registro-operacional").all():
+            for selo in linha.locator(".registro__selos .selo").all():
+                assert selo.evaluate("e => e.scrollWidth <= e.clientWidth + 1"), "O texto do selo precisa caber inteiro."
+                assert selo.evaluate("e => e.clientHeight <= parseFloat(getComputedStyle(e).lineHeight) + 6"), "Selo não pode virar duas linhas."
+            placa = linha.locator(".placa").bounding_box()
+            acao = linha.locator("[data-menu-botao]").bounding_box()
+            assert placa and acao
+            assert abs((placa["y"] + placa["height"] / 2) - (acao["y"] + acao["height"] / 2)) <= 2, "Identidade e ação devem compartilhar o eixo vertical."
+            periodo = linha.locator(".registro__meta-item--periodo").bounding_box()
+            protocolo = linha.locator(".registro__meta-item--protocolo").bounding_box()
+            assert periodo and protocolo
+            assert (
+                periodo["y"] + periodo["height"] <= protocolo["y"] + 1
+                or protocolo["y"] + protocolo["height"] <= periodo["y"] + 1
+                or periodo["x"] + periodo["width"] <= protocolo["x"] + 1
+                or protocolo["x"] + protocolo["width"] <= periodo["x"] + 1
+            ), "Período e protocolo não podem ocupar a mesma área."
+        if largura >= 1024:
+            assert pg.locator(".registro-operacional .registro__meta-item--diarias .registro__meta-texto").evaluate_all(
+                "els => els.every(e => e.scrollHeight <= e.clientHeight + 1)"
+            ), "Valor e composição das diárias devem aparecer inteiros, sem recorte vertical."
+        else:
+            expect(pg.locator(".registro-operacional .registro__meta-item--protocolo").first).to_be_visible()
+        botao = pg.locator(".registro__acoes [data-menu-botao]").first
+        botao.press("Enter")
+        expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+    
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        expect(pg.locator(".campos--legiveis")).to_be_visible()
+        assert pg.locator(".campos--legiveis .campo__rotulo").evaluate_all(
+            "els => els.every(e => !e.getClientRects().length "
+            "|| e.scrollWidth <= e.clientWidth + 1)"
+        ), "Os rótulos da identificação devem caber sem cortes."
+>       _avaliar(pg, "folha", largura)
+
+tests\e2e\test_oficios_visual.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:49176/viagens/oficios/2/editar/'>
+nome = 'folha', largura = 360
+
+    def _avaliar(pg, nome, largura):
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+>       assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+E       AssertionError: assert False
+E        +  where False = evaluate('document.documentElement.scrollWidth <= innerWidth')
+E        +    where evaluate = <Page url='http://localhost:49176/viagens/oficios/2/editar/'>.evaluate
+
+tests\e2e\test_oficios_visual.py:20: AssertionError
+___________ test_lista_folha_documentos_coerentes_e_operaveis[390] ____________
+
+logado = <Page url='http://localhost:49176/viagens/oficios/7/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 390
+
+    @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])
+    def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/oficios/")
+        _avaliar(pg, "lista", largura)
+        # Período e protocolo precisam continuar legíveis na nova composição mobile.
+        # Ausência de overflow da página não detecta duas informações sobrepostas.
+        for linha in pg.locator(".registro-operacional").all():
+            for selo in linha.locator(".registro__selos .selo").all():
+                assert selo.evaluate("e => e.scrollWidth <= e.clientWidth + 1"), "O texto do selo precisa caber inteiro."
+                assert selo.evaluate("e => e.clientHeight <= parseFloat(getComputedStyle(e).lineHeight) + 6"), "Selo não pode virar duas linhas."
+            placa = linha.locator(".placa").bounding_box()
+            acao = linha.locator("[data-menu-botao]").bounding_box()
+            assert placa and acao
+            assert abs((placa["y"] + placa["height"] / 2) - (acao["y"] + acao["height"] / 2)) <= 2, "Identidade e ação devem compartilhar o eixo vertical."
+            periodo = linha.locator(".registro__meta-item--periodo").bounding_box()
+            protocolo = linha.locator(".registro__meta-item--protocolo").bounding_box()
+            assert periodo and protocolo
+            assert (
+                periodo["y"] + periodo["height"] <= protocolo["y"] + 1
+                or protocolo["y"] + protocolo["height"] <= periodo["y"] + 1
+                or periodo["x"] + periodo["width"] <= protocolo["x"] + 1
+                or protocolo["x"] + protocolo["width"] <= periodo["x"] + 1
+            ), "Período e protocolo não podem ocupar a mesma área."
+        if largura >= 1024:
+            assert pg.locator(".registro-operacional .registro__meta-item--diarias .registro__meta-texto").evaluate_all(
+                "els => els.every(e => e.scrollHeight <= e.clientHeight + 1)"
+            ), "Valor e composição das diárias devem aparecer inteiros, sem recorte vertical."
+        else:
+            expect(pg.locator(".registro-operacional .registro__meta-item--protocolo").first).to_be_visible()
+        botao = pg.locator(".registro__acoes [data-menu-botao]").first
+        botao.press("Enter")
+        expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+    
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        expect(pg.locator(".campos--legiveis")).to_be_visible()
+        assert pg.locator(".campos--legiveis .campo__rotulo").evaluate_all(
+            "els => els.every(e => !e.getClientRects().length "
+            "|| e.scrollWidth <= e.clientWidth + 1)"
+        ), "Os rótulos da identificação devem caber sem cortes."
+>       _avaliar(pg, "folha", largura)
+
+tests\e2e\test_oficios_visual.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:49176/viagens/oficios/7/editar/'>
+nome = 'folha', largura = 390
+
+    def _avaliar(pg, nome, largura):
+        pg.wait_for_function(
+            "() => document.getAnimations().every(a => a.playState !== 'running' "
+            "|| a.effect.getTiming().iterations === Infinity)"
+        )
+>       assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+E       AssertionError: assert False
+E        +  where False = evaluate('document.documentElement.scrollWidth <= innerWidth')
+E        +    where evaluate = <Page url='http://localhost:49176/viagens/oficios/7/editar/'>.evaluate
+
+tests\e2e\test_oficios_visual.py:20: AssertionError
+___________ test_folha_copia_campos_e_tudo_sem_dados_pessoais[360] ____________
+
+logado = <Page url='http://localhost:49176/viagens/oficios/57/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 56, 'oficio_rascunho': 57, 'oficio_vazio': 58, 'oficio_cancelado': 59, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_folha_copia_campos_e_tudo_sem_dados_pessoais(logado, dados_e2e, largura):
+        pg = logado
+        pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(reverse("viagens:editar", args=[pk]))
+        bloco = pg.locator("#eprotocolo-folha-bloco")
+        _abrir(bloco)
+        botoes = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])")
+        expect(botoes).to_have_count(5)
+        for botao in botoes.all():
+            campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
+            texto = campo.input_value()
+            botao.click()
+            expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Copiado")
+            assert _clipboard(pg) == texto
+        tudo = bloco.locator("button[data-copiar-revelar]")
+        texto = pg.locator("#" + tudo.get_attribute("data-copiar-alvo")).input_value()
+        tudo.click()
+        expect(tudo.locator("[data-copiar-rotulo]")).to_have_text("Copiado")
+        assert _clipboard(pg) == texto
+        assert "Interessados:" in texto and "Detalhamento:" in texto
+        for viajante in Oficio.objects.get(pk=pk).viajantes.select_related("servidor"):
+            assert viajante.servidor.nome in texto
+            assert viajante.servidor.cpf_formatado not in texto
+            assert viajante.servidor.rg not in texto
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for captura in ([360, 390, 768, 1024, 1440] if largura == 1440 else [largura]):
+            pg.set_viewport_size({"width": captura, "height": 900})
+            bloco.scroll_into_view_if_needed()
+>           assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+E           AssertionError: assert False
+E            +  where False = evaluate('document.documentElement.scrollWidth <= innerWidth')
+E            +    where evaluate = <Page url='http://localhost:49176/viagens/oficios/57/editar/'>.evaluate
+
+tests\e2e\test_eprotocolo_copia.py:63: AssertionError
+___________ test_folha_copia_campos_e_tudo_sem_dados_pessoais[1440] ___________
+
+logado = <Page url='http://localhost:49176/viagens/oficios/62/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 61, 'oficio_rascunho': 62, 'oficio_vazio': 63, 'oficio_cancelado': 64, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_folha_copia_campos_e_tudo_sem_dados_pessoais(logado, dados_e2e, largura):
+        pg = logado
+        pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(reverse("viagens:editar", args=[pk]))
+        bloco = pg.locator("#eprotocolo-folha-bloco")
+        _abrir(bloco)
+        botoes = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])")
+        expect(botoes).to_have_count(5)
+        for botao in botoes.all():
+            campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
+            texto = campo.input_value()
+            botao.click()
+            expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Copiado")
+            assert _clipboard(pg) == texto
+        tudo = bloco.locator("button[data-copiar-revelar]")
+        texto = pg.locator("#" + tudo.get_attribute("data-copiar-alvo")).input_value()
+        tudo.click()
+        expect(tudo.locator("[data-copiar-rotulo]")).to_have_text("Copiado")
+        assert _clipboard(pg) == texto
+        assert "Interessados:" in texto and "Detalhamento:" in texto
+        for viajante in Oficio.objects.get(pk=pk).viajantes.select_related("servidor"):
+            assert viajante.servidor.nome in texto
+            assert viajante.servidor.cpf_formatado not in texto
+            assert viajante.servidor.rg not in texto
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for captura in ([360, 390, 768, 1024, 1440] if largura == 1440 else [largura]):
+            pg.set_viewport_size({"width": captura, "height": 900})
+            bloco.scroll_into_view_if_needed()
+>           assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+E           AssertionError: assert False
+E            +  where False = evaluate('document.documentElement.scrollWidth <= innerWidth')
+E            +    where evaluate = <Page url='http://localhost:49176/viagens/oficios/62/editar/'>.evaluate
+
+tests\e2e\test_eprotocolo_copia.py:63: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_componentes" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+FAILED tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390]
+FAILED tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[360]
+FAILED tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[1440]
+4 failed, 32 passed, 2 warnings in 1189.84s (0:19:49)

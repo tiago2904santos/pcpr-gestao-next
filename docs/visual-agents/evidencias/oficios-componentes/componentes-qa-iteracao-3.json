@@ -1,0 +1,816 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 360,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 20
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      ".cabecalho__botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 360,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 14.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Operador de Demonstração\" aria-controls=\"menu-cisvb5j\" aria-expanded=\"false\" id=\"menu-cisvb5j-botao\">",
+                    "target": [
+                      "#menu-cisvb5j-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 14.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 8.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"equipe__acao\" aria-pressed=\"false\" aria-label=\"Marcar Estela Sampaio Pacheco como motorista\" title=\"Marcar como motorista\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-car\"></use></svg></button>",
+                    "target": [
+                      "li[data-servidor=\"66\"] > .equipe__acoes > form[hx-target=\"#equipe\"][hx-swap=\"outerHTML\"][method=\"post\"]:nth-child(1) > .equipe__acao[title=\"Marcar como motorista\"][type=\"submit\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Operador de Demonstração\" aria-controls=\"menu-cisvb5j\" aria-expanded=\"false\" id=\"menu-cisvb5j-botao\">",
+                    "target": [
+                      "#menu-cisvb5j-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 8.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"submit\" class=\"equipe__acao equipe__acao--remover\" aria-label=\"Remover Estela Sampaio Pacheco da equipe\" title=\"Remover da equipe\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg></button>",
+            "target": [
+              "li[data-servidor=\"66\"] > .equipe__acoes > form[hx-target=\"#equipe\"][hx-swap=\"outerHTML\"][method=\"post\"]:nth-child(2) > .equipe__acao--remover.equipe__acao[title=\"Remover da equipe\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 14.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 8.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 390,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 20.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      ".cabecalho__botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 11,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 11px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 11px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 390,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 14.8
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Operador de Demonstração\" aria-controls=\"menu-b27gy8t\" aria-expanded=\"false\" id=\"menu-b27gy8t-botao\">",
+                    "target": [
+                      "#menu-b27gy8t-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 14.8px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 9,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"equipe__acao\" aria-pressed=\"false\" aria-label=\"Marcar Estela Sampaio Pacheco como motorista\" title=\"Marcar como motorista\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-car\"></use></svg></button>",
+                    "target": [
+                      "li[data-servidor=\"66\"] > .equipe__acoes > form[hx-target=\"#equipe\"][hx-swap=\"outerHTML\"][method=\"post\"]:nth-child(1) > .equipe__acao[title=\"Marcar como motorista\"][type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 9px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"submit\" class=\"equipe__acao equipe__acao--remover\" aria-label=\"Remover Estela Sampaio Pacheco da equipe\" title=\"Remover da equipe\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg></button>",
+            "target": [
+              "li[data-servidor=\"66\"] > .equipe__acoes > form[hx-target=\"#equipe\"][hx-swap=\"outerHTML\"][method=\"post\"]:nth-child(2) > .equipe__acao--remover.equipe__acao[title=\"Remover da equipe\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 14.8px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 9px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 768,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 18.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"marca\" href=\"/\" aria-label=\"PCPR — Gestão de Eventos e Viagens, página inicial\">",
+                    "target": [
+                      ".marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 18.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 13,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"equipe__acao\" aria-pressed=\"true\" aria-label=\"Desmarcar João Guimarães Gouveia como motorista\" title=\"Desmarcar como motorista\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-car\"></use></svg></button>",
+                    "target": [
+                      "button[title=\"Desmarcar como motorista\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 13px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"submit\" class=\"equipe__acao equipe__acao--remover\" aria-label=\"Remover João Guimarães Gouveia da equipe\" title=\"Remover da equipe\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg></button>",
+            "target": [
+              "li[data-servidor=\"44\"] > .equipe__acoes > form[hx-target=\"#equipe\"][hx-swap=\"outerHTML\"][method=\"post\"]:nth-child(2) > .equipe__acao--remover.equipe__acao[title=\"Remover da equipe\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 18.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 13px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 375.9,
+                  "height": 22.3
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/viagens/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-map\"></use></svg>Viagens</a>",
+                    "target": [
+                      "li:nth-child(2) > .navegacao__link[href$=\"viagens/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/oficios/\" aria-current=\"page\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-file-text\"></use></svg>Ofícios</a>",
+                    "target": [
+                      ".navegacao__link[aria-current=\"page\"][href$=\"oficios/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uy4cw6g\" aria-expanded=\"false\" id=\"menu-uy4cw6g-botao\">",
+                    "target": [
+                      "#menu-uy4cw6g-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hulilvw\" aria-expanded=\"false\" id=\"menu-hulilvw-botao\">",
+                    "target": [
+                      "#menu-hulilvw-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+                    "target": [
+                      "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 375.9px by 22.3px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 3.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hulilvw\" aria-expanded=\"false\" id=\"menu-hulilvw-botao\">",
+                    "target": [
+                      "#menu-hulilvw-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+                    "target": [
+                      "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"botao botao--icone\" data-abrir-dialogo=\"dialogo-viatura\" aria-label=\"Cadastrar viatura\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg></button>",
+                    "target": [
+                      "button[data-abrir-dialogo=\"dialogo-viatura\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+            "target": [
+              "#id_viatura-busca"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 375.9px by 22.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 18.7
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hulilvw\" aria-expanded=\"false\" id=\"menu-hulilvw-botao\">",
+                    "target": [
+                      "#menu-hulilvw-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 18.7px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 17.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hulilvw\" aria-expanded=\"false\" id=\"menu-hulilvw-botao\">",
+                    "target": [
+                      "#menu-hulilvw-botao"
+                    ]
+                  },
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 18.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1024,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 20
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      ".cabecalho__botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  }
+]

@@ -56,11 +56,11 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
       {% include "viagens/oficios/_conta_filtros.html" %}
       {% icone "chevron-down" classe="icone--sm filtros__mais-seta" %}
     </summary>
-    <div class="filtros__avancados filtros__avancados--rodape" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
+    <div class="filtros__avancados filtros__avancados--rodape filtros__avancados--organizados" id="filtros-avancados" role="group" aria-label="Filtros e ordem">
       <div class="filtros__gaveta-cabecalho">
         <h2 class="filtros__gaveta-titulo" id="filtros-titulo">Filtros e ordem</h2>
       </div>
-      <div class="campo">
+      <div class="campo filtros__campo--ordem">
         <label class="campo__rotulo" for="ordem-oficios">Ordenar por</label>
         <pc-select class="seletor"><select class="selecao" id="ordem-oficios" name="ordem">
           {% for chave, rotulo in ordens %}<option value="{{ chave }}"{% if chave == ordem %} selected{% endif %}>{{ rotulo }}</option>{% endfor %}
@@ -72,7 +72,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
       estão aqui de propósito — quem procura por eles usa a busca de cima, que já pergunta
       em qual deles procurar.
       {% endcomment %}
-      <div class="campo">
+      <div class="campo filtros__campo--periodo">
         <label class="campo__rotulo" for="filtro-periodo" id="filtro-periodo-rotulo">Período de saída</label>
         <pc-data class="seletor" data-periodo>
           <input class="entrada" type="text" id="filtro-periodo" value="{{ avancados.periodo_texto }}"
@@ -81,7 +81,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
           {{ avancados.saida_de }}{{ avancados.saida_ate }}
         </pc-data>
       </div>
-      <div class="campo">
+      <div class="campo filtros__campo--periodo">
         <label class="campo__rotulo" for="filtro-criacao" id="filtro-criacao-rotulo">Data do ofício</label>
         <pc-data class="seletor" data-periodo>
           <input class="entrada" type="text" id="filtro-criacao" value="{{ avancados.periodo_criacao_texto }}"
@@ -90,10 +90,10 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
           {{ avancados.criacao_de }}{{ avancados.criacao_ate }}
         </pc-data>
       </div>
-      {% include "componentes/campo.html" with campo=avancados.ano %}
-      {% include "componentes/campo.html" with campo=avancados.protocolo %}
-      {% include "componentes/campo.html" with campo=avancados.veiculo %}
-      <fieldset class="filtros__faixa-campo">
+      {% include "componentes/campo.html" with campo=avancados.ano classe="filtros__campo--ano" %}
+      {% include "componentes/campo.html" with campo=avancados.protocolo classe="filtros__campo--protocolo" %}
+      {% include "componentes/campo.html" with campo=avancados.veiculo classe="filtros__campo--veiculo" %}
+      <fieldset class="filtros__faixa-campo filtros__campo--valor">
         <legend class="filtros__faixa-rotulo">Diárias (R$)</legend>
         <div class="filtros__faixa filtros__faixa--caixa">
           {{ avancados.diarias_de }}<span class="filtros__faixa-sep" aria-hidden="true">a</span>{{ avancados.diarias_ate }}

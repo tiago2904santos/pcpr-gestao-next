@@ -1071,7 +1071,7 @@ a.ficha:hover {
     padding: 0 var(--esp-1);
     line-height: 1.4;
   }
-  .registro > .placa .placa__numero { font-size: var(--texto-sm); }
+  .registro:not(.registro-operacional) > .placa .placa__numero { font-size: var(--texto-sm); }
   .registro__corpo { grid-area: corpo; }
   .registro__acoes { grid-area: acoes; }
   /* Metadados legíveis no celular: texto-sm (11,7px), não xs. */
@@ -1320,10 +1320,23 @@ a.ficha:hover {
   margin-right: auto;
 }
 
+/* Gaveta semântica: datas têm espaço para as duas pontas, valores compartilham linha.
+   A folha mobile continua usando o layout e o foco do componente original. */
+@media (min-width: 768px) {
+  .filtros__avancados--organizados { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-3); border: var(--borda); }
+  .filtros__avancados--organizados > .filtros__campo--ordem { grid-column: 1 / -1; }
+  .filtros__avancados--organizados > .filtros__gaveta-cabecalho { display: block; grid-column: 1 / -1; padding-bottom: var(--esp-2); border-bottom: var(--borda-sutil); }
+}
+
 @media (min-width: 1024px) {
   .filtros__avancados--rodape {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  .filtros__avancados--organizados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1280px) {
+  .filtros__avancados--organizados { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .filtros__avancados--organizados > :is(.filtros__campo--ordem, .filtros__campo--periodo, .filtros__campo--protocolo, .filtros__campo--valor) { grid-column: span 2; }
 }
 
 /* Faixa de valores com o rótulo na borda (fieldset/legend): por fora parece um campo só,

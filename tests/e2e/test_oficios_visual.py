@@ -38,6 +38,13 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
     # Período e protocolo precisam continuar legíveis na nova composição mobile.
     # Ausência de overflow da página não detecta duas informações sobrepostas.
     for linha in pg.locator(".registro-operacional").all():
+        for selo in linha.locator(".registro__selos .selo").all():
+            assert selo.evaluate("e => e.scrollWidth <= e.clientWidth + 1"), "O texto do selo precisa caber inteiro."
+            assert selo.evaluate("e => e.clientHeight <= parseFloat(getComputedStyle(e).lineHeight) + 6"), "Selo não pode virar duas linhas."
+        placa = linha.locator(".placa").bounding_box()
+        acao = linha.locator("[data-menu-botao]").bounding_box()
+        assert placa and acao
+        assert abs((placa["y"] + placa["height"] / 2) - (acao["y"] + acao["height"] / 2)) <= 2, "Identidade e ação devem compartilhar o eixo vertical."
         periodo = linha.locator(".registro__meta-item--periodo").bounding_box()
         protocolo = linha.locator(".registro__meta-item--protocolo").bounding_box()
         assert periodo and protocolo
@@ -67,6 +74,20 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
         "|| e.scrollWidth <= e.clientWidth + 1)"
     ), "Os rótulos da identificação devem caber sem cortes."
     _avaliar(pg, "folha", largura)
+    recursos = pg.locator("[data-indice-preparacao] a[href='#recursos']")
+    recursos.press("Enter")
+    expect(recursos).to_have_attribute("aria-current", "location")
+    if largura >= 768:
+        meio = pg.locator(".transporte > .campo").first.bounding_box()
+        viatura = pg.locator(".transporte > .so-viatura").bounding_box()
+        assert meio and viatura and abs(meio["y"] - viatura["y"]) <= 1, "Meio e viatura devem ocupar a mesma linha."
+    pg.locator("#roteiro").scroll_into_view_if_needed()
+    assert pg.locator(".itin__uf .entrada").evaluate_all("""els => els.every(e => {
+      if (!e.getClientRects().length) return true;
+      const s = getComputedStyle(e), c = document.createElement('canvas').getContext('2d');
+      c.font = s.font;
+      return c.measureText(e.value).width <= e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) + 1;
+    })"""), "UF deve mostrar as duas letras sem reticências."
     assert pg.locator(".documento--preparacao").evaluate("""el => {
       const barra = document.querySelector('.barra-acoes--documental').getBoundingClientRect();
       return [...el.querySelectorAll('input, button, select, textarea')].every(campo => {

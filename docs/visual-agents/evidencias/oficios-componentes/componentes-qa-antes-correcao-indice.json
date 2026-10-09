@@ -1,0 +1,282 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  }
+]

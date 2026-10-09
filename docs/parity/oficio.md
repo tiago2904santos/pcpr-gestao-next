@@ -205,3 +205,29 @@ passando; não relaxar segurança. Fechamento integral/performance e evidências
 
 Aprovação visual pendente do usuário. Não alterar status de paridade funcional do restante
 do módulo nem propagar a composição para outra página a partir deste checkpoint.
+
+## Refinamento de componentes — 09/10/2026
+
+Resumo aprovado pelo usuário como referência visual. Lista e Cadastro/Edição/Folha
+receberam refinamento dos componentes da composição já reconstruída: placa,
+selos, menu, filtros, índice, equipe, transporte/viatura, motorista externo,
+pendências e controles do roteiro. Na Lista, a indicação externa agora é visível
+como “(motorista externo)”; o motorista da equipe continua com “(motorista)”.
+Nome completo, título, ordem e distinção para tecnologias assistivas preservados.
+O contrato HTTP foi atualizado e seus três testes passaram; não houve remoção de teste.
+
+São mudanças de apresentação. D13/D16, diárias, regras de transporte/motorista,
+permissões, dados, auditoria, geração documental, versões, assinados, retry,
+integrações e histórico mantêm a implementação funcional anterior. Nenhum modelo,
+view, query ou serviço de negócio foi alterado. UI Lab e Design System acompanham
+os componentes compartilhados.
+
+Evidência atual: 35 pares reais antes/depois em cinco larguras; matriz de 40 estados
+sem violação axe, erro de console ou overflow; dez retestes de navegador aprovados
+após corrigir o overflow do índice com Justificativa. A bateria inicial teve 32
+aprovados e quatro falhas corrigidas, conforme os logs preservados. Gate integral
+final verde: **2.251 aprovados, zero falhas, nove avisos**, 54min56s, exit 0;
+Ruff, arquitetura, mypy, Bandit, migrações e tipos JS passaram. Resultado e limites
+registrados em `docs/visual-agents/qa/oficios-componentes-2026-10-09.md`.
+Revisão estética das duas candidatas permanece com o usuário. Não avançar para
+outra página nem inferir aprovação de todo o módulo a partir desta rodada.

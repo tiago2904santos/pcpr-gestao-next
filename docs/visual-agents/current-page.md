@@ -1,5 +1,38 @@
 # Página atual
 
+## Rodada vigente — refinamento de componentes, 09/10/2026
+
+Base `ffcc343`, branch `codex/oficios-componentes`. O usuário reconheceu a evolução
+da direção geral e pediu refinamento componente por componente, preservando essa
+direção. Escopo: Lista e Cadastro/Edição/Folha; nenhum avanço para outro módulo.
+Resumo segue como referência aprovada. Aprovação final das duas candidatas não é
+inferida desse reconhecimento.
+
+Placa/selos/menu, filtros, índice, equipe, transporte/viatura, motorista externo,
+pendências, UF, escolhas e ancoragens refinados na origem compartilhada. UI Lab
+e Design System atualizados. 35 pares reais nas cinco larguras em
+`evidencias/oficios-componentes/index.html`; 40 estados finais sem falha axe,
+console ou overflow. Iterações com falhas preservadas e explicadas.
+
+Gate integral final verde: **2.251 aprovados, zero falhas, nove avisos**,
+54min56s, exit 0; Ruff, arquitetura, mypy, Bandit, migrações e tipos JS passaram.
+Fechamento e limites em `qa/oficios-componentes-2026-10-09.md`; log bruto em
+`evidencias/oficios-componentes/logs/componentes-verificar-fechamento.log`.
+Candidata tecnicamente validada; revisão estética permanece com o usuário.
+Sem push/merge/deploy.
+
+Checkpoint de validação: 32 casos iniciais passaram; quatro falhas de overflow do
+índice com Justificativa foram corrigidas. Dez retestes e a matriz final de 40
+estados passaram. Gate intermediário: 2.250 aprovados, uma expectativa antiga de
+`sr-only` reprovada e nove avisos. Contrato HTTP atualizado para proteger a nova
+distinção externa visível; três testes da classe e Ruff passaram. Teste não removido.
+Aplicação congelada, 18 fontes/testes em `fonte-validada.json`. Novo gate integral
+completo passou, registrado no log final. Próxima ação: revisão visual das capturas
+de Lista/Cadastro pelo usuário; não abrir outra página.
+
+Pendência separada dos dois PDFs DEV da rodada anterior permanece sem autorização
+de recuperação/substituição; não alterar arquivos, hashes ou histórico.
+
 ## Direção vigente — Lista e Cadastro de Ofícios
 
 Decisão explícita do usuário em 08/10/2026, prevalecendo sobre avaliações anteriores:

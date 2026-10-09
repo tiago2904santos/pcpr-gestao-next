@@ -1,5 +1,5 @@
 {% comment %}Índice de preparação. O estado vem do domínio; navegação somente por âncora.{% endcomment %}
-<nav class="indice-preparacao" aria-label="Seções da preparação">
+<nav class="indice-preparacao" aria-label="Seções da preparação" data-indice-preparacao>
   {% for item in itens %}
     <a class="indice-preparacao__item{% if item.ok %} indice-preparacao__item--ok{% endif %}" href="#{{ item.chave }}"><span>{{ item.rotulo }}</span><span class="sr-only">{% if item.ok %} — completo{% else %} — conferir{% endif %}</span></a>
     {% if forloop.first and intermediario_chave %}<a class="indice-preparacao__item" href="#{{ intermediario_chave }}">{{ intermediario_rotulo }}</a>{% endif %}

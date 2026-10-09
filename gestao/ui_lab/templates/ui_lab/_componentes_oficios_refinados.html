@@ -1,0 +1,17 @@
+<section class="cartao" id="componentes-oficios-lab" aria-labelledby="t-componentes-oficios-lab">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-componentes-oficios-lab">Acabamento operacional de Ofícios</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario texto-sm">Selos indivisíveis, instruções longas e pessoas vinculadas por outro registro. Estados sintéticos para validar largura, foco e teclado.</p>
+    <div class="linha quebra"><span class="selo selo--situacao-rascunho">Rascunho</span><span class="selo selo--info selo--sem-ponto">{% icone "clock" classe="icone--sm" %}faltam 120 dias</span><span class="selo selo--aviso">Justificativa pendente</span></div>
+    {% include "componentes/pendencia.html" with mensagem="Informe o protocolo do eProtocolo antes de emitir. O rascunho pode continuar sendo preenchido e salvo." bloqueante=True only %}
+    {% include "componentes/pendencia.html" with mensagem="Confira o vínculo do motorista com o ofício de origem." only %}
+    <nav class="indice-preparacao" aria-label="Estados do índice — exemplo">
+      <a class="indice-preparacao__item indice-preparacao__item--ok" href="#componentes-oficios-lab"><span>Identificação</span><span class="sr-only"> — completo</span></a>
+      <a class="indice-preparacao__item" href="#componentes-oficios-lab" aria-current="location">Equipe e transporte</a>
+      <a class="indice-preparacao__item" href="#componentes-oficios-lab">Roteiro<span class="sr-only"> — conferir</span></a>
+      <a class="indice-preparacao__item indice-preparacao__item--erro" href="#componentes-oficios-lab">Revisar erro</a>
+    </nav>
+    {% include "componentes/pessoa_externa.html" with titulo="Motorista de fora da equipe" descricao="Vai por outro ofício; não entra nas diárias desta equipe." aberto=True corpo_template="ui_lab/_pessoa_externa_demo.html" %}
+    <div class="linha quebra"><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" aria-label="Ações do registro — exemplo">{% icone "ellipsis-vertical" %}</button><button type="button" class="botao botao--icone botao--sutil botao--menu-registro" disabled aria-label="Ações indisponíveis — exemplo">{% icone "ellipsis-vertical" %}</button></div>
+  </div>
+</section>

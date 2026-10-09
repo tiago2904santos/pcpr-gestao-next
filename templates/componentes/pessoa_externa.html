@@ -1,0 +1,5 @@
+{% comment %}Pessoa vinculada por outro registro. Disclosure nativo; campos vêm da aplicação.{% endcomment %}
+<details class="divulgacao pessoa-externa{% if classe %} {{ classe }}{% endif %}"{% if aberto %} open{% endif %}>
+  <summary><span class="pessoa-externa__marca" aria-hidden="true">{% icone "user-round" %}</span><span class="pessoa-externa__texto"><span class="pessoa-externa__titulo">{{ titulo }}</span><span class="pessoa-externa__descricao">{{ descricao }}</span></span>{% icone "chevron-down" classe="icone--sm pessoa-externa__seta" %}</summary>
+  <div class="divulgacao__corpo">{% include corpo_template %}</div>
+</details>

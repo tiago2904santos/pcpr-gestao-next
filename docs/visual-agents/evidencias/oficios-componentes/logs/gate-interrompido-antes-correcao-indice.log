@@ -1,0 +1,139 @@
+▶ ruff
+All checks passed!
+▶ fronteiras
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 578 files, 3062 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (15 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de CadastrosKEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Success: no issues found in 303 source files
+▶ bandit
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao\viagens\management\commands\semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+▶ tipos JS
+▶ testes
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+...........................................................F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_views.py::TestLinhaDaLista::test_motorista_marcado_e_motorista_de_fora_aparece
+self = <gestao.viagens.tests.test_views.TestLinhaDaLista object at 0x000001E8A408D810>
+operador = <django.test.client.Client object at 0x000001E8AD052D50>
+cenario = Cenario(ids={'oficio_emitido': 522, 'oficio_rascunho': 523, 'oficio_vazio': 524, 'oficio_cancelado': 525, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_motorista_marcado_e_motorista_de_fora_aparece(self, operador, cenario):
+        emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        inicio = html.index(f"Ofício {emitido.numero_formatado} · ")
+        linha = html[inicio:html.index("</li>", inicio)]
+        # I3: "(motorista)" visível por extenso, lido uma vez só (sem cópia para leitor de tela)
+        assert '<span class="registro__motorista"> (motorista)</span>' in linha
+        # o motorista vem primeiro na linha (a marca não some no corte do celular)
+        equipe = linha.split('class="registro__meta-texto registro__equipe">')[1]
+        assert equipe.startswith('<span class="registro__equipe-motorista">')
+        assert "sr-only\"> (motorista)" not in linha
+        assert "(motorista)" in linha.split("registro__meta-item--equipe")[1]  # no title também
+        Oficio.objects.filter(pk=emitido.pk).update(
+            motorista_externo="manual", motorista_externo_nome="Fulano de Fora")
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "Fulano de Fora" in html and "(motorista de fora da equipe)" in html  # title
+>       assert '(motorista<span class="sr-only"> de fora da equipe</span>)' in html
+E       assert '(motorista<span class="sr-only"> de fora da equipe</span>)' in '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n'
+
+gestao\viagens\tests\test_views.py:1363: AssertionError
+............ [ 35%]
+....[gw5] node down: Not properly terminated
+F
+DIAGNÓSTICO DO GATE: gestao/viagens/tests/test_editor.py::TestServicosDeTexto::test_salvar_cria_versao_so_com_regioes_diferentes
+worker 'gw5' crashed while running 'gestao/viagens/tests/test_editor.py::TestServicosDeTexto::test_salvar_cria_versao_so_com_regioes_diferentes'

@@ -1,0 +1,351 @@
+E                                                                        [100%]
+=================================== ERRORS ====================================
+__ ERROR at setup of test_lista_folha_documentos_coerentes_e_operaveis[360] ___
+
+self = <django.db.backends.utils.CursorWrapper object at 0x000002B5B034B750>
+sql = 'CREATE DATABASE "test_pcpr_lab_componentes_diag" ', params = None
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='__no_db__'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x000002B5B034B750>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+>               return self.cursor.execute(sql)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\django\db\backends\utils.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [BAD] at 0x2b5b02f9250>
+query = 'CREATE DATABASE "test_pcpr_lab_componentes_diag" ', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.DuplicateDatabase: database "test_pcpr_lab_componentes_diag" already exists
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: DuplicateDatabase
+
+The above exception was the direct cause of the following exception:
+
+self = <django.db.backends.postgresql.creation.DatabaseCreation object at 0x000002B5AFFEA850>
+verbosity = -1, autoclobber = True, keepdb = False
+
+    def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        Internal implementation - create the test db tables.
+        """
+        test_database_name = self._get_test_db_name()
+        test_db_params = {
+            "dbname": self.connection.ops.quote_name(test_database_name),
+            "suffix": self.sql_table_creation_suffix(),
+        }
+        # Create the test database and connect to it.
+        with self._nodb_cursor() as cursor:
+            try:
+>               self._execute_create_test_db(cursor, test_db_params, keepdb)
+
+.venv\Lib\site-packages\django\db\backends\base\creation.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\backends\postgresql\creation.py:46: in _execute_create_test_db
+    super()._execute_create_test_db(cursor, parameters, keepdb)
+.venv\Lib\site-packages\django\db\backends\base\creation.py:215: in _execute_create_test_db
+    cursor.execute("CREATE DATABASE %(dbname)s %(suffix)s" % parameters)
+.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv\Lib\site-packages\django\db\backends\utils.py:103: in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [BAD] at 0x2b5b02f9250>
+query = 'CREATE DATABASE "test_pcpr_lab_componentes_diag" ', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: database "test_pcpr_lab_componentes_diag" already exists
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: ProgrammingError
+
+During handling of the above exception, another exception occurred:
+
+self = <django.db.backends.utils.CursorWrapper object at 0x000002B5B034B750>
+sql = 'DROP DATABASE "test_pcpr_lab_componentes_diag"', params = None
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='__no_db__'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x000002B5B034B750>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+>               return self.cursor.execute(sql)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\django\db\backends\utils.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [BAD] at 0x2b5b02f9250>
+query = 'DROP DATABASE "test_pcpr_lab_componentes_diag"', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InvalidCatalogName: database "test_pcpr_lab_componentes_diag" does not exist
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: InvalidCatalogName
+
+The above exception was the direct cause of the following exception:
+
+self = <django.db.backends.postgresql.creation.DatabaseCreation object at 0x000002B5AFFEA850>
+verbosity = -1, autoclobber = True, keepdb = False
+
+    def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        Internal implementation - create the test db tables.
+        """
+        test_database_name = self._get_test_db_name()
+        test_db_params = {
+            "dbname": self.connection.ops.quote_name(test_database_name),
+            "suffix": self.sql_table_creation_suffix(),
+        }
+        # Create the test database and connect to it.
+        with self._nodb_cursor() as cursor:
+            try:
+                self._execute_create_test_db(cursor, test_db_params, keepdb)
+            except Exception as e:
+                # if we want to keep the db, then no need to do any of the
+                # below, just return and skip it all.
+                if keepdb:
+                    return test_database_name
+    
+                self.log("Got an error creating the test database: %s" % e)
+                if not autoclobber:
+                    confirm = input(
+                        "Type 'yes' if you would like to try deleting the test "
+                        "database '%s', or 'no' to cancel: " % test_database_name
+                    )
+                if autoclobber or confirm == "yes":
+                    try:
+                        if verbosity >= 1:
+                            self.log(
+                                "Destroying old test database for alias %s..."
+                                % (
+                                    self._get_database_display_str(
+                                        verbosity, test_database_name
+                                    ),
+                                )
+                            )
+>                       cursor.execute("DROP DATABASE %(dbname)s" % test_db_params)
+
+.venv\Lib\site-packages\django\db\backends\base\creation.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv\Lib\site-packages\django\db\backends\utils.py:103: in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [BAD] at 0x2b5b02f9250>
+query = 'DROP DATABASE "test_pcpr_lab_componentes_diag"', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: database "test_pcpr_lab_componentes_diag" does not exist
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: ProgrammingError
+
+During handling of the above exception, another exception occurred:
+
+request = <SubRequest 'django_db_setup' for <Function test_lista_folha_documentos_coerentes_e_operaveis[360]>>
+django_test_environment = None
+django_db_blocker = <pytest_django.plugin.DjangoDbBlocker object at 0x000002B5AD484AD0>
+django_db_use_migrations = True, django_db_keepdb = False
+django_db_createdb = True, django_db_modify_db_settings = None
+
+    @pytest.fixture(scope="session")
+    def django_db_setup(  # noqa: PLR0917
+        request: pytest.FixtureRequest,
+        django_test_environment: None,  # noqa: ARG001
+        django_db_blocker: DjangoDbBlocker,
+        django_db_use_migrations: bool,
+        django_db_keepdb: bool,
+        django_db_createdb: bool,
+        django_db_modify_db_settings: None,  # noqa: ARG001
+    ) -> Generator[None]:
+        """Top level fixture to ensure test databases are available"""
+        from django.test.utils import setup_databases, teardown_databases
+    
+        setup_databases_args = {}
+    
+        if not django_db_use_migrations:
+            _disable_migrations()
+    
+        if django_db_keepdb and not django_db_createdb:
+            setup_databases_args["keepdb"] = True
+    
+        aliases, serialized_aliases = _get_databases_for_setup(request.session.items)
+    
+        with django_db_blocker.unblock():
+>           db_cfg = setup_databases(
+                verbosity=request.config.option.verbose,
+                interactive=False,
+                aliases=aliases,
+                serialized_aliases=serialized_aliases,
+                **setup_databases_args,
+            )
+
+.venv\Lib\site-packages\pytest_django\fixtures.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\test\utils.py:220: in setup_databases
+    connection.creation.create_test_db(
+.venv\Lib\site-packages\django\db\backends\base\creation.py:75: in create_test_db
+    self._create_test_db(verbosity, autoclobber, keepdb)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.creation.DatabaseCreation object at 0x000002B5AFFEA850>
+verbosity = -1, autoclobber = True, keepdb = False
+
+    def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        Internal implementation - create the test db tables.
+        """
+        test_database_name = self._get_test_db_name()
+        test_db_params = {
+            "dbname": self.connection.ops.quote_name(test_database_name),
+            "suffix": self.sql_table_creation_suffix(),
+        }
+        # Create the test database and connect to it.
+        with self._nodb_cursor() as cursor:
+            try:
+                self._execute_create_test_db(cursor, test_db_params, keepdb)
+            except Exception as e:
+                # if we want to keep the db, then no need to do any of the
+                # below, just return and skip it all.
+                if keepdb:
+                    return test_database_name
+    
+                self.log("Got an error creating the test database: %s" % e)
+                if not autoclobber:
+                    confirm = input(
+                        "Type 'yes' if you would like to try deleting the test "
+                        "database '%s', or 'no' to cancel: " % test_database_name
+                    )
+                if autoclobber or confirm == "yes":
+                    try:
+                        if verbosity >= 1:
+                            self.log(
+                                "Destroying old test database for alias %s..."
+                                % (
+                                    self._get_database_display_str(
+                                        verbosity, test_database_name
+                                    ),
+                                )
+                            )
+                        cursor.execute("DROP DATABASE %(dbname)s" % test_db_params)
+                        self._execute_create_test_db(cursor, test_db_params, keepdb)
+                    except Exception as e:
+                        self.log("Got an error recreating the test database: %s" % e)
+>                       sys.exit(2)
+E                       SystemExit: 2
+
+.venv\Lib\site-packages\django\db\backends\base\creation.py:257: SystemExit
+---------------------------- Captured stderr setup ----------------------------
+Got an error creating the test database: database "test_pcpr_lab_componentes_diag" already exists
+
+Got an error recreating the test database: database "test_pcpr_lab_componentes_diag" does not exist
+
+=========================== short test summary info ===========================
+ERROR tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+1 error in 71.54s (0:01:11)

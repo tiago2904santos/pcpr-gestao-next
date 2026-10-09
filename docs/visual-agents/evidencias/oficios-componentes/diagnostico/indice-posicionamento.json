@@ -1,0 +1,14 @@
+[
+  {
+    "width": 360,
+    "before": 414,
+    "after": 360,
+    "nota": "Diagnóstico DOM controlado: etapa extra reproduz estrutura condicional. Não é captura de produto."
+  },
+  {
+    "width": 390,
+    "before": 414,
+    "after": 390,
+    "nota": "Diagnóstico DOM controlado: etapa extra reproduz estrutura condicional. Não é captura de produto."
+  }
+]

@@ -38,10 +38,11 @@
   </nav>
 
   <div class="pilha-lg">
+    {% include "ui_lab/_componentes_oficios_refinados.html" %}
     <section class="cartao" id="operacional-lab" aria-labelledby="t-operacional-lab">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-operacional-lab">Registro operacional</h2></div>
       <div class="cartao__corpo pilha">
-        <p class="texto-secundario texto-sm">Cabeçalho de página e registro com identidade, missão, recursos e conferência. No celular, situação junto ao número; período e protocolo à esquerda das diárias. Dados sintéticos, sem operações.</p>
+        <p class="texto-secundario texto-sm">Cabeçalho de página e registro com identidade, missão, recursos e conferência. No celular, selos inteiros em faixa própria; período e protocolo à esquerda das diárias. Dados sintéticos, sem operações.</p>
         {% include "componentes/registro_hero.html" with contexto="Gestão institucional" rotulo="Ofício" numero="131/2026" titulo="Preparar a viagem" complemento="Equipe, percurso e documentos em uma mesma área de trabalho." only %}
         <ul class="registros registros--operacionais" aria-label="Exemplos de registros operacionais">
           <li class="registro registro-operacional">

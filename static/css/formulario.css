@@ -698,7 +698,7 @@
   transition: transform var(--duracao-media) var(--curva-expressiva);
 }
 
-.divulgacao[open] > summary .icone {
+.divulgacao[open] > summary .icone:has(use[href$="#i-plus"]) {
   transform: rotate(45deg);
 }
 
@@ -755,6 +755,17 @@
 .transporte:has(select[name="tipo_transporte"] option[value="viatura"]:checked) .so-outro,
 .transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) .so-viatura {
   display: none;
+}
+
+/* Meio curto + seleção proporcional. A descrição opcional ocupa a linha seguinte. */
+.campos.transporte { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); align-items: start; }
+.transporte > .campo { min-width: 0; }
+.motorista-externo__campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4) var(--esp-3); align-items: start; }
+@media (min-width: 768px) {
+  .campos.transporte { grid-template-columns: minmax(calc(var(--esp-4) * 9.5), .65fr) minmax(0, 1.35fr); }
+  .transporte > .so-outro:last-child { grid-column: 1 / -1; }
+  .motorista-externo__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .motorista-externo__campos:has(option[value=""]:checked) > .campo { grid-column: 1 / -1; }
 }
 
 /* Motorista de fora da equipe: cada escolha mostra os seus campos (sem JS: :has()). */

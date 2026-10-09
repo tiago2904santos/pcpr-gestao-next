@@ -257,6 +257,8 @@
 .itin__uf :is(.selecao, .entrada) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+  padding-left: var(--esp-2);
+  padding-right: var(--esp-6);
 }
 
 /* Sede fixa da unidade (<pc-destinos>): a mesma caixa das paradas, só que sem editar —

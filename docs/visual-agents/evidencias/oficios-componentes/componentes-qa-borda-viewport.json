@@ -1,0 +1,408 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 768,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 20
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      ".cabecalho__botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1024,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 20
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      ".cabecalho__botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input type=\"text\" class=\"entrada\" role=\"combobox\" id=\"id_viatura-busca\" placeholder=\"Placa ou modelo…\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" autocomplete=\"off\">",
+                    "target": [
+                      "#id_viatura-busca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              "pc-combobox[data-placeholder=\"Placa ou modelo…\"] > .entrada-composta.entrada-composta--limpavel > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 20px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "filtros",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "cadastro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "equipe",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "roteiro",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "documentos",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  }
+]

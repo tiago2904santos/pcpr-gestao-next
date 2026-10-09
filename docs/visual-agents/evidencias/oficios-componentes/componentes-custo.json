@@ -1,0 +1,118 @@
+{
+  "lista-antes": {
+    "amostras": [
+      {
+        "consultas": 19,
+        "html_bytes": 130920,
+        "ms": 7073.02
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 130920,
+        "ms": 1036.16
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 130920,
+        "ms": 806.15
+      }
+    ],
+    "mediana_ms": 1036.16
+  },
+  "lista-depois": {
+    "amostras": [
+      {
+        "consultas": 16,
+        "html_bytes": 131531,
+        "ms": 1036.06
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 131531,
+        "ms": 745.53
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 131531,
+        "ms": 1052.59
+      }
+    ],
+    "mediana_ms": 1036.06
+  },
+  "cadastro-antes": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 2403.32
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 842.7
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 725.71
+      }
+    ],
+    "mediana_ms": 842.7
+  },
+  "cadastro-depois": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 155465,
+        "ms": 1437.91
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 155465,
+        "ms": 869.17
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 155465,
+        "ms": 737.78
+      }
+    ],
+    "mediana_ms": 869.17
+  },
+  "static/css/components.css": {
+    "antes_bytes": 133906,
+    "depois_bytes": 138218,
+    "antes_gzip_bytes": 27437,
+    "depois_gzip_bytes": 28061
+  },
+  "static/js/app.js": {
+    "antes_bytes": 13358,
+    "depois_bytes": 13384,
+    "antes_gzip_bytes": 4437,
+    "depois_gzip_bytes": 4450
+  },
+  "static/css/formulario.css": {
+    "antes_bytes": 39007,
+    "depois_bytes": 39791,
+    "antes_gzip_bytes": 9322,
+    "depois_gzip_bytes": 9498
+  },
+  "static/css/listas.css": {
+    "antes_bytes": 63677,
+    "depois_bytes": 64679,
+    "antes_gzip_bytes": 15141,
+    "depois_gzip_bytes": 15362
+  },
+  "static/css/itinerario.css": {
+    "antes_bytes": 30106,
+    "depois_bytes": 30167,
+    "antes_gzip_bytes": 7204,
+    "depois_gzip_bytes": 7219
+  },
+  "static/js/componentes/progresso.js": {
+    "antes_bytes": 2287,
+    "depois_bytes": 2648,
+    "antes_gzip_bytes": 1102,
+    "depois_gzip_bytes": 1233
+  }
+}

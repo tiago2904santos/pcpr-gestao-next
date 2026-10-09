@@ -1,0 +1,25 @@
+{
+  "base": "ffcc34389425b03b752b44e789c25060adcfbe8b",
+  "branch": "codex/oficios-componentes",
+  "capturado_utc": "2026-10-09T06:56:34.905444+00:00",
+  "sha256": {
+    "gestao/ui_lab/templates/ui_lab/_componentes_oficios_refinados.html": "9a367aa0934a185d184437ea99a42f599e3c7a8383b96805f3586d9a50201e6c",
+    "gestao/ui_lab/templates/ui_lab/_pessoa_externa_demo.html": "121f5adf3d075918be1a8b361c1af84e65a2303c509e95d3b8013799c3e9013e",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "28c562aeabbec64d6e922a411bfbe2c83fc5abcb7f7b9122aeb72fd3f2f4f015",
+    "gestao/viagens/templates/viagens/oficios/_motorista_externo_campos.html": "4fc388612dfac6d34e1beb48ffabe0a415fb360293f24e6e820850e083ef6c79",
+    "gestao/viagens/templates/viagens/oficios/_registro.html": "730fd1dae1a36fdc58e6ea0d7c61ba9cdde69aacfedd0172f2e7b6f2dfc3045c",
+    "gestao/viagens/templates/viagens/oficios/editar.html": "dcdfce2f4d2f31eb4ea903d1ab95ae64af1fb10cc36862f6de4a523d9fb7c7ce",
+    "gestao/viagens/templates/viagens/oficios/lista.html": "e3c9eb9e315ac5d029e81fa6f313df3047be4582cce03b7a6e1571553b8384e1",
+    "gestao/viagens/tests/test_views.py": "fd4b0cd4676e1e68d846dfd30e7ceb8255639032b1288586063042f6e21b0399",
+    "static/css/components.css": "aca51d1d5837997ae4e1483d948019d88154fd4abebe92ae26ae4c9f652d2d3b",
+    "static/css/formulario.css": "8a136b9cbf659b5d63e8b4ae5f6ee2ae7fc5121d0fe51ec5617f86b2595ea75e",
+    "static/css/itinerario.css": "a836b47b8ac8aa005ccbf5d184497946d14039089ad14ee5f2ef75cff2eda1d0",
+    "static/css/listas.css": "0842c7c37eeed8c499d0b42b26c5180fad146bdca1ad73812507c64d613cf8b2",
+    "static/js/app.js": "aef9adc8f1f2209316d3c8ba2cb88885b8e22380c3c5767567b45ca901c53f51",
+    "static/js/componentes/progresso.js": "9e66dbffa1eb7f921d8de6951a5346994fd41023ad05722c3e8c60d41281664b",
+    "templates/componentes/indice_preparacao.html": "c2ba15e6eeae01bc5cee478dc052e2c47a96d72b8eb53dc0517b7c174fb28f0e",
+    "templates/componentes/pendencia.html": "194b137717777f1e9fe2e35ea01487a65bf0c7cf71523c55613884be05c1e2a9",
+    "templates/componentes/pessoa_externa.html": "9b1777f84f8b55cb9900104c324071fbaba5677c396ee81f82874501ed384bed",
+    "tests/e2e/test_oficios_visual.py": "ccfaba619d26cca85d730c65b14e4932606758036966c7ce28ce8f944ae14425"
+  }
+}

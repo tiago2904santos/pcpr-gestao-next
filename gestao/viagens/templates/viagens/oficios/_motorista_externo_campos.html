@@ -1,0 +1,19 @@
+<div class="campos motorista-externo__campos">
+          {% include "componentes/campo.html" with campo=form.motorista_externo classe="campo--md" %}
+          <div class="campo campo--lg so-servidor-externo">
+            <label class="campo__rotulo" for="busca-motorista-externo">Servidor que vai dirigir</label>
+            <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?oficio={{ oficio.pk }}&amp;q=" data-minimo="2">
+              <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}" aria-describedby="ajuda-motorista-externo"></div>
+              {{ form.motorista_externo_servidor }}
+            </pc-combobox>
+            <p class="campo__ajuda" id="ajuda-motorista-externo">Cadastrado, mas fora desta equipe (viaja por outro ofício).</p>
+          </div>
+          {% comment %}
+          Pessoa não cadastrada: só nome, ofício de origem e protocolo. Quem dirige por
+          outro ofício é identificado por ele — CPF, RG, cargo e unidade estão no ofício
+          de origem e repetir aqui só dava trabalho a quem preenche.
+          {% endcomment %}
+          {% include "componentes/campo.html" with campo=form.motorista_externo_nome classe="campo--lg so-manual" exigido_para_emitir=True %}
+          {% include "componentes/campo.html" with campo=form.motorista_oficio_origem classe="campo--md so-externo" exigido_para_emitir=True ajuda="Número/ano do ofício pelo qual ele viaja." ajuda_oculta=True %}
+          {% include "componentes/campo.html" with campo=form.motorista_protocolo_origem classe="campo--md so-externo" exigido_para_emitir=True %}
+</div>

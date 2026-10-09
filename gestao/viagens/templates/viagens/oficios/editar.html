@@ -55,7 +55,7 @@ confirmação — e é ele que escreve no histórico.
   <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
-      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}</div>
       {# `assunto.linha` já termina em ponto e `assunto.rotulo` já vem entre parênteses. #}
       <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %}</p>
     </div>
@@ -99,7 +99,7 @@ confirmação — e é ele que escreve no histórico.
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
         <div class="secao__estado">
-          {% for p in prontidao|pendencias_da_secao:"transporte" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}
+          {% for p in prontidao|pendencias_da_secao:"transporte" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}
           {# Sim/não com efeito no documento: interruptor no cabeçalho, como o "Bate-volta" do roteiro. #}
           <label class="interruptor" for="{{ form.porte_arma.auto_id }}" title="Ligue se os servidores transportarão arma de fogo">
             {{ form.porte_arma|campo_acessivel:"" }}
@@ -121,28 +121,13 @@ confirmação — e é ele que escreve no histórico.
       deste; o documento cita o nome. Escolher aqui tira a marca de motorista da equipe.
       Os campos de cada caso aparecem pela escolha (sem JS: :has(), como o custeio).
       {% endcomment %}
-      <details class="divulgacao motorista-externo"{% if oficio.motorista_externo %} open{% endif %}>
-        <summary>{% icone "plus" classe="icone--sm" %}Motorista de fora da equipe{% if oficio.motorista_externo %} · {{ oficio.get_motorista_externo_display }}{% endif %}</summary>
-        <div class="divulgacao__corpo campos motorista-externo__campos">
-          {% include "componentes/campo.html" with campo=form.motorista_externo classe="campo--md" %}
-          <div class="campo campo--lg so-servidor-externo">
-            <label class="campo__rotulo" for="busca-motorista-externo">Servidor que vai dirigir</label>
-            <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?oficio={{ oficio.pk }}&amp;q=" data-minimo="2">
-              <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}" aria-describedby="ajuda-motorista-externo"></div>
-              {{ form.motorista_externo_servidor }}
-            </pc-combobox>
-            <p class="campo__ajuda" id="ajuda-motorista-externo">Cadastrado, mas fora desta equipe (viaja por outro ofício).</p>
-          </div>
-          {% comment %}
-          Pessoa não cadastrada: só nome, ofício de origem e protocolo. Quem dirige por
-          outro ofício é identificado por ele — CPF, RG, cargo e unidade estão no ofício
-          de origem e repetir aqui só dava trabalho a quem preenche.
-          {% endcomment %}
-          {% include "componentes/campo.html" with campo=form.motorista_externo_nome classe="campo--lg so-manual" exigido_para_emitir=True %}
-          {% include "componentes/campo.html" with campo=form.motorista_oficio_origem classe="campo--md so-externo" exigido_para_emitir=True ajuda="Número/ano do ofício pelo qual ele viaja." ajuda_oculta=True %}
-          {% include "componentes/campo.html" with campo=form.motorista_protocolo_origem classe="campo--md so-externo" exigido_para_emitir=True %}
-        </div>
-      </details>
+      {% if oficio.motorista_externo %}
+      {% with detalhe_externo=oficio.get_motorista_externo_display %}
+      {% include "componentes/pessoa_externa.html" with classe="motorista-externo" titulo="Motorista de fora da equipe" descricao=detalhe_externo aberto=oficio.motorista_externo corpo_template="viagens/oficios/_motorista_externo_campos.html" %}
+      {% endwith %}
+      {% else %}
+      {% include "componentes/pessoa_externa.html" with classe="motorista-externo" titulo="Motorista de fora da equipe" descricao="Viaja por outro ofício; não entra nas diárias desta equipe." corpo_template="viagens/oficios/_motorista_externo_campos.html" %}
+      {% endif %}
     </pc-transporte>
     </div>
   </section>
@@ -155,7 +140,7 @@ confirmação — e é ele que escreve no histórico.
   <section class="secao{% if secoes.1.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">3</span>Roteiro</h2>
-      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
+      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}</div>
       <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
     </div>
     <div class="secao__conteudo">

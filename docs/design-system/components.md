@@ -198,7 +198,8 @@ contadores OOB e filtros continuam nos mesmos componentes funcionais.
 identidade, missão/agenda, recursos e conferência. Não combinar esta variante com
 `registro--documental`, que usa outra definição de áreas de grid. Período e protocolo
 não herdam áreas de grid nos agrupamentos internos. No celular, os estados ficam
-ao lado do número e as diárias ao lado da agenda; equipe e transporte encerram o
+em faixa própria abaixo do título, sem disputar largura com a placa; as diárias
+ficam ao lado da agenda; equipe e transporte encerram o
 registro. O detalhe do valor permanece visível nas cinco larguras.
 
 Exemplos preenchido e cancelado em `/ui-lab/#operacional-lab`. Evidências reais em
@@ -226,3 +227,37 @@ históricas não ocupam a estação corrente. O controlador nativo de diálogos 
 a janela secundária fora da ancestral enquanto aberta, evitando herança visual e
 devolve o foco ao controle existente ao fechar. Não gera, altera ou promove arquivos.
 Exemplo sintético no mesmo bloco operacional do UI Lab.
+
+## Refinamento dos componentes operacionais — 09/10/2026
+
+- `.selo` não encolhe como item flex: é uma unidade de estado, de uma linha. Uma
+  instrução longa usa `pendencia.html` (`mensagem`, `bloqueante`), com ícone, filete
+  e texto que pode quebrar sem perder orientação. Não truncar instruções de erro.
+- `.registro-operacional` centraliza placa e ações no desktop. A placa mantém
+  número tabular e a mesma identidade em todas as situações. `.botao--menu-registro`
+  tem alvo próprio, realce discreto e foco visível; no mobile usa
+  `--altura-controle-lg` (2,75rem; 39,6px na escala atual de 90%).
+- `.filtros__avancados--organizados` distribui campos semânticos: ordem e dois
+  períodos na primeira fila; ano, protocolo, veículo e faixa de valores na segunda.
+  Em tablet usa duas colunas e em mobile mantém a folha inferior original.
+- `.indice-preparacao` usa trilho cinza, texto grafite, check para completo, círculo
+  para conferir e `aria-current="location"` para posição de leitura. Reaproveita
+  `progresso.js` sob demanda; o foco não se confunde com o item atual. Sem JS,
+  âncoras e informações de prontidão permanecem disponíveis.
+- `pessoa_externa.html` recebe `titulo`, `descricao`, `aberto`, `classe` opcional e
+  `corpo_template`. Disclosure nativo com identificação e campos do chamador.
+  Não decide vínculo, motorista, diárias ou permissão. O componente de transporte
+  mantém habilitação/fechamento anteriores; os campos são extraídos sem alterações.
+- `.campos.transporte` coloca meio e viatura lado a lado, com largura proporcional;
+  detalhe de outro meio entra em faixa inteira. `.motorista-externo__campos` agrupa
+  pessoa e referências de origem em duas colunas, uma no celular.
+- `.pessoas--compactas` integra controles à lateral do cartão, visíveis em toque
+  e mouse. Mantém nomes com quebra e botões nomeados; não imita o card só de leitura.
+- A divulgação gira somente o ícone de expansão `plus`; ícones de cópia ou pessoa
+  permanecem na orientação correta. UF do itinerário reserva largura para duas letras.
+- Checkbox e radio em `.escolha` têm alvo físico de 24px, independente da escala
+  tipográfica. A preparação usa o `scroll-padding` global do cabeçalho; suas seções
+  não repetem esse desconto com `scroll-margin`.
+
+Estados em `/ui-lab/#componentes-oficios-lab`; evidências e críticas em
+`docs/visual-agents/qa/oficios-componentes-2026-10-09.md`.
