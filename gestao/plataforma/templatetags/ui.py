@@ -86,3 +86,18 @@ def get_item(dicionario, chave):
         return dicionario.get(chave)
     except AttributeError:
         return None
+
+
+@register.simple_tag
+def passo_preparacao(itens, pronto) -> int:
+    """Progresso da preparação em décimos (0–10), para o índice virar barra.
+
+    A conta inclui a revisão: as seções do domínio mais o "pronto para emitir". Sai como
+    passo, não como porcentagem livre, porque a folha roda com CSP estrita — a largura vem
+    de uma classe (`indice-preparacao--pN`), nunca de um `style` embutido.
+    """
+    secoes = list(itens or [])
+    total = len(secoes) + 1
+    feitas = sum(1 for item in secoes if getattr(item, "ok", None) or (
+        isinstance(item, dict) and item.get("ok"))) + (1 if pronto else 0)
+    return round(feitas * 10 / total) if total else 0

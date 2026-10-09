@@ -159,7 +159,6 @@ confirmação — e é ele que escreve no histórico.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}5{% else %}4{% endif %}</span>Documentos</h2>
       <div class="secao__estado">{% if prontidao.pode_emitir %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para emitir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }}</span>{% endif %}</div>
-      <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido, editar abre uma retificação: o ofício volta a rascunho marcado como retificado e a correção fica no histórico.</p>
     </div>
     <div class="secao__conteudo">
 

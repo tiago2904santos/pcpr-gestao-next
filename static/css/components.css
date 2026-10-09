@@ -2945,26 +2945,42 @@ fieldset.campo--escolhas > .campo__erro {
   color: var(--neutro-0);
 }
 
-/* As duas ações do texto pronto são auxiliares: ficam na altura do campo ao lado, discretas,
-   e só ganham superfície ao passar o mouse. "Guardar texto" leva rótulo porque é uma ação
-   sobre o que foi escrito; "Gerenciar" é só o ícone, com dica — leva para outra tela. */
+/* As duas ações do texto pronto andam juntas — guardar o que foi escrito e ir gerenciar os
+   modelos — então viram UMA peça: moldura própria, divisória entre elas e a mesma altura do
+   campo ao lado. Soltas, pareciam dois links perdidos na linha. */
 .texto-pronto__acoes {
-  align-items: center;
-  gap: var(--esp-1);
+  align-items: stretch;
+  gap: 0;
+  border: var(--borda);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie);
+  overflow: clip;
 }
 
-/* Na altura do campo ao lado: as ações ficam na mesma linha de base da escolha, senão a
-   linha parece ter dois tamanhos de controle. O `--sm` vale só para o texto e o ícone. */
 .texto-pronto__acoes .botao {
   min-height: var(--altura-controle);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--cor-texto-secundario);
+}
+
+.texto-pronto__acoes .botao + .botao {
+  border-left: var(--borda-sutil);
 }
 
 .texto-pronto__acoes .botao--icone {
   width: var(--altura-controle);
 }
 
-.texto-pronto__acoes .botao--sutil:hover {
+.texto-pronto__acoes .botao:hover {
   background: var(--cor-superficie-realce);
+  color: var(--cor-texto);
+}
+
+.texto-pronto__acoes .botao:focus-visible {
+  z-index: 1;
 }
 
 /* Valor do indicador centrado não pode ser cortado: "INTERIOR + CAPITAL" não cabe numa
@@ -3673,7 +3689,23 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 /* Preparação de registro: índice e seções editoriais reutilizáveis. */
 .barra-acoes.barra-acoes--registro { bottom: 0; padding: var(--esp-2) var(--esp-4); border-radius: var(--raio-lg) var(--raio-lg) 0 0; }
 .barra-acoes.barra-acoes--fluxo { position: static; margin-top: var(--esp-5); border-radius: var(--raio-lg); }
-.indice-preparacao { position: relative; display: flex; gap: var(--esp-1); padding: var(--esp-1); margin-bottom: var(--esp-4); overflow-x: auto; scrollbar-width: thin; background: var(--cor-superficie-realce); border-radius: var(--raio-lg); }
+/* O índice fica no fluxo (não acompanha a rolagem) e traz no pé uma barra com o quanto da
+   preparação já fechou: seções com estado + a revisão. */
+.indice-preparacao { position: relative; display: flex; gap: var(--esp-1); padding: var(--esp-1) var(--esp-1) calc(var(--esp-1) + var(--filete-fino)); margin-bottom: var(--esp-4); overflow-x: auto; scrollbar-width: thin; background: var(--cor-superficie-realce); border-radius: var(--raio-lg); box-shadow: var(--sombra-1); }
+.indice-preparacao::after { content: ""; position: absolute; left: 0; bottom: 0; height: var(--filete-fino); width: var(--progresso-preparacao, 0%); border-radius: var(--raio-pilula); background: var(--cor-marca); transition: width var(--duracao-media) var(--curva-padrao); }
+.indice-preparacao--p0 { --progresso-preparacao: 0%; }
+.indice-preparacao--p1 { --progresso-preparacao: 10%; }
+.indice-preparacao--p2 { --progresso-preparacao: 20%; }
+.indice-preparacao--p3 { --progresso-preparacao: 30%; }
+.indice-preparacao--p4 { --progresso-preparacao: 40%; }
+.indice-preparacao--p5 { --progresso-preparacao: 50%; }
+.indice-preparacao--p6 { --progresso-preparacao: 60%; }
+.indice-preparacao--p7 { --progresso-preparacao: 70%; }
+.indice-preparacao--p8 { --progresso-preparacao: 80%; }
+.indice-preparacao--p9 { --progresso-preparacao: 90%; }
+.indice-preparacao--p10 { --progresso-preparacao: 100%; background: var(--cor-sucesso-fundo); }
+.indice-preparacao--p10::after { background: var(--cor-sucesso); }
+@media (prefers-reduced-motion: reduce) { .indice-preparacao::after { transition: none; } }
 .indice-preparacao__item { display: flex; align-items: center; justify-content: center; flex: 1; gap: var(--esp-2); padding: var(--esp-2) var(--esp-3); min-height: var(--altura-controle); border: var(--filete-fino) solid transparent; border-radius: var(--raio-md); background: transparent; color: var(--cor-texto-secundario); font-size: var(--texto-sm); font-weight: var(--peso-semi); white-space: nowrap; text-decoration: none; box-shadow: none; }
 .indice-preparacao__item::before { content: ""; width: var(--esp-2); height: var(--esp-2); border: var(--filete-fino) solid currentColor; border-radius: var(--raio-pilula); flex: none; }
 .indice-preparacao__item:hover { background: var(--cor-superficie); color: var(--cor-texto); }
@@ -3687,7 +3719,19 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .pendencia { display: flex; align-items: start; gap: var(--esp-2); min-width: 0; padding: var(--esp-2) var(--esp-3); border-left: var(--filete) solid var(--cor-borda-forte); background: var(--cor-superficie-sutil); color: var(--cor-texto-secundario); font-size: var(--texto-xs); line-height: var(--altura-linha); }
 .pendencia--bloqueante { border-color: var(--cor-aviso-borda); background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
 .pendencia > .icone { flex: none; margin-top: var(--esp-05); }
-.pessoa-externa { margin-top: var(--esp-4); border: var(--borda); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+/* Pendência no cabeçalho do bloco (Transporte, Equipe): vira pílula da altura do próprio
+   cabeçalho — avisa sem empurrar a linha e sem desalinhar a coluna vizinha. */
+.secao__bloco-cabecalho .pendencia { align-items: center; min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border-left: 0; border-radius: var(--raio-pilula); }
+/* Transporte: tudo na linha do título — o aviso encostado nele e o interruptor na ponta
+   direita. `contents` tira a caixa intermediária do caminho sem mexer no HTML. */
+pc-transporte > .secao__bloco-cabecalho > .secao__estado { display: contents; }
+pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin-left: auto; }
+.secao__bloco-cabecalho .pendencia > .icone { margin-top: 0; }
+.secao__bloco-cabecalho .pendencia--bloqueante { background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+/* Estado vazio da equipe e o cartão do motorista de fora ficam lado a lado: mesma altura
+   mínima, para as duas colunas fecharem na mesma linha. */
+.pessoa-externa { display: grid; align-content: center; min-height: calc(var(--esp-16) + var(--esp-3)); margin-top: var(--esp-4); border: var(--borda); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.equipe__vazia { min-height: calc(var(--esp-16) + var(--esp-3)); }
 .divulgacao.pessoa-externa > summary { display: flex; width: 100%; gap: var(--esp-3); padding: var(--esp-3); color: var(--cor-texto); }
 .pessoa-externa__marca { display: grid; place-items: center; width: var(--altura-controle); height: var(--altura-controle); flex: none; background: var(--cor-superficie-realce); border-radius: var(--raio-md); color: var(--cor-marca-texto); }
 .pessoa-externa__texto { display: grid; min-width: 0; gap: var(--esp-1); }
@@ -3699,15 +3743,24 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .pessoa-externa > summary:hover { background: var(--cor-superficie-realce); border-radius: var(--raio-md); }
 .pessoa-externa > summary:focus-visible { outline-offset: var(--foco-offset); border-radius: var(--raio-md); }
 .pessoa-externa[open] > .divulgacao__corpo { margin-top: 0; padding: var(--esp-4) var(--esp-3); border-top: var(--borda); }
+/* A folha de preparação é um cartão por seção, não um documento com linha-guia: o filete
+   dourado que acompanhava a leitura some (ele terminava num traço solto no pé da página). */
 .documento.documento--preparacao { padding: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: none; }
-.documento--preparacao > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); scroll-margin-top: 0; }
+.documento--preparacao > .documento__guia { display: none; }
+.documento--preparacao > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); scroll-margin-top: var(--esp-4); }
+/* Todas as seções respiram igual nos quatro lados — inclusive a primeira (que vinha com o
+   topo encolhido pela linha-guia) e a última (que vinha sem base). */
+.documento--preparacao > .secao:first-child,
+.documento--preparacao > .documento__guia + .secao { padding-top: var(--esp-6); }
+.documento--preparacao > .secao:last-child { padding-bottom: var(--esp-6); }
 .documento--preparacao .secao__cabecalho { display: flex; flex-wrap: wrap; align-items: center; margin: 0; gap: var(--esp-1) var(--esp-3); }
 .documento--preparacao .secao__titulo { font-size: var(--texto-xl); letter-spacing: var(--rastreio-titulo); }
 .documento--preparacao .secao__numero { background: var(--cor-primaria); color: var(--cor-texto-inverso); border-radius: var(--raio-sm); }
 /* A nota explica a seção: linha própria, embaixo do título e à esquerda — nunca no meio
    da faixa nem encostada nos campos. */
 .documento--preparacao .secao__nota { order: 3; flex-basis: 100%; margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha); }
-.documento--preparacao .secao__estado { justify-content: start; margin-left: auto; }
+/* O estado da seção ("2 pendências", "completo") anda junto do título, não na outra ponta. */
+.documento--preparacao .secao__estado { justify-content: start; margin-left: 0; }
 .documento--preparacao .secao__estado:has(.pendencia) { width: 100%; margin-left: 0; }
 .documento--preparacao .secao__cabecalho .selo { max-width: 100%; white-space: nowrap; }
 .secao__conteudo { min-width: 0; }
@@ -3720,7 +3773,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 /* O histórico fecha a folha: respiro maior para não encostar na minuta logo acima. */
 .documento--preparacao #historico { margin-top: var(--esp-8); }
 .documento--preparacao #historico .secao__bloco-cabecalho { margin-bottom: var(--esp-4); }
-.documento--preparacao :is(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: 0; }
+.documento--preparacao :is(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: var(--esp-4); }
 .campos.campos--registro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-3); }
 .campos--registro > .campo { min-width: 0; }
 .campos--registro > .campo:nth-child(4) { grid-column: span 2; }
@@ -3746,7 +3799,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .selecao-recurso__controles > .botao { margin-top: var(--esp-2); }
 .itin.itin--operacional { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
 .itin__planejamento { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); align-items: start; }
-.itin--operacional .itin__sequencia { grid-template-rows: auto auto; padding-top: 0; }
+.itin--operacional .itin__bloco.itin__sequencia { grid-template-rows: auto auto; padding-top: 0; }
 .itin--operacional .itin__paradas { gap: var(--esp-2); align-content: start; --itin-trilho: var(--altura-controle-sm); --itin-centro: calc(var(--esp-5) + var(--altura-controle) / 2); }
 .itin--operacional .itin__paradas::before { width: var(--filete-fino); background: var(--cor-borda); }
 .itin--operacional .itin__local { grid-template-columns: calc(var(--esp-4) * 4.5) minmax(0, 1fr); gap: 0; }
@@ -3775,14 +3828,22 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .itin--operacional .itin__adicionar > .itin__marco { display: none; }
 .itin--operacional .itin__botao-adicionar { grid-column: 2; width: fit-content; display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-2) 0; border: 0; background: transparent; color: var(--cor-marca-texto); }
 .itin--operacional .itin__botao-adicionar small { display: none; }
-.itin--operacional .itin__painel { padding: 0; border-radius: 0; background: transparent; box-shadow: none; grid-template-rows: auto auto auto; gap: var(--esp-3); }
+/* Coluna da rota em pilha: os números e a nota ocupam o que precisam e o mapa fica com o
+   resto da altura — vale com ou sem a linha de estimativa. */
+.itin--operacional .itin__painel { display: flex; flex-direction: column; padding: 0; border-radius: 0; background: transparent; box-shadow: none; gap: var(--esp-3); }
+.itin--operacional .itin__painel > .itin__rota { flex: 1 1 auto; }
+/* Planejamento em duas colunas: "Sede e destinos" (com o interruptor) e "Rota" começam na
+   mesma linha — os cabeçalhos compartilham a altura mínima, como na equipe e no transporte. */
+.itin--operacional .itin__planejamento > .itin__bloco > .itin__bloco-cabecalho { min-height: var(--altura-controle-sm); }
 .itin--operacional .itin__metricas { display: grid; gap: var(--esp-2); }
-.itin--operacional .itin__totais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); margin: 0; }
-.itin--operacional .itin__total { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-1) var(--esp-2); align-content: start; padding: var(--esp-3); border-left: var(--filete) solid var(--cor-borda); background: var(--cor-superficie-sutil); }
-.itin--operacional .itin__total > .icone { grid-column: 1; grid-row: 1; color: var(--cor-marca-texto); }
-.itin--operacional .itin__total-rotulo { grid-column: 2; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.itin--operacional .itin__total-valor { grid-column: 1 / -1; font-size: var(--texto-lg); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-weight: var(--peso-semi); }
-.itin--operacional .itin__total-valor:last-child { font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+/* Os totais são referência, não manchete: uma linha por total (rótulo, distância, tempo),
+   sem cartão alto disputando com o mapa ao lado. */
+.itin--operacional .itin__totais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-2); margin: 0; }
+.itin--operacional .itin__total { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-1) var(--esp-2); padding: var(--esp-2) var(--esp-3); border-left: var(--filete-fino) solid var(--cor-marca-borda); background: var(--cor-superficie-sutil); }
+.itin--operacional .itin__total > .icone { align-self: center; color: var(--cor-marca-texto); }
+.itin--operacional .itin__total-rotulo { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__total-valor { margin-left: auto; font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
+.itin--operacional .itin__total-valor:last-child { margin-left: 0; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
 .itin--operacional .itin__total-valor + .itin__total-valor::before { content: none; }
 .itin--operacional .itin__trechos { gap: 0; }
 .itin--operacional .itin__trecho { gap: var(--esp-3); padding: var(--esp-4) 0; border-bottom: var(--borda-sutil); border-radius: 0; box-shadow: none; background: transparent; }
@@ -3800,24 +3861,30 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .itin--operacional .itin__duracao { grid-column: auto; }
 .itin--operacional .itin__passo { border-color: var(--cor-borda-sutil); background: var(--cor-superficie-sutil); }
 .itin--operacional .itin__passo-botao { width: var(--alvo-minimo); min-width: var(--alvo-minimo); min-height: var(--alvo-minimo); }
-.itin--operacional .itin__chegada-campo { padding: var(--esp-3); gap: var(--esp-1); background: var(--cor-superficie-sutil); border-left: var(--filete) solid var(--cor-marca); }
+/* A chegada é um valor calculado ao lado de campos: o rótulo nasce na mesma linha dos
+   outros rótulos e a faixa acompanha a altura do trecho. */
+.itin--operacional .itin__tempos > .itin__chegada-campo { align-self: stretch; justify-content: center; align-items: center; text-align: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-1); background: var(--cor-superficie-sutil); border-left: var(--filete-fino) solid var(--cor-marca); }
 .itin--operacional .itin__chegada-campo:hover { transform: none; }
 .itin--operacional .itin__chegada { padding: 0; min-height: 0; border: 0; background: transparent; box-shadow: none; justify-content: start; }
-.itin--operacional .itin__chegada .indicador__valor { font-size: var(--texto-md); font-weight: var(--peso-semi); color: var(--cor-texto); }
-.conferencia-serena.conferencia-serena--operacional { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; border-top: var(--borda-sutil); border-bottom: var(--borda-sutil); background: transparent; border-radius: 0; }
-.conferencia-serena--operacional .conferencia-serena__total { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; margin: 0; padding: var(--esp-4); gap: var(--esp-2); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
-.conferencia-serena--operacional .conferencia-serena__total > span { color: var(--cor-texto-inverso); }
-.conferencia-serena--operacional .conferencia-serena__total > strong { font-size: var(--texto-2xl); color: var(--cor-texto-inverso); }
-.conferencia-serena--operacional .conferencia-serena__dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); padding: var(--esp-4); border: 0; align-content: center; }
-.conferencia-serena--operacional .conferencia-serena__dados > div { display: grid; gap: var(--esp-1); border: 0; padding: 0; }
-.conferencia-serena--operacional .conferencia-serena__dados dt { font-size: var(--texto-xs); margin: 0; }
-.conferencia-serena--operacional .conferencia-serena__dados dd { font-size: var(--texto-sm); text-align: left; }
+.itin--operacional .itin__chegada .indicador__valor { font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto); font-variant-numeric: tabular-nums; text-align: center; }
+.conferencia-serena.conferencia-serena--operacional { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; }
+/* Diárias na folha: o total é o bloco escuro à esquerda (peso e identidade) e os dados
+   acompanham à direita. Tipografia fluida (clamp) para o número não ficar miúdo nas telas
+   grandes nem estourar nas estreitas. */
+.conferencia-serena--operacional .conferencia-serena__total { display: grid; align-content: center; justify-items: center; text-align: center; gap: var(--esp-1); margin: 0; padding: var(--esp-4) var(--esp-6); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.conferencia-serena--operacional .conferencia-serena__total > span { color: var(--cor-texto-inverso-sutil); }
+.conferencia-serena--operacional .conferencia-serena__total > strong { font-size: clamp(var(--texto-2xl), 2.2vw, var(--texto-4xl)); line-height: var(--altura-linha-justa); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; }
+.conferencia-serena--operacional .conferencia-serena__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--esp-4) var(--esp-6); padding: var(--esp-4) var(--esp-6); border: 0; align-content: center; }
+.conferencia-serena--operacional .conferencia-serena__dados > div { display: grid; justify-items: center; text-align: center; gap: var(--esp-1); border: 0; padding: 0; }
+.conferencia-serena--operacional .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), 0.9vw, var(--texto-sm)); margin: 0; }
+.conferencia-serena--operacional .conferencia-serena__dados dd { font-size: clamp(var(--texto-2xl), 2.2vw, var(--texto-4xl)); line-height: var(--altura-linha-justa); text-align: center; overflow-wrap: anywhere; }
 .itin--operacional .itin__fonte { line-height: var(--altura-linha); }
-.itin--operacional .itin__rota { height: auto; }
-.itin--operacional .itin__mapa { height: calc(var(--esp-12) * 5); min-height: 0; border-radius: var(--raio-md); }
+/* O mapa preenche o que sobra da coluna: quanto mais destinos à esquerda, mais mapa à
+   direita — as duas colunas terminam juntas. */
+.itin--operacional .itin__rota { height: 100%; min-height: 0; }
+.itin--operacional .itin__mapa { height: 100%; min-height: calc(var(--esp-12) * 4); border-radius: var(--raio-md); }
 @media (min-width: 1024px) {
   .itin__planejamento { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-6); align-items: stretch; }
-  .itin--operacional .itin__painel { grid-template-rows: auto auto minmax(0, 1fr); }
   .itin--operacional .itin__rota,
   .itin--operacional .itin__mapa { height: 100%; min-height: calc(var(--esp-12) * 4); }
   .itin--operacional .itin__tempos { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.5fr) minmax(0, 1fr); }
@@ -3844,9 +3911,10 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .formulario-contextual__nota { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
 .formulario-contextual__edicao { min-width: 0; }
 .formulario-contextual__campos { display: grid; gap: var(--esp-4); }
-.formulario-contextual__campos .texto-pronto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); align-items: end; width: min(100%, calc(var(--esp-12) * 12)); }
+/* A escolha do texto pronto acompanha a largura do campo que ela preenche — nada de uma
+   linha curta em cima de um campo largo. */
+.formulario-contextual__campos .texto-pronto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); align-items: end; width: 100%; }
 .formulario-contextual__campos .texto-pronto__escolha { min-width: 0; }
-.formulario-contextual__campos .texto-pronto__acoes { padding-bottom: var(--esp-1); }
 .formulario-contextual .formulario-contextual__campos .campo { padding-top: 0; gap: var(--esp-2); }
 .formulario-contextual__campos .campo > .campo__rotulo { position: static; display: block; transform: none; inset: auto; margin: 0; padding: 0; background: transparent; font-size: var(--texto-xs); }
 .formulario-contextual__campos textarea { min-height: calc(var(--esp-12) * 3); field-sizing: content; max-height: calc(var(--esp-12) * 6); line-height: var(--altura-linha); }
@@ -3857,10 +3925,10 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 @media (max-width: 767px) {
   .formulario-contextual { gap: var(--esp-4); }
   .formulario-contextual__campos .texto-pronto { grid-template-columns: minmax(0, 1fr); }
-  .formulario-contextual__campos .texto-pronto__acoes { justify-self: end; padding-bottom: 0; }
+  .formulario-contextual__campos .texto-pronto__acoes { justify-self: end; }
 }
 /* Conferência e dados de protocolo: decisão primeiro, cópia no mesmo eixo de edição. */
-.preparacao-documental { display: grid; gap: var(--esp-5); align-items: start; padding-bottom: var(--esp-5); }
+.preparacao-documental { display: grid; gap: var(--esp-5); align-items: start; }
 .preparacao-documental > [data-vivo] { min-width: 0; }
 .prontidao-documental { display: grid; gap: var(--esp-4); min-width: 0; border-left: var(--filete) solid var(--cor-aviso); padding: var(--esp-4); background: var(--cor-superficie-sutil); }
 .prontidao-documental--pronta { border-color: var(--cor-marca); }
@@ -3880,7 +3948,11 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .prontidao-documental > .botao { justify-self: end; }
 }
 /* Estação de edição: cabeçalho institucional, modos e ações separados das ferramentas. */
-.editores.editores--documental.editores--operacional { border-radius: 0; border: var(--borda-sutil); box-shadow: none; background: var(--cor-superficie-realce); }
+/* A estação de edição é uma peça fechada: cantos arredondados e nada vazando — a barra
+   escura e o índice das páginas acompanham a moldura. */
+/* `clip`, não `hidden`: hidden faria desta caixa o contexto de rolagem e a barra grudada
+   (sticky) pararia de acompanhar a leitura, deixando um vão acima dela. */
+.editores.editores--documental.editores--operacional { border-radius: var(--raio-lg); border: var(--borda); box-shadow: var(--sombra-1); background: var(--cor-superficie-realce); overflow: clip; }
 .editor.editor--operacional > .editor__barra,
 .editores.editores--operacional.editores--unidos .editor--operacional > .editor__barra { padding: 0; border: 0; border-bottom: var(--filete) solid var(--cor-marca); border-radius: 0; gap: 0; background: var(--cor-superficie); }
 .editor--operacional > .editor__barra > .editor__linha:first-child { padding: var(--esp-3) var(--esp-4); background: var(--cor-primaria); color: var(--cor-texto-inverso); gap: var(--esp-3); }
@@ -3891,13 +3963,21 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .editor--operacional .editor__acoes { display: flex; gap: var(--esp-2); align-items: center; flex-wrap: wrap; }
 .editor--operacional .editor__linha:first-child .botao { background: transparent; color: var(--cor-texto-inverso); border-color: var(--luz-28); box-shadow: none; }
 .editor--operacional .editor__linha:first-child .botao:hover { background: var(--luz-16); }
-.editor--operacional .editor__modos { background: var(--luz-10); border-color: var(--luz-28); border-radius: var(--raio-md); }
-.editor--operacional .editor__modos .botao { border-radius: var(--raio-sm); border-color: transparent; }
-.editor--operacional .editor__modos .botao[aria-pressed="true"] { background: var(--cor-superficie); color: var(--cor-primaria); border-color: var(--cor-superficie); }
-.editor--operacional .editor__modos .botao[aria-pressed="true"]:hover { background: var(--cor-superficie-sutil); color: var(--cor-primaria); }
-.editor--operacional .editor__ferramentas { margin: 0; padding: var(--esp-3) var(--esp-4); border-top: 0; }
-.editor--operacional .editor__linha--ferramentas { gap: var(--esp-3); align-items: end; }
-.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: grid; gap: var(--esp-1); padding-right: var(--esp-3); min-width: 0; }
+/* Texto|PDF sobre a barra escura: controle segmentado em pílula, sem moldura dupla. O modo
+   em uso é a única peça clara; o outro é texto sutil que acende no hover. */
+.editor--operacional .editor__modos { padding: var(--esp-05); gap: var(--esp-05); border: 0; border-radius: var(--raio-pilula); background: var(--luz-10); }
+.editor--operacional .editor__modos .botao { height: var(--altura-controle-sm); padding-inline: var(--esp-3); border: 0; border-radius: var(--raio-pilula); background: transparent; color: var(--cor-texto-inverso-sutil); font-weight: var(--peso-medio); }
+.editor--operacional .editor__modos .botao:hover { background: var(--luz-16); color: var(--cor-texto-inverso); }
+.editor--operacional .editor__modos .botao[aria-pressed="true"] { background: var(--cor-superficie); color: var(--cor-primaria); font-weight: var(--peso-semi); }
+.editor--operacional .editor__modos .botao[aria-pressed="true"]:hover { background: var(--cor-superficie); color: var(--cor-primaria); }
+/* As ferramentas abrem NA MESMA LINHA do botão "Formatar texto": uma barra horizontal à
+   direita dele, com os grupos separados por filete em vez de rótulos empilhados. */
+.editor--operacional .editor__ferramentas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-4); margin: 0; padding: var(--esp-2) var(--esp-4); border-top: 0; }
+.editor--operacional .editor__ferramentas > summary { flex: none; }
+.editor--operacional .editor__ferramentas .editor__linha--ferramentas { flex: 1 1 20rem; gap: var(--esp-1) var(--esp-3); align-items: center; padding: 0; border-top: 0; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: flex; align-items: center; gap: var(--esp-1); padding: 0 var(--esp-3) 0 0; min-width: 0; }
+.editor--operacional .editor__linha--ferramentas .editor__rotulo { display: none; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { padding-left: var(--esp-3); border-left: var(--borda-sutil); }
 .editor--operacional .editor__rotulo { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); }
 .editor--operacional .editor__controles { display: flex; align-items: center; gap: var(--esp-1); flex-wrap: wrap; }
 .editores--operacional.editores--unidos .editores__titulo { font-size: var(--texto-sm); color: var(--cor-texto); padding: var(--esp-3) var(--esp-4); margin: 0; background: var(--cor-superficie-sutil); }
@@ -3910,26 +3990,45 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .editor--operacional .editor__linha--ferramentas { gap: var(--esp-3) var(--esp-2); }
 }
 /* Log institucional e conclusão da preparação: sequência legível, sem cartões por evento. */
-.historico__linhas.historico__linhas--operacional { border: 0; border-left: var(--borda-sutil); border-radius: 0; padding: 0; margin-left: var(--esp-1); }
-.historico__linhas--operacional .historico__linha { position: relative; display: grid; grid-template-columns: calc(var(--esp-12) * 2) minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 0; align-items: start; }
-.historico__linhas--operacional .historico__linha::before { content: ""; position: absolute; width: var(--esp-2); height: var(--esp-2); left: calc(var(--esp-1) * -1); top: var(--esp-4); border-radius: var(--raio-pilula); background: var(--cor-borda-forte); }
-.historico__linhas--operacional .historico__linha--marca::before { background: var(--cor-marca); }
-.historico__linhas--operacional .historico__quando { padding: 0; border: 0; align-content: start; gap: var(--esp-1); font-size: var(--texto-xs); }
-.historico__linhas--operacional .historico__detalhe { min-width: 0; display: grid; gap: var(--esp-1); }
-.historico__linhas--operacional .historico__quem { grid-column: auto; justify-self: start; font-size: var(--texto-xs); white-space: normal; overflow-wrap: anywhere; }
+/* Histórico: o mesmo cartão das outras peças da folha — moldura com raio, uma linha por
+   evento, quando | o quê | quem. A data fica numa coluna tabular separada por filete, e o
+   evento que marca a vida do documento (emissão, documento gerado) acende em dourado. */
+.historico__linhas.historico__linhas--operacional { border: var(--borda); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; padding: 0; margin: 0; }
+.historico__linhas--operacional .historico__linha { display: grid; grid-template-columns: calc(var(--esp-12) * 1.6) minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 0; align-items: center; }
+.historico__linhas--operacional .historico__linha + .historico__linha { border-top: var(--borda-sutil); }
+.historico__linhas--operacional .historico__linha:hover { background: var(--cor-superficie-sutil); }
+.historico__linhas--operacional .historico__quando { padding-right: var(--esp-4); border-right: var(--borda-sutil); align-content: center; align-self: stretch; gap: 0; font-size: var(--texto-xs); }
+.historico__linhas--operacional .historico__quando b { font-size: var(--texto-sm); font-variant-numeric: tabular-nums; }
+.historico__linhas--operacional .historico__linha--marca .historico__quando b { color: var(--cor-marca-texto); }
+.historico__linhas--operacional .historico__detalhe { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--esp-1) var(--esp-4); }
+.historico__linhas--operacional .historico__texto { font-size: var(--texto-sm); }
+.historico__linhas--operacional .historico__quem { justify-self: end; margin-left: auto; font-size: var(--texto-xs); color: var(--cor-texto-terciario); white-space: nowrap; }
 @media (min-width: 768px) {
-  .historico__linhas--operacional .historico__linha { padding-block: var(--esp-2); align-items: center; }
-  .historico__linhas--operacional .historico__detalhe { grid-template-columns: minmax(0, 1fr) minmax(calc(var(--esp-12) * 3), .35fr); gap: var(--esp-4); align-items: center; }
 }
-.barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-4); align-items: center; padding: var(--esp-4); margin-inline: 0; border: 0; border-top: var(--filete) solid var(--cor-marca); border-radius: 0; box-shadow: none; }
-.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { display: flex; position: static; inset: auto; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; animation: none; min-width: 0; }
-.barra-acoes--preparacao [data-status-salvamento]::before { content: none; }
-.barra-acoes--preparacao [data-status-salvamento] > .icone { flex: none; color: currentColor; }
+/* Barra de ações da folha: a mesma peça fechada das outras (moldura, raio, sombra), com o
+   estado do salvamento à esquerda e as decisões à direita. O filete dourado grosso saiu —
+   quem dá o peso é a sombra, como no rodapé da mesa. */
+.barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--esp-3) var(--esp-3); align-items: center; padding: var(--esp-3) var(--esp-5); margin-inline: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: var(--sombra-2); background: var(--cor-superficie); }
+/* Sair fica onde se sai: à esquerda. O estado do salvamento no meio e as decisões à direita. */
+.barra-acoes--preparacao .barra-acoes__acoes { display: contents; }
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { order: -1; justify-self: start; margin: 0; }
+.barra-acoes--preparacao [data-status-salvamento] { order: 0; }
+.barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { order: 1; }
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { display: flex; position: static; inset: auto; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; animation: none; min-width: 0; font-size: var(--texto-sm); }
+/* "Não salvo" não pode ostentar um ✓: no estado sujo o ponto âmbar é o único sinal. */
+.barra-acoes--preparacao .barra-acoes__status--sujo > .icone,
+.barra-acoes--preparacao .barra-acoes__status--erro > .icone { display: none; }
+.barra-acoes--preparacao [data-status-salvamento] > .icone { flex: none; color: var(--cor-sucesso); }
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto:hover { color: var(--cor-texto); }
 .barra-acoes__acoes { display: flex; align-items: center; gap: var(--esp-2); }
 .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
 @media (max-width: 767px) {
-  .historico__linhas--operacional .historico__linha { grid-template-columns: calc(var(--esp-12) * 1.5) minmax(0, 1fr); gap: var(--esp-3); padding-right: 0; }
-  .barra-acoes.barra-acoes--preparacao { grid-template-columns: minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-3); }
+  .historico__linhas--operacional .historico__linha { grid-template-columns: calc(var(--esp-12) * 1.4) minmax(0, 1fr); gap: var(--esp-3); padding: var(--esp-2) var(--esp-3); }
+  .historico__linhas--operacional .historico__quando { padding-right: var(--esp-3); }
+  .historico__linhas--operacional .historico__quem { margin-left: 0; white-space: normal; }
+  .barra-acoes.barra-acoes--preparacao { grid-template-columns: auto minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-2) var(--esp-3); }
+  .barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { grid-column: span 1; }
   .barra-acoes--preparacao .barra-acoes__acoes { justify-content: space-between; }
   .barra-acoes--preparacao .barra-acoes__acoes > .menu { flex: 0 0 auto; }
 }

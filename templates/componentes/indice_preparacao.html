@@ -1,5 +1,10 @@
-{% comment %}Índice de preparação. O estado vem do domínio; navegação somente por âncora.{% endcomment %}
-<nav class="indice-preparacao" aria-label="Seções da preparação" data-indice-preparacao>
+{% comment %}
+Índice de preparação. O estado vem do domínio; navegação somente por âncora.
+A barra de progresso é a fração de seções completas (revisão inclusa), em décimos: classe,
+nunca `style` embutido — a folha roda com CSP estrita.
+{% endcomment %}
+{% passo_preparacao itens pronto as passo %}
+<nav class="indice-preparacao indice-preparacao--p{{ passo }}" aria-label="Seções da preparação" data-indice-preparacao>
   {% for item in itens %}
     <a class="indice-preparacao__item{% if item.ok %} indice-preparacao__item--ok{% endif %}" href="#{{ item.chave }}"><span>{{ item.rotulo }}</span><span class="sr-only">{% if item.ok %} — completo{% else %} — conferir{% endif %}</span></a>
     {% if forloop.first and intermediario_chave %}<a class="indice-preparacao__item" href="#{{ intermediario_chave }}">{{ intermediario_rotulo }}</a>{% endif %}
