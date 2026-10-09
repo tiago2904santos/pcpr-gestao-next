@@ -769,15 +769,22 @@ class TestCartaoDaJustificativa:
     def _folha(self, operador, oficio) -> str:
         return operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
 
+    def _numeracao_continua(self, html: str) -> None:
+        numeros = [int(n) for n in re.findall(
+            r'<h2 class="secao__titulo"[^>]*><span class="secao__numero">(\d+)</span>', html)]
+        assert numeros and numeros == list(range(1, len(numeros) + 1))
+
     def test_dentro_do_prazo_o_cartao_some_e_a_numeracao_nao_pula(self, operador, cenario):
         html = self._folha(operador, self._com_saida_em(cenario, 30))
         assert 'id="justificativa"' not in html
-        assert '<span class="secao__numero">3</span>Documentos' in html
+        assert 'id="emissao"' in html
+        self._numeracao_continua(html)
 
-    def test_fora_do_prazo_o_cartao_aparece_como_3(self, operador, cenario):
+    def test_fora_do_prazo_o_cartao_aparece_antes_dos_documentos(self, operador, cenario):
         html = self._folha(operador, self._com_saida_em(cenario, 3))
         assert 'id="justificativa"' in html
-        assert '<span class="secao__numero">4</span>Documentos' in html
+        assert html.index('id="justificativa"') < html.index('id="emissao"')
+        self._numeracao_continua(html)
 
     def test_texto_ja_escrito_segura_o_cartao_mesmo_dentro_do_prazo(self, operador, cenario):
         """A justificativa vai ao documento mesmo dispensada: esconder o cartão deixaria no
