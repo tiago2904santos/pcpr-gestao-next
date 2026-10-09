@@ -3,8 +3,8 @@
   <button class="botao botao--icone botao--sutil dialogo__fechar" type="button" data-fechar-dialogo aria-label="Fechar exemplo">{% icone "x" %}</button>
   <div class="dialogo__conteudo">
     {% with titulo=vazio|yesno:"Sem destino,Santo Antônio da Platina/PR e São José dos Pinhais/PR" %}{% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero="131/2026" contexto="Resumo da viagem" titulo=titulo situacao_template="ui_lab/_mesa_situacao.html" %}{% endwith %}
-    {# O exemplo é só leitura: sem controles dentro, a área que rola precisa receber foco
-       por teclado (axe: scrollable-region-focusable). Na tela real há botões e links. #}
+    {% comment %}O exemplo é só leitura: sem controles dentro, a área que rola precisa receber foco
+       por teclado (axe: scrollable-region-focusable). Na tela real há botões e links.{% endcomment %}
     <div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do dossiê">
       {% if vazio %}<div class="alerta alerta--aviso resumo__aviso" role="status"><div class="alerta__corpo"><p class="alerta__titulo">Complete os dados antes de emitir</p><p>Abra o ofício para informar a equipe, o transporte e o roteiro.</p></div></div>{% endif %}
       <div class="mesa-registro"><div class="resumo">
