@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
@@ -80,7 +81,11 @@ def test_gaveta_frio_menu_ordem_periodo_teclado(logado, dados_e2e, largura):
             .map(a => a.finished.catch(() => {})));
     }""")
     pg.screenshot(path=str(pasta / f"filtros-{largura}.png"))
-    assert rodar_axe(pg) == []
+    violacoes = rodar_axe(pg)
+    (pasta / f"axe-filtros-{largura}.json").write_text(
+        json.dumps(violacoes, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    assert violacoes == []
 
     # Não depende de mês fixo: duas escolhas na grade estabelecem um período real.
     pg.keyboard.press("Enter")

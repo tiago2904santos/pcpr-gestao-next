@@ -33,10 +33,48 @@
       <li class="etapas__item"><a href="#copiar-lab"><span class="etapas__marcador">20</span>Copiar um texto</a></li>
       <li class="etapas__item"><a href="#registro-lab"><span class="etapas__marcador">21</span>Linha das listas de Viagens</a></li>
       <li class="etapas__item"><a href="#filtros-lab"><span class="etapas__marcador">22</span>Barra de filtros das listas</a></li>
+      <li class="etapas__item"><a href="#operacional-lab"><span class="etapas__marcador">23</span>Registro operacional</a></li>
     </ol>
   </nav>
 
   <div class="pilha-lg">
+    <section class="cartao" id="operacional-lab" aria-labelledby="t-operacional-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-operacional-lab">Registro operacional</h2></div>
+      <div class="cartao__corpo pilha">
+        <p class="texto-secundario texto-sm">Cabeçalho de página e registro com identidade, missão, recursos e conferência. No celular, situação junto ao número; período e protocolo à esquerda das diárias. Dados sintéticos, sem operações.</p>
+        {% include "componentes/registro_hero.html" with contexto="Gestão institucional" rotulo="Ofício" numero="131/2026" titulo="Preparar a viagem" complemento="Equipe, percurso e documentos em uma mesma área de trabalho." only %}
+        <ul class="registros registros--operacionais" aria-label="Exemplos de registros operacionais">
+          <li class="registro registro-operacional">
+            <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="131/2026" compacta=True only %}</div>
+            <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#operacional-lab"><span class="sr-only">Ofício 131/2026 · </span><span class="registro__link-texto">Arapongas/PR, Londrina/PR, Maringá/PR</span></a><span class="registro__selos"><span class="selo selo--sucesso">Emitido</span></span></div><div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">18/10 a 20/10/2026</span><span class="registro__meta-item registro__meta-item--protocolo">00.232.280-7</span></div></div>
+            <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Equipe e transporte</span><span class="registro__meta-item">Ana Luiza de Souza (motorista)</span><span class="registro__meta-item">ABC1D23 · Renault Duster</span></div>
+            <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias</span><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto"><span class="registro__valor">R$ 1.260,00</span><span class="registro__meta-detalhe">1 × 100% + 1 × 15%</span></span></span></div>
+            <div class="registro__acoes"><a class="botao botao--icone botao--sutil" href="#operacional-lab" aria-label="Ver registro 131/2026">{% icone "arrow-up-right" %}</a></div>
+          </li>
+          <li class="registro registro-operacional registro--inativo">
+            <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="126/2026" compacta=True only %}</div>
+            <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#operacional-lab"><span class="sr-only">Ofício 126/2026 · </span><span class="registro__link-texto">Sem destino</span></a><span class="registro__selos"><span class="selo selo--perigo">Cancelado</span></span></div><div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">Sem período</span><span class="registro__meta-item registro__meta-item--protocolo">Sem protocolo</span></div></div>
+            <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Equipe e transporte</span><span class="registro__meta-item">Sem servidores</span><span class="registro__meta-item">Sem transporte</span></div>
+            <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias</span><span class="registro__meta-item registro__meta-item--diarias">Sem diárias</span></div>
+            <div class="registro__acoes"><a class="botao botao--icone botao--sutil" href="#operacional-lab" aria-label="Ver registro 126/2026">{% icone "arrow-up-right" %}</a></div>
+          </li>
+        </ul>
+        <div class="documento documento--preparacao">
+          <section class="secao" aria-labelledby="t-preparacao-lab">
+            <div class="secao__cabecalho"><h3 class="secao__titulo" id="t-preparacao-lab"><span class="secao__numero">1</span>Preparação</h3><p class="secao__nota">Título e orientação em coluna editorial. Os campos mantêm rótulos e controles do sistema.</p></div>
+            <div class="secao__conteudo"><div class="campos campos--registro">
+              <div class="campo"><label class="campo__rotulo" for="lab-registro-numero">Número</label><input class="entrada" id="lab-registro-numero" value="131" readonly></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-registro-data">Data do ofício</label><input class="entrada" id="lab-registro-data" value="08/10/2026"></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-registro-protocolo">Protocolo</label><input class="entrada" id="lab-registro-protocolo" value="00.232.280-7"></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-registro-tipo">Tipo de documento</label><input class="entrada" id="lab-registro-tipo" value="Autorização" readonly></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-registro-custeio">Custeio</label><input class="entrada" id="lab-registro-custeio" value="Unidade" readonly></div>
+            </div></div>
+          </section>
+        </div>
+        <div><button type="button" class="botao" data-abrir-dialogo="historico-lab-oficio">Histórico documental — exemplo</button></div>
+        {% include "componentes/historico_documental.html" with prefixo="lab" identificador="oficio" contexto="Ofício 131/2026 — dados sintéticos" conteudo="ui_lab/_historico_documental_demo.html" %}
+      </div>
+    </section>
     <!-- 1. BOTÕES -->
     <section class="cartao" id="botoes" aria-labelledby="t-botoes">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-botoes"><span class="cartao__numero">1</span>Botões</h2></div>

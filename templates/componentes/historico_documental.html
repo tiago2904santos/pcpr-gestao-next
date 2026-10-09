@@ -1,0 +1,8 @@
+{% comment %}Leitura secundária de versões. A projeção e as permissões pertencem ao chamador.{% endcomment %}
+<dialog id="historico-{{ prefixo }}-{{ identificador }}" class="dialogo" data-dialogo-secundario aria-labelledby="historico-{{ prefixo }}-{{ identificador }}-titulo">
+  <div class="dialogo__cabecalho">
+    <div><h2 class="dialogo__titulo" id="historico-{{ prefixo }}-{{ identificador }}-titulo">Histórico de documentos</h2><p class="texto-secundario">{{ contexto }}</p></div>
+  </div>
+  <div class="dialogo__corpo">{% include conteudo %}</div>
+  <div class="dialogo__rodape"><button type="button" class="botao" data-fechar-dialogo>Fechar histórico</button></div>
+</dialog>

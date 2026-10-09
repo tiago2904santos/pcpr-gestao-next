@@ -45,6 +45,7 @@ documento embora) e viraram um grupo dentro de "Mais ações".
     <button type="button" class="botao" id="resumo-mais-acoes-{{ oficio.pk }}" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
     <div class="menu__painel menu__painel--descrito menu__painel--acima" role="menu" hidden>
       <p class="menu__folha-titulo" aria-hidden="true">Ofício {{ oficio.numero_formatado }}</p>
+      {% if documentos_historicos %}<button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="historico-oficio-{{ oficio.pk }}">{% icone "history" %}Histórico de documentos</button>{% endif %}
       {# DOCX editável (D4): a via emitida, ou a minuta do rascunho como está agora. #}
       {% if docx_oficio or menu.minuta %}<a class="menu__item menu__item--descrito" id="resumo-word-{{ oficio.pk }}" role="menuitem" href="{% url 'viagens:baixar_docx' oficio.pk 'oficio' %}" download aria-describedby="r{{ oficio.pk }}-wd">{% icone "download" %}<span class="menu__item-texto"><span>Baixar em Word</span><span class="menu__item-descricao" id="r{{ oficio.pk }}-wd" aria-hidden="true">{% if docx_oficio %}A via emitida (v{{ docx_oficio.versao }}), editável{% else %}A minuta como está agora, editável{% endif %}</span></span></a>{% endif %}
       {% include "viagens/oficios/_menu_oficio.html" with o=oficio m=menu p="r" no_resumo=True %}

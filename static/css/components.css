@@ -994,8 +994,8 @@ a.resumo__documento:hover {
 .interruptor input {
   appearance: none;
   position: relative;
-  width: 2.25rem;
-  height: 1.25rem;
+  width: calc(var(--alvo-minimo) + 1rem);
+  height: var(--alvo-minimo);
   margin: 0;
   border-radius: var(--raio-pilula);
   background: var(--neutro-300);
@@ -1009,8 +1009,8 @@ a.resumo__documento:hover {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 1rem;
-  height: 1rem;
+  width: calc(var(--alvo-minimo) - 4px);
+  height: calc(var(--alvo-minimo) - 4px);
   border-radius: var(--raio-pilula);
   background: var(--neutro-0);
   box-shadow: var(--sombra-1);
@@ -3568,6 +3568,152 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
    tipo, arquivado) e viram texto com ícone — informam sem disputar com o título. */
 .registro-hero .dialogo__linha-selos > .selo ~ .selo { --selo-borda: transparent; --selo-texto: var(--cor-texto-inverso-sutil); padding-inline: 0; }
 .registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
+
+/* O cabeçalho oficial também abre páginas operacionais. O modal mantém a variante original. */
+.registro-hero--pagina { padding: var(--esp-6) var(--esp-8); border-top: var(--filete) solid var(--cor-marca); border-radius: var(--raio-lg); margin-bottom: var(--esp-6); }
+.registro-hero--pagina .registro-hero__titulo { margin: 0; font-size: var(--texto-4xl); }
+.registro-hero--pagina .registro-hero__conteudo { flex: 1; }
+.registro-hero__acoes { display: flex; align-items: center; gap: var(--esp-2); flex: none; }
+.registro-hero--pagina :is(.botao, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
+.registro-hero__acoes .botao { --botao-fundo: transparent; --botao-borda: var(--luz-28); --botao-texto: var(--cor-texto-inverso); }
+.registro-hero__acoes .botao:hover { --botao-fundo-hover: var(--luz-10); }
+
+/* Coleção operacional: índice de recortes + superfície de busca + registros oficiais.
+   O índice preserva os links/contadores OOB; nenhum dado ou pedido adicional. */
+.colecao-operacional__layout { display: grid; gap: var(--esp-5); align-items: start; }
+.colecao-operacional__indice { min-width: 0; }
+.colecao-operacional__rotulo { color: var(--cor-texto-secundario); font-size: var(--texto-2xs); margin: 0 0 var(--esp-3); }
+.colecao-operacional__indice .abas { border: 0; margin: 0; gap: var(--esp-1); }
+.colecao-operacional__indice .aba { border-radius: var(--raio-md); padding: var(--esp-3); font-size: var(--texto-sm); }
+.colecao-operacional__indice .aba[aria-current="page"] { background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.colecao-operacional__indice .aba[aria-current="page"] .aba__contagem { background: var(--luz-16); color: var(--cor-texto-inverso); }
+.colecao-operacional__indice .aba::after { display: none; }
+.colecao-operacional__painel { min-width: 0; }
+.colecao-operacional .filtros--barra { padding: var(--esp-4); background: var(--cor-superficie); border: var(--borda); border-radius: var(--raio-lg); margin-bottom: var(--esp-4); }
+.colecao-operacional .registros__grupo { position: static; padding: var(--esp-2) var(--esp-1); border: 0; background: transparent; }
+.colecao-operacional .registros--operacionais { display: grid; gap: var(--esp-2); }
+
+/* Registro reutilizável. Os quatro blocos têm hierarquia própria, sem cabeçalho de tabela. */
+.registros--operacionais > .registro.registro-operacional {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "identidade acoes" "titulo titulo" "estado estado" "agenda agenda" "recursos recursos" "conferencia conferencia";
+  gap: var(--esp-3); padding: var(--esp-4); border: var(--borda); border-radius: var(--raio-lg); background: var(--cor-superficie); align-items: start;
+}
+.registros--operacionais .registro-operacional > .placa { grid-area: identidade; padding: var(--esp-2) var(--esp-3); min-width: 0; width: fit-content; border: 0; border-radius: var(--raio-sm); background: var(--cor-primaria); }
+.registro-operacional > .placa .identidade-documental__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); }
+.registro-operacional > .placa .placa__numero { color: var(--cor-texto-inverso); font-size: var(--texto-xl); }
+.registros--operacionais .registro-operacional .registro__corpo,
+.registros--operacionais .registro-operacional .registro__titulo { display: contents; }
+.registros--operacionais .registro-operacional .registro__link { grid-area: titulo; min-width: 0; width: auto; }
+.registros--operacionais .registro-operacional .registro__link-texto { white-space: normal; font-size: var(--texto-lg); line-height: var(--altura-linha-justa); }
+.registros--operacionais .registro-operacional .registro__selos { grid-area: estado; display: flex; flex-wrap: wrap; gap: var(--esp-1); }
+.registros--operacionais .registro-operacional .registro__agenda { grid-area: agenda; display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-3); margin: 0; }
+.registros--operacionais .registro-operacional .registro__agenda > .registro__meta-item { grid-area: auto; display: inline-flex; }
+.registro-operacional__recursos { grid-area: recursos; min-width: 0; display: grid; gap: var(--esp-1); border-top: var(--borda-sutil); padding-top: var(--esp-3); }
+.registro-operacional__recursos > .registro__meta-item,
+.registro-operacional__conferencia > .registro__meta-item { grid-area: auto; }
+.registro-operacional__rotulo { display: block; font-size: var(--texto-2xs); color: var(--cor-texto-secundario); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
+.registros--operacionais .registro-operacional .registro__meta-item { min-width: 0; margin: 0; font-size: var(--texto-xs); }
+.registros--operacionais .registro-operacional .registro__meta-item > .icone { display: inline; flex: none; }
+.registros--operacionais .registro-operacional .registro__meta-item--equipe { border: 0; padding: 0; }
+.registros--operacionais .registro-operacional .registro__meta-texto { height: auto; line-height: var(--altura-linha); }
+.registro-operacional__conferencia { grid-area: conferencia; min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: var(--esp-1) var(--esp-3); border-top: var(--borda); padding-top: var(--esp-3); align-items: center; }
+.registros--operacionais .registro-operacional .registro__meta-item--diarias { text-align: right; justify-content: end; }
+.registros--operacionais .registro-operacional .registro__meta-item--diarias > .icone { display: none; }
+.registros--operacionais .registro-operacional .registro__meta-item--diarias .registro__meta-texto { display: grid; white-space: normal; gap: var(--esp-1); }
+.registros--operacionais .registro-operacional .registro__valor { font-size: var(--texto-lg); color: var(--cor-texto); }
+.registros--operacionais .registro-operacional .registro__meta-detalhe { display: block; font-size: var(--texto-2xs); }
+.registro-operacional .registro__meta-separador { display: none; }
+.registros--operacionais .registro-operacional > .registro__acoes { grid-area: acoes; align-self: start; }
+
+@media (min-width: 768px) {
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 7) minmax(0, 1fr) calc(var(--esp-16) * 2) var(--alvo-minimo); grid-template-areas: "identidade titulo conferencia acoes" "identidade estado conferencia acoes" "identidade agenda conferencia acoes" "identidade recursos recursos acoes"; gap: var(--esp-2) var(--esp-4); }
+  .registro-operacional__conferencia { border-top: 0; border-left: var(--filete-fino) solid var(--cor-marca-borda); padding: 0 0 0 var(--esp-3); display: grid; grid-template-columns: 1fr; gap: var(--esp-2); }
+  .registro-operacional__conferencia > .registro-operacional__rotulo { text-align: right; }
+  .registro-operacional__recursos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .registro-operacional__recursos > .registro-operacional__rotulo { display: none; }
+}
+@media (min-width: 1024px) {
+  .colecao-operacional__layout { grid-template-columns: calc(var(--esp-12) * 4) minmax(0, 1fr); gap: var(--esp-6); }
+  .colecao-operacional__indice { position: sticky; top: calc(var(--altura-topo) + var(--esp-5)); padding-top: var(--esp-4); }
+  .colecao-operacional__indice .abas { display: grid; overflow: visible; }
+  .colecao-operacional__indice .aba { display: flex; white-space: normal; justify-content: space-between; gap: var(--esp-2); line-height: var(--altura-linha-justa); min-height: var(--alvo-minimo); }
+  .colecao-operacional__indice .aba__contagem { flex: none; }
+}
+@media (min-width: 1280px) {
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 7) minmax(0, 1.3fr) minmax(0, 1fr) calc(var(--esp-16) * 2) var(--alvo-minimo); grid-template-areas: "identidade titulo recursos conferencia acoes" "identidade estado recursos conferencia acoes" "identidade agenda recursos conferencia acoes"; gap: var(--esp-2) var(--esp-4); }
+  .registro-operacional__recursos { display: grid; grid-template-columns: 1fr; border-top: 0; padding-top: 0; }
+  .registro-operacional__recursos > .registro-operacional__rotulo { display: block; }
+}
+@media (max-width: 767px) {
+  .registro-hero--pagina { padding: var(--esp-5); gap: var(--esp-4); margin-bottom: var(--esp-4); flex-wrap: wrap; }
+  .registro-hero--pagina .registro-hero__titulo { font-size: var(--texto-3xl); }
+  .registro-hero--pagina .registro-hero__complemento { font-size: var(--texto-xs); }
+  .registro-hero--pagina .registro-hero__identidade { padding-right: var(--esp-4); }
+  .colecao-operacional__rotulo { display: none; }
+  .colecao-operacional__layout { gap: var(--esp-3); }
+  .colecao-operacional__indice .aba { padding: var(--esp-2) var(--esp-3); }
+  .colecao-operacional .filtros--barra { padding: var(--esp-3); }
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) auto; grid-template-areas: "identidade estado acoes" "titulo titulo titulo" "agenda conferencia conferencia" "recursos recursos recursos"; gap: var(--esp-3); }
+  .registros--operacionais .registro-operacional .registro__selos { justify-content: end; align-self: center; }
+  .registros--operacionais .registro-operacional .registro__agenda { display: grid; gap: var(--esp-1); }
+  .registros--operacionais .registro-operacional .registro__meta-item--periodo .registro__meta-texto { white-space: normal; }
+  .registro-operacional__conferencia { border: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: var(--esp-1); justify-items: end; }
+  .registro-operacional__recursos { padding-top: var(--esp-2); }
+  .registro-operacional__recursos > .registro-operacional__rotulo { display: none; }
+}
+/* Preparação de registro: índice e seções editoriais reutilizáveis. */
+.barra-acoes.barra-acoes--registro { bottom: 0; padding: var(--esp-2) var(--esp-4); border-radius: var(--raio-lg) var(--raio-lg) 0 0; }
+.barra-acoes.barra-acoes--fluxo { position: static; margin-top: var(--esp-5); border-radius: var(--raio-lg); }
+.indice-preparacao { display: flex; gap: var(--esp-2); margin-bottom: var(--esp-4); overflow-x: auto; scrollbar-width: thin; }
+.indice-preparacao__item { display: flex; align-items: center; flex: 1; gap: var(--esp-2); padding: var(--esp-2) var(--esp-3); min-height: var(--alvo-minimo); border: var(--borda); border-radius: var(--raio-md); background: var(--cor-superficie); font-size: var(--texto-sm); font-weight: var(--peso-semi); white-space: nowrap; text-decoration: none; }
+.indice-preparacao__numero { color: var(--cor-texto-secundario); }
+.indice-preparacao__item--ok { border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); }
+.documento.documento--preparacao { padding: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: none; }
+.documento--preparacao > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); }
+.documento--preparacao .secao__cabecalho { display: flex; align-items: start; margin: 0; gap: var(--esp-2); }
+.documento--preparacao .secao__titulo { font-size: var(--texto-xl); letter-spacing: var(--rastreio-titulo); width: 100%; }
+.documento--preparacao .secao__numero { background: var(--cor-primaria); color: var(--cor-texto-inverso); border-radius: var(--raio-sm); }
+.documento--preparacao .secao__nota { font-size: var(--texto-xs); line-height: var(--altura-linha); }
+.documento--preparacao .secao__estado { justify-content: start; }
+.documento--preparacao .secao__cabecalho .selo { max-width: 100%; white-space: normal; }
+.secao__conteudo { min-width: 0; }
+.secao__grupo { display: grid; gap: var(--esp-5); align-items: start; }
+.documento--preparacao .secao__grupo > .secao__bloco { border-top: 0; padding-top: 0; margin-top: 0; }
+.documento--preparacao .secao__bloco { padding-top: var(--esp-4); margin-top: var(--esp-5); }
+.documento--preparacao :is(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: calc(var(--altura-topo) + var(--esp-4)); }
+.campos.campos--registro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-3); }
+.campos--registro > .campo { min-width: 0; }
+.campos--registro > .campo:nth-child(4) { grid-column: span 2; }
+.campos--registro > .condicional { grid-column: 1 / -1; }
+.pessoas--compactas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--esp-12) * 5)), 1fr)); gap: var(--esp-3); }
+.pessoas--compactas > .pessoa { grid-column: auto; border-bottom: 0; }
+.conferencia-serena--horizontal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--esp-5); padding: var(--esp-4); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.conferencia-serena--horizontal .conferencia-serena__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--esp-12) * 3), 1fr)); gap: var(--esp-3); align-content: center; }
+.conferencia-serena--horizontal .conferencia-serena__dados > div { border: 0; display: grid; gap: var(--esp-1); padding: 0; }
+.conferencia-serena--horizontal .conferencia-serena__dados dd { text-align: left; }
+@media (min-width: 1024px) {
+  .documento--preparacao > .secao { grid-template-columns: calc(var(--esp-12) * 3.5) minmax(0, 1fr); gap: var(--esp-6); }
+  .documento--preparacao .secao__cabecalho { align-content: start; padding-right: var(--esp-3); }
+}
+@media (min-width: 1280px) {
+  .secao__grupo { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .secao__grupo .pessoas--compactas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .campos.campos--registro { grid-template-columns: minmax(0, .7fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1.5fr) minmax(0, 1.5fr); }
+  .campos--registro > .campo:nth-child(4) { grid-column: auto; }
+}
+@media (max-width: 767px) {
+  .documento--preparacao > .secao { padding: var(--esp-4); gap: var(--esp-4); }
+  .documento--preparacao .secao__titulo { font-size: var(--texto-lg); }
+  .documento--preparacao .secao__cabecalho { gap: var(--esp-2); }
+  .campos.campos--registro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .campos--registro > .campo:nth-child(4) { grid-column: auto; }
+  .campos--registro > .campo:nth-child(5) { grid-column: 1 / -1; }
+  .conferencia-serena--horizontal { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
+  .pessoas--compactas > .pessoa { border-bottom: 0; }
+  .indice-preparacao__item { font-size: var(--texto-xs); flex: none; }
+  .registro-hero--pagina .registro-hero__acoes { flex-wrap: nowrap; width: 100%; }
+  .registro-hero--pagina .registro-hero__acoes > .botao { padding-inline: var(--esp-2); font-size: var(--texto-xs); }
+}
 .dialogo--mesa .dialogo__fechar { top: var(--esp-4); right: var(--esp-4); --botao-texto: var(--cor-texto-inverso); --botao-fundo: var(--cor-primaria); --botao-borda: var(--luz-28); }
 .dialogo--mesa .dialogo__fechar:hover { background: var(--cor-primaria-hover); color: var(--cor-texto-inverso); }
 .dialogo--mesa .dialogo__fechar:focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
@@ -3613,7 +3759,8 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .equipe-transporte__transporte { padding: var(--esp-2) var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); align-self: start; }
 .equipe-transporte__transporte .pessoa { padding: 0; border: 0; background: none; box-shadow: none; }
 /* Servidor e viatura leem igual: cada um no seu cartão de superfície sutil. */
-.dialogo--mesa .pessoas--faixa > .pessoa { align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.dialogo--mesa .pessoas--faixa > .pessoa,
+.pessoas--compactas > .pessoa { align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
 .dialogo--mesa .pessoa__texto { display: grid; gap: 0; line-height: var(--altura-linha-justa); }
 .equipe-transporte .avatar { width: var(--esp-8); height: var(--esp-8); font-size: var(--texto-2xs); }
 .dialogo--mesa .pessoa__nome { font-size: var(--texto-sm); }

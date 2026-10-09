@@ -70,7 +70,7 @@ celular). Comportamentos em `static/js/componentes/*.js` (Web Components, sem fr
 | Sanfona | `details.sanfona` | aberta/fechada | Nativo |
 | Etapas | `.etapas` | concluída, atual, pendente; vertical (índice) e **horizontal** (assistente de emissão: marcadores ligados por um fio, dourado no trecho percorrido, halo na atual; empilha abaixo de 480px) — em formulários longos use `.progresso` | `aria-current="step"` |
 | Tabela | `.tabela` | `--compacta`, `--responsiva` (<768px cada linha vira um **cartão**: célula principal no alto, demais colunas duas a duas com rótulo em micro-caixa-alta), rodapé de totais; `--linhas-clicaveis`, ordenação (`aria-sort`) e `__secundario` só no catálogo (ui-lab.css) até terem uso | `caption`, `scope`, números alinhados à direita |
-| Lista de registros | `.registros > .registro` (`viagens/oficios/_registro.html`) | placa + título (**destinos**, até 3 + "+N"; o título abre a **janela de resumo** — `dialogo-resumo` por HTMX; sem JS vai para a folha) + selos (situação + tipo incomum em contorno + no máximo um alerta, D4) + **metadados em colunas** (`.registro__meta--colunas`, por *container query* da largura da lista: uma faixa ≥ 950px, duas faixas 640–949, duas colunas abaixo; o item vazio fica no lugar em itálico) + ⋮ canônico (`pc-menu` com itens carregados ao chegar ao botão); **grupos por mês** (`.registros__grupo`, presos sob o topo, com contagem); `--inativo` (cancelado recua); **recém-alterado** (`.registro--destaque`, `data-destaque`); no celular placa, título e ⋮ na mesma linha | Link do título é o alvo de teclado; `.registro:has(:focus-visible)` desenha o foco na linha; "(motorista)" por extenso; `title` com o texto inteiro do que corta |
+| Lista de registros | `.registros > .registro` (`viagens/oficios/_registro.html`) | Variante vigente `registros--operacionais` + `registro-operacional`: número em placa, destino/status, agenda, equipe/transporte e conferência; índice temporal lateral no desktop e horizontal no celular. O título abre Resumo por HTMX; sem JS abre a Folha. Grupos por mês, cancelado recua, destaque do recém-alterado e menu canônico carregado ao chegar ao botão permanecem. Ver Coleção operacional abaixo. | Link do título é alvo de teclado; foco do registro visível; motorista por extenso; texto truncado com `title`; metadados e ações preservados nas cinco larguras |
 | Documento / seção | `.documento > .secao` | folha única com timbre dourado; `.secao__cabecalho` (`__numero` ou `__titulo--institucional`, `__estado` à direita); `--ok`; trilho dourado na margem em `:focus-within`; `--leitura` (64rem) | Cada seção é `<section aria-labelledby>`; `scroll-margin-top` respeita o topo fixo |
 | Progresso de formulário | `nav.progresso` | `__etapa --ok/--pendente/--bloqueia/--atual` (forma do marcador, tons de aviso), `__medida` com `<progress>` nativo; `--fixo` fica sob o topo com "você está aqui" (`progresso.js`, IntersectionObserver) e sombra ao flutuar; no celular só a barra; com `span` em vez de links vira prévia de etapas (novo ofício) | Substitui o índice lateral; links âncora com estado em `sr-only`; `<progress aria-label>` |
 | Cartões de escolha | `fieldset.opcoes > label.opcao` (+ `__icone`, `__titulo`, `__descricao`) | `--compactas`; marcado (borda grafite + ✓ dourado no canto), hover, foco (anel no cartão via `:has(:focus-visible)`), desabilitado; `.condicional` revela um campo colado à escolha | Rádio nativo escondido visualmente: setas, rótulo e leitor de tela intactos; `legend` obrigatória |
@@ -175,10 +175,54 @@ o halo de teclado e o fundo de foco. Não tratar campo somente leitura como desa
   em faixa inteira. O hover acende a peça inteira (`:has`), não a metade esquerda.
 - Estado e leitura da via são o MESMO controle: um selo clicável (`a.selo`), com alvo de
   toque mínimo (`--alvo-minimo`) e sem comportamento de link (nem sublinhado nem realce).
-- A janela mostra só a emissão corrente. As versões anteriores continuam guardadas e saem
-  por "Mais ações → Baixar documentos…" — decisão de produto de 08/10/2026.
+- A janela mostra só a emissão corrente. As versões anteriores e vias revogadas
+  continuam acessíveis em "Mais ações → Histórico de documentos", em diálogo
+  secundário. "Baixar documentos…" mantém o pacote da emissão corrente.
 - `.dado-copiavel`: ficha, não formulário. Rótulo em caixa-alta miúda, valor sem moldura de
   input e o filete fechando a linha inteira (valor + botão). O detalhamento é bloco de
   texto (`field-sizing: content`, sem alça de redimensionar) e "Copiar tudo" permanece.
 
 As cinco larguras e as provas de interação estão na galeria de refinamento.
+
+## Coleção operacional e cabeçalho de página — 08/10/2026
+
+`registro_hero.html` aceita `pagina=True` (h1), identidade opcional e uma parcial de
+ações. A variante de página mantém o grafite e o filete dourado do Resumo aprovado.
+O comportamento padrão do componente no modal permanece intacto.
+
+`colecao-operacional` organiza índice, filtros e painel de resultados. Acima de
+1024 px o índice temporal ocupa a lateral; abaixo permanece horizontal. Os links,
+contadores OOB e filtros continuam nos mesmos componentes funcionais.
+
+`registros--operacionais` + `registro-operacional` apresentam quatro grupos:
+identidade, missão/agenda, recursos e conferência. Não combinar esta variante com
+`registro--documental`, que usa outra definição de áreas de grid. Período e protocolo
+não herdam áreas de grid nos agrupamentos internos. No celular, os estados ficam
+ao lado do número e as diárias ao lado da agenda; equipe e transporte encerram o
+registro. O detalhe do valor permanece visível nas cinco larguras.
+
+Exemplos preenchido e cancelado em `/ui-lab/#operacional-lab`. Evidências reais em
+`docs/visual-agents/evidencias/oficios-lista-cadastro/`. A adoção não aprova
+automaticamente a estética das páginas: Lista e Cadastro aguardam revisão do usuário.
+
+`indice_preparacao.html` recebe `itens` (chave, rótulo e estado da prontidão existente)
+e `pronto`; navega por âncoras e não calcula novas etapas de negócio.
+`documento--preparacao` coloca a identificação da seção à esquerda no desktop e
+acima do conteúdo no celular. `secao__conteudo` preserva os invólucros HTMX internos.
+`campos--registro` dimensiona número, data, protocolo, tipo e custeio por significado.
+`pessoas--compactas` reaproveita o acabamento dos cartões do Resumo, mantendo ações
+de motorista e remoção. `conferencia_valores.html` aceita `serena=True horizontal=True`
+para preparação; a mesma variante vertical permanece no Resumo. O fragmento de
+diárias da Folha mantém essa apresentação depois das atualizações de equipe.
+
+`barra-acoes--registro` oferece acabamento compacto. Em formulários longos, combinar
+com `barra-acoes--fluxo`: o fechamento ocupa o fluxo normal e não intercepta campos
+durante a rolagem. Salvar/minuta ficam no cabeçalho e o índice oferece acesso direto
+à revisão. A Lista mantém sua barra de paginação/exportação no comportamento existente.
+
+`historico_documental.html` recebe `prefixo`, `identificador`, `contexto` e uma parcial
+`conteudo` com a projeção autorizada pelo chamador. É leitura secundária: versões
+históricas não ocupam a estação corrente. O controlador nativo de diálogos coloca
+a janela secundária fora da ancestral enquanto aberta, evitando herança visual e
+devolve o foco ao controle existente ao fechar. Não gera, altera ou promove arquivos.
+Exemplo sintético no mesmo bloco operacional do UI Lab.

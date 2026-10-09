@@ -35,12 +35,24 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
     pg.set_viewport_size({"width": largura, "height": 900})
     pg.goto("/viagens/oficios/")
     _avaliar(pg, "lista", largura)
+    # Período e protocolo precisam continuar legíveis na nova composição mobile.
+    # Ausência de overflow da página não detecta duas informações sobrepostas.
+    for linha in pg.locator(".registro-operacional").all():
+        periodo = linha.locator(".registro__meta-item--periodo").bounding_box()
+        protocolo = linha.locator(".registro__meta-item--protocolo").bounding_box()
+        assert periodo and protocolo
+        assert (
+            periodo["y"] + periodo["height"] <= protocolo["y"] + 1
+            or protocolo["y"] + protocolo["height"] <= periodo["y"] + 1
+            or periodo["x"] + periodo["width"] <= protocolo["x"] + 1
+            or protocolo["x"] + protocolo["width"] <= periodo["x"] + 1
+        ), "Período e protocolo não podem ocupar a mesma área."
     if largura >= 1024:
-        assert pg.locator(".registro--documental .registro__meta-item--diarias .registro__meta-texto").evaluate_all(
+        assert pg.locator(".registro-operacional .registro__meta-item--diarias .registro__meta-texto").evaluate_all(
             "els => els.every(e => e.scrollHeight <= e.clientHeight + 1)"
         ), "Valor e composição das diárias devem aparecer inteiros, sem recorte vertical."
     else:
-        expect(pg.locator(".registro--documental .registro__meta-item--protocolo").first).to_be_visible()
+        expect(pg.locator(".registro-operacional .registro__meta-item--protocolo").first).to_be_visible()
     botao = pg.locator(".registro__acoes [data-menu-botao]").first
     botao.press("Enter")
     expect(pg.locator(".menu__painel:popover-open")).to_be_visible()
@@ -55,6 +67,14 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
         "|| e.scrollWidth <= e.clientWidth + 1)"
     ), "Os rótulos da identificação devem caber sem cortes."
     _avaliar(pg, "folha", largura)
+    assert pg.locator(".documento--preparacao").evaluate("""el => {
+      const barra = document.querySelector('.barra-acoes--documental').getBoundingClientRect();
+      return [...el.querySelectorAll('input, button, select, textarea')].every(campo => {
+        const caixa = campo.getBoundingClientRect();
+        return !caixa.width || !caixa.height || caixa.bottom <= barra.top
+          || caixa.top >= barra.bottom || caixa.right <= barra.left || caixa.left >= barra.right;
+      });
+    }"""), "A barra de fechamento não pode encobrir controles do formulário."
     campo = pg.locator("#id_protocolo")
     campo.focus()
     expect(campo).to_be_focused()

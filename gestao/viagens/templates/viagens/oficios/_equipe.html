@@ -37,7 +37,7 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
     </form>
     {% if viajantes %}
       {% with larguras=viajantes|length|larguras_de_cartoes %}
-      <ul class="resumo__cartoes equipe__cartoes pessoas--faixa" role="list" aria-label="Servidores da equipe">
+      <ul class="resumo__cartoes equipe__cartoes pessoas--faixa pessoas--compactas" role="list" aria-label="Servidores da equipe">
         {% for v in viajantes %}
           <li class="pessoa equipe__cartao resumo__cartao--{{ larguras|get_item:forloop.counter0 }}"
               data-servidor="{{ v.servidor_id }}" data-unidade="{{ v.servidor.unidade_id }}" data-nome="{{ v.servidor.nome }}"{% if v.motorista %} data-motorista{% endif %}>
@@ -85,6 +85,6 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
 {% endwith %}
 {% if oob %}
 <div id="dados-eprotocolo-folha" data-vivo hx-swap-oob="outerHTML">
-  {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" %}
+  {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" compacto=True %}
 </div>
 {% endif %}

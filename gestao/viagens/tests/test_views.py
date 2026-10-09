@@ -1280,18 +1280,24 @@ class TestSelosDasListas:
                             emitido.numero_formatado)
         assert ">Retificado</span>" in linha
 
-    def test_resumo_usa_o_mesmo_vocabulario_e_explica_o_tipo(self, operador, cenario):
+    def test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo(self, operador, cenario):
         rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         html = operador.get(reverse("viagens:resumo", args=[rascunho.pk])).content.decode()
         assert "Fora do prazo" not in html
         assert "Justificativa pendente" in html  # o mesmo selo da linha
-        assert "<strong>Autorização</strong>" in html and "3 dias depois do ofício" in html
+        # A composição aprovada comunica o assunto na cópia e o prazo na pendência,
+        # sem exigir a apresentação antiga em um metadado duplicado.
+        assert "Solicitação de autorização" in html and "3 dias de antecedência" in html
         # o prazo por escrito não se repete: o alerta de pendências já o diz
         assert html.count("de antecedência, e o prazo exige") == 1
         assert "Justificativa obrigatória" in html  # na lista de pendências antes de emitir
         emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])  # no prazo
         html = operador.get(reverse("viagens:resumo", args=[emitido.pk])).content.decode()
-        assert "<dt>Prazo</dt>" in html and "justificativa dispensada" in html
+        assert "Justificativa pendente" not in html and "faltam 20 dias" in html
+        # O cenário da revisão deve estar em rascunho; o emitido oferece retificação.
+        Oficio.objects.filter(pk=emitido.pk).update(situacao="rascunho")
+        revisao = operador.get(reverse("viagens:editar", args=[emitido.pk]) + "?revisar=1")
+        assert "<dt>Justificativa</dt><dd>Dispensada</dd>" in revisao.content.decode()
 
     def test_roteiros_e_termos_com_o_mesmo_selo(self, operador, cenario):
         html = operador.get(reverse("viagens:roteiros")).content.decode()
@@ -1307,8 +1313,8 @@ class TestSelosDasListas:
 
 
 class TestLinhaDaLista:
-    """LP-08/LP-09: título = destinos (até três + "+N"), período 1º item do meta, colunas
-    fixas com o texto inteiro no title, motorista marcado e motorista de fora da equipe."""
+    """LP-08/LP-09: destinos até três + "+N", agenda, recursos e diárias,
+    texto inteiro no title, motorista marcado e motorista de fora da equipe."""
 
     def test_titulo_com_mais_n_e_lista_inteira_no_title(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
@@ -1327,7 +1333,9 @@ class TestLinhaDaLista:
         assert f'title="{", ".join(rotulos)}"' in html  # a lista inteira no title do link
         assert ", ".join(rotulos[:3]) in linha and rotulos[3] not in linha.split("title=")[0]
         assert ">+1</span>" in linha and "e mais 1 destino<" in linha
-        assert "registro__meta-item--periodo" in linha and "registro__meta--colunas" in linha
+        assert "registro__meta-item--periodo" in linha and 'class="registro__agenda"' in linha
+        assert "registro-operacional__recursos" in linha
+        assert "registro-operacional__conferencia" in linha
 
     def test_motorista_marcado_e_motorista_de_fora_aparece(self, operador, cenario):
         emitido = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])

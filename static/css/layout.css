@@ -491,6 +491,9 @@
 }
 
 .migalhas a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo-minimo);
   color: var(--cor-texto-secundario);
   text-decoration: none;
 }

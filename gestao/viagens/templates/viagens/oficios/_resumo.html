@@ -32,4 +32,5 @@ Contratos institucionais preservados nas parciais; a ordem é de apresentação.
     </div>
   </div></div>
 </div>
+{% if documentos_historicos and not revisao %}{% include "componentes/historico_documental.html" with prefixo="oficio" identificador=oficio.pk contexto=oficio.numero_formatado conteudo="viagens/oficios/_historico_documentos.html" %}{% endif %}
 {% include "viagens/oficios/_resumo_rodape.html" %}

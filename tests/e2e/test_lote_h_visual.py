@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -99,8 +100,10 @@ def test_falha_retry_por_teclado_e_pdf_sem_duplicacao(logado, dados_e2e):
     doc.refresh_from_db()
     assert doc.situacao == "pronto"
     assert (doc.pk, doc.versao, doc.dados, doc.oficio.numero) == identidade
-    expect(pg.get_by_role("dialog", name="Resumo do ofício").get_by_role(
-        "link", name="Ofício v1 (nova aba)", exact=True)).to_be_visible()
+    pdf = pg.get_by_role("dialog", name="Resumo do ofício").get_by_role(
+        "link", name=re.compile(r"^Ofício v1\b.*\(nova aba\)$"))
+    expect(pdf).to_be_visible()
+    expect(pdf).to_have_attribute("href", reverse("viagens:baixar_documento", args=[doc.pk]))
     assert Documento.objects.filter(oficio_id=oficio).count() == 1
     assert MensagemOutbox.objects.filter(chave_idempotencia=f"documento:{doc.pk}").count() == 1
     resposta = pg.request.get(reverse("viagens:baixar_documento", args=[doc.pk]))

@@ -1,0 +1,3 @@
+<ul class="resumo__documentos" role="list" aria-label="Versões históricas">
+  {% for linha in documentos_historicos %}{% include "viagens/oficios/_resumo_documento.html" with historico=True %}{% endfor %}
+</ul>

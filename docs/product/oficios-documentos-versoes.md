@@ -416,3 +416,17 @@ pedido desse item aborta o pacote com orientação existente. Não gerar minuta 
 omitir silenciosamente o documento esperado. Snapshot vazio segue sem item;
 shape indeterminado não autoriza associar histórico. Usa Item/closure existentes,
 sem nova UI ou contrato. Caso real novo no teste de leitura, validação pendente.
+
+## Acesso secundário ao histórico — 08/10/2026
+
+O Resumo aprovado apresenta somente a emissão corrente na estação documental.
+Versões anteriores e vias revogadas permanecem legíveis em **Mais ações → Histórico
+de documentos**, em diálogo secundário. O conteúdo vem da projeção autorizada
+existente e mantém links por identidade exata; não promove versões antigas nem
+permite retry histórico. Ao fechar, o foco volta a Mais ações no Resumo.
+
+O pacote **Baixar documentos…** contém a emissão corrente e não substitui essa
+leitura histórica. Cancelados e rascunhos reabertos preservam seus links históricos
+conforme as permissões existentes. Não há alteração de snapshots, hashes, arquivos,
+geração ou regras de seleção. Testes: `test_resumo_documentos.py` e
+`test_historico_secundario_preserva_corrente_e_devolve_foco`.

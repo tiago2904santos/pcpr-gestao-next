@@ -7,11 +7,43 @@ import pytest
 from playwright.sync_api import expect
 
 from gestao.plataforma import outbox
-from gestao.viagens.models import Oficio
+from gestao.viagens.models import Documento, Oficio
 
 from .conftest import rodar_axe
 
 pytestmark = [pytest.mark.e2e, pytest.mark.visual, pytest.mark.a11y]
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_historico_secundario_preserva_corrente_e_devolve_foco(logado, dados_e2e, largura):
+    pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
+    oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+    outbox.processar_lote()
+    anterior = oficio.documentos.get(tipo="oficio")
+    Documento.objects.create(oficio=oficio, tipo="oficio", versao=2, situacao="falhou",
+                             dados=anterior.dados, emitido_por=oficio.criado_por)
+    pg.goto(f"/viagens/oficios/?resumo={oficio.pk}")
+    resumo = pg.locator("#dialogo-resumo")
+    expect(resumo.locator("#resumo-documentos-area")).not_to_contain_text("Ofício v1")
+    mais = resumo.get_by_role("button", name="Mais ações", exact=True)
+    mais.press("Enter")
+    pg.get_by_role("menuitem", name="Histórico de documentos", exact=True).press("Enter")
+    historico = pg.get_by_role("dialog", name="Histórico de documentos", exact=True)
+    expect(historico).to_be_visible()
+    expect(historico.get_by_role("link").first).to_have_attribute(
+        "href", f"/viagens/documentos/{anterior.pk}/")
+    pasta = Path("artifacts/oficios-lista-cadastro-historico")
+    pasta.mkdir(parents=True, exist_ok=True)
+    pg.screenshot(path=str(pasta / f"historico-{largura}.png"))
+    assert not rodar_axe(pg)
+    caixa = historico.bounding_box()
+    assert caixa and caixa["x"] >= 0 and caixa["x"] + caixa["width"] <= largura + 1
+    pg.keyboard.press("Escape")
+    expect(historico).not_to_be_visible()
+    expect(resumo).to_be_visible()
+    expect(mais).to_be_focused()
+    assert pg.erros_console == []
 
 
 @pytest.mark.parametrize("largura", [360, 390, 768, 1024, 1440])

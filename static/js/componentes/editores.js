@@ -79,11 +79,16 @@ function iniciar(raiz) {
     }
   };
   if (editores[0]) ativar(editores[0]);
+  /** @type {HTMLElement | null} Página escolhida no índice, enquanto a rolagem a alcança. */
+  let paginaSolicitada = null;
 
   // O cursor entrou numa página (editor-documento.js avisa com `pc-editor:ativo`).
   raiz.addEventListener("pc-editor:ativo", (e) => {
     const editor = /** @type {HTMLElement} */ (e.target).closest("pc-editor-documento");
-    if (editor) ativar(/** @type {HTMLElement} */ (editor));
+    if (editor) {
+      paginaSolicitada = null;
+      ativar(/** @type {HTMLElement} */ (editor));
+    }
   }, { signal: eventos.signal });
 
   // Navegador: leva ao título da página e a torna a ativa.
@@ -93,14 +98,29 @@ function iniciar(raiz) {
     const item = raiz.querySelector(`[data-pagina="${CSS.escape(/** @type {HTMLElement} */ (botao).dataset.irPagina || "")}"]`);
     const editor = /** @type {HTMLElement | null} */ (item?.querySelector("pc-editor-documento") ?? null);
     const titulo = item?.querySelector(".editores__titulo");
-    if (editor) ativar(editor);
+    if (editor) {
+      paginaSolicitada = editor;
+      ativar(editor);
+    }
     titulo?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }, { signal: eventos.signal });
 
   // Rolando: a página que ocupa o meio da tela passa a ser a ativa (barra e navegador).
   const observador = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
+    // Notificações antigas não podem desfazer a escolha explícita no índice.
+    const centroInicio = innerHeight * .45;
+    const centroFim = innerHeight * .5;
+    if (paginaSolicitada) {
+      const caixa = paginaSolicitada.querySelector(".editor__folha")?.getBoundingClientRect();
+      if (!caixa || caixa.top > centroFim || caixa.bottom < centroInicio) return;
+      ativar(paginaSolicitada);
+      paginaSolicitada = null;
+      return;
+    }
     for (const entrada of entradas) {
       if (!entrada.isIntersecting) continue;
+      const caixa = entrada.target.getBoundingClientRect();
+      if (caixa.top > centroFim || caixa.bottom < centroInicio) continue;
       const editor = /** @type {HTMLElement} */ (entrada.target).closest("pc-editor-documento");
       if (editor) ativar(/** @type {HTMLElement} */ (editor));
     }

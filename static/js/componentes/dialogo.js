@@ -40,6 +40,19 @@ document.addEventListener("click", (e) => {
     const d = dialogoPorId(abrir.dataset.abrirDialogo || "");
     if (d) {
       e.preventDefault();
+      // A janela secundária usa a própria superfície, sem herdar CSS/foco do resumo.
+      if (d.hasAttribute("data-dialogo-secundario") && d.parentElement?.closest("dialog")) {
+        const origem = document.createComment("origem do diálogo secundário");
+        const retorno = /** @type {HTMLElement | null} */ (document.activeElement);
+        d.before(origem);
+        document.body.append(d);
+        d.addEventListener("close", () => {
+          if (origem.isConnected) origem.replaceWith(d);
+          else d.remove();
+          const foco = retorno?.id ? document.getElementById(retorno.id) : retorno;
+          if (foco?.isConnected) foco.focus();
+        }, { once: true });
+      }
       d.showModal();
       if (d.dataset.cadastroUrl) {
         import("./cadastro-rapido.js").then((m) => m.carregarFormulario(d, abrir)).catch(() => {

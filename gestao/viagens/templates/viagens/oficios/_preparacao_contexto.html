@@ -1,0 +1,7 @@
+{% load viagens %}
+<p class="registro-hero__complemento">
+  {% with d=oficio|destinos %}{{ d|default:"Defina a missão e o percurso da viagem" }}{% endwith %}
+  {% with p=trechos|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}
+  {% if viajantes %} · {{ viajantes|length|pluralizar:"servidor,servidores" }}{% endif %}
+</p>
+{% if oficio.viagem_id %}<a href="{% url 'viagens:editar_viagem' oficio.viagem_id %}#documentos" class="registro-hero__complemento">Viagem: {{ oficio.viagem }}</a>{% endif %}

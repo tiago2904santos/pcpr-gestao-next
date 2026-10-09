@@ -3,7 +3,13 @@
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block preload_seletor %}{% endblock %}
 {% block titulo %}Ofícios{% endblock %}
-{% block classe_conteudo %}pagina--documental lista--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional{% endblock %}
+{% block cabecalho_lista %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Ofícios" complemento="Viagens, equipe e documentos em uma visão de trabalho." %}
+{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 {% block variante_cabecalho %}pagina-cabecalho--documental{% endblock %}
 {% block sobretitulo %}<p class="resumo__sobretitulo">Gestão de viagens</p>{% endblock %}
 {% block titulo_lista %}Ofícios{% endblock %}
@@ -13,7 +19,7 @@
 lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofício.
 {% endcomment %}
 
-{% block abas_filtro %}{% include "viagens/oficios/_abas.html" %}{% endblock %}
+{% block abas_filtro %}<aside class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da viagem</p>{% include "viagens/oficios/_abas.html" %}</aside>{% endblock %}
 
 {% block filtros %}
 {% comment %}
@@ -124,8 +130,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
   {% endcomment %}
   <h2 class="sr-only" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”: {{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% else %}Ofícios{% endif %}</h2>
   {% if oficios %}
-    {% include "componentes/cabecalho_registros.html" only %}
-    <ul class="registros" aria-labelledby="titulo-resultados">
+    <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
       {% for o in oficios %}
         {# Agrupamento por mês: pela saída quando a ordem é por saída; senão pela data do ofício. #}
         {% if o.grupo %}<li class="registros__grupo"><span>{% if por_saida %}{% if o.primeira_saida %}Saída em {{ o.primeira_saida|date:"F \d\e Y" }}{% else %}Sem data de saída{% endif %}{% else %}{{ o.data_oficio|date:"F \d\e Y" }}{% endif %}</span><span class="registros__grupo-conta"><span class="sr-only">: </span>{{ o.grupo.quantidade }}<span class="sr-only"> {% if o.grupo.quantidade == 1 %}ofício{% else %}ofícios{% endif %}</span>{% if o.grupo.parcial %} nesta página{% endif %}</span></li>{% endif %}
@@ -150,7 +155,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
 
 {% block depois_lista %}
 {# Barra fixa (D8): contagem do recorte · Exportar planilha · Mais · Novo ofício. #}
-<div class="barra-acoes">
+<div class="barra-acoes barra-acoes--registro">
   {% include "viagens/oficios/_barra_status.html" %}
   {% include "componentes/menu_mais.html" with itens=mais titulo="Ofícios" %}
   {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}

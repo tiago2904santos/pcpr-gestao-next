@@ -2,48 +2,13 @@
 {% load viagens %}
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/itinerario.css' %}"><link rel="stylesheet" href="{% static 'css/editor.css' %}">{% if abrir_resumo %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endif %}{% endblock %}
 {% block modulos %}{% load static %}<link rel="modulepreload" href="{% static 'js/componentes/combobox.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/mascara.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/protecao.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-base.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-data.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor-hora.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/seletor.js' %}"><link rel="modulepreload" href="{% static 'js/componentes/transporte.js' %}"><script type="module" src="{% static 'js/componentes/itinerario.js' %}" nonce="{{ csp_nonce }}"></script><script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
-{% comment %}
-Folha do ofício, refeita peça por peça sobre a mesma linguagem da folha do roteiro e da
-janela de resumo: cabeçalho com placa, frase e ações; quatro cartões soltos — Identificação,
-Roteiro, Justificativa (só quando o prazo exige) e Documentos — cada um com número, nota e
-selo de estado; dentro deles, blocos com título institucional, cartões de escolha, quadros de
-diárias e cartões de pessoa em linhas sempre cheias. Toda linha fecha na margem.
-
-"Novo ofício" já cria o rascunho numerado e abre esta folha; a equipe é salva na hora
-(HTMX), o resto ao salvar. As âncoras #dados, #equipe, #transporte, #roteiro, #diarias,
-#justificativa e #emissao são o destino dos links de pendência da conferência.
-{% endcomment %}
+{# Preparação operacional: mesmos campos, ações e contratos do ofício; variante compartilhada do Design System. #}
 {% block titulo %}Ofício {{ oficio.numero_formatado }} — edição{% endblock %}
 {% block classe_conteudo %}pagina--documental{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho pagina-cabecalho--documental">
-  {% include "componentes/identidade_documental.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao %}
-  <div class="pagina-cabecalho__texto">
-    {% comment %}
-    A placa ao lado já diz "Ofício 167/2026": repetir isso num título seria dizer duas
-    vezes a mesma coisa. O <h1> continua existindo para quem navega por leitor de tela.
-    {% endcomment %}
-    <p class="resumo__sobretitulo">Cadastro do ofício</p>
-    <h1 class="pagina-cabecalho__titulo"><span class="sr-only">Ofício {{ oficio.numero_formatado }} — {{ oficio.get_situacao_display }} · </span>Preparar a viagem</h1>
-    <p class="frase-oficio">
-      {% if oficio.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' oficio.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ oficio.viagem }}</a>{% endif %}
-      <span class="sr-only">Resumo do ofício: </span>
-      <span class="selo selo--{{ oficio.situacao|tom_situacao }} selo--situacao-{{ oficio.situacao }}">{{ oficio.get_situacao_display }}</span>
-      {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Fora do prazo</span>{% endif %}
-      <span class="frase-oficio__item{% if not viajantes %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if viajantes %}{{ viajantes|length|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>
-      {% with d=oficio|destinos %}<span class="frase-oficio__item{% if not d %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ d|default:"sem destino" }}</span>{% endwith %}
-      {% with p=trechos|periodo %}<span class="frase-oficio__item{% if not p %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ p|default:"sem datas" }}</span>{% endwith %}
-      {% if oficio.viatura %}<span class="frase-oficio__item">{% icone "car" classe="icone--sm" %}{{ oficio.viatura }}</span>
-      {% elif oficio.transporte_texto %}<span class="frase-oficio__item">{% icone "bus" classe="icone--sm" %}{{ oficio.transporte_texto }}</span>
-      {% else %}<span class="frase-oficio__item frase-oficio__item--vazio">{% icone "car" classe="icone--sm" %}sem transporte</span>{% endif %}
-      {% if oficio.diarias_resumo %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ oficio.diarias_total|moeda }}</span>{% endif %}
-    </p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    {% include "viagens/oficios/_acoes.html" with onde="cabeçalho" %}
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastro do ofício" rotulo="Ofício" numero=oficio.numero_formatado situacao=oficio.situacao titulo="Preparar a viagem" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_preparacao_contexto.html" acoes_template="viagens/oficios/_preparacao_acoes.html" %}
+{% include "componentes/indice_preparacao.html" with itens=secoes pronto=prontidao.pode_emitir intermediario_chave="recursos" intermediario_rotulo="Equipe e transporte" %}
 
 {% if pode_excluir %}
 <form id="form-excluir" method="post" action="{% url 'viagens:excluir' oficio.pk %}" hidden
@@ -78,7 +43,7 @@ confirmação — e é ele que escreve no histórico.
   {% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}Rascunho salvo às {{ oficio.atualizado_em|date:"H:i" }}{% else %}Última alteração {{ oficio.atualizado_em|date:"d/m/Y H:i" }} · {{ prontidao.bloqueantes|length }} pendência{{ prontidao.bloqueantes|length|pluralize:"s" }} antes de emitir.{% endif %}
 </div>
 
-<div class="documento documento--continuo">
+<div class="documento documento--preparacao">
 
   {% comment %}
   1. Identificação — o documento e quem o compõe, nos mesmos componentes da folha do roteiro
@@ -94,12 +59,13 @@ confirmação — e é ele que escreve no histórico.
       {# `assunto.linha` já termina em ponto e `assunto.rotulo` já vem entre parênteses. #}
       <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %}</p>
     </div>
+    <div class="secao__conteudo">
 
     <div class="pilha" id="dados">
-      {# Colunas iguais: número · data · protocolo · tipo de documento · custeio. #}
+      {# Larguras semânticas: número e data curtos; protocolo e seleções proporcionais. #}
       {# "Outra instituição" abre a linha seguinte inteira. #}
-      <div class="campos campos--iguais campos--legiveis custeio">
-        {% include "componentes/campo.html" with campo=form.numero ajuda_oculta=True %}
+      <div class="campos campos--registro campos--legiveis custeio">
+        {% include "componentes/campo.html" with campo=form.numero rotulo="Número" ajuda_oculta=True %}
         {% include "componentes/campo.html" with campo=form.data_oficio %}
         {% include "componentes/campo.html" with campo=form.protocolo exigido_para_emitir=True ajuda_oculta=True %}
         {% include "componentes/campo.html" with campo=form.marcador rotulo="Tipo de documento" %}
@@ -116,6 +82,16 @@ confirmação — e é ele que escreve no histórico.
       {% include "componentes/campo.html" with campo=form.motivo exigido_para_emitir=True %}
     </div>
 
+
+    </div>
+  </section>
+
+  <section class="secao" id="recursos" aria-labelledby="t-recursos">
+    <div class="secao__cabecalho">
+      <h2 class="secao__titulo" id="t-recursos"><span class="secao__numero">2</span>Equipe e transporte</h2>
+      <p class="secao__nota">Quem viaja, quem dirige e como a equipe se desloca. A equipe é salva na hora; os demais dados seguem o autosave.</p>
+    </div>
+    <div class="secao__conteudo secao__grupo">
     {# Equipe: salva na hora, via HTMX (o bloco inteiro é trocado). #}
     {% include "viagens/oficios/_equipe.html" %}
 
@@ -168,6 +144,7 @@ confirmação — e é ele que escreve no histórico.
         </div>
       </details>
     </pc-transporte>
+    </div>
   </section>
 
   {% comment %}
@@ -177,10 +154,11 @@ confirmação — e é ele que escreve no histórico.
   {% endcomment %}
   <section class="secao{% if secoes.1.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">2</span>Roteiro</h2>
+      <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">3</span>Roteiro</h2>
       <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}<span class="selo selo--{% if p.bloqueia %}aviso{% else %}neutro{% endif %} selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
       <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
     </div>
+    <div class="secao__conteudo">
     {% if roteiros_disponiveis is not None %}
     <div class="usar-roteiro">
       {% if roteiro_aplicado %}
@@ -212,6 +190,7 @@ confirmação — e é ele que escreve no histórico.
     <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
     {% include "viagens/oficios/_diarias.html" with bloco=True documental=True %}
     </div>
+    </div>
   </section>
 
   {% comment %}
@@ -223,10 +202,11 @@ confirmação — e é ele que escreve no histórico.
   {% if mostrar_justificativa %}
   <section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">3</span>Justificativa de prazo</h2>
+      <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">4</span>Justificativa de prazo</h2>
       <div class="secao__estado">{% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}</div>
       <p class="secao__nota">{% if prazo %}{{ prazo.mensagem }}{% else %}Exigida quando a viagem começa em até 10 dias da data do ofício — o sistema avisa ao salvar o roteiro.{% endif %}</p>
     </div>
+    <div class="secao__conteudo">
     {# O texto pronto vai de margem a margem, como a busca de roteiro: um campo curto deixaria a linha pela metade. #}
     {% if prazo.justificativa_obrigatoria %}
       <div class="campos">
@@ -242,6 +222,7 @@ confirmação — e é ele que escreve no histórico.
         </div>
       </details>
     {% endif %}
+    </div>
   </section>
   {% endif %}
 
@@ -254,13 +235,14 @@ confirmação — e é ele que escreve no histórico.
   {% endcomment %}
   <section class="secao{% if prontidao.pode_emitir %} secao--ok{% endif %}" id="emissao" aria-labelledby="t-emissao">
     <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}4{% else %}3{% endif %}</span>Documentos</h2>
+      <h2 class="secao__titulo" id="t-emissao"><span class="secao__numero">{% if mostrar_justificativa %}5{% else %}4{% endif %}</span>Documentos</h2>
       <div class="secao__estado">{% if prontidao.pode_emitir %}<span class="selo selo--sucesso selo--situacao-emitido">Pronto para emitir</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">{{ prontidao.bloqueantes|length|pluralizar:"pendência,pendências" }}</span>{% endif %}</div>
       <p class="secao__nota">A minuta mostra o ofício como vai sair. Depois de emitido, editar abre uma retificação: o ofício volta a rascunho marcado como retificado e a correção fica no histórico.</p>
     </div>
+    <div class="secao__conteudo">
 
     <div id="dados-eprotocolo-folha" data-vivo>
-      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" %}
+      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" compacto=True %}
     </div>
 
     {# Conferência: o mesmo aviso que abre a janela de resumo; aqui cada pendência é um atalho para o cartão. #}
@@ -342,6 +324,7 @@ confirmação — e é ele que escreve no histórico.
         </details>
       {% endif %}
     </div>
+    </div>
   </section>
 </div>
 
@@ -352,7 +335,7 @@ componentes/rodape_documento.html). Emitir fica no cartão Documentos ("Revisar 
 O estado do salvamento fica só para leitor de tela — é por ele que o JS de autosave e de
 proteção de saída se comunicam.
 {% endcomment %}
-<div class="barra-acoes barra-acoes--documental">
+<div class="barra-acoes barra-acoes--documental barra-acoes--registro barra-acoes--fluxo">
   <a class="botao botao--texto" href="{% url 'viagens:oficios' %}">Voltar</a>
   {% if pode_excluir %}{% firstof "form-excluir" as excluir_form %}{% endif %}
   {% include "componentes/rodape_documento.html" with nome="ofício" finalizar_form="form-oficio" finalizar_acao="finalizar" duplicar_form="duplicar-oficio" excluir_form=excluir_form %}

@@ -7,6 +7,7 @@ Contexto esperado: migalhas, page_obj, querystring_base, total.
 {% endcomment %}
 {% block migalhas %}{% if migalhas %}{% include "componentes/migalhas.html" %}{% endif %}{% endblock %}
 {% block conteudo %}
+{% block cabecalho_lista %}
 <header class="pagina-cabecalho {% block variante_cabecalho %}{% endblock %}">
   <div class="pagina-cabecalho__texto">
     {% block sobretitulo %}{% endblock %}
@@ -15,13 +16,16 @@ Contexto esperado: migalhas, page_obj, querystring_base, total.
   </div>
   <div class="pagina-cabecalho__acoes">{% block acoes_lista %}{% endblock %}</div>
 </header>
+{% endblock %}
+{% block inicio_layout_lista %}{% endblock %}
 {% block abas_filtro %}{% endblock %}
-<section class="cartao mt-4" aria-labelledby="titulo-resultados">
+<section class="{% block classe_area_lista %}cartao mt-4{% endblock %}" aria-labelledby="titulo-resultados">
   {% block filtros %}{% endblock %}
   <div class="lista-resultados">
     {% include "componentes/erro_lista.html" %}
     {% block resultados %}{% endblock %}
   </div>
 </section>
+{% block fim_layout_lista %}{% endblock %}
 {% block depois_lista %}{% endblock %}
 {% endblock %}
