@@ -244,3 +244,9 @@ das 18 fontes/testes congelados e `git diff --cached --check` sobre fonte,
 documentação e evidências, excetuando os arquivos `.log` brutos. Estes preservam
 espaços finais emitidos pelo terminal/tracebacks; não foram editados para passar
 a conferência de whitespace. Nenhum erro de whitespace em código/documentação.
+
+Commit local da candidata: **`18de18f`**, na branch `codex/oficios-componentes`,
+com implementação, testes, UI Lab, documentação, paridade e evidências. Fonte
+conferida sem divergência dos 18 hashes depois do gate. Registro final deste
+hash em commit de documentação posterior, sem alterar a aplicação. Sem push,
+merge ou deploy.

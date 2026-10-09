@@ -19,7 +19,8 @@ Gate integral final verde: **2.251 aprovados, zero falhas, nove avisos**,
 Fechamento e limites em `qa/oficios-componentes-2026-10-09.md`; log bruto em
 `evidencias/oficios-componentes/logs/componentes-verificar-fechamento.log`.
 Candidata tecnicamente validada; revisão estética permanece com o usuário.
-Sem push/merge/deploy.
+Commit local da candidata: `18de18f`; fonte sem divergências dos 18 hashes após
+o gate. Sem push/merge/deploy.
 
 Checkpoint de validação: 32 casos iniciais passaram; quatro falhas de overflow do
 índice com Justificativa foram corrigidas. Dez retestes e a matriz final de 40
