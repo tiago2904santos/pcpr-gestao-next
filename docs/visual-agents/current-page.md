@@ -1,5 +1,42 @@
 # Página atual
 
+## Direção vigente — Lista e Cadastro de Ofícios
+
+Decisão explícita do usuário em 08/10/2026, prevalecendo sobre avaliações anteriores:
+
+- **Resumo/Detalhe: APROVADO COMO REFERÊNCIA VISUAL.** Base estética atual:
+  cabeçalho grafite, número forte, dourado contido, densidade e componentes refinados.
+- **Lista anterior: REPROVADA VISUALMENTE.** A nova candidata foi reconstruída;
+  aguarda revisão estética e não é referência aprovada nem página concluída.
+- **Cadastro/Criação/Edição/Folha anterior: REPROVADO VISUALMENTE.** A nova candidata
+  foi reconstruída e aguarda revisão estética.
+- Ordem: observar e capturar ambas, conferir legado, reconstruir e validar Lista;
+  depois reconstruir e validar Cadastro. Nenhuma expansão para outros módulos.
+- Preservar funções, regras, dados, permissões, documentos e integrações. Não há
+  autorização para push, merge ou deploy.
+
+### Reconstrução tecnicamente validada — 09/10/2026
+
+Branch `codex/oficios-lista-cadastro`, base `1f69551`. Lista e Cadastro foram
+reconstruídos com componentes compartilhados e estão como candidatas à revisão
+visual. Galeria real antes/depois nas cinco larguras:
+`evidencias/oficios-lista-cadastro/index.html`.
+
+Criação/emissão em banco limpo, cinco cópias, 25 testes documentais (HTTP + retry +
+histórico), 68 tokens e cinco cenários visuais passaram. PREVIEW: 25 estados sem
+violações axe/console/overflow. Bateria consolidada: 35 aprovados. Gate integral
+final verde: **2.241 aprovados, zero falhas, 9 avisos** (48min06s), após o commit
+`e450e37`; Ruff, arquitetura, mypy, Bandit, migrações e tipos JS passaram.
+Logs arquivados em `evidencias/oficios-lista-cadastro/logs/`. Commits locais:
+`615acd9`, `0cc1b97`, `e450e37`; pacote em `qa/oficios-lista-cadastro-2026-10-08.md`.
+Próxima ação: revisão estética das duas candidatas. Não avançar para outra página.
+
+Incidente de preparação e recuperação pendente dos dois PDFs DEV: consultar
+`qa/oficios-lista-cadastro-2026-10-08.md`; não substituir arquivos/hashes sem a
+resposta do usuário. Prévia usa banco/mídia LAB isolados.
+
+Os estados abaixo são históricos e não substituem esta decisão.
+
 ## Reconstrução do Resumo após reprovação — 08/10/2026
 
 A última entrega foi **REPROVADA VISUALMENTE pelo usuário**. A avaliação estética

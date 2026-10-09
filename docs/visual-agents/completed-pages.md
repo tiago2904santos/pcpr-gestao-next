@@ -2,6 +2,15 @@
 
 Só entra aqui o que cumpriu a Definição de concluído (`mission.md`).
 
+## Estado visual vigente — decisão do usuário em 08/10/2026
+
+**Somente o Resumo/Detalhe do Ofício está aprovado como referência visual.**
+Lista e Cadastro/Edição/Folha anteriores foram **REPROVADOS VISUALMENTE**. As novas
+candidatas foram reconstruídas nesta ordem e aguardam revisão estética do usuário;
+estado e evidências em `current-page.md`. Avaliações anteriores abaixo permanecem
+como histórico; não autorizam tratar essas duas páginas como concluídas.
+Não avançar para Termos, OS, Planos ou outros módulos antes de fechar ambas.
+
 ## Decisão posterior do usuário — 08/10/2026
 
 As mudanças da entrega visual anterior foram **reprovadas pelo usuário** por impacto

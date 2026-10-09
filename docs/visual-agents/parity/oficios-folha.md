@@ -1,5 +1,17 @@
 # Paridade — Folha do ofício (cadastro/edição, `/viagens/oficios/<pk>/editar/`)
 
+## Reconstrução vigente — 08/10/2026
+
+A Folha anterior foi reprovada visualmente pelo usuário. A nova candidata extrai
+a linguagem do Resumo aprovado: cabeçalho institucional, índice por âncoras,
+identificação proporcional, equipe/transporte agrupados, conferência e cópia
+compactas. O fechamento segue o fluxo da página para não encobrir campos.
+IDs, contratos HTMX, autosave, Enter, revisão/emissão, motorista, transporte,
+roteiro, cálculo do legado e documentos oficiais mantêm as regras existentes.
+Evidências e resultados: `../qa/oficios-lista-cadastro-2026-10-08.md`; galeria:
+`../evidencias/oficios-lista-cadastro/index.html`. A aprovação estética aguarda o
+usuário. Avaliações abaixo são históricas.
+
 ## Apresentação documental — 08/10/2026
 
 Folha contínua, identidade e conferência de valores compartilhadas com o

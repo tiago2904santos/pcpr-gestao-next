@@ -1,0 +1,43 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 25 items
+
+gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[gerando] PASSED [  4%]
+gestao/viagens/tests/test_resumo_documentos.py::test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura[falhou] PASSED [  8%]
+gestao/viagens/tests/test_resumo_documentos.py::test_historico_gerando_nao_mantem_polling_da_emissao_pronta PASSED [ 12%]
+gestao/viagens/tests/test_resumo_documentos.py::test_retry_so_da_corrente_falha_nao_da_historica PASSED [ 16%]
+gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[pronto] PASSED [ 20%]
+gestao/viagens/tests/test_resumo_documentos.py::test_contexto_herdado_de_historico_nao_reclassifica_corrente[falhou] PASSED [ 24%]
+gestao/viagens/tests/test_resumo_documentos.py::test_pronto_sem_caminho_nao_cria_link_pdf_mas_preserva_word PASSED [ 28%]
+gestao/viagens/tests/test_resumo_documentos.py::test_via_exata_e_original_sem_caminho_tem_leitura_assinada PASSED [ 32%]
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[] PASSED [ 36%]
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[None] PASSED [ 40%]
+gestao/viagens/tests/test_resumo_documentos.py::test_justificativa_antiga_aparece_apenas_no_historico[justificativa2] PASSED [ 44%]
+gestao/viagens/tests/test_resumo_documentos.py::test_reaberto_mostra_minuta_e_vias_revogadas_no_historico PASSED [ 48%]
+gestao/viagens/tests/test_resumo_documentos.py::test_cancelado_conserva_links_exatos_sem_corrente PASSED [ 52%]
+gestao/viagens/tests/test_resumo_documentos.py::test_projecao_materializada_uma_vez_com_todas_as_vias_sem_sql PASSED [ 56%]
+gestao/viagens/tests/test_resumo_documentos.py::test_polling_atualiza_documentos_rodape_e_copia_em_ids_estaveis PASSED [ 60%]
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[consulta-200] PASSED [ 64%]
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[operador-200] PASSED [ 68%]
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[gestor-200] PASSED [ 72%]
+gestao/viagens/tests/test_resumo_documentos.py::test_resumo_preserva_autorizacao[outra-404] PASSED [ 76%]
+gestao/viagens/tests/test_resumo_documentos.py::test_leitura_do_resumo_nao_escreve_negocio PASSED [ 80%]
+gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_rascunho-20] PASSED [ 84%]
+gestao/viagens/tests/test_resumo_documentos.py::test_budget_resumo_preservado[oficio_emitido-15] PASSED [ 88%]
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao PASSED [ 92%]
+tests/e2e/test_resumo_visual.py::test_historico_secundario_preserva_corrente_e_devolve_foco[360] PASSED [ 96%]
+tests/e2e/test_resumo_visual.py::test_historico_secundario_preserva_corrente_e_devolve_foco[1440] PASSED [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 25 passed, 1 warning in 1309.41s (0:21:49) ==================

@@ -1,0 +1,426 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 56 items
+
+tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio ERROR [  1%]
+tests/e2e/test_fluxo_oficio.py::test_emissao_bloqueada_sem_justificativa_mostra_o_motivo PASSED [  3%]
+tests/e2e/test_fluxo_oficio.py::test_enter_salva_e_alteracao_nao_salva_e_avisada PASSED [  5%]
+tests/e2e/test_fluxo_oficio.py::test_erro_de_validacao_aparece_no_resumo_e_no_campo PASSED [  7%]
+tests/e2e/test_fluxo_oficio.py::test_teclado_pular_conteudo_menu_e_dialogo PASSED [  8%]
+tests/e2e/test_fluxo_oficio.py::test_consulta_ve_mas_nao_cria_nem_edita PASSED [ 10%]
+tests/e2e/test_fluxo_oficio.py::test_operador_nao_ve_oficio_de_outra_unidade PASSED [ 12%]
+tests/e2e/test_fluxo_oficio.py::test_gaveta_de_navegacao_no_celular PASSED [ 14%]
+tests/e2e/test_fluxo_oficio.py::test_menu_superior_com_item_ativo_e_submenu_por_teclado PASSED [ 16%]
+tests/e2e/test_fluxo_oficio.py::test_seletor_de_modulo_leva_a_central PASSED [ 17%]
+tests/e2e/test_fluxo_oficio.py::test_sistema_nao_muda_com_sistema_operacional_em_modo_escuro PASSED [ 19%]
+tests/e2e/test_fluxo_oficio.py::test_ctrl_s_salva_o_rascunho PASSED      [ 21%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[360] PASSED [ 23%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[768] PASSED [ 25%]
+tests/e2e/test_fluxo_oficio.py::test_campo_focado_nunca_fica_atras_do_topo_ou_da_barra[1440] PASSED [ 26%]
+tests/e2e/test_fluxo_oficio.py::test_registro_da_lista_abre_resumo_em_janela_e_fecha_com_esc PASSED [ 28%]
+tests/e2e/test_fluxo_oficio.py::test_gaveta_de_filtros_filtra_por_protocolo PASSED [ 30%]
+tests/e2e/test_fluxo_oficio.py::test_lista_agrupa_por_mes_e_nomeia_transicoes PASSED [ 32%]
+tests/e2e/test_fluxo_oficio.py::test_formulario_do_oficio_escolhas_itinerario_e_conferencia PASSED [ 33%]
+tests/e2e/test_fluxo_oficio.py::test_clique_em_texto_nao_rola_a_pagina PASSED [ 35%]
+tests/e2e/test_fluxo_oficio.py::test_novo_oficio_cria_e_abre_a_folha_completa PASSED [ 37%]
+tests/e2e/test_fluxo_oficio.py::test_sem_seletores_nativos_de_data_hora_ou_lista PASSED [ 39%]
+tests/e2e/test_fluxo_oficio.py::test_calendario_por_teclado PASSED       [ 41%]
+tests/e2e/test_fluxo_oficio.py::test_relogio_e_lista_propria PASSED      [ 42%]
+tests/e2e/test_fluxo_oficio.py::test_folha_mostra_a_minuta_emoldurada PASSED [ 44%]
+tests/e2e/test_fluxo_oficio.py::test_marcar_motorista_escolhe_a_viatura_dele PASSED [ 46%]
+tests/e2e/test_lote_h_visual.py::test_lote_h_capturas PASSED             [ 48%]
+tests/e2e/test_lote_h_visual.py::test_motorista_autosave_e_conflito_entre_abas PASSED [ 50%]
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao FAILED [ 51%]
+tests/e2e/test_itinerario.py::test_rota_preenche_tempos_e_chegada_e_a_ordem_muda_arrastando PASSED [ 53%]
+tests/e2e/test_itinerario.py::test_uf_filtra_municipios_e_troca_de_uf_limpa_a_cidade PASSED [ 55%]
+tests/e2e/test_itinerario.py::test_calendario_unico_preenche_as_saidas_de_todos_os_trechos PASSED [ 57%]
+tests/e2e/test_itinerario.py::test_sede_pode_ser_trocada PASSED          [ 58%]
+tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[360] PASSED [ 60%]
+tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[1440] PASSED [ 62%]
+tests/e2e/test_eprotocolo_copia.py::test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto FAILED [ 64%]
+tests/e2e/test_eprotocolo_copia.py::test_autosave_atualiza_texto_e_preserva_divulgacao_aberta PASSED [ 66%]
+tests/e2e/test_eprotocolo_copia.py::test_equipe_htmx_preserva_foco_na_copia_durante_resposta PASSED [ 67%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[360] PASSED [ 69%]
+tests/e2e/test_editor_carga.py::test_miniaturas_esperam_rolagem_e_editor_continua_funcionando[1440] PASSED [ 71%]
+tests/e2e/test_editor_carga.py::test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado PASSED [ 73%]
+tests/e2e/test_editor_carga.py::test_reposicao_durante_import_nao_inicializa_caixa_removida PASSED [ 75%]
+tests/e2e/test_editor_carga.py::test_fallback_sem_intersection_observer PASSED [ 76%]
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[360] PASSED [ 78%]
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[1440] PASSED [ 80%]
+tests/e2e/test_cadastro_adiado.py::test_falha_de_carga_orienta_e_nova_abertura_tenta_de_novo PASSED [ 82%]
+tests/e2e/test_cadastro_adiado.py::test_fechar_durante_carga_nao_reabre_nem_rouba_foco PASSED [ 83%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[360] PASSED [ 85%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[390] PASSED [ 87%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[768] PASSED [ 89%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1024] PASSED [ 91%]
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[1440] PASSED [ 92%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-360] PASSED [ 94%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[False-1440] PASSED [ 96%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-360] PASSED [ 98%]
+tests/e2e/test_resumo_visual.py::test_dossie_ui_lab_conteudo_longo_e_vazio[True-1440] PASSED [100%]
+
+=================================== ERRORS ====================================
+_______ ERROR at setup of test_operador_cria_preenche_e_emite_um_oficio _______
+
+self = <django.db.backends.utils.CursorWrapper object at 0x00000296ECE11850>
+sql = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 9, 0, 11, 26, 953158, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 9, 0, 11, 26, 953199, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x00000296ECE11850>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\django\db\backends\utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_cadastro_browser) at 0x296ecfd8650>
+query = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 9, 0, 11, 26, 953158, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 9, 0, 11, 26, 953199, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "unidade_nome_unico"
+E           DETAIL:  Key (lower(nome::text))=(assessoria de comunicação social) already exists.
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+gestao\viagens\tests\cenarios.py:72: in cenario_completo
+    ascom = Unidade.objects.create(sigla="ASCOM", nome="Assessoria de Comunicação Social")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:752: in create
+    obj.save(force_insert=True, using=self.db)
+.venv\Lib\site-packages\django\db\models\base.py:904: in save
+    self.save_base(
+.venv\Lib\site-packages\django\db\models\base.py:996: in save_base
+    updated = self._save_table(
+.venv\Lib\site-packages\django\db\models\base.py:1201: in _save_table
+    results = self._do_insert(
+.venv\Lib\site-packages\django\db\models\base.py:1253: in _do_insert
+    return manager._insert(
+.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:2166: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\compiler.py:1954: in execute_sql
+    cursor.execute(sql, params)
+.venv\Lib\site-packages\django\db\backends\utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv\Lib\site-packages\django\db\backends\utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\backends\utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv\Lib\site-packages\django\db\backends\utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=127.0.0.1 port=55432 user=pcpr_lab database=test_pcpr_lab_cadastro_browser) at 0x296ecfd8650>
+query = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 9, 0, 11, 26, 953158, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 9, 0, 11, 26, 953199, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "unidade_nome_unico"
+E           DETAIL:  Key (lower(nome::text))=(assessoria de comunicação social) already exists.
+
+.venv\Lib\site-packages\psycopg\cursor.py:117: IntegrityError
+---------------------------- Captured stdout setup ----------------------------
+Operations to perform:
+  Synchronize unmigrated apps: django_htmx, integracoes, messages, postgres, staticfiles
+  Apply all migrations: auth, cadastros, coffee, contenttypes, eventos, identidade, imprensa, palestras, plataforma, publicacoes, sessions, viagens
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  No migrations to apply.
+---------------------------- Captured stderr setup ----------------------------
+Using existing test database for alias 'default' ('test_pcpr_lab_cadastro_browser')...
+
+================================== FAILURES ===================================
+______________ test_falha_retry_por_teclado_e_pdf_sem_duplicacao ______________
+
+logado = <Page url='http://localhost:58875/viagens/oficios/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 339, 'oficio_rascunho': 340, 'oficio_vazio': 341, 'oficio_cancelado': 342, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_falha_retry_por_teclado_e_pdf_sem_duplicacao(logado, dados_e2e):
+        from gestao.plataforma import outbox
+        from gestao.plataforma.models import MensagemOutbox
+    
+        pg = logado
+        oficio = dados_e2e.ids["oficio_emitido"]
+        doc = Documento.objects.get(oficio_id=oficio)
+        identidade = (doc.pk, doc.versao, doc.dados, doc.oficio.numero)
+        mensagem = MensagemOutbox.objects.get(chave_idempotencia=f"documento:{doc.pk}")
+        Documento.objects.filter(pk=doc.pk).update(situacao="falhou", erro="Falha controlada")
+        MensagemOutbox.objects.filter(pk=mensagem.pk).update(situacao="falhou", tentativas=8)
+        pg.goto(f"/viagens/oficios/?resumo={oficio}")
+        dialogo = pg.get_by_role("dialog", name="Resumo do ofício")
+        botao = dialogo.get_by_role("button", name="Gerar de novo Ofício versão 1")
+        botao.focus()
+        expect(botao).to_be_focused()
+        assert rodar_axe(pg) == []
+        botao.press("Enter")
+        expect(pg.get_by_role("dialog", name="Resumo do ofício")).to_contain_text("gerando")
+        outbox.processar_lote()
+        doc.refresh_from_db()
+        assert doc.situacao == "pronto"
+        assert (doc.pk, doc.versao, doc.dados, doc.oficio.numero) == identidade
+        expect(pg.get_by_role("dialog", name="Resumo do ofício").get_by_role(
+>           "link", name="Ofício v1 (nova aba)", exact=True)).to_be_visible()
+                                                              ^^^^^^^^^^^^^^^
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("dialog", name="Resumo do ofício").get_by_role("link", name="Ofício v1 (nova aba)", exact=True)
+
+tests\e2e\test_lote_h_visual.py:103: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-08 21:32:26,230 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-08 21:32:26,472 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-08 21:32:26,694 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-08 21:32:27,092 INFO gestao.viagens.assinantes Ofício 339 emitido
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+INFO     gestao.viagens.assinantes:assinantes.py:49 Ofício 339 emitido
+__________ test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto __________
+
+logado = <Page url='http://localhost:58875/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 374, 'oficio_rascunho': 375, 'oficio_vazio': 376, 'oficio_cancelado': 377, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e):
+        pg = logado
+        pg.add_init_script("""window.__cspCopia = [];
+            document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
+              fonte: e.sourceFile, linha: e.lineNumber, diretiva: e.effectiveDirective,
+              bloqueado: e.blockedURI, amostra: e.sample
+            }));""")
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
+        pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
+        pg.locator(".registro__link").first.click()
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        bloco = janela.locator("#eprotocolo-resumo-bloco")
+        _abrir(bloco)
+        expect(bloco).to_contain_text("Dados da emissão v1")
+        botao = bloco.locator("button[data-copiar-revelar]")
+        botao.click()
+        campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
+        expect(campo).to_be_visible()
+        expect(campo).to_be_focused()
+        assert campo.evaluate("q => q.selectionStart === 0 && q.selectionEnd === q.value.length")
+        expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Selecionado — use Ctrl+C")
+        primeiro = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])").first
+        primeiro.click()
+        individual = pg.locator("#" + primeiro.get_attribute("data-copiar-alvo"))
+        expect(individual).to_be_focused()
+        assert individual.evaluate("q => q.selectionEnd === q.value.length")
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for largura in [360, 390, 768, 1024, 1440]:
+            pg.set_viewport_size({"width": largura, "height": 900})
+            assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
+        violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+        assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
+        csp = pg.evaluate("window.__cspCopia")
+        (pasta / "csp-resumo.json").write_text(json.dumps(csp, indent=2), encoding="utf-8")
+>       assert pg.erros_console == [], csp
+E       AssertionError: [{'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}]
+E       assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+E         
+E         Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+E         
+E         Full diff:
+E         - []
+E         + [
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         +     'Refused to apply inline style because it violates the following Content '
+E         +     'Security Policy directive: "style-src \'self\'". Either the '
+E         +     "'unsafe-inline' keyword, a hash "
+E         +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+E         +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+E         +     'not apply to event handlers, style attributes and javascript: navigations '
+E         +     "unless the 'unsafe-hashes' keyword is present.\n",
+E         + ]
+
+tests\e2e\test_eprotocolo_copia.py:106: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_fluxo_oficio.py::test_emissao_bloqueada_sem_justificativa_mostra_o_motivo
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio - django.db.utils.IntegrityError: duplicate key value violates unique constraint "unidade_nome_unico"
+DETAIL:  Key (lower(nome::text))=(assessoria de comunicação social) already exists.
+FAILED tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao - AssertionError: Locator expected to be visible
+Actual value: None
+Error: element(s) not found 
+Call log:
+  - Expect "to_be_visible" with timeout 5000ms
+  - waiting for get_by_role("dialog", name="Resumo do ofício").get_by_role("link", name="Ofício v1 (nova aba)", exact=True)
+FAILED tests/e2e/test_eprotocolo_copia.py::test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto - AssertionError: [{'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}, {'fonte': 'http://localhost:58875/static/vendor/htmx.min.js', 'linha': 1, 'diretiva': 'style-src-attr', 'bloqueado': 'inline', ...}]
+assert ['Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n', 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\'". Either the \'unsafe-inline\' keyword, a hash (\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'), or a nonce (\'nonce-...\') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'] == []
+  
+  Left contains 6 more items, first extra item: 'Refused to apply inline style because it violates the following Content Security Policy directive: "style-src \'self\...ply to event handlers, style attributes and javascript: navigations unless the \'unsafe-hashes\' keyword is present.\n'
+  
+  Full diff:
+  - []
+  + [
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  +     'Refused to apply inline style because it violates the following Content '
+  +     'Security Policy directive: "style-src \'self\'". Either the '
+  +     "'unsafe-inline' keyword, a hash "
+  +     "('sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='), or a nonce "
+  +     "('nonce-...') is required to enable inline execution. Note that hashes do "
+  +     'not apply to event handlers, style attributes and javascript: navigations '
+  +     "unless the 'unsafe-hashes' keyword is present.\n",
+  + ]
+======== 2 failed, 53 passed, 1 warning, 1 error in 2435.92s (0:40:35) ========

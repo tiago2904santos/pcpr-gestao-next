@@ -1,0 +1,53 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 35 items
+
+tests/e2e/test_menu_oficio.py::test_teclado_setas_home_end_esc_e_foco_devolvido PASSED [  2%]
+tests/e2e/test_menu_oficio.py::test_painel_dentro_da_janela_em_toda_largura PASSED [  5%]
+tests/e2e/test_menu_oficio.py::test_sessao_expirada_avisa_no_menu_e_nao_mostra_o_login PASSED [  8%]
+tests/e2e/test_menu_oficio.py::test_toque_fora_so_fecha PASSED           [ 11%]
+tests/e2e/test_menu_oficio.py::test_toque_no_veu_devolve_o_foco_ao_botao_no_celular PASSED [ 14%]
+tests/e2e/test_menu_oficio.py::test_baixar_documentos_pelo_menu_e_foco_volta_ao_botao PASSED [ 17%]
+tests/e2e/test_menu_oficio.py::test_ver_resumo_pelo_menu PASSED          [ 20%]
+tests/e2e/test_menu_oficio.py::test_marcar_complementar_pelo_menu PASSED [ 22%]
+tests/e2e/test_menu_oficio.py::test_quem_so_consulta_ve_so_leitura PASSED [ 25%]
+tests/e2e/test_menu_oficio.py::test_menu_aberto_sem_violacoes[1440] PASSED [ 28%]
+tests/e2e/test_menu_oficio.py::test_menu_aberto_sem_violacoes[390] PASSED [ 31%]
+tests/e2e/test_menu_oficio.py::test_lista_sem_mais_vazio PASSED          [ 34%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[360] PASSED [ 37%]
+tests/e2e/test_filtros_carga.py::test_gaveta_frio_menu_ordem_periodo_teclado[1440] PASSED [ 40%]
+tests/e2e/test_filtros_carga.py::test_resumo_frio_nao_antecipa_gaveta PASSED [ 42%]
+tests/e2e/test_filtros_carga.py::test_reposicao_htmx_fechada_e_com_modulos_em_cache PASSED [ 45%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[360] PASSED [ 48%]
+tests/e2e/test_filtros_carga.py::test_import_em_curso_preserva_foco_do_select_nativo[1440] PASSED [ 51%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] PASSED [ 54%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] PASSED [ 57%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] PASSED [ 60%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1024] PASSED [ 62%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1440] PASSED [ 65%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[botao-primario] PASSED [ 68%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[botao-marca] PASSED [ 71%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[botao-secundario] PASSED [ 74%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[entrada] PASSED  [ 77%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[selecao] PASSED  [ 80%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[aba] PASSED      [ 82%]
+tests/e2e/test_ui_lab.py::test_estados_hover_foco_ativo[registro] PASSED [ 85%]
+tests/e2e/test_ui_lab.py::test_toast_dialogo_e_gaveta PASSED             [ 88%]
+tests/e2e/test_ui_lab.py::test_combobox_local_por_teclado PASSED         [ 91%]
+tests/e2e/test_lote_h_visual.py::test_motorista_autosave_e_conflito_entre_abas PASSED [ 94%]
+tests/e2e/test_resumo_visual.py::test_historico_secundario_preserva_corrente_e_devolve_foco[360] PASSED [ 97%]
+tests/e2e/test_resumo_visual.py::test_historico_secundario_preserva_corrente_e_devolve_foco[1440] PASSED [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 35 passed, 1 warning in 1280.32s (0:21:20) ==================

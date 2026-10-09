@@ -1,0 +1,124 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 74 items
+
+tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa PASSED [  1%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360] PASSED [  2%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[390] PASSED [  4%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[768] PASSED [  5%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1024] PASSED [  6%]
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[1440] PASSED [  8%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[agenda.css] PASSED [  9%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[assistente.css] PASSED [ 10%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[base.css] PASSED [ 12%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[components.css] PASSED [ 13%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[documento.css] PASSED [ 14%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[editor.css] PASSED [ 16%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[folha.css] PASSED [ 17%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[formulario.css] PASSED [ 18%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[graficos.css] PASSED [ 20%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[impresso.css] PASSED [ 21%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[itinerario.css] PASSED [ 22%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[layout.css] PASSED [ 24%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[listas.css] PASSED [ 25%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[painel.css] PASSED [ 27%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[progresso.css] PASSED [ 28%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[publica.css] PASSED [ 29%]
+tests/test_design_tokens.py::test_css_nao_usa_cor_fora_dos_tokens[ui-lab.css] PASSED [ 31%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[agenda.css] PASSED [ 32%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[assistente.css] PASSED [ 33%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[base.css] PASSED [ 35%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[components.css] PASSED [ 36%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[documento.css] PASSED [ 37%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[editor.css] PASSED [ 39%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[folha.css] PASSED [ 40%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[formulario.css] PASSED [ 41%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[graficos.css] PASSED [ 43%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[impresso.css] PASSED [ 44%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[itinerario.css] PASSED [ 45%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[layout.css] PASSED [ 47%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[listas.css] PASSED [ 48%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[painel.css] PASSED [ 50%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[progresso.css] PASSED [ 51%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[publica.css] PASSED [ 52%]
+tests/test_design_tokens.py::test_css_nao_usa_espacamento_em_px_solto[ui-lab.css] PASSED [ 54%]
+tests/test_design_tokens.py::test_todos_os_tokens_usados_existem FAILED  [ 55%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-900/--neutro-0] PASSED [ 56%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-900/--neutro-50] PASSED [ 58%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-0] PASSED [ 59%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-50] PASSED [ 60%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-0_0] PASSED [ 62%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-50] PASSED [ 63%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-600/--neutro-100] PASSED [ 64%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-300/--grafite-800] PASSED [ 66%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-0/--grafite-900] PASSED [ 67%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-950/--dourado-500] PASSED [ 68%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-700/--neutro-0] PASSED [ 70%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-700/--dourado-50] PASSED [ 71%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-300/--grafite-900_0] PASSED [ 72%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--verde-700/--verde-50] PASSED [ 74%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--ambar-700/--ambar-50] PASSED [ 75%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--vermelho-700/--vermelho-50] PASSED [ 77%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--azul-700/--azul-50] PASSED [ 78%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--azul-700/--neutro-0] PASSED [ 79%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-0/--vermelho-600] PASSED [ 81%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-400/--neutro-0] PASSED [ 82%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-500/--neutro-0_1] PASSED [ 83%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-900/--neutro-0] PASSED [ 85%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-900/--neutro-50] PASSED [ 86%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-300/--grafite-900_1] PASSED [ 87%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--grafite-800/--neutro-0] PASSED [ 89%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-600/--neutro-0] PASSED [ 90%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-600/--dourado-50] PASSED [ 91%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--neutro-400/--neutro-50] PASSED [ 93%]
+tests/test_design_tokens.py::test_contraste_wcag_dos_pares_do_design_system[--dourado-500/--grafite-900] PASSED [ 94%]
+tests/test_design_tokens.py::test_sem_modo_escuro PASSED                 [ 95%]
+tests/test_design_tokens.py::test_sistema_de_foco_proprio_definido_em_tokens PASSED [ 97%]
+tests/test_design_tokens.py::test_focus_visible_global_usa_os_tokens_de_foco PASSED [ 98%]
+tests/test_design_tokens.py::test_view_transitions_respeitam_movimento_reduzido PASSED [100%]
+
+================================== FAILURES ===================================
+_____________________ test_todos_os_tokens_usados_existem _____________________
+
+    def test_todos_os_tokens_usados_existem():
+        tokens = (CSS / "tokens.css").read_text(encoding="utf-8")
+        definidos = set(re.findall(r"(--[a-z0-9-]+)\s*:", tokens))
+        usados: set[str] = set()
+        for arquivo in CSS.glob("*.css"):
+            usados |= set(re.findall(r"var\((--[a-z0-9-]+)", arquivo.read_text(encoding="utf-8")))
+        locais = {"--botao-fundo", "--botao-texto", "--botao-borda", "--botao-fundo-hover",
+                  "--selo-fundo", "--selo-texto", "--selo-borda", "--alerta-fundo",
+                  "--alerta-texto", "--alerta-borda",
+                  # Variáveis locais de componente (definidas no próprio seletor).
+                  "--botao-sombra", "--toast-cor",
+                  # Rótulo na borda: fundo de onde o campo está / fundo da caixa.
+                  "--fundo-rotulo", "--fundo-entrada",
+                  # Itinerário: largura da coluna do trilho e centro vertical do marco.
+                  "--itin-trilho", "--itin-centro",
+                  # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
+                  # por editores.js); colunas da grade de filtros (com valor padrão no var()).
+                  "--largura-indice", "--altura-barra", "--filtros-colunas",
+                  # Detalhe da escolha dentro do campo: a posição medida pelo combobox.
+                  "--meta-x"}
+        faltando = sorted(usados - definidos - locais)
+>       assert not faltando, f"Tokens usados mas não definidos: {faltando}"
+E       AssertionError: Tokens usados mas não definidos: ['--cor-marca-suave']
+E       assert not ['--cor-marca-suave']
+
+tests\test_design_tokens.py:63: AssertionError
+============================== warnings summary ===============================
+tests/test_css_por_pagina.py::test_cada_tela_carrega_os_pacotes_que_usa
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_design_tokens.py::test_todos_os_tokens_usados_existem - AssertionError: Tokens usados mas não definidos: ['--cor-marca-suave']
+assert not ['--cor-marca-suave']
+============= 1 failed, 73 passed, 1 warning in 390.03s (0:06:30) =============

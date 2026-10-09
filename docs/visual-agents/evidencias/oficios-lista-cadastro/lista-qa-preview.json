@@ -1,0 +1,612 @@
+[
+  {
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "colisoes": 0,
+    "overflow": 0,
+    "recursos": [
+      {
+        "nome": "fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48256,
+        "duracao": 14.799999997019768
+      },
+      {
+        "nome": "css/tokens.css",
+        "bytes": 13483,
+        "duracao": 41.70000000298023
+      },
+      {
+        "nome": "css/base.css",
+        "bytes": 13070,
+        "duracao": 72.39999999850988
+      },
+      {
+        "nome": "css/layout.css",
+        "bytes": 26864,
+        "duracao": 100.69999999925494
+      },
+      {
+        "nome": "css/components.css",
+        "bytes": 137810,
+        "duracao": 137.10000000149012
+      },
+      {
+        "nome": "css/formulario.css",
+        "bytes": 40536,
+        "duracao": 19.400000002235174
+      },
+      {
+        "nome": "css/listas.css",
+        "bytes": 65719,
+        "duracao": 133.70000000298023
+      },
+      {
+        "nome": "js/componentes/shell.js",
+        "bytes": 3414,
+        "duracao": 27.5
+      },
+      {
+        "nome": "js/componentes/menu.js",
+        "bytes": 19412,
+        "duracao": 54.80000000074506
+      },
+      {
+        "nome": "js/componentes/dialogo.js",
+        "bytes": 13778,
+        "duracao": 50.70000000298023
+      },
+      {
+        "nome": "js/componentes/toasts.js",
+        "bytes": 4382,
+        "duracao": 64.19999999925494
+      },
+      {
+        "nome": "js/componentes/comandos.js",
+        "bytes": 6065,
+        "duracao": 74.10000000149012
+      },
+      {
+        "nome": "js/componentes/acao.js",
+        "bytes": 4569,
+        "duracao": 78.30000000074506
+      },
+      {
+        "nome": "vendor/htmx.min.js",
+        "bytes": 52182,
+        "duracao": 114
+      },
+      {
+        "nome": "js/app.js",
+        "bytes": 13632,
+        "duracao": 83.39999999850988
+      },
+      {
+        "nome": "js/componentes/registro.js",
+        "bytes": 3912,
+        "duracao": 101.80000000074506
+      },
+      {
+        "nome": "img/brasao-pcpr-96.webp",
+        "bytes": 5450,
+        "duracao": 99.40000000223517
+      },
+      {
+        "nome": "icons/sprite.svg#i-menu",
+        "bytes": 25445,
+        "duracao": 92.5
+      },
+      {
+        "nome": "js/componentes/abas-rolagem.js",
+        "bytes": 3081,
+        "duracao": 4.199999999254942
+      },
+      {
+        "nome": "js/componentes/filtros.js",
+        "bytes": 12297,
+        "duracao": 6
+      },
+      {
+        "nome": "js/componentes/limpar.js",
+        "bytes": 2156,
+        "duracao": 4.299999997019768
+      },
+      {
+        "nome": "js/componentes/assinado.js",
+        "bytes": 6673,
+        "duracao": 4.300000000745058
+      }
+    ],
+    "teclado_menu": "passou",
+    "busca": "passou",
+    "exportacao_recorte": "passou"
+  },
+  {
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "colisoes": 0,
+    "overflow": 0,
+    "recursos": [
+      {
+        "nome": "fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48256,
+        "duracao": 70.40000000223517
+      },
+      {
+        "nome": "css/tokens.css",
+        "bytes": 13483,
+        "duracao": 133.5
+      },
+      {
+        "nome": "css/base.css",
+        "bytes": 13070,
+        "duracao": 189.90000000223517
+      },
+      {
+        "nome": "css/layout.css",
+        "bytes": 26864,
+        "duracao": 225.80000000074506
+      },
+      {
+        "nome": "css/components.css",
+        "bytes": 137810,
+        "duracao": 254.60000000149012
+      },
+      {
+        "nome": "css/listas.css",
+        "bytes": 65719,
+        "duracao": 254.20000000298023
+      },
+      {
+        "nome": "css/formulario.css",
+        "bytes": 40536,
+        "duracao": 182.29999999701977
+      },
+      {
+        "nome": "js/componentes/shell.js",
+        "bytes": 3414,
+        "duracao": 218.40000000223517
+      },
+      {
+        "nome": "js/componentes/menu.js",
+        "bytes": 19412,
+        "duracao": 225.80000000074506
+      },
+      {
+        "nome": "js/componentes/dialogo.js",
+        "bytes": 13778,
+        "duracao": 233.60000000149012
+      },
+      {
+        "nome": "js/componentes/toasts.js",
+        "bytes": 4382,
+        "duracao": 261.69999999925494
+      },
+      {
+        "nome": "js/componentes/comandos.js",
+        "bytes": 6065,
+        "duracao": 269.19999999925494
+      },
+      {
+        "nome": "js/componentes/acao.js",
+        "bytes": 4569,
+        "duracao": 263.69999999925494
+      },
+      {
+        "nome": "vendor/htmx.min.js",
+        "bytes": 52182,
+        "duracao": 291.69999999925494
+      },
+      {
+        "nome": "js/app.js",
+        "bytes": 13632,
+        "duracao": 269.6000000014901
+      },
+      {
+        "nome": "js/componentes/registro.js",
+        "bytes": 3912,
+        "duracao": 285.79999999701977
+      },
+      {
+        "nome": "img/brasao-pcpr-96.webp",
+        "bytes": 5450,
+        "duracao": 292
+      },
+      {
+        "nome": "icons/sprite.svg#i-menu",
+        "bytes": 25445,
+        "duracao": 283.8999999985099
+      },
+      {
+        "nome": "js/componentes/abas-rolagem.js",
+        "bytes": 3081,
+        "duracao": 29
+      },
+      {
+        "nome": "js/componentes/filtros.js",
+        "bytes": 12297,
+        "duracao": 5.5
+      },
+      {
+        "nome": "js/componentes/limpar.js",
+        "bytes": 2156,
+        "duracao": 5.5
+      },
+      {
+        "nome": "js/componentes/assinado.js",
+        "bytes": 6673,
+        "duracao": 11.5
+      }
+    ],
+    "teclado_menu": "passou",
+    "busca": "passou",
+    "exportacao_recorte": "passou"
+  },
+  {
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "colisoes": 0,
+    "overflow": 0,
+    "recursos": [
+      {
+        "nome": "fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48256,
+        "duracao": 273.0999999977648
+      },
+      {
+        "nome": "css/tokens.css",
+        "bytes": 13483,
+        "duracao": 266.3999999985099
+      },
+      {
+        "nome": "css/base.css",
+        "bytes": 13070,
+        "duracao": 282.30000000074506
+      },
+      {
+        "nome": "css/layout.css",
+        "bytes": 26864,
+        "duracao": 315.0999999977648
+      },
+      {
+        "nome": "css/components.css",
+        "bytes": 137810,
+        "duracao": 326.5
+      },
+      {
+        "nome": "css/listas.css",
+        "bytes": 65719,
+        "duracao": 339.9000000022352
+      },
+      {
+        "nome": "css/formulario.css",
+        "bytes": 40536,
+        "duracao": 288.69999999925494
+      },
+      {
+        "nome": "js/componentes/shell.js",
+        "bytes": 3414,
+        "duracao": 289.1000000014901
+      },
+      {
+        "nome": "js/componentes/menu.js",
+        "bytes": 19412,
+        "duracao": 315.19999999925494
+      },
+      {
+        "nome": "js/componentes/dialogo.js",
+        "bytes": 13778,
+        "duracao": 319.30000000074506
+      },
+      {
+        "nome": "js/componentes/toasts.js",
+        "bytes": 4382,
+        "duracao": 315.30000000074506
+      },
+      {
+        "nome": "js/componentes/comandos.js",
+        "bytes": 6065,
+        "duracao": 348.69999999925494
+      },
+      {
+        "nome": "js/componentes/acao.js",
+        "bytes": 4569,
+        "duracao": 348.19999999925494
+      },
+      {
+        "nome": "vendor/htmx.min.js",
+        "bytes": 52182,
+        "duracao": 351.6000000014901
+      },
+      {
+        "nome": "js/app.js",
+        "bytes": 13632,
+        "duracao": 348.80000000074506
+      },
+      {
+        "nome": "js/componentes/registro.js",
+        "bytes": 3912,
+        "duracao": 347.5
+      },
+      {
+        "nome": "img/brasao-pcpr-96.webp",
+        "bytes": 5450,
+        "duracao": 354.30000000074506
+      },
+      {
+        "nome": "icons/sprite.svg#i-menu",
+        "bytes": 25445,
+        "duracao": 350.5
+      },
+      {
+        "nome": "js/componentes/abas-rolagem.js",
+        "bytes": 3081,
+        "duracao": 3.800000000745058
+      },
+      {
+        "nome": "js/componentes/filtros.js",
+        "bytes": 12297,
+        "duracao": 40.600000001490116
+      },
+      {
+        "nome": "js/componentes/limpar.js",
+        "bytes": 2156,
+        "duracao": 26.199999999254942
+      },
+      {
+        "nome": "js/componentes/assinado.js",
+        "bytes": 6673,
+        "duracao": 22.300000000745058
+      }
+    ],
+    "teclado_menu": "passou",
+    "busca": "passou",
+    "exportacao_recorte": "passou"
+  },
+  {
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "colisoes": 0,
+    "overflow": 0,
+    "recursos": [
+      {
+        "nome": "fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48256,
+        "duracao": 58.29999999701977
+      },
+      {
+        "nome": "css/tokens.css",
+        "bytes": 13483,
+        "duracao": 104.10000000149012
+      },
+      {
+        "nome": "css/base.css",
+        "bytes": 13070,
+        "duracao": 95.69999999925494
+      },
+      {
+        "nome": "css/layout.css",
+        "bytes": 26864,
+        "duracao": 101.80000000074506
+      },
+      {
+        "nome": "css/components.css",
+        "bytes": 137810,
+        "duracao": 118.09999999776483
+      },
+      {
+        "nome": "css/listas.css",
+        "bytes": 65719,
+        "duracao": 142.39999999850988
+      },
+      {
+        "nome": "css/formulario.css",
+        "bytes": 40536,
+        "duracao": 106.5
+      },
+      {
+        "nome": "js/componentes/shell.js",
+        "bytes": 3414,
+        "duracao": 133.30000000074506
+      },
+      {
+        "nome": "js/componentes/menu.js",
+        "bytes": 19412,
+        "duracao": 140.39999999850988
+      },
+      {
+        "nome": "js/componentes/dialogo.js",
+        "bytes": 13778,
+        "duracao": 141
+      },
+      {
+        "nome": "js/componentes/toasts.js",
+        "bytes": 4382,
+        "duracao": 148
+      },
+      {
+        "nome": "js/componentes/comandos.js",
+        "bytes": 6065,
+        "duracao": 168.19999999925494
+      },
+      {
+        "nome": "js/componentes/acao.js",
+        "bytes": 4569,
+        "duracao": 174.60000000149012
+      },
+      {
+        "nome": "vendor/htmx.min.js",
+        "bytes": 52182,
+        "duracao": 180.89999999850988
+      },
+      {
+        "nome": "js/app.js",
+        "bytes": 13632,
+        "duracao": 174.59999999776483
+      },
+      {
+        "nome": "js/componentes/registro.js",
+        "bytes": 3912,
+        "duracao": 175.39999999850988
+      },
+      {
+        "nome": "img/brasao-pcpr-96.webp",
+        "bytes": 5450,
+        "duracao": 180.60000000149012
+      },
+      {
+        "nome": "icons/sprite.svg#i-menu",
+        "bytes": 25445,
+        "duracao": 178.30000000074506
+      },
+      {
+        "nome": "js/componentes/abas-rolagem.js",
+        "bytes": 3081,
+        "duracao": 8.199999999254942
+      },
+      {
+        "nome": "js/componentes/filtros.js",
+        "bytes": 12297,
+        "duracao": 48.29999999701977
+      },
+      {
+        "nome": "js/componentes/limpar.js",
+        "bytes": 2156,
+        "duracao": 9.699999999254942
+      },
+      {
+        "nome": "js/componentes/assinado.js",
+        "bytes": 6673,
+        "duracao": 44.30000000074506
+      }
+    ],
+    "teclado_menu": "passou",
+    "busca": "passou",
+    "exportacao_recorte": "passou"
+  },
+  {
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "colisoes": 0,
+    "overflow": 0,
+    "recursos": [
+      {
+        "nome": "fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48256,
+        "duracao": 70.40000000223517
+      },
+      {
+        "nome": "css/tokens.css",
+        "bytes": 13483,
+        "duracao": 111.39999999850988
+      },
+      {
+        "nome": "css/base.css",
+        "bytes": 13070,
+        "duracao": 112.19999999925494
+      },
+      {
+        "nome": "css/layout.css",
+        "bytes": 26864,
+        "duracao": 117.70000000298023
+      },
+      {
+        "nome": "css/components.css",
+        "bytes": 137810,
+        "duracao": 135
+      },
+      {
+        "nome": "css/listas.css",
+        "bytes": 65719,
+        "duracao": 111.5
+      },
+      {
+        "nome": "css/formulario.css",
+        "bytes": 40536,
+        "duracao": 117.80000000074506
+      },
+      {
+        "nome": "js/componentes/shell.js",
+        "bytes": 3414,
+        "duracao": 145.20000000298023
+      },
+      {
+        "nome": "js/componentes/menu.js",
+        "bytes": 19412,
+        "duracao": 148.39999999850988
+      },
+      {
+        "nome": "js/componentes/dialogo.js",
+        "bytes": 13778,
+        "duracao": 148.5
+      },
+      {
+        "nome": "js/componentes/toasts.js",
+        "bytes": 4382,
+        "duracao": 148.89999999850988
+      },
+      {
+        "nome": "js/componentes/comandos.js",
+        "bytes": 6065,
+        "duracao": 149.19999999925494
+      },
+      {
+        "nome": "js/componentes/acao.js",
+        "bytes": 4569,
+        "duracao": 168.59999999776483
+      },
+      {
+        "nome": "vendor/htmx.min.js",
+        "bytes": 52182,
+        "duracao": 172.5
+      },
+      {
+        "nome": "js/app.js",
+        "bytes": 13632,
+        "duracao": 168.80000000074506
+      },
+      {
+        "nome": "js/componentes/registro.js",
+        "bytes": 3912,
+        "duracao": 171.79999999701977
+      },
+      {
+        "nome": "img/brasao-pcpr-96.webp",
+        "bytes": 5450,
+        "duracao": 173.5
+      },
+      {
+        "nome": "icons/sprite.svg#i-menu",
+        "bytes": 25445,
+        "duracao": 169.60000000149012
+      },
+      {
+        "nome": "js/componentes/abas-rolagem.js",
+        "bytes": 3081,
+        "duracao": 5.099999997764826
+      },
+      {
+        "nome": "js/componentes/filtros.js",
+        "bytes": 12297,
+        "duracao": 19.700000002980232
+      },
+      {
+        "nome": "js/componentes/limpar.js",
+        "bytes": 2156,
+        "duracao": 15.099999997764826
+      },
+      {
+        "nome": "js/componentes/assinado.js",
+        "bytes": 6673,
+        "duracao": 8.199999999254942
+      }
+    ],
+    "teclado_menu": "passou",
+    "busca": "passou",
+    "exportacao_recorte": "passou"
+  }
+]

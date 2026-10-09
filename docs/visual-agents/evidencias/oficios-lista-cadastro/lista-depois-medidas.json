@@ -1,0 +1,72 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista-filtrada",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista",
+    "largura": 390,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista-filtrada",
+    "largura": 390,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista-filtrada",
+    "largura": 768,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista",
+    "largura": 1024,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista-filtrada",
+    "largura": 1024,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "lista-filtrada",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "console": []
+  }
+]

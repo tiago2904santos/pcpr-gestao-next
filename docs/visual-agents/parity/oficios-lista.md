@@ -1,5 +1,15 @@
 # Paridade — Lista de ofícios (`/viagens/oficios/`)
 
+## Reconstrução vigente — 08/10/2026
+
+Somente o Resumo foi aprovado visualmente pelo usuário. A Lista anterior foi
+reprovada; a nova composição usa índice temporal, registros operacionais e
+conferência de valores. Não há mudança de consultas, regras, filtros, permissões,
+paginação ou exportação. Comparação funcional com o legado local somente em leitura.
+Evidências e resultados consolidados: `../qa/oficios-lista-cadastro-2026-10-08.md`;
+galeria: `../evidencias/oficios-lista-cadastro/index.html`. A aprovação estética da
+nova Lista depende da revisão do usuário. Avaliações abaixo são históricas.
+
 ## Apresentação documental — 08/10/2026
 
 Lista recebe o padrão visual compartilhado de Ofícios. Filtros, ordenação,

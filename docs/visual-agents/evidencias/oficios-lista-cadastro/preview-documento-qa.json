@@ -1,0 +1,14 @@
+{
+  "estados": {
+    "pronto": 294
+  },
+  "oficio_id": 258,
+  "numero": 159,
+  "documento_id": 294,
+  "versao": 1,
+  "pdf_http": 200,
+  "sha_confere": true,
+  "consultas_polling_apos_pronto": 0,
+  "axe": [],
+  "console": []
+}

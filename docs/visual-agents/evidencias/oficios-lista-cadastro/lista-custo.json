@@ -1,0 +1,112 @@
+{
+  "lista-antes": {
+    "amostras": [
+      {
+        "consultas": 19,
+        "html_bytes": 128009,
+        "ms": 7844.0
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 128009,
+        "ms": 703.81
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 128009,
+        "ms": 751.45
+      }
+    ],
+    "mediana_ms": 751.45
+  },
+  "lista-depois": {
+    "amostras": [
+      {
+        "consultas": 16,
+        "html_bytes": 130983,
+        "ms": 965.32
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 130983,
+        "ms": 1369.84
+      },
+      {
+        "consultas": 16,
+        "html_bytes": 130983,
+        "ms": 1132.85
+      }
+    ],
+    "mediana_ms": 1132.85
+  },
+  "cadastro-antes": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 154547,
+        "ms": 3060.72
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154547,
+        "ms": 994.75
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154547,
+        "ms": 996.04
+      }
+    ],
+    "mediana_ms": 996.04
+  },
+  "cadastro-depois": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 1351.44
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 1050.82
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 154876,
+        "ms": 1015.53
+      }
+    ],
+    "mediana_ms": 1050.82
+  },
+  "static/css/components.css": {
+    "antes_bytes": 119042,
+    "depois_bytes": 133906,
+    "antes_gzip_bytes": 25397,
+    "depois_gzip_bytes": 27437
+  },
+  "static/js/app.js": {
+    "antes_bytes": 13358,
+    "depois_bytes": 13358,
+    "antes_gzip_bytes": 4437,
+    "depois_gzip_bytes": 4437
+  },
+  "static/js/componentes/editores.js": {
+    "antes_bytes": 12974,
+    "depois_bytes": 13783,
+    "antes_gzip_bytes": 4367,
+    "depois_gzip_bytes": 4586
+  },
+  "static/js/componentes/dialogo.js": {
+    "antes_bytes": 12781,
+    "depois_bytes": 13482,
+    "antes_gzip_bytes": 3775,
+    "depois_gzip_bytes": 3991
+  },
+  "static/css/layout.css": {
+    "antes_bytes": 25828,
+    "depois_bytes": 25909,
+    "antes_gzip_bytes": 6224,
+    "depois_gzip_bytes": 6238
+  }
+}

@@ -1,0 +1,15 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: config.settings.test (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 3 items
+
+gestao/viagens/tests/test_views.py::TestCartaoDaJustificativa::test_dentro_do_prazo_o_cartao_some_e_a_numeracao_nao_pula PASSED [ 33%]
+gestao/viagens/tests/test_views.py::TestCartaoDaJustificativa::test_fora_do_prazo_o_cartao_aparece_antes_dos_documentos PASSED [ 66%]
+gestao/viagens/tests/test_views.py::TestCartaoDaJustificativa::test_texto_ja_escrito_segura_o_cartao_mesmo_dentro_do_prazo PASSED [100%]
+
+======================== 3 passed in 93.88s (0:01:33) =========================
