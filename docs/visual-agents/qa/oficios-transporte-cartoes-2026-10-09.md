@@ -67,6 +67,9 @@ centralizada no UI Lab; não equivale a aprovação de toda posição de rolagem
 
 ## Validação final
 
+Commit local de código/testes/evidências: `5140533`, junto da metade inferior
+da Folha. Checkpoint posterior registra o fechamento somente em documentação.
+
 Fonte congelada com a missão inferior da Folha; **gate integral verde: 2.281
 aprovados, zero falhas, nove avisos preexistentes, 52min18s e exit 0**. Os 47
 arquivos de fonte/testes não divergiram do congelamento após o gate.

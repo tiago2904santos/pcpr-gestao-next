@@ -158,6 +158,11 @@ permanecem explicitamente delimitados.
 
 ## Gate integral e registro final
 
+Commit local de código, testes e evidências: **`5140533` — Refina preparação do
+ofício e transporte em cartões**, branch `codex/oficios-transporte-cartoes`.
+O checkpoint posterior altera apenas o registro documental, preservando as 47
+fontes/testes validadas. Nenhum push, merge ou deploy.
+
 Executado o `scripts/verificar.sh` real, sem alteração do script ou remoção de
 checks, em banco e mídia LAB isolados: **2.281 passaram, zero falhas, nove avisos,
 3.138,31s (52min18s), exit 0 e `✔ tudo verde`**. Ruff, 16 contratos de arquitetura,

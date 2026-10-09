@@ -28,7 +28,8 @@ Gate integral desta fonte verde: **2.281 aprovados, zero falhas, nove avisos
 preexistentes, 52min18s e exit 0**. Ruff, arquitetura, mypy, Bandit, migrações e
 tipos JS passaram. Os 47 hashes de fonte/testes foram conferidos depois do gate,
 sem divergência. Log bruto e registro em `evidencias/oficios-cadastro-inferior/`.
-Fechamento técnico aprovado com ressalvas; candidata consolidada para commit local.
+Fechamento técnico aprovado com ressalvas. Commit local de código/testes/evidências:
+`5140533` — Refina preparação do ofício e transporte em cartões.
 Sem mudanças de modelo/regra/documento oficial; sem recuperação de PDFs DEV.
 Relatório com falhas intermediárias, testes e limites em
 `qa/oficios-cadastro-inferior-2026-10-09.md`. Aprovação estética permanece com o usuário.
