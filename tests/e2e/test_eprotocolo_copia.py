@@ -150,4 +150,5 @@ def test_equipe_htmx_preserva_foco_na_copia_durante_resposta(logado, dados_e2e):
     expect(bloco).to_have_attribute("open", "")
     expect(campo).to_be_focused()
     assert not Oficio.objects.get(pk=pk).viajantes.get().motorista
+    pg.wait_for_load_state("networkidle")
     assert pg.erros_console == []

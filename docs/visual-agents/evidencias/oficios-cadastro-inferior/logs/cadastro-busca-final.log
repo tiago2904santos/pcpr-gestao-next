@@ -1,0 +1,141 @@
+F....                                                                    [100%]
+================================== FAILURES ===================================
+____________ test_busca_da_equipe_preserva_digitacao_durante_carga ____________
+
+logado = <Page url='http://localhost:56065/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_busca_da_equipe_preserva_digitacao_durante_carga(logado, dados_e2e):
+        pg = logado
+        pendentes = []
+        pg.route("**/js/componentes/combobox.js", lambda rota: pendentes.append(rota))
+        pk = dados_e2e.ids["oficio_rascunho"]
+        with pg.expect_request("**/js/componentes/combobox.js"):
+            pg.goto(f"/viagens/oficios/{pk}/editar/", wait_until="domcontentloaded")
+        busca = pg.get_by_role("combobox", name="Adicionar servidor")
+        busca.fill("isab")
+        assert busca.evaluate("e => !e.closest('pc-combobox').dataset.pronto")
+        for rota in pendentes:
+            rota.fulfill(response=rota.fetch())
+        opcao = pg.get_by_role("option", name=re.compile("Isabela Prado"))
+        expect(opcao).to_be_visible()
+        opcao.click()
+        expect(pg.locator("#equipe")).to_contain_text("Isabela Prado Cavalcanti")
+>       assert Oficio.objects.get(pk=pk).viajantes.filter(
+            servidor__nome="Isabela Prado Cavalcanti").exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = <QuerySet []>.exists
+E        +      where <QuerySet []> = filter(servidor__nome='Isabela Prado Cavalcanti')
+E        +        where filter = <django.db.models.fields.related_descriptors.create_reverse_many_to_one_manager.<locals>.RelatedManager object at 0x0000022DB7D22170>.filter
+E        +          where <django.db.models.fields.related_descriptors.create_reverse_many_to_one_manager.<locals>.RelatedManager object at 0x0000022DB7D22170> = <Oficio: Ofício 02/2026>.viajantes
+E        +            where <Oficio: Ofício 02/2026> = get(pk=2)
+E        +              where get = <django.db.models.manager.Manager object at 0x0000022DBC4BE650>.get
+E        +                where <django.db.models.manager.Manager object at 0x0000022DBC4BE650> = Oficio.objects
+
+tests\e2e\test_fluxo_oficio.py:112: AssertionError
+-------------------------- Captured stderr teardown ---------------------------
+2026-10-09 12:51:05,734 ERROR django.request Internal Server Error: /viagens/oficios/2/equipe/adicionar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 251, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\mixins.py", line 21, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'unidade'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 634, in adicionar_viajante
+    return _secao_equipe(request, oficio)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 613, in _secao_equipe
+    "prontidao": services.verificar_prontidao(oficio),
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 515, in verificar_prontidao
+    prazo = avaliar_prazo_do_oficio(oficio)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 456, in avaliar_prazo_do_oficio
+    prazo = configuracao_da_unidade(oficio).prazo_justificativa_dias
+            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 79, in configuracao_da_unidade
+    unidade = getattr(oficio_ou_unidade, "unidade", oficio_ou_unidade)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 267, in __get__
+    instance._state.fetch_mode.fetch(self, instance)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fetch_modes.py", line 17, in fetch
+    fetcher.fetch_one(instance)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 280, in fetch_one
+    rel_obj = self.get_object(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 232, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 722, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+gestao.cadastros.models.Unidade.DoesNotExist: Unidade matching query does not exist.
+[09/Oct/2026 12:51:05,934] - Broken pipe from ('127.0.0.1', 49214)
+---------------------------- Captured log teardown ----------------------------
+ERROR    django.request:log.py:283 Internal Server Error: /viagens/oficios/2/equipe/adicionar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 251, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\mixins.py", line 21, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'unidade'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 634, in adicionar_viajante
+    return _secao_equipe(request, oficio)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 613, in _secao_equipe
+    "prontidao": services.verificar_prontidao(oficio),
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 515, in verificar_prontidao
+    prazo = avaliar_prazo_do_oficio(oficio)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 456, in avaliar_prazo_do_oficio
+    prazo = configuracao_da_unidade(oficio).prazo_justificativa_dias
+            ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 79, in configuracao_da_unidade
+    unidade = getattr(oficio_ou_unidade, "unidade", oficio_ou_unidade)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 267, in __get__
+    instance._state.fetch_mode.fetch(self, instance)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fetch_modes.py", line 17, in fetch
+    fetcher.fetch_one(instance)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 280, in fetch_one
+    rel_obj = self.get_object(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 232, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 722, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+gestao.cadastros.models.Unidade.DoesNotExist: Unidade matching query does not exist.
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 49214)
+============================== warnings summary ===============================
+tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_fluxo_oficio.py::test_busca_da_equipe_preserva_digitacao_durante_carga
+1 failed, 4 passed, 1 warning in 160.11s (0:02:40)

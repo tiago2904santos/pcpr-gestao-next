@@ -1,0 +1,7 @@
+<div class="formulario-contextual__campos">
+  <div class="campo{% if erro %} campo--erro{% endif %}">
+    <label class="campo__rotulo" for="{{ prefixo }}-texto">Texto de exemplo</label>
+    <textarea class="entrada" id="{{ prefixo }}-texto"{% if erro %} aria-invalid="true" aria-describedby="{{ prefixo }}-erro"{% endif %}{% if desabilitado %} disabled{% endif %}>{{ texto_contexto }}</textarea>
+    {% if erro %}<p class="campo__erro" id="{{ prefixo }}-erro">Informe a justificativa antes de emitir.</p>{% endif %}
+  </div>
+</div>

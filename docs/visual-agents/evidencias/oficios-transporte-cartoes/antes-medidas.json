@@ -1,0 +1,62 @@
+[
+  {
+    "pagina": "equipe-transporte",
+    "largura": 360,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 360,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "equipe-transporte",
+    "largura": 390,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 390,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "equipe-transporte",
+    "largura": 768,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 768,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "equipe-transporte",
+    "largura": 1024,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1024,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "equipe-transporte",
+    "largura": 1440,
+    "overflow": 0,
+    "console": []
+  },
+  {
+    "pagina": "motorista-externo",
+    "largura": 1440,
+    "overflow": 0,
+    "console": []
+  }
+]

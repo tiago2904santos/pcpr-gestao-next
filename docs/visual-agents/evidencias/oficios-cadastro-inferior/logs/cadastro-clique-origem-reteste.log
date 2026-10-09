@@ -1,0 +1,121 @@
+FDIAGNOSTICO [{'type': 'pointerdown', 'target': '<button type="submit" class="equipe__motorista-alvo" aria-pressed="false" aria-label="Marcar Carla Regina Duarte como motorista" title="Marcar como motorista"></button>', 'y': 244, 'scroll': 962, 'rect': {'x': 29.78125, 'y': 219.953125, 'width': 300.4375, 'height': 48.109375, 'top': 219.953125, 'right': 330.21875, 'bottom': 268.0625, 'left': 29.78125}, 'parents': [['conteudo', 5736.125, -904.40625, '\n      \n        \n\n  \n    \n      Início\n    \n      Viagens\n    \n      Ofícios\n    \n      02/2026\n    '], ['texto-sm texto-secundario mb-4 barra-acoes__status--salvo', 39.140625, -557.109375, 'Salvo automaticamente às 11:48'], ['identificacao', 514.640625, -502.578125, '\n    \n      1Identificação\n      \nInforme o protocolo do eProtocolo.\n\n      \n      Assunto calculado'], ['recursos', 892.96875, 12.0625, '\n    \n      2Equipe e transporte\n      Quem viaja, quem dirige e como a equipe se desloca. A equipe '], ['equipe', 239.9375, 122.78125, '\n  \n    Equipe\n    \n      1 servidor\n      salva na hora\n    \n  \n  \n    \n    \n      \n      Adicionar'], ['ref: <Node>', 46.78125, 162.375, '\n      \n      Adicionar servidor\n      \n      \n        Limpar o campo\n      \n      \n      \n      \n  '], ['pessoa equipe__cartao resumo__cartao--6', 48.109375, 219.953125, '\n            \n            \n              \n              \n            \n            CD\n            \n  ']]}, {'type': 'focusin', 'target': '<button type="submit" class="equipe__motorista-alvo" aria-pressed="false" aria-label="Marcar Carla Regina Duarte como motorista" title="Marcar como motorista"></button>', 'y': None, 'scroll': 962, 'rect': {'x': 29.78125, 'y': 166.421875, 'width': 300.4375, 'height': 48.109375, 'top': 166.421875, 'right': 330.21875, 'bottom': 214.53125, 'left': 29.78125}, 'parents': [['conteudo', 5682.59375, -904.40625, '\n      \n        \n\n  \n    \n      Início\n    \n      Viagens\n    \n      Ofícios\n    \n      02/2026\n    '], ['texto-sm texto-secundario mb-4 barra-acoes__status--salvo barra-acoes__status--sujo', 39.140625, -1019.125, 'Alterações não salvas — salve antes de sair.'], ['identificacao', 514.640625, -556.109375, '\n    \n      1Identificação\n      \nInforme o protocolo do eProtocolo.\n\n      \n      Assunto calculado'], ['recursos', 892.96875, -41.46875, '\n    \n      2Equipe e transporte\n      Quem viaja, quem dirige e como a equipe se desloca. A equipe '], ['equipe', 239.9375, 69.25, '\n  \n    Equipe\n    \n      1 servidor\n      salva na hora\n    \n  \n  \n    \n    \n      \n      Adicionar'], ['ref: <Node>', 46.78125, 108.84375, '\n      \n      Adicionar servidor\n      \n      \n        Limpar o campo\n      \n      \n      \n      \n  '], ['pessoa equipe__cartao resumo__cartao--6', 48.109375, 166.421875, '\n            \n            \n              \n              \n            \n            CD\n            \n  ']]}, {'type': 'pointerup', 'target': '<p>Indique quem dirige: alguém da equipe ou um motorista de fora (em Transporte).</p>', 'y': 244, 'scroll': 962, 'rect': {'x': 29.78125, 'y': 166.421875, 'width': 300.4375, 'height': 48.109375, 'top': 166.421875, 'right': 330.21875, 'bottom': 214.53125, 'left': 29.78125}, 'parents': [['conteudo', 5682.59375, -904.40625, '\n      \n        \n\n  \n    \n      Início\n    \n      Viagens\n    \n      Ofícios\n    \n      02/2026\n    '], ['texto-sm texto-secundario mb-4 barra-acoes__status--salvo barra-acoes__status--sujo', 39.140625, -1019.125, 'Alterações não salvas — salve antes de sair.'], ['identificacao', 514.640625, -556.109375, '\n    \n      1Identificação\n      \nInforme o protocolo do eProtocolo.\n\n      \n      Assunto calculado'], ['recursos', 892.96875, -41.46875, '\n    \n      2Equipe e transporte\n      Quem viaja, quem dirige e como a equipe se desloca. A equipe '], ['equipe', 239.9375, 69.25, '\n  \n    Equipe\n    \n      1 servidor\n      salva na hora\n    \n  \n  \n    \n    \n      \n      Adicionar'], ['ref: <Node>', 46.78125, 108.84375, '\n      \n      Adicionar servidor\n      \n      \n        Limpar o campo\n      \n      \n      \n      \n  '], ['pessoa equipe__cartao resumo__cartao--6', 48.109375, 166.421875, '\n            \n            \n              \n              \n            \n            CD\n            \n  ']]}, {'type': 'click', 'target': '<div class="pilha">\n    \n    <form method="post" action="/viagens/oficios/2/equipe/adicionar/" class="campo equipe__busca" hx-post="/viagens/oficios/2/equipe/adicionar/" hx-target="#equipe" hx-swap="outerHTML">\n      <input type="hidden" name="csrfmiddlewaretoken" value="pAsGeWEGfOUn7wqoAfnf4t0Dh02Z8wgCGbgD6zmbg74zecQOlE77zTQ6lQSqREFE">\n      <label class="campo__rotulo" for="busca-servidor">Adici', 'y': 244, 'scroll': 962, 'rect': {'x': 29.78125, 'y': 166.421875, 'width': 300.4375, 'height': 48.109375, 'top': 166.421875, 'right': 330.21875, 'bottom': 214.53125, 'left': 29.78125}, 'parents': [['conteudo', 5682.59375, -904.40625, '\n      \n        \n\n  \n    \n      Início\n    \n      Viagens\n    \n      Ofícios\n    \n      02/2026\n    '], ['texto-sm texto-secundario mb-4 barra-acoes__status--salvo barra-acoes__status--sujo', 39.140625, -1019.125, 'Alterações não salvas — salve antes de sair.'], ['identificacao', 514.640625, -556.109375, '\n    \n      1Identificação\n      \nInforme o protocolo do eProtocolo.\n\n      \n      Assunto calculado'], ['recursos', 892.96875, -41.46875, '\n    \n      2Equipe e transporte\n      Quem viaja, quem dirige e como a equipe se desloca. A equipe '], ['equipe', 239.9375, 69.25, '\n  \n    Equipe\n    \n      1 servidor\n      salva na hora\n    \n  \n  \n    \n    \n      \n      Adicionar'], ['ref: <Node>', 46.78125, 108.84375, '\n      \n      Adicionar servidor\n      \n      \n        Limpar o campo\n      \n      \n      \n      \n  '], ['pessoa equipe__cartao resumo__cartao--6', 48.109375, 166.421875, '\n            \n            \n              \n              \n            \n            CD\n            \n  ']]}]
+
+================================== FAILURES ===================================
+_________ test_busca_cartao_remocao_e_motorista_sem_perder_valor[360] _________
+
+logado = <Page url='http://localhost:49754/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360])
+    def test_busca_cartao_remocao_e_motorista_sem_perder_valor(logado, dados_e2e, largura):
+        pg = logado
+        pg.emulate_media(reduced_motion="reduce")
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg.goto(f"/viagens/oficios/{pk}/editar/")
+        pg.locator("#t-recursos").evaluate("e=>e.scrollIntoView({block:'start'})")
+        busca = pg.locator("#id_viatura-busca")
+        cartao = pg.locator("[data-viatura-cartao]")
+        externo = pg.locator("details.motorista-externo")
+        expect(externo).to_be_hidden()
+        busca.fill("ABC")
+        expect(pg.locator("#transporte [role='option']").first).to_contain_text("ABC1D23")
+        busca.press("Enter")
+        expect(busca).to_have_value("")
+        expect(cartao).to_contain_text("ABC1D23")
+        # Reselecionar a viatura inicial não cria alteração fantasma nem pedido de salvar.
+        expect(pg.locator("[data-status-salvamento]")).not_to_contain_text("Alterações não salvas")
+        busca.fill("XYZ")
+        expect(pg.locator("#transporte [role='option']").first).to_contain_text("XYZ-9876")
+        busca.press("Enter")
+        escolhida = Viatura.objects.get(placa="XYZ9876")
+        expect(pg.locator("#id_viatura")).to_have_value(str(escolhida.pk))
+        expect(pg.locator("pc-combobox[data-escolha-em-cartao] [aria-live]")).to_contain_text("Selecionado: XYZ-9876")
+        meta = pg.locator("#id_viatura option:checked").get_attribute("data-meta")
+        expect(cartao.locator("[data-recurso-meta]")).to_have_text(meta)
+        assert cartao.evaluate("e=>getComputedStyle(e).backgroundColor") == pg.locator("#equipe .equipe__cartao").first.evaluate("e=>getComputedStyle(e).backgroundColor")
+        expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
+        assert Oficio.objects.get(pk=pk).viatura_id == escolhida.pk
+    
+        # Uma consulta abandonada ou apagada não remove a viatura já escolhida.
+        busca.fill("ABC")
+        busca.press("Escape")
+        expect(cartao).to_contain_text("XYZ-9876")
+        busca.fill("")
+        busca.press("Escape")
+        expect(pg.locator("#id_viatura")).to_have_value(str(escolhida.pk))
+        assert pg.locator("#equipe .pessoa__nome, #equipe .pessoa__meta").evaluate_all("""els => els.every(e =>
+          getComputedStyle(e).whiteSpace === 'nowrap' && e.title === e.textContent.trim()
+          && e.clientHeight <= parseFloat(getComputedStyle(e).lineHeight) + 1)""")
+    
+        violacoes = rodar_axe(pg)
+        assert not violacoes
+        assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        assert pg.erros_console == []
+        pasta = Path("artifacts/transporte-cartoes")
+        pasta.mkdir(parents=True, exist_ok=True)
+        pg.screenshot(path=str(pasta / f"selecionada-{largura}.png"))
+        (pasta / f"axe-{largura}.json").write_text(json.dumps(violacoes), encoding="utf-8")
+    
+        autosave = pg.locator("#form-oficio").get_attribute("data-autosave")
+        with pg.expect_response(lambda r: autosave in r.url and r.request.method == "POST") as salvamento:
+            cartao.get_by_role("button", name="Remover viatura", exact=False).press("Enter")
+        assert salvamento.value.json()["salvo"]
+        expect(cartao).to_be_hidden()
+        expect(busca).to_be_focused()
+        expect(pg.locator("#id_viatura")).to_have_value("")
+        busca.press("Escape")
+        pg.get_by_role("button", name="Desmarcar Carla Regina Duarte como motorista").click()
+        expect(externo).to_be_visible()
+        with pg.expect_response(lambda r: autosave in r.url and r.request.method == "POST") as salvamento:
+            externo.locator("summary").press("Enter")
+        assert salvamento.value.json()["salvo"]
+        expect(externo).to_have_js_property("open", True)
+        expect(pg.locator("#id_motorista_externo")).to_be_enabled()
+        expect(pg.get_by_role("combobox", name="Quem dirige", exact=True)).to_be_enabled()
+        with pg.expect_response(lambda r: autosave in r.url and r.request.method == "POST") as salvamento:
+            modo = pg.get_by_role("combobox", name="Quem dirige", exact=True)
+            modo.press("Enter")
+            modo.press("End")
+            modo.press("Enter")
+            pg.locator("#id_motorista_externo_nome").fill("Motorista externo E2E")
+            pg.locator("#id_motorista_oficio_origem").fill("23/2026")
+            pg.locator("#id_motorista_protocolo_origem").fill("12.345.678-9")
+        assert salvamento.value.json()["salvo"]
+        expect(externo.locator("summary")).to_contain_text("Motorista externo E2E")
+        expect(externo.locator("summary")).to_contain_text("23/2026")
+        pg.evaluate("""() => {
+          window.cliques=[];
+          for (const type of ['pointerdown','focusin','pointerup','click','submit','invalid','htmx:validation:halted'])
+            document.addEventListener(type,e=>window.cliques.push({type,target:e.target.outerHTML?.slice(0,400),y:e.clientY,scroll:scrollY,
+              rect:document.querySelector('.equipe__motorista-alvo')?.getBoundingClientRect().toJSON(),
+              parents:Array.from(document.querySelectorAll('main,#identificacao,#recursos,#equipe,.equipe__busca,[data-status-salvamento],.equipe__cartao')).map(x=>[x.id || x.className,x.getBoundingClientRect().height,x.getBoundingClientRect().y,x.textContent.slice(0,100)])}),true);
+        }""")
+        # Voltar à equipe fecha/desabilita a opção externa; autosave não a reativa.
+>       with pg.expect_response(lambda r: "/equipe/motorista/" in r.url and r.request.method == "POST") as motorista:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\test_transporte_clique_diag.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\_impl\_sync_base.py:85: in __exit__
+    self._event.value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._sync_base.EventInfo object at 0x0000019F6C0C35C0>
+
+    @property
+    def value(self) -> T:
+        while not self._future.done():
+            self._sync_base._dispatcher_fiber.switch()
+        asyncio._set_running_loop(self._sync_base._loop)
+        exception = self._future.exception()
+        if exception:
+>           raise exception
+E           playwright._impl._errors.TimeoutError: Timeout 30000ms exceeded while waiting for event "response"
+
+.venv\Lib\site-packages\playwright\_impl\_sync_base.py:59: TimeoutError
+=========================== short test summary info ===========================
+FAILED var/test_transporte_clique_diag.py::test_busca_cartao_remocao_e_motorista_sem_perder_valor[360]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed in 190.27s (0:03:10)

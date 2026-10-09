@@ -560,7 +560,7 @@
         </fieldset>
         <label class="interruptor interruptor--descrito" for="lab-interruptor"><input type="checkbox" role="switch" id="lab-interruptor" aria-describedby="lab-interruptor-ajuda" checked><span>Interruptor com descrição<span class="escolha__descricao" id="lab-interruptor-ajuda">Para sim/não com efeito no documento.</span></span></label>
         <form id="lab-itin" class="pilha" novalidate aria-label="Itinerário (exemplo)">{{ destinos.management_form }}</form>
-        {% include "viagens/_itinerario.html" %}
+        {% include "viagens/_itinerario.html" with operacional=True %}
         <div class="conferencia">
           <p class="conferencia__titulo">{% icone "list-checks" %}2 itens faltam para emitir</p>
           <ul class="conferencia__itens" aria-label="Situação das seções (exemplo)"><li class="conferencia__item conferencia__item--ok">Dados</li><li class="conferencia__item conferencia__item--ok">Equipe</li><li class="conferencia__item">Roteiro</li><li class="conferencia__item">Justificativa</li></ul>
@@ -668,7 +668,7 @@
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-editor"><span class="cartao__numero">13</span>Editor de documento no visualizador</h2><span class="texto-secundario texto-sm">A folha do documento (a mesma que vira PDF) com as regiões editáveis, campos vivos, blocos, quebras, textos prontos e histórico. Aqui é vitrine: edita, formata e insere, mas nada é salvo.</span></div>
       <div class="cartao__corpo">
         {% url 'ui_lab:folha_exemplo' as folha_exemplo %}
-        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True ferramentas_recolhiveis=True %}
+        {% include "viagens/oficios/_editor.html" with tipo="oficio" rotulo="Ofício" titulo_doc="Ofício de exemplo" folha_url=folha_exemplo pdf_url=folha_exemplo pode_editar_texto=True ferramentas_recolhiveis=True operacional=True %}
       </div>
     </section>
 
@@ -1010,6 +1010,7 @@
   <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Limpar</button><button class="botao botao--primario" type="button" data-fechar-dialogo>Aplicar</button></div>
 </dialog>
 {% include "componentes/dialogo_assinado.html" %}
+{% include "ui_lab/_cadastro_inferior.html" %}
 {% include "componentes/dialogo_baixar.html" %}
 <script type="module" nonce="{{ csp_nonce }}">
   document.querySelectorAll("[data-lab-toast]").forEach((b) => b.addEventListener("click", () => {

@@ -1,0 +1,11 @@
+{% comment %}Formulário com contexto da decisão e área de edição. Sem estado ou regra próprios.
+contexto_template / conteudo_template: parciais do fluxo; ids e campos pertencem a elas.
+{% endcomment %}
+<div class="formulario-contextual">
+  <aside class="formulario-contextual__contexto">
+    {% include contexto_template %}
+  </aside>
+  <div class="formulario-contextual__edicao">
+    {% include conteudo_template %}
+  </div>
+</div>

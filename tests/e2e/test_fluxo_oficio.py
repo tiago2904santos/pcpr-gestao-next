@@ -93,6 +93,32 @@ def test_operador_cria_preenche_e_emite_um_oficio(logado):
     assert pg.erros_console == []
 
 
+def test_busca_da_equipe_preserva_digitacao_durante_carga(logado, dados_e2e):
+    pg = logado
+    pendentes = []
+    pg.route("**/js/componentes/combobox.js", lambda rota: pendentes.append(rota))
+    pk = dados_e2e.ids["oficio_rascunho"]
+    with pg.expect_request("**/js/componentes/combobox.js"):
+        pg.goto(f"/viagens/oficios/{pk}/editar/", wait_until="domcontentloaded")
+    busca = pg.get_by_role("combobox", name="Adicionar servidor")
+    busca.fill("isab")
+    assert busca.evaluate("e => !e.closest('pc-combobox').dataset.pronto")
+    for rota in pendentes:
+        rota.fulfill(response=rota.fetch())
+    opcao = pg.get_by_role("option", name=re.compile("Isabela Prado"))
+    expect(opcao).to_be_visible()
+    with pg.expect_response(lambda r: "/equipe/adicionar/" in r.url and r.request.method == "POST") as envio:
+        opcao.click()
+    assert envio.value.status == 200
+    cartao = pg.locator("#equipe .equipe__cartao").filter(has_text="Isabela Prado Cavalcanti")
+    expect(cartao).to_have_count(1)
+    expect(cartao).to_be_visible()
+    assert Oficio.objects.get(pk=pk).viajantes.filter(
+        servidor__nome="Isabela Prado Cavalcanti").exists()
+    pg.wait_for_load_state("networkidle")
+    assert pg.erros_console == []
+
+
 def test_emissao_bloqueada_sem_justificativa_mostra_o_motivo(logado, dados_e2e):
     pg = logado
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/")
@@ -493,10 +519,12 @@ def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
     assert not [e for e in pg.erros_console if "frame" in e.lower()], pg.erros_console  # type: ignore[attr-defined]
 
 
-def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
+@pytest.mark.parametrize("movimento", ["no-preference", "reduce"])
+def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e, movimento):
     """A viatura acompanha a equipe: a lista sugere as da unidade e as que alguém dirige
     (com chips), e marcar o motorista escolhe sozinha a viatura que ele costuma dirigir."""
     pg = logado
+    pg.emulate_media(reduced_motion=movimento)
     pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_vazio']}/editar/#equipe")
     busca = pg.get_by_role("combobox", name="Adicionar servidor")
     busca.fill("isab")
@@ -512,13 +540,25 @@ def test_marcar_motorista_escolhe_a_viatura_dele(logado, dados_e2e):
     expect(pg.locator("#transporte .combobox__grupo").first).to_have_text("Sugeridas pela equipe")
     pg.keyboard.press("Escape")
     # Marcar como motorista escolhe a viatura dela e avisa.
+    pg.evaluate("""() => { window.confirmacoesViatura = 0;
+      document.addEventListener('animationstart', e => {
+        if (e.target.matches('[data-viatura-cartao]')) window.confirmacoesViatura++;
+      }); }""")
     pg.get_by_role("button", name="Marcar Isabela Prado Cavalcanti como motorista").click()
     expect(pg.get_by_role("button", name="Desmarcar Isabela Prado Cavalcanti como motorista")
            ).to_have_attribute("aria-pressed", "true")
-    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
+    expect(pg.locator("#id_viatura-busca")).to_have_value("")
+    expect(pg.locator("[data-viatura-cartao]")).to_contain_text("ABC1D23")
+    expect(pg.locator("[data-recurso-origem]")).to_be_visible()
+    expect(pg.locator("details.motorista-externo")).to_be_hidden()
+    if movimento == "reduce":
+        assert pg.locator("[data-viatura-cartao]").evaluate("e=>getComputedStyle(e).animationName") == "none"
+    else:
+        pg.wait_for_function("window.confirmacoesViatura === 1")
     expect(pg.locator(".toast").last).to_contain_text("Isabela costuma dirigi-la")
     pg.locator("#id_protocolo").press("Enter")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
-    expect(pg.locator("#id_viatura-busca")).to_have_value(re.compile("ABC1D23"))
+    expect(pg.locator("#id_viatura-busca")).to_have_value("")
+    expect(pg.locator("[data-viatura-cartao]")).to_contain_text("ABC1D23")
     expect(pg.get_by_role("button", name="Desmarcar Isabela Prado Cavalcanti como motorista"))\
         .to_have_attribute("aria-pressed", "true")

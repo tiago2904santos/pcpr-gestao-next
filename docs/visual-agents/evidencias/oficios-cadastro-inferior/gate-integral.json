@@ -1,0 +1,26 @@
+{
+  "registrado_utc": "2026-10-09T16:58:49.716216+00:00",
+  "script": "scripts/verificar.sh",
+  "script_sha256": "7303c6f5157e2bb8790ba4305daee9714a5de5b8dac6b25baa3c8a6bd2580d02",
+  "script_alterado": false,
+  "exit_code": 0,
+  "passed": 2281,
+  "warnings": 9,
+  "pytest_seconds": 3138.31,
+  "log": "logs/cadastro-inferior-verificar-integral.log",
+  "log_sha256": "64f11a3ef9b38ea25138d3f0bf55767ff243b2208f90a837b6994a3d5787a961",
+  "fontes_e_testes_conferidos": 47,
+  "fontes_sem_divergencia": true,
+  "baseline_avisos": "../oficios-componentes/logs/componentes-verificar-fechamento.log",
+  "baseline_sha256": "d1d17bf0d96fe963632466a192dbea5ab3e2eb8c8d22d506c6007181291cc83b",
+  "checks": [
+    "Ruff",
+    "lint-imports",
+    "mypy",
+    "Bandit",
+    "migrações",
+    "tipos JS",
+    "pytest"
+  ],
+  "nota": "Gate integral real em LAB isolado, sem filtros adicionais. Testes de navegador em baterias separadas."
+}

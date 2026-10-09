@@ -147,6 +147,7 @@ function aplicar(janela, novo) {
     const valor = janela.dataset.valor === "nome" ? novo.nome : String(novo.id);
     const escolher = !janela.hasAttribute("data-sem-escolher");
     const opcao = new Option(novo.nome, valor, escolher, escolher);
+    if (novo.meta) opcao.dataset.meta = novo.meta;
     if (novo.ids) opcao.dataset.ids = novo.ids;
     destino.add(opcao);
     // O <pc-select>/<pc-combobox> que embrulha a escolha acompanha pelo "change".

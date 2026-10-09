@@ -1,0 +1,66 @@
+...F
+================================== FAILURES ===================================
+____________________ test_modo_pdf_e_barra_acessivel[360] _____________________
+
+logado = <Page url='http://localhost:61639/viagens/oficios/17/editar/#minuta'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e, largura):
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        _abrir_folha(pg, pk)
+        pg.click("#editor-oficio [data-modo='pdf']")
+        # O bloco unido usa um PDF com ofício + justificativa (editores.js).
+        # O iframe individual continua oculto para não baixar os documentos duas vezes.
+        pdf = pg.locator("[data-editores] iframe[data-pdf-bloco]")
+        expect(pdf).to_be_visible()
+        assert f"/viagens/oficios/{pk}/minuta.pdf?tipo=todos" in (pdf.get_attribute("src") or "")
+        expect(pg.locator("#editor-oficio iframe[data-quadro='pdf']")).to_be_hidden()
+        expect(pg.locator("#folha-oficio")).to_be_hidden()
+        expect(pg.locator("#editor-oficio .editor__linha--ferramentas")).to_be_hidden()
+        pg.click("#editor-oficio [data-modo='texto']")
+        expect(pg.locator("#folha-oficio")).to_be_visible()
+        # Páginas e avisos de pendência precedem as ações e o par Texto/PDF.
+        # Confirmar os dois primeiros controles visíveis e o único tabstop.
+        barra = pg.locator("#editor-oficio [role='toolbar']")
+        botoes = barra.locator("button:visible:not([disabled])")
+        primeiro = botoes.first
+        primeiro.focus()
+        pg.keyboard.press("Home")
+        expect(primeiro).to_be_focused()
+        pg.keyboard.press("ArrowRight")
+        expect(botoes.nth(1)).to_be_focused()
+        assert barra.evaluate("""el => [...el.querySelectorAll('button')]
+            .filter(b => b.getClientRects().length && b.tabIndex === 0).length""") == 1
+        pg.keyboard.press("End")
+>       expect(botoes.last).to_be_focused()
+E       AssertionError: Locator expected to be focused
+E       Actual value: inactive 
+E       Call log:
+E         - Expect "to_be_focused" with timeout 5000ms
+E         - waiting for locator("#editor-oficio [role='toolbar']").locator("button:visible:not([disabled])").last
+E           9 × locator resolved to <button type="button" tabindex="-1" class="botao botao--sm" data-baixar-titulo="Ofício 02/2026" data-baixar-documentos="/viagens/oficios/17/baixar/">…</button>
+E             - unexpected value "inactive"
+
+tests\e2e\test_editor.py:143: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 11:58:37,040 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-09 11:58:37,108 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-09 11:58:37,176 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+============================== warnings summary ===============================
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_editor.py::test_modo_pdf_e_barra_acessivel[360] - Asser...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 3 passed, 1 warning in 131.40s (0:02:11)

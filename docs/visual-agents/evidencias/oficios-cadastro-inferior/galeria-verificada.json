@@ -1,0 +1,1620 @@
+{
+  "pares": [
+    {
+      "estado": "preenchido",
+      "bloco": "roteiro",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-roteiro.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-roteiro.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "trechos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-trechos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-trechos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "diarias",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-diarias.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-diarias.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "documentos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-documentos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-documentos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "editor",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-editor.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-editor.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "historico",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/preenchido-historico.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/preenchido-historico.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "roteiro",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-roteiro.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-roteiro.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "trechos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-trechos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-trechos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "diarias",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-diarias.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-diarias.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "justificativa",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-justificativa.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-justificativa.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "documentos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-documentos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-documentos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "editor",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-editor.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-editor.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "historico",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/justificativa-historico.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/justificativa-historico.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "roteiro",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-roteiro.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-roteiro.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "trechos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-trechos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-trechos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "diarias",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-diarias.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-diarias.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "documentos",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-documentos.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-documentos.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "editor",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-editor.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-editor.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "historico",
+      "largura": 360,
+      "imagens": [
+        {
+          "src": "antes/360/pendencias-historico.png",
+          "width": 360,
+          "height": 900
+        },
+        {
+          "src": "depois/360/pendencias-historico.png",
+          "width": 360,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "roteiro",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-roteiro.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-roteiro.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "trechos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-trechos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-trechos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "diarias",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-diarias.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-diarias.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "documentos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-documentos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-documentos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "editor",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-editor.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-editor.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "historico",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/preenchido-historico.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/preenchido-historico.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "roteiro",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-roteiro.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-roteiro.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "trechos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-trechos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-trechos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "diarias",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-diarias.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-diarias.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "justificativa",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-justificativa.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-justificativa.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "documentos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-documentos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-documentos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "editor",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-editor.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-editor.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "historico",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/justificativa-historico.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/justificativa-historico.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "roteiro",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-roteiro.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-roteiro.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "trechos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-trechos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-trechos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "diarias",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-diarias.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-diarias.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "documentos",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-documentos.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-documentos.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "editor",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-editor.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-editor.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "historico",
+      "largura": 390,
+      "imagens": [
+        {
+          "src": "antes/390/pendencias-historico.png",
+          "width": 390,
+          "height": 900
+        },
+        {
+          "src": "depois/390/pendencias-historico.png",
+          "width": 390,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "roteiro",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-roteiro.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-roteiro.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "trechos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-trechos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-trechos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "diarias",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-diarias.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-diarias.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "documentos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-documentos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-documentos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "editor",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-editor.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-editor.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "historico",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/preenchido-historico.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/preenchido-historico.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "roteiro",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-roteiro.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-roteiro.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "trechos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-trechos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-trechos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "diarias",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-diarias.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-diarias.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "justificativa",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-justificativa.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-justificativa.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "documentos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-documentos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-documentos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "editor",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-editor.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-editor.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "historico",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/justificativa-historico.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/justificativa-historico.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "roteiro",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-roteiro.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-roteiro.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "trechos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-trechos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-trechos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "diarias",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-diarias.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-diarias.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "documentos",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-documentos.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-documentos.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "editor",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-editor.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-editor.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "historico",
+      "largura": 768,
+      "imagens": [
+        {
+          "src": "antes/768/pendencias-historico.png",
+          "width": 768,
+          "height": 900
+        },
+        {
+          "src": "depois/768/pendencias-historico.png",
+          "width": 768,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "roteiro",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-roteiro.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-roteiro.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "trechos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-trechos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-trechos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "diarias",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-diarias.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-diarias.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "documentos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-documentos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-documentos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "editor",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-editor.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-editor.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "historico",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/preenchido-historico.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/preenchido-historico.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "roteiro",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-roteiro.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-roteiro.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "trechos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-trechos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-trechos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "diarias",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-diarias.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-diarias.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "justificativa",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-justificativa.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-justificativa.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "documentos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-documentos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-documentos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "editor",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-editor.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-editor.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "historico",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/justificativa-historico.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/justificativa-historico.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "roteiro",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-roteiro.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-roteiro.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "trechos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-trechos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-trechos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "diarias",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-diarias.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-diarias.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "documentos",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-documentos.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-documentos.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "editor",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-editor.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-editor.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "historico",
+      "largura": 1024,
+      "imagens": [
+        {
+          "src": "antes/1024/pendencias-historico.png",
+          "width": 1024,
+          "height": 900
+        },
+        {
+          "src": "depois/1024/pendencias-historico.png",
+          "width": 1024,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "roteiro",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-roteiro.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-roteiro.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "trechos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-trechos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-trechos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "diarias",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-diarias.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-diarias.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "documentos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-documentos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-documentos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "editor",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-editor.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-editor.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "preenchido",
+      "bloco": "historico",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/preenchido-historico.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/preenchido-historico.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "roteiro",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-roteiro.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-roteiro.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "trechos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-trechos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-trechos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "diarias",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-diarias.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-diarias.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "justificativa",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-justificativa.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-justificativa.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "documentos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-documentos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-documentos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "editor",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-editor.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-editor.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "justificativa",
+      "bloco": "historico",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/justificativa-historico.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/justificativa-historico.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "roteiro",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-roteiro.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-roteiro.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "trechos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-trechos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-trechos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "diarias",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-diarias.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-diarias.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "documentos",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-documentos.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-documentos.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "editor",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-editor.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-editor.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "estado": "pendencias",
+      "bloco": "historico",
+      "largura": 1440,
+      "imagens": [
+        {
+          "src": "antes/1440/pendencias-historico.png",
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "src": "depois/1440/pendencias-historico.png",
+          "width": 1440,
+          "height": 900
+        }
+      ]
+    }
+  ],
+  "console": []
+}

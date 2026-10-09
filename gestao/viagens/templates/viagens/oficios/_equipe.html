@@ -2,9 +2,9 @@
 {% if oob %}<input type="hidden" name="versao" id="id_versao" value="{{ oficio.versao }}" form="form-oficio" hx-swap-oob="true">{% endif %}
 {% comment %}
 Equipe do ofício — os mesmos cartões de pessoa da janela de resumo (avatar, nome, cargo e
-unidade), numa grade que fecha a linha (larguras_de_cartoes). Quem dirige tem o avatar em
-grafite e o selo "Motorista"; as ações (marcar motorista, remover) ficam à direita e só
-aparecem com o mouse ou o foco no cartão — o cartão é leitura, não um painel de botões.
+unidade), numa grade que fecha a linha (larguras_de_cartoes). O cartão inteiro alterna quem
+dirige: o avatar fica em grafite e troca as iniciais pelo ícone do veículo. Remover é a
+única ação à parte, e só aparece com o mouse ou o foco no cartão.
 
 Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista` são o que
 <pc-transporte> lê para sugerir e escolher a viatura.
@@ -41,16 +41,20 @@ Salva na hora: o HTMX troca este bloco inteiro; `data-servidor/unidade/motorista
         {% for v in viajantes %}
           <li class="pessoa equipe__cartao resumo__cartao--{{ larguras|get_item:forloop.counter0 }}"
               data-servidor="{{ v.servidor_id }}" data-unidade="{{ v.servidor.unidade_id }}" data-nome="{{ v.servidor.nome }}"{% if v.motorista %} data-motorista{% endif %}>
-            <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ v.servidor.iniciais }}</span>
+            {% comment %}
+            O cartão inteiro é o controle de "quem dirige": o botão cobre a peça e o X de
+            remover fica por cima. Quem dirige troca as iniciais pelo ícone do veículo.
+            {% endcomment %}
+            <form class="equipe__motorista" method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
+              {% csrf_token %}<input type="hidden" name="viajante" value="{% if not v.motorista %}{{ v.pk }}{% endif %}">
+              <button type="submit" class="equipe__motorista-alvo" aria-pressed="{{ v.motorista|yesno:'true,false' }}" aria-label="{% if v.motorista %}Desmarcar {{ v.servidor.nome }} como motorista{% else %}Marcar {{ v.servidor.nome }} como motorista{% endif %}" title="{% if v.motorista %}Desmarcar como motorista{% else %}Marcar como motorista{% endif %}"></button>
+            </form>
+            <span class="avatar{% if v.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{% if v.motorista %}{% icone "volante" classe="icone--sm" %}{% else %}{{ v.servidor.iniciais }}{% endif %}</span>
             <span class="pessoa__texto">
-              <span class="pessoa__nome">{{ v.servidor.nome }}</span>
-              <span class="pessoa__meta">{{ v.servidor.descricao|default:"Cadastro incompleto" }}</span>
+              <span class="pessoa__nome" title="{{ v.servidor.nome }}">{{ v.servidor.nome }}</span>
+              <span class="pessoa__meta" title="{{ v.servidor.descricao|default:'Cadastro incompleto' }}">{{ v.servidor.descricao|default:"Cadastro incompleto" }}</span>
             </span>
             <span class="equipe__acoes">
-              <form method="post" action="{% url 'viagens:definir_motorista' oficio.pk %}" hx-post="{% url 'viagens:definir_motorista' oficio.pk %}" hx-target="#equipe" hx-swap="outerHTML">
-                {% csrf_token %}<input type="hidden" name="viajante" value="{% if not v.motorista %}{{ v.pk }}{% endif %}">
-                <button type="submit" class="equipe__acao" aria-pressed="{{ v.motorista|yesno:'true,false' }}" aria-label="{% if v.motorista %}Desmarcar {{ v.servidor.nome }} como motorista{% else %}Marcar {{ v.servidor.nome }} como motorista{% endif %}" title="{% if v.motorista %}Desmarcar como motorista{% else %}Marcar como motorista{% endif %}">{% icone "car" classe="icone--sm" %}</button>
-              </form>
               <form method="post" action="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-post="{% url 'viagens:remover_viajante' oficio.pk v.pk %}" hx-target="#equipe" hx-swap="outerHTML">
                 {% csrf_token %}
                 <button type="submit" class="equipe__acao equipe__acao--remover" aria-label="Remover {{ v.servidor.nome }} da equipe" title="Remover da equipe">{% icone "x" classe="icone--sm" %}</button>

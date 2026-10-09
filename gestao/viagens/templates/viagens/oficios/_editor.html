@@ -16,7 +16,7 @@ da via, quando se pode anexar) — na barra, à direita, antes de Texto/PDF; o e
 salvo) fica à esquerda.
 Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica oculta.
 {% endcomment %}
-{% with ident=sufixo|default:tipo %}<pc-editor-documento class="editor{% if inteira %} editor--inteira{% endif %}" id="editor-{{ ident }}"{% if inteira %} data-folha-inteira{% endif %}{% if aplicar_url %} data-aplicar-em-todos="{{ aplicar_url }}"{% endif %}
+{% with ident=sufixo|default:tipo %}<pc-editor-documento class="editor{% if inteira %} editor--inteira{% endif %}{% if operacional %} editor--operacional{% endif %}" id="editor-{{ ident }}"{% if inteira %} data-folha-inteira{% endif %}{% if aplicar_url %} data-aplicar-em-todos="{{ aplicar_url }}"{% endif %}
     data-folha="{{ folha_url }}"{% if estado_url %} data-base="{{ estado_url }}"{% endif %}
     data-pdf="{{ pdf_url }}"
     {% if pode_editar_texto %}data-editavel{% endif %}>
@@ -35,26 +35,24 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
       </div>
       {# À direita: baixar e anexar a via assinada (as janelas de cada um) e Texto / PDF. #}
       <div class="editor__fim">
+        {% if operacional %}{% include "componentes/modos_documento.html" %}<div class="editor__acoes" role="group" aria-label="Ações do documento">{% endif %}
         {# Atualizar: grava o que estiver pendente e refaz o documento com os dados de agora. #}
         <button type="button" class="botao botao--sm" data-acao="atualizar" title="Refazer o documento com os dados atuais">{% icone "refresh-cw" classe="icone--sm" %}Atualizar</button>
         {% if baixar_url %}<button type="button" class="botao botao--sm" data-baixar-documentos="{{ baixar_url }}" data-baixar-titulo="{{ baixar_titulo }}">{% icone "download" classe="icone--sm" %}Baixar</button>{% endif %}
         {% if via.pode %}<a class="botao botao--sm" href="{{ via.anexar_url }}" data-anexar-assinado="{{ via.anexar_url }}" data-assinado-titulo="{{ via.titulo }}" data-assinado-voltar="{{ via.voltar }}">{% icone "file-signature" classe="icone--sm" %}{% if via.s.via %}Trocar via{% else %}Anexar{% endif %}</a>{% endif %}
-        <div class="editor__grupo editor__modos" role="group" aria-label="Modo de visualização">
-          <button type="button" class="botao botao--sm" data-modo="texto" aria-pressed="true">{% icone "pilcrow" classe="icone--sm" %}Texto</button>
-          <button type="button" class="botao botao--sm" data-modo="pdf" aria-pressed="false">{% icone "file-text" classe="icone--sm" %}PDF</button>
-        </div>
+        {% if operacional %}</div>{% else %}{% include "componentes/modos_documento.html" %}{% endif %}
       </div>
     </div>
     {% if pode_editar_texto %}
     {% if ferramentas_recolhiveis %}<details class="editor__ferramentas" data-so-texto data-ferramentas-recolhiveis open><summary class="botao botao--sm">{% icone "sliders-horizontal" classe="icone--sm" %}Formatar texto{% icone "chevron-down" classe="icone--sm" %}</summary><div class="editor__linha editor__linha--ferramentas">{% else %}<div class="editor__linha editor__linha--ferramentas" data-so-texto>{% endif %}
-    <div class="editor__grupo" role="group" aria-label="Formatação">
+    <div class="editor__grupo" role="group" aria-label="Formatação">{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Formatação</span><div class="editor__controles">{% endif %}
       <button type="button" class="botao botao--sm botao--icone" data-comando="bold" aria-pressed="false" aria-label="Negrito (Ctrl+B)" title="Negrito (Ctrl+B)">{% icone "bold" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="italic" aria-pressed="false" aria-label="Itálico (Ctrl+I)" title="Itálico (Ctrl+I)">{% icone "italic" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="underline" aria-pressed="false" aria-label="Sublinhado (Ctrl+U)" title="Sublinhado (Ctrl+U)">{% icone "underline" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="removeFormat" aria-label="Limpar formatação" title="Limpar formatação">{% icone "remove-formatting" classe="icone--sm" %}</button>
-    </div>
+    {% if operacional %}</div>{% endif %}</div>
     {# Fonte: tamanho e cor do trecho selecionado. Os valores são os que o saneador aceita. #}
-    <div class="editor__grupo" role="group" aria-label="Fonte">
+    <div class="editor__grupo" role="group" aria-label="Fonte">{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Fonte</span><div class="editor__controles">{% endif %}
       {# Tamanho: um menu como o da cor (a lista nativa do <select> não segue o sistema). #}
       <pc-menu class="menu">
         <button type="button" class="botao botao--sm editor__menu-texto" data-menu-botao aria-haspopup="menu" title="Tamanho da fonte"><span>Tamanho</span>{% icone "chevron-down" classe="icone--sm editor__menu-seta" %}</button>
@@ -80,9 +78,9 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
           <button type="button" class="menu__item" role="menuitem" data-estilo-valor="color:#17603d"><span class="editor__cor editor__cor--verde" aria-hidden="true"></span>Verde</button>
         </div>
       </pc-menu>
-    </div>
+    {% if operacional %}</div>{% endif %}</div>
     {# Tabela: aparece quando o cursor está numa célula. #}
-    <div class="editor__grupo" role="group" aria-label="Tabela" data-so-tabela hidden>
+    <div class="editor__grupo" role="group" aria-label="Tabela" data-so-tabela hidden>{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Tabela</span><div class="editor__controles">{% endif %}
       <label class="sr-only" for="tabela-largura-{{ ident }}">Largura da tabela</label>
       <pc-select class="seletor editor__seletor"><select class="selecao editor__selecao" id="tabela-largura-{{ ident }}" data-tabela-estilo="width" title="Largura da tabela">
         <option value="">Largura</option>
@@ -95,16 +93,16 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
         <option value="6mm">Baixa</option><option value="9mm">Média</option>
         <option value="14mm">Alta</option><option value="20mm">Muito alta</option>
       </select></pc-select>
-    </div>
-    <div class="editor__grupo" role="group" aria-label="Parágrafo">
+    {% if operacional %}</div>{% endif %}</div>
+    <div class="editor__grupo" role="group" aria-label="Parágrafo">{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Parágrafo</span><div class="editor__controles">{% endif %}
       <button type="button" class="botao botao--sm botao--icone" data-comando="insertUnorderedList" aria-pressed="false" aria-label="Lista" title="Lista">{% icone "list" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="insertOrderedList" aria-pressed="false" aria-label="Lista numerada" title="Lista numerada">{% icone "list-ordered" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="justifyLeft" aria-pressed="false" aria-label="Alinhar à esquerda" title="Alinhar à esquerda">{% icone "align-left" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="justifyCenter" aria-pressed="false" aria-label="Centralizar" title="Centralizar">{% icone "align-center" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="justifyRight" aria-pressed="false" aria-label="Alinhar à direita" title="Alinhar à direita">{% icone "align-right" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="justifyFull" aria-pressed="false" aria-label="Justificar" title="Justificar">{% icone "align-justify" classe="icone--sm" %}</button>
-    </div>
-    <div class="editor__grupo" role="group" aria-label="Inserir">
+    {% if operacional %}</div>{% endif %}</div>
+    <div class="editor__grupo" role="group" aria-label="Inserir">{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Inserir</span><div class="editor__controles">{% endif %}
       <button type="button" class="botao botao--sm botao--icone" data-acao="quebra" aria-label="Inserir quebra de página" title="Inserir quebra de página">{% icone "separator-horizontal" classe="icone--sm" %}</button>
       <pc-menu class="menu">
         <button type="button" class="botao botao--sm botao--icone" data-menu-botao aria-haspopup="menu" aria-label="Inserir tabela" title="Inserir tabela">{% icone "table" classe="icone--sm" %}</button>
@@ -126,14 +124,14 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
         </div>
       </pc-menu>
       {% endif %}
-    </div>
-    <div class="editor__grupo" role="group" aria-label="Versões">
+    {% if operacional %}</div>{% endif %}</div>
+    <div class="editor__grupo" role="group" aria-label="Versões">{% if operacional %}<span class="editor__rotulo" aria-hidden="true">Versões</span><div class="editor__controles">{% endif %}
       <button type="button" class="botao botao--sm botao--icone" data-comando="undo" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">{% icone "undo-2" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-comando="redo" aria-label="Refazer (Ctrl+Y)" title="Refazer (Ctrl+Y)">{% icone "redo-2" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-acao="original" aria-label="Voltar o bloco ao original" title="Voltar o bloco ao original" disabled>{% icone "rotate-ccw" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-acao="modelo" aria-label="Voltar ao modelo" title="Voltar ao modelo" disabled>{% icone "file-x-2" classe="icone--sm" %}</button>
       <button type="button" class="botao botao--sm botao--icone" data-acao="historico" aria-label="Histórico do texto" title="Histórico do texto">{% icone "history" classe="icone--sm" %}</button>
-    </div>
+    {% if operacional %}</div>{% endif %}</div>
     </div>{% if ferramentas_recolhiveis %}</details>{% endif %}
     {% endif %}
   </div>

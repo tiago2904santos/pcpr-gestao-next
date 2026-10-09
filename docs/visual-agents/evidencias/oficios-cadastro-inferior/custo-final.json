@@ -1,0 +1,202 @@
+{
+  "base": "671c3a9",
+  "nota": "LAB fictício; timings locais com suítes concorrentes, sem SLA.",
+  "antes-preenchido": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 155657,
+        "html_gzip_bytes": 23471,
+        "ms": 933.03
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 155657,
+        "html_gzip_bytes": 23470,
+        "ms": 695.13
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 155657,
+        "html_gzip_bytes": 23468,
+        "ms": 644.7
+      }
+    ],
+    "mediana_ms": 695.13
+  },
+  "antes-justificativa": {
+    "amostras": [
+      {
+        "consultas": 25,
+        "html_bytes": 170628,
+        "html_gzip_bytes": 24190,
+        "ms": 551.21
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 170628,
+        "html_gzip_bytes": 24186,
+        "ms": 683.06
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 170628,
+        "html_gzip_bytes": 24184,
+        "ms": 682.93
+      }
+    ],
+    "mediana_ms": 682.93
+  },
+  "antes-pendencias": {
+    "amostras": [
+      {
+        "consultas": 21,
+        "html_bytes": 143352,
+        "html_gzip_bytes": 22905,
+        "ms": 615.01
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 143352,
+        "html_gzip_bytes": 22907,
+        "ms": 765.34
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 143352,
+        "html_gzip_bytes": 22903,
+        "ms": 462.39
+      }
+    ],
+    "mediana_ms": 615.01
+  },
+  "antes-post-equipe": {
+    "consultas": 28,
+    "status": 200,
+    "html_bytes": 19405,
+    "persistencia": "rollback em LAB sintético"
+  },
+  "depois-preenchido": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 158967,
+        "html_gzip_bytes": 23858,
+        "ms": 616.91
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 158967,
+        "html_gzip_bytes": 23847,
+        "ms": 538.48
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 158967,
+        "html_gzip_bytes": 23853,
+        "ms": 734.92
+      }
+    ],
+    "mediana_ms": 616.91
+  },
+  "depois-justificativa": {
+    "amostras": [
+      {
+        "consultas": 25,
+        "html_bytes": 175127,
+        "html_gzip_bytes": 24718,
+        "ms": 498.82
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 175127,
+        "html_gzip_bytes": 24721,
+        "ms": 752.95
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 175127,
+        "html_gzip_bytes": 24723,
+        "ms": 858.25
+      }
+    ],
+    "mediana_ms": 752.95
+  },
+  "depois-pendencias": {
+    "amostras": [
+      {
+        "consultas": 21,
+        "html_bytes": 146466,
+        "html_gzip_bytes": 23343,
+        "ms": 497.0
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 146466,
+        "html_gzip_bytes": 23346,
+        "ms": 449.13
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 146466,
+        "html_gzip_bytes": 23344,
+        "ms": 489.2
+      }
+    ],
+    "mediana_ms": 489.2
+  },
+  "depois-post-equipe": {
+    "consultas": 28,
+    "status": 200,
+    "html_bytes": 19389,
+    "persistencia": "rollback em LAB sintético"
+  },
+  "static/css/components.css": {
+    "antes_bytes": 138218,
+    "depois_bytes": 161685,
+    "antes_gzip_bytes": 28061,
+    "depois_gzip_bytes": 31495
+  },
+  "static/css/documento.css": {
+    "antes_bytes": 21976,
+    "depois_bytes": 22028,
+    "antes_gzip_bytes": 5940,
+    "depois_gzip_bytes": 5950
+  },
+  "static/css/formulario.css": {
+    "antes_bytes": 39791,
+    "depois_bytes": 40527,
+    "antes_gzip_bytes": 9498,
+    "depois_gzip_bytes": 9611
+  },
+  "static/css/ui-lab.css": {
+    "antes_bytes": 14651,
+    "depois_bytes": 14764,
+    "antes_gzip_bytes": 3583,
+    "depois_gzip_bytes": 3624
+  },
+  "static/js/componentes/cadastro-rapido.js": {
+    "antes_bytes": 8258,
+    "depois_bytes": 8309,
+    "antes_gzip_bytes": 3179,
+    "depois_gzip_bytes": 3190
+  },
+  "static/js/componentes/combobox.js": {
+    "antes_bytes": 15734,
+    "depois_bytes": 16782,
+    "antes_gzip_bytes": 4939,
+    "depois_gzip_bytes": 5193
+  },
+  "static/js/componentes/seletor.js": {
+    "antes_bytes": 8544,
+    "depois_bytes": 9604,
+    "antes_gzip_bytes": 2898,
+    "depois_gzip_bytes": 3191
+  },
+  "static/js/componentes/transporte.js": {
+    "antes_bytes": 7450,
+    "depois_bytes": 11977,
+    "antes_gzip_bytes": 2638,
+    "depois_gzip_bytes": 3596
+  }
+}

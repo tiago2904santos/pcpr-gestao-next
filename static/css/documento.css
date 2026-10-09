@@ -279,7 +279,7 @@
 /* Dentro do documento, pessoa e indicador deixam de ser caixas: linha com divisor e
    área tingida — a folha continua uma só superfície. A equipe é exceção: lá o cartão é a
    peça que se mexe (marcar motorista, remover), e peça que se mexe tem borda. */
-.documento .pessoa:not(.equipe__cartao) {
+.documento .pessoa:not(.equipe__cartao):not(.recurso-selecionado) {
   padding: var(--esp-2) 0;
   border-radius: 0;
   background: transparent;
@@ -287,7 +287,7 @@
   border-bottom: 1px dashed var(--cor-borda);
 }
 
-.documento .pessoa:not(.equipe__cartao):hover {
+.documento .pessoa:not(.equipe__cartao):not(.recurso-selecionado):hover {
   box-shadow: none;
 }
 
@@ -677,9 +677,9 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
 .historico__linha {
   display: grid;
   grid-template-columns: 3.25rem minmax(0, 1fr) auto;
-  gap: var(--esp-1) var(--esp-3);
+  gap: var(--esp-1) var(--esp-4);
   align-items: center;
-  padding: var(--esp-2) var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
   border-bottom: var(--borda-sutil);
   font-size: var(--texto-sm);
 }
@@ -699,7 +699,7 @@ details:not([open]) > .linha-tempo__mais .linha-tempo__mais-fechar { display: no
   align-content: center;
   align-self: stretch;
   gap: var(--esp-05);
-  padding-right: var(--esp-3);
+  padding-right: var(--esp-4);
   border-right: var(--borda-sutil);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;

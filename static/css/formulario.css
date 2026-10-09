@@ -769,12 +769,12 @@
 }
 
 /* Motorista de fora da equipe: cada escolha mostra os seus campos (sem JS: :has()). */
-/* Já há motorista marcado na equipe: o atalho de motorista de fora não tem o que oferecer
-   (um ofício tem um motorista só). Continua à mostra se o bloco estiver aberto — quem o
-   abriu está justamente trocando o motorista. */
-#identificacao:has(#equipe [data-motorista]) .motorista-externo:not([open]) {
+/* Um motorista só: a opção externa reaparece quando a marcação da equipe é retirada. */
+#recursos:has(#equipe [data-motorista]) .motorista-externo {
   display: none;
 }
+.transporte__selecionada { margin-top: var(--esp-3); }
+pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) > .transporte__selecionada { display: none; }
 
 .motorista-externo__campos:not(:has(option[value="servidor"]:checked)) .so-servidor-externo,
 .motorista-externo__campos:not(:has(option[value="manual"]:checked)) .so-manual,
@@ -818,7 +818,39 @@
 }
 
 .equipe__cartao {
+  position: relative;
   gap: var(--esp-3);
+}
+
+/* Quem dirige se marca clicando no cartão: o botão cobre a peça inteira (sem desenho
+   próprio) e o conteúdo passa o clique adiante. Só o X de remover fica por cima. */
+.equipe__motorista {
+  display: contents;
+}
+
+.equipe__motorista-alvo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  border-radius: var(--raio-md);
+  background: transparent;
+  cursor: pointer;
+}
+
+.equipe__cartao > .avatar,
+.equipe__cartao > .pessoa__texto {
+  position: relative;
+  pointer-events: none;
+}
+
+.equipe__cartao > .equipe__acoes {
+  position: relative;
+}
+
+.equipe__cartao:hover,
+.equipe__cartao:has(.equipe__motorista-alvo:focus-visible) {
+  background: var(--cor-superficie-realce);
 }
 
 /* A equipe como campo de formulário (viagens.forms.CampoEquipe): o mesmo componente da

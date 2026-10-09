@@ -13,7 +13,7 @@ o botão manda, quando Finalizar é o próprio formulário da folha — o ofíci
 `cancelar_url` (+ `cancelar_titulo`, `cancelar_ajuda`). Ações próprias de um documento
 (ex.: "Lançar os resultados" do plano) ficam no menu do cabeçalho.
 {% endcomment %}
-{% if finalizar_form %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="botao botao--marca">{% icone "check" %}Finalizar</button>{% endif %}
+{% if finalizar_form %}<button type="submit" form="{{ finalizar_form }}"{% if finalizar_acao %} name="acao" value="{{ finalizar_acao }}"{% endif %} class="botao {% if finalizar_primario %}botao--primario{% else %}botao--marca{% endif %}">{% icone "check" %}Finalizar</button>{% endif %}
 {% if duplicar_form or cancelar_url or excluir_form %}
 <pc-menu class="menu">
   <button type="button" class="botao" data-menu-botao aria-haspopup="menu" aria-label="Ações: {{ nome }}">{% icone "ellipsis-vertical" %}<span>Ações</span></button>

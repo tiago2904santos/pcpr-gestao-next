@@ -1103,7 +1103,7 @@ class TestMotoristaExternoNaFolha:
     def test_folha_grava_e_documento_cita_o_nome(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         html = operador.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
-        assert "Motorista de fora da equipe" in html and 'data-valor-id' in html
+        assert "Motorista de outro ofício" in html and 'data-valor-id' in html
         viatura = Viatura.objects.filter(ativo=True).first()
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), _post_edicao(
             oficio, tipo_transporte="viatura", viatura=viatura.pk, transporte_descricao="",

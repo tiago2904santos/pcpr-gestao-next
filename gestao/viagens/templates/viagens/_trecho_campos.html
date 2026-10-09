@@ -11,10 +11,12 @@ calculada. Os tempos aparecem como texto — "Ajustar" abre os campos (ADR 0016)
   </header>
   <div class="itin__tempos">
     {% include "componentes/campo.html" with campo=t.saida classe="itin__saida" rotulo="Saída" %}
-    {% include "viagens/_duracao.html" with campo=t.tempo_viagem %}
-    {% include "viagens/_duracao.html" with campo=t.tempo_adicional %}
+    {% if operacional %}<div class="itin__ajustes" role="group" aria-label="Duração do percurso">{% endif %}
+      {% include "viagens/_duracao.html" with campo=t.tempo_viagem %}
+      {% include "viagens/_duracao.html" with campo=t.tempo_adicional %}
+    {% if operacional %}</div>{% endif %}
     <div class="campo itin__chegada-campo">
-      <span class="campo__rotulo" id="ch-{{ t.prefix }}">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}</span>
+      <span class="campo__rotulo" id="ch-{{ t.prefix }}">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}{% if operacional %} · calculada{% endif %}</span>
       <div class="indicador indicador--compacto itin__chegada">
         <output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</output>
       </div>

@@ -1,0 +1,24 @@
+{% load viagens %}
+{% comment %}Conferência antes da emissão: usa exclusivamente a prontidão calculada pelo fluxo.
+form_id / emitir_acao mantêm a ação institucional da página consumidora.
+{% endcomment %}
+<div class="prontidao-documental{% if prontidao.pode_emitir %} prontidao-documental--pronta{% endif %}" role="status" id="{{ conferencia_id|default:'conferencia' }}">
+  <div class="prontidao-documental__cabecalho">
+    {% if prontidao.pode_emitir %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}
+    <div>
+      <p class="prontidao-documental__rotulo">Conferência do cadastro</p>
+      <p class="prontidao-documental__titulo">{% if prontidao.pode_emitir %}Tudo pronto para emitir{% else %}{{ prontidao.bloqueantes|length|pluralizar:"item falta,itens faltam" }} para emitir{% endif %}</p>
+    </div>
+  </div>
+  {% if prontidao.pendencias %}
+  <ul class="checklist">
+    {% for p in prontidao.pendencias %}
+    <li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if pode_emitir and prontidao.pode_emitir %}
+    <p class="prontidao-documental__nota">Confira o ofício e confirme a emissão na revisão.</p>
+    <button type="submit" form="{{ form_id }}" name="acao" value="{{ emitir_acao }}" class="botao botao--primario">{% icone "stamp" %}Revisar e emitir</button>
+  {% endif %}
+</div>

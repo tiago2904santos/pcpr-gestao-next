@@ -1,0 +1,10 @@
+{% if mostrar_justificativa %}
+<section class="secao{% if secoes.2.ok %} secao--ok{% endif %}" id="justificativa" aria-labelledby="t-justificativa">
+  <div class="secao__cabecalho">
+    <h2 class="secao__titulo" id="t-justificativa"><span class="secao__numero">4</span>Justificativa de prazo</h2>
+  </div>
+  <div class="secao__conteudo">
+    {% include "componentes/formulario_contextual.html" with contexto_template="viagens/oficios/_justificativa_contexto.html" conteudo_template="viagens/oficios/_justificativa_campos.html" %}
+  </div>
+</section>
+{% endif %}

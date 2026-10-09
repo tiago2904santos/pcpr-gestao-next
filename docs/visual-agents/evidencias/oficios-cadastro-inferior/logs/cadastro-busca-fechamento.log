@@ -1,0 +1,49 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+____________ test_busca_da_equipe_preserva_digitacao_durante_carga ____________
+
+logado = <Page url='http://localhost:59853/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_busca_da_equipe_preserva_digitacao_durante_carga(logado, dados_e2e):
+        pg = logado
+        pendentes = []
+        pg.route("**/js/componentes/combobox.js", lambda rota: pendentes.append(rota))
+        pk = dados_e2e.ids["oficio_rascunho"]
+        with pg.expect_request("**/js/componentes/combobox.js"):
+            pg.goto(f"/viagens/oficios/{pk}/editar/", wait_until="domcontentloaded")
+        busca = pg.get_by_role("combobox", name="Adicionar servidor")
+        busca.fill("isab")
+        assert busca.evaluate("e => !e.closest('pc-combobox').dataset.pronto")
+        for rota in pendentes:
+            rota.fulfill(response=rota.fetch())
+        opcao = pg.get_by_role("option", name=re.compile("Isabela Prado"))
+        expect(opcao).to_be_visible()
+        with pg.expect_response(lambda r: "/equipe/adicionar/" in r.url and r.request.method == "POST") as envio:
+            opcao.click()
+        assert envio.value.status == 200
+>       expect(pg.locator("#equipe .equipe__cartao")).to_contain_text("Isabela Prado Cavalcanti")
+E       AssertionError: Locator expected to contain text 'Isabela Prado Cavalcanti'
+E       Actual value: None
+E       Error: strict mode violation: locator("#equipe .equipe__cartao") resolved to 2 elements:
+E           1) <li data-unidade="1" data-servidor="3" data-motorista="" data-nome="Carla Regina Duarte" class="pessoa equipe__cartao resumo__cartao--3">…</li> aka get_by_role("listitem").filter(has_text="Carla Regina Duarte Agente de")
+E           2) <li data-unidade="2" data-servidor="9" data-nome="Isabela Prado Cavalcanti" class="pessoa equipe__cartao resumo__cartao--3">…</li> aka get_by_text("IC Isabela Prado Cavalcanti")
+E        
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator("#equipe .equipe__cartao")
+
+tests\e2e\test_fluxo_oficio.py:113: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 12:56:25,711 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/2/equipe/adicionar/: 29 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/oficios/2/equipe/adicionar/: 29 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_fluxo_oficio.py::test_busca_da_equipe_preserva_digitacao_durante_carga
+1 failed, 1 passed, 1 warning in 78.22s (0:01:18)

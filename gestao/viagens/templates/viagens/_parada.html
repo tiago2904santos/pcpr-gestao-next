@@ -1,8 +1,8 @@
 {% load viagens %}
 {# Um destino na lista "Sede e destinos" (também é o modelo clonado por "Adicionar destino"). Os campos do trecho que chega aqui ficam no card do trecho (_trecho_campos.html). #}
 <li class="itin__parada" data-parada data-prefixo="{{ f.prefix }}">
-  <button type="button" class="itin__alca" data-alca hidden aria-label="Mover destino {{ numero }}: setas para cima e para baixo">{% icone "grip-vertical" %}</button>
-  <span class="itin__marco" aria-hidden="true"></span>
+  <button type="button" class="itin__alca" data-alca hidden aria-label="Mover destino {{ numero }}: setas para cima e para baixo">{% if operacional %}<span class="itin__ordem" data-numero aria-hidden="true">{{ numero }}</span>{% endif %}{% icone "grip-vertical" %}</button>
+  <span class="itin__marco" aria-hidden="true">{% if operacional %}<span class="itin__ordem" data-numero>{{ numero }}</span>{% endif %}</span>
   <div class="itin__local" role="group" aria-labelledby="leg-{{ f.prefix }}">
     <span class="sr-only" id="leg-{{ f.prefix }}">Destino <span data-numero>{{ numero }}</span></span>
     {% for h in f.hidden_fields %}{{ h }}{% endfor %}

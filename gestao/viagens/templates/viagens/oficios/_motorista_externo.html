@@ -1,0 +1,7 @@
+{% if oficio.motorista_externo_servidor %}
+  {% with nome=oficio.motorista_externo_servidor.nome %}{% include "componentes/pessoa_externa.html" with classe="motorista-externo" titulo=nome descricao_template="viagens/oficios/_motorista_externo_contexto.html" aberto=oficio.motorista_externo corpo_template="viagens/oficios/_motorista_externo_campos.html" %}{% endwith %}
+{% elif oficio.motorista_externo_nome %}
+  {% include "componentes/pessoa_externa.html" with classe="motorista-externo" titulo=oficio.motorista_externo_nome descricao_template="viagens/oficios/_motorista_externo_contexto.html" aberto=oficio.motorista_externo corpo_template="viagens/oficios/_motorista_externo_campos.html" %}
+{% else %}
+  {% include "componentes/pessoa_externa.html" with classe="motorista-externo" titulo="Motorista de outro ofício" descricao="Viaja por outro ofício; não entra nas diárias desta equipe." aberto=oficio.motorista_externo corpo_template="viagens/oficios/_motorista_externo_campos.html" %}
+{% endif %}

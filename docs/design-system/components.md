@@ -252,7 +252,8 @@ Exemplo sintético no mesmo bloco operacional do UI Lab.
   detalhe de outro meio entra em faixa inteira. `.motorista-externo__campos` agrupa
   pessoa e referências de origem em duas colunas, uma no celular.
 - `.pessoas--compactas` integra controles à lateral do cartão, visíveis em toque
-  e mouse. Mantém nomes com quebra e botões nomeados; não imita o card só de leitura.
+  e mouse. Nome e descrição em uma linha cada, com reticências e título completo;
+  mantém botões nomeados; não imita o card só de leitura.
 - A divulgação gira somente o ícone de expansão `plus`; ícones de cópia ou pessoa
   permanecem na orientação correta. UF do itinerário reserva largura para duas letras.
 - Checkbox e radio em `.escolha` têm alvo físico de 24px, independente da escala
@@ -261,3 +262,95 @@ Exemplo sintético no mesmo bloco operacional do UI Lab.
 
 Estados em `/ui-lab/#componentes-oficios-lab`; evidências e críticas em
 `docs/visual-agents/qa/oficios-componentes-2026-10-09.md`.
+
+## Seleção em cartão — transporte
+
+`pc-combobox[data-escolha-em-cartao]` mantém o `<select>` como valor real e deixa
+a busca vazia depois de escolher. Digitar, apagar ou abandonar uma consulta não
+remove a seleção existente; somente selecionar outra opção ou remover o cartão
+altera o valor. Sem JS, o select nativo continua disponível.
+
+`recurso_selecionado.html` reaproveita avatar/texto/ação dos cartões compactos;
+aceita `titulo`, `meta`, `automatico`, `desabilitado` para estados no UI Lab.
+Na Folha, `pc-transporte` preenche o cartão com rótulo e `data-meta` já fornecidos
+pelo widget de viatura. A remoção devolve foco à busca. Escolha automática pelo
+motorista mantém o toast e realça o cartão por `--duracao-enfase`; movimento
+reduzido desliga a animação, preservando o texto “Selecionada pelo motorista”.
+
+`pessoa_externa.html` também aceita `descricao_template` para metadados do vínculo.
+O motorista externo existente apresenta seu nome e origem; quando a equipe tem
+motorista, a opção externa fica oculta e desabilitada, em concordância com a
+substituição já feita no servidor. Desmarcar disponibiliza a opção novamente.
+
+O `pc-select` sincroniza o botão visual quando o select nativo é habilitado ou
+desabilitado por uma seção condicional. O observador acompanha somente o atributo
+`disabled`, é desligado ao remover o componente e retomado ao reconectá-lo.
+A busca em cartão anuncia seleção/remoção na região de leitura assistiva existente.
+Na busca remota, iniciar o componente retoma a consulta digitada enquanto o módulo
+carregava, se o campo continua focado e não possui identificação já selecionada.
+Não exige apagar e redigitar; seleção preexistente continua preservada.
+Uma cópia de DOM não é uma instância inicializada: ao clonar, o componente refaz
+referências, eventos e controles gerados a partir do select nativo, sem duplicá-los.
+Reconectar a mesma instância preserva seus controles. Cobertura por teclado,
+valor nativo, disabled e ausência de erros em `test_ui_lab.py`.
+
+## Folha do ofício em largura inteira — 09/10/2026
+
+A folha deixou de se dividir em duas colunas (explicação à esquerda, conteúdo à direita):
+título e nota abrem a seção na largura toda e o conteúdo usa a linha inteira. A nota fica
+em linha própria sob o título, limitada à largura de leitura; o selo de estado vai para a
+direita. Campos, mapa, trechos e dados copiáveis rendem muito mais assim.
+
+- Equipe em duas colunas; quem sobra numa linha ímpar ocupa a linha inteira, em vez de
+  deixar um vão ao lado (`.pessoas--compactas > .pessoa:last-child:nth-child(odd)`).
+- Equipe e transporte andam lado a lado: os cabeçalhos dos dois blocos têm a mesma altura
+  mínima (um traz selo, o outro um interruptor), senão os cartões saem do eixo.
+- O cartão de viatura tem a altura do cartão de servidor e não realça no hover: ele não é
+  um alvo clicável inteiro, diferente do cartão de equipe.
+- **Quem dirige se marca clicando no cartão**: o botão cobre a peça (sem desenho próprio) e
+  só o X de remover fica por cima; o avatar troca as iniciais pelo ícone `volante`. O nome
+  acessível ("Marcar/Desmarcar fulano como motorista") e o `aria-pressed` continuam no
+  botão, então teclado e leitor de tela seguem iguais.
+- Ícones próprios: `scripts/vendor_assets.py` tem `PROPRIOS`, para o que o Lucide não cobre.
+  `volante` nasceu daí — o `ship-wheel` do Lucide é timão e não lê como carro.
+- Histórico: linhas no mesmo ritmo dos cartões (padding `--esp-3/--esp-4`) e respiro maior
+  entre a minuta e o bloco.
+- Saíram da tela: o checkbox "Manter esta data na emissão" (a regra continua em
+  `forms.clean` — data alterada vale como digitada; senão a emissão usa a data de hoje) e a
+  ajuda do campo "Usar um roteiro cadastrado", com o `aria-describedby` que a referenciava.
+
+## Preparação operacional — Roteiro até conclusão, 09/10/2026
+
+Contrato em `product/oficios-cadastro-inferior.md`, ADR 0031. Variantes ativadas na
+Folha e demonstradas no UI Lab; os consumidores sem a variante mantêm a composição.
+
+- `selecao_roteiro.html`: divulgação nativa com busca, origem e POST existente.
+  Aberta para registro sem origem de roteiro; escolha aplicada mantém o aviso.
+- `_itinerario.html` com `operacional=True`: sequência numerada, destinos e mapa
+  lado a lado no desktop, percurso antes do mapa no celular; trechos em largura
+  inteira. `_parada.html` mantém os controles de ordem, exclusão, UF e município.
+- `.itin__ajustes`: durações agrupadas com chegada calculada como resultado.
+  `.conferencia-serena--operacional`: total, metadados e composição de diárias em
+  faixa compacta, sem criar uma nova fórmula ou esconder o cálculo.
+- `formulario_contextual.html`: slots de contexto e campos. Obrigatória, dispensada
+  com texto preservado, erro e desabilitado aparecem no UI Lab. Na Folha, utiliza
+  os campos e os modelos de texto existentes da justificativa.
+- `prontidao_documental.html`: recebe prontidão já calculada, pendências e ação
+  da revisão; aceita `conferencia_id` para múltiplos exemplos. Não decide emissão.
+  A faixa antecede os dados copiáveis existentes, preservando os campos individuais
+  e o conjunto do eProtocolo.
+- `modos_documento.html` e `.editor--operacional`: modos Texto/PDF, ações e grupos
+  de ferramentas identificados. Mantêm ids, toolbar, comandos, versões e carregamento
+  sob demanda. Hover selecionado usa contraste inverso coerente. Nenhuma alteração
+  no HTML oficial, PDF, conteúdo ou paginação institucional.
+- `.historico__linhas--operacional`: data completa, horário, evento e autoria.
+  Desktop com autoria em coluna; celular com autoria sob o evento. Histórico
+  completo continua acessível por divulgação nativa; nenhuma consulta nova.
+- `estado_salvamento.html` e `.barra-acoes--preparacao`: região única de feedback,
+  visível e anunciada, com Finalizar, Voltar e Ações. A variante mantém o status
+  no fluxo em todos os estados para evitar deslocamento durante cliques. Barra
+  estática; não cobre campos. `rodape_documento.html` aceita `finalizar_primario`.
+
+O índice lateral do UI Lab limita a própria altura e permite rolagem, mantendo
+alvos inteiros abaixo do cabeçalho mesmo ao chegar ao fim da vitrine.
+Evidências reais, críticas e logs em `visual-agents/qa/oficios-cadastro-inferior-2026-10-09.md`.

@@ -1,0 +1,188 @@
+[
+  {
+    "estado": "motorista-equipe",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "motorista-externo",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "ui-lab",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "motorista-equipe",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "motorista-externo",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "ui-lab",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "motorista-equipe",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "motorista-externo",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "ui-lab",
+    "largura": 768,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 139.6,
+                  "height": 14.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 139.6px by 14.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 23.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"botao\" href=\"#botoes\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-list-checks\"></use></svg>Componentes</a>",
+            "target": [
+              ".pagina-cabecalho__acoes > a[href$=\"#botoes\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 139.6px by 14.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 177.8,
+                  "height": 14.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      "a[href$=\"notificacoes/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Operador de Demonstração\" aria-controls=\"menu-52r8vn3\" aria-expanded=\"false\" id=\"menu-52r8vn3-botao\">",
+                    "target": [
+                      "#menu-52r8vn3-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 177.8px by 14.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 23.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      "a[href$=\"notificacoes/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button class=\"botao botao--primario\" type=\"button\" data-abrir-comandos=\"\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-command\"></use></svg>Paleta de comandos</button>",
+            "target": [
+              ".botao--primario.botao[data-abrir-comandos=\"\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 177.8px by 14.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  }
+]

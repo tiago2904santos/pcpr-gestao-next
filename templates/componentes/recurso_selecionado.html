@@ -1,0 +1,10 @@
+{% comment %}Recurso escolhido por uma busca. A aplicação preenche texto e liga a remoção.{% endcomment %}
+<article class="pessoa recurso-selecionado" data-viatura-cartao{% if not titulo %} hidden{% endif %} aria-label="Viatura selecionada">
+  <span class="avatar avatar--escuro" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+  <span class="pessoa__texto">
+    <strong class="pessoa__nome" data-recurso-titulo title="{{ titulo }}">{{ titulo }}</strong>
+    <span class="pessoa__meta" data-recurso-meta title="{{ meta }}">{{ meta }}</span>
+    <span class="recurso-selecionado__origem" data-recurso-origem{% if not automatico %} hidden{% endif %}>Selecionada pelo motorista</span>
+  </span>
+  <button type="button" class="equipe__acao equipe__acao--remover" data-remover-viatura aria-label="Remover viatura{% if titulo %} {{ titulo }}{% endif %}" title="Remover viatura"{% if desabilitado %} disabled{% endif %}>{% icone "x" classe="icone--sm" %}</button>
+</article>

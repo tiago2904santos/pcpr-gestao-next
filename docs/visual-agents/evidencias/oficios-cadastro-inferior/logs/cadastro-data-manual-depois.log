@@ -1,0 +1,7 @@
+...............                                                          [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_lote_h.py::test_retry_concorrente_publica_uma_unica_operacao
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_cadastro_data_manual" is being accessed by other users\nDETAIL:  There are 2 other sessions using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+15 passed, 1 warning in 387.76s (0:06:27)

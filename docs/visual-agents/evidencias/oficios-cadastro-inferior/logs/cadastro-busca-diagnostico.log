@@ -1,0 +1,47 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+______________________ test_digitacao_com_import_retido _______________________
+
+logado = <Page url='http://localhost:60165/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_digitacao_com_import_retido(logado,dados_e2e):
+>       busca_atrasada(logado,dados_e2e)
+
+var\test_cadastro_criacao_diag.py:11: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+logado = <Page url='http://localhost:60165/viagens/oficios/2/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_busca_da_equipe_preserva_digitacao_durante_carga(logado, dados_e2e):
+        pg = logado
+        pendentes = []
+        pg.route("**/js/componentes/combobox.js", lambda rota: pendentes.append(rota))
+        pk = dados_e2e.ids["oficio_rascunho"]
+        with pg.expect_request("**/js/componentes/combobox.js"):
+            pg.goto(f"/viagens/oficios/{pk}/editar/", wait_until="domcontentloaded")
+        busca = pg.get_by_role("combobox", name="Adicionar servidor")
+        busca.fill("isab")
+        assert busca.evaluate("e => !e.closest('pc-combobox').dataset.pronto")
+        for rota in pendentes:
+            rota.fulfill(response=rota.fetch())
+        opcao = pg.get_by_role("option", name=re.compile("Isabela Prado"))
+>       expect(opcao).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("option", name=re.compile(r"Isabela Prado"))
+
+tests\e2e\test_fluxo_oficio.py:109: AssertionError
+============================== warnings summary ===============================
+var/test_cadastro_criacao_diag.py::test_criacao_com_requisicoes_registradas
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED var/test_cadastro_criacao_diag.py::test_digitacao_com_import_retido - ...
+1 failed, 1 passed, 1 warning in 133.01s (0:02:13)

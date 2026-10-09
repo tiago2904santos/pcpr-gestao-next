@@ -1,5 +1,48 @@
 # Página atual
 
+## Pedido vigente — Cadastro da seção Roteiro para baixo, 09/10/2026
+
+Nova direção do usuário: preservar Header, Identificação e Equipe/transporte,
+incluindo cartão inteiro clicável/volante ajustados pelo próprio usuário.
+Redesenhar em blocos A (destinos/mapa), B (trechos/diárias), C (justificativa),
+D (documentos/eProtocolo/prontidão), E (editor/PDF), F (histórico/ações finais).
+Blocos A–F implementados e revistos, sem abrir outro módulo. Regras em `product/oficios-cadastro-inferior.md`
+e decisão de composição no ADR 0031. Capturas antes em prévia local sintética
+PREVIEW 8016, banco/mídia LAB já existentes, sem seed ou recuperação de PDFs.
+
+Transporte: oito casos finais passaram, incluindo clique/teclado em cinco larguras,
+fallback nativo e escolha automática normal/reduzida. Clique corrigido mantendo
+status no fluxo; cartão inteiro clicável/volante do usuário preservados. Data
+manual protegida por dois novos testes HTTP, junto de 15 casos verdes do Lote H.
+Editor/carga/tokens/clone: 80 verdes. Busca remota retomada após digitação durante
+o import; teste com atraso passou e jornada completa emitiu/gerou PDF.
+
+95 pares reais antes/depois em `evidencias/oficios-cadastro-inferior/index.html`.
+20 estados finais da Folha e cinco do UI Lab sem axe, console ou overflow;
+15 estados de transporte sem falhas. Índice do UI Lab corrigido no fim da vitrine.
+Consultas GET 24/25/21 iguais à base; POST equipe 28 em ambas, acima do orçamento
+preexistente. Peso medido: +3.598 bytes CSS gzip (41 só no UI Lab) e +1.516 JS gzip.
+Latências locais com concorrência não constituem SLA ou garantia de ausência de regressão.
+
+Gate integral desta fonte verde: **2.281 aprovados, zero falhas, nove avisos
+preexistentes, 52min18s e exit 0**. Ruff, arquitetura, mypy, Bandit, migrações e
+tipos JS passaram. Os 47 hashes de fonte/testes foram conferidos depois do gate,
+sem divergência. Log bruto e registro em `evidencias/oficios-cadastro-inferior/`.
+Fechamento técnico aprovado com ressalvas; candidata consolidada para commit local.
+Sem mudanças de modelo/regra/documento oficial; sem recuperação de PDFs DEV.
+Relatório com falhas intermediárias, testes e limites em
+`qa/oficios-cadastro-inferior-2026-10-09.md`. Aprovação estética permanece com o usuário.
+
+## Pedido vigente — transporte em cartões, 09/10/2026
+
+Base `671c3a9`, branch `codex/oficios-transporte-cartoes`. Foco exclusivo na Folha:
+viatura por busca/cartão, confirmação da escolha automática, motorista externo
+abaixo e oculto quando há motorista na equipe; nomes/descrições sem quebra.
+Implementação e 15 estados visuais validados; fluxo completo e novo gate integral
+verdes nesta fonte. Falhas intermediárias preservadas. Não usar o gate anterior como
+validação desta fonte. Relatório `qa/oficios-transporte-cartoes-2026-10-09.md`.
+Sem avanço de página, push, merge ou deploy. Incidente dos PDFs permanece separado.
+
 ## Rodada vigente — refinamento de componentes, 09/10/2026
 
 Base `ffcc343`, branch `codex/oficios-componentes`. O usuário reconheceu a evolução

@@ -1,0 +1,11 @@
+.....                                                                    [100%]
+============================== warnings summary ===============================
+tests/e2e/test_eprotocolo_copia.py::test_folha_copia_campos_e_tudo_sem_dados_pessoais[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_eprotocolo_copia.py::test_equipe_htmx_preserva_foco_na_copia_durante_resposta
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_cadastro_bloco_d" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 passed, 2 warnings in 254.22s (0:04:14)

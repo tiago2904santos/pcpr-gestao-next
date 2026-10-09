@@ -167,6 +167,33 @@ def test_autosave_data_incompleta_nao_torna_manual(client, c):
     assert not oficio.data_oficio_manual
 
 
+@pytest.mark.parametrize("acao", ["editar", "autosave"])
+def test_folha_preserva_data_manual_ao_alterar_outro_campo(client, c, acao):
+    oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+    Oficio.objects.filter(pk=oficio.pk).update(data_oficio_manual=True)
+    oficio.refresh_from_db()
+    client.force_login(c.usuarios["operador"])
+    html = client.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+    dados = _post_edicao(oficio, motivo="Descrição alterada sem trocar a data escolhida.")
+    dados.pop("data_oficio_manual", None)
+    # Enviar o valor que o navegador realmente serializa, incluindo um eventual
+    # campo oculto. Checkbox desmarcado não entra no envio.
+    for campo in re.findall(r'<input\b[^>]*name="data_oficio_manual"[^>]*>', html):
+        if 'type="checkbox"' in campo and "checked" not in campo:
+            continue
+        valor = re.search(r'value="([^"]*)"', campo)
+        dados["data_oficio_manual"] = valor.group(1) if valor else "on"
+    rota = "autosave_oficio" if acao == "autosave" else acao
+    resposta = client.post(reverse(f"viagens:{rota}", args=[oficio.pk]), dados)
+    assert resposta.status_code in (200, 302)
+    if acao == "autosave":
+        assert resposta.json()["salvo"]
+    data_escolhida = oficio.data_oficio
+    oficio.refresh_from_db()
+    assert oficio.data_oficio == data_escolhida
+    assert oficio.data_oficio_manual
+
+
 def test_retry_exige_tambem_permissao_de_editar(client, c):
     from django.contrib.auth.models import Permission
 

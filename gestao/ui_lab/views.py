@@ -181,6 +181,12 @@ def indice(request: HttpRequest) -> HttpResponse:
          "Apoio às atividades institucionais. Não corresponde a um documento emitido."),
     ]
     contexto = {
+        "lab_prontidao_pronta": {"pode_emitir": True, "bloqueantes": [], "pendencias": []},
+        "lab_prontidao_pendente": {"pode_emitir": False,
+                                  "bloqueantes": [{"mensagem": "Informe o protocolo."}],
+                                  "pendencias": [{"mensagem": "Informe o protocolo.",
+                                                  "secao": "componentes-cadastro-inferior-lab",
+                                                  "bloqueia": True}]},
         "lab_copia": {"disponivel": True, "fonte": "rascunho", "aviso": "",
                       "dados": {"campos": [{"rotulo": r, "valor": v}
                                            for r, v in dados_copiaveis],

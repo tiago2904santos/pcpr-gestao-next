@@ -1,0 +1,97 @@
+[
+  {
+    "arquivo": "cadastro-bloco-a-focused.log",
+    "sha256": "61cfe18aba287cd4d83d48e753ac5d53e4a9d6791927e1375952ae1ade4d4aa8",
+    "resumo": "73 passed in 153.37s (0:02:33)"
+  },
+  {
+    "arquivo": "cadastro-bloco-b-reteste.log",
+    "sha256": "b4f99989fda5e0629b7b91413589f668b78c888d5a2bf344323a6049f61791d1",
+    "resumo": "5 passed in 139.28s (0:02:19)"
+  },
+  {
+    "arquivo": "cadastro-bloco-c-focused.log",
+    "sha256": "fba5ca6299f163881d77bb9cf246649ca05471f2e8b0a9a5665cd7d127826c54",
+    "resumo": "4 passed, 1 warning in 147.12s (0:02:27)"
+  },
+  {
+    "arquivo": "cadastro-bloco-d-focused.log",
+    "sha256": "94f443770ff6e9a6e36d485ba50ff561724034a544b42007b44cbb4e01586c39",
+    "resumo": "5 passed, 2 warnings in 254.22s (0:04:14)"
+  },
+  {
+    "arquivo": "cadastro-bloco-e-focused.log",
+    "sha256": "e623bdf0f0bdce4d9b83084b639ce4d92f4f38de7dc49fce084dac89aaf5870f",
+    "resumo": "1 failed, 3 passed, 1 warning in 156.15s (0:02:36)"
+  },
+  {
+    "arquivo": "cadastro-bloco-e-reteste.log",
+    "sha256": "d7fb0a117baa796eefdba45863726e7c52c87de727477812f04f0890e447de8e",
+    "resumo": "1 failed, 3 passed, 1 warning in 131.40s (0:02:11)"
+  },
+  {
+    "arquivo": "cadastro-bloco-e-final.log",
+    "sha256": "758cd055b66a767561e0e3e2b1e6afc2e68387769185eacd0871ad33735e30b4",
+    "resumo": "1 failed, 8 passed, 1 warning in 236.40s (0:03:56)"
+  },
+  {
+    "arquivo": "cadastro-seletor-reteste.log",
+    "sha256": "f6240b95346dd8d10378203b8dd6a45ade73474cc546b4862d8f1f508814e7c3",
+    "resumo": "2 passed, 1 warning in 116.04s (0:01:56)"
+  },
+  {
+    "arquivo": "cadastro-editor-consolidado.log",
+    "sha256": "06b3fdc2cfb5152c523cb33f54cf0317904921591470fe91b5bd642cb949f782",
+    "resumo": "80 passed, 1 warning in 323.85s (0:05:23)"
+  },
+  {
+    "arquivo": "cadastro-data-manual-antes.log",
+    "sha256": "95d1124a15926da27e8c343f64ff604a03ec175df8cd7d48894256a9f2a87ecd",
+    "resumo": "2 failed in 115.39s (0:01:55)"
+  },
+  {
+    "arquivo": "cadastro-data-manual-depois.log",
+    "sha256": "eb5d0d088e2141b194b1da36ec97cdd3c5d8823fda38a20dced870e7a7ca2c5f",
+    "resumo": "15 passed, 1 warning in 387.76s (0:06:27)"
+  },
+  {
+    "arquivo": "cadastro-transporte-final.log",
+    "sha256": "3fe58a379fcac8b3fad1a42544e0568a7be1694592dc536e1f04d3ac4788ed48",
+    "resumo": "8 passed in 364.55s (0:06:04)"
+  },
+  {
+    "arquivo": "cadastro-clique-origem-reteste.log",
+    "sha256": "a7052594a822be7e34f2f6089ea8fb4e013610aacbc100c1ac4dba1f43935098",
+    "resumo": "1 failed in 190.27s (0:03:10)"
+  },
+  {
+    "arquivo": "cadastro-final-fluxos.log",
+    "sha256": "bb7a67577ac309fb75f15cc04086378d5b5d6fa96f16dd0ac15e8edb9f12635f",
+    "resumo": "1 failed, 23 passed, 2 warnings in 553.83s (0:09:13)"
+  },
+  {
+    "arquivo": "cadastro-busca-antes.log",
+    "sha256": "805793f222f7b84db39787affc23cb508ad7c8a6205de434f302a8218b34f625",
+    "resumo": "1 error in 2.26s"
+  },
+  {
+    "arquivo": "cadastro-busca-diagnostico.log",
+    "sha256": "62ea2744d2f89cf9dc8b805fa444c81fff9f34bddc5313fcbc41d424ed29de1e",
+    "resumo": "1 failed, 1 passed, 1 warning in 133.01s (0:02:13)"
+  },
+  {
+    "arquivo": "cadastro-busca-final.log",
+    "sha256": "02cb690581e58c983dab1b4ae601b8d4c06c531985e7571b62de3cf4ea5e24d9",
+    "resumo": "1 failed, 4 passed, 1 warning in 160.11s (0:02:40)"
+  },
+  {
+    "arquivo": "cadastro-busca-fechamento.log",
+    "sha256": "8444aec46bfe877205d3ceb097108055ca9ab402633c658d393c70fe38587b3e",
+    "resumo": "1 failed, 1 passed, 1 warning in 78.22s (0:01:18)"
+  },
+  {
+    "arquivo": "cadastro-busca-validada.log",
+    "sha256": "577fa2d25ec688f93fdfda648267d866385ee42d43f8f8972591c3d23e1d4223",
+    "resumo": "1 passed in 62.35s (0:01:02)"
+  }
+]

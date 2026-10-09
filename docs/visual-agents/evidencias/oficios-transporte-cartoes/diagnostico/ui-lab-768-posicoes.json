@@ -1,0 +1,185 @@
+[
+  {
+    "posicao": "start",
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 139.6,
+                  "height": 14.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 139.6px by 14.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 23.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"botao\" href=\"#botoes\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-list-checks\"></use></svg>Componentes</a>",
+            "target": [
+              ".pagina-cabecalho__acoes > a[href$=\"#botoes\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 139.6px by 14.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 177.8,
+                  "height": 14.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"busca-global\" data-abrir-comandos=\"\" aria-label=\"Buscar ou ir para (Ctrl+K)\">",
+                    "target": [
+                      ".busca-global"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      "a[href$=\"notificacoes/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"perfil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Menu do usuário Operador de Demonstração\" aria-controls=\"menu-ec5mp9c\" aria-expanded=\"false\" id=\"menu-ec5mp9c-botao\">",
+                    "target": [
+                      "#menu-ec5mp9c-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 177.8px by 14.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 23.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"cabecalho__botao\" href=\"/notificacoes/\" aria-label=\"Notificações (14 não lidas)\" data-dica=\"Notificações\">",
+                    "target": [
+                      "a[href$=\"notificacoes/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button class=\"botao botao--primario\" type=\"button\" data-abrir-comandos=\"\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-command\"></use></svg>Paleta de comandos</button>",
+            "target": [
+              ".botao--primario.botao[data-abrir-comandos=\"\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 177.8px by 14.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 23.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "caixas": [
+      {
+        "classe": "cabecalho",
+        "texto": "PCPR\n    \n    \n      Gestão de Eventos e Viagens\n      Polícia Civil do Paraná\n    \n  \n  \n    PREVIEW\n  \n  \n    \n      \n      Buscar ofício, servidor ou página…\n      Ctrl K\n    \n  \n  \n    \n      \n      \n    \n    \n      \n        OD\n        \n          Operador\n          Gestor de viagens\n        \n        \n      \n      \n        \n          Operador de Demonstração\n          demo@demo.invalid\n          Demonstração · PREVIEW\n        \n         Alterar senha\n         UI Lab\n        \n        \n          \n           Sair",
+        "y": 0,
+        "altura": 57.59375
+      },
+      {
+        "classe": "navegacao",
+        "texto": "Demonstração · PREVIEW\n    \n    \n      \n        Início\n        \n      \n      \n        Central de módulos\n        \n        \n          Viagens\n        \n          Eventos Sociais\n        \n          Agenda\n        \n          Imprensa\n        \n          Publicações\n        \n          Palestras\n        \n          Coffee Break\n        \n          Relatórios\n        \n      \n    \n    \n    \n      \n        Início\n        \n          Viagens\n        \n          Eventos Sociais\n        \n          Agenda\n        \n          Imprensa\n        \n          Publicações\n        \n          Palestras\n        \n          Coffee Break\n        \n          Relatórios",
+        "y": 57.59375,
+        "altura": 47.796875
+      },
+      {
+        "classe": "botao",
+        "texto": "Componentes",
+        "y": -4.890625,
+        "altura": 36
+      },
+      {
+        "classe": "botao botao--primario",
+        "texto": "Paleta de comandos",
+        "y": -4.890625,
+        "altura": 36
+      }
+    ]
+  },
+  {
+    "posicao": "center",
+    "axe": [],
+    "caixas": [
+      {
+        "classe": "cabecalho",
+        "texto": "PCPR\n    \n    \n      Gestão de Eventos e Viagens\n      Polícia Civil do Paraná\n    \n  \n  \n    PREVIEW\n  \n  \n    \n      \n      Buscar ofício, servidor ou página…\n      Ctrl K\n    \n  \n  \n    \n      \n      \n    \n    \n      \n        OD\n        \n          Operador\n          Gestor de viagens\n        \n        \n      \n      \n        \n          Operador de Demonstração\n          demo@demo.invalid\n          Demonstração · PREVIEW\n        \n         Alterar senha\n         UI Lab\n        \n        \n          \n           Sair",
+        "y": 0,
+        "altura": 57.59375
+      },
+      {
+        "classe": "navegacao",
+        "texto": "Demonstração · PREVIEW\n    \n    \n      \n        Início\n        \n      \n      \n        Central de módulos\n        \n        \n          Viagens\n        \n          Eventos Sociais\n        \n          Agenda\n        \n          Imprensa\n        \n          Publicações\n        \n          Palestras\n        \n          Coffee Break\n        \n          Relatórios\n        \n      \n    \n    \n    \n      \n        Início\n        \n          Viagens\n        \n          Eventos Sociais\n        \n          Agenda\n        \n          Imprensa\n        \n          Publicações\n        \n          Palestras\n        \n          Coffee Break\n        \n          Relatórios",
+        "y": 57.59375,
+        "altura": 47.796875
+      },
+      {
+        "classe": "botao",
+        "texto": "Componentes",
+        "y": 199.109375,
+        "altura": 36
+      },
+      {
+        "classe": "botao botao--primario",
+        "texto": "Paleta de comandos",
+        "y": 199.109375,
+        "altura": 36
+      }
+    ]
+  }
+]

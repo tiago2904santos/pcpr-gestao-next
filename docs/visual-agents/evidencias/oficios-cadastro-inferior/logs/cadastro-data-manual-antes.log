@@ -1,0 +1,76 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_______ test_folha_preserva_data_manual_ao_alterar_outro_campo[editar] ________
+
+client = <django.test.client.Client object at 0x000001EA0D0A6210>
+c = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+acao = 'editar'
+
+    @pytest.mark.parametrize("acao", ["editar", "autosave"])
+    def test_folha_preserva_data_manual_ao_alterar_outro_campo(client, c, acao):
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        Oficio.objects.filter(pk=oficio.pk).update(data_oficio_manual=True)
+        oficio.refresh_from_db()
+        client.force_login(c.usuarios["operador"])
+        html = client.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        dados = _post_edicao(oficio, motivo="Descrição alterada sem trocar a data escolhida.")
+        dados.pop("data_oficio_manual", None)
+        # Enviar o valor que o navegador realmente serializa, incluindo um eventual
+        # campo oculto. Checkbox desmarcado não entra no envio.
+        for campo in re.findall(r'<input\b[^>]*name="data_oficio_manual"[^>]*>', html):
+            if 'type="checkbox"' in campo and "checked" not in campo:
+                continue
+            valor = re.search(r'value="([^"]*)"', campo)
+            dados["data_oficio_manual"] = valor.group(1) if valor else "on"
+        rota = "autosave_oficio" if acao == "autosave" else acao
+        resposta = client.post(reverse(f"viagens:{rota}", args=[oficio.pk]), dados)
+        assert resposta.status_code in (200, 302)
+        if acao == "autosave":
+            assert resposta.json()["salvo"]
+        data_escolhida = oficio.data_oficio
+        oficio.refresh_from_db()
+        assert oficio.data_oficio == data_escolhida
+>       assert oficio.data_oficio_manual
+E       assert False
+E        +  where False = <Oficio: Ofício 02/2026>.data_oficio_manual
+
+gestao\viagens\tests\test_lote_h.py:194: AssertionError
+______ test_folha_preserva_data_manual_ao_alterar_outro_campo[autosave] _______
+
+client = <django.test.client.Client object at 0x000001EA0D1B8FC0>
+c = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+acao = 'autosave'
+
+    @pytest.mark.parametrize("acao", ["editar", "autosave"])
+    def test_folha_preserva_data_manual_ao_alterar_outro_campo(client, c, acao):
+        oficio = Oficio.objects.get(pk=c.ids["oficio_rascunho"])
+        Oficio.objects.filter(pk=oficio.pk).update(data_oficio_manual=True)
+        oficio.refresh_from_db()
+        client.force_login(c.usuarios["operador"])
+        html = client.get(reverse("viagens:editar", args=[oficio.pk])).content.decode()
+        dados = _post_edicao(oficio, motivo="Descrição alterada sem trocar a data escolhida.")
+        dados.pop("data_oficio_manual", None)
+        # Enviar o valor que o navegador realmente serializa, incluindo um eventual
+        # campo oculto. Checkbox desmarcado não entra no envio.
+        for campo in re.findall(r'<input\b[^>]*name="data_oficio_manual"[^>]*>', html):
+            if 'type="checkbox"' in campo and "checked" not in campo:
+                continue
+            valor = re.search(r'value="([^"]*)"', campo)
+            dados["data_oficio_manual"] = valor.group(1) if valor else "on"
+        rota = "autosave_oficio" if acao == "autosave" else acao
+        resposta = client.post(reverse(f"viagens:{rota}", args=[oficio.pk]), dados)
+        assert resposta.status_code in (200, 302)
+        if acao == "autosave":
+            assert resposta.json()["salvo"]
+        data_escolhida = oficio.data_oficio
+        oficio.refresh_from_db()
+        assert oficio.data_oficio == data_escolhida
+>       assert oficio.data_oficio_manual
+E       assert False
+E        +  where False = <Oficio: Ofício 02/2026>.data_oficio_manual
+
+gestao\viagens\tests\test_lote_h.py:194: AssertionError
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_lote_h.py::test_folha_preserva_data_manual_ao_alterar_outro_campo[editar]
+FAILED gestao/viagens/tests/test_lote_h.py::test_folha_preserva_data_manual_ao_alterar_outro_campo[autosave]
+2 failed in 115.39s (0:01:55)

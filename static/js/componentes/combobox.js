@@ -84,7 +84,8 @@ export class PcCombobox extends HTMLElement {
         if (this.escolhendo || !this.select || !this.entrada) return;
         const atual = this.select.selectedOptions[0];
         const mostrar = atual && (atual.value || this.hasAttribute("data-vazio-e-valor"));
-        this.entrada.value = mostrar ? atual.textContent?.trim() || "" : "";
+        this.entrada.value = mostrar && !this.hasAttribute("data-escolha-em-cartao") ? atual.textContent?.trim() || "" : "";
+        if (!mostrar && this.hasAttribute("data-escolha-em-cartao") && this.anuncio) this.anuncio.textContent = "Seleção removida.";
         this.sincronizarLimpar();
       });
     }
@@ -95,6 +96,14 @@ export class PcCombobox extends HTMLElement {
       const li = /** @type {HTMLElement} */ (e.target).closest("[role='option']");
       if (li) this.escolher(Number(/** @type {HTMLElement} */ (li).dataset.indice));
     });
+    // O input já existe durante o import: a pessoa pode digitar antes dos eventos
+    // estarem conectados. Retoma essa consulta sem limpar uma seleção preexistente.
+    const identificador = this.querySelector("input[data-valor-id]");
+    if (this.dataset.fonte && document.activeElement === this.entrada
+        && this.entrada.value.trim()
+        && !(identificador instanceof HTMLInputElement && identificador.value)) {
+      this.aoDigitar();
+    }
   }
 
   /**
@@ -160,7 +169,7 @@ export class PcCombobox extends HTMLElement {
     // `data-vazio-e-valor`: a escolha vazia é um valor de verdade (ex.: "quem assina" = o da
     // configuração) — o nome dela aparece no campo, em vez do campo em branco.
     const vazioEValor = this.hasAttribute("data-vazio-e-valor");
-    if (atual && (atual.value || vazioEValor)) entrada.value = atual.textContent?.trim() || "";
+    if (atual && (atual.value || vazioEValor) && !this.hasAttribute("data-escolha-em-cartao")) entrada.value = atual.textContent?.trim() || "";
     entrada.required = select.required;
     select.hidden = true;
     select.tabIndex = -1;
@@ -183,7 +192,7 @@ export class PcCombobox extends HTMLElement {
       oculto.value = "";
       oculto.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    if (this.select && this.entrada && this.entrada.value.trim() === "") {
+    if (this.select && this.entrada && this.entrada.value.trim() === "" && !this.hasAttribute("data-escolha-em-cartao")) {
       this.select.value = "";
       this.select.dispatchEvent(new Event("change", { bubbles: true }));
     }
@@ -365,10 +374,13 @@ export class PcCombobox extends HTMLElement {
     if (!opcao || !this.entrada) return;
     if (this.select) {
       this.escolhendo = true;
+      const mudou = this.select.value !== opcao.id;
       this.select.value = opcao.id;
-      this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      if (mudou || !this.hasAttribute("data-escolha-em-cartao")) {
+        this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
       this.escolhendo = false;
-      this.entrada.value = opcao.titulo;
+      this.entrada.value = this.hasAttribute("data-escolha-em-cartao") ? "" : opcao.titulo;
     } else if (this.oculto) {
       const oculto = /** @type {HTMLInputElement} */ (this.oculto);
       oculto.value = opcao.id;
@@ -383,6 +395,7 @@ export class PcCombobox extends HTMLElement {
     }
     this.fechar();
     this.sincronizarLimpar();
+    if (this.hasAttribute("data-escolha-em-cartao") && this.anuncio) this.anuncio.textContent = `Selecionado: ${opcao.titulo}.`;
     const campoMeta = /** @type {keyof Opcao} */ (this.dataset.mostrarMeta || "meta");
     this.mostrarMeta(String(opcao[campoMeta] ?? ""));
     this.dispatchEvent(new CustomEvent("pc-selecionado", { detail: opcao, bubbles: true }));

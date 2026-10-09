@@ -1,0 +1,170 @@
+[
+  {
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "largura": 1024,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 172.8,
+                  "height": 12.2
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"marca\" href=\"/\" aria-label=\"PCPR — Gestão de Eventos e Viagens, página inicial\">",
+                    "target": [
+                      ".marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 172.8px by 12.2px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a href=\"#progresso-lab\"><span class=\"etapas__marcador\">19</span>Etapas de um fluxo</a>",
+                    "target": [
+                      "a[href$=\"#progresso-lab\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"marca\" href=\"/\" aria-label=\"PCPR — Gestão de Eventos e Viagens, página inicial\">",
+                    "target": [
+                      ".marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a href=\"#copiar-lab\"><span class=\"etapas__marcador\">20</span>Copiar um texto</a>",
+            "target": [
+              "a[href$=\"#copiar-lab\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 172.8px by 12.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "largura": 1440,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 172.8,
+                  "height": 12.5
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"marca\" href=\"/\" aria-label=\"PCPR — Gestão de Eventos e Viagens, página inicial\">",
+                    "target": [
+                      ".marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 172.8px by 12.5px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 10.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a href=\"#progresso-lab\"><span class=\"etapas__marcador\">19</span>Etapas de um fluxo</a>",
+                    "target": [
+                      "a[href$=\"#progresso-lab\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"marca\" href=\"/\" aria-label=\"PCPR — Gestão de Eventos e Viagens, página inicial\">",
+                    "target": [
+                      ".marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a href=\"#copiar-lab\"><span class=\"etapas__marcador\">20</span>Copiar um texto</a>",
+            "target": [
+              "a[href$=\"#copiar-lab\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 172.8px by 12.5px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": 0
+  }
+]

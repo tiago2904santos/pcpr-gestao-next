@@ -1,0 +1,57 @@
+........F
+================================== FAILURES ===================================
+_______ test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado ________
+
+logado = <Page url='http://localhost:52017/viagens/oficios/42/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 41, 'oficio_rascunho': 42, 'oficio_vazio': 43, 'oficio_cancelado': 44, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado(logado, dados_e2e):
+        pg = logado
+        pg.goto(f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+                wait_until="networkidle")
+        # O alvo original ainda não apareceu. Repor a caixa não pode perder a observação.
+        pg.evaluate(SUBSTITUIR, False)
+        expect(pg.locator("[data-editores] iframe[src]")).to_have_count(0)
+        pg.locator("#minuta").scroll_into_view_if_needed()
+        _esperar_editor(pg)
+        # Um pedido sem swap não desliga o índice que já funciona.
+        pg.evaluate("""() => document.body.dispatchEvent(new CustomEvent('htmx:beforeSwap', {
+            detail: {target: document.querySelector('[data-editores]'), shouldSwap: false}
+        }))""")
+        indice = _indice(pg)
+        aberto = indice.get_attribute("aria-expanded")
+        indice.click()
+        expect(indice).to_have_attribute("aria-expanded", "false" if aberto == "true" else "true")
+        indice.click()
+        # Agora o módulo está em cache. Tanto troca externa como interna religam o índice.
+        for interno in (False, True):
+            pg.evaluate(SUBSTITUIR, interno)
+            _esperar_editor(pg)
+            _indice(pg).click()
+            expect(pg.locator("[data-editores]")).to_have_class(re.compile("editores--sem-indice"))
+            _indice(pg).click()
+            expect(pg.locator("[data-editores]")).not_to_have_class(re.compile("editores--sem-indice"))
+        # Import em cache não antecipa as miniaturas de uma caixa nova longe da tela.
+        pg.evaluate("window.scrollTo(0, 0)")
+        pg.evaluate(SUBSTITUIR, False)
+        pg.wait_for_load_state("networkidle")
+        expect(pg.locator("[data-editores] iframe[data-miniatura][src]")).to_have_count(0)
+        pg.locator("#minuta").scroll_into_view_if_needed()
+        _esperar_editor(pg)
+>       assert pg.erros_console == []
+E       assert ["Cannot read...tions')", ...] == []
+E         
+E         Left contains 16 more items, first extra item: "Cannot read properties of undefined (reading 'selectedOptions')"
+E         Use -v to get more diff
+
+tests\e2e\test_editor_carga.py:125: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_editor_carga.py::test_reposicao_antes_da_visibilidade_e_com_modulo_ja_carregado
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 8 passed, 1 warning in 236.40s (0:03:56)

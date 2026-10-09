@@ -9,6 +9,9 @@
 .lab__indice {
   position: sticky;
   top: calc(var(--altura-topo) + var(--esp-4));
+  max-height: calc(100dvh - var(--altura-topo) - var(--esp-4) * 2);
+  overflow-y: auto;
+  scrollbar-width: thin;
   padding: var(--esp-2);
 }
 

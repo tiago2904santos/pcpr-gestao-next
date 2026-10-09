@@ -1,0 +1,8 @@
+{% load viagens %}
+{% comment %}Região única de salvamento. Autosave e proteção atualizam somente data-anuncio.
+atualizado_em: instante existente no registro; pendencias: lista calculada pelo domínio.
+{% endcomment %}
+<div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
+  {% icone "check" classe="icone--sm" %}
+  <span data-anuncio>{% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}Rascunho salvo às {{ atualizado_em|date:"H:i" }}{% else %}Última alteração {{ atualizado_em|date:"d/m/Y H:i" }} · {{ pendencias|length }} pendência{{ pendencias|length|pluralize:"s" }} antes de emitir.{% endif %}</span>
+</div>

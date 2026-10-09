@@ -49,6 +49,16 @@ ICONES = sorted({
 })
 
 
+# Ícones próprios, no mesmo traço do Lucide (24x24, stroke 2): o que o conjunto não tem.
+# `volante`: quem dirige. O "ship-wheel" do Lucide é um timão e não lê como carro.
+PROPRIOS = {
+    "volante": (
+        '<circle cx="12" cy="12" r="9" /> <circle cx="12" cy="12" r="2.5" /> '
+        '<path d="M3.2 12h6.3" /> <path d="M14.5 12h6.3" /> <path d="M12 14.5v6.3" />'
+    ),
+}
+
+
 def sprite() -> str:
     simbolos = []
     for nome in ICONES:
@@ -58,10 +68,12 @@ def sprite() -> str:
         miolo = re.sub(r"<!--.*?-->", "", corpo.group(1), flags=re.S)
         miolo = re.sub(r"\s+", " ", miolo).strip()
         simbolos.append(f'<symbol id="i-{nome}" viewBox="0 0 24 24">{miolo}</symbol>')
+    for nome, miolo in sorted(PROPRIOS.items()):
+        simbolos.append(f'<symbol id="i-{nome}" viewBox="0 0 24 24">{miolo}</symbol>')
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" '
         'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-        "<!-- Lucide (ISC) — gerado por scripts/vendor_assets.py -->"
+        "<!-- Lucide (ISC) + ícones próprios — gerado por scripts/vendor_assets.py -->"
         + "".join(simbolos) + "</svg>\n"
     )
 

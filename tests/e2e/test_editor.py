@@ -110,9 +110,11 @@ def test_voltar_ao_modelo_e_restaurar(logado: Page, dados_e2e):
     )
 
 
-def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e):
+@pytest.mark.parametrize("largura", [360, 768, 1440])
+def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e, largura):
     pk = dados_e2e.ids["oficio_rascunho"]
     pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
     _abrir_folha(pg, pk)
     pg.click("#editor-oficio [data-modo='pdf']")
     # O bloco unido usa um PDF com ofício + justificativa (editores.js).
@@ -125,17 +127,17 @@ def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e):
     expect(pg.locator("#editor-oficio .editor__linha--ferramentas")).to_be_hidden()
     pg.click("#editor-oficio [data-modo='texto']")
     expect(pg.locator("#folha-oficio")).to_be_visible()
-    # Páginas e avisos de pendência precedem as ações e o par Texto/PDF.
-    # Confirmar os dois primeiros controles visíveis e o único tabstop.
+    # A barra inclui a divulgação "Formatar texto", recolhida no mobile.
+    # Setas/Home/End percorrem também esse controle, mantendo um único tabstop.
     barra = pg.locator("#editor-oficio [role='toolbar']")
-    botoes = barra.locator("button:visible:not([disabled])")
+    botoes = barra.locator("button:visible:not([disabled]), summary:visible")
     primeiro = botoes.first
     primeiro.focus()
     pg.keyboard.press("Home")
     expect(primeiro).to_be_focused()
     pg.keyboard.press("ArrowRight")
     expect(botoes.nth(1)).to_be_focused()
-    assert barra.evaluate("""el => [...el.querySelectorAll('button')]
+    assert barra.evaluate("""el => [...el.querySelectorAll('button, summary')]
         .filter(b => b.getClientRects().length && b.tabIndex === 0).length""") == 1
     pg.keyboard.press("End")
     expect(botoes.last).to_be_focused()
@@ -146,5 +148,10 @@ def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e):
     assert pg.evaluate("document.activeElement.dataset.modo") == "pdf"
     pg.keyboard.press("ArrowLeft")
     assert pg.evaluate("document.activeElement.dataset.modo") == "texto"
+    ferramentas = barra.locator("details[data-ferramentas-recolhiveis]")
+    if ferramentas.get_attribute("open") is None:
+        ferramentas.locator("summary").press("Enter")
+        expect(ferramentas).to_have_attribute("open", "")
+    expect(barra.get_by_role("button", name="Negrito (Ctrl+B)")).to_be_visible()
     violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
     assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:5]) for v in violacoes]

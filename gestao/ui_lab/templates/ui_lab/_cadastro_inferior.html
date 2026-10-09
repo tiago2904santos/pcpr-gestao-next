@@ -1,0 +1,11 @@
+<section class="cartao" id="componentes-cadastro-inferior-lab" aria-labelledby="t-cadastro-inferior-lab">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-cadastro-inferior-lab">Preparação documental</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario texto-sm">Contexto e edição, conferência de emissão e salvamento. Exemplos sintéticos, sem gravação.</p>
+    {% include "componentes/formulario_contextual.html" with contexto_template="ui_lab/_contextual_estado.html" conteudo_template="ui_lab/_contextual_campos.html" prefixo="lab-contexto-erro" rotulo_contexto="Obrigatória" explicacao_contexto="Explique a necessidade do deslocamento dentro do prazo institucional." erro=True %}
+    {% include "componentes/formulario_contextual.html" with contexto_template="ui_lab/_contextual_estado.html" conteudo_template="ui_lab/_contextual_campos.html" prefixo="lab-contexto-incluido" rotulo_contexto="Dispensada" explicacao_contexto="O texto incluído continua disponível para conferência e edição." texto_contexto="Justificativa escrita antes da alteração do período da viagem." %}
+    {% include "componentes/formulario_contextual.html" with contexto_template="ui_lab/_contextual_estado.html" conteudo_template="ui_lab/_contextual_campos.html" prefixo="lab-contexto-leitura" rotulo_contexto="Somente leitura" explicacao_contexto="Estado demonstrativo de campo desabilitado." texto_contexto="Texto preservado do registro." desabilitado=True %}
+    {% include "componentes/prontidao_documental.html" with prontidao=lab_prontidao_pronta conferencia_id="lab-conferencia-pronta" pode_emitir=True form_id="lab-form-sem-gravacao" emitir_acao="emitir" %}
+    {% include "componentes/prontidao_documental.html" with prontidao=lab_prontidao_pendente conferencia_id="lab-conferencia-pendente" pode_emitir=False %}
+  </div>
+</section>

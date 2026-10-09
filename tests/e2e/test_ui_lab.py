@@ -24,6 +24,33 @@ COMPONENTES = {
 }
 
 
+def test_seletor_reconecta_e_clona_sem_duplicar_controles(logado):
+    pg = logado
+    pg.goto("/ui-lab/")
+    nativo = pg.locator("#id_destino")
+    expect(nativo).to_have_attribute("aria-hidden", "true")
+    componente = pg.locator("pc-select").filter(has=nativo)
+    for clonar in (False, True):
+        componente.evaluate("""(e, clonar) => {
+            if (clonar) e.replaceWith(e.cloneNode(true));
+            else { const p=e.parentNode, proximo=e.nextSibling;
+                e.remove(); p.insertBefore(e, proximo); }
+        }""", clonar)
+        gatilho = componente.get_by_role("combobox")
+        expect(gatilho).to_have_count(1)
+        expect(componente.get_by_role("listbox", include_hidden=True)).to_have_count(1)
+        gatilho.press("Enter")
+        gatilho.press("End")
+        gatilho.press("Enter")
+        expect(nativo).to_have_value("gaf")
+        expect(gatilho).to_contain_text("Grupo Auxiliar Financeiro")
+        nativo.evaluate("e => e.disabled = true")
+        expect(gatilho).to_be_disabled()
+        nativo.evaluate("e => e.disabled = false")
+        expect(gatilho).to_be_enabled()
+    assert pg.erros_console == []
+
+
 @pytest.mark.parametrize("nome", list(COMPONENTES))
 def test_estados_hover_foco_ativo(logado, nome):
     pg = logado

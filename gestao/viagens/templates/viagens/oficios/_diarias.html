@@ -13,7 +13,7 @@ Três invólucros para o mesmo corpo (_diarias_corpo.html):
       <h3 class="secao__bloco-titulo" id="t-diarias">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
       <div class="secao__estado">{% if calculo.total %}<span class="selo selo--{% if previa_diarias %}aviso selo--sem-ponto{% else %}sucesso selo--situacao-emitido{% endif %}">{% if previa_diarias %}Prévia para {{ calculo.servidores|pluralizar:"servidor,servidores" }} — salve para gravar{% else %}Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}{% endif %}</span>{% else %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
     </div>
-    {% include "viagens/oficios/_diarias_corpo.html" with serena=True horizontal=True %}
+    {% include "viagens/oficios/_diarias_corpo.html" with serena=True horizontal=True operacional=True %}
   </div>
 {% else %}
   <section class="secao{% if numerado and calculo.total %} secao--ok{% endif %}" id="diarias" aria-labelledby="t-diarias">

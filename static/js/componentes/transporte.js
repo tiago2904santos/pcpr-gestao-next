@@ -29,12 +29,15 @@ export class PcTransporte extends HTMLElement {
     this.motoristaAnterior = this.equipe().find((m) => m.motorista)?.id || "";
     this.sugerir();
     this.ligarMotoristaDeFora();
+    this.ligarCartao();
+    this.sincronizarMotoristaDeFora();
     // O HTMX troca o bloco #equipe inteiro (outerHTML): o `HX-Trigger` cai num elemento já
     // fora da página e não chega ao body. O que chega é o fim da troca, com a rota pedida.
     this.aoMudarEquipe = (/** @type {Event} */ e) => {
       const rota = /** @type {CustomEvent} */ (e).detail?.pathInfo?.requestPath || "";
       if (!/\/equipe\//.test(rota)) return;
       this.sugerir();
+      this.sincronizarMotoristaDeFora();
       this.escolherPeloMotorista();
     };
     document.body.addEventListener("htmx:afterSettle", this.aoMudarEquipe);
@@ -42,6 +45,7 @@ export class PcTransporte extends HTMLElement {
       const area = this.areaDaEquipe();
       if (area && !area.contains(/** @type {Node} */ (e.target))) return;
       this.sugerir();
+      this.sincronizarMotoristaDeFora();
       this.escolherPeloMotorista();
     };
     document.addEventListener("pc-equipe-alterada", this.aoMudarCampoEquipe);
@@ -55,6 +59,58 @@ export class PcTransporte extends HTMLElement {
   disconnectedCallback() {
     if (this.aoMudarEquipe) document.body.removeEventListener("htmx:afterSettle", this.aoMudarEquipe);
     if (this.aoMudarCampoEquipe) document.removeEventListener("pc-equipe-alterada", this.aoMudarCampoEquipe);
+    if (this.aoMudarViatura) this.select?.removeEventListener("change", this.aoMudarViatura);
+    if (this.aoRemoverViatura) this.querySelector("[data-remover-viatura]")?.removeEventListener("click", this.aoRemoverViatura);
+  }
+
+  /** Variante da busca: seleção persistente em cartão, busca livre para substituir. */
+  ligarCartao() {
+    this.cartao = /** @type {HTMLElement | null} */ (this.querySelector("[data-viatura-cartao]"));
+    if (!this.cartao || !this.select) return;
+    this.aoMudarViatura = () => this.sincronizarCartao();
+    this.select.addEventListener("change", this.aoMudarViatura);
+    this.aoRemoverViatura = () => {
+      if (!this.select) return;
+      this.select.value = "";
+      this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      /** @type {HTMLInputElement | null} */ (this.querySelector("pc-combobox[data-escolha-em-cartao] input[role='combobox']"))?.focus();
+    };
+    this.querySelector("[data-remover-viatura]")?.addEventListener("click", this.aoRemoverViatura);
+    this.cartao.addEventListener("animationend", () => this.cartao?.removeAttribute("data-escolhida-pelo-motorista"));
+    this.sincronizarCartao();
+  }
+
+  sincronizarCartao() {
+    const cartao = this.cartao;
+    const opcao = this.select?.selectedOptions[0];
+    if (!cartao) return;
+    cartao.hidden = !opcao?.value;
+    cartao.removeAttribute("data-escolhida-pelo-motorista");
+    const origem = /** @type {HTMLElement | null} */ (cartao.querySelector("[data-recurso-origem]"));
+    if (origem) origem.hidden = true;
+    if (!opcao?.value) return;
+    for (const [seletor, texto] of [
+      ["[data-recurso-titulo]", opcao.textContent?.trim() || "Viatura"],
+      ["[data-recurso-meta]", opcao.dataset.meta || "Cadastro sem detalhes adicionais"],
+    ]) {
+      const campo = cartao.querySelector(seletor);
+      if (campo instanceof HTMLElement) { campo.textContent = texto; campo.title = texto; }
+    }
+    cartao.querySelector("[data-remover-viatura]")?.setAttribute("aria-label", `Remover viatura ${opcao.textContent?.trim()}`);
+  }
+
+  /** A marcação da equipe já substituiu o externo no servidor. Não reenviar o modo antigo. */
+  sincronizarMotoristaDeFora() {
+    const bloco = /** @type {HTMLDetailsElement | null} */ (this.querySelector("details.motorista-externo"));
+    if (!bloco) return;
+    bloco.hidden = this.equipe().some((m) => m.motorista);
+    if (!bloco.hidden) return;
+    bloco.open = false;
+    const quem = /** @type {HTMLSelectElement | null} */ (bloco.querySelector("select[name='motorista_externo']"));
+    if (quem) quem.value = "";
+    for (const campo of bloco.querySelectorAll("input, select, textarea")) {
+      /** @type {HTMLInputElement} */ (campo).disabled = true;
+    }
   }
 
   /** @returns {Membro[]} */
@@ -129,11 +185,28 @@ export class PcTransporte extends HTMLElement {
       }
     };
     habilitar();
+    const atualizarPessoa = () => {
+      const titulo = bloco.querySelector(".pessoa-externa__titulo");
+      const descricao = bloco.querySelector(".pessoa-externa__descricao");
+      const manual = /** @type {HTMLInputElement | null} */ (bloco.querySelector("input[name='motorista_externo_nome']"));
+      const servidor = /** @type {HTMLInputElement | null} */ (bloco.querySelector("input[name='motorista_externo_servidor']"));
+      const busca = /** @type {HTMLInputElement | null} */ (bloco.querySelector("#busca-motorista-externo"));
+      const nome = quem.value === "manual" ? manual?.value.trim() : servidor?.value ? busca?.value.trim() : "";
+      if (titulo) titulo.textContent = nome || "Motorista de outro ofício";
+      const origem = /** @type {HTMLInputElement | null} */ (bloco.querySelector("input[name='motorista_oficio_origem']"));
+      const protocolo = /** @type {HTMLInputElement | null} */ (bloco.querySelector("input[name='motorista_protocolo_origem']"));
+      if (descricao) descricao.textContent = nome
+        ? ["Motorista de outro ofício", origem?.value.trim(), protocolo?.value.trim()].filter(Boolean).join(" · ")
+        : "Viaja por outro ofício; não entra nas diárias desta equipe.";
+    };
+    for (const evento of ["input", "change", "pc-selecionado"]) bloco.addEventListener(evento, atualizarPessoa);
+    atualizarPessoa();
     bloco.addEventListener("toggle", () => {
       habilitar();
       const novo = bloco.open ? (quem.value || primeira()) : "";
       if (quem.value === novo) return;
       quem.value = novo;
+      atualizarPessoa();
       quem.dispatchEvent(new Event("change", { bubbles: true }));
     });
   }
@@ -154,6 +227,11 @@ export class PcTransporte extends HTMLElement {
     if (this.tipo && this.tipo.value !== "viatura") {
       this.tipo.value = "viatura";
       this.tipo.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    if (this.cartao) {
+      this.cartao.setAttribute("data-escolhida-pelo-motorista", "");
+      const origem = /** @type {HTMLElement | null} */ (this.cartao.querySelector("[data-recurso-origem]"));
+      if (origem) origem.hidden = false;
     }
     const primeiro = motorista.nome.split(" ")[0];
     document.body.dispatchEvent(new CustomEvent("toast", {

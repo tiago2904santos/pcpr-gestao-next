@@ -18,14 +18,29 @@ let contador = 0;
 const normalizar = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 export class PcSelect extends HTMLElement {
+  /** @type {HTMLSelectElement | undefined} */
+  select = undefined;
   ativo = 0;
   busca = "";
   /** @type {number | undefined} */
   atrasoBusca = undefined;
+  /** @type {MutationObserver | undefined} */
+  observadorEstado = undefined;
 
   connectedCallback() {
     const select = /** @type {HTMLSelectElement | null} */ (this.querySelector("select"));
-    if (!select || this.dataset.pronto) return;
+    if (!select) return;
+    // O DOM pode ser clonado por um swap. data-pronto é copiado; as referências e
+    // os eventos da instância não são. Só reconectar diretamente a instância real.
+    if (this.select === select && this.gatilho && this.lista && this.valor) {
+      this.observadorEstado?.observe(select, { attributes: true, attributeFilter: ["disabled"] });
+      this.atualizarGatilho();
+      return;
+    }
+    this.observadorEstado?.disconnect();
+    this.fechar();
+    this.querySelectorAll(":scope > .seletor__gatilho, :scope > .seletor__lista")
+      .forEach((el) => el.remove());
     this.dataset.pronto = "1";
     contador += 1;
     this.select = select;
@@ -42,7 +57,8 @@ export class PcSelect extends HTMLElement {
       if (valor) gatilho.setAttribute(atributo, valor);
     }
     gatilho.disabled = select.disabled;
-    const rotulo = select.id ? document.querySelector(`label[for="${select.id}"]`) : null;
+    const rotulo = select.id ? document.querySelector(
+      `label[for="${select.id}"], label[for="${select.id}-gatilho"]`) : null;
     if (rotulo) rotulo.setAttribute("for", gatilho.id);
     this.valor = document.createElement("span");
     this.valor.className = "seletor__valor";
@@ -70,6 +86,8 @@ export class PcSelect extends HTMLElement {
     this.lista = lista;
     this.classList.add("seletor--ativo");
     this.atualizarGatilho();
+    this.observadorEstado = new MutationObserver(() => this.atualizarGatilho());
+    this.observadorEstado.observe(select, { attributes: true, attributeFilter: ["disabled"] });
 
     gatilho.addEventListener("click", () => (this.aberta ? this.fechar() : this.abrir()));
     gatilho.addEventListener("keydown", (e) => this.teclado(e));
@@ -91,9 +109,14 @@ export class PcSelect extends HTMLElement {
     return Boolean(this.lista && !this.lista.hidden);
   }
 
+  disconnectedCallback() {
+    this.observadorEstado?.disconnect();
+  }
+
   atualizarGatilho() {
     const select = /** @type {HTMLSelectElement} */ (this.select);
     const opcao = select.selectedOptions[0];
+    if (this.gatilho) this.gatilho.disabled = select.disabled;
     /** @type {HTMLElement} */ (this.valor).textContent = opcao?.textContent?.trim() || "";
     this.gatilho?.classList.toggle("seletor__gatilho--vazio", !select.value);
   }

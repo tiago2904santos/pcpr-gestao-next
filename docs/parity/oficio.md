@@ -1,5 +1,26 @@
 # Matriz de paridade — Ofício de viagem (referência × novo)
 
+## Apresentação de Roteiro até conclusão — 09/10/2026
+
+Pedido visual sobre a base `671c3a9`, sem alteração de regra institucional.
+Busca/aplicação de roteiro, destinos/ordem/UF/retorno, saída/durações/chegada,
+diárias, justificativa/modelos, revisão/prontidão, dados copiáveis, editor/PDF,
+histórico e ações finais mantêm campos, endpoints e ações existentes.
+Transporte em cartões preserva seleção automática, motorista externo, autosave
+e fallback nativo. Cartão inteiro clicável e volante do usuário preservados.
+
+Correção de confiabilidade: removido o campo oculto vazio de `data_oficio_manual`
+que restou após a retirada visual do checkbox. O formulário continua aplicando
+a regra existente: data digitada é manual; flag manual existente se preserva ao
+alterar outro campo. Dois testes HTTP serializam o campo como o navegador faria,
+falharam antes da correção e passaram depois, junto dos demais casos do Lote H.
+Nenhuma regra nova em `forms.clean`, cálculo, documento, permissões ou integração.
+
+Evidências e estado do gate desta candidata em
+`../visual-agents/qa/oficios-cadastro-inferior-2026-10-09.md`.
+A matriz histórica abaixo não serve como avaliação estética atual. Resumo é a
+referência visual aprovada pelo usuário; esta Folha aguarda sua revisão estética.
+
 ## Atualização visual — 08/10/2026
 
 Lista, Resumo, Folha e painel Documentos usam o novo padrão documental.

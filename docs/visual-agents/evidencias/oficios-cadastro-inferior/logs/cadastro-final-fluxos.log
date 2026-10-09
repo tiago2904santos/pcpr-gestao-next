@@ -1,0 +1,71 @@
+F.......................                                                 [100%]
+================================== FAILURES ===================================
+________________ test_operador_cria_preenche_e_emite_um_oficio ________________
+
+logado = <Page url='http://localhost:62326/viagens/oficios/6/editar/'>
+
+    def test_operador_cria_preenche_e_emite_um_oficio(logado):
+        pg = logado
+        pg.goto("/viagens/oficios/")
+        # Como no sistema de referência: o botão já cria o ofício e abre a folha completa.
+        pg.get_by_role("button", name="Novo ofício").first.click()
+        expect(pg.locator(".toast")).to_contain_text("criado")
+        titulo = pg.get_by_role("heading", level=1).inner_text()
+        numero = re.search(r"\d{2,}/\d{4}", titulo).group(0)  # D2: "05/2026"
+        pg.get_by_label("Motivo da viagem").fill("Cobertura do evento PCPR na Comunidade.")
+    
+        # Equipe via combobox remoto (HTMX, salva na hora).
+        busca = pg.get_by_role("combobox", name="Adicionar servidor")
+        busca.fill("isab")
+>       pg.get_by_role("option", name=re.compile("Isabela Prado")).click()
+
+tests\e2e\test_fluxo_oficio.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001DB8F7F16A0>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001DB9092C400>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("option", name=re.compile(r"Isabela Prado"))
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+============================== warnings summary ===============================
+tests/e2e/test_lote_h_visual.py::test_falha_retry_por_teclado_e_pdf_sem_duplicacao
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_ui_lab.py::test_combobox_local_por_teclado
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_cadastro_final_fluxos" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_fluxo_oficio.py::test_operador_cria_preenche_e_emite_um_oficio
+1 failed, 23 passed, 2 warnings in 553.83s (0:09:13)
