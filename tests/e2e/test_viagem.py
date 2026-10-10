@@ -18,6 +18,7 @@ def test_viagem_do_zero(logado, dados_e2e):
     pg.goto("/viagens/viagens/")
     pg.get_by_role("button", name="Nova viagem").first.click()
     expect(pg.get_by_text("Falta o tipo")).to_be_visible()
+    pg.locator("#tipos-gatilho").click()
     pg.get_by_role("checkbox", name="Unidade Móvel", exact=True).check()
     # O título nasce do tipo: gravou e a tela se refez com ele.
     expect(pg.locator("#frase-viagem")).to_contain_text("Unidade Móvel")

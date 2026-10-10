@@ -1,0 +1,135 @@
+2026-10-10 06:54:24,744 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 66 consultas (limite 25)
+.2026-10-10 06:54:38,489 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 66 consultas (limite 25)
+.2026-10-10 06:54:51,930 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/: 66 consultas (limite 25)
+.F2026-10-10 06:55:20,835 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/9/: 62 consultas (limite 25)
+F                                                                    [100%]
+================================== FAILURES ===================================
+_________________ test_paginacao_filtro_canceladas_e_consulta _________________
+
+logado = <Page url='http://localhost:53714/viagens/viagens/?aba=futuras&q=A%C3%A7%C3%A3o&pagina=2'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FCE25FCE20>
+
+    def test_paginacao_filtro_canceladas_e_consulta(logado, dados_e2e, monkeypatch):
+        from gestao.viagens import views_viagem
+    
+        monkeypatch.setattr(views_viagem, "POR_PAGINA", 1)
+        v, vazia = _preparar(dados_e2e)
+        viagem.salvar_dados(dados_e2e.usuarios["operador"], vazia.pk,
+                           tipos=list(v.tipos.all()))
+        pg = logado
+        pg.goto("/viagens/viagens/?aba=futuras&q=A%C3%A7%C3%A3o")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        pg.get_by_role("link", name="Próxima página", exact=True).click()
+        expect(pg).to_have_url(re.compile("pagina=2"))
+        expect(pg.get_by_role("searchbox", name="Buscar")).to_have_value("Ação")
+        expect(pg.locator("#abas-filtro a[aria-current]")).to_contain_text("Que vão acontecer")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        _axe_estavel(pg)
+>       viagem.cancelar(dados_e2e.usuarios["operador"], v.pk, "Cenário sintético de cancelamento.")
+
+tests\e2e\test_viagens_lista_identidade.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py:85: in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+usuario = <Usuario: Operador de Testes>, pk = 7
+motivo = 'Cenário sintético de cancelamento.'
+
+    @transaction.atomic
+    def cancelar(usuario, pk: int, motivo: str) -> Viagem:
+        """Cancela a viagem e os documentos dela com "Viagem cancelada: {motivo}" (referência).
+        Cada documento passa pelo serviço dele — quem não pode cancelar um ofício, por exemplo,
+        não cancela a viagem que o tem (nada fica pela metade: é tudo ou nada)."""
+        from django.core.exceptions import PermissionDenied
+    
+        from . import ordens, planos, services, termos
+    
+        viagem = Viagem.objects.select_for_update().get(pk=pk)
+        policies.exigir(policies.pode_editar_viagem(usuario, viagem),
+                        "Esta viagem já está cancelada ou você não pode alterá-la.")
+        motivo = (motivo or "").strip()
+        if not motivo:
+            raise ViagemInvalida("Informe o motivo do cancelamento.")
+        texto = f"{PREFIXO_CASCATA}: {motivo}"[:1000]
+        try:
+            for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO):
+                services.cancelar(o, usuario, texto)
+            for r in viagem.roteiros.exclude(situacao=Roteiro.Situacao.CANCELADO):
+                services.cancelar_roteiro(usuario, r)
+            for t in viagem.termos.exclude(situacao=TermoAutorizacao.Situacao.CANCELADO):
+                termos.cancelar(usuario, t.pk, texto)
+            for os_ in viagem.ordens.exclude(situacao=OrdemServico.Situacao.CANCELADA):
+                ordens.cancelar(usuario, os_.pk, texto)
+            for p in viagem.planos.filter(cancelado=False):
+                planos.cancelar(usuario, p.pk, texto)
+        except PermissionDenied as exc:
+>           raise ViagemInvalida(f"Não foi possível cancelar todos os documentos da viagem: {exc} "
+                                 "Peça a quem pode cancelá-los.") from None
+E           gestao.viagens.viagem.ViagemInvalida: Não foi possível cancelar todos os documentos da viagem: Você não pode cancelar este ofício. Peça a quem pode cancelá-los.
+
+gestao\viagens\viagem.py:324: ViagemInvalida
+_____________________________ test_viagem_do_zero _____________________________
+
+logado = <Page url='http://localhost:53714/viagens/viagens/9/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 21, 'oficio_rascunho': 22, 'oficio_vazio': 23, 'oficio_cancelado': 24, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_viagem_do_zero(logado, dados_e2e):
+        from gestao.cadastros.models import TipoViagem
+        from gestao.viagens.models import OrdemServico, Viagem
+    
+        TipoViagem.objects.create(nome="Unidade Móvel")
+        pg = logado
+        pg.goto("/viagens/viagens/")
+        pg.get_by_role("button", name="Nova viagem").first.click()
+        expect(pg.get_by_text("Falta o tipo")).to_be_visible()
+>       pg.get_by_role("checkbox", name="Unidade Móvel", exact=True).check()
+
+tests\e2e\test_viagem.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15481: in check
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:145: in check
+    return await self._frame.check(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:829: in check
+    await self._channel.send("check", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001FCDD1C9010>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001FCDDF42A20>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.check: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("checkbox", name="Unidade Móvel", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 06:55:20,835 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/9/: 62 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/viagens/9/: 62 consultas (limite 25)
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_viagens_lista_identidade.py::test_paginacao_filtro_canceladas_e_consulta
+FAILED tests/e2e/test_viagem.py::test_viagem_do_zero - playwright._impl._erro...
+2 failed, 3 passed in 128.95s (0:02:08)

@@ -1,0 +1,33 @@
+.........2026-10-10 06:57:49,177 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/10/: 62 consultas (limite 25)
+..2026-10-10 06:57:51,957 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/32/autosave/: 31 consultas (limite 25)
+.2026-10-10 06:57:53,022 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/33/novo/ordem/: 29 consultas (limite 25)
+2026-10-10 06:57:53,231 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/33/: 70 consultas (limite 25)
+2026-10-10 06:57:53,271 WARNING django.request Not Found: /viagens/viagens/33/novo/nada/
+.2026-10-10 06:57:54,438 WARNING django.request Not Found: /viagens/viagens/34/
+2026-10-10 06:57:54,548 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/34/: 44 consultas (limite 25)
+2026-10-10 06:57:54,567 WARNING django.request Forbidden (Permission denied): /viagens/viagens/34/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_viagem.py", line 173, in salvar
+    policies.exigir(policies.pode_editar_viagem(request.user, v),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Esta viagem não pode ser alterada.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Esta viagem não pode ser alterada.
+..2026-10-10 06:57:57,470 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/35/autosave/: 26 consultas (limite 25)
+.2026-10-10 06:57:59,041 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/36/: 66 consultas (limite 25)
+.....2026-10-10 06:58:04,789 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/40/: 60 consultas (limite 25)
+2026-10-10 06:58:04,899 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/40/: 35 consultas (limite 25)
+2026-10-10 06:58:05,074 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/40/: 62 consultas (limite 25)
+.2026-10-10 06:58:06,240 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/41/: 44 consultas (limite 25)
+.2026-10-10 06:58:07,661 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/8/: 27 consultas (limite 25)
+................................................. [ 76%]
+......................                                                   [100%]
+94 passed in 79.69s (0:01:19)

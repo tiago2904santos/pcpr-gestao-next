@@ -163,6 +163,29 @@ def test_criar_pela_tela_e_folha(c):
     assert "Falta o tipo" in html and "Nenhum ofício vinculado a esta viagem." in html
 
 
+def test_lista_paginada_preserva_busca_abas_e_criacao_post(c):
+    """21 registros reais: paginação/HTMX continuam usando a mesma lista e filtros."""
+    op = c.usuarios["operador"]
+    unidade = Oficio.objects.get(pk=c.ids["oficio_emitido"]).unidade
+    for i in range(21):
+        Viagem.objects.create(unidade=unidade, criado_por=op, titulo=f"Atendimento {i}",
+                              data_inicio=timezone.localdate() + timedelta(days=5))
+    cli = _cliente(op)
+    rota = reverse("viagens:viagens")
+    primeira = cli.get(rota, {"q": "Atendimento", "aba": "futuras"})
+    assert len(primeira.context["linhas"]) == 20
+    assert primeira.context["page_obj"].paginator.count == 21
+    assert "q=Atendimento&amp;aba=futuras&amp;pagina=2" in primeira.content.decode()
+    segunda = cli.get(rota, {"q": "Atendimento", "aba": "futuras", "pagina": 2},
+                      HTTP_HX_REQUEST="true")
+    assert len(segunda.context["linhas"]) == 1
+    html = segunda.content.decode()
+    assert 'id="abas-filtro"' in html and 'id="resultados"' in html
+    assert 'action="' + reverse("viagens:nova_viagem") + '"' in html
+    consulta = _cliente(c.usuarios["consulta"]).get(rota)
+    assert 'action="' + reverse("viagens:nova_viagem") + '"' not in consulta.content.decode()
+
+
 def test_autosave_grava_sem_recarregar(c):
     op = c.usuarios["operador"]
     v = viagem.criar(op)

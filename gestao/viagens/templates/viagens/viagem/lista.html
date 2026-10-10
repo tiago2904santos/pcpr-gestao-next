@@ -1,29 +1,29 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Viagens{% endblock %}
-{% block titulo_lista %}Viagens{% endblock %}
-{% comment %}
-"Novo" fica na barra que acompanha a rolagem (abaixo), como em Roteiros.
-{% endcomment %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Cada viagem junta o roteiro, os ofícios (com justificativa e termos), a ordem de serviço e o plano de trabalho de uma mesma ação.</p>{% endblock %}
-{% comment %}
-Paridade com a lista de viagens da referência: abas por quando (vão acontecer, em andamento
-e realizadas, canceladas — "contas prestadas" chega com a prestação de contas), busca por
-título, destino, servidor, placa e ofício (15/2026), 25 por página; cada viagem com período,
-destinos, quantos ofícios e documentos tem e o selo de quando.
-{% endcomment %}
+{% load viagens %}
+{% block preload_seletor %}{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Viagens" complemento="Roteiro, equipe e documentos de uma mesma ação." %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
+{% comment %}Viagem é o agrupador, identificado por data/ID; não tem número oficial.
+Abas exclusivas, busca HTMX e20por página. Criação POST permanece separada da busca.
+Documentos e ações secundárias continuam na Folha.{% endcomment %}
 
 {% block abas_filtro %}
+<div class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da viagem</p>
 <nav class="abas" id="abas-filtro" aria-label="Situação das viagens">
   {% for chave, rotulo, contador in abas %}
     <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if busca %}{% if chave %}&amp;{% endif %}q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
       {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
     </a>
   {% endfor %}
-</nav>
+</nav></div>
 {% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:viagens' %}"
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'viagens:viagens' %}"
       hx-get="{% url 'viagens:viagens' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
       hx-trigger="submit, input changed delay:350ms from:#busca-viagens">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
@@ -37,29 +37,29 @@ destinos, quantos ofícios e documentos tem e o selo de quando.
 
 {% block resultados %}
 <div id="resultados">
-<div class="lista-cabecalho">
+<div class="lista-cabecalho sr-only">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Viagens{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}</span>
 </div>
 {% if linhas %}
-  <ul class="registros" aria-labelledby="titulo-resultados">
+  <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with v=l.v %}
-      <li class="registro{% if v.cancelada %} registro--inativo{% endif %}">
-        {# A placa das outras listas (termo, OS, plano, roteiro): o tipo e o dia de início. #}
-        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Viagem</span><span class="placa__numero">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m" }}{% else %}#{{ v.pk }}{% endif %}</span></span>
+      <li class="registro registro-operacional registro-operacional--relacoes registro-operacional--sem-acoes{% if v.cancelada %} registro--inativo{% endif %}">
+        <div class="placa" aria-hidden="true">{% if v.data_inicio %}{% with data=v.data_inicio|date:"d/m" %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero=data compacta=True only %}{% endwith %}{% else %}{% with id=v.pk|stringformat:"s" %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero="#"|add:id compacta=True only %}{% endwith %}{% endif %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}">{{ v.titulo|default:"Viagem sem tipo" }}{% if l.destinos %} · {{ l.destinos }}{% endif %}</a>
-            {% if v.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>
-            {% else %}<span class="selo selo--neutro selo--sem-ponto">{{ v.get_situacao_display }}</span>{% endif %}
-            {% if l.quando %}<span class="selo selo--info selo--sem-ponto">{{ l.quando }}</span>{% endif %}
+            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}" title="{{ v.titulo|default:'Viagem sem tipo' }}{% if l.destinos %} · {{ l.destinos }}{% endif %}"><span class="sr-only">Viagem #{{ v.pk }} · </span><span class="registro__link-texto">{{ v.titulo|default:"Viagem sem tipo" }}</span></a>
+            <span class="registro__selos">{% if v.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">{{ v.get_situacao_display }}</span>{% endif %}{% if l.quando %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ l.quando }}</span>{% endif %}</span>
           </div>
-          <div class="registro__meta">
-            <span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}<span class="vazio-inline">Período não informado</span>{% endif %}</span>
-            <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.n_oficios %}{{ v.n_oficios|pluralizar:"ofício,ofícios" }}{% else %}<span class="vazio-inline">Nenhum ofício vinculado</span>{% endif %}</span>
-            {% if v.n_ordens or v.n_planos %}<span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{% if v.n_ordens %}{{ v.n_ordens|pluralizar:"OS,OS" }}{% endif %}{% if v.n_ordens and v.n_planos %} · {% endif %}{% if v.n_planos %}{{ v.n_planos|pluralizar:"plano,planos" }}{% endif %}</span>{% endif %}
-            <span class="registro__meta-item">{% icone "building-2" classe="icone--sm" %}{{ v.unidade.sigla|default:v.unidade.nome }}</span>
+          <div class="registro__agenda">
+            <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}<span class="vazio-inline">Período não informado</span>{% endif %}</span></span>
+            <span class="registro__meta-item"{% if l.destinos %} title="{{ l.destinos }}"{% endif %}>{% icone "map-pin" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.destinos %}{{ l.destinos }}{% else %}<span class="vazio-inline">Sem destino</span>{% endif %}</span></span>
+            <span class="registro__meta-item" title="{{ v.unidade.nome }}">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">{{ v.unidade.sigla|default:v.unidade.nome }}</span></span>
           </div>
+        </div>
+        <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Ofícios, OS e Planos</span>
+          <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.n_oficios %}{{ v.n_oficios|pluralizar:"ofício,ofícios" }}{% else %}<span class="vazio-inline">Nenhum ofício vinculado</span>{% endif %}</span>
+          <span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{% if v.n_ordens or v.n_planos %}{% if v.n_ordens %}{{ v.n_ordens|pluralizar:"OS,OS" }}{% endif %}{% if v.n_ordens and v.n_planos %} · {% endif %}{% if v.n_planos %}{{ v.n_planos|pluralizar:"plano,planos" }}{% endif %}{% else %}<span class="vazio-inline">Nenhuma OS ou plano vinculado</span>{% endif %}</span>
         </div>
       </li>
     {% endwith %}{% endfor %}
@@ -70,16 +70,9 @@ destinos, quantos ofícios e documentos tem e o selo de quando.
 {% else %}
   {% include "componentes/vazio.html" with icone="map" titulo="Nenhuma viagem registrada ainda" texto="Crie uma viagem para juntar o roteiro, os ofícios, os termos, a OS e o plano de uma mesma ação." %}
 {% endif %}
-</div>
-{% endblock %}
-
-{% block depois_lista %}
-{% comment %}
-Barra flutuante no rodapé, como nas outras listas: a contagem do recorte e a ação de criar
-ficam ao alcance de quem rolou até o fim, em vez de só no topo da página.
-{% endcomment %}
-<div class="barra-acoes">
+<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
   <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
   {% if pode_criar %}{% include "viagens/viagem/_botao_nova.html" %}{% endif %}
+</div>
 </div>
 {% endblock %}

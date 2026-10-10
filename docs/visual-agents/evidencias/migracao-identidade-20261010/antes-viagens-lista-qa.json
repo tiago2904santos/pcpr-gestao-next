@@ -1,0 +1,217 @@
+[
+  {
+    "estado": "todas",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 327.8,
+                  "height": 18.9
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (327.8px by 18.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 18.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Nova viagem</button>",
+                    "target": [
+                      ".botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"registro__link\" href=\"/viagens/viagens/1/\">PCPR na Comunidade / Unidade Móvel · São Paulo/SP</a>",
+            "target": [
+              "a[href=\"/viagens/viagens/1/\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (327.8px by 18.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

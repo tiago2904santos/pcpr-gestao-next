@@ -549,3 +549,15 @@ Diálogo conserva gravação manual, texto pronto, versão e erros; metadados us
 que também renderizam em uma URL de POST/erro. Ausente, conserva o contrato
 relativo anterior. Justificativas informa sua lista; demais consumidores mantêm
 seus endereços. IDs e querystring_base continuam do consumidor.
+
+
+## Registro operacional sem menu de linha — 10/10/2026
+
+`registro-operacional--sem-acoes` é uma variante de `registro-operacional--relacoes`
+para registros cuja única ação é abrir o detalhe. Consumidores: Lista de Viagens e
+UI Lab `_registro_viagem.html`. Retira a coluna reservada ao menu nas três composições
+responsivas; não esconde controles existentes. Placa data/ID usa identidade documental
+compacta, sem atribuir número oficial ao agrupador Viagem. Situação é badge e tempo é
+metadado com relógio. Vínculos de Ofícios, OS e Planos ficam em grupo secundário.
+Busca/abas são os mesmos componentes canônicos; barra de criação dentro do fragmento
+HTMX atualiza contagem e permanece no fluxo nas listas curtas.

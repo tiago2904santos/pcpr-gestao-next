@@ -1,0 +1,30 @@
+{
+  "baseCommit": "3a8b5a74381ab7cd545d6bc5e1050bdf455bb460",
+  "fontes": {
+    "gestao/viagens/templates/viagens/viagem/lista.html": "c0ab2aaac80a56a7630606580bad988ba397011fc1e8c76f5b4619967274c035",
+    "static/css/components.css": "1ae68ffffaec1e5794e95a6241309e3167ed00e4b587e096527f7f5b4fe85b90",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "46fcdd4e4857342cc3c18cc1e0c72bf8c62935d33e34597cc58d8e5a1852e9cf",
+    "gestao/ui_lab/templates/ui_lab/_registro_viagem.html": "f1080697646198b073dc0a50f346b0746a6106fa6a25ab85581ce74c7627d137",
+    "tests/e2e/test_viagens_lista_identidade.py": "46af751e7f3ea926bb0d3a19700a5320b301354ac769c16fcec07d156ab4a769",
+    "tests/e2e/test_viagem.py": "34bd2718bbf7ff6bb85cc643da12d78043102e35a566b864d9dc6b9706959795",
+    "gestao/viagens/tests/test_viagem.py": "25768d1abc5a79d9bd73e060de4701474f6f4af59753992755f06afd41c12cbc"
+  },
+  "checks": {
+    "HTTP": 94,
+    "E2EFluxo": 5,
+    "E2EFinal": 3,
+    "capturasComparaveis": 20,
+    "SQL": "20/20/16/19 idêntico",
+    "CSSGzipDelta": 94,
+    "JS": "igual",
+    "Ruff": "verde",
+    "TypeScript": "verde"
+  },
+  "limites": [
+    "avaliação visual pelo usuário pendente",
+    "gate global novo pendente",
+    "latência/HTTP não medidos",
+    "Folha/lote ainda pendentes"
+  ],
+  "limpeza": "wrappers substituídos/preload sem seletor retirado; bases compartilhadas e ação POST preservadas"
+}

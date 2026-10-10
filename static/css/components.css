@@ -4455,3 +4455,13 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 
 /* Abas de conteúdo: largura intrínseca quando a dimensão tem poucas alternativas. */
 .colecao-operacional--consulta .colecao-operacional__indice .abas.abas--conteudo { display: flex; }
+
+
+/* Registros de consulta: abrir pelo título, sem reservar uma coluna para menu inexistente. */
+.registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-areas: "identidade identidade" "titulo titulo" "estado estado" "agenda agenda" "recursos recursos"; }
+@media (min-width: 768px) {
+  .registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1fr); grid-template-areas: "identidade titulo" "identidade estado" "identidade agenda" "identidade recursos"; }
+}
+@media (min-width: 1280px) {
+  .registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "identidade titulo recursos" "identidade estado recursos" "identidade agenda recursos"; }
+}

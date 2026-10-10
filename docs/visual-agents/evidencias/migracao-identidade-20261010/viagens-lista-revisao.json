@@ -1,0 +1,26 @@
+[
+  {
+    "width": 360,
+    "altura": 500,
+    "buscaFoco": true,
+    "linkEnter": true,
+    "axeUI": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "altura": 500,
+    "buscaFoco": true,
+    "linkEnter": true,
+    "axeUI": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "altura": 500,
+    "buscaFoco": true,
+    "linkEnter": true,
+    "axeUI": [],
+    "overflow": false
+  }
+]

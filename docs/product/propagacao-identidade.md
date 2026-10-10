@@ -195,3 +195,23 @@ campos proporcionais; ação manual clara. Não criar folha/editor próprios.
 Defeito anterior identificado: após422 links relativos apontam para /salvar/ (GET405)
 e contexto voltar não é recuperado. Corrigir rota explícita e manter busca/aba no
 erro/retorno, com testes; não alterar regra de prazo nem permissão.
+
+
+## Viagens — Lista, unidade seguinte
+
+Rota /viagens/viagens/. Hub dos documentos, sem número oficial: placa é data de início
+ou ID local. Título vem dos tipos; destinos, período, situação, indicador temporal,
+unidade e contagens Ofícios/OS/Planos. Abas Todas/Futuras/Atuais/Prestadas/Canceladas,
+exclusivas; sem data entra em futuras; prestadas saem de futuras/atuais. Busca por
+título/motivo/destino/servidor/placa/número-ano de Ofício, não protocolo.20por página;
+futuras por início, demais por criação. Mesma unidade/permissão view_viagem;
+Nova viagem depende add_viagem/lotação, POST/CSRF, reaproveita rascunho vazio pela regra.
+Lista somente abre Folha: não inventar menu, exportação ou downloads nesta migração.
+GET de lista não grava. Preservar IDs/HTMX/OOB/querystring e botão POST separado da busca.
+
+Composição: hero compacto, filtros temporais integrados, busca, registros de relações
+sem coluna de ação fictícia. Título e destino legíveis; situação documental e tempo
+separados; documentos agrupados como metadados. Barra dentro do fragmento, no fluxo
+com poucos registros e acompanhando apenas quando paginada. Sem grandes alturas.
+Legado tem filtros combináveis,25por página, busca por protocolo e ações de linha;
+lacunas/diferenças já levantadas ficam explícitas, não são ampliadas por uma missão visual.

@@ -19,7 +19,9 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Planos: folha/multievento/documentos | incompleto, pronto, novo, gerado, evento adicional | concluída tecnicamente; avaliação visual pendente | hero/preparação/agenda/destinos/financeiro/conferência/editor/histórico | bases genéricas mantidas para consumidores reais | 143 focados, 20 E2E integrados +5 finais, 2 UI Lab, 25 capturas e teclado/diálogo | candidato-planos-folha.json; SQL anterior classificado |
 | Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | concluída tecnicamente; avaliação visual pendente | hero/preparação/lançamentos/leitura/barra no fluxo | duas variantes CSS exclusivas removidas |72HTTP/tokens,5E2E+7pós-limpeza,20capturas cinco larguras | gate global final pendente |
 | Justificativas | lista/diálogo/exclusão/download/erro/conflito/consulta | concluída tecnicamente; avaliação visual pendente | coleção/registro/diálogo/paginação com rota explícita | bases genéricas preservadas |108HTTP,2contratos,7E2E,2UI Lab,20pares;SQL igual | candidato-justificativas.json; gate global final pendente |
-| Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
+| Viagens: Lista | busca, abas, vazio, canceladas, consulta, 20+ registros | concluída tecnicamente; avaliação visual pendente | coleção/hero/identidade/registro de relações sem ações | bases compartilhadas preservadas | 94 HTTP,5 E2E+3 finais,20 pares,SQL igual | candidato-viagens-lista.json |
+| Viagens: Folha/lote | contratos próprios | não iniciada | aprofundar ao entrar | idem | descoberta somente leitura | próxima unidade |
+| Prestação de Contas | fluxos implementados | não iniciada | aprofundar ao entrar | idem | inventário existente | após Viagens |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
 
 ## Checkpoint de referência
@@ -83,3 +85,12 @@ pausado e contraste durante transição nativa; somente sincronização dos test
 corrigida, sem alterar CSS/CSP/axe. SQL igual14/14/10/19; JS igual; CSS+73gzip.
 Próxima unidade:Lista de Viagens. Somente ela em implementação ativa; Folha/Prestação
 seguem na fila. Não inventar menu/exportação da Lista que ainda não existem.
+
+
+Lista de Viagens fechada tecnicamente:94HTTP/domínio/tokens, cinco E2E e três finais
+(inclui vinte registros e UI Lab).20pares reais em cinco larguras e teclado/altura500;
+SQL20/20/16/19 inalterado, CSSgzip+94bytes e JS igual. Dados DEMO preservados. Nova
+variante sem coluna de ações não esconde funções; somente Lista/UI Lab consumidores.
+SHA/hashes em candidato-viagens-lista.json e commit-viagens-lista.json. Próxima unidade:
+Folha de Viagens e lote, antes de Prestação. Avaliação visual pelo usuário e gate global
+atualizado permanecem pendentes.

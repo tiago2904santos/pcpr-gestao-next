@@ -868,5 +868,125 @@
     "largura": 768,
     "antes": "antes-termos-vazio-768.png",
     "depois": "depois-termos-vazio-768.png"
+  },
+  {
+    "pagina": "viagens-lista-canceladas",
+    "largura": 1024,
+    "antes": "antes-viagens-lista-canceladas-1024.png",
+    "depois": "depois-viagens-lista-canceladas-1024.png"
+  },
+  {
+    "pagina": "viagens-lista-canceladas",
+    "largura": 1440,
+    "antes": "antes-viagens-lista-canceladas-1440.png",
+    "depois": "depois-viagens-lista-canceladas-1440.png"
+  },
+  {
+    "pagina": "viagens-lista-canceladas",
+    "largura": 360,
+    "antes": "antes-viagens-lista-canceladas-360.png",
+    "depois": "depois-viagens-lista-canceladas-360.png"
+  },
+  {
+    "pagina": "viagens-lista-canceladas",
+    "largura": 390,
+    "antes": "antes-viagens-lista-canceladas-390.png",
+    "depois": "depois-viagens-lista-canceladas-390.png"
+  },
+  {
+    "pagina": "viagens-lista-canceladas",
+    "largura": 768,
+    "antes": "antes-viagens-lista-canceladas-768.png",
+    "depois": "depois-viagens-lista-canceladas-768.png"
+  },
+  {
+    "pagina": "viagens-lista-futuras",
+    "largura": 1024,
+    "antes": "antes-viagens-lista-futuras-1024.png",
+    "depois": "depois-viagens-lista-futuras-1024.png"
+  },
+  {
+    "pagina": "viagens-lista-futuras",
+    "largura": 1440,
+    "antes": "antes-viagens-lista-futuras-1440.png",
+    "depois": "depois-viagens-lista-futuras-1440.png"
+  },
+  {
+    "pagina": "viagens-lista-futuras",
+    "largura": 360,
+    "antes": "antes-viagens-lista-futuras-360.png",
+    "depois": "depois-viagens-lista-futuras-360.png"
+  },
+  {
+    "pagina": "viagens-lista-futuras",
+    "largura": 390,
+    "antes": "antes-viagens-lista-futuras-390.png",
+    "depois": "depois-viagens-lista-futuras-390.png"
+  },
+  {
+    "pagina": "viagens-lista-futuras",
+    "largura": 768,
+    "antes": "antes-viagens-lista-futuras-768.png",
+    "depois": "depois-viagens-lista-futuras-768.png"
+  },
+  {
+    "pagina": "viagens-lista-todas",
+    "largura": 1024,
+    "antes": "antes-viagens-lista-todas-1024.png",
+    "depois": "depois-viagens-lista-todas-1024.png"
+  },
+  {
+    "pagina": "viagens-lista-todas",
+    "largura": 1440,
+    "antes": "antes-viagens-lista-todas-1440.png",
+    "depois": "depois-viagens-lista-todas-1440.png"
+  },
+  {
+    "pagina": "viagens-lista-todas",
+    "largura": 360,
+    "antes": "antes-viagens-lista-todas-360.png",
+    "depois": "depois-viagens-lista-todas-360.png"
+  },
+  {
+    "pagina": "viagens-lista-todas",
+    "largura": 390,
+    "antes": "antes-viagens-lista-todas-390.png",
+    "depois": "depois-viagens-lista-todas-390.png"
+  },
+  {
+    "pagina": "viagens-lista-todas",
+    "largura": 768,
+    "antes": "antes-viagens-lista-todas-768.png",
+    "depois": "depois-viagens-lista-todas-768.png"
+  },
+  {
+    "pagina": "viagens-lista-vazio",
+    "largura": 1024,
+    "antes": "antes-viagens-lista-vazio-1024.png",
+    "depois": "depois-viagens-lista-vazio-1024.png"
+  },
+  {
+    "pagina": "viagens-lista-vazio",
+    "largura": 1440,
+    "antes": "antes-viagens-lista-vazio-1440.png",
+    "depois": "depois-viagens-lista-vazio-1440.png"
+  },
+  {
+    "pagina": "viagens-lista-vazio",
+    "largura": 360,
+    "antes": "antes-viagens-lista-vazio-360.png",
+    "depois": "depois-viagens-lista-vazio-360.png"
+  },
+  {
+    "pagina": "viagens-lista-vazio",
+    "largura": 390,
+    "antes": "antes-viagens-lista-vazio-390.png",
+    "depois": "depois-viagens-lista-vazio-390.png"
+  },
+  {
+    "pagina": "viagens-lista-vazio",
+    "largura": 768,
+    "antes": "antes-viagens-lista-vazio-768.png",
+    "depois": "depois-viagens-lista-vazio-768.png"
   }
 ]

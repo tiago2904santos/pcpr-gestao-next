@@ -92,3 +92,16 @@ outra data, cancelar/reativar em cascata, excluir.
 - **8d** repetir; cancelar/reativar/excluir em cascata.
 - Depois: anexos e integração com Solicitações (módulo próprio); aba "Contas prestadas" e
   entregas ao RT com a Prestação (módulo 9).
+
+
+## Identidade visual vigente — Lista, 10/10/2026
+
+Lista migrada para coleção operacional/hero/registro canônicos, placa data/ID e
+situação separada do indicador temporal. Filtros exclusivos, busca, 20 por página,
+contadores, ordenação, visibilidade por unidade e criação POST preservados. Vínculos
+continuam contagens de Ofícios/OS/Planos, sem inventar download/exportação/menu de linha.
+Barra no fragmento HTMX atualiza resultado e fica no fluxo em listas curtas. Sem seed,
+reset ou alteração de documento oficial. QA/evidências em docs/visual-agents/qa/viagens-lista-identidade-2026-10-10.md.
+Diferenças da referência sobre combinações de filtros, 25 por página e busca por
+protocolo continuam explícitas; esta página não amplia regras de negócio. Folha/lote
+seguem como próxima unidade de migração, ainda não declarados concluídos nesta rodada.
