@@ -1,0 +1,9 @@
+{% load viagens %}
+{% comment %}Linha de comparação/lancamento. Quantidade zero e digitado inválido são
+preservados; prefixos pertencem ao formulário consumidor. Não faz cálculos/salvamento.{% endcomment %}
+<tr>
+  <th scope="row">{{ titulo }}{% if not prevista %} <span class="selo selo--neutro selo--sem-ponto">fora do plano</span>{% endif %}</th>
+  <td class="texto-secundario texto-sm"><span class="lancamento__referencia-rotulo" aria-hidden="true">Meta prevista</span>{{ referencia }}</td>
+  <td><label class="campo__rotulo lancamento__rotulo" for="{{ prefixo_quantidade }}{{ ident }}">Realizado<span class="sr-only"> — {{ titulo }}</span></label><input class="entrada" id="{{ prefixo_quantidade }}{{ ident }}" name="{{ prefixo_quantidade }}{{ ident }}" inputmode="numeric" autocomplete="off" value="{% if digitado is not None %}{{ digitado }}{% elif quantidade is not None %}{{ quantidade }}{% endif %}"></td>
+  <td><label class="campo__rotulo lancamento__rotulo" for="{{ prefixo_observacao }}{{ ident }}">Observação<span class="sr-only"> — {{ titulo }}</span></label><input class="entrada" id="{{ prefixo_observacao }}{{ ident }}" name="{{ prefixo_observacao }}{{ ident }}" maxlength="500" placeholder="Ex.: RGs emitidos, orientações" value="{{ observacao }}"></td>
+</tr>

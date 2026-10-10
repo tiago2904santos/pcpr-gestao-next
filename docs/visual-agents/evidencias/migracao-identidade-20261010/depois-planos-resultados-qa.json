@@ -1,0 +1,162 @@
+[
+  {
+    "estado": "principal",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

@@ -360,6 +360,126 @@
     "depois": "depois-planos-periodo-768.png"
   },
   {
+    "pagina": "planos-resultados-cancelado",
+    "largura": 1024,
+    "antes": "antes-planos-resultados-cancelado-1024.png",
+    "depois": "depois-planos-resultados-cancelado-1024.png"
+  },
+  {
+    "pagina": "planos-resultados-cancelado",
+    "largura": 1440,
+    "antes": "antes-planos-resultados-cancelado-1440.png",
+    "depois": "depois-planos-resultados-cancelado-1440.png"
+  },
+  {
+    "pagina": "planos-resultados-cancelado",
+    "largura": 360,
+    "antes": "antes-planos-resultados-cancelado-360.png",
+    "depois": "depois-planos-resultados-cancelado-360.png"
+  },
+  {
+    "pagina": "planos-resultados-cancelado",
+    "largura": 390,
+    "antes": "antes-planos-resultados-cancelado-390.png",
+    "depois": "depois-planos-resultados-cancelado-390.png"
+  },
+  {
+    "pagina": "planos-resultados-cancelado",
+    "largura": 768,
+    "antes": "antes-planos-resultados-cancelado-768.png",
+    "depois": "depois-planos-resultados-cancelado-768.png"
+  },
+  {
+    "pagina": "planos-resultados-incompleto",
+    "largura": 1024,
+    "antes": "antes-planos-resultados-incompleto-1024.png",
+    "depois": "depois-planos-resultados-incompleto-1024.png"
+  },
+  {
+    "pagina": "planos-resultados-incompleto",
+    "largura": 1440,
+    "antes": "antes-planos-resultados-incompleto-1440.png",
+    "depois": "depois-planos-resultados-incompleto-1440.png"
+  },
+  {
+    "pagina": "planos-resultados-incompleto",
+    "largura": 360,
+    "antes": "antes-planos-resultados-incompleto-360.png",
+    "depois": "depois-planos-resultados-incompleto-360.png"
+  },
+  {
+    "pagina": "planos-resultados-incompleto",
+    "largura": 390,
+    "antes": "antes-planos-resultados-incompleto-390.png",
+    "depois": "depois-planos-resultados-incompleto-390.png"
+  },
+  {
+    "pagina": "planos-resultados-incompleto",
+    "largura": 768,
+    "antes": "antes-planos-resultados-incompleto-768.png",
+    "depois": "depois-planos-resultados-incompleto-768.png"
+  },
+  {
+    "pagina": "planos-resultados-multievento",
+    "largura": 1024,
+    "antes": "antes-planos-resultados-multievento-1024.png",
+    "depois": "depois-planos-resultados-multievento-1024.png"
+  },
+  {
+    "pagina": "planos-resultados-multievento",
+    "largura": 1440,
+    "antes": "antes-planos-resultados-multievento-1440.png",
+    "depois": "depois-planos-resultados-multievento-1440.png"
+  },
+  {
+    "pagina": "planos-resultados-multievento",
+    "largura": 360,
+    "antes": "antes-planos-resultados-multievento-360.png",
+    "depois": "depois-planos-resultados-multievento-360.png"
+  },
+  {
+    "pagina": "planos-resultados-multievento",
+    "largura": 390,
+    "antes": "antes-planos-resultados-multievento-390.png",
+    "depois": "depois-planos-resultados-multievento-390.png"
+  },
+  {
+    "pagina": "planos-resultados-multievento",
+    "largura": 768,
+    "antes": "antes-planos-resultados-multievento-768.png",
+    "depois": "depois-planos-resultados-multievento-768.png"
+  },
+  {
+    "pagina": "planos-resultados-principal",
+    "largura": 1024,
+    "antes": "antes-planos-resultados-principal-1024.png",
+    "depois": "depois-planos-resultados-principal-1024.png"
+  },
+  {
+    "pagina": "planos-resultados-principal",
+    "largura": 1440,
+    "antes": "antes-planos-resultados-principal-1440.png",
+    "depois": "depois-planos-resultados-principal-1440.png"
+  },
+  {
+    "pagina": "planos-resultados-principal",
+    "largura": 360,
+    "antes": "antes-planos-resultados-principal-360.png",
+    "depois": "depois-planos-resultados-principal-360.png"
+  },
+  {
+    "pagina": "planos-resultados-principal",
+    "largura": 390,
+    "antes": "antes-planos-resultados-principal-390.png",
+    "depois": "depois-planos-resultados-principal-390.png"
+  },
+  {
+    "pagina": "planos-resultados-principal",
+    "largura": 768,
+    "antes": "antes-planos-resultados-principal-768.png",
+    "depois": "depois-planos-resultados-principal-768.png"
+  },
+  {
     "pagina": "planos-vazio",
     "largura": 1024,
     "antes": "antes-planos-vazio-1024.png",

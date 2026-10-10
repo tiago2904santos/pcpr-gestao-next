@@ -1,0 +1,309 @@
+[
+  {
+    "estado": "principal",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "tags": [
+          "cat.keyboard",
+          "wcag2a",
+          "wcag211",
+          "wcag213",
+          "TTv5",
+          "TT4.a",
+          "EN-301-549",
+          "EN-9.2.1.1",
+          "EN-9.2.1.3",
+          "RGAAv4",
+          "RGAA-7.3.2"
+        ],
+        "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+        "help": "Scrollable region must have keyboard access",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "focusable-content",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should have focusable content"
+              },
+              {
+                "id": "focusable-element",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should be focusable"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div class=\"tabela-rolagem\">",
+            "target": [
+              ".tabela-rolagem"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "tags": [
+          "cat.keyboard",
+          "wcag2a",
+          "wcag211",
+          "wcag213",
+          "TTv5",
+          "TT4.a",
+          "EN-301-549",
+          "EN-9.2.1.1",
+          "EN-9.2.1.3",
+          "RGAAv4",
+          "RGAA-7.3.2"
+        ],
+        "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+        "help": "Scrollable region must have keyboard access",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "focusable-content",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should have focusable content"
+              },
+              {
+                "id": "focusable-element",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should be focusable"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div class=\"tabela-rolagem\">",
+            "target": [
+              ".tabela-rolagem"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 768,
+    "http": 200,
+    "axe": [
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "tags": [
+          "cat.keyboard",
+          "wcag2a",
+          "wcag211",
+          "wcag213",
+          "TTv5",
+          "TT4.a",
+          "EN-301-549",
+          "EN-9.2.1.1",
+          "EN-9.2.1.3",
+          "RGAAv4",
+          "RGAA-7.3.2"
+        ],
+        "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+        "help": "Scrollable region must have keyboard access",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "focusable-content",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should have focusable content"
+              },
+              {
+                "id": "focusable-element",
+                "data": null,
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element should be focusable"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div class=\"tabela-rolagem\">",
+            "target": [
+              ".tabela-rolagem"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "principal",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "multievento",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelado",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompleto",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

@@ -516,3 +516,18 @@ compatibilidade sem mudar campos, ações ou os grid areas principais.
   Miniaturas, Texto/PDF, versões, downloads e documento oficial preservados.
 
 Nenhuma base genérica antiga removida: ainda há consumidores em Viagens e Resultados.
+
+
+## Lançamentos quantitativos — 10/10/2026
+
+`lancamento_quantitativo.html` apresenta atividade, referência/meta, quantidade e
+observação. Recebe identificador e prefixos do formulário consumidor; distingue
+valor ausente, zero e texto inválido devolvido pelo servidor. Não calcula nem salva.
+Consumidores: Resultados de Planos e UI Lab. `tabela--lancamentos` permite comparação
+em colunas no desktop e agrupa rótulos/campos no celular e tablet. O cabeçalho segue
+acessível. Rótulos responsivos usam classe própria, sem reaproveitar `sr-only` para
+conteúdo que precisa aparecer. `leitura-textual` limita largura de leitura sem nova
+caixa. Barra manual usa o padrão no fluxo, sem cobrir relatório.
+
+Implementação exclusiva antiga: `tabela--resultados` e `relatorio-final`, substituídas
+por esses dois padrões; removidas após prova de consumidores e sete E2E pós-limpeza verdes, registrados em QA.

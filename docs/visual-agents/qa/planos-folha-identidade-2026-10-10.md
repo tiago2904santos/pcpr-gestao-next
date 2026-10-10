@@ -1,7 +1,7 @@
 # Planos — Folha, eventos e documentos, 10/10/2026
 
 Base 17663d8, branch codex/oficios-transporte-cartoes. Somente esta unidade em
-implementação; Resultados é a seguinte. Contrato funcional em product, ADRs
+implementação; Resultados é a seguinte. Contrato funcional em product, migrações
 0046/0047/0048 existentes. DEMO e mídia preservados, sem seed/reset/gravações de negócio.
 
 ## Observar e projetar

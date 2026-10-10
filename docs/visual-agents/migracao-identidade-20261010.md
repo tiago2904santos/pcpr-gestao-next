@@ -17,7 +17,7 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | OS: lista/folha/documentos | busca, vazio, avulsa/vinculada, funções, cancelada, consulta, documentos | concluída tecnicamente; avaliação visual pendente | coleção, registros de relações, preparação, destinos, equipe compacta, editor/histórico | bases compartilhadas mantidas para Planos/Viagens | 81 focados, 6 E2E, 25 capturas e interações cinco larguras | manifesto candidato-ordens.json; HTTP antes/depois inconclusivo |
 | Planos: lista | busca, ordem, Ofício, grupos, vazio, cancelados, paginação, consulta | concluída tecnicamente; avaliação visual pendente | coleção, identidade com complemento, registro operacional financeiro, observação larga | bases antigas mantidas para demais consumidores | 47 HTTP, 79 focados, 9 E2E compatíveis, cinco larguras; paginação antiga corrigida | candidato-planos-lista.json; achado de rolagem global não bloqueante registrado |
 | Planos: folha/multievento/documentos | incompleto, pronto, novo, gerado, evento adicional | concluída tecnicamente; avaliação visual pendente | hero/preparação/agenda/destinos/financeiro/conferência/editor/histórico | bases genéricas mantidas para consumidores reais | 143 focados, 20 E2E integrados +5 finais, 2 UI Lab, 25 capturas e teclado/diálogo | candidato-planos-folha.json; SQL anterior classificado |
-| Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | não iniciada | próxima unidade | tabela/resultados antigos ainda usados | contrato existente manual/zero/500 caracteres | após Folha validada |
+| Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | concluída tecnicamente; avaliação visual pendente | hero/preparação/lançamentos/leitura/barra no fluxo | duas variantes CSS exclusivas removidas |72HTTP/tokens,5E2E+7pós-limpeza,20capturas cinco larguras | gate global final pendente |
 | Justificativas | lista/diálogo/editor | não iniciada | idem | idem | idem | após Planos |
 | Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
@@ -65,3 +65,12 @@ Galeria 105 pares/210 originais conferidos. Ferramentas recolhíveis e diálogo 
 
 Folha fechada: cinco E2E finais, dois UI Lab automatizados e axe real360/1440 zero,
 sem alterar estilos. Próxima unidade: Resultados, cujos20 estados anteriores já existem.
+
+
+Resultados fechado tecnicamente:72HTTP/tokens, cinco E2E e sete pós-limpeza verdes.
+20pares nas cinco larguras; rótulos móveis corrigidos com classe própria; tabela
+cancelada não exige rolagem horizontal/foco inexistente.66linhas CSS exclusivas
+removidas com revisão de consumidores. SQL17/21/17/17 idêntico, JS idêntico,
+CSS conjunto+6gzip. Galeria125pares250originais. Próxima unidade:Justificativas,
+lista/diálogo/exclusão/download; preservação do contexto após422 é defeito anterior
+já identificado em leitura. Não abrir outra implementação em paralelo.

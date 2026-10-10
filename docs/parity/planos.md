@@ -13,5 +13,8 @@ no menu quando gerados; minuta/finalização não são confundidas.
 
 Folha/multievento migrados nesta unidade: quantitativos, diárias por evento,
 programas/Outro, coordenadores, validação, autosave, geração e documento preservados.
-Resultados ainda aguardam migração visual. Não declarar migração integral do submódulo.
+Resultados migrados: edição manual, zero, milhar, linha vazia, observações,
+erros agregados sem gravação parcial e leitura de cancelados preservados.
+Lista/Folha/eventos/documentos/Resultados concluídos tecnicamente nesta rodada;
+aprovação visual do usuário e gate global final continuam pendentes.
 Número manual do legado continua lacuna anterior.

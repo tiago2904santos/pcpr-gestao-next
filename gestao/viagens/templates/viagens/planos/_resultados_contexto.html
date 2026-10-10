@@ -1,0 +1,8 @@
+{% load viagens %}
+<p class="registro-hero__metadados">
+  {% if plano.cancelado %}<span class="selo selo--perigo selo--sem-ponto">{% icone "ban" classe="icone--sm" %}Cancelado · consulta</span>{% elif not editavel %}<span class="selo selo--neutro selo--sem-ponto">Consulta</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">Salvamento manual</span>{% endif %}
+  <span class="registro-hero__metadado">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
+  <span class="registro-hero__metadado">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
+  <span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
+  <span class="registro-hero__metadado">{% icone "list-checks" classe="icone--sm" %}{{ linhas|length|pluralizar:"atividade,atividades" }}</span>
+</p>

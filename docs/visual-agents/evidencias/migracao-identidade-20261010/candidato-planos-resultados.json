@@ -1,0 +1,29 @@
+{
+  "baseCommit": "f94b3129d40315425a1a02bff4e22ec003c1cacc",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/viagens/templates/viagens/planos/resultados.html": "6e579215cbb597af8438c5560125d32b2e9d36d5e141ef0a45ae9e3d6c3c686c",
+    "gestao/viagens/templates/viagens/planos/_resultados_contexto.html": "b8617334f0549ff60172672409ee9d114d1b425b177b39a8f9824e0ee4e02059",
+    "templates/componentes/lancamento_quantitativo.html": "8ba0f81237533c0cf7cde687b30260a4f5a0f547ccc0c7d51f0fd3a7809d1354",
+    "static/css/components.css": "5400c5f2d8666c7d5c25febfa41e21b61f330793393e66e0ef4707a101d5ff90",
+    "static/css/documento.css": "7f5982870523e3e6f50e7a593a5fb1cd42d11b352211b5057b38ffa29b66db52",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "38ff9e407a87e2eec4863b5369a654c54c2a5d24726968f39973d60caecd6971",
+    "gestao/ui_lab/templates/ui_lab/_lancamento_quantitativo.html": "b488b26dd1f7b6b784174d7872c2eaea0ac9ba7b528b4c3934f79577f67066fb",
+    "tests/e2e/test_planos_resultados_identidade.py": "4061560115585c4e53087db9deb5902a3a8afe962195b757aaddc1aea4983892"
+  },
+  "checks": {
+    "httpTokens": 72,
+    "e2eAntesLimpeza": 5,
+    "e2ePosLimpezaUILab": 7,
+    "capturas": 20,
+    "SQL": "17/21/17/17 idêntico",
+    "JS": "idêntico",
+    "CSSGzipDelta": 6
+  },
+  "removido": [
+    "tabela--resultados",
+    "relatorio-final"
+  ],
+  "aprovacaoVisual": "pendente do usuário",
+  "gateGlobal": "novo obrigatório antes da entrega consolidada"
+}

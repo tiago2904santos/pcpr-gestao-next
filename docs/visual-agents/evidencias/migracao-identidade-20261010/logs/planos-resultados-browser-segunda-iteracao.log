@@ -1,0 +1,31 @@
+....F                                                                    [100%]
+================================== FAILURES ===================================
+_________ test_resultado_fora_do_plano_cancelado_consulta_sem_scroll __________
+
+logado = <Page url='http://localhost:51002/viagens/planos/5/resultados/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 21, 'oficio_rascunho': 22, 'oficio_vazio': 23, 'oficio_cancelado': 24, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resultado_fora_do_plano_cancelado_consulta_sem_scroll(logado, dados_e2e):
+        pg = logado
+        plano = _completo(dados_e2e)
+        cin = AtividadePlano.objects.get(codigo="CIN")
+        resultados.salvar(dados_e2e.usuarios["operador"], plano.pk, {cin.pk: ("10", "Anterior")})
+        plano.atividades.remove(cin)
+        planos.cancelar(dados_e2e.usuarios["operador"], plano.pk, "Teste sintético")
+        pg.set_viewport_size({"width": 768, "height": 500})
+        pg.goto(f"/viagens/planos/{plano.pk}/resultados/")
+        expect(pg.get_by_role("row", name="Confecção da Carteira", exact=False)).to_contain_text("fora do plano")
+        expect(pg.locator(f"#realizado_{cin.pk}")).to_be_disabled()
+        expect(pg.get_by_role("button", name="Salvar resultados")).to_have_count(0)
+        expect(pg.locator("#relatorio")).to_contain_text("10 (Anterior)")
+        assert not pg.locator(".tabela-rolagem").evaluate("e => e.scrollWidth > e.clientWidth")
+>       assert rodar_axe(pg) == []
+E       AssertionError: assert [{'id': 'colo...sholds', ...}] == []
+E         
+E         Left contains one more item: {'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-54... 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_planos_resultados_identidade.py:96: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_resultados_identidade.py::test_resultado_fora_do_plano_cancelado_consulta_sem_scroll
+1 failed, 4 passed in 117.33s (0:01:57)

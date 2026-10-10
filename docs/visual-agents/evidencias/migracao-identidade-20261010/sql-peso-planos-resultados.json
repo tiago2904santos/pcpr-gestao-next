@@ -1,0 +1,85 @@
+{
+  "SQL": [
+    {
+      "fase": "antes",
+      "estado": "principal",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 25339
+    },
+    {
+      "fase": "antes",
+      "estado": "multievento",
+      "SQL": 21,
+      "mutacoes": 0,
+      "HTMLbytes": 23834
+    },
+    {
+      "fase": "antes",
+      "estado": "cancelado",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 23852
+    },
+    {
+      "fase": "antes",
+      "estado": "incompleto",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 23837
+    },
+    {
+      "fase": "depois",
+      "estado": "principal",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 26556
+    },
+    {
+      "fase": "depois",
+      "estado": "multievento",
+      "SQL": 21,
+      "mutacoes": 0,
+      "HTMLbytes": 24927
+    },
+    {
+      "fase": "depois",
+      "estado": "cancelado",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 25123
+    },
+    {
+      "fase": "depois",
+      "estado": "incompleto",
+      "SQL": 17,
+      "mutacoes": 0,
+      "HTMLbytes": 24904
+    }
+  ],
+  "recursos": [
+    {
+      "arquivo": "static/css/components.css",
+      "antes": 187833,
+      "depois": 189526,
+      "gzipAntes": 36163,
+      "gzipDepois": 36496
+    },
+    {
+      "arquivo": "static/css/documento.css",
+      "antes": 22028,
+      "depois": 20607,
+      "gzipAntes": 5950,
+      "gzipDepois": 5623
+    },
+    {
+      "arquivo": "static/js/componentes/protecao.js",
+      "antes": 2758,
+      "depois": 2758,
+      "gzipAntes": 1214,
+      "gzipDepois": 1214
+    }
+  ],
+  "metodoPeso": "UTF-8 LF; não bytes HTTP",
+  "documentos": "templates oficiais não alterados; esta rota não gera PDF"
+}

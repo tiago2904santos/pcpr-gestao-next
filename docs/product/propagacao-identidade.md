@@ -153,3 +153,25 @@ salvamento próprio e serão tratados na unidade seguinte.
 
 Planos: fechar/cancelar evento após erro POST422 deve retornar à Folha, nunca fazer
 GET na rota de salvar evento. Defeito anterior de URL relativa corrigido, sem regra nova.
+
+
+## Planos — Resultados, unidade seguinte
+
+Objetivo: lançar quantitativos por atividade após a ação e consultar relatório final.
+Rota /viagens/planos/<id>/resultados/. Sem busca/filtro/paginação ou geração própria.
+Atividades previstas são união dos eventos; resultados de atividades retiradas
+continuam visíveis como fora do plano. Ordenação existente preservada. Campos
+realizado_<atividade> e observacao_<atividade>, salvo por POST manual/Ctrl+S, sem
+autosave. Inteiro não negativo, zero válido, ponto como milhar, vazio sem observação
+apaga o registro. Observação até500 caracteres; erro422 preserva digitado e não
+salva parcialmente. Consultas por mesma unidade/permissão; cancelado bloqueia escrita.
+Relatório mostra dados SALVOS, não calcula instantaneamente o digitado. Sugestão para
+Relatório Técnico já implementada; não descrevê-la como recurso futuro nem alterar
+seu texto oficial. Sem alteração de documento, auditoria ou cálculos nesta página.
+
+Composição: hero/identificação com sufixo, superfície contínua de preparação, tabela
+de lançamentos proporcional no desktop e registros com rótulos explícitos no celular/
+tablet. Quantidade compacta, observação com largura útil, meta secundária sem ocultá-la.
+Relatório de leitura em largura confortável, sem cartão extra. Ação no fluxo e
+feedback verdadeiro de salvamento MANUAL. Estados vazio, erro e consulta preservados.
+Código exclusivo antigo só será removido após testar a substituição e consumidores.

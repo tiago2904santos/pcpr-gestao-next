@@ -4433,3 +4433,22 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .registro-hero .identidade-documental__complemento { color: var(--cor-texto-inverso-sutil); }
 
 .registro-hero__metadado--vazio { font-style: italic; }
+
+
+/* Lançamento quantitativo: comparação em tabela; rótulos e edição agrupados no móvel. */
+.tabela--lancamentos { table-layout: fixed; }
+.tabela--lancamentos thead th:nth-child(3) { width: calc(var(--esp-4) * 8); }
+.tabela--lancamentos tbody :is(th, td) { vertical-align: top; overflow-wrap: anywhere; }
+.tabela--lancamentos tbody td > .entrada { width: 100%; min-width: 0; }
+.lancamento__rotulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.lancamento__referencia-rotulo { display: none; }
+.leitura-textual { max-width: 78ch; line-height: var(--altura-linha); }
+@media (max-width: 1023.98px) {
+  .tabela--lancamentos, .tabela--lancamentos tbody { display: block; min-width: 0; }
+  .tabela--lancamentos thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .tabela--lancamentos tbody tr { display: grid; grid-template-columns: calc(var(--esp-4) * 6) minmax(0, 1fr); gap: var(--esp-2) var(--esp-3); padding-block: var(--esp-4); border-bottom: var(--borda-sutil); }
+  .tabela--lancamentos tbody tr > :is(th, td) { min-width: 0; max-width: none; width: auto; padding: 0; border: 0; }
+  .tabela--lancamentos tbody th, .tabela--lancamentos tbody td:nth-child(2) { grid-column: 1 / -1; }
+  .tabela--lancamentos .lancamento__rotulo { display: block; position: static; width: auto; height: auto; padding: 0; margin: 0 0 var(--esp-1); overflow: visible; clip: auto; clip-path: none; white-space: normal; }
+  .lancamento__referencia-rotulo { display: block; color: var(--cor-texto-terciario); font-size: var(--texto-xs); font-weight: var(--peso-semi); margin-bottom: var(--esp-1); }
+}
