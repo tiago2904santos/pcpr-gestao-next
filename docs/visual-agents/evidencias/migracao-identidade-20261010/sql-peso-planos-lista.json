@@ -1,0 +1,83 @@
+{
+  "SQL": [
+    {
+      "fase": "antes",
+      "estado": "4",
+      "SQL": 27,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "1",
+      "SQL": 23,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "0",
+      "SQL": 16,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "periodo",
+      "SQL": 27,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "4",
+      "SQL": 27,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "1",
+      "SQL": 23,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "0",
+      "SQL": 16,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "periodo",
+      "SQL": 27,
+      "mutacoes": 0
+    }
+  ],
+  "recursos": [
+    {
+      "arquivo": "static/css/components.css",
+      "antes": 185759,
+      "depois": 186123,
+      "gzipAntes": 35773,
+      "gzipDepois": 35805
+    },
+    {
+      "arquivo": "static/css/listas.css",
+      "antes": 63382,
+      "depois": 63382,
+      "gzipAntes": 15204,
+      "gzipDepois": 15204
+    },
+    {
+      "arquivo": "static/js/componentes/seletor.js",
+      "antes": 9604,
+      "depois": 9604,
+      "gzipAntes": 3191,
+      "gzipDepois": 3191
+    },
+    {
+      "arquivo": "static/js/componentes/registro.js",
+      "antes": 3822,
+      "depois": 3822,
+      "gzipAntes": 1681,
+      "gzipDepois": 1681
+    }
+  ],
+  "metodoPeso": "UTF-8 normalizado LF para comparação entre objeto Git e checkout CRLF; não representa bytes HTTP"
+}

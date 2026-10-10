@@ -1,0 +1,13 @@
+{
+  "antes": {
+    "opacity": "0",
+    "animation": "aparecer",
+    "duration": "0.36s",
+    "delay": "0.08s"
+  },
+  "depois": {
+    "opacity": "1",
+    "animation": "aparecer"
+  },
+  "origem": "base.css .conteudo__interno > *; regra anterior à missão, 360 ms + delay"
+}

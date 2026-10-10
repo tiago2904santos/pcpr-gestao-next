@@ -1,0 +1,11 @@
+{
+  "HEAD": "5d3d845",
+  "query": "?q=2026&ordem=numero",
+  "links": [
+    "?pagina=2",
+    "?pagina=3",
+    "?pagina=4"
+  ],
+  "mutacoes": 0,
+  "metodo": "POR_PAGINA=1 apenas no processo de leitura; registros DEMO existentes"
+}

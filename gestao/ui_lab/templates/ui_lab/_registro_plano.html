@@ -1,0 +1,13 @@
+{% load viagens %}
+<ul class="registros registros--operacionais" aria-label="Plano com sufixo e observação institucional">
+  <li class="registro registro-operacional registro--inativo">
+    <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Plano" numero="1250/2026" complemento="ASCOM" compacta=True only %}</div>
+    <div class="registro__corpo">
+      <div class="registro__titulo"><span class="registro__link registro__link--estatico"><span class="registro__link-texto">Ribeirão do Pinhal/PR</span></span><span class="registro__selos"><span class="selo selo--perigo selo--sem-ponto">Cancelado</span></span></div>
+      <div class="registro__agenda"><span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">02/11 a 03/11/2026</span></span></div>
+      <p class="registro__texto">Motivo do cancelamento: evento adiado pelo município. O registro conserva os dados e o histórico.</p>
+    </div>
+    <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Coordenação e efetivo</span><span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">12 no efetivo</span></span></div>
+    <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias totais</span><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto"><span class="registro__valor">R$ 12.790,68</span></span></span></div>
+  </li>
+</ul>

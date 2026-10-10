@@ -103,3 +103,27 @@ removida. Compatibilidade é registrada na matriz da missão.
 - Lacunas funcionais preexistentes: número manual e aviso de conflito de agenda
   do legado. Não implementados nesta missão visual. Assinados e contas prestadas
   já existem; a ficha histórica não deve continuar marcando-os como ausentes.
+# Próxima unidade: Lista de Planos (10/10/2026)
+
+Objetivo: localizar planos, comparar destinos/programas, coordenação, efetivo e
+diárias e acessar ações por permissão. Rota `/viagens/planos/`, busca `q`, abas
+`aba`, filtro de Ofício e ordenação `ordem`: número/período ascendente ou descendente.
+Agrupamentos ano/mês preservados; paginação e OOB mantêm filtros e foco.
+
+Preservar IDs filtros-planos/busca-planos/ordem-planos/resultados/abas-filtro,
+querystrings, menus Abrir/PDF/DOCX/cancelar/reativar/excluir, confirmações e criação
+avulsa ou do Ofício. Lista não salva nem gera automaticamente. Pendências do Plano
+bloqueiam finalização/geração; não aplicar o comportamento permissivo de OS.
+Diárias e efetivo da lista são totais por evento, não equipe única. Número/sufixo,
+programas, coordenador, período, vínculos e estado não podem desaparecer.
+
+Substituir header/lista/placa/filtro/barra antigos pelas variantes canônicas de
+coleção, registro operacional, identidade documental, agenda/recursos/valor e
+ações no fluxo. Sem CSS/JS novo inicialmente. Folha, evento e Resultados serão
+unidades seguintes; preservar suas classes até migrar consumidores e validar.
+Lacuna anterior: número manual do legado. Não criar essa regra nesta missão.
+
+Lista de Planos: links de paginação devem preservar busca, aba, ordenação e Ofício,
+como as outras listas. Falha antiga reproduzida e corrigida nesta página; sem regra
+nova de negócio ou alteração da numeração. Identificação e complemento editorial
+do hero têm contextos separados; sufixo documental é explícito.

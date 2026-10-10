@@ -1,0 +1,179 @@
+.....FFFF                                                                [100%]
+================================== FAILURES ===================================
+___________________ test_lista_busca_ordem_menu_e_aba[360] ____________________
+
+logado = <Page url='http://localhost:60867/viagens/planos/?q=Maring%C3%A1&ordem=periodo'>
+dados_e2e = Cenario(ids={'oficio_emitido': 26, 'oficio_rascunho': 27, 'oficio_vazio': 28, 'oficio_cancelado': 29, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_lista_busca_ordem_menu_e_aba(logado, dados_e2e, largura):
+        pg = logado
+        op = dados_e2e.usuarios["operador"]
+        a, _ = planos.salvar(op, destinos=[Municipio.objects.get(nome="Maringá", uf="PR")],
+                             data_inicio=date(2030, 6, 25), data_fim=date(2030, 6, 27))
+        b, _ = planos.salvar(op)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto("/viagens/planos/")
+        expect(pg.locator(".registro-hero")).to_contain_text("Planos de trabalho")
+        expect(pg.locator(".registro-operacional")).to_have_count(2)
+        assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+        busca = pg.get_by_role("searchbox", name="Buscar")
+        busca.fill("sem-resultado-identidade-planos")
+        expect(pg.locator(".barra-acoes__status")).to_contain_text("0 planos")
+        expect(busca).to_be_focused()
+        expect(pg.get_by_role("button", name="Novo plano de trabalho", exact=True)).to_be_visible()
+        busca.fill("Maringá")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        expect(pg.locator(".registro-operacional .registro__link")).to_contain_text(str(a))
+        # OOB preserva contagens e a dimensão temporal; ordenar mantém busca.
+        pg.get_by_role("combobox", name="Ordenar por").click()
+        pg.get_by_role("option", name="Período (próximos)", exact=True).click()
+        expect(pg).to_have_url(pytest_url("ordem=periodo"))
+        expect(pg.locator("#busca-planos")).to_have_value("Maringá")
+>       expect(pg.locator(".registros__grupo")).to_contain_text("junho")
+E       AssertionError: Locator expected to contain text 'junho'
+E       Actual value: Junho de 2030 
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".registros__grupo")
+E           9 × locator resolved to <li class="registros__grupo">Junho de 2030</li>
+E             - unexpected value "Junho de 2030"
+
+tests\e2e\test_planos_lista_identidade.py:42: AssertionError
+___________________ test_lista_busca_ordem_menu_e_aba[768] ____________________
+
+logado = <Page url='http://localhost:60867/viagens/planos/?q=Maring%C3%A1&ordem=periodo'>
+dados_e2e = Cenario(ids={'oficio_emitido': 31, 'oficio_rascunho': 32, 'oficio_vazio': 33, 'oficio_cancelado': 34, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_lista_busca_ordem_menu_e_aba(logado, dados_e2e, largura):
+        pg = logado
+        op = dados_e2e.usuarios["operador"]
+        a, _ = planos.salvar(op, destinos=[Municipio.objects.get(nome="Maringá", uf="PR")],
+                             data_inicio=date(2030, 6, 25), data_fim=date(2030, 6, 27))
+        b, _ = planos.salvar(op)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto("/viagens/planos/")
+        expect(pg.locator(".registro-hero")).to_contain_text("Planos de trabalho")
+        expect(pg.locator(".registro-operacional")).to_have_count(2)
+        assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+        busca = pg.get_by_role("searchbox", name="Buscar")
+        busca.fill("sem-resultado-identidade-planos")
+        expect(pg.locator(".barra-acoes__status")).to_contain_text("0 planos")
+        expect(busca).to_be_focused()
+        expect(pg.get_by_role("button", name="Novo plano de trabalho", exact=True)).to_be_visible()
+        busca.fill("Maringá")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        expect(pg.locator(".registro-operacional .registro__link")).to_contain_text(str(a))
+        # OOB preserva contagens e a dimensão temporal; ordenar mantém busca.
+        pg.get_by_role("combobox", name="Ordenar por").click()
+        pg.get_by_role("option", name="Período (próximos)", exact=True).click()
+        expect(pg).to_have_url(pytest_url("ordem=periodo"))
+        expect(pg.locator("#busca-planos")).to_have_value("Maringá")
+>       expect(pg.locator(".registros__grupo")).to_contain_text("junho")
+E       AssertionError: Locator expected to contain text 'junho'
+E       Actual value: Junho de 2030 
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".registros__grupo")
+E           9 × locator resolved to <li class="registros__grupo">Junho de 2030</li>
+E             - unexpected value "Junho de 2030"
+
+tests\e2e\test_planos_lista_identidade.py:42: AssertionError
+___________________ test_lista_busca_ordem_menu_e_aba[1440] ___________________
+
+logado = <Page url='http://localhost:60867/viagens/planos/?q=Maring%C3%A1&ordem=periodo'>
+dados_e2e = Cenario(ids={'oficio_emitido': 36, 'oficio_rascunho': 37, 'oficio_vazio': 38, 'oficio_cancelado': 39, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_lista_busca_ordem_menu_e_aba(logado, dados_e2e, largura):
+        pg = logado
+        op = dados_e2e.usuarios["operador"]
+        a, _ = planos.salvar(op, destinos=[Municipio.objects.get(nome="Maringá", uf="PR")],
+                             data_inicio=date(2030, 6, 25), data_fim=date(2030, 6, 27))
+        b, _ = planos.salvar(op)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto("/viagens/planos/")
+        expect(pg.locator(".registro-hero")).to_contain_text("Planos de trabalho")
+        expect(pg.locator(".registro-operacional")).to_have_count(2)
+        assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+        busca = pg.get_by_role("searchbox", name="Buscar")
+        busca.fill("sem-resultado-identidade-planos")
+        expect(pg.locator(".barra-acoes__status")).to_contain_text("0 planos")
+        expect(busca).to_be_focused()
+        expect(pg.get_by_role("button", name="Novo plano de trabalho", exact=True)).to_be_visible()
+        busca.fill("Maringá")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        expect(pg.locator(".registro-operacional .registro__link")).to_contain_text(str(a))
+        # OOB preserva contagens e a dimensão temporal; ordenar mantém busca.
+        pg.get_by_role("combobox", name="Ordenar por").click()
+        pg.get_by_role("option", name="Período (próximos)", exact=True).click()
+        expect(pg).to_have_url(pytest_url("ordem=periodo"))
+        expect(pg.locator("#busca-planos")).to_have_value("Maringá")
+>       expect(pg.locator(".registros__grupo")).to_contain_text("junho")
+E       AssertionError: Locator expected to contain text 'junho'
+E       Actual value: Junho de 2030 
+E       Call log:
+E         - Expect "to_contain_text" with timeout 5000ms
+E         - waiting for locator(".registros__grupo")
+E           9 × locator resolved to <li class="registros__grupo">Junho de 2030</li>
+E             - unexpected value "Junho de 2030"
+
+tests\e2e\test_planos_lista_identidade.py:42: AssertionError
+____________________ test_paginacao_cancelamento_e_leitura ____________________
+
+logado = <Page url='http://localhost:60867/viagens/planos/?aba=cancelados'>
+dados_e2e = Cenario(ids={'oficio_emitido': 41, 'oficio_rascunho': 42, 'oficio_vazio': 43, 'oficio_cancelado': 44, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_paginacao_cancelamento_e_leitura(logado, dados_e2e):
+        pg = logado
+        op = dados_e2e.usuarios["operador"]
+        alvo, _ = planos.salvar(op)
+        for _ in range(20):
+            planos.salvar(op)
+        pg.goto("/viagens/planos/")
+        expect(pg.locator(".registro-operacional")).to_have_count(20)
+        expect(pg.locator(".barra-acoes__status")).to_contain_text("21 planos")
+        expect(pg.locator(".barra-acoes--acompanha")).to_be_visible()
+        pg.goto("/viagens/planos/?pagina=2")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        pg.get_by_role("button", name=f"Ações do {alvo}", exact=True).click()
+        pg.get_by_role("menuitem", name="Cancelar", exact=True).press("Enter")
+        dialogo = pg.get_by_role("dialog", name=f"Cancelar o {alvo}?")
+        dialogo.get_by_label("Motivo do cancelamento").fill("Evento adiado para revisão")
+        dialogo.get_by_role("button", name="Cancelar plano", exact=True).click()
+        alvo.refresh_from_db()
+        assert alvo.cancelado
+        pg.goto("/viagens/planos/?aba=cancelados")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        expect(pg.locator(".registro__texto")).to_contain_text("Evento adiado")
+        pg.context.clear_cookies()
+        entrar(pg, "consulta")
+        pg.goto("/viagens/planos/?aba=cancelados")
+        pg.get_by_role("button", name=f"Ações do {alvo}", exact=True).click()
+        expect(pg.get_by_role("menuitem", name="Abrir", exact=True)).to_be_visible()
+        expect(pg.get_by_role("menuitem", name="Reativar", exact=True)).to_have_count(0)
+        expect(pg.get_by_role("button", name="Novo plano de trabalho", exact=True)).to_have_count(0)
+        assert PlanoTrabalho.objects.count() == 21
+>       assert rodar_axe(pg) == []
+E       AssertionError: assert [{'id': 'colo...sholds', ...}] == []
+E         
+E         Left contains one more item: {'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-54... 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_planos_lista_identidade.py:97: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_lista_identidade.py::test_lista_busca_ordem_menu_e_aba[360]
+FAILED tests/e2e/test_planos_lista_identidade.py::test_lista_busca_ordem_menu_e_aba[768]
+FAILED tests/e2e/test_planos_lista_identidade.py::test_lista_busca_ordem_menu_e_aba[1440]
+FAILED tests/e2e/test_planos_lista_identidade.py::test_paginacao_cancelamento_e_leitura
+4 failed, 5 passed, 1 warning in 231.74s (0:03:51)

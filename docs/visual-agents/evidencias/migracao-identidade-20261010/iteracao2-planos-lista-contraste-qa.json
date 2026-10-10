@@ -1,0 +1,2202 @@
+[
+  {
+    "pagina": "lista",
+    "width": 360,
+    "http": 200,
+    "HTML": 43255,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(4) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(4) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(5) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(5) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 360,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 360,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 360,
+    "http": 200,
+    "HTML": 43461,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(3) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(3) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(6) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(6) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 360,
+    "http": 200,
+    "HTML": 28317,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 390,
+    "http": 200,
+    "HTML": 43255,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(4) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(4) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(5) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(5) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 390,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 390,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 390,
+    "http": 200,
+    "HTML": 43461,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(3) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(3) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(6) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(6) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 390,
+    "http": 200,
+    "HTML": 28317,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 768,
+    "http": 200,
+    "HTML": 43255,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(4) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(4) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(5) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(5) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 768,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 768,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 768,
+    "http": 200,
+    "HTML": 43461,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(3) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(3) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(6) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(6) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 768,
+    "http": 200,
+    "HTML": 28317,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1024,
+    "http": 200,
+    "HTML": 43255,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(4) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(4) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(5) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(5) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1024,
+    "http": 200,
+    "HTML": 43461,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(3) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(3) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(6) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(6) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1024,
+    "http": 200,
+    "HTML": 28317,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1440,
+    "http": 200,
+    "HTML": 43255,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(4) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(4) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(5) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(5) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1440,
+    "http": 200,
+    "HTML": 43461,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(2) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(2) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(3) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(3) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro--inativo > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro--inativo > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".registro.registro-operacional:nth-child(6) > .placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".registro.registro-operacional:nth-child(6) > .placa > .identidade-documental.identidade-documental--compacta > .identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1440,
+    "http": 200,
+    "HTML": 28317,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1f1e1b",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.11,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"placa\" aria-hidden=\"true\">",
+                    "target": [
+                      ".placa"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"identidade-documental__complemento\">ASCOM</span>",
+            "target": [
+              ".identidade-documental__complemento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #1f1e1b, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  }
+]

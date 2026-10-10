@@ -1,0 +1,12 @@
+{
+  "baseHEAD": "5d3d845",
+  "candidato": "views_planos.py com querystring_base",
+  "query": "?q=2026&ordem=numero",
+  "links": [
+    "?q=2026&ordem=numero&pagina=2",
+    "?q=2026&ordem=numero&pagina=3",
+    "?q=2026&ordem=numero&pagina=4"
+  ],
+  "mutacoes": 0,
+  "metodo": "POR_PAGINA=1 apenas no processo de leitura; registros DEMO existentes"
+}

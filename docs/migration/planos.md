@@ -1,7 +1,7 @@
 # Módulo 6 — Planos de trabalho (ficha)
 
-Atualizado em 04/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO** — 6a (catálogos e configuração)
-6a–6e implementados (catálogos, domínio, plano de um evento, vários eventos, resultados); falta só a aba "Finalizados", que depende da prestação de contas (módulo 9). Comparado por leitura com `viagens_planos/` da referência
+Atualizado em 10/10/2026. Situação: **IMPLEMENTADO, AGUARDANDO COMPARAÇÃO** — 6a (catálogos e configuração)
+6a–6e implementados (catálogos, domínio, plano de um evento, vários eventos, resultados); aba Finalizados e integração com Relatório Técnico já implementadas. Comparado por leitura com `viagens_planos/` da referência
 (modelos, formulários, serviços, telas, documento, testes); inventário funcional completo
 em `scratchpad` da sessão (não versionado) e resumido aqui.
 
@@ -12,7 +12,7 @@ em `scratchpad` da sessão (não versionado) e resumido aqui.
 | 6a | Catálogos (programas, horários, atividades com meta e recurso, conjuntos com padrão), carga inicial, configuração (assina, coordenador padrão, sufixo), substituto para o plano | ✅ |
 | 6b | Domínio puro: textos automáticos (contextualização, coordenação com gênero, considerações), pluralização do efetivo, metas/recursos, pendências, diárias do plano (motor do ofício) | ✅ |
 | 6c | Plano de um evento: numeração anual com lacuna e sufixo, folha (cartões), autosave, documento (PDF/DOCX), lista com abas, cancelar/reativar/excluir, histórico | ✅ |
-| 6d | Vários eventos (multievento) e diárias combinadas | ✅ |
+| 6d | Vários eventos (multievento), efetivo e diárias por evento | ✅ |
 | 6e | Resultados por atividade e relatório final | ✅ |
 
 ## Matriz de paridade (6a)
@@ -67,9 +67,9 @@ comum, `dominio/escrita.py`, usado também pela OS.
 | Autosave (também depois de gerado) | ✅ MELHORADO | com versão (não grava por cima de outra pessoa); a geração toca a versão e não deixa "em branco" apagar a data fixada | `test_autosave_versao_e_cancelado`, `test_aba_velha_depois_de_gerar_nao_apaga_a_data` |
 | Histórico | ✅ MELHORADO | lido da trilha do banco | `test_historico` |
 | Resultados por atividade (realizado ≥ 0 com ponto de milhar, observação até 500, linha vazia apaga; previstas de todos os eventos + as que saíram do plano com resultado) | ✅ | página própria na linguagem das folhas, ligada do cartão Documento depois de gerado; cancelado só leitura **e** bloqueado no servidor (a referência só escondia) | `test_planos.py::TestResultados`, `test_dominio_plano_trabalho.py::TestResultados` |
-| Relatório final e sugestão para o Relatório Técnico | ✅ | `resultados.relatorio_final`, `resultados.sugestao_para_rt` (usada quando a prestação de contas chegar) | `test_salvar_listar_apagar_e_relatorio` |
-| Vários eventos | ✅ ↔ | o evento 1 são os campos do plano; os demais, registros editados numa janela (na referência o plano era o "rascunho do evento atual", com adicionar/editar/remover que limpavam e recarregavam o rascunho); efetivo e deslocamento do plano (a mesma equipe numa viagem — resolve a ambiguidade 1: o texto e as diárias usam o mesmo efetivo); diárias combinadas num trecho só; contextualização e considerações com os destinos de todos os eventos (a referência usava só o rascunho e podia sair com "________"); só o coordenador administrativo designado; documento com atuação, atividades, metas e recursos por evento e o valor com "Valor total do evento dias: …" | `test_planos.py::TestVariosEventos`, `test_dominio_plano_trabalho.py::TestVariosEventos` |
-| Valor por evento ("Valor do evento dia: …") | ↔ | não há: com a mesma equipe numa viagem só, o valor é o combinado (a referência copiava as diárias do rascunho no momento em que o evento era gravado — frágil, ambiguidade 3) | — |
+| Relatório final e sugestão para o Relatório Técnico | ✅ | `resultados.relatorio_final`, `resultados.sugestao_para_rt` (já integrada em relatorio.py) | `test_salvar_listar_apagar_e_relatorio` |
+| Vários eventos | ✅ ↔ | o evento 1 são os campos do plano; os demais, registros editados numa janela (na referência o plano era o "rascunho do evento atual", com adicionar/editar/remover que limpavam e recarregavam o rascunho); efetivo, deslocamento e diárias próprios por evento (migrações 0047/0048); efetivo_geral soma quantitativos dos eventos e diarias_geral soma valores, sendo None se algum evento não fecha; contextualização e considerações com os destinos de todos os eventos (a referência usava só o rascunho e podia sair com "________"); só o coordenador administrativo designado; documento com atuação, atividades, metas e recursos por evento e o valor com "Valor total do evento dias: …" | `test_planos.py::TestVariosEventos`, `test_dominio_plano_trabalho.py::TestVariosEventos` |
+| Valor por evento ("Valor do evento dia: …") | ↔ | implementado: cada evento conserva efetivo, deslocamento e diárias; total geral é a soma, sem inventar equipe única | — |
 
 ### Revisões (04/10/2026)
 
@@ -107,9 +107,9 @@ As ambiguidades do inventário e o que este sistema faz (registro em
 7. **Diárias**: só o destino principal entra no cálculo, como na referência (a confirmar).
 8. **Multievento**: contextualização e considerações usam os destinos de todos os eventos
    (na referência usavam só o rascunho e podiam sair com "________" — defeito).
-9. **Efetivo no multievento**: a referência soma no texto e usa o maior nas diárias; a
-   decisão fica para a etapa 6d (se não houver como confirmar, a mesma equipe — o maior —
-   nos dois, com a soma por evento à vista).
+9. **Efetivo no multievento**: contrato atual por evento, conforme modelos/serviços e
+   migrações 0047/0048. Efetivo e diárias gerais são somas dos eventos; esta correção
+   documental não introduz uma nova regra durante a migração visual.
 10. **Ordem das seções**: a do PDF da referência (pedido do usuário lá) para PDF e DOCX.
 11. **Texto fixo "PCPR na Comunidade"** na contextualização: mantido (texto institucional da
     referência).
@@ -121,5 +121,6 @@ Configuração do plano: gestor.
 
 ## Pendências
 
-6b–6e; aba "Finalizados" (depende da prestação de contas, módulo 9); integração com a
-viagem (módulo 8) e com a solicitação (módulo 11).
+Migração visual: lista em validação; folha/multievento e Resultados na fila.
+Número manual da referência permanece lacuna. Revalidar paridade específica ao
+entrar em cada fluxo; não tratar esta ficha antiga como decisão institucional nova.

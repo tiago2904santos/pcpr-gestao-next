@@ -1,0 +1,112 @@
+[
+  {
+    "id": "target-size",
+    "impact": "serious",
+    "tags": [
+      "cat.sensory-and-visual-cues",
+      "wcag22aa",
+      "wcag258"
+    ],
+    "description": "Ensure touch targets have sufficient size and space",
+    "help": "All touch targets must be 24px large, or leave sufficient space",
+    "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+    "nodes": [
+      {
+        "any": [
+          {
+            "id": "target-size",
+            "data": {
+              "messageKey": "partiallyObscured",
+              "minSize": 24,
+              "width": 29.4,
+              "height": 10.8
+            },
+            "relatedNodes": [
+              {
+                "html": "<button type=\"button\" class=\"navegacao__seletor\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Módulo atual: Viagens. Trocar de módulo\" aria-controls=\"menu-yfdp2qs\" aria-expanded=\"false\" id=\"menu-yfdp2qs-botao\">",
+                "target": [
+                  "#menu-yfdp2qs-botao"
+                ]
+              }
+            ],
+            "impact": "serious",
+            "message": "Target has insufficient size because it is partially obscured (smallest space is 29.4px by 10.8px, should be at least 24px by 24px)"
+          },
+          {
+            "id": "target-offset",
+            "data": {
+              "closestOffset": 19,
+              "minOffset": 24
+            },
+            "relatedNodes": [
+              {
+                "html": "<button type=\"button\" class=\"navegacao__seletor\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Módulo atual: Viagens. Trocar de módulo\" aria-controls=\"menu-yfdp2qs\" aria-expanded=\"false\" id=\"menu-yfdp2qs-botao\">",
+                "target": [
+                  "#menu-yfdp2qs-botao"
+                ]
+              }
+            ],
+            "impact": "serious",
+            "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px."
+          }
+        ],
+        "all": [],
+        "none": [],
+        "impact": "serious",
+        "html": "<a href=\"/\">Início</a>",
+        "target": [
+          "li:nth-child(1) > a[href=\"/\"]"
+        ],
+        "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 29.4px by 10.8px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px."
+      },
+      {
+        "any": [
+          {
+            "id": "target-size",
+            "data": {
+              "messageKey": "partiallyObscured",
+              "minSize": 24,
+              "width": 44.6,
+              "height": 10.8
+            },
+            "relatedNodes": [
+              {
+                "html": "<button type=\"button\" class=\"navegacao__seletor\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Módulo atual: Viagens. Trocar de módulo\" aria-controls=\"menu-yfdp2qs\" aria-expanded=\"false\" id=\"menu-yfdp2qs-botao\">",
+                "target": [
+                  "#menu-yfdp2qs-botao"
+                ]
+              }
+            ],
+            "impact": "serious",
+            "message": "Target has insufficient size because it is partially obscured (smallest space is 44.6px by 10.8px, should be at least 24px by 24px)"
+          },
+          {
+            "id": "target-offset",
+            "data": {
+              "closestOffset": 19,
+              "minOffset": 24
+            },
+            "relatedNodes": [
+              {
+                "html": "<button type=\"button\" class=\"navegacao__seletor\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Módulo atual: Viagens. Trocar de módulo\" aria-controls=\"menu-yfdp2qs\" aria-expanded=\"false\" id=\"menu-yfdp2qs-botao\">",
+                "target": [
+                  "#menu-yfdp2qs-botao"
+                ]
+              }
+            ],
+            "impact": "serious",
+            "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px."
+          }
+        ],
+        "all": [],
+        "none": [],
+        "impact": "serious",
+        "html": "<a href=\"/viagens/\">Viagens</a>",
+        "target": [
+          "ol > li:nth-child(2) > a[href$=\"viagens/\"]"
+        ],
+        "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 44.6px by 10.8px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px."
+      }
+    ]
+  }
+]

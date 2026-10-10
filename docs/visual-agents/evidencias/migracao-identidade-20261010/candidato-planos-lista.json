@@ -1,0 +1,32 @@
+{
+  "baseCommit": "5d3d845152481f99a327ef74578d4a093aaf5902",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/viagens/templates/viagens/planos/lista.html": "f9dfcae20962359f9528f719b84c4163aa810ac2c2b1e4676e697d8fe743a021",
+    "templates/componentes/identidade_documental.html": "3dce76e693e324d3e40554f83dea58099c07b76aa1bcfb4e9a3e035c4f4af7c1",
+    "templates/componentes/registro_hero.html": "62c34883630eef7b8689127f24647a7ba0624fb21352381e69c95d51f88f4fff",
+    "tests/test_identidade_documental.py": "4582b2bc1301f7986ebd4ccd7660d714457b14fd42b1ca3d261e4ae35721dfe4",
+    "gestao/viagens/views_planos.py": "5168dd2080e7ef075f2dfd29a56ee735b7c1d692b2ba9e97d4fc6f904065e94e",
+    "gestao/viagens/tests/test_planos.py": "c3ccee8e5cfed18b9e9edfbeb02a27f269204e0016529111d8aaa51b8871a576",
+    "static/css/components.css": "5350a4cd4f71fa17032db5f265352a7a232a7f7a32ab7865d0b68d1d2b651745",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "8d6adbb18a46f044673b44cff63b03326de0a69aa8e5cff7aa5ea780ad124db6",
+    "gestao/ui_lab/templates/ui_lab/_registro_plano.html": "f76301d7478c342657df14e30c1cbbfcda8870da334d0a4d5d6ed72d0f4271f8",
+    "tests/e2e/test_planos_lista_identidade.py": "09ff4ce6cec56f80cc52ac34a60c7acee1e994fe969ae28faa3141b0a216a61c"
+  },
+  "checks": {
+    "http": 47,
+    "focused": 79,
+    "e2e": 9,
+    "capturas": 25,
+    "galeria": 80,
+    "SQL": "inalterado",
+    "JS": "inalterado",
+    "CSSGzipLF": 32
+  },
+  "limites": [
+    "achado adicional de alvos globais parcialmente recortados em rolagem; foco validado",
+    "folha/eventos/resultados não migrados",
+    "gate integral 2295 em 9963f71; novo gate global necessário"
+  ],
+  "aprovacaoVisual": "pendente do usuário"
+}

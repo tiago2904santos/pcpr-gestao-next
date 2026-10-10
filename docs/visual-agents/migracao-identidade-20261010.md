@@ -15,7 +15,8 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Roteiros: novo/edição | vazio, preenchido, erro, autosave, bate-volta | concluída tecnicamente; avaliação visual pendente | itinerário/rota/trechos/Diárias canônicos, salvamento sem emissão | mapa alternativo sem consumidores removido | 7 E2E de fluxo, compatibilidade após remoção, 68 tokens, cinco larguras | gate 2295 verde; sem documento/resumo próprio |
 | Termos: lista/folha/documentos | busca, filtro por Ofício, avulso/vinculado, novo, documentos, cancelado | concluída tecnicamente; avaliação visual pendente | hero, coleção/registro de relações, preparação, destinos/mapa, equipe compacta, viatura/cartão, editor/histórico | quatro regras exclusivas antigas removidas; mapa mantido para OS/Planos/Viagens | 69 HTTP pós-limpeza; 8 E2E compatíveis; 25 cenários reais verdes; 3 Baixar/documentos e 2 paginação/consulta/assinado verdes | manifesto candidato-termos.json; avaliação estética pendente |
 | OS: lista/folha/documentos | busca, vazio, avulsa/vinculada, funções, cancelada, consulta, documentos | concluída tecnicamente; avaliação visual pendente | coleção, registros de relações, preparação, destinos, equipe compacta, editor/histórico | bases compartilhadas mantidas para Planos/Viagens | 81 focados, 6 E2E, 25 capturas e interações cinco larguras | manifesto candidato-ordens.json; HTTP antes/depois inconclusivo |
-| Planos: lista/folha/multievento/resultados | idem | não iniciada | idem | idem | idem | após OS |
+| Planos: lista | busca, ordem, Ofício, grupos, vazio, cancelados, paginação, consulta | concluída tecnicamente; avaliação visual pendente | coleção, identidade com complemento, registro operacional financeiro, observação larga | bases antigas mantidas para demais consumidores | 47 HTTP, 79 focados, 9 E2E compatíveis, cinco larguras; paginação antiga corrigida | candidato-planos-lista.json; achado de rolagem global não bloqueante registrado |
+| Planos: folha/multievento/resultados | aprofundar por unidade | não iniciada | reaproveitar preparação/destinos/editor | classes específicas ainda usadas | contrato descoberto somente leitura | após fechamento da lista |
 | Justificativas | lista/diálogo/editor | não iniciada | idem | idem | idem | após Planos |
 | Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
@@ -48,7 +49,7 @@ funções por servidor, teclado/HTMX/consulta/assinados. SQL e CSS/JS sem aument
 comparação HTTP controlada inconclusiva por renderização da cópia anterior.
 Nenhum código exclusivo antigo removido sem prova. Manifesto candidato-ordens.json.
 
-Próxima página ativa: Lista de Planos. Folha/multievento e Resultados ficam na fila
-seguinte; contratos distintos de OS: pendências bloqueiam geração/finalização e
+Lista de Planos concluída tecnicamente; próxima página ativa: Folha/multievento.
+Resultados ficam na fila seguinte; contratos distintos de OS: pendências bloqueiam geração/finalização e
 efetivo/diárias pertencem a cada evento. DEMO preservado, sem reset/seed.
 Não refazer snapshot nem usar git add indiscriminado.

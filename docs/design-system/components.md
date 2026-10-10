@@ -480,3 +480,15 @@ salvo; menu e confirmações continuam nos componentes existentes.
 Não há CSS/JS novo nem implementação exclusiva removível nesta página. As bases
 antigas compartilhadas continuam para consumidores ainda não migrados. Evidências
 em `../visual-agents/qa/ordens-identidade-2026-10-10.md`.
+# Identidade documental: complemento e observação de registro
+
+`identidade_documental.html` aceita `complemento` opcional: sufixo institucional
+apresentado abaixo do número, sem cortá-lo nem ampliar a coluna. Consumidor atual:
+Lista de Planos; exemplo UI Lab com `1250/2026` e `ASCOM`. Sem alteração para
+Ofícios/Roteiros/Termos/OS que não enviam complemento. Número completo permanece
+no texto acessível do link. Usa tokens, contraste inverso e quebra segura do sufixo.
+
+`registro-operacional` distribui `.registro__texto` na largura do registro: útil
+para motivo de cancelamento, sem ocupar a célula da placa quando corpo é contents.
+Consumidores diretamente migrados: Planos; todos os registros canônicos recebem
+compatibilidade sem mudar campos, ações ou os grid areas principais.

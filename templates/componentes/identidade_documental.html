@@ -2,4 +2,5 @@
 <div class="identidade-documental{% if compacta %} identidade-documental--compacta{% endif %}{% if classe %} {{ classe }}{% endif %}">
   <span class="identidade-documental__rotulo">{{ rotulo|default:"Documento" }}</span>
   <span class="identidade-documental__numero{% if situacao == 'cancelado' %} identidade-documental__numero--cancelado{% endif %}">{% if compacta %}<span class="placa__numero">{{ numero }}</span>{% else %}{{ numero }}{% endif %}</span>
+  {% if complemento %}<span class="identidade-documental__complemento">{{ complemento }}</span>{% endif %}
 </div>

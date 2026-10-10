@@ -3647,6 +3647,9 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-operacional > .placa .identidade-documental__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); }
 .registro-operacional > .placa .placa__numero { color: var(--cor-texto-inverso); font-size: var(--texto-xl); }
 .registro-operacional > .placa .identidade-documental { gap: var(--esp-1); }
+.identidade-documental__complemento { font-size: var(--texto-xs); font-weight: var(--peso-medio); line-height: var(--altura-linha-justa); overflow-wrap: anywhere; }
+.registro-operacional > .placa .identidade-documental__complemento { color: var(--cor-texto-inverso-sutil); }
+.registros--operacionais .registro-operacional .registro__texto { grid-column: 1 / -1; }
 .registros--operacionais .registro-operacional .registro__corpo,
 .registros--operacionais .registro-operacional .registro__titulo { display: contents; }
 .registros--operacionais .registro-operacional .registro__link { grid-area: titulo; min-width: 0; width: auto; }

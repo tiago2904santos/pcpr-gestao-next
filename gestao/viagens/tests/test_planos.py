@@ -229,6 +229,32 @@ class TestDocumentoECicloDeVida:
 
 
 class TestTelas:
+    def test_paginacao_preserva_busca_aba_ordem_e_oficio(self, c, monkeypatch):
+        from html import unescape
+        from urllib.parse import parse_qs, urlsplit
+
+        monkeypatch.setattr("gestao.viagens.views_planos.POR_PAGINA", 1)
+        oficio = _oficio(c)
+        for _ in range(2):
+            _completo(c, oficios=[oficio], programa_outros="Evento paginado")
+        url = reverse("viagens:planos")
+        cli = _cliente(c.usuarios["operador"])
+        r = cli.get(url, {"q": "Evento paginado", "aba": "futuros",
+                          "ordem": "numero", "oficio": oficio.pk, "pagina": 1})
+        import re
+        proxima = re.search(r'href="([^"]+)" aria-label="Próxima página"',
+                            r.content.decode())
+        assert proxima is not None
+        href = unescape(proxima[1])
+        assert parse_qs(urlsplit(href).query) == {
+            "q": ["Evento paginado"], "aba": ["futuros"], "ordem": ["numero"],
+            "oficio": [str(oficio.pk)], "pagina": ["2"],
+        }
+        seguinte = cli.get(url + href)
+        assert seguinte.status_code == 200
+        assert seguinte.context["page_obj"].number == 2
+        assert seguinte.context["page_obj"].paginator.count == 2
+
     def test_novo_pela_tela_e_folha_em_cartoes(self, c):
         cli = _cliente(c.usuarios["operador"])
         html = cli.get(reverse("viagens:novo_plano")).content.decode()

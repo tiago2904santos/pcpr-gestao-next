@@ -1,0 +1,252 @@
+[
+  {
+    "pagina": "lista",
+    "width": 360,
+    "http": 200,
+    "HTML": 42907,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 360,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 360,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 360,
+    "http": 200,
+    "HTML": 43113,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 360,
+    "http": 200,
+    "HTML": 28230,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 390,
+    "http": 200,
+    "HTML": 42907,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 390,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 390,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 390,
+    "http": 200,
+    "HTML": 43113,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 390,
+    "http": 200,
+    "HTML": 28230,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 768,
+    "http": 200,
+    "HTML": 42907,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 768,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 768,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 768,
+    "http": 200,
+    "HTML": 43113,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 768,
+    "http": 200,
+    "HTML": 28230,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1024,
+    "http": 200,
+    "HTML": 42907,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1024,
+    "http": 200,
+    "HTML": 43113,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1024,
+    "http": 200,
+    "HTML": 28230,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1440,
+    "http": 200,
+    "HTML": 42907,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23641,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23809,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1440,
+    "http": 200,
+    "HTML": 43113,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1440,
+    "http": 200,
+    "HTML": 28230,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

@@ -1,26 +1,20 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Planos de trabalho{% endblock %}
-{% block titulo_lista %}Planos de trabalho{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Ações itinerantes: atuação, efetivo e diárias, atividades, metas e recursos.</p>{% endblock %}
-{% comment %}
-"Novo plano" mora na barra que acompanha a rolagem (abaixo), não no alto da página — como
-na lista de ofícios.
-{% endcomment %}
-{% comment %}
-Paridade com a lista de planos da referência: título "Plano de Trabalho nº", selo da
-situação, fatos (período, destino, programa, coordenador, efetivo, valor) com o que falta
-nomeado em tom apagado; abas e busca (número, destino, programa). "Finalizados" (contas
-prestadas) chega com a prestação de contas.
-{% endcomment %}
+{% load viagens %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Planos de trabalho" complemento="Atuação, efetivo e documentos das ações itinerantes." %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
 
-{% block abas_filtro %}{% include "viagens/planos/_abas.html" %}{% endblock %}
+{% block abas_filtro %}<div class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da ação</p>{% include "viagens/planos/_abas.html" %}</div>{% endblock %}
 
 {% block filtros %}
 {% comment %}
 Busca e ordem como na lista de ofícios: a busca vale enquanto se digita (HTMX troca só os
 resultados e as abas); sem JavaScript, "Aplicar" envia.
 {% endcomment %}
-<form class="filtros" id="filtros-planos" role="search" method="get" action="{% url 'viagens:planos' %}"
+<form class="filtros filtros--barra" id="filtros-planos" role="search" method="get" action="{% url 'viagens:planos' %}"
       hx-get="{% url 'viagens:planos' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
       hx-trigger="submit, input changed delay:350ms from:#busca-planos, change from:#ordem-planos">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
@@ -45,39 +39,46 @@ resultados e as abas); sem JavaScript, "Aplicar" envia.
 {% block resultados %}
 <div id="resultados">
 {% if request.htmx %}{% include "viagens/planos/_abas.html" with oob=True %}{% endif %}
-<div class="lista-cabecalho">
+<div class="lista-cabecalho{% if not oficio %} sr-only{% endif %}">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% elif oficio %}Planos do Ofício {{ oficio.numero_formatado }}{% else %}Planos de trabalho{% endif %}</h2>
   {% if oficio %}<a class="ficha ficha--ativa" href="{% url 'viagens:planos' %}" aria-label="Ver todos os planos (tirar o filtro do Ofício {{ oficio.numero_formatado }})">Ofício {{ oficio.numero_formatado }} <span class="ficha__remover" aria-hidden="true">{% icone "x" classe="icone--sm" %}</span></a>{% endif %}
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"plano,planos" }}</span>
 </div>
 {% if linhas %}
-  <ul class="registros" aria-labelledby="titulo-resultados">
+  <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with p=l.plano %}
       {% if por_periodo %}
         {% ifchanged p.data_inicio|date:"Y-m" %}<li class="registros__grupo">{% if p.data_inicio %}{{ p.data_inicio|date:"F \d\e Y" }}{% else %}Sem data{% endif %}</li>{% endifchanged %}
       {% else %}
         {% ifchanged p.ano %}<li class="registros__grupo">Planos de {{ p.ano }}</li>{% endifchanged %}
       {% endif %}
-      <li class="registro{% if p.cancelado %} registro--inativo{% endif %}">
-        <span class="placa" aria-hidden="true"><span class="placa__rotulo">Plano{% if p.sufixo %} · {{ p.sufixo }}{% endif %}</span><span class="placa__numero">{{ p.numero|stringformat:"02d" }}/{{ p.ano }}</span></span>
+      <li class="registro registro-operacional{% if p.cancelado %} registro--inativo{% endif %}">
+        <div class="placa" aria-hidden="true">{% with n=p.numero|stringformat:"02d" a=p.ano|stringformat:"s" %}{% include "componentes/identidade_documental.html" with rotulo="Plano" numero=n|add:"/"|add:a complemento=p.sufixo compacta=True only %}{% endwith %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <a class="registro__link" href="{% url 'viagens:editar_plano' p.pk %}"><span class="sr-only">{{ p }} · </span>{% for d in p.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if l.periodo %} · {{ l.periodo }}{% endif %}</a>
-            <span class="selo selo--{{ l.estado.1 }} selo--sem-ponto">{{ l.estado.0 }}</span>
+            {% with d=p.destinos.all|resumir:3 %}
+            <a class="registro__link" href="{% url 'viagens:editar_plano' p.pk %}"{% if d.completo %} title="{{ d.completo }}"{% endif %}><span class="sr-only">{{ p }} · </span><span class="registro__link-texto">{% if d.visiveis %}{{ d.visiveis }}{% else %}<span class="vazio-inline">Sem destino</span>{% endif %}</span>{% if d.mais %}<span class="registro__mais" aria-hidden="true">+{{ d.mais }}</span><span class="sr-only"> e mais {{ d.mais }} destino{{ d.mais|pluralize }}</span>{% endif %}</a>
+            {% endwith %}
+            <span class="registro__selos"><span class="selo selo--{{ l.estado.1 }} selo--sem-ponto">{{ l.estado.0 }}</span></span>
           </div>
-          <div class="registro__meta">
-            {% if l.eventos %}<span class="registro__meta-item">{% icone "calendar-days" classe="icone--sm" %}{{ l.eventos }} eventos</span>{% endif %}
-            <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{% if p.programa_nome %}{{ p.programa_nome }}{% else %}<span class="vazio-inline">Sem programa</span>{% endif %}</span>
-            <span class="registro__meta-item">{% icone "user-round" classe="icone--sm" %}{% if l.coordenador %}{{ l.coordenador.nome }}{% else %}<span class="vazio-inline">Sem coordenador</span>{% endif %}</span>
-            <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if l.efetivo %}{{ l.efetivo }} no efetivo{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>
-            {% if l.diarias is not None %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ l.diarias|moeda }}</span>{% endif %}
-            {% for of in p.oficios.all %}<span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
+          <div class="registro__agenda">
+            <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">{{ l.periodo|default:"Sem período" }}</span></span>
+            {% if l.eventos %}<span class="registro__meta-item">{% icone "calendar-days" classe="icone--sm" %}<span class="registro__meta-texto">{{ l.eventos }} eventos</span></span>{% endif %}
+            <span class="registro__meta-item"{% if p.programa_nome %} title="{{ p.programa_nome }}"{% endif %}>{% icone "landmark" classe="icone--sm" %}<span class="registro__meta-texto">{% if p.programa_nome %}{{ p.programa_nome }}{% else %}<span class="vazio-inline">Sem programa</span>{% endif %}</span></span>
           </div>
           {% if p.cancelado and p.motivo_cancelamento %}<p class="registro__texto">Motivo do cancelamento: {{ p.motivo_cancelamento }}</p>{% endif %}
         </div>
+        <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Coordenação e efetivo</span>
+          <span class="registro__meta-item"{% if l.coordenador %} title="{{ l.coordenador.nome }}"{% endif %}>{% icone "user-round" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.coordenador %}{{ l.coordenador.nome }}{% else %}<span class="vazio-inline">Sem coordenador</span>{% endif %}</span></span>
+          <span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.efetivo %}{{ l.efetivo }} no efetivo{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span></span>
+          <span class="registro__meta-item" title="{{ p.oficios.all|join:', ' }}">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% for of in p.oficios.all %}{{ of }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Avulso</span>{% endfor %}</span></span>
+        </div>
+        <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias totais</span>
+          <span class="registro__meta-item registro__meta-item--diarias">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.diarias is not None %}<span class="registro__valor">{{ l.diarias|moeda }}</span>{% else %}<span class="vazio-inline">Sem cálculo</span>{% endif %}</span></span>
+        </div>
         <div class="registro__acoes">
           <pc-menu class="menu">
-            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ p }}">{% icone "ellipsis-vertical" %}</button>
+            <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações do {{ p }}">{% icone "ellipsis-vertical" %}</button>
             <div class="menu__painel" role="menu" hidden>
               <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_plano' p.pk %}">{% if l.editavel %}{% icone "pencil" %}Abrir{% else %}{% icone "eye" %}Abrir{% endif %}</a>
               {% if l.editavel and p.documento_gerado_em %}
@@ -106,18 +107,14 @@ resultados e as abas); sem JavaScript, "Aplicar" envia.
 {% else %}
   {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum plano para mostrar" texto="Quando houver planos da sua unidade, eles aparecerão aqui." %}
 {% endif %}
+<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
+  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"plano,planos" }}{% if busca or aba or oficio_filtro %} no filtro de agora{% endif %}</p>
+  {% if pode_plano_do_oficio %}<form method="post" action="{% url 'viagens:criar_plano_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo plano deste ofício</button></form>
+  {% elif pode_criar %}{% include "viagens/planos/_botao_novo.html" %}{% endif %}
+</div>
 </div>
 {% endblock %}
 
 {% block depois_lista %}
-{% comment %}
-Barra flutuante no rodapé, como nas outras listas: a contagem do recorte e a ação de criar
-ficam ao alcance de quem rolou até o fim, em vez de só no topo da página.
-{% endcomment %}
-<div class="barra-acoes">
-  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"plano,planos" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
-  {% if pode_plano_do_oficio %}<form method="post" action="{% url 'viagens:criar_plano_do_oficio' oficio.pk %}">{% csrf_token %}<button type="submit" class="botao botao--primario">{% icone "plus" %}Novo plano deste ofício</button></form>
-  {% elif pode_criar %}{% include "viagens/planos/_botao_novo.html" %}{% endif %}
-</div>
 {% include "componentes/dialogo_motivo.html" %}
 {% endblock %}

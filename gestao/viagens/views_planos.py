@@ -112,8 +112,11 @@ def lista(request: HttpRequest) -> HttpResponse:
                "cancelavel": policies.pode_cancelar_plano(request.user, p),
                "excluivel": policies.pode_excluir_plano(request.user, p)}
               for p in pagina.object_list]
+    filtros = request.GET.copy()
+    filtros.pop("pagina", None)
     return render(request, "viagens/planos/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
+        "querystring_base": (filtros.urlencode() + "&") if filtros else "",
         "ordem": ordem, "por_periodo": ordem in ("periodo", "-periodo"),
         # O que as abas preservam ao trocar de situação (busca, ordem e o filtro do ofício).
         "querystring_abas": urlencode({k: v for k, v in (

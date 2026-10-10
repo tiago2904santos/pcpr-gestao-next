@@ -1,0 +1,418 @@
+[
+  {
+    "pagina": "lista",
+    "width": 360,
+    "http": 200,
+    "HTML": 37521,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 360,
+    "http": 200,
+    "HTML": 23271,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 360,
+    "http": 200,
+    "HTML": 23439,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 360,
+    "http": 200,
+    "HTML": 37727,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 36,
+                  "height": 8.4
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Novo plano de trabalho</button>",
+                    "target": [
+                      ".form-em-linha > .botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 36px by 8.4px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 15.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Novo plano de trabalho</button>",
+                    "target": [
+                      ".form-em-linha > .botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 15.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"botao botao--icone botao--sutil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Ações do Plano de Trabalho 03/2026/ASCOM\" aria-controls=\"menu-bbhsv61\" aria-expanded=\"false\" id=\"menu-bbhsv61-botao\">",
+            "target": [
+              "#menu-bbhsv61-botao"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 36px by 8.4px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 15.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 360,
+    "http": 200,
+    "HTML": 26681,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 390,
+    "http": 200,
+    "HTML": 37521,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 390,
+    "http": 200,
+    "HTML": 23271,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 390,
+    "http": 200,
+    "HTML": 23439,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 390,
+    "http": 200,
+    "HTML": 37727,
+    "requests": 24,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 305,
+                  "height": 18.9
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (305px by 18.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.2,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Novo plano de trabalho</button>",
+                    "target": [
+                      ".form-em-linha > .botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.2px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"registro__link\" href=\"/viagens/planos/3/\"><span class=\"sr-only\">Plano de Trabalho 03/2026/ASCOM · </span>Ribeirão do Pinhal/PR · 02/11/2026 a 03/11/2026</a>",
+            "target": [
+              ".registro__link[href=\"/viagens/planos/3/\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (305px by 18.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.2px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 36,
+                  "height": 8.4
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Novo plano de trabalho</button>",
+                    "target": [
+                      ".form-em-linha > .botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 36px by 8.4px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 15.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" class=\"botao botao--primario\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-plus\"></use></svg>Novo plano de trabalho</button>",
+                    "target": [
+                      ".form-em-linha > .botao--primario.botao[type=\"submit\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 15.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"botao botao--icone botao--sutil\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Ações do Plano de Trabalho 03/2026/ASCOM\" aria-controls=\"menu-orycymd\" aria-expanded=\"false\" id=\"menu-orycymd-botao\">",
+            "target": [
+              "#menu-orycymd-botao"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 36px by 8.4px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 15.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 390,
+    "http": 200,
+    "HTML": 26681,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 768,
+    "http": 200,
+    "HTML": 37521,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 768,
+    "http": 200,
+    "HTML": 23271,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 768,
+    "http": 200,
+    "HTML": 23439,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 768,
+    "http": 200,
+    "HTML": 37727,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 768,
+    "http": 200,
+    "HTML": 26681,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1024,
+    "http": 200,
+    "HTML": 37521,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23271,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1024,
+    "http": 200,
+    "HTML": 23439,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1024,
+    "http": 200,
+    "HTML": 37727,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1024,
+    "http": 200,
+    "HTML": 26681,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "width": 1440,
+    "http": 200,
+    "HTML": 37521,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "filtro",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23271,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "vazio",
+    "width": 1440,
+    "http": 200,
+    "HTML": 23439,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "periodo",
+    "width": 1440,
+    "http": 200,
+    "HTML": 37727,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "cancelados",
+    "width": 1440,
+    "http": 200,
+    "HTML": 26681,
+    "requests": 24,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

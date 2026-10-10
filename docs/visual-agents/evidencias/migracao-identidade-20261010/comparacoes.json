@@ -90,6 +90,156 @@
     "depois": "depois-ordens-vazio-768.png"
   },
   {
+    "pagina": "planos-cancelados",
+    "largura": 1024,
+    "antes": "antes-planos-cancelados-1024.png",
+    "depois": "depois-planos-cancelados-1024.png"
+  },
+  {
+    "pagina": "planos-cancelados",
+    "largura": 1440,
+    "antes": "antes-planos-cancelados-1440.png",
+    "depois": "depois-planos-cancelados-1440.png"
+  },
+  {
+    "pagina": "planos-cancelados",
+    "largura": 360,
+    "antes": "antes-planos-cancelados-360.png",
+    "depois": "depois-planos-cancelados-360.png"
+  },
+  {
+    "pagina": "planos-cancelados",
+    "largura": 390,
+    "antes": "antes-planos-cancelados-390.png",
+    "depois": "depois-planos-cancelados-390.png"
+  },
+  {
+    "pagina": "planos-cancelados",
+    "largura": 768,
+    "antes": "antes-planos-cancelados-768.png",
+    "depois": "depois-planos-cancelados-768.png"
+  },
+  {
+    "pagina": "planos-filtro",
+    "largura": 1024,
+    "antes": "antes-planos-filtro-1024.png",
+    "depois": "depois-planos-filtro-1024.png"
+  },
+  {
+    "pagina": "planos-filtro",
+    "largura": 1440,
+    "antes": "antes-planos-filtro-1440.png",
+    "depois": "depois-planos-filtro-1440.png"
+  },
+  {
+    "pagina": "planos-filtro",
+    "largura": 360,
+    "antes": "antes-planos-filtro-360.png",
+    "depois": "depois-planos-filtro-360.png"
+  },
+  {
+    "pagina": "planos-filtro",
+    "largura": 390,
+    "antes": "antes-planos-filtro-390.png",
+    "depois": "depois-planos-filtro-390.png"
+  },
+  {
+    "pagina": "planos-filtro",
+    "largura": 768,
+    "antes": "antes-planos-filtro-768.png",
+    "depois": "depois-planos-filtro-768.png"
+  },
+  {
+    "pagina": "planos-lista",
+    "largura": 1024,
+    "antes": "antes-planos-lista-1024.png",
+    "depois": "depois-planos-lista-1024.png"
+  },
+  {
+    "pagina": "planos-lista",
+    "largura": 1440,
+    "antes": "antes-planos-lista-1440.png",
+    "depois": "depois-planos-lista-1440.png"
+  },
+  {
+    "pagina": "planos-lista",
+    "largura": 360,
+    "antes": "antes-planos-lista-360.png",
+    "depois": "depois-planos-lista-360.png"
+  },
+  {
+    "pagina": "planos-lista",
+    "largura": 390,
+    "antes": "antes-planos-lista-390.png",
+    "depois": "depois-planos-lista-390.png"
+  },
+  {
+    "pagina": "planos-lista",
+    "largura": 768,
+    "antes": "antes-planos-lista-768.png",
+    "depois": "depois-planos-lista-768.png"
+  },
+  {
+    "pagina": "planos-periodo",
+    "largura": 1024,
+    "antes": "antes-planos-periodo-1024.png",
+    "depois": "depois-planos-periodo-1024.png"
+  },
+  {
+    "pagina": "planos-periodo",
+    "largura": 1440,
+    "antes": "antes-planos-periodo-1440.png",
+    "depois": "depois-planos-periodo-1440.png"
+  },
+  {
+    "pagina": "planos-periodo",
+    "largura": 360,
+    "antes": "antes-planos-periodo-360.png",
+    "depois": "depois-planos-periodo-360.png"
+  },
+  {
+    "pagina": "planos-periodo",
+    "largura": 390,
+    "antes": "antes-planos-periodo-390.png",
+    "depois": "depois-planos-periodo-390.png"
+  },
+  {
+    "pagina": "planos-periodo",
+    "largura": 768,
+    "antes": "antes-planos-periodo-768.png",
+    "depois": "depois-planos-periodo-768.png"
+  },
+  {
+    "pagina": "planos-vazio",
+    "largura": 1024,
+    "antes": "antes-planos-vazio-1024.png",
+    "depois": "depois-planos-vazio-1024.png"
+  },
+  {
+    "pagina": "planos-vazio",
+    "largura": 1440,
+    "antes": "antes-planos-vazio-1440.png",
+    "depois": "depois-planos-vazio-1440.png"
+  },
+  {
+    "pagina": "planos-vazio",
+    "largura": 360,
+    "antes": "antes-planos-vazio-360.png",
+    "depois": "depois-planos-vazio-360.png"
+  },
+  {
+    "pagina": "planos-vazio",
+    "largura": 390,
+    "antes": "antes-planos-vazio-390.png",
+    "depois": "depois-planos-vazio-390.png"
+  },
+  {
+    "pagina": "planos-vazio",
+    "largura": 768,
+    "antes": "antes-planos-vazio-768.png",
+    "depois": "depois-planos-vazio-768.png"
+  },
+  {
     "pagina": "roteiros-editar",
     "largura": 1024,
     "antes": "antes-roteiros-editar-1024.png",

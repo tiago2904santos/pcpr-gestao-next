@@ -1,6 +1,6 @@
 {% comment %}Cabeçalho de registro oficial. Situação vem do domínio pela parcial indicada.{% endcomment %}
 <header class="registro-hero{% if pagina %} registro-hero--pagina{% endif %}">
-  {% if numero %}<div class="registro-hero__identidade">{% include "componentes/identidade_documental.html" with rotulo=rotulo numero=numero situacao=situacao %}</div>{% endif %}
+  {% if numero %}<div class="registro-hero__identidade">{% include "componentes/identidade_documental.html" with rotulo=rotulo numero=numero situacao=situacao only %}</div>{% endif %}
   <div class="registro-hero__conteudo">
     <p class="registro-hero__rotulo">{{ contexto }}</p>
     {# Selos ao lado do título: o estado é parte da identificação, não um rodapé do cabeçalho. #}
