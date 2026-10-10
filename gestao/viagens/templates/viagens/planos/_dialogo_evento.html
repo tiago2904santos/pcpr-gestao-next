@@ -16,13 +16,13 @@ plano (os mesmos em todos os eventos).
         <h2 class="dialogo__titulo" id="t-dialogo-evento">{% if evento_editando %}Editar evento{% else %}Novo evento{% endif %}</h2>
         <p class="texto-secundario texto-sm">O que muda de um evento para outro. Os coordenadores são os do plano.</p>
       </div>
-      <a class="botao botao--icone dialogo__fechar" href="?#eventos" aria-label="Fechar">{% icone "x" %}</a>
+      <a class="botao botao--icone dialogo__fechar" href="{% url 'viagens:editar_plano' plano.pk %}#eventos" aria-label="Fechar">{% icone "x" %}</a>
     </div>
     <div class="dialogo__corpo pilha evento-plano">
       {% if form_evento.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form_evento.non_field_errors|join:" " }}</p></div></div>{% endif %}
 
       {# Programa · período · horário (a mesma linha da folha). #}
-      <div class="campos campos--iguais programa-plano">
+      <div class="campos campos--agenda programa-plano">
         <div class="campo{% if form_evento.programas.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="evento-programas-gatilho" id="evento-programas-rotulo">Programa</label>
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
@@ -48,7 +48,7 @@ plano (os mesmos em todos os eventos).
         {% include "componentes/campo.html" with campo=form_evento.horario ajuda_oculta=True acao_dialogo="dialogo-horario" acao_rotulo="Cadastrar horário" %}
       </div>
 
-      {% campo_destinos form_evento.destinos unidade=plano.unidade %}
+      {% campo_destinos form_evento.destinos unidade=plano.unidade operacional=True %}
 
       {# Efetivo do evento: as mesmas linhas da folha (unidade, cargo e quantidade). #}
       <div class="secao__bloco evento-plano__bloco">
@@ -76,7 +76,7 @@ plano (os mesmos em todos os eventos).
           {% include "componentes/campo.html" with campo=form_evento.chegada_em classe="campo--lg" %}
         </div>
         {# As diárias do evento: os mesmos três indicadores do plano e do ofício. #}
-        {% if calculo_evento.total %}<div class="mt-4">{% include "viagens/oficios/_diarias_corpo.html" with calculo=calculo_evento %}</div>{% endif %}
+        {% if calculo_evento.total %}<div class="mt-4">{% include "viagens/oficios/_diarias_corpo.html" with calculo=calculo_evento serena=True horizontal=True operacional=True sempre_por_servidor=True %}</div>{% endif %}
       </div>
 
       <div class="secao__bloco evento-plano__bloco">
@@ -90,7 +90,7 @@ plano (os mesmos em todos os eventos).
       </div>
     </div>
     <div class="dialogo__rodape">
-      <a class="botao botao--texto" href="?#eventos">Cancelar</a>
+      <a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}#eventos">Cancelar</a>
       <button type="submit" class="botao botao--primario">{% icone "save" %}{% if evento_editando %}Salvar evento{% else %}Acrescentar evento{% endif %}</button>
     </div>
   </form>

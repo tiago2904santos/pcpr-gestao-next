@@ -1,0 +1,17 @@
+{% load viagens %}
+    {% if plano %}
+    <p class="registro-hero__metadados" id="frase-plano" data-vivo>
+      {% if plano.viagem_id %}<a class="registro-hero__metadado" href="{% url 'viagens:editar_viagem' plano.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ plano.viagem }}</a>{% endif %}
+      <span class="sr-only">Resumo do plano: </span>
+      {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#documento">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
+      <span class="registro-hero__metadado{% if not plano.programa_nome %} registro-hero__metadado--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
+      <span class="registro-hero__metadado{% if not destinos %} registro-hero__metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
+      <span class="registro-hero__metadado{% if not periodo_geral %} registro-hero__metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
+      {% if eventos %}<span class="registro-hero__metadado">{% icone "calendar-days" classe="icone--sm" %}{{ eventos|length|add:1 }} eventos</span>{% endif %}
+      <span class="registro-hero__metadado{% if not efetivo_geral %} registro-hero__metadado--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if efetivo_geral %}{{ efetivo_geral|pluralizar:"servidor,servidores" }}{% else %}sem efetivo{% endif %}</span>
+      {% if diarias_geral is not None %}<span class="registro-hero__metadado">{% icone "banknote" classe="icone--sm" %}{{ diarias_geral|moeda }}</span>{% endif %}
+      {% for of in plano.oficios.all %}<span class="registro-hero__metadado">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
+    </p>
+    {% else %}
+    <p class="registro-hero__metadados"><span class="registro-hero__metadado">{% icone "file-plus-2" classe="icone--sm" %}Recebe o número <strong>{{ proximo_numero|stringformat:"02d" }}/{{ ano }}</strong> ao criar</span></p>
+    {% endif %}

@@ -492,3 +492,27 @@ no texto acessível do link. Usa tokens, contraste inverso e quebra segura do su
 para motivo de cancelamento, sem ocupar a célula da placa quando corpo é contents.
 Consumidores diretamente migrados: Planos; todos os registros canônicos recebem
 compatibilidade sem mudar campos, ações ou os grid areas principais.
+
+
+## Preparação de Planos e eventos — 10/10/2026
+
+- `registro_hero(complemento_numero=...)`: sufixo institucional explícito, secundário;
+  identificação completa no h1 acessível. Auxiliar editorial não é sufixo documental.
+- `registro-hero__metadado`: ícone/texto/ligação com contraste inverso, usado em Planos,
+  Termos, OS e Roteiros. Variante `--vazio` discreta sem reduzir contraste por opacity.
+- `campos--agenda`: conteúdo, período e horário; escolha livre na linha seguinte.
+  Folha e diálogo de evento compartilham a composição; exemplo interativo no UI Lab.
+- `campos--coordenacao`: origem/tratamento proporcionais e pessoa ou campos manuais;
+  preserva controles condicionais existentes. Não define gênero ou regras novas.
+- `secao__bloco--integrado`: tira divisão/margem duplicada de agrupamentos internos
+  numa preparação contínua. Consumidor atual: Planos.
+- `conferencia_preparacao`: recebe pendências calculadas e ação ligada a formulário
+  externo. Não calcula políticas. ID configurável para não colidir com o UI Lab.
+- Eventos usam `registro-operacional`, com destinos completos no title e nome
+  acessível, diárias próprias e menu existente. Não agregam composições financeiras.
+- `linhas__linha`: coluna quantitativa móvel ampliada para acomodar controles e 999.
+  Consumidores reais: efetivo do Plano, diálogo de evento e UI Lab; desktop preservado.
+- Editor usa `operacional` e `ferramentas_recolhiveis`, histórico e barra no fluxo.
+  Miniaturas, Texto/PDF, versões, downloads e documento oficial preservados.
+
+Nenhuma base genérica antiga removida: ainda há consumidores em Viagens e Resultados.

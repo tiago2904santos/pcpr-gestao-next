@@ -127,3 +127,29 @@ Lista de Planos: links de paginação devem preservar busca, aba, ordenação e 
 como as outras listas. Falha antiga reproduzida e corrigida nesta página; sem regra
 nova de negócio ou alteração da numeração. Identificação e complemento editorial
 do hero têm contextos separados; sufixo documental é explícito.
+
+
+## Planos — Folha e eventos adicionais
+
+Contrato atual: /viagens/planos/novo/, /<id>/ e ?evento=novo/id. Preparação com
+Ofícios, programas múltiplos/Outro, período/horário, destinos, coordenadores
+cadastrados ou manuais e tratamento explícito; efetivo por cargo/unidade/quantidade,
+saída/chegada, cálculo do evento principal, atividades/metas/recursos. Identificação
+mantém as âncoras de validação. Eventos adicionais possuem próprio efetivo,
+deslocamento, atividades e diárias; totais gerais somam eventos (ADR 0047).
+Formulário do evento fora do principal, salvamento manual e prefixos únicos.
+Não substituir quantitativos por nomes de servidores nem criar composição geral
+única de diárias. Autosave, versão/conflito, data-vivo e espera antes de finalizar
+permanecem. Geração bloqueada pelas pendências existentes, prévia não gera nem
+fixa data. Permissões, cancelamento, downloads PDF/DOCX e documento oficial intactos.
+
+Composição: hero de preparação, superfície única e divisores; agenda proporcional,
+destinos/mapa operacional, coordenação compacta com campos condicionais, efetivo
+existente com saída/chegada próximas, conferência financeira serena do evento,
+conferência documental com links das pendências, editor e histórico canônicos.
+Âncora #conferencia será restaurada: views já redirecionam para ela, mas o template
+anterior não a contém. Nenhuma regra institucional será criada. Resultados têm
+salvamento próprio e serão tratados na unidade seguinte.
+
+Planos: fechar/cancelar evento após erro POST422 deve retornar à Folha, nunca fazer
+GET na rota de salvar evento. Defeito anterior de URL relativa corrigido, sem regra nova.

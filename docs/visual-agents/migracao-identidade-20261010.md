@@ -16,7 +16,8 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Termos: lista/folha/documentos | busca, filtro por Ofício, avulso/vinculado, novo, documentos, cancelado | concluída tecnicamente; avaliação visual pendente | hero, coleção/registro de relações, preparação, destinos/mapa, equipe compacta, viatura/cartão, editor/histórico | quatro regras exclusivas antigas removidas; mapa mantido para OS/Planos/Viagens | 69 HTTP pós-limpeza; 8 E2E compatíveis; 25 cenários reais verdes; 3 Baixar/documentos e 2 paginação/consulta/assinado verdes | manifesto candidato-termos.json; avaliação estética pendente |
 | OS: lista/folha/documentos | busca, vazio, avulsa/vinculada, funções, cancelada, consulta, documentos | concluída tecnicamente; avaliação visual pendente | coleção, registros de relações, preparação, destinos, equipe compacta, editor/histórico | bases compartilhadas mantidas para Planos/Viagens | 81 focados, 6 E2E, 25 capturas e interações cinco larguras | manifesto candidato-ordens.json; HTTP antes/depois inconclusivo |
 | Planos: lista | busca, ordem, Ofício, grupos, vazio, cancelados, paginação, consulta | concluída tecnicamente; avaliação visual pendente | coleção, identidade com complemento, registro operacional financeiro, observação larga | bases antigas mantidas para demais consumidores | 47 HTTP, 79 focados, 9 E2E compatíveis, cinco larguras; paginação antiga corrigida | candidato-planos-lista.json; achado de rolagem global não bloqueante registrado |
-| Planos: folha/multievento/resultados | aprofundar por unidade | não iniciada | reaproveitar preparação/destinos/editor | classes específicas ainda usadas | contrato descoberto somente leitura | após fechamento da lista |
+| Planos: folha/multievento/documentos | incompleto, pronto, novo, gerado, evento adicional | concluída tecnicamente; avaliação visual pendente | hero/preparação/agenda/destinos/financeiro/conferência/editor/histórico | bases genéricas mantidas para consumidores reais | 143 focados, 20 E2E integrados +5 finais, 2 UI Lab, 25 capturas e teclado/diálogo | candidato-planos-folha.json; SQL anterior classificado |
+| Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | não iniciada | próxima unidade | tabela/resultados antigos ainda usados | contrato existente manual/zero/500 caracteres | após Folha validada |
 | Justificativas | lista/diálogo/editor | não iniciada | idem | idem | idem | após Planos |
 | Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
@@ -53,3 +54,14 @@ Lista de Planos concluída tecnicamente; próxima página ativa: Folha/multieven
 Resultados ficam na fila seguinte; contratos distintos de OS: pendências bloqueiam geração/finalização e
 efetivo/diárias pertencem a cada evento. DEMO preservado, sem reset/seed.
 Não refazer snapshot nem usar git add indiscriminado.
+
+
+Folha de Planos: 143 focados e 20 E2E integrados verdes. Revisão independente
+identificou destinos truncados sem texto integral acessível no novo registro do evento;
+corrigidos title e nome do link. Reteste específico: cinco E2E finais verdes, incluindo HTTP422/retorno e geração real.
+SQL idêntico nos cinco estados, JS idêntico, CSS gzip +358/-3 bytes por arquivo.
+Galeria 105 pares/210 originais conferidos. Ferramentas recolhíveis e diálogo em altura
+500 testados por teclado. Resultados continua sem alteração até este fechamento.
+
+Folha fechada: cinco E2E finais, dois UI Lab automatizados e axe real360/1440 zero,
+sem alterar estilos. Próxima unidade: Resultados, cujos20 estados anteriores já existem.

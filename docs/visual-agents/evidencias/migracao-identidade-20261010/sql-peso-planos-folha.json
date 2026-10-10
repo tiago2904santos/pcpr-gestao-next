@@ -1,0 +1,103 @@
+{
+  "SQL": [
+    {
+      "fase": "antes",
+      "estado": "incompleto",
+      "SQL": 44,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "multievento",
+      "SQL": 52,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "gerado",
+      "SQL": 49,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "novo",
+      "SQL": 26,
+      "mutacoes": 0
+    },
+    {
+      "fase": "antes",
+      "estado": "evento",
+      "SQL": 61,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "incompleto",
+      "SQL": 44,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "multievento",
+      "SQL": 52,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "gerado",
+      "SQL": 49,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "novo",
+      "SQL": 26,
+      "mutacoes": 0
+    },
+    {
+      "fase": "depois",
+      "estado": "evento",
+      "SQL": 61,
+      "mutacoes": 0
+    }
+  ],
+  "recursos": [
+    {
+      "arquivo": "static/css/components.css",
+      "antes": 186123,
+      "depois": 187833,
+      "gzipAntes": 35805,
+      "gzipDepois": 36163
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "antes": 40527,
+      "depois": 40525,
+      "gzipAntes": 9611,
+      "gzipDepois": 9608
+    },
+    {
+      "arquivo": "static/js/componentes/conjuntos.js",
+      "antes": 4712,
+      "depois": 4712,
+      "gzipAntes": 1743,
+      "gzipDepois": 1743
+    },
+    {
+      "arquivo": "static/js/componentes/editores.js",
+      "antes": 13783,
+      "depois": 13783,
+      "gzipAntes": 4586,
+      "gzipDepois": 4586
+    },
+    {
+      "arquivo": "static/js/componentes/linhas.js",
+      "antes": 5457,
+      "depois": 5457,
+      "gzipAntes": 1980,
+      "gzipDepois": 1980
+    }
+  ],
+  "metodoPeso": "UTF-8 LF; não bytes HTTP",
+  "documentos": "templates oficiais não alterados; teste PDF real no E2E"
+}

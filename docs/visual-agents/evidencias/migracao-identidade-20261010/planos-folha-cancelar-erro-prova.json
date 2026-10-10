@@ -1,0 +1,8 @@
+{
+  "base": "17663d8",
+  "antesHrefRelativo": 2,
+  "depoisHrefRelativo": 0,
+  "falhaE2E": "planos-folha-visual-cancelar-relativo.log; POST422 seguido de GET405",
+  "correcao": "editar_plano explícito no diálogo/registro",
+  "classificacao": "defeito preexistente; sem alteração de regra"
+}

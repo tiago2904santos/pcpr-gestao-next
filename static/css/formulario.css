@@ -1100,7 +1100,7 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   /* No celular: o cargo (o que mais importa) na linha de cima, inteiro; embaixo, unidade,
      a quantidade compacta e a lixeira — sem uma linha só para a lixeira. */
   .linhas__linha {
-    grid-template-columns: minmax(0, 1fr) 5.5rem auto;
+    grid-template-columns: minmax(0, 1fr) 8rem auto;
     padding-bottom: var(--esp-3);
     border-bottom: var(--borda-sutil);
   }

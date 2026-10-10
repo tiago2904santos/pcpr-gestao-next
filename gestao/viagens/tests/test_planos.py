@@ -559,6 +559,9 @@ class TestVariosEventos:
         r = cli.post(reverse("viagens:salvar_evento_plano", args=[plano.pk]), {
             "evento": str(evento.pk), "data_inicio": "29/06/2030", "data_fim": "28/06/2030"})
         assert r.status_code == 422 and "anterior à data inicial" in r.content.decode()
+        # Fechar/Cancelar precisam sair da URL exclusiva de POST após erro.
+        assert r.content.decode().count(f'href="{url}#eventos"') == 2
+        assert 'href="?#eventos"' not in r.content.decode()
         cli.post(reverse("viagens:remover_evento_plano", args=[plano.pk, evento.pk]))
         assert not plano.eventos.exists()
 

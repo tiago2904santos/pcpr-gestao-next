@@ -121,6 +121,7 @@ Configuração do plano: gestor.
 
 ## Pendências
 
-Migração visual: lista em validação; folha/multievento e Resultados na fila.
+Migração visual: Lista e Folha/multievento concluídas tecnicamente, com avaliação
+visual pendente. Resultados é a próxima unidade; gate global ainda necessário.
 Número manual da referência permanece lacuna. Revalidar paridade específica ao
 entrar em cada fluxo; não tratar esta ficha antiga como decisão institucional nova.

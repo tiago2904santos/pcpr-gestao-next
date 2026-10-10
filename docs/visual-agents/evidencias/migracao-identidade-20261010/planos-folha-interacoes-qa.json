@@ -1,0 +1,26 @@
+[
+  {
+    "width": 360,
+    "editorFerramentasRecolhiveis": true,
+    "UIlab": "seleção/Enter/Escape/foco",
+    "dialogo": "altura500/ação acessível/Escape",
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "editorFerramentasRecolhiveis": true,
+    "UIlab": "seleção/Enter/Escape/foco",
+    "dialogo": "altura500/ação acessível/Escape",
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "editorFerramentasRecolhiveis": true,
+    "UIlab": "seleção/Enter/Escape/foco",
+    "dialogo": "altura500/ação acessível/Escape",
+    "console": [],
+    "overflow": false
+  }
+]

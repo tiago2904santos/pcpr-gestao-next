@@ -1,0 +1,85 @@
+...F.                                                                    [100%]
+================================== FAILURES ===================================
+________________ test_evento_manual_diarias_menu_remocao_e_pdf ________________
+
+logado = <Page url='http://localhost:49403/viagens/planos/4/#eventos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_evento_manual_diarias_menu_remocao_e_pdf(logado, dados_e2e):
+        pg = logado
+        plano = _completo(dados_e2e)
+        valor_principal = plano.diarias_total
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        pg.get_by_role("link", name="Acrescentar evento").click()
+        janela = pg.get_by_role("dialog", name="Novo evento", exact=True)
+        expect(janela).to_be_visible()
+        assert janela.locator("form").evaluate("e => !e.closest('#form-plano')")
+        janela.get_by_role("button", name="Programa", exact=True).click()
+        janela.get_by_role("checkbox", name="Outro", exact=True).check()
+        janela.get_by_role("button", name="Programa", exact=True).click()
+        janela.get_by_label("Outro programa", exact=True).fill("Feira institucional sintética")
+        janela.locator("#evento-periodo").fill("28/06/2030")
+        janela.locator("#evento-periodo").press("Tab")
+        janela.get_by_role("combobox", name="Destino 1", exact=True).fill("Maringá")
+        janela.get_by_role("option", name="Maringá/PR", exact=True).click()
+        cargo = janela.get_by_role("combobox", name="Cargo", exact=True)
+        cargo.fill("Agente de Polícia")
+        janela.get_by_role("option", name="Agente de Polícia Judiciária", exact=True).click()
+        janela.locator("#evento-efetivo-quantidade-1").fill("2")
+        for campo, valor in {"evento_saida_em_0": "28/06/2030", "evento_saida_em_1": "06:00",
+                             "evento_chegada_em_0": "28/06/2030", "evento_chegada_em_1": "21:00"}.items():
+            janela.locator(f"#{campo}").fill(valor)
+        janela.get_by_role("button", name="Acrescentar evento", exact=True).click()
+        expect(pg.locator("#eventos .registro-operacional")).to_have_count(1)
+        plano.refresh_from_db()
+        evento = plano.eventos.get()
+        assert evento.diarias_total is not None
+        registro = pg.locator("#eventos .registro__link")
+        expect(registro).to_have_attribute("title", "Maringá/PR")
+        expect(registro).to_have_accessible_name("Editar o evento 2 · Maringá/PR")
+        registro.click()
+        edicao = pg.get_by_role("dialog", name="Editar evento", exact=True)
+        expect(edicao).to_be_visible()
+        edicao.locator("#evento-periodo").fill("data inválida")
+        edicao.get_by_role("button", name="Salvar evento", exact=True).click()
+>       expect(pg.get_by_role("dialog", name="Editar evento", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("dialog", name="Editar evento", exact=True)
+
+tests\e2e\test_planos_preparacao_identidade.py:95: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 05:31:50,867 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+2026-10-10 05:31:51,950 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+[10/Oct/2026 05:31:54,533] - Broken pipe from ('127.0.0.1', 51227)
+2026-10-10 05:31:55,909 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+2026-10-10 05:31:56,307 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+2026-10-10 05:31:58,050 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+[10/Oct/2026 05:31:59,196] - Broken pipe from ('127.0.0.1', 59731)
+2026-10-10 05:31:59,720 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 53 consultas (limite 25)
+2026-10-10 05:32:00,029 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 51227)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 59731)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 53 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_planos.py::test_plano_a_partir_do_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_planos_folha_visual_4f8cf10f" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+1 failed, 4 passed, 2 warnings in 150.93s (0:02:30)

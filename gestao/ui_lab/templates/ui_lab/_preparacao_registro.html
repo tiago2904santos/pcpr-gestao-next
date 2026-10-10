@@ -1,0 +1,12 @@
+<section class="cartao" aria-labelledby="t-agenda-conferencia-lab">
+  <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-agenda-conferencia-lab">Agenda e conferência de preparação</h2></div>
+  <div class="cartao__corpo pilha">
+    <p class="texto-secundario texto-sm">Conteúdo com largura útil, período e horário proporcionais. Campos livres entram na linha seguinte. A conferência recebe as pendências do fluxo, sem calcular regras.</p>
+    <div class="campos campos--agenda programa-plano">
+      <div class="campo"><label class="campo__rotulo" for="agenda-programa-lab">Programa</label><pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa"><button type="button" class="selecao seletor__gatilho" id="agenda-programa-lab" aria-haspopup="true" aria-expanded="false" aria-controls="agenda-programas-lab" data-gatilho><span class="seletor__valor" data-resumo>Selecione o programa</span></button><div class="escolhas__painel" id="agenda-programas-lab" role="group" aria-label="Programas do exemplo" data-painel><label class="escolha caixas__item"><input type="checkbox" value="servicos">Feira de serviços</label><label class="escolha caixas__item"><input type="checkbox" value="comunidade">PCPR na Comunidade</label></div></pc-escolhas></div>
+      <div class="campo"><label class="campo__rotulo" for="agenda-periodo-lab">Período</label><input class="entrada" id="agenda-periodo-lab" value="25/06/2030 a 27/06/2030"></div>
+      <div class="campo"><label class="campo__rotulo" for="agenda-horario-lab">Horário</label><input class="entrada" id="agenda-horario-lab" value="09:00 até 17:00"></div>
+    </div>
+    {% include "componentes/conferencia_preparacao.html" with conferencia_id="conferencia-preparacao-lab" nome="plano" only %}
+  </div>
+</section>

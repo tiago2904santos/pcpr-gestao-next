@@ -1,8 +1,8 @@
 {
   "galeria": {
-    "pares": 80,
-    "imagens": 160,
-    "filtro1440": 20,
+    "pares": 105,
+    "imagens": 210,
+    "filtro1440": 25,
     "console": []
   },
   "fimDaLista": [

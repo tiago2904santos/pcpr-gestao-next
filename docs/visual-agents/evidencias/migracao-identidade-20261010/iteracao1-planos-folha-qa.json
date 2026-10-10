@@ -1,0 +1,1799 @@
+[
+  {
+    "pagina": "folha",
+    "rota": "/viagens/planos/4/",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "button[data-passo=\"-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 56,
+    "html": 126812
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(4) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-4\" value=\"4\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-4"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(5) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-5\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-5"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 148688
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1b5592",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.96,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<header class=\"registro-hero registro-hero--pagina\">",
+                    "target": [
+                      ".registro-hero"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"metadado metadado--inverso\" href=\"/viagens/viagens/1/#documentos\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-map\"></use></svg>Viagem: PCPR na Comunidade / Unidade Móvel</a>",
+            "target": [
+              "a[href$=\"1/#documentos\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"2\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 138078
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "button[data-passo=\"-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 43,
+    "html": 93451
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "ol[aria-label=\"Efetivo\"] > .linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(4) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-4\" value=\"4\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-4"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(5) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-5\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-5"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 63,
+    "html": 188797
+  },
+  {
+    "pagina": "folha",
+    "rota": "/viagens/planos/4/",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "button[data-passo=\"-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 56,
+    "html": 126812
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(4) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-4\" value=\"4\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-4"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(5) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-5\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-5"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 148688
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1b5592",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.96,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<header class=\"registro-hero registro-hero--pagina\">",
+                    "target": [
+                      ".registro-hero"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"metadado metadado--inverso\" href=\"/viagens/viagens/1/#documentos\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-map\"></use></svg>Viagem: PCPR na Comunidade / Unidade Móvel</a>",
+            "target": [
+              "a[href$=\"1/#documentos\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"2\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 138078
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "button[data-passo=\"-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 43,
+    "html": 93454
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      "ol[aria-label=\"Efetivo\"] > .linhas__linha[data-linha=\"\"]:nth-child(1) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-1\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(2) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-2\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-2"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(3) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-3\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(4) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-4\" value=\"4\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-4"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "minSize": 24,
+                  "width": 17.8,
+                  "height": 18
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 21.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"passos__botao\" data-passo=\"-1\" aria-label=\"Diminuir a quantidade\">−</button>",
+                    "target": [
+                      ".linhas__linha[data-linha=\"\"]:nth-child(5) > .linhas__curto.campo > .passos > .passos__botao[data-passo=\"-1\"][aria-label=\"Diminuir a quantidade\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"number\" min=\"1\" max=\"999\" inputmode=\"numeric\" name=\"efetivo_quantidade\" id=\"efetivo-quantidade-5\" value=\"1\" data-padrao=\"1\" style=\"\">",
+            "target": [
+              "#efetivo-quantidade-5"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size (17.8px by 18px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 21.4px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 63,
+    "html": 188797
+  },
+  {
+    "pagina": "folha",
+    "rota": "/viagens/planos/4/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 126826
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 60,
+    "html": 148702
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "width": 768,
+    "http": 200,
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#1b5592",
+                  "bgColor": "#26272b",
+                  "contrastRatio": 1.96,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<header class=\"registro-hero registro-hero--pagina\">",
+                    "target": [
+                      ".registro-hero"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<a class=\"metadado metadado--inverso\" href=\"/viagens/viagens/1/#documentos\"><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-map\"></use></svg>Viagem: PCPR na Comunidade / Unidade Móvel</a>",
+            "target": [
+              "a[href$=\"1/#documentos\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.96 (foreground color: #1b5592, background color: #26272b, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false,
+    "requests": 60,
+    "html": 138093
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 45,
+    "html": 93851
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 67,
+    "html": 189207
+  },
+  {
+    "pagina": "folha",
+    "rota": "/viagens/planos/4/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 68,
+    "html": 130111
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 64,
+    "html": 152006
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 66,
+    "html": 141786
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 47,
+    "html": 94248
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 72,
+    "html": 192792
+  },
+  {
+    "pagina": "folha",
+    "rota": "/viagens/planos/4/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 58,
+    "html": 126826
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 68,
+    "html": 152786
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 68,
+    "html": 142167
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 47,
+    "html": 94248
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false,
+    "requests": 69,
+    "html": 189605
+  }
+]

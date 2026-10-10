@@ -4,47 +4,15 @@
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% if plano %}<link rel="stylesheet" href="{% static 'css/editor.css' %}">{% endif %}{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
-Folha do plano de trabalho, com as peças e o arranjo das folhas do termo e da OS: cabeçalho
-com placa, frase e ações; cartões numerados — 1 Identificação (a primeira linha em colunas
-iguais: ofícios, programa, período num calendário só e horário; depois os blocos Destinos,
-Eventos e Coordenadores), 2 Efetivo e diárias, 3 Atividades e 4 Documento (assinatura,
-textos, o que falta — só quando falta —, o documento num editor como o do ofício e o
-histórico); e a barra do rodapé com Voltar, Gerar e Ações. O plano nasce na hora ("Novo
-plano") e se grava sozinho; as regiões `data-vivo` se refazem depois de cada gravação — os
-ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano em outra aba
-— e gera: fixa a data e marca GERADO — e esta aba volta à lista.
+Preparação do plano em superfície contínua: identificação, agenda/destinos,
+coordenação, quantitativos por evento, atividades, conferência, documento e histórico.
+IDs/data-vivo, versão, formulários externos e espera pelo autosave são contratos.
+Eventos adicionais têm formulário próprio fora do principal. A prévia não gera;
+a finalização existente exige pendências resolvidas e fixa a data documental.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
-    <span class="placa__rotulo">Plano{% if plano.sufixo %} · {{ plano.sufixo }}{% endif %}</span>
-    <span class="placa__numero">{% if plano %}{{ plano.numero|stringformat:"02d" }}/{{ plano.ano }}{% else %}novo{% endif %}</span>
-  </span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="sr-only">{% if plano %}{{ plano }}{% if plano.cancelado %} — cancelado{% endif %}{% else %}Novo plano de trabalho{% endif %}</h1>
-    {% if plano %}
-    <p class="frase-oficio" id="frase-plano" data-vivo>
-      {% if plano.viagem_id %}<a class="frase-oficio__item" href="{% url 'viagens:editar_viagem' plano.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ plano.viagem }}</a>{% endif %}
-      <span class="sr-only">Resumo do plano: </span>
-      {% if pendencias and not plano.cancelado %}<a class="selo selo--{{ estado.1 }}" href="#documento">{{ estado.0 }}</a>{% else %}<span class="selo selo--{{ estado.1 }}">{{ estado.0 }}</span>{% endif %}
-      <span class="frase-oficio__item{% if not plano.programa_nome %} frase-oficio__item--vazio{% endif %}">{% icone "landmark" classe="icone--sm" %}{{ plano.programa_nome|default:"sem programa" }}</span>
-      <span class="frase-oficio__item{% if not destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ destinos|join:", "|default:"sem destino" }}</span>
-      <span class="frase-oficio__item{% if not periodo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo_geral|default:"sem datas" }}</span>
-      {% if eventos %}<span class="frase-oficio__item">{% icone "calendar-days" classe="icone--sm" %}{{ eventos|length|add:1 }} eventos</span>{% endif %}
-      <span class="frase-oficio__item{% if not efetivo_geral %} frase-oficio__item--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if efetivo_geral %}{{ efetivo_geral|pluralizar:"servidor,servidores" }}{% else %}sem efetivo{% endif %}</span>
-      {% if diarias_geral is not None %}<span class="frase-oficio__item frase-oficio__valor">{% icone "banknote" classe="icone--sm" %}{{ diarias_geral|moeda }}</span>{% endif %}
-      {% for of in plano.oficios.all %}<span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% endfor %}
-    </p>
-    {% else %}
-    <p class="frase-oficio"><span class="frase-oficio__item">{% icone "file-plus-2" classe="icone--sm" %}Recebe o número <strong>{{ proximo_numero|stringformat:"02d" }}/{{ ano }}</strong> ao criar</span></p>
-    {% endif %}
-  </div>
-  {% if plano %}
-  <div class="pagina-cabecalho__acoes">
-    {% include "viagens/planos/_acoes.html" with onde="cabeçalho" %}
-  </div>
-  {% endif %}
-</header>
+{% if plano %}{% with onde="cabeçalho" ano=plano.ano|stringformat:"s" %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" rotulo="Plano de Trabalho" numero=plano.numero|stringformat:"02d"|add:"/"|add:ano complemento_numero=plano.sufixo titulo="Preparação do plano" complemento_template="viagens/planos/_cabecalho_contexto.html" acoes_template="viagens/planos/_acoes.html" %}{% endwith %}{% else %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Novo plano de trabalho" complemento_template="viagens/planos/_cabecalho_contexto.html" %}{% endif %}
 
 {% if plano and editavel %}<form id="finalizar-plano" method="post" action="{% url 'viagens:finalizar_plano' plano.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form><form id="duplicar-plano" method="post" action="{% url 'viagens:duplicar_plano' plano.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>{% endif %}
 {% if pode_excluir %}<form id="excluir-plano" method="post" action="{% url 'viagens:excluir_plano' plano.pk %}" hidden data-confirmar="O {{ plano }} será excluído e o número volta a ficar livre para o próximo plano do ano. Para guardar o histórico, cancele." data-confirmar-titulo="Excluir plano de trabalho?" data-confirmar-rotulo="Excluir plano" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
@@ -66,7 +34,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
   {{ form.versao }}
   <fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
   <legend class="sr-only">Dados do plano de trabalho</legend>
-  <div class="documento documento--cartoes">
+  <div class="documento documento--preparacao">
 
   {% comment %}
   1. Identificação — de onde o plano vem, o quê, quando e onde, quem coordena, o efetivo, o
@@ -91,7 +59,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
       caixas; "Outro" é a última caixa e abre, ao lado, o campo do nome (CSS :has()). Sem
       JavaScript, a lista fica à vista.
       {% endcomment %}
-      <div class="campos campos--iguais programa-plano">
+      <div class="campos campos--agenda programa-plano">
         <div class="campo{% if form.programas.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="programas-gatilho" id="programas-rotulo">Programa</label>
           <pc-escolhas class="seletor escolhas" data-vazio="Selecione o programa">
@@ -111,7 +79,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
             <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
             {{ form.data_inicio }}{{ form.data_fim }}
           </pc-data>
-          <p class="campo__ajuda sr-only" id="plano-periodo-ajuda">Marque o início e o fim no mesmo calendário. Um dia só: marque só o início. O deslocamento fica no cartão 2.</p>
+          <p class="campo__ajuda sr-only" id="plano-periodo-ajuda">Marque o início e o fim no mesmo calendário. Um dia só: marque só o início. Confira abaixo a saída e a chegada na sede.</p>
           {% for e in form.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
           {% for e in form.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
         </div>
@@ -120,11 +88,11 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
     </div>
 
     {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}
-    <div class="secao__bloco" id="destinos">
-      {% campo_destinos form.destinos unidade=plano.unidade %}
+    <div class="secao__bloco secao__bloco--integrado" id="destinos">
+      {% campo_destinos form.destinos unidade=plano.unidade operacional=True %}
     </div>
 
-      <div class="secao__bloco" aria-labelledby="t-coord">
+      <div class="secao__bloco secao__bloco--integrado" aria-labelledby="t-coord">
         <div class="secao__bloco-cabecalho">
           <h3 class="secao__bloco-titulo" id="t-coord">{% icone "user-round" classe="icone--sm" %}Coordenadores</h3>
         </div>
@@ -132,7 +100,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
         Cada coordenador numa linha, como "Quem dirige" no ofício: quem coordena (do cadastro
         ou não) · como sai no documento · a busca no cadastro, ou nome e cargo à mão.
         {% endcomment %}
-        <div class="campos coordenador" data-coordenador="adm">
+        <div class="campos campos--coordenacao coordenador" data-coordenador="adm">
           {% include "componentes/campo.html" with campo=form.coordenador_adm_origem classe="campo--md" %}
           {% include "componentes/campo.html" with campo=form.coordenador_adm_genero classe="campo--md" %}
           <div class="campo campo--lg coordenador__cadastro{% if form.coordenador_adm.errors %} campo--erro{% endif %}">
@@ -145,7 +113,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
           {% include "componentes/campo.html" with campo=form.coordenador_adm_nome classe="campo--lg coordenador__manual" rotulo="Coordenador administrativo" %}
           {% include "componentes/campo.html" with campo=form.coordenador_adm_cargo classe="campo--lg coordenador__manual" rotulo="Cargo" acao_dialogo=editavel|yesno:"dialogo-cargo-adm," acao_rotulo="Cadastrar cargo" %}
         </div>
-        <div class="campos coordenador" data-coordenador="op">
+        <div class="campos campos--coordenacao coordenador" data-coordenador="op">
           {% include "componentes/campo.html" with campo=form.coordenador_op_origem classe="campo--md" %}
           {% include "componentes/campo.html" with campo=form.coordenador_op_genero classe="campo--md" %}
           <div class="campo campo--lg coordenador__cadastro{% if form.coordenador_op.errors %} campo--erro{% endif %}">
@@ -164,9 +132,9 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
       Efetivo, deslocamento e diárias (do evento 1) — na Identificação, depois dos
       coordenadores: quem vai, quando sai e volta, e quanto custa.
       {% endcomment %}
-      <div class="secao__bloco" id="efetivo" aria-labelledby="t-efetivo">
+      <div class="secao__bloco secao__bloco--integrado" id="efetivo" aria-labelledby="t-efetivo">
         <div class="secao__bloco-cabecalho">
-          <h3 class="secao__bloco-titulo" id="t-efetivo">{% icone "users" classe="icone--sm" %}Efetivo</h3>
+          <h3 class="secao__bloco-titulo" id="t-efetivo">{% icone "users" classe="icone--sm" %}Efetivo do evento principal</h3>
           {% if editavel %}<button type="button" class="botao botao--sm" data-adicionar-em="#efetivo-linhas">{% icone "plus" classe="icone--sm" %}Adicionar efetivo</button>{% endif %}
         </div>
         <pc-linhas class="linhas" id="efetivo-linhas" data-rotulo="linha do efetivo">
@@ -179,7 +147,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
         </pc-linhas>
       </div>
       {# Deslocamento: saída e chegada na sede (um calendário marca as duas datas). #}
-      <div class="secao__bloco">
+      <div class="secao__bloco secao__bloco--integrado">
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "route" classe="icone--sm" %}Deslocamento</h3></div>
         <div class="campos">
           {% include "componentes/campo.html" with campo=form.saida_em classe="campo--lg" %}
@@ -187,11 +155,12 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
         </div>
       </div>
       {# Diárias: o mesmo bloco da folha do ofício (refeito a cada gravação). #}
-      <div class="secao__bloco">
+      <div class="secao__bloco secao__bloco--integrado">
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "banknote" classe="icone--sm" %}Diárias</h3></div>
         <div id="diarias" data-vivo>
           {% if not mensagens_calculo %}
-            {% include "viagens/oficios/_diarias_corpo.html" with texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
+            {% include "viagens/oficios/_diarias_corpo.html" with serena=True horizontal=True operacional=True sempre_por_servidor=True texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
+          {% else %}<p class="texto-secundario" role="note">{{ mensagens_calculo|join:" " }}</p>
           {% endif %}
         </div>
       </div>
@@ -270,44 +239,24 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
     </div>
 
     {% if plano %}
-    <div class="secao__bloco" id="eventos" aria-labelledby="t-eventos">
+    <div class="secao__bloco secao__bloco--integrado" id="eventos" aria-labelledby="t-eventos">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-eventos">{% icone "calendar-days" classe="icone--sm" %}Eventos</h3>
         <div class="secao__estado" id="estado-eventos" data-vivo>{% for p in pendencias %}{% if p.secao == "eventos" %}<span class="selo selo--aviso selo--sem-ponto">{{ p.rotulo }}</span>{% endif %}{% endfor %}</div>
-        {% if editavel %}<a class="botao botao--sm" href="?evento=novo#eventos">{% icone "plus" classe="icone--sm" %}Acrescentar evento</a>{% endif %}
+        {% if editavel %}<a class="botao botao--sm" href="{% url 'viagens:editar_plano' plano.pk %}?evento=novo#eventos">{% icone "plus" classe="icone--sm" %}Acrescentar evento</a>{% endif %}
       </div>
       {% if eventos %}
-        <ul class="registros eventos-plano" aria-label="Outros eventos">
-          {% for e in eventos %}
-            <li class="registro">
-              <span class="placa" aria-hidden="true"><span class="placa__rotulo">Evento</span><span class="placa__numero">{{ forloop.counter|add:1 }}</span></span>
-              <div class="registro__corpo">
-                <div class="registro__titulo">{% if editavel %}<a class="registro__link" href="?evento={{ e.pk }}#eventos">{% else %}<span class="registro__link registro__link--estatico">{% endif %}{% for d in e.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem destino</span>{% endfor %}{% if e.data_inicio %} · {{ e.data_inicio|date:"d/m/Y" }}{% if e.data_fim and e.data_fim != e.data_inicio %} a {{ e.data_fim|date:"d/m/Y" }}{% endif %}{% endif %}{% if editavel %}</a>{% else %}</span>{% endif %}</div>
-                <div class="registro__meta">
-                  <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}{{ e.programa_nome|default:"Sem programa" }}</span>
-                  <span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ e.horario }}</span>
-                  {% with n=e.efetivo_total %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>{% endwith %}
-                  {% if e.diarias_total is not None %}<span class="registro__meta-item">{% icone "banknote" classe="icone--sm" %}{{ e.diarias_total|moeda }}</span>{% endif %}
-                  <span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ e.atividades.all|length|pluralizar:"atividade,atividades" }}</span>
-                </div>
-              </div>
-              {% if editavel %}
-              <div class="registro__acoes registro__acoes--fixas">
-                <a class="botao botao--sm" href="?evento={{ e.pk }}#eventos" aria-label="Editar o evento {{ forloop.counter|add:1 }}">{% icone "pencil" %}Editar</a>
-                <button type="submit" form="remover-evento-{{ e.pk }}" class="botao botao--sm botao--icone botao--sutil" aria-label="Remover o evento {{ forloop.counter|add:1 }}">{% icone "trash-2" %}</button>
-              </div>
-              {% endif %}
-            </li>
-          {% endfor %}
+        <ul class="registros registros--operacionais eventos-plano" aria-label="Outros eventos">
+          {% for e in eventos %}{% include "viagens/planos/_registro_evento.html" %}{% endfor %}
         </ul>
       {% endif %}
     </div>
     {% endif %}
 
     {% if plano %}
-    {% if plano.cancelado %}<p class="texto-secundario">Plano cancelado: reative para gerar o documento.</p>{% endif %}
+    {% if plano.cancelado %}<p class="texto-secundario" id="conferencia">Plano cancelado: reative para gerar o documento.</p>{% else %}{% include "componentes/conferencia_preparacao.html" with pendencias=pendencias pode_finalizar=editavel form_id="finalizar-plano" nome="plano" %}{% endif %}
 
-    <div class="secao__bloco" id="previa" aria-label="Como vai sair">
+    <div class="secao__bloco secao__bloco--integrado" id="previa" aria-label="Como vai sair">
       {% if pode_ver_documento %}
         {% url 'viagens:folha_plano' plano.pk as folha_url %}{% url 'viagens:documento_plano' plano.pk 'pdf' as pdf_url %}
         {% url 'viagens:editor_plano_estado' plano.pk as estado_url %}
@@ -317,7 +266,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
         embaixo, à esquerda, o índice com a miniatura da folha e, ao lado, a folha inteira, sem
         rolagem própria. "PDF" troca o bloco pelo PDF do plano.
         {% endcomment %}
-        <div class="editores editores--unidos" data-editores data-pdf-todos="{{ pdf_url }}?previa=1">
+        <div class="editores editores--unidos editores--documental editores--operacional" data-editores data-pdf-todos="{{ pdf_url }}?previa=1">
           <nav class="editores__indice" id="indice-plano" aria-label="Páginas do plano">
             <button type="button" class="editores__pagina" data-ir-pagina="plano" aria-current="true" title="{{ plano }}">
               <span class="editores__miniatura"><iframe data-miniatura data-src="{{ folha_url }}" tabindex="-1" aria-hidden="true" title="Miniatura do plano"></iframe></span>
@@ -328,7 +277,7 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
             <div class="editores__pdf" hidden><iframe title="{{ plano }} (PDF)" data-pdf-bloco></iframe></div>
             <section class="editores__item" data-pagina="plano">
               <h4 class="editores__titulo" id="folha-doc-plano"><span class="editores__numero">Plano</span>{{ plano }}</h4>
-              {% include "viagens/oficios/_editor.html" with tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-plano" baixar_url=baixar_url baixar_titulo=plano|stringformat:"s" %}
+              {% include "viagens/oficios/_editor.html" with operacional=True ferramentas_recolhiveis=True tipo="plano" rotulo="Plano de trabalho" titulo_doc=plano|stringformat:"s" folha_url=folha_url pdf_url=pdf_url|add:"?previa=1" estado_url=estado_url pode_editar_texto=editavel inteira=True indice="indice-plano" baixar_url=baixar_url baixar_titulo=plano|stringformat:"s" %}
             </section>
           </div>
         </div>
@@ -339,19 +288,19 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
       {% endif %}
     </div>
 
-    <div class="secao__bloco" id="historico" aria-labelledby="t-hist">
+    <div class="secao__bloco secao__bloco--integrado" id="historico" aria-labelledby="t-hist">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
       </div>
-      <ol class="historico__linhas" aria-label="Eventos do plano">
-        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+      <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos do plano">
+        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
       </ol>
       {% if historico|length > 6 %}
         <details>
           <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-          <ol class="historico__linhas mt-4" aria-label="Eventos anteriores">
-            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" %}{% endfor %}
+          <ol class="historico__linhas historico__linhas--operacional mt-4" aria-label="Eventos anteriores">
+            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% endfor %}
           </ol>
         </details>
       {% endif %}
@@ -369,22 +318,24 @@ ids delas são parte do contrato. "Gerar o plano" (sem pendências) abre o plano
   que estiver pendente, confere e gera o plano — com pendências, fica e mostra o que falta —
   e volta à lista) e Ações (duplicar, cancelar, excluir — componentes/rodape_documento.html).
   {% endcomment %}
-  <div class="barra-acoes">
-    <a class="botao botao--texto" href="{% url 'viagens:planos' %}">Voltar</a>
-    <div class="sr-only" data-status-salvamento data-texto-sujo="{% if plano %}Gravando as alterações…{% else %}Alterações não salvas — crie o plano antes de sair.{% endif %}" role="status">
-      {% if plano %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>
+  <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="{% if plano %}Gravando as alterações…{% else %}Alterações não salvas — crie o plano antes de sair.{% endif %}" role="status">
+      {% if plano %}<span data-anuncio>Última alteração: {{ plano.atualizado_em|date:"d/m/Y H:i" }}.</span>
       <span id="barra-pendencias" data-vivo>{% if pendencias %}{{ pendencias|length|pluralizar:"pendência,pendências" }}.{% else %}Tudo preenchido.{% endif %}</span>
       {% else %}<span data-anuncio>Para criar, ligue um ofício (o resto vem dele) ou comece em branco.</span>{% endif %}
     </div>
+    <div class="barra-acoes__acoes">
+    <a class="botao botao--texto" href="{% url 'viagens:planos' %}">Voltar</a>
     {% if plano %}
       {% if pode_cancelar and not plano.cancelado %}{% url 'viagens:cancelar_plano' plano.pk as cancelar_url %}{% endif %}
       {% if pode_excluir %}{% firstof "excluir-plano" as excluir_form %}{% endif %}
       {% with nome_doc=plano|stringformat:"s" %}{% with titulo_cancelar="Cancelar o "|add:nome_doc|add:"?" %}
-      {% include "componentes/rodape_documento.html" with nome="plano" finalizar_form="finalizar-plano" duplicar_form="duplicar-plano" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O plano continua na lista, em Cancelados; o número não se libera." %}
+      {% include "componentes/rodape_documento.html" with finalizar_primario=True nome="plano" finalizar_form="finalizar-plano" duplicar_form="duplicar-plano" excluir_form=excluir_form cancelar_url=cancelar_url cancelar_titulo=titulo_cancelar cancelar_ajuda="O plano continua na lista, em Cancelados; o número não se libera." %}
       {% endwith %}{% endwith %}
     {% else %}
       <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Criar plano</button>
     {% endif %}
+    </div>
   </div>
   {% endif %}
 </form>

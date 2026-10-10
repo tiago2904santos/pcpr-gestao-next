@@ -1,0 +1,39 @@
+{
+  "baseCommit": "17663d812b0c14baaf3fe207223080c40d73b5df",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/viagens/templates/viagens/planos/editar.html": "8937f3e079b33f8ed5e5b9017f8d093cc30f9a5b9dbc666e7eb24f855e9f6460",
+    "gestao/viagens/templates/viagens/planos/_dialogo_evento.html": "e18760d30db74c2280578e27d8629b40ba751dce8a58db707b4e581c7c1add12",
+    "gestao/viagens/templates/viagens/planos/_cabecalho_contexto.html": "7c64f97b18bb7a0f569cd4323dfa0d9efca5ac0ad8b55eecea494c0b41682a6f",
+    "gestao/viagens/templates/viagens/planos/_registro_evento.html": "873801b423a9b2cf3759293fe958db481c96d5323522db93792323b1587cb740",
+    "gestao/viagens/templates/viagens/ordens/_cabecalho_contexto.html": "374beb4579a656643edd3b146f1a490d57f12c9b3226e218e298a72e77e04087",
+    "gestao/viagens/templates/viagens/termos/_cabecalho_contexto.html": "9f91a3883fe08cf3c3c23b480d6b0c8b679ddcdbdc2f8f8d33bed3ed83ba6267",
+    "templates/componentes/registro_hero.html": "d63a03f705b5e456834a5b67e2aedb5360d62dbfe6803588bfb70fe6a9541bf4",
+    "templates/componentes/conferencia_preparacao.html": "c2df802f2a7ec3c78d0698c50f260a9ca19d8ab1a6d1acf96fa6826d18fb2633",
+    "static/css/components.css": "23d7880728ca4b19ea2622e86c9e63ec1786b25f0105cf4ba4bd22133f4dfe22",
+    "static/css/formulario.css": "fb1afb669edd91cd29b9a516bdb957f2c88042b83065dadfbe663fe4b5a46ba6",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "ff8730ae7fd748e07357bb4b3ae2f46b3ae1ae20cfdb5b7edf4b5731bfda717a",
+    "gestao/ui_lab/templates/ui_lab/_preparacao_registro.html": "1a8075e3b921483560b3f6c4678496ed264638719265a0072f3638cc1ae2cfc8",
+    "tests/test_identidade_documental.py": "6345709a45552c45ae9a2f53629f43046847df53725eb07f21dd2784d1b72f28",
+    "gestao/viagens/tests/test_planos.py": "7fa8c87514eae0b37c39b25479b6335287f8ff5e6b4909d6541d3a0172636cc2",
+    "tests/e2e/test_planos.py": "6f2cb1adfb6912323e3268b75d36d91a5363c0d09ba9239bad5da6cda4d62609",
+    "tests/e2e/test_planos_preparacao_identidade.py": "b23edae1274e51c90e4f50c4461ce1af5c09506fa891f3d517431b1202f3a4e1"
+  },
+  "checks": {
+    "focused": 143,
+    "e2eCompat": 20,
+    "e2eFinalRevisao": 5,
+    "uiLab": 2,
+    "capturas": 25,
+    "SQL": "idêntico nos cinco estados",
+    "JS": "idêntico",
+    "CSSGzipDelta": 355
+  },
+  "limites": [
+    "SQL excede budget anteriormente; sem aumento",
+    "3 tiles adicionais pelo painel operacional maior; estáticos/editor iguais",
+    "gate integral2295 em9963f71; global novo necessário",
+    "Resultados ainda não migrados"
+  ],
+  "aprovacaoVisual": "pendente do usuário"
+}

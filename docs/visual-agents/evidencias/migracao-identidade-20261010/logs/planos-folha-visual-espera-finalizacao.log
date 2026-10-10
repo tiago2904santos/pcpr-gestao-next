@@ -1,0 +1,209 @@
+...F.                                                                    [100%]
+================================== FAILURES ===================================
+________________ test_evento_manual_diarias_menu_remocao_e_pdf ________________
+
+logado = <Page url='http://localhost:56114/viagens/planos/4/#eventos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_evento_manual_diarias_menu_remocao_e_pdf(logado, dados_e2e):
+        pg = logado
+        plano = _completo(dados_e2e)
+        valor_principal = plano.diarias_total
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        pg.get_by_role("link", name="Acrescentar evento").click()
+        janela = pg.get_by_role("dialog", name="Novo evento", exact=True)
+        expect(janela).to_be_visible()
+        assert janela.locator("form").evaluate("e => !e.closest('#form-plano')")
+        janela.get_by_role("button", name="Programa", exact=True).click()
+        janela.get_by_role("checkbox", name="Outro", exact=True).check()
+        janela.get_by_role("button", name="Programa", exact=True).click()
+        janela.get_by_label("Outro programa", exact=True).fill("Feira institucional sintética")
+        janela.locator("#evento-periodo").fill("28/06/2030")
+        janela.locator("#evento-periodo").press("Tab")
+        janela.get_by_role("combobox", name="Destino 1", exact=True).fill("Maringá")
+        janela.get_by_role("option", name="Maringá/PR", exact=True).click()
+        cargo = janela.get_by_role("combobox", name="Cargo", exact=True)
+        cargo.fill("Agente de Polícia")
+        janela.get_by_role("option", name="Agente de Polícia Judiciária", exact=True).click()
+        janela.locator("#evento-efetivo-quantidade-1").fill("2")
+        for campo, valor in {"evento_saida_em_0": "28/06/2030", "evento_saida_em_1": "06:00",
+                             "evento_chegada_em_0": "28/06/2030", "evento_chegada_em_1": "21:00"}.items():
+            janela.locator(f"#{campo}").fill(valor)
+        janela.get_by_role("button", name="Acrescentar evento", exact=True).click()
+        expect(pg.locator("#eventos .registro-operacional")).to_have_count(1)
+        plano.refresh_from_db()
+        evento = plano.eventos.get()
+        assert evento.diarias_total is not None
+        registro = pg.locator("#eventos .registro__link")
+        expect(registro).to_have_attribute("title", "Maringá/PR")
+        expect(registro).to_have_accessible_name("Editar o evento 2 · Maringá/PR")
+        registro.click()
+        edicao = pg.get_by_role("dialog", name="Editar evento", exact=True)
+        expect(edicao).to_be_visible()
+        edicao.get_by_label("Outro programa", exact=True).fill("")
+        edicao.get_by_role("button", name="Salvar evento", exact=True).click()
+        expect(pg.get_by_role("dialog", name="Editar evento", exact=True)).to_be_visible()
+        expect(pg.get_by_role("dialog", name="Editar evento", exact=True).locator(".campo__erro").first).to_be_visible()
+        evento.refresh_from_db()
+        assert str(evento.data_inicio) == "2030-06-28"
+        pg.get_by_role("dialog", name="Editar evento", exact=True).get_by_role("link", name="Cancelar", exact=True).click()
+        assert plano.diarias_total == valor_principal
+        assert planos.diarias_geral(plano) == valor_principal + evento.diarias_total
+        assert planos.efetivo_geral(plano) == 8
+        pg.locator("#eventos").get_by_role("button", name="Ações do evento 2").press("Enter")
+        expect(pg.get_by_role("menuitem", name="Editar evento", exact=True)).to_be_focused()
+        pg.keyboard.press("Escape")
+        expect(pg.get_by_role("button", name="Ações do evento 2")).to_be_focused()
+        pg.locator("#conferencia").get_by_role("button", name="Finalizar e gerar o plano").click()
+        plano.refresh_from_db()
+>       assert plano.gerado
+E       assert False
+E        +  where False = <PlanoTrabalho: Plano de Trabalho 01/2026/ASCOM>.gerado
+
+tests\e2e\test_planos_preparacao_identidade.py:109: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 05:37:48,573 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+2026-10-10 05:37:49,559 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+[10/Oct/2026 05:37:50,115] - Broken pipe from ('127.0.0.1', 63589)
+2026-10-10 05:37:51,605 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+2026-10-10 05:37:51,785 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+2026-10-10 05:37:52,850 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+[10/Oct/2026 05:37:52,988] - Broken pipe from ('127.0.0.1', 54316)
+2026-10-10 05:37:53,768 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 59 consultas (limite 25)
+2026-10-10 05:37:53,775 WARNING django.request Unprocessable Content: /viagens/planos/4/eventos/salvar/
+2026-10-10 05:37:54,902 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 63589)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 54316)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 59 consultas (limite 25)
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/planos/4/eventos/salvar/
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+-------------------------- Captured stderr teardown ---------------------------
+[10/Oct/2026 05:37:55,837] - Broken pipe from ('127.0.0.1', 63230)
+[10/Oct/2026 05:37:55,840] - Broken pipe from ('127.0.0.1', 55045)
+2026-10-10 05:37:55,876 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/finalizar/: 32 consultas (limite 25)
+[10/Oct/2026 05:37:56,024] - Broken pipe from ('127.0.0.1', 57378)
+2026-10-10 05:37:56,997 WARNING django.request The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /viagens/planos/4/finalizar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 127, in save
+    obj.save(
+    ~~~~~~~~^
+        force_insert=must_create, force_update=not must_create, using=using
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 904, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 996, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 1154, in _save_table
+    raise self.NotUpdated("Forced update did not affect any rows.")
+django.contrib.sessions.models.Session.NotUpdated: Forced update did not affect any rows.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\middleware.py", line 60, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 136, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 443, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\middleware.py", line 62, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 63230)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 55045)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/4/finalizar/: 32 consultas (limite 25)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 57378)
+WARNING  django.request:log.py:283 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /viagens/planos/4/finalizar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 127, in save
+    obj.save(
+    ~~~~~~~~^
+        force_insert=must_create, force_update=not must_create, using=using
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 904, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 996, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\base.py", line 1154, in _save_table
+    raise self.NotUpdated("Forced update did not affect any rows.")
+django.contrib.sessions.models.Session.NotUpdated: Forced update did not affect any rows.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\middleware.py", line 60, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 136, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 443, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\sessions\middleware.py", line 62, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_preparacao_quantidade_calendario_e_conferencia[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_planos.py::test_plano_a_partir_do_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_planos_folha_visual_88c37295" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+1 failed, 4 passed, 2 warnings in 115.07s (0:01:55)

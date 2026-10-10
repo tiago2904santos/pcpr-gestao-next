@@ -34,13 +34,14 @@ def test_plano_a_partir_do_oficio(logado, dados_e2e):
     expect(pg.locator("#diarias")).to_contain_text("R$")
 
     # Programa do catálogo: grava sozinho e a frase do topo acompanha.
-    pg.get_by_role("combobox", name="Programa").click()
-    pg.get_by_role("option", name="PROGRAMA PARANÁ EM AÇÃO").click()
+    pg.get_by_role("button", name="Programa", exact=True).click()
+    pg.get_by_role("checkbox", name="PROGRAMA PARANÁ EM AÇÃO", exact=True).check()
+    pg.get_by_role("button", name="Programa", exact=True).click()
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     expect(pg.locator("#frase-plano")).to_contain_text("PROGRAMA PARANÁ EM AÇÃO")
 
     # Mais uma linha no efetivo (componente pc-linhas): a nova recebe o foco.
-    pg.get_by_role("button", name="Adicionar linha").click()
+    pg.get_by_role("button", name="Adicionar efetivo").click()
     expect(pg.locator(".linhas__linha")).to_have_count(3)
     expect(pg.locator(".linhas__linha").last.get_by_role("combobox").first).to_be_focused()
 
@@ -54,9 +55,9 @@ def test_plano_a_partir_do_oficio(logado, dados_e2e):
     assert set(plano.atividades.values_list("codigo", flat=True)) == {"CIN", "BO"}
 
     # Coordenador administrativo por busca; depois, nada falta: finalizar.
-    busca = pg.get_by_label("Coordenador administrativo")
+    busca = pg.get_by_role("combobox", name="Coordenador administrativo", exact=True)
     busca.fill("ana")
-    pg.get_by_role("option").first.click()
+    pg.locator('[data-coordenador="adm"] .coordenador__cadastro pc-combobox').get_by_role("option").first.click()
     pg.locator("#identificacao").get_by_role("combobox", name="Como sai no documento").first.click()
     pg.get_by_role("option", name="a Coordenadora").click()
     expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")

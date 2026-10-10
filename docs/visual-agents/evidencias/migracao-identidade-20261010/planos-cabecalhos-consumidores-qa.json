@@ -1,0 +1,29 @@
+[
+  {
+    "consumidor": "planos",
+    "links": [
+      {
+        "texto": "Viagem: PCPR na Comunidade / Unidade Móvel",
+        "cor": "rgb(203, 199, 190)",
+        "display": "flex"
+      }
+    ],
+    "overflow": false
+  },
+  {
+    "consumidor": "termos",
+    "links": [],
+    "overflow": false
+  },
+  {
+    "consumidor": "ordens",
+    "links": [
+      {
+        "texto": "Viagem: PCPR na Comunidade / Unidade Móvel",
+        "cor": "rgb(203, 199, 190)",
+        "display": "flex"
+      }
+    ],
+    "overflow": false
+  }
+]

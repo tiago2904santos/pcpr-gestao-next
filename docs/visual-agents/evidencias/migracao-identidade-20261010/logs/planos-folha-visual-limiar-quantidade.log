@@ -1,0 +1,67 @@
+.FF..                                                                    [100%]
+================================== FAILURES ===================================
+__________ test_preparacao_quantidade_calendario_e_conferencia[768] ___________
+
+logado = <Page url='http://localhost:60099/viagens/planos/2/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largura):
+        pg = logado
+        plano = _completo(dados_e2e)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        expect(pg.get_by_role("heading", level=1)).to_contain_text(str(plano))
+        expect(pg.locator(".registro-hero .identidade-documental__complemento")).to_have_text(
+            plano.sufixo)
+        expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")
+        assert pg.get_by_role("button", name="Programa", exact=True).bounding_box()["width"] > 200
+        quantidade = pg.locator("#efetivo-quantidade-1")
+>       assert quantidade.bounding_box()["width"] >= 40
+E       assert 39.4375 >= 40
+
+tests\e2e\test_planos_preparacao_identidade.py:27: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 05:16:22,208 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+__________ test_preparacao_quantidade_calendario_e_conferencia[1440] __________
+
+logado = <Page url='http://localhost:60099/viagens/planos/3/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largura):
+        pg = logado
+        plano = _completo(dados_e2e)
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/planos/{plano.pk}/")
+        expect(pg.get_by_role("heading", level=1)).to_contain_text(str(plano))
+        expect(pg.locator(".registro-hero .identidade-documental__complemento")).to_have_text(
+            plano.sufixo)
+        expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")
+        assert pg.get_by_role("button", name="Programa", exact=True).bounding_box()["width"] > 200
+        quantidade = pg.locator("#efetivo-quantidade-1")
+>       assert quantidade.bounding_box()["width"] >= 40
+E       assert 39.4375 >= 40
+
+tests\e2e\test_planos_preparacao_identidade.py:27: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 05:16:35,983 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_planos.py::test_plano_a_partir_do_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_planos_folha_visual_16db77f4" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_preparacao_quantidade_calendario_e_conferencia[768]
+FAILED tests/e2e/test_planos_preparacao_identidade.py::test_preparacao_quantidade_calendario_e_conferencia[1440]
+2 failed, 3 passed, 2 warnings in 128.55s (0:02:08)
