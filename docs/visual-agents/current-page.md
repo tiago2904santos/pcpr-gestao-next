@@ -1,5 +1,35 @@
 # Página atual
 
+## Rodada vigente — Lista e Resumo, 09–10/10/2026
+
+Escopo atual: consulta de Ofícios. Cadastro protegido, salvo compatibilidade de
+componentes compartilhados. ADR 0033 e `docs/product/oficios-consulta-visual.md`.
+Resumo: coluna de leitura independente, Diárias de consulta, minuta informativa,
+transporte correto no percurso, eProtocolo compacto. Lista: header menor, filtros
+temporais horizontais, geometria financeira e ações conforme tamanho do resultado.
+Segunda crítica corrigiu alcance do CSS do header, quinas da última linha,
+placa de quatro algarismos e coerência do ícone de transporte no Resumo.
+Evidências: `evidencias/oficios-resumo-lista-refinamento/`, 43 pares antes/depois.
+Validação técnica encerrada: integral 2.291 verdes; 32 E2E verdes, mais seis
+reexecuções de conteúdo extremo e quatro de transporte; 27 HTTP e 68 tokens
+verdes. QA: `qa/resumo-lista-refinamento-2026-10-10.md`.
+Revisão estética do usuário pendente. Cadastro preservado; sem nova página,
+commit, push, merge ou deploy nesta rodada. Index original preservado.
+
+
+## Histórico — Cadastro inferior r2, 09/10/2026
+
+Blocos A–F refinados sobre HEAD 722198f e ajustes locais do usuário. Header,
+Identificação e composição de Equipe/transporte preservados. Prévia LAB :8017.
+Evidências desta rodada em `evidencias/oficios-cadastro-inferior-r2/index.html`;
+QA em `qa/cadastro-inferior-r2-2026-10-09.md`. Integral concluído com uma
+expectativa antiga reproduzida na base, corrigida e revalidada (8 casos).
+Script final verde em confirmação incremental; 20 casos finais de navegador verdes.
+125 pares antes/depois. Revisão visual do usuário pendente.
+O gate e os commits abaixo são históricos e não aprovam automaticamente esta fonte.
+Sem expansão para outros módulos. Aprovação visual permanece com o usuário.
+
+
 ## Pedido vigente — Cadastro da seção Roteiro para baixo, 09/10/2026
 
 Nova direção do usuário: preservar Header, Identificação e Equipe/transporte,

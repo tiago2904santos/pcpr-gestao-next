@@ -128,10 +128,10 @@ confirmação — e é ele que escreve no histórico.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">3</span>Roteiro</h2>
       <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}</div>
-      <p class="secao__nota">Informe a sede e os destinos; a rota calcula distância e tempos, e cada trecho só pede a saída — a chegada é calculada. Horários de Brasília.</p>
+      <p class="secao__nota">Defina o percurso e confira a rota. Datas, horários e chegada ficam nos trechos. Horário de Brasília.</p>
     </div>
     <div class="secao__conteudo">
-    {% include "componentes/selecao_roteiro.html" with form_id="form-oficio" %}
+    {% include "componentes/selecao_roteiro.html" with form_id="form-oficio" compacto=True %}
     {% include "viagens/_itinerario.html" with operacional=True %}
     {# Diárias: só leitura, refeitas ao salvar ou ao mudar a equipe (o HTMX troca o miolo). #}
     <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
@@ -162,7 +162,7 @@ confirmação — e é ele que escreve no histórico.
     </div>
     <div class="secao__conteudo">
 
-    <div class="preparacao-documental">
+    <div class="preparacao-documental preparacao-documental--conferencia">
       {% include "componentes/prontidao_documental.html" with form_id="form-oficio" emitir_acao="emitir" %}
       <div id="dados-eprotocolo-folha" data-vivo>
         {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-folha" compacto=True %}
@@ -176,7 +176,7 @@ confirmação — e é ele que escreve no histórico.
     bloco por um PDF só com todos os documentos. Os dados do cadastro (motivo, protocolo…)
     ficam vivos na folha e gravam no ofício.
     {% endcomment %}
-    <div class="secao__bloco" id="minuta" aria-label="Documentos do ofício">
+    <div class="secao__bloco secao__bloco--estacao" id="minuta" aria-label="Documentos do ofício">
       {% url 'viagens:baixar_oficio' oficio.pk as baixar_url %}
       {% url 'viagens:folha' oficio.pk 'oficio' as folha_oficio %}{% url 'viagens:editor_estado' oficio.pk 'oficio' as estado_oficio %}{% url 'viagens:previa' oficio.pk as pdf_oficio %}
       {% if mostrar_justificativa %}{% url 'viagens:folha' oficio.pk 'justificativa' as folha_just %}{% url 'viagens:editor_estado' oficio.pk 'justificativa' as estado_just %}{% endif %}

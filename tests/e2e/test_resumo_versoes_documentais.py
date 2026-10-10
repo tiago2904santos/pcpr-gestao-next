@@ -49,7 +49,7 @@ def _abrir(pg, oficio):
 
 
 @pytest.mark.parametrize("largura", [360, 1440])
-def test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia(
+def test_polling_real_pronta_v2_atualiza_acoes(
         logado, dados_e2e, largura):
     pg = logado
     pg.set_viewport_size({"width": largura, "height": 900})
@@ -64,22 +64,16 @@ def test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia(
     # A janela mostra só a emissão corrente (decisão de produto, 08/10/2026): a v1 continua
     # guardada, mas não aparece aqui — nem como link para baixar.
     expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
-    expect(janela.locator(f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
+    expect(janela.locator("#resumo-documentos-area").locator(
+        f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
         .to_have_count(0)
-    copia = janela.locator("#eprotocolo-resumo-bloco")
-    assert copia.locator("summary").evaluate("el => getComputedStyle(el).display") == "inline-flex"
-    # O bloco nasce aberto; o clique no resumo só é necessário se alguém o fechou.
-    if copia.get_attribute("open") is None:
-        copia.locator("summary").click()
-    expect(copia).to_have_attribute("open", "")
-    expect(copia).to_contain_text("Dados da emissão v2")
-    expect(copia.get_by_label("Detalhamento", exact=True)).to_have_value(
-        re.compile("Motivo exclusivo da emissão v2"))
-    botao = copia.locator('button[data-copiar-alvo="eprotocolo-resumo-1"]')
-    botao.click()
-    expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Copiado")
-    campo = copia.get_by_label("Interessados", exact=True)
-    campo.focus()
+    historico = janela.locator(f"#historico-oficio-{oficio.pk}")
+    expect(historico).not_to_be_visible()
+    expect(historico.locator(
+        f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')).to_have_count(1)
+    # Consulta copiável autorizada preservada enquanto documentos recebem polling.
+    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(1)
+    expect(janela.locator(".registro-hero__complemento")).to_contain_text(oficio.protocolo_formatado)
     # Simula somente a conclusão do worker; a atualização da tela é GET HTMX real.
     Documento.objects.filter(pk=atual.pk).update(situacao="pronto", sha256="b" * 64)
     expect(rodape.get_by_text("Ver o PDF", exact=True)).to_be_visible(timeout=10000)
@@ -87,10 +81,6 @@ def test_polling_real_pronta_v2_atualiza_acoes_sem_perder_copia(
     expect(rodape.locator("[data-anexar-assinado]").first).to_have_attribute(
         "data-assinado-titulo", f"Ofício {oficio.numero_formatado} · v2")
     expect(janela.locator("[data-resumo-poll]")).to_have_count(0)
-    expect(copia).to_have_attribute("open", "")
-    expect(campo).to_be_focused()
-    expect(copia).to_contain_text("Dados da emissão v2")
-    expect(copia).not_to_contain_text("PDF em geração")
     pasta = Path("artifacts/rs02-resumo")
     pasta.mkdir(parents=True, exist_ok=True)
     pg.screenshot(path=str(pasta / f"corrente-pronta-{largura}.png"))
@@ -276,8 +266,13 @@ def test_reaberto_preserva_minuta_e_documentos_assinados_historicos(logado, dado
     expect(janela.locator("#resumo-rodape")).to_contain_text("Ver minuta")
     expect(janela.locator("#resumo-rodape")).not_to_contain_text("Ver o PDF")
     expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
-    expect(janela.locator(f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')) \
+    expect(janela.locator("#resumo-documentos-area").locator(
+        f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')) \
         .to_have_count(0)
+    historico = janela.locator(f"#historico-oficio-{oficio.pk}")
+    expect(historico).not_to_be_visible()
+    expect(historico.locator(
+        f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')).to_have_count(1)
     # Fora da janela, nada se perdeu: a via da emissão anterior continua guardada.
     assert ViaAssinada.objects.filter(pk=via.pk).exists()
     assert pg.erros_console == []
@@ -330,7 +325,8 @@ def test_polling_justificativa_preserva_foco_operavel_em_mais_acoes(
     expect(gatilho).to_be_focused()
     gatilho.press("Enter")
     expect(word).to_be_visible()
-    expect(word).to_be_focused()
+    primeiro = rodape.locator('[role="menuitem"]:not([aria-disabled="true"])').first
+    expect(primeiro).to_be_focused()
     word.press("Escape")
     expect(gatilho).to_be_focused()
     assert pg.erros_console == []

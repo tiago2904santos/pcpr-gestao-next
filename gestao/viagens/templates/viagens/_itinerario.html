@@ -51,6 +51,9 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
     </div>
   </section>
 
+  {% if operacional %}
+    {% include "componentes/painel_rota.html" %}
+  {% else %}
   {% comment %}
   Na folha operacional a rota se apresenta sozinha (números e mapa): o título "Rota" virava
   mais uma linha sem trabalho. O nome do bloco fica no aria-label, para quem navega sem ver.
@@ -73,6 +76,7 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
       <button type="button" class="botao botao--sm itin__ver-rota" data-ver-rota hidden>{% icone "route" classe="icone--sm" %}Ver a rota inteira</button>
     </div>
   </section>
+  {% endif %}
   {% if operacional %}</div>{% endif %}
 
   {# Com `etapa_trechos`, o bloco vira uma etapa numerada da folha (os três blocos precisam ficar sob a mesma raiz). #}

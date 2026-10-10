@@ -613,7 +613,14 @@ export class PcItinerario extends HTMLElement {
       parte.km += Number(t.raiz.dataset.km || 0);
       const saidaChegada = /** @type {HTMLElement | null} */ (t.raiz.querySelector("[data-chegada]"));
       const chegada = saida && viagem !== null ? new Date(saida.getTime() + (viagem + adicional) * 60000) : null;
-      if (saidaChegada) saidaChegada.textContent = chegada ? dataHoraBR(chegada) : "—";
+      if (saidaChegada) {
+        const dia = saidaChegada.querySelector("[data-chegada-data]");
+        const horaChegada = saidaChegada.querySelector("[data-chegada-hora]");
+        if (dia && horaChegada) {
+          dia.textContent = chegada ? dataBR(chegada) : "—";
+          horaChegada.textContent = chegada ? `${dois(chegada.getHours())}:${dois(chegada.getMinutes())}` : "";
+        } else saidaChegada.textContent = chegada ? dataHoraBR(chegada) : "—";
+      }
       // Sai antes de chegar ao ponto anterior: avisa já (o servidor recusa ao salvar).
       const conflito = Boolean(saida && anterior && saida < anterior);
       t.raiz.classList.toggle("itin__trecho--conflito", conflito);

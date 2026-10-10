@@ -1421,7 +1421,9 @@ a.ficha:hover {
   min-width: 0;
   max-width: 100%;
   margin: 0;
-  padding: 0.5rem 0 0;
+  /* O recuo de cima é a altura do rótulo na borda: sem ele, a opção marcada (grafite) sobe
+     até o rótulo e o texto "Documento" fica por cima do chip. */
+  padding: 0.75rem 0 0;
   border: 0;
 }
 
@@ -1445,7 +1447,7 @@ a.ficha:hover {
 .filtros__documento > .segmentado {
   height: var(--altura-controle);
   align-items: center;
-  padding: 0 var(--esp-1);
+  padding: var(--esp-05) var(--esp-1);
   border: 1px solid var(--cor-borda-campo);
   background: var(--cor-superficie);
 }

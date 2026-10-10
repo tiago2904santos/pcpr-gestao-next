@@ -9,9 +9,11 @@
       {% if vazio %}<div class="alerta alerta--aviso resumo__aviso" role="status"><div class="alerta__corpo"><p class="alerta__titulo">Complete os dados antes de emitir</p><p>Abra o ofício para informar a equipe, o transporte e o roteiro.</p></div></div>{% endif %}
       <div class="mesa-registro"><div class="resumo">
         <div class="mesa-registro__documentos">{% include "ui_lab/_mesa_documentos.html" %}</div>
-        <section class="missao-registro" aria-label="Motivo da viagem"><h3 class="missao-registro__rotulo">Motivo da viagem</h3><p class="missao-registro__texto">{% if vazio %}Motivo não informado.{% else %}Apoio às atividades institucionais e atendimento itinerante às comunidades participantes do evento de segurança pública.{% endif %}</p></section>
-        <div class="mesa-registro__principal">{% with id_titulo=identificador|add:"-roteiro" %}{% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" conteudo="ui_lab/_mesa_percurso.html" %}{% endwith %}</div>
-        <div class="mesa-registro__coluna"><aside class="mesa-registro__contexto" aria-label="Conferência sintética">{% with id_titulo=identificador|add:"-diarias" %}{% include "componentes/bloco_registro.html" with titulo="Diárias" conteudo="ui_lab/_mesa_conferencia.html" %}{% endwith %}{% with id_titulo=identificador|add:"-registro" %}{% include "componentes/bloco_registro.html" with titulo="Registro institucional" conteudo="ui_lab/_mesa_registro.html" %}{% endwith %}</aside></div>
+        <div class="mesa-registro__principal">
+          <section class="missao-registro" aria-label="Motivo da viagem"><h3 class="missao-registro__rotulo">Motivo da viagem</h3><p class="missao-registro__texto">{% if vazio %}Motivo não informado.{% else %}Apoio às atividades institucionais e atendimento itinerante às comunidades participantes do evento de segurança pública.{% endif %}</p></section>
+          {% with id_titulo=identificador|add:"-roteiro" %}{% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" conteudo="ui_lab/_mesa_percurso.html" %}{% endwith %}
+        </div>
+        <div class="mesa-registro__coluna"><aside class="mesa-registro__contexto" aria-label="Conferência sintética">{% with id_titulo=identificador|add:"-diarias" %}{% include "componentes/bloco_registro.html" with titulo="Diárias" variante="conferencia" conteudo="ui_lab/_mesa_conferencia.html" %}{% endwith %}{% with id_titulo=identificador|add:"-registro" %}{% include "componentes/bloco_registro.html" with titulo="Registro institucional" conteudo="ui_lab/_mesa_registro.html" %}{% endwith %}</aside></div>
       </div></div>
     </div>
     <div class="dialogo__rodape"><button class="botao" type="button" data-fechar-dialogo>Voltar</button><button class="botao botao--primario" type="button" disabled>Emitir ofício</button></div>

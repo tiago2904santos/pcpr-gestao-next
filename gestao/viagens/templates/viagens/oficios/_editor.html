@@ -24,6 +24,7 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
     <div class="editor__linha">
       {% if indice %}<button type="button" class="botao botao--sm botao--icone editor__indice" data-alternar-indice aria-controls="{{ indice }}" aria-expanded="true" title="Mostrar ou esconder as páginas">{% icone "panel-left" classe="icone--sm" %}<span class="sr-only">Páginas</span></button>{% endif %}
       <div class="editor__estado">
+        {% if operacional %}<span class="editor__identidade">{{ rotulo }}</span>{% endif %}
         {% comment %}Pendências do documento: na própria barra, como atalho para o trecho que
         falta. Num alerta acima da folha elas empurravam o documento para baixo e repetiam, em
         tom de erro, o que o cartão de conferência já lista.{% endcomment %}

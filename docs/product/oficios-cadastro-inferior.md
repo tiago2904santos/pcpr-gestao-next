@@ -18,7 +18,8 @@ fórmulas, permissões, versões, histórico, auditoria nem conteúdo oficial.
 - C: justificativa com estado e explicação proporcionais; manter texto pronto,
   gestão de textos, obrigatoriedade e texto incluído mesmo quando dispensado.
 - D: separar prontidão/pendências, revisão e dados copiáveis; usar o componente
-  aprovado do Resumo, preservando os seis campos e cópia individual/completa.
+  refinado de cópia, preservando os cinco campos e a ação Copiar tudo. O Resumo
+  atual apresenta o protocolo no cabeçalho; a cópia permanece na Folha.
 - E: editor/minuta/PDF com ferramentas agrupadas e navegação de páginas; manter
   todas as ações, seleção Texto/PDF, atualização, baixar, edição e salvamento.
 - F: histórico escaneável com autor/horário/evento, sem perder eventos anteriores;

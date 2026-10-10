@@ -1,6 +1,7 @@
 {% load viagens %}
 <div class="equipe-transporte">
   <div class="equipe-transporte__pessoas">
+    <p class="equipe-transporte__rotulo">Equipe</p>
         <ul class="resumo__cartoes pessoas--faixa" role="list">
           {% for v in viajantes %}
             <li class="pessoa">
@@ -16,7 +17,7 @@
   <div class="equipe-transporte__transporte">
     <p class="equipe-transporte__rotulo">Transporte</p>
           <div class="pessoa">
-            <span class="avatar" aria-hidden="true">{% icone "car" classe="icone--sm" %}</span>
+            <span class="avatar" aria-hidden="true">{% if oficio.viatura or oficio.transporte_texto %}{% icone oficio|icone_transporte classe="icone--sm" %}{% else %}{% icone "car" classe="icone--sm" %}{% endif %}</span>
             <span class="pessoa__texto">
               {% if oficio.viatura %}
                 <span class="pessoa__nome">{{ oficio.viatura.modelo|default:"Viatura" }}</span>

@@ -1,6 +1,4 @@
 {% load viagens %}
-<p class="formulario-contextual__estado">
-  {% if prazo.justificativa_obrigatoria %}<span class="selo selo--aviso selo--situacao-rascunho">Obrigatória</span>{% elif prazo.situacao == "no_prazo" %}<span class="selo selo--sucesso selo--situacao-emitido">Dispensada</span>{% endif %}
-</p>
+<p class="formulario-contextual__rotulo">Prazo institucional</p>
 <p class="formulario-contextual__explicacao">{% if prazo %}{{ prazo.mensagem }}{% else %}Exigida quando a viagem começa em até 10 dias da data do ofício — o sistema avisa ao salvar o roteiro.{% endif %}</p>
 {% if not prazo.justificativa_obrigatoria %}<p class="formulario-contextual__nota">O texto já incluído continua disponível para conferência e edição.</p>{% endif %}

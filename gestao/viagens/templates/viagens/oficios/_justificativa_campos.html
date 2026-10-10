@@ -1,11 +1,11 @@
 {% load viagens %}
 {% if not prazo.justificativa_obrigatoria %}
 <details class="divulgacao" open>
-  <summary>{% icone "file-text" classe="icone--sm" %}Justificativa incluída mesmo dispensada</summary>
+  <summary>{% icone "file-text" classe="icone--sm" %}Conferir justificativa incluída</summary>
   <div class="divulgacao__corpo">
 {% endif %}
 <div class="formulario-contextual__campos">
-  {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
   {% include "componentes/campo.html" with campo=form.justificativa exigido_para_emitir=prazo.justificativa_obrigatoria %}
+  {% include "componentes/texto_pronto.html" with campo=form.justificativa_modelo alvo=form.justificativa.auto_id tipo="justificativa" pode_gerir=pode_gerir_textos voltar_rotulo=rotulo_de_volta %}
 </div>
 {% if not prazo.justificativa_obrigatoria %}</div></details>{% endif %}

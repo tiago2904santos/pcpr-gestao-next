@@ -620,9 +620,10 @@ html:has(.progresso--fixo) {
   scroll-padding-top: calc(var(--altura-topo) + 4rem);
 }
 
-/* O fim da página nunca fica atrás da barra flutuante. */
+/* O fim da página nunca fica atrás da barra flutuante. A barra é `sticky` e já ocupa o seu
+   lugar no fluxo, então basta o respiro dela — não mais uma faixa vazia depois do conteúdo. */
 html:has(.barra-acoes:not(.barra-acoes--rodape)) .conteudo__interno {
-  padding-bottom: var(--esp-12);
+  padding-bottom: var(--esp-6);
 }
 
 .barra-acoes {

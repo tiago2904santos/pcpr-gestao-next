@@ -2,7 +2,7 @@
 {% if revisao and data_atualizada %}
     <div class="alerta alerta--info resumo__aviso" role="status">{% icone "calendar" %}<div class="alerta__corpo">
       <p class="alerta__titulo">A emissão usará a data de hoje: {{ oficio.data_oficio|date:"d/m/Y" }}</p>
-      <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para manter outra data, volte à folha e marque “Manter esta data na emissão”.</p>
+      <p>A data do rascunho era {{ data_anterior|date:"d/m/Y" }}. Tipo e justificativa abaixo já consideram a data da emissão. Para emitir com outra data, volte à folha e altere a data do ofício: a data informada ali passa a valer.</p>
     </div></div>
   {% endif %}
   {% if prontidao and not prontidao.pode_emitir %}

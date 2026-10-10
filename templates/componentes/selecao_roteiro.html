@@ -1,6 +1,6 @@
 {% load viagens %}
 {% if roteiros_disponiveis is not None %}
-<div class="selecao-recurso">
+<div class="selecao-recurso{% if compacto %} selecao-recurso--integrada{% endif %}">
   <div class="selecao-recurso__contexto">
     {% if roteiro_aplicado %}
       <div class="alerta alerta--info" role="status" id="roteiro-aplicado" tabindex="-1">{% icone "route" %}<div class="alerta__corpo"><p class="alerta__titulo">Trechos do roteiro #{{ roteiro_aplicado.pk }} preenchidos</p><p>Confira datas e horários e salve. Nada foi gravado ainda.</p></div></div>
@@ -11,21 +11,21 @@
     {% endif %}
   </div>
   {% if roteiros_disponiveis %}
-  <details class="divulgacao selecao-recurso__busca"{% if not oficio.roteiro_id or roteiro_aplicado %} open{% endif %}>
-    <summary>{% icone "search" classe="icone--sm" %}Usar roteiro cadastrado{% icone "chevron-down" classe="icone--sm" %}</summary>
-    <div class="divulgacao__corpo selecao-recurso__controles">
+  {# Uma linha inteira: o campo e a ação na mesma altura. Sem gaveta — o rótulo na borda já diz o que é. #}
+  <div class="selecao-recurso__busca">
+    <div class="selecao-recurso__controles">
       <div class="campo">
-        <label class="campo__rotulo" for="id_roteiro_modelo">Usar um roteiro cadastrado</label>
-        <pc-combobox class="combobox" data-placeholder="Destino, período ou número (#12)…">
+        <label class="campo__rotulo" for="id_roteiro_modelo">{% if compacto %}Roteiro cadastrado{% else %}Usar um roteiro cadastrado{% endif %}</label>
+        <pc-combobox class="combobox" data-placeholder="{% if compacto %}Buscar roteiro…{% else %}Destino, período ou número (#12)…{% endif %}">
           <select id="id_roteiro_modelo" name="roteiro_modelo" form="{{ form_id }}">
             <option value="">Selecione…</option>
             {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}"{% if r.pk == roteiro_aplicado.pk %} selected{% endif %}>{{ r.rotulo }}</option>{% endfor %}
           </select>
         </pc-combobox>
       </div>
-      <button type="submit" form="{{ form_id }}" name="acao" value="usar_roteiro" class="botao botao--sm" formnovalidate>{% icone "arrow-right" classe="icone--sm" %}Usar este roteiro</button>
+      <button type="submit" form="{{ form_id }}" name="acao" value="usar_roteiro" class="botao" formnovalidate{% if compacto %} aria-label="Usar este roteiro"{% endif %}>{% icone "arrow-right" %}{% if compacto %}Aplicar{% else %}Usar este roteiro{% endif %}</button>
     </div>
-  </details>
+  </div>
   {% elif pode_criar_roteiro %}
     <p class="texto-secundario texto-sm">Nenhum roteiro cadastrado com saída de {{ oficio.sede }}. <a href="{% url 'viagens:novo_roteiro' %}">Cadastrar um roteiro</a></p>
   {% endif %}

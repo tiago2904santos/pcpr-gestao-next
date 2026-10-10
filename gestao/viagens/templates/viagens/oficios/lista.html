@@ -3,9 +3,9 @@
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
 {% block preload_seletor %}{% endblock %}
 {% block titulo %}Ofícios{% endblock %}
-{% block classe_conteudo %}pagina--documental colecao-operacional{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block cabecalho_lista %}
-{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Ofícios" complemento="Viagens, equipe e documentos em uma visão de trabalho." %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Ofícios" complemento="Localize a viagem. Confira a equipe e os documentos." %}
 {% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
@@ -155,7 +155,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
 
 {% block depois_lista %}
 {# Barra fixa (D8): contagem do recorte · Exportar planilha · Mais · Novo ofício. #}
-<div class="barra-acoes barra-acoes--registro">
+<div class="barra-acoes barra-acoes--registro barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
   {% include "viagens/oficios/_barra_status.html" %}
   {% include "componentes/menu_mais.html" with itens=mais titulo="Ofícios" %}
   {% if pode_criar %}{% include "viagens/oficios/_botao_novo.html" %}{% endif %}

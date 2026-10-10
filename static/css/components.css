@@ -3560,7 +3560,7 @@ fieldset.campo--escolhas > .campo__erro {
 }
 
 /* Mesa de registro oficial — composição DETAIL com estação documental. */
-dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); max-height: calc(100dvh - 2 * var(--esp-5)); }
+dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height: calc(100dvh - 2 * var(--esp-5)); max-height: calc(100dvh - 2 * var(--esp-5)); }
 /* A mesa ampla entra sem deslocar seus alvos sob o ponteiro. A saída mantém o
    contrato do diálogo; duração também obedece ao movimento reduzido dos tokens. */
 dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }
@@ -3587,7 +3587,8 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
 
 /* O cabeçalho oficial também abre páginas operacionais. O modal mantém a variante original. */
-.registro-hero--pagina { padding: var(--esp-6) var(--esp-8); border-top: var(--filete) solid var(--cor-marca); border-radius: var(--raio-lg); margin-bottom: var(--esp-6); }
+/* Sem fita dourada no topo: o cabeçalho escuro já se impõe sozinho. */
+.registro-hero--pagina { padding: var(--esp-6) var(--esp-8); border-radius: var(--raio-lg); margin-bottom: var(--esp-6); }
 .registro-hero--pagina .registro-hero__titulo { margin: 0; font-size: var(--texto-4xl); }
 .registro-hero--pagina .registro-hero__conteudo { flex: 1; }
 .registro-hero__acoes { display: flex; align-items: center; gap: var(--esp-2); flex: none; }
@@ -3606,6 +3607,30 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .colecao-operacional__indice .aba[aria-current="page"] .aba__contagem { background: var(--luz-16); color: var(--cor-texto-inverso); }
 .colecao-operacional__indice .aba::after { display: none; }
 .colecao-operacional__painel { min-width: 0; }
+/* A consulta curta termina com suas ações, sem empurrar o rodapé pela viewport. */
+.conteudo:has(> .colecao-operacional--consulta) { min-height: 0; }
+.colecao-operacional--consulta { flex: none; padding-bottom: var(--esp-6); }
+.colecao-operacional--consulta .registro-hero--pagina { padding: var(--esp-4) var(--esp-6); margin-bottom: var(--esp-4); }
+.colecao-operacional--consulta > .registro-hero--pagina .registro-hero__conteudo { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-1) var(--esp-6); align-items: center; }
+.colecao-operacional--consulta > .registro-hero--pagina .registro-hero__rotulo { grid-column: 1 / -1; }
+.colecao-operacional--consulta > .registro-hero--pagina .registro-hero__titulo { font-size: var(--texto-3xl); }
+.colecao-operacional--consulta > .registro-hero--pagina .registro-hero__complemento { margin: 0; justify-self: end; }
+.colecao-operacional--consulta .colecao-operacional__layout { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
+.colecao-operacional--consulta .colecao-operacional__indice { position: static; padding: 0; }
+.colecao-operacional--consulta .colecao-operacional__rotulo { display: block; margin-bottom: var(--esp-2); }
+.colecao-operacional--consulta .colecao-operacional__indice .abas { display: flex; gap: var(--esp-1); overflow-x: auto; padding-bottom: var(--esp-1); }
+.colecao-operacional--consulta .colecao-operacional__indice .aba { display: inline-flex; flex: none; align-items: center; justify-content: center; min-height: var(--altura-controle); padding: var(--esp-2) var(--esp-3); white-space: nowrap; font-size: var(--texto-xs); }
+.barra-acoes.barra-acoes--colecao { position: static; margin-top: var(--esp-4); padding: var(--esp-3) var(--esp-4); box-shadow: none; border: var(--borda-sutil); border-radius: var(--raio-lg); }
+.barra-acoes--colecao.barra-acoes--acompanha { position: sticky; bottom: var(--esp-2); box-shadow: var(--sombra-1); }
+@media (min-width: 1024px) {
+  .colecao-operacional--consulta .colecao-operacional__indice .abas { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .colecao-operacional--consulta .colecao-operacional__indice .aba { justify-content: space-between; }
+}
+@media (max-width: 767.98px) {
+  .colecao-operacional--consulta .registro-hero--pagina { padding: var(--esp-4); }
+  .colecao-operacional--consulta > .registro-hero--pagina .registro-hero__conteudo { grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
+  .colecao-operacional--consulta > .registro-hero--pagina .registro-hero__complemento { justify-self: start; }
+}
 .colecao-operacional .filtros--barra { padding: var(--esp-4); background: var(--cor-superficie); border: var(--borda); border-radius: var(--raio-lg); margin-bottom: var(--esp-4); }
 .colecao-operacional .registros__grupo { position: static; padding: var(--esp-2) var(--esp-1); border: 0; background: transparent; }
 .colecao-operacional .registros--operacionais { display: grid; gap: var(--esp-2); }
@@ -3615,14 +3640,16 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "identidade acoes" "titulo titulo" "estado estado" "agenda agenda" "recursos recursos" "conferencia conferencia";
   gap: var(--esp-3); padding: var(--esp-4); border: var(--borda); border-radius: var(--raio-lg); background: var(--cor-superficie); align-items: start;
 }
-.registros--operacionais .registro-operacional > .placa { grid-area: identidade; align-self: center; padding: var(--esp-3); min-width: calc(var(--esp-4) * 6); width: 100%; border: 0; border-radius: var(--raio-md); background: var(--cor-primaria); box-shadow: none; }
+.registros--operacionais .registro-operacional > .placa { grid-area: identidade; align-self: center; padding: var(--esp-3); min-width: 0; width: calc(var(--esp-4) * 8); border: 0; border-radius: var(--raio-md); background: var(--cor-primaria); box-shadow: none; }
 .registro-operacional > .placa .identidade-documental__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); }
 .registro-operacional > .placa .placa__numero { color: var(--cor-texto-inverso); font-size: var(--texto-xl); }
 .registro-operacional > .placa .identidade-documental { gap: var(--esp-1); }
 .registros--operacionais .registro-operacional .registro__corpo,
 .registros--operacionais .registro-operacional .registro__titulo { display: contents; }
 .registros--operacionais .registro-operacional .registro__link { grid-area: titulo; min-width: 0; width: auto; }
-.registros--operacionais .registro-operacional .registro__link-texto { white-space: normal; font-size: var(--texto-lg); line-height: var(--altura-linha-justa); }
+/* Destino em uma linha só: quando não cabe, corta com reticências (o título completo fica
+   no `title` do link e o "+N" já avisa que há mais destinos). */
+.registros--operacionais .registro-operacional .registro__link-texto { display: block; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--texto-lg); line-height: var(--altura-linha-justa); }
 .registros--operacionais .registro-operacional .registro__selos { grid-area: estado; display: flex; flex-wrap: wrap; gap: var(--esp-1); min-width: 0; }
 .registro-operacional .registro__selos .selo { max-width: none; }
 .registros--operacionais .registro-operacional .registro__agenda { grid-area: agenda; display: flex; flex-wrap: wrap; gap: var(--esp-1) var(--esp-3); margin: 0; }
@@ -3635,12 +3662,16 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registros--operacionais .registro-operacional .registro__meta-item > .icone { display: inline; flex: none; }
 .registros--operacionais .registro-operacional .registro__meta-item--equipe { border: 0; padding: 0; }
 .registros--operacionais .registro-operacional .registro__meta-texto { height: auto; line-height: var(--altura-linha); }
-.registro-operacional__conferencia { grid-area: conferencia; min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: var(--esp-1) var(--esp-3); border-top: var(--borda); padding-top: var(--esp-3); align-items: center; }
+/* A coluna é um contêiner de consulta: quando ela aperta, o valor encolhe em vez de quebrar
+   ou ser cortado — dinheiro sempre inteiro, numa linha só. */
+.registro-operacional__conferencia { grid-area: conferencia; min-width: 0; container-type: inline-size; display: grid; grid-template-columns: 1fr auto; gap: var(--esp-1) var(--esp-3); border-top: var(--borda); padding-top: var(--esp-3); align-items: center; }
 .registros--operacionais .registro-operacional .registro__meta-item--diarias { text-align: right; justify-content: end; }
 .registros--operacionais .registro-operacional .registro__meta-item--diarias > .icone { display: none; }
-.registros--operacionais .registro-operacional .registro__meta-item--diarias .registro__meta-texto { display: grid; white-space: normal; gap: var(--esp-1); }
-.registros--operacionais .registro-operacional .registro__valor { font-size: var(--texto-lg); color: var(--cor-texto); }
-.registros--operacionais .registro-operacional .registro__meta-detalhe { display: block; font-size: var(--texto-2xs); }
+/* Dinheiro não quebra linha: "R$ 101.956,56" e "18 × 100% + 1 × 15%" ficam inteiros, cada
+   um na sua linha, e a coluna reserva o espaço de que precisam. */
+.registros--operacionais .registro-operacional .registro__meta-item--diarias .registro__meta-texto { display: grid; justify-items: end; white-space: nowrap; gap: var(--esp-1); }
+.registros--operacionais .registro-operacional .registro__valor { font-size: var(--texto-md); color: var(--cor-texto); font-variant-numeric: tabular-nums; }
+.registros--operacionais .registro-operacional .registro__meta-detalhe { display: block; white-space: normal; font-size: var(--texto-2xs); text-align: right; }
 .registro-operacional .registro__meta-separador { display: none; }
 .registros--operacionais .registro-operacional > .registro__acoes { grid-area: acoes; align-self: center; justify-self: end; }
 .botao.botao--menu-registro { width: var(--altura-controle); min-height: var(--altura-controle); color: var(--cor-texto-secundario); border-radius: var(--raio-md); }
@@ -3648,8 +3679,10 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .botao--menu-registro:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
 
 @media (min-width: 768px) {
-  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 7) minmax(0, 1fr) calc(var(--esp-16) * 2) var(--altura-controle); grid-template-areas: "identidade titulo conferencia acoes" "identidade estado conferencia acoes" "identidade agenda conferencia acoes" "identidade recursos recursos acoes"; gap: var(--esp-2) var(--esp-4); }
-  .registro-operacional__conferencia { border-top: 0; border-left: var(--filete-fino) solid var(--cor-marca-borda); padding: 0 0 0 var(--esp-3); display: grid; grid-template-columns: 1fr; gap: var(--esp-2); }
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1fr) calc(var(--esp-16) * 2.5) var(--altura-controle); grid-template-areas: "identidade titulo conferencia acoes" "identidade estado conferencia acoes" "identidade agenda conferencia acoes" "identidade recursos recursos acoes"; gap: var(--esp-2) var(--esp-4); }
+  /* O filete separa as colunas de ponta a ponta: a conferência estica na altura do cartão,
+     senão em registros curtos ("Sem diárias") a fita vira um traço solto no meio. */
+  .registro-operacional__conferencia { align-self: stretch; align-content: center; border-top: 0; border-left: var(--filete-fino) solid var(--cor-marca-borda); padding: 0 0 0 var(--esp-3); display: grid; grid-template-columns: 1fr; gap: var(--esp-2); }
   .registro-operacional__conferencia > .registro-operacional__rotulo { text-align: right; }
   .registro-operacional__recursos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .registro-operacional__recursos > .registro-operacional__rotulo { display: none; }
@@ -3662,7 +3695,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .colecao-operacional__indice .aba__contagem { flex: none; }
 }
 @media (min-width: 1280px) {
-  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 7) minmax(0, 1.3fr) minmax(0, 1fr) calc(var(--esp-16) * 2) var(--altura-controle); grid-template-areas: "identidade titulo recursos conferencia acoes" "identidade estado recursos conferencia acoes" "identidade agenda recursos conferencia acoes"; gap: var(--esp-2) var(--esp-4); }
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr) calc(var(--esp-16) * 2.5) var(--altura-controle); grid-template-areas: "identidade titulo recursos conferencia acoes" "identidade estado recursos conferencia acoes" "identidade agenda recursos conferencia acoes"; gap: var(--esp-2) var(--esp-4); }
   .registro-operacional__recursos { display: grid; grid-template-columns: 1fr; border-top: 0; padding-top: 0; }
   .registro-operacional__recursos > .registro-operacional__rotulo { display: block; }
 }
@@ -3676,7 +3709,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .colecao-operacional__indice .aba { padding: var(--esp-2) var(--esp-3); }
   .colecao-operacional .filtros--barra { padding: var(--esp-3); }
   .registros--operacionais > .registro.registro-operacional { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "identidade acoes" "titulo titulo" "estado estado" "agenda conferencia" "recursos recursos"; gap: var(--esp-2) var(--esp-3); }
-  .registros--operacionais .registro-operacional > .placa { width: fit-content; min-width: calc(var(--esp-4) * 6.5); padding: var(--esp-2) var(--esp-3); }
+  .registros--operacionais .registro-operacional > .placa { width: calc(var(--esp-4) * 8); min-width: 0; padding: var(--esp-2) var(--esp-3); }
   .registros--operacionais .registro-operacional .placa__numero { font-size: var(--texto-lg); }
   .registros--operacionais .registro-operacional .registro__selos { justify-content: start; }
   .botao.botao--menu-registro { width: var(--altura-controle-lg); min-height: var(--altura-controle-lg); background: var(--cor-superficie-sutil); }
@@ -3773,7 +3806,7 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 /* O histórico fecha a folha: respiro maior para não encostar na minuta logo acima. */
 .documento--preparacao #historico { margin-top: var(--esp-8); }
 .documento--preparacao #historico .secao__bloco-cabecalho { margin-bottom: var(--esp-4); }
-.documento--preparacao :is(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: var(--esp-4); }
+.documento--preparacao :where(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: var(--esp-4); }
 .campos.campos--registro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-3); }
 .campos--registro > .campo { min-width: 0; }
 .campos--registro > .campo:nth-child(4) { grid-column: span 2; }
@@ -3789,18 +3822,25 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .pessoas--compactas .pessoa__meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Preparação do percurso: recurso existente, sequência e mapa na mesma composição. */
-.selecao-recurso { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: var(--esp-3) var(--esp-5); padding-bottom: var(--esp-4); margin-bottom: var(--esp-5); border-bottom: var(--borda-sutil); }
-.selecao-recurso__contexto { flex: 1 1 16rem; padding-top: var(--esp-2); min-width: 0; }
-.selecao-recurso__titulo { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
-.selecao-recurso__busca { flex: 0 1 29rem; min-width: 0; }
-.selecao-recurso__busca > summary { width: fit-content; margin-left: auto; color: var(--cor-texto); font-size: var(--texto-sm); }
-.selecao-recurso__controles { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); align-items: center; }
+/* Roteiro cadastrado: a linha inteira da seção — a origem (ou o convite) em cima, e embaixo
+   o campo de busca com o botão na mesma altura. Nada de gaveta nem meia largura. */
+.selecao-recurso { display: grid; gap: var(--esp-3); padding-bottom: var(--esp-5); margin-bottom: var(--esp-5); border-bottom: var(--borda-sutil); }
+.selecao-recurso__contexto { min-width: 0; }
+.selecao-recurso__contexto > .alerta { margin: 0; }
+.selecao-recurso__titulo { display: flex; align-items: center; gap: var(--esp-2); margin: 0; font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.selecao-recurso__busca { min-width: 0; }
+.selecao-recurso__controles { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-3); align-items: end; }
 .selecao-recurso__controles .campo { min-width: 0; }
-.selecao-recurso__controles > .botao { margin-top: var(--esp-2); }
+.selecao-recurso__controles > .botao { margin: 0; }
+/* Variante de percurso: os pontos são a edição; o mapa é a conferência. */
+.selecao-recurso--integrada { padding: var(--esp-3) var(--esp-4); margin-bottom: var(--esp-5); border: 0; border-left: var(--filete) solid var(--cor-marca); background: var(--cor-superficie-sutil); }
+.selecao-recurso--integrada .selecao-recurso__controles { grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); }
+.selecao-recurso--integrada .campo { padding-top: 0; gap: var(--esp-1); }
+.selecao-recurso--integrada .campo > .campo__rotulo { position: static; display: block; transform: none; inset: auto; margin: 0; padding: 0; background: transparent; font-size: var(--texto-xs); }
 .itin.itin--operacional { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
 .itin__planejamento { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); align-items: start; }
-.itin--operacional .itin__bloco.itin__sequencia { grid-template-rows: auto auto; padding-top: 0; }
-.itin--operacional .itin__paradas { gap: var(--esp-2); align-content: start; --itin-trilho: var(--altura-controle-sm); --itin-centro: calc(var(--esp-5) + var(--altura-controle) / 2); }
+.itin--operacional .itin__bloco.itin__sequencia { grid-template-rows: auto auto; padding-top: 0; gap: var(--esp-4); }
+.itin--operacional .itin__paradas { gap: var(--esp-3); align-content: start; --itin-trilho: var(--altura-controle-sm); --itin-centro: calc(var(--esp-5) + var(--altura-controle) / 2); }
 .itin--operacional .itin__paradas::before { width: var(--filete-fino); background: var(--cor-borda); }
 .itin--operacional .itin__local { grid-template-columns: calc(var(--esp-4) * 4.5) minmax(0, 1fr); gap: 0; }
 .itin--operacional .itin__local .campo { padding-top: 0; gap: var(--esp-1); }
@@ -3821,36 +3861,33 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .itin--operacional .itin__alca:hover .itin__ordem,
 .itin--operacional .itin__alca:focus-visible .itin__ordem { opacity: 0; }
 .itin--operacional .itin__parada--sede .itin__marco { background: var(--cor-primaria); color: var(--cor-texto-inverso); }
-.itin--operacional .itin__parada--volta { padding-top: var(--esp-1); }
+.itin--operacional .itin__parada--volta { padding-top: var(--esp-2); }
 .itin--operacional .itin__parada--volta .itin__marco { margin-top: var(--esp-2); }
-.itin--operacional .itin__volta { padding-left: 0; margin-top: var(--esp-1); font-size: var(--texto-sm); }
-.itin--operacional .itin__adicionar { grid-template-columns: var(--itin-trilho) minmax(0, 1fr); padding-top: var(--esp-1); }
+.itin--operacional .itin__volta { display: grid; gap: var(--esp-1); padding-left: 0; margin-top: var(--esp-1); font-size: var(--texto-sm); }
+.itin--operacional .itin__volta-rotulo { font-size: var(--texto-xs); }
+.itin--operacional .itin__adicionar { grid-template-columns: var(--itin-trilho) minmax(0, 1fr); padding-top: 0; }
 .itin--operacional .itin__adicionar > .itin__marco { display: none; }
 .itin--operacional .itin__botao-adicionar { grid-column: 2; width: fit-content; display: flex; align-items: center; gap: var(--esp-2); padding: var(--esp-2) 0; border: 0; background: transparent; color: var(--cor-marca-texto); }
 .itin--operacional .itin__botao-adicionar small { display: none; }
-/* Coluna da rota em pilha: os números e a nota ocupam o que precisam e o mapa fica com o
-   resto da altura — vale com ou sem a linha de estimativa. */
-.itin--operacional .itin__painel { display: flex; flex-direction: column; padding: 0; border-radius: 0; background: transparent; box-shadow: none; gap: var(--esp-3); }
-.itin--operacional .itin__painel > .itin__rota { flex: 1 1 auto; }
-/* Planejamento em duas colunas: "Sede e destinos" (com o interruptor) e "Rota" começam na
-   mesma linha — os cabeçalhos compartilham a altura mínima, como na equipe e no transporte. */
-.itin--operacional .itin__planejamento > .itin__bloco > .itin__bloco-cabecalho { min-height: var(--altura-controle-sm); }
+.itin--operacional .itin__painel { display: grid; align-content: start; padding: 0; border-radius: 0; background: transparent; box-shadow: none; gap: var(--esp-3); }
+.itin--operacional .itin__painel-nota { color: var(--cor-texto-secundario); font-size: var(--texto-2xs); }
 .itin--operacional .itin__metricas { display: grid; gap: var(--esp-2); }
-/* Os totais são referência, não manchete: uma linha por total (rótulo, distância, tempo),
-   sem cartão alto disputando com o mapa ao lado. */
-.itin--operacional .itin__totais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-2); margin: 0; }
-.itin--operacional .itin__total { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--esp-1) var(--esp-2); padding: var(--esp-2) var(--esp-3); border-left: var(--filete-fino) solid var(--cor-marca-borda); background: var(--cor-superficie-sutil); }
-.itin--operacional .itin__total > .icone { align-self: center; color: var(--cor-marca-texto); }
-.itin--operacional .itin__total-rotulo { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.itin--operacional .itin__total-valor { margin-left: auto; font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
-.itin--operacional .itin__total-valor:last-child { margin-left: 0; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__totais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); margin: 0; }
+.itin--operacional .itin__total { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-1) var(--esp-2); align-items: baseline; padding: var(--esp-2) 0; border-top: var(--borda-sutil); background: transparent; }
+.itin--operacional .itin__total > .icone { grid-column: 1; grid-row: 1; align-self: center; color: var(--cor-marca-texto); }
+.itin--operacional .itin__total-rotulo { grid-column: 2; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__total-valor { grid-column: 2; margin: 0; font-size: var(--texto-lg); line-height: var(--altura-linha-justa); color: var(--cor-texto); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.itin--operacional .itin__total-valor:last-child { margin: 0; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
 .itin--operacional .itin__total-valor + .itin__total-valor::before { content: none; }
 .itin--operacional .itin__trechos { gap: 0; }
 .itin--operacional .itin__trecho { gap: var(--esp-3); padding: var(--esp-4) 0; border-bottom: var(--borda-sutil); border-radius: 0; box-shadow: none; background: transparent; }
 .itin--operacional .itin__trecho:first-child { border-top: var(--borda-sutil); }
-.itin--operacional .itin__trecho-cabecalho { gap: var(--esp-3); }
+.itin--operacional .itin__trecho-cabecalho { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--esp-2); align-items: center; }
+.itin--operacional .itin__trecho-etapa { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__trecho-rota { grid-column: 1 / -1; order: 1; font-size: var(--texto-lg); }
+.itin--operacional .itin__trecho-km { grid-column: 3; grid-row: 1; }
 .itin--operacional .itin__trecho-numero { border: 0; border-radius: var(--raio-md); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); width: var(--altura-controle-sm); height: var(--altura-controle-sm); }
-.itin--operacional .itin__trecho-rota { font-size: var(--texto-md); gap: var(--esp-2); }
+.itin--operacional .itin__trecho-rota { font-size: var(--texto-lg); gap: var(--esp-2); }
 .itin--operacional .itin__trecho-km:not(:empty) { background: transparent; padding: 0; color: var(--cor-texto-secundario); font-weight: var(--peso-normal); }
 .itin--operacional .itin__tempos { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); align-items: center; }
 .itin--operacional .itin__tempos .campo { padding-top: 0; gap: var(--esp-1); }
@@ -3863,42 +3900,50 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .itin--operacional .itin__passo-botao { width: var(--alvo-minimo); min-width: var(--alvo-minimo); min-height: var(--alvo-minimo); }
 /* A chegada é um valor calculado ao lado de campos: o rótulo nasce na mesma linha dos
    outros rótulos e a faixa acompanha a altura do trecho. */
-.itin--operacional .itin__tempos > .itin__chegada-campo { align-self: stretch; justify-content: center; align-items: center; text-align: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-1); background: var(--cor-superficie-sutil); border-left: var(--filete-fino) solid var(--cor-marca); }
+.itin--operacional .itin__tempos > .itin__chegada-campo { align-self: stretch; justify-content: center; align-items: stretch; padding: var(--esp-2) var(--esp-3); gap: var(--esp-1); background: var(--cor-superficie-sutil); border-left: var(--filete) solid var(--cor-marca); }
 .itin--operacional .itin__chegada-campo:hover { transform: none; }
 .itin--operacional .itin__chegada { padding: 0; min-height: 0; border: 0; background: transparent; box-shadow: none; justify-content: start; }
-.itin--operacional .itin__chegada .indicador__valor { font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto); font-variant-numeric: tabular-nums; text-align: center; }
-.conferencia-serena.conferencia-serena--operacional { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; }
-/* Diárias na folha: o total é o bloco escuro à esquerda (peso e identidade) e os dados
-   acompanham à direita. Tipografia fluida (clamp) para o número não ficar miúdo nas telas
-   grandes nem estourar nas estreitas. */
-.conferencia-serena--operacional .conferencia-serena__total { display: grid; align-content: center; justify-items: center; text-align: center; gap: var(--esp-1); margin: 0; padding: var(--esp-4) var(--esp-6); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.itin--operacional .itin__chegada .indicador__valor { display: flex; align-items: baseline; justify-content: space-between; gap: var(--esp-3); width: 100%; font-size: var(--texto-sm); font-weight: var(--peso-medio); color: var(--cor-texto); font-variant-numeric: tabular-nums; text-align: left; }
+.itin--operacional [data-chegada-hora] { font-size: var(--texto-xl); line-height: var(--altura-linha-justa); }
+/* Na folha larga, o trajeto identifica a linha; os dados operacionais ficam ao lado.
+   Não repetir uma faixa de título sobre cada partida. */
+@media (min-width: 1280px) {
+  .itin--operacional .itin__trecho { grid-template-columns: minmax(0, .75fr) minmax(0, 2.5fr); gap: var(--esp-5); align-items: center; }
+  .itin--operacional .itin__trecho-cabecalho { gap: var(--esp-1) var(--esp-2); }
+  .itin--operacional .itin__trecho-km { grid-column: 2; grid-row: 3; order: 2; justify-self: start; margin: 0; }
+  .itin--operacional .itin__trecho-rota { margin: var(--esp-1) 0; }
+  .itin--operacional .itin__aviso { grid-column: 1 / -1; }
+}
+.conferencia-serena.conferencia-serena--operacional { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; }
+.conferencia-serena--operacional .conferencia-serena__total { display: grid; align-content: center; justify-items: start; gap: var(--esp-1); margin: 0; padding: var(--esp-4) var(--esp-5); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
 .conferencia-serena--operacional .conferencia-serena__total > span { color: var(--cor-texto-inverso-sutil); }
-.conferencia-serena--operacional .conferencia-serena__total > strong { font-size: clamp(var(--texto-2xl), 2.2vw, var(--texto-4xl)); line-height: var(--altura-linha-justa); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; }
-.conferencia-serena--operacional .conferencia-serena__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--esp-4) var(--esp-6); padding: var(--esp-4) var(--esp-6); border: 0; align-content: center; }
-.conferencia-serena--operacional .conferencia-serena__dados > div { display: grid; justify-items: center; text-align: center; gap: var(--esp-1); border: 0; padding: 0; }
-.conferencia-serena--operacional .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), 0.9vw, var(--texto-sm)); margin: 0; }
-.conferencia-serena--operacional .conferencia-serena__dados dd { font-size: clamp(var(--texto-2xl), 2.2vw, var(--texto-4xl)); line-height: var(--altura-linha-justa); text-align: center; overflow-wrap: anywhere; }
+.conferencia-serena--operacional .conferencia-serena__total > strong { font-size: var(--texto-2xl); line-height: var(--altura-linha-justa); color: var(--cor-texto-inverso); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.conferencia-serena--operacional .conferencia-serena__dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4); padding: var(--esp-4) var(--esp-5); border: 0; align-content: center; }
+.conferencia-serena--operacional .conferencia-serena__dados > div { display: grid; justify-items: start; text-align: left; gap: var(--esp-1); border: 0; padding: 0; min-width: 0; }
+.conferencia-serena--operacional .conferencia-serena__dados dt { font-size: var(--texto-xs); margin: 0; }
+.conferencia-serena--operacional .conferencia-serena__dados dd { font-size: var(--texto-lg); line-height: var(--altura-linha); text-align: left; overflow-wrap: anywhere; }
+.conferencia-serena--operacional .conferencia-serena__dados > div:first-child dd { font-size: var(--texto-xl); }
+.conferencia-serena--operacional .conferencia-serena__quantidade { grid-column: 1 / -1; }
 .itin--operacional .itin__fonte { line-height: var(--altura-linha); }
 /* O mapa preenche o que sobra da coluna: quanto mais destinos à esquerda, mais mapa à
    direita — as duas colunas terminam juntas. */
-.itin--operacional .itin__rota { height: 100%; min-height: 0; }
-.itin--operacional .itin__mapa { height: 100%; min-height: calc(var(--esp-12) * 4); border-radius: var(--raio-md); }
+.itin--operacional .itin__rota { height: auto; min-height: 0; }
+.itin--operacional .itin__mapa { height: clamp(calc(var(--esp-12) * 4), 22vw, calc(var(--esp-12) * 6)); min-height: 0; border-radius: var(--raio-md); }
 @media (min-width: 1024px) {
-  .itin__planejamento { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-6); align-items: stretch; }
-  .itin--operacional .itin__rota,
-  .itin--operacional .itin__mapa { height: 100%; min-height: calc(var(--esp-12) * 4); }
+  .selecao-recurso--integrada { grid-template-columns: minmax(0, .85fr) minmax(0, 1.5fr); align-items: center; gap: var(--esp-5); }
+  .itin__planejamento { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--esp-6); align-items: start; }
+  .itin--operacional .itin__painel { padding-left: var(--esp-5); border-left: var(--borda-sutil); }
   .itin--operacional .itin__tempos { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.5fr) minmax(0, 1fr); }
-  .conferencia-serena.conferencia-serena--operacional { grid-template-columns: minmax(0, .8fr) minmax(0, 2fr); }
+  .itin--operacional .itin__chegada .indicador__valor { flex-direction: column; align-items: start; gap: var(--esp-1); }
+  .conferencia-serena.conferencia-serena--operacional { grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr); }
   .conferencia-serena--operacional .conferencia-serena__total { display: grid; align-content: center; }
   .conferencia-serena--operacional .conferencia-serena__dados { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .conferencia-serena--operacional .conferencia-serena__quantidade { grid-column: auto; }
 }
 @media (max-width: 767px) {
   .selecao-recurso { gap: var(--esp-2); margin-bottom: var(--esp-4); }
-  .selecao-recurso__busca { flex-basis: 100%; }
-  .selecao-recurso__busca > summary { margin-left: 0; }
   .selecao-recurso__controles { grid-template-columns: minmax(0, 1fr); }
-  .selecao-recurso__controles > .botao { margin: 0; justify-self: end; }
+  .selecao-recurso__controles > .botao { justify-self: end; }
   .itin--operacional .itin__dica { display: none; }
   .itin--operacional .itin__local { grid-template-columns: calc(var(--esp-4) * 4.5) minmax(0, 1fr); }
   .itin--operacional .itin__mapa { height: calc(var(--esp-12) * 4); }
@@ -3909,6 +3954,11 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .formulario-contextual__contexto p { margin: 0; }
 .formulario-contextual__explicacao { color: var(--cor-texto); font-size: var(--texto-sm); line-height: var(--altura-linha); }
 .formulario-contextual__nota { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
+.formulario-contextual__rotulo { font-size: var(--texto-2xs); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); color: var(--cor-texto-secundario); }
+.formulario-contextual--redacao .formulario-contextual__contexto { padding-left: 0; border: 0; gap: var(--esp-2); }
+.formulario-contextual--redacao .formulario-contextual__campos > .campo { border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-4); }
+.formulario-contextual--redacao .formulario-contextual__campos > .campo > textarea { background: var(--cor-superficie-sutil); }
+.formulario-contextual--redacao .texto-pronto { padding-left: var(--esp-4); }
 .formulario-contextual__edicao { min-width: 0; }
 .formulario-contextual__campos { display: grid; gap: var(--esp-4); }
 /* A escolha do texto pronto acompanha a largura do campo que ela preenche — nada de uma
@@ -3930,6 +3980,24 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 /* Conferência e dados de protocolo: decisão primeiro, cópia no mesmo eixo de edição. */
 .preparacao-documental { display: grid; gap: var(--esp-5); align-items: start; }
 .preparacao-documental > [data-vivo] { min-width: 0; }
+.dados-copiaveis__cabecalho { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3) var(--esp-5); }
+.dados-copiaveis__cabecalho > p { flex: 1 1 18rem; margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.dados-copiaveis__cabecalho > .botao { flex: none; }
+.preparacao-documental--conferencia { gap: var(--esp-5) var(--esp-6); }
+.preparacao-documental--conferencia > [data-vivo] > details { padding: 0; border: 0; background: transparent; }
+.preparacao-documental--conferencia > [data-vivo] > details > summary { font-weight: var(--peso-semi); color: var(--cor-texto); }
+.preparacao-documental--conferencia .prontidao-documental { grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--esp-4); }
+.preparacao-documental--conferencia .prontidao-documental > .botao { justify-self: start; }
+.preparacao-documental--conferencia .checklist { display: grid; gap: var(--esp-3); list-style: none; padding: 0; }
+.preparacao-documental--conferencia .checklist__item { padding-bottom: var(--esp-2); border-bottom: var(--borda-sutil); }
+.preparacao-documental--conferencia .checklist__item:last-child { border-bottom: 0; padding-bottom: 0; }
+.preparacao-documental--conferencia .checklist__item a { display: inline-block; min-height: var(--alvo-minimo); text-underline-offset: var(--esp-1); }
+.preparacao-documental--conferencia .checklist__item .texto-secundario { display: block; }
+@media (min-width: 1024px) {
+  .preparacao-documental--conferencia .prontidao-documental { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }
+  .preparacao-documental--conferencia .prontidao-documental > .botao { justify-self: end; }
+}
+.registros.registros--operacionais:last-child > .registro.registro-operacional:last-child { border-radius: var(--raio-lg); }
 .prontidao-documental { display: grid; gap: var(--esp-4); min-width: 0; border-left: var(--filete) solid var(--cor-aviso); padding: var(--esp-4); background: var(--cor-superficie-sutil); }
 .prontidao-documental--pronta { border-color: var(--cor-marca); }
 .prontidao-documental__cabecalho { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-3); align-items: start; }
@@ -3952,12 +4020,15 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
    escura e o índice das páginas acompanham a moldura. */
 /* `clip`, não `hidden`: hidden faria desta caixa o contexto de rolagem e a barra grudada
    (sticky) pararia de acompanhar a leitura, deixando um vão acima dela. */
-.editores.editores--documental.editores--operacional { border-radius: var(--raio-lg); border: var(--borda); box-shadow: var(--sombra-1); background: var(--cor-superficie-realce); overflow: clip; }
+.editores.editores--documental.editores--operacional { border-radius: var(--raio-lg); border: var(--borda); box-shadow: none; background: var(--cor-superficie-realce); overflow: clip; }
+/* O padding de rolagem da página já protege a estação do topo fixo. Não somar outra margem. */
+.documento--preparacao .secao__bloco.secao__bloco--estacao { scroll-margin-top: 0; }
 .editor.editor--operacional > .editor__barra,
 .editores.editores--operacional.editores--unidos .editor--operacional > .editor__barra { padding: 0; border: 0; border-bottom: var(--filete) solid var(--cor-marca); border-radius: 0; gap: 0; background: var(--cor-superficie); }
 .editor--operacional > .editor__barra > .editor__linha:first-child { padding: var(--esp-3) var(--esp-4); background: var(--cor-primaria); color: var(--cor-texto-inverso); gap: var(--esp-3); }
 .editor--operacional > .editor__barra > .editor__linha:first-child :is(button, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .editor--operacional .editor__estado { color: var(--cor-texto-inverso-sutil); }
+.editor--operacional .editor__identidade { font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto-inverso); }
 .editor--operacional .editor__estado .selo { background: var(--luz-10); color: var(--cor-texto-inverso); border-color: var(--luz-16); }
 .editor--operacional .editor__fim { gap: var(--esp-4); }
 .editor--operacional .editor__acoes { display: flex; gap: var(--esp-2); align-items: center; flex-wrap: wrap; }
@@ -3970,14 +4041,12 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .editor--operacional .editor__modos .botao:hover { background: var(--luz-16); color: var(--cor-texto-inverso); }
 .editor--operacional .editor__modos .botao[aria-pressed="true"] { background: var(--cor-superficie); color: var(--cor-primaria); font-weight: var(--peso-semi); }
 .editor--operacional .editor__modos .botao[aria-pressed="true"]:hover { background: var(--cor-superficie); color: var(--cor-primaria); }
-/* As ferramentas abrem NA MESMA LINHA do botão "Formatar texto": uma barra horizontal à
-   direita dele, com os grupos separados por filete em vez de rótulos empilhados. */
-.editor--operacional .editor__ferramentas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-4); margin: 0; padding: var(--esp-2) var(--esp-4); border-top: 0; }
-.editor--operacional .editor__ferramentas > summary { flex: none; }
-.editor--operacional .editor__ferramentas .editor__linha--ferramentas { flex: 1 1 20rem; gap: var(--esp-1) var(--esp-3); align-items: center; padding: 0; border-top: 0; }
-.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: flex; align-items: center; gap: var(--esp-1); padding: 0 var(--esp-3) 0 0; min-width: 0; }
-.editor--operacional .editor__linha--ferramentas .editor__rotulo { display: none; }
-.editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { padding-left: var(--esp-3); border-left: var(--borda-sutil); }
+/* Grupos nomeados: a ferramenta é reconhecida antes de se procurar um ícone. */
+.editor--operacional .editor__ferramentas { display: block; margin: 0; padding: var(--esp-3) var(--esp-4); border-top: 0; }
+.editor--operacional .editor__ferramentas .editor__linha--ferramentas { gap: var(--esp-3) var(--esp-4); align-items: stretch; padding-top: var(--esp-3); border-top: 0; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: grid; align-content: start; gap: var(--esp-1); padding: 0; min-width: 0; border: 0; }
+.editor--operacional .editor__linha--ferramentas .editor__rotulo { display: block; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { padding-left: var(--esp-4); border-left: var(--borda-sutil); }
 .editor--operacional .editor__rotulo { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); }
 .editor--operacional .editor__controles { display: flex; align-items: center; gap: var(--esp-1); flex-wrap: wrap; }
 .editores--operacional.editores--unidos .editores__titulo { font-size: var(--texto-sm); color: var(--cor-texto); padding: var(--esp-3) var(--esp-4); margin: 0; background: var(--cor-superficie-sutil); }
@@ -3987,15 +4056,17 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .editor--operacional > .editor__barra > .editor__linha:first-child { display: grid; grid-template-columns: auto minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-2); }
   .editor--operacional .editor__fim { grid-column: 1 / -1; width: 100%; margin-left: 0; justify-content: space-between; gap: var(--esp-2); }
   .editor--operacional .editor__ferramentas { padding: var(--esp-3); }
-  .editor--operacional .editor__linha--ferramentas { gap: var(--esp-3) var(--esp-2); }
+  .editor--operacional .editor__ferramentas .editor__linha--ferramentas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+  .editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { border-left: 0; padding: 0; }
+  .editor--operacional .editor__linha--ferramentas > .editor__grupo:last-child { grid-column: 1 / -1; border-top: var(--borda-sutil); padding-top: var(--esp-2); }
 }
 /* Log institucional e conclusão da preparação: sequência legível, sem cartões por evento. */
-/* Histórico: o mesmo cartão das outras peças da folha — moldura com raio, uma linha por
-   evento, quando | o quê | quem. A data fica numa coluna tabular separada por filete, e o
-   evento que marca a vida do documento (emissão, documento gerado) acende em dourado. */
-.historico__linhas.historico__linhas--operacional { border: var(--borda); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; padding: 0; margin: 0; }
-.historico__linhas--operacional .historico__linha { display: grid; grid-template-columns: calc(var(--esp-12) * 1.6) minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 0; align-items: center; }
-.historico__linhas--operacional .historico__linha + .historico__linha { border-top: var(--borda-sutil); }
+/* Um trilho discreto liga os eventos; data, fato e responsável não viram cartões. */
+.historico__linhas.historico__linhas--operacional { border: 0; border-radius: 0; background: transparent; padding: 0; margin: 0; }
+.historico__linhas--operacional .historico__linha { position: relative; display: grid; grid-template-columns: var(--esp-6) calc(var(--esp-12) * 1.6) minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-3) 0; border: 0; align-items: center; }
+.historico__linhas--operacional .historico__linha:not(:last-child)::before { content: ""; position: absolute; left: var(--esp-3); top: 50%; bottom: calc(var(--esp-3) * -1); border-left: var(--borda-sutil); }
+.historico__linhas--operacional .historico__marcador { position: relative; display: grid; place-items: center; width: var(--esp-6); height: var(--esp-6); color: var(--cor-texto-terciario); background: var(--cor-superficie); }
+.historico__linhas--operacional .historico__linha--marca .historico__marcador { color: var(--cor-marca-texto); }
 .historico__linhas--operacional .historico__linha:hover { background: var(--cor-superficie-sutil); }
 .historico__linhas--operacional .historico__quando { padding-right: var(--esp-4); border-right: var(--borda-sutil); align-content: center; align-self: stretch; gap: 0; font-size: var(--texto-xs); }
 .historico__linhas--operacional .historico__quando b { font-size: var(--texto-sm); font-variant-numeric: tabular-nums; }
@@ -4003,12 +4074,9 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .historico__linhas--operacional .historico__detalhe { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--esp-1) var(--esp-4); }
 .historico__linhas--operacional .historico__texto { font-size: var(--texto-sm); }
 .historico__linhas--operacional .historico__quem { justify-self: end; margin-left: auto; font-size: var(--texto-xs); color: var(--cor-texto-terciario); white-space: nowrap; }
-@media (min-width: 768px) {
-}
-/* Barra de ações da folha: a mesma peça fechada das outras (moldura, raio, sombra), com o
-   estado do salvamento à esquerda e as decisões à direita. O filete dourado grosso saiu —
-   quem dá o peso é a sombra, como no rodapé da mesa. */
-.barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--esp-3) var(--esp-3); align-items: center; padding: var(--esp-3) var(--esp-5); margin-inline: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: var(--sombra-2); background: var(--cor-superficie); }
+.historico__linhas--operacional .historico__linha--vazia { display: block; color: var(--cor-texto-secundario); }
+/* A conclusão permanece no fluxo, com separação por filete e sem sombra decorativa. */
+.barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--esp-3) var(--esp-3); align-items: center; padding: var(--esp-4) var(--esp-5); margin-inline: 0; border: 0; border-top: var(--borda-forte); border-radius: 0; box-shadow: none; background: var(--cor-superficie); }
 /* Sair fica onde se sai: à esquerda. O estado do salvamento no meio e as decisões à direita. */
 .barra-acoes--preparacao .barra-acoes__acoes { display: contents; }
 .barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { order: -1; justify-self: start; margin: 0; }
@@ -4024,8 +4092,13 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .barra-acoes__acoes { display: flex; align-items: center; gap: var(--esp-2); }
 .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
 @media (max-width: 767px) {
-  .historico__linhas--operacional .historico__linha { grid-template-columns: calc(var(--esp-12) * 1.4) minmax(0, 1fr); gap: var(--esp-3); padding: var(--esp-2) var(--esp-3); }
-  .historico__linhas--operacional .historico__quando { padding-right: var(--esp-3); }
+  .historico__linhas--operacional .historico__linha { grid-template-columns: var(--esp-6) minmax(0, 1fr); gap: var(--esp-1) var(--esp-3); padding: var(--esp-3) 0; align-items: start; }
+  .historico__linhas--operacional .historico__marcador { grid-row: 1 / 3; }
+  .historico__linhas--operacional .historico__quando { grid-column: 2; display: flex; align-items: baseline; gap: var(--esp-2); padding: 0; border: 0; }
+  .historico__linhas--operacional .historico__detalhe { grid-column: 2; display: grid; gap: var(--esp-1); }
+  .historico__linhas--operacional .historico__detalhe > :is(.historico__texto, .historico__quem) { grid-column: auto; }
+  .historico__linhas--operacional .historico__linha:not(:last-child)::before { top: var(--esp-6); bottom: calc(var(--esp-6) * -1); }
+  .historico__linhas--operacional .historico__quem { justify-self: start; }
   .historico__linhas--operacional .historico__quem { margin-left: 0; white-space: normal; }
   .barra-acoes.barra-acoes--preparacao { grid-template-columns: auto minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-2) var(--esp-3); }
   .barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { grid-column: span 1; }
@@ -4082,21 +4155,39 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .dialogo__corpo { padding: var(--esp-8); color: var(--cor-texto); }
 .dialogo--mesa .dialogo__conteudo { display: flex; flex-direction: column; overflow: hidden; }
 .dialogo--mesa .dialogo__conteudo > .registro-hero, .dialogo--mesa .dialogo__rodape { flex: none; }
-.dialogo--mesa .dialogo__conteudo > .dialogo__corpo { min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
+/* Uma rolagem para o conteúdo; cabeçalho e ações não recebem o trilho da scrollbar. */
+.dialogo--mesa .dialogo__conteudo > .dialogo__corpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
 .mesa-registro :is(a, button, input, textarea, summary) { scroll-margin-block: var(--esp-4); }
-.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "missao contexto" "principal contexto" "copia copia"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
+.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "principal contexto" "copia copia"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
+.mesa-registro__copia { grid-area: copia; min-width: 0; }
+.registro__selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-secundario); }
+.dialogo--mesa .dialogo__linha-selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
+.dialogo--mesa .dialogo__linha-selos .selo--condicao { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
+.estado-documental { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.estado-documental > .icone { flex: none; color: var(--cor-marca-texto); }
+.estado-documental > div { min-width: 0; flex: 1; }
+.estado-documental__titulo { margin: 0; font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.estado-documental__nota { margin: var(--esp-1) 0 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.estado-documental > .botao { flex: none; }
 .mesa-registro__principal { grid-area: principal; min-width: 0; display: grid; gap: var(--esp-6); }
 .mesa-registro__documentos { grid-area: documentos; min-width: 0; }
-/* O painel de conferência abre na mesma linha do Roteiro e acompanha a leitura enquanto a mesa rola. */
-/* A coluna acompanha o motivo e o roteiro: começa na linha do motivo e, ao rolar, o painel
-   mantém sob o cabeçalho escuro o MESMO respiro que tem parado (o gap da mesa): o top
-   desconta o padding do corpo rolável e devolve esse gap. */
-.mesa-registro__coluna { grid-area: contexto; min-width: 0; height: 100%; }
-.mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); padding: var(--esp-6); background: var(--cor-superficie-sutil); border-top: var(--filete) solid var(--cor-marca); border-radius: var(--raio-md); position: sticky; top: calc(var(--esp-6) - var(--esp-8)); align-self: start; max-height: 100%; overflow: auto; }
-.mesa-registro__copia { grid-area: copia; min-width: 0; border-top: var(--borda); padding-top: var(--esp-5); }
-.missao-registro { grid-area: missao; min-width: 0; border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-5); }
+.mesa-registro__coluna { grid-area: contexto; min-width: 0; }
+.mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); align-content: start; }
+.mesa-registro__contexto > .bloco-registro { min-width: 0; padding: var(--esp-5); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
+/* Diárias não ganha cartão: só o título e o bloco escuro. */
+.mesa-registro__contexto > .bloco-registro--conferencia { padding: 0; background: none; border: 0; border-radius: 0; }
+.conferencia-serena.conferencia-serena--consulta { display: grid; gap: 0; padding: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); overflow: clip; }
+.conferencia-serena--consulta .conferencia-serena__total { justify-items: start; text-align: left; margin: 0; border-radius: 0; padding: var(--esp-5); }
+.conferencia-serena--consulta .conferencia-serena__total > strong { font-size: var(--texto-3xl); }
+.conferencia-serena--consulta .conferencia-serena__dados { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: var(--esp-4) var(--esp-5); gap: var(--esp-4); }
+.conferencia-serena--consulta .conferencia-serena__dados > div { justify-items: start; text-align: left; min-width: 0; }
+.conferencia-serena--consulta .conferencia-serena__dados dd { font-size: var(--texto-sm); line-height: var(--altura-linha); white-space: normal; }
+.conferencia-serena--consulta .conferencia-serena__dados > div:first-child { grid-column: 1 / -1; padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
+.conferencia-serena--consulta .conferencia-serena__dados > div:first-child dd { font-size: var(--texto-xl); }
+.conferencia-serena--consulta .conferencia-serena__quantidade { grid-column: auto; }
+.missao-registro { min-width: 0; border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-4); }
 .missao-registro__rotulo, .estacao-documental__rotulo { margin: 0 0 var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.missao-registro__texto { font-size: var(--texto-xl); line-height: var(--altura-linha); letter-spacing: var(--rastreio-titulo); margin: 0; }
+.missao-registro__texto { font-size: var(--texto-lg); line-height: var(--altura-linha); margin: 0; overflow-wrap: anywhere; }
 .bloco-registro { min-width: 0; }
 .bloco-registro__cabecalho { display: flex; align-items: center; gap: var(--esp-3); padding-bottom: var(--esp-3); margin-bottom: var(--esp-4); border-bottom: var(--borda); }
 .bloco-registro__indice { color: var(--cor-marca-texto); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
@@ -4104,32 +4195,48 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .resumo__titulo { color: var(--cor-texto); font-size: var(--texto-sm); margin: 0; }
 .dialogo--mesa .resumo__moldura { min-width: 0; }
 .dialogo--mesa .resumo__trechos { position: static; overflow: visible; border: 0; border-radius: 0; }
-.percurso-registro__trecho { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: var(--esp-5); padding: var(--esp-4) 0; }
-.percurso-registro__dia { position: relative; display: grid; align-content: start; gap: var(--esp-1); padding-top: var(--esp-3); font-variant-numeric: tabular-nums; }
+/* Roteiro da mesa — cartão de embarque: a saída à esquerda (hora grande, lugar embaixo), a
+   chegada à direita, alinhada ao fim da linha, e entre as duas o fio dourado com o carro e a
+   duração do trecho. O dia mora na margem; um filete sutil separa os trechos. */
+.percurso-registro { display: grid; }
+.percurso-registro__trecho { display: grid; grid-template-columns: 4rem minmax(0, 1fr); align-items: start; gap: var(--esp-4); padding: var(--esp-4) 0; }
+.percurso-registro__trecho + .percurso-registro__trecho { border-top: var(--borda-sutil); }
+.percurso-registro__dia { display: grid; gap: var(--esp-05); font-variant-numeric: tabular-nums; }
 .percurso-registro__dia b { font-size: var(--texto-lg); line-height: var(--altura-linha-justa); }
-.percurso-registro__dia small { font-size: var(--texto-2xs); text-transform: uppercase; color: var(--cor-texto-secundario); }
-.percurso-registro__trajeto { display: grid; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); border-left: var(--filete-fino) solid var(--cor-marca-borda); background: var(--cor-superficie-sutil); border-radius: 0 var(--raio-md) var(--raio-md) 0; }
-.percurso-registro__ponto { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: var(--esp-3); font-size: var(--texto-md); }
-.percurso-registro__ponto time { color: var(--cor-texto-secundario); font-size: var(--texto-sm); font-variant-numeric: tabular-nums; }
-.percurso-registro__ponto time small { display: block; font-size: var(--texto-2xs); color: var(--cor-marca-texto); }
-.percurso-registro__ponto span, .percurso-registro__ponto strong { overflow-wrap: anywhere; }
-.percurso-registro__ponto--destino { padding-top: var(--esp-3); border-top: var(--borda-sutil); }
-.dialogo--mesa .resumo__cartoes { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: var(--esp-2) var(--esp-3); }
+.percurso-registro__dia small { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.percurso-registro__rota { display: grid; grid-template-columns: minmax(0, 1fr) minmax(4rem, 0.45fr) minmax(0, 1fr); align-items: start; gap: var(--esp-3); }
+.percurso-registro__ponto { display: grid; gap: var(--esp-05); min-width: 0; }
+.percurso-registro__ponto time { font-size: var(--texto-xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); line-height: var(--altura-linha-justa); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.percurso-registro__ponto time small { margin-left: var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); color: var(--cor-marca-texto); vertical-align: middle; }
+.percurso-registro__lugar { font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); overflow-wrap: anywhere; }
+strong.percurso-registro__lugar { color: var(--cor-texto); font-weight: var(--peso-semi); }
+.percurso-registro__ponto--destino { text-align: right; }
+.percurso-registro__ligacao { display: grid; justify-items: center; gap: var(--esp-1); padding-top: var(--esp-05); }
+.percurso-registro__duracao { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); font-variant-numeric: tabular-nums; }
+.percurso-registro__fio { display: flex; align-items: center; width: 100%; gap: var(--esp-2); color: var(--cor-marca); }
+.percurso-registro__fio::before, .percurso-registro__fio::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: var(--cor-marca-borda); }
+.percurso-registro__fio::after { background: linear-gradient(to right, var(--cor-marca-borda), var(--cor-marca)); }
+.dialogo--mesa .resumo__cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-2) var(--esp-3); }
+.dialogo--mesa .resumo__cartoes > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .dialogo--mesa .resumo__cartoes > li { grid-column: auto; }
 .equipe-transporte { display: grid; gap: var(--esp-4); }
-.equipe-transporte__rotulo { margin: 0 0 var(--esp-2); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
-.equipe-transporte__transporte { padding: var(--esp-2) var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); align-self: start; }
-.equipe-transporte__transporte .pessoa { padding: 0; border: 0; background: none; box-shadow: none; }
+/* Equipe e Transporte são dois sub-blocos com o mesmo rótulo em caixa-alta; o cartão da viatura
+   é idêntico ao do servidor (mesma altura, mesmo recuo), como na folha. */
+.equipe-transporte__rotulo { margin: 0 0 var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.equipe-transporte__transporte { align-self: start; }
+.equipe-transporte__transporte .pessoa { align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); border: 0; box-shadow: none; background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.equipe-transporte__transporte .pessoa:hover { box-shadow: none; }
 /* Servidor e viatura leem igual: cada um no seu cartão de superfície sutil. */
 .dialogo--mesa .pessoas--faixa > .pessoa,
 .pessoas--compactas > .pessoa { align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
 .dialogo--mesa .pessoa__texto { display: grid; gap: 0; line-height: var(--altura-linha-justa); }
 .equipe-transporte .avatar { width: var(--esp-8); height: var(--esp-8); font-size: var(--texto-2xs); }
 .dialogo--mesa .pessoa__nome { font-size: var(--texto-sm); }
-.estacao-documental { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: var(--esp-4) var(--esp-6); padding-bottom: var(--esp-6); border-bottom: var(--borda); }
-.estacao-documental > :not(header):not(.resumo__documentos) { grid-column: 1 / -1; }
-.estacao-documental__cabecalho { padding-top: var(--esp-3); }
-.dialogo--mesa .estacao-documental__cabecalho .resumo__titulo { font-size: var(--texto-xl); text-transform: none; letter-spacing: var(--rastreio-titulo); }
+/* Documentos na largura inteira, com o cabeçalho dos outros blocos (título em caixa-alta e
+   a nota "Arquivo da viagem" ao lado) — sem a coluna lateral que só servia de rótulo. */
+.estacao-documental { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding-bottom: var(--esp-6); border-bottom: var(--borda); }
+.estacao-documental > .estacao-documental__cabecalho { margin-bottom: 0; }
+.estacao-documental > .vazio-inline { margin: 0; }
 .estacao-documental .resumo__documentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: var(--esp-4); }
 .estacao-documental .resumo__documentos > li { min-width: 0; }
 /* A peça é UMA linha: documento à esquerda, estado da via e ação à direita. Só o que é
@@ -4171,7 +4278,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .assinatura-documental .registro__nota { font-size: var(--texto-xs); }
 /* Histórico: arquivo morto da emissão. Não são cartões soltos e sim uma lista contida,
    em tom recuado, encostada no mesmo eixo da peça corrente. */
-.estacao-documental > h4.resumo__titulo { grid-column: 2 / -1; margin: var(--esp-2) 0 calc(-1 * var(--esp-2)); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.estacao-documental > h4.resumo__titulo { grid-column: 1 / -1; margin: var(--esp-2) 0 calc(-1 * var(--esp-2)); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
 .resumo__documentos--historico { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); overflow: hidden; }
 .resumo__documentos--historico > li + li { border-top: var(--borda-sutil); }
 .resumo__documentos--historico .peca-documental { background: transparent; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); }
@@ -4179,12 +4286,15 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .resumo__documentos--historico .ficha-documental__texto { font-size: var(--texto-sm); }
 .resumo__documentos--historico a.resumo__documento:hover { background: var(--cor-marca-fundo); }
 .bloco-registro--conferencia .bloco-registro__cabecalho { margin-bottom: var(--esp-3); border: 0; padding: 0; }
-.conferencia-serena__total { display: grid; gap: var(--esp-2); margin: 0 0 var(--esp-4); }
-.conferencia-serena__total > span { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); }
-.conferencia-serena__total > strong { font-size: var(--texto-4xl); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); line-height: var(--altura-linha-justa); font-variant-numeric: tabular-nums; }
-.conferencia-serena__dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-5); margin: 0; padding-top: var(--esp-5); border-top: var(--borda); }
-.conferencia-serena__dados dt { color: var(--cor-texto-secundario); font-size: var(--texto-sm); margin-bottom: var(--esp-1); }
-.conferencia-serena__dados dd { margin: 0; font-weight: var(--peso-semi); font-size: var(--texto-lg); overflow-wrap: anywhere; }
+/* O total é o mesmo bloco escuro da folha de cadastro: número centrado, tipografia fluida; os
+   dados vêm embaixo, centrados, no mesmo ritmo. Mesa e folha leem igual. */
+.conferencia-serena__total { display: grid; justify-items: center; text-align: center; gap: var(--esp-1); margin: 0 0 var(--esp-4); padding: var(--esp-4) var(--esp-5); border-radius: var(--raio-md); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.conferencia-serena__total > span { font-size: var(--texto-2xs); color: var(--cor-texto-inverso-sutil); }
+.conferencia-serena__total > strong { font-size: clamp(var(--texto-2xl), 2.2vw, var(--texto-4xl)); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-titulo); line-height: var(--altura-linha-justa); font-variant-numeric: tabular-nums; }
+.conferencia-serena__dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-5); margin: 0; padding: 0; border: 0; }
+.conferencia-serena__dados > div { display: grid; justify-items: center; text-align: center; gap: var(--esp-05); }
+.conferencia-serena__dados dt { color: var(--cor-texto-secundario); font-size: var(--texto-xs); margin: 0; }
+.conferencia-serena__dados dd { margin: 0; font-weight: var(--peso-semi); font-size: var(--texto-xl); line-height: var(--altura-linha-justa); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .conferencia-serena__quantidade { grid-column: 1 / -1; }
 
 .estacao-documental .registros { margin-top: var(--esp-4); }
@@ -4221,12 +4331,13 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .dialogo--mesa .dialogo__rodape > :first-child { margin-right: auto; }
 .dialogo--mesa .dialogo__rodape > .texto-secundario { align-self: center; }
 @media (max-width: 1023.98px) {
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "missao" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "principal" "contexto" "copia"; gap: var(--esp-6); }
   .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
   .registro-hero__identidade { padding-right: var(--esp-5); }
   .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-6); }
-  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--esp-6); position: static; max-height: none; overflow: visible; }
+  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: none; gap: var(--esp-6); position: static; height: auto; max-height: none; overflow: visible; }
+  .mesa-registro__contexto > .bloco-registro:not(.bloco-registro--conferencia) { padding: var(--esp-5); }
   .estacao-documental { grid-template-columns: minmax(0, 1fr); }
   .estacao-documental > h4.resumo__titulo { grid-column: 1 / -1; }
 }
@@ -4239,9 +4350,12 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
   .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-5); }
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "missao" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .estado-documental { flex-wrap: wrap; align-items: flex-start; }
+  .estado-documental > div { flex-basis: calc(100% - var(--esp-8)); }
+  .estado-documental > .botao { margin-left: var(--esp-6); }
   .mesa-registro__principal, .mesa-registro__contexto { gap: var(--esp-6); }
-  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr); padding: var(--esp-5); }
+  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr); }
   .estacao-documental { display: block; }
   .estacao-documental__cabecalho { padding: 0; margin-bottom: var(--esp-3); }
   .estacao-documental .resumo__documentos { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
@@ -4254,9 +4368,9 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .dialogo--mesa .pessoas--faixa > .pessoa { border-bottom: 0; }
   .equipe-transporte, .dados-copiaveis { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
   .dado-copiavel textarea { min-height: calc(var(--esp-20) + var(--esp-4)); }
-  .percurso-registro__trecho { grid-template-columns: 3.25rem minmax(0, 1fr); gap: var(--esp-3); }
-  .percurso-registro__trajeto { padding: var(--esp-3); }
-  .percurso-registro__ponto { grid-template-columns: 3rem minmax(0, 1fr); gap: var(--esp-2); }
+  .percurso-registro__trecho { grid-template-columns: 3.25rem minmax(0, 1fr); gap: var(--esp-3); padding: var(--esp-3) 0; }
+  .percurso-registro__rota { grid-template-columns: minmax(0, 1fr) minmax(4.5rem, auto) minmax(0, 1fr); gap: var(--esp-3); }
+  .percurso-registro__ponto time { font-size: var(--texto-lg); }
   .missao-registro__texto { font-size: var(--texto-lg); }
   .dialogo--mesa .dialogo__rodape { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: var(--esp-3) var(--esp-4); gap: var(--esp-2); }
   .dialogo--mesa .dialogo__rodape > :first-child { margin-right: 0; }

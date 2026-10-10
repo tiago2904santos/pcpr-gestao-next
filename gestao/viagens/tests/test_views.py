@@ -1289,12 +1289,15 @@ class TestSelosDasListas:
 
     def test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo(self, operador, cenario):
         rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
-        html = operador.get(reverse("viagens:resumo", args=[rascunho.pk])).content.decode()
+        resposta = operador.get(reverse("viagens:resumo", args=[rascunho.pk]))
+        html = resposta.content.decode()
         assert "Fora do prazo" not in html
         assert "Justificativa pendente" in html  # o mesmo selo da linha
-        # A composição aprovada comunica o assunto na cópia e o prazo na pendência,
-        # sem exigir a apresentação antiga em um metadado duplicado.
-        assert "Solicitação de autorização" in html and "3 dias de antecedência" in html
+        # Consulta copiável restaurada pela nova missão; prazo não se repete no corpo.
+        campos = {campo.rotulo: campo.valor for campo in resposta.context["copia"].dados.campos}
+        assert "Solicitação de autorização" in campos["Assunto"]
+        assert 'data-copiar-alvo="resumo-copia-2"' in html
+        assert "3 dias de antecedência" in html
         # o prazo por escrito não se repete: o alerta de pendências já o diz
         assert html.count("de antecedência, e o prazo exige") == 1
         assert "Justificativa obrigatória" in html  # na lista de pendências antes de emitir

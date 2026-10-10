@@ -16,7 +16,7 @@ pytestmark = pytest.mark.e2e
 
 
 def _abrir(bloco):
-    # O bloco nasce aberto (resumo e folha); só clica quando alguém o fechou.
+    # O bloco nasce fechado (resumo e folha); abre pelo summary quando ainda está fechado.
     if bloco.get_attribute("open") is None:
         bloco.locator("summary").click()
     expect(bloco).to_have_attribute("open", "")
@@ -65,7 +65,7 @@ def test_folha_copia_campos_e_tudo_sem_dados_pessoais(logado, dados_e2e, largura
     assert pg.erros_console == []
 
 
-def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e):
+def test_resumo_copia_fallback_e_mostra_protocolo_no_cabecalho(logado, dados_e2e):
     pg = logado
     pg.add_init_script("""window.__cspCopia = [];
         document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
@@ -78,21 +78,17 @@ def test_resumo_htmx_carrega_copia_e_fallback_seleciona_texto(logado, dados_e2e)
     pg.locator(".registro__link").first.click()
     janela = pg.locator("#dialogo-resumo")
     expect(janela).to_be_visible()
-    bloco = janela.locator("#eprotocolo-resumo-bloco")
+    # Resumo mantém consulta copiável e protocolo no cabeçalho.
+    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(1)
+    bloco = janela.locator("#resumo-copia-bloco")
     _abrir(bloco)
-    expect(bloco).to_contain_text("Dados da emissão v1")
-    botao = bloco.locator("button[data-copiar-revelar]")
-    botao.click()
-    campo = pg.locator("#" + botao.get_attribute("data-copiar-alvo"))
-    expect(campo).to_be_visible()
-    expect(campo).to_be_focused()
-    assert campo.evaluate("q => q.selectionStart === 0 && q.selectionEnd === q.value.length")
-    expect(botao.locator("[data-copiar-rotulo]")).to_have_text("Selecionado — use Ctrl+C")
-    primeiro = bloco.locator("button[data-copiar-alvo]:not([data-copiar-revelar])").first
-    primeiro.click()
-    individual = pg.locator("#" + primeiro.get_attribute("data-copiar-alvo"))
-    expect(individual).to_be_focused()
-    assert individual.evaluate("q => q.selectionEnd === q.value.length")
+    tudo = bloco.locator("button[data-copiar-revelar]")
+    tudo.click()
+    texto = bloco.locator("#resumo-copia-tudo")
+    expect(texto).to_be_visible()
+    expect(texto).to_be_focused()
+    assert texto.evaluate("e => e.selectionEnd - e.selectionStart") == len(texto.input_value())
+    expect(janela.locator(".registro-hero__complemento")).to_contain_text(oficio.protocolo_formatado)
     pasta = Path("artifacts/eprotocolo")
     pasta.mkdir(parents=True, exist_ok=True)
     for largura in [360, 390, 768, 1024, 1440]:

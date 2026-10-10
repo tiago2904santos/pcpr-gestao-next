@@ -58,7 +58,10 @@ def test_todos_os_tokens_usados_existem():
               # por editores.js); colunas da grade de filtros (com valor padrão no var()).
               "--largura-indice", "--altura-barra", "--filtros-colunas",
               # Detalhe da escolha dentro do campo: a posição medida pelo combobox.
-              "--meta-x"}
+              "--meta-x",
+              # Índice da preparação: a largura da barra de progresso, definida pela classe
+              # `indice-preparacao--pN` que o servidor calcula (CSP não aceita style inline).
+              "--progresso-preparacao"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

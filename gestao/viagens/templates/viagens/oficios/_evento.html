@@ -1,8 +1,10 @@
+{% load viagens %}
 {% comment %}
 Um evento do histórico numa linha: quando · o quê · quem. A mesma leitura em colunas das
 linhas de trecho da janela de resumo. Emissão e documento ganham a marca dourada.
 {% endcomment %}
 <li class="historico__linha{% if h.acao == 'emitido' or h.acao == 'documento' %} historico__linha--marca{% endif %}">
+  {% if operacional %}<span class="historico__marcador" aria-hidden="true">{% if h.acao == 'emitido' %}{% icone "stamp" classe="icone--sm" %}{% elif h.acao == 'documento' %}{% icone "file-text" classe="icone--sm" %}{% else %}{% icone "history" classe="icone--sm" %}{% endif %}</span>{% endif %}
   <time class="historico__quando" datetime="{{ h.em|date:'c' }}"><b>{% if operacional %}{{ h.em|date:"d/m/Y" }}{% else %}{{ h.em|date:"d/m" }}{% endif %}</b><small>{{ h.em|date:"H:i" }}</small></time>
   {% if operacional %}<div class="historico__detalhe">{% endif %}
   <span class="historico__texto">{{ h.descricao }}</span>

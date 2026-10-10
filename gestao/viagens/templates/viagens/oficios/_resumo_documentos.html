@@ -1,11 +1,16 @@
-<section class="estacao-documental" id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} data-resumo-poll hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-select-oob="#resumo-rodape,#resumo-copia-area" hx-swap="outerHTML"{% endif %}>
-  <header class="estacao-documental__cabecalho"><p class="estacao-documental__rotulo">Arquivo da viagem</p><h3 class="resumo__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3></header>
+<section class="estacao-documental" id="resumo-documentos-area" aria-labelledby="resumo-documentos"{% if gerando %} data-resumo-poll hx-get="{% url 'viagens:resumo' oficio.pk %}" hx-trigger="every 2s" hx-select="#resumo-documentos-area" hx-select-oob="#resumo-rodape" hx-swap="outerHTML"{% endif %}>
+  <header class="bloco-registro__cabecalho estacao-documental__cabecalho"><h3 class="resumo__titulo bloco-registro__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3><span class="bloco-registro__nota">Arquivo da viagem</span></header>
   {% for aviso in projecao_documentos.avisos %}<p class="vazio-inline" role="status">{{ aviso }}</p>{% endfor %}
   {% if documentos_correntes %}
     <ul class="resumo__documentos" role="list" aria-label="Documentos da emissão corrente">
       {% for linha in documentos_correntes %}{% include "viagens/oficios/_resumo_documento.html" with historico=False %}{% endfor %}
     </ul>
-  {% elif oficio.situacao == "rascunho" %}<p class="vazio-inline">Nenhum documento corrente — a minuta mostra os dados do rascunho.</p>
+  {% elif oficio.situacao == "rascunho" %}
+    <div class="estado-documental">
+      {% icone "file-pen-line" classe="icone--sm" %}
+      <div><p class="estado-documental__titulo">A minuta está disponível</p><p class="estado-documental__nota">Ainda não há documento corrente. A minuta mostra os dados salvos do rascunho.</p></div>
+      {% if menu.minuta %}<a class="botao botao--sm" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">Ver minuta<span class="sr-only"> (PDF, nova aba)</span>{% icone "arrow-up-right" classe="icone--sm" %}</a>{% endif %}
+    </div>
   {% elif oficio.situacao == "cancelado" %}<p class="vazio-inline">Ofício cancelado: os documentos emitidos permanecem no histórico.</p>
   {% else %}<p class="vazio-inline">A emissão corrente está indisponível. Confira o histórico e os documentos.</p>{% endif %}
   {% if vias %}

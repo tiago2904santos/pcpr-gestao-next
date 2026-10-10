@@ -52,7 +52,7 @@ def test_oficio_usa_roteiro_cadastrado(logado, dados_e2e):
     oficio_id = dados_e2e.ids["oficio_vazio"]
     pg.goto(f"/viagens/oficios/{oficio_id}/editar/")
     pg.get_by_label("Motivo da viagem").fill("Motivo digitado antes de escolher o roteiro.")
-    escolha = pg.get_by_role("combobox", name="Usar um roteiro cadastrado")
+    escolha = pg.get_by_role("combobox", name="Roteiro cadastrado")
     escolha.fill("ponta")
     pg.get_by_role("option", name=re.compile("Ponta Grossa")).click()
     pg.get_by_role("button", name="Usar este roteiro").click()

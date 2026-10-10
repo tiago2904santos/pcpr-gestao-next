@@ -63,13 +63,18 @@ def _dados_formulario(oficio):
 
 
 @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
-def test_resumo_permite_copia_ao_leitor_autorizado(client, cenario, perfil):
+def test_resumo_copia_autorizada_e_protocolo_no_cabecalho(client, cenario, perfil):
+    # A nova missão restaura a consulta copiável autorizada no Resumo.
+    # Protocolo também permanece na identificação, sem conceder ações de edição.
     client.force_login(cenario.usuarios[perfil])
     resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
     assert resposta.status_code == 200
     assert resposta.context["copia"].fonte == "emissao"
-    assert 'id="eprotocolo-resumo-1"' in _bloco(resposta)
-    assert "Copiar tudo" in _bloco(resposta)
+    html = resposta.content.decode()
+    assert "data-dados-eprotocolo" in _bloco(resposta)
+    assert 'id="eprotocolo-resumo-1"' not in html
+    cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
+    assert cabecalho is not None and "Protocolo " in cabecalho.group()
 
 
 @pytest.mark.parametrize("rota", ["editar", "resumo"])
@@ -123,6 +128,7 @@ def test_emitido_copia_snapshot_apos_renomear_cadastros(client, cenario):
     resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
     assert resposta.status_code == 200
     assert resposta.context["copia"].dados == antes
+    # O bloco visível usa o snapshot, sem CPF/RG nem cadastros posteriores.
     bloco = _bloco(resposta)
     assert "Nome atual após emissão" not in bloco
     assert "Destino atual após emissão" not in bloco
@@ -151,7 +157,8 @@ def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situaca
     assert copia.versao == atual.versao == 2
     assert copia.situacao_documento == situacao
     assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
-    assert "Dados da emissão v2" in _bloco(resposta)
+    assert copia.fonte == "emissao"
+    assert "Motivo da segunda emissão" in _bloco(resposta)
     assert resposta.context["pdf_oficio"] is None
 
 
@@ -162,8 +169,8 @@ def test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos(client, cenario):
     resposta = client.get(reverse("viagens:resumo", args=[pk]))
     assert resposta.status_code == 200
     assert not resposta.context["copia"].disponivel
-    assert "Os dados desta emissão estão indisponíveis" in _bloco(resposta)
-    assert "data-copiar-alvo" not in _bloco(resposta)
+    assert "Os dados desta emissão estão indisponíveis" in resposta.context["copia"].aviso
+    assert "data-dados-eprotocolo" in _bloco(resposta)
 
 
 def test_revisao_copia_assunto_da_data_efetiva_sem_gravar(client, monkeypatch):
@@ -191,8 +198,8 @@ def test_revisao_copia_assunto_da_data_efetiva_sem_gravar(client, monkeypatch):
     assert "convalidação" in revisao["Assunto"]
     html = resposta.content.decode()
     assert 'id="eprotocolo-folha-1"' in html
-    assert 'id="eprotocolo-resumo-1"' in html
-    assert "Dados para a emissão revisada" in html
+    assert 'id="eprotocolo-resumo-1"' not in html
+    assert "Dados salvos do rascunho" in _bloco(resposta)
     oficio.refresh_from_db()
     assert oficio.data_oficio == original
 

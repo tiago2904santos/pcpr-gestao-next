@@ -1,5 +1,14 @@
 # Ofícios — dados copiáveis para o eProtocolo (RS-01)
 
+## Apresentação vigente — missão de Lista/Resumo, 09/10/2026
+
+O pedido atual volta a incluir os dados copiáveis no Resumo. A divulgação compacta
+usa a mesma projeção e os mesmos cinco campos da Folha, sem nova consulta ou escrita.
+Esta decisão de apresentação substitui a retirada do bloco em 09/10, registrada no
+histórico do Design System. Situação do PDF fica no painel documental, evitando uma
+nota de geração desatualizada no bloco que não é substituído pelo polling.
+Autorização, fonte histórica, omissão de CPF/RG e fallback permanecem obrigatórios.
+
 Fonte funcional consultada somente por leitura de código local em 07/10/2026:
 `C:/Users/tiago/OneDrive/Documentos/Solicitações de eventos/viagens_oficios/services.py`,
 função `dados_eprotocolo` (linhas 409–448). Complementos: `campos_modelo.py`, funções
@@ -240,9 +249,9 @@ precisam ser executados para validar o lote.
 
 ## Integração de leitura RS-01 — regra antes da tela, 07/10/2026
 
-A folha de edição e a janela de resumo usam o mesmo componente do Design System,
-com identificadores de cópia distintos (`eprotocolo-folha` e `eprotocolo-resumo`).
-O bloco fica junto de Documentos. A folha usa a região `dados-eprotocolo-folha`
+A folha de edição usa o componente do Design System (`eprotocolo-folha`), junto de
+Documentos. A janela de resumo **não traz** o bloco de cópia (decisão de 09/10/2026): mostra
+só o número do protocolo na linha de complemento do cabeçalho — para copiar, abre-se a folha. A folha usa a região `dados-eprotocolo-folha`
 com `data-vivo`, atualizada pela página refeita após autosave; alterações de equipe
 retornam o mesmo bloco fora de banda (OOB), sem criar endpoint.
 

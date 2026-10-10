@@ -1,13 +1,24 @@
 {% load viagens %}
 {% if trechos %}
+          {# Cada trecho lê como um cartão de embarque: saída à esquerda, chegada à direita, a duração no fio entre as duas. #}
           <div class="resumo__moldura">
           <ol class="resumo__trechos percurso-registro" aria-label="Trechos da viagem">
             {% for t in trechos %}
               <li class="percurso-registro__trecho">
                 <div class="percurso-registro__dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small></div>
-                <div class="percurso-registro__trajeto">
-                  <div class="percurso-registro__ponto"><time datetime="{{ t.saida_em|date:'c' }}">{{ t.saida_em|date:"H:i" }}</time><span>{{ t.origem }}</span></div>
-                  <div class="percurso-registro__ponto percurso-registro__ponto--destino"><time datetime="{{ t.chegada_em|date:'c' }}">{{ t.chegada_em|date:"H:i" }}{% if t.chegada_em.date != t.saida_em.date %}<small>{{ t.chegada_em|date:"d/m" }}</small>{% endif %}</time><strong>{{ t.destino }}</strong></div>
+                <div class="percurso-registro__rota">
+                  <div class="percurso-registro__ponto">
+                    <time datetime="{{ t.saida_em|date:'c' }}"><span class="sr-only">Saída </span>{{ t.saida_em|date:"H:i" }}</time>
+                    <span class="percurso-registro__lugar">{{ t.origem }}</span>
+                  </div>
+                  <div class="percurso-registro__ligacao">
+                    <span class="percurso-registro__duracao">{{ t.chegada_em|duracao_curta:t.saida_em }}</span>
+                    <span class="percurso-registro__fio" aria-hidden="true">{% icone oficio|icone_transporte classe="icone--sm" %}</span>
+                  </div>
+                  <div class="percurso-registro__ponto percurso-registro__ponto--destino">
+                    <time datetime="{{ t.chegada_em|date:'c' }}"><span class="sr-only">Chegada </span>{{ t.chegada_em|date:"H:i" }}{% if t.chegada_em.date != t.saida_em.date %}<small><span class="sr-only"> em </span>{{ t.chegada_em|date:"d/m" }}</small>{% endif %}</time>
+                    <strong class="percurso-registro__lugar">{{ t.destino }}</strong>
+                  </div>
                 </div>
               </li>
             {% endfor %}

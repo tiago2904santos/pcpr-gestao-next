@@ -1,5 +1,23 @@
 # Matriz de paridade — Ofício de viagem (referência × novo)
 
+## Consulta de Ofícios — Lista e Resumo, 09–10/10/2026
+
+Rodada de apresentação sobre as fontes locais do HEAD `722198f`, preservando
+os ajustes existentes do usuário. As regras da matriz funcional permanecem.
+Motivo, percurso e equipe fluem na mesma coluna; Diárias têm variante de consulta;
+tempo até a saída é metadado, separado da situação e da condição documental.
+Filtros temporais e documentais continuam independentes, com os mesmos parâmetros,
+contagens, busca, ordenação, paginação, exportação e ações autorizadas.
+
+Dados copiáveis de eProtocolo voltam ao Resumo por pedido expresso desta rodada,
+usando a projeção autorizada já existente: rascunho vivo, versão corrente emitida
+e indisponibilidade explícita para snapshot histórico insuficiente. Cadastro,
+geração oficial, cálculos, permissões e histórico não são redesenhados.
+Evidências, contratos de navegador e classificação das falhas de teste em
+`../visual-agents/qa/resumo-lista-refinamento-2026-10-10.md`.
+
+Esta atualização não representa aprovação estética automática pelo usuário.
+
 ## Apresentação de Roteiro até conclusão — 09/10/2026
 
 Pedido visual sobre a base `671c3a9`, sem alteração de regra institucional.
@@ -252,3 +270,16 @@ Ruff, arquitetura, mypy, Bandit, migrações e tipos JS passaram. Resultado e li
 registrados em `docs/visual-agents/qa/oficios-componentes-2026-10-09.md`.
 Revisão estética das duas candidatas permanece com o usuário. Não avançar para
 outra página nem inferir aprovação de todo o módulo a partir desta rodada.
+
+
+### Apresentação do Cadastro, Roteiro até conclusão — 09/10/2026
+
+Rodada ADR 0032 preserva campos, ações, permissões, fórmulas legadas de tempo e
+adicional e documentos oficiais. Seleção de roteiro mantém POST usar_roteiro,
+origem e aviso de prévia. Trechos continuam saída + viagem + adicional = chegada;
+Diárias usa a projeção existente. Justificativa dispensada já preenchida permanece
+editável. Copiar tudo e os cinco campos do eProtocolo mantêm a fonte autorizada,
+IDs e fallback. Editor preserva modos, formato, edição, histórico e salvamento.
+Não altera funções do legado; apenas apresentação e agrupamento.
+
+Evidência e limites: `../visual-agents/qa/cadastro-inferior-r2-2026-10-09.md`.

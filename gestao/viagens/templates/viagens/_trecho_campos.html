@@ -6,6 +6,7 @@ calculada. Os tempos aparecem como texto — "Ajustar" abre os campos (ADR 0016)
 <li class="itin__trecho{% if volta %} itin__trecho--volta{% endif %}" data-trecho{% if volta %} data-retorno{% else %} data-trecho-de="{{ t.prefix }}"{% endif %}>
   <header class="itin__trecho-cabecalho">
     <span class="itin__trecho-numero" aria-hidden="true">{% if volta %}{% icone "undo-2" %}{% else %}<span data-numero>{{ numero }}</span>{% endif %}</span>
+    {% if operacional %}<span class="itin__trecho-etapa">{% if volta %}Retorno à sede{% else %}Deslocamento{% endif %}</span>{% endif %}
     <h4 class="itin__trecho-rota" id="tt-{{ t.prefix }}"><span class="sr-only">{% if volta %}Volta à sede: {% else %}Trecho <span data-numero>{{ numero }}</span>: {% endif %}</span><span class="itin__trecho-de" data-de>{{ de }}</span> {% icone "arrow-right" classe="icone--sm" %} <span class="itin__trecho-para" data-para>{{ para }}</span></h4>
     <span class="itin__trecho-km" data-km>{% if t.initial.km %}{{ t.initial.km }} km{% endif %}</span>
   </header>
@@ -18,7 +19,7 @@ calculada. Os tempos aparecem como texto — "Ajustar" abre os campos (ADR 0016)
     <div class="campo itin__chegada-campo">
       <span class="campo__rotulo" id="ch-{{ t.prefix }}">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}{% if operacional %} · calculada{% endif %}</span>
       <div class="indicador indicador--compacto itin__chegada">
-        <output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</output>
+        <output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if operacional %}<span data-chegada-data>{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</span> <strong data-chegada-hora></strong>{% else %}{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}{% endif %}</output>
       </div>
     </div>
   </div>

@@ -194,8 +194,10 @@ def _html_selo_tempo(selo: SeloTempo | None) -> str:
     if selo is None:
         return ""
     if selo.momento is Momento.EM_ANDAMENTO:  # o ponto pulsa: está acontecendo agora
-        return format_html('<span class="selo selo--info selo--processo">{}</span>', selo.texto)
-    return format_html('<span class="selo selo--{} selo--sem-ponto">{}{}</span>',
+        return format_html('<span class="selo selo--info selo--processo selo--temporal" '
+                           'title="Tempo da viagem">{}</span>', selo.texto)
+    return format_html('<span class="selo selo--{} selo--sem-ponto selo--temporal" '
+                       'title="Tempo até a saída da viagem">{}{}</span>',
                        "aviso" if selo.aviso else "info",
                        icone("clock", classe="icone--sm"), selo.texto)
 
@@ -277,7 +279,8 @@ def selo_tipo(oficio_ou_tipo) -> str:
             else tipo_oficio(oficio_ou_tipo))
     if not tipo.incomum:
         return ""
-    return format_html('<span class="selo selo--neutro selo--contorno selo--sem-ponto" '
+    return format_html('<span class="selo selo--neutro selo--contorno selo--sem-ponto '
+                       'selo--condicao" '
                        'title="{}">{}{}</span>',
                        tipo.porque, icone(ICONE_TIPO.get(tipo.marca, "history"),
                                           classe="icone--sm"), tipo.selo)
@@ -315,3 +318,17 @@ def campo_destinos(context, campo, unidade=None, maximo: int = 10, titulo: str =
             "ufs": UFS, "maximo": maximo, "titulo": titulo or "Sede e destinos",
             "mapa_tiles": settings.MAPA_TILES_URL, "mapa_atribuicao": settings.MAPA_ATRIBUICAO,
             "csp_nonce": context.get("csp_nonce", "")}
+
+
+@register.filter
+def duracao_curta(fim, inicio):
+    """Duração curta entre instantes: "9h30", "45 min"; vazia sem dados ou se negativa."""
+    if not fim or not inicio:
+        return ""
+    minutos = int((fim - inicio).total_seconds() // 60)
+    if minutos < 0:
+        return ""
+    horas, resto = divmod(minutos, 60)
+    if not horas:
+        return f"{resto} min"
+    return f"{horas}h{resto:02d}"

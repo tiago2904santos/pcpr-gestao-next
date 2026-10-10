@@ -206,12 +206,12 @@ def test_projecao_materializada_uma_vez_com_todas_as_vias_sem_sql(
     assert chamadas == [({anterior.pk, atual.pk}, {revogada.pk, ativa.pk})]
 
 
-def test_polling_atualiza_documentos_rodape_e_copia_em_ids_estaveis(client, cenario, emitido):
+def test_polling_atualiza_documentos_e_rodape_em_ids_estaveis(client, cenario, emitido):
     atual = _novo(emitido, situacao="gerando")
     primeira = _ler(client, cenario, emitido)
     html = primeira.content.decode()
     assert 'data-resumo-poll hx-get=' in html
-    assert 'hx-select-oob="#resumo-rodape,#resumo-copia-area"' in html
+    assert 'hx-select-oob="#resumo-rodape"' in html
     assert 'id="resumo-rodape" tabindex="-1" role="group"' in html
     assert "Ver o PDF" not in _rodape(primeira)
     Documento.objects.filter(pk=atual.pk).update(situacao="pronto", sha256="b" * 64)
@@ -219,7 +219,6 @@ def test_polling_atualiza_documentos_rodape_e_copia_em_ids_estaveis(client, cena
     assert "data-resumo-poll" not in pronta.content.decode()
     assert "Ver o PDF" in _rodape(pronta) and "Baixar em Word" in _rodape(pronta)
     assert pronta.context["copia"].versao == 2
-    assert pronta.content.decode().count('id="resumo-copia-area"') == 1
     assert pronta.content.decode().count('id="resumo-rodape"') == 1
 
 

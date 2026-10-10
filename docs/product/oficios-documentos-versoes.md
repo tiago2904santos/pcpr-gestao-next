@@ -361,7 +361,7 @@ mantêm a atualização automática, que troca Documentos e os wrappers de rodap
 A divulgação e foco da cópia são preservados pelos handlers OOB existentes.
 
 Markup HTMX autorizado: `#resumo-documentos-area[data-resumo-poll]`, seletor principal
-igual ao ID, `hx-select-oob="#resumo-rodape,#resumo-copia-area"`, troca outerHTML e
+igual ao ID, `hx-select-oob="#resumo-rodape"`, troca outerHTML e
 GET da rota existente resumo. Nenhum endpoint novo ou script inline. HTMX está com
 allowEval=false; portanto filtro JavaScript no hx-trigger não seria solução válida.
 O coordenador assume o pequeno hook em dialogo.js para cancelar polling com diálogo

@@ -159,10 +159,9 @@ o halo de teclado e o fundo de foco. Não tratar campo somente leitura como desa
   logo abaixo do roteiro, na mesma coluna de leitura da viagem; acima de 768 px os
   servidores ocupam duas colunas (`auto-fit`, mínimo 15rem) e a contagem mora no
   cabeçalho do bloco (`bloco_registro.html`, parâmetro `nota`), não como rótulo solto.
-- O motivo da viagem abre a mesa na coluna do roteiro; o painel de conferência cobre as
-  linhas do motivo e do roteiro e acompanha a rolagem (sticky) acima de 1024 px, preso à
-  sua célula (`.mesa-registro__coluna`) para nunca cobrir a área de cópia. Grudado, ele
-  guarda o MESMO respiro que tem parado: o `top` desconta o padding do corpo rolável.
+- O motivo abre a coluna do roteiro e da equipe. O painel de conferência ocupa uma
+  célula independente, com altura de conteúdo; não distribui as linhas da coluna de
+  leitura nem tem uma segunda scrollbar (ADR 0033).
 - Conferência serena usa total e `dl` financeiro, sem os filetes herdados da
   variante de indicadores. O UI Lab também usa a mesma variante de conferência.
 - Registro institucional traz só os dados do documento (data, protocolo, custeio,
@@ -354,3 +353,72 @@ Folha e demonstradas no UI Lab; os consumidores sem a variante mantêm a composi
 O índice lateral do UI Lab limita a própria altura e permite rolagem, mantendo
 alvos inteiros abaixo do cabeçalho mesmo ao chegar ao fim da vitrine.
 Evidências reais, críticas e logs em `visual-agents/qa/oficios-cadastro-inferior-2026-10-09.md`.
+
+## Resumo alinhado à folha — 09/10/2026
+
+A mesa do Resumo passou a falar o mesmo vocabulário da folha de cadastro:
+
+- Diárias: o total é o bloco escuro centrado com tipografia fluida (`clamp`), os dados
+  centrados embaixo — o mesmo desenho do bloco de diárias da folha. O painel perdeu a fita
+  dourada e ganhou moldura sutil com raio (`--raio-lg`).
+- Documentos: largura inteira, com o cabeçalho dos demais blocos (`bloco-registro__cabecalho`:
+  título em caixa-alta e a nota "Arquivo da viagem" ao lado), sem a coluna lateral de rótulo.
+- Equipe e Transporte: dois sub-blocos com rótulo em caixa-alta; cartões em duas colunas, o
+  ímpar ocupando a linha inteira; o cartão da viatura é idêntico ao do servidor (43px).
+- Aviso de data na revisão: sem referência ao checkbox "Manter esta data na emissão", que saiu
+  da folha — a instrução agora é alterar a data do ofício ali (a data informada passa a valer).
+- Roteiro cadastrado (`selecao_roteiro.html`): sem gaveta — o `details`/`summary` repetia o
+  rótulo do campo. Virou a linha inteira da seção: a origem (ou o convite) em cima e, embaixo,
+  o campo de busca com o botão "Usar este roteiro" na mesma altura (36px os dois). No celular
+  o botão desce e alinha à direita; sem rolagem horizontal.
+- Consulta do registro (ADR 0033): Motivo, Roteiro e Equipe fluem juntos em
+  `.mesa-registro__principal`. A lateral tem altura de conteúdo, sem `100cqb`, distribuição
+  em frações ou rolagem própria. O corpo concentra a rolagem e mantém header/ações fora dela.
+- `conferencia_valores.html`, `consulta=True`: total grafite principal, valor por servidor
+  secundário, destino e composição como metadados. A variante operacional do Cadastro é
+  preservada. O dossiê do UI Lab usa a mesma composição de consulta.
+- `.estado-documental`: vazio informativo compacto com ação disponível. Não confunde
+  minuta com emissão; peças correntes mantêm versão, assinatura, falha e retry.
+- `.colecao-operacional--consulta`: header compacto limitado ao header da página,
+  recortes temporais horizontais e resultados em fluxo natural. Barra `--colecao` acompanha
+  apenas resultados paginados (`--acompanha`); listas curtas encerram sem altura artificial.
+- Registro operacional: largura estável da placa e da coluna financeira por breakpoint;
+  dinheiro integral, composição como metadado. Quinas independentes de listas embutidas em
+  cartões. Situação, condição e tempo têm pesos distintos.
+- Dados para o eProtocolo novamente no Resumo, conforme a missão de consulta de 09/10:
+  divulgação compacta com cinco campos da projeção autorizada. Protocolo também no header;
+  o poll continua limitado a documentos/rodapé, preservando foco e a divulgação da cópia.
+- Roteiro da mesa (`percurso-registro`) como cartão de embarque: a saída à esquerda (hora
+  grande, lugar embaixo), a chegada à direita alinhada ao fim da linha, e entre as duas o fio
+  dourado com o carro e a duração do trecho (`duracao_curta`: "9h30", "45 min"). Chegada em
+  outro dia leva a data pequena ao lado da hora. O dia mora na margem; filete sutil entre
+  trechos, sem cartão nem fita lateral. No celular o fio encurta e a hora desce um degrau.
+
+
+## Cadastro inferior — variantes revisadas em 09/10/2026 (ADR 0032)
+
+- `selecao_roteiro.html`, `compacto=True`: recurso integrado, contexto/origem ao lado
+  da busca no desktop, controles proporcionais no celular. A ação mantém o nome
+  acessível Usar este roteiro, mesmo quando o rótulo visível é Aplicar.
+- `painel_rota.html`: mapa, enquadramento, fonte e métricas Ida/Ida e volta;
+  consumido pelo itinerário operacional. Sem cálculo ou requisição própria.
+- Itinerário operacional: percurso identificado à esquerda no desktop; saída,
+  duração e chegada calculada à direita. No mobile a chegada separa dia e hora;
+  sem JS a chegada calculada continua mostrando a data/hora integral.
+- `formulario_contextual.html`, `classe="formulario-contextual--redacao"`: contexto
+  do prazo, redação e texto pronto. Estado obrigatório/dispensado pertence ao fluxo.
+- `preparacao-documental--conferencia`: decisão de emissão antes da transferência
+  de dados, sem coluna vazia ou cartões por pendência.
+- `dados_eprotocolo.html`, `compacto=True`: cinco campos readonly, cópia individual
+  e `acao_copiar_tudo.html` no cabeçalho. Fallback de seleção e IDs preservados.
+  A divulgação abre por solicitação, evitando uma área longa de transferência
+  antes do editor. Autosave e HTMX preservam a escolha do usuário.
+- Editor operacional: grupos Formatação/Fonte/Parágrafo/Inserir/Versões nomeados,
+  estado e identidade no cabeçalho, controles recolhíveis em telas estreitas.
+  Não modifica o papel oficial, geração de PDF ou histórico de versões.
+- Histórico operacional: trilho, data/hora, fato e autoria; mobile com data acima
+  do fato. A barra de preparação permanece no fluxo, sem encobrir campos.
+
+Vitrines existentes do itinerário, editor, cópia e Preparação documental usam as
+variantes reais. Capturas e resultados desta rodada em
+`../visual-agents/qa/cadastro-inferior-r2-2026-10-09.md`.

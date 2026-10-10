@@ -7,7 +7,9 @@ Copiar tudo tem região de seleção de texto para fallback quando Clipboard nã
   <summary id="{{ copiar_id }}-abrir">{% icone "copy" classe="icone--sm" %}Dados para o eProtocolo</summary>
   <div class="divulgacao__corpo pilha">
     {% if copia.disponivel %}
-      <p class="texto-secundario">{% if copia.fonte == "emissao" %}Dados da emissão v{{ copia.versao }}.{% if copia.situacao_documento == "gerando" %} PDF em geração.{% elif copia.situacao_documento == "falhou" %} A geração do PDF falhou.{% endif %}{% elif revisao %}Dados para a emissão revisada.{% else %}Dados salvos do rascunho.{% endif %} Copiar não abre nem altera o protocolo.</p>
+      {% if compacto %}<div class="dados-copiaveis__cabecalho">{% endif %}
+      <p class="texto-secundario">{% if copia.fonte == "emissao" %}Dados da emissão v{{ copia.versao }}.{% if not omitir_estado_pdf %}{% if copia.situacao_documento == "gerando" %} PDF em geração.{% elif copia.situacao_documento == "falhou" %} A geração do PDF falhou.{% endif %}{% endif %}{% elif revisao %}Dados para a emissão revisada.{% else %}Dados salvos do rascunho.{% endif %} Copiar não abre nem altera o protocolo.</p>
+      {% if compacto %}{% include "componentes/acao_copiar_tudo.html" %}</div>{% endif %}
       {% if copia.aviso %}<p id="{{ copiar_id }}-origem" class="{% if oficio.protocolo_origem == 'simulado' or oficio.protocolo_origem == 'treinamento' %}alerta alerta--aviso{% else %}campo__ajuda{% endif %}">{{ copia.aviso }}</p>{% endif %}
       <div class="{% if compacto %}dados-copiaveis{% else %}pilha{% endif %}">
       {% for campo in copia.dados.campos %}
@@ -26,9 +28,7 @@ Copiar tudo tem região de seleção de texto para fallback quando Clipboard nã
         </div>
       {% endfor %}
       </div>
-      <button type="button" class="botao{% if compacto %} botao--primario{% endif %}" data-copiar-alvo="{{ copiar_id }}-tudo" data-copiar-revelar="{{ copiar_id }}-selecao" aria-controls="{{ copiar_id }}-selecao" aria-live="polite">
-        {% icone "copy" %}<span data-copiar-rotulo>Copiar tudo</span>
-      </button>
+      {% if not compacto %}{% include "componentes/acao_copiar_tudo.html" %}{% endif %}
       <div class="campo" id="{{ copiar_id }}-selecao" hidden>
         <label class="campo__rotulo" for="{{ copiar_id }}-tudo">Todos os dados para copiar</label>
         <textarea class="entrada" id="{{ copiar_id }}-tudo" rows="6" readonly>{{ copia.dados.copiar_tudo }}</textarea>

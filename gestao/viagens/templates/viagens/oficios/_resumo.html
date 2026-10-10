@@ -4,31 +4,30 @@ Contratos institucionais preservados nas parciais; a ordem é de apresentação.
 {% with destino=oficio|destinos %}
 {% include "componentes/registro_hero.html" with rotulo="Ofício de viagem" numero=oficio.numero_formatado situacao=oficio.situacao contexto=revisao|yesno:"Revisar antes de emitir,Resumo da viagem" titulo=destino|default:"Sem destino" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_resumo_periodo.html" %}
 {% endwith %}
-<div class="dialogo__corpo">
+<div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo do ofício">
   {% include "viagens/oficios/_resumo_avisos.html" %}
   <div class="mesa-registro"><div class="resumo">
     <div class="mesa-registro__documentos">
       {% include "viagens/oficios/_resumo_documentos.html" %}
     </div>
-    {# O motivo abre a mesa na faixa inteira: é a frase que explica tudo o que vem abaixo. #}
+    <div class="mesa-registro__principal">
     <section class="missao-registro" aria-labelledby="resumo-missao">
       <h3 class="missao-registro__rotulo" id="resumo-missao">Motivo da viagem</h3>
       <p class="missao-registro__texto">{{ oficio.motivo|default:"Motivo não informado." }}</p>
     </section>
-    <div class="mesa-registro__principal">
       {% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" id_titulo="resumo-roteiro" conteudo="viagens/oficios/_resumo_percurso.html" %}
       {# Quem vai e em quê vem logo abaixo do roteiro: a mesma coluna de leitura da viagem. #}
       {% include "componentes/bloco_registro.html" with indice="02" titulo="Equipe e transporte" id_titulo="resumo-equipe" nota=viajantes|length|pluralizar:"servidor,servidores" conteudo="viagens/oficios/_resumo_equipe.html" %}
     </div>
-    {# O wrapper prende o painel à sua célula: grudado, ele para no fim do roteiro e nunca cobre a cópia. #}
+    {# A conferência não distribui nem estica as seções da coluna de leitura. #}
     <div class="mesa-registro__coluna">
       <aside class="mesa-registro__contexto" aria-label="Conferência e registro do ofício">
         {% include "componentes/bloco_registro.html" with titulo="Diárias" icone="banknote" id_titulo="resumo-diarias" variante="conferencia" conteudo="viagens/oficios/_resumo_conferencia.html" %}
         {% include "componentes/bloco_registro.html" with titulo="Registro institucional" icone="landmark" id_titulo="resumo-registro" conteudo="viagens/oficios/_resumo_registro.html" %}
       </aside>
     </div>
-    <div class="mesa-registro__copia" id="resumo-copia-area">
-      {% include "componentes/dados_eprotocolo.html" with copiar_id="eprotocolo-resumo" compacto=True aberto=True %}
+    <div class="mesa-registro__copia">
+      {% include "componentes/dados_eprotocolo.html" with copiar_id="resumo-copia" compacto=True omitir_estado_pdf=True %}
     </div>
   </div></div>
 </div>
