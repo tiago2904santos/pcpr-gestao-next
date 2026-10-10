@@ -1,0 +1,26 @@
+{
+  "baseCommit": "a675739",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/ui_lab/templates/ui_lab/_registro_roteiro.html": "ad78b1541a9a019703e37e69c11ac605ce8a7b85bec9d1dd0d0a46567ba26789",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "e31be9c9c13bd68be2f4d85a080bb25bd476b185e5d382c2dde528f9391a6f32",
+    "gestao/viagens/templates/viagens/_itinerario.html": "74499601bea6568867992758485695c674a622ea91fba75c8e682857703bec31",
+    "gestao/viagens/templates/viagens/oficios/_diarias.html": "f145c54541728d83f6714e5f6d1abd85e6bf457582b7c3b8c3291c5438f1c4f6",
+    "gestao/viagens/templates/viagens/roteiros/_cabecalho_contexto.html": "ecefd91655478c94e88d4a7b76db0fc8685be17367953270285df41238af8b84",
+    "gestao/viagens/templates/viagens/roteiros/_registro.html": "55a9dd06b54c848688185a2b9df462506f928d004aa2c18e63546f90acdcd19d",
+    "gestao/viagens/templates/viagens/roteiros/editar.html": "7b561b7abb7f28faa18eda61f233e705f6259870d53c629e2b360abc94eb1d17",
+    "gestao/viagens/templates/viagens/roteiros/lista.html": "6b542692a88d1731d922ff6031e0b3d38b92a2335b820b3f0ddaa0c40260cafa",
+    "gestao/viagens/views_roteiros.py": "c911332c1b5283ba8f87b93567588c7dbbf71e3c948eb2450b87152bcbef00db",
+    "static/css/components.css": "1882a191004fa9dae3bfd596d26ebe4ff160e8ecfd6078e44f918ffe1378ecdc",
+    "static/css/listas.css": "fb05d39d0e2634e06a5cd68d4476e5ea041af4bd4dd17fb3959e904f26b3ed89",
+    "templates/componentes/estado_salvamento.html": "820b1b09f8401c7deacda8ce0198a3dfdfc600b4e436cbefc7d357eff4fb9712",
+    "tests/e2e/test_roteiros_identidade.py": "6c5eada3a82fdd77ceb12819d699e0c63022044b815a9bf4f170ca87db7a50be"
+  },
+  "checks": [
+    "gate.log",
+    "roteiros-http.log",
+    "roteiros-browser.log",
+    "roteiros-compat.log",
+    "migracoes-reconfirmacao.log"
+  ]
+}

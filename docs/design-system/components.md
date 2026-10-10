@@ -422,3 +422,26 @@ A mesa do Resumo passou a falar o mesmo vocabulário da folha de cadastro:
 Vitrines existentes do itinerário, editor, cópia e Preparação documental usam as
 variantes reais. Capturas e resultados desta rodada em
 `../visual-agents/qa/cadastro-inferior-r2-2026-10-09.md`.
+## Propagação de 10/10/2026
+
+Roteiros reutiliza `colecao-operacional--consulta`, `registro-operacional`,
+`identidade_documental`, `registro_hero`, `painel_rota`, itinerário operacional e
+conferência horizontal. Mantém a busca, OOB de abas, menus, popover de vínculos,
+formulários e endpoints. O rodapé passa a integrar o fragmento de resultados.
+
+`registro-hero__metadados`/`__metadado`: grupo flexível de metadados sobre grafite,
+com contraste inverso e ícones institucionais. Primeiro consumidor: folha de
+Roteiros. `estado_salvamento` aceita `sem_emissao=True` para registros reutilizáveis;
+o padrão de Ofícios continua anunciando suas pendências documentais.
+
+A seção de Diárias sob `[data-previa-diarias]` mantém o mesmo alinhamento após
+troca assíncrona. `_diarias.html` aceita a variante operacional também na seção
+numerada; novo/edição e endpoint de prévia de Roteiros passam a mesma variante.
+Variantes não operacionais permanecem enquanto houver consumidores reais.
+
+`registro-operacional__conferencia`: sem contenção intrínseca que anule a largura
+da coluna financeira. Mobile usa duas colunas proporcionais para agenda/valores;
+valor alto e composição longa possuem verificação de overflow interno, além do
+overflow da página. Consumidores: Ofícios, Roteiros e exemplos do UI Lab.
+O exemplo antigo de Roteiro e as regras exclusivas `registro__meta--roteiro` foram
+substituídos; estilos de Termos e demais listas permanecem até sua migração.

@@ -1,0 +1,152 @@
+[
+  {
+    "pagina": "roteiros-editar",
+    "largura": 1024,
+    "antes": "antes-roteiros-editar-1024.png",
+    "depois": "depois-roteiros-editar-1024.png"
+  },
+  {
+    "pagina": "roteiros-editar",
+    "largura": 1440,
+    "antes": "antes-roteiros-editar-1440.png",
+    "depois": "depois-roteiros-editar-1440.png"
+  },
+  {
+    "pagina": "roteiros-editar",
+    "largura": 360,
+    "antes": "antes-roteiros-editar-360.png",
+    "depois": "depois-roteiros-editar-360.png"
+  },
+  {
+    "pagina": "roteiros-editar",
+    "largura": 390,
+    "antes": "antes-roteiros-editar-390.png",
+    "depois": "depois-roteiros-editar-390.png"
+  },
+  {
+    "pagina": "roteiros-editar",
+    "largura": 768,
+    "antes": "antes-roteiros-editar-768.png",
+    "depois": "depois-roteiros-editar-768.png"
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "largura": 1024,
+    "antes": "antes-roteiros-filtro-1024.png",
+    "depois": "depois-roteiros-filtro-1024.png"
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "largura": 1440,
+    "antes": "antes-roteiros-filtro-1440.png",
+    "depois": "depois-roteiros-filtro-1440.png"
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "largura": 360,
+    "antes": "antes-roteiros-filtro-360.png",
+    "depois": "depois-roteiros-filtro-360.png"
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "largura": 390,
+    "antes": "antes-roteiros-filtro-390.png",
+    "depois": "depois-roteiros-filtro-390.png"
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "largura": 768,
+    "antes": "antes-roteiros-filtro-768.png",
+    "depois": "depois-roteiros-filtro-768.png"
+  },
+  {
+    "pagina": "roteiros-lista",
+    "largura": 1024,
+    "antes": "antes-roteiros-lista-1024.png",
+    "depois": "depois-roteiros-lista-1024.png"
+  },
+  {
+    "pagina": "roteiros-lista",
+    "largura": 1440,
+    "antes": "antes-roteiros-lista-1440.png",
+    "depois": "depois-roteiros-lista-1440.png"
+  },
+  {
+    "pagina": "roteiros-lista",
+    "largura": 360,
+    "antes": "antes-roteiros-lista-360.png",
+    "depois": "depois-roteiros-lista-360.png"
+  },
+  {
+    "pagina": "roteiros-lista",
+    "largura": 390,
+    "antes": "antes-roteiros-lista-390.png",
+    "depois": "depois-roteiros-lista-390.png"
+  },
+  {
+    "pagina": "roteiros-lista",
+    "largura": 768,
+    "antes": "antes-roteiros-lista-768.png",
+    "depois": "depois-roteiros-lista-768.png"
+  },
+  {
+    "pagina": "roteiros-novo",
+    "largura": 1024,
+    "antes": "antes-roteiros-novo-1024.png",
+    "depois": "depois-roteiros-novo-1024.png"
+  },
+  {
+    "pagina": "roteiros-novo",
+    "largura": 1440,
+    "antes": "antes-roteiros-novo-1440.png",
+    "depois": "depois-roteiros-novo-1440.png"
+  },
+  {
+    "pagina": "roteiros-novo",
+    "largura": 360,
+    "antes": "antes-roteiros-novo-360.png",
+    "depois": "depois-roteiros-novo-360.png"
+  },
+  {
+    "pagina": "roteiros-novo",
+    "largura": 390,
+    "antes": "antes-roteiros-novo-390.png",
+    "depois": "depois-roteiros-novo-390.png"
+  },
+  {
+    "pagina": "roteiros-novo",
+    "largura": 768,
+    "antes": "antes-roteiros-novo-768.png",
+    "depois": "depois-roteiros-novo-768.png"
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "largura": 1024,
+    "antes": "antes-roteiros-vazio-1024.png",
+    "depois": "depois-roteiros-vazio-1024.png"
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "largura": 1440,
+    "antes": "antes-roteiros-vazio-1440.png",
+    "depois": "depois-roteiros-vazio-1440.png"
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "largura": 360,
+    "antes": "antes-roteiros-vazio-360.png",
+    "depois": "depois-roteiros-vazio-360.png"
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "largura": 390,
+    "antes": "antes-roteiros-vazio-390.png",
+    "depois": "depois-roteiros-vazio-390.png"
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "largura": 768,
+    "antes": "antes-roteiros-vazio-768.png",
+    "depois": "depois-roteiros-vazio-768.png"
+  }
+]

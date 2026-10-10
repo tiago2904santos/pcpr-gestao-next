@@ -1,16 +1,15 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Roteiros{% endblock %}
-{% block titulo_lista %}Roteiros{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Roteiros cadastrados para reutilizar nos ofícios: sede, destinos, horários e diárias estimadas.</p>{% endblock %}
-{% comment %}
-"Novo roteiro" fica na barra que acompanha a rolagem (abaixo): a lista é longa e a ação
-não pode depender de voltar ao topo.
-{% endcomment %}
-
-{% block abas_filtro %}{% include "viagens/roteiros/_abas.html" %}{% endblock %}
+{% block preload_seletor %}{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Roteiros" complemento="Prepare o percurso. Reutilize nos ofícios." %}{% endblock %}
+{% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
+{% block fim_layout_lista %}</div>{% endblock %}
+{% block classe_area_lista %}colecao-operacional__painel{% endblock %}
+{% block abas_filtro %}<div class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da viagem</p>{% include "viagens/roteiros/_abas.html" %}</div>{% endblock %}
 
 {% block filtros %}
-<form class="filtros" role="search" method="get" action="{% url 'viagens:roteiros' %}"
+<form class="filtros filtros--barra" role="search" method="get" action="{% url 'viagens:roteiros' %}"
       hx-get="{% url 'viagens:roteiros' %}" hx-target="#resultados" hx-select="#resultados" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados" hx-trigger="submit, input changed delay:350ms from:#busca-roteiros">
   {% if aba %}<input type="hidden" name="aba" value="{{ aba }}">{% endif %}
   <div class="campo filtros__busca">
@@ -25,12 +24,12 @@ não pode depender de voltar ao topo.
 {% partialdef resultados inline %}
 <div id="resultados">
   {% if request.htmx %}{% include "viagens/roteiros/_abas.html" with oob=True %}{% endif %}
-  <div class="lista-cabecalho">
+  <div class="lista-cabecalho sr-only">
     <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Roteiros{% endif %}</h2>
     <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"roteiro,roteiros" }}</span>
   </div>
   {% if roteiros %}
-    <ul class="registros" aria-labelledby="titulo-resultados">
+    <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
       {% for r in roteiros %}{% include "viagens/roteiros/_registro.html" %}{% endfor %}
     </ul>
     {% include "componentes/paginacao.html" %}
@@ -42,13 +41,12 @@ não pode depender de voltar ao topo.
   {% else %}
     {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum roteiro para mostrar" texto="Quando houver roteiros da sua unidade, eles aparecerão aqui." %}
   {% endif %}
-</div>
-{% endpartialdef %}
-{% endblock %}
 
-{% block depois_lista %}
-<div class="barra-acoes">
+<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
   <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"roteiro,roteiros" }}</p>
   {% if pode_criar %}<a class="botao botao--primario" href="{% url 'viagens:novo_roteiro' %}">{% icone "plus" %}Novo roteiro</a>{% endif %}
 </div>
+
+</div>
+{% endpartialdef %}
 {% endblock %}

@@ -3574,6 +3574,9 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero .registro-hero__titulo { font-size: var(--texto-3xl); letter-spacing: var(--rastreio-titulo); color: var(--cor-texto-inverso); overflow-wrap: anywhere; }
 .registro-hero__complemento { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-sm); margin: var(--esp-2) 0 0; font-variant-numeric: tabular-nums; }
 .registro-hero__complemento > .icone { color: var(--shell-filete-claro); }
+.registro-hero__metadados { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); margin-top: var(--esp-3); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
+.registro-hero__metadado { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 0; color: inherit; overflow-wrap: anywhere; }
+.registro-hero__metadado > .icone { flex: none; color: var(--shell-filete-claro); }
 /* Título e selos dividem a mesma linha: o estado pertence ao nome do registro. */
 .registro-hero__linha { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); }
 .registro-hero .dialogo__linha-selos { margin: 0; padding: 0; border: 0; gap: var(--esp-2); }
@@ -3656,6 +3659,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registros--operacionais .registro-operacional .registro__agenda > .registro__meta-item { grid-area: auto; display: inline-flex; }
 .registro-operacional__recursos { grid-area: recursos; min-width: 0; display: grid; gap: var(--esp-1); border-top: var(--borda-sutil); padding-top: var(--esp-3); }
 .registro-operacional__recursos > .registro__meta-item,
+.registro-operacional__recursos > .menu,
 .registro-operacional__conferencia > .registro__meta-item { grid-area: auto; }
 .registro-operacional__rotulo { display: block; font-size: var(--texto-2xs); color: var(--cor-texto-secundario); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
 .registros--operacionais .registro-operacional .registro__meta-item { min-width: 0; margin: 0; font-size: var(--texto-xs); }
@@ -3664,7 +3668,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registros--operacionais .registro-operacional .registro__meta-texto { height: auto; line-height: var(--altura-linha); }
 /* A coluna é um contêiner de consulta: quando ela aperta, o valor encolhe em vez de quebrar
    ou ser cortado — dinheiro sempre inteiro, numa linha só. */
-.registro-operacional__conferencia { grid-area: conferencia; min-width: 0; container-type: inline-size; display: grid; grid-template-columns: 1fr auto; gap: var(--esp-1) var(--esp-3); border-top: var(--borda); padding-top: var(--esp-3); align-items: center; }
+.registro-operacional__conferencia { grid-area: conferencia; min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: var(--esp-1) var(--esp-3); border-top: var(--borda); padding-top: var(--esp-3); align-items: center; }
 .registros--operacionais .registro-operacional .registro__meta-item--diarias { text-align: right; justify-content: end; }
 .registros--operacionais .registro-operacional .registro__meta-item--diarias > .icone { display: none; }
 /* Dinheiro não quebra linha: "R$ 101.956,56" e "18 × 100% + 1 × 15%" ficam inteiros, cada
@@ -3708,7 +3712,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .colecao-operacional__layout { gap: var(--esp-3); }
   .colecao-operacional__indice .aba { padding: var(--esp-2) var(--esp-3); }
   .colecao-operacional .filtros--barra { padding: var(--esp-3); }
-  .registros--operacionais > .registro.registro-operacional { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "identidade acoes" "titulo titulo" "estado estado" "agenda conferencia" "recursos recursos"; gap: var(--esp-2) var(--esp-3); }
+  .registros--operacionais > .registro.registro-operacional { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "identidade acoes" "titulo titulo" "estado estado" "agenda conferencia" "recursos recursos"; gap: var(--esp-2) var(--esp-3); }
   .registros--operacionais .registro-operacional > .placa { width: calc(var(--esp-4) * 8); min-width: 0; padding: var(--esp-2) var(--esp-3); }
   .registros--operacionais .registro-operacional .placa__numero { font-size: var(--texto-lg); }
   .registros--operacionais .registro-operacional .registro__selos { justify-content: start; }
@@ -3780,7 +3784,8 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
    dourado que acompanhava a leitura some (ele terminava num traço solto no pé da página). */
 .documento.documento--preparacao { padding: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: none; }
 .documento--preparacao > .documento__guia { display: none; }
-.documento--preparacao > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); scroll-margin-top: var(--esp-4); }
+.documento--preparacao > .secao,
+.documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); scroll-margin-top: var(--esp-4); }
 /* Todas as seções respiram igual nos quatro lados — inclusive a primeira (que vinha com o
    topo encolhido pela linha-guia) e a última (que vinha sem base). */
 .documento--preparacao > .secao:first-child,
@@ -4137,7 +4142,8 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .campos--registro > .campo:nth-child(4) { grid-column: auto; }
 }
 @media (max-width: 767px) {
-  .documento--preparacao > .secao { padding: var(--esp-4); gap: var(--esp-4); }
+  .documento--preparacao > .secao,
+  .documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-4); gap: var(--esp-4); }
   .documento--preparacao .secao__titulo { font-size: var(--texto-lg); }
   .documento--preparacao .secao__cabecalho { gap: var(--esp-2); }
   .campos.campos--registro { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -939,12 +939,7 @@ a.ficha:hover {
 
     /* "Usado em N ofícios" (um botão) desce para a 2ª faixa: logo abaixo de um título
        longo ele ficava a 21–23px do link (WCAG 2.5.8, RB1 do re-QA). */
-    .registro__meta--roteiro {
-      grid-template-columns: 9.5rem minmax(0, 1fr) 7.5rem;
-      grid-template-areas:
-        "periodo notas diarias"
-        "trechos uso uso";
-    }
+
   }
 
   /* Cartão estreito numa janela larga: as mesmas duas faixas de duas colunas do celular. */
@@ -956,17 +951,15 @@ a.ficha:hover {
     }
 
     .registro__meta--oficio,
-    .registro__meta--termo,
-    .registro__meta--roteiro {
+    .registro__meta--termo {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     }
 
     .registro__meta--oficio { grid-template-areas: "periodo diarias" "equipe transporte"; }
     .registro__meta--termo { grid-template-areas: "periodo oficio" "equipe transporte"; }
-    .registro__meta--roteiro { grid-template-areas: "periodo diarias" "trechos uso"; }
 
-    .registro__meta--oficio .registro__meta-item--protocolo,
-    .registro__meta--roteiro .registro__meta-item--notas {
+
+    .registro__meta--oficio .registro__meta-item--protocolo {
       display: none;
     }
 
@@ -994,10 +987,6 @@ a.ficha:hover {
       grid-template-areas: "periodo oficio equipe transporte";
     }
 
-    .registro__meta--roteiro {
-      grid-template-columns: 9.5rem 6.5rem 10rem 7.5rem minmax(0, 1fr);
-      grid-template-areas: "periodo trechos uso diarias notas";
-    }
   }
 
   /* ≥ 1180px de lista (a lista inteira a partir de ~1240 de janela): coluna das diárias
@@ -1009,9 +998,6 @@ a.ficha:hover {
       grid-template-columns: 9.5rem 7.25rem minmax(0, 1.4fr) minmax(0, 1fr) 11rem;
     }
 
-    .registro__meta--roteiro {
-      grid-template-columns: 9.5rem 6.5rem 10rem 11rem minmax(0, 1fr);
-    }
 
     .registro__meta-item--diarias:not(.registro__meta-item--vazio) > .registro__meta-texto {
       display: flex;
@@ -1130,11 +1116,8 @@ a.ficha:hover {
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     grid-template-areas: "periodo oficio" "equipe transporte";
   }
-  .registro__meta--roteiro {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    grid-template-areas: "periodo diarias" "trechos uso";
-  }
-  .registro__meta--roteiro .registro__meta-item--notas { display: none; }
+
+
 
   /* I1 — A caixa "Usado em N ofícios" ancora na LINHA, não no botão: no celular o botão
      fica na coluna da direita e a caixa, presa à borda esquerda dele, saía 183px da tela.

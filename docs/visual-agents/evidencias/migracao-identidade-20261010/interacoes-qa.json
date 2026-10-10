@@ -1,0 +1,117 @@
+[
+  {
+    "width": 360,
+    "HTMX": true,
+    "menuTeclado": true,
+    "devolucaoFoco": true,
+    "popoverVinculos": true,
+    "financeiroInterno": {
+      "width": 145,
+      "scroll": 145,
+      "right": 330.21875,
+      "children": [
+        330.21875,
+        330.21875,
+        0,
+        0,
+        331.21875,
+        330.21875,
+        330.21875,
+        330.21875
+      ]
+    },
+    "uiLabAxe": []
+  },
+  {
+    "width": 390,
+    "HTMX": true,
+    "menuTeclado": true,
+    "devolucaoFoco": true,
+    "popoverVinculos": true,
+    "financeiroInterno": {
+      "width": 160,
+      "scroll": 160,
+      "right": 360.21875,
+      "children": [
+        360.21875,
+        360.21875,
+        0,
+        0,
+        361.21875,
+        360.21875,
+        360.21875,
+        360.21875
+      ]
+    },
+    "uiLabAxe": []
+  },
+  {
+    "width": 768,
+    "HTMX": true,
+    "menuTeclado": true,
+    "devolucaoFoco": true,
+    "popoverVinculos": true,
+    "financeiroInterno": {
+      "width": 142,
+      "scroll": 142,
+      "right": 680.625,
+      "children": [
+        680.625,
+        680.625,
+        0,
+        0,
+        681.625,
+        680.625,
+        680.625,
+        680.625
+      ]
+    },
+    "uiLabAxe": []
+  },
+  {
+    "width": 1024,
+    "HTMX": true,
+    "menuTeclado": true,
+    "devolucaoFoco": true,
+    "popoverVinculos": true,
+    "financeiroInterno": {
+      "width": 142,
+      "scroll": 142,
+      "right": 936.625,
+      "children": [
+        936.625,
+        936.625,
+        0,
+        0,
+        937.625,
+        936.625,
+        936.625,
+        936.625
+      ]
+    },
+    "uiLabAxe": []
+  },
+  {
+    "width": 1440,
+    "HTMX": true,
+    "menuTeclado": true,
+    "devolucaoFoco": true,
+    "popoverVinculos": true,
+    "financeiroInterno": {
+      "width": 142,
+      "scroll": 142,
+      "right": 1265.421875,
+      "children": [
+        1265.421875,
+        1265.421875,
+        0,
+        0,
+        1266.421875,
+        1265.421875,
+        1265.421875,
+        1265.421875
+      ]
+    },
+    "uiLabAxe": []
+  }
+]

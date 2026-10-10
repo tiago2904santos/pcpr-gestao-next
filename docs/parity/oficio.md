@@ -283,3 +283,13 @@ IDs e fallback. Editor preserva modos, formato, edição, histórico e salvament
 Não altera funções do legado; apenas apresentação e agrupamento.
 
 Evidência e limites: `../visual-agents/qa/cadastro-inferior-r2-2026-10-09.md`.
+
+### Referência vigente e propagação — 10/10/2026
+
+As cinco capturas anexadas pelo usuário consolidam Lista, Resumo e Cadastro como
+referência desta missão de propagação, substituindo direções conflitantes anteriores.
+Passada curta mantém composição, filtros horizontais, Diárias compactas, chegada
+calculada, editor, cópia, foco e rolagem. Correção compartilhada impede corte interno
+de valores financeiros no mobile; cinco E2E de Ofícios e revisão de R$ 101.956,56
+em 360/390/768 verificam compatibilidade. Nenhuma regra, documento ou permissão mudou.
+Evidências desta propagação: `../visual-agents/qa/roteiros-identidade-2026-10-10.md`.

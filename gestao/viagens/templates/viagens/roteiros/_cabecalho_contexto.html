@@ -1,0 +1,9 @@
+{% load viagens %}
+<div class="registro-hero__metadados">
+  {% if roteiro %}
+    {% if roteiro.viagem_id %}<a class="registro-hero__metadado" href="{% url 'viagens:editar_viagem' roteiro.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ roteiro.viagem }}</a>{% endif %}
+    {% with d=roteiro|destinos %}<span class="registro-hero__metadado">{% icone "map-pin" classe="icone--sm" %}{{ roteiro.sede.nome }}/{{ roteiro.sede.uf }}{% if d %} → {{ d }}{% endif %}</span>{% endwith %}
+    {% with p=roteiro.trechos.all|periodo %}<span class="registro-hero__metadado">{% icone "calendar" classe="icone--sm" %}{{ p|default:"Sem datas" }}</span>{% endwith %}
+    <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ roteiro.quantidade_servidores|pluralizar:"servidor,servidores" }}</span>
+  {% else %}<span class="registro-hero__metadado">{% icone "route" classe="icone--sm" %}Defina o percurso para reutilizar nos ofícios.</span>{% endif %}
+</div>

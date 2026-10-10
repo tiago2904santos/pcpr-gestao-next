@@ -267,7 +267,8 @@ def previa_diarias(request: HttpRequest) -> HttpResponse:
         policies.unidade_do_usuario(request.user)).sede
     ligado = request.POST.get("bate_volta") == "on"
     itin = itinerario.montar(FORM_ID_ROTEIRO, dados=request.POST, bate_volta_ligado=ligado)
-    contexto = {"numerado": True, "numero": "3", "aguardando": "Aguardando trechos",
+    contexto = {"numerado": True, "numero": "3", "operacional": True,
+                "aguardando": "Aguardando trechos",
                 "faixas": {f.value: f.rotulo for f in Faixa}, "calculo": {},
                 "texto_vazio": "O cálculo aparece aqui assim que o roteiro tiver ida e volta "
                                "com datas."}

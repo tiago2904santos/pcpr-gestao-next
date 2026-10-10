@@ -1,6 +1,17 @@
 # Página atual
 
-## Rodada vigente — Lista e Resumo, 09–10/10/2026
+## Rodada vigente — Propagação da identidade, 10/10/2026
+
+Pedido novo: consolidar Ofícios atuais (cinco capturas do usuário) e migrar páginas
+implementadas, uma por vez. Estado/contratos em `migracao-identidade-20261010.md`
+e `docs/product/propagacao-identidade.md`. Branch `codex/oficios-transporte-cartoes`,
+HEAD inicial `722198f`, index e trabalho local preservados. Fila inicial: passada
+curta Ofícios → Roteiros lista/folha → Termos. Sem reset de banco/mídia.
+Roteiros concluídos tecnicamente: gate 2295 + navegador/compatibilidade verdes;
+galeria e manifesto da rodada registrados. Próxima implementação: Termos.
+Revisão estética das páginas migradas permanece com o usuário.
+
+## Histórico — Lista e Resumo, 09–10/10/2026
 
 Escopo atual: consulta de Ofícios. Cadastro protegido, salvo compatibilidade de
 componentes compartilhados. ADR 0033 e `docs/product/oficios-consulta-visual.md`.

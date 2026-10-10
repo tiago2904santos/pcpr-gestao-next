@@ -1,0 +1,38 @@
+[
+  {
+    "fase": "antes",
+    "registros": "20",
+    "SQL": 18,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "1",
+    "SQL": 18,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "0",
+    "SQL": 16,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "20",
+    "SQL": 18,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "1",
+    "SQL": 18,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "0",
+    "SQL": 16,
+    "mutacoes": 0
+  }
+]

@@ -814,7 +814,7 @@
 
     <!-- 21. LINHA DAS LISTAS DE VIAGENS (Lote 1 da lista de ofícios: LP-01…LP-11) -->
     <section class="cartao" id="registro-lab" aria-labelledby="t-registro-lab">
-      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-registro-lab"><span class="cartao__numero">21</span>Linha das listas de Viagens</h2><span class="texto-secundario texto-sm">Ofícios, Roteiros e Termos usam a mesma linha: placa, título (destinos, até três e "+N"), selos (situação + tipo incomum + no máximo um alerta) e metadados em colunas fixas. As faixas seguem a largura da LISTA (container query), não a da janela: uma faixa a partir de 950px de lista, duas faixas de 640 a 949px, duas colunas abaixo disso e no celular (com placa, título e ⋮ na mesma linha). Diárias: o valor nunca corta; o detalhe só aparece inteiro, na coluna larga (lista ≥ 1180px). Motorista primeiro na equipe, marcado por extenso — "(motorista)" nunca corta; os outros nomes ficam com o que sobra. Passe o mouse (fundo + trilho dourado) e use Tab (anel na linha inteira); reduza a janela para ver o celular.</span></div>
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-registro-lab"><span class="cartao__numero">21</span>Linha das listas de Viagens</h2><span class="texto-secundario texto-sm">Registros de viagem: identificação, destino, situação, período, relações e ações. O exemplo operacional de Roteiro usa a composição vigente de Ofícios, com uso e estimativa financeira em grupos próprios. As variantes anteriores permanecem durante a migração de seus consumidores. Confira conteúdo longo, estado cancelado, foco e larguras menores.</span></div>
       <div class="cartao__corpo pilha-lg">
         <div>
           <h3 class="subtitulo-secao">Selo de tempo — o mesmo vocabulário nas três listas</h3>
@@ -872,23 +872,9 @@
               </div>
               <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do Ofício 129/2026 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
             </li>
-            <li class="registro">
-              <span class="placa" aria-hidden="true"><span class="placa__rotulo">Roteiro</span><span class="placa__numero">#60</span></span>
-              <div class="registro__corpo">
-                <div class="registro__titulo">
-                  <a class="registro__link" href="#registro-lab" title="Curitiba/PR → Cafeara/PR"><span class="sr-only">Roteiro #60 · </span><span class="registro__link-texto">Curitiba/PR → Cafeara/PR</span></a>
-                  <span class="registro__selos">{% selo_tempo lab_dia.menos2 lab_dia.mais4 hoje=lab_hoje %}</span>
-                </div>
-                <div class="registro__meta registro__meta--colunas registro__meta--roteiro">
-                  <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ lab_dia.menos2|date:"d/m" }} a {{ lab_dia.mais4|date:"d/m/Y" }}</span></span>
-                  <span class="registro__meta-item registro__meta-item--trechos">{% icone "route" classe="icone--sm" %}<span class="registro__meta-texto">6 trechos</span></span>
-                  <span class="registro__meta-item registro__meta-item--uso registro__meta-item--vazio">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Ainda não usado</span></span>
-                  <span class="registro__meta-item registro__meta-item--diarias" title="Diárias: R$ 871,65 · 3 × 100%">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">R$ 871,65</span><span class="registro__meta-detalhe"> · 3 × 100%</span></span></span>
-                  <span class="registro__meta-item registro__meta-item--notas" title="Unidade Móvel no evento (exemplo).">{% icone "info" classe="icone--sm" %}<span class="sr-only">Observações: </span><span class="registro__meta-texto">Unidade Móvel no evento (exemplo).</span></span>
-                </div>
-              </div>
-              <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do roteiro #60 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
-            </li>
+          </ul>
+          {% include "ui_lab/_registro_roteiro.html" %}
+          <ul class="registros" aria-label="Demais estados de registros — exemplos">
             <li class="registro registro--inativo">
               <span class="placa placa--cancelada" aria-hidden="true"><span class="placa__rotulo">Ofício</span><span class="placa__numero">126/2026</span></span>
               <div class="registro__corpo">

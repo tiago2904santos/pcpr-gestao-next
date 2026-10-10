@@ -4,5 +4,5 @@ atualizado_em: instante existente no registro; pendencias: lista calculada pelo 
 {% endcomment %}
 <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">
   {% icone "check" classe="icone--sm" %}
-  <span data-anuncio>{% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}Rascunho salvo às {{ atualizado_em|date:"H:i" }}{% else %}Última alteração {{ atualizado_em|date:"d/m/Y H:i" }} · {{ pendencias|length }} pendência{{ pendencias|length|pluralize:"s" }} antes de emitir.{% endif %}</span>
+  <span data-anuncio>{% if sujo %}Alterações não salvas — salve antes de sair.{% elif recem_salvo %}{% if not sem_emissao %}Rascunho {% endif %}salvo às {{ atualizado_em|date:"H:i" }}{% elif sem_emissao %}{% if atualizado_em %}Última alteração {{ atualizado_em|date:"d/m/Y H:i" }}{% else %}O roteiro será salvo automaticamente ao preencher.{% endif %}{% else %}Última alteração {{ atualizado_em|date:"d/m/Y H:i" }} · {{ pendencias|length }} pendência{{ pendencias|length|pluralize:"s" }} antes de emitir.{% endif %}</span>
 </div>

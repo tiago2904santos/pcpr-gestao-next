@@ -22,6 +22,6 @@ Três invólucros para o mesmo corpo (_diarias_corpo.html):
       {% else %}<h2 class="secao__titulo secao__titulo--institucional" id="t-diarias">{% icone "banknote" %}Diárias</h2>{% endif %}
       <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% elif numerado %}<span class="selo selo--situacao-rascunho">{{ aguardando|default:"Aguardando equipe e roteiro" }}</span>{% endif %}</div>
     </div>
-    {% include "viagens/oficios/_diarias_corpo.html" %}
+    {% if operacional %}{% include "viagens/oficios/_diarias_corpo.html" with serena=True horizontal=True sempre_por_servidor=True %}{% else %}{% include "viagens/oficios/_diarias_corpo.html" %}{% endif %}
   </section>
 {% endif %}

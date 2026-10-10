@@ -1,0 +1,227 @@
+[
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "rota": "/viagens/roteiros/?q=Curitiba",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "rota": "/viagens/roteiros/?q=sem-resultado-visual-20261010",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-novo",
+    "rota": "/viagens/roteiros/novo/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "rota": "/viagens/roteiros/?q=Curitiba",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "rota": "/viagens/roteiros/?q=sem-resultado-visual-20261010",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-novo",
+    "rota": "/viagens/roteiros/novo/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "rota": "/viagens/roteiros/?q=Curitiba",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "rota": "/viagens/roteiros/?q=sem-resultado-visual-20261010",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-novo",
+    "rota": "/viagens/roteiros/novo/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "rota": "/viagens/roteiros/?q=Curitiba",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "rota": "/viagens/roteiros/?q=sem-resultado-visual-20261010",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-novo",
+    "rota": "/viagens/roteiros/novo/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-filtro",
+    "rota": "/viagens/roteiros/?q=Curitiba",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-vazio",
+    "rota": "/viagens/roteiros/?q=sem-resultado-visual-20261010",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-novo",
+    "rota": "/viagens/roteiros/novo/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

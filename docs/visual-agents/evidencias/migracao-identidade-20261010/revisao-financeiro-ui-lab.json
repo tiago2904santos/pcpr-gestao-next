@@ -1,0 +1,257 @@
+[
+  {
+    "text": "DiáriasR$ 1.260,001 × 100% + 1 × 15%",
+    "cw": 127,
+    "sw": 127,
+    "left": 185.390625,
+    "right": 312.21875,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 268.265625,
+        "right": 312.21875,
+        "cw": 44,
+        "sw": 44
+      },
+      {
+        "text": "R$ 1.260,00",
+        "left": 236.765625,
+        "right": 312.21875,
+        "cw": 75,
+        "sw": 75
+      },
+      {
+        "text": "1 × 100% + 1 × 15%",
+        "left": 212.71875,
+        "right": 312.21875,
+        "cw": 100,
+        "sw": 100
+      }
+    ],
+    "width": 360,
+    "example": 0,
+    "visualIssues": []
+  },
+  {
+    "text": "DiáriasSem diárias",
+    "cw": 127,
+    "sw": 127,
+    "left": 185.390625,
+    "right": 312.21875,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 268.265625,
+        "right": 312.21875,
+        "cw": 44,
+        "sw": 44
+      }
+    ],
+    "width": 360,
+    "example": 1,
+    "visualIssues": []
+  },
+  {
+    "text": "Diárias estimadasR$ 871,653 × 100%",
+    "cw": 127,
+    "sw": 127,
+    "left": 185.390625,
+    "right": 312.21875,
+    "visible": [
+      {
+        "text": "Diárias estimadas",
+        "left": 201.453125,
+        "right": 312.21875,
+        "cw": 111,
+        "sw": 111
+      },
+      {
+        "text": "R$ 871,65",
+        "left": 248.3125,
+        "right": 312.21875,
+        "cw": 64,
+        "sw": 64
+      },
+      {
+        "text": "3 × 100%",
+        "left": 265.125,
+        "right": 312.21875,
+        "cw": 47,
+        "sw": 47
+      }
+    ],
+    "width": 360,
+    "example": 2,
+    "visualIssues": []
+  },
+  {
+    "text": "DiáriasR$ 1.260,001 × 100% + 1 × 15%",
+    "cw": 142,
+    "sw": 142,
+    "left": 200.390625,
+    "right": 342.21875,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 298.265625,
+        "right": 342.21875,
+        "cw": 44,
+        "sw": 44
+      },
+      {
+        "text": "R$ 1.260,00",
+        "left": 266.765625,
+        "right": 342.21875,
+        "cw": 75,
+        "sw": 75
+      },
+      {
+        "text": "1 × 100% + 1 × 15%",
+        "left": 242.71875,
+        "right": 342.21875,
+        "cw": 100,
+        "sw": 100
+      }
+    ],
+    "width": 390,
+    "example": 0,
+    "visualIssues": []
+  },
+  {
+    "text": "DiáriasSem diárias",
+    "cw": 142,
+    "sw": 142,
+    "left": 200.390625,
+    "right": 342.21875,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 298.265625,
+        "right": 342.21875,
+        "cw": 44,
+        "sw": 44
+      }
+    ],
+    "width": 390,
+    "example": 1,
+    "visualIssues": []
+  },
+  {
+    "text": "Diárias estimadasR$ 871,653 × 100%",
+    "cw": 142,
+    "sw": 142,
+    "left": 200.390625,
+    "right": 342.21875,
+    "visible": [
+      {
+        "text": "Diárias estimadas",
+        "left": 231.453125,
+        "right": 342.21875,
+        "cw": 111,
+        "sw": 111
+      },
+      {
+        "text": "R$ 871,65",
+        "left": 278.3125,
+        "right": 342.21875,
+        "cw": 64,
+        "sw": 64
+      },
+      {
+        "text": "3 × 100%",
+        "left": 295.125,
+        "right": 342.21875,
+        "cw": 47,
+        "sw": 47
+      }
+    ],
+    "width": 390,
+    "example": 2,
+    "visualIssues": []
+  },
+  {
+    "text": "DiáriasR$ 1.260,001 × 100% + 1 × 15%",
+    "cw": 142,
+    "sw": 142,
+    "left": 518.625,
+    "right": 662.625,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 531.421875,
+        "right": 662.625,
+        "cw": 131,
+        "sw": 131
+      },
+      {
+        "text": "R$ 1.260,00",
+        "left": 587.171875,
+        "right": 662.625,
+        "cw": 75,
+        "sw": 75
+      },
+      {
+        "text": "1 × 100% + 1 × 15%",
+        "left": 563.125,
+        "right": 662.625,
+        "cw": 100,
+        "sw": 100
+      }
+    ],
+    "width": 768,
+    "example": 0,
+    "visualIssues": []
+  },
+  {
+    "text": "DiáriasSem diárias",
+    "cw": 142,
+    "sw": 142,
+    "left": 518.625,
+    "right": 662.625,
+    "visible": [
+      {
+        "text": "Diárias",
+        "left": 531.421875,
+        "right": 662.625,
+        "cw": 131,
+        "sw": 131
+      }
+    ],
+    "width": 768,
+    "example": 1,
+    "visualIssues": []
+  },
+  {
+    "text": "Diárias estimadasR$ 871,653 × 100%",
+    "cw": 142,
+    "sw": 142,
+    "left": 518.625,
+    "right": 662.625,
+    "visible": [
+      {
+        "text": "Diárias estimadas",
+        "left": 531.421875,
+        "right": 662.625,
+        "cw": 131,
+        "sw": 131
+      },
+      {
+        "text": "R$ 871,65",
+        "left": 598.71875,
+        "right": 662.625,
+        "cw": 64,
+        "sw": 64
+      },
+      {
+        "text": "3 × 100%",
+        "left": 615.53125,
+        "right": 662.625,
+        "cw": 47,
+        "sw": 47
+      }
+    ],
+    "width": 768,
+    "example": 2,
+    "visualIssues": []
+  }
+]

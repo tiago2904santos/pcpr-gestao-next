@@ -1,7 +1,7 @@
 # Módulo 3 — Roteiros (ficha)
 
-Atualizado em 03/10/2026. Situação: **EM PARIDADE, salvo "Finalizados"** (depende da
-Prestação de contas, módulo 9). Comparado por leitura com `viagens_roteiros/{urls,views,
+Atualizado em 10/10/2026. Situação: **paridade documentada, incluindo Finalizados**.
+Comparado por leitura com `viagens_roteiros/{urls,views,
 models,abas}.py` e `docs/paridade/roteiros-{lista,editor}.md` da referência.
 
 | Função da referência | Situação | Aqui | Prova |
@@ -22,5 +22,16 @@ models,abas}.py` e `docs/paridade/roteiros-{lista,editor}.md` da referência.
 | Status Rascunho/Finalizado do roteiro | ↔ | sem estado: o autosave grava e "Salvar roteiro" volta à lista (a referência usa o status só para a aba de finalização) | — |
 | Tipo Avulso × De solicitação de evento | ⛔ | chega com Eventos Sociais (módulo 11) | — |
 
-Pendências: aba "Finalizados" (módulo 9), tipo do roteiro (módulo 11), comparação com a
-referência em execução (dependência externa).
+Pendências: tipo do roteiro (Eventos Sociais), comparação com a referência em execução
+(dependência externa). A aba Finalizados já está implementada e coberta pelos testes acima.
+
+## Propagação visual — 10/10/2026
+
+Lista e folha migradas para a identidade vigente de Ofícios: hero grafite, filtros
+horizontais, registros operacionais, mapa/trechos/chegada e Diárias compartilhados.
+Rotas, ações, permissões, autosave e regra de cálculo preservados. Evidência e testes:
+`docs/visual-agents/qa/roteiros-identidade-2026-10-10.md`.
+O formulário atual edita somente itinerário (`Meta.fields=[]`): efetivo e observações
+persistidos aparecem na consulta, mas não possuem controles na folha. Lacuna preexistente
+registrada, sem adicionar comportamento nesta missão visual. Aprovação estética pelo
+usuário permanece separada da validação técnica.
