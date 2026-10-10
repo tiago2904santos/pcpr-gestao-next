@@ -930,12 +930,6 @@ a.ficha:hover {
         "protocolo transporte transporte";
     }
 
-    .registro__meta--termo {
-      grid-template-columns: 9.5rem minmax(0, 1fr);
-      grid-template-areas:
-        "periodo equipe"
-        "oficio transporte";
-    }
 
     /* "Usado em N ofícios" (um botão) desce para a 2ª faixa: logo abaixo de um título
        longo ele ficava a 21–23px do link (WCAG 2.5.8, RB1 do re-QA). */
@@ -950,13 +944,12 @@ a.ficha:hover {
       align-items: center;
     }
 
-    .registro__meta--oficio,
-    .registro__meta--termo {
+    .registro__meta--oficio {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     }
 
     .registro__meta--oficio { grid-template-areas: "periodo diarias" "equipe transporte"; }
-    .registro__meta--termo { grid-template-areas: "periodo oficio" "equipe transporte"; }
+
 
 
     .registro__meta--oficio .registro__meta-item--protocolo {
@@ -982,10 +975,6 @@ a.ficha:hover {
       grid-template-areas: "periodo protocolo equipe transporte diarias";
     }
 
-    .registro__meta--termo {
-      grid-template-columns: 9.5rem 8.75rem minmax(0, 1.4fr) minmax(0, 1fr);
-      grid-template-areas: "periodo oficio equipe transporte";
-    }
 
   }
 
@@ -1112,10 +1101,7 @@ a.ficha:hover {
     grid-template-areas: "periodo diarias" "equipe transporte";
   }
   .registro__meta--oficio .registro__meta-item--protocolo { display: none; }
-  .registro__meta--termo {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    grid-template-areas: "periodo oficio" "equipe transporte";
-  }
+
 
 
 

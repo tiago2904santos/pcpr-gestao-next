@@ -1,0 +1,8 @@
+.....................................................................    [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_termos.py::TestDocumentos::test_telas_geram_pdf_docx_pdf_unico_e_zip
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+69 passed, 1 warning in 134.02s (0:02:14)

@@ -445,3 +445,25 @@ valor alto e composição longa possuem verificação de overflow interno, além
 overflow da página. Consumidores: Ofícios, Roteiros e exemplos do UI Lab.
 O exemplo antigo de Roteiro e as regras exclusivas `registro__meta--roteiro` foram
 substituídos; estilos de Termos e demais listas permanecem até sua migração.
+
+### Termos — composição documental e relações
+
+- `registro-operacional--relacoes`: identificação, destino/agenda, relações e menu;
+  não reserva coluna financeira. Consumidores: lista de Termos e vitrine do UI Lab.
+- `campos--conteudo-periodo`: texto/tipo e período, com largura útil para o calendário;
+  duas colunas a partir de 768px, uma no celular.
+- `preparacao-relacoes`: equipe e transporte integrados, duas colunas a partir de
+  1024px. Não substitui semânticas diferentes de motorista nos Ofícios.
+- `_campo_equipe(compacta=True)`: cartões em uma/duas colunas, nome e cargo sem
+  quebra, conteúdo integral no DOM/title e remoção pelo botão existente. Variante
+  explícita vence a antiga grade de seis colunas sem alterar outros consumidores.
+- `_campo_viatura(cartao=True)`: cartão canônico dentro do controlador quando não
+  estiver envolvido pelo controlador de Ofícios. Evita cartões ou controles duplicados.
+- `campo_destinos(..., operacional=True)`: destinos numerados, UF/município e
+  `painel_rota`. OS, Planos e Viagens mantêm compatibilidade anterior até migrarem.
+- Editor/histórico/barra de preparação: mesmas variantes operacionais de Ofícios,
+  com documentos individuais, genérico e viatura preservados; barra no fluxo.
+
+Vitrine de Termos substitui o registro anterior. Removidas quatro regras exclusivas
+`registro__meta--termo`, após migrar ambos os consumidores, testar e retestar.
+Contrato, capturas e limitações em `../visual-agents/qa/termos-identidade-2026-10-10.md`.

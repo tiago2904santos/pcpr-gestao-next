@@ -1378,7 +1378,7 @@ class TestLinhaDaLista:
         html = operador.get(reverse("viagens:termos")).content.decode()
         assert ">+2</span>" in html and "começa hoje" in html
         assert f"{hoje:%d/%m} a {hoje + timedelta(days=2):%d/%m/%Y}" in html
-        assert "registro__meta--termo" in html and ">Avulso<" in html
+        assert "registro-operacional--relacoes" in html and ">Avulso<" in html
 
 
 # ---------------------------------------------------------------- Lote 2 da lista (LP-20…27)

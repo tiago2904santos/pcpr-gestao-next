@@ -892,23 +892,9 @@
               </div>
               <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do Ofício 126/2026 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
             </li>
-            <li class="registro registro--inativo">
-              <span class="placa placa--cancelada" aria-hidden="true"><span class="placa__rotulo">Termo</span><span class="placa__numero">#6</span></span>
-              <div class="registro__corpo">
-                <div class="registro__titulo">
-                  <a class="registro__link" href="#registro-lab"><span class="sr-only">Termo #6 · </span><span class="registro__link-texto">Laranjeiras do Sul/PR</span></a>
-                  <span class="registro__selos"><span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span></span>
-                </div>
-                <div class="registro__meta registro__meta--colunas registro__meta--termo">
-                  <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ lab_dia.mais7|date:"d/m" }} a {{ lab_dia.mais9|date:"d/m/Y" }}</span></span>
-                  <span class="registro__meta-item registro__meta-item--oficio">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">Ofício 135/2026</span></span>
-                  <span class="registro__meta-item registro__meta-item--equipe" title="Lucas Ribeiro Campos">{% icone "users" classe="icone--sm" %}<span class="sr-only">Servidores: </span><span class="registro__meta-texto">Lucas Ribeiro Campos</span></span>
-                  <span class="registro__meta-item registro__meta-item--transporte registro__meta-item--vazio">{% icone "car" classe="icone--sm" %}<span class="registro__meta-texto">Sem viatura</span></span>
-                </div>
-              </div>
-              <div class="registro__acoes"><button type="button" class="botao botao--icone botao--sutil" aria-label="Ações do Termo #6 (exemplo)">{% icone "ellipsis-vertical" %}</button></div>
-            </li>
+
           </ul>
+          {% include "ui_lab/_registro_termo.html" %}
           </div>
         </div>
         <div>

@@ -1,0 +1,117 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+____________________ test_paginacao_e_consulta_sem_edicao _____________________
+
+logado = <Page url='http://localhost:50284/viagens/termos/21/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_paginacao_e_consulta_sem_edicao(logado, dados_e2e):
+        """Lista longa e consulta preservam acesso, sem oferecer ações de escrita."""
+        from tests.e2e.conftest import entrar
+    
+        pg = logado
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        for _ in range(21):
+            termos.salvar(dados_e2e.usuarios["operador"], oficio=oficio)
+        pg.goto("/viagens/termos/")
+        expect(pg.locator(".registro-operacional")).to_have_count(20)
+        pg.get_by_role("link", name="Próxima página", exact=True).click()
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        expect(pg.locator(".barra-acoes__status")).to_contain_text("21 termos")
+        termo = TermoAutorizacao.objects.first()
+        pg.context.clear_cookies()
+        entrar(pg, "consulta")
+        pg.goto(f"/viagens/termos/{termo.pk}/")
+>       expect(pg.locator("#form-termo fieldset").first).to_be_disabled()
+E       AssertionError: Locator expected to be disabled
+E       Actual value: enabled 
+E       Call log:
+E         - Expect "to_be_disabled" with timeout 5000ms
+E         - waiting for locator("#form-termo fieldset").first
+E           9 × locator resolved to <fieldset disabled class="grupo-campos--livre">…</fieldset>
+E             - unexpected value "enabled"
+
+tests\e2e\test_termos_identidade.py:88: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 03:59:56,946 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/21/: 31 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/21/: 31 consultas (limite 25)
+_____________________ test_via_assinada_no_editor_migrado _____________________
+
+logado = <Page url='http://localhost:50284/viagens/termos/22/#previa'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-56/test_via_assinada_no_editor_mi0')
+
+    def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path):
+        """Anexo real pela barra operacional; via permanece separada do PDF gerado."""
+        from gestao.viagens.models import ViaAssinada
+        from tests.e2e.test_assinados import PDF
+    
+        pg = logado
+        termo = termos.salvar(
+            dados_e2e.usuarios["operador"],
+            oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]),
+        )
+        pg.goto(f"/viagens/termos/{termo.pk}/#previa")
+        bloco = pg.locator("pc-editor-documento").first
+>       bloco.scroll_into_view_if_needed()
+
+tests\e2e\test_termos_identidade.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:17481: in scroll_into_view_if_needed
+    self._sync(self._impl_obj.scroll_into_view_if_needed(timeout=timeout))
+.venv\Lib\site-packages\playwright\_impl\_locator.py:563: in scroll_into_view_if_needed
+    return await self._with_element(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:116: in _with_element
+    return await task(
+.venv\Lib\site-packages\playwright\_impl\_element_handle.py:113: in scroll_into_view_if_needed
+    await self._channel.send(
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001A4E3D09550>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001A4E92693A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.scroll_into_view_if_needed: Timeout 29771ms exceeded.
+E           Call log:
+E             - attempting scroll into view action
+E               2 × waiting for element to be stable
+E                 - element is not visible
+E               - retrying scroll into view action
+E               - waiting 20ms
+E               2 × waiting for element to be stable
+E                 - element is not visible
+E               - retrying scroll into view action
+E                 - waiting 100ms
+E               56 × waiting for element to be stable
+E                  - element is not visible
+E                - retrying scroll into view action
+E                  - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 04:00:14,711 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/22/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/22/: 38 consultas (limite 25)
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_termos_identidade.py::test_paginacao_e_consulta_sem_edicao
+FAILED tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado
+2 failed in 90.59s (0:01:30)

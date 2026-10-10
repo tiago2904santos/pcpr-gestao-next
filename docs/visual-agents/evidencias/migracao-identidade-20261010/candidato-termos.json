@@ -1,0 +1,37 @@
+{
+  "baseCommit": "9963f71",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/ui_lab/templates/ui_lab/_registro_termo.html": "6856a6ea0d0bfc4ebc5847707d907fca935cd6a019b0fdac7cd0b240ce4133af",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "bbe049c52b51f4a8a31f78501b32a3a8741525b37495530b69f00e7b7d40f9b2",
+    "gestao/viagens/templates/viagens/_campo_equipe.html": "dbd993d5499c145329e04a063c0c15bc2a8324fec8b3d3f42bf6443c4719be1f",
+    "gestao/viagens/templates/viagens/_campo_viatura.html": "e5ab8c70ca416c4a34a2c5624af794964eac760d5e8f64e753b1faa2f127b0b9",
+    "gestao/viagens/templates/viagens/_destino.html": "356e1e05b4a235b8139c92652e033c3ccf87b42051f2115133525de08cbe1d13",
+    "gestao/viagens/templates/viagens/_destinos.html": "b79acc4ad2448f8746d02ed66fb44ae194e945e529514bbb71e0eb10d8848689",
+    "gestao/viagens/templates/viagens/termos/_cabecalho_contexto.html": "14e650f63fefd944bfb9b8ace635fefca771e995e4dadf2c805eb7ea1de384e3",
+    "gestao/viagens/templates/viagens/termos/editar.html": "746004f37cba009c3cd0e7e8576c03b21519c31bb40e2206d3138cb7de77df42",
+    "gestao/viagens/templates/viagens/termos/lista.html": "a09ad7d5c08185df1c7c49f12134c5af9d752b9322c5e7727535751bb030b20e",
+    "gestao/viagens/templates/viagens/widgets/equipe.html": "afc918e148051a24eb84c56c10865d0d53420f292cdbc47f99fa0181837f76e0",
+    "gestao/viagens/templatetags/viagens.py": "c3585077e1d65d34a935881b2dc076731edc5dd5ce2608d618cd5a1f8890f4da",
+    "gestao/viagens/tests/test_views.py": "4a95dc653a4458975ca2c121589d6af22ab1000148bcc64cf8007d964f0e105b",
+    "static/css/components.css": "c2a1d1ce21b0e62e85accecd26b98b3105ffa4f0598fdd8ef8b6543b983d3e82",
+    "static/css/listas.css": "a144a6a4ed2492785ab3955a17a115423910438c55ecc235950027e2ec320d6c",
+    "static/js/componentes/multiescolha.js": "c81a082259ed5976b6f2fafb9c83c6205cee8f89dbe4cfe9ef811856160cf859",
+    "tests/e2e/test_baixar.py": "f457715e91b81937657665c0b9c53bae633f7f0674a257dab1747bda7b4e3fcb",
+    "tests/e2e/test_termos.py": "e3f133f6c95612ad2c733fb9cb66092ba92850b3344102577aa21b2bc01ac02b",
+    "tests/e2e/test_termos_identidade.py": "09d37facb2ff5b86b511afb52cdf49d6199d325c59baf2434aef5947cb876136"
+  },
+  "checks": {
+    "termos-http": 69,
+    "termos-compat": 8,
+    "termos-documentos": 3,
+    "termos-visual": 3,
+    "termos-estados": 2,
+    "termos-assinados-http": 72,
+    "ruff": "verde",
+    "mypy": "303 fontes verde",
+    "tsc": "verde"
+  },
+  "gateIntegral": "2295 verde em 9963f71; novo gate global necessário",
+  "aprovacaoVisual": "pendente do usuário"
+}

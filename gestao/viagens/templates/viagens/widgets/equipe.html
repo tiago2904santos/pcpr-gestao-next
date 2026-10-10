@@ -18,8 +18,8 @@ A busca não oferece quem já está na equipe (`excluir`, atualizado por multies
         <input type="hidden" name="{{ widget.name }}" value="{{ e.id }}">
         <span class="avatar{% if widget.motorista %} avatar--escuro{% endif %}" aria-hidden="true">{{ e.iniciais }}</span>
         <span class="pessoa__texto">
-          <span class="pessoa__nome">{{ e.titulo }}</span>
-          <span class="pessoa__meta">{{ e.meta|default:"Cadastro incompleto" }}</span>
+          <span class="pessoa__nome" title="{{ e.titulo }}">{{ e.titulo }}</span>
+          <span class="pessoa__meta" title="{{ e.meta|default:'Cadastro incompleto' }}">{{ e.meta|default:"Cadastro incompleto" }}</span>
         </span>
         <span class="equipe__acoes">
           <button type="button" class="equipe__acao equipe__acao--remover" data-remover aria-label="Remover {{ e.titulo }} da equipe" title="Remover da equipe">{% icone "x" classe="icone--sm" %}</button>

@@ -8,12 +8,13 @@ mesmo "Sede e destinos" + "Rota" do roteiro (viagens/_itinerario.html), sem trec
   com km e tempo da ida e da ida e volta.
 {% endcomment %}
 <link rel="stylesheet" href="{% static 'css/itinerario.css' %}">
-<pc-destinos class="itin destinos" id="{{ campo.auto_id }}" data-nome="{{ campo.html_name }}" data-maximo="{{ maximo }}" data-sede="{{ sede }}"
+<pc-destinos class="itin destinos{% if operacional %} itin--operacional{% endif %}" id="{{ campo.auto_id }}" data-nome="{{ campo.html_name }}" data-maximo="{{ maximo }}" data-sede="{{ sede }}"
              data-municipios-url="{% url 'cadastros:buscar_municipios' %}" data-rota-url="{% url 'viagens:rota' %}"
              data-tiles="{{ mapa_tiles }}" data-atribuicao="{{ mapa_atribuicao }}"
              data-leaflet="{% static 'vendor/leaflet/leaflet.js' %}" data-leaflet-css="{% static 'vendor/leaflet/leaflet.css' %}">
 
-  <section class="itin__bloco" aria-labelledby="{{ campo.auto_id }}-t-paradas">
+  {% if operacional %}<div class="itin__planejamento">{% endif %}
+  <section class="itin__bloco itin__sequencia" aria-labelledby="{{ campo.auto_id }}-t-paradas">
     <header class="itin__bloco-cabecalho">
       <h3 class="itin__bloco-titulo" id="{{ campo.auto_id }}-t-paradas">{% icone "map-pin" %}{{ titulo }}</h3>
     </header>
@@ -50,6 +51,7 @@ mesmo "Sede e destinos" + "Rota" do roteiro (viagens/_itinerario.html), sem trec
     {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
   </section>
 
+  {% if operacional %}{% include "componentes/painel_rota.html" %}</div>{% else %}
   <section class="itin__bloco itin__painel" aria-labelledby="{{ campo.auto_id }}-t-rota">
     <header class="itin__bloco-cabecalho">
       <h3 class="itin__bloco-titulo" id="{{ campo.auto_id }}-t-rota">{% icone "route" %}Rota</h3>
@@ -66,6 +68,8 @@ mesmo "Sede e destinos" + "Rota" do roteiro (viagens/_itinerario.html), sem trec
       <button type="button" class="botao botao--sm itin__ver-rota" data-ver-rota hidden>{% icone "route" classe="icone--sm" %}Ver a rota inteira</button>
     </div>
   </section>
+
+  {% endif %}
 
   <template data-destino-modelo>{% include "viagens/_destino.html" with cidade="" numero=0 nome=campo.html_name uf_padrao=sede_uf %}</template>
   <div class="sr-only" aria-live="polite" data-anuncio></div>

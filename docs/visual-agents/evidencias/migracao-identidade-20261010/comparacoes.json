@@ -148,5 +148,95 @@
     "largura": 768,
     "antes": "antes-roteiros-vazio-768.png",
     "depois": "depois-roteiros-vazio-768.png"
+  },
+  {
+    "pagina": "termos-editar",
+    "largura": 1440,
+    "antes": "antes-termos-editar-1440.png",
+    "depois": "depois-termos-editar-1440.png"
+  },
+  {
+    "pagina": "termos-editar",
+    "largura": 360,
+    "antes": "antes-termos-editar-360.png",
+    "depois": "depois-termos-editar-360.png"
+  },
+  {
+    "pagina": "termos-editar",
+    "largura": 768,
+    "antes": "antes-termos-editar-768.png",
+    "depois": "depois-termos-editar-768.png"
+  },
+  {
+    "pagina": "termos-filtro",
+    "largura": 1440,
+    "antes": "antes-termos-filtro-1440.png",
+    "depois": "depois-termos-filtro-1440.png"
+  },
+  {
+    "pagina": "termos-filtro",
+    "largura": 360,
+    "antes": "antes-termos-filtro-360.png",
+    "depois": "depois-termos-filtro-360.png"
+  },
+  {
+    "pagina": "termos-filtro",
+    "largura": 768,
+    "antes": "antes-termos-filtro-768.png",
+    "depois": "depois-termos-filtro-768.png"
+  },
+  {
+    "pagina": "termos-lista",
+    "largura": 1440,
+    "antes": "antes-termos-lista-1440.png",
+    "depois": "depois-termos-lista-1440.png"
+  },
+  {
+    "pagina": "termos-lista",
+    "largura": 360,
+    "antes": "antes-termos-lista-360.png",
+    "depois": "depois-termos-lista-360.png"
+  },
+  {
+    "pagina": "termos-lista",
+    "largura": 768,
+    "antes": "antes-termos-lista-768.png",
+    "depois": "depois-termos-lista-768.png"
+  },
+  {
+    "pagina": "termos-novo",
+    "largura": 1440,
+    "antes": "antes-termos-novo-1440.png",
+    "depois": "depois-termos-novo-1440.png"
+  },
+  {
+    "pagina": "termos-novo",
+    "largura": 360,
+    "antes": "antes-termos-novo-360.png",
+    "depois": "depois-termos-novo-360.png"
+  },
+  {
+    "pagina": "termos-novo",
+    "largura": 768,
+    "antes": "antes-termos-novo-768.png",
+    "depois": "depois-termos-novo-768.png"
+  },
+  {
+    "pagina": "termos-vazio",
+    "largura": 1440,
+    "antes": "antes-termos-vazio-1440.png",
+    "depois": "depois-termos-vazio-1440.png"
+  },
+  {
+    "pagina": "termos-vazio",
+    "largura": 360,
+    "antes": "antes-termos-vazio-360.png",
+    "depois": "depois-termos-vazio-360.png"
+  },
+  {
+    "pagina": "termos-vazio",
+    "largura": 768,
+    "antes": "antes-termos-vazio-768.png",
+    "depois": "depois-termos-vazio-768.png"
   }
 ]

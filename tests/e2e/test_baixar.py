@@ -18,7 +18,7 @@ def test_baixar_documentos_do_termo(logado, dados_e2e):
                           oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]))
     pg = logado
     pg.goto(f"/viagens/termos/{termo.pk}/")
-    acoes = pg.locator(".pagina-cabecalho__acoes")
+    acoes = pg.locator(".registro-hero__acoes")
     acoes.locator("[data-menu-botao]").click()
     acoes.get_by_role("menuitem", name="Baixar documentos", exact=True).click()
     janela = pg.get_by_role("dialog", name="Baixar documentos")

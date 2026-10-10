@@ -1,0 +1,107 @@
+[
+  {
+    "width": 360,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 termo",
+    "marcadores": [
+      "1",
+      "2"
+    ],
+    "campos": [
+      {
+        "top": -784.6875,
+        "width": 300.4375
+      },
+      {
+        "top": -727.109375,
+        "width": 300.4375
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 390,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 termo",
+    "marcadores": [
+      "1",
+      "2"
+    ],
+    "campos": [
+      {
+        "top": -784.578125,
+        "width": 330.4375
+      },
+      {
+        "top": -727,
+        "width": 330.4375
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 768,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 termo",
+    "marcadores": [
+      "1",
+      "2"
+    ],
+    "campos": [
+      {
+        "top": -646.234375,
+        "width": 406.046875
+      },
+      {
+        "top": -646.234375,
+        "width": 259.1875
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1024,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 termo",
+    "marcadores": [
+      "1",
+      "2"
+    ],
+    "campos": [
+      {
+        "top": -282.015625,
+        "width": 614.15625
+      },
+      {
+        "top": -282.015625,
+        "width": 307.078125
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1440,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 termo",
+    "marcadores": [
+      "1",
+      "2"
+    ],
+    "campos": [
+      {
+        "top": -315.1875,
+        "width": 775.21875
+      },
+      {
+        "top": -315.1875,
+        "width": 387.625
+      }
+    ],
+    "axe": [],
+    "console": []
+  }
+]

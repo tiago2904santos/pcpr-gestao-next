@@ -16,4 +16,5 @@ equipe (seletor de onde está a equipe, padrão #equipe); envolvido (já dentro 
   </div>
   {% if campo.errors %}<p class="campo__erro" id="{{ campo.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
 </div>
+{% if cartao and not envolvido %}{% include "componentes/recurso_selecionado.html" %}{% endif %}
 {% if not envolvido %}</pc-transporte>{% endif %}

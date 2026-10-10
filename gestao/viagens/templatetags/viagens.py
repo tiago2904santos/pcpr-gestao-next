@@ -294,7 +294,8 @@ def uf_de(cidade: object) -> str:
 
 
 @register.inclusion_tag("viagens/_destinos.html", takes_context=True)
-def campo_destinos(context, campo, unidade=None, maximo: int = 10, titulo: str = "") -> dict:
+def campo_destinos(context, campo, unidade=None, maximo: int = 10, titulo: str = "",
+                   operacional: bool = False) -> dict:
     """O componente de destinos de todas as telas que pedem destino (termo, OS, plano,
     evento do plano, viagem): a lista "Sede e destinos" do roteiro — a sede da unidade
     fixa no topo e na volta, uma linha por destino (UF + cidade), "Adicionar destino" — e o
@@ -316,6 +317,7 @@ def campo_destinos(context, campo, unidade=None, maximo: int = 10, titulo: str =
     valores = [str(v) for v in (campo.value() or []) if str(v).strip()]
     return {"campo": campo, "valores": valores, "sede": sede, "sede_uf": uf_de(sede),
             "ufs": UFS, "maximo": maximo, "titulo": titulo or "Sede e destinos",
+            "operacional": operacional,
             "mapa_tiles": settings.MAPA_TILES_URL, "mapa_atribuicao": settings.MAPA_ATRIBUICAO,
             "csp_nonce": context.get("csp_nonce", "")}
 

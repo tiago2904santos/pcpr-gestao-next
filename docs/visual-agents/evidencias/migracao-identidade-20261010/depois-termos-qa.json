@@ -1,0 +1,227 @@
+[
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

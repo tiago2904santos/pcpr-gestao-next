@@ -1,0 +1,51 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+________________________ test_termo_a_partir_do_oficio ________________________
+
+logado = <Page url='http://localhost:52861/viagens/termos/1/#t-documentos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_termo_a_partir_do_oficio(logado, dados_e2e):
+        pg = logado
+        oficio = dados_e2e.ids["oficio_emitido"]
+        pg.goto(f"/viagens/oficios/?resumo={oficio}")
+        janela = pg.get_by_role("dialog")
+        janela.get_by_role("button", name="Mais ações").click()
+        janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
+        janela.get_by_role("menuitem", name="Novo termo de autorização").press("Enter")
+        # Um clique: o termo nasce ligado ao ofício e abre direto nos documentos.
+        expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")
+        termo = TermoAutorizacao.objects.get()
+        expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
+        # Um link de PDF por servidor da equipe + o genérico; a herança aparece sob os campos.
+>       assert pg.get_by_role("link", name=re.compile(r"^Gerar .*\(PDF")).count() >= 2
+E       AssertionError: assert 0 >= 2
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://localhost:52861/viagens/termos/1/#t-documentos'> selector='internal:role=link[name=/^Gerar .*\\(PDF/]'>.count
+E        +      where <Locator frame=<Frame name= url='http://localhost:52861/viagens/termos/1/#t-documentos'> selector='internal:role=link[name=/^Gerar .*\\(PDF/]'> = get_by_role('link', name=re.compile('^Gerar .*\\(PDF'))
+E        +        where get_by_role = <Page url='http://localhost:52861/viagens/termos/1/#t-documentos'>.get_by_role
+E        +        and   re.compile('^Gerar .*\\(PDF') = <function compile at 0x000002237DB56D40>('^Gerar .*\\(PDF')
+E        +          where <function compile at 0x000002237DB56D40> = re.compile
+
+tests\e2e\test_termos.py:28: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 03:31:47,517 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+-------------------------- Captured stderr teardown ---------------------------
+[10/Oct/2026 03:31:48,593] - Broken pipe from ('127.0.0.1', 53447)
+[10/Oct/2026 03:31:48,725] - Broken pipe from ('127.0.0.1', 51254)
+[10/Oct/2026 03:31:48,730] - Broken pipe from ('127.0.0.1', 63912)
+[10/Oct/2026 03:31:48,759] - Broken pipe from ('127.0.0.1', 53385)
+[10/Oct/2026 03:31:48,782] - Broken pipe from ('127.0.0.1', 55780)
+[10/Oct/2026 03:31:50,855] - Broken pipe from ('127.0.0.1', 60981)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 53447)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 51254)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 63912)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 53385)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 55780)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 60981)
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_termos.py::test_termo_a_partir_do_oficio - AssertionErr...
+1 failed, 1 passed in 87.30s (0:01:27)

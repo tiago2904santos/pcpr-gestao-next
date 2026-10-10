@@ -1,0 +1,144 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+________________________ test_termo_a_partir_do_oficio ________________________
+
+logado = <Page url='http://localhost:60166/viagens/termos/1/#t-documentos'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_termo_a_partir_do_oficio(logado, dados_e2e):
+        pg = logado
+        oficio = dados_e2e.ids["oficio_emitido"]
+        pg.goto(f"/viagens/oficios/?resumo={oficio}")
+        janela = pg.get_by_role("dialog")
+        janela.get_by_role("button", name="Mais ações").click()
+        janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
+        janela.get_by_role("menuitem", name="Novo termo de autorização").press("Enter")
+        # Um clique: o termo nasce ligado ao ofício e abre direto nos documentos.
+        expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")
+        termo = TermoAutorizacao.objects.get()
+        expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
+        # Cada servidor e o genérico têm sua página no editor unificado vigente.
+>       servidores = list(termo.oficio.servidores.all())
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Oficio' object has no attribute 'servidores'
+
+tests\e2e\test_termos.py:28: AttributeError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 03:36:47,144 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+-------------------------- Captured stderr teardown ---------------------------
+[10/Oct/2026 03:36:48,033] - Broken pipe from ('127.0.0.1', 61325)
+[10/Oct/2026 03:36:48,042] - Broken pipe from ('127.0.0.1', 60351)
+[10/Oct/2026 03:36:48,099] - Broken pipe from ('127.0.0.1', 61934)
+[10/Oct/2026 03:36:49,943] - Broken pipe from ('127.0.0.1', 51793)
+[10/Oct/2026 03:36:49,947] - Broken pipe from ('127.0.0.1', 63596)
+2026-10-10 03:36:49,969 ERROR django.request Internal Server Error: /viagens/termos/1/folha/1/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 251, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\mixins.py", line 21, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'unidade'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 289, in folha
+    termo = _termo_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 134, in _termo_visivel
+    if not policies.pode_ver_termo(request.user, termo):
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 377, in pode_ver_termo
+    unidade_do_usuario(usuario), "pk", None)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 35, in unidade_do_usuario
+    return usuario.lotacao.unidade
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 267, in __get__
+    instance._state.fetch_mode.fetch(self, instance)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fetch_modes.py", line 17, in fetch
+    fetcher.fetch_one(instance)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 280, in fetch_one
+    rel_obj = self.get_object(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 232, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 722, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+gestao.cadastros.models.Unidade.DoesNotExist: Unidade matching query does not exist.
+[10/Oct/2026 03:36:50,083] - Broken pipe from ('127.0.0.1', 64110)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 61325)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 60351)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 61934)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 51793)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 63596)
+ERROR    django.request:log.py:283 Internal Server Error: /viagens/termos/1/folha/1/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 251, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\mixins.py", line 21, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'unidade'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 289, in folha
+    termo = _termo_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 134, in _termo_visivel
+    if not policies.pode_ver_termo(request.user, termo):
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 377, in pode_ver_termo
+    unidade_do_usuario(usuario), "pk", None)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 35, in unidade_do_usuario
+    return usuario.lotacao.unidade
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 267, in __get__
+    instance._state.fetch_mode.fetch(self, instance)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fetch_modes.py", line 17, in fetch
+    fetcher.fetch_one(instance)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 280, in fetch_one
+    rel_obj = self.get_object(instance)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 232, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 722, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+gestao.cadastros.models.Unidade.DoesNotExist: Unidade matching query does not exist.
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 64110)
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_termos.py::test_termo_a_partir_do_oficio - AttributeErr...
+1 failed, 1 passed in 69.71s (0:01:09)

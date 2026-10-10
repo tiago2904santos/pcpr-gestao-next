@@ -1,0 +1,15 @@
+{% load viagens %}
+    {% if termo %}
+    <p class="registro-hero__metadados" id="frase-termo" data-vivo>
+      {% if termo.viagem_id %}<a class="metadado metadado--inverso" href="{% url 'viagens:editar_viagem' termo.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ termo.viagem }}</a>{% endif %}
+      <span class="sr-only">Resumo do termo: </span>
+      {% if termo.cancelado %}<span class="selo selo--perigo">Cancelado</span>{% elif not ef.completo %}<span class="selo selo--aviso">Incompleto</span>{% else %}<span class="selo selo--sucesso">Completo</span>{% endif %}
+      <span class="metadado metadado--inverso">{% icone "file-text" classe="icone--sm" %}{% if termo.oficio %}{{ termo.oficio }}{% with n=termo.oficios.all|length %}{% if n > 1 %} e mais {{ n|add:"-1" }}{% endif %}{% endwith %}{% else %}avulso{% endif %}</span>
+      {% with n=ef.servidores|length %}<span class="metadado metadado--inverso{% if not n %} metadado--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem servidores{% endif %}</span>{% endwith %}
+      <span class="metadado metadado--inverso{% if not ef.destinos %} metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ ef.destino_texto|default:"sem destino" }}</span>
+      <span class="metadado metadado--inverso{% if not ef.periodo_curto %} metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ ef.periodo_curto|default:"sem datas" }}</span>
+      {% if ef.viatura %}<span class="metadado metadado--inverso">{% icone "car" classe="icone--sm" %}{{ ef.viatura }}</span>{% endif %}
+    </p>
+    {% else %}
+    <p class="registro-hero__metadados"><span class="metadado metadado--inverso metadado--vazio">{% icone "file-signature" classe="icone--sm" %}Escolha um ofício, ou informe destino e data</span></p>
+    {% endif %}

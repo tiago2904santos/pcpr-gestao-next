@@ -24,13 +24,18 @@ def test_termo_a_partir_do_oficio(logado, dados_e2e):
     expect(pg.locator(".toast")).to_contain_text("criado a partir do Ofício")
     termo = TermoAutorizacao.objects.get()
     expect(pg.get_by_role("heading", name="Documentos")).to_be_visible()
-    # Um link de PDF por servidor da equipe + o genérico; a herança aparece sob os campos.
-    assert pg.get_by_role("link", name=re.compile(r"^Gerar .*\(PDF")).count() >= 2
-    expect(pg.locator(".heranca").first).to_contain_text("Do ofício")
+    # Cada servidor e o genérico têm sua página no editor unificado vigente.
+    from gestao.viagens import termos
+
+    servidores = termos.efetivo(termo).servidores
+    expect(pg.locator("[data-editores] [data-pagina]")).to_have_count(len(servidores) + 1 + bool(termo.oficio.viatura_id))
+    expect(pg.locator("[data-oficio-do-termo]")).to_contain_text(termo.oficio.numero_formatado)
+    expect(pg.locator("#frase-termo")).to_contain_text(termo.oficio.numero_formatado)
     # O primeiro documento aparece como vai sair; o evento editado grava sozinho e a
     # prévia se refaz.
     pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
-    folha = pg.frame_locator("#folha-termo")
+    primeiro = pg.locator("[data-editores] pc-editor-documento").first
+    folha = primeiro.frame_locator('iframe[data-quadro="texto"]')
     expect(folha.locator("body")).to_contain_text("TERMO DE AUTORIZAÇÃO")
     pg.get_by_role("textbox", name="Evento").fill("Feira Fictícia")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
@@ -41,6 +46,7 @@ def test_termo_a_partir_do_oficio(logado, dados_e2e):
     assert resposta.ok and resposta.body().startswith(b"%PDF")
     pg.goto("/viagens/termos/")
     expect(pg.locator(".registro").first).to_contain_text("Termo")
+    pg.wait_for_load_state("networkidle")
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
@@ -66,4 +72,5 @@ def test_cancelar_e_reativar_termo(logado, dados_e2e):
     pg.get_by_role("button", name=f"Ações do {termo}").click()
     pg.get_by_role("menuitem", name="Reativar").press("Enter")
     expect(pg.locator(".toast")).to_contain_text("reativado")
+    pg.wait_for_load_state("networkidle")
     assert pg.erros_console == []  # type: ignore[attr-defined]

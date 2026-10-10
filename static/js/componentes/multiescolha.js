@@ -66,6 +66,7 @@ export class PcMultiescolha extends HTMLElement {
     const nome = document.createElement("span");
     nome.className = "pessoa__nome";
     nome.textContent = opcao.titulo;
+    nome.title = opcao.titulo;
     texto.append(nome);
     if (opcao.meta) {
       const meta = document.createElement("span");
@@ -121,9 +122,11 @@ export class PcMultiescolha extends HTMLElement {
     const nome = document.createElement("span");
     nome.className = "pessoa__nome";
     nome.textContent = opcao.titulo;
+    nome.title = opcao.titulo;
     const meta = document.createElement("span");
     meta.className = "pessoa__meta";
     meta.textContent = opcao.meta || (oficio ? "" : "Cadastro incompleto");
+    meta.title = meta.textContent;
     texto.append(nome, meta);
     const acoes = document.createElement("span");
     acoes.className = "equipe__acoes";

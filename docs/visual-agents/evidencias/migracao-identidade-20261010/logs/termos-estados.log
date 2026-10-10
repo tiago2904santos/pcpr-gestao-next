@@ -1,0 +1,7 @@
+..                                                                       [100%]
+============================== warnings summary ===============================
+tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_termos_estados_070a9efc" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 68.10s (0:01:08)

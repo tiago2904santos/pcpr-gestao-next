@@ -1,0 +1,386 @@
+[
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 54.6,
+                  "height": 23
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input class=\"entrada\" type=\"text\" role=\"combobox\" value=\"Maringá/PR\" placeholder=\"Digite e escolha na lista\" autocomplete=\"off\" aria-label=\"Destino 2\" aria-controls=\"cbx-3-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" style=\"\">",
+                    "target": [
+                      "input[aria-controls=\"cbx-3-lista\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"botao botao--texto\" href=\"/viagens/termos/\">Voltar</a>",
+                    "target": [
+                      ".botao--texto[href$=\"termos/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"submit\" form=\"finalizar-termo\" class=\"botao botao--marca\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+                    "target": [
+                      ".botao--marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 54.6px by 23px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 16.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"itin__alca\" data-alca=\"\" aria-label=\"Mover destino 2: setas para cima e para baixo\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-grip-vertical\"></use></svg></button>",
+                    "target": [
+                      ".itin__parada[data-destino=\"\"]:nth-child(3) > .itin__alca[data-alca=\"\"][type=\"button\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<select class=\"selecao\" data-uf=\"\" aria-label=\"UF do destino\">",
+            "target": [
+              ".itin__local[aria-label=\"Destino 2\"][role=\"group\"] > .itin__uf.campo > select[data-uf=\"\"][aria-label=\"UF do destino\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 54.6px by 23px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16.6px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 91.1,
+                  "height": 17
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" form=\"finalizar-termo\" class=\"botao botao--marca\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+                    "target": [
+                      ".botao--marca"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+                    "target": [
+                      ".itin__local[aria-label=\"Destino 2\"][role=\"group\"] > .itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"botao\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Ações: termo\" aria-controls=\"menu-a24mx8o\" aria-expanded=\"false\" id=\"menu-a24mx8o-botao\">",
+                    "target": [
+                      "#menu-a24mx8o-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 91.1px by 17px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 1.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<select class=\"selecao\" data-uf=\"\" aria-label=\"UF do destino\">",
+                    "target": [
+                      ".itin__local[aria-label=\"Destino 2\"][role=\"group\"] > .itin__uf.campo > select[data-uf=\"\"][aria-label=\"UF do destino\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+                    "target": [
+                      ".itin__local[aria-label=\"Destino 2\"][role=\"group\"] > .itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"itin__remover\" data-remover-destino=\"\" title=\"Remover destino\">",
+                    "target": [
+                      ".itin__parada[data-destino=\"\"]:nth-child(3) > .itin__remover[data-remover-destino=\"\"][title=\"Remover destino\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 1.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" type=\"text\" role=\"combobox\" value=\"Maringá/PR\" placeholder=\"Digite e escolha na lista\" autocomplete=\"off\" aria-label=\"Destino 2\" aria-controls=\"cbx-3-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" style=\"\">",
+            "target": [
+              "input[aria-controls=\"cbx-3-lista\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 91.1px by 17px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 1.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 11.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"submit\" form=\"finalizar-termo\" class=\"botao botao--marca\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+                    "target": [
+                      ".botao--marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 4.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input class=\"entrada\" type=\"text\" role=\"combobox\" value=\"Maringá/PR\" placeholder=\"Digite e escolha na lista\" autocomplete=\"off\" aria-label=\"Destino 2\" aria-controls=\"cbx-3-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\" style=\"\">",
+                    "target": [
+                      "input[aria-controls=\"cbx-3-lista\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"submit\" form=\"finalizar-termo\" class=\"botao botao--marca\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+                    "target": [
+                      ".botao--marca"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 4.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+            "target": [
+              ".itin__local[aria-label=\"Destino 2\"][role=\"group\"] > .itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 4.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 11.7
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"botao\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Ações: termo\" aria-controls=\"menu-a24mx8o\" aria-expanded=\"false\" id=\"menu-a24mx8o-botao\">",
+                    "target": [
+                      "#menu-a24mx8o-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.7px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 18.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"botao\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Ações: termo\" aria-controls=\"menu-a24mx8o\" aria-expanded=\"false\" id=\"menu-a24mx8o-botao\">",
+                    "target": [
+                      "#menu-a24mx8o-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"itin__remover\" data-remover-destino=\"\" title=\"Remover destino\">",
+            "target": [
+              ".itin__parada[data-destino=\"\"]:nth-child(3) > .itin__remover[data-remover-destino=\"\"][title=\"Remover destino\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 18.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-lista",
+    "rota": "/viagens/termos/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-filtro",
+    "rota": "/viagens/termos/?q=Brasília",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-vazio",
+    "rota": "/viagens/termos/?q=sem-resultado-visual-20261010",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-novo",
+    "rota": "/viagens/termos/novo/",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]
