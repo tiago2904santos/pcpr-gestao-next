@@ -1195,12 +1195,14 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
     policies.exigir(policies.pode_listar(request.user))
     base = policies.oficios_visiveis(request.user)
     contagens = queries.contagens_justificativas(base)
-    aba = request.GET.get("aba") or request.POST.get("aba") or ""
+    filtros_atuais = (QueryDict(request.POST.get("voltar", ""))
+                      if request.method == "POST" else request.GET)
+    aba = filtros_atuais.get("aba") or request.POST.get("aba") or ""
     if not aba and contagens["pendentes"]:
         aba = "pendentes"  # a tela existe para zerar as pendentes: abre nelas
     if aba not in queries.ABAS_JUSTIFICATIVAS:
         aba = ""
-    termo = (request.GET.get("q") or "").strip()
+    termo = (filtros_atuais.get("q") or "").strip()
     qs = queries.justificativas(base, aba)
     if termo:
         achados = services.buscar_por_texto(base, termo).values("pk")
@@ -1212,7 +1214,7 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
           # Pendentes pela saída mais próxima (urgência); as demais, pelo número.
           .order_by(*((F("saida_dia").asc(nulls_last=True), "-ano", "-numero")
                       if aba == "pendentes" else ("-ano", "-numero"))))
-    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    pagina = Paginator(qs, POR_PAGINA).get_page(filtros_atuais.get("pagina"))
     pagina.object_list = list(pagina.object_list)
     for o in pagina.object_list:  # o que cada linha oferece vem da política
         corrente = queries.pdf_corrente_da_lista(o, "justificativa")
@@ -1230,7 +1232,7 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
                 "justificativa_modelo": editando.justificativa_modelo_id})
         else:
             editando = None
-    filtros = request.GET.copy()
+    filtros = filtros_atuais.copy()
     for chave in ("pagina", "editar"):
         filtros.pop(chave, None)
     return render(request, "viagens/justificativas/lista.html", {
@@ -1239,7 +1241,7 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
                                              queries.ABAS_JUSTIFICATIVAS.items()],
         "contagens": contagens,
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
-        "form": form, "editando": editando,
+        "form": form, "editando": editando, "lista_url": reverse("viagens:justificativas"),
         "pode_gerir_textos": policies.pode_gerir_textos_prontos(request.user),
         "pode_baixar": policies.edita_oficios(request.user),
         "migalhas": _migalhas(("Justificativas", "")),

@@ -531,3 +531,21 @@ caixa. Barra manual usa o padrão no fluxo, sem cobrir relatório.
 
 Implementação exclusiva antiga: `tabela--resultados` e `relatorio-final`, substituídas
 por esses dois padrões; removidas após prova de consumidores e sete E2E pós-limpeza verdes, registrados em QA.
+
+
+## Coleção de Justificativas — 10/10/2026
+
+A variante `abas--conteudo` usa largura intrínseca dentro do índice da coleção de
+consulta para dimensões com poucas alternativas. Consumidores: Justificativas e
+UI Lab (Todas/Pendentes/Preenchidas). Não é o componente ARIA de painéis: são links
+GET, com estado `aria-current`, busca HTMX e contadores OOB existentes.
+
+Registros reaproveitam identidade documental compacta e variante de relações;
+estado do texto (Pendente/Preenchida) é separado do estado documental e do prazo.
+Diálogo conserva gravação manual, texto pronto, versão e erros; metadados usam
+`metadados`. Não cria entidade ou editor de justificativa novos.
+
+`paginacao.html` aceita `paginacao_destino` opcional: prefixo de rota para páginas
+que também renderizam em uma URL de POST/erro. Ausente, conserva o contrato
+relativo anterior. Justificativas informa sua lista; demais consumidores mantêm
+seus endereços. IDs e querystring_base continuam do consumidor.

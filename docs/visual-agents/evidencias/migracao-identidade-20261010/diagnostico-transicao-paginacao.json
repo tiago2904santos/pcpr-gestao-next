@@ -1,0 +1,41 @@
+{
+  "antesDaEspera": {
+    "ready": "complete",
+    "transicao": true,
+    "animacoes": [
+      {
+        "nome": "filete-crescer",
+        "estado": "running"
+      },
+      {
+        "nome": "contagem-entrar",
+        "estado": "running"
+      },
+      {
+        "nome": "-ua-view-transition-group-anim-root",
+        "estado": "running"
+      },
+      {
+        "nome": "-ua-view-transition-fade-in",
+        "estado": "running"
+      },
+      {
+        "nome": "-ua-mix-blend-mode-plus-lighter",
+        "estado": "running"
+      },
+      {
+        "nome": "-ua-view-transition-fade-out",
+        "estado": "running"
+      },
+      {
+        "nome": "-ua-mix-blend-mode-plus-lighter",
+        "estado": "running"
+      }
+    ]
+  },
+  "depoisDaEspera": {
+    "ready": "complete",
+    "transicao": false
+  },
+  "axeFinal": []
+}

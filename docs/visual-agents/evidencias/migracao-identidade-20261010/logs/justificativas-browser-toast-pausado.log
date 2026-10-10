@@ -1,0 +1,641 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: var.migracao_visual_settings (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 7 items
+
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[360] Creating test database for alias 'default'...
+
+2026-10-10T09:33:55.039Z pw:api navigating to "http://localhost:53550/conta/entrar/", waiting until "load"
+2026-10-10T09:33:56.153Z pw:api   "commit" event fired
+2026-10-10T09:33:56.154Z pw:api   navigated to "http://localhost:53550/conta/entrar/"
+2026-10-10T09:33:56.193Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:56.200Z pw:api   "load" event fired
+2026-10-10T09:33:56.315Z pw:api waiting for locator("#id_username")
+2026-10-10T09:33:56.348Z pw:api   locator resolved to <input type="text" required="" autofocus="" maxlength="60" name="username" class="entrada" id="id_username" spellcheck="false" autocapitalize="none" autocomplete="username" placeholder="usuario ou nome@pc.pr.gov.br"/>
+2026-10-10T09:33:56.351Z pw:api   fill("operador")
+2026-10-10T09:33:56.351Z pw:api attempting fill action
+2026-10-10T09:33:56.352Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:33:56.364Z pw:api waiting for locator("#id_password")
+2026-10-10T09:33:56.369Z pw:api   locator resolved to <input required="" type="password" name="password" class="entrada" id="id_password" autocomplete="current-password"/>
+2026-10-10T09:33:56.371Z pw:api   fill("senha-e2e-123")
+2026-10-10T09:33:56.371Z pw:api attempting fill action
+2026-10-10T09:33:56.372Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:33:56.384Z pw:api waiting for locator("button[type=submit]")
+2026-10-10T09:33:56.388Z pw:api   locator resolved to <button type="submit" class="botao botao--marca botao--lg botao--bloco">…</button>
+2026-10-10T09:33:56.389Z pw:api attempting click action
+2026-10-10T09:33:56.390Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:56.418Z pw:api   element is not stable
+2026-10-10T09:33:56.418Z pw:api retrying click action
+2026-10-10T09:33:56.419Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:56.452Z pw:api   element is not stable
+2026-10-10T09:33:56.452Z pw:api retrying click action
+2026-10-10T09:33:56.453Z pw:api   waiting 20ms
+2026-10-10T09:33:56.476Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:56.502Z pw:api   element is not stable
+2026-10-10T09:33:56.502Z pw:api retrying click action
+2026-10-10T09:33:56.502Z pw:api   waiting 100ms
+2026-10-10T09:33:56.606Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:56.634Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:56.634Z pw:api   scrolling into view if needed
+2026-10-10T09:33:56.637Z pw:api   done scrolling
+2026-10-10T09:33:56.645Z pw:api   performing click action
+2026-10-10T09:33:56.653Z pw:api   click action done
+2026-10-10T09:33:56.653Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:33:56.895Z pw:api   "commit" event fired
+2026-10-10T09:33:56.895Z pw:api   navigated to "http://localhost:53550/"
+2026-10-10T09:33:56.895Z pw:api   navigated to "http://localhost:53550/"
+2026-10-10T09:33:56.905Z pw:api   navigations have finished
+2026-10-10T09:33:56.912Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:56.916Z pw:api   "load" event fired
+2026-10-10T09:33:56.989Z pw:api navigating to "http://localhost:53550/viagens/justificativas/?aba=todas", waiting until "load"
+2026-10-10T09:33:57.143Z pw:api   "commit" event fired
+2026-10-10T09:33:57.143Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas"
+2026-10-10T09:33:57.160Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:57.165Z pw:api   "load" event fired
+2026-10-10T09:33:57.172Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:33:57.194Z pw:api   locator resolved to <input name="q" value="" type="search" class="entrada" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:33:57.195Z pw:api   fill("02/2026")
+2026-10-10T09:33:57.195Z pw:api attempting fill action
+2026-10-10T09:33:57.195Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:33:57.209Z pw:api Expect "to_have_count" with timeout 5000ms
+2026-10-10T09:33:57.209Z pw:api waiting for locator(".registro-operacional")
+2026-10-10T09:33:57.212Z pw:api   locator resolved to 1 element
+2026-10-10T09:33:57.219Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:33:57.219Z pw:api waiting for locator("#abas-filtro a[aria-current]")
+2026-10-10T09:33:57.222Z pw:api   locator resolved to <a class="aba" aria-current="page" href="/viagens/justificativas/?aba=todas">…</a>
+2026-10-10T09:33:57.228Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:33:57.228Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:33:57.231Z pw:api   locator resolved to <input name="q" value="" type="search" class="entrada" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:33:57.238Z pw:api waiting for get_by_role("button", name="Ações da justificativa do Ofício 02/2026")
+2026-10-10T09:33:57.242Z pw:api   locator resolved to <button type="button" data-menu-botao="" aria-haspopup="menu" aria-expanded="false" id="menu-119ff4t-botao" aria-controls="menu-119ff4t" aria-label="Ações da justificativa do Ofício 02/2026" class="botao botao--icone botao--sutil botao--menu-registro">…</button>
+2026-10-10T09:33:57.243Z pw:api elementHandle.press("Enter")
+2026-10-10T09:33:57.261Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:33:57.262Z pw:api waiting for get_by_role("menuitem", name="Escrever justificativa")
+2026-10-10T09:33:57.266Z pw:api   locator resolved to <a role="menuitem" class="menu__item" href="/viagens/justificativas/?aba=todas&editar=2">…</a>
+2026-10-10T09:33:57.284Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:33:57.285Z pw:api waiting for get_by_role("button", name="Ações da justificativa do Ofício 02/2026")
+2026-10-10T09:33:57.289Z pw:api   locator resolved to <button type="button" data-menu-botao="" aria-haspopup="menu" aria-expanded="false" id="menu-119ff4t-botao" aria-controls="menu-119ff4t" aria-label="Ações da justificativa do Ofício 02/2026" class="botao botao--icone botao--sutil botao--menu-registro">…</button>
+2026-10-10T09:33:57.296Z pw:api waiting for locator(".registro__link")
+2026-10-10T09:33:57.299Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&editar=2">…</a>
+2026-10-10T09:33:57.301Z pw:api attempting click action
+2026-10-10T09:33:57.301Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.333Z pw:api   element is not stable
+2026-10-10T09:33:57.333Z pw:api retrying click action
+2026-10-10T09:33:57.334Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.367Z pw:api   element is not stable
+2026-10-10T09:33:57.368Z pw:api retrying click action
+2026-10-10T09:33:57.368Z pw:api   waiting 20ms
+2026-10-10T09:33:57.391Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.417Z pw:api   element is not stable
+2026-10-10T09:33:57.417Z pw:api retrying click action
+2026-10-10T09:33:57.417Z pw:api   waiting 100ms
+2026-10-10T09:33:57.523Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.550Z pw:api   element is not stable
+2026-10-10T09:33:57.550Z pw:api retrying click action
+2026-10-10T09:33:57.550Z pw:api   waiting 100ms
+2026-10-10T09:33:57.664Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas"
+2026-10-10T09:33:57.665Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026"
+2026-10-10T09:33:57.673Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.699Z pw:api element was detached from the DOM, retrying
+2026-10-10T09:33:57.702Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2">…</a>
+2026-10-10T09:33:57.704Z pw:api attempting click action
+2026-10-10T09:33:57.704Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.734Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:57.734Z pw:api   scrolling into view if needed
+2026-10-10T09:33:57.735Z pw:api   done scrolling
+2026-10-10T09:33:57.739Z pw:api   performing click action
+2026-10-10T09:33:57.748Z pw:api   click action done
+2026-10-10T09:33:57.748Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:33:57.880Z pw:api   "commit" event fired
+2026-10-10T09:33:57.881Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:33:57.881Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:33:57.888Z pw:api   navigations have finished
+2026-10-10T09:33:57.895Z pw:api Expect "to_be_visible" with timeout 5000ms
+2026-10-10T09:33:57.896Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026")
+2026-10-10T09:33:57.907Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:33:57.909Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:57.910Z pw:api   "load" event fired
+2026-10-10T09:33:57.934Z pw:api   locator resolved to <dialog open="" class="dialogo" data-abrir-ao-carregar="" id="dialogo-justificativa" aria-labelledby="dialogo-justificativa-titulo">…</dialog>
+2026-10-10T09:33:57.954Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("button", name="Gravar no ofício")
+2026-10-10T09:33:57.960Z pw:api   locator resolved to <button type="submit" class="botao botao--primario">…</button>
+2026-10-10T09:33:57.962Z pw:api attempting click action
+2026-10-10T09:33:57.962Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:57.983Z pw:api   element is not stable
+2026-10-10T09:33:57.983Z pw:api retrying click action
+2026-10-10T09:33:57.983Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.016Z pw:api   element is not stable
+2026-10-10T09:33:58.016Z pw:api retrying click action
+2026-10-10T09:33:58.016Z pw:api   waiting 20ms
+2026-10-10T09:33:58.039Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.067Z pw:api   element is not stable
+2026-10-10T09:33:58.067Z pw:api retrying click action
+2026-10-10T09:33:58.067Z pw:api   waiting 100ms
+2026-10-10T09:33:58.170Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.200Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:58.200Z pw:api   scrolling into view if needed
+2026-10-10T09:33:58.202Z pw:api   done scrolling
+2026-10-10T09:33:58.206Z pw:api   performing click action
+2026-10-10T09:33:58.211Z pw:api   click action done
+2026-10-10T09:33:58.211Z pw:api   waiting for scheduled navigations to finish
+2026-10-10 06:33:58,322 WARNING django.request Unprocessable Content: /viagens/justificativas/2/salvar/
+2026-10-10T09:33:58.360Z pw:api   "commit" event fired
+2026-10-10T09:33:58.360Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/2/salvar/"
+2026-10-10T09:33:58.360Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/2/salvar/"
+2026-10-10T09:33:58.361Z pw:api   navigations have finished
+2026-10-10T09:33:58.374Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:33:58.375Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").locator(".campo__erro")
+2026-10-10T09:33:58.390Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/2/salvar/"
+2026-10-10T09:33:58.391Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:58.392Z pw:api   "load" event fired
+2026-10-10T09:33:58.411Z pw:api   locator resolved to <p class="campo__erro" id="id_justificativa-erro">…</p>
+2026-10-10T09:33:58.417Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("link", name="Cancelar", exact=True)
+2026-10-10T09:33:58.422Z pw:api   locator resolved to <a class="botao botao--texto" href="/viagens/justificativas/?aba=todas&q=02%2F2026&">Cancelar</a>
+2026-10-10T09:33:58.423Z pw:api attempting click action
+2026-10-10T09:33:58.423Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.450Z pw:api   element is not stable
+2026-10-10T09:33:58.450Z pw:api retrying click action
+2026-10-10T09:33:58.450Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.488Z pw:api   element is not stable
+2026-10-10T09:33:58.488Z pw:api retrying click action
+2026-10-10T09:33:58.488Z pw:api   waiting 20ms
+2026-10-10T09:33:58.510Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.537Z pw:api   element is not stable
+2026-10-10T09:33:58.537Z pw:api retrying click action
+2026-10-10T09:33:58.537Z pw:api   waiting 100ms
+2026-10-10T09:33:58.652Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.684Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:58.684Z pw:api   scrolling into view if needed
+2026-10-10T09:33:58.686Z pw:api   done scrolling
+2026-10-10T09:33:58.688Z pw:api   performing click action
+2026-10-10T09:33:58.695Z pw:api   click action done
+2026-10-10T09:33:58.695Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:33:58.824Z pw:api   "commit" event fired
+2026-10-10T09:33:58.825Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:33:58.825Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:33:58.834Z pw:api   navigations have finished
+2026-10-10T09:33:58.836Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:33:58.840Z pw:api   "load" event fired
+2026-10-10T09:33:58.841Z pw:api Expect "to_have_url" with timeout 5000ms
+2026-10-10T09:33:58.861Z pw:api Expect "to_have_value" with timeout 5000ms
+2026-10-10T09:33:58.861Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:33:58.865Z pw:api   locator resolved to <input name="q" type="search" class="entrada" value="02/2026" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:33:58.871Z pw:api Expect "to_have_count" with timeout 5000ms
+2026-10-10T09:33:58.871Z pw:api waiting for locator(".registro-operacional")
+2026-10-10T09:33:58.873Z pw:api   locator resolved to 1 element
+2026-10-10T09:33:58.879Z pw:api waiting for locator(".registro__link")
+2026-10-10T09:33:58.882Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2">…</a>
+2026-10-10T09:33:58.884Z pw:api attempting click action
+2026-10-10T09:33:58.884Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.919Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:58.920Z pw:api   scrolling into view if needed
+2026-10-10T09:33:58.923Z pw:api   done scrolling
+2026-10-10T09:33:58.931Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:33:58.931Z pw:api retrying click action
+2026-10-10T09:33:58.931Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:58.969Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:58.969Z pw:api   scrolling into view if needed
+2026-10-10T09:33:58.972Z pw:api   done scrolling
+2026-10-10T09:33:58.978Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:33:58.978Z pw:api retrying click action
+2026-10-10T09:33:58.978Z pw:api   waiting 20ms
+2026-10-10T09:33:59.001Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:59.033Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:59.033Z pw:api   scrolling into view if needed
+2026-10-10T09:33:59.036Z pw:api   done scrolling
+2026-10-10T09:33:59.041Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:33:59.041Z pw:api retrying click action
+2026-10-10T09:33:59.041Z pw:api   waiting 100ms
+2026-10-10T09:33:59.152Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:59.185Z pw:api   element is not stable
+2026-10-10T09:33:59.185Z pw:api retrying click action
+2026-10-10T09:33:59.186Z pw:api   waiting 100ms
+2026-10-10T09:33:59.298Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:59.317Z pw:api   element is not stable
+2026-10-10T09:33:59.317Z pw:api retrying click action
+2026-10-10T09:33:59.317Z pw:api   waiting 500ms
+2026-10-10T09:33:59.348Z pw:api   "networkidle" event fired
+2026-10-10T09:33:59.833Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:33:59.850Z pw:api   element is visible, enabled and stable
+2026-10-10T09:33:59.850Z pw:api   scrolling into view if needed
+2026-10-10T09:33:59.852Z pw:api   done scrolling
+2026-10-10T09:33:59.855Z pw:api   performing click action
+2026-10-10T09:33:59.861Z pw:api   click action done
+2026-10-10T09:33:59.862Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:33:59.998Z pw:api   "commit" event fired
+2026-10-10T09:33:59.998Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:33:59.999Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:34:00.009Z pw:api   navigations have finished
+2026-10-10T09:34:00.020Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_label("Justificativa", exact=True)
+2026-10-10T09:34:00.052Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=2"
+2026-10-10T09:34:00.053Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:00.055Z pw:api   "load" event fired
+2026-10-10T09:34:00.081Z pw:api   locator resolved to <textarea rows="6" cols="40" maxlength="4000" class="area-texto" name="justificativa" id="id_justificativa"></textarea>
+2026-10-10T09:34:00.082Z pw:api   fill("Convocação institucional recebida após o prazo.")
+2026-10-10T09:34:00.082Z pw:api attempting fill action
+2026-10-10T09:34:00.082Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:34:00.573Z pw:api   "networkidle" event fired
+2026-10-10T09:34:00.682Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("button", name="Gravar no ofício")
+2026-10-10T09:34:00.689Z pw:api   locator resolved to <button type="submit" class="botao botao--primario">…</button>
+2026-10-10T09:34:00.691Z pw:api attempting click action
+2026-10-10T09:34:00.691Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:00.717Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:00.717Z pw:api   scrolling into view if needed
+2026-10-10T09:34:00.718Z pw:api   done scrolling
+2026-10-10T09:34:00.722Z pw:api   performing click action
+2026-10-10T09:34:00.729Z pw:api   click action done
+2026-10-10T09:34:00.729Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:00.952Z pw:api   "commit" event fired
+2026-10-10T09:34:00.952Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:00.952Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:00.953Z pw:api   navigations have finished
+2026-10-10T09:34:00.964Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:34:00.964Z pw:api waiting for locator(".registro__texto")
+2026-10-10T09:34:00.972Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:00.978Z pw:api   "load" event fired
+2026-10-10T09:34:01.006Z pw:api   locator resolved to <p class="registro__texto quebra-palavras">Convocação institucional recebida após o prazo.</p>
+2026-10-10T09:34:01.030Z pw:api waiting for locator(".barra-acoes--colecao")
+2026-10-10T09:34:01.035Z pw:api   locator resolved to visible <div class="barra-acoes barra-acoes--colecao">…</div>
+2026-10-10T09:34:01.482Z pw:api   "networkidle" event fired
+2026-10-10T09:34:07.298Z pw:api waiting for get_by_role("button", name="Ações da justificativa do Ofício 02/2026")
+2026-10-10T09:34:07.304Z pw:api   locator resolved to <button type="button" data-menu-botao="" aria-haspopup="menu" aria-expanded="false" id="menu-asuj85d-botao" aria-controls="menu-asuj85d" aria-label="Ações da justificativa do Ofício 02/2026" class="botao botao--icone botao--sutil botao--menu-registro">…</button>
+2026-10-10T09:34:07.305Z pw:api attempting click action
+2026-10-10T09:34:07.305Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.315Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:07.316Z pw:api   scrolling into view if needed
+2026-10-10T09:34:07.316Z pw:api   done scrolling
+2026-10-10T09:34:07.319Z pw:api   performing click action
+2026-10-10T09:34:07.332Z pw:api   click action done
+2026-10-10T09:34:07.332Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:07.336Z pw:api   navigations have finished
+2026-10-10T09:34:07.343Z pw:api waiting for get_by_role("menuitem", name="Apagar justificativa")
+2026-10-10T09:34:07.348Z pw:api   locator resolved to <button type="submit" role="menuitem" class="menu__item menu__item--perigo">…</button>
+2026-10-10T09:34:07.351Z pw:api attempting click action
+2026-10-10T09:34:07.351Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.382Z pw:api   element is not stable
+2026-10-10T09:34:07.383Z pw:api retrying click action
+2026-10-10T09:34:07.383Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.416Z pw:api   element is not stable
+2026-10-10T09:34:07.417Z pw:api retrying click action
+2026-10-10T09:34:07.417Z pw:api   waiting 20ms
+2026-10-10T09:34:07.451Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.483Z pw:api   element is not stable
+2026-10-10T09:34:07.484Z pw:api retrying click action
+2026-10-10T09:34:07.484Z pw:api   waiting 100ms
+2026-10-10T09:34:07.600Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.616Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:07.616Z pw:api   scrolling into view if needed
+2026-10-10T09:34:07.617Z pw:api   done scrolling
+2026-10-10T09:34:07.620Z pw:api   performing click action
+2026-10-10T09:34:07.639Z pw:api   click action done
+2026-10-10T09:34:07.639Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:07.640Z pw:api   navigations have finished
+2026-10-10T09:34:07.645Z pw:api Expect "to_be_visible" with timeout 5000ms
+2026-10-10T09:34:07.646Z pw:api waiting for get_by_role("dialog", name="Apagar justificativa?")
+2026-10-10T09:34:07.649Z pw:api   locator resolved to <dialog open="" id="dialogo-confirmacao" class="dialogo dialogo--perigo" aria-labelledby="dialogo-confirmacao-titulo" aria-describedby="dialogo-confirmacao-mensagem">…</dialog>
+2026-10-10T09:34:07.666Z pw:api waiting for get_by_role("dialog", name="Apagar justificativa?").get_by_role("button", name="Apagar", exact=True)
+2026-10-10T09:34:07.670Z pw:api   locator resolved to <button value="confirmar" data-confirmar="" class="botao botao--perigo">Apagar</button>
+2026-10-10T09:34:07.672Z pw:api attempting click action
+2026-10-10T09:34:07.672Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.700Z pw:api   element is not stable
+2026-10-10T09:34:07.700Z pw:api retrying click action
+2026-10-10T09:34:07.700Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.733Z pw:api   element is not stable
+2026-10-10T09:34:07.733Z pw:api retrying click action
+2026-10-10T09:34:07.733Z pw:api   waiting 20ms
+2026-10-10T09:34:07.767Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.799Z pw:api   element is not stable
+2026-10-10T09:34:07.800Z pw:api retrying click action
+2026-10-10T09:34:07.800Z pw:api   waiting 100ms
+2026-10-10T09:34:07.915Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:07.950Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:07.950Z pw:api   scrolling into view if needed
+2026-10-10T09:34:07.951Z pw:api   done scrolling
+2026-10-10T09:34:07.954Z pw:api   performing click action
+2026-10-10T09:34:07.959Z pw:api   click action done
+2026-10-10T09:34:07.959Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:07.960Z pw:api   navigations have finished
+2026-10-10T09:34:08.186Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:34:08.187Z pw:api waiting for locator(".registro__selos")
+2026-10-10T09:34:08.187Z pw:api   waiting for" http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&" navigation to finish...
+2026-10-10T09:34:08.316Z pw:api   "commit" event fired
+2026-10-10T09:34:08.317Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:08.317Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:08.345Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:08.348Z pw:api   "load" event fired
+2026-10-10T09:34:08.357Z pw:api   locator resolved to <span class="registro__selos">…</span>
+2026-10-10T09:34:08.367Z pw:api navigating to "http://localhost:53550/viagens/oficios/", waiting until "load"
+2026-10-10T09:34:08.515Z pw:api   "commit" event fired
+2026-10-10T09:34:08.515Z pw:api   navigated to "http://localhost:53550/viagens/oficios/"
+2026-10-10T09:34:08.561Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:08.566Z pw:api   "load" event fired
+2026-10-10T09:34:09.083Z pw:api   "networkidle" event fired
+PASSED [ 14%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[768] 2026-10-10T09:34:18.287Z pw:api navigating to "http://localhost:53550/conta/entrar/", waiting until "load"
+2026-10-10T09:34:18.731Z pw:api   "commit" event fired
+2026-10-10T09:34:18.731Z pw:api   navigated to "http://localhost:53550/conta/entrar/"
+2026-10-10T09:34:18.809Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:18.809Z pw:api   "load" event fired
+2026-10-10T09:34:18.816Z pw:api waiting for locator("#id_username")
+2026-10-10T09:34:18.837Z pw:api   locator resolved to <input type="text" required="" autofocus="" maxlength="60" name="username" class="entrada" id="id_username" spellcheck="false" autocapitalize="none" autocomplete="username" placeholder="usuario ou nome@pc.pr.gov.br"/>
+2026-10-10T09:34:18.839Z pw:api   fill("operador")
+2026-10-10T09:34:18.839Z pw:api attempting fill action
+2026-10-10T09:34:18.839Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:34:18.850Z pw:api waiting for locator("#id_password")
+2026-10-10T09:34:18.852Z pw:api   locator resolved to <input required="" type="password" name="password" class="entrada" id="id_password" autocomplete="current-password"/>
+2026-10-10T09:34:18.854Z pw:api   fill("senha-e2e-123")
+2026-10-10T09:34:18.854Z pw:api attempting fill action
+2026-10-10T09:34:18.854Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:34:18.866Z pw:api waiting for locator("button[type=submit]")
+2026-10-10T09:34:18.869Z pw:api   locator resolved to <button type="submit" class="botao botao--marca botao--lg botao--bloco">…</button>
+2026-10-10T09:34:18.870Z pw:api attempting click action
+2026-10-10T09:34:18.870Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:18.900Z pw:api   element is not stable
+2026-10-10T09:34:18.900Z pw:api retrying click action
+2026-10-10T09:34:18.900Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:18.933Z pw:api   element is not stable
+2026-10-10T09:34:18.933Z pw:api retrying click action
+2026-10-10T09:34:18.933Z pw:api   waiting 20ms
+2026-10-10T09:34:18.955Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:18.983Z pw:api   element is not stable
+2026-10-10T09:34:18.983Z pw:api retrying click action
+2026-10-10T09:34:18.983Z pw:api   waiting 100ms
+2026-10-10T09:34:19.091Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.116Z pw:api   element is not stable
+2026-10-10T09:34:19.116Z pw:api retrying click action
+2026-10-10T09:34:19.116Z pw:api   waiting 100ms
+2026-10-10T09:34:19.219Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.249Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:19.249Z pw:api   scrolling into view if needed
+2026-10-10T09:34:19.250Z pw:api   done scrolling
+2026-10-10T09:34:19.253Z pw:api   performing click action
+2026-10-10T09:34:19.258Z pw:api   click action done
+2026-10-10T09:34:19.258Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:19.435Z pw:api   "commit" event fired
+2026-10-10T09:34:19.435Z pw:api   navigated to "http://localhost:53550/"
+2026-10-10T09:34:19.435Z pw:api   navigated to "http://localhost:53550/"
+2026-10-10T09:34:19.435Z pw:api   navigations have finished
+2026-10-10T09:34:19.450Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:19.454Z pw:api   "load" event fired
+2026-10-10T09:34:19.489Z pw:api navigating to "http://localhost:53550/viagens/justificativas/?aba=todas", waiting until "load"
+2026-10-10T09:34:19.607Z pw:api   "commit" event fired
+2026-10-10T09:34:19.607Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas"
+2026-10-10T09:34:19.627Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:19.631Z pw:api   "load" event fired
+2026-10-10T09:34:19.639Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:34:19.656Z pw:api   locator resolved to <input name="q" value="" type="search" class="entrada" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:34:19.657Z pw:api   fill("02/2026")
+2026-10-10T09:34:19.657Z pw:api attempting fill action
+2026-10-10T09:34:19.657Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:34:19.668Z pw:api Expect "to_have_count" with timeout 5000ms
+2026-10-10T09:34:19.668Z pw:api waiting for locator(".registro-operacional")
+2026-10-10T09:34:19.670Z pw:api   locator resolved to 1 element
+2026-10-10T09:34:19.677Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:34:19.678Z pw:api waiting for locator("#abas-filtro a[aria-current]")
+2026-10-10T09:34:19.681Z pw:api   locator resolved to <a class="aba" aria-current="page" href="/viagens/justificativas/?aba=todas">…</a>
+2026-10-10T09:34:19.687Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:34:19.688Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:34:19.690Z pw:api   locator resolved to <input name="q" value="" type="search" class="entrada" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:34:19.696Z pw:api waiting for get_by_role("button", name="Ações da justificativa do Ofício 02/2026")
+2026-10-10T09:34:19.703Z pw:api   locator resolved to <button type="button" data-menu-botao="" aria-haspopup="menu" aria-expanded="false" id="menu-1t15mrw-botao" aria-controls="menu-1t15mrw" aria-label="Ações da justificativa do Ofício 02/2026" class="botao botao--icone botao--sutil botao--menu-registro">…</button>
+2026-10-10T09:34:19.704Z pw:api elementHandle.press("Enter")
+2026-10-10T09:34:19.717Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:34:19.717Z pw:api waiting for get_by_role("menuitem", name="Escrever justificativa")
+2026-10-10T09:34:19.720Z pw:api   locator resolved to <a role="menuitem" class="menu__item" href="/viagens/justificativas/?aba=todas&editar=7">…</a>
+2026-10-10T09:34:19.736Z pw:api Expect "to_be_focused" with timeout 5000ms
+2026-10-10T09:34:19.737Z pw:api waiting for get_by_role("button", name="Ações da justificativa do Ofício 02/2026")
+2026-10-10T09:34:19.739Z pw:api   locator resolved to <button type="button" data-menu-botao="" aria-haspopup="menu" aria-expanded="false" id="menu-1t15mrw-botao" aria-controls="menu-1t15mrw" aria-label="Ações da justificativa do Ofício 02/2026" class="botao botao--icone botao--sutil botao--menu-registro">…</button>
+2026-10-10T09:34:19.746Z pw:api waiting for locator(".registro__link")
+2026-10-10T09:34:19.749Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&editar=7">…</a>
+2026-10-10T09:34:19.751Z pw:api attempting click action
+2026-10-10T09:34:19.752Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.783Z pw:api   element is not stable
+2026-10-10T09:34:19.783Z pw:api retrying click action
+2026-10-10T09:34:19.783Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.815Z pw:api   element is not stable
+2026-10-10T09:34:19.815Z pw:api retrying click action
+2026-10-10T09:34:19.815Z pw:api   waiting 20ms
+2026-10-10T09:34:19.838Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.866Z pw:api   element is not stable
+2026-10-10T09:34:19.866Z pw:api retrying click action
+2026-10-10T09:34:19.866Z pw:api   waiting 100ms
+2026-10-10T09:34:19.974Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:19.999Z pw:api   element is not stable
+2026-10-10T09:34:19.999Z pw:api retrying click action
+2026-10-10T09:34:19.999Z pw:api   waiting 100ms
+2026-10-10T09:34:20.102Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.115Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas"
+2026-10-10T09:34:20.116Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026"
+2026-10-10T09:34:20.133Z pw:api element was detached from the DOM, retrying
+2026-10-10T09:34:20.136Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7">…</a>
+2026-10-10T09:34:20.137Z pw:api attempting click action
+2026-10-10T09:34:20.137Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.166Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:20.166Z pw:api   scrolling into view if needed
+2026-10-10T09:34:20.167Z pw:api   done scrolling
+2026-10-10T09:34:20.169Z pw:api   performing click action
+2026-10-10T09:34:20.174Z pw:api   click action done
+2026-10-10T09:34:20.174Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:20.305Z pw:api   "commit" event fired
+2026-10-10T09:34:20.305Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:20.305Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:20.314Z pw:api   navigations have finished
+2026-10-10T09:34:20.320Z pw:api Expect "to_be_visible" with timeout 5000ms
+2026-10-10T09:34:20.320Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026")
+2026-10-10T09:34:20.334Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:20.335Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:20.335Z pw:api   "load" event fired
+2026-10-10T09:34:20.354Z pw:api   locator resolved to <dialog open="" class="dialogo" data-abrir-ao-carregar="" id="dialogo-justificativa" aria-labelledby="dialogo-justificativa-titulo">…</dialog>
+2026-10-10T09:34:20.370Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("button", name="Gravar no ofício")
+2026-10-10T09:34:20.374Z pw:api   locator resolved to <button type="submit" class="botao botao--primario">…</button>
+2026-10-10T09:34:20.375Z pw:api attempting click action
+2026-10-10T09:34:20.375Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.419Z pw:api   element is not stable
+2026-10-10T09:34:20.419Z pw:api retrying click action
+2026-10-10T09:34:20.419Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.484Z pw:api   element is not stable
+2026-10-10T09:34:20.484Z pw:api retrying click action
+2026-10-10T09:34:20.484Z pw:api   waiting 20ms
+2026-10-10T09:34:20.505Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.537Z pw:api   element is not stable
+2026-10-10T09:34:20.537Z pw:api retrying click action
+2026-10-10T09:34:20.537Z pw:api   waiting 100ms
+2026-10-10T09:34:20.646Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:20.666Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:20.666Z pw:api   scrolling into view if needed
+2026-10-10T09:34:20.667Z pw:api   done scrolling
+2026-10-10T09:34:20.670Z pw:api   performing click action
+2026-10-10T09:34:20.675Z pw:api   click action done
+2026-10-10T09:34:20.675Z pw:api   waiting for scheduled navigations to finish
+2026-10-10 06:34:20,916 WARNING django.request Unprocessable Content: /viagens/justificativas/7/salvar/
+2026-10-10T09:34:20.981Z pw:api   "commit" event fired
+2026-10-10T09:34:20.981Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/7/salvar/"
+2026-10-10T09:34:20.981Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/7/salvar/"
+2026-10-10T09:34:20.982Z pw:api   navigations have finished
+2026-10-10T09:34:20.991Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:34:20.991Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").locator(".campo__erro")
+2026-10-10T09:34:21.009Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/7/salvar/"
+2026-10-10T09:34:21.010Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:21.010Z pw:api   "load" event fired
+2026-10-10T09:34:21.028Z pw:api   locator resolved to <p class="campo__erro" id="id_justificativa-erro">…</p>
+2026-10-10T09:34:21.037Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("link", name="Cancelar", exact=True)
+2026-10-10T09:34:21.042Z pw:api   locator resolved to <a class="botao botao--texto" href="/viagens/justificativas/?aba=todas&q=02%2F2026&">Cancelar</a>
+2026-10-10T09:34:21.043Z pw:api attempting click action
+2026-10-10T09:34:21.043Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.102Z pw:api   element is not stable
+2026-10-10T09:34:21.102Z pw:api retrying click action
+2026-10-10T09:34:21.102Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.168Z pw:api   element is not stable
+2026-10-10T09:34:21.168Z pw:api retrying click action
+2026-10-10T09:34:21.168Z pw:api   waiting 20ms
+2026-10-10T09:34:21.190Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.224Z pw:api   element is not stable
+2026-10-10T09:34:21.224Z pw:api retrying click action
+2026-10-10T09:34:21.224Z pw:api   waiting 100ms
+2026-10-10T09:34:21.331Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.366Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:21.366Z pw:api   scrolling into view if needed
+2026-10-10T09:34:21.368Z pw:api   done scrolling
+2026-10-10T09:34:21.371Z pw:api   performing click action
+2026-10-10T09:34:21.377Z pw:api   click action done
+2026-10-10T09:34:21.378Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:21.527Z pw:api   "commit" event fired
+2026-10-10T09:34:21.527Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:21.528Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:21.534Z pw:api   navigations have finished
+2026-10-10T09:34:21.541Z pw:api Expect "to_have_url" with timeout 5000ms
+2026-10-10T09:34:21.552Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:21.552Z pw:api   "load" event fired
+2026-10-10T09:34:21.567Z pw:api Expect "to_have_value" with timeout 5000ms
+2026-10-10T09:34:21.567Z pw:api waiting for get_by_role("searchbox", name="Buscar")
+2026-10-10T09:34:21.570Z pw:api   locator resolved to <input name="q" type="search" class="entrada" value="02/2026" autocomplete="off" id="busca-justificativas" placeholder="Número, protocolo, destino, servidor ou trecho do texto"/>
+2026-10-10T09:34:21.576Z pw:api Expect "to_have_count" with timeout 5000ms
+2026-10-10T09:34:21.576Z pw:api waiting for locator(".registro-operacional")
+2026-10-10T09:34:21.579Z pw:api   locator resolved to 1 element
+2026-10-10T09:34:21.585Z pw:api waiting for locator(".registro__link")
+2026-10-10T09:34:21.588Z pw:api   locator resolved to <a title="Maringá/PR" class="registro__link" href="/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7">…</a>
+2026-10-10T09:34:21.589Z pw:api attempting click action
+2026-10-10T09:34:21.589Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.616Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:21.616Z pw:api   scrolling into view if needed
+2026-10-10T09:34:21.617Z pw:api   done scrolling
+2026-10-10T09:34:21.620Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:34:21.620Z pw:api retrying click action
+2026-10-10T09:34:21.620Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.649Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:21.649Z pw:api   scrolling into view if needed
+2026-10-10T09:34:21.651Z pw:api   done scrolling
+2026-10-10T09:34:21.654Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:34:21.654Z pw:api retrying click action
+2026-10-10T09:34:21.654Z pw:api   waiting 20ms
+2026-10-10T09:34:21.677Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.698Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:21.698Z pw:api   scrolling into view if needed
+2026-10-10T09:34:21.701Z pw:api   done scrolling
+2026-10-10T09:34:21.704Z pw:api   <html lang="pt-BR">…</html> intercepts pointer events
+2026-10-10T09:34:21.704Z pw:api retrying click action
+2026-10-10T09:34:21.704Z pw:api   waiting 100ms
+2026-10-10T09:34:21.806Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:21.833Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:21.833Z pw:api   scrolling into view if needed
+2026-10-10T09:34:21.834Z pw:api   done scrolling
+2026-10-10T09:34:21.837Z pw:api   performing click action
+2026-10-10T09:34:21.841Z pw:api   click action done
+2026-10-10T09:34:21.841Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:21.971Z pw:api   "commit" event fired
+2026-10-10T09:34:21.971Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:21.971Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:21.977Z pw:api   navigations have finished
+2026-10-10T09:34:21.984Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_label("Justificativa", exact=True)
+2026-10-10T09:34:22.001Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&editar=7"
+2026-10-10T09:34:22.004Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:22.005Z pw:api   "load" event fired
+2026-10-10T09:34:22.036Z pw:api   locator resolved to <textarea rows="6" cols="40" maxlength="4000" class="area-texto" name="justificativa" id="id_justificativa"></textarea>
+2026-10-10T09:34:22.038Z pw:api   fill("Convocação institucional recebida após o prazo.")
+2026-10-10T09:34:22.038Z pw:api attempting fill action
+2026-10-10T09:34:22.038Z pw:api   waiting for element to be visible, enabled and editable
+2026-10-10T09:34:22.535Z pw:api   "networkidle" event fired
+2026-10-10T09:34:22.757Z pw:api waiting for get_by_role("dialog", name="Justificativa do Ofício 02/2026").get_by_role("button", name="Gravar no ofício")
+2026-10-10T09:34:22.764Z pw:api   locator resolved to <button type="submit" class="botao botao--primario">…</button>
+2026-10-10T09:34:22.766Z pw:api attempting click action
+2026-10-10T09:34:22.767Z pw:api   waiting for element to be visible, enabled and stable
+2026-10-10T09:34:22.788Z pw:api   element is visible, enabled and stable
+2026-10-10T09:34:22.788Z pw:api   scrolling into view if needed
+2026-10-10T09:34:22.789Z pw:api   done scrolling
+2026-10-10T09:34:22.792Z pw:api   performing click action
+2026-10-10T09:34:22.799Z pw:api   click action done
+2026-10-10T09:34:22.799Z pw:api   waiting for scheduled navigations to finish
+2026-10-10T09:34:23.031Z pw:api   "commit" event fired
+2026-10-10T09:34:23.031Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:23.031Z pw:api   navigated to "http://localhost:53550/viagens/justificativas/?aba=todas&q=02%2F2026&"
+2026-10-10T09:34:23.032Z pw:api   navigations have finished
+2026-10-10T09:34:23.041Z pw:api Expect "to_contain_text" with timeout 5000ms
+2026-10-10T09:34:23.041Z pw:api waiting for locator(".registro__texto")
+2026-10-10T09:34:23.050Z pw:api   "domcontentloaded" event fired
+2026-10-10T09:34:23.056Z pw:api   "load" event fired
+2026-10-10T09:34:23.080Z pw:api   locator resolved to <p class="registro__texto quebra-palavras">Convocação institucional recebida após o prazo.</p>
+2026-10-10T09:34:23.098Z pw:api waiting for locator(".barra-acoes--colecao")
+2026-10-10T09:34:23.102Z pw:api   locator resolved to visible <div class="barra-acoes barra-acoes--colecao">…</div>
+2026-10-10T09:34:23.552Z pw:api   "networkidle" event fired
+Timeout (0:01:00)!
+Thread 0x00005b10 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000048c4 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000039cc (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000056d8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00002220 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000030d8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00001834 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x00006818 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 778 in _poll
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 446 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 2023 in _run_once
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 684 in run_forever
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 713 in run_until_complete
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56 in greenlet_main

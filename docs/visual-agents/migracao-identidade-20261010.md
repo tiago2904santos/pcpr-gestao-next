@@ -18,7 +18,7 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Planos: lista | busca, ordem, Ofício, grupos, vazio, cancelados, paginação, consulta | concluída tecnicamente; avaliação visual pendente | coleção, identidade com complemento, registro operacional financeiro, observação larga | bases antigas mantidas para demais consumidores | 47 HTTP, 79 focados, 9 E2E compatíveis, cinco larguras; paginação antiga corrigida | candidato-planos-lista.json; achado de rolagem global não bloqueante registrado |
 | Planos: folha/multievento/documentos | incompleto, pronto, novo, gerado, evento adicional | concluída tecnicamente; avaliação visual pendente | hero/preparação/agenda/destinos/financeiro/conferência/editor/histórico | bases genéricas mantidas para consumidores reais | 143 focados, 20 E2E integrados +5 finais, 2 UI Lab, 25 capturas e teclado/diálogo | candidato-planos-folha.json; SQL anterior classificado |
 | Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | concluída tecnicamente; avaliação visual pendente | hero/preparação/lançamentos/leitura/barra no fluxo | duas variantes CSS exclusivas removidas |72HTTP/tokens,5E2E+7pós-limpeza,20capturas cinco larguras | gate global final pendente |
-| Justificativas | lista/diálogo/editor | não iniciada | idem | idem | idem | após Planos |
+| Justificativas | lista/diálogo/exclusão/download/erro/conflito/consulta | concluída tecnicamente; avaliação visual pendente | coleção/registro/diálogo/paginação com rota explícita | bases genéricas preservadas |108HTTP,2contratos,7E2E,2UI Lab,20pares;SQL igual | candidato-justificativas.json; gate global final pendente |
 | Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
 
@@ -74,3 +74,12 @@ removidas com revisão de consumidores. SQL17/21/17/17 idêntico, JS idêntico,
 CSS conjunto+6gzip. Galeria125pares250originais. Próxima unidade:Justificativas,
 lista/diálogo/exclusão/download; preservação do contexto após422 é defeito anterior
 já identificado em leitura. Não abrir outra implementação em paralelo.
+
+
+Justificativas fechadas tecnicamente:108HTTP/documentos, dois contratos de paginação,
+sete E2E completos171,35s e dois UI Lab91,61s.20pares nas cinco larguras; galeria145pares.
+Contexto422/rotas corrigidos com prova anterior. QA diagnosticou espera de cronômetro
+pausado e contraste durante transição nativa; somente sincronização dos testes foi
+corrigida, sem alterar CSS/CSP/axe. SQL igual14/14/10/19; JS igual; CSS+73gzip.
+Próxima unidade:Lista de Viagens. Somente ela em implementação ativa; Folha/Prestação
+seguem na fila. Não inventar menu/exportação da Lista que ainda não existem.

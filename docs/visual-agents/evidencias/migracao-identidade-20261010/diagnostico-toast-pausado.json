@@ -1,0 +1,128 @@
+[
+  {
+    "nome": null,
+    "estado": "running",
+    "duracao": 140,
+    "iteracoes": "1"
+  },
+  {
+    "nome": null,
+    "estado": "running",
+    "duracao": 140,
+    "iteracoes": "1"
+  },
+  {
+    "nome": null,
+    "estado": "running",
+    "duracao": 140,
+    "iteracoes": "1"
+  },
+  {
+    "nome": null,
+    "estado": "running",
+    "duracao": 140,
+    "iteracoes": "1"
+  },
+  {
+    "nome": null,
+    "estado": "running",
+    "duracao": 140,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "pulsar",
+    "estado": "running",
+    "duracao": 1400,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "carimbar",
+    "estado": "finished",
+    "duracao": 640,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "pulsar",
+    "estado": "running",
+    "duracao": 1400,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "esqueleto",
+    "estado": "running",
+    "duracao": 1200,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "esqueleto",
+    "estado": "running",
+    "duracao": 1200,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "esqueleto",
+    "estado": "running",
+    "duracao": 1200,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "girar",
+    "estado": "running",
+    "duracao": 800,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "carimbar",
+    "estado": "finished",
+    "duracao": 640,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "aparecer",
+    "estado": "finished",
+    "duracao": 360,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "aparecer",
+    "estado": "finished",
+    "duracao": 360,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "aparecer",
+    "estado": "finished",
+    "duracao": 360,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "aparecer",
+    "estado": "finished",
+    "duracao": 360,
+    "iteracoes": "1"
+  },
+  {
+    "nome": "pulsar",
+    "estado": "running",
+    "duracao": 1400,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "pulsar",
+    "estado": "running",
+    "duracao": 1400,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "pulsar",
+    "estado": "running",
+    "duracao": 1400,
+    "iteracoes": "Infinity"
+  },
+  {
+    "nome": "toast-tempo",
+    "estado": "paused",
+    "duracao": 6000,
+    "iteracoes": "1"
+  }
+]

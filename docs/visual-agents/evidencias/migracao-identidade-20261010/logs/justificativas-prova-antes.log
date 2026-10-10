@@ -1,0 +1,31 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ TestListaDeJustificativas.test_erro_preserva_filtro_e_links_retornam_a_lista _
+
+self = <gestao.viagens.tests.test_views.TestListaDeJustificativas object at 0x000001BCC5E45480>
+operador = <django.test.client.Client object at 0x000001BCC4C65E50>
+cenario = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_erro_preserva_filtro_e_links_retornam_a_lista(self, operador, cenario):
+        import re
+        from html import unescape
+    
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        url = reverse("viagens:justificativas")
+        resposta = operador.post(reverse("viagens:salvar_justificativa", args=[oficio.pk]),
+                                  {"justificativa": "", "versao": oficio.versao,
+                                   "voltar": "aba=todas&q=Maring%C3%A1&"})
+        assert resposta.status_code == 422
+>       assert resposta.context["termo"] == "Maringá"
+E       AssertionError: assert '' == 'Maringá'
+E         
+E         - Maringá
+
+gestao\viagens\tests\test_views.py:1080: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 06:11:19,383 WARNING django.request Unprocessable Content: /viagens/justificativas/2/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/justificativas/2/salvar/
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_erro_preserva_filtro_e_links_retornam_a_lista
+1 failed in 35.91s

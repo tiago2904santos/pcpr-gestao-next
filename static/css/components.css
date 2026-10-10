@@ -4452,3 +4452,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .tabela--lancamentos .lancamento__rotulo { display: block; position: static; width: auto; height: auto; padding: 0; margin: 0 0 var(--esp-1); overflow: visible; clip: auto; clip-path: none; white-space: normal; }
   .lancamento__referencia-rotulo { display: block; color: var(--cor-texto-terciario); font-size: var(--texto-xs); font-weight: var(--peso-semi); margin-bottom: var(--esp-1); }
 }
+
+/* Abas de conteúdo: largura intrínseca quando a dimensão tem poucas alternativas. */
+.colecao-operacional--consulta .colecao-operacional__indice .abas.abas--conteudo { display: flex; }

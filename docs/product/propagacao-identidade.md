@@ -175,3 +175,23 @@ tablet. Quantidade compacta, observação com largura útil, meta secundária se
 Relatório de leitura em largura confortável, sem cartão extra. Ação no fluxo e
 feedback verdadeiro de salvamento MANUAL. Estados vazio, erro e consulta preservados.
 Código exclusivo antigo só será removido após testar a substituição e consumidores.
+
+
+## Justificativas — lista, diálogo e downloads
+
+Rota /viagens/justificativas/, Todas/Pendentes/Preenchidas; abre em pendentes quando
+existirem. Busca por dados do Ofício/texto, paginação20; pendentes por saída próxima,
+demais por número. Lista exclui cancelados/arquivados, mesma unidade/view_oficio.
+Grava texto no Ofício rascunho editável, change_oficio, CSRF e versão; sem autosave.
+Texto até4000, texto pronto; apagar exige intenção explícita no menu. Erro/conflito422
+preserva digitado. Emitidos/consulta não editam diretamente; PDF corrente permitido
+quando disponível. Baixar existente usa justificativa antes do Ofício, formatos/vias
+já vigentes; documento histórico nunca corrente. Nenhuma entidade/regra nova.
+
+Composição: hero proporcional, abas horizontais, busca integrada, registros canônicos
+com número/destino, estado da justificativa separado de situação documental, período,
+data/antecedência institucional e trecho do texto. Diálogo existente com metadados e
+campos proporcionais; ação manual clara. Não criar folha/editor próprios.
+Defeito anterior identificado: após422 links relativos apontam para /salvar/ (GET405)
+e contexto voltar não é recuperado. Corrigir rota explícita e manter busca/aba no
+erro/retorno, com testes; não alterar regra de prazo nem permissão.

@@ -1067,6 +1067,26 @@ class TestListaDeJustificativas:
         rascunho.refresh_from_db()
         assert rascunho.justificativa == ""
 
+    def test_erro_preserva_filtro_e_links_retornam_a_lista(self, operador, cenario):
+        import re
+        from html import unescape
+
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        url = reverse("viagens:justificativas")
+        resposta = operador.post(reverse("viagens:salvar_justificativa", args=[oficio.pk]),
+                                  {"justificativa": "", "versao": oficio.versao,
+                                   "voltar": "aba=todas&q=Maring%C3%A1&"})
+        assert resposta.status_code == 422
+        assert resposta.context["termo"] == "Maringá"
+        assert resposta.context["aba"] == ""
+        html = resposta.content.decode()
+        cancelar = unescape(re.search(r'href="([^"]+)">Cancelar</a>', html).group(1))
+        assert cancelar.startswith(url + "?")
+        assert "q=Maring%C3%A1" in cancelar
+        assert operador.get(cancelar).status_code == 200
+        abas = html.split('id="abas-filtro"', 1)[1].split("</nav>", 1)[0]
+        assert all(unescape(h).startswith(url + "?") for h in re.findall(r'href="([^"]+)"', abas))
+
     def test_versao_antiga_e_conflito(self, operador, cenario):
         rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
         r = operador.post(reverse("viagens:salvar_justificativa", args=[rascunho.pk]),

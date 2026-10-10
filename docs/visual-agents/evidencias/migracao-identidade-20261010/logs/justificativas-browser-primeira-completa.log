@@ -1,0 +1,116 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: var.migracao_visual_settings (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 7 items
+
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[360] Creating test database for alias 'default'...
+
+2026-10-10 06:36:07,152 WARNING django.request Unprocessable Content: /viagens/justificativas/2/salvar/
+PASSED [ 14%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[768] 2026-10-10 06:36:32,451 WARNING django.request Unprocessable Content: /viagens/justificativas/7/salvar/
+PASSED [ 28%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[1440] 2026-10-10 06:36:49,875 WARNING django.request Unprocessable Content: /viagens/justificativas/12/salvar/
+PASSED [ 42%]
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco 2026-10-10 06:37:10,808 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-10 06:37:10,888 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-10 06:37:11,072 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+PASSED [ 57%]
+(process:27096): GLib-GIO-WARNING **: 06:37:14.046: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:14.659: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:14.660: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:15.998: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:16.440: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:16.488: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:27096): GLib-GIO-WARNING **: 06:37:16.553: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+tests/e2e/test_justificativas_identidade.py::test_conflito_preserva_texto_e_consulta_sem_edicao 2026-10-10 06:37:27,365 WARNING django.request Unprocessable Content: /viagens/justificativas/22/salvar/
+PASSED [ 71%]
+tests/e2e/test_justificativas_identidade.py::test_paginacao_filtrada_apos_erro 2026-10-10 06:37:43,832 WARNING django.request Unprocessable Content: /viagens/justificativas/28/salvar/
+FAILED [ 85%]
+tests/e2e/test_planos_lista_identidade.py::test_paginacao_cancelamento_e_leitura PASSED [100%]Destroying test database for alias 'default'...
+
+
+
+================================== FAILURES ===================================
+______________________ test_paginacao_filtrada_apos_erro ______________________
+
+logado = <Page url='http://localhost:53658/viagens/justificativas/?aba=todas&q=Contexto+sint%C3%A9tico&pagina=2'>
+dados_e2e = Cenario(ids={'oficio_emitido': 26, 'oficio_rascunho': 27, 'oficio_vazio': 28, 'oficio_cancelado': 29, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B19F704750>
+
+    def test_paginacao_filtrada_apos_erro(logado, dados_e2e, monkeypatch):
+        from gestao.viagens import views
+    
+        monkeypatch.setattr(views, "POR_PAGINA", 1)
+        for chave in ["oficio_rascunho", "oficio_vazio"]:
+            oficio = Oficio.objects.get(pk=dados_e2e.ids[chave])
+            services.salvar_dados(oficio, dados_e2e.usuarios["operador"], {
+                "justificativa": "Contexto sintético de paginação.",
+            })
+        pg = logado
+        pg.goto("/viagens/justificativas/?aba=todas&q=Contexto+sint%C3%A9tico")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+        pg.locator(".registro__link").click()
+        janela = pg.get_by_role("dialog", name=re.compile("Justificativa do Ofício"))
+        janela.get_by_label("Justificativa", exact=True).fill("")
+        with pg.expect_response(lambda r: r.request.method == "POST" and r.url.endswith("/salvar/")) as erro:
+            janela.get_by_role("button", name="Gravar no ofício").click()
+        assert erro.value.status == 422
+        proxima = pg.get_by_role("link", name="Próxima página", exact=True)
+        assert proxima.get_attribute("href").startswith("/viagens/justificativas/?")
+        janela.get_by_role("link", name="Cancelar", exact=True).click()
+        proxima.click()
+        expect(pg).to_have_url(re.compile("pagina=2"))
+        expect(pg.get_by_role("searchbox", name="Buscar")).to_have_value("Contexto sintético")
+        expect(pg.locator("#abas-filtro a[aria-current]")).to_contain_text("Todas")
+        expect(pg.locator(".registro-operacional")).to_have_count(1)
+>       _axe_estavel(pg)
+
+tests\e2e\test_justificativas_identidade.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:53658/viagens/justificativas/?aba=todas&q=Contexto+sint%C3%A9tico&pagina=2'>
+
+    def _axe_estavel(pg):
+        # O cronômetro do toast pausa sob hover/foco por acessibilidade; não é
+        # animação de entrada nem pode ser aguardado até sumir para medir contraste.
+        pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
+            a.animationName !== 'toast-tempo' &&
+            a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+>       assert rodar_axe(pg) == []
+E       AssertionError: assert [{'id': 'colo...sholds', ...}] == []
+E         
+E         Left contains one more item: {'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-54... 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}
+E         
+E         Full diff:
+E         - []
+E         + [
+E         +     {...
+E         
+E         ...Full output truncated (648 lines hidden), use '-vv' to show
+
+tests\e2e\test_justificativas_identidade.py:22: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 06:37:43,832 WARNING django.request Unprocessable Content: /viagens/justificativas/28/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/justificativas/28/salvar/
+============================== warnings summary ===============================
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_justificativas_identidade.py::test_paginacao_filtrada_apos_erro
+============= 1 failed, 6 passed, 1 warning in 164.05s (0:02:44) ==============

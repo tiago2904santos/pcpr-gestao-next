@@ -1,0 +1,31 @@
+{
+  "baseCommit": "9056835c6746a582a9952a9b5ea3a3f2ec7093c6",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/viagens/templates/viagens/justificativas/lista.html": "77a4c3c204a1e10cd6242730d0121f22b1bd804edd79d5607f5557003e661a3d",
+    "gestao/viagens/views.py": "ce1a3c227a393e63ab775330febce0d6838c34f89bf5dccd336421ed0f81f720",
+    "gestao/viagens/tests/test_views.py": "431ed2522138ae6b44d35094a0ca419d50a93deb0d141e2394a9926b4794f289",
+    "templates/componentes/paginacao.html": "5746cd46c2dc08fe47eb9204de36a3ce40e3551d37bb7d9364c7068ab244af60",
+    "static/css/components.css": "5ca4ca12ad02ae2cd9ff64bbedfd2cd94f495d3b1462d89c4ab0fa37f1abb734",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "8c4c631cb76d5e4487b3e604831c89b00d60e3a6ae6b711efbd87f4ad67a36d7",
+    "tests/e2e/test_justificativas_identidade.py": "4b730c0b4f56964505c46e266e68868c8baf6cf59fcef4b94e223a786e847ec5",
+    "tests/test_paginacao_documental.py": "f262719bad32c682186310e5e96cd20c3273a9e44aa5b0af566aa67c91917276"
+  },
+  "checks": {
+    "HTTP": 108,
+    "paginacaoContratos": 2,
+    "E2E": 7,
+    "uiLab": 2,
+    "capturas": 20,
+    "SQL": "14/14/10/19 idêntico; zero mutações DEMO",
+    "CSSGzipDelta": 73,
+    "JS": "idêntico"
+  },
+  "limites": [
+    "gate global novo pendente",
+    "entidade/data/assinante próprios da Justificativa são lacunas anteriores",
+    "não houve medição de latência ou HTTP nesta unidade"
+  ],
+  "limpeza": "nenhuma implementação exclusiva antiga comprovada; bases compartilhadas preservadas",
+  "aprovacaoVisual": "pendente do usuário"
+}

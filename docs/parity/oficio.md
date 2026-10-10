@@ -293,3 +293,18 @@ calculada, editor, cópia, foco e rolagem. Correção compartilhada impede corte
 de valores financeiros no mobile; cinco E2E de Ofícios e revisão de R$ 101.956,56
 em 360/390/768 verificam compatibilidade. Nenhuma regra, documento ou permissão mudou.
 Evidências desta propagação: `../visual-agents/qa/roteiros-identidade-2026-10-10.md`.
+
+
+### Justificativas — propagação visual de 10/10/2026
+
+O novo já possui lista própria em `/viagens/justificativas/`, com Todas/Pendentes/
+Preenchidas, busca e paginação, diálogo para escrever no Ofício, texto pronto,
+exclusão explícita e Baixar. A afirmação histórica acima “sem lista” está superada.
+A entidade continua sendo campos do Ofício; data/assinante/status próprios do
+legado não foram criados nesta rodada. Não declarar paridade integral desse fluxo.
+
+Migração reaproveita hero, filtros horizontais, placa, registro e metadados, sem
+alterar regra de prazo, corrente documental, permissões ou textos oficiais.
+Defeito preexistente reproduzido: após422 perdia busca/aba e links relativos
+apontavam para salvar (GET405). Agora contexto vem de voltar e navegação usa rota
+explícita da lista, incluindo paginação. Provas em QA de Justificativas.

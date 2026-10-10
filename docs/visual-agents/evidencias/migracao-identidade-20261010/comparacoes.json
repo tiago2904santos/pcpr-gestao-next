@@ -1,5 +1,125 @@
 [
   {
+    "pagina": "justificativas-dialogo",
+    "largura": 1024,
+    "antes": "antes-justificativas-dialogo-1024.png",
+    "depois": "depois-justificativas-dialogo-1024.png"
+  },
+  {
+    "pagina": "justificativas-dialogo",
+    "largura": 1440,
+    "antes": "antes-justificativas-dialogo-1440.png",
+    "depois": "depois-justificativas-dialogo-1440.png"
+  },
+  {
+    "pagina": "justificativas-dialogo",
+    "largura": 360,
+    "antes": "antes-justificativas-dialogo-360.png",
+    "depois": "depois-justificativas-dialogo-360.png"
+  },
+  {
+    "pagina": "justificativas-dialogo",
+    "largura": 390,
+    "antes": "antes-justificativas-dialogo-390.png",
+    "depois": "depois-justificativas-dialogo-390.png"
+  },
+  {
+    "pagina": "justificativas-dialogo",
+    "largura": 768,
+    "antes": "antes-justificativas-dialogo-768.png",
+    "depois": "depois-justificativas-dialogo-768.png"
+  },
+  {
+    "pagina": "justificativas-pendentes",
+    "largura": 1024,
+    "antes": "antes-justificativas-pendentes-1024.png",
+    "depois": "depois-justificativas-pendentes-1024.png"
+  },
+  {
+    "pagina": "justificativas-pendentes",
+    "largura": 1440,
+    "antes": "antes-justificativas-pendentes-1440.png",
+    "depois": "depois-justificativas-pendentes-1440.png"
+  },
+  {
+    "pagina": "justificativas-pendentes",
+    "largura": 360,
+    "antes": "antes-justificativas-pendentes-360.png",
+    "depois": "depois-justificativas-pendentes-360.png"
+  },
+  {
+    "pagina": "justificativas-pendentes",
+    "largura": 390,
+    "antes": "antes-justificativas-pendentes-390.png",
+    "depois": "depois-justificativas-pendentes-390.png"
+  },
+  {
+    "pagina": "justificativas-pendentes",
+    "largura": 768,
+    "antes": "antes-justificativas-pendentes-768.png",
+    "depois": "depois-justificativas-pendentes-768.png"
+  },
+  {
+    "pagina": "justificativas-preenchidas",
+    "largura": 1024,
+    "antes": "antes-justificativas-preenchidas-1024.png",
+    "depois": "depois-justificativas-preenchidas-1024.png"
+  },
+  {
+    "pagina": "justificativas-preenchidas",
+    "largura": 1440,
+    "antes": "antes-justificativas-preenchidas-1440.png",
+    "depois": "depois-justificativas-preenchidas-1440.png"
+  },
+  {
+    "pagina": "justificativas-preenchidas",
+    "largura": 360,
+    "antes": "antes-justificativas-preenchidas-360.png",
+    "depois": "depois-justificativas-preenchidas-360.png"
+  },
+  {
+    "pagina": "justificativas-preenchidas",
+    "largura": 390,
+    "antes": "antes-justificativas-preenchidas-390.png",
+    "depois": "depois-justificativas-preenchidas-390.png"
+  },
+  {
+    "pagina": "justificativas-preenchidas",
+    "largura": 768,
+    "antes": "antes-justificativas-preenchidas-768.png",
+    "depois": "depois-justificativas-preenchidas-768.png"
+  },
+  {
+    "pagina": "justificativas-vazio",
+    "largura": 1024,
+    "antes": "antes-justificativas-vazio-1024.png",
+    "depois": "depois-justificativas-vazio-1024.png"
+  },
+  {
+    "pagina": "justificativas-vazio",
+    "largura": 1440,
+    "antes": "antes-justificativas-vazio-1440.png",
+    "depois": "depois-justificativas-vazio-1440.png"
+  },
+  {
+    "pagina": "justificativas-vazio",
+    "largura": 360,
+    "antes": "antes-justificativas-vazio-360.png",
+    "depois": "depois-justificativas-vazio-360.png"
+  },
+  {
+    "pagina": "justificativas-vazio",
+    "largura": 390,
+    "antes": "antes-justificativas-vazio-390.png",
+    "depois": "depois-justificativas-vazio-390.png"
+  },
+  {
+    "pagina": "justificativas-vazio",
+    "largura": 768,
+    "antes": "antes-justificativas-vazio-768.png",
+    "depois": "depois-justificativas-vazio-768.png"
+  },
+  {
     "pagina": "ordens-editar",
     "largura": 1440,
     "antes": "antes-ordens-editar-1440.png",

@@ -1,0 +1,85 @@
+{
+  "SQL": [
+    {
+      "fase": "antes",
+      "estado": "pendentes",
+      "SQL": 14,
+      "mutacoes": 0,
+      "HTMLbytes": 27990
+    },
+    {
+      "fase": "antes",
+      "estado": "preenchidas",
+      "SQL": 14,
+      "mutacoes": 0,
+      "HTMLbytes": 83935
+    },
+    {
+      "fase": "antes",
+      "estado": "vazio",
+      "SQL": 10,
+      "mutacoes": 0,
+      "HTMLbytes": 24535
+    },
+    {
+      "fase": "antes",
+      "estado": "dialogo",
+      "SQL": 19,
+      "mutacoes": 0,
+      "HTMLbytes": 33289
+    },
+    {
+      "fase": "depois",
+      "estado": "pendentes",
+      "SQL": 14,
+      "mutacoes": 0,
+      "HTMLbytes": 30479
+    },
+    {
+      "fase": "depois",
+      "estado": "preenchidas",
+      "SQL": 14,
+      "mutacoes": 0,
+      "HTMLbytes": 101023
+    },
+    {
+      "fase": "depois",
+      "estado": "vazio",
+      "SQL": 10,
+      "mutacoes": 0,
+      "HTMLbytes": 25065
+    },
+    {
+      "fase": "depois",
+      "estado": "dialogo",
+      "SQL": 19,
+      "mutacoes": 0,
+      "HTMLbytes": 36050
+    }
+  ],
+  "recursos": [
+    {
+      "arquivo": "static/css/components.css",
+      "antes": 189526,
+      "depois": 189716,
+      "gzipAntes": 36496,
+      "gzipDepois": 36569
+    },
+    {
+      "arquivo": "static/js/componentes/dialogo.js",
+      "antes": 13482,
+      "depois": 13482,
+      "gzipAntes": 3991,
+      "gzipDepois": 3991
+    },
+    {
+      "arquivo": "static/js/componentes/registro.js",
+      "antes": 3822,
+      "depois": 3822,
+      "gzipAntes": 1681,
+      "gzipDepois": 1681
+    }
+  ],
+  "metodoPeso": "UTF-8 LF; não bytes HTTP",
+  "documentos": "templates oficiais não alterados; download usa gerador existente"
+}

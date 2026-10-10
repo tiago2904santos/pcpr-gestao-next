@@ -1,0 +1,51 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: var.migracao_visual_settings (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 7 items
+
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[360] Creating test database for alias 'default'...
+
+2026-10-10 06:42:19,264 WARNING django.request Unprocessable Content: /viagens/justificativas/2/salvar/
+PASSED [ 14%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[768] 2026-10-10 06:42:36,451 WARNING django.request Unprocessable Content: /viagens/justificativas/7/salvar/
+PASSED [ 28%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[1440] 2026-10-10 06:42:54,141 WARNING django.request Unprocessable Content: /viagens/justificativas/12/salvar/
+PASSED [ 42%]
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco 2026-10-10 06:43:14,162 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-10 06:43:14,229 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-10 06:43:14,382 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+PASSED [ 57%]
+(process:8220): GLib-GIO-WARNING **: 06:43:17.813: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:18.347: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:18.347: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:18.936: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:19.261: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:19.334: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:8220): GLib-GIO-WARNING **: 06:43:19.368: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+tests/e2e/test_justificativas_identidade.py::test_conflito_preserva_texto_e_consulta_sem_edicao 2026-10-10 06:43:34,305 WARNING django.request Unprocessable Content: /viagens/justificativas/22/salvar/
+PASSED [ 71%]
+tests/e2e/test_justificativas_identidade.py::test_paginacao_filtrada_apos_erro 2026-10-10 06:43:55,372 WARNING django.request Unprocessable Content: /viagens/justificativas/28/salvar/
+PASSED [ 85%]
+tests/e2e/test_planos_lista_identidade.py::test_paginacao_cancelamento_e_leitura PASSED [100%]Destroying test database for alias 'default'...
+
+
+
+============================== warnings summary ===============================
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 7 passed, 1 warning in 171.35s (0:02:51) ===================
