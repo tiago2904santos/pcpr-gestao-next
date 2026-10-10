@@ -20,7 +20,7 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Planos: Resultados | atividades previstas/retiradas, erro, vazio, cancelado/consulta | concluída tecnicamente; avaliação visual pendente | hero/preparação/lançamentos/leitura/barra no fluxo | duas variantes CSS exclusivas removidas |72HTTP/tokens,5E2E+7pós-limpeza,20capturas cinco larguras | gate global final pendente |
 | Justificativas | lista/diálogo/exclusão/download/erro/conflito/consulta | concluída tecnicamente; avaliação visual pendente | coleção/registro/diálogo/paginação com rota explícita | bases genéricas preservadas |108HTTP,2contratos,7E2E,2UI Lab,20pares;SQL igual | candidato-justificativas.json; gate global final pendente |
 | Viagens: Lista | busca, abas, vazio, canceladas, consulta, 20+ registros | concluída tecnicamente; avaliação visual pendente | coleção/hero/identidade/registro de relações sem ações | bases compartilhadas preservadas | 94 HTTP,5 E2E+3 finais,20 pares,SQL igual | candidato-viagens-lista.json |
-| Viagens: Folha/lote | contratos próprios | não iniciada | aprofundar ao entrar | idem | descoberta somente leitura | próxima unidade |
+| Viagens: Folha/lote | edição/autosave/conflito/consulta/cancelada/vínculos/conferência/lote | concluída tecnicamente; avaliação visual pendente | hero/preparação/destinos/documentos relacionados/conferência/histórico/barra no fluxo | sete regras exclusivas substituídas removidas | 118 HTTP,15 E2E+4 finais,20 pares,SQL igual | candidato-viagens-folha.json; gate global atualizado pendente |
 | Prestação de Contas | fluxos implementados | não iniciada | aprofundar ao entrar | idem | inventário existente | após Viagens |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
 
@@ -94,3 +94,13 @@ variante sem coluna de ações não esconde funções; somente Lista/UI Lab cons
 SHA/hashes em candidato-viagens-lista.json e commit-viagens-lista.json. Próxima unidade:
 Folha de Viagens e lote, antes de Prestação. Avaliação visual pelo usuário e gate global
 atualizado permanecem pendentes.
+
+Folha/lote de Viagens fechados tecnicamente:118HTTP/domínio/pacotes/tokens,15E2E
+integrados e quatro finais verdes.20pares em cinco larguras, teclado/altura500 e
+UI Lab revisados; SQL180/148/39/21 idêntico, JS idêntico, CSS conjunto+110gzip.
+Sete regras CSS exclusivas removidas após prova. Lote validado com equipe/motorista/
+viatura e geração real de rascunhos em banco TEST isolado. Galeria185pares/370imagens.
+Manifesto e SHA em candidato-viagens-folha.json/commit-viagens-folha.json. Próxima
+unidade: Lista de Prestação de Contas, antes de Diário/RT/Anexos; não abrir todos
+em paralelo. GET de Diário/RT editável pode inicializar registros: verificar
+isolamento/estado antes de qualquer captura. DEMO e mídia continuam preservados.

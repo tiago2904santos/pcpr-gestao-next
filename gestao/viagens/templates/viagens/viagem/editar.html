@@ -12,27 +12,9 @@ num calendário só e os blocos Destinos e Motivo), 2 Vincular documentos que j�
 barra do rodapé com Voltar, Gerar documentos e Ações. Sem permissão de editar (consulta)
 ou cancelada, os dados aparecem como texto, sem formulário.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
-    <span class="placa__rotulo">Viagem</span>
-    <span class="placa__numero">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m" }}{% else %}#{{ v.pk }}{% endif %}</span>
-  </span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="sr-only">{{ v }}{% if v.cancelada %} — cancelada{% endif %}</h1>
-    <p class="frase-oficio" id="frase-viagem" data-vivo>
-      <span class="sr-only">Resumo da viagem: </span>
-      {% if v.cancelada %}<span class="selo selo--perigo">Cancelada</span>{% else %}<span class="selo selo--neutro">{{ v.get_situacao_display }}</span>{% endif %}
-      <span class="frase-oficio__item{% if not v.titulo %} frase-oficio__item--vazio{% endif %}">{% icone "route" classe="icone--sm" %}{{ v.titulo|default:"sem tipo" }}</span>
-      <span class="frase-oficio__item{% if not destinos %} frase-oficio__item--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{% for m in destinos %}{{ m }}{% if not forloop.last %}, {% endif %}{% empty %}sem destino{% endfor %}</span>
-      <span class="frase-oficio__item{% if not v.data_inicio %} frase-oficio__item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% if quando %} · {{ quando }}{% endif %}{% else %}sem datas{% endif %}</span>
-      <span class="frase-oficio__item{% if not docs.total %} frase-oficio__item--vazio{% endif %}">{% icone "files" classe="icone--sm" %}{% if docs.total %}{% if docs.oficios %}{{ docs.oficios|length|pluralizar:"ofício,ofícios" }} {% endif %}{% if docs.ordens %}· {{ docs.ordens|length|pluralizar:"OS,OS" }} {% endif %}{% if docs.planos %}· {{ docs.planos|length|pluralizar:"plano,planos" }} {% endif %}{% if docs.termos %}· {{ docs.termos|length|pluralizar:"termo,termos" }} {% endif %}{% if docs.roteiros %}· {{ docs.roteiros|length|pluralizar:"roteiro,roteiros" }}{% endif %}{% else %}sem documentos{% endif %}</span>
-    </p>
-  </div>
-  <div class="pagina-cabecalho__acoes">
-    {% include "viagens/viagem/_acoes.html" with onde="cabeçalho" %}
-  </div>
-</header>
+{% include "viagens/viagem/_cabecalho.html" %}
 
 {% if pode_excluir %}<form id="excluir-viagem" method="post" action="{% url 'viagens:excluir_viagem' v.pk %}" hidden data-confirmar="{% if docs.total %}A viagem some; os {{ docs.total }} documentos continuam existindo, sem viagem. Para guardar o histórico da viagem, cancele.{% else %}A viagem ainda não tem documentos e será excluída de vez.{% endif %}" data-confirmar-titulo="Excluir viagem?" data-confirmar-rotulo="Excluir viagem" data-confirmar-perigo>{% csrf_token %}</form>{% endif %}
 
@@ -44,9 +26,9 @@ ou cancelada, os dados aparecem como texto, sem formulário.
 
 {% include "componentes/resumo_erros.html" %}
 
-<div class="documento documento--cartoes">
+<div class="documento documento--preparacao">
 {% if editavel %}
-<form method="post" action="{% url 'viagens:salvar_viagem' v.pk %}" novalidate id="form-viagem" data-proteger data-autosave="{% url 'viagens:autosave_viagem' v.pk %}">
+<form method="post" action="{% url 'viagens:salvar_viagem' v.pk %}" novalidate id="form-viagem" class="formulario--secoes" data-proteger data-autosave="{% url 'viagens:autosave_viagem' v.pk %}">
   {% csrf_token %}
   {{ form.versao }}{{ form.vinculos_presentes }}{{ form.conhecidos }}
 
@@ -61,7 +43,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     </div>
     <div class="pilha">
       {# Tipo (várias escolhas, como o programa do plano) e período na mesma linha. #}
-      <div class="campos campos--iguais" id="periodo">
+      <div class="campos campos--conteudo-periodo" id="periodo">
         <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
           {% if form.tipos.field.queryset %}
@@ -88,7 +70,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
 
     {# Destinos: o componente global (sede da unidade fixa, destinos, rota no mapa). #}
     <div class="secao__bloco" id="destinos">
-      {% campo_destinos form.destinos unidade=v.unidade %}
+      {% campo_destinos form.destinos unidade=v.unidade operacional=True %}
     </div>
 
     <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
@@ -129,11 +111,13 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     <h2 class="secao__titulo" id="t-docs"><span class="secao__numero">4</span>Documentos da viagem</h2>
     <p class="secao__nota">Cada documento abre na folha dele (com o caminho de volta para cá). "Novo" cria em rascunho, já ligado à viagem: o termo, a OS e o plano nascem com o período e os destinos; o ofício e a OS levam o motivo; o roteiro começa vazio para a sede e os trechos.</p>
   </div>
+  <div class="secao__grupo secao__grupo--relacoes">
   {% include "viagens/viagem/_bloco.html" with titulo="Roteiros" icone="route" lista=docs.roteiros tipo="roteiro" rotulo_novo="Novo roteiro" rota="viagens:editar_roteiro" vazio="Nenhum roteiro vinculado a esta viagem." precisa_semente=False %}
   {% include "viagens/viagem/_bloco.html" with titulo="Ofícios e justificativas" icone="file-text" lista=docs.oficios tipo="oficio" rotulo_novo="Novo ofício" rota="viagens:editar" vazio="Nenhum ofício vinculado a esta viagem." precisa_semente=False %}
   {% include "viagens/viagem/_bloco.html" with titulo="Planos de trabalho" icone="list-checks" lista=docs.planos tipo="plano" rotulo_novo="Novo plano" rota="viagens:editar_plano" vazio="Nenhum plano de trabalho vinculado a esta viagem." precisa_semente=True %}
   {% include "viagens/viagem/_bloco.html" with titulo="Ordens de serviço" icone="clipboard-list" lista=docs.ordens tipo="ordem" rotulo_novo="Nova OS" rota="viagens:editar_ordem" vazio="Nenhuma ordem de serviço vinculada a esta viagem." precisa_semente=True %}
   {% include "viagens/viagem/_bloco.html" with titulo="Termos de autorização" icone="file-signature" lista=docs.termos tipo="termo" rotulo_novo="Novo termo" rota="viagens:editar_termo" vazio="Nenhum termo vinculado a esta viagem." precisa_semente=True %}
+  </div>
 </section>
 
 <section class="secao" id="historico" aria-labelledby="t-hist">
@@ -141,8 +125,8 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     <h2 class="secao__titulo" id="t-hist"><span class="secao__numero">5</span>Histórico</h2>
     <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
   </div>
-  <ol class="historico__linhas" aria-label="Eventos da viagem">
-    {% for h in historico|slice:":8" %}{% include "viagens/oficios/_evento.html" %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
+  <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos da viagem">
+    {% for h in historico|slice:":8" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
   </ol>
 </section>
 </div>
@@ -153,12 +137,12 @@ Rodapé como o do termo, da OS e do plano: Voltar · Gerar documentos · Ações
 (a viagem se grava sozinha). Gerar documentos abre o lote (um cartão por ofício: equipe,
 quem dirige e a viatura, e o que sai junto).
 {% endcomment %}
-<div class="barra-acoes">
-  <a class="botao botao--texto" href="{% url 'viagens:viagens' %}">Voltar</a>
-  <div class="sr-only" data-status-salvamento data-texto-sujo="Gravando as alterações…" role="status"><span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if quadro and not quadro.pronta %} <span>{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }}.</span>{% endif %}</div>
+<div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:viagens' %}">Voltar</a>
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Gravando as alterações…" role="status">{% icone "check-circle-2" %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if quadro and not quadro.pronta %} <span>{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }}.</span>{% endif %}</div>
   <a class="botao{% if not docs.oficios %} botao--marca{% endif %}" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "file-plus-2" %}<span>Gerar <span class="barra-acoes__extra">documentos</span></span></a>
   {% include "viagens/viagem/_acoes.html" with onde="rodapé" dobrar=True %}
-</div>
+</div></div>
 {# Baixar tudo (ZIP) gera na hora, com o item do menu em "processando". #}
 <form id="baixar-tudo" method="post" action="{% url 'viagens:baixar_tudo_viagem' v.pk %}" hidden data-baixar-arquivo>{% csrf_token %}</form>
 {% include "componentes/dialogo_baixar.html" %}

@@ -1,0 +1,99 @@
+{
+  "SQL": [
+    {
+      "fase": "antes",
+      "estado": "vinculada",
+      "SQL": 180,
+      "mutacoes": 0,
+      "HTMLbytes": 76898
+    },
+    {
+      "fase": "antes",
+      "estado": "basica",
+      "SQL": 148,
+      "mutacoes": 0,
+      "HTMLbytes": 72423
+    },
+    {
+      "fase": "antes",
+      "estado": "cancelada",
+      "SQL": 39,
+      "mutacoes": 0,
+      "HTMLbytes": 27935
+    },
+    {
+      "fase": "antes",
+      "estado": "lote",
+      "SQL": 21,
+      "mutacoes": 0,
+      "HTMLbytes": 51596
+    },
+    {
+      "fase": "depois",
+      "estado": "vinculada",
+      "SQL": 180,
+      "mutacoes": 0,
+      "HTMLbytes": 77491
+    },
+    {
+      "fase": "depois",
+      "estado": "basica",
+      "SQL": 148,
+      "mutacoes": 0,
+      "HTMLbytes": 73665
+    },
+    {
+      "fase": "depois",
+      "estado": "cancelada",
+      "SQL": 39,
+      "mutacoes": 0,
+      "HTMLbytes": 28489
+    },
+    {
+      "fase": "depois",
+      "estado": "lote",
+      "SQL": 21,
+      "mutacoes": 0,
+      "HTMLbytes": 52933
+    }
+  ],
+  "recursos": [
+    {
+      "arquivo": "static/css/components.css",
+      "antes": 190659,
+      "depois": 193340,
+      "gzipAntes": 36663,
+      "gzipDepois": 37079
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "antes": 40525,
+      "depois": 39441,
+      "gzipAntes": 9608,
+      "gzipDepois": 9384
+    },
+    {
+      "arquivo": "static/css/documento.css",
+      "antes": 20607,
+      "depois": 20336,
+      "gzipAntes": 5623,
+      "gzipDepois": 5541
+    },
+    {
+      "arquivo": "static/js/componentes/autosave.js",
+      "antes": 10949,
+      "depois": 10949,
+      "gzipAntes": 4109,
+      "gzipDepois": 4109
+    },
+    {
+      "arquivo": "static/js/componentes/transporte.js",
+      "antes": 11977,
+      "depois": 11977,
+      "gzipAntes": 3596,
+      "gzipDepois": 3596
+    }
+  ],
+  "metodoPeso": "UTF-8 LF; não bytes HTTP",
+  "documentos": "templates oficiais não alterados; download usa gerador existente"
+}

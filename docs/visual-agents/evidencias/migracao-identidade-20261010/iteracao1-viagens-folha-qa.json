@@ -1,0 +1,162 @@
+[
+  {
+    "estado": "vinculada",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "basica",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelada",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lote",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vinculada",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "basica",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelada",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lote",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vinculada",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "basica",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelada",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lote",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vinculada",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "basica",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelada",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lote",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vinculada",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "basica",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "cancelada",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lote",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

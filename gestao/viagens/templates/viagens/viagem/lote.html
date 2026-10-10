@@ -9,25 +9,13 @@ Gerar documentos em lote (paridade com a referência): um cartão por ofício �
 dirige e em qual viatura —; o que a viagem já tem; o que sai junto (termos, OS, plano). Tudo
 nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam sem gravar.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
-    <span class="placa__rotulo">Viagem</span>
-    <span class="placa__numero">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m" }}{% else %}#{{ v.pk }}{% endif %}</span>
-  </span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">Gerar documentos</h1>
-    <p class="frase-oficio">
-      <span class="frase-oficio__item">{% icone "route" classe="icone--sm" %}{{ v.titulo|default:"sem tipo" }}</span>
-      <span class="frase-oficio__item{% if not roteiro %} frase-oficio__item--vazio{% endif %}">{% icone "map" classe="icone--sm" %}{% if roteiro %}{{ roteiro }}{% else %}sem roteiro{% endif %}</span>
-    </p>
-  </div>
-  <div class="pagina-cabecalho__acoes"><a class="botao" href="{% url 'viagens:editar_viagem' v.pk %}">{% icone "arrow-left" %}Voltar para a viagem</a></div>
-</header>
+{% include "viagens/viagem/_cabecalho.html" with lote=True %}
 
 {% if erros %}<div class="alerta alerta--perigo mb-4" role="alert" tabindex="-1" id="erros-lote">{% icone "alert-circle" %}<div class="alerta__corpo"><p class="alerta__titulo">Não foi possível gerar os documentos</p><ul>{% for e in erros %}<li>{{ e }}</li>{% endfor %}</ul></div></div>{% endif %}
 
-<form method="post" novalidate id="form-lote" class="documento documento--cartoes" data-proteger>
+<form method="post" novalidate id="form-lote" class="documento documento--preparacao" data-proteger>
   {% csrf_token %}
   <input type="hidden" name="quantidade" value="{{ form.quantidade }}">
 
@@ -47,15 +35,15 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
       <p class="secao__nota">A equipe que viaja neste ofício, quem dirige e em qual viatura.</p>
     </div>
     <div class="pilha">
-      {% include "viagens/_campo_equipe.html" with campo=c.equipe %}
-      {% include "viagens/_campo_equipe.html" with campo=c.motorista %}
+      {% include "viagens/_campo_equipe.html" with campo=c.equipe compacta=True %}
+      {% include "viagens/_campo_equipe.html" with campo=c.motorista compacta=True %}
       <div class="campos">
-        {% with n=c.n|stringformat:"s" %}{% include "viagens/_campo_viatura.html" with campo=c.viatura cadastrar=True equipe="#oficio-"|add:n %}{% endwith %}
+        {% with n=c.n|stringformat:"s" %}{% include "viagens/_campo_viatura.html" with campo=c.viatura cadastrar=True cartao=True equipe="#oficio-"|add:n %}{% endwith %}
       </div>
     </div>
+    {% if forloop.last %}<div class="secao__bloco secao__bloco--integrado"><button type="submit" name="acao" value="adicionar" class="botao">{% icone "plus" %}Adicionar ofício</button></div>{% endif %}
   </section>
   {% endfor %}
-  <p><button type="submit" name="acao" value="adicionar" class="botao">{% icone "plus" %}Adicionar ofício</button></p>
 
   <section class="secao" id="gerar-junto" aria-labelledby="t-junto">
     <div class="secao__cabecalho">
@@ -71,10 +59,10 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
     </fieldset>
   </section>
 
-  <div class="barra-acoes">
+  <div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
     <div class="barra-acoes__status" role="status">{{ form.quantidade|pluralizar:"ofício,ofícios" }} para gerar</div>
-    <a class="botao botao--texto" href="{% url 'viagens:editar_viagem' v.pk %}">Voltar</a>
-    <button type="submit" name="acao" value="gerar" class="botao botao--primario">{% icone "files" %}Gerar documentos</button>
+    <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:editar_viagem' v.pk %}">Voltar</a>
+    <button type="submit" name="acao" value="gerar" class="botao botao--primario">{% icone "files" %}Gerar documentos</button></div>
   </div>
 </form>
 {% include "componentes/dialogos_cadastro.html" %}

@@ -3787,6 +3787,7 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .documento.documento--preparacao { padding: 0; border: var(--borda); border-radius: var(--raio-lg); box-shadow: none; }
 .documento--preparacao > .documento__guia { display: none; }
 .documento--preparacao > .secao,
+.documento--preparacao > .formulario--secoes > .secao,
 .documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-6); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); scroll-margin-top: var(--esp-4); }
 /* Todas as seções respiram igual nos quatro lados — inclusive a primeira (que vinha com o
    topo encolhido pela linha-guia) e a última (que vinha sem base). */
@@ -4145,7 +4146,8 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 }
 @media (max-width: 767px) {
   .documento--preparacao > .secao,
-  .documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-4); gap: var(--esp-4); }
+  .documento--preparacao > .formulario--secoes > .secao,
+.documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-4); gap: var(--esp-4); }
   .documento--preparacao .secao__titulo { font-size: var(--texto-lg); }
   .documento--preparacao .secao__cabecalho { gap: var(--esp-2); }
   .campos.campos--registro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -4464,4 +4466,28 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 }
 @media (min-width: 1280px) {
   .registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "identidade titulo recursos" "identidade estado recursos" "identidade agenda recursos"; }
+}
+
+/* Documentos vinculáveis: várias escolhas em linhas compactas, sem outro cartão. */
+.campo--documentos .caixas { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--esp-12) * 8)), 1fr)); gap: var(--esp-1) var(--esp-3); }
+.campo--documentos .caixas__item { align-items: center; min-height: var(--altura-controle-sm); padding: var(--esp-2); border: 0; border-bottom: var(--borda-sutil); border-radius: var(--raio-sm); background: transparent; font-size: var(--texto-sm); }
+.campo--documentos .caixas__item:hover { background: var(--cor-superficie-sutil); }
+.campo--documentos .caixas__item:has(input:checked) { background: var(--cor-superficie-realce); font-weight: var(--peso-semi); }
+.campo--documentos .caixas__item:has(input:focus-visible) { outline-offset: calc(var(--filete-fino) * -1); }
+
+/* Relações documentais: abrir o registro de origem, sem presumir arquivo corrente. */
+.relacoes-documentais { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); list-style: none; padding: 0; margin: 0; }
+.relacoes-documentais > li { min-width: 0; border-bottom: var(--borda-sutil); }
+.relacoes-documentais .peca-documental { height: 100%; padding: var(--esp-3) 0; color: var(--cor-texto); text-decoration: none; border-radius: var(--raio-sm); }
+.relacoes-documentais .peca-documental:hover { background: var(--cor-superficie-sutil); }
+.relacoes-documentais .peca-documental:focus-visible { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
+.relacoes-documentais .ficha-documental__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.conferencia-etapas { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); list-style: none; margin: 0; padding: 0; }
+.conferencia-etapas__etapa { display: grid; gap: var(--esp-2); padding-left: var(--esp-3); border-left: var(--filete-fino) solid var(--cor-marca); min-width: 0; font-size: var(--texto-sm); }
+.conferencia-etapas__itens { display: grid; gap: var(--esp-2); list-style: none; padding: 0; margin: 0; color: var(--cor-texto-secundario); }
+.conferencia-etapas a { display: inline-flex; align-items: center; min-height: var(--alvo-minimo); color: var(--cor-texto); text-underline-offset: var(--esp-05); }
+@media (min-width: 768px) {
+  .conferencia-etapas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .secao__grupo.secao__grupo--relacoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .secao__grupo--relacoes > .secao__bloco:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }

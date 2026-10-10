@@ -1,0 +1,42 @@
+{
+  "base": "3708d544649a8bcc61bff63e79ee8b55688c85f6",
+  "branch": "codex/oficios-transporte-cartoes",
+  "situacao": "concluída tecnicamente; avaliação visual pelo usuário pendente",
+  "testes": [
+    "118 HTTP",
+    "15 E2E integrados",
+    "4 E2E finais",
+    "20 cenários reais",
+    "Ruff",
+    "TypeScript"
+  ],
+  "pendencias": [
+    "gate global atualizado",
+    "avaliação estética",
+    "dívida SQL preexistente"
+  ],
+  "fontes": {
+    "docs/product/propagacao-identidade.md": "feccaccf3ddc47bf0cad8e0456872b5ccf2c47f60e70c22e774f1bd5cbd0d755",
+    "docs/migration/viagem.md": "c230436589c97b1250b502073937f3f802ec26739b2eff5f0ab8b513c759012d",
+    "docs/design-system/components.md": "17781ade521a96544b8ac64c066becf9bb52e7781635473fb90f41214fbd8bbb",
+    "docs/visual-agents/migracao-identidade-20261010.md": "8d06fa0505fa39c88244ff599682091d63e833b76d82fbc25ddc56581b583ff5",
+    "docs/visual-agents/qa/viagens-folha-identidade-2026-10-10.md": "4662792c26d755d3fbf686f52fded179d8f86152f5fa6c26c90bf2e4f5631cb8",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "91ebd84e27cdf2a4aab37d6dddd8d4da6e9dbe5ceef180af2d4cb440882d5549",
+    "gestao/ui_lab/templates/ui_lab/_relacoes_documentais.html": "2547b918c07c0965113d5e4e9b96bb70bfd746cbb9ce05c9fcdd84fd0ad916b7",
+    "templates/componentes/conferencia_etapas.html": "765768dbe2508ed13cd735ea0c31e4297ad7c5cb15eed1c599770b244491f59b",
+    "tests/e2e/test_viagens_folha_identidade.py": "842412f424098a5c557608f5897170f28c646d883ebbedfdeb4ce60e2f52405b",
+    "static/css/components.css": "e35f94dffea9d03d0b23be5d45052db24d88a5c88be782b0761e4c69916b6734",
+    "static/css/formulario.css": "8fc89fb2f8e40d8efbe08cd67b950aaf5b0203b958453bbf065258c80946e070",
+    "static/css/documento.css": "fb389d0d145859bcbda352b07fc3ad073fcb508bd0313ed04b889127a274a090",
+    "gestao/viagens/templates/viagens/viagem/_bloco.html": "6f898b793f075d2587af83aef35f7251efeb31f63273fb4f1d62064569a1494b",
+    "gestao/viagens/templates/viagens/viagem/_conferencia.html": "31cbea1a29f56f4efaa6a53c078fbad1f7111af749d2388033207a7d90510488",
+    "gestao/viagens/templates/viagens/viagem/_leitura.html": "56d67c27b07681a7be6e4a4eef8467aa92d1a5e923713b13780a098cd570f711",
+    "gestao/viagens/templates/viagens/viagem/_vinculo.html": "a050108e59f48740177cd453a90bbdb18b00dae9b574d80f5ad28bc60606d484",
+    "gestao/viagens/templates/viagens/viagem/editar.html": "5baae70c071ce5b48d9f3005fc4ab25a7794ee4d5647066dea1156fdbd70e28b",
+    "gestao/viagens/templates/viagens/viagem/lote.html": "9f59603161576b4410f857caaccf2dac5a5b0fb75cd1ebeb77f1692580fc3705",
+    "gestao/viagens/templates/viagens/viagem/_cabecalho.html": "50b671d9b3ecc4f6f8aec0a5d815c535765377f499654b38980cea2ebbfb57cf",
+    "gestao/viagens/templates/viagens/viagem/_cabecalho_contexto.html": "3e156f6e8e459400e7617f119ca8bdbfbf578432ef6fcbcd0d308820cb69e013",
+    "gestao/viagens/templates/viagens/viagem/_lote_contexto.html": "5d1e086cd7fa5f4190ccc1eb05c163eafd8dcd52a8dc965515ce134882b8ac52",
+    "gestao/viagens/templates/viagens/viagem/_voltar.html": "d989a4d8851b6c047e01122587acbe96ed7c5f4f809e3d0f1c25b79ec90c9f6f"
+  }
+}

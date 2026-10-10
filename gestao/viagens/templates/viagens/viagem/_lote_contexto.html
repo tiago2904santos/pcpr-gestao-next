@@ -1,0 +1,1 @@
+{% load viagens %}<p class="registro-hero__metadados"><span class="registro-hero__metadado">{% icone "route" classe="icone--sm" %}{{ v.titulo|default:"sem tipo" }}</span><span class="registro-hero__metadado{% if not roteiro %} registro-hero__metadado--vazio{% endif %}">{% icone "map" classe="icone--sm" %}{{ roteiro|default:"sem roteiro" }}</span></p>

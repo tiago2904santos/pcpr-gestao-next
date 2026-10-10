@@ -1,0 +1,29 @@
+[
+  {
+    "width": 360,
+    "height": 500,
+    "menuEnterEscapeFocus": true,
+    "checkboxSpace": true,
+    "conferenciaFocus": true,
+    "axeUI": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 500,
+    "menuEnterEscapeFocus": true,
+    "checkboxSpace": true,
+    "conferenciaFocus": true,
+    "axeUI": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 500,
+    "menuEnterEscapeFocus": true,
+    "checkboxSpace": true,
+    "conferenciaFocus": true,
+    "axeUI": [],
+    "overflow": false
+  }
+]

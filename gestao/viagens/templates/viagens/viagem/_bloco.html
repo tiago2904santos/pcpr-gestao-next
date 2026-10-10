@@ -19,20 +19,11 @@ fica parado e diz por quê.
     </div>
   </div>
   {% if lista %}
-    <ul class="registros">
-      {% for d in lista %}
-        <li class="registro">
-          <span class="registro__icone" aria-hidden="true">{% icone icone %}</span>
-          <div class="registro__corpo">
-            <div class="registro__titulo">
-              <a class="registro__link" href="{% url rota d.pk %}">{{ d }}</a>
-              {% include "viagens/viagem/_situacao_doc.html" %}
-              {% if d.viagem_id != v.pk %}<span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}
-            </div>
-            {% if d.data_inicio %}<div class="registro__meta"><span class="registro__meta-item">{% icone "calendar" classe="icone--sm" %}{{ d.data_inicio|date:"d/m/Y" }}{% if d.data_fim and d.data_fim != d.data_inicio %} a {{ d.data_fim|date:"d/m/Y" }}{% endif %}</span></div>{% endif %}
-          </div>
-        </li>
-      {% endfor %}
+    <ul class="relacoes-documentais" aria-labelledby="t-bloco-{{ tipo }}">
+      {% for d in lista %}<li><a class="peca-documental" href="{% url rota d.pk %}">
+        {% icone icone %}<span class="ficha-documental__texto"><span>{{ d }}</span>
+        <span class="ficha-documental__meta">{% include "viagens/viagem/_situacao_doc.html" %}{% if d.viagem_id != v.pk %}<span class="selo selo--neutro selo--sem-ponto">pelo ofício</span>{% endif %}{% if d.data_inicio %}<span>{% icone "calendar" classe="icone--sm" %}{{ d.data_inicio|date:"d/m/Y" }}{% if d.data_fim and d.data_fim != d.data_inicio %} a {{ d.data_fim|date:"d/m/Y" }}{% endif %}</span>{% endif %}</span>
+        </span></a></li>{% endfor %}
     </ul>
   {% else %}
     <p class="vazio-inline">{% icone icone classe="icone--sm" %}{{ vazio }}</p>

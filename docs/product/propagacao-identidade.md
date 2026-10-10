@@ -215,3 +215,34 @@ separados; documentos agrupados como metadados. Barra dentro do fragmento, no fl
 com poucos registros e acompanhando apenas quando paginada. Sem grandes alturas.
 Legado tem filtros combináveis,25por página, busca por protocolo e ações de linha;
 lacunas/diferenças já levantadas ficam explícitas, não são ampliadas por uma missão visual.
+
+
+## Viagens — Folha e geração em lote
+
+Rotas /viagens/viagens/<pk>/ e /<pk>/gerar-documentos/. Folha agrupa identificação,
+tipos→título, período/destinos/motivo/descrição, vínculos atuais+40 livres por tipo,
+conferência em nove etapas/coerência, cinco grupos documentais e histórico. Consulta
+ou cancelada são leitura sem formulário. Preservar permissões distintas para editar,
+repetir, cancelar/reativar/excluir. Sem regra nova de emissão: prontidão da Viagem
+não significa emitir um documento. Cada Novo conserva semeadura, vínculo e bloqueio
+sem período/destino para OS/Plano/Termo. Coerência protege via assinada.
+
+Autosave protegido por versão; salvar manual existente no contrato HTTP. Manter
+#form-viagem/data-autosave/data-proteger, hidden versao/vinculos_presentes/conhecidos;
+conhecidos protege vínculo criado após abertura. Regiões data-vivo frase-viagem,
+estado-dados, nota-dados, conferencia, documentos devem manter IDs e não englobar
+os campos editáveis. Âncoras dados/periodo/destinos/motivo/vinculos/conferencia/
+coerencia/documentos/historico, forms externos e diálogos preservados.
+
+Lote manual POST/CSRF/data-proteger, quantidade/acao adicionar-remover-gerar e
+#oficio-N/equipe_N/motorista_N/viatura_N/data-equipe preservados. Adicionar/remover
+não gera; limite 20, duplicações/servidor já vinculado validados. Motorista de fora
+entra na equipe. Termos excluem unidade emissora; OS/Plano existentes não substituídos.
+Tudo nasce em rascunho, sem protocolo/emissão automática. Não alterar mídia/documento.
+
+Composição: hero canônico data/ID, preparação por seções, tipo/período proporcional,
+destinos operacionais, vínculos legíveis recolhíveis, conferência própria compacta,
+registros de documento sem recursos artificiais, histórico operacional e barra com
+feedback verdadeiro de autosave. Lote com equipe compacta/viatura-cartão existentes.
+Nenhum editor próprio ou novo módulo de negócio. Limpeza apenas após consumidores
+migrados e provas; bases genéricas ainda necessárias em Prestação ficam preservadas.

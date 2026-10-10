@@ -1,0 +1,11 @@
+{% load viagens %}
+{% comment %}Hero canônico do agrupador. Data/ID é identificação local, sem número oficial.{% endcomment %}
+{% if lote %}
+  {% with titulo="Gerar documentos" contexto="Preparação da viagem" acoes="viagens/viagem/_voltar.html" contexto_lote_template="viagens/viagem/_lote_contexto.html" %}
+    {% if v.data_inicio %}{% with n=v.data_inicio|date:"d/m" %}{% include "componentes/registro_hero.html" with pagina=True contexto=contexto rotulo="Viagem" numero=n titulo=titulo acoes_template=acoes complemento_template=contexto_lote_template %}{% endwith %}{% else %}{% with n=v.pk|stringformat:"s" %}{% include "componentes/registro_hero.html" with pagina=True contexto=contexto rotulo="Viagem" numero="#"|add:n titulo=titulo acoes_template=acoes complemento_template=contexto_lote_template %}{% endwith %}{% endif %}
+  {% endwith %}
+{% else %}
+<div id="cabecalho-viagem" data-vivo>
+  {% if v.data_inicio %}{% with n=v.data_inicio|date:"d/m" %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" rotulo="Viagem" numero=n titulo=v.titulo|default:"Viagem sem tipo" acoes_template="viagens/viagem/_acoes.html" complemento_template="viagens/viagem/_cabecalho_contexto.html" onde="cabeçalho" %}{% endwith %}{% else %}{% with n=v.pk|stringformat:"s" %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" rotulo="Viagem" numero="#"|add:n titulo=v.titulo|default:"Viagem sem tipo" acoes_template="viagens/viagem/_acoes.html" complemento_template="viagens/viagem/_cabecalho_contexto.html" onde="cabeçalho" %}{% endwith %}{% endif %}
+</div>
+{% endif %}

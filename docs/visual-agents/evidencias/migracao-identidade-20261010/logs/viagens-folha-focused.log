@@ -1,0 +1,31 @@
+2026-10-10 07:19:12,377 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 61 consultas (limite 25)
+2026-10-10 07:19:14,875 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/autosave/: 31 consultas (limite 25)
+2026-10-10 07:19:15,041 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 63 consultas (limite 25)
+2026-10-10 07:19:16,777 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/autosave/: 30 consultas (limite 25)
+2026-10-10 07:19:16,985 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 63 consultas (limite 25)
+.2026-10-10 07:19:32,400 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 61 consultas (limite 25)
+2026-10-10 07:19:34,083 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/autosave/: 31 consultas (limite 25)
+2026-10-10 07:19:34,241 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 63 consultas (limite 25)
+2026-10-10 07:19:35,828 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/autosave/: 30 consultas (limite 25)
+2026-10-10 07:19:35,971 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 63 consultas (limite 25)
+.2026-10-10 07:19:51,241 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 61 consultas (limite 25)
+2026-10-10 07:19:53,681 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/autosave/: 31 consultas (limite 25)
+2026-10-10 07:19:53,846 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 63 consultas (limite 25)
+2026-10-10 07:19:55,582 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/autosave/: 30 consultas (limite 25)
+2026-10-10 07:19:55,739 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 63 consultas (limite 25)
+.2026-10-10 07:20:11,508 WARNING django.request Unprocessable Content: /viagens/viagens/4/gerar-documentos/
+2026-10-10 07:20:13,782 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 33 consultas (limite 25)
+2026-10-10 07:20:14,295 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 31 consultas (limite 25)
+2026-10-10 07:20:15,965 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 73 consultas (limite 25)
+2026-10-10 07:20:16,153 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/: 75 consultas (limite 25)
+.2026-10-10 07:20:17,485 WARNING django.request Unauthorized: /viagens/api/rota/
+[10/Oct/2026 07:20:17,486] - Broken pipe from ('127.0.0.1', 53718)
+2026-10-10 07:20:28,897 WARNING django.request Unprocessable Content: /viagens/viagens/5/gerar-documentos/
+2026-10-10 07:20:31,267 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 33 consultas (limite 25)
+2026-10-10 07:20:32,553 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 31 consultas (limite 25)
+2026-10-10 07:20:34,307 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 73 consultas (limite 25)
+2026-10-10 07:20:34,496 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/: 75 consultas (limite 25)
+.2026-10-10 07:20:35,835 WARNING django.request Unauthorized: /viagens/api/rota/
+[10/Oct/2026 07:20:35,836] - Broken pipe from ('127.0.0.1', 57829)
+                                                                    [100%]
+5 passed in 122.79s (0:02:02)

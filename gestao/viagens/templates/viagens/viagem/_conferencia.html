@@ -10,13 +10,7 @@ equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe
     <p class="secao__nota">{% if quadro.pronta %}Nada falta: roteiro, documentos, assinaturas e protocolo em dia.{% else %}O que falta para a viagem ficar pronta: {{ quadro.pendencias|pluralizar:"item,itens" }}.{% endif %}</p>
   </div>
   {% if not quadro.pronta %}
-  <ul class="checklist">
-    {% for e in quadro.etapas %}{% if e.itens %}
-      <li class="checklist__item"><strong>{{ e.titulo }}</strong>
-        <ul class="checklist__sub">{% for i in e.itens %}<li>{% if i.link %}<a href="{{ i.link }}">{{ i.mensagem }}</a>{% else %}{{ i.mensagem }}{% endif %}</li>{% endfor %}</ul>
-      </li>
-    {% endif %}{% endfor %}
-  </ul>
+  {% include "componentes/conferencia_etapas.html" with etapas=quadro.etapas %}
   {% endif %}
   {% if diferencas %}
   <div class="secao__bloco" id="coerencia" aria-labelledby="t-coerencia">

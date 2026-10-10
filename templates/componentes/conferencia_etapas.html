@@ -1,0 +1,4 @@
+{% comment %}Pendências agrupadas por etapa; mensagens e links vêm da projeção do domínio.{% endcomment %}
+<ul class="conferencia-etapas" aria-label="Pendências por etapa">
+  {% for e in etapas %}{% if e.itens %}<li class="conferencia-etapas__etapa"><strong>{{ e.titulo }}</strong><ul class="conferencia-etapas__itens">{% for i in e.itens %}<li>{% if i.link %}<a href="{{ i.link }}">{{ i.mensagem }}</a>{% else %}{{ i.mensagem }}{% endif %}</li>{% endfor %}</ul></li>{% endif %}{% endfor %}
+</ul>

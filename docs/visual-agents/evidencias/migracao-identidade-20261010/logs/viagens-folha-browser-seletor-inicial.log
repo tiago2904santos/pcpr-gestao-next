@@ -1,0 +1,121 @@
+2026-10-10 07:12:07,220 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 61 consultas (limite 25)
+2026-10-10 07:12:09,321 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/autosave/: 31 consultas (limite 25)
+2026-10-10 07:12:09,493 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 63 consultas (limite 25)
+2026-10-10 07:12:11,179 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/autosave/: 30 consultas (limite 25)
+2026-10-10 07:12:11,311 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 63 consultas (limite 25)
+.2026-10-10 07:12:27,362 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 61 consultas (limite 25)
+2026-10-10 07:12:29,645 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/autosave/: 31 consultas (limite 25)
+2026-10-10 07:12:29,860 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 63 consultas (limite 25)
+2026-10-10 07:12:31,299 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/autosave/: 30 consultas (limite 25)
+2026-10-10 07:12:31,461 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 63 consultas (limite 25)
+.2026-10-10 07:12:46,591 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 61 consultas (limite 25)
+2026-10-10 07:12:49,078 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/autosave/: 31 consultas (limite 25)
+2026-10-10 07:12:49,236 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 63 consultas (limite 25)
+2026-10-10 07:12:50,953 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/autosave/: 30 consultas (limite 25)
+2026-10-10 07:12:51,101 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 63 consultas (limite 25)
+.2026-10-10 07:13:11,016 WARNING django.request Unprocessable Content: /viagens/viagens/4/gerar-documentos/
+2026-10-10 07:13:13,362 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 33 consultas (limite 25)
+F2026-10-10 07:13:35,426 WARNING django.request Unprocessable Content: /viagens/viagens/5/gerar-documentos/
+2026-10-10 07:13:37,866 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 33 consultas (limite 25)
+F..2026-10-10 07:14:35,003 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/: 62 consultas (limite 25)
+2026-10-10 07:14:37,978 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/autosave/: 29 consultas (limite 25)
+2026-10-10 07:14:38,144 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/: 62 consultas (limite 25)
+2026-10-10 07:14:40,165 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/autosave/: 29 consultas (limite 25)
+2026-10-10 07:14:40,346 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/: 69 consultas (limite 25)
+2026-10-10 07:14:41,227 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/8/autosave/: 27 consultas (limite 25)
+.2026-10-10 07:14:53,508 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/9/: 66 consultas (limite 25)
+.2026-10-10 07:15:05,755 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/11/: 66 consultas (limite 25)
+.2026-10-10 07:15:17,953 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/13/: 66 consultas (limite 25)
+.2026-10-10 07:15:29,908 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/15/: 32 consultas (limite 25)
+..2026-10-10 07:15:53,337 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/38/: 65 consultas (limite 25)
+.2026-10-10 07:16:05,661 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/39/: 65 consultas (limite 25)
+.                                                          [100%]
+================================== FAILURES ===================================
+_______ test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[360] ________
+
+logado = <Page url='http://localhost:59476/viagens/viagens/4/gerar-documentos/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_lote_erro_adicionar_remover_preserva_e_gera_rascunho(logado, dados_e2e, largura):
+        v = _viagem(dados_e2e)
+        motorista, servidor = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
+        viatura = Viatura.objects.filter(ativo=True).first()
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/viagens/{v.pk}/gerar-documentos/")
+        expect(pg.locator(".registro-hero")).not_to_contain_text(".html")
+        with pg.expect_response(lambda r: r.request.method == "POST") as erro:
+            pg.get_by_role("button", name="Gerar documentos", exact=True).click()
+        assert erro.value.status == 422
+        expect(pg.get_by_role("alert")).to_contain_text("Monte ao menos um ofício")
+        assert not Oficio.objects.filter(viagem=v).exists()
+        _selecionar_pessoa(pg, "equipe_0", servidor)
+        _selecionar_pessoa(pg, "motorista_0", motorista)
+        transporte = pg.locator("#oficio-1 pc-transporte")
+        transporte.get_by_role("combobox").fill(viatura.placa)
+        pg.get_by_role("option", name=re.compile(re.escape(viatura.placa_formatada))).first.click()
+        expect(transporte.locator("[data-viatura-cartao]")).to_be_visible()
+        pg.get_by_role("button", name="Adicionar ofício", exact=True).click()
+>       expect(pg.get_by_role("heading", name="Ofício 2", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("heading", name="Ofício 2", exact=True)
+
+tests\e2e\test_viagens_folha_identidade.py:92: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 07:13:11,016 WARNING django.request Unprocessable Content: /viagens/viagens/4/gerar-documentos/
+2026-10-10 07:13:13,362 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 33 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/viagens/4/gerar-documentos/
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/viagens/4/gerar-documentos/: 33 consultas (limite 25)
+_______ test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[1440] _______
+
+logado = <Page url='http://localhost:59476/viagens/viagens/5/gerar-documentos/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 21, 'oficio_rascunho': 22, 'oficio_vazio': 23, 'oficio_cancelado': 24, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_lote_erro_adicionar_remover_preserva_e_gera_rascunho(logado, dados_e2e, largura):
+        v = _viagem(dados_e2e)
+        motorista, servidor = list(Servidor.objects.filter(ativo=True).order_by("pk")[:2])
+        viatura = Viatura.objects.filter(ativo=True).first()
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/viagens/{v.pk}/gerar-documentos/")
+        expect(pg.locator(".registro-hero")).not_to_contain_text(".html")
+        with pg.expect_response(lambda r: r.request.method == "POST") as erro:
+            pg.get_by_role("button", name="Gerar documentos", exact=True).click()
+        assert erro.value.status == 422
+        expect(pg.get_by_role("alert")).to_contain_text("Monte ao menos um ofício")
+        assert not Oficio.objects.filter(viagem=v).exists()
+        _selecionar_pessoa(pg, "equipe_0", servidor)
+        _selecionar_pessoa(pg, "motorista_0", motorista)
+        transporte = pg.locator("#oficio-1 pc-transporte")
+        transporte.get_by_role("combobox").fill(viatura.placa)
+        pg.get_by_role("option", name=re.compile(re.escape(viatura.placa_formatada))).first.click()
+        expect(transporte.locator("[data-viatura-cartao]")).to_be_visible()
+        pg.get_by_role("button", name="Adicionar ofício", exact=True).click()
+>       expect(pg.get_by_role("heading", name="Ofício 2", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("heading", name="Ofício 2", exact=True)
+
+tests\e2e\test_viagens_folha_identidade.py:92: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 07:13:35,426 WARNING django.request Unprocessable Content: /viagens/viagens/5/gerar-documentos/
+2026-10-10 07:13:37,866 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 33 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/viagens/5/gerar-documentos/
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/viagens/5/gerar-documentos/: 33 consultas (limite 25)
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[360]
+FAILED tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[1440]
+2 failed, 13 passed in 279.42s (0:04:39)

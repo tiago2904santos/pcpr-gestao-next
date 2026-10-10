@@ -1,0 +1,128 @@
+Timeout (0:01:00)!
+Thread 0x000066a0 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00007454 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000023ec (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000069ac (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00006694 (most recent call first):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\waiting.py", line 347 in wait_select
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\connection.py", line 495 in wait
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py", line 113 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 105 in _execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 63 in medir
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 92 in _execute_with_wrappers
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 79 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1643 in execute_sql
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 131 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2287 in _fetch_all
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 473 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\viagem.py", line 68 in documentos
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_viagem.py", line 344 in gerar_documentos
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199 in _get_response
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 70 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 123 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 40 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django_htmx\middleware.py", line 39 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\identidade\middleware.py", line 118 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 101 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\whitenoise\middleware.py", line 123 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\utils\deprecation.py", line 441 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 142 in get_response
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1692 in get_response
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\wsgi.py", line 124 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1706 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\staticfiles\handlers.py", line 80 in __call__
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\wsgiref\handlers.py", line 137 in run
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 248 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00007234 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 362 in finish_request
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 697 in process_request_thread
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 104 in process_request_thread
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 995 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x0000503c (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x00003930 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 778 in _poll
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 446 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 2023 in _run_once
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 684 in run_forever
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 713 in run_until_complete
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56 in greenlet_main
+2026-10-10 07:28:38,487 WARNING django.request Unprocessable Content: /viagens/viagens/1/gerar-documentos/
+2026-10-10 07:28:40,515 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/gerar-documentos/: 33 consultas (limite 25)
+2026-10-10 07:28:41,810 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/gerar-documentos/: 31 consultas (limite 25)
+2026-10-10 07:28:44,131 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/gerar-documentos/: 73 consultas (limite 25)
+2026-10-10 07:28:44,539 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 75 consultas (limite 25)
+.2026-10-10 07:29:00,865 WARNING django.request Unprocessable Content: /viagens/viagens/2/gerar-documentos/
+2026-10-10 07:29:03,100 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/gerar-documentos/: 33 consultas (limite 25)
+2026-10-10 07:29:03,659 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/gerar-documentos/: 31 consultas (limite 25)
+2026-10-10 07:29:05,589 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/gerar-documentos/: 73 consultas (limite 25)
+2026-10-10 07:29:05,756 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/2/: 75 consultas (limite 25)
+...                                                                     [100%]
+4 passed in 134.06s (0:02:14)

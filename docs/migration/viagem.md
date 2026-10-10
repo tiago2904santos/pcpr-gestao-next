@@ -105,3 +105,14 @@ reset ou alteração de documento oficial. QA/evidências em docs/visual-agents/
 Diferenças da referência sobre combinações de filtros, 25 por página e busca por
 protocolo continuam explícitas; esta página não amplia regras de negócio. Folha/lote
 seguem como próxima unidade de migração, ainda não declarados concluídos nesta rodada.
+
+## Identidade visual vigente — Folha/lote, 10/10/2026
+
+Folha e lote migrados para hero/preparação/destinos/conferência/documentos relacionados,
+histórico e barra no fluxo. Autosave/versionamento, campos conhecidos, vínculos diretos
+e indiretos, permissões, prontidão/coerência e ações de documentos preservados. Lote
+reutiliza equipe compacta e cartão de viatura, adicionar/remover sem salvar e geração
+de rascunhos existentes; nenhum documento oficial alterado. Sete regras CSS exclusivas
+substituídas removidas após prova de consumidores e reteste. QA/evidências em
+docs/visual-agents/qa/viagens-folha-identidade-2026-10-10.md. Busca nos vínculos e
+histórico específico continuam lacunas anteriores, sem ampliação funcional nesta missão.

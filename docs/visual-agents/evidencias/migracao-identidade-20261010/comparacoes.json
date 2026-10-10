@@ -870,6 +870,126 @@
     "depois": "depois-termos-vazio-768.png"
   },
   {
+    "pagina": "viagens-folha-basica",
+    "largura": 1024,
+    "antes": "antes-viagens-folha-basica-1024.png",
+    "depois": "depois-viagens-folha-basica-1024.png"
+  },
+  {
+    "pagina": "viagens-folha-basica",
+    "largura": 1440,
+    "antes": "antes-viagens-folha-basica-1440.png",
+    "depois": "depois-viagens-folha-basica-1440.png"
+  },
+  {
+    "pagina": "viagens-folha-basica",
+    "largura": 360,
+    "antes": "antes-viagens-folha-basica-360.png",
+    "depois": "depois-viagens-folha-basica-360.png"
+  },
+  {
+    "pagina": "viagens-folha-basica",
+    "largura": 390,
+    "antes": "antes-viagens-folha-basica-390.png",
+    "depois": "depois-viagens-folha-basica-390.png"
+  },
+  {
+    "pagina": "viagens-folha-basica",
+    "largura": 768,
+    "antes": "antes-viagens-folha-basica-768.png",
+    "depois": "depois-viagens-folha-basica-768.png"
+  },
+  {
+    "pagina": "viagens-folha-cancelada",
+    "largura": 1024,
+    "antes": "antes-viagens-folha-cancelada-1024.png",
+    "depois": "depois-viagens-folha-cancelada-1024.png"
+  },
+  {
+    "pagina": "viagens-folha-cancelada",
+    "largura": 1440,
+    "antes": "antes-viagens-folha-cancelada-1440.png",
+    "depois": "depois-viagens-folha-cancelada-1440.png"
+  },
+  {
+    "pagina": "viagens-folha-cancelada",
+    "largura": 360,
+    "antes": "antes-viagens-folha-cancelada-360.png",
+    "depois": "depois-viagens-folha-cancelada-360.png"
+  },
+  {
+    "pagina": "viagens-folha-cancelada",
+    "largura": 390,
+    "antes": "antes-viagens-folha-cancelada-390.png",
+    "depois": "depois-viagens-folha-cancelada-390.png"
+  },
+  {
+    "pagina": "viagens-folha-cancelada",
+    "largura": 768,
+    "antes": "antes-viagens-folha-cancelada-768.png",
+    "depois": "depois-viagens-folha-cancelada-768.png"
+  },
+  {
+    "pagina": "viagens-folha-lote",
+    "largura": 1024,
+    "antes": "antes-viagens-folha-lote-1024.png",
+    "depois": "depois-viagens-folha-lote-1024.png"
+  },
+  {
+    "pagina": "viagens-folha-lote",
+    "largura": 1440,
+    "antes": "antes-viagens-folha-lote-1440.png",
+    "depois": "depois-viagens-folha-lote-1440.png"
+  },
+  {
+    "pagina": "viagens-folha-lote",
+    "largura": 360,
+    "antes": "antes-viagens-folha-lote-360.png",
+    "depois": "depois-viagens-folha-lote-360.png"
+  },
+  {
+    "pagina": "viagens-folha-lote",
+    "largura": 390,
+    "antes": "antes-viagens-folha-lote-390.png",
+    "depois": "depois-viagens-folha-lote-390.png"
+  },
+  {
+    "pagina": "viagens-folha-lote",
+    "largura": 768,
+    "antes": "antes-viagens-folha-lote-768.png",
+    "depois": "depois-viagens-folha-lote-768.png"
+  },
+  {
+    "pagina": "viagens-folha-vinculada",
+    "largura": 1024,
+    "antes": "antes-viagens-folha-vinculada-1024.png",
+    "depois": "depois-viagens-folha-vinculada-1024.png"
+  },
+  {
+    "pagina": "viagens-folha-vinculada",
+    "largura": 1440,
+    "antes": "antes-viagens-folha-vinculada-1440.png",
+    "depois": "depois-viagens-folha-vinculada-1440.png"
+  },
+  {
+    "pagina": "viagens-folha-vinculada",
+    "largura": 360,
+    "antes": "antes-viagens-folha-vinculada-360.png",
+    "depois": "depois-viagens-folha-vinculada-360.png"
+  },
+  {
+    "pagina": "viagens-folha-vinculada",
+    "largura": 390,
+    "antes": "antes-viagens-folha-vinculada-390.png",
+    "depois": "depois-viagens-folha-vinculada-390.png"
+  },
+  {
+    "pagina": "viagens-folha-vinculada",
+    "largura": 768,
+    "antes": "antes-viagens-folha-vinculada-768.png",
+    "depois": "depois-viagens-folha-vinculada-768.png"
+  },
+  {
     "pagina": "viagens-lista-canceladas",
     "largura": 1024,
     "antes": "antes-viagens-lista-canceladas-1024.png",

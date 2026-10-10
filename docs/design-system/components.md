@@ -561,3 +561,28 @@ compacta, sem atribuir número oficial ao agrupador Viagem. Situação é badge 
 metadado com relógio. Vínculos de Ofícios, OS e Planos ficam em grupo secundário.
 Busca/abas são os mesmos componentes canônicos; barra de criação dentro do fragmento
 HTMX atualiza contagem e permanece no fluxo nas listas curtas.
+
+## Preparação e documentos relacionados — Viagens, 10/10/2026
+
+`documento--preparacao` aceita seções dentro do formulário `formulario--secoes`,
+sem trocar IDs, nomes, CSRF ou regiões de salvamento. Consumidor novo: Folha de
+Viagens; o lote usa seções diretamente no formulário. O hero recebe a identidade
+data/ID e contexto da Viagem; seu contêiner `data-vivo` mantém o título atualizado
+depois do autosave, junto da frase de contexto existente.
+
+`campo--documentos` especializa as opções `caixas` para vínculos de documentos:
+lista compacta com divisórias sutis, seleção neutra e foco preservado. Consumidores:
+Folha de Viagens e UI Lab. Não altera a busca nem o limite de candidatos do servidor.
+
+`relacoes-documentais` reaproveita `peca-documental` para abrir registros vinculados,
+com estado e período, inclusive relações indiretas pelo Ofício. Não representa um
+download nem declara um arquivo corrente. `secao__grupo--relacoes` distribui grupos
+em duas colunas a partir de768px; o último grupo ímpar ocupa a linha toda. Cada lista
+interna mantém largura integral, sem reservar meia coluna para um único documento.
+
+`conferencia_etapas.html` recebe etapas/itens/links já calculados pelo domínio.
+Não define regras de prontidão; `conferencia-etapas` agrupa as pendências sem um
+cartão por mensagem e mantém o alvo mínimo de toque nos links. Consumidores: Folha
+de Viagens e exemplo do UI Lab. Histórico operacional e barra de ações no fluxo
+usam os padrões já migrados. Equipe compacta e cartão de viatura no lote usam os
+mesmos seletores de Ofícios, preservando campos e comportamento.
