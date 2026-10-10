@@ -74,3 +74,32 @@ removida. Compatibilidade é registrada na matriz da missão.
 - Compatibilidade: manter IDs `frase-termo`, `conferencia`, `estado-destinos`,
   `barra-pendencias`, formulário, `data-vivo`, `data-editores`, páginas/vias e
   endpoints. Não aplicar uma substituição global aos demais consumidores de destinos.
+
+## Ordens de Serviço — contrato observado antes da migração
+
+- Objetivo: determinar deslocamento e necessidade, com numeração anual própria e
+  documento único. Rotas `/viagens/ordens/`, `/nova/`, `/<pk>/`. A edição também
+  oferece detalhe, documento e histórico; não há modal de resumo separado.
+- Lista: número/ano, destinos, período, equipe, tipos, Ofícios e assinatura;
+  busca por número, destino, servidor, motivo/Ofício; filtro por Ofício; abas
+  temporais, contas prestadas e canceladas; ordenação ano/número, paginação.
+- Campos: Ofícios compatíveis, tipo, período, destinos/UF, servidores, funções
+  individuais nos tipos caminhão/micro-ônibus/cerimonial, motivo/texto pronto e
+  assinante. Vínculo novo preenche apenas campos vazios; não recriar dados apagados.
+- Validação/salvamento: datas e unidade, funções por servidor, versão/autosave,
+  recarga quando muda o conjunto de funções. **Pendências são avisos**; gerar e
+  finalizar não recebem o bloqueio de emissão de Ofícios. Finalizar espera salvar.
+- Permissões: consulta/edição/documento/cancelamento/exclusão nas políticas atuais.
+  Excluir somente antes da primeira geração; cancelar mantém o número reservado.
+- Documentos: único editor, Texto/PDF/DOCX, versões, via assinada, downloads e
+  histórico. Prévia `?previa=1` não fixa data nem geração; geração efetiva fixa.
+  Não alterar texto oficial, margens ou paginação para adaptar o visualizador.
+- Migração: hero/identidade, registro operacional de relações sem coluna financeira,
+  preparação, destinos/mapa operacionais, equipe compacta, editor/histórico/barra
+  no fluxo. Manter `frase-ordem`, `conferencia`, `estado-destinos`, `estado-motivo`,
+  `barra-pendencias`, `data-vivo`, `data-esperar-salvamento`, IDs/URLs/páginas da OS.
+- Fontes: `migration/ordens.md`, `views_ordens.py`, `FormularioOrdem`, `ordens.py`,
+  testes; referência `viagens_ordens/{forms,views,abas}.py` somente leitura.
+- Lacunas funcionais preexistentes: número manual e aviso de conflito de agenda
+  do legado. Não implementados nesta missão visual. Assinados e contas prestadas
+  já existem; a ficha histórica não deve continuar marcando-os como ausentes.

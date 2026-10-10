@@ -1,0 +1,19 @@
+{% load viagens %}
+    {% if ordem %}
+    <p class="registro-hero__metadados" id="frase-ordem" data-vivo>
+      {% if ordem.viagem_id %}<a class="metadado metadado--inverso" href="{% url 'viagens:editar_viagem' ordem.viagem_id %}#documentos">{% icone "map" classe="icone--sm" %}Viagem: {{ ordem.viagem }}</a>{% endif %}
+      <span class="sr-only">Resumo da ordem: </span>
+      {% if ordem.cancelada %}<span class="selo selo--perigo">Cancelada</span>
+      {% elif ordem.documento_gerado_em %}<span class="selo selo--sucesso">Gerada em {{ ordem.documento_gerado_em|date:"d/m" }}</span>
+      {% elif faltando %}<span class="selo selo--aviso">{{ faltando|length|pluralizar:"pendência,pendências" }}</span>
+      {% else %}<span class="selo selo--sucesso">Pronta para gerar</span>{% endif %}
+      {% if via.s.via and pode_ver_documento %}{% include "viagens/assinados/_selo.html" with s=via.s %}{% endif %}
+      {% if ordem.tipo != "padrao" %}<span class="metadado metadado--inverso">{% icone "layers" classe="icone--sm" %}{{ ordem.get_tipo_display }}</span>{% endif %}
+      {% with n=ordem.servidores.all|length %}<span class="metadado metadado--inverso{% if not n %} metadado metadado--inverso metadado--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>{% endwith %}
+      <span class="metadado metadado--inverso{% if not ordem.destinos.all %} metadado metadado--inverso metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{% for d in ordem.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}sem destino{% endfor %}</span>
+      <span class="metadado metadado--inverso{% if not periodo %} metadado metadado--inverso metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo|default:"sem datas" }}{% if periodo and not ordem.cancelada %} · {% if ordem.data_inicio > hoje %}prevista{% elif ordem.data_fim >= hoje %}em andamento{% else %}realizada{% endif %}{% endif %}</span>
+      {% for of in ordem.oficios.all %}<span class="metadado metadado--inverso">{% icone "file-text" classe="icone--sm" %}{{ of }}</span>{% empty %}<span class="metadado metadado--inverso">{% icone "file-text" classe="icone--sm" %}avulsa</span>{% endfor %}
+    </p>
+    {% else %}
+    <p class="registro-hero__metadados"><span class="metadado metadado--inverso">{% icone "file-plus-2" classe="icone--sm" %}Recebe o número <strong>{{ proximo_numero|stringformat:"03d" }}/{{ ano }}</strong> ao salvar</span></p>
+    {% endif %}

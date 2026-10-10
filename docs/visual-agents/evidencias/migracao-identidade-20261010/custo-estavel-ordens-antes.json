@@ -1,0 +1,153 @@
+{
+  "fase": "antes",
+  "fontes": [
+    {
+      "arquivo": "static/css/components.css",
+      "bytes": 190158,
+      "gzip": 35971
+    },
+    {
+      "arquivo": "static/css/listas.css",
+      "bytes": 65408,
+      "gzip": 15322
+    },
+    {
+      "arquivo": "static/css/itinerario.css",
+      "bytes": 31425,
+      "gzip": 7264
+    },
+    {
+      "arquivo": "static/css/editor.css",
+      "bytes": 18685,
+      "gzip": 4585
+    },
+    {
+      "arquivo": "static/js/componentes/destinos.js",
+      "bytes": 14913,
+      "gzip": 4866
+    },
+    {
+      "arquivo": "static/js/componentes/editores.js",
+      "bytes": 14066,
+      "gzip": 4610
+    },
+    {
+      "arquivo": "static/js/componentes/multiescolha.js",
+      "bytes": 8693,
+      "gzip": 2699
+    }
+  ],
+  "paginas": [
+    {
+      "pagina": "lista",
+      "http": 200,
+      "htmlBytes": 39887,
+      "requests": 22,
+      "recursos": [
+        "viagens/ordens/",
+        "static/fonts/inter-latin-wght-normal.woff2",
+        "static/css/tokens.css",
+        "static/css/base.css",
+        "static/css/layout.css",
+        "static/css/components.css",
+        "static/css/listas.css",
+        "static/js/componentes/shell.js",
+        "static/js/componentes/menu.js",
+        "static/js/componentes/dialogo.js",
+        "static/js/componentes/toasts.js",
+        "static/js/componentes/comandos.js",
+        "static/js/componentes/acao.js",
+        "static/vendor/htmx.min.js",
+        "static/js/app.js",
+        "static/js/componentes/registro.js",
+        "static/js/componentes/seletor.js",
+        "static/img/brasao-pcpr-96.webp",
+        "static/icons/sprite.svg",
+        "static/js/componentes/abas-rolagem.js",
+        "static/js/componentes/filtros.js",
+        "static/js/componentes/limpar.js"
+      ],
+      "scrollY": 0,
+      "geometria": []
+    },
+    {
+      "pagina": "folha",
+      "http": 200,
+      "htmlBytes": 94420,
+      "requests": 58,
+      "recursos": [
+        "viagens/ordens/5/",
+        "static/fonts/inter-latin-wght-normal.woff2",
+        "static/css/tokens.css",
+        "static/css/base.css",
+        "static/css/layout.css",
+        "static/css/components.css",
+        "static/css/formulario.css",
+        "static/css/documento.css",
+        "static/css/listas.css",
+        "static/css/editor.css",
+        "static/js/componentes/shell.js",
+        "static/js/componentes/menu.js",
+        "static/js/componentes/dialogo.js",
+        "static/js/componentes/toasts.js",
+        "static/js/componentes/comandos.js",
+        "static/js/componentes/acao.js",
+        "static/vendor/htmx.min.js",
+        "static/js/app.js",
+        "static/js/componentes/cadastro-rapido.js",
+        "static/img/brasao-pcpr-96.webp",
+        "static/css/itinerario.css",
+        "static/icons/sprite.svg",
+        "static/js/componentes/combobox.js",
+        "static/js/componentes/mascara.js",
+        "static/js/componentes/protecao.js",
+        "static/js/componentes/autosave.js",
+        "static/js/componentes/guia.js",
+        "static/js/componentes/seletor-data.js",
+        "static/js/componentes/seletor.js",
+        "static/js/componentes/texto-pronto.js",
+        "static/js/componentes/multiescolha.js",
+        "static/js/componentes/oficios-irmaos.js",
+        "static/js/componentes/destinos.js",
+        "static/js/componentes/assinado.js",
+        "static/js/componentes/baixar-arquivo.js",
+        "static/js/componentes/editor-documento.js",
+        "static/js/componentes/editores.js",
+        "static/js/componentes/limpar.js",
+        "static/js/componentes/painel-flutuante.js",
+        "static/js/componentes/seletor-base.js",
+        "static/js/componentes/mapa-rota.js",
+        "viagens/ordens/5/folha/?miniatura=1791616652921",
+        "viagens/ordens/5/folha/",
+        "viagens/ordens/5/editor/estado/",
+        "viagens/api/rota/?p=Curitiba%2FPR&p=Cascavel%2FPR&p=Curitiba%2FPR",
+        "static/css/tokens.css",
+        "static/css/folha.css",
+        "static/documentos/brasao-pcpr.png",
+        "static/fonts/inter-latin-wght-normal.woff2",
+        "static/documentos/fontes/LiberationSerif-Bold.ttf",
+        "static/documentos/fontes/LiberationSerif-Regular.ttf",
+        "viagens/ordens/5/editor/paginas/",
+        "static/css/tokens.css",
+        "static/css/folha.css",
+        "static/documentos/brasao-pcpr.png",
+        "static/fonts/inter-latin-wght-normal.woff2",
+        "static/documentos/fontes/LiberationSerif-Regular.ttf",
+        "static/documentos/fontes/LiberationSerif-Bold.ttf"
+      ],
+      "scrollY": 0,
+      "geometria": [
+        {
+          "tipo": "mapa",
+          "top": 0,
+          "altura": 0
+        },
+        {
+          "tipo": "editor",
+          "top": 1199.921875,
+          "altura": 1337.140625
+        }
+      ]
+    }
+  ]
+}

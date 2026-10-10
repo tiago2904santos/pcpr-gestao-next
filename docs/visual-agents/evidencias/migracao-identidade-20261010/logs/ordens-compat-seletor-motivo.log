@@ -1,0 +1,108 @@
+F.....                                                                   [100%]
+================================== FAILURES ===================================
+___________________ test_os_a_partir_do_oficio_com_funcoes ____________________
+
+logado = <Page url='http://localhost:62484/viagens/ordens/1/#t-equipe'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e):
+        pg = logado
+        pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
+        janela = pg.get_by_role("dialog")
+        janela.get_by_role("button", name="Mais ações").click()
+        janela.get_by_role("menuitem", name="Criar a partir deste ofício").press("Enter")
+        janela.get_by_role("menuitem", name="Nova ordem de serviço").press("Enter")
+        pg.get_by_role("dialog", name="Nova ordem de serviço?").get_by_role(
+            "button", name="Criar OS").click()
+        expect(pg.locator(".toast")).to_contain_text("criada a partir do Ofício")
+        ordem = OrdemServico.objects.get()
+        expect(pg.get_by_role("heading", level=1)).to_contain_text(str(ordem))
+        # A folha mostra o documento como vai sair (visualizador, sem fixar a data).
+        pg.locator("#previa").scroll_into_view_if_needed()  # o visualizador carrega ao aparecer
+        folha = pg.frame_locator("#folha-ordem")
+        expect(folha.locator("body")).to_contain_text("DETERMINO")
+        # Tipo com funções: salva o tipo e escolhe a função de cada um da equipe.
+        pg.get_by_role("combobox", name="Tipo de necessidade").click()
+        pg.get_by_role("option", name=re.compile("Cerimonial")).click()
+        pg.keyboard.press("Control+s")
+        # Tipo com função e ninguém com função: a tela pede para escolher.
+        expect(pg.locator(".toast")).to_contain_text("escolha a função")
+        primeiro = ordem.servidores.order_by("nome").first()
+        funcao = pg.get_by_role("combobox", name=primeiro.nome)
+        funcao.click()
+        pg.get_by_role("option", name="Coordenação").click()
+        pg.keyboard.press("Control+s")
+        expect(pg.locator(".toast")).to_contain_text("atualizada")
+        ordem.refresh_from_db()
+        assert ordem.tipo == "cerimonial_antecipado"
+        assert ordem.funcoes.get(str(primeiro.pk)) == "coordenacao"
+        # Gravação automática: mudar o motivo grava sozinho e o status diz a hora.
+>       pg.get_by_label("Motivo", exact=True).fill("a feira fictícia de outubro")
+
+tests\e2e\test_ordens.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15919: in fill
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:212: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:590: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_frame.py:602: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001968B5A1550>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000019690B96C00>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.fill: Error: strict mode violation: get_by_label("Motivo", exact=True) resolved to 2 elements:
+E               1) <div id="motivo" class="secao__bloco" aria-labelledby="t-motivo">…</div> aka get_by_text("Motivo Texto pronto do motivo")
+E               2) <textarea rows="3" cols="40" name="motivo" id="id_motivo" maxlength="4000" class="area-texto" aria-describedby="id_motivo-ajuda">Apoio e condução da Unidade Móvel no evento Expoa…</textarea> aka get_by_role("textbox", name="Motivo")
+E           
+E           Call log:
+E             - waiting for get_by_label("Motivo", exact=True)
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+---------------------------- Captured stderr call -----------------------------
+2026-10-10 04:15:31,080 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 37 consultas (limite 25)
+2026-10-10 04:15:32,759 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+2026-10-10 04:15:34,300 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/1/: 37 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+-------------------------- Captured stderr teardown ---------------------------
+[10/Oct/2026 04:15:34,923] - Broken pipe from ('127.0.0.1', 58762)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 58762)
+============================== warnings summary ===============================
+tests/e2e/test_ordens_identidade.py::test_documento_cancelamento_e_consulta
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_assinados.py::test_anexar_via_da_os_pela_barra_e_revogar_por_http
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_ordens_compat_bbf3dbd4" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_ordens.py::test_os_a_partir_do_oficio_com_funcoes - pla...
+1 failed, 5 passed, 2 warnings in 141.53s (0:02:21)

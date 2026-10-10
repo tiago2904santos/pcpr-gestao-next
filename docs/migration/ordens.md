@@ -28,7 +28,7 @@ modelos de documento (`documentos/tests/golden/ordem_servico*.txt`) da referênc
 | Prévia do documento | ✅ MELHORADO | o documento como vai sair, na própria folha (visualizador do ofício em modo leitura, Texto/PDF), refeito a cada gravação; a prévia **não** fixa a data nem conta como geração (`?previa=1` no PDF) | `TestFolhaDaOS` |
 | Histórico | ✅ MELHORADO | criação, alterações (destinos, equipe, ofícios vêm das tabelas filhas), primeira geração, cancelamento e reativação, lidos da trilha do banco | `TestHistoricoDaOS` |
 | Conflito de agenda (aviso) | ❔ | não trazido nesta rodada (backlog) | — |
-| Anexar assinado | ⛔ | núcleo de Documentos (módulo 7) | — |
+| Anexar assinado | ✅ | editor, anexo por documento e abertura/revogação preservando arquivo | `test_assinados.py::TestOrdem`, E2E `test_assinados.py` |
 | Nova OS a partir do ofício | ✅ | "Mais ações" da janela do ofício, com confirmação | `test_criar_do_oficio_em_um_clique` |
 
 ## Folha (04/10/2026)
@@ -89,3 +89,12 @@ OS da própria unidade (gestor: de todas). Consulta: vê. Permissões `viagens.*
 "Finalizadas" (módulo 9), anexar assinado (módulo 7), conflito de agenda, comparação com a
 referência em execução. As funções de quem entra na equipe aparecem depois de salvar pelo
 botão (o autosave não redesenha a tela).
+
+## Propagação visual — 10/10/2026
+
+Lista, nova/edição, documento/editor/histórico e ações migrados para a identidade
+vigente de Ofícios (hero, filtros horizontais, registros de relações e preparação).
+Funções por servidor, herança apenas de campos vazios, prévia sem fixar geração e
+regra de pendências informativas permanecem. Número manual e conflito de agenda
+continuam lacunas funcionais; não são apresentados como integralmente migrados.
+QA e comparações: `../visual-agents/qa/ordens-identidade-2026-10-10.md`.

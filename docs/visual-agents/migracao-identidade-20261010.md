@@ -14,7 +14,7 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Roteiros: lista | busca, abas, vazio, cancelado, paginação, menu, vínculos | concluída tecnicamente; avaliação visual pendente | hero/coleção/registro operacional | regras exclusivas antigas removidas; bases de outras listas preservadas | 89 focados, 9 E2E compatibilidade, 25 pares, teclado/HTMX/axe/UI Lab, SQL equivalente | gate 2295 verde; manifesto candidato-roteiros.json |
 | Roteiros: novo/edição | vazio, preenchido, erro, autosave, bate-volta | concluída tecnicamente; avaliação visual pendente | itinerário/rota/trechos/Diárias canônicos, salvamento sem emissão | mapa alternativo sem consumidores removido | 7 E2E de fluxo, compatibilidade após remoção, 68 tokens, cinco larguras | gate 2295 verde; sem documento/resumo próprio |
 | Termos: lista/folha/documentos | busca, filtro por Ofício, avulso/vinculado, novo, documentos, cancelado | concluída tecnicamente; avaliação visual pendente | hero, coleção/registro de relações, preparação, destinos/mapa, equipe compacta, viatura/cartão, editor/histórico | quatro regras exclusivas antigas removidas; mapa mantido para OS/Planos/Viagens | 69 HTTP pós-limpeza; 8 E2E compatíveis; 25 cenários reais verdes; 3 Baixar/documentos e 2 paginação/consulta/assinado verdes | manifesto candidato-termos.json; avaliação estética pendente |
-| OS: lista/folha/documentos | idem | não iniciada | idem | idem | idem | após Termos |
+| OS: lista/folha/documentos | busca, vazio, avulsa/vinculada, funções, cancelada, consulta, documentos | concluída tecnicamente; avaliação visual pendente | coleção, registros de relações, preparação, destinos, equipe compacta, editor/histórico | bases compartilhadas mantidas para Planos/Viagens | 81 focados, 6 E2E, 25 capturas e interações cinco larguras | manifesto candidato-ordens.json; HTTP antes/depois inconclusivo |
 | Planos: lista/folha/multievento/resultados | idem | não iniciada | idem | idem | idem | após OS |
 | Justificativas | lista/diálogo/editor | não iniciada | idem | idem | idem | após Planos |
 | Viagens/Prestação | fluxos implementados | não iniciada | idem | idem | idem | não criar lacunas funcionais |
@@ -43,7 +43,12 @@ Termos fechados com 69 HTTP pós-limpeza, 8 E2E de compatibilidade, 3 documentai
 nas cinco larguras, comparação de SQL/recursos e galeria de 40 pares validadas.
 SHA e hashes no candidato-termos.json/commit-termos.json.
 
-Próxima página ativa: Ordens de Serviço, lista/folha/documento. Capturar antes,
-registrar contrato específico (pendências são aviso, não bloqueio), aplicar as
-variantes canônicas e testar funções por servidor, geração e ações.
-Não refazer snapshot, resetar/semear DEMO nem usar `git add .`.
+Ordens de Serviço fechadas tecnicamente: 81 focados e seis E2E, 25 capturas,
+funções por servidor, teclado/HTMX/consulta/assinados. SQL e CSS/JS sem aumento;
+comparação HTTP controlada inconclusiva por renderização da cópia anterior.
+Nenhum código exclusivo antigo removido sem prova. Manifesto candidato-ordens.json.
+
+Próxima página ativa: Lista de Planos. Folha/multievento e Resultados ficam na fila
+seguinte; contratos distintos de OS: pendências bloqueiam geração/finalização e
+efetivo/diárias pertencem a cada evento. DEMO preservado, sem reset/seed.
+Não refazer snapshot nem usar git add indiscriminado.

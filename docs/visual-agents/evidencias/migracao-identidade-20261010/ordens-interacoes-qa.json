@@ -1,0 +1,102 @@
+[
+  {
+    "width": 360,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 ordem de serviço",
+    "marcadores": [
+      "1"
+    ],
+    "campos": [
+      {
+        "top": -613.6875,
+        "width": 300.4375
+      },
+      {
+        "top": -556.109375,
+        "width": 300.4375
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 390,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 ordem de serviço",
+    "marcadores": [
+      "1"
+    ],
+    "campos": [
+      {
+        "top": -5.625,
+        "width": 330.4375
+      },
+      {
+        "top": 51.953125,
+        "width": 330.4375
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 768,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 ordem de serviço",
+    "marcadores": [
+      "1"
+    ],
+    "campos": [
+      {
+        "top": 104.21875,
+        "width": 406.046875
+      },
+      {
+        "top": 104.21875,
+        "width": 259.1875
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1024,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 ordem de serviço",
+    "marcadores": [
+      "1"
+    ],
+    "campos": [
+      {
+        "top": 123.9375,
+        "width": 614.15625
+      },
+      {
+        "top": 123.9375,
+        "width": 307.078125
+      }
+    ],
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1440,
+    "menuTecladoFoco": true,
+    "buscaHTMX": "1 ordem de serviço",
+    "marcadores": [
+      "1"
+    ],
+    "campos": [
+      {
+        "top": -267,
+        "width": 775.21875
+      },
+      {
+        "top": -267,
+        "width": 387.625
+      }
+    ],
+    "axe": [],
+    "console": []
+  }
+]

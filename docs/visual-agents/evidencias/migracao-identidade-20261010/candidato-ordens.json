@@ -1,0 +1,29 @@
+{
+  "baseCommit": "34f0d7d0cf894d43f9305943cb5eb3c13813470a",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fonteSHA256": {
+    "gestao/viagens/templates/viagens/ordens/lista.html": "5d49f52966108ff82c40299f670bca6c9e5ab26dd2c56cd3012b7271fbd3274a",
+    "gestao/viagens/templates/viagens/ordens/editar.html": "872d1675205cb9b31944c3ed20481ab5cf5d6c8674b28e28c6eae56d976a99b4",
+    "gestao/viagens/templates/viagens/ordens/_cabecalho_contexto.html": "3f9d2cce2bf1a5bdb11dfe35e722f58868fad4b6174fc1c074d0baee91bb02cb",
+    "tests/e2e/test_ordens.py": "d1b82e1b91c045452782c566f488eb436302da2c5190eea7155ec4facfce7f43",
+    "tests/e2e/test_ordens_identidade.py": "366c42a22b80ce8b8cfba6dc6630919000306c01600431cc6a80fd93cc3ddd31"
+  },
+  "checks": {
+    "http": 81,
+    "e2e": 6,
+    "capturas": 25,
+    "larguras": [
+      360,
+      390,
+      768,
+      1024,
+      1440
+    ],
+    "galeria": 55,
+    "SQL": "inalterado",
+    "CSS/JS": "inalterados",
+    "HTTP controlado": "inconclusivo"
+  },
+  "gateIntegral": "2295 em 9963f71; novo gate global necessário",
+  "aprovacaoVisual": "pendente do usuário"
+}

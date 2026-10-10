@@ -467,3 +467,16 @@ substituídos; estilos de Termos e demais listas permanecem até sua migração.
 Vitrine de Termos substitui o registro anterior. Removidas quatro regras exclusivas
 `registro__meta--termo`, após migrar ambos os consumidores, testar e retestar.
 Contrato, capturas e limitações em `../visual-agents/qa/termos-identidade-2026-10-10.md`.
+
+### Ordens de Serviço — consumidor seguinte
+
+OS usa `registro-operacional--relacoes`, `campos--conteudo-periodo`,
+`campo_destinos(operacional=True)`, equipe compacta, preparação, editor e histórico
+operacionais. Mantém funções individuais por servidor e seu único documento;
+não força transporte ou painel financeiro sem significado. Identidade documental
+usa a numeração anual própria. A barra final permanece no fluxo, com estado real
+salvo; menu e confirmações continuam nos componentes existentes.
+
+Não há CSS/JS novo nem implementação exclusiva removível nesta página. As bases
+antigas compartilhadas continuam para consumidores ainda não migrados. Evidências
+em `../visual-agents/qa/ordens-identidade-2026-10-10.md`.

@@ -31,30 +31,30 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e):
     # Tipo com funções: salva o tipo e escolhe a função de cada um da equipe.
     pg.get_by_role("combobox", name="Tipo de necessidade").click()
     pg.get_by_role("option", name=re.compile("Cerimonial")).click()
-    pg.get_by_role("button", name="Salvar", exact=True).click()
+    pg.keyboard.press("Control+s")
     # Tipo com função e ninguém com função: a tela pede para escolher.
     expect(pg.locator(".toast")).to_contain_text("escolha a função")
     primeiro = ordem.servidores.order_by("nome").first()
     funcao = pg.get_by_role("combobox", name=primeiro.nome)
     funcao.click()
     pg.get_by_role("option", name="Coordenação").click()
-    pg.get_by_role("button", name="Salvar", exact=True).click()
+    pg.keyboard.press("Control+s")
     expect(pg.locator(".toast")).to_contain_text("atualizada")
     ordem.refresh_from_db()
     assert ordem.tipo == "cerimonial_antecipado"
     assert ordem.funcoes.get(str(primeiro.pk)) == "coordenacao"
     # Gravação automática: mudar o motivo grava sozinho e o status diz a hora.
-    pg.get_by_label("Motivo", exact=True).fill("a feira fictícia de outubro")
+    pg.get_by_role("textbox", name="Motivo", exact=True).fill("a feira fictícia de outubro")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     ordem.refresh_from_db()
     assert ordem.motivo == "a feira fictícia de outubro"
     expect(folha.locator("body")).to_contain_text("feira fictícia de outubro")
     # A tela acompanha a gravação: apagar o motivo acende a pendência na conferência e no
     # topo (regiões vivas), sem recarregar e sem o motivo do ofício voltar.
-    pg.get_by_label("Motivo", exact=True).fill("")
+    pg.get_by_role("textbox", name="Motivo", exact=True).fill("")
     expect(pg.locator("#conferencia")).to_contain_text("Falta motivo")
     expect(pg.locator("#frase-ordem")).to_contain_text("pendência")
-    expect(pg.get_by_label("Motivo", exact=True)).to_have_value("")
+    expect(pg.get_by_role("textbox", name="Motivo", exact=True)).to_have_value("")
     resposta = pg.request.get(f"/viagens/ordens/{ordem.pk}/documento.pdf")
     assert resposta.ok and resposta.body().startswith(b"%PDF")
     assert pg.erros_console == []  # type: ignore[attr-defined]

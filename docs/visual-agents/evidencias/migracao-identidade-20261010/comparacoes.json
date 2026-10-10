@@ -1,5 +1,95 @@
 [
   {
+    "pagina": "ordens-editar",
+    "largura": 1440,
+    "antes": "antes-ordens-editar-1440.png",
+    "depois": "depois-ordens-editar-1440.png"
+  },
+  {
+    "pagina": "ordens-editar",
+    "largura": 360,
+    "antes": "antes-ordens-editar-360.png",
+    "depois": "depois-ordens-editar-360.png"
+  },
+  {
+    "pagina": "ordens-editar",
+    "largura": 768,
+    "antes": "antes-ordens-editar-768.png",
+    "depois": "depois-ordens-editar-768.png"
+  },
+  {
+    "pagina": "ordens-filtro",
+    "largura": 1440,
+    "antes": "antes-ordens-filtro-1440.png",
+    "depois": "depois-ordens-filtro-1440.png"
+  },
+  {
+    "pagina": "ordens-filtro",
+    "largura": 360,
+    "antes": "antes-ordens-filtro-360.png",
+    "depois": "depois-ordens-filtro-360.png"
+  },
+  {
+    "pagina": "ordens-filtro",
+    "largura": 768,
+    "antes": "antes-ordens-filtro-768.png",
+    "depois": "depois-ordens-filtro-768.png"
+  },
+  {
+    "pagina": "ordens-lista",
+    "largura": 1440,
+    "antes": "antes-ordens-lista-1440.png",
+    "depois": "depois-ordens-lista-1440.png"
+  },
+  {
+    "pagina": "ordens-lista",
+    "largura": 360,
+    "antes": "antes-ordens-lista-360.png",
+    "depois": "depois-ordens-lista-360.png"
+  },
+  {
+    "pagina": "ordens-lista",
+    "largura": 768,
+    "antes": "antes-ordens-lista-768.png",
+    "depois": "depois-ordens-lista-768.png"
+  },
+  {
+    "pagina": "ordens-novo",
+    "largura": 1440,
+    "antes": "antes-ordens-novo-1440.png",
+    "depois": "depois-ordens-novo-1440.png"
+  },
+  {
+    "pagina": "ordens-novo",
+    "largura": 360,
+    "antes": "antes-ordens-novo-360.png",
+    "depois": "depois-ordens-novo-360.png"
+  },
+  {
+    "pagina": "ordens-novo",
+    "largura": 768,
+    "antes": "antes-ordens-novo-768.png",
+    "depois": "depois-ordens-novo-768.png"
+  },
+  {
+    "pagina": "ordens-vazio",
+    "largura": 1440,
+    "antes": "antes-ordens-vazio-1440.png",
+    "depois": "depois-ordens-vazio-1440.png"
+  },
+  {
+    "pagina": "ordens-vazio",
+    "largura": 360,
+    "antes": "antes-ordens-vazio-360.png",
+    "depois": "depois-ordens-vazio-360.png"
+  },
+  {
+    "pagina": "ordens-vazio",
+    "largura": 768,
+    "antes": "antes-ordens-vazio-768.png",
+    "depois": "depois-ordens-vazio-768.png"
+  },
+  {
     "pagina": "roteiros-editar",
     "largura": 1024,
     "antes": "antes-roteiros-editar-1024.png",

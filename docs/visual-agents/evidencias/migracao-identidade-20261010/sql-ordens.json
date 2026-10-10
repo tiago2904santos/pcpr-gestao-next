@@ -1,0 +1,62 @@
+[
+  {
+    "fase": "antes",
+    "registros": "5",
+    "SQL": 20,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "1",
+    "SQL": 20,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "0",
+    "SQL": 16,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "folha-avulsa",
+    "SQL": 39,
+    "mutacoes": 0
+  },
+  {
+    "fase": "antes",
+    "registros": "folha-funcoes",
+    "SQL": 48,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "5",
+    "SQL": 20,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "1",
+    "SQL": 20,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "0",
+    "SQL": 16,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "folha-avulsa",
+    "SQL": 39,
+    "mutacoes": 0
+  },
+  {
+    "fase": "depois",
+    "registros": "folha-funcoes",
+    "SQL": 48,
+    "mutacoes": 0
+  }
+]
