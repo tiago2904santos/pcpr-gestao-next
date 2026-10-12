@@ -1,0 +1,98 @@
+{
+  "base": "d27329c",
+  "head": "08273e15a1f8502d3bf7d86f2736ec78e64e7535",
+  "hashes": [
+    {
+      "arquivo": "templates/componentes/conferencia_valores.html",
+      "esperado": "a378886e8de73c4da0542338a651e6992b326d81aa1c093832dcb00fae7e625c",
+      "atual": "a378886e8de73c4da0542338a651e6992b326d81aa1c093832dcb00fae7e625c",
+      "identico": true
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "esperado": "ca358f39365ebe4ef934e5d237da89b202ad71e4d11c3c665fa607ac44694c40",
+      "atual": "8d6c2e0165fc4024485d3ee57690f098f4a35429d9eb862cf2462264032f0bf2",
+      "identico": false
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_diarias.html",
+      "esperado": "7a82f6fef1e56880fdb7823aa3e28008d587e2ab038ee82d85b37dd6f0be60e1",
+      "atual": "7a82f6fef1e56880fdb7823aa3e28008d587e2ab038ee82d85b37dd6f0be60e1",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/editar.html",
+      "esperado": "c678d4225327b2af3dfac5f9cfb5d969712037cfeaf4af27e0c375114dbf824f",
+      "atual": "c678d4225327b2af3dfac5f9cfb5d969712037cfeaf4af27e0c375114dbf824f",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_dialogo_evento.html",
+      "esperado": "df9be15c3b54c409584a5ad3c5fca87b66059384a0935622845b2bb7b63115d9",
+      "atual": "df9be15c3b54c409584a5ad3c5fca87b66059384a0935622845b2bb7b63115d9",
+      "identico": true
+    },
+    {
+      "arquivo": "tests/e2e/test_conferencia_diarias.py",
+      "esperado": "5187459f12a21efdbc32bdeba8ed10ebc4ff2720628629160746af41960b78f2",
+      "atual": "5187459f12a21efdbc32bdeba8ed10ebc4ff2720628629160746af41960b78f2",
+      "identico": true
+    },
+    {
+      "arquivo": "tests/e2e/test_roteiros.py",
+      "esperado": "b90d17e028b9d78085e7b6cfd600af4de2791ef46ab75ffb0ccedbf0b8bb82af",
+      "atual": "b90d17e028b9d78085e7b6cfd600af4de2791ef46ab75ffb0ccedbf0b8bb82af",
+      "identico": true
+    }
+  ],
+  "gate_sha256": "09843eedc9b1ad00c09eebe1354d622d37697e767d5d9f0d28c2178040ce1ac5",
+  "gate": "2343 aprovados; histórico, não gate global do HEAD atual",
+  "compatibilidade_hero": [
+    {
+      "pagina": "roteiros",
+      "rota": "/viagens/roteiros/60/editar/",
+      "largura": 360,
+      "axe_header": [],
+      "overflow": false,
+      "console": [],
+      "acoes_focaveis": 2,
+      "altura": 222.234375
+    },
+    {
+      "pagina": "roteiros",
+      "rota": "/viagens/roteiros/60/editar/",
+      "largura": 768,
+      "axe_header": [],
+      "overflow": false,
+      "console": [],
+      "acoes_focaveis": 2,
+      "altura": 183.109375
+    },
+    {
+      "pagina": "roteiros",
+      "rota": "/viagens/roteiros/60/editar/",
+      "largura": 1024,
+      "axe_header": [],
+      "overflow": false,
+      "console": [],
+      "acoes_focaveis": 2,
+      "altura": 132.71875
+    },
+    {
+      "pagina": "roteiros",
+      "rota": "/viagens/roteiros/60/editar/",
+      "largura": 1440,
+      "axe_header": [],
+      "overflow": false,
+      "console": [],
+      "acoes_focaveis": 2,
+      "altura": 132.71875
+    }
+  ],
+  "revisao": "Independente somente leitura: sem defeito remanescente; CSS posterior aditivo. Variante vazio--compacto não usada por Roteiros.",
+  "limites": [
+    "Efetivo/observações sem controles: lacuna funcional preexistente.",
+    "Aprovação visual do usuário não presumida.",
+    "Não representa nova confirmação de paridade com referência em execução."
+  ]
+}

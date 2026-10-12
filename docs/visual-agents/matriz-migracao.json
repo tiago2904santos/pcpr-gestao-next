@@ -34,14 +34,20 @@
         "viagens/oficios/_dialogo_resumo.html",
         "viagens/oficios/_registro.html"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [
+        "Registros sem classe canônica: placa invisível e metadados sobrepostos.",
+        "Coluna lateral comprimia as filas; cartões externos redundantes."
+      ],
+      "alteracoes_implementadas": [
+        "Hero canônico; registros operacionais em largura inteira.",
+        "Filas sem cartões externos; atalhos em grade; contexto no fluxo."
+      ],
       "testes_executados": [],
       "evidencias": [],
       "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "revisao_codigo": "08273e1 + candidato local VG01",
+      "dependencias_antigas": "painel.css e listas.css mantidos: consumidores e controles ainda os utilizam. Wrappers locais cartao e lateral sticky substituídos.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -237,20 +243,22 @@
         "viagens/roteiros/_abas.html",
         "viagens/roteiros/_registro.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
       "alteracoes_implementadas": [],
       "testes_executados": [
         "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
-        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+        "Ruff/tipos JS verdes; gate integral concluído2343 verde.",
+        "Gate2343 verde confirmado; hero posterior4larguras verde; hashes/consumidores verificados."
       ],
       "evidencias": [
         "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
-        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json",
+        "evidencias/migracao-identidade-20261012/roteiros-vinculo-gate.json"
       ],
-      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "revisao_final": "Revisão independente e vínculo do gate2343 concluído; ver qa/roteiros-vinculo-2026-10-12.md. Sem homologação visual do usuário.",
+      "revisao_codigo": "d27329c; vínculo verificado contra08273e1 e alterações locais aditivas",
+      "dependencias_antigas": "Bases de lista, itinerário e mapa mantidas com consumidores ativos; variante horizontal substituída removida. Lacunas funcionais registradas na paridade.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -286,7 +294,7 @@
         "viagens/roteiros/_acoes.html",
         "viagens/roteiros/_oficios.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [
         "Variante horizontal antiga sobrescrevia a grade operacional de Diárias."
       ],
@@ -295,15 +303,17 @@
       ],
       "testes_executados": [
         "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
-        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+        "Ruff/tipos JS verdes; gate integral concluído2343 verde.",
+        "Gate2343 verde confirmado; hero posterior4larguras verde; hashes/consumidores verificados."
       ],
       "evidencias": [
         "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
-        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json",
+        "evidencias/migracao-identidade-20261012/roteiros-vinculo-gate.json"
       ],
-      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "Conferência horizontal removida. Bases específicas legítimas do itinerário mantidas; sem duplicação nova.",
+      "revisao_final": "Revisão independente e vínculo do gate2343 concluído; ver qa/roteiros-vinculo-2026-10-12.md. Sem homologação visual do usuário.",
+      "revisao_codigo": "d27329c; vínculo verificado contra08273e1 e alterações locais aditivas",
+      "dependencias_antigas": "Bases de lista, itinerário e mapa mantidas com consumidores ativos; variante horizontal substituída removida. Lacunas funcionais registradas na paridade.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -339,7 +349,7 @@
         "viagens/roteiros/_acoes.html",
         "viagens/roteiros/_oficios.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [
         "Variante horizontal antiga sobrescrevia a grade operacional de Diárias."
       ],
@@ -348,15 +358,17 @@
       ],
       "testes_executados": [
         "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
-        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+        "Ruff/tipos JS verdes; gate integral concluído2343 verde.",
+        "Gate2343 verde confirmado; hero posterior4larguras verde; hashes/consumidores verificados."
       ],
       "evidencias": [
         "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
-        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json",
+        "evidencias/migracao-identidade-20261012/roteiros-vinculo-gate.json"
       ],
-      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "Conferência horizontal removida. Bases específicas legítimas do itinerário mantidas; sem duplicação nova.",
+      "revisao_final": "Revisão independente e vínculo do gate2343 concluído; ver qa/roteiros-vinculo-2026-10-12.md. Sem homologação visual do usuário.",
+      "revisao_codigo": "d27329c; vínculo verificado contra08273e1 e alterações locais aditivas",
+      "dependencias_antigas": "Bases de lista, itinerário e mapa mantidas com consumidores ativos; variante horizontal substituída removida. Lacunas funcionais registradas na paridade.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1251,7 +1263,7 @@
         "qa/assinados-2026-10-12.md"
       ],
       "revisao_final": "Inclusão/erro/troca360/768/1440 revisados independentemente. Ressalva: timeout anterior de estabilidade da automação, causa não comprovada. Homologação visual pendente.",
-      "revisao_codigo": "Base167b81b + alterações locais",
+      "revisao_codigo": "08273e1",
       "dependencias_antigas": "Bases pagina-cabecalho/documento--cartoes removidas do consumidor, mantidas para demais páginas.",
       "fontes_descoberta": [
         "config/urls.py",
