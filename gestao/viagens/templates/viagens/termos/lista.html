@@ -81,7 +81,7 @@
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>
                 {% if ef.viatura %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'viatura' 'pdf' %}" target="_blank" rel="noopener">{% icone "car" %}Termo da viatura (PDF)</a>{% endif %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "pencil" %}Abrir (documentos de cada servidor)</a>
-                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}#lista-documentos">{% icone "file-signature" %}Anexar ou abrir termo assinado</a>
+                <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}#previa">{% icone "file-signature" %}Anexar ou abrir termo assinado</a>
               {% else %}
                 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "eye" %}Abrir</a>
               {% endif %}

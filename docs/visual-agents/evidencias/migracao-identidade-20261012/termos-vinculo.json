@@ -1,0 +1,120 @@
+{
+  "base": "34f0d7d",
+  "head": "34d1d57 + correção local do href",
+  "fontes": [
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/_registro_termo.html",
+      "anterior": "6856a6ea0d0bfc4ebc5847707d907fca935cd6a019b0fdac7cd0b240ce4133af",
+      "atual": "6856a6ea0d0bfc4ebc5847707d907fca935cd6a019b0fdac7cd0b240ce4133af",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/indice.html",
+      "anterior": "bbe049c52b51f4a8a31f78501b32a3a8741525b37495530b69f00e7b7d40f9b2",
+      "atual": "b79f01107f20ac013a1d57ea6e8f8892a9218845e4c7fb292586d9d86f237f97",
+      "identico": false
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/_campo_equipe.html",
+      "anterior": "dbd993d5499c145329e04a063c0c15bc2a8324fec8b3d3f42bf6443c4719be1f",
+      "atual": "dbd993d5499c145329e04a063c0c15bc2a8324fec8b3d3f42bf6443c4719be1f",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/_campo_viatura.html",
+      "anterior": "e5ab8c70ca416c4a34a2c5624af794964eac760d5e8f64e753b1faa2f127b0b9",
+      "atual": "e5ab8c70ca416c4a34a2c5624af794964eac760d5e8f64e753b1faa2f127b0b9",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/_destino.html",
+      "anterior": "356e1e05b4a235b8139c92652e033c3ccf87b42051f2115133525de08cbe1d13",
+      "atual": "356e1e05b4a235b8139c92652e033c3ccf87b42051f2115133525de08cbe1d13",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/_destinos.html",
+      "anterior": "b79acc4ad2448f8746d02ed66fb44ae194e945e529514bbb71e0eb10d8848689",
+      "atual": "b79acc4ad2448f8746d02ed66fb44ae194e945e529514bbb71e0eb10d8848689",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/termos/_cabecalho_contexto.html",
+      "anterior": "14e650f63fefd944bfb9b8ace635fefca771e995e4dadf2c805eb7ea1de384e3",
+      "atual": "9f91a3883fe08cf3c3c23b480d6b0c8b679ddcdbdc2f8f8d33bed3ed83ba6267",
+      "identico": false
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/termos/editar.html",
+      "anterior": "746004f37cba009c3cd0e7e8576c03b21519c31bb40e2206d3138cb7de77df42",
+      "atual": "746004f37cba009c3cd0e7e8576c03b21519c31bb40e2206d3138cb7de77df42",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/termos/lista.html",
+      "anterior": "a09ad7d5c08185df1c7c49f12134c5af9d752b9322c5e7727535751bb030b20e",
+      "atual": "34ab767f157a783ca0fc357cf26dcc88f9ab0c58ef64080ea40bfa642ec40a13",
+      "identico": false
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/widgets/equipe.html",
+      "anterior": "afc918e148051a24eb84c56c10865d0d53420f292cdbc47f99fa0181837f76e0",
+      "atual": "afc918e148051a24eb84c56c10865d0d53420f292cdbc47f99fa0181837f76e0",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/templatetags/viagens.py",
+      "anterior": "c3585077e1d65d34a935881b2dc076731edc5dd5ce2608d618cd5a1f8890f4da",
+      "atual": "c3585077e1d65d34a935881b2dc076731edc5dd5ce2608d618cd5a1f8890f4da",
+      "identico": true
+    },
+    {
+      "arquivo": "gestao/viagens/tests/test_views.py",
+      "anterior": "4a95dc653a4458975ca2c121589d6af22ab1000148bcc64cf8007d964f0e105b",
+      "atual": "431ed2522138ae6b44d35094a0ca419d50a93deb0d141e2394a9926b4794f289",
+      "identico": false
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "anterior": "c2a1d1ce21b0e62e85accecd26b98b3105ffa4f0598fdd8ef8b6543b983d3e82",
+      "atual": "49ac48cf812cdd91e4ae88419b6c6ceec8100a8a97f46e6fc33b210ba24c1dee",
+      "identico": false
+    },
+    {
+      "arquivo": "static/css/listas.css",
+      "anterior": "a144a6a4ed2492785ab3955a17a115423910438c55ecc235950027e2ec320d6c",
+      "atual": "93410a576eda0c071d5d912eb55b7a71238695ae0feeb86ebfdb1c2bcf835a9e",
+      "identico": false
+    },
+    {
+      "arquivo": "static/js/componentes/multiescolha.js",
+      "anterior": "c81a082259ed5976b6f2fafb9c83c6205cee8f89dbe4cfe9ef811856160cf859",
+      "atual": "c81a082259ed5976b6f2fafb9c83c6205cee8f89dbe4cfe9ef811856160cf859",
+      "identico": true
+    },
+    {
+      "arquivo": "tests/e2e/test_baixar.py",
+      "anterior": "f457715e91b81937657665c0b9c53bae633f7f0674a257dab1747bda7b4e3fcb",
+      "atual": "f457715e91b81937657665c0b9c53bae633f7f0674a257dab1747bda7b4e3fcb",
+      "identico": true
+    },
+    {
+      "arquivo": "tests/e2e/test_termos.py",
+      "anterior": "e3f133f6c95612ad2c733fb9cb66092ba92850b3344102577aa21b2bc01ac02b",
+      "atual": "e3f133f6c95612ad2c733fb9cb66092ba92850b3344102577aa21b2bc01ac02b",
+      "identico": true
+    },
+    {
+      "arquivo": "tests/e2e/test_termos_identidade.py",
+      "anterior": "09d37facb2ff5b86b511afb52cdf49d6199d325c59baf2434aef5947cb876136",
+      "atual": "323cd17c85a189e6847d5e3dd668ca9d141680473326a4c440b8f91b584a9d8b",
+      "identico": false
+    }
+  ],
+  "alteracao": "Lista aponta para#previa; E2E passa pelo menu real em3larguras.",
+  "limites": [
+    "SQL preexistente da Folha acima do orçamento; sem alteração de consulta neste candidato.",
+    "Teste4845 e recaptura72347 em execução.",
+    "Aprovação visual não presumida."
+  ]
+}

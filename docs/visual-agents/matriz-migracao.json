@@ -413,12 +413,16 @@
         "viagens/termos/_botao_novo.html"
       ],
       "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
+      "problemas_encontrados": [
+        "Menu de via assinada apontava para#lista-documentos inexistente na folha."
+      ],
+      "alteracoes_implementadas": [
+        "Link para#previa e E2E de navegação pela Lista, com upload real em3larguras."
+      ],
       "testes_executados": [],
       "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "revisao_final": "EM VALIDAÇÃO: suíte termos-retomada-final4845 ativa.",
+      "revisao_codigo": "34d1d57 + candidato Termos local",
       "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
       "fontes_descoberta": [
         "config/urls.py",

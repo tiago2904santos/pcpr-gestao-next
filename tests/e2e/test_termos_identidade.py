@@ -1,5 +1,7 @@
 """Identidade migrada: seleção visível, destinos, calendário e ações HTMX."""
 
+import os
+import re
 from pathlib import Path
 
 import pytest
@@ -93,22 +95,34 @@ def test_paginacao_e_consulta_sem_edicao(logado, dados_e2e):
     assert pg.erros_console == []
 
 
-def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path):
+@pytest.mark.parametrize("largura", [360, 768, 1440])
+def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
     """Anexo real pela barra operacional; via permanece separada do PDF gerado."""
     from gestao.viagens.models import ViaAssinada
     from tests.e2e.test_assinados import PDF
 
     pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
     termo = termos.salvar(
         dados_e2e.usuarios["operador"],
         oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]),
     )
-    pg.goto(f"/viagens/termos/{termo.pk}/#previa")
+    pg.goto("/viagens/termos/")
+    pg.get_by_role("button", name=f"Ações do {termo}").click()
+    atalho = pg.get_by_role("menuitem", name="Anexar ou abrir termo assinado", exact=True)
+    expect(atalho).to_have_attribute("href", f"/viagens/termos/{termo.pk}/#previa")
+    atalho.click()
+    expect(pg).to_have_url(re.compile(rf"/viagens/termos/{termo.pk}/#previa$"))
+    expect(pg.locator("#previa")).to_be_in_viewport()
     bloco = pg.locator("pc-editor-documento").first
-    pg.locator("#previa").scroll_into_view_if_needed()
     bloco.get_by_role("link", name="Anexar", exact=True).click()
     janela = pg.get_by_role("dialog", name="Anexar via assinada")
     expect(janela).to_be_visible()
+    assert not rodar_axe(pg)
+    if os.environ.get("MIGRACAO_CAPTURAS"):
+        pg.screenshot(path=str(Path(os.environ["MIGRACAO_CAPTURAS"]) /
+                               f"termos-menu-assinado-{largura}.png"),
+                      full_page=True, animations="disabled")
     arquivo = tmp_path / "termo-assinado.pdf"
     arquivo.write_bytes(PDF)
     janela.locator('input[type="file"]').set_input_files(str(arquivo))

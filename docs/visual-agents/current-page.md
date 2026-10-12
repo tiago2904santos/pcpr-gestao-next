@@ -6,13 +6,17 @@ Meta integral ativa:100 páginas reais +5 superfícies HTML oficiais.
 Concluídas tecnicamente:VG01,RO01/RO02/RO03,PR01/PR02/PR03/PR04,AS01 (9/100).
 Roteiros: commit4113442 registra vínculo comprovado ao gate histórico2343.
 Painel:76testes finais verdes, tipos/ruff verdes,5larguras, variante vazio compacta
-com UI Lab e estados reais. QA:painel-2026-10-12.md. Commit de fechamento em preparo.
+com UI Lab e estados reais. QA:painel-2026-10-12.md. Commit de fechamento:34d1d57; revisão independente final favorável.
 
-Próxima página:Termos TE01→TE03. Revisor comprovou link do menu de via assinada
-para#lista-documentos inexistente; alvo real#previa. Corrigir link e adicionar
-E2E partindo do menu, conferir editor/via. TemplatesTermos ainda não editados.
-Galeria629 com estados finais do Painel. Suíte7262 encerrada76verde; nenhuma
-suíte de teste ativa. Arquivo _equipe.html do usuário protegido.
+Página atual:Termos TE01→TE03. Atalho corrigido para#previa; suíte4845 encerrada
+52pass275,74s,1warningHarfBuzz. Recaptura52625 encerrada, documentos carregados.
+Ressalva concreta nova: texto da lotação e campos genéricos cortados em360 dentro
+do iframe (.par nowrap + ajustarAltura overflow hidden), preexistente34f0d7d.
+NÃO concluir Termos: próxima ação corrigir visualizador sem alterar documento
+oficial, testar leitura integral e interação. Ver editor-documento.js ajustarAltura
+linha159 e termos-documento-3-360.png. Revisor confirmou o corte.
+Nenhuma suíte ativa; galeria653 validada. Correção do atalho pronta para commit.
+Arquivo _equipe.html do usuário protegido; nenhuma alteração no DEMO.
 Homologação visual do usuário não presumida; gate2343 não é gate global atual.
 
 ## Rodada vigente — Propagação da identidade, 10/10/2026

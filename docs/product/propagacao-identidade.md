@@ -394,3 +394,11 @@ Antes360/768/1440 expõe registros quebrados: falta classe registros--operaciona
 que ativa o grid/placa do componente compartilhado. Não é nova regra de negócio.
 Usar hero e grid canônicos, filas com largura útil e atalhos de contexto fora
 da coluna que comprime registros. Arquétipo continua fonte da estrutura.
+
+## TE01 → TE03 — atalho de via assinada, 12/10/2026
+
+O menu da Lista deve abrir a estação documental do Termo, mantendo geração,
+versões, anexação e permissões. O href atual usa #lista-documentos, inexistente
+na folha migrada. O alvo real é #previa. Corrigir a navegação sem alterar documento
+oficial ou fluxo de anexação. Testar partindo do menu, incluindo celular, em vez
+de entrar diretamente na URL da prévia; validar upload real em banco/mídia de teste.

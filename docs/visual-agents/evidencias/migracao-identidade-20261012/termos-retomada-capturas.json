@@ -1,0 +1,56 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "largura": 360,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "folha",
+    "largura": 360,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "largura": 768,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "folha",
+    "largura": 768,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "largura": 1440,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "folha",
+    "largura": 1440,
+    "console": [],
+    "overflow": false
+  }
+]
