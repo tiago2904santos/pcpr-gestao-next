@@ -1,5 +1,19 @@
 # Catálogo de componentes
 
+## Identidade de registro e equipes — 12/10/2026
+
+`identidade_documental.html` aceita `placa=True` junto de `compacta=True` para
+identificar um documento dentro de uma coleção clara. Reutiliza rótulo, número,
+complemento e estado cancelado do componente; a variante fornece superfície
+grafite e contraste inverso. Consumidores: Lista de Prestação e UI Lab §14.
+O padrão sem `placa` permanece nos demais cabeçalhos e listas.
+
+`prestacao-equipe--documento` organiza identidade, metadados e ações de uma equipe
+vinculada ao documento. A base `prestacao-equipe` continua válida em Anexos por
+servidor, onde a placa de ofício não representa o mesmo conceito. Os filtros
+de atenção usam as abas canônicas; as classes antigas `atalhos-atencao*` foram
+removidas, preservando os IDs de atualização HTMX. Ver QA PR01 de 12/10.
+
 ## Padrão documental de Ofícios — 08/10/2026
 
 `componentes/identidade_documental.html` reúne rótulo e número editorial. Aceita

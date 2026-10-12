@@ -1,0 +1,9 @@
+..........2026-10-10 07:47:33,884 WARNING django.request Not Found: /viagens/prestacoes/21/arquivar/
+2026-10-10 07:47:33,910 WARNING django.request Not Found: /viagens/prestacoes/21/salvar/
+2026-10-10 07:47:33,934 WARNING django.request Not Found: /viagens/prestacoes/21/autosave/
+2026-10-10 07:47:33,953 WARNING django.request Not Found: /viagens/prestacoes/equipe/11/finalizar/
+..2026-10-10 07:47:35,820 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/: 26 consultas (limite 25)
+2026-10-10 07:47:36,234 WARNING django.request Not Found: /viagens/prestacoes/23/xyz/
+............................................................ [ 75%]
+........................                                                 [100%]
+96 passed in 76.99s (0:01:16)

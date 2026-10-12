@@ -1,0 +1,61 @@
+{
+  "base": "d27329c7b40ffe9f163d645c3f0538e7774aa211",
+  "files": [
+    {
+      "file": "gestao/viagens/views_prestacao.py",
+      "sha256": "0e5687c2da2baa98c68e8454d6b3591ef5e3667b4b994d3d7b4895b76d323f72"
+    },
+    {
+      "file": "gestao/viagens/templates/viagens/prestacao/lista.html",
+      "sha256": "0b8e9ede06fb772c99de82dbfcff22c02c9742b871dbc5e95c44f8ab3ce3acdf"
+    },
+    {
+      "file": "static/css/components.css",
+      "sha256": "2fd8ed6f029f075423266c0cb33ee511c066122b7b7e8eb55c7704b21ca1dc71"
+    },
+    {
+      "file": "static/css/listas.css",
+      "sha256": "93410a576eda0c071d5d912eb55b7a71238695ae0feeb86ebfdb1c2bcf835a9e"
+    },
+    {
+      "file": "templates/componentes/identidade_documental.html",
+      "sha256": "c3807d71d1abf208ecb1b307e919b0a92e058b42ad0df3c18ee6c7f9405f51f9"
+    },
+    {
+      "file": "gestao/ui_lab/templates/ui_lab/indice.html",
+      "sha256": "faf9fa9ec6e4c65dd2f49f6788367dafd91dc17a355f84fb6d259e911698d6f1"
+    },
+    {
+      "file": "gestao/viagens/tests/test_prestacao.py",
+      "sha256": "a605f5b9a1df497d9869ff1dcabd81a6c2fcb84c69a6eacaf1cf16f06416243e"
+    },
+    {
+      "file": "tests/e2e/test_prestacao.py",
+      "sha256": "d992723585153553da7efb0c6ac2314a1413045f6682a433ec91d2b3833ef701"
+    },
+    {
+      "file": "tests/e2e/test_prestacoes_lista_identidade.py",
+      "sha256": "151ab4ef94729de520757ed143f3a8963671dc282e6337d9e1da02fe03924e8c"
+    }
+  ],
+  "css_bytes": {
+    "static/css/components.css": {
+      "antes": 192616,
+      "depois": 193187,
+      "delta": 571
+    },
+    "static/css/listas.css": {
+      "antes": 63382,
+      "depois": 63731,
+      "delta": 349
+    }
+  },
+  "exclusoes": [
+    ".atalhos-atencao",
+    ".atalhos-atencao__rotulo",
+    ".atalhos-atencao__item--alerta",
+    ".atalhos-atencao__item",
+    ".atalhos-atencao__item:hover",
+    ".atalhos-atencao__item[aria-current=\"page\"]"
+  ]
+}

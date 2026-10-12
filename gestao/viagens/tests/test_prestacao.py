@@ -385,6 +385,64 @@ def test_busca_por_numero_do_oficio(c):
     assert "Nenhuma prestação encontrada" in html
 
 
+def test_busca_conserva_abas_combinadas(c):
+    op = _cliente(c, "operador")
+    r = op.get(reverse("viagens:prestacoes"), {"aba": ["liberadas", "finalizadas_mes"]})
+    html = r.content.decode()
+    assert 'name="aba" value="liberadas"' in html
+    assert 'name="aba" value="finalizadas_mes"' in html
+
+
+def test_estado_da_equipe_independe_do_recorte(c):
+    a, b = _linhas(c)
+    op = _cliente(c, "operador")
+    PrestacaoServidor.objects.filter(pk=a.pk).update(finalizada_em=timezone.now())
+    PrestacaoServidor.objects.filter(pk=b.pk).update(arquivada_em=timezone.now())
+    r = op.get(reverse("viagens:prestacoes"), {"q": a.servidor.nome})
+    bloco = r.context["blocos"][0]
+    assert [linha["ps"].pk for linha in bloco["linhas"]] == [a.pk]
+    assert not bloco["todas_finalizadas"]
+    assert bloco["alguma_arquivada"]
+    PrestacaoServidor.objects.filter(pk=a.pk).update(situacao="enviada")
+    PrestacaoServidor.objects.filter(pk=b.pk).update(finalizada_em=timezone.now())
+    bloco = op.get(reverse("viagens:prestacoes"), {"q": a.servidor.nome}).context["blocos"][0]
+    assert bloco["todas_finalizadas"] and bloco["reabrivel"]
+    assert [linha["ps"].pk for linha in bloco["por_enviar"]] == [b.pk]
+    PrestacaoServidor.objects.filter(pk=b.pk).update(removida_em=timezone.now())
+    bloco = op.get(reverse("viagens:prestacoes"), {"q": a.servidor.nome}).context["blocos"][0]
+    assert bloco["todas_finalizadas"] and not bloco["alguma_arquivada"]
+    assert not bloco["reabrivel"] and not bloco["por_enviar"]
+
+
+def test_dialogos_de_envio_pertencem_ao_fragmento_dos_resultados(c):
+    from html.parser import HTMLParser
+
+    class Dialogos(HTMLParser):
+        profundidade = 0
+
+        def __init__(self):
+            super().__init__()
+            self.envios = []
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == "div" and (self.profundidade or attrs.get("id") == "resultados"):
+                self.profundidade += 1
+            if tag == "dialog" and attrs.get("id", "").startswith("envio-"):
+                self.envios.append(self.profundidade > 0)
+
+        def handle_endtag(self, tag):
+            if tag == "div" and self.profundidade:
+                self.profundidade -= 1
+
+    a, _ = _linhas(c)
+    PrestacaoServidor.objects.filter(pk=a.pk).update(finalizada_em=timezone.now())
+    html = _cliente(c, "operador").get(reverse("viagens:prestacoes")).content.decode()
+    parser = Dialogos()
+    parser.feed(html)
+    assert parser.envios and all(parser.envios)
+
+
 def test_voltar_externo_e_ignorado(c):
     a, _ = _linhas(c)
     r = _cliente(c, "operador").post(reverse("viagens:acao_prestacao", args=[a.pk, "arquivar"]),

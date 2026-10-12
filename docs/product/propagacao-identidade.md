@@ -247,6 +247,31 @@ feedback verdadeiro de autosave. Lote com equipe compacta/viatura-cartão existe
 Nenhum editor próprio ou novo módulo de negócio. Limpeza apenas após consumidores
 migrados e provas; bases genéricas ainda necessárias em Prestação ficam preservadas.
 
+## Prestação de Contas — Lista operacional
+
+Rota /viagens/prestacoes/. Um grupo por Ofício e formulário por servidor;25Ofícios
+por página, contadores por servidor. Busca servidor/solicitação/protocolo/OfícioN/ano.
+Abas de situação e atenção aceitam múltiplos valores por OU via URL; preservar
+querystring na busca, paginação, exportação e ações. Sem criação manual de prestação.
+Visibilidade por unidade/Ofício emitido/equipe atual; consulta sem campos editáveis.
+Permissões/arquivamento/finalização/envio/aprovação/devolução continuam nos serviços.
+
+Preservar IDs abas-filtro/atalhos-atencao/busca-prestacoes/resultados/titulo-resultados;
+ps-ID/form-ps-ID e regiões estado/nota/acoes/pend-ps-ID[data-vivo]. Cada cartão conserva
+numero/liberacao/prazo/justificativa/CSRF/voltar/formaction/data-autosave; Enter salva
+sem finalizar. Ações de equipe usam forms externos e data-esperar-salvamento. Envio
+é registro interno por diálogo existente, sem nova integração. Exportação respeita
+o recorte. Links para Ofício/Diário/RT/Documentos preservados; estas últimas páginas
+ficam em unidades posteriores. GET da Lista não inicializa Diário/RT nem grava dados.
+
+Composição: hero e coleção de consulta, filtros integrados com dimensões distintas,
+identidade do Ofício/destinos/metadados e ações agrupadas, linhas de servidores com
+campos proporcionais e estados legíveis, pendências próximas e rodapé no fluxo em
+lista curta. Não converter uma lista editável em registros apenas de consulta nem
+esconder ações para reduzir altura. Reutilizar a apresentação institucional atual.
+CSS de equipe/servidor também atende Anexos/UI Lab: migrar consumidores de modo
+explícito ou usar variante legítima; não apagar bases com uso comprovado.
+
 ## Reabertura de Roteiros — conferência de Diárias (12/10/2026)
 
 A conferência operacional tem um único contrato responsivo: total em destaque;

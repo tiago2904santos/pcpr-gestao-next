@@ -64,8 +64,8 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     outro.get_by_role("button", name="Finalizar", exact=True).click()
     expect(pg.locator(".toast").first).to_contain_text("pendências")
     outro = pg.locator(f"#ps-{b.pk}")
-    outro.get_by_text("Finalizar com pendência…").click()
-    outro.get_by_label("Justificativa (fica registrada)").fill("Servidor não chegou a viajar.")
+    outro.locator("summary").click()
+    outro.get_by_label("Finalizar mesmo assim — justificativa (fica registrada)").fill("Servidor não chegou a viajar.")
     outro.get_by_role("button", name="Finalizar com justificativa").click()
     expect(pg.locator(f"#ps-{b.pk}")).to_contain_text("Justificativa")
     expect(pg.get_by_text("Equipe finalizada")).to_be_visible()
@@ -78,3 +78,4 @@ def test_prestacao_do_cartao_ao_envio(logado, dados_e2e):
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Enviada em")
     a.refresh_from_db()
     assert a.situacao == "enviada" and a.protocolo_envio == "E-2030-1"
+    pg.wait_for_load_state("networkidle")

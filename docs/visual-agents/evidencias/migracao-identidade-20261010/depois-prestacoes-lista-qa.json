@@ -1,0 +1,162 @@
+[
+  {
+    "estado": "todas",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  }
+]

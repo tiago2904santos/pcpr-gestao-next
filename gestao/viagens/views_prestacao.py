@@ -11,7 +11,7 @@ from datetime import date, datetime
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -109,17 +109,28 @@ def lista(request: HttpRequest) -> HttpResponse:
     pagina = Paginator(prestacoes, POR_PAGINA).get_page(request.GET.get("pagina"))
     da_pagina = {p.pk: p for p in pagina.object_list}
     por_prestacao: dict[int, list] = {}
+    equipes: dict[int, list] = {}
     hoje = timezone.localdate()
     situacao = anexos.situacao(da_pagina)
-    for ps in qs.filter(prestacao__in=list(da_pagina)).order_by("servidor__nome"):
+    # Uma consulta por página: estado da equipe inteira, linhas apenas do recorte.
+    membros = (PrestacaoServidor.objects.filter(prestacao__in=list(da_pagina),
+                                                removida_em__isnull=True)
+               .select_related("servidor")
+               .annotate(no_recorte=Exists(qs.filter(pk=OuterRef("pk"))))
+               .order_by("servidor__nome"))
+    for ps in membros:
         ps.prestacao = da_pagina[ps.prestacao_id]
-        por_prestacao.setdefault(ps.prestacao_id, []).append(
-            _linha(request, ps, hoje, situacao))
-    blocos = [_bloco(request, p, por_prestacao.get(p.pk, [])) for p in pagina.object_list]
+        equipes.setdefault(ps.prestacao_id, []).append({"ps": ps})
+        if ps.no_recorte:
+            por_prestacao.setdefault(ps.prestacao_id, []).append(
+                _linha(request, ps, hoje, situacao))
+    blocos = [_bloco(request, p, por_prestacao.get(p.pk, []), equipes.get(p.pk, []))
+              for p in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     return render(request, "viagens/prestacao/lista.html", {
         "page_obj": pagina, "blocos": blocos, "aba": abas[0] if len(abas) == 1 else "",
+        "abas_selecionadas": abas,
         "abas_situacao": [(c, r) for c, r in prestacao.ABAS if c not in ATENCAO],
         "abas_atencao": [(c, r) for c, r in prestacao.ABAS if c in ATENCAO],
         "contagens": contagens, "busca": busca, "total_servidores": qs.count(),
@@ -140,20 +151,20 @@ def _linha(request: HttpRequest, ps: PrestacaoServidor, hoje: date,
             "editavel": policies.pode_editar_prestacao(request.user, ps)}
 
 
-def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list) -> dict:
+def _bloco(request: HttpRequest, p: PrestacaoContas, linhas: list, equipe: list) -> dict:
     trechos = list(p.oficio.trechos.all())
     destinos = list(dict.fromkeys(str(t.destino) for t in trechos))
     periodo = (periodo_curto(timezone.localtime(trechos[0].saida_em).date(),
                              timezone.localtime(trechos[-1].chegada_em).date())
                if trechos else "")
-    abertas = [linha for linha in linhas if not linha["ps"].finalizada]
-    por_enviar = [linha for linha in linhas if linha["ps"].finalizada
+    abertas = [linha for linha in equipe if not linha["ps"].finalizada]
+    por_enviar = [linha for linha in equipe if linha["ps"].finalizada
                   and linha["ps"].situacao not in ("enviada", "aprovada")]
     return {"p": p, "linhas": linhas, "destinos": ", ".join(destinos), "periodo": periodo,
             "editavel": policies.pode_editar_equipe_prestacao(request.user, p),
-            "todas_finalizadas": bool(linhas) and not abertas,
+            "todas_finalizadas": bool(equipe) and not abertas,
             "reabrivel": bool(por_enviar), "por_enviar": por_enviar,
-            "alguma_arquivada": any(linha["ps"].arquivada for linha in linhas)}
+            "alguma_arquivada": any(linha["ps"].arquivada for linha in equipe)}
 
 
 def _ps(request: HttpRequest, pk: int) -> PrestacaoServidor:

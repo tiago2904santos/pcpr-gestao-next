@@ -1,0 +1,573 @@
+[
+  {
+    "estado": "todas",
+    "width": 360,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 268,
+                  "height": 13.3
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-1\" aria-label=\"Escolher data: Liberação das diárias\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 268px by 13.3px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-1\" aria-label=\"Escolher data: Liberação das diárias\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-1\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input class=\"entrada\" id=\"ps-576-liberacao\" name=\"liberacao\" value=\"\" inputmode=\"numeric\" placeholder=\"dd/mm/aaaa\" maxlength=\"10\" autocomplete=\"off\" data-mascara=\"data\" style=\"\">",
+            "target": [
+              "#ps-576-liberacao"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 268px by 13.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 7.9
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 0.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input class=\"entrada\" id=\"ps-576-liberacao\" name=\"liberacao\" value=\"\" inputmode=\"numeric\" placeholder=\"dd/mm/aaaa\" maxlength=\"10\" autocomplete=\"off\" data-mascara=\"data\" style=\"\">",
+                    "target": [
+                      "#ps-576-liberacao"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-1\" aria-label=\"Escolher data: Liberação das diárias\">",
+            "target": [
+              "button[aria-controls=\"seletor-1\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 0.6px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 360,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 390,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 23.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 23.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 16.4,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<input class=\"entrada\" id=\"ps-576-prazo\" name=\"prazo\" value=\"\" inputmode=\"numeric\" placeholder=\"dd/mm/aaaa\" maxlength=\"10\" autocomplete=\"off\" data-mascara=\"data\" style=\"\">",
+                    "target": [
+                      "#ps-576-prazo"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16.4px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-2\" aria-label=\"Escolher data: Prazo limite de saque\">",
+            "target": [
+              "button[aria-controls=\"seletor-2\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 23.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16.4px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 94.9,
+                  "height": 10.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 94.9px by 10.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 17.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<summary><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-list-checks\"></use></svg>5 pendências para finalizar</summary>",
+                    "target": [
+                      "#pend-ps-576 > details > summary"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"submit\" class=\"botao botao--sm\" formaction=\"/viagens/prestacoes/576/finalizar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+            "target": [
+              "#acoes-ps-576 > .botao--sm.botao[type=\"submit\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 94.9px by 10.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 10.6
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 10.6px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 17.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<summary><svg class=\"icone icone--sm\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-list-checks\"></use></svg>5 pendências para finalizar</summary>",
+                    "target": [
+                      "#pend-ps-576 > details > summary"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      "a[href$=\"exportar/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"botao botao--icone botao--sutil botao--sm\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Mais ações de Alessandra Guimarães Iwamoto\" aria-controls=\"menu-yl9dtwu\" aria-expanded=\"false\" id=\"menu-yl9dtwu-botao\">",
+            "target": [
+              "#menu-yl9dtwu-botao"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 10.6px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 17.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 390,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 768,
+    "http": 200,
+    "axe": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 94.9,
+                  "height": 11.9
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/?aba=liberadas&amp;\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      ".barra-acoes > .botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 94.9px by 11.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 22.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/?aba=liberadas&amp;\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      ".barra-acoes > .botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 22.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"submit\" class=\"botao botao--sm\" formaction=\"/viagens/prestacoes/572/finalizar/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-check\"></use></svg>Finalizar</button>",
+            "target": [
+              "#acoes-ps-572 > .botao--sm.botao[type=\"submit\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 94.9px by 11.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 22.8px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 11.9
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/?aba=liberadas&amp;\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      ".barra-acoes > .botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 22.8,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"botao\" href=\"/viagens/prestacoes/exportar/?aba=liberadas&amp;\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-download\"></use></svg>Exportar planilha</a>",
+                    "target": [
+                      ".barra-acoes > .botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 22.8px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"botao botao--icone botao--sutil botao--sm\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-label=\"Mais ações de Gabriela Teixeira Ilha\" aria-controls=\"menu-hkrbmad\" aria-expanded=\"false\" id=\"menu-hkrbmad-botao\">",
+            "target": [
+              "#menu-hkrbmad-botao"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 22.8px instead of at least 24px."
+          }
+        ]
+      }
+    ],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 768,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1024,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "liberadas",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "finalizados",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "width": 1440,
+    "http": 200,
+    "axe": [],
+    "pageerrors": [],
+    "overflow": false
+  }
+]

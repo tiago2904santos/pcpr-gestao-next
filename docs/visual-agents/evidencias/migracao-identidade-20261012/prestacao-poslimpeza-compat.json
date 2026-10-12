@@ -1,0 +1,23 @@
+[
+  {
+    "width": 360,
+    "route": "/viagens/prestacoes/equipe/211/documentos/",
+    "keyboard": "Enter/Escape + foco calendario/menu verdes",
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 768,
+    "route": "/viagens/prestacoes/equipe/211/documentos/",
+    "keyboard": "Enter/Escape + foco calendario/menu verdes",
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1440,
+    "route": "/viagens/prestacoes/equipe/211/documentos/",
+    "keyboard": "Enter/Escape + foco calendario/menu verdes",
+    "axe": [],
+    "console": []
+  }
+]

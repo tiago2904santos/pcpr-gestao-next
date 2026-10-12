@@ -3475,6 +3475,10 @@ fieldset.campo--escolhas > .campo__erro {
 .identidade-documental__numero--cancelado { text-decoration: line-through; }
 .identidade-documental--compacta .identidade-documental__numero { font-size: var(--texto-xl); }
 .identidade-documental--compacta .identidade-documental__rotulo { margin: 0; color: var(--cor-marca-texto); }
+.identidade-documental--placa { align-items: center; justify-content: center; gap: var(--esp-1); width: calc(var(--esp-4) * 8); padding: var(--esp-3); border-radius: var(--raio-md); background: var(--cor-primaria); text-align: center; }
+.identidade-documental--placa .identidade-documental__rotulo { color: var(--cor-texto-inverso-sutil); }
+.identidade-documental--placa .identidade-documental__numero,
+.identidade-documental--placa .placa__numero { color: var(--cor-texto-inverso); font-size: var(--texto-xl); }
 
 /* Metadados de leitura: rótulo discreto, valor íntegro e separação por filetes. */
 .metadados > .metadado { min-width: 0; padding-bottom: var(--esp-2); border-bottom: var(--borda); }
@@ -3621,6 +3625,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .colecao-operacional--consulta .colecao-operacional__layout { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
 .colecao-operacional--consulta .colecao-operacional__indice { position: static; padding: 0; }
 .colecao-operacional--consulta .colecao-operacional__rotulo { display: block; margin-bottom: var(--esp-2); }
+.colecao-operacional__grupo { margin-top: var(--esp-3); }
 .colecao-operacional--consulta .colecao-operacional__indice .abas { display: flex; gap: var(--esp-1); overflow-x: auto; padding-bottom: var(--esp-1); }
 .colecao-operacional--consulta .colecao-operacional__indice .aba { display: inline-flex; flex: none; align-items: center; justify-content: center; min-height: var(--altura-controle); padding: var(--esp-2) var(--esp-3); white-space: nowrap; font-size: var(--texto-xs); }
 .barra-acoes.barra-acoes--colecao { position: static; margin-top: var(--esp-4); padding: var(--esp-3) var(--esp-4); box-shadow: none; border: var(--borda-sutil); border-radius: var(--raio-lg); }

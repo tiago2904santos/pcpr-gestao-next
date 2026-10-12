@@ -1732,6 +1732,26 @@ html.rolagem-presa {
   list-style: none;
 }
 
+/* A equipe de um documento possui identificação própria; a mesma base também
+   atende anexos por pessoa, sem impor a placa a esses registros. */
+.prestacao-equipe--documento .prestacao-equipe__cabecalho {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-3) var(--esp-4);
+}
+
+.prestacao-equipe__identificacao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-width: 0;
+}
+
+.prestacao-equipe__identificacao > div { min-width: 0; }
+.prestacao-equipe__placa { flex: none; text-decoration: none; border-radius: var(--raio-md); }
+.prestacao-equipe--documento .prestacao-equipe__titulo { margin-bottom: var(--esp-1); overflow-wrap: anywhere; }
+.prestacao-equipe--documento .prestacao-equipe__acoes { justify-content: flex-end; max-width: 30rem; }
+
 .prestacao-servidor {
   padding: var(--esp-3) var(--esp-4);
 }
@@ -1748,7 +1768,7 @@ html.rolagem-presa {
    baixo (devolução, justificativa, pendências) ocupa a largura toda e só existe com conteúdo. */
 .prestacao-servidor__form {
   display: grid;
-  grid-template-columns: minmax(13rem, 1fr) minmax(0, 2fr) auto;
+  grid-template-columns: minmax(13rem, 1fr) minmax(24rem, 1.4fr) auto;
   align-items: center;
   gap: var(--esp-2) var(--esp-4);
 }
@@ -1776,8 +1796,8 @@ html.rolagem-presa {
 
 .prestacao-servidor__campos {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--esp-3);
+  grid-template-columns: minmax(8rem, 1fr) repeat(2, minmax(8rem, 0.9fr));
+  gap: var(--esp-2);
 }
 
 .prestacao-servidor__acoes {
@@ -1833,6 +1853,7 @@ html.rolagem-presa {
   font-weight: var(--peso-medio);
   cursor: pointer;
   list-style: none;
+  min-height: var(--esp-6);
 }
 
 .prestacao-servidor__pendencias > summary::-webkit-details-marker {
@@ -1863,6 +1884,8 @@ html.rolagem-presa {
 }
 
 @media (max-width: 1023.98px) {
+  .prestacao-equipe--documento .prestacao-equipe__cabecalho { grid-template-columns: minmax(0, 1fr); }
+  .prestacao-equipe--documento .prestacao-equipe__acoes { margin-inline-start: 0; justify-content: flex-start; max-width: none; }
   .prestacao-servidor__form {
     grid-template-columns: minmax(0, 1fr) auto;
   }
@@ -1874,63 +1897,22 @@ html.rolagem-presa {
 }
 
 @media (max-width: 599.98px) {
-  .prestacao-servidor__form,
-  .prestacao-servidor__campos {
+  .prestacao-servidor__form {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .prestacao-servidor__campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-row: auto;
   }
+  .prestacao-servidor__campos > .campo:first-child { grid-column: 1 / -1; }
+  .prestacao-equipe--documento .prestacao-equipe__cabecalho,
+  .prestacao-equipe--documento .prestacao-servidor { padding-inline: var(--esp-3); }
+  .prestacao-equipe__placa .identidade-documental--placa { width: calc(var(--esp-4) * 6); padding: var(--esp-2); }
 
   .prestacao-servidor__acoes {
     justify-content: flex-start;
   }
-}
-
-/* Atalhos "pedem atenção" da prestação: filtros de uma aba só, mais discretos que as abas. */
-.atalhos-atencao {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--esp-2);
-  margin-top: var(--esp-3);
-}
-
-.atalhos-atencao__rotulo {
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-sm);
-}
-
-/* Com algo a ver, o atalho chama atenção; zerado, fica discreto. */
-.atalhos-atencao__item--alerta {
-  border-color: var(--cor-aviso-borda);
-  color: var(--cor-texto);
-}
-
-.atalhos-atencao__item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--esp-1);
-  min-height: 2rem;
-  padding: 0 var(--esp-3);
-  border: var(--borda);
-  border-radius: var(--raio-pilula);
-  color: var(--cor-texto-secundario);
-  font-size: var(--texto-sm);
-  text-decoration: none;
-}
-
-.atalhos-atencao__item:hover {
-  color: var(--cor-texto);
-  background: var(--cor-superficie-sutil);
-}
-
-.atalhos-atencao__item[aria-current="page"] {
-  border-color: var(--cor-marca-borda);
-  background: var(--cor-marca-fundo);
-  color: var(--cor-marca-texto);
-  font-weight: var(--peso-semi);
 }
 
 .prestacao-servidor__selos {
