@@ -3602,6 +3602,18 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero--pagina :is(.botao, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .registro-hero__acoes .botao { --botao-fundo: transparent; --botao-borda: var(--luz-28); --botao-texto: var(--cor-texto-inverso); }
 .registro-hero__acoes .botao:hover { --botao-fundo-hover: var(--luz-10); }
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .registro-hero--pagina:has(> .registro-hero__identidade):has(> .registro-hero__acoes > :nth-child(2)) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--esp-4) var(--esp-6);
+  }
+  .registro-hero--pagina:has(> .registro-hero__identidade) > .registro-hero__acoes:has(> :nth-child(2)) {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
 
 /* Coleção operacional: índice de recortes + superfície de busca + registros oficiais.
    O índice preserva os links/contadores OOB; nenhum dado ou pedido adicional. */

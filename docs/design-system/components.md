@@ -600,3 +600,28 @@ cartão por mensagem e mantém o alvo mínimo de toque nos links. Consumidores: 
 de Viagens e exemplo do UI Lab. Histórico operacional e barra de ações no fluxo
 usam os padrões já migrados. Equipe compacta e cartão de viatura no lote usam os
 mesmos seletores de Ofícios, preservando campos e comportamento.
+
+## Diário de Bordo e cabeçalho documental — 12/10/2026
+
+O Diário usa `registro_hero`, `documento--preparacao`, `metadados`, `pc-select`
+e `barra-acoes--preparacao barra-acoes--fluxo`. A barra mantém o estado real de
+salvamento também no celular. `Finalizar` aguarda a gravação e retorna à lista;
+não finaliza prestações de contas.
+
+`diario-linha` continua sendo a implementação única de linha de percurso no
+Diário e no UI Lab §15. A variante `diario-linha--hodometro` agrupa km de saída,
+km de chegada e abastecimento, com `diario-linha__resultado` para a distância
+rodada. Apenas o resultado tem `data-vivo`: atualizar o cálculo não substitui
+o input com foco. Horários realizados preservam saída e chegada editáveis;
+na consulta, a mesma linha usa metadados de saída/chegada.
+
+`modos--recurso` organiza opções de motorista e viatura em colunas paralelas.
+Os campos condicionais usam duas colunas, primeiro campo completo e último
+campo isolado completo. A classe base `modos` permanece necessária no Relatório
+Técnico, com fallback sem `:has`; a variante não altera seus consumidores.
+
+Entre768 e1023px, cabeçalhos de página com identidade e múltiplas ações distribuem
+as ações numa segunda linha. Um único menu permanece ao lado do conteúdo.
+Isso preserva a largura do título e metadados sem criar uma linha só para um menu.
+Consumidores: Ofícios, Roteiros, Termos, OS, Planos, Viagens e Diário. Resumos
+em modal e listas sem identidade não entram nesse contrato. Não há JS novo.

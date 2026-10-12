@@ -1,0 +1,50 @@
+......2026-10-12 19:10:48,931 WARNING django.request Not Found: /viagens/prestacoes/equipe/7/diario/
+2026-10-12 19:10:48,972 WARNING django.request Not Found: /viagens/prestacoes/equipe/7/diario/autosave/
+2026-10-12 19:10:49,111 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/7/diario/autosave/: 26 consultas (limite 25)
+.2026-10-12 19:10:51,130 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 35 consultas (limite 25)
+2026-10-12 19:10:51,223 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/autosave/: 32 consultas (limite 25)
+2026-10-12 19:10:51,303 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/autosave/: 30 consultas (limite 25)
+2026-10-12 19:10:51,420 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/diario/: 26 consultas (limite 25)
+2026-10-12 19:10:54,264 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:10:54,366 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:10:54,432 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:10:54,638 WARNING django.request Not Found: /viagens/prestacoes/equipe/8/diario/doc/
+.2026-10-12 19:10:56,848 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/9/diario/motorista/: 28 consultas (limite 25)
+2026-10-12 19:10:56,976 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/9/diario/: 26 consultas (limite 25)
+...
+(process:21068): GLib-GIO-WARNING **: 19:11:01.398: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:21068): GLib-GIO-WARNING **: 19:11:02.487: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:21068): GLib-GIO-WARNING **: 19:11:02.487: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+.
+(process:21068): GLib-GIO-WARNING **: 19:11:04.295: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:21068): GLib-GIO-WARNING **: 19:11:05.109: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+.
+(process:21068): GLib-GIO-WARNING **: 19:11:05.228: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:21068): GLib-GIO-WARNING **: 19:11:05.363: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 19:11:07,016 WARNING django.request Not Found: /viagens/prestacoes/equipe/14/diario/realizada/ajustar/
+2026-10-12 19:11:07,217 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/14/diario/: 35 consultas (limite 25)
+2026-10-12 19:11:07,396 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/14/diario/: 26 consultas (limite 25)
+.2026-10-12 19:11:18,257 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/15/diario/: 33 consultas (limite 25)
+2026-10-12 19:11:19,950 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/15/diario/autosave/: 26 consultas (limite 25)
+.2026-10-12 19:11:40,448 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/16/diario/: 33 consultas (limite 25)
+2026-10-12 19:11:41,240 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/16/diario/: 30 consultas (limite 25)
+.2026-10-12 19:12:01,326 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/17/diario/: 33 consultas (limite 25)
+.2026-10-12 19:12:25,504 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/18/diario/: 33 consultas (limite 25)
+.2026-10-12 19:12:50,489 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/19/diario/: 33 consultas (limite 25)
+.2026-10-12 19:13:16,117 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/20/diario/: 33 consultas (limite 25)
+.2026-10-12 19:13:36,656 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/21/diario/: 33 consultas (limite 25)
+.2026-10-12 19:13:58,210 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/22/diario/: 33 consultas (limite 25)
+.2026-10-12 19:14:19,514 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/23/diario/: 33 consultas (limite 25)
+.................................................. [ 72%]
+............................                                             [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_diario.py::test_folha_autosave_e_documento
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+100 passed, 1 warning in 359.21s (0:05:59)

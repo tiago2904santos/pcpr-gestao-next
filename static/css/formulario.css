@@ -1143,6 +1143,15 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   gap: var(--esp-3);
 }
 
+/* Modos de um recurso: opções completas e campos condicionais junto da escolha. */
+.modos--recurso { align-content: start; gap: var(--esp-3); }
+.modos--recurso > legend { font-weight: var(--peso-semi); margin-bottom: var(--esp-2); }
+.modos--recurso .opcoes { grid-template-columns: minmax(0, 1fr); }
+.modos--recurso .modos__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.modos--recurso .modos__campos > .campo:only-child,
+.modos--recurso .modos__campos > .campo:first-child { grid-column: 1 / -1; }
+.modos--recurso .modos__campos > .campo:last-child:nth-child(even) { grid-column: 1 / -1; }
+
 @supports selector(:has(*)) {
   .modos__campos { display: none; }
   .modos:has(input[value="servidor"]:checked) .modos__campos[data-modo="servidor"],
@@ -1157,7 +1166,7 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
 /* Linhas do diário de bordo: a rota (com o número do trecho) e os três campos. */
 .diario-linhas {
   display: grid;
-  gap: var(--esp-3);
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1167,7 +1176,7 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--esp-2) var(--esp-4);
-  padding: var(--esp-3) 0;
+  padding: var(--esp-4) 0;
   border-top: var(--borda-sutil);
 }
 
@@ -1179,6 +1188,7 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   display: flex;
   align-items: flex-start;
   gap: var(--esp-3);
+  min-width: 0;
 }
 
 .diario-linha__rota p {
@@ -1189,9 +1199,9 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   display: inline-grid;
   place-items: center;
   flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: var(--raio-pilula);
+  width: var(--esp-8);
+  height: var(--esp-8);
+  border-radius: var(--raio-sm);
   background: var(--cor-superficie-sutil);
   color: var(--cor-texto-secundario);
   font-size: var(--texto-xs);
@@ -1204,10 +1214,33 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   gap: var(--esp-2) var(--esp-3);
 }
 
+.diario-linha__resultado {
+  display: grid;
+  gap: var(--esp-1);
+  padding: var(--esp-2) var(--esp-3);
+  margin: 0;
+  border-left: var(--filete) solid var(--cor-marca);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-xs);
+  color: var(--cor-texto-secundario);
+}
+.diario-linha__resultado strong { font-size: var(--texto-md); color: var(--cor-texto); }
+.diario-linha--hodometro .diario-linha__campos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 599.98px) {
+  .diario-linha__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .diario-linha--hodometro .diario-linha__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .diario-linha--hodometro .diario-linha__campos > .campo:last-child { grid-column: 1 / -1; }
+  .diario-linha__resultado { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+}
+
 @media (min-width: 1024px) {
   .diario-linha {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
     align-items: center;
+  }
+  .diario-linha--hodometro {
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 1.2fr) minmax(7rem, .3fr);
   }
 }
 

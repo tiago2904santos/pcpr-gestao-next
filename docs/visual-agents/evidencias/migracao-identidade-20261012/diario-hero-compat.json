@@ -1,0 +1,242 @@
+[
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 3,
+    "altura": 239.328125
+  },
+  {
+    "pagina": "roteiros",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 2,
+    "altura": 222.234375
+  },
+  {
+    "pagina": "termos",
+    "rota": "/viagens/termos/7/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 226.75
+  },
+  {
+    "pagina": "planos",
+    "rota": "/viagens/planos/2/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 273.5
+  },
+  {
+    "pagina": "ordens",
+    "rota": "/viagens/ordens/5/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 298.234375
+  },
+  {
+    "pagina": "viagens",
+    "rota": "/viagens/viagens/1/",
+    "largura": 360,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 321.609375
+  },
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 3,
+    "altura": 226.296875
+  },
+  {
+    "pagina": "roteiros",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 2,
+    "altura": 183.109375
+  },
+  {
+    "pagina": "termos",
+    "rota": "/viagens/termos/7/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 187.625
+  },
+  {
+    "pagina": "planos",
+    "rota": "/viagens/planos/2/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 234.375
+  },
+  {
+    "pagina": "ordens",
+    "rota": "/viagens/ordens/5/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 251.5
+  },
+  {
+    "pagina": "viagens",
+    "rota": "/viagens/viagens/1/",
+    "largura": 768,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 251.5
+  },
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 3,
+    "altura": 175.90625
+  },
+  {
+    "pagina": "roteiros",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 2,
+    "altura": 132.71875
+  },
+  {
+    "pagina": "termos",
+    "rota": "/viagens/termos/7/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 137.234375
+  },
+  {
+    "pagina": "planos",
+    "rota": "/viagens/planos/2/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 160.609375
+  },
+  {
+    "pagina": "ordens",
+    "rota": "/viagens/ordens/5/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 160.609375
+  },
+  {
+    "pagina": "viagens",
+    "rota": "/viagens/viagens/1/",
+    "largura": 1024,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 160.609375
+  },
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 3,
+    "altura": 130.46875
+  },
+  {
+    "pagina": "roteiros",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 2,
+    "altura": 132.71875
+  },
+  {
+    "pagina": "termos",
+    "rota": "/viagens/termos/7/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 137.234375
+  },
+  {
+    "pagina": "planos",
+    "rota": "/viagens/planos/2/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 160.609375
+  },
+  {
+    "pagina": "ordens",
+    "rota": "/viagens/ordens/5/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 137.234375
+  },
+  {
+    "pagina": "viagens",
+    "rota": "/viagens/viagens/1/",
+    "largura": 1440,
+    "axe_header": [],
+    "overflow": false,
+    "console": [],
+    "acoes_focaveis": 1,
+    "altura": 160.609375
+  }
+]

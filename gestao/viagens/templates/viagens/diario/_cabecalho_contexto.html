@@ -1,0 +1,8 @@
+    <p class="registro-hero__metadados" id="frase-diario" data-vivo>
+      <span class="sr-only">Resumo do diário: </span>
+      {% if completo %}<span class="selo selo--sucesso">Preenchido</span>{% else %}<span class="selo selo--aviso">{{ preenchidas }} de {{ linhas|length }} trechos com km</span>{% endif %}
+      <span class="registro-hero__metadado{% if not motorista.nome %} registro-hero__metadado--vazio{% endif %}">{% icone "user-round" classe="icone--sm" %}{{ motorista.nome|default:"sem motorista" }}</span>
+      <span class="registro-hero__metadado{% if not viatura.modelo and not viatura.placa %} registro-hero__metadado--vazio{% endif %}">{% icone "car" classe="icone--sm" %}{% if viatura.modelo or viatura.placa %}{{ viatura.rotulo|default:"Viatura" }}{% if viatura.placa %} · {{ viatura.placa }}{% endif %}{% else %}sem viatura{% endif %}</span>
+      {% if conf %}<span class="registro-hero__metadado">{% icone "gauge" classe="icone--sm" %}{{ conf.total_rodado }} km rodados{% if conf.total_previsto %} de {{ conf.total_previsto }} previstos{% endif %}</span>{% endif %}
+      {% if conf.avisos %}<span class="selo selo--aviso selo--sem-ponto">{{ conf.avisos|length|pluralizar:"aviso,avisos" }} no hodômetro</span>{% endif %}
+    </p>

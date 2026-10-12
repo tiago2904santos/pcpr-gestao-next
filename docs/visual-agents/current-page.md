@@ -1,5 +1,12 @@
 # Página atual
 
+## Meta integral vigente — 12/10/2026
+
+A rodada abaixo é histórica. A meta atual reabriu a validação de todas as
+páginas implementadas. Fonte de situação por página: `matriz-migracao.json`;
+checkpoint: `migracao-identidade-20261010.md`, seção de 12/10. Não presumir
+conclusão pelo gate antigo. Próxima página: PR03 Relatório Técnico. PR02 Diário concluído tecnicamente após100 focused,20 capturas e revisão independente. PR01 Lista de Prestação concluída tecnicamente no commit `65452f4` após dez E2E pós-limpeza, compatibilidade e revisão independente. Roteiros/Ofícios/Planos continuam com revalidações registradas; o gate integral está em execução (session43292). Cobertura atual:2de100 páginas concluída tecnicamente; homologação visual não presumida. Evidências atuais: `evidencias/migracao-identidade-20261012/`.
+
 ## Rodada vigente — Propagação da identidade, 10/10/2026
 
 Pedido novo: consolidar Ofícios atuais (cinco capturas do usuário) e migrar páginas

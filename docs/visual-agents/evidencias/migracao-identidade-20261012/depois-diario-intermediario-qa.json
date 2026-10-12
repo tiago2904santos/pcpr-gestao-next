@@ -1,0 +1,70 @@
+{
+  "dados_preservados": true,
+  "sha256_dados": "3ed65afedfb60d33ac71fdbee976bcf429917582a3bcb0e0c09107ed64ec26af",
+  "cenarios": [
+    {
+      "width": 390,
+      "estado": "edicao",
+      "rota": "/viagens/prestacoes/equipe/211/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "estado": "pendente",
+      "rota": "/viagens/prestacoes/equipe/190/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "estado": "realizada-travada",
+      "rota": "/viagens/prestacoes/equipe/201/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "estado": "cinco-trechos",
+      "rota": "/viagens/prestacoes/equipe/199/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "estado": "edicao",
+      "rota": "/viagens/prestacoes/equipe/211/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "estado": "pendente",
+      "rota": "/viagens/prestacoes/equipe/190/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "estado": "realizada-travada",
+      "rota": "/viagens/prestacoes/equipe/201/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "estado": "cinco-trechos",
+      "rota": "/viagens/prestacoes/equipe/199/diario/",
+      "axe": [],
+      "console": [],
+      "overflow": false
+    }
+  ]
+}

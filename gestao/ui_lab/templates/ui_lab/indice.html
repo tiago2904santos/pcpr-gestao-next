@@ -729,7 +729,7 @@
     <section class="cartao" id="diario-bordo" aria-labelledby="t-diario-bordo">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-diario-bordo"><span class="cartao__numero">15</span>Diário de bordo: modos e linhas</h2><span class="texto-secundario texto-sm">Modos com campos próprios (só aparecem os do modo marcado) e uma linha por trecho com rota, horários, previsto e os três campos.</span></div>
       <div class="cartao__corpo pilha-lg">
-        <fieldset class="modos">
+        <fieldset class="modos modos--recurso">
           <legend class="campo__rotulo">Motorista</legend>
           <div class="opcoes">
             <label class="opcao"><input type="radio" name="lab-modo" value="oficio" checked><span>Manter o motorista do ofício</span></label>
@@ -741,13 +741,14 @@
           </div>
         </fieldset>
         <ol class="diario-linhas">
-          <li class="diario-linha">
+          <li class="diario-linha diario-linha--hodometro">
             <div class="diario-linha__rota"><span class="diario-linha__numero" aria-hidden="true">1</span><div><p class="peso-semi">Curitiba/PR → Londrina/PR</p><p class="texto-secundario texto-xs">07/10/2026 08:00 → 07/10/2026 13:30 · previsto 380 km</p></div></div>
             <div class="diario-linha__campos">
               <div class="campo"><label class="campo__rotulo" for="lab-km-i">Km de saída</label><input class="entrada" id="lab-km-i" value="40000" inputmode="numeric"></div>
               <div class="campo"><label class="campo__rotulo" for="lab-km-f">Km de chegada</label><input class="entrada" id="lab-km-f" value="40385" inputmode="numeric"></div>
-              <div class="campo"><label class="campo__rotulo" for="lab-abast">Abastecimento</label><select class="selecao" id="lab-abast"><option>Sim</option><option>Não</option></select></div>
+              <div class="campo"><label class="campo__rotulo" for="lab-abast">Abastecimento</label><pc-select class="seletor"><select class="selecao" id="lab-abast"><option>Sim</option><option>Não</option></select></pc-select></div>
             </div>
+            <p class="diario-linha__resultado"><span>Distância rodada</span><strong>385 km</strong></p>
           </li>
         </ol>
         <p class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>Londrina/PR → Curitiba/PR: o km de saída (40.300) é menor que o de chegada do trecho anterior (40.385) — o hodômetro voltou para trás.</span></p>

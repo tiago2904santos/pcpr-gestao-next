@@ -20,9 +20,23 @@ Três defeitos demonstrados antes da correção e cobertos por regressão:
   rodapé pertencem ao fragmento substituído; IDs e seletores OOB foram preservados.
 
 Evidências e verificações: `docs/visual-agents/qa/prestacao-lista-2026-10-12.md`.
-PR02 Diário, PR03 Relatório e PR04 Documentos ainda exigem migração própria; sua
+PR03 Relatório e PR04 Documentos ainda exigem migração própria; sua
 compatibilidade com os estilos compartilhados não equivale a migração concluída.
 
 Lacunas funcionais históricas devem ser conferidas por fluxo (por exemplo, cadastro
 de feriados e histórico dedicado por servidor, citados no levantamento original).
 Não foram supridas por alterações visuais nem declaradas concluídas nesta rodada.
+
+## Diário de Bordo — PR02, concluído tecnicamente, 12/10/2026
+
+Mantidos os três modos de motorista e de viatura, campos condicionais, aplicação
+somente ao Diário/RT, horários realizados editáveis com recálculo e desfazer,
+km e abastecimento com autosave, bloqueio de km final inferior ao inicial,
+avisos não bloqueantes do hodômetro, consulta sem edição e trava de equipe
+finalizada. PDF paisagem e XLSX não tiveram templates oficiais modificados.
+
+O novo resultado por trecho usa a distância já calculada no domínio. Sua região
+`data-vivo` atualiza depois do autosave preservando o foco nos campos. A barra
+final mantém o estado de gravação em todas as larguras; Finalizar continua
+retornando à Lista filtrada sem finalizar prestações. Evidências e revisão em
+`docs/visual-agents/qa/diario-2026-10-12.md`.

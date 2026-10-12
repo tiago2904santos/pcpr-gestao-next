@@ -285,3 +285,27 @@ cálculo. Consumidores reais: Folha de Roteiros, Ofícios e Planos, incluindo
 fragmentos de prévia; o Resumo usa `consulta` e deve ser conferido por regressão.
 Prova anterior: `migracao-identidade-20261012/antes-diarias-geometria.json` e15
 capturas nas cinco larguras. Nenhuma regra financeira ou conteúdo oficial muda.
+
+## PR02 — Diário de Bordo
+
+Rota `/viagens/prestacoes/equipe/<pk>/diario/`. Fonte funcional: ficha de Prestação,
+serviços `diario` e `realizado`. Diário compartilhado; trava com toda a equipe
+finalizada. Motorista e viatura possuem três modos cada, válidos somente no Diário.
+Viagem realizada permite editar saída **e chegada**, recalcular e desfazer sem
+alterar o Ofício emitido. Hodômetro e abastecimento têm autosave; km final menor
+que inicial impede gravação, demais divergências são avisos. PDF/XLSX permanecem
+com conteúdo e regras atuais. Finalizar aguarda salvamentos e volta à Lista,
+sem finalizar a prestação. Consulta mantém leitura e downloads disponíveis.
+
+Preservar formulários separados, nomes dos campos, `#form-diario`, os IDs por linha,
+`data-vivo` em frase/estado/conferência, `data-modo`, confirmação ao desfazer e
+`data-esperar-salvamento`. GET editável pode criar/sincronizar linhas: capturas apenas
+de registros existentes cuja sequência de chaves/ordem foi conferida, com snapshot
+antes/depois de Diário e linhas; nenhum seed/reset. Cenários DEMO211/190/201/199.
+
+Composição: hero documental canônico, seções contínuas de preparação, modos de
+motorista/viatura agrupados, linha de percurso com campos curtos proporcionais,
+conferência por metadados e feedback de salvamento visível. A linha do Diário é um
+componente operacional existente, também no UI Lab §15: melhorar sua origem em
+vez de criar cópia por página. A chegada realizada não é resultado calculado.
+Não remover `.modos` ou antigas bases globais ainda consumidas pelo Relatório.

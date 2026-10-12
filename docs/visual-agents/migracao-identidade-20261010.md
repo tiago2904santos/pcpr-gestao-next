@@ -1,5 +1,27 @@
 # Estado da propagação — 10/10/2026
 
+## Estado vigente — meta integral de12/10/2026
+
+A meta foi reaberta pelo usuário. A matriz canônica por página está em
+`matriz-migracao.json`:100 páginas identificadas, mais5 superfícies documentais
+associadas que não aumentam a contagem. As linhas agregadas e conclusões abaixo
+são histórico de10/10; não comprovam fechamento na meta atual. Páginas antes
+migradas retornam a EM VALIDAÇÃO, com preservação das evidências anteriores.
+Somente uma revisão atual do fluxo e de seus estados permite fechar cada entrada.
+
+Primeira reabertura concreta:RO02/RO03, Diárias operacional. A variante horizontal
+antiga sobrescrevia a grade operacional em Roteiros, Ofícios e Planos;15 capturas
+anteriores confirmam uma coluna em360 e quatro em768. Os dois includes migraram
+para a única variante operacional; cinco regras antigas foram retiradas.15 novas
+capturas mostram duas colunas úteis no celular/tablet e três no desktop. Testes
+dos consumidores em execução; não concluído. Evidências em
+`evidencias/migracao-identidade-20261012/`. Prestação permanece em validação,
+com trabalho anterior preservado. `_equipe.html` do usuário continua intocado.
+
+Prévia própria reiniciada em8017, banco DEMO existente55432 e mídia isolada.
+A primeira navegação executou rotinas diárias normais do sistema (notificações);
+não houve seed/reset. Nenhuma alteração institucional/manual foi realizada.
+
 Branch inicial: `codex/oficios-transporte-cartoes`; HEAD `722198f`.
 Trabalho local e index anteriores preservados em
 `var/migracao-visual-20261010-baseline/`. Nenhum push/merge/deploy autorizado.
@@ -21,7 +43,8 @@ Referência vigente: cinco capturas do usuário, Ofícios atuais; contrato em
 | Justificativas | lista/diálogo/exclusão/download/erro/conflito/consulta | concluída tecnicamente; avaliação visual pendente | coleção/registro/diálogo/paginação com rota explícita | bases genéricas preservadas |108HTTP,2contratos,7E2E,2UI Lab,20pares;SQL igual | candidato-justificativas.json; gate global final pendente |
 | Viagens: Lista | busca, abas, vazio, canceladas, consulta, 20+ registros | concluída tecnicamente; avaliação visual pendente | coleção/hero/identidade/registro de relações sem ações | bases compartilhadas preservadas | 94 HTTP,5 E2E+3 finais,20 pares,SQL igual | candidato-viagens-lista.json |
 | Viagens: Folha/lote | edição/autosave/conflito/consulta/cancelada/vínculos/conferência/lote | concluída tecnicamente; avaliação visual pendente | hero/preparação/destinos/documentos relacionados/conferência/histórico/barra no fluxo | sete regras exclusivas substituídas removidas | 118 HTTP,15 E2E+4 finais,20 pares,SQL igual | candidato-viagens-folha.json; gate global atualizado pendente |
-| Prestação de Contas | fluxos implementados | não iniciada | aprofundar ao entrar | idem | inventário existente | após Viagens |
+| Prestação: Lista | edição por servidor/abas/atenção/autosave/envio/equipe/exportação | em implementação | coleção/hero/identidade/linhas operacionais | bases também usadas por Anexos/UI Lab | contrato e captura anterior em curso | próxima unidade ativa; Diário/RT/Anexos não iniciados |
+| Prestação: Diário/RT/Anexos | fluxos implementados | não iniciada | aprofundar ao entrar | idem | GET editável pode inicializar registros | após Lista |
 | Cadastros/configuração/auxiliares | aprofundar por rota | não iniciada | idem | idem | inventário existente | após fluxos principais |
 
 ## Checkpoint de referência
@@ -104,3 +127,86 @@ Manifesto e SHA em candidato-viagens-folha.json/commit-viagens-folha.json. Próx
 unidade: Lista de Prestação de Contas, antes de Diário/RT/Anexos; não abrir todos
 em paralelo. GET de Diário/RT editável pode inicializar registros: verificar
 isolamento/estado antes de qualquer captura. DEMO e mídia continuam preservados.
+
+### Checkpoint solicitado — prints integrais e componentes em uso
+
+Pedido do usuário: mostrar todas as telas alteradas e abrir os componentes para
+captura. Entrega em `evidencias/migracao-identidade-20261010/prints.html`:
+515 PNGs originais, sendo75 de25páginas/estados em360/768/1440 e440 de componentes,
+famílias do UI Lab e sobreposições abertas nos fluxos reais. ZIPs separados para
+telas e componentes. Catálogo registra rota, largura, estado e viewport efetivo;
+`prints-validacao.json` registra integridade PNG/ZIP, hashes e revisão da galeria.
+
+Cobertura: Ofícios Lista/Cadastro/Resumo; Roteiros Lista/Novo/Edição; Termos
+Lista/Novo/Edição-documentos; OS Lista/Nova/Edição-documentos; Planos Lista/Novo/
+Folha/Multievento/Documentos/Resultados; Justificativas Lista/Edição; Viagens
+Lista/Folha/Lote; Prestação Lista/Liberadas. Componentes capturados dentro dos
+fluxos, famílias completas do UI Lab e menus/filtros/calendários/seletores/
+diálogos. Motorista externo manual/servidor e justificativa capturados usando
+registros DEMO existentes. Cadastros rápidos de servidor, cargo, unidade, viatura
+e combustível capturados depois da hidratação, sem confirmar cadastro.
+
+As tentativas iniciais com timeout permanecem nos manifestos de pendências:
+espera de networkidle do editor e referência dinâmica ao diálogo filho.
+Recapturas explícitas em editor-manifesto e cadastros-manifesto concluídas sem
+erro; componentes faltantes na primeira seleção cobertos por complementos.
+Nenhum controle foi forçado visível nem imagem retocada. Capturas de componentes
+altos usam viewport mais alto para incluir o conteúdo; não simulam a rolagem de
+um celular com altura900. Estados condicionais de todos os papéis/permissões
+não foram exaustivamente reproduzidos; capturas não equivalem a aprovação visual.
+
+Galeria validada no navegador em360/1440: filtros, busca, abertura de original,
+console sem erro e sem overflow horizontal.515 PNGs íntegros; ZIP de telas75
+PNGs e ZIP de componentes440 PNGs, sem nomes duplicados e CRC válido.
+
+Retomada da implementação: branch`codex/oficios-transporte-cartoes`,
+HEAD`73972833063dc17e90af74e19281be537da84ee8`. Prestação Lista continua em
+validação, sem commit:96HTTP/domínio/tokens,9E2E e3provas focadas verdes;
+falta comparação SQL/peso com views anteriores, novas capturas de QA depois da
+barra final estática, prova/remoção das classes de atalhos substituídas e reteste.
+Não declarar encerramento global nem abrir Diário/RT antes desse fechamento.
+Arquivo `_equipe.html` do usuário preservado, não incluído no trabalho desta
+rodada. Preview8017 e galeria8021 ativos; nenhuma semeadura/reset de banco ou
+mídia foi utilizada para obter estas capturas.
+
+### Checkpoint operacional — 12/10/2026, 18h30
+
+Diárias: remoção validada por6E2E finais,94verificações da regressão ampliada,
+Ruff e tsc. Revisor independente confirmou teclado/visibilidade; os falsos
+negativos do teste (transição/recorte e SVG filho do botão) foram documentados,
+sem desativar axe. Imagens de Roteiros inteiros/menu foram revistas. O gate
+integral continua ativo, sessão43292, log
+`evidencias/migracao-identidade-20261012/logs/gate-propagacao-125caa7f.log`.
+Executa com2workers por memória disponível. Não reiniciar por timeout de observação.
+A etapa makemigrations do runner alertou sobre o banco-base UUID inexistente;
+a verificação adicional de histórico no LAB existente, com conexão explicitamente
+somente leitura, passou: `logs/migracoes-historico-readonly.log`.
+
+Index contém somente o candidato Diárias/contrato/QA/testes (12arquivos), com
+hunks de components.css e contrato separados de Prestação. Ainda não há novo
+commit. Base7397283, branchcodex/oficios-transporte-cartoes. `_equipe.html`
+permanece fora do index. Prévia8017 e galeria8021 ativas; banco/mídia preservados.
+
+Próxima ação exata: consultar sessão43292, registrar resultado; se verde,
+fechar checkpoint Diárias e Roteiros com manifesto/commit local. Depois consolidar
+o candidato existente de PrestaçãoLista: retirar seis regras antigas
+.atalhos-atencao* comprovadamente substituídas (preservar IDs/OOB), testar
+Lista/Anexos/UI Lab e atualizar capturas. Comparação somente leitura de Prestação
+em `prestacao-comparacao-view.json`:mesmas16–26consultas antes/depois, inclusive
+25equipes reais; HTML com crescimento pequeno, latência inconclusiva durante gate.
+Diário editável pode criar registro no GET; usar dados isolados antes de capturar.
+Matriz integral100páginas segue sem fechamento global ou homologação estética.
+
+### Capturas solicitadas — atualização de 12/10/2026
+
+Pedido imediato: prints integrais das telas alteradas e componentes em uso com estados abertos. Atualizadas as 25 telas/estados em 360/768/1440 (75 PNGs), as 81 capturas do UI Lab, nove recortes de Diárias/Prestação e 12 menus do editor. Preservadas as capturas dos demais componentes sem mudança nesta rodada. Catálogo consolidado: 519 PNGs (75 telas, 111 componentes em uso, 81 UI Lab, 252 estados abertos). Galeria: `evidencias/migracao-identidade-20261010/prints.html`; downloads `prints-telas.zip` e `prints-componentes.zip`. Manifestos discriminam rota, viewport e estado. Referência Git d27329c com alterações locais preservadas. Nenhuma alteração de produto nesta rodada de capturas. Esta entrega cobre os cenários DEMO catalogados; não equivale à cobertura de todas as permissões/estados condicionais nem à conclusão da migração global. Resultado da verificação de PNGs, ZIPs, filtros e links: `prints-validacao.json`.
+
+
+### Fechamento PR01 e próxima página — 12/10, 18h52
+
+Commit `65452f4f239ab064736629ae4e576b5b1decab4b` fecha Lista de Prestação: dez E2E pós-limpeza verdes (276,24s), 68 tokens, 20 capturas axe0, menus/calendários/foco/Anexos compatíveis, paginação25equipes/volta e equipe única em3larguras. Seis regras antigas removidas. CSS líquido+920bytes, sem JS novo; SQL comparável igual. QA e paridade registrados. PR01 concluída tecnicamente,1de100na matriz; homologação visual pendente. Gate integral ativo, session43292, progresso33%, sem resultado final. Próxima página PR02 Diário: preservar4formulários/autosave/viagem realizada/PDF/XLSX, capturar diário existente sincronizado211(edição),201(realizado travado),199(5trechos travados),190(edição) sem seed/reset. Agente readonly levantou contrato e risco de sincronização porGET; root único editor. Arquivo de equipe do usuário permanece intocado.
+
+
+## 12/10 — fechamento PR02 Diário e entrega de prints
+
+O turno anterior teve progresso:555 prints publicados na galeria e ZIPs, incluindo Diário e modos abertos sem salvar. Esta continuação fechou PR02:100 testes finais em359,21s;20 cenários reais,24 compatibilidades do hero e seis revisões768. SQL igual, sem JS novo; HTML cresceu3,4–6,6% pelos resultados e metadados. Segunda crítica corrigiu hero tablet, campos manuais e consulta de horários. Revisão independente sem bloqueante; homologação visual pendente. Cobertura2/100. Gate integral43292 segue vivo, último43%, sem reiniciar. Próxima PR03 Relatório Técnico: GET editável seguro apenas com RT existente; conferir hash antes/depois. Estado/candidato detalhados em qa/diario-2026-10-12.md e evidências20261012/diario-candidato.json. Arquivo usuário oficios/_equipe.html preservado.

@@ -1,0 +1,4021 @@
+{
+  "meta": "Migração integral — 12/10/2026",
+  "origem": "Missão pasted-text-1.txt; inventário de rotas/templates conferido pelo revisor e existência dos templates validada pelo editor.",
+  "estados_permitidos": [
+    "NÃO INICIADA",
+    "EM IMPLEMENTAÇÃO",
+    "EM VALIDAÇÃO",
+    "REPROVADA",
+    "CONCLUÍDA TECNICAMENTE",
+    "BLOQUEADA"
+  ],
+  "paginas": [
+    {
+      "id": "VG01",
+      "modulo": "Viagens",
+      "rota": "/viagens/",
+      "template": "gestao/viagens/templates/viagens/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "viagens/oficios/_dialogo_resumo.html",
+        "viagens/oficios/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "OF01",
+      "modulo": "Ofícios",
+      "rota": "/viagens/oficios/",
+      "template": "gestao/viagens/templates/viagens/oficios/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/menu_mais.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/oficios/_abas.html",
+        "viagens/oficios/_barra_status.html",
+        "viagens/oficios/_botao_novo.html",
+        "viagens/oficios/_conta_filtros.html",
+        "viagens/oficios/_dialogo_resumo.html",
+        "viagens/oficios/_fichas.html",
+        "viagens/oficios/_limpar_gaveta.html",
+        "viagens/oficios/_refino.html",
+        "viagens/oficios/_registro.html",
+        "viagens/oficios/_vazio_filtrado.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "OF02",
+      "modulo": "Ofícios",
+      "rota": "/viagens/oficios/<pk>/editar/",
+      "template": "gestao/viagens/templates/viagens/oficios/editar.html",
+      "funcao": "Cadastro, edição, documentos e histórico",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais",
+        "editor carregado",
+        "Texto/PDF",
+        "geração/falha",
+        "via assinada",
+        "histórico"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dados_eprotocolo.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_guardar_texto.html",
+        "componentes/dialogos_cadastro_adiados.html",
+        "componentes/estado_salvamento.html",
+        "componentes/indice_preparacao.html",
+        "componentes/migalhas.html",
+        "componentes/pendencia.html",
+        "componentes/prontidao_documental.html",
+        "componentes/recurso_selecionado.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "componentes/selecao_roteiro.html",
+        "componentes/texto_pronto.html",
+        "viagens/_campo_viatura.html",
+        "viagens/_itinerario.html",
+        "viagens/oficios/_dialogo_resumo.html",
+        "viagens/oficios/_diarias.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_equipe.html",
+        "viagens/oficios/_evento.html",
+        "viagens/oficios/_justificativa.html",
+        "viagens/oficios/_motorista_externo.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [
+        "Cascata antiga de Diárias sobrescreve composição operacional."
+      ],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ],
+      "superficies_documentais_associadas": [
+        "DO01",
+        "DO02"
+      ]
+    },
+    {
+      "id": "OF03",
+      "modulo": "Ofícios",
+      "rota": "/viagens/oficios/<pk>/resumo/",
+      "template": "gestao/viagens/templates/viagens/oficios/_resumo.html",
+      "funcao": "Resumo modal",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "componentes/bloco_registro.html",
+        "componentes/dados_eprotocolo.html",
+        "componentes/historico_documental.html",
+        "componentes/registro_hero.html",
+        "viagens/oficios/_resumo_avisos.html",
+        "viagens/oficios/_resumo_documentos.html",
+        "viagens/oficios/_resumo_rodape.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "RO01",
+      "modulo": "Roteiros",
+      "rota": "/viagens/roteiros/",
+      "template": "gestao/viagens/templates/viagens/roteiros/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/roteiros/_abas.html",
+        "viagens/roteiros/_registro.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [
+        "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
+        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+      ],
+      "evidencias": [
+        "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+      ],
+      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "RO02",
+      "modulo": "Roteiros",
+      "rota": "/viagens/roteiros/novo/",
+      "template": "gestao/viagens/templates/viagens/roteiros/editar.html",
+      "funcao": "Novo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/estado_salvamento.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "viagens/_itinerario.html",
+        "viagens/oficios/_diarias.html",
+        "viagens/roteiros/_acoes.html",
+        "viagens/roteiros/_oficios.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [
+        "Variante horizontal antiga sobrescrevia a grade operacional de Diárias."
+      ],
+      "alteracoes_implementadas": [
+        "Componente operacional único;5regras substituídas removidas; responsividade5larguras e prévia HTMX preservadas."
+      ],
+      "testes_executados": [
+        "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
+        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+      ],
+      "evidencias": [
+        "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+      ],
+      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "Conferência horizontal removida. Bases específicas legítimas do itinerário mantidas; sem duplicação nova.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "RO03",
+      "modulo": "Roteiros",
+      "rota": "/viagens/roteiros/<pk>/editar/",
+      "template": "gestao/viagens/templates/viagens/roteiros/editar.html",
+      "funcao": "Edição",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/estado_salvamento.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "viagens/_itinerario.html",
+        "viagens/oficios/_diarias.html",
+        "viagens/roteiros/_acoes.html",
+        "viagens/roteiros/_oficios.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [
+        "Variante horizontal antiga sobrescrevia a grade operacional de Diárias."
+      ],
+      "alteracoes_implementadas": [
+        "Componente operacional único;5regras substituídas removidas; responsividade5larguras e prévia HTMX preservadas."
+      ],
+      "testes_executados": [
+        "94 verificações aprovadas na regressão ampliada; 3 falhas de hit-test corrigidas e revalidadas em6E2E verdes.",
+        "Ruff/tipos JS verdes; gate integral em execução com2workers."
+      ],
+      "evidencias": [
+        "evidencias/migracao-identidade-20261012/roteiros-revisao.json",
+        "evidencias/migracao-identidade-20261012/candidato-diarias.json"
+      ],
+      "revisao_final": "Revisão independente sem bloqueante; aguarda gate integral. Não é homologação visual do usuário.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "Conferência horizontal removida. Bases específicas legítimas do itinerário mantidas; sem duplicação nova.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "TE01",
+      "modulo": "Termos",
+      "rota": "/viagens/termos/",
+      "template": "gestao/viagens/templates/viagens/termos/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/termos/_botao_novo.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "TE02",
+      "modulo": "Termos",
+      "rota": "/viagens/termos/novo/",
+      "template": "gestao/viagens/templates/viagens/termos/editar.html",
+      "funcao": "Novo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/dialogos_cadastro.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "viagens/_campo_equipe.html",
+        "viagens/_campo_viatura.html",
+        "viagens/assinados/_form_remover.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "TE03",
+      "modulo": "Termos",
+      "rota": "/viagens/termos/<pk>/",
+      "template": "gestao/viagens/templates/viagens/termos/editar.html",
+      "funcao": "Edição e documentos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais",
+        "editor carregado",
+        "Texto/PDF",
+        "geração/falha",
+        "via assinada",
+        "histórico"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/dialogos_cadastro.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "viagens/_campo_equipe.html",
+        "viagens/_campo_viatura.html",
+        "viagens/assinados/_form_remover.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ],
+      "superficies_documentais_associadas": [
+        "DO03"
+      ]
+    },
+    {
+      "id": "OS01",
+      "modulo": "Ordens",
+      "rota": "/viagens/ordens/",
+      "template": "gestao/viagens/templates/viagens/ordens/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/ordens/_botao_novo.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "OS02",
+      "modulo": "Ordens",
+      "rota": "/viagens/ordens/nova/",
+      "template": "gestao/viagens/templates/viagens/ordens/editar.html",
+      "funcao": "Nova",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_guardar_texto.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/dialogos_cadastro.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "componentes/texto_pronto.html",
+        "viagens/_campo_equipe.html",
+        "viagens/assinados/_form_remover.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "OS03",
+      "modulo": "Ordens",
+      "rota": "/viagens/ordens/<pk>/",
+      "template": "gestao/viagens/templates/viagens/ordens/editar.html",
+      "funcao": "Edição e documentos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais",
+        "editor carregado",
+        "Texto/PDF",
+        "geração/falha",
+        "via assinada",
+        "histórico"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_guardar_texto.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/dialogos_cadastro.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "componentes/texto_pronto.html",
+        "viagens/_campo_equipe.html",
+        "viagens/assinados/_form_remover.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ],
+      "superficies_documentais_associadas": [
+        "DO04"
+      ]
+    },
+    {
+      "id": "PT01",
+      "modulo": "Planos",
+      "rota": "/viagens/planos/",
+      "template": "gestao/viagens/templates/viagens/planos/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/planos/_abas.html",
+        "viagens/planos/_botao_novo.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PT02",
+      "modulo": "Planos",
+      "rota": "/viagens/planos/novo/",
+      "template": "gestao/viagens/templates/viagens/planos/editar.html",
+      "funcao": "Novo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/cadastro_rapido.html",
+        "componentes/campo.html",
+        "componentes/conferencia_preparacao.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_horario.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "viagens/oficios/_diarias_corpo.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html",
+        "viagens/planos/_atividades.html",
+        "viagens/planos/_dialogo_conjunto.html",
+        "viagens/planos/_dialogo_evento.html",
+        "viagens/planos/_linha_efetivo.html",
+        "viagens/planos/_registro_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PT03",
+      "modulo": "Planos",
+      "rota": "/viagens/planos/<pk>/",
+      "template": "gestao/viagens/templates/viagens/planos/editar.html",
+      "funcao": "Edição, multievento e documentos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais",
+        "editor carregado",
+        "Texto/PDF",
+        "geração/falha",
+        "via assinada",
+        "histórico"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/cadastro_rapido.html",
+        "componentes/campo.html",
+        "componentes/conferencia_preparacao.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_horario.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html",
+        "viagens/oficios/_diarias_corpo.html",
+        "viagens/oficios/_editor.html",
+        "viagens/oficios/_evento.html",
+        "viagens/planos/_atividades.html",
+        "viagens/planos/_dialogo_conjunto.html",
+        "viagens/planos/_dialogo_evento.html",
+        "viagens/planos/_linha_efetivo.html",
+        "viagens/planos/_registro_evento.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [
+        "Cascata antiga de Diárias sobrescreve composição operacional."
+      ],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ],
+      "superficies_documentais_associadas": [
+        "DO05"
+      ]
+    },
+    {
+      "id": "PT04",
+      "modulo": "Planos",
+      "rota": "/viagens/planos/<pk>/resultados/",
+      "template": "gestao/viagens/templates/viagens/planos/resultados.html",
+      "funcao": "Resultados",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/lancamento_quantitativo.html",
+        "componentes/migalhas.html",
+        "componentes/registro_hero.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "JU01",
+      "modulo": "Justificativas",
+      "rota": "/viagens/justificativas/",
+      "template": "gestao/viagens/templates/viagens/justificativas/lista.html",
+      "funcao": "Lista e diálogo de edição",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_guardar_texto.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/texto_pronto.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "VI01",
+      "modulo": "Viagens",
+      "rota": "/viagens/viagens/",
+      "template": "gestao/viagens/templates/viagens/viagem/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/viagem/_botao_nova.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "VI02",
+      "modulo": "Viagens",
+      "rota": "/viagens/viagens/<pk>/",
+      "template": "gestao/viagens/templates/viagens/viagem/editar.html",
+      "funcao": "Folha",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "viagens/oficios/_evento.html",
+        "viagens/viagem/_acoes.html",
+        "viagens/viagem/_bloco.html",
+        "viagens/viagem/_cabecalho.html",
+        "viagens/viagem/_conferencia.html",
+        "viagens/viagem/_form_novo.html",
+        "viagens/viagem/_leitura.html",
+        "viagens/viagem/_vinculo.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "VI03",
+      "modulo": "Viagens",
+      "rota": "/viagens/viagens/<pk>/gerar-documentos/",
+      "template": "gestao/viagens/templates/viagens/viagem/lote.html",
+      "funcao": "Preparação em lote",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/dialogos_cadastro.html",
+        "componentes/migalhas.html",
+        "viagens/_campo_equipe.html",
+        "viagens/_campo_viatura.html",
+        "viagens/viagem/_cabecalho.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PR01",
+      "modulo": "Prestação",
+      "rota": "/viagens/prestacoes/",
+      "template": "gestao/viagens/templates/viagens/prestacao/lista.html",
+      "funcao": "Lista editável por equipe",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/identidade_documental.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/vazio.html",
+        "viagens/prestacao/_cartao.html",
+        "viagens/prestacao/_envio.html"
+      ],
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Avisos SQL: comparação view/render antes/depois mantém16–26consultas, inclusive1/25equipes. Tempos inconclusivos durante gate; não atribuir ganho."
+      ],
+      "alteracoes_implementadas": [
+        "Hero/coleção/abas canônicos; placa documental e formulários proporcionais; barra no fluxo.",
+        "Busca conserva abas combinadas; ações refletem equipe completa; diálogos e rodapé sobrevivem ao HTMX.",
+        "Removidas seis regras atalhos-atencao substituídas por abas; IDs/OOB preservados."
+      ],
+      "testes_executados": [
+        "96 HTTP/domínio/tokens anteriores ao último CSS; dez E2E finais pós-limpeza verdes (276,24s).",
+        "68 tokens pós-limpeza verdes; 20 cenários reais cinco larguras com HTTP200/axe0/console limpo/sem overflow.",
+        "Enter/Escape e devolução de foco de calendário/menu; Anexos compatível em360/768/1440, axe0."
+      ],
+      "evidencias": [
+        "qa/prestacao-lista-2026-10-12.md",
+        "evidencias/migracao-identidade-20261010/depois-prestacoes-lista-qa.json",
+        "evidencias/migracao-identidade-20261012/prestacao-candidato.json",
+        "evidencias/migracao-identidade-20261012/prestacao-comparacao-view.json",
+        "evidencias/migracao-identidade-20261012/prestacao-poslimpeza-compat.json",
+        "evidencias/migracao-identidade-20261012/logs/prestacoes-poslimpeza.log",
+        "evidencias/migracao-identidade-20261012/prestacao-paginacao.json"
+      ],
+      "revisao_final": "Segunda revisão visual e independente sem bloqueante; dez E2E pós-limpeza verdes, paginação e lista única verificadas; homologação visual do usuário pendente. Gate integral do conjunto ainda em execução.",
+      "revisao_codigo": "65452f4f239ab064736629ae4e576b5b1decab4b",
+      "dependencias_antigas": "Nenhuma compatibilidade temporária introduzida. Bases equipe/servidor continuam compartilhadas legitimamente com Anexos/UI Lab; seis regras obsoletas removidas. Anexos/Diário/Relatório têm migração própria pendente.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PR02",
+      "modulo": "Prestação",
+      "rota": "/viagens/prestacoes/equipe/<pk>/diario/",
+      "template": "gestao/viagens/templates/viagens/diario/folha.html",
+      "funcao": "Diário",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "GET editável chama diario.obter: pode criar diário; usar cenário isolado ou consulta sem criação para capturar antes."
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/rodape_documento.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Composição anterior com placa clara/seções em cartões; campos condicionais e conferência sem linguagem atual.",
+        "GET editável sincroniza linhas; escolher cenário existente com correspondência exata antes de capturar."
+      ],
+      "alteracoes_implementadas": [
+        "Hero e seções contínuas; modos condicionais proporcionais; hodômetro com resultado vivo; consulta de horários; barra de salvamento no fluxo.",
+        "Hero tablet acomoda múltiplas ações sem comprimir título; menu único conserva posição."
+      ],
+      "testes_executados": [
+        "100 focused HTTP/domínio/E2E/axe/tokens passaram359.21s",
+        "20 estados/viewport, dados preservados, axe0/console limpo/sem overflow",
+        "24 compat hero+6 finais768, ações focáveis"
+      ],
+      "evidencias": [
+        "qa/diario-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/diario-candidato.json",
+        "evidencias/migracao-identidade-20261012/depois-diario-qa.json"
+      ],
+      "revisao_final": "Segunda passagem e revisão independente sem bloqueante; homologação visual pendente.",
+      "revisao_codigo": "Base65452f4 + hashes em diario-candidato.json",
+      "dependencias_antigas": "Bases compartilhadas cartoes/frase-oficio/modos preservadas para consumidores legítimos; Diário migrou header e seções sem duplicar HTML/CSS.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PR03",
+      "modulo": "Prestação",
+      "rota": "/viagens/prestacoes/equipe/<pk>/relatorio/",
+      "template": "gestao/viagens/templates/viagens/relatorio/folha.html",
+      "funcao": "Relatório técnico",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/dialogo_guardar_texto.html",
+        "componentes/migalhas.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PR04",
+      "modulo": "Prestação",
+      "rota": "/viagens/prestacoes/equipe/<pk>/documentos/",
+      "template": "gestao/viagens/templates/viagens/anexos/folha.html",
+      "funcao": "Documentos e anexos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "viagens/anexos/_anexo.html",
+        "viagens/anexos/_enviar.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "AS01",
+      "modulo": "Assinados",
+      "rota": "/viagens/assinados/<tipo>/<pk>/",
+      "template": "gestao/viagens/templates/viagens/assinados/anexar.html",
+      "funcao": "Fallback de anexação",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "viagens/assinados/_selo.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD01",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/",
+      "template": "gestao/cadastros/templates/cadastros/indice.html",
+      "funcao": "Índice",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/pagina_cabecalho.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD02",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/servidores/",
+      "template": "gestao/cadastros/templates/cadastros/servidores.html",
+      "funcao": "Servidores",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/cadastro_rapido.html",
+        "componentes/dialogo_servidor.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD03",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/viaturas/",
+      "template": "gestao/cadastros/templates/cadastros/viaturas.html",
+      "funcao": "Viaturas",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/cadastro_rapido.html",
+        "componentes/dialogo_viatura.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD04",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/diarias/",
+      "template": "gestao/cadastros/templates/cadastros/diarias.html",
+      "funcao": "Tabela de diárias",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD05",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/configuracao/",
+      "template": "gestao/cadastros/templates/cadastros/configuracao.html",
+      "funcao": "Configuração institucional",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/pagina_cabecalho.html",
+        "componentes/resumo_erros.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD06",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/textos-prontos/",
+      "template": "gestao/cadastros/templates/cadastros/textos.html",
+      "funcao": "Textos prontos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD07",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/usuarios/",
+      "template": "gestao/cadastros/templates/cadastros/usuarios.html",
+      "funcao": "Usuários e perfis",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/cadastro_rapido.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD08",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/unidades/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Unidades",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD09",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/cargos/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Cargos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD10",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/combustiveis/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Combustíveis",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD11",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/tipos-de-viagem/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Tipos de viagem",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD12",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/programas/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Programas",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD13",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/horarios/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Horários",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD14",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/atividades/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Atividades",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CD15",
+      "modulo": "Cadastros",
+      "rota": "/cadastros/conjuntos/",
+      "template": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "funcao": "Conjuntos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL01",
+      "modulo": "Global",
+      "rota": "/",
+      "template": "gestao/painel/templates/painel/inicio.html",
+      "funcao": "Início",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL02",
+      "modulo": "Global",
+      "rota": "/agenda/",
+      "template": "gestao/painel/templates/painel/agenda.html",
+      "funcao": "Agenda",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL03",
+      "modulo": "Global",
+      "rota": "/agenda/escala/",
+      "template": "gestao/painel/templates/painel/escala.html",
+      "funcao": "Escala",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL04",
+      "modulo": "Global",
+      "rota": "/agenda/pauta/?formato=html",
+      "template": "gestao/painel/templates/painel/pauta.html",
+      "funcao": "Pauta HTML",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL05",
+      "modulo": "Global",
+      "rota": "/relatorios/",
+      "template": "gestao/painel/templates/painel/relatorios.html",
+      "funcao": "Relatórios",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "GL06",
+      "modulo": "Global",
+      "rota": "/notificacoes/",
+      "template": "gestao/painel/templates/painel/notificacoes.html",
+      "funcao": "Notificações",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV01",
+      "modulo": "Eventos",
+      "rota": "/eventos/",
+      "template": "gestao/eventos/templates/eventos/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "eventos/solicitacoes/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV02",
+      "modulo": "Eventos",
+      "rota": "/eventos/solicitacoes/",
+      "template": "gestao/eventos/templates/eventos/solicitacoes/lista.html",
+      "funcao": "Lista de solicitações",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html",
+        "eventos/solicitacoes/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV03",
+      "modulo": "Eventos",
+      "rota": "/eventos/solicitacoes/nova/",
+      "template": "gestao/eventos/templates/eventos/solicitacoes/folha.html",
+      "funcao": "Nova solicitação",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV04",
+      "modulo": "Eventos",
+      "rota": "/eventos/solicitacoes/<pk>/",
+      "template": "gestao/eventos/templates/eventos/solicitacoes/folha.html",
+      "funcao": "Edição e despacho",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV05",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/",
+      "template": "gestao/eventos/templates/eventos/cadastros.html",
+      "funcao": "Índice de cadastros",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV06",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/tipos-evento/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Tipos de evento",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV07",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/servicos/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Serviços",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV08",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/equipes/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Equipes",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV09",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/orgaos/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Órgãos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV10",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/unidades-moveis/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Unidades móveis",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV11",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/textos-despacho/",
+      "template": "gestao/eventos/templates/eventos/catalogo.html",
+      "funcao": "Textos de despacho",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "EV12",
+      "modulo": "Eventos",
+      "rota": "/eventos/cadastros/tipos-evento/<pk>/modelo/",
+      "template": "gestao/eventos/templates/eventos/modelo_do_tipo.html",
+      "funcao": "Modelo do tipo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM01",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/",
+      "template": "gestao/imprensa/templates/imprensa/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "imprensa/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM02",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/atendimentos/",
+      "template": "gestao/imprensa/templates/imprensa/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html",
+        "imprensa/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM03",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/atendimentos/novo/",
+      "template": "gestao/imprensa/templates/imprensa/folha.html",
+      "funcao": "Novo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM04",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/atendimentos/<pk>/",
+      "template": "gestao/imprensa/templates/imprensa/folha.html",
+      "funcao": "Edição",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM05",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/atendimentos/novo/email/",
+      "template": "gestao/imprensa/templates/imprensa/preencher.html",
+      "funcao": "Preencher por e-mail",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM06",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/cadastros/equipe/",
+      "template": "templates/arquetipos/cadastro_nomes.html",
+      "funcao": "Equipe",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "IM07",
+      "modulo": "Imprensa",
+      "rota": "/imprensa/cadastros/veiculos/",
+      "template": "templates/arquetipos/cadastro_nomes.html",
+      "funcao": "Veículos de comunicação",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU01",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/",
+      "template": "gestao/publicacoes/templates/publicacoes/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "publicacoes/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU02",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/pautas/",
+      "template": "gestao/publicacoes/templates/publicacoes/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html",
+        "publicacoes/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU03",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/pautas/nova/",
+      "template": "gestao/publicacoes/templates/publicacoes/folha.html",
+      "funcao": "Nova",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU04",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/pautas/<pk>/",
+      "template": "gestao/publicacoes/templates/publicacoes/folha.html",
+      "funcao": "Edição",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU05",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/pautas/nova/email/",
+      "template": "gestao/publicacoes/templates/publicacoes/preencher.html",
+      "funcao": "Preencher por e-mail",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU06",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/cadastros/equipe/",
+      "template": "templates/arquetipos/cadastro_nomes.html",
+      "funcao": "Equipe",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PU07",
+      "modulo": "Publicações",
+      "rota": "/publicacoes/cadastros/unidades/",
+      "template": "templates/arquetipos/cadastro_nomes.html",
+      "funcao": "Unidades",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA01",
+      "modulo": "Palestras",
+      "rota": "/palestras/",
+      "template": "gestao/palestras/templates/palestras/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "palestras/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA02",
+      "modulo": "Palestras",
+      "rota": "/palestras/pedidos/",
+      "template": "gestao/palestras/templates/palestras/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html",
+        "palestras/_registro.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA03",
+      "modulo": "Palestras",
+      "rota": "/palestras/pedidos/nova/",
+      "template": "gestao/palestras/templates/palestras/folha.html",
+      "funcao": "Nova",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA04",
+      "modulo": "Palestras",
+      "rota": "/palestras/pedidos/<pk>/",
+      "template": "gestao/palestras/templates/palestras/folha.html",
+      "funcao": "Edição",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA05",
+      "modulo": "Palestras",
+      "rota": "/palestras/cadastros/palestrantes/",
+      "template": "gestao/palestras/templates/palestras/cadastro.html",
+      "funcao": "Palestrantes",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "palestras/_campos_palestrante.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA06",
+      "modulo": "Palestras",
+      "rota": "/palestras/cadastros/temas/",
+      "template": "gestao/palestras/templates/palestras/cadastro.html",
+      "funcao": "Temas",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "palestras/_campos_palestrante.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "PA07",
+      "modulo": "Palestras",
+      "rota": "/palestras/cadastros/respostas/",
+      "template": "gestao/palestras/templates/palestras/cadastro.html",
+      "funcao": "Respostas",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html",
+        "palestras/_campos_palestrante.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF01",
+      "modulo": "Coffee",
+      "rota": "/coffee/",
+      "template": "gestao/coffee/templates/coffee/lista.html",
+      "funcao": "Lista",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "busca sem resultados",
+        "filtros ativos",
+        "paginação",
+        "menu aberto",
+        "HTMX"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "coffee/_registro.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF02",
+      "modulo": "Coffee",
+      "rota": "/coffee/painel/",
+      "template": "gestao/coffee/templates/coffee/painel.html",
+      "funcao": "Painel",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/painel.html",
+        "coffee/_afazer.html",
+        "coffee/_registro.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF03",
+      "modulo": "Coffee",
+      "rota": "/coffee/nova/",
+      "template": "gestao/coffee/templates/coffee/folha.html",
+      "funcao": "Nova",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "coffee/_form_entrega.html",
+        "coffee/_lote.html",
+        "componentes/campo.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF04",
+      "modulo": "Coffee",
+      "rota": "/coffee/solicitacoes/<pk>/",
+      "template": "gestao/coffee/templates/coffee/folha.html",
+      "funcao": "Edição e documentos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "coffee/_form_entrega.html",
+        "coffee/_lote.html",
+        "componentes/campo.html",
+        "componentes/dialogo_motivo.html",
+        "componentes/migalhas.html",
+        "componentes/resumo_erros.html",
+        "componentes/rodape_documento.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF05",
+      "modulo": "Coffee",
+      "rota": "/coffee/lotes/",
+      "template": "gestao/coffee/templates/coffee/lotes.html",
+      "funcao": "Lotes",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF06",
+      "modulo": "Coffee",
+      "rota": "/coffee/certidoes/",
+      "template": "gestao/coffee/templates/coffee/certidoes.html",
+      "funcao": "Certidões",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF07",
+      "modulo": "Coffee",
+      "rota": "/coffee/cadastros/oficio/",
+      "template": "gestao/coffee/templates/coffee/configuracao.html",
+      "funcao": "Configuração de Ofício",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF08",
+      "modulo": "Coffee",
+      "rota": "/coffee/cadastros/fornecedores/",
+      "template": "gestao/coffee/templates/coffee/cadastros.html",
+      "funcao": "Fornecedores",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF09",
+      "modulo": "Coffee",
+      "rota": "/coffee/cadastros/contratos/",
+      "template": "gestao/coffee/templates/coffee/cadastros.html",
+      "funcao": "Contratos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF10",
+      "modulo": "Coffee",
+      "rota": "/coffee/cadastros/aditivos/",
+      "template": "gestao/coffee/templates/coffee/cadastros.html",
+      "funcao": "Aditivos",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF11",
+      "modulo": "Coffee",
+      "rota": "/coffee/cadastros/lotes/",
+      "template": "gestao/coffee/templates/coffee/cadastros.html",
+      "funcao": "Cadastro de lotes",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "validação",
+        "salvar",
+        "diálogos abertos",
+        "componentes condicionais"
+      ],
+      "componentes_utilizados": [
+        "arquetipos/lista.html",
+        "componentes/campo.html",
+        "componentes/paginacao.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF12",
+      "modulo": "Coffee",
+      "rota": "/coffee/lotes/abrir-exercicio/",
+      "template": "gestao/coffee/templates/coffee/virada.html",
+      "funcao": "Abrir exercício",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF13",
+      "modulo": "Coffee",
+      "rota": "/coffee/lotes/contrato/<pk>/relatorio/",
+      "template": "gestao/coffee/templates/coffee/relatorio.html",
+      "funcao": "Relatório de contrato",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html",
+        "componentes/vazio.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "CF14",
+      "modulo": "Coffee",
+      "rota": "/coffee/solicitacoes/<pk>/protocolo/",
+      "template": "gestao/coffee/templates/coffee/protocolo.html",
+      "funcao": "Protocolo",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/migalhas.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "ID01",
+      "modulo": "Identidade",
+      "rota": "/conta/entrar/",
+      "template": "gestao/identidade/templates/identidade/entrar.html",
+      "funcao": "Entrar",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base_publica.html",
+        "componentes/campo.html",
+        "componentes/campo_senha.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "ID02",
+      "modulo": "Identidade",
+      "rota": "/conta/senha/",
+      "template": "gestao/identidade/templates/identidade/alterar_senha.html",
+      "funcao": "Alterar senha",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo_senha.html",
+        "componentes/pagina_cabecalho.html",
+        "componentes/resumo_erros.html"
+      ],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "ER01",
+      "modulo": "Erros",
+      "rota": "handler403",
+      "template": "templates/erros/erro.html",
+      "funcao": "Permissão negada",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "ER02",
+      "modulo": "Erros",
+      "rota": "handler404",
+      "template": "templates/erros/erro.html",
+      "funcao": "Não encontrado",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "ER03",
+      "modulo": "Erros",
+      "rota": "handler500",
+      "template": "templates/erros/500.html",
+      "funcao": "Erro de servidor",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440"
+      ],
+      "componentes_utilizados": [],
+      "situacao": "NÃO INICIADA",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    },
+    {
+      "id": "UL01",
+      "modulo": "Design System",
+      "rota": "/ui-lab/",
+      "template": "gestao/ui_lab/templates/ui_lab/indice.html",
+      "funcao": "Vitrine de componentes",
+      "estados_relevantes": [
+        "preenchido",
+        "vazio",
+        "conteúdo longo",
+        "consulta/permissões",
+        "teclado",
+        "360/768/1440",
+        "estudos históricos ?oficio-direcao=; não representam páginas aprovadas"
+      ],
+      "componentes_utilizados": [
+        "base.html",
+        "componentes/campo.html",
+        "componentes/dados_eprotocolo.html",
+        "componentes/dialogo_assinado.html",
+        "componentes/dialogo_baixar.html",
+        "componentes/historico_documental.html",
+        "componentes/identidade_documental.html",
+        "componentes/menu_mais.html",
+        "componentes/migalhas.html",
+        "componentes/pagina_cabecalho.html",
+        "componentes/paginacao.html",
+        "componentes/registro_hero.html",
+        "componentes/resumo_erros.html",
+        "componentes/vazio.html",
+        "ui_lab/_cadastro_inferior.html",
+        "ui_lab/_componentes_oficios_refinados.html",
+        "ui_lab/_dossie.html",
+        "ui_lab/_lancamento_quantitativo.html",
+        "ui_lab/_preparacao_registro.html",
+        "ui_lab/_registro_plano.html",
+        "ui_lab/_registro_roteiro.html",
+        "ui_lab/_registro_termo.html",
+        "ui_lab/_registro_viagem.html",
+        "ui_lab/_relacoes_documentais.html",
+        "viagens/_itinerario.html",
+        "viagens/oficios/_editor.html"
+      ],
+      "situacao": "EM VALIDAÇÃO",
+      "problemas_encontrados": [],
+      "alteracoes_implementadas": [],
+      "testes_executados": [],
+      "evidencias": [],
+      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
+      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
+      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "fontes_descoberta": [
+        "config/urls.py",
+        "urls.py e views do módulo",
+        "docs/visual-agents/inventory.md"
+      ]
+    }
+  ],
+  "superficies_documentais_associadas": [
+    {
+      "id": "DO01",
+      "fluxo": "OF02",
+      "template": "viagens/documentos/oficio.html",
+      "situacao": "EM VALIDAÇÃO",
+      "protecao": "Conteúdo, margens e paginação oficiais preservados; validar visualizador, versão e fallback.",
+      "rota_relativa": "documento/oficio/folha/",
+      "estados_relevantes": [
+        "modelo",
+        "versão corrente",
+        "versão anterior",
+        "fallback",
+        "Texto/PDF",
+        "carregamento sob demanda"
+      ]
+    },
+    {
+      "id": "DO02",
+      "fluxo": "OF02",
+      "template": "viagens/documentos/justificativa.html",
+      "situacao": "EM VALIDAÇÃO",
+      "protecao": "Conteúdo, margens e paginação oficiais preservados; validar visualizador, versão e fallback.",
+      "rota_relativa": "documento/justificativa/folha/",
+      "estados_relevantes": [
+        "modelo",
+        "versão corrente",
+        "versão anterior",
+        "fallback",
+        "Texto/PDF",
+        "carregamento sob demanda"
+      ]
+    },
+    {
+      "id": "DO03",
+      "fluxo": "TE03",
+      "template": "viagens/documentos/termo.html",
+      "situacao": "EM VALIDAÇÃO",
+      "protecao": "Conteúdo, margens e paginação oficiais preservados; validar visualizador, versão e fallback.",
+      "rota_relativa": "folha/<chave>/",
+      "estados_relevantes": [
+        "modelo",
+        "versão corrente",
+        "versão anterior",
+        "fallback",
+        "Texto/PDF",
+        "carregamento sob demanda"
+      ]
+    },
+    {
+      "id": "DO04",
+      "fluxo": "OS03",
+      "template": "viagens/documentos/ordem_servico.html",
+      "situacao": "EM VALIDAÇÃO",
+      "protecao": "Conteúdo, margens e paginação oficiais preservados; validar visualizador, versão e fallback.",
+      "rota_relativa": "folha/",
+      "estados_relevantes": [
+        "modelo",
+        "versão corrente",
+        "versão anterior",
+        "fallback",
+        "Texto/PDF",
+        "carregamento sob demanda"
+      ]
+    },
+    {
+      "id": "DO05",
+      "fluxo": "PT03",
+      "template": "viagens/documentos/plano_trabalho.html",
+      "situacao": "EM VALIDAÇÃO",
+      "protecao": "Conteúdo, margens e paginação oficiais preservados; validar visualizador, versão e fallback.",
+      "rota_relativa": "folha/",
+      "estados_relevantes": [
+        "modelo",
+        "versão corrente",
+        "versão anterior",
+        "fallback",
+        "Texto/PDF",
+        "carregamento sob demanda"
+      ]
+    }
+  ],
+  "contagem": {
+    "paginas_identificadas": 100,
+    "concluidas_nesta_meta": 0,
+    "nota": "Documentos em iframe, JSON, POST e downloads não aumentam o denominador. Novas páginas descobertas devem ser adicionadas."
+  },
+  "inventario_css": [
+    {
+      "arquivo": "static/css/tokens.css",
+      "classificacao": "tokens e base atuais",
+      "situacao": "Fonte semântica comum; preservar.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/base.css",
+      "classificacao": "tokens e base atuais",
+      "situacao": "Reset, tipografia, utilitários e acessibilidade globais; preservar.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/layout.css",
+      "classificacao": "componentes canônicos",
+      "situacao": "Shell superior, grades e barras; exige todos consumidores antes de remoção.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "classificacao": "componentes canônicos + compatibilidade em revisão",
+      "situacao": "Conferência operacional substitui horizontal; demais famílias precisam de prova por consumidor.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/listas.css",
+      "classificacao": "componentes canônicos + compatibilidade em revisão",
+      "situacao": "Coleção/registros e listas específicas; atalhos-atencao candidato pendente da Prestação.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/documento.css",
+      "classificacao": "componentes canônicos + compatibilidade em revisão",
+      "situacao": "Folha, seções, relações e histórico; não confundir com PDF.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "classificacao": "componentes canônicos",
+      "situacao": "Campos, validação e grupos nos arquétipos formulário/cadastro.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/itinerario.css",
+      "classificacao": "componentes canônicos",
+      "situacao": "Destinos, mapa e trechos compartilhados; carregamento nas folhas pertinentes.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/editor.css",
+      "classificacao": "componentes canônicos",
+      "situacao": "Interface de edição/visualização; não autoriza mudar documento oficial.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/folha.css",
+      "classificacao": "impressão e documentos / interface de iframe",
+      "situacao": "Tela da folha no iframe; respeita modelo e paginação.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/impresso.css",
+      "classificacao": "impressão e documentos",
+      "situacao": "Preservar contratos de impressão e PDFs.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/agenda.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Grade/calendário e escala; validar quando entrar em Agenda.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/assistente.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Arquétipo assistente; consumidores ainda não migrados, não excluir.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/graficos.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Representação de dados; validar com painéis/relatórios.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/painel.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Arquétipo painel; revisão por módulo pendente.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/progresso.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Trilho/andamento; conferir consumidores dinâmicos antes de consolidar.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/publica.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Entrada pública/identidade; não forçar shell autenticado.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/css/ui-lab.css",
+      "classificacao": "estilos específicos legítimos",
+      "situacao": "Vitrine e estudos históricos explicitamente identificados.",
+      "remocao_autorizada_por_inventario": false
+    },
+    {
+      "arquivo": "static/vendor/**",
+      "classificacao": "bibliotecas de terceiros",
+      "situacao": "Preservar. Mapa carrega Leaflet CSS sob demanda via static/js/componentes/mapa-rota.js. Inventário não autoriza remoção.",
+      "remocao_autorizada_por_inventario": false
+    }
+  ]
+}

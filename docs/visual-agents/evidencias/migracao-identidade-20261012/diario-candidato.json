@@ -1,0 +1,39 @@
+{
+  "base": "65452f4",
+  "branch": "codex/oficios-transporte-cartoes",
+  "fontes": [
+    {
+      "arquivo": "gestao/viagens/templates/viagens/diario/folha.html",
+      "sha256": "568ea0a3b253fa637b5fdb6699078d6bda3a0eb88344009c73936649beec3b7f"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/diario/_acoes.html",
+      "sha256": "fd246263c272ddc25f5adfcd7eb83017ada5e5cd64ab9dcbb7187f415bf1b3d2"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/diario/_cabecalho_contexto.html",
+      "sha256": "ab04361b78125ad7bd144cdb93a015926e4fa9e801edc1e3a5ed2b0d3d930c6e"
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "sha256": "2b2ffa9b6a292dd29a3411626a6cc829e3c9ab50b6e2297c8a531b92fa7b5447"
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "sha256": "48cd4dfe513bba37ae61362d353219e5a5b7a2c3ca3b084b3a678c2515bcacb9"
+    },
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/indice.html",
+      "sha256": "2d3b0862e86a6af91df74994aa33dcdf30c9b22fa8b87c5616abb891c50e1536"
+    },
+    {
+      "arquivo": "tests/e2e/test_diario_identidade.py",
+      "sha256": "fb6c58d5a51eaf518a851df072cfb227e6f7ba8948ec271f201c0e75ddb9dee4"
+    }
+  ],
+  "css_delta_lf": {
+    "static/css/components.css": 457,
+    "static/css/formulario.css": 1615
+  },
+  "testes": "100 passaram em359.21s;20 capturas;24 compat+6 finais768"
+}

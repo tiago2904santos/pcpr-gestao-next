@@ -1,0 +1,200 @@
+{
+  "limite": "View e render, sem middleware HTTP. Mesmos registros, usuário1, banco READ ONLY. Latência concorrente com gate, inconclusiva.",
+  "amostras": [
+    {
+      "fase": "antes",
+      "prestacao": 211,
+      "repeticao": 0,
+      "consultas_view_render": 22,
+      "html_bytes": 31933,
+      "ms": 664.34
+    },
+    {
+      "fase": "antes",
+      "prestacao": 211,
+      "repeticao": 1,
+      "consultas_view_render": 22,
+      "html_bytes": 31933,
+      "ms": 111.22
+    },
+    {
+      "fase": "antes",
+      "prestacao": 211,
+      "repeticao": 2,
+      "consultas_view_render": 22,
+      "html_bytes": 31933,
+      "ms": 93.2
+    },
+    {
+      "fase": "antes",
+      "prestacao": 190,
+      "repeticao": 0,
+      "consultas_view_render": 24,
+      "html_bytes": 32024,
+      "ms": 124.63
+    },
+    {
+      "fase": "antes",
+      "prestacao": 190,
+      "repeticao": 1,
+      "consultas_view_render": 24,
+      "html_bytes": 32024,
+      "ms": 115.9
+    },
+    {
+      "fase": "antes",
+      "prestacao": 190,
+      "repeticao": 2,
+      "consultas_view_render": 24,
+      "html_bytes": 32024,
+      "ms": 116.09
+    },
+    {
+      "fase": "antes",
+      "prestacao": 201,
+      "repeticao": 0,
+      "consultas_view_render": 19,
+      "html_bytes": 23302,
+      "ms": 104.87
+    },
+    {
+      "fase": "antes",
+      "prestacao": 201,
+      "repeticao": 1,
+      "consultas_view_render": 19,
+      "html_bytes": 23302,
+      "ms": 122.0
+    },
+    {
+      "fase": "antes",
+      "prestacao": 201,
+      "repeticao": 2,
+      "consultas_view_render": 19,
+      "html_bytes": 23302,
+      "ms": 114.85
+    },
+    {
+      "fase": "antes",
+      "prestacao": 199,
+      "repeticao": 0,
+      "consultas_view_render": 18,
+      "html_bytes": 24090,
+      "ms": 112.26
+    },
+    {
+      "fase": "antes",
+      "prestacao": 199,
+      "repeticao": 1,
+      "consultas_view_render": 18,
+      "html_bytes": 24090,
+      "ms": 102.02
+    },
+    {
+      "fase": "antes",
+      "prestacao": 199,
+      "repeticao": 2,
+      "consultas_view_render": 18,
+      "html_bytes": 24090,
+      "ms": 105.62
+    },
+    {
+      "fase": "depois",
+      "prestacao": 211,
+      "repeticao": 0,
+      "consultas_view_render": 22,
+      "html_bytes": 33169,
+      "ms": 172.94
+    },
+    {
+      "fase": "depois",
+      "prestacao": 211,
+      "repeticao": 1,
+      "consultas_view_render": 22,
+      "html_bytes": 33169,
+      "ms": 109.56
+    },
+    {
+      "fase": "depois",
+      "prestacao": 211,
+      "repeticao": 2,
+      "consultas_view_render": 22,
+      "html_bytes": 33169,
+      "ms": 108.35
+    },
+    {
+      "fase": "depois",
+      "prestacao": 190,
+      "repeticao": 0,
+      "consultas_view_render": 24,
+      "html_bytes": 33257,
+      "ms": 123.36
+    },
+    {
+      "fase": "depois",
+      "prestacao": 190,
+      "repeticao": 1,
+      "consultas_view_render": 24,
+      "html_bytes": 33257,
+      "ms": 141.8
+    },
+    {
+      "fase": "depois",
+      "prestacao": 190,
+      "repeticao": 2,
+      "consultas_view_render": 24,
+      "html_bytes": 33257,
+      "ms": 136.46
+    },
+    {
+      "fase": "depois",
+      "prestacao": 201,
+      "repeticao": 0,
+      "consultas_view_render": 19,
+      "html_bytes": 24841,
+      "ms": 111.46
+    },
+    {
+      "fase": "depois",
+      "prestacao": 201,
+      "repeticao": 1,
+      "consultas_view_render": 19,
+      "html_bytes": 24841,
+      "ms": 110.45
+    },
+    {
+      "fase": "depois",
+      "prestacao": 201,
+      "repeticao": 2,
+      "consultas_view_render": 19,
+      "html_bytes": 24841,
+      "ms": 102.43
+    },
+    {
+      "fase": "depois",
+      "prestacao": 199,
+      "repeticao": 0,
+      "consultas_view_render": 18,
+      "html_bytes": 25324,
+      "ms": 97.65
+    },
+    {
+      "fase": "depois",
+      "prestacao": 199,
+      "repeticao": 1,
+      "consultas_view_render": 18,
+      "html_bytes": 25324,
+      "ms": 98.46
+    },
+    {
+      "fase": "depois",
+      "prestacao": 199,
+      "repeticao": 2,
+      "consultas_view_render": 18,
+      "html_bytes": 25324,
+      "ms": 101.58
+    }
+  ],
+  "css_antes_bytes": 39441,
+  "css_depois_bytes": 41056,
+  "js_novo_bytes": 0
+}

@@ -1,0 +1,4 @@
+    {% if d %}
+    <a class="botao" href="{% url 'viagens:documento_diario' p.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Diário (PDF)</a>
+    <a class="botao" href="{% url 'viagens:documento_diario' p.pk 'xlsx' %}">{% icone "download" %}Planilha</a>
+    {% endif %}
