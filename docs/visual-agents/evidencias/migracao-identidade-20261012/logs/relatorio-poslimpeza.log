@@ -1,0 +1,79 @@
+2026-10-12 19:28:08,174 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/1/relatorio/: 27 consultas (limite 25)
+2026-10-12 19:28:14,675 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:28:14,715 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:28:14,746 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.
+(process:30464): GLib-GIO-WARNING **: 19:28:17.605: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:18.113: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:18.113: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:18.648: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:19.137: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:19.208: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:30464): GLib-GIO-WARNING **: 19:28:19.245: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 19:28:30,844 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/2/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:28:43,656 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/4/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:28:52,887 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/5/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:29:03,211 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/6/relatorio/: 27 consultas (limite 25)
+.[12/Oct/2026 19:29:05,549] - Broken pipe from ('127.0.0.1', 50060)
+2026-10-12 19:29:15,074 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/7/relatorio/: 27 consultas (limite 25)
+F2026-10-12 19:29:37,602 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:29:57,690 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/9/relatorio/: 27 consultas (limite 25)
+................................................................. [ 92%]
+......[12/Oct/2026 19:30:41,092] - Broken pipe from ('127.0.0.1', 51222)
+                                                                   [100%]
+================================== FAILURES ===================================
+_________ test_texto_pronto_compartilhado_e_dialogo_preservam_relato __________
+
+logado = <Page url='http://localhost:61050/viagens/prestacoes/equipe/7/relatorio/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 26, 'oficio_rascunho': 27, 'oficio_vazio': 28, 'oficio_cancelado': 29, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_texto_pronto_compartilhado_e_dialogo_preservam_relato(logado, dados_e2e):
+        from gestao.cadastros.models import ModeloTexto
+    
+        ModeloTexto.objects.create(tipo="rt_conclusao", nome="Conclusão conferida",
+                                   texto="Atendimento concluído pela equipe.")
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        pg = logado
+        pg.set_viewport_size({"width": 360, "height": 700})
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/relatorio/")
+        campo = pg.locator("#rt-conclusao")
+        campo.fill("")
+        pg.get_by_role("combobox", name="Texto pronto para Conclusão").click()
+        pg.get_by_role("option", name="Conclusão conferida").click()
+        expect(campo).to_have_value("Atendimento concluído pela equipe.")
+        bloco = pg.locator('[data-texto-pronto][data-alvo="rt-conclusao"]')
+        guardar = bloco.get_by_role("button", name="Guardar texto", exact=True)
+        guardar.click()
+        dialogo = pg.get_by_role("dialog", name="Guardar como texto pronto")
+        expect(dialogo).to_be_visible()
+>       expect(dialogo.get_by_label("Nome", exact=True)).to_be_focused()
+E       AssertionError: Locator expected to be focused
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_focused" with timeout 5000ms
+E         - waiting for get_by_role("dialog", name="Guardar como texto pronto").get_by_label("Nome", exact=True)
+
+tests\e2e\test_relatorio_identidade.py:60: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 19:29:15,074 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/7/relatorio/: 27 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/prestacoes/equipe/7/relatorio/: 27 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_relatorio.py::test_relatorio_do_texto_ao_documento
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/test_design_tokens.py::test_view_transitions_respeitam_movimento_reduzido
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_ab859e6b" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_relatorio_identidade.py::test_texto_pronto_compartilhado_e_dialogo_preservam_relato
+1 failed, 77 passed, 2 warnings in 177.10s (0:02:57)

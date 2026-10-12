@@ -1,0 +1,39 @@
+{
+  "base": "4edd3c62dd3aac7b9e5e527b7e15a196a43e5650",
+  "arquivos": [
+    {
+      "arquivo": "gestao/viagens/templates/viagens/relatorio/folha.html",
+      "sha256": "09aa392fffa98e35029e3c6317a74624f083c0a401588622ef769bc78eeed3d4"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/relatorio/_cabecalho_contexto.html",
+      "sha256": "8513d7858338d905216332f8d6ca22ef79a9d56f8ca5feaa8730a88a236c2c49"
+    },
+    {
+      "arquivo": "templates/componentes/registro_valor.html",
+      "sha256": "f1e1f3b9e425f733eb6bca46f3d26c45c688f265ea1bd41fefae789783ba6ebe"
+    },
+    {
+      "arquivo": "templates/componentes/texto_pronto.html",
+      "sha256": "aa6d40547f8e97660a14070aa678be05723562f2e1e453acaf073df7c371b8d5"
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "sha256": "7b1a76152edf0f52dabf92e9ce10da5abef41faac3bca9cd8377dd1ae42bc967"
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "sha256": "9b51f9508d598f36bbc3f0d452f94630cb84c8e0ddb510730e4baa858b40579e"
+    },
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/indice.html",
+      "sha256": "6cfebc87045ea9dbd3a20f284942d85a7748ddcb790f4dfa2966e2c003fe7be2"
+    },
+    {
+      "arquivo": "tests/e2e/test_relatorio_identidade.py",
+      "sha256": "85d179aae66dc755204d547a539e44f6368d1d2cea720ed6f83aac32543b5358"
+    }
+  ],
+  "testes": "78 passed, 2 warnings in166.50s; relatorio-poslimpeza-final.log",
+  "limite": "HarfBuzz e teardown com conexão restante no banco isolado; sem falha de asserção. Homologação visual pendente."
+}

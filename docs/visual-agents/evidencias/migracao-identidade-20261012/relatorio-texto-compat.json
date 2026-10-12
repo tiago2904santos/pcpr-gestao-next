@@ -1,0 +1,65 @@
+[
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 360,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "ordem",
+    "rota": "/viagens/ordens/5/",
+    "largura": 360,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "justificativa",
+    "rota": "/viagens/justificativas/?editar=242",
+    "largura": 360,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 768,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "ordem",
+    "rota": "/viagens/ordens/5/",
+    "largura": 768,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "justificativa",
+    "rota": "/viagens/justificativas/?editar=242",
+    "largura": 768,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 1440,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "ordem",
+    "rota": "/viagens/ordens/5/",
+    "largura": 1440,
+    "componentes": 1,
+    "console": []
+  },
+  {
+    "pagina": "justificativa",
+    "rota": "/viagens/justificativas/?editar=242",
+    "largura": 1440,
+    "componentes": 1,
+    "console": []
+  }
+]

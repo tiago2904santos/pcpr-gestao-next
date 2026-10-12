@@ -40,3 +40,16 @@ O novo resultado por trecho usa a distância já calculada no domínio. Sua regi
 final mantém o estado de gravação em todas as larguras; Finalizar continua
 retornando à Lista filtrada sem finalizar prestações. Evidências e revisão em
 `docs/visual-agents/qa/diario-2026-10-12.md`.
+## Relatório Técnico — PR03, concluído tecnicamente, 12/10/2026
+
+Mantidos cinco textos da equipe, sugestões, copiar relatório, textos prontos,
+custeio com Outro, valores individuais com observação e limite liberado,
+autosave e Finalizar aguardando gravação. Leitura/equipe finalizada e travas
+individuais preservadas. PDF e DOCX por servidor mantêm fontes documentais.
+O componente de valor associa a referência liberada ao input por aria-describedby.
+Texto pronto usa o componente compartilhado sem duplicação de JS.
+
+Evidências: qa/relatorio-2026-10-12.md, 15 capturas finais, nove consumidores
+de texto pronto, 92 testes iniciais e 78 pós-limpeza finais. Removida apenas
+grade-campos, cujo consumidor foi migrado. PR04 Documentos/Anexos continua
+pendente; este fechamento não significa conclusão do submódulo inteiro.

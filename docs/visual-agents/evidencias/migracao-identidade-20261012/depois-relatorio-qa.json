@@ -1,0 +1,126 @@
+{
+  "dados_preservados": true,
+  "hash_dados": "ab617659b4a52e686f9b096099b73b5df9a398043013cc6a9a9d88a64ceed2fe",
+  "cenarios": [
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+      "largura": 360,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+      "largura": 360,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+      "largura": 360,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+      "largura": 390,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+      "largura": 390,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+      "largura": 390,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+      "largura": 768,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+      "largura": 768,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+      "largura": 768,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+      "largura": 1024,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+      "largura": 1024,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+      "largura": 1024,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+      "largura": 1440,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+      "largura": 1440,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+      "largura": 1440,
+      "axe": [],
+      "console": [],
+      "overflow": false
+    }
+  ]
+}

@@ -625,3 +625,23 @@ as ações numa segunda linha. Um único menu permanece ao lado do conteúdo.
 Isso preserva a largura do título e metadados sem criar uma linha só para um menu.
 Consumidores: Ofícios, Roteiros, Termos, OS, Planos, Viagens e Diário. Resumos
 em modal e listas sem identidade não entram nesse contrato. Não há JS novo.
+
+## Registro de valor individual e texto pronto por opções — PR03
+
+`registro_valor.html` mantém título e referência fora do rótulo flutuante curto.
+Aceita `titulo`, `referencia_rotulo`, `referencia`, `rotulo`, `ident`, `valor`,
+`editavel`, `travado` e `estado_leitura`. Não calcula nem mascara moeda: o RT
+aceita observação textual. Referência tem ID e `aria-describedby` no campo;
+o nome acessível inclui a pessoa. Variante de leitura não renderiza input.
+Consumidores: Relatório Técnico e UI Lab16. A antiga grade de inputs com nomes
+longos no label foi substituída; `grade-campos` não tinha outros consumidores.
+
+`texto_pronto.html` continua aceitando campo Django; alternativamente recebe
+`opcoes` em tuplas `(pk,nome,texto)` e `rotulo`, reutilizando seletor, ações,
+marcadores data-* e diálogo existentes. Não cria novo comportamento JS.
+Consumidores da alternativa: RT; contrato original: Ofícios, OS, Justificativas.
+
+`peca-documental--acoes` apresenta arquivo individual e múltiplos formatos de
+download. Ícone/nome ocupam a primeira linha no celular e ações continuam
+visíveis abaixo. Não representa versão, assinatura ou geração assíncrona.
+Consumidores: documentos do RT e UI Lab16; base documental permanece a mesma.

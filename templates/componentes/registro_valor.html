@@ -1,0 +1,15 @@
+{% comment %}Registro com referência e valor livre por pessoa/item. Não calcula nem
+formata dinheiro: aceita observações no valor. O consumidor define autorização/trava.{% endcomment %}
+<li class="registro-valor">
+  <div class="registro-valor__identidade">
+    <strong>{{ titulo }}</strong>
+    <span class="texto-secundario texto-sm" id="{{ ident }}-referencia">{{ referencia_rotulo }} {{ referencia|default:"—" }}</span>
+    {% if travado %}<span class="selo selo--sem-ponto">{{ estado_leitura|default:"Somente leitura" }}</span>{% endif %}
+  </div>
+  <div class="campo">
+    {% if editavel and not travado %}
+    <label class="campo__rotulo" for="{{ ident }}">{{ rotulo }}<span class="sr-only"> — {{ titulo }}</span></label>
+    <input class="entrada" id="{{ ident }}" name="{{ ident }}" value="{{ valor }}" placeholder="{{ referencia|default:'Usar a liberada' }}" aria-describedby="{{ ident }}-referencia" maxlength="120" autocomplete="off">
+    {% else %}<span class="campo__rotulo">{{ rotulo }}</span><p class="texto-sm">{{ valor|default:referencia|default:"—" }}</p>{% endif %}
+  </div>
+</li>

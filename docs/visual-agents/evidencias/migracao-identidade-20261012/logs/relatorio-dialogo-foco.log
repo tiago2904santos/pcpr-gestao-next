@@ -1,0 +1,4 @@
+2026-10-12 19:34:31,781 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/1/relatorio/: 27 consultas (limite 25)
+.[12/Oct/2026 19:34:34,555] - Broken pipe from ('127.0.0.1', 53131)
+                                                                        [100%]
+1 passed in 36.66s

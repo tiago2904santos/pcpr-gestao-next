@@ -9,7 +9,13 @@ relatório técnico, despacho, resposta padrão). Uso:
 Sem JavaScript, a escolha vai com o formulário e preenche o campo se ele estiver vazio.
 {% endcomment %}
 <div class="texto-pronto" data-texto-pronto data-alvo="{{ alvo }}" data-tipo="{{ tipo }}">
+  {% if opcoes %}
+    <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="{{ alvo }}-pronto">{{ rotulo }}</label>
+      <pc-select class="seletor"><select class="selecao" id="{{ alvo }}-pronto"><option value="">Escrever do zero</option>{% for pk, nome, texto in opcoes %}<option value="{{ pk }}" data-texto="{{ texto }}">{{ nome }}</option>{% endfor %}</select></pc-select>
+    </div>
+  {% else %}
   {% include "componentes/campo.html" with campo=campo classe="campo--lg texto-pronto__escolha" %}
+  {% endif %}
   {% if pode_gerir %}
     <div class="texto-pronto__acoes">
       <button type="button" class="botao botao--sm botao--sutil" data-guardar-texto hidden>{% icone "bookmark-plus" classe="icone--sm" %}Guardar texto</button>

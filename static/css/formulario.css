@@ -1555,14 +1555,3 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
   margin-top: 0;
   border-top: 0;
 }
-
-/* Grade de campos curtos repetidos (ex.: a diária de cada servidor no relatório técnico):
-   até três por linha, sem a largura toda para um valor em reais. */
-.grade-campos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-  gap: var(--esp-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}

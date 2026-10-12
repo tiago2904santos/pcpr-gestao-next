@@ -1,0 +1,6 @@
+<p class="registro-hero__metadados" id="frase-rt" data-vivo>
+      <span class="sr-only">Resumo do relatório: </span>
+      {% if preenchido %}<span class="selo selo--sucesso">Preenchido</span>{% else %}<span class="selo selo--aviso">Falta descrição, objetivo ou conclusão</span>{% endif %}
+      <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ servidores|length|pluralizar:"servidor,servidores" }}</span>
+      <span class="registro-hero__metadado">{% icone "file-text" classe="icone--sm" %}um documento por servidor</span>
+    </p>

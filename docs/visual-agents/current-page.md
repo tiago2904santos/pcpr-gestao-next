@@ -5,7 +5,14 @@
 A rodada abaixo é histórica. A meta atual reabriu a validação de todas as
 páginas implementadas. Fonte de situação por página: `matriz-migracao.json`;
 checkpoint: `migracao-identidade-20261010.md`, seção de 12/10. Não presumir
-conclusão pelo gate antigo. Próxima página: PR03 Relatório Técnico. PR02 Diário concluído tecnicamente após100 focused,20 capturas e revisão independente. PR01 Lista de Prestação concluída tecnicamente no commit `65452f4` após dez E2E pós-limpeza, compatibilidade e revisão independente. Roteiros/Ofícios/Planos continuam com revalidações registradas; o gate integral está em execução (session43292). Cobertura atual:2de100 páginas concluída tecnicamente; homologação visual não presumida. Evidências atuais: `evidencias/migracao-identidade-20261012/`.
+conclusão pelo gate antigo. PR03 Relatório Técnico concluído tecnicamente:78 testes finais,
+15 capturas em cinco larguras, nove contextos compartilhados e revisão independente.
+PR02 Diário e PR01 Lista de Prestação também concluídos tecnicamente nesta revalidação.
+Cobertura:3 de100 páginas. Homologação visual não presumida. PR04 Documentos/Anexos
+é a próxima implementação; contrato lido e nove capturas antes preservadas.
+Gate anterior:2343 testes verdes, anterior ao candidato atual. Ressalvas ambientais
+e hashes em qa/relatorio-2026-10-12.md e evidencias/migracao-identidade-20261012/.
+
 
 ## Rodada vigente — Propagação da identidade, 10/10/2026
 

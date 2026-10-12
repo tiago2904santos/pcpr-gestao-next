@@ -3602,6 +3602,12 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero--pagina :is(.botao, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .registro-hero__acoes .botao { --botao-fundo: transparent; --botao-borda: var(--luz-28); --botao-texto: var(--cor-texto-inverso); }
 .registro-hero__acoes .botao:hover { --botao-fundo-hover: var(--luz-10); }
+.registro-valor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem); align-items: center; gap: var(--esp-3) var(--esp-6); padding-block: var(--esp-4); border-bottom: var(--borda-sutil); }
+.registro-valor__identidade { display: grid; justify-items: start; gap: var(--esp-1); min-width: 0; overflow-wrap: anywhere; }
+.registro-valor > .campo { min-width: 0; }
+@media (max-width: 599.98px) {
+  .registro-valor { grid-template-columns: minmax(0, 1fr); }
+}
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .registro-hero--pagina:has(> .registro-hero__identidade):has(> .registro-hero__acoes > :nth-child(2)) {
     display: grid;
@@ -4277,6 +4283,12 @@ strong.percurso-registro__lugar { color: var(--cor-texto); font-weight: var(--pe
    documento pronto e assume o tom de espera, antes mesmo de ler o texto. */
 .peca-documental.resumo__documento--parado > .icone { background: var(--cor-aviso-fundo); border-color: var(--cor-aviso-borda); color: var(--cor-aviso); }
 .peca-documental .ficha-documental__texto { gap: var(--esp-05); font-size: var(--texto-md); }
+.peca-documental--acoes { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+.peca-documental__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+@media (max-width: 599.98px) {
+  .peca-documental--acoes { grid-template-columns: auto minmax(0, 1fr); }
+  .peca-documental--acoes > .peca-documental__acoes { grid-column: 2; }
+}
 /* Fora da peça (outras telas) o bloco continua sendo um rodapé próprio. */
 .assinatura-documental { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--esp-2) var(--esp-3); padding: var(--esp-3) var(--esp-4); border-top: var(--borda-sutil); background: var(--cor-superficie-sutil); font-size: var(--texto-xs); }
 .assinatura-documental__estado { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); min-width: 0; }

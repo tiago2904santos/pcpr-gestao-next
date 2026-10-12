@@ -1,0 +1,38 @@
+2026-10-12 19:36:54,885 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/1/relatorio/: 27 consultas (limite 25)
+2026-10-12 19:37:01,159 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:37:01,196 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:37:01,223 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.
+(process:30388): GLib-GIO-WARNING **: 19:37:03.460: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:03.852: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:03.852: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:04.500: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:04.787: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:04.831: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:30388): GLib-GIO-WARNING **: 19:37:04.856: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 19:37:13,577 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/2/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:37:28,278 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/4/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:37:39,460 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/5/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:37:52,305 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/6/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:38:10,827 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/7/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:38:23,531 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/8/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:38:34,441 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/9/relatorio/: 27 consultas (limite 25)
+................................................................. [ 92%]
+......[12/Oct/2026 19:39:13,424] - Broken pipe from ('127.0.0.1', 51630)
+                                                                   [100%]
+============================== warnings summary ===============================
+tests/e2e/test_relatorio.py::test_relatorio_do_texto_ao_documento
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/test_design_tokens.py::test_view_transitions_respeitam_movimento_reduzido
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_0c5c08a5" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+78 passed, 2 warnings in 166.50s (0:02:46)

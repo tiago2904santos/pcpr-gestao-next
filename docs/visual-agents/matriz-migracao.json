@@ -1126,7 +1126,7 @@
         "evidencias/migracao-identidade-20261012/depois-diario-qa.json"
       ],
       "revisao_final": "Segunda passagem e revisão independente sem bloqueante; homologação visual pendente.",
-      "revisao_codigo": "Base65452f4 + hashes em diario-candidato.json",
+      "revisao_codigo": "4edd3c6",
       "dependencias_antigas": "Bases compartilhadas cartoes/frase-oficio/modos preservadas para consumidores legítimos; Diário migrou header e seções sem duplicar HTML/CSS.",
       "fontes_descoberta": [
         "config/urls.py",
@@ -1154,14 +1154,23 @@
         "componentes/migalhas.html",
         "componentes/rodape_documento.html"
       ],
-      "situacao": "NÃO INICIADA",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Hero, seções contínuas, status visível e barra no fluxo.",
+        "Valores individuais com referência acessível; texto pronto canônico e peças de documentos; grade-campos removida após migrar consumidor."
+      ],
+      "testes_executados": [
+        "92 testes iniciais; 78 finais pós-limpeza; foco isolado1; Ruff; diff check",
+        "15 capturas 5 larguras; axe, console, overflow; 9 contextos texto pronto"
+      ],
+      "evidencias": [
+        "qa/relatorio-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/depois-relatorio-qa.json"
+      ],
+      "revisao_final": "Revisão independente sem bloqueante. Homologação visual do usuário pendente. Ver qa/relatorio-2026-10-12.md.",
+      "revisao_codigo": "Candidato final sobre4edd3c6; hash no relatorio-candidato.json",
+      "dependencias_antigas": "grade-campos removida. Bases modos/registro/cartoes mantidas para outros consumidores.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

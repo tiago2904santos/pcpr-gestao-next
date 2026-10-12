@@ -1,0 +1,43 @@
+....2026-10-12 19:23:52,261 WARNING django.request Not Found: /viagens/prestacoes/equipe/5/relatorio/
+2026-10-12 19:23:52,301 WARNING django.request Not Found: /viagens/prestacoes/equipe/5/relatorio/autosave/
+.2026-10-12 19:23:54,249 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/6/relatorio/: 29 consultas (limite 25)
+2026-10-12 19:23:58,115 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:23:58,182 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:23:58,245 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+..
+(process:27964): GLib-GIO-WARNING **: 19:24:00.814: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:27964): GLib-GIO-WARNING **: 19:24:01.557: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:27964): GLib-GIO-WARNING **: 19:24:01.558: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 19:24:01,809 WARNING django.request Not Found: /viagens/prestacoes/equipe/8/relatorio/sugerir/motivo/
+2026-10-12 19:24:01,845 WARNING django.request Forbidden: /viagens/prestacoes/equipe/8/relatorio/sugerir/conclusao/
+.
+(process:27964): GLib-GIO-WARNING **: 19:24:02.793: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:27964): GLib-GIO-WARNING **: 19:24:03.229: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:27964): GLib-GIO-WARNING **: 19:24:03.288: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+2026-10-12 19:24:03,322 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/9/relatorio/: 29 consultas (limite 25)
+.
+(process:27964): GLib-GIO-WARNING **: 19:24:03.366: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 19:24:12,413 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/12/relatorio/: 27 consultas (limite 25)
+2026-10-12 19:24:17,543 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:24:17,582 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:24:17,636 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:24:35,556 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/13/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:24:57,881 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/15/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:25:23,182 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/16/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:25:43,401 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/17/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:26:02,040 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/18/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:26:20,338 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/19/relatorio/: 27 consultas (limite 25)
+......................................................... [ 78%]
+....................[12/Oct/2026 19:27:06,762] - Broken pipe from ('127.0.0.1', 49991)
+                                                     [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_relatorio.py::test_folha_autosave_e_documentos
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+92 passed, 1 warning in 246.89s (0:04:06)

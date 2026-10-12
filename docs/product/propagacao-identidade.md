@@ -309,3 +309,60 @@ conferência por metadados e feedback de salvamento visível. A linha do Diário
 componente operacional existente, também no UI Lab §15: melhorar sua origem em
 vez de criar cópia por página. A chegada realizada não é resultado calculado.
 Não remover `.modos` ou antigas bases globais ainda consumidas pelo Relatório.
+## Contrato PR03 — Relatório Técnico, 12/10/2026
+
+Rota `/viagens/prestacoes/equipe/<pk>/relatorio/`. Folha de relato da equipe,
+cinco campos de texto, custeio com opções/Outro, diária recebida por servidor
+e downloads PDF/DOCX por integrante. Base funcional: módulo9c em
+`docs/migration/prestacao.md`, serviços `relatorio.py` e domínio correspondente.
+
+Edição exige permissão e Ofício emitido; trava quando toda equipe ativa está
+finalizada. Servidor individual finalizado conserva diária somente leitura.
+`ativos()` exclui removidos, não arquivados. Valor recebido não pode superar
+o liberado; erro financeiro não descarta textos válidos. Descrição, objetivo
+e conclusão compõem a pendência. Sugestões vêm de Ofício/Viagem/Plano; textos
+prontos, cópia, marcadores e guardar modelo preservam comportamento existente.
+
+GET editável/download pode criar RT inexistente. Capturas usarão RTs existentes,
+POST bloqueado e hash antes/depois de RT e prestações individuais. Não acionar
+Sugerir/Copiar na base DEMO: essas ações disparam autosave. Testar em banco isolado.
+
+Composição: hero documental e seções contínuas; relato com ferramentas junto
+ao campo pertinente; custeio em modos proporcionais; diárias com nome separado
+do rótulo curto do valor; documentos por servidor; status real de salvamento
+e barra no fluxo. Reutilizar componentes atuais, sem novo editor/versão fictícia.
+
+Preservar `form-rt`, `frase-rt data-vivo`, `rt-<campo>`, `ps-<pk>-diaria`,
+`rts-para-copiar`, data-prefixo/alvo/form/sugerir/texto-pronto/guardar-texto,
+diálogo e `finalizar-relatorio data-esperar-salvamento`. Finalizar só volta à
+Lista filtrada. Documentos e diálogo continuam fora do formulário.
+
+Limpeza candidata: `grade-campos` após verificar todos os consumidores e migrar
+diárias individuais. Bases `modos`, `texto-pronto`, `registro`, `cartoes` e
+`frase-oficio` continuam compartilhadas. Lacunas históricas de modelos repetidos
+e política de cópia por unidade não serão alteradas pela migração visual.
+# Contrato PR04 — Documentos da prestação, 12/10/2026
+
+Página `/viagens/prestacoes/equipe/<pk>/documentos/`, templates de Anexos.
+Via assinada do Ofício, despachos, Diário assinado, comprovantes/RT por servidor
+e versões anteriores compõem um único fluxo. Referência funcional: ficha9d em
+`docs/migration/prestacao.md`, views_anexos/anexos/carimbo/pacote_prestacao.
+
+Preservar forms separados e CSRF, multipart, arquivo/tipo/servidor,
+valor/data_operacao/operacao, pagina/x/y e todos os IDs/retornos com âncora.
+Despacho/comprovante acumulam; Diário/RT substituem a versão vigente. Remoção
+lógica recuperável em30dias; PDF/PNG/JPG até10MB conferidos por conteúdo.
+Valor/data/operação opcionais, divergência pela soma. Trava de equipe ou pessoa
+finalizada permanece no serviço. Carimbo não altera a via original.
+
+A Folha não possui autosave nem escrita no GET. Pacote PDF/ZIP pode criar
+RT/Diário ou sincronizar linhas por fallback: somente testar em banco/mídia
+isolados, nunca acionar no DEMO para uma captura. Captura da Folha permite
+leitura dos anexos existentes, sem enviar forms nem substituir mídia.
+
+Direção: hero documental, seções contínuas, peças documentais com ações e
+formulários proporcionais de envio/correção/carimbo. Sem estado falso de autosave.
+Revisar anexo-campos nos três consumidores antes de qualquer remoção. Bases
+prestacao-equipe/servidor/registro são compartilhadas e continuam necessárias.
+Lacunas OCR, carimbo arrastável/automático, revisão de pacote e purga física
+continuam funcionais e fora da migração visual; não serão simuladas.

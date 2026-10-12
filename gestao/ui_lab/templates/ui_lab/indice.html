@@ -759,6 +759,16 @@
     <section class="cartao" id="copiar-textos" aria-labelledby="t-copiar-textos">
       <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-copiar-textos"><span class="cartao__numero">16</span>Sugerir e copiar texto</h2><span class="texto-secundario texto-sm">Preenche os campos sem gravar (o autosave grava ao receber o texto); com texto no campo, pergunta antes de substituir. "Sugerir texto" pede ao servidor (regra local); "Copiar textos" copia de outro registro.</span></div>
       <div class="cartao__corpo pilha">
+        <ul class="registros" aria-label="Valores individuais com referência">
+          {% include "componentes/registro_valor.html" with titulo="Ana Luiza de Souza" referencia_rotulo="Liberada" referencia="R$ 482,64" rotulo="Valor recebido" ident="lab-valor-recebido" valor="R$ 482,00 (saque)" editavel=True only %}
+          {% include "componentes/registro_valor.html" with titulo="José Carlos de Albuquerque" referencia_rotulo="Liberada" referencia="R$ 915,23" rotulo="Valor recebido" ident="lab-valor-consulta" travado=True estado_leitura="Prestação finalizada" only %}
+        </ul>
+        <ul class="relacoes-documentais" aria-label="Documentos individuais — exemplo">
+          <li class="peca-documental peca-documental--acoes">
+            {% icone "file-text" %}<span class="ficha-documental__texto">Relatório de Ana Luiza de Souza</span>
+            <div class="peca-documental__acoes"><a class="botao botao--sm" href="#copiar-textos">PDF de exemplo</a><a class="botao botao--sm botao--sutil" href="#copiar-textos">DOCX de exemplo</a></div>
+          </li>
+        </ul>
         <div class="texto-pronto" data-copiar-de="lab-copiar-dados" data-prefixo="lab-rt-">
           <div class="campo campo--lg texto-pronto__escolha"><label class="campo__rotulo" for="lab-copiar">Copiar de outro relatório técnico</label>
             <pc-select class="seletor"><select class="selecao" id="lab-copiar"><option value="">Escolha um relatório</option><option value="1">Ofício 12/2026 · mesmo evento</option></select></pc-select></div>
