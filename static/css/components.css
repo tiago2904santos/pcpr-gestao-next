@@ -4129,10 +4129,6 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 @media (prefers-reduced-motion: reduce) {
   .recurso-selecionado[data-escolhida-pelo-motorista] { animation: none; }
 }
-.conferencia-serena--horizontal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--esp-5); padding: var(--esp-4); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
-.conferencia-serena--horizontal .conferencia-serena__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--esp-12) * 3), 1fr)); gap: var(--esp-3); align-content: center; }
-.conferencia-serena--horizontal .conferencia-serena__dados > div { border: 0; display: grid; gap: var(--esp-1); padding: 0; }
-.conferencia-serena--horizontal .conferencia-serena__dados dd { text-align: left; }
 /* A folha não se divide em duas colunas: título e nota abrem a seção na largura inteira e o
    conteúdo usa toda a linha — campos, mapa e cartões rendem mais do que uma margem de texto. */
 .documento--preparacao .secao__nota { max-width: var(--largura-leitura); }
@@ -4153,7 +4149,6 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .campos.campos--registro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .campos--registro > .campo:nth-child(4) { grid-column: auto; }
   .campos--registro > .campo:nth-child(5) { grid-column: 1 / -1; }
-  .conferencia-serena--horizontal { grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
   .pessoas--compactas > .pessoa { border-bottom: 0; }
   .indice-preparacao__item { font-size: var(--texto-xs); flex: none; }
   .registro-hero--pagina .registro-hero__acoes { flex-wrap: nowrap; width: 100%; }

@@ -106,3 +106,41 @@ em `var/migracao_visual_testar.py` e `var/migracao_visual_capturar.py`.
 de arquitetura, mypy (303 fontes), Bandit e tipos JS verdes. Migrações reconfirmadas:
 nenhuma alteração detectada. Nove avisos preexistentes de HarfBuzz/pypdf, sem falha
 de geração. Resultado associado a `candidato-roteiros.json` e `commit-roteiros.json`.
+
+## Revisão de 12/10 — Diárias sem cascata duplicada
+
+Candidato: branch `codex/oficios-transporte-cartoes`, base `7397283` + diff
+local identificado por `migracao-identidade-20261012/candidato-diarias.json`.
+
+Defeito: o componente produzia as variantes `horizontal` e `operacional` juntas.
+Cinco regras antigas, posteriores no CSS, impunham uma coluna em 360 e colunas
+artificiais em 768. O template e quatro includes usam apenas `operacional`.
+Resumo/consulta, vazio/erro, prévias HTMX e dados financeiros foram preservados.
+O revisor independente conferiu fontes, consumidores e capturas; nenhum
+consumidor JS/dinâmico da variante antiga foi encontrado. Não houve remoção de
+CSS de impressão, documento ou da variante de consulta.
+
+Evidência: quinze pares de recortes reais em 360/390/768/1024/1440. Em 360,
+Roteiros/Planos passaram de 251,20 para 202,61 px; Ofícios para 221,53 px pelo
+texto maior do destino. Em 390/768 há aumento de 3,59 px pelo espaçamento
+canônico; não declarar redução universal. Desktop manteve a altura. Também
+foram revistos Lista, Novo e Edição de Roteiros inteiros em três larguras,
+com mapa carregado, seis trechos, vazio, busca e menu aberto estabilizado.
+
+Validação: primeira rodada 80 aprovados/3 falhas de medição durante composição;
+regressão ampliada 94 aprovados/3 falhas do hit-test do SVG escrito nesta rodada;
+correção seguida por 6 E2E aprovados em 119,27 s, incluindo geometria, axe global
+no topo, axe no painel após rolagem e teclado/foco dos inputs e botões. O recorte
+de controles não focados no limite do cabeçalho sticky foi diagnosticado com
+imagem, não escondido por CSS ou desativação do axe. As falhas e diagnósticos
+permanecem nos logs. Ruff e tipos JS aprovados. Gate integral em execução.
+
+Desempenho desta remoção: 724 bytes a menos no CSS canônico (193340 → 192616
+bytes no diff isolado), zero JS/dependência/requisição nova. Não há medição que
+sustente ganho de latência. Avisos SQL de Roteiros/Planos foram preservados e
+aguardam comparação com a base; não foram classificados automaticamente como
+regressão nem como dívida anterior. O candidato de Prestação e o arquivo de
+Equipe do usuário permanecem fora deste fechamento.
+
+Situação: EM VALIDAÇÃO. A matriz integral contém 100 páginas; este relatório
+não representa conclusão da migração global nem aprovação estética do usuário.

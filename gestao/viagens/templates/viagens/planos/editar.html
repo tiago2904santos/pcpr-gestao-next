@@ -159,7 +159,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
         <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "banknote" classe="icone--sm" %}Diárias</h3></div>
         <div id="diarias" data-vivo>
           {% if not mensagens_calculo %}
-            {% include "viagens/oficios/_diarias_corpo.html" with serena=True horizontal=True operacional=True sempre_por_servidor=True texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
+            {% include "viagens/oficios/_diarias_corpo.html" with serena=True operacional=True sempre_por_servidor=True texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
           {% else %}<p class="texto-secundario" role="note">{{ mensagens_calculo|join:" " }}</p>
           {% endif %}
         </div>

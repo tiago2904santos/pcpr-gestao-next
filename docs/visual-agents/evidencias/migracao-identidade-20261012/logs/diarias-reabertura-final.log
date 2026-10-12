@@ -1,0 +1,26 @@
+2026-10-12 18:20:11,008 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 35 consultas (limite 25)
+.2026-10-12 18:20:26,703 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+.2026-10-12 18:20:49,806 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+
+(process:10484): GLib-GIO-WARNING **: 18:20:53.079: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+.
+(process:10484): GLib-GIO-WARNING **: 18:20:53.439: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:10484): GLib-GIO-WARNING **: 18:20:53.439: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:10484): GLib-GIO-WARNING **: 18:20:54.138: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:10484): GLib-GIO-WARNING **: 18:20:54.497: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:10484): GLib-GIO-WARNING **: 18:20:54.558: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:10484): GLib-GIO-WARNING **: 18:20:54.587: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+..2026-10-12 18:21:28,051 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/roteiros/18/criar-oficio/: 26 consultas (limite 25)
+.                                                                   [100%]
+============================== warnings summary ===============================
+tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 1 warning in 119.27s (0:01:59)

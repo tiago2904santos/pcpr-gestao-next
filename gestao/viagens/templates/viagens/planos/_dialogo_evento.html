@@ -76,7 +76,7 @@ plano (os mesmos em todos os eventos).
           {% include "componentes/campo.html" with campo=form_evento.chegada_em classe="campo--lg" %}
         </div>
         {# As diárias do evento: os mesmos três indicadores do plano e do ofício. #}
-        {% if calculo_evento.total %}<div class="mt-4">{% include "viagens/oficios/_diarias_corpo.html" with calculo=calculo_evento serena=True horizontal=True operacional=True sempre_por_servidor=True %}</div>{% endif %}
+        {% if calculo_evento.total %}<div class="mt-4">{% include "viagens/oficios/_diarias_corpo.html" with calculo=calculo_evento serena=True operacional=True sempre_por_servidor=True %}</div>{% endif %}
       </div>
 
       <div class="secao__bloco evento-plano__bloco">

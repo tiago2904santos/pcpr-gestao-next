@@ -43,6 +43,7 @@ def test_cadastrar_roteiro_pela_tela(logado):
     # O cálculo guardado reaparece ao abrir o roteiro de novo.
     pg.goto(f"/viagens/roteiros/{roteiro.pk}/editar/")
     expect(pg.locator("#diarias")).to_contain_text("Calculado para 1 servidor")
+    pg.wait_for_load_state("networkidle")
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
@@ -68,6 +69,7 @@ def test_oficio_usa_roteiro_cadastrado(logado, dados_e2e):
         f"roteiro #{dados_e2e.ids['roteiro']}")
     oficio = Oficio.objects.get(pk=oficio_id)
     assert oficio.roteiro_id == dados_e2e.ids["roteiro"] and oficio.trechos.count() == 2
+    pg.wait_for_load_state("networkidle")
     assert pg.erros_console == []  # type: ignore[attr-defined]
 
 
@@ -79,3 +81,4 @@ def test_criar_oficio_pelo_menu_do_roteiro(logado, dados_e2e):
     expect(pg).to_have_url(re.compile(r"/viagens/oficios/\d+/editar/$"))
     expect(pg.locator(".toast")).to_contain_text(f"roteiro #{dados_e2e.ids['roteiro']}")
     expect(pg.locator("input[name='destino-0-cidade']")).to_have_value("Ponta Grossa/PR")
+    pg.wait_for_load_state("networkidle")

@@ -1,0 +1,287 @@
+[
+  {
+    "largura": 360,
+    "violacoes": []
+  },
+  {
+    "largura": 768,
+    "violacoes": []
+  },
+  {
+    "largura": 1440,
+    "violacoes": [
+      {
+        "id": "target-size",
+        "impact": "serious",
+        "tags": [
+          "cat.sensory-and-visual-cues",
+          "wcag22aa",
+          "wcag258"
+        ],
+        "description": "Ensure touch targets have sufficient size and space",
+        "help": "All touch targets must be 24px large, or leave sufficient space",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 138.7,
+                  "height": 10.9
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/oficios/\" aria-current=\"page\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-file-text\"></use></svg>Ofícios</a>",
+                    "target": [
+                      ".navegacao__link[aria-current=\"page\"][href$=\"oficios/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-12\" aria-label=\"Escolher data: Saída (data)\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-12\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 138.7px by 10.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 3.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/oficios/\" aria-current=\"page\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-file-text\"></use></svg>Ofícios</a>",
+                    "target": [
+                      ".navegacao__link[aria-current=\"page\"][href$=\"oficios/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-12\" aria-label=\"Escolher data: Saída (data)\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-12\"]"
+                    ]
+                  },
+                  {
+                    "html": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autocomplete=\"off\" maxlength=\"5\" data-mascara=\"hora\" form=\"form-oficio\" id=\"id_destino-2-saida_1\" aria-labelledby=\"id_destino-2-saida-rotulo id_destino-2-saida-hora\">",
+                    "target": [
+                      "#id_destino-2-saida_1"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input type=\"text\" name=\"destino-2-saida_0\" value=\"24/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aaaa\" autocomplete=\"off\" maxlength=\"10\" data-mascara=\"data\" form=\"form-oficio\" id=\"id_destino-2-saida_0\" aria-labelledby=\"id_destino-2-saida-rotulo id_destino-2-saida-data\">",
+            "target": [
+              "#id_destino-2-saida_0"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 138.7px by 10.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 7.3
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.3px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 6.2,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<input type=\"text\" name=\"destino-2-saida_0\" value=\"24/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aaaa\" autocomplete=\"off\" maxlength=\"10\" data-mascara=\"data\" form=\"form-oficio\" id=\"id_destino-2-saida_0\" aria-labelledby=\"id_destino-2-saida-rotulo id_destino-2-saida-data\">",
+                    "target": [
+                      "#id_destino-2-saida_0"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.2px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-12\" aria-label=\"Escolher data: Saída (data)\">",
+            "target": [
+              "button[aria-controls=\"seletor-12\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.2px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 94.4,
+                  "height": 10.9
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+                    "target": [
+                      "a[href$=\"roteiros/\"]"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-z7pire1\" aria-expanded=\"false\" id=\"menu-z7pire1-botao\">",
+                    "target": [
+                      "#menu-z7pire1-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-5\" aria-label=\"Escolher hora: Saída (hora)\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-5\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 94.4px by 10.9px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 3.6,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-z7pire1\" aria-expanded=\"false\" id=\"menu-z7pire1-botao\">",
+                    "target": [
+                      "#menu-z7pire1-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-r8xgf1p\" aria-expanded=\"false\" id=\"menu-r8xgf1p-botao\">",
+                    "target": [
+                      "#menu-r8xgf1p-botao"
+                    ]
+                  },
+                  {
+                    "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-5\" aria-label=\"Escolher hora: Saída (hora)\">",
+                    "target": [
+                      "button[aria-controls=\"seletor-5\"]"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autocomplete=\"off\" maxlength=\"5\" data-mascara=\"hora\" form=\"form-oficio\" id=\"id_destino-2-saida_1\" aria-labelledby=\"id_destino-2-saida-rotulo id_destino-2-saida-hora\">",
+            "target": [
+              "#id_destino-2-saida_1"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 94.4px by 10.9px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+          },
+          {
+            "any": [
+              {
+                "id": "target-size",
+                "data": {
+                  "messageKey": "partiallyObscured",
+                  "minSize": 24,
+                  "width": 28.8,
+                  "height": 7.3
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-z7pire1\" aria-expanded=\"false\" id=\"menu-z7pire1-botao\">",
+                    "target": [
+                      "#menu-z7pire1-botao"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.3px, should be at least 24px by 24px)"
+              },
+              {
+                "id": "target-offset",
+                "data": {
+                  "closestOffset": 6.2,
+                  "minOffset": 24
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-z7pire1\" aria-expanded=\"false\" id=\"menu-z7pire1-botao\">",
+                    "target": [
+                      "#menu-z7pire1-botao"
+                    ]
+                  },
+                  {
+                    "html": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autocomplete=\"off\" maxlength=\"5\" data-mascara=\"hora\" form=\"form-oficio\" id=\"id_destino-2-saida_1\" aria-labelledby=\"id_destino-2-saida-rotulo id_destino-2-saida-hora\">",
+                    "target": [
+                      "#id_destino-2-saida_1"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.2px instead of at least 24px."
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<button type=\"button\" class=\"seletor__botao\" aria-haspopup=\"dialog\" aria-expanded=\"false\" aria-controls=\"seletor-5\" aria-label=\"Escolher hora: Saída (hora)\">",
+            "target": [
+              "button[aria-controls=\"seletor-5\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.2px instead of at least 24px."
+          }
+        ]
+      }
+    ]
+  }
+]

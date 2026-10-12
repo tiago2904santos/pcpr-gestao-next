@@ -1,0 +1,407 @@
+[
+  {
+    "pagina": "roteiro",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 360,
+    "altura": 251.203125,
+    "colunas": "262.438px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 871,65",
+        "x": 48.78125,
+        "y": 620.6875,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR",
+        "x": 48.78125,
+        "y": 675.5625,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Quantidade por servidor\n3 x 100%",
+        "x": 48.78125,
+        "y": 727.75,
+        "largura": 262.4375
+      }
+    ]
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 360,
+    "altura": 251.203125,
+    "colunas": "262.438px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 3.197,67",
+        "x": 48.78125,
+        "y": 609.8125,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR + CAPITAL",
+        "x": 48.78125,
+        "y": 664.6875,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Quantidade por servidor\n10 x 100% + 1 x 15% + 1 x 30%",
+        "x": 48.78125,
+        "y": 716.875,
+        "largura": 262.4375
+      }
+    ]
+  },
+  {
+    "pagina": "plano",
+    "rota": "/viagens/planos/2/",
+    "largura": 360,
+    "altura": 251.203125,
+    "colunas": "262.438px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 482,64",
+        "x": 48.78125,
+        "y": 577.765625,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Tipo de destino\nCAPITAL",
+        "x": 48.78125,
+        "y": 632.640625,
+        "largura": 262.4375
+      },
+      {
+        "texto": "Quantidade por servidor\n1 x 100% + 1 x 30%",
+        "x": 48.78125,
+        "y": 684.828125,
+        "largura": 262.4375
+      }
+    ]
+  },
+  {
+    "pagina": "roteiro",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 390,
+    "altura": 199.015625,
+    "colunas": "140.812px 140.828px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 871,65",
+        "x": 48.78125,
+        "y": 672.6875,
+        "largura": 140.8125
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR",
+        "x": 200.390625,
+        "y": 672.6875,
+        "largura": 140.828125
+      },
+      {
+        "texto": "Quantidade por servidor\n3 x 100%",
+        "x": 48.78125,
+        "y": 727.5625,
+        "largura": 292.4375
+      }
+    ]
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 390,
+    "altura": 217.9375,
+    "colunas": "140.812px 140.828px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 3.197,67",
+        "x": 48.78125,
+        "y": 626.625,
+        "largura": 140.8125
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR + CAPITAL",
+        "x": 200.390625,
+        "y": 626.625,
+        "largura": 140.828125
+      },
+      {
+        "texto": "Quantidade por servidor\n10 x 100% + 1 x 15% + 1 x 30%",
+        "x": 48.78125,
+        "y": 700.421875,
+        "largura": 292.4375
+      }
+    ]
+  },
+  {
+    "pagina": "plano",
+    "rota": "/viagens/planos/2/",
+    "largura": 390,
+    "altura": 199.015625,
+    "colunas": "140.812px 140.828px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 482,64",
+        "x": 48.78125,
+        "y": 603.578125,
+        "largura": 140.8125
+      },
+      {
+        "texto": "Tipo de destino\nCAPITAL",
+        "x": 200.390625,
+        "y": 603.578125,
+        "largura": 140.828125
+      },
+      {
+        "texto": "Quantidade por servidor\n1 x 100% + 1 x 30%",
+        "x": 48.78125,
+        "y": 658.453125,
+        "largura": 292.4375
+      }
+    ]
+  },
+  {
+    "pagina": "roteiro",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 768,
+    "altura": 199.015625,
+    "colunas": "152.297px 152.312px 152.312px 152.312px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 871,65",
+        "x": 63.1875,
+        "y": 665.96875,
+        "largura": 152.296875
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR",
+        "x": 226.28125,
+        "y": 665.96875,
+        "largura": 152.3125
+      },
+      {
+        "texto": "Quantidade por servidor\n3 x 100%",
+        "x": 63.1875,
+        "y": 720.84375,
+        "largura": 641.625
+      }
+    ]
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 768,
+    "altura": 199.015625,
+    "colunas": "152.297px 152.312px 152.312px 152.312px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 3.197,67",
+        "x": 63.1875,
+        "y": 658.796875,
+        "largura": 152.296875
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR + CAPITAL",
+        "x": 226.28125,
+        "y": 658.796875,
+        "largura": 152.3125
+      },
+      {
+        "texto": "Quantidade por servidor\n10 x 100% + 1 x 15% + 1 x 30%",
+        "x": 63.1875,
+        "y": 713.671875,
+        "largura": 641.625
+      }
+    ]
+  },
+  {
+    "pagina": "plano",
+    "rota": "/viagens/planos/2/",
+    "largura": 768,
+    "altura": 199.015625,
+    "colunas": "152.297px 152.312px 152.312px 152.312px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 482,64",
+        "x": 63.1875,
+        "y": 626.625,
+        "largura": 152.296875
+      },
+      {
+        "texto": "Tipo de destino\nCAPITAL",
+        "x": 226.28125,
+        "y": 626.625,
+        "largura": 152.3125
+      },
+      {
+        "texto": "Quantidade por servidor\n1 x 100% + 1 x 30%",
+        "x": 63.1875,
+        "y": 681.5,
+        "largura": 641.625
+      }
+    ]
+  },
+  {
+    "pagina": "roteiro",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1024,
+    "altura": 74.859375,
+    "colunas": "203.094px 203.094px 203.094px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 871,65",
+        "x": 329.9375,
+        "y": 718.3125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR",
+        "x": 543.828125,
+        "y": 718.3125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Quantidade por servidor\n3 x 100%",
+        "x": 757.71875,
+        "y": 718.3125,
+        "largura": 203.09375
+      }
+    ]
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 1024,
+    "altura": 93.78125,
+    "colunas": "203.094px 203.094px 203.094px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 3.197,67",
+        "x": 329.9375,
+        "y": 639.78125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR + CAPITAL",
+        "x": 543.828125,
+        "y": 639.78125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Quantidade por servidor\n10 x 100% + 1 x 15% + 1 x 30%",
+        "x": 757.71875,
+        "y": 639.78125,
+        "largura": 203.09375
+      }
+    ]
+  },
+  {
+    "pagina": "plano",
+    "rota": "/viagens/planos/2/",
+    "largura": 1024,
+    "altura": 74.859375,
+    "colunas": "203.094px 203.094px 203.094px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 482,64",
+        "x": 329.9375,
+        "y": 617.203125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Tipo de destino\nCAPITAL",
+        "x": 543.828125,
+        "y": 617.203125,
+        "largura": 203.09375
+      },
+      {
+        "texto": "Quantidade por servidor\n1 x 100% + 1 x 30%",
+        "x": 757.71875,
+        "y": 617.203125,
+        "largura": 203.09375
+      }
+    ]
+  },
+  {
+    "pagina": "roteiro",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1440,
+    "altura": 74.859375,
+    "colunas": "260.609px 260.625px 260.609px 0px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 871,65",
+        "x": 486.15625,
+        "y": 718.109375,
+        "largura": 260.609375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR",
+        "x": 757.5625,
+        "y": 718.109375,
+        "largura": 260.625
+      },
+      {
+        "texto": "Quantidade por servidor\n3 x 100%",
+        "x": 1028.984375,
+        "y": 718.109375,
+        "largura": 260.609375
+      }
+    ]
+  },
+  {
+    "pagina": "oficio",
+    "rota": "/viagens/oficios/259/editar/",
+    "largura": 1440,
+    "altura": 74.859375,
+    "colunas": "260.609px 260.625px 260.609px 0px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 3.197,67",
+        "x": 486.15625,
+        "y": 648.96875,
+        "largura": 260.609375
+      },
+      {
+        "texto": "Tipo de destino\nINTERIOR + CAPITAL",
+        "x": 757.5625,
+        "y": 648.96875,
+        "largura": 260.625
+      },
+      {
+        "texto": "Quantidade por servidor\n10 x 100% + 1 x 15% + 1 x 30%",
+        "x": 1028.984375,
+        "y": 648.96875,
+        "largura": 260.609375
+      }
+    ]
+  },
+  {
+    "pagina": "plano",
+    "rota": "/viagens/planos/2/",
+    "largura": 1440,
+    "altura": 74.859375,
+    "colunas": "260.609px 260.625px 260.609px 0px 0px",
+    "dados": [
+      {
+        "texto": "Por servidor\nR$ 482,64",
+        "x": 486.15625,
+        "y": 616.546875,
+        "largura": 260.609375
+      },
+      {
+        "texto": "Tipo de destino\nCAPITAL",
+        "x": 757.5625,
+        "y": 616.546875,
+        "largura": 260.625
+      },
+      {
+        "texto": "Quantidade por servidor\n1 x 100% + 1 x 30%",
+        "x": 1028.984375,
+        "y": 616.546875,
+        "largura": 260.609375
+      }
+    ]
+  }
+]

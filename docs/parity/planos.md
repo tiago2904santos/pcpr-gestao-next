@@ -18,3 +18,12 @@ erros agregados sem gravação parcial e leitura de cancelados preservados.
 Lista/Folha/eventos/documentos/Resultados concluídos tecnicamente nesta rodada;
 aprovação visual do usuário e gate global final continuam pendentes.
 Número manual do legado continua lacuna anterior.
+
+## Revisão da conferência operacional — 12/10/2026
+
+Folha e diálogo multievento deixam de passar o parâmetro visual `horizontal`,
+substituído pela variante compartilhada `operacional`. Nenhuma alteração em
+quantitativos, cálculo, soma dos eventos, geração ou documento. A regressão do
+fluxo multievento com erro, edição, exclusão e PDF passou nesta revisão.
+A situação global vigente por página está em `docs/visual-agents/matriz-migracao.json`;
+o fechamento da rodada anterior acima não representa aprovação nesta meta.

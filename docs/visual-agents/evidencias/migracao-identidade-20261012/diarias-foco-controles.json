@@ -1,0 +1,146 @@
+[
+  {
+    "largura": 360,
+    "id": "id_destino-0-saida_0",
+    "visivel": true,
+    "y": 316.03125,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_0\" value=\"18/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 360,
+    "id": "id_destino-0-saida_1",
+    "visivel": true,
+    "y": 316.03125,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_1\" value=\"07:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 360,
+    "id": "id_destino-1-saida_0",
+    "visivel": true,
+    "y": 559.40625,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_0\" value=\"22/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 360,
+    "id": "id_destino-1-saida_1",
+    "visivel": true,
+    "y": 559.40625,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_1\" value=\"17:00\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 360,
+    "id": "id_destino-2-saida_0",
+    "visivel": true,
+    "y": 315.78125,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_0\" value=\"24/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 360,
+    "id": "id_destino-2-saida_1",
+    "visivel": true,
+    "y": 315.78125,
+    "altura": 39.59375,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-0-saida_0",
+    "visivel": true,
+    "y": 341.390625,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_0\" value=\"18/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-0-saida_1",
+    "visivel": true,
+    "y": 341.390625,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_1\" value=\"07:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-1-saida_0",
+    "visivel": true,
+    "y": 341.171875,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_0\" value=\"22/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-1-saida_1",
+    "visivel": true,
+    "y": 341.171875,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_1\" value=\"17:00\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-2-saida_0",
+    "visivel": true,
+    "y": 340.953125,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_0\" value=\"24/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 768,
+    "id": "id_destino-2-saida_1",
+    "visivel": true,
+    "y": 340.953125,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-0-saida_0",
+    "visivel": true,
+    "y": 340.984375,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_0\" value=\"18/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-0-saida_1",
+    "visivel": true,
+    "y": 340.984375,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-0-saida_1\" value=\"07:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-1-saida_0",
+    "visivel": true,
+    "y": 448.125,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_0\" value=\"22/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-1-saida_1",
+    "visivel": true,
+    "y": 448.125,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-1-saida_1\" value=\"17:00\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-2-saida_0",
+    "visivel": true,
+    "y": 555.265625,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_0\" value=\"24/11/2026\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"dd/mm/aa"
+  },
+  {
+    "largura": 1440,
+    "id": "id_destino-2-saida_1",
+    "visivel": true,
+    "y": 555.265625,
+    "altura": 36,
+    "alvo": "<input type=\"text\" name=\"destino-2-saida_1\" value=\"18:15\" class=\"entrada\" inputmode=\"numeric\" placeholder=\"hh:mm\" autoco"
+  }
+]

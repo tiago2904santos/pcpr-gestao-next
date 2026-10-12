@@ -1,0 +1,247 @@
+FFF..2026-10-12 18:02:20,006 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/roteiros/18/criar-oficio/: 26 consultas (limite 25)
+.2026-10-12 18:02:22,203 ERROR django.request Internal Server Error: /viagens/api/rota/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.DeadlockDetected: deadlock detected
+LINE 1: ..." AS "codename" FROM "auth_permission" INNER JOIN "identidad...
+                                                             ^
+DETAIL:  Process 27836 waits for AccessShareLock on relation 5034256 of database 5034083; blocked by process 21560.
+Process 21560 waits for AccessExclusiveLock on relation 5034109 of database 5034083; blocked by process 27836.
+HINT:  See server log for query details.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 1159, in rota
+    if not (request.user.has_perm("viagens.view_oficio")
+            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\models.py", line 402, in has_perm
+    return _user_has_perm(self, perm, obj)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\models.py", line 274, in _user_has_perm
+    if backend.has_perm(user, perm, obj):
+       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 179, in has_perm
+    return user_obj.is_active and super().has_perm(user_obj, perm, obj=obj)
+                                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 53, in has_perm
+    return perm in self.get_all_permissions(user_obj, obj=obj)
+                   ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 175, in get_all_permissions
+    user_obj._perm_cache = super().get_all_permissions(user_obj)
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 42, in get_all_permissions
+    *self.get_user_permissions(user_obj, obj=obj),
+     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 154, in get_user_permissions
+    return self._get_permissions(user_obj, obj, "user")
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\backends.py", line 126, in _get_permissions
+    user_obj, perm_cache_name, {"%s.%s" % (ct, name) for ct, name in perms}
+                                                                     ^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 473, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2287, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 297, in __iter__
+    return compiler.results_iter(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        tuple_expected=True,
+        ^^^^^^^^^^^^^^^^^^^^
+        chunked_fetch=self.chunked_fetch,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        chunk_size=self.chunk_size,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1592, in results_iter
+    results = self.execute_sql(
+        MULTI, chunked_fetch=chunked_fetch, chunk_size=chunk_size
+    )
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1643, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\plataforma\middleware.py", line 63, in medir
+    return execute(sql, params, many, context)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+django.db.utils.OperationalError: deadlock detected
+LINE 1: ..." AS "codename" FROM "auth_permission" INNER JOIN "identidad...
+                                                             ^
+DETAIL:  Process 27836 waits for AccessShareLock on relation 5034256 of database 5034083; blocked by process 21560.
+Process 21560 waits for AccessExclusiveLock on relation 5034109 of database 5034083; blocked by process 27836.
+HINT:  See server log for query details.
+[12/Oct/2026 18:02:22,345] - Broken pipe from ('127.0.0.1', 55806)
+.....
+(process:8132): GLib-GIO-WARNING **: 18:03:16.185: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:16.474: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:16.474: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:16.882: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:17.133: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:17.169: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:8132): GLib-GIO-WARNING **: 18:03:17.195: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+............................................................. [ 86%]
+...........                                                              [100%]
+================================== FAILURES ===================================
+_____________ test_diarias_legiveis_sem_colunas_artificiais[360] ______________
+
+logado = <Page url='http://localhost:56484/viagens/roteiros/1/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            caixas = [item.bounding_box() for item in dados.all()]
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+>           assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+E           assert 29.763916015625 < 1
+E            +  where 29.763916015625 = abs((1848.25 - 1878.013916015625))
+
+tests\e2e\test_conferencia_diarias.py:32: AssertionError
+_____________ test_diarias_legiveis_sem_colunas_artificiais[768] ______________
+
+logado = <Page url='http://localhost:56484/viagens/oficios/7/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            caixas = [item.bounding_box() for item in dados.all()]
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+>           assert rodar_axe(pg) == []
+E           AssertionError: assert [{'id': 'colo...sholds', ...}] == []
+E             
+E             Left contains one more item: {'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-54... 'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}
+E             Use -v to get more diff
+
+tests\e2e\test_conferencia_diarias.py:46: AssertionError
+_____________ test_diarias_legiveis_sem_colunas_artificiais[1440] _____________
+
+logado = <Page url='http://localhost:56484/viagens/roteiros/7/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            caixas = [item.bounding_box() for item in dados.all()]
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+>               assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+E               assert 48.8509521484375 < 1
+E                +  where 48.8509521484375 = abs((1198.9603271484375 - 1150.109375))
+
+tests\e2e\test_conferencia_diarias.py:40: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_oficios_visual.py::test_lista_folha_documentos_coerentes_e_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[360]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[768]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[1440]
+3 failed, 80 passed, 1 warning in 206.79s (0:03:26)

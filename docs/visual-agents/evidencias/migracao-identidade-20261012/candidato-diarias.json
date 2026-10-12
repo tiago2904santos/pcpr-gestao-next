@@ -1,0 +1,21 @@
+{
+  "base": "73972833063dc17e90af74e19281be537da84ee8",
+  "branch": "codex/oficios-transporte-cartoes",
+  "situacao": "EM VALIDAÇÃO — gate integral em execução",
+  "fontes": {
+    "templates/componentes/conferencia_valores.html": "a378886e8de73c4da0542338a651e6992b326d81aa1c093832dcb00fae7e625c",
+    "static/css/components.css": "ca358f39365ebe4ef934e5d237da89b202ad71e4d11c3c665fa607ac44694c40",
+    "gestao/viagens/templates/viagens/oficios/_diarias.html": "7a82f6fef1e56880fdb7823aa3e28008d587e2ab038ee82d85b37dd6f0be60e1",
+    "gestao/viagens/templates/viagens/planos/editar.html": "c678d4225327b2af3dfac5f9cfb5d969712037cfeaf4af27e0c375114dbf824f",
+    "gestao/viagens/templates/viagens/planos/_dialogo_evento.html": "df9be15c3b54c409584a5ad3c5fca87b66059384a0935622845b2bb7b63115d9",
+    "tests/e2e/test_conferencia_diarias.py": "5187459f12a21efdbc32bdeba8ed10ebc4ff2720628629160746af41960b78f2",
+    "tests/e2e/test_roteiros.py": "b90d17e028b9d78085e7b6cfd600af4de2791ef46ab75ffb0ccedbf0b8bb82af"
+  },
+  "limite": "Testes executados no worktree com candidato Prestação preservado; components.css no worktree inclui alterações não relacionadas que não entram no commit Diárias.",
+  "css_diff_isolado": {
+    "antes": 193340,
+    "depois": 192616,
+    "removidos": 724
+  },
+  "revisao_independente": "descoberta_consumidores: ressalva de foco atendida; sem bloqueante na revisão delimitada."
+}

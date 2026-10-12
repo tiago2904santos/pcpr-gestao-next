@@ -1,7 +1,7 @@
 {% load viagens %}
-{% comment %}Uma conferência, três dados. Variante vertical para leitura; horizontal para cadastro.{% endcomment %}
+{% comment %}Uma conferência, três dados. Consulta para leitura; operacional para cadastro.{% endcomment %}
 {% if serena %}
-<div class="conferencia-serena{% if horizontal %} conferencia-serena--horizontal{% else %} resumo__indicadores{% endif %}{% if operacional %} conferencia-serena--operacional{% endif %}{% if consulta %} conferencia-serena--consulta{% endif %}">
+<div class="conferencia-serena{% if operacional %} conferencia-serena--operacional{% else %} resumo__indicadores{% endif %}{% if consulta %} conferencia-serena--consulta{% endif %}">
   <p class="conferencia-serena__total"><span class="rotulo-caixa-alta">Valor total</span><strong>{{ calculo.total|moeda }}</strong></p>
   <dl class="conferencia-serena__dados">
     {% if sempre_por_servidor or calculo.servidores > 1 %}<div><dt>Por servidor</dt><dd>{{ calculo.por_servidor|moeda }}</dd></div>{% endif %}

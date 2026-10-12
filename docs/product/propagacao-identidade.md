@@ -246,3 +246,17 @@ registros de documento sem recursos artificiais, histórico operacional e barra 
 feedback verdadeiro de autosave. Lote com equipe compacta/viatura-cartão existentes.
 Nenhum editor próprio ou novo módulo de negócio. Limpeza apenas após consumidores
 migrados e provas; bases genéricas ainda necessárias em Prestação ficam preservadas.
+
+## Reabertura de Roteiros — conferência de Diárias (12/10/2026)
+
+A conferência operacional tem um único contrato responsivo: total em destaque;
+por servidor e tipo de destino em duas colunas abaixo de1024px, composição na
+linha seguinte; a partir de1024px, total ao lado dos três metadados. A variante
+antiga `horizontal` não é um conceito diferente: todos os seus consumidores
+já pedem `operacional`. Sua cascata posterior gera uma coluna em360 e quatro
+em768, com altura e espaços artificiais. Migrar os dois includes do corpo de
+Diárias, retirar a variante e suas regras, preservando consulta vertical e o
+cálculo. Consumidores reais: Folha de Roteiros, Ofícios e Planos, incluindo
+fragmentos de prévia; o Resumo usa `consulta` e deve ser conferido por regressão.
+Prova anterior: `migracao-identidade-20261012/antes-diarias-geometria.json` e15
+capturas nas cinco larguras. Nenhuma regra financeira ou conteúdo oficial muda.

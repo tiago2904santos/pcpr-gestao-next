@@ -211,7 +211,7 @@ e `pronto`; navega por âncoras e não calcula novas etapas de negócio.
 acima do conteúdo no celular. `secao__conteudo` preserva os invólucros HTMX internos.
 `campos--registro` dimensiona número, data, protocolo, tipo e custeio por significado.
 `pessoas--compactas` reaproveita o acabamento dos cartões do Resumo, mantendo ações
-de motorista e remoção. `conferencia_valores.html` aceita `serena=True horizontal=True`
+de motorista e remoção. `conferencia_valores.html` aceita `serena=True operacional=True`
 para preparação; a mesma variante vertical permanece no Resumo. O fragmento de
 diárias da Folha mantém essa apresentação depois das atualizações de equipe.
 

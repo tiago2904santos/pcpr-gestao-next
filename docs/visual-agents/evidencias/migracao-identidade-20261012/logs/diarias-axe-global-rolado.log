@@ -1,0 +1,313 @@
+2026-10-12 18:11:17,774 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 35 consultas (limite 25)
+F2026-10-12 18:11:29,882 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+FF[12/Oct/2026 18:11:42,023] - Broken pipe from ('127.0.0.1', 61212)
+[12/Oct/2026 18:11:42,108] - Broken pipe from ('127.0.0.1', 65129)
+
+(process:22568): GLib-GIO-WARNING **: 18:11:43.579: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:43.873: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:43.873: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:44.165: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:44.308: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:44.340: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:22568): GLib-GIO-WARNING **: 18:11:44.341: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+..2026-10-12 18:12:13,454 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/roteiros/18/criar-oficio/: 26 consultas (limite 25)
+.                                                                   [100%]
+================================== FAILURES ===================================
+_____________ test_diarias_legiveis_sem_colunas_artificiais[360] ______________
+
+logado = <Page url='http://localhost:57639/viagens/planos/1/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+>           _axe_estavel(pg)
+
+tests\e2e\test_conferencia_diarias.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:57639/viagens/planos/1/'>
+
+    def _axe_estavel(pg):
+        # A URL muda no commit da navegação, antes de o CSS registrar animações.
+        pg.wait_for_load_state("load")
+        # Transição nativa entre documentos desenha snapshots após load. O axe
+        # precisa da composição final, não do snapshot parcialmente transparente.
+        pg.evaluate("""async () => {
+            const limite = performance.now() + 5000;
+            while (document.documentElement.matches(':active-view-transition')) {
+                if (performance.now() > limite) throw new Error('Transição de navegação não terminou');
+                await new Promise(requestAnimationFrame);
+            }
+        }""")
+        # O cronômetro do toast pausa sob hover/foco por acessibilidade; não é
+        # animação de entrada nem pode ser aguardado até sumir para medir contraste.
+        pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
+            a.animationName !== 'toast-tempo' &&
+            a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+        violacoes = rodar_axe(pg)
+>       assert violacoes == [], str(violacoes)
+E       AssertionError: [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', 'help': 'All touch targets must be 24px large, or leave sufficient space', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI', 'nodes': [{'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 81.9, 'height': 11.4}, 'relatedNodes': [{'html': '<button type="button" class="cabecalho__menu cabecalho__menu--gaveta" data-acao="abrir-gaveta" aria-controls="navegacao-principal" aria-expanded="false" aria-label="Abrir menu de navegação">', 'target': ['.cabecalho__menu']}, {'html': '<a class="marca" href="/" aria-label="PCPR — Gestão de Eventos e Viagens, página inicial">', 'target': ['.marca']}, {'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise a unidade…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 81.9px by 11.4px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 19, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="cabecalho__menu cabecalho__menu--gaveta" data-acao="abrir-gaveta" aria-controls="navegacao-principal" aria-expanded="false" aria-label="Abrir menu de navegação">', 'target': ['.cabecalho__menu']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" class="entrada" role="combobox" id="efetivo-unidade-1-busca" placeholder="Pesquise a unidade…" aria-controls="cbx-5-lista" aria-expanded="false" aria-autocomplete="list" autocomplete="off">', 'target': ['#efetivo-unidade-1-busca'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 81.9px by 11.4px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 19px instead of at least 24px.'}]}]
+E       assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_justificativas_identidade.py:34: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 18:11:17,774 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/1/: 35 consultas (limite 25)
+_____________ test_diarias_legiveis_sem_colunas_artificiais[768] ______________
+
+logado = <Page url='http://localhost:57639/viagens/planos/2/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+>           _axe_estavel(pg)
+
+tests\e2e\test_conferencia_diarias.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:57639/viagens/planos/2/'>
+
+    def _axe_estavel(pg):
+        # A URL muda no commit da navegação, antes de o CSS registrar animações.
+        pg.wait_for_load_state("load")
+        # Transição nativa entre documentos desenha snapshots após load. O axe
+        # precisa da composição final, não do snapshot parcialmente transparente.
+        pg.evaluate("""async () => {
+            const limite = performance.now() + 5000;
+            while (document.documentElement.matches(':active-view-transition')) {
+                if (performance.now() > limite) throw new Error('Transição de navegação não terminou');
+                await new Promise(requestAnimationFrame);
+            }
+        }""")
+        # O cronômetro do toast pausa sob hover/foco por acessibilidade; não é
+        # animação de entrada nem pode ser aguardado até sumir para medir contraste.
+        pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
+            a.animationName !== 'toast-tempo' &&
+            a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+        violacoes = rodar_axe(pg)
+>       assert violacoes == [], str(violacoes)
+E       AssertionError: [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', 'help': 'All touch targets must be 24px large, or leave sufficient space', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI', 'nodes': [{'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 222.8, 'height': 16.7}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__seletor" data-menu-botao="" aria-haspopup="menu" aria-label="Módulo atual: Viagens. Trocar de módulo" aria-controls="menu-vg9m6nv" aria-expanded="false" id="menu-vg9m6nv-botao">', 'target': ['#menu-vg9m6nv-botao']}, {'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/oficios/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['a[href$="oficios/"]']}, {'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise a unidade…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 222.8px by 16.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 3.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-layout-dashboard"></use></svg>Painel</a>', 'target': ['li:nth-child(1) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/oficios/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['a[href$="oficios/"]']}, {'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise a unidade…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" class="entrada" role="combobox" id="efetivo-unidade-1-busca" placeholder="Pesquise a unidade…" aria-controls="cbx-5-lista" aria-expanded="false" aria-autocomplete="list" autocomplete="off">', 'target': ['#efetivo-unidade-1-busca'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 222.8px by 16.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 28.8, 'height': 13.1}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}, {'html': '<a class="navegacao__link" href="/viagens/oficios/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['a[href$="oficios/"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 28.8px by 13.1px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 12.2, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/viagens/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-map"></use></svg>Viagens</a>', 'target': ['li:nth-child(2) > .navegacao__link[href$="viagens/"]']}, {'html': '<input type="text" class="entrada" role="combobox" id="efetivo-unidade-1-busca" placeholder="Pesquise a unidade…" aria-controls="cbx-5-lista" aria-expanded="false" aria-autocomplete="list" autocomplete="off">', 'target': ['#efetivo-unidade-1-busca']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.2px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise a unidade…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 13.1px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.2px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 222.8, 'height': 16.7}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/oficios/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['a[href$="oficios/"]']}, {'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<button type="button" class="navegacao__link navegacao__link--ativo" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-32t0fn8" aria-expanded="false" id="menu-32t0fn8-botao">', 'target': ['#menu-32t0fn8-botao']}, {'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise o cargo…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 222.8px by 16.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 3.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<button type="button" class="navegacao__link navegacao__link--ativo" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-32t0fn8" aria-expanded="false" id="menu-32t0fn8-botao">', 'target': ['#menu-32t0fn8-botao']}, {'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise o cargo…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" class="entrada" role="combobox" id="efetivo-cargo-1-busca" placeholder="Pesquise o cargo…" aria-controls="cbx-6-lista" aria-expanded="false" aria-autocomplete="list" autocomplete="off">', 'target': ['#efetivo-cargo-1-busca'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 222.8px by 16.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 28.8, 'height': 13.1}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link navegacao__link--ativo" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-32t0fn8" aria-expanded="false" id="menu-32t0fn8-botao">', 'target': ['#menu-32t0fn8-botao']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 28.8px by 13.1px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 12.2, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link navegacao__link--ativo" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-32t0fn8" aria-expanded="false" id="menu-32t0fn8-botao">', 'target': ['#menu-32t0fn8-botao']}, {'html': '<input type="text" class="entrada" role="combobox" id="efetivo-cargo-1-busca" placeholder="Pesquise o cargo…" aria-controls="cbx-6-lista" aria-expanded="false" aria-autocomplete="list" autocomplete="off">', 'target': ['#efetivo-cargo-1-busca']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.2px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="entrada-composta__botao" title="Limpar o campo"><svg class="icone" aria-hidden="true"><use href="/static/icons/sprite.svg#i-x"></use></svg><span class="sr-only">Limpar o campo</span></button>', 'target': ['pc-combobox[data-placeholder="Pesquise o cargo…"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title="Limpar o campo"][type="button"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 13.1px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.2px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'minSize': 24, 'width': 39.4, 'height': 15.7}, 'relatedNodes': [], 'impact': 'serious', 'message': 'Target has insufficient size (39.4px by 15.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 7.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link navegacao__link--ativo" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-32t0fn8" aria-expanded="false" id="menu-32t0fn8-botao">', 'target': ['#menu-32t0fn8-botao']}, {'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-t6x7d8f" aria-expanded="false" id="menu-t6x7d8f-botao">', 'target': ['#menu-t6x7d8f-botao']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input class="entrada" type="number" min="1" max="999" inputmode="numeric" name="efetivo_quantidade" id="efetivo-quantidade-1" value="6" data-padrao="1">', 'target': ['#efetivo-quantidade-1'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size (39.4px by 15.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 7.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 25.2, 'height': 11.3}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-t6x7d8f" aria-expanded="false" id="menu-t6x7d8f-botao">', 'target': ['#menu-t6x7d8f-botao']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 25.2px by 11.3px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 12.4, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-t6x7d8f" aria-expanded="false" id="menu-t6x7d8f-botao">', 'target': ['#menu-t6x7d8f-botao']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.4px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="passos__botao" data-passo="-1" aria-label="Diminuir a quantidade">−</button>', 'target': ['button[data-passo="-1"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 25.2px by 11.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.4px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 25.2, 'height': 11.3}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-t6x7d8f" aria-expanded="false" id="menu-t6x7d8f-botao">', 'target': ['#menu-t6x7d8f-botao']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 25.2px by 11.3px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 12.4, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-t6x7d8f" aria-expanded="false" id="menu-t6x7d8f-botao">', 'target': ['#menu-t6x7d8f-botao']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.4px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="passos__botao" data-passo="1" aria-label="Aumentar a quantidade">+</button>', 'target': ['button[data-passo="1"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 25.2px by 11.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 12.4px instead of at least 24px.'}]}]
+E       assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_justificativas_identidade.py:34: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 18:11:29,882 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+_____________ test_diarias_legiveis_sem_colunas_artificiais[1440] _____________
+
+logado = <Page url='http://localhost:57639/viagens/oficios/12/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+>           _axe_estavel(pg)
+
+tests\e2e\test_conferencia_diarias.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+pg = <Page url='http://localhost:57639/viagens/oficios/12/editar/'>
+
+    def _axe_estavel(pg):
+        # A URL muda no commit da navegação, antes de o CSS registrar animações.
+        pg.wait_for_load_state("load")
+        # Transição nativa entre documentos desenha snapshots após load. O axe
+        # precisa da composição final, não do snapshot parcialmente transparente.
+        pg.evaluate("""async () => {
+            const limite = performance.now() + 5000;
+            while (document.documentElement.matches(':active-view-transition')) {
+                if (performance.now() > limite) throw new Error('Transição de navegação não terminou');
+                await new Promise(requestAnimationFrame);
+            }
+        }""")
+        # O cronômetro do toast pausa sob hover/foco por acessibilidade; não é
+        # animação de entrada nem pode ser aguardado até sumir para medir contraste.
+        pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
+            a.animationName !== 'toast-tempo' &&
+            a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+        violacoes = rodar_axe(pg)
+>       assert violacoes == [], str(violacoes)
+E       AssertionError: [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', 'help': 'All touch targets must be 24px large, or leave sufficient space', 'helpUrl': 'https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI', 'nodes': [{'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 138.7, 'height': 11.3}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/oficios/" aria-current="page"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['.navegacao__link[aria-current="page"][href$="oficios/"]']}, {'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-4" aria-label="Escolher data: Saída (data)">', 'target': ['button[aria-controls="seletor-4"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 138.7px by 11.3px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 3.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/oficios/" aria-current="page"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-file-text"></use></svg>Ofícios</a>', 'target': ['.navegacao__link[aria-current="page"][href$="oficios/"]']}, {'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-4" aria-label="Escolher data: Saída (data)">', 'target': ['button[aria-controls="seletor-4"]']}, {'html': '<input type="text" name="destino-0-saida_1" value="09:00" class="entrada" inputmode="numeric" placeholder="hh:mm" autocomplete="off" maxlength="5" data-mascara="hora" form="form-oficio" id="id_destino-0-saida_1" aria-labelledby="id_destino-0-saida-rotulo id_destino-0-saida-hora">', 'target': ['#id_destino-0-saida_1']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" name="destino-0-saida_0" value="15/10/2026" class="entrada" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" form="form-oficio" id="id_destino-0-saida_0" aria-labelledby="id_destino-0-saida-rotulo id_destino-0-saida-data">', 'target': ['#id_destino-0-saida_0'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 138.7px by 11.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 28.8, 'height': 7.7}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 6.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<input type="text" name="destino-0-saida_0" value="15/10/2026" class="entrada" inputmode="numeric" placeholder="dd/mm/aaaa" autocomplete="off" maxlength="10" data-mascara="data" form="form-oficio" id="id_destino-0-saida_0" aria-labelledby="id_destino-0-saida-rotulo id_destino-0-saida-data">', 'target': ['#id_destino-0-saida_0']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-4" aria-label="Escolher data: Saída (data)">', 'target': ['button[aria-controls="seletor-4"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 94.4, 'height': 11.3}, 'relatedNodes': [{'html': '<a class="navegacao__link" href="/viagens/roteiros/"><svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-route"></use></svg>Roteiros</a>', 'target': ['a[href$="roteiros/"]']}, {'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-adlzf9a" aria-expanded="false" id="menu-adlzf9a-botao">', 'target': ['#menu-adlzf9a-botao']}, {'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-8" aria-label="Escolher hora: Saída (hora)">', 'target': ['button[aria-controls="seletor-8"]']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 94.4px by 11.3px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 3.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-adlzf9a" aria-expanded="false" id="menu-adlzf9a-botao">', 'target': ['#menu-adlzf9a-botao']}, {'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-8mb6q9v" aria-expanded="false" id="menu-8mb6q9v-botao">', 'target': ['#menu-8mb6q9v-botao']}, {'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-8" aria-label="Escolher hora: Saída (hora)">', 'target': ['button[aria-controls="seletor-8"]']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" name="destino-0-saida_1" value="09:00" class="entrada" inputmode="numeric" placeholder="hh:mm" autocomplete="off" maxlength="5" data-mascara="hora" form="form-oficio" id="id_destino-0-saida_1" aria-labelledby="id_destino-0-saida-rotulo id_destino-0-saida-hora">', 'target': ['#id_destino-0-saida_1'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 94.4px by 11.3px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'messageKey': 'partiallyObscured', 'minSize': 24, 'width': 28.8, 'height': 7.7}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-adlzf9a" aria-expanded="false" id="menu-adlzf9a-botao">', 'target': ['#menu-adlzf9a-botao']}], 'impact': 'serious', 'message': 'Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 6.6, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-adlzf9a" aria-expanded="false" id="menu-adlzf9a-botao">', 'target': ['#menu-adlzf9a-botao']}, {'html': '<input type="text" name="destino-0-saida_1" value="09:00" class="entrada" inputmode="numeric" placeholder="hh:mm" autocomplete="off" maxlength="5" data-mascara="hora" form="form-oficio" id="id_destino-0-saida_1" aria-labelledby="id_destino-0-saida-rotulo id_destino-0-saida-hora">', 'target': ['#id_destino-0-saida_1']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.6px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<button type="button" class="seletor__botao" aria-haspopup="dialog" aria-expanded="false" aria-controls="seletor-8" aria-label="Escolher hora: Saída (hora)">', 'target': ['button[aria-controls="seletor-8"]'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 7.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 6.6px instead of at least 24px.'}, {'any': [{'id': 'target-size', 'data': {'minSize': 24, 'width': 105.1, 'height': 15.7}, 'relatedNodes': [], 'impact': 'serious', 'message': 'Target has insufficient size (105.1px by 15.7px, should be at least 24px by 24px)'}, {'id': 'target-offset', 'data': {'closestOffset': 2.2, 'minOffset': 24}, 'relatedNodes': [{'html': '<button type="button" class="navegacao__link" data-menu-botao="" aria-haspopup="menu" aria-controls="menu-8mb6q9v" aria-expanded="false" id="menu-8mb6q9v-botao">', 'target': ['#menu-8mb6q9v-botao']}], 'impact': 'serious', 'message': 'Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 2.2px instead of at least 24px.'}], 'all': [], 'none': [], 'impact': 'serious', 'html': '<input type="text" name="destino-0-tempo_viagem" value="07:30" class="entrada" inputmode="numeric" placeholder="hh:mm" autocomplete="off" maxlength="5" data-mascara="hora" form="form-oficio" id="id_destino-0-tempo_viagem">', 'target': ['#id_destino-0-tempo_viagem'], 'failureSummary': 'Fix any of the following:\n  Target has insufficient size (105.1px by 15.7px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 2.2px instead of at least 24px.'}]}]
+E       assert [{'id': 'targ... space', ...}] == []
+E         
+E         Left contains one more item: {'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}
+E         Use -v to get more diff
+
+tests\e2e\test_justificativas_identidade.py:34: AssertionError
+-------------------------- Captured stderr teardown ---------------------------
+[12/Oct/2026 18:11:42,023] - Broken pipe from ('127.0.0.1', 61212)
+[12/Oct/2026 18:11:42,108] - Broken pipe from ('127.0.0.1', 65129)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 61212)
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 65129)
+============================== warnings summary ===============================
+tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[360]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[768]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[1440]
+3 failed, 3 passed, 1 warning in 85.23s (0:01:25)

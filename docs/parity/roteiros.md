@@ -16,3 +16,15 @@ com base apenas em capturas do sistema alvo.
 
 Evidência: `../visual-agents/qa/roteiros-identidade-2026-10-10.md` e galeria
 `../visual-agents/evidencias/migracao-identidade-20261010/index.html`.
+
+## Revalidação de 12/10/2026 — conferência compartilhada
+
+A meta integral reabriu o fechamento anterior. Defeito reproduzido em Roteiros,
+Ofícios e Planos: a classe horizontal antiga sobrescrevia a grade operacional.
+O mesmo conjunto de dados, nas cinco larguras, foi capturado antes/depois.
+Removidas cinco regras e o parâmetro antigo de todos os includes; consulta,
+prévia HTMX, cálculos, retorno e condições de vazio/erro preservados.
+
+Evidências atuais em `../visual-agents/evidencias/migracao-identidade-20261012/`.
+As lacunas funcionais já descritas acima permanecem explícitas; esta alteração
+não cria controles de efetivo/observações nem modifica o contrato do legado.

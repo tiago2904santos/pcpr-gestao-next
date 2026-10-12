@@ -1,0 +1,412 @@
+..........2026-10-12 18:15:51,885 WARNING django.request Forbidden (Permission denied): /viagens/roteiros/39/editar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_roteiros.py", line 182, in editar
+    return _formulario(request, _roteiro_visivel(request, pk))
+                                ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_roteiros.py", line 34, in _roteiro_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 18:15:51,939 WARNING django.request Forbidden (Permission denied): /viagens/roteiros/novo/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_roteiros.py", line 178, in novo
+    return _formulario(request, None)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_roteiros.py", line 109, in _formulario
+    policies.exigir(policies.pode_criar_roteiro(request.user),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Seu usuário precisa estar lotado em uma unidade para criar roteiros.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Seu usuário precisa estar lotado em uma unidade para criar roteiros.
+..2026-10-12 18:15:53,474 WARNING django.request Unprocessable Content: /viagens/roteiros/novo/
+..2026-10-12 18:15:54,985 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/roteiros/50/criar-oficio/: 28 consultas (limite 25)
+..2026-10-12 18:15:56,982 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/88/editar/: 28 consultas (limite 25)
+.2026-10-12 18:15:57,990 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/93/editar/: 28 consultas (limite 25)
+.2026-10-12 18:15:58,781 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/98/editar/: 27 consultas (limite 25)
+.2026-10-12 18:15:59,836 WARNING django.request Unprocessable Content: /viagens/oficios/103/editar/
+.2026-10-12 18:16:00,704 WARNING django.request Unprocessable Content: /viagens/oficios/108/editar/
+.FFF....2026-10-12 18:19:06,458 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+2026-10-12 18:19:07,494 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+[12/Oct/2026 18:19:09,686] - Broken pipe from ('127.0.0.1', 64190)
+2026-10-12 18:19:10,759 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+2026-10-12 18:19:10,984 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+
+(process:3004): GLib-GIO-WARNING **: 18:19:12.010: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:3004): GLib-GIO-WARNING **: 18:19:12.299: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:3004): GLib-GIO-WARNING **: 18:19:12.299: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:3004): GLib-GIO-WARNING **: 18:19:12.693: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+2026-10-12 18:19:12,845 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+
+(process:3004): GLib-GIO-WARNING **: 18:19:12.979: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:3004): GLib-GIO-WARNING **: 18:19:13.033: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:3004): GLib-GIO-WARNING **: 18:19:13.063: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 18:19:14,052 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 59 consultas (limite 25)
+2026-10-12 18:19:14,054 WARNING django.request Unprocessable Content: /viagens/planos/4/eventos/salvar/
+2026-10-12 18:19:15,080 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+2026-10-12 18:19:15,939 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/finalizar/: 32 consultas (limite 25)
+2026-10-12 18:19:16,919 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 18:19:16,960 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 18:19:16,988 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 18:19:17,188 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+2026-10-12 18:19:18,682 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/1/remover/: 34 consultas (limite 25)
+2026-10-12 18:19:18,763 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 37 consultas (limite 25)
+[12/Oct/2026 18:19:19,227] - Broken pipe from ('127.0.0.1', 61671)
+[12/Oct/2026 18:19:19,335] - Broken pipe from ('127.0.0.1', 63468)
+............................................ [ 74%]
+.........................[12/Oct/2026 18:19:26,048] - Broken pipe from ('127.0.0.1', 59679)
+                                                [100%]
+================================== FAILURES ===================================
+_____________ test_diarias_legiveis_sem_colunas_artificiais[360] ______________
+
+logado = <Page url='http://localhost:56939/viagens/roteiros/71/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 111, 'oficio_rascunho': 112, 'oficio_vazio': 113, 'oficio_cancelado': 114, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            _axe_estavel(pg)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+            # Auditoria da região visível, mantendo a auditoria global acima. Campos
+            # anteriores podem cruzar o limite do viewport sob o cabeçalho sticky;
+            # sua acessibilidade ao receber foco é verificada separadamente abaixo.
+            violacoes = pg.evaluate("""async () => (await axe.run('#diarias', {
+                runOnly: {type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
+                resultTypes: ['violations']
+            })).violations""")
+            assert violacoes == [], str(violacoes)
+            for campo in pg.locator('input[name^="destino-"][name*="saida_"]').all():
+                campo.focus()
+                _controle_visivel(pg, campo)
+                botao = campo.locator('..').locator('.seletor__botao')
+                campo.press("Tab")
+>               _controle_visivel(pg, botao)
+
+tests\e2e\test_conferencia_diarias.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_conferencia_diarias.py:14: in _controle_visivel
+    pg.wait_for_function("""e => {
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:11559: in wait_for_function
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_page.py:1112: in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:860: in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000026A680E5010>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000026A68A3BB00>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_____________ test_diarias_legiveis_sem_colunas_artificiais[768] ______________
+
+logado = <Page url='http://localhost:56939/viagens/roteiros/74/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 116, 'oficio_rascunho': 117, 'oficio_vazio': 118, 'oficio_cancelado': 119, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            _axe_estavel(pg)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+            # Auditoria da região visível, mantendo a auditoria global acima. Campos
+            # anteriores podem cruzar o limite do viewport sob o cabeçalho sticky;
+            # sua acessibilidade ao receber foco é verificada separadamente abaixo.
+            violacoes = pg.evaluate("""async () => (await axe.run('#diarias', {
+                runOnly: {type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
+                resultTypes: ['violations']
+            })).violations""")
+            assert violacoes == [], str(violacoes)
+            for campo in pg.locator('input[name^="destino-"][name*="saida_"]').all():
+                campo.focus()
+                _controle_visivel(pg, campo)
+                botao = campo.locator('..').locator('.seletor__botao')
+                campo.press("Tab")
+>               _controle_visivel(pg, botao)
+
+tests\e2e\test_conferencia_diarias.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_conferencia_diarias.py:14: in _controle_visivel
+    pg.wait_for_function("""e => {
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:11559: in wait_for_function
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_page.py:1112: in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:860: in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000026A680E5010>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000026A689AE5C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_____________ test_diarias_legiveis_sem_colunas_artificiais[1440] _____________
+
+logado = <Page url='http://localhost:56939/viagens/roteiros/77/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 121, 'oficio_rascunho': 122, 'oficio_vazio': 123, 'oficio_cancelado': 124, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_diarias_legiveis_sem_colunas_artificiais(logado, dados_e2e, largura):
+        plano = _completo(dados_e2e)
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        rotas = [
+            f"/viagens/roteiros/{dados_e2e.ids['roteiro']}/editar/",
+            f"/viagens/oficios/{dados_e2e.ids['oficio_rascunho']}/editar/",
+            f"/viagens/planos/{plano.pk}/",
+        ]
+        for rota in rotas:
+            pg.goto(rota)
+            pg.wait_for_load_state("networkidle")
+            pg.evaluate("document.fonts.ready")
+            _axe_estavel(pg)
+            painel = pg.locator("#diarias .conferencia-serena")
+            expect(painel).to_contain_text("R$")
+            expect(painel.locator("dt")).to_have_text([
+                "Por servidor", "Tipo de destino", "Quantidade por servidor"])
+            dados = painel.locator("dl > div")
+            # Uma leitura atômica evita comparar caixas de instantes diferentes
+            # enquanto a rota e as fontes terminam de compor a página.
+            caixas = dados.evaluate_all("els => els.map(e => e.getBoundingClientRect().toJSON())")
+            assert len(caixas) == 3
+            # Valor individual e destino podem ser comparados na mesma linha.
+            assert abs(caixas[0]["y"] - caixas[1]["y"]) < 1
+            assert caixas[1]["x"] > caixas[0]["x"] + caixas[0]["width"]
+            if largura < 1024:
+                # Composição extensa ocupa uma linha útil, sem colunas vazias ao lado.
+                assert caixas[2]["y"] >= caixas[0]["y"] + caixas[0]["height"]
+                assert abs(caixas[2]["x"] - caixas[0]["x"]) < 1
+                assert caixas[2]["width"] > caixas[0]["width"] + caixas[1]["width"]
+            else:
+                assert abs(caixas[2]["y"] - caixas[0]["y"]) < 1
+            assert painel.evaluate("""e => [...e.querySelectorAll('dt,dd,strong')].every(d =>
+                d.scrollWidth <= d.clientWidth + 1 &&
+                d.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1)""")
+            assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+            painel.scroll_into_view_if_needed()
+            # A rolagem suave nativa não consta em document.getAnimations(). O índice
+            # acompanha as seções via IntersectionObserver; medir no meio do scroll
+            # mistura o contraste da transição e controles cruzando o topo fixo.
+            pg.evaluate("""async () => {
+                let anterior = scrollY, estavel = performance.now();
+                const limite = estavel + 5000;
+                while (performance.now() - estavel < 200) {
+                    await new Promise(requestAnimationFrame);
+                    if (scrollY !== anterior) { anterior = scrollY; estavel = performance.now(); }
+                    if (performance.now() > limite) throw new Error('Rolagem não estabilizou');
+                }
+            }""")
+            # Auditoria da região visível, mantendo a auditoria global acima. Campos
+            # anteriores podem cruzar o limite do viewport sob o cabeçalho sticky;
+            # sua acessibilidade ao receber foco é verificada separadamente abaixo.
+            violacoes = pg.evaluate("""async () => (await axe.run('#diarias', {
+                runOnly: {type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
+                resultTypes: ['violations']
+            })).violations""")
+            assert violacoes == [], str(violacoes)
+            for campo in pg.locator('input[name^="destino-"][name*="saida_"]').all():
+                campo.focus()
+                _controle_visivel(pg, campo)
+                botao = campo.locator('..').locator('.seletor__botao')
+                campo.press("Tab")
+>               _controle_visivel(pg, botao)
+
+tests\e2e\test_conferencia_diarias.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_conferencia_diarias.py:14: in _controle_visivel
+    pg.wait_for_function("""e => {
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:11559: in wait_for_function
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_page.py:1112: in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:860: in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000026A680E5010>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000026A689E6FC0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[360]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[768]
+FAILED tests/e2e/test_conferencia_diarias.py::test_diarias_legiveis_sem_colunas_artificiais[1440]
+3 failed, 94 passed, 1 warning in 243.64s (0:04:03)
