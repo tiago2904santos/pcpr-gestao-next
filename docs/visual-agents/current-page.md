@@ -12,6 +12,8 @@ Cobertura:4 de100 páginas. PR04 Documentos/Anexos concluída tecnicamente: inte
 Gate anterior:2343 testes verdes, anterior ao candidato atual. Ressalvas ambientais
 e hashes em qa/relatorio-2026-10-12.md e evidencias/migracao-identidade-20261012/.
 
+Checkpoint: PR04 commit167b81b. AS01 concluída tecnicamente com ressalva de automação; HTTP30, axe/UI Lab/tokens72, semJS3 e teclado1 verdes. Cobertura atual5/100. Próxima implementação VG01 Painel de Viagens, antes360/768/1440 capturado. Nenhuma suíte ativa. Ver qa/assinados-2026-10-12.md.
+
 
 ## Rodada vigente — Propagação da identidade, 10/10/2026
 

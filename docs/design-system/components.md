@@ -651,3 +651,8 @@ metadados editáveis. Consumidor inicial: comprovantes em Documentos da prestaç
 UI Lab16 demonstra a expansão. Não usar registro__corpo/registro__link na peça:
 essas classes carregam grid-area mobile e área de clique de outro componente.
 Links de arquivo são explícitos e ações permanecem operáveis fora deles.
+
+`barra-acoes--confirmacao` usa distribuição flexível para retorno e confirmação
+sem status de salvamento entre eles. Combinar com preparação/fluxo em formulários
+de envio nativo. Não reserva uma coluna de autosave nem estica o botão principal.
+Consumidores: fallback de via assinada e demonstração no UI Lab.

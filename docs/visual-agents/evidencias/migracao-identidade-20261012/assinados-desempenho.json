@@ -1,0 +1,104 @@
+{
+  "limite": "View e render, sem middleware HTTP. Mesmos registros, usuário1, banco READ ONLY. Latência concorrente com gate, inconclusiva.",
+  "amostras": [
+    {
+      "fase": "antes",
+      "prestacao": 258,
+      "repeticao": 0,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 182.35
+    },
+    {
+      "fase": "antes",
+      "prestacao": 258,
+      "repeticao": 1,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 24.21
+    },
+    {
+      "fase": "antes",
+      "prestacao": 258,
+      "repeticao": 2,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 19.08
+    },
+    {
+      "fase": "antes",
+      "prestacao": 257,
+      "repeticao": 0,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 21.63
+    },
+    {
+      "fase": "antes",
+      "prestacao": 257,
+      "repeticao": 1,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 25.73
+    },
+    {
+      "fase": "antes",
+      "prestacao": 257,
+      "repeticao": 2,
+      "consultas_view_render": 7,
+      "html_bytes": 18915,
+      "ms": 32.04
+    },
+    {
+      "fase": "depois",
+      "prestacao": 258,
+      "repeticao": 0,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 50.36
+    },
+    {
+      "fase": "depois",
+      "prestacao": 258,
+      "repeticao": 1,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 29.69
+    },
+    {
+      "fase": "depois",
+      "prestacao": 258,
+      "repeticao": 2,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 29.93
+    },
+    {
+      "fase": "depois",
+      "prestacao": 257,
+      "repeticao": 0,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 24.13
+    },
+    {
+      "fase": "depois",
+      "prestacao": 257,
+      "repeticao": 1,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 27.37
+    },
+    {
+      "fase": "depois",
+      "prestacao": 257,
+      "repeticao": 2,
+      "consultas_view_render": 7,
+      "html_bytes": 19155,
+      "ms": 30.07
+    }
+  ],
+  "css_antes_bytes": 194798,
+  "css_depois_bytes": 194887,
+  "js_novo_bytes": 0
+}

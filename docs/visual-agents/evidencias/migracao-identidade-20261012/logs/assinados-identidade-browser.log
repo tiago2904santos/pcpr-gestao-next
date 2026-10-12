@@ -1,0 +1,555 @@
+Timeout (0:01:00)!
+Thread 0x00000ed0 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000076c8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00006db8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00006f30 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000077b0 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00001c7c (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000073f4 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00006dd8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000029b4 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00003bd8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 221 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000015c8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x00001840 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 362 in finish_request
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 697 in process_request_thread
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 104 in process_request_thread
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 995 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x00006fa8 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x000016e0 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 778 in _poll
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\windows_events.py", line 446 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 2023 in _run_once
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 684 in run_forever
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\asyncio\base_events.py", line 713 in run_until_complete
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\playwright\sync_api\_context_manager.py", line 56 in greenlet_main
+FF2026-10-12 20:06:48,819 WARNING django.request Unprocessable Content: /viagens/assinados/oficio/11/
+F2026-10-12 20:07:33,670 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,759 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,814 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,973 INFO gestao.viagens.assinantes Ofício 16 emitido
+
+(process:8180): GLib-GIO-WARNING **: 20:07:38.661: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:8180): GLib-GIO-WARNING **: 20:07:39.288: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:8180): GLib-GIO-WARNING **: 20:07:39.288: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 20:07:40,488 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+
+(process:8180): GLib-GIO-WARNING **: 20:07:40.940: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:8180): GLib-GIO-WARNING **: 20:07:41.035: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:8180): GLib-GIO-WARNING **: 20:07:41.088: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:8180): GLib-GIO-WARNING **: 20:07:41.204: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+2026-10-12 20:07:43,575 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 35 consultas (limite 25)
+F2026-10-12 20:08:25,232 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,271 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,307 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,403 INFO gestao.viagens.assinantes Ofício 21 emitido
+2026-10-12 20:08:27,309 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 40 consultas (limite 25)
+2026-10-12 20:08:29,720 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 35 consultas (limite 25)
+F                                                                    [100%]
+================================== FAILURES ===================================
+_______________ test_fallback_sem_js_erro_anexar_e_trocar[360] ________________
+
+logado = <Page url='http://localhost:61447/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_fallback_sem_js_erro_anexar_e_trocar(logado, dados_e2e, largura):
+        origem = urlsplit(logado.url)
+        base = f"{origem.scheme}://{origem.netloc}"
+        context = logado.context.browser.new_context(
+            storage_state=logado.context.storage_state(), java_script_enabled=False,
+            base_url=base, viewport={"width": largura, "height": 800}, locale="pt-BR")
+        pg = context.new_page()
+        pk = dados_e2e.ids["oficio_emitido"]
+        rota = f"/viagens/assinados/oficio/{pk}/?voltar=/viagens/oficios/"
+        try:
+            pg.goto(rota)
+            expect(pg.get_by_role("heading", name="Anexar via assinada")).to_be_visible()
+            campo = pg.locator("#arquivo-assinado")
+            campo.set_input_files({"name": "invalido.pdf", "mimeType": "application/pdf", "buffer": b"invalido"})
+            with pg.expect_response(lambda r: r.request.method == "POST") as resposta:
+>               pg.get_by_role("button", name="Anexar via assinada").click()
+
+tests\e2e\test_assinados_identidade.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002A74E7C0C20>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002A74F5E7D80>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("button", name="Anexar via assinada")
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is not stable
+E               - retrying click action
+E               - waiting 20ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_______________ test_fallback_sem_js_erro_anexar_e_trocar[768] ________________
+
+logado = <Page url='http://localhost:61447/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_fallback_sem_js_erro_anexar_e_trocar(logado, dados_e2e, largura):
+        origem = urlsplit(logado.url)
+        base = f"{origem.scheme}://{origem.netloc}"
+        context = logado.context.browser.new_context(
+            storage_state=logado.context.storage_state(), java_script_enabled=False,
+            base_url=base, viewport={"width": largura, "height": 800}, locale="pt-BR")
+        pg = context.new_page()
+        pk = dados_e2e.ids["oficio_emitido"]
+        rota = f"/viagens/assinados/oficio/{pk}/"
+        try:
+            pg.goto(rota)
+            retorno = pg.locator('input[name="voltar"]').input_value()
+            assert retorno.startswith('/viagens/oficios/') and f'resumo={pk}' in retorno
+            expect(pg.get_by_role("heading", name="Anexar via assinada")).to_be_visible()
+            campo = pg.locator("#arquivo-assinado")
+>           campo.set_input_files({"name": "invalido.pdf", "mimeType": "application/pdf", "buffer": b"invalido"})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_assinados_identidade.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002A74E7C0C20>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002A754B0F6A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("button", name="Anexar via assinada")
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is not stable
+E               - retrying click action
+E               - waiting 20ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+_______________ test_fallback_sem_js_erro_anexar_e_trocar[1440] _______________
+
+logado = <Page url='http://localhost:61447/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_fallback_sem_js_erro_anexar_e_trocar(logado, dados_e2e, largura):
+        origem = urlsplit(logado.url)
+        base = f"{origem.scheme}://{origem.netloc}"
+        context = logado.context.browser.new_context(
+            storage_state=logado.context.storage_state(), java_script_enabled=False,
+            base_url=base, viewport={"width": largura, "height": 800}, locale="pt-BR")
+        pg = context.new_page()
+        pk = dados_e2e.ids["oficio_emitido"]
+        rota = f"/viagens/assinados/oficio/{pk}/"
+        try:
+            pg.goto(rota)
+            retorno = pg.locator('input[name="voltar"]').input_value()
+            assert retorno.startswith('/viagens/oficios/') and f'resumo={pk}' in retorno
+            expect(pg.get_by_role("heading", name="Anexar via assinada")).to_be_visible()
+            campo = pg.locator("#arquivo-assinado")
+            campo.set_input_files({"name": "invalido.pdf", "mimeType": "application/pdf", "buffer": b"invalido"})
+            with pg.expect_response(lambda r: r.request.method == "POST") as resposta:
+                pg.get_by_role("button", name="Anexar via assinada").click()
+            assert resposta.value.status == 422
+            expect(campo).to_have_attribute("aria-invalid", "true")
+            expect(pg.locator("#arquivo-assinado-erro")).to_be_visible()
+>           for nome, acao in [("primeiro.pdf", "Anexar via assinada"), ("segundo.pdf", "Trocar via assinada")]:
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_assinados_identidade.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002A74E7C0C20>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002A74F0F2B60>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("button", name="Anexar via assinada")
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <html lang="pt-BR">…</html> intercepts pointer events
+E               - retrying click action
+E               - waiting 20ms
+E             - element was detached from the DOM, retrying
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is not stable
+E               - retrying click action
+E               - waiting 20ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 20:06:48,819 WARNING django.request Unprocessable Content: /viagens/assinados/oficio/11/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /viagens/assinados/oficio/11/
+____________________ test_via_assinada_sem_violacoes[360] _____________________
+
+logado = <Page url='http://localhost:61447/viagens/ordens/1/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 16, 'oficio_rascunho': 17, 'oficio_vazio': 18, 'oficio_cancelado': 19, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_via_assinada_sem_violacoes(logado, dados_e2e, largura):
+        """A via assinada nas três telas que a recebem (resumo do ofício, termo e OS), a janela
+        de anexar aberta e a página de anexar sem a janela."""
+        from gestao.identidade.models import Usuario
+        from gestao.plataforma import outbox
+        from gestao.viagens import assinados, ordens, termos
+        from gestao.viagens.models import Oficio
+    
+        while outbox.processar_lote():
+            pass
+        operador = Usuario.objects.get(login="operador")
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pdf = b"%PDF-1.7\n%%EOF\n"
+        assinados.anexar(operador, assinados.Alvo("oficio", oficio), nome="oficio.pdf", conteudo=pdf)
+        termo = termos.salvar(operador, oficio=oficio)
+        assinados.anexar(operador, assinados.Alvo("termo", termo, termos.GENERICO), nome="t.pdf",
+                         conteudo=pdf)
+        ordem, _ = ordens.salvar(operador, oficios=[oficio])
+        ordens.dados_do_documento(ordem, fixar=True)
+        logado.set_viewport_size({"width": largura, "height": 900})
+        _avaliar(logado, f"/viagens/oficios/?resumo={oficio.pk}")
+        _avaliar(logado, f"/viagens/termos/{termo.pk}/")
+    
+        def abrir_janela(pg):
+            pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+            pg.get_by_role("dialog", name="Anexar via assinada").wait_for()
+>       _avaliar(logado, f"/viagens/ordens/{ordem.pk}/", antes=abrir_janela)
+
+tests\e2e\test_acessibilidade.py:193: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_acessibilidade.py:18: in _avaliar
+    antes(pg)
+tests\e2e\test_acessibilidade.py:191: in abrir_janela
+    pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002A74E7C0C20>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002A754C084A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("#via-assinada").get_by_role("link", name="Anexar via assinada")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 20:07:33,670 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,759 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,814 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:07:33,973 INFO gestao.viagens.assinantes Ofício 16 emitido
+2026-10-12 20:07:40,488 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+2026-10-12 20:07:43,575 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+INFO     gestao.viagens.assinantes:assinantes.py:49 Ofício 16 emitido
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/1/: 35 consultas (limite 25)
+____________________ test_via_assinada_sem_violacoes[1440] ____________________
+
+logado = <Page url='http://localhost:61447/viagens/ordens/2/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 21, 'oficio_rascunho': 22, 'oficio_vazio': 23, 'oficio_cancelado': 24, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_via_assinada_sem_violacoes(logado, dados_e2e, largura):
+        """A via assinada nas três telas que a recebem (resumo do ofício, termo e OS), a janela
+        de anexar aberta e a página de anexar sem a janela."""
+        from gestao.identidade.models import Usuario
+        from gestao.plataforma import outbox
+        from gestao.viagens import assinados, ordens, termos
+        from gestao.viagens.models import Oficio
+    
+        while outbox.processar_lote():
+            pass
+        operador = Usuario.objects.get(login="operador")
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pdf = b"%PDF-1.7\n%%EOF\n"
+        assinados.anexar(operador, assinados.Alvo("oficio", oficio), nome="oficio.pdf", conteudo=pdf)
+        termo = termos.salvar(operador, oficio=oficio)
+        assinados.anexar(operador, assinados.Alvo("termo", termo, termos.GENERICO), nome="t.pdf",
+                         conteudo=pdf)
+        ordem, _ = ordens.salvar(operador, oficios=[oficio])
+        ordens.dados_do_documento(ordem, fixar=True)
+        logado.set_viewport_size({"width": largura, "height": 900})
+        _avaliar(logado, f"/viagens/oficios/?resumo={oficio.pk}")
+        _avaliar(logado, f"/viagens/termos/{termo.pk}/")
+    
+        def abrir_janela(pg):
+            pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+            pg.get_by_role("dialog", name="Anexar via assinada").wait_for()
+>       _avaliar(logado, f"/viagens/ordens/{ordem.pk}/", antes=abrir_janela)
+
+tests\e2e\test_acessibilidade.py:193: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\e2e\test_acessibilidade.py:18: in _avaliar
+    antes(pg)
+tests\e2e\test_acessibilidade.py:191: in abrir_janela
+    pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002A74E7C0C20>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002A754DFD6C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("#via-assinada").get_by_role("link", name="Anexar via assinada")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 20:08:25,232 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,271 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,307 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:08:25,403 INFO gestao.viagens.assinantes Ofício 21 emitido
+2026-10-12 20:08:27,309 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 40 consultas (limite 25)
+2026-10-12 20:08:29,720 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 35 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+INFO     gestao.viagens.assinantes:assinantes.py:49 Ofício 21 emitido
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/2/: 40 consultas (limite 25)
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/ordens/2/: 35 consultas (limite 25)
+============================== warnings summary ===============================
+tests/e2e/test_acessibilidade.py::test_via_assinada_sem_violacoes[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_assinados_identidade.py::test_fallback_sem_js_erro_anexar_e_trocar[360]
+FAILED tests/e2e/test_assinados_identidade.py::test_fallback_sem_js_erro_anexar_e_trocar[768]
+FAILED tests/e2e/test_assinados_identidade.py::test_fallback_sem_js_erro_anexar_e_trocar[1440]
+FAILED tests/e2e/test_acessibilidade.py::test_via_assinada_sem_violacoes[360]
+FAILED tests/e2e/test_acessibilidade.py::test_via_assinada_sem_violacoes[1440]
+5 failed, 1 warning in 273.42s (0:04:33)

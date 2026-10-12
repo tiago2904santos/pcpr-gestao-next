@@ -308,3 +308,11 @@ alterar regra de prazo, corrente documental, permissões ou textos oficiais.
 Defeito preexistente reproduzido: após422 perdia busca/aba e links relativos
 apontavam para salvar (GET405). Agora contexto vem de voltar e navegação usa rota
 explícita da lista, incluindo paginação. Provas em QA de Justificativas.
+
+## AS01 — fallback de via assinada, 12/10/2026
+
+Página de anexação/troca mantém contrato comum de Ofício, Justificativa, Termo e
+OS: PDF15MB, permissão no GET/POST, validação de conteúdo, erro422 associado,
+retorno seguro e versão anterior preservada. Fluxo semJS verificado em360/768/1440,
+teclado e axe no erro. Nenhum documento oficial ou regra de assinatura alterado.
+QA: `docs/visual-agents/qa/assinados-2026-10-12.md`, com ressalva de automação.

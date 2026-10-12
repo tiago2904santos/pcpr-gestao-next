@@ -10,35 +10,35 @@ vê — ex.: arquivo que não começa com %PDF-). O mesmo formulário da janela
 onde se veio.
 {% endcomment %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <div class="pagina-cabecalho__texto">
-    <h1 class="pagina-cabecalho__titulo">{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</h1>
-    <p class="frase-oficio">
-      <span class="frase-oficio__item">{% icone "file-text" classe="icone--sm" %}{{ titulo }}</span>
-      {% include "viagens/assinados/_selo.html" %}
-    </p>
-  </div>
-</header>
+{% if s.via %}
+  {% include "componentes/registro_hero.html" with pagina=True contexto=titulo titulo="Trocar via assinada" situacao_template="viagens/assinados/_selo.html" %}
+{% else %}
+  {% include "componentes/registro_hero.html" with pagina=True contexto=titulo titulo="Anexar via assinada" %}
+{% endif %}
 
-<form method="post" enctype="multipart/form-data" novalidate class="documento documento--cartoes">
+<form method="post" enctype="multipart/form-data" novalidate class="documento documento--preparacao">
   {% csrf_token %}
   <input type="hidden" name="voltar" value="{{ voltar_url }}">
   <section class="secao" aria-labelledby="t-assinado">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-assinado"><span class="secao__numero">1</span>PDF assinado</h2>
-      <p class="secao__nota">O documento escaneado ou com assinatura digital, em PDF, até 15 MB. A via fica guardada com o documento; gerar o PDF continua gerando o documento atualizado.{% if s.via %} A via atual fica no histórico.{% endif %}</p>
+      <p class="secao__nota">Documento escaneado ou com assinatura digital.</p>
     </div>
     <div class="campo{% if erro %} campo--erro{% endif %}">
       <label class="campo__rotulo" for="arquivo-assinado">PDF assinado<span class="campo__obrigatorio" aria-hidden="true">*</span></label>
-      <input class="entrada entrada--arquivo" type="file" id="arquivo-assinado" name="arquivo" accept="application/pdf,.pdf" required{% if erro %} aria-invalid="true" aria-describedby="arquivo-assinado-erro"{% endif %}>
+      <input class="entrada entrada--arquivo" type="file" id="arquivo-assinado" name="arquivo" accept="application/pdf,.pdf" required aria-describedby="arquivo-assinado-ajuda{% if erro %} arquivo-assinado-erro{% endif %}"{% if erro %} aria-invalid="true"{% endif %}>
+      <p class="campo__ajuda" id="arquivo-assinado-ajuda">PDF, até 15 MB. A via fica guardada com o documento.{% if s.via %} A via atual será mantida no histórico.{% endif %}</p>
       {% if erro %}<p class="campo__erro" id="arquivo-assinado-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ erro }}</span></p>{% endif %}
     </div>
-    <p class="texto-sm">
-      {% if original_url %}<a href="{{ original_url }}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}Conferir o PDF gerado</a>{% endif %}
-      {% if s.via %} · <a href="{% url 'viagens:abrir_via_assinada' s.via.pk %}" target="_blank" rel="noopener">{% icone "file-signature" classe="icone--sm" %}Abrir a via atual</a>{% endif %}
-    </p>
+    <div class="pilha-sm">
+      <p class="texto-sm texto-secundario">Gerar o PDF continua produzindo o documento atualizado, separado da via assinada.</p>
+      <div class="linha">
+        {% if original_url %}<a class="botao botao--sm" href="{{ original_url }}" target="_blank" rel="noopener">{% icone "file-text" classe="icone--sm" %}Conferir o PDF gerado</a>{% endif %}
+        {% if s.via %}<a class="botao botao--sm" href="{% url 'viagens:abrir_via_assinada' s.via.pk %}" target="_blank" rel="noopener">{% icone "file-signature" classe="icone--sm" %}Abrir a via atual</a>{% endif %}
+      </div>
+    </div>
   </section>
-  <div class="barra-acoes">
+  <div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo barra-acoes--confirmacao">
     <a class="botao botao--texto" href="{{ voltar_url }}">{% icone "arrow-left" %}Voltar</a>
     <button type="submit" class="botao botao--primario">{% icone "file-signature" %}{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</button>
   </div>

@@ -1,0 +1,7 @@
+{
+  "gestao/viagens/templates/viagens/assinados/anexar.html": "aa72c76d15b254b69803a28df659df15b75c65cf54f535cb474422102c1a6f4a",
+  "static/css/components.css": "c30839b6c9cf93a46c1403f8612076a792f6638fd9b81f2fc101c1737cf3d548",
+  "gestao/ui_lab/templates/ui_lab/indice.html": "1b78a734b440a99d28cf0b30dce25ad019316659113179922eef8f2c07c605a7",
+  "tests/e2e/test_assinados_identidade.py": "470d2ae11ab998a4469a9fe9ca1d6d5ba2c629f8d56402350e8db68affa1bb76",
+  "tests/e2e/test_acessibilidade.py": "5f91c132a2ae4f86ed10ce01e76747ac7e4bf1ee65c459accbf913b93f7f6384"
+}

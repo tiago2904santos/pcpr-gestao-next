@@ -4121,6 +4121,7 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
 .barra-acoes--preparacao .barra-acoes__acoes > .botao--texto:hover { color: var(--cor-texto); }
 .barra-acoes__acoes { display: flex; align-items: center; gap: var(--esp-2); }
+.barra-acoes.barra-acoes--confirmacao { display: flex; justify-content: space-between; }
 .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
 @media (max-width: 767px) {
   .historico__linhas--operacional .historico__linha { grid-template-columns: var(--esp-6) minmax(0, 1fr); gap: var(--esp-1) var(--esp-3); padding: var(--esp-3) 0; align-items: start; }

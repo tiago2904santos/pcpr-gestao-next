@@ -188,7 +188,8 @@ def test_via_assinada_sem_violacoes(logado, dados_e2e, largura):
     _avaliar(logado, f"/viagens/termos/{termo.pk}/")
 
     def abrir_janela(pg):
-        pg.locator("#via-assinada").get_by_role("link", name="Anexar via assinada").click()
+        pg.locator("#documento").scroll_into_view_if_needed()
+        pg.locator("#editor-ordem [data-anexar-assinado]").click()
         pg.get_by_role("dialog", name="Anexar via assinada").wait_for()
     _avaliar(logado, f"/viagens/ordens/{ordem.pk}/", antes=abrir_janela)
     _avaliar(logado, f"/viagens/assinados/ordem/{ordem.pk}/")

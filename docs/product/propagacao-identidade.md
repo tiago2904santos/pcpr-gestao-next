@@ -366,3 +366,19 @@ Revisar anexo-campos nos três consumidores antes de qualquer remoção. Bases
 prestacao-equipe/servidor/registro são compartilhadas e continuam necessárias.
 Lacunas OCR, carimbo arrastável/automático, revisão de pacote e purga física
 continuam funcionais e fora da migração visual; não serão simuladas.
+
+## Contrato AS01 — Via assinada, 12/10/2026
+
+Fallback `/viagens/assinados/<tipo>/<pk>/` e variante com chave de Termo.
+Ofício, Justificativa, Termo e OS usam o mesmo template. GET exige permissão
+de anexar; não converter acesso negado em formulário readonly. POST nativo,
+multipart/CSRF, arquivo e voltar preservados; funciona sem JavaScript.
+PDF até15MB validado por extensão/conteúdo, troca mantém histórico. Erro422
+retorna à página com mensagem associada ao campo; retorno externo é rejeitado.
+Não declarar verificação criptográfica de assinatura. Não alterar PDF gerado.
+
+Antes capturado com Ofício159/2026 (pk258), sem POST nem abertura de PDF gerado.
+Migrar cabeçalho, seção e barra para padrões canônicos; separar orientação de
+arquivo e consulta às duas versões. IDs/names/rotas e selos permanecem.
+Bases documento--cartoes/barra-acoes possuem outros consumidores: removê-las
+desta página não autoriza exclusão global. Testar anexação/troca/erro sem JS.

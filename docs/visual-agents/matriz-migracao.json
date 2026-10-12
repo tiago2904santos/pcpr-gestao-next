@@ -1213,7 +1213,7 @@
         "qa/anexos-2026-10-12.md"
       ],
       "revisao_final": "Capturas reais cinco larguras, correção aberta e carimbo360/768/1440 revisados. Homologação visual do usuário pendente.",
-      "revisao_codigo": "Base c0963b8 + alterações locais",
+      "revisao_codigo": "167b81b",
       "dependencias_antigas": "anexo-campos é layout específico legítimo (envio/correção/carimbo). Bases de registro/cartões mantidas para outros consumidores; retiradas desta página quando substituídas.",
       "fontes_descoberta": [
         "config/urls.py",
@@ -1236,18 +1236,23 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "base.html",
-        "componentes/migalhas.html",
-        "viagens/assinados/_selo.html"
+        "registro_hero",
+        "documento--preparacao",
+        "barra-acoes--confirmacao",
+        "selo de assinatura"
       ],
-      "situacao": "NÃO INICIADA",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
       "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "testes_executados": [
+        "HTTP30; axe/UI Lab/tokens72; semJS3; teclado/axeerro1; typecheck/ruff verdes"
+      ],
+      "evidencias": [
+        "qa/assinados-2026-10-12.md"
+      ],
+      "revisao_final": "Inclusão/erro/troca360/768/1440 revisados independentemente. Ressalva: timeout anterior de estabilidade da automação, causa não comprovada. Homologação visual pendente.",
+      "revisao_codigo": "Base167b81b + alterações locais",
+      "dependencias_antigas": "Bases pagina-cabecalho/documento--cartoes removidas do consumidor, mantidas para demais páginas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
