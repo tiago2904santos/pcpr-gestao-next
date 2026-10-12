@@ -34,19 +34,27 @@
         "viagens/oficios/_dialogo_resumo.html",
         "viagens/oficios/_registro.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [
         "Registros sem classe canônica: placa invisível e metadados sobrepostos.",
         "Coluna lateral comprimia as filas; cartões externos redundantes."
       ],
       "alteracoes_implementadas": [
         "Hero canônico; registros operacionais em largura inteira.",
-        "Filas sem cartões externos; atalhos em grade; contexto no fluxo."
+        "Filas sem cartões externos; atalhos em grade; contexto no fluxo.",
+        "Variante vazio--compacto canônica nas duas filas e UI Lab."
       ],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "08273e1 + candidato local VG01",
+      "testes_executados": [
+        "76 testes finais, navegador/teclado/axe, vazio/consulta, tokens e UI Lab",
+        "Ruff e tipos JS verdes",
+        "16SQL preservadas; HTML+54bytes; CSS+644bytes; JS0"
+      ],
+      "evidencias": [
+        "evidencias/migracao-identidade-20261012/painel-candidato.json",
+        "qa/painel-2026-10-12.md"
+      ],
+      "revisao_final": "Capturas5larguras e estados vazios revistos. Homologação visual do usuário pendente.",
+      "revisao_codigo": "4113442 + candidato painel-candidato.json",
       "dependencias_antigas": "painel.css e listas.css mantidos: consumidores e controles ainda os utilizam. Wrappers locais cartao e lateral sticky substituídos.",
       "fontes_descoberta": [
         "config/urls.py",

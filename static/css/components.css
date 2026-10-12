@@ -1723,6 +1723,27 @@ a.tabela__principal:hover {
   justify-content: center;
 }
 
+/* Filas secundárias: conserva a mensagem sem ocupar uma página vazia. */
+.vazio--compacto {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--esp-3);
+  row-gap: var(--esp-1);
+  padding: var(--esp-5) var(--esp-4);
+  text-align: left;
+}
+.vazio--compacto .vazio__icone {
+  grid-row: span 2;
+  width: var(--esp-10);
+  height: var(--esp-10);
+  margin: 0;
+  box-shadow: none;
+}
+.vazio--compacto .vazio__titulo { font-size: var(--texto-md); }
+.vazio--compacto .vazio__texto { grid-column: 2; max-width: none; }
+.vazio--compacto .grupo-botoes { grid-column: 2; justify-content: flex-start; }
+
 /* =============== Diálogo / gaveta (pc-dialogo) =============== */
 dialog.dialogo {
   position: fixed;

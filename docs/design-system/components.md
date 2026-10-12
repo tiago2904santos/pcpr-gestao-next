@@ -656,3 +656,21 @@ Links de arquivo são explícitos e ações permanecem operáveis fora deles.
 sem status de salvamento entre eles. Combinar com preparação/fluxo em formulários
 de envio nativo. Não reserva uma coluna de autosave nem estica o botão principal.
 Consumidores: fallback de via assinada e demonstração no UI Lab.
+
+### Painel operacional — composição de filas
+
+O arquétipo `arquetipos/painel.html` permite sobrescrever
+`classe_layout_painel` e `classe_contexto_painel`. Os valores padrão mantêm
+a composição com lateral dos consumidores anteriores. Viagens utiliza
+`pilha-lg` e `pilha`: filas em largura inteira e contexto no fluxo.
+Cada fila reutiliza `colecao-operacional` e `registros--operacionais`, sem
+cartão externo. Não omitir a classe operacional ao incluir `_registro.html`:
+ela participa do contrato visual de placa, recursos e conferência.
+Atalhos podem usar `grade grade--2` para duas colunas responsivas, mantendo
+links/botões e nomes acessíveis. Não há script nem folha de estilo adicional.
+
+`componentes/vazio.html` aceita `compacto=True` para filas secundárias.
+A variante preserva título, texto, ícone e ações; usa ícone menor sem brilho,
+mensagem alinhada à esquerda e altura pelo conteúdo. Consumidores iniciais:
+duas filas do Painel de Viagens e demonstrações do UI Lab, com e sem ação.
+O padrão centralizado continua inalterado para listas vazias de página inteira.

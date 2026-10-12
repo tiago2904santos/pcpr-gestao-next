@@ -1,0 +1,76 @@
+......................................F................................. [ 94%]
+EEEE                                                                     [100%]
+=================================== ERRORS ====================================
+______________ ERROR at setup of test_painel_unidade_sem_oficios ______________
+file C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_painel_viagens_estados.py, line 16
+  def test_painel_unidade_sem_oficios(logado, dados_e2e):
+E       fixture 'logado' not found
+>       available fixtures: _dj_autoclear_mailbox, _django_clear_site_cache, _django_db_helper, _django_db_marker, _django_isolate_apps, _django_set_urlconf, _django_setup_unittest, _fail_for_invalid_template_variable, _live_server_helper, _template_string_if_invalid_marker, admin_client, admin_user, async_client, async_rf, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cliente_logado, cov, db, django_assert_max_num_queries, django_assert_num_queries, django_capture_on_commit_callbacks, django_db_blocker, django_db_createdb, django_db_keepdb, django_db_modify_db_settings, django_db_modify_db_settings_parallel_suffix, django_db_modify_db_settings_tox_suffix, django_db_modify_db_settings_xdist_suffix, django_db_reset_sequences, django_db_serialized_rollback, django_db_setup, django_db_use_migrations, django_isolated_apps, django_mail_dnsname, django_mail_patch_dns, django_test_environment, django_user_model, django_username_field, doctest_namespace, live_server, mailoutbox, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, rf, settings, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, transactional_db, trilha_descartavel, usuario, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_painel_viagens_estados.py:16
+___________ ERROR at setup of test_painel_consulta_menu_sem_escrita ___________
+file C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_painel_viagens_estados.py, line 34
+  def test_painel_consulta_menu_sem_escrita(pagina):
+E       fixture 'pagina' not found
+>       available fixtures: _dj_autoclear_mailbox, _django_clear_site_cache, _django_db_helper, _django_db_marker, _django_isolate_apps, _django_set_urlconf, _django_setup_unittest, _fail_for_invalid_template_variable, _live_server_helper, _template_string_if_invalid_marker, admin_client, admin_user, async_client, async_rf, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cliente_logado, cov, db, django_assert_max_num_queries, django_assert_num_queries, django_capture_on_commit_callbacks, django_db_blocker, django_db_createdb, django_db_keepdb, django_db_modify_db_settings, django_db_modify_db_settings_parallel_suffix, django_db_modify_db_settings_tox_suffix, django_db_modify_db_settings_xdist_suffix, django_db_reset_sequences, django_db_serialized_rollback, django_db_setup, django_db_use_migrations, django_isolated_apps, django_mail_dnsname, django_mail_patch_dns, django_test_environment, django_user_model, django_username_field, doctest_namespace, live_server, mailoutbox, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, rf, settings, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, transactional_db, trilha_descartavel, usuario, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_painel_viagens_estados.py:34
+____ ERROR at setup of test_ui_lab_sem_violacoes_em_todas_as_larguras[360] ____
+file C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_acessibilidade.py, line 87
+  @pytest.mark.parametrize("largura", [360, 1440])
+  def test_ui_lab_sem_violacoes_em_todas_as_larguras(logado, largura):
+E       fixture 'logado' not found
+>       available fixtures: _dj_autoclear_mailbox, _django_clear_site_cache, _django_db_helper, _django_db_marker, _django_isolate_apps, _django_set_urlconf, _django_setup_unittest, _fail_for_invalid_template_variable, _live_server_helper, _template_string_if_invalid_marker, admin_client, admin_user, async_client, async_rf, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cliente_logado, cov, db, django_assert_max_num_queries, django_assert_num_queries, django_capture_on_commit_callbacks, django_db_blocker, django_db_createdb, django_db_keepdb, django_db_modify_db_settings, django_db_modify_db_settings_parallel_suffix, django_db_modify_db_settings_tox_suffix, django_db_modify_db_settings_xdist_suffix, django_db_reset_sequences, django_db_serialized_rollback, django_db_setup, django_db_use_migrations, django_isolated_apps, django_mail_dnsname, django_mail_patch_dns, django_test_environment, django_user_model, django_username_field, doctest_namespace, live_server, mailoutbox, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, rf, settings, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, transactional_db, trilha_descartavel, usuario, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_acessibilidade.py:87
+___ ERROR at setup of test_ui_lab_sem_violacoes_em_todas_as_larguras[1440] ____
+file C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_acessibilidade.py, line 87
+  @pytest.mark.parametrize("largura", [360, 1440])
+  def test_ui_lab_sem_violacoes_em_todas_as_larguras(logado, largura):
+E       fixture 'logado' not found
+>       available fixtures: _dj_autoclear_mailbox, _django_clear_site_cache, _django_db_helper, _django_db_marker, _django_isolate_apps, _django_set_urlconf, _django_setup_unittest, _fail_for_invalid_template_variable, _live_server_helper, _template_string_if_invalid_marker, admin_client, admin_user, async_client, async_rf, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, cliente_logado, cov, db, django_assert_max_num_queries, django_assert_num_queries, django_capture_on_commit_callbacks, django_db_blocker, django_db_createdb, django_db_keepdb, django_db_modify_db_settings, django_db_modify_db_settings_parallel_suffix, django_db_modify_db_settings_tox_suffix, django_db_modify_db_settings_xdist_suffix, django_db_reset_sequences, django_db_serialized_rollback, django_db_setup, django_db_use_migrations, django_isolated_apps, django_mail_dnsname, django_mail_patch_dns, django_test_environment, django_user_model, django_username_field, doctest_namespace, live_server, mailoutbox, monkeypatch, no_cover, platformdirs_isolated, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, rf, settings, subtests, testrun_uid, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, transactional_db, trilha_descartavel, usuario, worker_id
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_acessibilidade.py:87
+================================== FAILURES ===================================
+_____________________ test_todos_os_tokens_usados_existem _____________________
+
+    def test_todos_os_tokens_usados_existem():
+        tokens = (CSS / "tokens.css").read_text(encoding="utf-8")
+        definidos = set(re.findall(r"(--[a-z0-9-]+)\s*:", tokens))
+        usados: set[str] = set()
+        for arquivo in CSS.glob("*.css"):
+            usados |= set(re.findall(r"var\((--[a-z0-9-]+)", arquivo.read_text(encoding="utf-8")))
+        locais = {"--botao-fundo", "--botao-texto", "--botao-borda", "--botao-fundo-hover",
+                  "--selo-fundo", "--selo-texto", "--selo-borda", "--alerta-fundo",
+                  "--alerta-texto", "--alerta-borda",
+                  # Variáveis locais de componente (definidas no próprio seletor).
+                  "--botao-sombra", "--toast-cor",
+                  # Rótulo na borda: fundo de onde o campo está / fundo da caixa.
+                  "--fundo-rotulo", "--fundo-entrada",
+                  # Itinerário: largura da coluna do trilho e centro vertical do marco.
+                  "--itin-trilho", "--itin-centro",
+                  # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
+                  # por editores.js); colunas da grade de filtros (com valor padrão no var()).
+                  "--largura-indice", "--altura-barra", "--filtros-colunas",
+                  # Detalhe da escolha dentro do campo: a posição medida pelo combobox.
+                  "--meta-x",
+                  # Índice da preparação: a largura da barra de progresso, definida pela classe
+                  # `indice-preparacao--pN` que o servidor calcula (CSP não aceita style inline).
+                  "--progresso-preparacao"}
+        faltando = sorted(usados - definidos - locais)
+>       assert not faltando, f"Tokens usados mas não definidos: {faltando}"
+E       AssertionError: Tokens usados mas não definidos: ['--texto-base']
+E       assert not ['--texto-base']
+
+tests\test_design_tokens.py:66: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_design_tokens.py::test_todos_os_tokens_usados_existem - Ass...
+ERROR tests/e2e/test_painel_viagens_estados.py::test_painel_unidade_sem_oficios
+ERROR tests/e2e/test_painel_viagens_estados.py::test_painel_consulta_menu_sem_escrita
+ERROR tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[360]
+ERROR tests/e2e/test_acessibilidade.py::test_ui_lab_sem_violacoes_em_todas_as_larguras[1440]
+1 failed, 71 passed, 4 errors in 85.20s (0:01:25)

@@ -1,6 +1,6 @@
 {% comment %}Estado vazio: icone, titulo, texto, e opcionalmente acao_url/acao_rotulo/acao_icone, limpar_url
 ou acao_template (template com a ação, ex.: um formulário POST).{% endcomment %}
-<div class="vazio">
+<div class="vazio{% if compacto %} vazio--compacto{% endif %}">
   <span class="vazio__icone" aria-hidden="true">{% icone icone|default:"inbox" classe="icone--lg" %}</span>
   <h2 class="vazio__titulo">{{ titulo }}</h2>
   {% if texto %}<p class="vazio__texto">{{ texto }}</p>{% endif %}

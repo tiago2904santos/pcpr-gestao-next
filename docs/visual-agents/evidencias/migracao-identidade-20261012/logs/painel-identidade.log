@@ -1,0 +1,211 @@
+FFF..................................................................... [100%]
+================================== FAILURES ===================================
+______________ test_painel_registros_menu_resumo_e_teclado[360] _______________
+
+logado = <Page url='http://localhost:64773/viagens/'>, largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_painel_registros_menu_resumo_e_teclado(logado, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/", wait_until="networkidle")
+        expect(pg.get_by_role("heading", name="Para concluir", exact=True)).to_be_visible()
+        registros = pg.locator('.registros--operacionais > .registro')
+        assert registros.count() > 0
+        assert registros.first.evaluate("e => getComputedStyle(e).display") == "grid"
+        assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        assert not rodar_axe(pg)
+        botao = registros.first.locator('[data-menu-botao]')
+        botao.focus()
+        pg.keyboard.press("Enter")
+        menu = pg.locator('[role="menu"]:visible')
+        expect(menu).to_be_visible()
+        expect(menu.locator('[data-menu-carregando]')).to_have_count(0)
+        assert not rodar_axe(pg)
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        link = registros.first.locator('[data-abrir-dialogo="dialogo-resumo"]')
+>       link.focus()
+
+tests\e2e\test_painel_viagens_identidade.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:16741: in focus
+    self._sync(self._impl_obj.focus(timeout=timeout))
+.venv\Lib\site-packages\playwright\_impl\_locator.py:382: in focus
+    return await self._frame.focus(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:683: in focus
+    await self._channel.send("focus", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001D4D075DA90>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001D4D1DA6AC0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.focus: Error: strict mode violation: locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]") resolved to 2 elements:
+E               1) <a hx-swap="innerHTML" class="registro__link" hx-target="#resumo-dialogo" href="/viagens/oficios/3/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/3/resumo/">…</a> aka get_by_role("link", name="Ofício 03/2026 · Sem destino")
+E               2) <a role="menuitem" class="menu__item" hx-swap="innerHTML" hx-target="#resumo-dialogo" href="/viagens/oficios/3/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/3/resumo/">…</a> aka get_by_text("Ver resumo")
+E           
+E           Call log:
+E             - waiting for locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+______________ test_painel_registros_menu_resumo_e_teclado[768] _______________
+
+logado = <Page url='http://localhost:64773/viagens/'>, largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_painel_registros_menu_resumo_e_teclado(logado, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/", wait_until="networkidle")
+        expect(pg.get_by_role("heading", name="Para concluir", exact=True)).to_be_visible()
+        registros = pg.locator('.registros--operacionais > .registro')
+        assert registros.count() > 0
+        assert registros.first.evaluate("e => getComputedStyle(e).display") == "grid"
+        assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        assert not rodar_axe(pg)
+        botao = registros.first.locator('[data-menu-botao]')
+        botao.focus()
+        pg.keyboard.press("Enter")
+        menu = pg.locator('[role="menu"]:visible')
+        expect(menu).to_be_visible()
+        expect(menu.locator('[data-menu-carregando]')).to_have_count(0)
+        assert not rodar_axe(pg)
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        link = registros.first.locator('[data-abrir-dialogo="dialogo-resumo"]')
+>       link.focus()
+
+tests\e2e\test_painel_viagens_identidade.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:16741: in focus
+    self._sync(self._impl_obj.focus(timeout=timeout))
+.venv\Lib\site-packages\playwright\_impl\_locator.py:382: in focus
+    return await self._frame.focus(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:683: in focus
+    await self._channel.send("focus", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001D4D075DA90>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001D4D26513A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.focus: Error: strict mode violation: locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]") resolved to 2 elements:
+E               1) <a hx-swap="innerHTML" class="registro__link" hx-target="#resumo-dialogo" href="/viagens/oficios/8/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/8/resumo/">…</a> aka get_by_role("link", name="Ofício 03/2026 · Sem destino")
+E               2) <a role="menuitem" class="menu__item" hx-swap="innerHTML" hx-target="#resumo-dialogo" href="/viagens/oficios/8/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/8/resumo/">…</a> aka get_by_text("Ver resumo")
+E           
+E           Call log:
+E             - waiting for locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+______________ test_painel_registros_menu_resumo_e_teclado[1440] ______________
+
+logado = <Page url='http://localhost:64773/viagens/'>, largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_painel_registros_menu_resumo_e_teclado(logado, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.goto("/viagens/", wait_until="networkidle")
+        expect(pg.get_by_role("heading", name="Para concluir", exact=True)).to_be_visible()
+        registros = pg.locator('.registros--operacionais > .registro')
+        assert registros.count() > 0
+        assert registros.first.evaluate("e => getComputedStyle(e).display") == "grid"
+        assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
+        assert not rodar_axe(pg)
+        botao = registros.first.locator('[data-menu-botao]')
+        botao.focus()
+        pg.keyboard.press("Enter")
+        menu = pg.locator('[role="menu"]:visible')
+        expect(menu).to_be_visible()
+        expect(menu.locator('[data-menu-carregando]')).to_have_count(0)
+        assert not rodar_axe(pg)
+        pg.keyboard.press("Escape")
+        expect(botao).to_be_focused()
+        link = registros.first.locator('[data-abrir-dialogo="dialogo-resumo"]')
+>       link.focus()
+
+tests\e2e\test_painel_viagens_identidade.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:16741: in focus
+    self._sync(self._impl_obj.focus(timeout=timeout))
+.venv\Lib\site-packages\playwright\_impl\_locator.py:382: in focus
+    return await self._frame.focus(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:683: in focus
+    await self._channel.send("focus", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001D4D075DA90>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001D4D0C31760>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Locator.focus: Error: strict mode violation: locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]") resolved to 2 elements:
+E               1) <a hx-swap="innerHTML" class="registro__link" hx-target="#resumo-dialogo" href="/viagens/oficios/13/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/13/resumo/">…</a> aka get_by_role("link", name="Ofício 03/2026 · Sem destino")
+E               2) <a role="menuitem" class="menu__item" hx-swap="innerHTML" hx-target="#resumo-dialogo" href="/viagens/oficios/13/editar/" data-abrir-dialogo="dialogo-resumo" hx-get="/viagens/oficios/13/resumo/">…</a> aka get_by_text("Ver resumo")
+E           
+E           Call log:
+E             - waiting for locator(".registros--operacionais > .registro").first.locator("[data-abrir-dialogo=\"dialogo-resumo\"]")
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: Error
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_painel_viagens_identidade.py::test_painel_registros_menu_resumo_e_teclado[360]
+FAILED tests/e2e/test_painel_viagens_identidade.py::test_painel_registros_menu_resumo_e_teclado[768]
+FAILED tests/e2e/test_painel_viagens_identidade.py::test_painel_registros_menu_resumo_e_teclado[1440]
+3 failed, 69 passed in 83.44s (0:01:23)

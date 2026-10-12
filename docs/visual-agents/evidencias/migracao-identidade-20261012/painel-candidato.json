@@ -1,0 +1,18 @@
+{
+  "base": "4113442",
+  "fontes": {
+    "templates/arquetipos/painel.html": "189d25e230065985df67cfa0c818c6e3b4e831d2307034ae08860db195219d4c",
+    "templates/componentes/vazio.html": "2debcfc742d42bc362f00b259914e452d3b6f90aa4ed46d98d0434dd2f85afe9",
+    "gestao/viagens/templates/viagens/painel.html": "7e46a6e70bee3fb102b9eb99e3d8be240b125d610643b40afb81485f6ea4e2c5",
+    "static/css/components.css": "49ac48cf812cdd91e4ae88419b6c6ceec8100a8a97f46e6fc33b210ba24c1dee",
+    "gestao/ui_lab/templates/ui_lab/indice.html": "b79f01107f20ac013a1d57ea6e8f8892a9218845e4c7fb292586d9d86f237f97",
+    "tests/e2e/test_painel_viagens_identidade.py": "7787cbf0af805c15dd7267d70f9e6a2fe2d2a227e358df9e35084457d1bf94e2",
+    "tests/e2e/test_painel_viagens_estados.py": "b7d1c891e7bccbf2c61ae09d7ca60818090cff3043ca28d5182e2464a3021eb2"
+  },
+  "testes": [
+    "painel-compacto-validado:76 aprovados em151,01s",
+    "Ruff verde",
+    "typecheck verde"
+  ],
+  "limite": "Homologação visual do usuário não presumida."
+}

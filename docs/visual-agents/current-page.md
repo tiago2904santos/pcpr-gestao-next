@@ -2,18 +2,18 @@
 
 ## Meta integral vigente — 12/10/2026
 
-A rodada abaixo é histórica. A meta atual reabriu a validação de todas as
-páginas implementadas. Fonte de situação por página: `matriz-migracao.json`;
-checkpoint: `migracao-identidade-20261010.md`, seção de 12/10. Não presumir
-conclusão pelo gate antigo. PR03 Relatório Técnico concluído tecnicamente:78 testes finais,
-15 capturas em cinco larguras, nove contextos compartilhados e revisão independente.
-PR02 Diário e PR01 Lista de Prestação também concluídos tecnicamente nesta revalidação.
-Cobertura:4 de100 páginas. PR04 Documentos/Anexos concluída tecnicamente: integrado38 verde, captura estável/carimbo1 verde e imagens conferidas. Homologação visual não presumida. Próxima página AS01, Anexar via assinada: antes capturado em360/768/1440, sem escrita no DEMO.
-Gate anterior:2343 testes verdes, anterior ao candidato atual. Ressalvas ambientais
-e hashes em qa/relatorio-2026-10-12.md e evidencias/migracao-identidade-20261012/.
+Meta integral ativa:100 páginas reais +5 superfícies HTML oficiais.
+Concluídas tecnicamente:VG01,RO01/RO02/RO03,PR01/PR02/PR03/PR04,AS01 (9/100).
+Roteiros: commit4113442 registra vínculo comprovado ao gate histórico2343.
+Painel:76testes finais verdes, tipos/ruff verdes,5larguras, variante vazio compacta
+com UI Lab e estados reais. QA:painel-2026-10-12.md. Commit de fechamento em preparo.
 
-Checkpoint: PR04 commit167b81b. AS01 concluída tecnicamente com ressalva de automação; HTTP30, axe/UI Lab/tokens72, semJS3 e teclado1 verdes. Cobertura atual5/100. Próxima implementação VG01 Painel de Viagens, antes360/768/1440 capturado. Nenhuma suíte ativa. Ver qa/assinados-2026-10-12.md.
-
+Próxima página:Termos TE01→TE03. Revisor comprovou link do menu de via assinada
+para#lista-documentos inexistente; alvo real#previa. Corrigir link e adicionar
+E2E partindo do menu, conferir editor/via. TemplatesTermos ainda não editados.
+Galeria629 com estados finais do Painel. Suíte7262 encerrada76verde; nenhuma
+suíte de teste ativa. Arquivo _equipe.html do usuário protegido.
+Homologação visual do usuário não presumida; gate2343 não é gate global atual.
 
 ## Rodada vigente — Propagação da identidade, 10/10/2026
 

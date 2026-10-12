@@ -382,3 +382,15 @@ Migrar cabeçalho, seção e barra para padrões canônicos; separar orientaçã
 arquivo e consulta às duas versões. IDs/names/rotas e selos permanecem.
 Bases documento--cartoes/barra-acoes possuem outros consumidores: removê-las
 desta página não autoriza exclusão global. Testar anexação/troca/erro sem JS.
+
+## Contrato VG01 — Painel de Viagens, 12/10/2026
+
+GET /viagens/, leitura de ofícios visíveis ao usuário. Quatro indicadores com
+semântica preservada: mês, rascunhos, saídas30dias e diárias emitidas. Filas de
+até5rascunhos e5próximas viagens mantêm ordem/recorte atuais. Links filtrados,
+menus, resumo, assinatura/baixar e permissões permanecem. Referência funcional
+docs/product/modules.md e legacy-lessons.md (painel é melhoria do sistema novo).
+Antes360/768/1440 expõe registros quebrados: falta classe registros--operacionais
+que ativa o grid/placa do componente compartilhado. Não é nova regra de negócio.
+Usar hero e grid canônicos, filas com largura útil e atalhos de contexto fora
+da coluna que comprime registros. Arquétipo continua fonte da estrutura.

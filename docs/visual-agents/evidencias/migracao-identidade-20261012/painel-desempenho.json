@@ -1,0 +1,56 @@
+{
+  "limite": "View e render, sem middleware HTTP. Mesmos registros, usuário1, banco READ ONLY. Latência concorrente com gate, inconclusiva.",
+  "amostras": [
+    {
+      "fase": "antes",
+      "prestacao": 0,
+      "repeticao": 0,
+      "consultas_view_render": 16,
+      "html_bytes": 75652,
+      "ms": 476.34
+    },
+    {
+      "fase": "antes",
+      "prestacao": 0,
+      "repeticao": 1,
+      "consultas_view_render": 16,
+      "html_bytes": 75652,
+      "ms": 175.29
+    },
+    {
+      "fase": "antes",
+      "prestacao": 0,
+      "repeticao": 2,
+      "consultas_view_render": 16,
+      "html_bytes": 75652,
+      "ms": 173.19
+    },
+    {
+      "fase": "depois",
+      "prestacao": 0,
+      "repeticao": 0,
+      "consultas_view_render": 16,
+      "html_bytes": 75706,
+      "ms": 240.94
+    },
+    {
+      "fase": "depois",
+      "prestacao": 0,
+      "repeticao": 1,
+      "consultas_view_render": 16,
+      "html_bytes": 75706,
+      "ms": 163.03
+    },
+    {
+      "fase": "depois",
+      "prestacao": 0,
+      "repeticao": 2,
+      "consultas_view_render": 16,
+      "html_bytes": 75706,
+      "ms": 155.47
+    }
+  ],
+  "css_antes_bytes": 194887,
+  "css_depois_bytes": 195531,
+  "js_novo_bytes": 0
+}
