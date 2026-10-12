@@ -10,7 +10,7 @@ e operação (opcionais; a soma é conferida com a diária).
   {% if tipo == "comprovante" %}
   <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-valor">Valor</label><input class="entrada" id="{{ id }}{{ servidor|default:'' }}-valor" name="valor" inputmode="decimal" placeholder="R$ 0,00" autocomplete="off"></div>
   <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-data">Data da operação</label><input class="entrada" id="{{ id }}{{ servidor|default:'' }}-data" name="data_operacao" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" data-mascara="data" autocomplete="off"></div>
-  <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-operacao">Operação</label><select class="selecao" id="{{ id }}{{ servidor|default:'' }}-operacao" name="operacao"><option value="">—</option>{% for v, r in operacoes %}<option value="{{ v }}">{{ r }}</option>{% endfor %}</select></div>
+  <div class="campo"><label class="campo__rotulo" for="{{ id }}{{ servidor|default:'' }}-operacao">Operação</label><pc-select class="seletor"><select class="selecao" id="{{ id }}{{ servidor|default:'' }}-operacao" name="operacao"><option value="">—</option>{% for v, r in operacoes %}<option value="{{ v }}">{{ r }}</option>{% endfor %}</select></pc-select></div>
   {% endif %}
   <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "file-input" %}Anexar</button></div>
 </form>

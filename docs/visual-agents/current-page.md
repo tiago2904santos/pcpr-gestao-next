@@ -8,8 +8,7 @@ checkpoint: `migracao-identidade-20261010.md`, seção de 12/10. Não presumir
 conclusão pelo gate antigo. PR03 Relatório Técnico concluído tecnicamente:78 testes finais,
 15 capturas em cinco larguras, nove contextos compartilhados e revisão independente.
 PR02 Diário e PR01 Lista de Prestação também concluídos tecnicamente nesta revalidação.
-Cobertura:3 de100 páginas. Homologação visual não presumida. PR04 Documentos/Anexos
-é a próxima implementação; contrato lido e nove capturas antes preservadas.
+Cobertura:4 de100 páginas. PR04 Documentos/Anexos concluída tecnicamente: integrado38 verde, captura estável/carimbo1 verde e imagens conferidas. Homologação visual não presumida. Próxima página AS01, Anexar via assinada: antes capturado em360/768/1440, sem escrita no DEMO.
 Gate anterior:2343 testes verdes, anterior ao candidato atual. Ressalvas ambientais
 e hashes em qa/relatorio-2026-10-12.md e evidencias/migracao-identidade-20261012/.
 

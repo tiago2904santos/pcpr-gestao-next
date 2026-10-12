@@ -52,4 +52,13 @@ Texto pronto usa o componente compartilhado sem duplicação de JS.
 Evidências: qa/relatorio-2026-10-12.md, 15 capturas finais, nove consumidores
 de texto pronto, 92 testes iniciais e 78 pós-limpeza finais. Removida apenas
 grade-campos, cujo consumidor foi migrado. PR04 Documentos/Anexos continua
-pendente; este fechamento não significa conclusão do submódulo inteiro.
+pendente naquele checkpoint; fechamento posterior abaixo.
+
+## Documentos da prestação — PR04, 12/10/2026
+
+Preservados anexação, correção de valor/data/operação, remoção lógica, restauração,
+versões e travas por equipe/servidor. Carimbo mantém o PDF original, comprovado
+por hash antes/depois. Forms multipart, CSRF, IDs e âncoras permanecem.
+Regressão integrada de Lista, Diário, Relatório e Documentos:38 testes aprovados.
+QA em `docs/visual-agents/qa/anexos-2026-10-12.md`, cinco larguras e correções abertas.
+Não houve mudança nos documentos oficiais nem implementação das lacunas históricas.

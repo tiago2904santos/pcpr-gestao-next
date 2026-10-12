@@ -10,35 +10,28 @@ Documentos da prestação (módulo 9d), na linguagem das folhas. Na ordem do pro
 e o RT assinado; 5 versões anteriores (30 dias). O da equipe trava com todos finalizados; o
 do servidor, com ele finalizado.
 {% endcomment %}
+{% block classe_conteudo %}pagina--documental{% endblock %}
 {% block conteudo %}
-<header class="pagina-cabecalho">
-  <span class="placa placa--grande pagina-cabecalho__placa" aria-hidden="true">
-    <span class="placa__rotulo">Documentos</span>
-    <span class="placa__numero">{{ oficio.numero_formatado }}</span>
-  </span>
-  <div class="pagina-cabecalho__texto">
-    <h1 class="sr-only">Documentos da prestação do {{ oficio }}</h1>
-    <p class="frase-oficio">
-      <span class="frase-oficio__item{% if not via %} frase-oficio__item--vazio{% endif %}">{% icone "file-signature" classe="icone--sm" %}{% if via %}ofício assinado{% else %}sem ofício assinado{% endif %}</span>
-      <span class="frase-oficio__item{% if not despachos %} frase-oficio__item--vazio{% endif %}">{% icone "stamp" classe="icone--sm" %}{% if despachos %}{{ despachos|length|pluralizar:"despacho,despachos" }}{% else %}sem despacho{% endif %}</span>
-      <span class="frase-oficio__item{% if not db %} frase-oficio__item--vazio{% endif %}">{% icone "gauge" classe="icone--sm" %}{% if db %}diário assinado{% else %}diário sem assinado{% endif %}</span>
-      <span class="frase-oficio__item">{% icone "users" classe="icone--sm" %}{{ servidores|length|pluralizar:"servidor,servidores" }}</span>
-    </p>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="Prestação de contas" rotulo="Ofício" numero=oficio.numero_formatado titulo="Documentos da prestação" complemento_template="viagens/anexos/_cabecalho_contexto.html" %}
 
 {% if equipe_finalizada %}
 <div class="alerta alerta--info mb-4" role="status">{% icone "lock" %}<div class="alerta__corpo"><p>Prestação finalizada — reabra para editar.</p></div></div>
 {% endif %}
 
-<div class="documento documento--cartoes">
+<div class="documento documento--preparacao">
   <section class="secao{% if via %} secao--ok{% endif %}" id="oficio_assinado" aria-labelledby="t-oficio">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-oficio"><span class="secao__numero">1</span>Ofício assinado</h2>
       <p class="secao__nota">É a via assinada do próprio ofício (anexada na folha dele) — um arquivo só para o ofício e a prestação.</p>
     </div>
     {% if via %}
-      <ul class="registros"><li class="registro"><span class="registro__icone" aria-hidden="true">{% icone "file-signature" %}</span><div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a></div><div class="registro__meta"><span class="registro__meta-item">{{ via.enviado_em|date:"d/m/Y H:i" }}</span></div></div></li></ul>
+      <ul class="relacoes-documentais"><li class="peca-documental">
+        {% icone "file-signature" %}
+        <div class="ficha-documental__texto">
+          <a class="peca-documental__link" href="{% url 'viagens:abrir_via_assinada' via.pk %}" target="_blank" rel="noopener">{{ via.nome_original|default:"Ofício assinado" }}</a>
+          <span class="ficha-documental__meta">{{ via.enviado_em|date:"d/m/Y H:i" }}</span>
+        </div>
+      </li></ul>
       <h3 class="peso-semi texto-sm mt-4">Número da solicitação no ofício assinado</h3>
       <p class="texto-secundario texto-sm">O ofício volta assinado com a coluna da solicitação em branco. Diga onde desenhar o número de cada servidor (página e posição, em % da página a partir do canto de cima à esquerda) e confira na prévia. O arquivo assinado não é alterado: o número entra na prévia e no pacote final.</p>
       <p><a class="botao botao--sm" href="{% url 'viagens:previa_carimbo' p.pk %}" target="_blank" rel="noopener">{% icone "eye" %}Prévia do ofício carimbado (PDF)</a></p>
@@ -50,7 +43,7 @@ do servidor, com ele finalizado.
           <form method="post" action="{% url 'viagens:carimbar_numero' s.ps.pk %}" class="anexo-campos" novalidate>
             {% csrf_token %}
             <p class="anexo-campos__arquivo texto-sm"><span class="peso-semi">{{ s.ps.servidor.nome }}</span> · nº {{ s.ps.numero_solicitacao }}{% if not s.carimbo %} · <span class="selo selo--aviso selo--sem-ponto">sem posição</span>{% endif %}</p>
-            <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-pagina">Página</label><select class="selecao" id="c{{ s.ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+            <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-pagina">Página</label><pc-select class="seletor"><select class="selecao" id="c{{ s.ps.pk }}-pagina" name="pagina">{% for n in paginas_via %}<option value="{{ n }}"{% if s.carimbo and s.carimbo.pagina|add:1 == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></pc-select></div>
             <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-x">Horizontal (%)</label><input class="entrada" id="c{{ s.ps.pk }}-x" name="x" value="{{ s.carimbo_x }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
             <div class="campo"><label class="campo__rotulo" for="c{{ s.ps.pk }}-y">Vertical (%)</label><input class="entrada" id="c{{ s.ps.pk }}-y" name="y" value="{{ s.carimbo_y }}" inputmode="decimal" placeholder="0 a 100" autocomplete="off"></div>
             <div class="anexo-campos__acao"><button type="submit" class="botao botao--sm">{% icone "stamp" %}Salvar posição<span class="sr-only"> do número de {{ s.ps.servidor.nome }}</span></button></div>
@@ -128,5 +121,9 @@ do servidor, com ele finalizado.
     </ul>
     {% else %}<p class="texto-secundario texto-sm">Nada removido nos últimos 30 dias.</p>{% endif %}
   </section>
+</div>
+<div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
+  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
+  <span class="texto-secundario texto-sm">Os arquivos são salvos ao anexar.</span>
 </div>
 {% endblock %}

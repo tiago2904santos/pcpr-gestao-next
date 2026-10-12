@@ -1,0 +1,88 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+___________ test_correcao_comprovante_preserva_arquivo_e_foco[360] ____________
+
+logado = <Page url='http://localhost:50595/viagens/prestacoes/equipe/1/documentos/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura):
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        ps = PrestacaoServidor.objects.filter(prestacao=p).first()
+        anexos.anexar(Usuario.objects.get(login="operador"), p.pk, "comprovante",
+                      servidor_pk=ps.pk, nome="comprovante-transferencia-equipe.pdf",
+                      conteudo=b"%PDF-1.4 teste isolado")
+        a = AnexoPrestacao.objects.get(servidor=ps)
+        arquivo = a.arquivo.name
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+>       expect(pg.get_by_role("heading", name="Documentos da prestação", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("heading", name="Documentos da prestação", exact=True)
+
+tests\e2e\test_anexos_identidade.py:25: AssertionError
+___________ test_correcao_comprovante_preserva_arquivo_e_foco[768] ____________
+
+logado = <Page url='http://localhost:50595/viagens/prestacoes/equipe/2/documentos/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura):
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        ps = PrestacaoServidor.objects.filter(prestacao=p).first()
+        anexos.anexar(Usuario.objects.get(login="operador"), p.pk, "comprovante",
+                      servidor_pk=ps.pk, nome="comprovante-transferencia-equipe.pdf",
+                      conteudo=b"%PDF-1.4 teste isolado")
+        a = AnexoPrestacao.objects.get(servidor=ps)
+        arquivo = a.arquivo.name
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+>       expect(pg.get_by_role("heading", name="Documentos da prestação", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("heading", name="Documentos da prestação", exact=True)
+
+tests\e2e\test_anexos_identidade.py:25: AssertionError
+___________ test_correcao_comprovante_preserva_arquivo_e_foco[1440] ___________
+
+logado = <Page url='http://localhost:50595/viagens/prestacoes/equipe/3/documentos/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 11, 'oficio_rascunho': 12, 'oficio_vazio': 13, 'oficio_cancelado': 14, 'oficio_outra_un...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_correcao_comprovante_preserva_arquivo_e_foco(logado, dados_e2e, largura):
+        p = PrestacaoContas.objects.get(oficio_id=dados_e2e.ids["oficio_emitido"])
+        ps = PrestacaoServidor.objects.filter(prestacao=p).first()
+        anexos.anexar(Usuario.objects.get(login="operador"), p.pk, "comprovante",
+                      servidor_pk=ps.pk, nome="comprovante-transferencia-equipe.pdf",
+                      conteudo=b"%PDF-1.4 teste isolado")
+        a = AnexoPrestacao.objects.get(servidor=ps)
+        arquivo = a.arquivo.name
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto(f"/viagens/prestacoes/equipe/{p.pk}/documentos/")
+>       expect(pg.get_by_role("heading", name="Documentos da prestação", exact=True)).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for get_by_role("heading", name="Documentos da prestação", exact=True)
+
+tests\e2e\test_anexos_identidade.py:25: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[360]
+FAILED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[768]
+FAILED tests/e2e/test_anexos_identidade.py::test_correcao_comprovante_preserva_arquivo_e_foco[1440]
+3 failed in 81.53s (0:01:21)

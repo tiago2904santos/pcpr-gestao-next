@@ -1,0 +1,139 @@
+.....2026-10-12 19:53:13,718 WARNING django.request Not Found: /viagens/prestacoes/equipe/5/documentos/
+2026-10-12 19:53:13,745 WARNING django.request Not Found: /viagens/prestacoes/anexos/10/
+2026-10-12 19:53:13,771 WARNING django.request Not Found: /viagens/prestacoes/anexos/10/remover/
+.2026-10-12 19:53:15,126 WARNING django.request Not Found: /viagens/prestacoes/anexos/11/xyz/
+.2026-10-12 19:53:17,422 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:17,463 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:17,493 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:17,560 INFO gestao.viagens.assinantes Ofício 31 emitido
+2026-10-12 19:53:17,624 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:17,700 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,040 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,071 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,104 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,440 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,476 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:18,513 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,040 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,069 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,095 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+
+(process:4536): GLib-GIO-WARNING **: 19:53:19.132: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+2026-10-12 19:53:19,404 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,443 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+
+(process:4536): GLib-GIO-WARNING **: 19:53:19.474: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:4536): GLib-GIO-WARNING **: 19:53:19.474: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 19:53:19,479 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,651 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,774 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:19,937 INFO pikepdf._core pikepdf C++ to Python logger bridge initialized
+
+(process:4536): GLib-GIO-WARNING **: 19:53:19.995: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2607.23.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+.
+(process:4536): GLib-GIO-WARNING **: 19:53:20.237: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:4536): GLib-GIO-WARNING **: 19:53:20.276: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:4536): GLib-GIO-WARNING **: 19:53:20.301: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+2026-10-12 19:53:21,479 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:21,502 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:21,520 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:21,574 INFO gestao.viagens.assinantes Ofício 36 emitido
+2026-10-12 19:53:21,622 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:21,684 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:53:23,109 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:23,136 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:23,157 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:23,220 INFO gestao.viagens.assinantes Ofício 41 emitido
+2026-10-12 19:53:23,271 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:23,336 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:53:24,759 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:24,779 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:24,799 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:24,967 INFO gestao.viagens.assinantes Ofício 46 emitido
+2026-10-12 19:53:25,034 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,117 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,462 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,513 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,547 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,908 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,953 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:25,993 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:53:27,902 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:27,948 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:27,983 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:28,097 INFO gestao.viagens.assinantes Ofício 51 emitido
+2026-10-12 19:53:28,289 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:28,534 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,099 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,132 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,164 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,512 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,541 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,569 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:29,672 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/servidor/21/pacote/: 53 consultas (limite 25)
+2026-10-12 19:53:29,998 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,022 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,046 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,344 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,371 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,396 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:30,499 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/11/pacotes/: 36 consultas (limite 25)
+2026-10-12 19:53:30,524 WARNING django.request Not Found: /viagens/prestacoes/servidor/21/pacote/
+2026-10-12 19:53:30,546 WARNING django.request Not Found: /viagens/prestacoes/equipe/11/pacotes/
+.2026-10-12 19:53:31,884 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:31,909 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:31,931 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:31,993 INFO gestao.viagens.assinantes Ofício 56 emitido
+.2026-10-12 19:53:33,905 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:33,951 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:33,997 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:34,124 INFO gestao.viagens.assinantes Ofício 61 emitido
+2026-10-12 19:53:34,799 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Sans". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:35,028 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Sans". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:53:36,527 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:36,556 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:36,586 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:36,657 INFO gestao.viagens.assinantes Ofício 66 emitido
+2026-10-12 19:53:37,094 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "DejaVu Sans". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:53:37,256 WARNING django.request Not Found: /viagens/prestacoes/equipe/14/carimbo/previa/
+2026-10-12 19:53:37,286 WARNING django.request Not Found: /viagens/prestacoes/servidor/27/carimbo/
+.....2026-10-12 19:54:36,684 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/: 27 consultas (limite 25)
+2026-10-12 19:54:37,301 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/: 27 consultas (limite 25)
+...2026-10-12 19:55:12,560 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/22/diario/: 33 consultas (limite 25)
+2026-10-12 19:55:14,027 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/22/diario/autosave/: 26 consultas (limite 25)
+.2026-10-12 19:55:25,432 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/23/diario/: 33 consultas (limite 25)
+2026-10-12 19:55:25,842 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/23/diario/: 30 consultas (limite 25)
+.2026-10-12 19:55:35,987 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/24/diario/: 33 consultas (limite 25)
+.2026-10-12 19:55:51,158 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/25/diario/: 33 consultas (limite 25)
+.2026-10-12 19:56:07,247 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/26/diario/: 33 consultas (limite 25)
+.2026-10-12 19:56:23,172 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/27/relatorio/: 27 consultas (limite 25)
+2026-10-12 19:56:28,037 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:56:28,051 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:56:28,066 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 19:56:37,020 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/28/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:56:47,998 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/30/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:56:57,785 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/31/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:57:08,551 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/32/relatorio/: 27 consultas (limite 25)
+.2026-10-12 19:57:19,230 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/prestacoes/equipe/33/relatorio/: 27 consultas (limite 25)
+.....2026-10-12 19:58:21,890 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:58:21,926 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:58:21,949 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 19:58:22,033 INFO gestao.viagens.assinantes Ofício 181 emitido
+.[12/Oct/2026 19:58:31,344] - Broken pipe from ('127.0.0.1', 54542)
+                                   [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_pacote_prestacao.py::test_ordem_oficial_e_assinados
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pypdf\_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+38 passed, 4 warnings in 356.47s (0:05:56)

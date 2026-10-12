@@ -1,0 +1,6 @@
+<div class="registro-hero__metadados">
+  <span class="registro-hero__metadado">{% icone "file-signature" classe="icone--sm" %}{% if via %}Ofício assinado{% else %}Sem ofício assinado{% endif %}</span>
+  <span class="registro-hero__metadado">{% icone "stamp" classe="icone--sm" %}{% if despachos %}{{ despachos|length|pluralizar:"despacho,despachos" }}{% else %}Sem despacho{% endif %}</span>
+  <span class="registro-hero__metadado">{% icone "gauge" classe="icone--sm" %}{% if db %}Diário assinado{% else %}Diário sem assinado{% endif %}</span>
+  <span class="registro-hero__metadado">{% icone "users" classe="icone--sm" %}{{ servidores|length|pluralizar:"servidor,servidores" }}</span>
+</div>

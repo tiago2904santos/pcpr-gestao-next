@@ -1169,7 +1169,7 @@
         "evidencias/migracao-identidade-20261012/depois-relatorio-qa.json"
       ],
       "revisao_final": "Revisão independente sem bloqueante. Homologação visual do usuário pendente. Ver qa/relatorio-2026-10-12.md.",
-      "revisao_codigo": "Candidato final sobre4edd3c6; hash no relatorio-candidato.json",
+      "revisao_codigo": "c0963b8",
       "dependencias_antigas": "grade-campos removida. Bases modos/registro/cartoes mantidas para outros consumidores.",
       "fontes_descoberta": [
         "config/urls.py",
@@ -1197,14 +1197,24 @@
         "viagens/anexos/_anexo.html",
         "viagens/anexos/_enviar.html"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Camadas excessivas, cabeçalho antigo, campos de upload desproporcionais; conflito mobile registro__corpo corrigido."
+      ],
+      "alteracoes_implementadas": [
+        "Hero e seções canônicas, peças documentais, seletores compartilhados e retorno no fluxo."
+      ],
+      "testes_executados": [
+        "20 existentes; 73 correção/UI Lab/tokens; 73 link final; integrado38 verde; captura estável/carimbo1 verde"
+      ],
+      "evidencias": [
+        "evidencias/migracao-identidade-20261012/antes-anexos-qa.json",
+        "evidencias/migracao-identidade-20261012/depois-anexos-qa.json",
+        "qa/anexos-2026-10-12.md"
+      ],
+      "revisao_final": "Capturas reais cinco larguras, correção aberta e carimbo360/768/1440 revisados. Homologação visual do usuário pendente.",
+      "revisao_codigo": "Base c0963b8 + alterações locais",
+      "dependencias_antigas": "anexo-campos é layout específico legítimo (envio/correção/carimbo). Bases de registro/cartões mantidas para outros consumidores; retiradas desta página quando substituídas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

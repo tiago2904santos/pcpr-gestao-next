@@ -4285,6 +4285,9 @@ strong.percurso-registro__lugar { color: var(--cor-texto); font-weight: var(--pe
 .peca-documental .ficha-documental__texto { gap: var(--esp-05); font-size: var(--texto-md); }
 .peca-documental--acoes { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
 .peca-documental__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.peca-documental__edicao { grid-column: 1 / -1; border-top: var(--borda-sutil); padding-top: var(--esp-3); }
+.peca-documental__link { color: var(--cor-texto); font-weight: var(--peso-semi); text-decoration: none; }
+.peca-documental__link:hover { color: var(--cor-marca-texto); text-decoration: underline; }
 @media (max-width: 599.98px) {
   .peca-documental--acoes { grid-template-columns: auto minmax(0, 1fr); }
   .peca-documental--acoes > .peca-documental__acoes { grid-column: 2; }

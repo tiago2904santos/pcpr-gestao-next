@@ -1,0 +1,69 @@
+{
+  "dados_preservados": true,
+  "hash_dados": "d645328b6db42d8d446547b4f32bc0b7350e595075bbfa69271f0b9fc96dbe51",
+  "cenarios": [
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/documentos/",
+      "largura": 360,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/documentos/",
+      "largura": 360,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/documentos/",
+      "largura": 360,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/documentos/",
+      "largura": 768,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/documentos/",
+      "largura": 768,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/documentos/",
+      "largura": 768,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "equipe",
+      "rota": "/viagens/prestacoes/equipe/211/documentos/",
+      "largura": 1440,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "parcial",
+      "rota": "/viagens/prestacoes/equipe/190/documentos/",
+      "largura": 1440,
+      "console": [],
+      "overflow": false
+    },
+    {
+      "estado": "consulta",
+      "rota": "/viagens/prestacoes/equipe/201/documentos/",
+      "largura": 1440,
+      "console": [],
+      "overflow": false
+    }
+  ]
+}

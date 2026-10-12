@@ -765,8 +765,12 @@
         </ul>
         <ul class="relacoes-documentais" aria-label="Documentos individuais — exemplo">
           <li class="peca-documental peca-documental--acoes">
-            {% icone "file-text" %}<span class="ficha-documental__texto">Relatório de Ana Luiza de Souza</span>
+            {% icone "file-text" %}<a class="peca-documental__link" href="#copiar-textos">Relatório de Ana Luiza de Souza</a>
             <div class="peca-documental__acoes"><a class="botao botao--sm" href="#copiar-textos">PDF de exemplo</a><a class="botao botao--sm botao--sutil" href="#copiar-textos">DOCX de exemplo</a></div>
+            <details class="divulgacao peca-documental__edicao">
+              <summary>Conferir metadados do documento</summary>
+              <p class="texto-secundario texto-sm mt-2">A conferência ocupa a largura da peça, sem estreitar o conteúdo entre o ícone e as ações.</p>
+            </details>
           </li>
         </ul>
         <div class="texto-pronto" data-copiar-de="lab-copiar-dados" data-prefixo="lab-rt-">

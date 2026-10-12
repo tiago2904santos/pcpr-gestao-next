@@ -645,3 +645,9 @@ Consumidores da alternativa: RT; contrato original: Ofícios, OS, Justificativas
 download. Ícone/nome ocupam a primeira linha no celular e ações continuam
 visíveis abaixo. Não representa versão, assinatura ou geração assíncrona.
 Consumidores: documentos do RT e UI Lab16; base documental permanece a mesma.
+
+`peca-documental__edicao` reserva uma linha completa para divulgação de
+metadados editáveis. Consumidor inicial: comprovantes em Documentos da prestação;
+UI Lab16 demonstra a expansão. Não usar registro__corpo/registro__link na peça:
+essas classes carregam grid-area mobile e área de clique de outro componente.
+Links de arquivo são explícitos e ações permanecem operáveis fora deles.
