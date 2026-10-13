@@ -108,17 +108,26 @@ def logado(pagina: Page) -> Page:
     return pagina
 
 
-# Transições e animações finitas em curso (cor do rótulo ao trocar de estado, esmaecer da lista):
-# o axe mede a cor do instante e acusaria um meio-termo que ninguém lê. As infinitas (fita de
-# carregamento) não terminam e ficam de fora.
-ANIMACOES_EM_CURSO = """() => document.getAnimations().some(a => a.playState === 'running'
-    && a.effect && a.effect.getComputedTiming().iterations !== Infinity)"""
+# Tela parada: sem troca HTMX em curso (as classes htmx-* disparam transições de entrada) e sem
+# transição/animação finita rodando (cor do rótulo ao trocar de estado, esmaecer da lista), por
+# 150 ms seguidos — uma transição pode começar logo depois de uma checagem isolada. O axe mede a
+# cor do instante e acusaria um meio-termo que ninguém lê. As infinitas (fita de carregamento)
+# não terminam e ficam de fora.
+TELA_PARADA = """() => {
+    const ocupada = document.querySelector('.htmx-request, .htmx-swapping, .htmx-settling, .htmx-added')
+        || document.getAnimations().some(a => a.playState === 'running'
+            && a.effect && a.effect.getComputedTiming().iterations !== Infinity);
+    const agora = performance.now();
+    if (ocupada) { window.__pcprParadaDesde = null; return false; }
+    window.__pcprParadaDesde ??= agora;
+    return agora - window.__pcprParadaDesde >= 150;
+}"""
 
 
 def rodar_axe(pg: Page) -> list[dict]:
     # Sem estabilizar em 5 s (alguma transição em laço), mede assim mesmo.
     with contextlib.suppress(PlaywrightTimeout):
-        pg.wait_for_function(f"() => !({ANIMACOES_EM_CURSO})()", timeout=5_000)
+        pg.wait_for_function(TELA_PARADA, timeout=5_000)
     # evaluate() via CDP não é bloqueado pela CSP (add_script_tag seria).
     pg.evaluate(AXE.read_text() + "\n;true")
     # Com uma janela modal aberta, o resto da página é inerte (sem clique nem foco): o alvo de
