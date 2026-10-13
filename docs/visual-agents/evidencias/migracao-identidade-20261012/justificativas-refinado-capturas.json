@@ -1,0 +1,86 @@
+[
+  {
+    "estado": "pendentes",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "preenchidas",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "dialogo",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "pendentes",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "preenchidas",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "dialogo",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "pendentes",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "preenchidas",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "dialogo",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

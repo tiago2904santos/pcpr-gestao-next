@@ -1,0 +1,15 @@
+{
+  "base": "3aa34629df689103dd0d72c3a5ef18cc13d02edf",
+  "fontes": [
+    {
+      "arquivo": "gestao/viagens/templates/viagens/justificativas/lista.html",
+      "sha256_lf": "f199c5aacccaeae007ed08ed42510042896cc525fd401d27e0a5c59eb979e48b"
+    },
+    {
+      "arquivo": "tests/e2e/test_justificativas_identidade.py",
+      "sha256_lf": "809fbd39886890fbea82e81f879cf5ac5372c46ea46654c8fc499a8e94de8bb2"
+    }
+  ],
+  "testes": "14 integrados anteriores; 7 E2E posteriores aprovados190.05s",
+  "homologacao_visual": false
+}

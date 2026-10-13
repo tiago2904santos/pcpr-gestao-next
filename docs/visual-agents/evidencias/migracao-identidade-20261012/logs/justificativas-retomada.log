@@ -1,0 +1,97 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+django: version: 6.1.1, settings: var.migracao_visual_settings (from env)
+rootdir: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next
+configfile: pyproject.toml
+plugins: hypothesis-6.168.3, platformdirs-4.12.2, cov-7.1.0, django-4.14.0, xdist-3.8.0
+collecting ... collected 14 items
+
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[360] Creating test database for alias 'default'...
+
+2026-10-12 22:05:54,295 WARNING django.request Unprocessable Content: /viagens/justificativas/2/salvar/
+PASSED [  7%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[768] 2026-10-12 22:06:13,780 WARNING django.request Unprocessable Content: /viagens/justificativas/7/salvar/
+PASSED [ 14%]
+tests/e2e/test_justificativas_identidade.py::test_busca_erro_cancelar_gravar_e_excluir[1440] 2026-10-12 22:06:33,372 WARNING django.request Unprocessable Content: /viagens/justificativas/12/salvar/
+PASSED [ 21%]
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco 2026-10-12 22:06:56,525 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 22:06:56,599 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 22:06:56,768 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+PASSED [ 28%]
+(process:11396): GLib-GIO-WARNING **: 22:07:00.307: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:00.792: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:00.794: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:01.762: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:01.811: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:01.826: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:11396): GLib-GIO-WARNING **: 22:07:01.889: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+tests/e2e/test_justificativas_identidade.py::test_conflito_preserva_texto_e_consulta_sem_edicao 2026-10-12 22:07:13,971 WARNING django.request Unprocessable Content: /viagens/justificativas/22/salvar/
+PASSED [ 35%]
+tests/e2e/test_justificativas_identidade.py::test_paginacao_filtrada_apos_erro 2026-10-12 22:07:35,431 WARNING django.request Unprocessable Content: /viagens/justificativas/28/salvar/
+PASSED [ 42%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_regra_do_banco_igual_a_do_dominio PASSED [ 50%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_abas_e_vinculo_com_o_oficio PASSED [ 57%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_escrever_pela_lista_grava_no_oficio PASSED [ 64%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_erro_preserva_filtro_e_links_retornam_a_lista 2026-10-12 22:08:16,911 WARNING django.request Unprocessable Content: /viagens/justificativas/47/salvar/
+PASSED [ 71%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_versao_antiga_e_conflito 2026-10-12 22:08:26,657 WARNING django.request Unprocessable Content: /viagens/justificativas/52/salvar/
+PASSED [ 78%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_emitido_e_consulta_nao_editam 2026-10-12 22:08:35,567 WARNING django.request Forbidden (Permission denied): /viagens/justificativas/56/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 1260, in salvar_justificativa
+    policies.exigir(policies.pode_editar(request.user, oficio),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só a justificativa de um rascunho pode ser alterada — para um emitido, "
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "edite o ofício (ele vira retificado).")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só a justificativa de um rascunho pode ser alterada — para um emitido, edite o ofício (ele vira retificado).
+2026-10-12 22:08:35,806 WARNING django.request Forbidden (Permission denied): /viagens/justificativas/57/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views.py", line 1260, in salvar_justificativa
+    policies.exigir(policies.pode_editar(request.user, oficio),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só a justificativa de um rascunho pode ser alterada — para um emitido, "
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "edite o ofício (ele vira retificado).")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só a justificativa de um rascunho pode ser alterada — para um emitido, edite o ofício (ele vira retificado).
+PASSED [ 85%]
+gestao/viagens/tests/test_views.py::TestListaDeJustificativas::test_busca_pelo_texto_e_consultas_fixas PASSED [ 92%]
+gestao/viagens/tests/test_views.py::TestRevisaoDeUXDoCicloDeVida::test_justificativas_abrem_nas_pendentes_e_nao_gravam_em_branco 2026-10-12 22:08:53,208 WARNING django.request Unprocessable Content: /viagens/justificativas/67/salvar/
+PASSED [100%]Destroying test database for alias 'default'...
+
+
+
+============================== warnings summary ===============================
+tests/e2e/test_justificativas_identidade.py::test_download_pdf_e_escape_devolve_foco
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 14 passed, 1 warning in 231.86s (0:03:51) ==================

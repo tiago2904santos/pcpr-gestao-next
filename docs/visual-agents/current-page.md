@@ -1,5 +1,37 @@
 # Página atual
 
+## Estado vigente — JU01 fechada; próxima VI01
+
+96068 terminou7aprovados1avisoHarfBuzz190,05s; baseline14aprovados.
+43025 terminou12capturas finais; revisão independente favorável e medidas
+zero sobreposição. Matriz20/100. Galeria734validada; nenhuma suíte ativa.
+Próxima ação: VI01 Lista de Viagens, contrato/product e QA anterior lidos,
+reabrir estados e testes antes de considerar concluída. Alteração JU isolada
+na aplicação da barra; CSS/JS/documentos preservados. Commit local a registrar.
+
+## Checkpoint — JU01 corrigida, em validação final
+
+7837 terminou: 14 aprovados, 1 aviso HarfBuzz, 231,86 s. Barra somente
+informativa da lista paginada sobrepunha um registro em seis medições.
+Retirada variante aderente somente de Justificativas; agora zero sobreposições
+em 360/768/1440, topo e rolagem. Teste de paginação reforçado; Ruff verde.
+Suíte pós-alteração 96068 ativa, sete E2E; capturas finais 43025 ativas,
+prefixo justificativas-refinado. Não reiniciar suítes por silêncio.
+QA: justificativas-retomada-2026-10-12.md. Cobertura permanece19/100 até
+resultado e revisão. Próxima ação: acompanhar os dois handles, revisar
+capturas paginadas, fechar JU01 e avançar. Trabalho do usuário preservado.
+
+## Estado vigente — Justificativas JU01
+
+Planos fechados no commit3aa3462, cobertura19/100. Variante coordenação validada;
+documentos e dados preservados. Página ativa JU01 lista/diálogo de Justificativas.
+Contrato e QA anterior conferidos. Suíte isolada7837ativa,14testes (identidadeE2E,
+TestListaDeJustificativas e regra de pendentes/não gravar em branco), log
+justificativas-retomada.log. Não reiniciar. Captura somente leitura45766ativa:
+pendentes/preenchidas/vazio/diálogo242 em360/768/1440. Próxima ação: acompanhar,
+revisar imagens e contrato de filtros/retorno422/editor antes de fechar JU01.
+_equipe.html do usuário intocado. Galeria722prints validada.
+
 ## Estado vigente — Planos fechados tecnicamente
 
 PT01–PT04 validadas:62integrados +72focados posteriores ao CSS,21capturas finais,

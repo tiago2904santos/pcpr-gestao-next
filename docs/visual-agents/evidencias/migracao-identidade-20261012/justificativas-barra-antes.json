@@ -1,0 +1,50 @@
+[
+  {
+    "width": 360,
+    "scroll": 0,
+    "position": "sticky",
+    "top": 853.6578369140625,
+    "bottom": 894.7984619140625,
+    "overlaps": 1
+  },
+  {
+    "width": 360,
+    "scroll": 600,
+    "position": "sticky",
+    "top": 851.671875,
+    "bottom": 892.8125,
+    "overlaps": 1
+  },
+  {
+    "width": 768,
+    "scroll": 0,
+    "position": "sticky",
+    "top": 854.7533569335938,
+    "bottom": 895.8939819335938,
+    "overlaps": 1
+  },
+  {
+    "width": 768,
+    "scroll": 600,
+    "position": "sticky",
+    "top": 852.0703125,
+    "bottom": 893.2109375,
+    "overlaps": 1
+  },
+  {
+    "width": 1440,
+    "scroll": 0,
+    "position": "sticky",
+    "top": 853.2815551757812,
+    "bottom": 894.4221801757812,
+    "overlaps": 1
+  },
+  {
+    "width": 1440,
+    "scroll": 600,
+    "position": "sticky",
+    "top": 851.672607421875,
+    "bottom": 892.813232421875,
+    "overlaps": 1
+  }
+]

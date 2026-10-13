@@ -175,5 +175,12 @@ def test_paginacao_filtrada_apos_erro(logado, dados_e2e, monkeypatch):
     expect(pg.get_by_role("searchbox", name="Buscar")).to_have_value("Contexto sintético")
     expect(pg.locator("#abas-filtro a[aria-current]")).to_contain_text("Todas")
     expect(pg.locator(".registro-operacional")).to_have_count(1)
+    barra = pg.locator(".barra-acoes--colecao")
+    assert barra.evaluate("e => getComputedStyle(e).position") == "static"
+    assert barra.evaluate("""e => {
+        const barra = e.getBoundingClientRect();
+        return [...document.querySelectorAll('.registro-operacional')].every(registro =>
+            registro.getBoundingClientRect().bottom <= barra.top);
+    }""")
     _axe_estavel(pg)
     assert pg.erros_console == ["Failed to load resource: the server responded with a status of 422 (Unprocessable Content)"]

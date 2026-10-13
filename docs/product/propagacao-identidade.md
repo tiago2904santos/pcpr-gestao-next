@@ -105,6 +105,11 @@ removida. Compatibilidade é registrada na matriz da missão.
   já existem; a ficha histórica não deve continuar marcando-os como ausentes.
 # Próxima unidade: Lista de Planos (10/10/2026)
 
+Justificativas — refinamento de12/10: a barra de contagem e nota informativa
+permanece no fluxo mesmo com paginação. Não contém ação que justifique acompanhar
+a rolagem. Preservar contagem, paginação, filtros e HTMX; variante sticky permanece
+disponível para consumidores com ações, sem mudança global de comportamento.
+
 Objetivo: localizar planos, comparar destinos/programas, coordenação, efetivo e
 diárias e acessar ações por permissão. Rota `/viagens/planos/`, busca `q`, abas
 `aba`, filtro de Ofício e ordenação `ordem`: número/período ascendente ou descendente.

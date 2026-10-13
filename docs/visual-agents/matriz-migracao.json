@@ -1065,14 +1065,27 @@
         "componentes/texto_pronto.html",
         "componentes/vazio.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Barra somente informativa sobrepunha registros na lista paginada; corrigido."
+      ],
+      "alteracoes_implementadas": [
+        "Removida variante aderente da barra de Justificativas, preservando componentes canônicos e todos os controles."
+      ],
+      "testes_executados": [
+        "14 integrados anteriores aprovados231.86s; 7 E2E posteriores aprovados190.05s; Ruff verde.",
+        "12 capturas finais360/768/1440; seis medições com zero sobreposição."
+      ],
+      "evidencias": [
+        "qa/justificativas-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/justificativas-refinado-candidato.json",
+        "evidencias/migracao-identidade-20261012/justificativas-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/justificativas-barra-depois.json",
+        "evidencias/migracao-identidade-20261012/logs/justificativas-browser.log"
+      ],
+      "revisao_final": "Inspeção real e revisão independente favoráveis; homologação visual e gate global pendentes.",
+      "revisao_codigo": "3aa3462 + fontes em justificativas-refinado-candidato.json",
+      "dependencias_antigas": "Variante aderente removida deste consumidor; componente compartilhado legítimo preservado nos outros. Nenhuma implementação exclusiva obsoleta comprovada.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

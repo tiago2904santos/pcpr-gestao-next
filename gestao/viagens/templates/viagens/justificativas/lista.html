@@ -109,7 +109,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% else %}
   {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhuma justificativa por aqui" texto="Quando um ofício sair com pouca antecedência, ele aparece aqui para ser justificado." %}
 {% endif %}
-<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}"><p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or aba %} no filtro de agora{% endif %}</p><span class="texto-secundario texto-sm">O texto é gravado no próprio Ofício.</span></div>
+<div class="barra-acoes barra-acoes--colecao"><p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or aba %} no filtro de agora{% endif %}</p><span class="texto-secundario texto-sm">O texto é gravado no próprio Ofício.</span></div>
 </div>
 {% endblock %}
 
