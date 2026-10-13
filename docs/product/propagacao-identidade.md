@@ -498,3 +498,15 @@ Migrar cabeçalho e seções para folha de preparação, evitando cartões encai
 Preservar os IDs e agrupamentos funcionais; ampliar campos longos e datas móveis.
 Barra final no fluxo da configuração, separada das ações de substituição. Revisar
 todos os seletores e o diálogo, inclusive Escape primeiro na busca e depois no modal.
+# CD06 — Textos prontos: contrato da migração
+
+Rota /cadastros/textos-prontos/. Abas Motivos/Justificativas/Trechos, busca por
+nome/conteúdo, ativos/inativos e padrão são preservados. Novo/editar usa diálogo
+com nome, tipo e texto; salvamento POST manual, sem autosave. Padrão aplica-se
+somente ao motivo; políticas distinguem gestor, operador e textos do sistema.
+Desativar/reativar, excluir com confirmação e respostas JSON usadas pela Folha
+permanecem intactos. Fontes: cadastros/views.py, textos.py, policies.py e
+viagens/tests/test_textos_prontos.py. Sem regra nova ou alteração documental.
+Substituições visuais: cabeçalho antigo por registro_hero, registro sem placa
+por registro--catalogo, ação reutilizada no topo/rodapé. Explicação em bloco
+único para não fragmentar palavras no flex. Diálogo conserva controles existentes.

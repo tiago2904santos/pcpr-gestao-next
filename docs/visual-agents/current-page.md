@@ -1,5 +1,23 @@
 # Página atual
 
+## Estado vigente — CD06 fechada tecnicamente
+
+90 testes finais aprovados. Cobertura29/100. Próxima entrada desbloqueada da
+matriz: CD07 (conferir rota/contrato antes de editar). Nenhuma suíte mutável ativa.
+Preservar _equipe e imagens/documentação anteriores não commitadas.
+
+# Página atual
+
+## Estado vigente — CD06 em validação
+
+HEAD93975d9; Textos Prontos implementada, revisão independente favorável.
+Suite46690 terminou87passed214,76s. Suite91481 textos-final ativa (inclui
+novos estados vazio/erro/leitura e guarda do rodapé). Banco/mídia isolados no runner.
+Capturas finais18 GET/HEAD geradas; E2E produz artifacts/textos. Cobertura28/100.
+Não commitar CD06 antes da validação final. Preservar _equipe.
+
+# Página atual
+
 ## Estado vigente — CD05 fechada tecnicamente
 
 83 testes pós-limpeza aprovados; tipos e smoke Guia em quatro páginas aprovados.

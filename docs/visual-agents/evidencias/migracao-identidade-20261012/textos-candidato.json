@@ -1,0 +1,23 @@
+{
+  "base": "93975d9",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/textos.html",
+      "sha256": "e819e8ea68bf762a9b5696d74bc808f412c6f2506e746334fb579988336e4166"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_textos_criar.html",
+      "sha256": "aea5176a574d80fd25cc44f5388050864a2090051940fd780aa46f18f366e8d6"
+    },
+    {
+      "arquivo": "tests/e2e/test_textos_identidade.py",
+      "sha256": "d6a44a0622dc45b19f4ef0924874e28948ab3090691d36dcfb5cb264bffeb019"
+    }
+  ],
+  "testes": [
+    "90 testes integrados aprovados no candidato final",
+    "Ruff e diff-check aprovados",
+    "Navegador/axe/teclado em360/768/1440"
+  ],
+  "homologacao_visual": false
+}

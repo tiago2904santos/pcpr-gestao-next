@@ -1,0 +1,5 @@
+{% if pode_gerir %}
+  {% comment %}Na edição, Novo solicita um formulário limpo ao servidor.{% endcomment %}
+  {% if editando %}<a class="botao botao--primario" href="?tipo={{ tipo }}&amp;novo=1">{% icone "plus" %}Novo texto pronto</a>
+  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-texto">{% icone "plus" %}Novo texto pronto</button>{% endif %}
+{% endif %}

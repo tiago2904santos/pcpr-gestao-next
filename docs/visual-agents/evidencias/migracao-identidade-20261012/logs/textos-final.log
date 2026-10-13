@@ -1,0 +1,36 @@
+...2026-10-12 23:42:59,357 WARNING django.request Unprocessable Content: /cadastros/textos-prontos/salvar/
+.2026-10-12 23:43:15,352 WARNING django.request Unprocessable Content: /cadastros/textos-prontos/salvar/
+.2026-10-12 23:43:31,369 WARNING django.request Unprocessable Content: /cadastros/textos-prontos/salvar/
+.........2026-10-12 23:45:01,662 WARNING django.request Unprocessable Content: /cadastros/textos-prontos/salvar/
+.2026-10-12 23:45:10,766 WARNING django.request Unprocessable Content: /cadastros/textos-prontos/salvar/
+.2026-10-12 23:45:20,941 WARNING django.request Forbidden (Permission denied): /cadastros/textos-prontos/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 57, in _view_wrapper
+    test_pass = test_func(request.user)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 130, in check_perms
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 23:45:21,041 WARNING django.request Forbidden (Permission denied): /cadastros/textos-prontos/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views.py", line 109, in salvar_texto
+    policies.exigir(policies.pode_gerir_textos(request.user))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-12 23:45:30,126 WARNING django.request Not Found: /cadastros/textos-prontos/salvar/
+....................................................... [ 80%]
+..................                                                       [100%]
+90 passed in 285.01s (0:04:45)

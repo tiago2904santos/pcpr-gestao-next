@@ -1,7 +1,7 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Textos prontos{% endblock %}
-{% block titulo_lista %}Textos prontos{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Motivos, justificativas e trechos que a equipe reaproveita. Escolhidos na folha do ofício, entram no campo e ainda podem ser ajustados.</p>{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Textos prontos" complemento="Motivos, justificativas e trechos para a equipe reutilizar." acoes_template="cadastros/_textos_criar.html" %}{% endblock %}
 {% comment %}
 Catálogo de textos prontos (paridade com os catálogos de motivo e de modelo de
 justificativa da referência): uma aba por tipo, busca, um registro por texto com o menu de
@@ -35,11 +35,11 @@ escrito quando o campo nasce vazio — um por tipo.
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{% for chave, rotulo in abas %}{% if chave == tipo %}{{ rotulo }}{% endif %}{% endfor %}{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ ativos|pluralizar:"ativo,ativos" }}{% if inativos %} · {{ inativos|pluralizar:"inativo,inativos" }}{% endif %}</span>
 </div>
-{% if usa_padrao %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}O motivo <b>padrão</b> já vem escrito em todo ofício novo; quem escolhe o padrão é o gestor.</p>{% endif %}
+{% if usa_padrao %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}<span>O motivo <b>padrão</b> já vem escrito em todo ofício novo; quem escolhe o padrão é o gestor.</span></p>{% endif %}
 {% if textos %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for t in textos %}
-      <li class="registro{% if not t.ativo %} registro--inativo{% endif %}">
+      <li class="registro registro--catalogo{% if not t.ativo %} registro--inativo{% endif %}">
         <span class="registro__icone" aria-hidden="true">{% icone "text-quote" %}</span>
         <div class="registro__corpo">
           <div class="registro__titulo">
@@ -88,14 +88,12 @@ escrito quando o campo nasce vazio — um por tipo.
 {% endblock %}
 
 {% block depois_lista %}
+{% if pode_gerir %}
 <div class="barra-acoes barra-acoes--rodape">
   <p class="barra-acoes__status" role="status">{{ ativos|pluralizar:"texto ativo,textos ativos" }}</p>
-  {% if pode_gerir %}
-    {% comment %}Com a janela já preenchida por uma edição, "Novo" pede uma janela limpa ao servidor.{% endcomment %}
-    {% if editando %}<a class="botao botao--primario" href="?tipo={{ tipo }}&amp;novo=1">{% icone "plus" %}Novo texto pronto</a>
-    {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-texto">{% icone "plus" %}Novo texto pronto</button>{% endif %}
-  {% endif %}
+  {% include "cadastros/_textos_criar.html" %}
 </div>
+{% endif %}
 {% if pode_gerir %}
 <dialog id="dialogo-texto" class="dialogo" aria-labelledby="dialogo-texto-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_texto' %}" novalidate>

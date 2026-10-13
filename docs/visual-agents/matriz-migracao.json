@@ -1740,18 +1740,39 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "abas",
+        "campo",
+        "dialogo",
+        "menu",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Linha vazia em registro mobile sem placa",
+        "Nota fragmentada por flex",
+        "Rodapé vazio no estado somente leitura"
+      ],
+      "alteracoes_implementadas": [
+        "Hero canônico e ação compartilhada",
+        "Variante registro--catalogo",
+        "Nota agrupada e barra condicionada à ação permitida"
+      ],
+      "testes_executados": [
+        "90 testes integrados aprovados no candidato final",
+        "Ruff e diff-check aprovados",
+        "Navegador/axe/teclado em360/768/1440"
+      ],
+      "evidencias": [
+        "qa/textos-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/textos-antes.json",
+        "evidencias/migracao-identidade-20261012/textos-final.json",
+        "evidencias/migracao-identidade-20261012/textos-candidato.json"
+      ],
+      "revisao_final": "Revisão independente favorável; menu, abas, vazio/erro/leitura conferidos. Homologação visual pendente.",
+      "revisao_codigo": "93975d9 + hashes em textos-candidato.json",
+      "dependencias_antigas": "Cabeçalho antigo substituído, ação duplicada extraída; nenhum CSS novo ou regra exclusiva obsoleta restante nesta página.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
