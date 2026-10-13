@@ -35,6 +35,9 @@ x-app: &app
   image: ${PCPR_IMAGEM:?defina PCPR_IMAGEM (deploy/vps/implantar.sh)}
   # UID dedicado, inexistente no host (o uid 1000 da imagem costuma ser um usuário real da VPS).
   user: "${PCPR_UID:-10001}:${PCPR_UID:-10001}"
+  # tini como PID 1: repassa o SIGTERM do `docker stop` (o worker, como PID 1, o ignoraria e
+  # só morreria no SIGKILL, 60 s depois — tempo a mais de indisponibilidade numa migração).
+  init: true
   env_file:
     - ${PCPR_CONFIG:?}/app.env
   environment:

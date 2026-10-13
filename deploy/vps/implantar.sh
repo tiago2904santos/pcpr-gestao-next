@@ -63,6 +63,8 @@ registrar "imagem pronta: $NOVA"
 # A partir daqui todo comando compose interpola a nova imagem; o que está no ar só muda no
 # passo 7 (os contêineres web/worker em execução não são recriados antes disso).
 export PCPR_IMAGEM="$NOVA"
+# Reimplantar a mesma imagem não pode apagar a anterior de verdade (reversão).
+[ "$ANTERIOR" != "$NOVA" ] || ANTERIOR="${PCPR_IMAGEM_ANTERIOR:-}"
 
 # 3. Verificações (sem tocar no que está no ar) ---------------------------------------------
 dc run --rm --no-deps -T --entrypoint pcpr-entrypoint tarefa verificar \
