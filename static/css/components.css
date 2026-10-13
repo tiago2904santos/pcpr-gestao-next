@@ -3027,8 +3027,17 @@ fieldset.campo--escolhas > .campo__erro {
   background: var(--cor-superficie-realce);
 }
 
+/* O rádio some da tela sem sair do teclado nem do leitor de tela (como .sr-only): 1×1 px
+   e recortado — com o tamanho natural, os rádios absolutos de um segmentado flex caíam
+   todos no mesmo ponto, uns sobre os outros. */
 .segmentado > input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   opacity: 0;
   pointer-events: none;
 }
