@@ -85,11 +85,14 @@ docker run --rm --network "$REDE" --read-only --tmpfs /tmp \
   -e POSTGRES_HOST=db -e POSTGRES_DB=restauracao_demo -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD="$SENHA" "$PCPR_IMAGEM" tarefa verificar_auditoria | tee -a "$RELATORIO"
 
-# 5. Arquivos com SHA-256 do CONTEÚDO gravado no banco: documentos gerados, vias assinadas e
-#    anexos de prestação — todos existem e conferem. (coffee_via.sha256 é o da folha HTML.)
-for t in viagens_documento viagens_viaassinada viagens_anexoprestacao; do
-  q "COPY (SELECT sha256 || '  ' || arquivo FROM $t WHERE arquivo <> '' AND sha256 <> '') TO STDOUT"
-done >"$TRAB/documentos.sha256"
+# 5. Arquivos com SHA-256 do CONTEÚDO gravado no banco: documentos gerados, vias assinadas,
+#    anexos de prestação e vias ASSINADAS do Coffee — todos existem e conferem. (Nas vias
+#    geradas do Coffee, o sha256 é o da folha HTML, não do arquivo: coffee/vias.py.)
+{ for t in viagens_documento viagens_viaassinada viagens_anexoprestacao; do
+    q "COPY (SELECT sha256 || '  ' || arquivo FROM $t WHERE arquivo <> '' AND sha256 <> '') TO STDOUT"
+  done
+  q "COPY (SELECT sha256 || '  ' || arquivo FROM coffee_via WHERE assinada AND arquivo <> '' AND sha256 <> '') TO STDOUT"
+} >"$TRAB/documentos.sha256"
 TOTAL="$(wc -l <"$TRAB/documentos.sha256")"
 if [ "$TOTAL" -gt 0 ]; then
   ( cd "$MIDIA" && sha256sum -c --quiet "$TRAB/documentos.sha256" ) || morrer "arquivos divergentes do banco"
@@ -98,7 +101,7 @@ fi
 AUSENTES="$(anexos_ausentes "$MIDIA" q)"
 [ -z "$AUSENTES" ] || { sed 's/^/  faltando: /' <<<"$AUSENTES"
   morrer "$(wc -l <<<"$AUSENTES") anexo(s) referenciado(s) no banco ausente(s) no backup"; }
-echo "  arquivos com SHA-256 conferido: $TOTAL (documentos, vias assinadas, anexos de prestação); demais anexos presentes" | tee -a "$RELATORIO"
+echo "  arquivos com SHA-256 conferido: $TOTAL (documentos, vias assinadas, anexos de prestação, vias assinadas do Coffee); demais anexos presentes" | tee -a "$RELATORIO"
 
 cp "$RELATORIO" "$ESTADO/ultima-restauracao.txt"
 date -Is >"$ESTADO/restauracao-ok"

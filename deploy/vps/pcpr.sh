@@ -63,15 +63,25 @@ estão em dados/midia: web e worker seguem PARADOS. Recupere-os do snapshot do m
   fi
 }
 
+# Migração que falhou no meio de uma implantação: o schema andou e a imagem ativa é a antiga.
+# Até restaurar o dump pré-implantação, nada pode subir web/worker com a imagem antiga.
+exigir_schema_coerente() {
+  [ ! -f "$ESTADO/migracao-falhou" ] || morrer "a implantação $(cut -f1 "$ESTADO/migracao-falhou") \
+falhou com $(cut -f2 "$ESTADO/migracao-falhou") migração(ões) já gravada(s): restaure o banco antes — \
+pcpr.sh $INST restaurar-banco $(cut -f3 "$ESTADO/migracao-falhou") --confirmo-sobrescrever-$INST \
+(ou reimplante a versão corrigida)"
+}
+
 case "$CMD" in
   status)
     dc ps
     echo "versão ativa: $(cat "$ESTADO/versao-ativa" 2>/dev/null || echo '?')  imagem: $PCPR_IMAGEM"
+    [ ! -f "$ESTADO/migracao-falhou" ] || echo "ATENÇÃO: migração falhou no meio (veja: pcpr.sh $INST reiniciar)"
     tail -n 3 "$PCPR_RAIZ/$INST/implantacoes.tsv" 2>/dev/null || true
     "$DEPLOY_DIR/vps/monitorar.sh" "$INST" --mostrar || true
     ;;
   logs) dc logs --tail "${LINHAS:-200}" --timestamps "$@" ;;
-  reiniciar) dc up -d --wait --force-recreate web worker; registrar "web/worker reiniciados" ;;
+  reiniciar) exigir_schema_coerente; dc up -d --wait --force-recreate web worker; registrar "web/worker reiniciados" ;;
   rotinas)
     if dc run --rm -T tarefa verificar_auditoria; then
       date -Is >"$ESTADO/auditoria-ok"
@@ -88,6 +98,7 @@ case "$CMD" in
     # anterior não pode rodar contra o schema novo: só junto com o dump pré-implantação, numa
     # operação única (para tudo → restaura o banco → sobe a imagem anterior).
     trava
+    exigir_schema_coerente
     [ -n "${PCPR_IMAGEM_ANTERIOR:-}" ] || morrer "não há imagem anterior registrada"
     MIGROU="$(cat "$ESTADO/migracoes-versao-ativa" 2>/dev/null || echo 0)"
     if [ "$MIGROU" != 0 ]; then
@@ -118,6 +129,7 @@ banco — pcpr.sh $INST reverter <dump-pre-implantacao> --confirmo-sobrescrever-
     # (as entradas de web/worker não migram de propósito).
     dc run --rm -T migrar || { alertar CRITICO "migração após restaurar $(basename "$DUMP") falhou: \
 web e worker seguem PARADOS"; exit 1; }
+    rm -f "$ESTADO/migracao-falhou"  # o banco voltou a corresponder à imagem ativa (migrada acima)
     dc up -d --wait web worker
     "$DEPLOY_DIR/vps/smoke.sh" "$INST"
     registrar "banco restaurado de $(basename "$DUMP")"

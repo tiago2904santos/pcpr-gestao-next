@@ -16,7 +16,7 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | 3 | Worker e documentos (`testar-documentos.sh`) | ✅ reemissão processada pelo worker em execução (LISTEN/NOTIFY entre contêineres); **v2 criada, v1 preservada**; SHA-256 de todas as versões confere; **falha de escrita induzida** registrada (`PermissionError`) e **retry automático** concluído após devolver a escrita; nenhuma mensagem com falha definitiva; PDF novo baixado por HTTPS igual ao SHA-256 do banco |
 | 4 | Classes documentais por HTTPS (`testar-classes.sh`) | ✅ 13/13 — Ofício (PDF, minuta, DOCX), Justificativa, Termo (PDF único e ZIP de DOCX), Plano, Ordem de serviço, Diário de bordo (PDF e XLSX), Relatório técnico (PDF e DOCX), Pauta |
 | 5 | Renderização VPS × gravado (`comparar-renderizacao.sh`) | ✅ 8/8 **idênticos em bytes** ao PDF gravado (geração determinística) |
-| 6 | Renderização VPS × local (fora do Docker, venv do repositório) | ✅ 8/8 **equivalentes** (mesmas páginas, fontes embutidas e texto); bytes diferem porque o ambiente local não tem `libharfbuzz-subset` (WeasyPrint usa fontTools) — a imagem tem |
+| 6 | Renderização VPS × local (fora do Docker, venv do repositório) | ✅ 8/8 com as mesmas páginas, fontes embutidas e texto (layout não comparado — a prova de renderização é a do item 5, em bytes); bytes diferem porque o ambiente local não tem `libharfbuzz-subset` (WeasyPrint usa fontTools) — a imagem tem |
 | 7 | Roteiro no navegador (Chromium, `roteiro_navegador.py`) a 360 e 1440 px | ✅ 22/22 — sem sessão → login sem DEMO; login com senha; Central; painel; lista (255) e paginação; busca ao vivo e estado vazio; filtro; resumo com documentos e PDF; edição com **autosave**; finalizar; sair; **perfil consulta recebe 403** ao criar ofício; **zero** erros de console/HTTP; **nenhuma requisição a outros hosts** (inclui localhost); sem rolagem horizontal |
 | 8 | Queda real (SIGKILL no PID do host) de web e worker | ✅ web `healthy` de novo em **8 s**; worker reiniciado (`restart: unless-stopped`) |
 | 9 | Restart do PostgreSQL com a aplicação no ar | ✅ `/saude/` 200 em 10/10 amostras; worker cai e volta sozinho |
@@ -66,6 +66,10 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R27 | Imagem de outra implantação em curso durante a limpeza | ✅ preservada (`.implantacoes-em-curso/`); o registro da própria implantação some ao sair |
 | R28 | Migração parcial (0049 aplicada, 0050 falha) | ✅ alerta crítico "1 aplicada(s)", `migracoes-versao-ativa`=1, `reverter` sem dump recusado |
 | R29 | Restauração-teste reprovada por recusa explícita (`morrer`) | ✅ alerta crítico enviado (antes só o ERR alertava); aprovação não alerta |
+| R30 | Migração parcial na implantação | ✅ marcador `migracao-falhou` (implantação, nº de migrações, dump); `reiniciar` e `reverter` recusam apontando o dump; implantação bem-sucedida remove o marcador |
+| R31 | Saída do monitor | ✅ 0 sem problemas, **3** com problema alertado (o systemd aceita só o 3; outras falhas do monitor aparecem em `systemctl --failed`) |
+| R32 | Healthcheck do PostgreSQL | ✅ `pg_isready -h 127.0.0.1` (TCP) no compose |
+| R33 | Restauração-teste com vias assinadas do Coffee | ✅ incluídas na conferência de SHA-256 (`assinada`); a base sintética não tem nenhuma — consulta executada, 318 conferidos |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 

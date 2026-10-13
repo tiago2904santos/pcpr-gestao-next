@@ -69,7 +69,8 @@ def comparar(a: str, b: str) -> int:
         if da["sha256"] == db["sha256"]:
             veredito = "idêntico (bytes)"
         elif all(da[c] == db[c] for c in ("paginas", "fontes", "texto")):
-            veredito = "equivalente (páginas, fontes e texto iguais; bytes diferem)"
+            # Não prova layout nem imagens: só a igualdade em bytes (acima) prova a renderização.
+            veredito = "bytes diferem; páginas, fontes e texto iguais (layout NÃO comparado)"
         else:
             veredito = "DIVERGENTE"
             divergencias += 1

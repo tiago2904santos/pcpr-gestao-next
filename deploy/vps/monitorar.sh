@@ -85,4 +85,5 @@ if [ "$RESUMO" != "$ANTERIOR" ]; then
   # Só dá o estado por avisado se o webhook entregou; senão, a próxima rodada tenta de novo.
   [ "$ALERTA_ENTREGUE" = 0 ] || printf '%s' "$RESUMO" >"$ESTADO/monitor.ultimo"
 fi
-[ -z "$RESUMO" ]
+# 3 = "há problemas (já alertados)"; qualquer outro código ≠ 0 é falha do próprio monitor.
+[ -z "$RESUMO" ] || exit 3

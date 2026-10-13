@@ -162,8 +162,9 @@ def roteiro(navegador, largura: int) -> list[str]:
     if os.environ.get("HOMOLOGACAO_CONSULTA_USUARIO"):
         entrar(pg, os.environ["HOMOLOGACAO_CONSULTA_USUARIO"],
                os.environ["HOMOLOGACAO_CONSULTA_SENHA"])
+        # 403 exato: um 302 seria o GET autorizado (volta à lista) e um 404, rota ausente.
         r = pg.request.get("/viagens/oficios/novo/", max_redirects=0)
-        assert r.status in (302, 403, 404), r.status
+        assert r.status == 403, r.status
         pg.problemas = [p for p in pg.problemas if "/viagens/oficios/novo/" not in p]  # type: ignore[attr-defined]
         passo(f"perfil consulta não cria ofício (HTTP {r.status})")
         sair(pg)

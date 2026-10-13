@@ -4,7 +4,8 @@ After=docker.service
 
 [Service]
 Type=oneshot
-# Código de saída ≠ 0 só indica que há problemas (já alertados); não marca a unidade como falha.
-SuccessExitStatus=1
+# Saída 3 = há problemas (já alertados): não é falha da unidade. Outros códigos ≠ 0 são falha
+# do próprio monitor e aparecem em `systemctl --failed`.
+SuccessExitStatus=3
 ExecStart=/srv/pcpr/infra/deploy/vps/monitorar.sh %i
 TimeoutStartSec=4m

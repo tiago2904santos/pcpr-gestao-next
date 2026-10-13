@@ -48,7 +48,9 @@ NOVA="pcpr-gestao-implantacao:${SHA:0:12}-${INFRA:0:12}"
 # Imagens desta implantação em curso: a limpeza de OUTRA instância que termine antes não pode
 # apagá-las (as travas são por instância).
 EM_CURSO="$PCPR_RAIZ/.implantacoes-em-curso"; mkdir -p "$EM_CURSO"
-printf '%s\n%s\n' "$BASE" "$NOVA" >"$EM_CURSO/$INST"
+# Registro e limpeza sob a mesma trava do host: a limpeza nunca lê a lista no meio de um registro.
+exec 8>"$PCPR_RAIZ/.limpeza-imagens.trava"
+flock 8; printf '%s\n%s\n' "$BASE" "$NOVA" >"$EM_CURSO/$INST"; flock -u 8
 trap 'rm -f "$EM_CURSO/$INST"' EXIT
 if ! docker image inspect "$BASE" >/dev/null 2>&1; then
   # O Dockerfile do produto parte de uma tag móvel (python:3.13-slim): reconstruir o mesmo
@@ -105,12 +107,16 @@ if [ "$PRIMEIRA" = 0 ] && ! dc run --rm -T tarefa migrate --check >/dev/null 2>&
   PARADO=1
 fi
 dc run --rm -T migrar || {
-  # Parte das migrações pode ter sido gravada antes da falha: o estado tem de dizer isso, senão
-  # um `reverter` ou reinício confiaria no valor da versão anterior.
+  # Parte das migrações pode ter sido gravada antes da falha. A imagem ativa continua a anterior,
+  # mas o schema andou: marca a instância para que `reverter`/`reiniciar` recusem e a
+  # recuperação seja restaurar o dump pré-implantação (pcpr.sh restaurar-banco).
   MIGRADAS="$(( $(sql_valor "SELECT count(*) FROM django_migrations" 2>/dev/null || echo "$MIGRACOES_ANTES") - MIGRACOES_ANTES ))"
-  [ "$MIGRADAS" = 0 ] || echo "$MIGRADAS" >"$ESTADO/migracoes-versao-ativa"
+  [ "$MIGRADAS" = 0 ] || printf '%s\t%s\t%s\n' "${SHA:0:12}" "$MIGRADAS" \
+    "$(cat "$ESTADO/ultimo-dump" 2>/dev/null)" >"$ESTADO/migracao-falhou"
   [ -z "${PARADO:-}" ] || alertar CRITICO "migração de ${SHA:0:12} falhou com web/worker PARADOS ($MIGRADAS aplicada(s))"
-  morrer "migração falhou — ${PARADO:+web/worker parados (schema possivelmente parcial); }veja deploy/README.md §Reversão"
+  RECUPERAR=""
+  [ "$MIGRADAS" = 0 ] || RECUPERAR=" recupere com: pcpr.sh $INST restaurar-banco <dump-pre-implantacao> --confirmo-sobrescrever-$INST;"
+  morrer "migração falhou — ${PARADO:+web/worker parados (schema possivelmente parcial);}$RECUPERAR veja deploy/README.md §Reversão"
 }
 MIGRACOES_DEPOIS="$(sql_valor "SELECT count(*) FROM django_migrations")"
 registrar "migrações aplicadas: $((MIGRACOES_DEPOIS - MIGRACOES_ANTES))"
@@ -153,13 +159,16 @@ fi
 printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$NOVA" "${SUDO_USER:-$(id -un)}" "$BASE_ID" \
   >>"$PCPR_RAIZ/$INST/implantacoes.tsv"
 echo "$SHA" >"$ESTADO/versao-ativa"
+rm -f "$ESTADO/migracao-falhou"
 echo "$((MIGRACOES_DEPOIS - MIGRACOES_ANTES))" >"$ESTADO/migracoes-versao-ativa"  # lido por pcpr.sh reverter
 if [ "$REAL" = 0 ]; then  # registro do que passou na homologação (consultado com dados reais)
   printf '%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$BASE_ID" "$INST" >>"$HOMOLOGADOS"
 fi
 registrar "implantação concluída: $NOVA (anterior: ${ANTERIOR:-nenhuma})"
 
-# Limpeza: mantém a imagem atual e a anterior de TODAS as instâncias (reversão sem rebuild).
+# Limpeza: mantém a imagem atual e a anterior de TODAS as instâncias (reversão sem rebuild) e as
+# de implantações em curso; sob a trava do host (ver o registro acima).
+flock 8
 MANTER="$( { sed -n 's/^PCPR_IMAGEM\(_ANTERIOR\)\{0,1\}=//p' "$PCPR_ETC"/*/instancia.env
              cat "$EM_CURSO"/* 2>/dev/null; } | sort -u)"
 for img in $(docker image ls --format '{{.Repository}}:{{.Tag}}' pcpr-gestao-implantacao); do
