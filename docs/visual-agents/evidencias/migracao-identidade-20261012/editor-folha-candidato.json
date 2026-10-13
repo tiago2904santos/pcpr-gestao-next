@@ -1,0 +1,31 @@
+{
+  "base": "cef0e77a17cb53acc40f5d648e0baa4ccf15bde7",
+  "fontes": [
+    {
+      "arquivo": "static/css/folha.css",
+      "sha256": "5017a7227bce98c34ae76738326b538de5610987be1fd8827f9f45c0dfae8415",
+      "bytes": 6115
+    },
+    {
+      "arquivo": "static/js/componentes/editor-documento.js",
+      "sha256": "c4cc3ef3b9321c75d3e1e692f95f00af8417503b74f03b6b3a85435090042ead",
+      "bytes": 51327
+    },
+    {
+      "arquivo": "tests/e2e/test_editor_folha_larga.py",
+      "sha256": "ad74bd4611c628af3e709584bfd77566a85d9ca9fe077100d44af046139d2486",
+      "bytes": 3585
+    },
+    {
+      "arquivo": "tests/e2e/test_ordens.py",
+      "sha256": "129f52cba3213875c95dc5057ed2b409c2fe4b8ff5e7db8f8b22a969863d1c67",
+      "bytes": 3642
+    }
+  ],
+  "suite": "editor-os-controle-visivel",
+  "sessao": 98230,
+  "resultado": "6 passed, 2 warnings, 153.71s",
+  "documentos_oficiais_alterados": false,
+  "aprovacao_visual_usuario": false,
+  "log": "logs/editor-os-controle-visivel.log"
+}

@@ -1,0 +1,65 @@
+2026-10-12 21:14:24,262 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 37 consultas (limite 25)
+2026-10-12 21:14:25,609 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+2026-10-12 21:14:27,440 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+2026-10-12 21:14:29,267 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+2026-10-12 21:14:31,338 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/1/: 38 consultas (limite 25)
+2026-10-12 21:14:34,514 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:14:34,567 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:14:34,621 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.
+(process:19132): GLib-GIO-WARNING **: 21:14:38.529: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:39.031: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:39.031: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:40.104: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:40.175: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:40.210: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:19132): GLib-GIO-WARNING **: 21:14:40.289: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+Timeout (0:01:00)!
+Thread 0x00005e84 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socket.py", line 723 in readinto
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 233 in handle_one_request
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\servers\basehttp.py", line 223 in handle
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 766 in __init__
+  <invalid frame>
+
+Thread 0x000073d0 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x00003428 (most recent call first):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\__init__.py", line 589 in choices
+  <invalid frame>
+2026-10-12 21:14:53,431 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 37 consultas (limite 25)
+2026-10-12 21:14:56,021 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 38 consultas (limite 25)
+2026-10-12 21:14:57,583 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 38 consultas (limite 25)
+2026-10-12 21:14:59,560 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 38 consultas (limite 25)
+2026-10-12 21:15:01,422 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/ordens/2/: 38 consultas (limite 25)
+2026-10-12 21:15:02,327 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:15:02,371 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:15:02,414 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 21:15:15,904 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 38 consultas (limite 25)
+.2026-10-12 21:15:31,513 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+.2026-10-12 21:15:44,974 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 38 consultas (limite 25)
+.2026-10-12 21:15:57,897 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/4/: 38 consultas (limite 25)
+.[12/Oct/2026 21:16:14,635] - Broken pipe from ('127.0.0.1', 51751)
+                                                                   [100%]
+============================== warnings summary ===============================
+tests/e2e/test_ordens.py::test_os_a_partir_do_oficio_com_funcoes[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_editor_folha_larga.py::test_termo_generico_alcanca_linha_inteira_sem_alterar_documento[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_b46d8268" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 2 warnings in 153.71s (0:02:33)

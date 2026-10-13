@@ -1,0 +1,167 @@
+[
+  {
+    "pagina": "oficios",
+    "documento": "oficio",
+    "viewport": 360,
+    "arquivo": "editor-compat-oficios-oficio-360.png",
+    "altura": 1793,
+    "estavel": true,
+    "largura": 277,
+    "conteudo": 382,
+    "texto": 2107
+  },
+  {
+    "pagina": "ordens",
+    "documento": "ordem",
+    "viewport": 360,
+    "arquivo": "editor-compat-ordens-ordem-360.png",
+    "altura": 1782,
+    "estavel": true,
+    "largura": 277,
+    "conteudo": 277,
+    "texto": 1589
+  },
+  {
+    "pagina": "planos",
+    "documento": "plano",
+    "viewport": 360,
+    "arquivo": "editor-compat-planos-plano-360.png",
+    "altura": 3849,
+    "estavel": true,
+    "largura": 277,
+    "conteudo": 277,
+    "texto": 3087
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "oficio",
+    "viewport": 360,
+    "arquivo": "editor-compat-justificativa-oficio-360.png",
+    "altura": 1749,
+    "estavel": true,
+    "largura": 277,
+    "conteudo": 384,
+    "texto": 2054
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "justificativa",
+    "viewport": 360,
+    "arquivo": "editor-compat-justificativa-justificativa-360.png",
+    "altura": 1138,
+    "estavel": true,
+    "largura": 277,
+    "conteudo": 277,
+    "texto": 419
+  },
+  {
+    "pagina": "oficios",
+    "documento": "oficio",
+    "viewport": 768,
+    "arquivo": "editor-compat-oficios-oficio-768.png",
+    "altura": 1532,
+    "estavel": true,
+    "largura": 498,
+    "conteudo": 498,
+    "texto": 2107
+  },
+  {
+    "pagina": "ordens",
+    "documento": "ordem",
+    "viewport": 768,
+    "arquivo": "editor-compat-ordens-ordem-768.png",
+    "altura": 1202,
+    "estavel": true,
+    "largura": 498,
+    "conteudo": 498,
+    "texto": 1589
+  },
+  {
+    "pagina": "planos",
+    "documento": "plano",
+    "viewport": 768,
+    "arquivo": "editor-compat-planos-plano-768.png",
+    "altura": 2269,
+    "estavel": true,
+    "largura": 498,
+    "conteudo": 498,
+    "texto": 3087
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "oficio",
+    "viewport": 768,
+    "arquivo": "editor-compat-justificativa-oficio-768.png",
+    "altura": 1467,
+    "estavel": true,
+    "largura": 498,
+    "conteudo": 498,
+    "texto": 2054
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "justificativa",
+    "viewport": 768,
+    "arquivo": "editor-compat-justificativa-justificativa-768.png",
+    "altura": 1138,
+    "estavel": true,
+    "largura": 498,
+    "conteudo": 498,
+    "texto": 419
+  },
+  {
+    "pagina": "oficios",
+    "documento": "oficio",
+    "viewport": 1440,
+    "arquivo": "editor-compat-oficios-oficio-1440.png",
+    "altura": 1296,
+    "estavel": true,
+    "largura": 995,
+    "conteudo": 995,
+    "texto": 2107
+  },
+  {
+    "pagina": "ordens",
+    "documento": "ordem",
+    "viewport": 1440,
+    "arquivo": "editor-compat-ordens-ordem-1440.png",
+    "altura": 1169,
+    "estavel": true,
+    "largura": 995,
+    "conteudo": 995,
+    "texto": 1589
+  },
+  {
+    "pagina": "planos",
+    "documento": "plano",
+    "viewport": 1440,
+    "arquivo": "editor-compat-planos-plano-1440.png",
+    "altura": 2077,
+    "estavel": true,
+    "largura": 995,
+    "conteudo": 995,
+    "texto": 3087
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "oficio",
+    "viewport": 1440,
+    "arquivo": "editor-compat-justificativa-oficio-1440.png",
+    "altura": 1268,
+    "estavel": true,
+    "largura": 995,
+    "conteudo": 995,
+    "texto": 2054
+  },
+  {
+    "pagina": "justificativa",
+    "documento": "justificativa",
+    "viewport": 1440,
+    "arquivo": "editor-compat-justificativa-justificativa-1440.png",
+    "altura": 1167,
+    "estavel": true,
+    "largura": 995,
+    "conteudo": 995,
+    "texto": 419
+  }
+]

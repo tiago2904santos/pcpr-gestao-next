@@ -1,0 +1,32 @@
+{
+  "assets": [
+    "static/js/componentes/editor-documento.js",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/js/componentes/editor-documento.js",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/js/componentes/editor-documento.js",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/css/folha.css",
+    "static/css/folha.css"
+  ],
+  "campos": [
+    {
+      "html": "<select name=\"funcao_1\" class=\"selecao\" id=\"id_funcao_1\" hidden=\"\" tabindex=\"-1\" aria-hidden=\"true\">\n  <option value=\"\">Sem função</option>\n\n  <option value=\"apoio\">Apoio (montagem, escolta)</option>\n\n  <option value=\"coordenacao\" selected=\"\">Coordenação (cerimonial)</option>\n\n  <option value=\"preparacao\">Preparação</option>\n\n</select>",
+      "parent": "<pc-select class=\"seletor seletor--ativo\" data-pronto=\"1\"><select name=\"funcao_1\" class=\"selecao\" id=\"id_funcao_1\" hidden=\"\" tabindex=\"-1\" aria-hidden=\"true\">\n  <option value=\"\">Sem função</option>\n\n  <option value=\"apoio\">Apoio (montagem, escolta)</option>\n\n  <option value=\"coordenacao\" selected=\"\">Coordenação (cerimonial)</option>\n\n  <option value=\"preparacao\">Preparação</option>\n\n</select><button type=\"button\" class=\"selecao seletor__gatilho\" id=\"id_funcao_1-gatilho\" role=\"combobox\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"id_funcao_1-gatilho-lista\"><span class=\"seletor__valor\">Coordenação (cerimonial)</span><svg class=\"icone seletor__seta\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-chevron-down\"></use></svg></button><ul class=\"combobox__lista seletor__lista\" id=\"id_funcao_1-gatilho-lista\" role=\"listbox\" tabindex=\"-1\" aria-labelledby=\"id_funcao_1-rotulo\" hidden=\"\"></ul>\n</pc-select>",
+      "width": 0,
+      "height": 0
+    },
+    {
+      "html": "<select name=\"funcao_2\" class=\"selecao\" id=\"id_funcao_2\" hidden=\"\" tabindex=\"-1\" aria-hidden=\"true\">\n  <option value=\"\" selected=\"\">Sem função</option>\n\n  <option value=\"apoio\">Apoio (montagem, escolta)</option>\n\n  <option value=\"coordenacao\">Coordenação (cerimonial)</option>\n\n  <option value=\"preparacao\">Preparação</option>\n\n</select>",
+      "parent": "<pc-select class=\"seletor seletor--ativo\" data-pronto=\"1\"><select name=\"funcao_2\" class=\"selecao\" id=\"id_funcao_2\" hidden=\"\" tabindex=\"-1\" aria-hidden=\"true\">\n  <option value=\"\" selected=\"\">Sem função</option>\n\n  <option value=\"apoio\">Apoio (montagem, escolta)</option>\n\n  <option value=\"coordenacao\">Coordenação (cerimonial)</option>\n\n  <option value=\"preparacao\">Preparação</option>\n\n</select><button type=\"button\" class=\"selecao seletor__gatilho seletor__gatilho--vazio\" id=\"id_funcao_2-gatilho\" role=\"combobox\" aria-haspopup=\"listbox\" aria-expanded=\"false\" aria-controls=\"id_funcao_2-gatilho-lista\"><span class=\"seletor__valor\">Sem função</span><svg class=\"icone seletor__seta\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-chevron-down\"></use></svg></button><ul class=\"combobox__lista seletor__lista\" id=\"id_funcao_2-gatilho-lista\" role=\"listbox\" tabindex=\"-1\" aria-labelledby=\"id_funcao_2-rotulo\" hidden=\"\"></ul>\n</pc-select>",
+      "width": 0,
+      "height": 0
+    }
+  ],
+  "url": "http://localhost:64021/viagens/ordens/1/#t-equipe"
+}

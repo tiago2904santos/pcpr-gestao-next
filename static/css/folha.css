@@ -16,6 +16,9 @@ html body {
   flex-direction: column;
   box-sizing: border-box;
   width: min(210mm, 100%);
+  /* A folha acompanha linhas oficiais indivisíveis; o editor permite deslocá-la
+     horizontalmente, sem deixar o texto escapar do papel nem reduzir a fonte. */
+  min-width: min-content;
   min-height: 297mm;
   margin: var(--esp-6) auto;
   padding: 14mm 18mm 24mm;

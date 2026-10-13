@@ -12,8 +12,10 @@ from gestao.viagens.models import OrdemServico
 pytestmark = pytest.mark.e2e
 
 
-def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e):
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e, largura):
     pg = logado
+    pg.set_viewport_size({"width": largura, "height": 900})
     pg.goto(f"/viagens/oficios/?resumo={dados_e2e.ids['oficio_emitido']}")
     janela = pg.get_by_role("dialog")
     janela.get_by_role("button", name="Mais ações").click()
@@ -35,8 +37,13 @@ def test_os_a_partir_do_oficio_com_funcoes(logado, dados_e2e):
     # Tipo com função e ninguém com função: a tela pede para escolher.
     expect(pg.locator(".toast")).to_contain_text("escolha a função")
     primeiro = ordem.servidores.order_by("nome").first()
-    funcao = pg.get_by_role("combobox", name=primeiro.nome)
-    funcao.click()
+    # Após o POST, o select nativo aparece antes do aprimoramento progressivo.
+    # Aguarda o controle canônico: clicar no nativo durante essa troca prende a
+    # ação num elemento que acaba de ser ocultado pelo pc-select.
+    funcao = pg.get_by_role("combobox", name=primeiro.nome).and_(pg.locator("button"))
+    expect(funcao).to_be_visible()
+    funcao.focus()
+    funcao.press("Enter")
     pg.get_by_role("option", name="Coordenação").click()
     pg.keyboard.press("Control+s")
     expect(pg.locator(".toast")).to_contain_text("atualizada")

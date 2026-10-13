@@ -156,8 +156,19 @@ export class PcEditorDocumento extends HTMLElement {
   ajustarAltura() {
     const doc = this.doc;
     if (!this.quadro || !doc || !doc.documentElement || !this.hasAttribute("data-folha-inteira")) return;
-    doc.documentElement.style.overflow = "hidden";
-    this.quadro.style.height = `${doc.documentElement.scrollHeight}px`;
+    const raiz = doc.documentElement;
+    // Linhas indivisíveis do documento oficial podem exceder a tela do celular.
+    // Só a rolagem vertical é delegada à página; a horizontal precisa permanecer acessível.
+    raiz.style.overflowX = "auto";
+    raiz.style.overflowY = "hidden";
+    const janela = doc.defaultView;
+    if (!janela || !doc.body) return;
+    const margem = parseFloat(janela.getComputedStyle(doc.body).marginBottom) || 0;
+    const barra = Math.max(0, this.quadro.clientHeight - raiz.clientHeight);
+    // scrollHeight da raiz inclui a altura anterior do iframe. Usá-lo aqui somaria
+    // a barra a cada observação e impediria a folha de encolher após uma edição.
+    const altura = Math.ceil(doc.body.getBoundingClientRect().bottom + janela.scrollY + margem + barra);
+    if (this.quadro.style.height !== `${altura}px`) this.quadro.style.height = `${altura}px`;
   }
 
   prepararFolha() {

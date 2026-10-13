@@ -674,3 +674,13 @@ A variante preserva título, texto, ícone e ações; usa ícone menor sem brilh
 mensagem alinhada à esquerda e altura pelo conteúdo. Consumidores iniciais:
 duas filas do Painel de Viagens e demonstrações do UI Lab, com e sem ação.
 O padrão centralizado continua inalterado para listas vazias de página inteira.
+
+### Folha documental larga em tela
+
+`folha.css` mantém a largura mínima intrínseca do papel para acomodar pares
+indivisíveis do modelo oficial. Não reduz a tipografia nem quebra esses pares.
+`data-folha-inteira` conserva rolagem horizontal no iframe e delega a vertical
+à página externa. A altura vem do corpo e da margem inferior, reservando a barra
+horizontal; não deve acumular altura ao recalcular. O PDF não carrega essa folha
+de estilo de apresentação. Consumidores: Ofícios/Justificativa, Termos, Ordens
+e Planos; a apresentação do aviso sem documento também usa `folha.css`.

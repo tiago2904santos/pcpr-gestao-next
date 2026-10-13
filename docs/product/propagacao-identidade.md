@@ -402,3 +402,12 @@ versões, anexação e permissões. O href atual usa #lista-documentos, inexiste
 na folha migrada. O alvo real é #previa. Corrigir a navegação sem alterar documento
 oficial ou fluxo de anexação. Testar partindo do menu, incluindo celular, em vez
 de entrar diretamente na URL da prévia; validar upload real em banco/mídia de teste.
+
+## Editor de folha inteira — conteúdo largo no celular, 12/10/2026
+
+Termos, Ofícios, Ordens e Planos usam a mesma variante de altura automática.
+O visualizador deve permitir alcançar linhas indivisíveis por rolagem horizontal,
+sem reduzir a fonte ou modificar HTML, margens e paginação do documento oficial.
+A página externa continua responsável pela rolagem vertical. A altura acompanha
+o conteúdo e reserva a barra horizontal quando presente, sem crescimento cíclico.
+Validar leitura até o fim da linha, teclado, seleção, redimensionamento e edição.
