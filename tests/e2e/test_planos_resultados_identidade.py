@@ -25,7 +25,9 @@ def test_lancamento_zero_milhar_limpeza_e_teclado(logado, dados_e2e, largura):
     if largura < 1024:
         estabilizar(pg)
         rotulo = pg.locator(f'label[for="realizado_{cin.pk}"]')
-        assert rotulo.bounding_box()["y"] + rotulo.bounding_box()["height"] <= quantidade.bounding_box()["y"]
+        # Rótulo acima do campo; tolera o arredondamento de subpixel (medido: 0,12px).
+        assert (rotulo.bounding_box()["y"] + rotulo.bounding_box()["height"]
+                <= quantidade.bounding_box()["y"] + 0.5)
     expect(observacao).to_have_attribute("maxlength", "500")
     quantidade.fill("0")
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Alterações não salvas")

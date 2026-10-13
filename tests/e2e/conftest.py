@@ -121,11 +121,22 @@ def rodar_axe(pg: Page) -> list[dict]:
         pg.wait_for_function(f"() => !({ANIMACOES_EM_CURSO})()", timeout=5_000)
     # evaluate() via CDP não é bloqueado pela CSP (add_script_tag seria).
     pg.evaluate(AXE.read_text() + "\n;true")
+    # Com uma janela modal aberta, o resto da página é inerte (sem clique nem foco): o alvo de
+    # toque (WCAG 2.5.8) só se mede dentro dela — o que está por baixo aparecia "encoberto".
+    # As demais regras seguem auditando a página inteira.
     resultado = pg.evaluate(
-        """async () => await axe.run(document, {
-            runOnly: {type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
-            resultTypes: ['violations']
-        })"""
+        """async () => {
+            const base = {
+                runOnly: {type: 'tag', values: ['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']},
+                resultTypes: ['violations'],
+            };
+            const modal = document.querySelector('dialog:modal');
+            if (!modal) return await axe.run(document, base);
+            const pagina = await axe.run(document, {...base, rules: {'target-size': {enabled: false}}});
+            const alvos = await axe.run(modal, {resultTypes: ['violations'],
+                                                runOnly: {type: 'rule', values: ['target-size']}});
+            return {violations: [...pagina.violations, ...alvos.violations]};
+        }"""
     )
     return resultado["violations"]
 
