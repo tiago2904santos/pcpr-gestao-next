@@ -1,3 +1,26 @@
+# Agenda implementada em checkout isolado; gate original ativo
+
+Origem/main b3471bd. Gate22810 aindaativo,30% e uma falha semdiagnóstico final.
+Não reiniciar nem modificar fontes do checkout original.
+Novo worktree gerenciado: C:/Users/tiago/.codex/worktrees/agenda-identidade/pcpr-gestao-next
+Branch codex/agenda-identidade, base b3471bd. Preview8018 sessão56940.
+Candidato Agenda implementado; QA70945 terminouverde:15estados(5larguras)
+semviolaçãoaxe/console; 15capturas iniciais mais15revisão. E2E preparado nãoexecutado.
+Revisor avaliando candidato isolado. Próximo: atender revisão, executar testes
+isolados e compatibilidade sem sobrecarga, integrar commit validado na branch
+de migração após gate terminar. Não fazer novo push sem autorização.
+Cobertura39/100, GL02 não concluída.
+
+# Estado vigente — main enviada; gate ativo
+
+Remoto/main e main local b3471bd confirmados. Checkout continua
+codex/oficios-transporte-cartoes. Gate22810 ainda ativo; uma falha reportada
+sem diagnóstico terminal. Não reiniciar. Log gate-propagacao-8573ab84.log.
+Não alterar código coberto antes de obter resultado do candidato estável.
+Agenda:24capturas antes e contrato/revisão somente leitura; implementação
+não começou. Cobertura39/100. Próxima ação: resultado do gate e classificação
+da falha; depois implementar GL02. Dados/mídia preservados.
+
 # Envio imediato autorizado pelo usuário
 
 Usuário pediu push rápido sem aguardar gate geral. Código consolidado em1483dbf.
