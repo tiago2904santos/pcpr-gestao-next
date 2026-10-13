@@ -5,6 +5,7 @@ Marcadores: e2e, a11y, visual, perf. Capturas e relatórios vão para artifacts/
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -12,6 +13,7 @@ from pathlib import Path
 
 import pytest
 from playwright.sync_api import Browser, Page, sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeout
 
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
@@ -66,7 +68,17 @@ def logado(pagina: Page) -> Page:
     return pagina
 
 
+# Transições e animações finitas em curso (cor do rótulo ao trocar de estado, esmaecer da lista):
+# o axe mede a cor do instante e acusaria um meio-termo que ninguém lê. As infinitas (fita de
+# carregamento) não terminam e ficam de fora.
+ANIMACOES_EM_CURSO = """() => document.getAnimations().some(a => a.playState === 'running'
+    && a.effect && a.effect.getComputedTiming().iterations !== Infinity)"""
+
+
 def rodar_axe(pg: Page) -> list[dict]:
+    # Sem estabilizar em 5 s (alguma transição em laço), mede assim mesmo.
+    with contextlib.suppress(PlaywrightTimeout):
+        pg.wait_for_function(f"() => !({ANIMACOES_EM_CURSO})()", timeout=5_000)
     # evaluate() via CDP não é bloqueado pela CSP (add_script_tag seria).
     pg.evaluate(AXE.read_text() + "\n;true")
     resultado = pg.evaluate(
