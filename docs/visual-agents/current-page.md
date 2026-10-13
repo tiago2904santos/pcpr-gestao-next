@@ -1,5 +1,25 @@
 # Página atual
 
+## Estado vigente — CD05 fechada tecnicamente
+
+83 testes pós-limpeza aprovados; tipos e smoke Guia em quatro páginas aprovados.
+Revisão independente favorável. Cobertura28/100, homologação visual pendente.
+Próxima página CD06 Textos Prontos: ler contrato, capturar antes, migrar e validar.
+Preservar _equipe e demais mudanças preexistentes. Nenhuma suíte mutável ativa.
+
+# Página atual
+
+## Estado vigente — CD05 implementada, estados98714 ativos
+
+HEADcdb09d7. Configuração da unidade: hero, folha, filtro e barra no fluxo;
+18capturas antes/depois/final. Integrada18759:78pass2fail, automação reabria busca
+e clicava botão encoberto; teste corrigido comTab. Estados98714 ativos, inclui
+semconfig/sem-unidade. Ainda27/100. Revisor avaliando custo guia.js carregado
+sem uso ao adotar .documento. CSS escolha-unidade é candidato de remoção após
+testes. Não editar _equipe. Próximo resultado98714/revisão, corrigir custo e limpar,
+validar novamente antes de fechar. Nenhuma outra página em implementação.
+
+
 ## Estado vigente — CD04 validada; próxima CD05
 
 CD04 integrada25134:82passed90.64s; estados8240:3passed86.81s.

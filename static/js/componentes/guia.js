@@ -113,6 +113,8 @@ export class Guia {
   }
 }
 
-document.querySelectorAll(".documento").forEach((d) => {
+// Seções numeradas usam progressão; cartões também têm fitas por seção.
+// Uma folha simples sem esses elementos não precisa de observadores nem linha-guia.
+document.querySelectorAll(".documento:has(.secao__numero), .documento--cartoes").forEach((d) => {
   new Guia(/** @type {HTMLElement} */ (d));
 });

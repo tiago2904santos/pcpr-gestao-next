@@ -1,0 +1,31 @@
+{
+  "base": "cdb09d7",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/configuracao.html",
+      "sha256": "57a319f75cc3b8bf8a39b3ad379357baa240623b9a4d253ce5d13a43fc96f013"
+    },
+    {
+      "arquivo": "static/css/formulario.css",
+      "sha256": "b792218fc9b8c166e7c4ac682f7bef7d6651e77ebbb207cd4990386db57bc2b7"
+    },
+    {
+      "arquivo": "static/js/app.js",
+      "sha256": "18a45576e957a1d3a688bd06fd17078916b3f99084ab9ffc9fba329b05ffc57c"
+    },
+    {
+      "arquivo": "static/js/componentes/guia.js",
+      "sha256": "c6846bd651b8a4b574676409832806b918c6585e33bba4bb83abd191d1055e48"
+    },
+    {
+      "arquivo": "tests/e2e/test_configuracao_identidade.py",
+      "sha256": "cca642e599acdee6e4607b85ff4a1a1c812edb66556e7456e5a08e4f0afcf22f"
+    }
+  ],
+  "testes": [
+    "83 testes pós-limpeza aprovados em 125,80s",
+    "npm run typecheck aprovado",
+    "Guia conferida no navegador: Configuração, Ofício259, novo Roteiro e Coffee"
+  ],
+  "homologacao_visual": false
+}

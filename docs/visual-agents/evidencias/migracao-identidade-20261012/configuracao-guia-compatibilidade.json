@@ -1,0 +1,26 @@
+[
+  {
+    "rota": "/cadastros/configuracao/",
+    "http": 200,
+    "guias": 0,
+    "recurso": false
+  },
+  {
+    "rota": "/viagens/oficios/259/editar/",
+    "http": 200,
+    "guias": 1,
+    "recurso": true
+  },
+  {
+    "rota": "/viagens/roteiros/novo/",
+    "http": 200,
+    "guias": 1,
+    "recurso": true
+  },
+  {
+    "rota": "/coffee/nova/",
+    "http": 200,
+    "guias": 1,
+    "recurso": true
+  }
+]

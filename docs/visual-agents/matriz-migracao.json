@@ -1691,21 +1691,34 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "base.html",
-        "componentes/campo.html",
-        "componentes/migalhas.html",
-        "componentes/pagina_cabecalho.html",
-        "componentes/resumo_erros.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "filtros",
+        "documento--preparacao",
+        "secao",
+        "campo",
+        "grade--2",
+        "dialogo",
+        "barra-acoes--confirmacao"
       ],
-      "situacao": "NÃO INICIADA",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Hero e folha de preparação; campos proporcionais; barra de salvar no fluxo; diálogo responsivo."
+      ],
+      "testes_executados": [
+        "83 testes pós-limpeza aprovados em 125,80s",
+        "npm run typecheck aprovado",
+        "Guia conferida no navegador: Configuração, Ofício259, novo Roteiro e Coffee"
+      ],
+      "evidencias": [
+        "qa/configuracao-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/configuracao-candidato.json",
+        "evidencias/migracao-identidade-20261012/configuracao-final.json",
+        "evidencias/migracao-identidade-20261012/configuracao-guia-compatibilidade.json"
+      ],
+      "revisao_final": "Revisão independente favorável; capturas integrais/seções/diálogo conferidas; homologação visual pendente.",
+      "revisao_codigo": "cdb09d7 + hashes em configuracao-candidato.json",
+      "dependencias_antigas": "Duas regras escolha-unidade removidas após migração do único consumidor; ID preservado.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

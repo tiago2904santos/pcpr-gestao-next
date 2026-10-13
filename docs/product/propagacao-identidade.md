@@ -483,3 +483,18 @@ Preservar tabela comparativa, estados vazio/erro, confirmação, norma e formul�
 sem autosave. Reutilizar hero compacto, tabela responsiva, menus e diálogo.
 Trocar somente a distribuição Faixa/Data por grade--2: uma coluna no celular,
 eliminando quebra excessiva da ajuda e corte da data. Nenhuma alteração financeira.
+
+## CD05 — Configuração institucional da unidade
+
+Contrato de docs/migration/cadastros.md, TestConfiguracao/TestAssinantes e
+views_crud._tela_configuracao. Gestor configura unidades permitidas; demais perfis
+autorizados consultam campos desabilitados da própria lotação. Sem unidade e sem
+configuração são estados distintos. POST manual, sem autosave; erros preservam
+campos. Assinantes por tipo, chefia de fallback, endereço/rodapé, destinatário e
+prazo permanecem integrais. Substituições têm formulário separado e alternam
+encerrada/ativa; documentos anteriores não mudam. Sem integração nova de CEP.
+
+Migrar cabeçalho e seções para folha de preparação, evitando cartões encaixados.
+Preservar os IDs e agrupamentos funcionais; ampliar campos longos e datas móveis.
+Barra final no fluxo da configuração, separada das ações de substituição. Revisar
+todos os seletores e o diálogo, inclusive Escape primeiro na busca e depois no modal.
