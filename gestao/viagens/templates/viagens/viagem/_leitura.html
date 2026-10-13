@@ -2,10 +2,10 @@
   {# Só leitura (consulta ou cancelada): os dados como texto. #}
   <section class="secao" id="dados" aria-labelledby="t-dados">
     <div class="secao__cabecalho"><h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Dados da viagem</h2></div>
-    <dl class="metadados">
-      <div><dt>Tipo</dt><dd>{{ v.titulo|default:"—" }}</dd></div>
-      <div><dt>Período</dt><dd>{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}—{% endif %}</dd></div>
-      <div><dt>Destinos</dt><dd>{% for m in destinos %}{{ m }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
+    <dl class="resumo__definicoes metadados">
+      {% include "componentes/metadado.html" with rotulo="Tipo" valor=v.titulo ausente="—" only %}
+      <div class="metadado"><dt>Período</dt><dd>{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}—{% endif %}</dd></div>
+      <div class="metadado"><dt>Destinos</dt><dd>{% for m in destinos %}{{ m }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
     </dl>
     <div class="leitura-textual"><h3 class="rotulo-caixa-alta">Motivo</h3><p>{{ v.motivo|default:"—"|linebreaksbr }}</p></div>
   </section>

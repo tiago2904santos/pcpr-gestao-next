@@ -1180,14 +1180,25 @@
         "viagens/viagem/_leitura.html",
         "viagens/viagem/_vinculo.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Metadados readonly canônicos; mensagem de conferência em fluxo contínuo; lote preservado após inspeção de estados preenchidos."
+      ],
+      "testes_executados": [
+        "17 passed in 320.00s baseline",
+        "13 passed in 145.02s final",
+        "360/768/1440; axe, teclado, console, overflow; revisão independente."
+      ],
+      "evidencias": [
+        "qa/viagens-folha-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/viagens-folha-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/viagens-folha-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/viagens-leitura-final.log"
+      ],
+      "revisao_final": "Sem bloqueante novo na revisão independente. Homologação visual do usuário e gate global pendentes.",
+      "revisao_codigo": "b2b8887 + hashes em viagens-folha-retomada-candidato.json",
+      "dependencias_antigas": "Revalidadas remoções vinculo.caixas e checklist__sub; bases legítimas preservadas. Sem CSS/JS novo. Dívida SQL preexistente registrada.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1216,14 +1227,25 @@
         "viagens/_campo_viatura.html",
         "viagens/viagem/_cabecalho.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Metadados readonly canônicos; mensagem de conferência em fluxo contínuo; lote preservado após inspeção de estados preenchidos."
+      ],
+      "testes_executados": [
+        "17 passed in 320.00s baseline",
+        "13 passed in 145.02s final",
+        "360/768/1440; axe, teclado, console, overflow; revisão independente."
+      ],
+      "evidencias": [
+        "qa/viagens-folha-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/viagens-folha-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/viagens-folha-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/viagens-leitura-final.log"
+      ],
+      "revisao_final": "Sem bloqueante novo na revisão independente. Homologação visual do usuário e gate global pendentes.",
+      "revisao_codigo": "b2b8887 + hashes em viagens-folha-retomada-candidato.json",
+      "dependencias_antigas": "Revalidadas remoções vinculo.caixas e checklist__sub; bases legítimas preservadas. Sem CSS/JS novo. Dívida SQL preexistente registrada.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

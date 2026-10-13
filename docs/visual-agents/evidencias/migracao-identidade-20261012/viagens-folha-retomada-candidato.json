@@ -1,0 +1,23 @@
+{
+  "base": "b2b888712f131a63c4b62dc5e45e5d8e3852b44c",
+  "fontes": [
+    {
+      "arquivo": "gestao/viagens/templates/viagens/viagem/_leitura.html",
+      "sha256_lf": "f2d053b80d69e9a8044885a8b6d3429dda681052b96baa7af66424b961c8a9eb"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/viagem/_conferencia.html",
+      "sha256_lf": "2af74f27ef4e8dd0fdf766debc3fbba388da91a710e80c3aaaa6191bb75340c3"
+    },
+    {
+      "arquivo": "tests/e2e/test_viagens_folha_identidade.py",
+      "sha256_lf": "faa85b38b0e24896bc85c1eb45b0142191dd07d5c13f779e1891f36fd2676257"
+    }
+  ],
+  "testes": [
+    "17 passed in 320.00s baseline",
+    "13 passed in 145.02s final"
+  ],
+  "css_js_delta_bytes": 0,
+  "homologacao_visual": false
+}

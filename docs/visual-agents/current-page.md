@@ -1,5 +1,37 @@
 # Página atual
 
+## Estado vigente — VI02/VI03 validadas; próxima CD01
+
+Baseline integrado:17 aprovados320s. Candidato final:13 aprovados145,02s.
+Revisão independente favorável às duas correções HTML; dados e documentos
+preservados. Galeria atualizada e validada:788 capturas,216 telas e572 componentes.
+Inclui38 evidências finais da Folha/lote. Próxima página:CD01, índice de Cadastros,
+reabrir contrato, template e navegador antes de decidir alterações. Não há suíte
+mutável ativa. Preservar _equipe.html do usuário e demais alterações anteriores.
+Turno anterior:progresso verificável pela inclusão e validação das capturas/ZIPs.
+
+## Estado vigente — Folha/lote com duas correções em validação
+
+92178 terminou17passed320s. Capturas96227 e seções96028 concluídas.
+Achados: metadados readonly sem classes canônicas; frases da conferência
+fragmentadas em itens flex no mobile. Corrigidos _leitura/_conferencia sem
+CSSnovo, regra ou documento alterado. Revisor concordou com primeiro; segundo
+comprovado em viagens-folha-secao-conferencia-360.png, aguardando revisão final.
+62728 ativa (viagens-leitura-final:6E2E consulta/cancelada +HTTP/conferência);
+23899 ativa (12capturas viagens-folha-refinado, antes preservado).
+Próxima ação: resultados, capturas de seção pós, revisão final e fechamento
+VI02/VI03. Cobertura21/100. Não reiniciar por silêncio nem alterar _equipe.
+
+## Estado vigente — Folha e lote de Viagens em revisão
+
+VI01 fechada no commit b2b8887. Cobertura21/100, galeria750validada.
+VI02/VI03 ativas: suíte isolada92178 (viagens-folha-browser) e capturas
+somente leitura96227 (vinculada1/básica5/cancelada3/lote1,360/768/1440).
+Contrato e QA antigo lidos; não presumir resultados antigos suficientes.
+Próxima ação: acompanhar handles, revisar toda Folha/lote incluindo seções
+inferiores, validar limpeza anterior vinculo.caixas/checklist__sub e pedir
+revisão independente. Não reiniciar por silêncio. Usuário _equipe intacto.
+
 ## Estado vigente — VI01 validada; próxima Folha/lote
 
 52555 terminou7passed144.30s. Capturas consulta finais guardadas e revisadas;

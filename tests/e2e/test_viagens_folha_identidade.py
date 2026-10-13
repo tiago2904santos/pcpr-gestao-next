@@ -10,9 +10,37 @@ from playwright.sync_api import expect
 from gestao.cadastros.models import Municipio, Servidor, TipoViagem, Viatura
 from gestao.viagens import viagem
 from gestao.viagens.models import Oficio, Viagem
+from tests.e2e.conftest import entrar
 from tests.e2e.test_justificativas_identidade import _axe_estavel
 
 pytestmark = pytest.mark.e2e
+
+
+@pytest.mark.parametrize("largura", [360, 768, 1440])
+@pytest.mark.parametrize("estado", ["consulta", "cancelada"])
+def test_leitura_preserva_dados_e_hierarquia(pagina, dados_e2e, largura, estado, tmp_path):
+    v = _viagem(dados_e2e)
+    titulo = "Atendimento institucional e apoio às comunidades em diferentes municípios"
+    Viagem.objects.filter(pk=v.pk).update(titulo=titulo, motivo="Motivo da viagem para leitura integral.")
+    if estado == "cancelada":
+        viagem.cancelar(dados_e2e.usuarios["operador"], v.pk, "Cenário sintético de leitura.")
+    pg = pagina
+    pg.set_viewport_size({"width": largura, "height": 700})
+    entrar(pg, "consulta" if estado == "consulta" else "operador")
+    pg.goto(f"/viagens/viagens/{v.pk}/")
+    expect(pg.locator("#form-viagem")).to_have_count(0)
+    dados = pg.locator("#dados")
+    expect(dados.locator("dt")).to_have_text(["Tipo", "Período", "Destinos"])
+    expect(dados.locator("dd").nth(0)).to_have_text(titulo)
+    expect(dados.locator("dd").nth(1)).to_contain_text(v.data_inicio.strftime("%d/%m/%Y"))
+    expect(dados.locator("dd").nth(2)).to_contain_text("Londrina/PR")
+    expect(dados).to_contain_text("Motivo da viagem para leitura integral.")
+    assert dados.locator("dt").first.evaluate("e=>getComputedStyle(e).color") != dados.locator("dd").first.evaluate("e=>getComputedStyle(e).color")
+    assert dados.locator("dd").evaluate_all("es=>es.every(e=>e.scrollWidth<=e.clientWidth)")
+    _axe_estavel(pg)
+    assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
+    dados.screenshot(path=str(tmp_path / f"viagens-leitura-{estado}-{largura}.png"))
+    assert pg.erros_console == []
 
 
 def _viagem(c):

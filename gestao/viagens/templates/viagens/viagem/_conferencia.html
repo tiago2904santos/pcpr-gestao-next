@@ -21,7 +21,7 @@ equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe
     <p class="texto-secundario texto-sm">A referência é o período e os destinos daqui e a equipe dos ofícios.</p>
     <ul class="checklist">
       {% for d in diferencas %}
-        <li class="checklist__item"><a href="{{ d.link }}"><strong>{{ d.documento }}</strong></a> · {{ d.campo }}: está <em>{{ d.atual }}</em>, a viagem diz <em>{{ d.esperado }}</em>{% if not d.aplicavel %} (corrija no próprio documento){% endif %}</li>
+        <li class="checklist__item"><span><a href="{{ d.link }}"><strong>{{ d.documento }}</strong></a> · {{ d.campo }}: está <em>{{ d.atual }}</em>, a viagem diz <em>{{ d.esperado }}</em>{% if not d.aplicavel %} (corrija no próprio documento){% endif %}</span></li>
       {% endfor %}
     </ul>
   </div>

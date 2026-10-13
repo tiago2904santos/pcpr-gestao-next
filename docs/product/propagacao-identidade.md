@@ -234,6 +234,14 @@ lacunas/diferenças já levantadas ficam explícitas, não são ampliadas por um
 
 ## Viagens — Folha e geração em lote
 
+Refinamento de leitura (12/10): consulta e cancelada apresentam Tipo, Período
+e Destinos como metadados canônicos do Resumo, com rótulo discreto e valor íntegro.
+Sem formulário desabilitado, novo dado ou alteração de permissão. Tipo e destinos
+longos devem quebrar naturalmente sem truncamento; motivo mantém leitura textual.
+Na conferência, cada divergência é uma frase contínua com link e valores atual e
+esperado; a composição não pode distribuir cada fragmento como coluna independente.
+Preservar a ação de aplicar coerência e a indicação de correção no documento.
+
 Rotas /viagens/viagens/<pk>/ e /<pk>/gerar-documentos/. Folha agrupa identificação,
 tipos→título, período/destinos/motivo/descrição, vínculos atuais+40 livres por tipo,
 conferência em nove etapas/coerência, cinco grupos documentais e histórico. Consulta
