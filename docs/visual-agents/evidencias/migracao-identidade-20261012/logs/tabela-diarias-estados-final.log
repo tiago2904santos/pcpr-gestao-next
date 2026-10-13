@@ -1,0 +1,5 @@
+2026-10-12 23:13:48,692 WARNING django.request Unprocessable Content: /cadastros/diarias/salvar/
+.2026-10-12 23:14:03,396 WARNING django.request Unprocessable Content: /cadastros/diarias/salvar/
+.2026-10-12 23:14:18,507 WARNING django.request Unprocessable Content: /cadastros/diarias/salvar/
+.                                                                      [100%]
+3 passed in 86.81s (0:01:26)

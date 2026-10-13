@@ -1,0 +1,23 @@
+{
+  "base": "190930f",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/diarias.html",
+      "sha256_lf": "2a33d8e389085ff1bb567a3eafd5084183b6e2f0257a6e3a8de4f18eb47958ae"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_diarias_criar.html",
+      "sha256_lf": "7d4b5997cc19d0403b1dccdf14f372d8cb415a50202e698da215f54ed0697f6b"
+    },
+    {
+      "arquivo": "tests/e2e/test_tabela_diarias_identidade.py",
+      "sha256_lf": "795c4e2a625f1774ecb9a04e2ed9c7203f82f2397cc55bd8e938c6564c9007eb"
+    }
+  ],
+  "testes": [
+    "82 integrados aprovados90.64s",
+    "3 estados finais aprovados"
+  ],
+  "homologacao_visual": false,
+  "desempenho": "Sem CSS/JS/consultas ou recursos novos; nenhuma alegação de ganho de latência."
+}

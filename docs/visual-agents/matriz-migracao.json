@@ -1642,18 +1642,34 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "tabela--responsiva",
+        "campo",
+        "grade--2",
+        "dialogo",
+        "menu",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e campos Faixa/Data estreitos no celular; corrigidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho canônico e ação reutilizada; explicação contextual; grade responsiva no diálogo."
+      ],
+      "testes_executados": [
+        "82 integrados aprovados90.64s",
+        "3 estados finais aprovados",
+        "axe/teclado/3607681440; criação/prévia/erro/vazio/consulta; Ruff."
+      ],
+      "evidencias": [
+        "qa/tabela-diarias-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/tabela-diarias-candidato.json",
+        "evidencias/migracao-identidade-20261012/tabela-diarias-final.json"
+      ],
+      "revisao_final": "Revisão independente sem defeito funcional; menu recapturado estável. Homologação visual e gate global pendentes.",
+      "revisao_codigo": "190930f + hashes em tabela-diarias-candidato.json",
+      "dependencias_antigas": "Cabeçalho e campos--iguais removidos deste consumidor; estilos de outros consumidores mantidos. Sem CSS sobreposto.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

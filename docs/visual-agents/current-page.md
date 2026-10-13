@@ -1,5 +1,26 @@
 # Página atual
 
+## Estado vigente — CD04 validada; próxima CD05
+
+CD04 integrada25134:82passed90.64s; estados8240:3passed86.81s.
+Primeira suíte58682 falhou por login ainda autenticado; log preservado e teste
+corrigido limpando cookies para trocar perfil. Produto permaneceu igual.
+Cobertura27/100; revisão independente sem defeito funcional; menu recapturado
+estável. Galeria873imagens. Próxima CD05 Configuração da unidade: template/ficha
+lidos e antes3607681440 capturados, ainda sem implementação. Conferir diálogo
+Substituições antes de editar. Preservar _equipe. Nenhuma suíte mutável ativa.
+
+
+## Estado vigente — CD04 em validação de estados
+
+CD03 commit190930f. CD04 hero/ação compartilhada/grade de Faixa+Data implementados.
+Integrada25134 terminou82passed90.64s. Capturas finais12 concluídas, menu
+recapturado após animações por revisão independente. Suíte58682 ativa: tabela-diarias-estados.log
+(vazio/erro/consulta), isolada; não reiniciar por silêncio. Cobertura26/100.
+Próximo: resultado, rever imagens de erro/consulta, atualizar galeria/matriz e commit
+se verde. _equipe do usuário intocado. Nenhuma migração de outra página iniciada.
+
+
 ## Estado vigente — CD03 validada; próxima CD04 Diárias
 
 76812terminal71passed69.93s, integrada88passed186.19s, revisão favorável.

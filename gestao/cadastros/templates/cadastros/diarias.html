@@ -1,9 +1,8 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Tabela de diárias{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
-{% block titulo_lista %}Tabela de diárias{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Valor da diária de 24 horas por faixa e vigência. Os valores de 15% e 30% são calculados a partir dele (arredondamento ao centavo). Uma vigência nova não muda os valores das anteriores.</p>{% endblock %}
-{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?novo=1">{% icone "plus" %}Nova vigência</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-vigencia">{% icone "plus" %}Nova vigência</button>{% endif %}{% endif %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Tabela de diárias" complemento="Valores por faixa e histórico de vigências." acoes_template="cadastros/_diarias_criar.html" %}{% endblock %}
 {% comment %}
 Paridade com a tela de diárias da referência: histórico da mais recente para a mais antiga
 (faixa, vigente a partir de, 24 h, 15%, 30%), nova vigência e edição numa janela com a
@@ -12,7 +11,10 @@ faixa sem nenhuma vigência.
 {% endcomment %}
 {% block resultados %}
 <div class="lista-cabecalho">
-  <h2 class="peso-semi texto-lg" id="titulo-resultados">Vigências cadastradas</h2>
+  <div class="pilha-sm">
+    <h2 class="peso-semi texto-lg" id="titulo-resultados">Vigências cadastradas</h2>
+    <p class="texto-secundario texto-sm">Os valores de 15% e 30% são calculados a partir da diária de 24 horas, com arredondamento ao centavo. Uma vigência nova não muda os valores das anteriores.</p>
+  </div>
   <span class="lista-cabecalho__total">Da mais recente para a mais antiga</span>
 </div>
 {% if linhas %}
@@ -50,8 +52,7 @@ faixa sem nenhuma vigência.
 {% if acoes.criar %}
 <div class="barra-acoes barra-acoes--rodape">
   <p class="barra-acoes__status">Reajuste? Cadastre uma nova vigência: as anteriores ficam como estavam.</p>
-  {% if editando %}<a class="botao botao--primario" href="?novo=1">{% icone "plus" %}Nova vigência</a>
-  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-vigencia">{% icone "plus" %}Nova vigência</button>{% endif %}
+  {% include "cadastros/_diarias_criar.html" %}
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
@@ -64,7 +65,7 @@ faixa sem nenhuma vigência.
     </div>
     <div class="dialogo__corpo pilha">
       {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
-      <div class="campos campos--iguais">
+      <div class="grade grade--2">
         {% include "componentes/campo.html" with campo=form.faixa %}
         {% include "componentes/campo.html" with campo=form.vigente_desde %}
       </div>

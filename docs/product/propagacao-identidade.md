@@ -471,3 +471,15 @@ Cabeçalho compacto canônico; campos em duas colunas no desktop e uma no celula
 para eliminar truncamento de Tipo/Combustível, mantendo cadastro auxiliar e busca
 de motoristas. Não aplicar filtros--barra, pois reordena filtro simples no mobile.
 Contrato funcional sustentado por test_crud.py/TestViatura e test_cadastros.py.
+
+## CD04 — Tabela de diárias
+
+Consulta de vigências por faixa, mais recentes primeiro; valores de 15% e 30%
+derivados de 24 horas, arredondados ao centavo. Vigente é a última data já iniciada
+de cada faixa. Apenas gestor cria/altera/exclui; última vigência não pode ser
+excluída. Nova vigência preserva anteriores e documentos emitidos. Contratos:
+entities.md, permissions.md, TestDiarias e test_gestor_cadastra_vigencia_com_previa.
+Preservar tabela comparativa, estados vazio/erro, confirmação, norma e formulário
+sem autosave. Reutilizar hero compacto, tabela responsiva, menus e diálogo.
+Trocar somente a distribuição Faixa/Data por grade--2: uma coluna no celular,
+eliminando quebra excessiva da ajuda e corte da data. Nenhuma alteração financeira.
