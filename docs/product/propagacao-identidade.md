@@ -522,3 +522,20 @@ Migração sem regra nova: hero canônico, registro de catálogo e campos propor
 Correção compartilhada: campo.html deve distinguir CheckboxSelectMultiple de
 checkbox simples, usando fieldset/legend com ajuda/erro associados ao grupo;
 nunca envolver uma coleção de labels por outro label.
+
+## CD08–CD15 — Catálogos compartilhados
+
+Unidades, Cargos, Combustíveis, Tipos de viagem, Programas, Horários, Atividades
+e Conjuntos compartilham catalogo.html. Fontes funcionais: views_crud.CATALOGOS,
+docs/migration/cadastros.md, test_crud.TestCatalogos e test_catalogos_plano.
+Preservar busca, ativos/inativos, paginação (15 unidades; 25 demais), vínculos,
+padrão único quando aplicável, permissões e POST com CSRF/voltar. Sem autosave.
+Horário exige fim posterior ao início; Atividade exige meta e mantém código
+imutável; Conjunto exige atividade e conserva vínculos desativados na edição.
+
+Substituir cabeçalho antigo por registro_hero e registros sem placa pela variante
+registro--catalogo. Extrair apenas a ação repetida de criação. Unidade passa a
+grade responsiva para Nome/Sigla, empilhando no celular. Demais parciais conservam
+seus controles específicos. Sem CSS/JS adicional ou mudança das consultas.
+Validar cada rota separadamente, inclusive diálogo e estados condicionais;
+herança do template compartilhado não conclui automaticamente as oito páginas.

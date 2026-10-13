@@ -1,0 +1,194 @@
+[
+  {
+    "slug": "unidades",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "unidades",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "unidades",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "cargos",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "cargos",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "cargos",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "combustiveis",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "combustiveis",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "combustiveis",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "tipos",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "tipos",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "tipos",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "programas",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "programas",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "programas",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "horarios",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "horarios",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "horarios",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "atividades",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "atividades",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "atividades",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "conjuntos",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "conjuntos",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  },
+  {
+    "slug": "conjuntos",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "dialogo_overflow": false
+  }
+]

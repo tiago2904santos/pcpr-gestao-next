@@ -1851,19 +1851,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1885,19 +1903,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1919,19 +1955,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1953,19 +2007,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -1987,19 +2059,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -2021,19 +2111,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -2055,19 +2163,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -2089,19 +2215,37 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "_catalogo_criar",
+        "campo",
+        "dialogo",
+        "menu",
+        "paginacao",
+        "vazio"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registro mobile com espaço reservado sem placa; Unidade com campos comprimidos."
+      ],
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero, registro--catalogo e ação de criação compartilhada; Unidade com grade responsiva."
+      ],
+      "testes_executados": [
+        "143 testes finais aprovados em632,29s, incluindo32E2E",
+        "Ruff integral aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/catalogos-2026-10-13.md",
+        "evidencias/migracao-identidade-20261012/catalogos-antes.json",
+        "evidencias/migracao-identidade-20261012/catalogos-final.json",
+        "evidencias/migracao-identidade-20261012/catalogos-fontes-validadas.json"
+      ],
+      "revisao_final": "Inspeção própria e independente do candidato; verificações individuais de estados. Homologação visual pendente.",
+      "revisao_codigo": "0ec18f8 + hashes em catalogos-fontes-validadas.json",
+      "dependencias_antigas": "Cabeçalho e duplicação da ação substituídos; nenhum CSS/JS novo. Classes globais antigas ainda têm outros consumidores, não removidas.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

@@ -1,0 +1,968 @@
+.2026-10-13 00:05:49,721 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:05:50,515 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+2026-10-13 00:05:50,546 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+...2026-10-13 00:05:52,718 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+.2026-10-13 00:05:53,452 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+...2026-10-13 00:05:55,730 WARNING django.request Forbidden (Permission denied): /cadastros/programas/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 392, in salvar_catalogo
+    obj = services.salvar_catalogo(request.user, cat.modelo, pk=pk, **dados)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 109, in salvar_catalogo
+    policies.exigir(policies.pode_criar_cadastro(usuario, modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:05:56,512 WARNING django.request Forbidden (Permission denied): /cadastros/horarios/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:05:57,305 WARNING django.request Forbidden (Permission denied): /cadastros/atividades/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:05:58,054 WARNING django.request Forbidden (Permission denied): /cadastros/conjuntos/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.....2026-10-13 00:06:01,620 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+.......2026-10-13 00:06:06,300 WARNING django.request Not Found: /cadastros/viagens/salvar/
+.2026-10-13 00:06:07,105 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /cadastros/servidores/5/excluir/: 33 consultas (limite 25)
+....2026-10-13 00:06:10,268 WARNING django.request Method Not Allowed (GET): /cadastros/servidores/8/excluir/
+...2026-10-13 00:06:12,510 WARNING django.request Forbidden (Permission denied): /cadastros/servidores/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 542, in salvar_servidor
+    servidor = services.salvar_servidor(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 189, in salvar_servidor
+    policies.exigir(policies.pode_criar_cadastro(usuario, Servidor))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+..2026-10-13 00:06:13,939 WARNING django.request Forbidden (Permission denied): /cadastros/diarias/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 722, in salvar_vigencia
+    vigencia = services.salvar_vigencia(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 225, in salvar_vigencia
+    policies.exigir(policies.pode_criar_cadastro(usuario, TabelaDiaria),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só o gestor cadastra vigências de diária.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só o gestor cadastra vigências de diária.
+.........2026-10-13 00:06:25,186 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+F2026-10-13 00:06:44,116 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+F2026-10-13 00:07:03,745 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+F2026-10-13 00:07:25,901 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+F2026-10-13 00:07:46,218 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:08:05,197 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:08:24,332 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+F2026-10-13 00:08:45,902 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+.2026-10-13 00:09:01,238 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+F2026-10-13 00:09:18,127 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+F2026-10-13 00:09:35,922 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+F2026-10-13 00:09:53,158 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+F2026-10-13 00:10:10,863 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:10:28,069 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:10:47,532 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+F2026-10-13 00:11:08,274 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+.2026-10-13 00:11:26,311 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+F2026-10-13 00:11:46,080 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+F2026-10-13 00:12:04,363 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+F2026-10-13 00:12:21,672 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+F2026-10-13 00:12:39,052 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:12:54,927 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:13:10,284 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+F2026-10-13 00:13:28,089 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+...... [ 53%]
+...............................................................          [100%]
+================================== FAILURES ===================================
+_____________ test_catalogo_cadastro_edicao_e_erro[360-unidades] ______________
+
+logado = <Page url='http://localhost:53332/cadastros/unidades/'>
+slug = 'unidades', largura = 360
+
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL"
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+        if slug == "conjuntos":
+            janela.locator('input[name="atividades"]').first.check()
+        janela.locator('button[type="submit"]').click()
+        registro = pg.locator(".registro").filter(has=pg.get_by_role("link", name=nome, exact=True))
+>       expect(registro).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:06:25,186 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/unidades/salvar/
+______________ test_catalogo_cadastro_edicao_e_erro[360-cargos] _______________
+
+logado = <Page url='http://localhost:53332/cadastros/cargos/'>, slug = 'cargos'
+largura = 360
+
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL"
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+        if slug == "conjuntos":
+            janela.locator('input[name="atividades"]').first.check()
+        janela.locator('button[type="submit"]').click()
+        registro = pg.locator(".registro").filter(has=pg.get_by_role("link", name=nome, exact=True))
+>       expect(registro).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:06:44,116 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/cargos/salvar/
+___________ test_catalogo_cadastro_edicao_e_erro[360-combustiveis] ____________
+
+logado = <Page url='http://localhost:53332/cadastros/combustiveis/'>
+slug = 'combustiveis', largura = 360
+
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL"
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+        if slug == "conjuntos":
+            janela.locator('input[name="atividades"]').first.check()
+        janela.locator('button[type="submit"]').click()
+        registro = pg.locator(".registro").filter(has=pg.get_by_role("link", name=nome, exact=True))
+>       expect(registro).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:07:03,745 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/combustiveis/salvar/
+__________ test_catalogo_cadastro_edicao_e_erro[360-tipos-de-viagem] __________
+
+logado = <Page url='http://localhost:53332/cadastros/tipos-de-viagem/'>
+slug = 'tipos-de-viagem', largura = 360
+
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL"
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+        if slug == "conjuntos":
+            janela.locator('input[name="atividades"]').first.check()
+        janela.locator('button[type="submit"]').click()
+        registro = pg.locator(".registro").filter(has=pg.get_by_role("link", name=nome, exact=True))
+>       expect(registro).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:07:25,901 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/tipos/salvar/
+____________ test_catalogo_cadastro_edicao_e_erro[360-atividades] _____________
+
+logado = <Page url='http://localhost:53332/cadastros/atividades/'>
+slug = 'atividades', largura = 360
+
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+        if slug == "conjuntos":
+            janela.locator('input[name="atividades"]').first.check()
+>       janela.locator('button[type="submit"]').click()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:08:24,332 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/atividades/salvar/
+_____________ test_catalogo_cadastro_edicao_e_erro[768-unidades] ______________
+
+logado = <Page url='http://localhost:53332/cadastros/unidades/'>
+slug = 'unidades', largura = 768
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:09:01,238 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/unidades/salvar/
+______________ test_catalogo_cadastro_edicao_e_erro[768-cargos] _______________
+
+logado = <Page url='http://localhost:53332/cadastros/cargos/'>, slug = 'cargos'
+largura = 768
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:09:18,127 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/cargos/salvar/
+___________ test_catalogo_cadastro_edicao_e_erro[768-combustiveis] ____________
+
+logado = <Page url='http://localhost:53332/cadastros/combustiveis/'>
+slug = 'combustiveis', largura = 768
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:09:35,922 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/combustiveis/salvar/
+__________ test_catalogo_cadastro_edicao_e_erro[768-tipos-de-viagem] __________
+
+logado = <Page url='http://localhost:53332/cadastros/tipos-de-viagem/'>
+slug = 'tipos-de-viagem', largura = 768
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:09:53,158 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/tipos/salvar/
+____________ test_catalogo_cadastro_edicao_e_erro[768-atividades] _____________
+
+logado = <Page url='http://localhost:53332/cadastros/atividades/'>
+slug = 'atividades', largura = 768
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:10:47,532 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/atividades/salvar/
+_____________ test_catalogo_cadastro_edicao_e_erro[1440-unidades] _____________
+
+logado = <Page url='http://localhost:53332/cadastros/unidades/'>
+slug = 'unidades', largura = 1440
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:11:26,311 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/unidades/salvar/
+______________ test_catalogo_cadastro_edicao_e_erro[1440-cargos] ______________
+
+logado = <Page url='http://localhost:53332/cadastros/cargos/'>, slug = 'cargos'
+largura = 1440
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:11:46,080 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/cargos/salvar/
+___________ test_catalogo_cadastro_edicao_e_erro[1440-combustiveis] ___________
+
+logado = <Page url='http://localhost:53332/cadastros/combustiveis/'>
+slug = 'combustiveis', largura = 1440
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:12:04,363 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/combustiveis/salvar/
+_________ test_catalogo_cadastro_edicao_e_erro[1440-tipos-de-viagem] __________
+
+logado = <Page url='http://localhost:53332/cadastros/tipos-de-viagem/'>
+slug = 'tipos-de-viagem', largura = 1440
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:12:21,672 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/tipos/salvar/
+____________ test_catalogo_cadastro_edicao_e_erro[1440-atividades] ____________
+
+logado = <Page url='http://localhost:53332/cadastros/atividades/'>
+slug = 'atividades', largura = 1440
+
+    
+    
+    @pytest.mark.parametrize("slug", CATALOGOS)
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_catalogo_cadastro_edicao_e_erro(logado, slug, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        pg.goto(f"/cadastros/{slug}/")
+        abrir = pg.locator('[data-abrir-dialogo="dialogo-cadastro"]').first
+        abrir.focus()
+        abrir.press("Enter")
+        janela = pg.locator("#dialogo-cadastro")
+        expect(janela).to_be_visible()
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        janela.locator('button[type="submit"]').click()
+        expect(janela.locator(".campo__erro").first).to_be_visible()
+        assert not janela.evaluate("e=>e.scrollWidth>e.clientWidth")
+        _axe_estavel(pg)
+        out = Path("artifacts/catalogos")
+        out.mkdir(parents=True, exist_ok=True)
+        janela.screenshot(path=str(out / f"{slug}-erro-{largura}.png"))
+        nome = "Catálogo Visual de Atendimento Institucional"
+        if slug in ("programas", "conjuntos"):
+            nome = nome.upper()
+        if slug == "horarios":
+            janela.locator('input[name="inicio"]').fill("07:15")
+            janela.locator('input[name="fim"]').fill("13:45")
+            nome = "07:15 até 13:45"
+        else:
+            janela.locator('input[name="nome"]').fill(nome)
+        if slug == "unidades":
+            janela.get_by_label("Sigla", exact=True).fill("VISUAL")
+        if slug == "atividades":
+            janela.locator('[name="meta"]').fill("Atender ao público com informação clara.")
+>       if slug == "conjuntos":
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".registro").filter(has=get_by_role("link", name="CATÁLOGO VISUAL DE ATENDIMENTO INSTITUCIONAL", exact=True))
+
+tests\e2e\test_catalogos_identidade.py:50: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:13:10,284 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/atividades/salvar/
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[360-unidades]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[360-cargos]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[360-combustiveis]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[360-tipos-de-viagem]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[360-atividades]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[768-unidades]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[768-cargos]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[768-combustiveis]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[768-tipos-de-viagem]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[768-atividades]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[1440-unidades]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[1440-cargos]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[1440-combustiveis]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[1440-tipos-de-viagem]
+FAILED tests/e2e/test_catalogos_identidade.py::test_catalogo_cadastro_edicao_e_erro[1440-atividades]
+15 failed, 120 passed in 500.03s (0:08:20)

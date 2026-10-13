@@ -1,0 +1,140 @@
+.2026-10-13 00:14:39,516 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:14:40,171 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+2026-10-13 00:14:40,199 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+...2026-10-13 00:14:42,073 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+.2026-10-13 00:14:42,675 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+...2026-10-13 00:14:44,586 WARNING django.request Forbidden (Permission denied): /cadastros/programas/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 392, in salvar_catalogo
+    obj = services.salvar_catalogo(request.user, cat.modelo, pk=pk, **dados)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 109, in salvar_catalogo
+    policies.exigir(policies.pode_criar_cadastro(usuario, modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:14:45,441 WARNING django.request Forbidden (Permission denied): /cadastros/horarios/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:14:46,107 WARNING django.request Forbidden (Permission denied): /cadastros/atividades/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.2026-10-13 00:14:46,761 WARNING django.request Forbidden (Permission denied): /cadastros/conjuntos/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 411, in salvar_catalogo
+    return _lista_catalogo(request, slug, form=form, editando=editando, status=422)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 329, in _lista_catalogo
+    policies.exigir(policies.pode_ver_cadastro(request.user, cat.modelo))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+.....2026-10-13 00:14:50,300 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+.......2026-10-13 00:14:55,405 WARNING django.request Not Found: /cadastros/viagens/salvar/
+.2026-10-13 00:14:56,116 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /cadastros/servidores/5/excluir/: 33 consultas (limite 25)
+....2026-10-13 00:14:58,875 WARNING django.request Method Not Allowed (GET): /cadastros/servidores/8/excluir/
+...2026-10-13 00:15:01,336 WARNING django.request Forbidden (Permission denied): /cadastros/servidores/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 542, in salvar_servidor
+    servidor = services.salvar_servidor(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 189, in salvar_servidor
+    policies.exigir(policies.pode_criar_cadastro(usuario, Servidor))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+..2026-10-13 00:15:02,877 WARNING django.request Forbidden (Permission denied): /cadastros/diarias/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 722, in salvar_vigencia
+    vigencia = services.salvar_vigencia(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 225, in salvar_vigencia
+    policies.exigir(policies.pode_criar_cadastro(usuario, TabelaDiaria),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só o gestor cadastra vigências de diária.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só o gestor cadastra vigências de diária.
+.........2026-10-13 00:15:16,075 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+.2026-10-13 00:15:33,955 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+.2026-10-13 00:15:51,083 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+.2026-10-13 00:16:07,428 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+.2026-10-13 00:16:23,850 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:16:40,077 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:16:56,815 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+.2026-10-13 00:17:13,548 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+.2026-10-13 00:17:30,103 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+.2026-10-13 00:17:52,501 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+.2026-10-13 00:18:13,455 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+.2026-10-13 00:18:31,782 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+.2026-10-13 00:18:51,694 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:19:09,357 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:19:28,799 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+.2026-10-13 00:19:46,749 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+.2026-10-13 00:20:07,488 WARNING django.request Unprocessable Content: /cadastros/unidades/salvar/
+.2026-10-13 00:20:29,144 WARNING django.request Unprocessable Content: /cadastros/cargos/salvar/
+.2026-10-13 00:20:52,192 WARNING django.request Unprocessable Content: /cadastros/combustiveis/salvar/
+.2026-10-13 00:21:10,257 WARNING django.request Unprocessable Content: /cadastros/tipos/salvar/
+.2026-10-13 00:21:27,771 WARNING django.request Unprocessable Content: /cadastros/programas/salvar/
+.2026-10-13 00:21:46,014 WARNING django.request Unprocessable Content: /cadastros/horarios/salvar/
+.2026-10-13 00:22:04,053 WARNING django.request Unprocessable Content: /cadastros/atividades/salvar/
+.2026-10-13 00:22:28,526 WARNING django.request Unprocessable Content: /cadastros/conjuntos/salvar/
+...... [ 50%]
+.......................................................................  [100%]
+143 passed in 632.29s (0:10:32)

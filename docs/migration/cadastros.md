@@ -88,6 +88,16 @@ viaturas, unidades, cargos, diárias, entrada: ≤ 20 consultas).
 
 ## Pendências do módulo
 
+### Migração visual dos catálogos — 13/10/2026
+
+CD08–CD15 validados individualmente: Unidades, Cargos, Combustíveis, Tipos,
+Programas, Horários, Atividades e Conjuntos. Cabeçalho/registro/ação canônicos;
+busca, paginação, padrão, vínculos, permissões e regras específicas preservados.
+143 testes finais (32 E2E), axe, teclado e capturas360/768/1440. Comparação
+funcional usa os contratos já registrados neste documento e nos testes de
+catálogos do Plano; não se alega uma nova sessão no sistema legado.
+QA: ../visual-agents/qa/catalogos-2026-10-13.md. Homologação visual pendente.
+
 | Item | Tipo |
 |---|---|
 | Consulta de CEP (serviço externo) | dependência (camada de integrações + aprovação) |

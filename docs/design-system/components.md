@@ -703,3 +703,10 @@ a view fornece somente os itens permitidos; grupo vazio é omitido pelo consumid
 corpo e ações começam na mesma linha. Evita reservar uma linha para o ícone
 decorativo oculto. Primeiro consumidor: Viaturas. Não aplicar a registros com
 placa documental ou ações fixas abaixo do corpo. Base, foco e menus preservados.
+
+Consumidores migrados adicionais: Textos prontos, Usuários e os oito catálogos
+de Viagens (Unidades, Cargos, Combustíveis, Tipos, Programas, Horários, Atividades
+e Conjuntos). O contrato da variante não mudou: cada consumidor mantém seus
+metadados e permissões. Catálogos reutilizam `_catalogo_criar.html` no hero e na
+barra final, preservando a diferença entre abrir diálogo e sair da edição para
+um cadastro novo. Formulários específicos continuam parciais do catálogo.

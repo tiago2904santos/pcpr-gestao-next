@@ -1,0 +1,24 @@
+{
+  "base": "0ec18f8",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/catalogo.html",
+      "sha256": "acbbe53bf780a50d76f33578124082fe9ffb194c340c4b93331f902a4c908bb4"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_catalogo_criar.html",
+      "sha256": "b3ec84fef8f357414c0cec182dde60db1ef63137e6d122337adca10a25f103a8"
+    },
+    {
+      "arquivo": "tests/e2e/test_catalogos_identidade.py",
+      "sha256": "8d51f8c5cac5921384a8aec8311c9ff854a1fa03f5420011533819dd7606fd5b"
+    }
+  ],
+  "testes": [
+    "143 testes finais aprovados em632,29s, incluindo32E2E",
+    "Ruff integral aprovado",
+    "16 contratos de arquitetura preservados",
+    "Browser/axe/teclado em3607681440"
+  ],
+  "homologacao_visual": false
+}

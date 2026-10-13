@@ -2,9 +2,8 @@
 {% block titulo %}{{ cat.titulo }}{% endblock %}
 {# Catálogos com campos próprios (horário com relógio, conjunto com caixas) precisam do pacote de formulário. #}
 {% block estilos %}{{ block.super }}{% if cat.campos %}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endif %}{% endblock %}
-{% block titulo_lista %}{{ cat.titulo }}{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">{{ cat.descricao }}</p>{% endblock %}
-{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ cat.novo }}</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ cat.novo }}</button>{% endif %}{% endif %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo=cat.titulo complemento=cat.descricao acoes_template="cadastros/_catalogo_criar.html" %}{% endblock %}
 {% comment %}
 Lista genérica dos cadastros simples (unidades, cargos, combustíveis e os catálogos do
 plano de trabalho — os com mais campos trazem a sua parcial em `cat.campos`). Paridade com os
@@ -39,11 +38,11 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}{{ cat.titulo }}{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"registro,registros" }}</span>
 </div>
-{% if cat.com_padrao and aba != "inativos" %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}{{ cat.nota_padrao }}</p>{% endif %}
+{% if cat.com_padrao and aba != "inativos" %}<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}<span>{{ cat.nota_padrao }}</span></p>{% endif %}
 {% if page_obj.object_list %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for o in page_obj.object_list %}
-      <li class="registro{% if not o.ativo %} registro--inativo{% endif %}">
+      <li class="registro registro--catalogo{% if not o.ativo %} registro--inativo{% endif %}">
         <span class="registro__icone" aria-hidden="true">{% icone cat.icone %}</span>
         <div class="registro__corpo">
           <div class="registro__titulo">
@@ -101,8 +100,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
 {% if acoes.criar %}
 <div class="barra-acoes barra-acoes--rodape">
   <p class="barra-acoes__status">Excluir só vale para o que ainda não foi usado; o resto se desativa.</p>
-  {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}{{ cat.novo }}</a>
-  {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-cadastro">{% icone "plus" %}{{ cat.novo }}</button>{% endif %}
+  {% include "cadastros/_catalogo_criar.html" %}
 </div>
 {% endif %}
 {% if acoes.criar or editando %}
@@ -119,7 +117,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
       {% if cat.campos %}
         {% include cat.campos %}
       {% elif slug == "unidades" %}
-        <div class="campos campos--iguais">
+        <div class="grade grade--2">
           {% include "componentes/campo.html" with campo=form.nome %}
           {% include "componentes/campo.html" with campo=form.sigla %}
         </div>

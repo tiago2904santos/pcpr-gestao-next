@@ -1,5 +1,24 @@
 # Página atual
 
+## CD08–CD15 fechadas tecnicamente
+
+143testes finais verdes632,29s; Ruff integral e16contratos preservados.
+Cobertura38/100. Suíte81168 encerrada; nenhuma suíte mutável ativa.
+Preview8017 sessão50193, galeria8021. Próxima GL01 Central: contrato e antes
+observados, sem implementação. Preservar _equipe e evidências anteriores.
+
+# Página atual
+
+## CD08–CD15 em validação
+
+HEAD 0ec18f8; catálogos compartilham candidato catalogo.html/_catalogo_criar.html.
+48 capturas antes e 48 candidato; 150 capturas finais de estados. Revisão independente
+favorável. Suíte8510 encerrou120pass/15falhas de expectativa uppercase; corrigida.
+Suíte final81168 ativa, sem falha observada até aqui. Capturas86752 encerradas. Nenhuma conclusão por herança. Preservar _equipe.
+Cobertura mantida30/100; próxima ação investigar resultado da suíte antes do commit.
+
+# Página atual
+
 ## Estado vigente — CD07 fechada tecnicamente
 
 89testes finais, Ruff e16contratos de arquitetura aprovados. Cobertura30/100.
