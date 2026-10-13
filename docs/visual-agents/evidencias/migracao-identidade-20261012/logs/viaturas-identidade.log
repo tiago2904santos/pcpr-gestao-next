@@ -1,0 +1,70 @@
+.2026-10-12 22:55:56,092 WARNING django.request Unprocessable Content: /cadastros/viaturas/salvar/
+.2026-10-12 22:55:56,960 WARNING django.request Unprocessable Content: /cadastros/viaturas/salvar/
+.2026-10-12 22:55:57,806 WARNING django.request Unprocessable Content: /cadastros/viaturas/salvar/
+.2026-10-12 22:55:58,759 WARNING django.request Unprocessable Content: /cadastros/viaturas/salvar/
+...2026-10-12 22:56:02,755 WARNING django.request Forbidden (Permission denied): /cadastros/servidores/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 542, in salvar_servidor
+    servidor = services.salvar_servidor(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 189, in salvar_servidor
+    policies.exigir(policies.pode_criar_cadastro(usuario, Servidor))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+..2026-10-12 22:56:04,802 WARNING django.request Forbidden (Permission denied): /cadastros/diarias/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 722, in salvar_vigencia
+    vigencia = services.salvar_vigencia(request.user, pk=pk, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 225, in salvar_vigencia
+    policies.exigir(policies.pode_criar_cadastro(usuario, TabelaDiaria),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só o gestor cadastra vigências de diária.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só o gestor cadastra vigências de diária.
+.......2026-10-12 22:57:13,916 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/22/equipe/adicionar/: 29 consultas (limite 25)
+.[12/Oct/2026 22:57:23,328] - Broken pipe from ('127.0.0.1', 64522)
+[12/Oct/2026 22:57:23,724] - Broken pipe from ('127.0.0.1', 52653)
+
+(process:22972): GLib-GIO-WARNING **: 22:57:31.000: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:32.149: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:32.149: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:34.068: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:34.153: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:34.241: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:22972): GLib-GIO-WARNING **: 22:57:34.396: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+2026-10-12 22:57:45,974 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/27/equipe/adicionar/: 29 consultas (limite 25)
+....................................................... [ 81%]
+................[12/Oct/2026 22:58:30,316] - Broken pipe from ('127.0.0.1', 52835)
+                                                         [100%]
+============================== warnings summary ===============================
+tests/e2e/test_cadastro_adiado.py::test_cadastra_servidor_e_viatura_sem_perder_a_folha[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+88 passed, 1 warning in 186.19s (0:03:06)

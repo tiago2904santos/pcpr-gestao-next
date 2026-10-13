@@ -1,0 +1,1 @@
+{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Nova viatura</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-viatura">{% icone "plus" %}Nova viatura</button>{% endif %}{% endif %}

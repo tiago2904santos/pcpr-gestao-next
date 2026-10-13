@@ -1595,20 +1595,32 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/cadastro_rapido.html",
-        "componentes/dialogo_viatura.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "dialogo_viatura",
+        "grade--2",
+        "filtros simples"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Tipo/Combustível cortados no mobile; linha vazia antes da placa. Corrigidos."
+      ],
+      "alteracoes_implementadas": [
+        "Hero compacto, pares de campos responsivos e variante de registro de catálogo."
+      ],
+      "testes_executados": [
+        "88 passed1warning186.19s integrada",
+        "71 passed69.93s final",
+        "Termos/lote3601440; menus e auxiliares3607681440; Ruff."
+      ],
+      "evidencias": [
+        "qa/viaturas-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/viaturas-candidato.json",
+        "evidencias/migracao-identidade-20261012/viaturas-final.json"
+      ],
+      "revisao_final": "Revisão independente favorável ao candidato final; homologação visual e gate global pendentes.",
+      "revisao_codigo": "0393d37 + hashes em viaturas-candidato.json",
+      "dependencias_antigas": "Cabeçalho anterior e campos--iguais substituídos no consumidor; bases legítimas mantidas. Sem biblioteca nova.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

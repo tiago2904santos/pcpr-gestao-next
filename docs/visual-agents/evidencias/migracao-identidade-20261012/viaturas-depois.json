@@ -1,0 +1,65 @@
+[
+  {
+    "estado": "lista",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompletos",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "sem-resultados",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lista",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompletos",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "sem-resultados",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "lista",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "incompletos",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "sem-resultados",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "rota": "/viagens/termos/1/",
+    "largura": 360,
+    "http": 200,
+    "teclado": "Escape/foco verificados"
+  },
+  {
+    "rota": "/viagens/termos/1/",
+    "largura": 1440,
+    "http": 200,
+    "teclado": "Escape/foco verificados"
+  },
+  {
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "largura": 360,
+    "http": 200,
+    "teclado": "Escape/foco verificados"
+  },
+  {
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "largura": 1440,
+    "http": 200,
+    "teclado": "Escape/foco verificados"
+  }
+]

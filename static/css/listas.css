@@ -1037,6 +1037,8 @@ a.ficha:hover {
     padding: var(--esp-3) var(--esp-4);
   }
   .registro__icone { display: none; }
+  /* Catálogo sem placa documental: conteúdo e menu compartilham a primeira linha. */
+  .registro.registro--catalogo { grid-template-areas: "corpo acoes"; }
   .registro > .placa {
     grid-area: placa;
     justify-self: start;

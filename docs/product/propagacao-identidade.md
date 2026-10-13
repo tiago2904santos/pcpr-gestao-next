@@ -460,3 +460,14 @@ substituir campos--iguais por grade responsiva: campos completos no celular, dua
 colunas em telas maiores. Antes360 comprova corte de CPF/cargo. Consumidores diretos:
 Servidores e dialogos_cadastro (Termos, OS, lote de Viagens e carregamentos dinâmicos).
 Validar criação, edição, máscaras, atalhos, erro, teclado e consumidores afetados.
+
+## CD03 — Viaturas
+
+Preservar busca por placa/modelo/unidade/motorista, filtro combustível, abas,
+paginação, permissões, ativação e exclusão condicionada. Só placa obrigatória;
+tipo/combustível iniciais e motoristas habituais mantidos. Diálogo compartilhado
+com Termos/OS/lote e Ofícios sob demanda. Sem mudança de contrato de salvamento.
+Cabeçalho compacto canônico; campos em duas colunas no desktop e uma no celular
+para eliminar truncamento de Tipo/Combustível, mantendo cadastro auxiliar e busca
+de motoristas. Não aplicar filtros--barra, pois reordena filtro simples no mobile.
+Contrato funcional sustentado por test_crud.py/TestViatura e test_cadastros.py.

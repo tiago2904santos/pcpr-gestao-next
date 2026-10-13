@@ -1,9 +1,8 @@
 {% extends "arquetipos/lista.html" %}
 {% block modulos %}{{ block.super }}{% load static %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block titulo %}Viaturas{% endblock %}
-{% block titulo_lista %}Viaturas{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Veículos oficiais que podem ser designados a uma viagem, com os servidores que costumam dirigi-los.</p>{% endblock %}
-{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Nova viatura</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-viatura">{% icone "plus" %}Nova viatura</button>{% endif %}{% endif %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Viaturas" complemento="Veículos, unidades e motoristas habituais." acoes_template="cadastros/_viaturas_criar.html" %}{% endblock %}
 {% comment %}
 Paridade com a lista e o cadastro de viaturas da referência: busca (placa, modelo, unidade,
 motorista), filtro por combustível com contagem, dados na ordem placa · unidade ·
@@ -51,7 +50,7 @@ Ativas / Incompletas / Inativas e "Desativar".
 {% if page_obj.object_list %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for v in page_obj.object_list %}
-      <li class="registro{% if not v.ativo %} registro--inativo{% endif %}">
+      <li class="registro registro--catalogo{% if not v.ativo %} registro--inativo{% endif %}">
         <span class="registro__icone" aria-hidden="true">{% icone "car" %}</span>
         <div class="registro__corpo">
           <div class="registro__titulo">

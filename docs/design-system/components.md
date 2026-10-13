@@ -696,3 +696,10 @@ Pendência é o par texto/URL, com alvo independente do link expandido do regist
 Usa as bases `registros`, `registro` e `registro__meta`; não adiciona CSS ou JS.
 Consumidores: os três grupos do índice de Cadastros. Não decide permissões:
 a view fornece somente os itens permitidos; grupo vazio é omitido pelo consumidor.
+
+### Registro de catálogo com menu
+
+`registro--catalogo` é a variante de registro sem placa documental: no celular,
+corpo e ações começam na mesma linha. Evita reservar uma linha para o ícone
+decorativo oculto. Primeiro consumidor: Viaturas. Não aplicar a registros com
+placa documental ou ações fixas abaixo do corpo. Base, foco e menus preservados.

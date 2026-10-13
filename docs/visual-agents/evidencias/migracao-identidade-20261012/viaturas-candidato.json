@@ -1,0 +1,31 @@
+{
+  "base": "0393d37",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/viaturas.html",
+      "sha256_lf": "6e53f6f31ca92f2c59718739b25e32856eaac491897415d04b8b99a990d5be5d"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_viaturas_criar.html",
+      "sha256_lf": "baa36ed10818c637eb2c6aead183f468629ff1f824f9503296dbe878549d78b7"
+    },
+    {
+      "arquivo": "templates/componentes/dialogo_viatura.html",
+      "sha256_lf": "dd807493626453afdd68e2a096cbaccf3d135da5aa83bb88ec7e3e314d4bcf44"
+    },
+    {
+      "arquivo": "static/css/listas.css",
+      "sha256_lf": "d79bd51974e7d4280a01d2151c64178cbb0be30b24ec2d545b8b2f3b18b60103"
+    },
+    {
+      "arquivo": "tests/e2e/test_viaturas_identidade.py",
+      "sha256_lf": "af55effb4f3eb6e0944afd72116e5998ce8c8a519e07cdcf6419ea21aa3ef2e4"
+    }
+  ],
+  "testes": [
+    "88 passed1warning186.19s integrada",
+    "71 passed69.93s final"
+  ],
+  "homologacao_visual": false,
+  "desempenho": "Uma regra CSS opt-in, sem JS/requests/consultas novas; não se alega ganho de latência."
+}

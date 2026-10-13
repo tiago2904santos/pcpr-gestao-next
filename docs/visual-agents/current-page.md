@@ -1,5 +1,41 @@
 # Página atual
 
+## Estado vigente — CD03 validada; próxima CD04 Diárias
+
+76812terminal71passed69.93s, integrada88passed186.19s, revisão favorável.
+Cobertura26/100. Próxima CD04 tabela de diárias, contrato/template lidos; abrir
+página e nova/editar vigência em perfil gestor sem mudar dadosDEMO. Nenhuma suíte
+mutável ativa. Não alterar cálculo/vigências/documentos. _equipe protegido.
+
+
+## Estado vigente — CD03 integrada verde, focused76812 ativo
+
+31269 terminou88passed1warning186.19s. Capturas finais70838 concluídas e
+incompleto360 revisto: placa/corpo/menu sem linha vazia. Focused76812 ativo,
+viaturas-focused-final.log, verifica geometria nova e tokens. Próxima ação:
+resultado, revisão independente da variante, galeria/matriz/commit se verdes.
+Cobertura25/100; não marcar CD03 concluída ainda. Sem alteração do usuário.
+
+## Estado vigente — CD03 segunda passagem, aguardando integrada
+
+31269ativa viaturas-identidade.log. Depois dela rodar viaturas-focused-final
+(nova asserção do registro mobile+tokens), sem banco concorrente. Variante
+registro--catalogo resolve linha vazia preexistente antes da placa; único consumidor
+Viaturas. Capturas finais70838 em andamento. Compat95783 terminal4capturas Termos/
+lote3601440, Escape/foco; OS não possui disparador de viatura embora inclua template
+agregado. Não criar funcionalidade para cumprir captura. Revisão final ainda falta.
+Cobertura25/100. _equipe usuário intacto. Próxima ação: resultados, focused, imagem
+registro-final360, controles abertos, matriz/galeria/commit somente validados.
+
+## Estado vigente — CD03 Viaturas implementada, validando
+
+CD02 fechada0393d37 (151integrados+3focused). Cobertura25/100. CD03 hero compacto
+e diálogo grade2/1 aplicados,15capturas depois reais concluídas. Ruff/diffcheck
+verdes. Suíte31269 ativa viaturas-identidade.log; compat2361 em Termos/OS/lote.
+Revisor solicitado. Próxima ação: acompanhar handles, revisar compat, corrigir
+falhas se houver; completar controles abertos/QA/matriz/galeria/commit só validados.
+_equipe do usuário intocado. SemCSS/JSnovo, banco/mídiaDEMO preservados.
+
 ## Estado vigente — CD02 validada; próxima CD03
 
 Final45948:3passed99.88s, integrada151passed313.71s e revisão independente

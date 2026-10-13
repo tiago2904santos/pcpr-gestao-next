@@ -26,8 +26,8 @@ Variáveis: `form` (FormularioViatura). Opcionais, só a tela de cadastro usa: `
       Combustível e unidade levam ao lado o "+" que cadastra o que falta sem sair daqui.
       {% endcomment %}
       <fieldset class="grupo-campos" aria-label="Dados da viatura">
-        {# Os quatro dados da viatura numa linha só, em colunas iguais. #}
-        <div class="campos campos--iguais">
+        {# Pares com largura de leitura; no celular cada campo tem sua linha. #}
+        <div class="grade grade--2">
           {% include "componentes/campo.html" with campo=form.placa ajuda_oculta=True %}
           {% include "componentes/campo.html" with campo=form.modelo %}
           {% include "componentes/campo.html" with campo=form.tipo %}
