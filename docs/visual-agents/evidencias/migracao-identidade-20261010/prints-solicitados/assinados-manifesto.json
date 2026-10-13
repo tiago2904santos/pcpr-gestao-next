@@ -1,0 +1,83 @@
+[
+  {
+    "titulo": "Via assinada",
+    "estado": "inclusão",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "depois-assinados-inclusao-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "erro de arquivo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-erro-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "troca de via",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-troca-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "inclusão",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "depois-assinados-inclusao-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "erro de arquivo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-erro-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "troca de via",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-troca-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "inclusão",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "depois-assinados-inclusao-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "erro de arquivo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-erro-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Via assinada",
+    "estado": "troca de via",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/assinados/oficio/<pk>/",
+    "arquivo": "assinados-troca-1440.png",
+    "integral": true
+  }
+]

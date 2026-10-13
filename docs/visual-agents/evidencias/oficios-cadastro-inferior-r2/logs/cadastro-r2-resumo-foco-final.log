@@ -1,0 +1,8 @@
+......                                                                   [100%]
+============================== warnings summary ===============================
+tests/e2e/test_resumo_visual.py::test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+6 passed, 1 warning in 134.21s (0:02:14)

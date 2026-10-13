@@ -1,0 +1,10 @@
+{
+  "gestao/viagens/templatetags/viagens.py": {
+    "hash_baseline": "862a136f135672cdaaeab23e13aba6f25c446bfa34db69dcc8b00c34c11fa66c",
+    "hash_antes_correcao": "862a136f135672cdaaeab23e13aba6f25c446bfa34db69dcc8b00c34c11fa66c"
+  },
+  "tests/e2e/test_resumo_visual.py": {
+    "hash_baseline": "f9a9d1d168090fc0ae2eb14171b2193377dab846e2f4841bc89393cd7116d956",
+    "hash_antes_correcao": "f9a9d1d168090fc0ae2eb14171b2193377dab846e2f4841bc89393cd7116d956"
+  }
+}

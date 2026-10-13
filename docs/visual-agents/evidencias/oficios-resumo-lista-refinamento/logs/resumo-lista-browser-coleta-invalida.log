@@ -1,0 +1,5 @@
+
+no tests ran in 3.21s
+ERROR: not found: C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\test_eprotocolo_copia.py::test_resumo_aberto_por_htmx_fallback_e_csp_sem_regressao
+(no match in any of [<Module test_eprotocolo_copia.py>])
+

@@ -1,0 +1,800 @@
+[
+  {
+    "titulo": "Calendário",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-calendario-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Relógio",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-relogio-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lista de seleção",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-lista-de-selecao-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Programas/seleção múltipla",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-programas-selecao-multipla-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu simples",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-simples-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito com subgrupos",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-com-subgrupos-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diálogo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dialogo-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê sem dados",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-sem-dados-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Gaveta",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-gaveta-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico documental",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-historico-documental-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Baixar documentos",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-baixar-documentos-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Via assinada",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-via-assinada-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trocar via assinada",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-trocar-via-assinada-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paleta de comandos",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-paleta-de-comandos-aberto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Município/UF · busca",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-municipio-uf-busca-opcoes-abertas-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Pessoas · busca remota",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-pessoas-busca-remota-opcoes-abertas-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe · busca múltipla",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-equipe-busca-multipla-opcoes-abertas-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Calendário",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-calendario-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Relógio",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-relogio-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lista de seleção",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-lista-de-selecao-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Programas/seleção múltipla",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-programas-selecao-multipla-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu simples",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-simples-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito com subgrupos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-com-subgrupos-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diálogo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dialogo-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê sem dados",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-sem-dados-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Gaveta",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-gaveta-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico documental",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-historico-documental-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Baixar documentos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-baixar-documentos-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Via assinada",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-via-assinada-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trocar via assinada",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-trocar-via-assinada-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paleta de comandos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-paleta-de-comandos-aberto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Município/UF · busca",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-municipio-uf-busca-opcoes-abertas-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Pessoas · busca remota",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-pessoas-busca-remota-opcoes-abertas-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe · busca múltipla",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-equipe-busca-multipla-opcoes-abertas-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Calendário",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-calendario-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Relógio",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-relogio-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lista de seleção",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-lista-de-selecao-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Programas/seleção múltipla",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-programas-selecao-multipla-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu simples",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-simples-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Menu descrito com subgrupos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-menu-descrito-com-subgrupos-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diálogo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dialogo-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dossiê sem dados",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-dossie-sem-dados-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Gaveta",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-gaveta-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico documental",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-historico-documental-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Baixar documentos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-baixar-documentos-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Via assinada",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-via-assinada-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trocar via assinada",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-trocar-via-assinada-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paleta de comandos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "aberto",
+    "arquivo": "abertos-paleta-de-comandos-aberto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Município/UF · busca",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-municipio-uf-busca-opcoes-abertas-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Pessoas · busca remota",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-pessoas-busca-remota-opcoes-abertas-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe · busca múltipla",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "opcoes-abertas",
+    "arquivo": "abertos-equipe-busca-multipla-opcoes-abertas-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  }
+]

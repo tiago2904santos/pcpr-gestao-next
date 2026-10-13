@@ -1,0 +1,285 @@
+.2026-10-12 23:21:49,812 WARNING django.request Forbidden (Permission denied): /cadastros/configuracao/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 811, in configuracao
+    services.salvar_configuracao(request.user, unidade, **form.cleaned_data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 264, in salvar_configuracao
+    policies.exigir(policies.pode_alterar_configuracao(usuario, unidade),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só o gestor altera a configuração da unidade.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só o gestor altera a configuração da unidade.
+.2026-10-12 23:21:50,709 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+.2026-10-12 23:21:51,468 WARNING django.request Forbidden (Permission denied): /cadastros/configuracao/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 802, in configuracao
+    policies.exigir(policies.pode_ver_configuracao(request.user))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+....2026-10-12 23:21:54,783 WARNING django.request Unprocessable Content: /cadastros/configuracao/substituicoes/salvar/
+2026-10-12 23:21:54,821 WARNING django.request Forbidden (Permission denied): /cadastros/configuracao/substituicoes/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_crud.py", line 827, in salvar_substituicao
+    sub = services.salvar_substituicao(request.user, unidade, **form.cleaned_data)
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\services.py", line 306, in salvar_substituicao
+    policies.exigir(policies.pode_alterar_configuracao(usuario, unidade),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Só o gestor define substituições de assinante.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\policies.py", line 17, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Só o gestor define substituições de assinante.
+..2026-10-12 23:22:00,320 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+.2026-10-12 23:22:20,050 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+F2026-10-12 23:23:05,265 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+F............................................................ [ 90%]
+........                                                                 [100%]
+================================== FAILURES ===================================
+____________ test_configuracao_salvar_substituir_e_consultar[768] _____________
+
+pagina = <Page url='http://localhost:53091/cadastros/configuracao/?unidade=21'>
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_configuracao_salvar_substituir_e_consultar(pagina, largura):
+        pg = pagina
+        Servidor.objects.create(nome="Substituto de teste visual")
+        entrar(pg, "gestor")
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto("/cadastros/configuracao/")
+        out = Path("artifacts/configuracao")
+        out.mkdir(parents=True, exist_ok=True)
+        nome = pg.locator("#id_nome_extenso")
+        expect(nome).to_be_enabled()
+        nome.fill("")
+        pg.get_by_role("button", name="Salvar configuração", exact=True).click()
+        expect(pg.locator("#id_nome_extenso-erro")).to_be_visible()
+        _axe_estavel(pg)
+        pg.screenshot(path=str(out/f"erro-{largura}.png"), full_page=True)
+        nome.fill("Unidade sintética de conferência visual")
+        pg.get_by_role("button", name="Salvar configuração", exact=True).click()
+        expect(pg.locator(".toast")).to_contain_text("salva")
+        expect(nome).to_have_value("Unidade sintética de conferência visual")
+        abrir = pg.get_by_role("button", name="Nova substituição", exact=True)
+        abrir.focus()
+        abrir.press("Enter")
+        dialog = pg.get_by_role("dialog", name="Nova substituição")
+        expect(dialog).to_be_visible()
+        dialog.locator("#id_servidor-busca").fill("Substituto de teste visual")
+        dialog.get_by_role("option", name="Substituto de teste visual", exact=True).click()
+        inicio = dialog.get_by_role("textbox", name="Início", exact=True)
+        assert inicio.evaluate("e=>e.clientWidth") >= 200
+        inicio.fill("10/07/2030")
+        dialog.get_by_role("textbox", name="Fim", exact=True).fill("15/07/2030")
+        dialog.get_by_label("Motivo", exact=True).fill("Afastamento sintético para teste")
+        _axe_estavel(pg)
+        dialog.screenshot(path=str(out/f"substituicao-{largura}.png"))
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        expect(inicio).to_have_value("10/07/2030")
+>       dialog.get_by_role("button", name="Cadastrar substituição", exact=True).click()
+
+tests\e2e\test_configuracao_identidade.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002106AE66CF0>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000021069BBCF40>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("dialog", name="Nova substituição").get_by_role("button", name="Cadastrar substituição", exact=True)
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is not stable
+E               - retrying click action
+E               - waiting 20ms
+E               - waiting for element to be visible, enabled and stable
+E               - element is not stable
+E             2 × retrying click action
+E                 - waiting 100ms
+E                 - waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <div class="combobox__opcao-titulo">Fábio Augusto Teixeira — Agente de Polícia Judici…</div> from <div class="dialogo__corpo pilha">…</div> subtree intercepts pointer events
+E             55 × retrying click action
+E                  - waiting 500ms
+E                  - waiting for element to be visible, enabled and stable
+E                  - element is visible, enabled and stable
+E                  - scrolling into view if needed
+E                  - done scrolling
+E                  - <div class="combobox__opcao-titulo">Fábio Augusto Teixeira — Agente de Polícia Judici…</div> from <div class="dialogo__corpo pilha">…</div> subtree intercepts pointer events
+E             - retrying click action
+E               - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 23:22:20,050 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/configuracao/
+____________ test_configuracao_salvar_substituir_e_consultar[1440] ____________
+
+pagina = <Page url='http://localhost:53091/cadastros/configuracao/?unidade=23'>
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_configuracao_salvar_substituir_e_consultar(pagina, largura):
+        pg = pagina
+        Servidor.objects.create(nome="Substituto de teste visual")
+        entrar(pg, "gestor")
+        pg.set_viewport_size({"width": largura, "height": 700})
+        pg.goto("/cadastros/configuracao/")
+        out = Path("artifacts/configuracao")
+        out.mkdir(parents=True, exist_ok=True)
+        nome = pg.locator("#id_nome_extenso")
+        expect(nome).to_be_enabled()
+        nome.fill("")
+        pg.get_by_role("button", name="Salvar configuração", exact=True).click()
+        expect(pg.locator("#id_nome_extenso-erro")).to_be_visible()
+        _axe_estavel(pg)
+        pg.screenshot(path=str(out/f"erro-{largura}.png"), full_page=True)
+        nome.fill("Unidade sintética de conferência visual")
+        pg.get_by_role("button", name="Salvar configuração", exact=True).click()
+        expect(pg.locator(".toast")).to_contain_text("salva")
+        expect(nome).to_have_value("Unidade sintética de conferência visual")
+        abrir = pg.get_by_role("button", name="Nova substituição", exact=True)
+        abrir.focus()
+        abrir.press("Enter")
+        dialog = pg.get_by_role("dialog", name="Nova substituição")
+        expect(dialog).to_be_visible()
+        dialog.locator("#id_servidor-busca").fill("Substituto de teste visual")
+        dialog.get_by_role("option", name="Substituto de teste visual", exact=True).click()
+        inicio = dialog.get_by_role("textbox", name="Início", exact=True)
+        assert inicio.evaluate("e=>e.clientWidth") >= 200
+        inicio.fill("10/07/2030")
+        dialog.get_by_role("textbox", name="Fim", exact=True).fill("15/07/2030")
+        dialog.get_by_label("Motivo", exact=True).fill("Afastamento sintético para teste")
+        _axe_estavel(pg)
+        dialog.screenshot(path=str(out/f"substituicao-{largura}.png"))
+        pg.keyboard.press("Escape")
+        expect(abrir).to_be_focused()
+        abrir.press("Enter")
+        expect(inicio).to_have_value("10/07/2030")
+>       dialog.get_by_role("button", name="Cadastrar substituição", exact=True).click()
+
+tests\e2e\test_configuracao_identidade.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:15573: in click
+    self._sync(
+.venv\Lib\site-packages\playwright\_impl\_locator.py:160: in click
+    return await self._frame.click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:549: in click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000002106AE66CF0>
+cb = <function Channel.send.<locals>.<lambda> at 0x000002106A3AE5C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_role("dialog", name="Nova substituição").get_by_role("button", name="Cadastrar substituição", exact=True)
+E               - locator resolved to <button type="submit" class="botao botao--primario">…</button>
+E             - attempting click action
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is not stable
+E               - retrying click action
+E               - waiting 20ms
+E               2 × waiting for element to be visible, enabled and stable
+E                 - element is visible, enabled and stable
+E                 - scrolling into view if needed
+E                 - done scrolling
+E                 - <div class="combobox__opcao-titulo">Fábio Augusto Teixeira — Agente de Polícia Judici…</div> from <div class="dialogo__corpo pilha">…</div> subtree intercepts pointer events
+E               - retrying click action
+E                 - waiting 100ms
+E               56 × waiting for element to be visible, enabled and stable
+E                  - element is visible, enabled and stable
+E                  - scrolling into view if needed
+E                  - done scrolling
+E                  - <div class="combobox__opcao-titulo">Fábio Augusto Teixeira — Agente de Polícia Judici…</div> from <div class="dialogo__corpo pilha">…</div> subtree intercepts pointer events
+E                - retrying click action
+E                  - waiting 500ms
+
+.venv\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 23:23:05,265 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Unprocessable Content: /cadastros/configuracao/
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_configuracao_identidade.py::test_configuracao_salvar_substituir_e_consultar[768]
+FAILED tests/e2e/test_configuracao_identidade.py::test_configuracao_salvar_substituir_e_consultar[1440]
+2 failed, 78 passed in 148.36s (0:02:28)

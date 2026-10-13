@@ -1,0 +1,157 @@
+..F...F                                                                  [100%]
+================================== FAILURES ===================================
+____________________ test_modo_pdf_e_barra_acessivel[1440] ____________________
+
+logado = <Page url='http://localhost:51190/viagens/oficios/243/editar/#minuta'>
+dados_e2e = Cenario(ids={'oficio_emitido': 242, 'oficio_rascunho': 243, 'oficio_vazio': 244, 'oficio_cancelado': 245, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e, largura):
+        pk = dados_e2e.ids["oficio_rascunho"]
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        _abrir_folha(pg, pk)
+        pg.click("#editor-oficio [data-modo='pdf']")
+        # O bloco unido usa um PDF com ofício + justificativa (editores.js).
+        # O iframe individual continua oculto para não baixar os documentos duas vezes.
+        pdf = pg.locator("[data-editores] iframe[data-pdf-bloco]")
+        expect(pdf).to_be_visible()
+        assert f"/viagens/oficios/{pk}/minuta.pdf?tipo=todos" in (pdf.get_attribute("src") or "")
+        expect(pg.locator("#editor-oficio iframe[data-quadro='pdf']")).to_be_hidden()
+        expect(pg.locator("#folha-oficio")).to_be_hidden()
+        expect(pg.locator("#editor-oficio .editor__linha--ferramentas")).to_be_hidden()
+        pg.click("#editor-oficio [data-modo='texto']")
+        expect(pg.locator("#folha-oficio")).to_be_visible()
+        # A barra inclui a divulgação "Formatar texto", recolhida no mobile.
+        # Setas/Home/End percorrem também esse controle, mantendo um único tabstop.
+        barra = pg.locator("#editor-oficio [role='toolbar']")
+        botoes = barra.locator("button:visible:not([disabled]), summary:visible")
+        primeiro = botoes.first
+        primeiro.focus()
+        pg.keyboard.press("Home")
+        expect(primeiro).to_be_focused()
+        pg.keyboard.press("ArrowRight")
+        expect(botoes.nth(1)).to_be_focused()
+        assert barra.evaluate("""el => [...el.querySelectorAll('button, summary')]
+            .filter(b => b.getClientRects().length && b.tabIndex === 0).length""") == 1
+        pg.keyboard.press("End")
+        expect(botoes.last).to_be_focused()
+        pg.keyboard.press("ArrowRight")
+        expect(primeiro).to_be_focused()
+        barra.locator("[data-modo='texto']").focus()
+        pg.keyboard.press("ArrowRight")
+        assert pg.evaluate("document.activeElement.dataset.modo") == "pdf"
+        pg.keyboard.press("ArrowLeft")
+        assert pg.evaluate("document.activeElement.dataset.modo") == "texto"
+        ferramentas = barra.locator("details[data-ferramentas-recolhiveis]")
+        if ferramentas.get_attribute("open") is None:
+            ferramentas.locator("summary").press("Enter")
+            expect(ferramentas).to_have_attribute("open", "")
+        expect(barra.get_by_role("button", name="Negrito (Ctrl+B)")).to_be_visible()
+        violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+>       assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:5]) for v in violacoes]
+E       AssertionError: [('target-size', [['#eprotocolo-folha-abrir']])]
+E       assert not [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}]
+
+tests\e2e\test_editor.py:157: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 22:40:05,626 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-09 22:40:05,721 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-09 22:40:05,791 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+------------------------------ Captured log call ------------------------------
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+WARNING  weasyprint:fonts.py:213 Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+__________ test_equipe_htmx_preserva_foco_na_copia_durante_resposta ___________
+
+logado = <Page url='http://localhost:51190/viagens/oficios/263/editar/'>
+dados_e2e = Cenario(ids={'oficio_emitido': 262, 'oficio_rascunho': 263, 'oficio_vazio': 264, 'oficio_cancelado': 265, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_equipe_htmx_preserva_foco_na_copia_durante_resposta(logado, dados_e2e):
+        pg = logado
+        pk = dados_e2e.ids["oficio_rascunho"]
+        oficio = Oficio.objects.get(pk=pk)
+        nome = oficio.viajantes.select_related("servidor").get().servidor.nome
+        pg.goto(reverse("viagens:editar", args=[pk]))
+        bloco = pg.locator("#eprotocolo-folha-bloco")
+        _abrir(bloco)
+        campo = bloco.get_by_label("Interessados", exact=True)
+        url = reverse("viagens:definir_motorista", args=[pk])
+    
+        def responder(rota):
+            resposta = rota.fetch()
+            try:
+                # A pessoa voltou à cópia enquanto a alteração da equipe aguardava resposta.
+                campo.focus()
+            finally:
+                rota.fulfill(response=resposta)
+    
+        pg.route("**" + url, responder, times=1)
+        with pg.expect_response(lambda r: url in r.url and r.request.method == "POST") as envio:
+            pg.get_by_role("button", name=f"Desmarcar {nome} como motorista", exact=True).click()
+        assert envio.value.status == 200
+        expect(bloco).to_have_attribute("open", "")
+        expect(campo).to_be_focused()
+        assert not Oficio.objects.get(pk=pk).viajantes.get().motorista
+>       pg.wait_for_load_state("networkidle")
+
+tests\e2e\test_eprotocolo_copia.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\playwright\sync_api\_generated.py:9117: in wait_for_load_state
+    self._sync(self._impl_obj.wait_for_load_state(state=state, timeout=timeout))
+.venv\Lib\site-packages\playwright\_impl\_page.py:575: in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\playwright\_impl\_frame.py:273: in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Frame name= url='http://localhost:51190/viagens/oficios/263/editar/'>
+state = 'networkidle', timeout = None
+
+    async def _wait_for_load_state_impl(
+        self, state: DocumentLoadState = None, timeout: float = None
+    ) -> None:
+        if not state:
+            state = "load"
+        if state not in ("load", "domcontentloaded", "networkidle", "commit"):
+            raise Error(
+                "state: expected one of (load|domcontentloaded|networkidle|commit)"
+            )
+        waiter = self._setup_navigation_waiter("wait_for_load_state", timeout)
+    
+        if state in self._load_states:
+            waiter.log(f'  not waiting, "{state}" event already fired')
+            # TODO: align with upstream
+            waiter._fulfill(None)
+        else:
+    
+            def handle_load_state_event(actual_state: str) -> bool:
+                waiter.log(f'"{actual_state}" event fired')
+                return actual_state == state
+    
+            waiter.wait_for_event(
+                self._event_emitter,
+                "loadstate",
+                handle_load_state_event,
+            )
+>       await waiter.result()
+E       playwright._impl._errors.TimeoutError: Timeout 30000ms exceeded.
+
+.venv\Lib\site-packages\playwright\_impl\_frame.py:301: TimeoutError
+-------------------------- Captured stderr teardown ---------------------------
+[09/Oct/2026 22:42:17,895] - Broken pipe from ('127.0.0.1', 58151)
+---------------------------- Captured log teardown ----------------------------
+INFO     django.server:basehttp.py:82 - Broken pipe from ('127.0.0.1', 58151)
+============================== warnings summary ===============================
+tests/e2e/test_editor.py::test_modo_pdf_e_barra_acessivel[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_editor.py::test_modo_pdf_e_barra_acessivel[1440] - Asse...
+FAILED tests/e2e/test_eprotocolo_copia.py::test_equipe_htmx_preserva_foco_na_copia_durante_resposta
+2 failed, 5 passed, 1 warning in 273.69s (0:04:33)

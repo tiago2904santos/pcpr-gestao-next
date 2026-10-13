@@ -1,0 +1,161 @@
+.....................2026-10-13 00:38:17,821 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+F.2026-10-13 00:38:38,704 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+F.2026-10-13 00:39:01,632 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+F.............................................. [ 75%]
+.......................                                                  [100%]
+================================== FAILURES ===================================
+______ test_consumidores_de_metricas_e_acessos[360-/eventos/cadastros/] _______
+
+logado = <Page url='http://localhost:64208/eventos/cadastros/'>
+rota = '/eventos/cadastros/', largura = 360
+
+    @pytest.mark.parametrize("rota", ["/eventos/", "/eventos/cadastros/"])
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_consumidores_de_metricas_e_acessos(logado, rota, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        response = pg.goto(rota)
+>       assert response.status == 200
+E       AssertionError: assert 403 == 200
+E        +  where 403 = <Response url='http://localhost:64208/eventos/cadastros/' request=<Request url='http://localhost:64208/eventos/cadastros/' method='GET'>>.status
+
+tests\e2e\test_central_identidade.py:70: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:38:17,821 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+______ test_consumidores_de_metricas_e_acessos[768-/eventos/cadastros/] _______
+
+logado = <Page url='http://localhost:64208/eventos/cadastros/'>
+rota = '/eventos/cadastros/', largura = 768
+
+    @pytest.mark.parametrize("rota", ["/eventos/", "/eventos/cadastros/"])
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_consumidores_de_metricas_e_acessos(logado, rota, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        response = pg.goto(rota)
+>       assert response.status == 200
+E       AssertionError: assert 403 == 200
+E        +  where 403 = <Response url='http://localhost:64208/eventos/cadastros/' request=<Request url='http://localhost:64208/eventos/cadastros/' method='GET'>>.status
+
+tests\e2e\test_central_identidade.py:70: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:38:38,704 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+______ test_consumidores_de_metricas_e_acessos[1440-/eventos/cadastros/] ______
+
+logado = <Page url='http://localhost:64208/eventos/cadastros/'>
+rota = '/eventos/cadastros/', largura = 1440
+
+    @pytest.mark.parametrize("rota", ["/eventos/", "/eventos/cadastros/"])
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_consumidores_de_metricas_e_acessos(logado, rota, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 800})
+        response = pg.goto(rota)
+>       assert response.status == 200
+E       AssertionError: assert 403 == 200
+E        +  where 403 = <Response url='http://localhost:64208/eventos/cadastros/' request=<Request url='http://localhost:64208/eventos/cadastros/' method='GET'>>.status
+
+tests\e2e\test_central_identidade.py:70: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-13 00:39:01,632 WARNING django.request Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Forbidden (Permission denied): /eventos/cadastros/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\eventos\views.py", line 30, in indice
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_central_identidade.py::test_consumidores_de_metricas_e_acessos[360-/eventos/cadastros/]
+FAILED tests/e2e/test_central_identidade.py::test_consumidores_de_metricas_e_acessos[768-/eventos/cadastros/]
+FAILED tests/e2e/test_central_identidade.py::test_consumidores_de_metricas_e_acessos[1440-/eventos/cadastros/]
+3 failed, 92 passed in 256.87s (0:04:16)

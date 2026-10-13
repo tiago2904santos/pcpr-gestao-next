@@ -1,0 +1,344 @@
+[
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "vinculada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-vinculada-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/5/",
+    "estado": "basica · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-basica-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/3/",
+    "estado": "cancelada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-cancelada-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "lote · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-lote-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "vinculada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-vinculada-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/5/",
+    "estado": "basica · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-basica-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/3/",
+    "estado": "cancelada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-cancelada-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "lote · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-lote-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "vinculada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-vinculada-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/5/",
+    "estado": "basica · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-basica-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/3/",
+    "estado": "cancelada · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-cancelada-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Folha e geração em lote",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "lote · página inteira · 12/10",
+    "arquivo": "viagens-folha-refinado-lote-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · conferencia",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-conferencia-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · conferencia",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-conferencia-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · conferencia",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-conferencia-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · documentos",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-documentos-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · documentos",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-documentos-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · documentos",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-documentos-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · historico",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-historico-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · historico",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-historico-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · historico",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-historico-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · motivo",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-motivo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · motivo",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-motivo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · motivo",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-motivo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · vinculos",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-vinculos-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · vinculos",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-vinculos-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · vinculos",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Seção em uso · 12/10",
+    "arquivo": "viagens-folha-refinado-secao-vinculos-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu de ações",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Menu aberto por teclado · 12/10",
+    "arquivo": "viagens-folha-refinado-menu-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu de ações",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Menu aberto por teclado · 12/10",
+    "arquivo": "viagens-folha-refinado-menu-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu de ações",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Menu aberto por teclado · 12/10",
+    "arquivo": "viagens-folha-refinado-menu-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-cancelada-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-cancelada-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-cancelada-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-consulta-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-consulta-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-leitura-consulta-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-lote-preenchido-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Leitura e lote preenchido",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/",
+    "estado": "Estado sintético em TEST isolado · 12/10",
+    "arquivo": "viagens-lote-preenchido-360.png",
+    "integral": false
+  }
+]

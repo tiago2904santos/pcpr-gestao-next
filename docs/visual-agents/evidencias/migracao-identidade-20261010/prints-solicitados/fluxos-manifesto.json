@@ -1,0 +1,2186 @@
+[
+  {
+    "titulo": "Ofícios · Cadastro · Cadastrar servidor",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-cadastro-cadastrar-servidor-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Mais ações do ofício (cabeçalho)",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-mais-acoes-do-oficio-cabecalho-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Ações: ofício",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-acoes-oficio-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Trechos · Preencher datas de saída",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-trechos-preencher-datas-de-saida-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ofício 161/2026 ·\nSalto do Itararé/PR",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-lista-oficio-161-2026-salto-do-itarare-pr-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026 · subgrupo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-subgrupo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Filtros adicionais",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-filtros-adicionais-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações · subgrupo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-subgrupo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cadastrar servidor",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-cadastrar-servidor-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Baixar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-baixar-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Anexar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-anexar-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Mais ações do Termo #7",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-mais-acoes-do-termo-7-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Ações: termo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-acoes-termo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cadastrar servidor",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "aberto",
+    "arquivo": "fluxos-os-cadastrar-servidor-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Mais ações da OS 005/2026 (cabeçalho)",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-mais-acoes-da-os-005-2026-cabecalho-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Ações: OS",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-acoes-os-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar horário",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-horario-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar conjunto",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-conjunto-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Mais ações do Plano de Trabalho 02/2026/ASCOM (cabeçalho)",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-mais-acoes-do-plano-de-trabalho-02-2026-ascom-cabecalho-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Ações do evento 2",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-acoes-do-evento-2-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Ações: plano",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-acoes-plano-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (cabeçalho)",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-cabecalho-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (rodapé)",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-rodape-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio da equipe",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-da-equipe-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Menu do usuário Operador de Demonstração",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-menu-do-usuario-operador-de-demonstracao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Mais ações da equipe do Ofício 136/2026",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-mais-acoes-da-equipe-do-oficio-136-2026-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Evento adicional",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-evento-adicional-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Cadastrar servidor",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-cadastro-cadastrar-servidor-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Documentos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-documentos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Mais ações do ofício (cabeçalho)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-mais-acoes-do-oficio-cabecalho-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Ações: ofício",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-acoes-oficio-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Trechos · Preencher datas de saída",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-trechos-preencher-datas-de-saida-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ofício 161/2026 ·\nSalto do Itararé/PR",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-lista-oficio-161-2026-salto-do-itarare-pr-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Documentos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-documentos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026 · subgrupo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-subgrupo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Filtros adicionais",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-filtros-adicionais-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações · subgrupo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-subgrupo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cadastrar servidor",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-cadastrar-servidor-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Baixar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-baixar-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Anexar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-anexar-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Documentos\n(seção atual)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-documentos-secao-atual-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Mais ações do Termo #7",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-mais-acoes-do-termo-7-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Tamanho da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-tamanho-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cor da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-cor-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Inserir tabela",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-inserir-tabela-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cadastrar servidor",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "aberto",
+    "arquivo": "fluxos-os-cadastrar-servidor-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Documentos\n(seção atual)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-documentos-secao-atual-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Mais ações da OS 005/2026 (cabeçalho)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-mais-acoes-da-os-005-2026-cabecalho-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Tamanho da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-tamanho-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cor da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-cor-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Inserir tabela",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-inserir-tabela-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar horário",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-horario-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar conjunto",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-conjunto-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Baixar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-baixar-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Documentos\n(seção atual)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-documentos-secao-atual-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Mais ações do Plano de Trabalho 02/2026/ASCOM (cabeçalho)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-mais-acoes-do-plano-de-trabalho-02-2026-ascom-cabecalho-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Ações do evento 2",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-acoes-do-evento-2-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Tamanho da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-tamanho-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cor da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-cor-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Documentos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-documentos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (cabeçalho)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-cabecalho-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (rodapé)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-rodape-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio da equipe",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-da-equipe-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Menu do usuário Operador de Demonstração",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-menu-do-usuario-operador-de-demonstracao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-modulo-atual-viagens-trocar-de-modulo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Documentos\n(seção atual)",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-documentos-secao-atual-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Cadastros",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-cadastros-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Mais ações da equipe do Ofício 136/2026",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-mais-acoes-da-equipe-do-oficio-136-2026-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Evento adicional",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-evento-adicional-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Cadastrar servidor",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-cadastro-cadastrar-servidor-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Documentos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-documentos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Mais ações do ofício (cabeçalho)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-mais-acoes-do-oficio-cabecalho-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro · Ações: ofício",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-cadastro-acoes-oficio-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Trechos · Preencher datas de saída",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "aberto",
+    "arquivo": "fluxos-trechos-preencher-datas-de-saida-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ofício 161/2026 ·\nSalto do Itararé/PR",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-lista-oficio-161-2026-salto-do-itarare-pr-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Documentos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-documentos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Lista · Ações do Ofício 161/2026 · subgrupo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-lista-acoes-do-oficio-161-2026-subgrupo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Filtros adicionais",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/",
+    "estado": "aberto",
+    "arquivo": "fluxos-oficios-filtros-adicionais-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Ofícios · Resumo · Mais ações · subgrupo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-oficios-resumo-mais-acoes-subgrupo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cadastrar servidor",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-cadastrar-servidor-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Baixar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-baixar-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Anexar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "aberto",
+    "arquivo": "fluxos-termos-anexar-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Documentos\n(seção atual)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-documentos-secao-atual-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Mais ações do Termo #7",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-mais-acoes-do-termo-7-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Tamanho da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-tamanho-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Cor da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-cor-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Termos · Inserir tabela",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-termos-inserir-tabela-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cadastrar servidor",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "aberto",
+    "arquivo": "fluxos-os-cadastrar-servidor-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Documentos\n(seção atual)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-documentos-secao-atual-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Mais ações da OS 005/2026 (cabeçalho)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-mais-acoes-da-os-005-2026-cabecalho-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Tamanho da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-tamanho-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Cor da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-cor-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "OS · Inserir tabela",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-os-inserir-tabela-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar horário",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-horario-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastrar conjunto",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-cadastrar-conjunto-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Baixar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-baixar-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Documentos\n(seção atual)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-documentos-secao-atual-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Mais ações do Plano de Trabalho 02/2026/ASCOM (cabeçalho)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-mais-acoes-do-plano-de-trabalho-02-2026-ascom-cabecalho-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Ações do evento 2",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-acoes-do-evento-2-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Tamanho da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-tamanho-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Cor da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-planos-cor-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Documentos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-documentos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (cabeçalho)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-cabecalho-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Viagens · Mais ações da viagem (rodapé)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/viagens/1/",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-viagens-mais-acoes-da-viagem-rodape-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio da equipe",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-da-equipe-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Registrar envio",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-registrar-envio-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Devolver",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "aberto",
+    "arquivo": "fluxos-prestacao-finalizados-devolver-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Menu do usuário Operador de Demonstração",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-menu-do-usuario-operador-de-demonstracao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Módulo atual: Viagens. Trocar de módulo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-modulo-atual-viagens-trocar-de-modulo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Documentos\n(seção atual)",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-documentos-secao-atual-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Cadastros",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-cadastros-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Prestação · Finalizados · Mais ações da equipe do Ofício 136/2026",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/?aba=finalizados",
+    "estado": "menu-aberto",
+    "arquivo": "fluxos-prestacao-finalizados-mais-acoes-da-equipe-do-oficio-136-2026-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Planos · Evento adicional",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "aberto",
+    "arquivo": "fluxos-planos-evento-adicional-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  }
+]

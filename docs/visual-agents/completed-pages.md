@@ -1,5 +1,12 @@
 # Páginas concluídas
 
+## Reabertura integral — 12/10/2026
+
+As conclusões abaixo são históricas. O usuário exige revalidação de todas as
+páginas; a situação atual está em `matriz-migracao.json`. As cinco capturas mais
+recentes de Ofícios substituem referências anteriores conflitantes. Nenhuma
+aprovação estética do usuário é inferida de teste ou avaliação de agente.
+
 Só entra aqui o que cumpriu a Definição de concluído (`mission.md`).
 
 ## Estado visual vigente — decisão do usuário em 08/10/2026

@@ -1,0 +1,56 @@
+[
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "antes · página inteira · 12/10",
+    "arquivo": "cadastros-indice-antes-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "antes · página inteira · 12/10",
+    "arquivo": "cadastros-indice-antes-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "antes · página inteira · 12/10",
+    "arquivo": "cadastros-indice-antes-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "depois · página inteira · 12/10",
+    "arquivo": "cadastros-indice-depois-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "depois · página inteira · 12/10",
+    "arquivo": "cadastros-indice-depois-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Cadastros · Índice",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/",
+    "estado": "depois · página inteira · 12/10",
+    "arquivo": "cadastros-indice-depois-1440.png",
+    "integral": true
+  }
+]

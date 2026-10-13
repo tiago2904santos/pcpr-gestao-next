@@ -1,0 +1,38 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+________ test_resumo_sem_bloco_de_copia_mostra_protocolo_no_cabecalho _________
+
+logado = <Page url='http://localhost:49192/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_sem_bloco_de_copia_mostra_protocolo_no_cabecalho(logado, dados_e2e):
+        pg = logado
+        pg.add_init_script("""window.__cspCopia = [];
+            document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
+              fonte: e.sourceFile, linha: e.lineNumber, diretiva: e.effectiveDirective,
+              bloqueado: e.blockedURI, amostra: e.sample
+            }));""")
+        oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
+        pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
+        pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
+        pg.locator(".registro__link").first.click()
+        janela = pg.locator("#dialogo-resumo")
+        expect(janela).to_be_visible()
+        # A cópia para o eProtocolo fica só na folha (09/10/2026); aqui, o protocolo no cabeçalho.
+        expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(0)
+        expect(janela.locator(".registro-hero__complemento")).to_contain_text(oficio.protocolo_formatado)
+        pasta = Path("artifacts/eprotocolo")
+        pasta.mkdir(parents=True, exist_ok=True)
+        for largura in [360, 390, 768, 1024, 1440]:
+            pg.set_viewport_size({"width": largura, "height": 900})
+            assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
+        violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
+>       assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
+E       AssertionError: [('scrollable-region-focusable', [['#resumo-dialogo > .dialogo__corpo']])]
+E       assert not [{'id': 'scrollable-region-focusable', 'impact': 'serious', 'tags': ['cat.keyboard', 'wcag2a', 'wcag211', 'wcag213', '...TT4.a', ...], 'description': 'Ensure elements that have scrollable content are accessible by keyboard in Safari', ...}]
+
+tests\e2e\test_eprotocolo_copia.py:91: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_eprotocolo_copia.py::test_resumo_sem_bloco_de_copia_mostra_protocolo_no_cabecalho
+1 failed in 108.68s (0:01:48)

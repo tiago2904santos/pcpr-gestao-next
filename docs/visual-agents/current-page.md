@@ -1,3 +1,32 @@
+# Estado atual — envio autorizado à main
+
+Usuário: “Sobe tudo pro main”. HEAD7ff77f3 + alterações locais.
+Central fechada95testes pós-limpeza; cobertura39/100.
+Gate geral sessão22810 em execução com banco/mídia isolados. Não iniciar outra suíte.
+Após gate: commit do trabalho e evidências, fast-forward main e push normal.
+origin/main era ancestral direto(0/67), fetch realizado. Sem force-push.
+Anexos recebidos ficam ignorados; dados/mídia intactos. _equipe sem diff semântico.
+Agenda só diagnóstico/12capturas antes; implementação ainda não começou.
+
+# Página atual — GL01 pós-limpeza
+
+HEAD 7ff77f3. Suíte40446 terminou95passed256,48s; revisão independente favorável.
+Removidas quatro regras modulo__atalho após prova de consumidores e validação.
+Suíte pós-limpeza74867 ativa, log central-poslimpeza.log. Próxima ação: obter
+resultado, capturas finais/medição, atualizar matriz e commit seletivo.
+38/100; GL01 ainda em validação. Não alterar _equipe; não reiniciar suíte ativa.
+Preview8017 e galeria8021; prints1191 validados.
+
+# Página atual — GL01 em validação
+
+HEAD 7ff77f3. Central migrada para registro_hero, acessos_modulo e menus canônicos.
+Suíte81357 encerrada: 92 passaram, 3 falharam porque o cenário de compatibilidade
+usava operador sem permissão de catálogos de Eventos. Cenário corrigido para
+ADMINISTRADOR conforme policy, sem alterar permissões. Próxima execução central-perfil-corrigido.
+CSS modulo__atalho permanece até validação anterior à remoção.
+38/100 páginas concluídas; Central não concluída. Galeria1191capturas validada.
+Preservar _equipe e alterações anteriores.
+
 # Página atual
 
 ## CD08–CD15 fechadas tecnicamente

@@ -1,0 +1,177 @@
+[
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "equipe",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-equipe-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "parcial",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/documentos/",
+    "arquivo": "depois-anexos-parcial-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "consulta",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/documentos/",
+    "arquivo": "depois-anexos-consulta-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "equipe",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-equipe-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "parcial",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/documentos/",
+    "arquivo": "depois-anexos-parcial-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "consulta",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/documentos/",
+    "arquivo": "depois-anexos-consulta-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "equipe",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-equipe-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "parcial",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/documentos/",
+    "arquivo": "depois-anexos-parcial-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "consulta",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/documentos/",
+    "arquivo": "depois-anexos-consulta-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "equipe",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-equipe-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "parcial",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/documentos/",
+    "arquivo": "depois-anexos-parcial-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "consulta",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/documentos/",
+    "arquivo": "depois-anexos-consulta-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "equipe",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-equipe-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "parcial",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/documentos/",
+    "arquivo": "depois-anexos-parcial-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Documentos da prestação",
+    "estado": "consulta",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/documentos/",
+    "arquivo": "depois-anexos-consulta-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Comprovante — correção",
+    "estado": "Formulário aberto",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-correcao-360.png"
+  },
+  {
+    "titulo": "Comprovante — correção",
+    "estado": "Formulário aberto",
+    "largura": 390,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-correcao-390.png"
+  },
+  {
+    "titulo": "Comprovante — correção",
+    "estado": "Formulário aberto",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-correcao-768.png"
+  },
+  {
+    "titulo": "Comprovante — correção",
+    "estado": "Formulário aberto",
+    "largura": 1024,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-correcao-1024.png"
+  },
+  {
+    "titulo": "Comprovante — correção",
+    "estado": "Formulário aberto",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/documentos/",
+    "arquivo": "depois-anexos-correcao-1440.png"
+  }
+]

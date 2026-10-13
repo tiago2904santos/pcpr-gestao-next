@@ -1,0 +1,425 @@
+[
+  {
+    "titulo": "Termos · lista",
+    "estado": "revalidação atual",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · novo",
+    "estado": "revalidação atual",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-novo-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · folha",
+    "estado": "revalidação atual",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-folha-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · menu-assinado",
+    "estado": "componente aberto e carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-menu-assinado-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · documento-1",
+    "estado": "componente aberto e carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-1-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-2",
+    "estado": "componente aberto e carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-2-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-3",
+    "estado": "componente aberto e carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-3-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-4",
+    "estado": "componente aberto e carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-4-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · lista",
+    "estado": "revalidação atual",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · novo",
+    "estado": "revalidação atual",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-novo-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · folha",
+    "estado": "revalidação atual",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-folha-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · menu-assinado",
+    "estado": "componente aberto e carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-menu-assinado-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · documento-1",
+    "estado": "componente aberto e carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-1-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-2",
+    "estado": "componente aberto e carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-2-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-3",
+    "estado": "componente aberto e carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-3-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-4",
+    "estado": "componente aberto e carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-4-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · lista",
+    "estado": "revalidação atual",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · novo",
+    "estado": "revalidação atual",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-novo-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · folha",
+    "estado": "revalidação atual",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "arquivo": "termos-retomada-folha-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · menu-assinado",
+    "estado": "componente aberto e carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-menu-assinado-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Termos · documento-1",
+    "estado": "componente aberto e carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-1-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-2",
+    "estado": "componente aberto e carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-2-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-3",
+    "estado": "componente aberto e carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-3-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · documento-4",
+    "estado": "componente aberto e carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/<pk>/#previa",
+    "arquivo": "termos-documento-4-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição inicio",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-inicio-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição direita",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-direita-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição inicio",
+    "largura": 390,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-inicio-390.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição direita",
+    "largura": 390,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-direita-390.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição inicio",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-inicio-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição direita",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-direita-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição inicio",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-inicio-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Termos · folha documental larga",
+    "estado": "candidato em validação · posição direita",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/termos/7/#previa",
+    "arquivo": "termos-editor-rolagem-direita-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · oficios · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-oficios-oficio-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · ordens · ordem",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-ordens-ordem-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · planos · plano",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-planos-plano-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-oficio-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · justificativa",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-justificativa-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · oficios · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-oficios-oficio-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · ordens · ordem",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-ordens-ordem-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · planos · plano",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-planos-plano-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-oficio-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · justificativa",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-justificativa-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · oficios · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-oficios-oficio-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · ordens · ordem",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-ordens-ordem-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · planos · plano",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-planos-plano-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · oficio",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-oficio-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Editor · justificativa · justificativa",
+    "estado": "compatibilidade do candidato · documento carregado",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "visualizador documental",
+    "arquivo": "editor-compat-justificativa-justificativa-1440.png",
+    "integral": false
+  }
+]

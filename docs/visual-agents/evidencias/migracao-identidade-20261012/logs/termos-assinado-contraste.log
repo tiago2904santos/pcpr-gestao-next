@@ -1,0 +1,17 @@
+2026-10-12 21:25:14,777 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 38 consultas (limite 25)
+2026-10-12 21:25:17,620 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/1/1/: 29 consultas (limite 25)
+2026-10-12 21:25:17,838 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 41 consultas (limite 25)
+.2026-10-12 21:25:33,750 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+2026-10-12 21:25:35,988 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/2/13/: 29 consultas (limite 25)
+2026-10-12 21:25:36,187 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 41 consultas (limite 25)
+.2026-10-12 21:25:51,016 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 38 consultas (limite 25)
+2026-10-12 21:25:53,499 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/3/25/: 29 consultas (limite 25)
+2026-10-12 21:25:53,686 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 41 consultas (limite 25)
+.[12/Oct/2026 21:26:10,851] - Broken pipe from ('127.0.0.1', 60849)
+                                                                      [100%]
+============================== warnings summary ===============================
+tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado[1440]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_07535919" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 1 warning in 92.03s (0:01:32)

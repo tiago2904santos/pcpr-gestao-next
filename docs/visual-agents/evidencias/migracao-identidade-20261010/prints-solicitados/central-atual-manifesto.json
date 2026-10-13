@@ -1,0 +1,218 @@
+[
+  {
+    "titulo": "Central de módulos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-atual-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Documentos — Viagens",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-0-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Viagens",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-1-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Eventos Sociais",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-2-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Imprensa",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-3-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Publicações",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-4-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Palestras",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-5-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Coffee Break",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-6-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central de módulos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-atual-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Documentos — Viagens",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-0-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Viagens",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-1-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Eventos Sociais",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-2-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Imprensa",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-3-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Publicações",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-4-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Palestras",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-5-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Coffee Break",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-6-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central de módulos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-atual-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Documentos — Viagens",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-0-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Viagens",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-1-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Eventos Sociais",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-2-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Imprensa",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-3-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Publicações",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-4-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Palestras",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-5-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Central · Cadastros — Coffee Break",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/",
+    "estado": "Candidato atual em validação",
+    "arquivo": "central-aberto-6-1440.png",
+    "integral": true
+  }
+]

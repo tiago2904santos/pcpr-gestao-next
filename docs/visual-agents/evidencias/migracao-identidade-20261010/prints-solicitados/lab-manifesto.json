@@ -1,0 +1,1136 @@
+[
+  {
+    "titulo": "Acabamento operacional de Ofícios",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-acabamento-operacional-de-oficios-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1016
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Agenda e conferência de preparação",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-agenda-e-conferencia-de-preparacao-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos quantitativos",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-lancamentos-quantitativos-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-registro-operacional-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1433
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "1 Botões",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-1-botoes-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 980
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "2 Campos de formulário",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-2-campos-de-formulario-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1893
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "3 Combobox, busca, data, hora e lista",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-3-combobox-busca-data-hora-e-lista-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1429
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "4 Status, alertas e toasts",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-4-status-alertas-e-toasts-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1441
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "5 Navegação: migalhas, abas, sanfona, etapas, paginação",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-5-navegacao-migalhas-abas-sanfona-etapas-paginacao-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1409
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "6 Cartões, indicadores e pessoas",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-6-cartoes-indicadores-e-pessoas-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1216
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "7 Tabelas, filtros e listas",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-7-tabelas-filtros-e-listas-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 2106
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "8 Diálogos, gaveta, menu e paleta de comandos",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-8-dialogos-gaveta-menu-e-paleta-de-comandos-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1374
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "9 Estados vazios e carregamento",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-9-estados-vazios-e-carregamento-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1075
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "12 Peças do formulário do ofício",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-12-pecas-do-formulario-do-oficio-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 2446
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "10 Sistema de foco e microinterações",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-10-sistema-de-foco-e-microinteracoes-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "11 Laboratório de conceitos (A / B / C)",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-11-laboratorio-de-conceitos-a-b-c-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 3713
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "13 Editor de documento no visualizador",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-13-editor-de-documento-no-visualizador-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1412
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "14 Equipe da prestação de contas",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-14-equipe-da-prestacao-de-contas-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 914
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "15 Diário de bordo: modos e linhas",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-15-diario-de-bordo-modos-e-linhas-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "16 Sugerir e copiar texto",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-16-sugerir-e-copiar-texto-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "17 Agenda do mês",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-17-agenda-do-mes-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "18 Gráficos simples",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-18-graficos-simples-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "19 Etapas de um fluxo",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-19-etapas-de-um-fluxo-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "20 Copiar um texto",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-20-copiar-um-texto-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1123
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "21 Linha das listas de Viagens",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-21-linha-das-listas-de-viagens-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 3443
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "22 Barra de filtros das listas",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-22-barra-de-filtros-das-listas-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1391
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "UI Lab completo",
+    "largura": 360,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-ui-lab-completo-blocos-expandidos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Acabamento operacional de Ofícios",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-acabamento-operacional-de-oficios-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Agenda e conferência de preparação",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-agenda-e-conferencia-de-preparacao-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos quantitativos",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-lancamentos-quantitativos-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-registro-operacional-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1043
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "1 Botões",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-1-botoes-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "2 Campos de formulário",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-2-campos-de-formulario-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1309
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "3 Combobox, busca, data, hora e lista",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-3-combobox-busca-data-hora-e-lista-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1017
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "4 Status, alertas e toasts",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-4-status-alertas-e-toasts-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1032
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "5 Navegação: migalhas, abas, sanfona, etapas, paginação",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-5-navegacao-migalhas-abas-sanfona-etapas-paginacao-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1114
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "6 Cartões, indicadores e pessoas",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-6-cartoes-indicadores-e-pessoas-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "7 Tabelas, filtros e listas",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-7-tabelas-filtros-e-listas-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1100
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "8 Diálogos, gaveta, menu e paleta de comandos",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-8-dialogos-gaveta-menu-e-paleta-de-comandos-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "9 Estados vazios e carregamento",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-9-estados-vazios-e-carregamento-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "12 Peças do formulário do ofício",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-12-pecas-do-formulario-do-oficio-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 2194
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "10 Sistema de foco e microinterações",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-10-sistema-de-foco-e-microinteracoes-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "11 Laboratório de conceitos (A / B / C)",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-11-laboratorio-de-conceitos-a-b-c-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 2611
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "13 Editor de documento no visualizador",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-13-editor-de-documento-no-visualizador-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1272
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "14 Equipe da prestação de contas",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-14-equipe-da-prestacao-de-contas-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "15 Diário de bordo: modos e linhas",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-15-diario-de-bordo-modos-e-linhas-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "16 Sugerir e copiar texto",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-16-sugerir-e-copiar-texto-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "17 Agenda do mês",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-17-agenda-do-mes-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "18 Gráficos simples",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-18-graficos-simples-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "19 Etapas de um fluxo",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-19-etapas-de-um-fluxo-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "20 Copiar um texto",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-20-copiar-um-texto-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "21 Linha das listas de Viagens",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-21-linha-das-listas-de-viagens-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 2073
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "22 Barra de filtros das listas",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-22-barra-de-filtros-das-listas-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1022
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "UI Lab completo",
+    "largura": 768,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-ui-lab-completo-blocos-expandidos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Acabamento operacional de Ofícios",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-acabamento-operacional-de-oficios-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Agenda e conferência de preparação",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-agenda-e-conferencia-de-preparacao-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos quantitativos",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-lancamentos-quantitativos-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-registro-operacional-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 918
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "1 Botões",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-1-botoes-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "2 Campos de formulário",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-2-campos-de-formulario-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1200
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "3 Combobox, busca, data, hora e lista",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-3-combobox-busca-data-hora-e-lista-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "4 Status, alertas e toasts",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-4-status-alertas-e-toasts-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1004
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "5 Navegação: migalhas, abas, sanfona, etapas, paginação",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-5-navegacao-migalhas-abas-sanfona-etapas-paginacao-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1087
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "6 Cartões, indicadores e pessoas",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-6-cartoes-indicadores-e-pessoas-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "7 Tabelas, filtros e listas",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-7-tabelas-filtros-e-listas-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 992
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "8 Diálogos, gaveta, menu e paleta de comandos",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-8-dialogos-gaveta-menu-e-paleta-de-comandos-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "9 Estados vazios e carregamento",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-9-estados-vazios-e-carregamento-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "12 Peças do formulário do ofício",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-12-pecas-do-formulario-do-oficio-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1588
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "10 Sistema de foco e microinterações",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-10-sistema-de-foco-e-microinteracoes-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "11 Laboratório de conceitos (A / B / C)",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-11-laboratorio-de-conceitos-a-b-c-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 2471
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "13 Editor de documento no visualizador",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-13-editor-de-documento-no-visualizador-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1214
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "14 Equipe da prestação de contas",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-14-equipe-da-prestacao-de-contas-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "15 Diário de bordo: modos e linhas",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-15-diario-de-bordo-modos-e-linhas-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "16 Sugerir e copiar texto",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-16-sugerir-e-copiar-texto-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "17 Agenda do mês",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-17-agenda-do-mes-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "18 Gráficos simples",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-18-graficos-simples-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "19 Etapas de um fluxo",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-19-etapas-de-um-fluxo-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "20 Copiar um texto",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-20-copiar-um-texto-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "21 Linha das listas de Viagens",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-21-linha-das-listas-de-viagens-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1777
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "22 Barra de filtros das listas",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-22-barra-de-filtros-das-listas-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 968
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "UI Lab completo",
+    "largura": 1440,
+    "categoria": "Componentes · UI Lab",
+    "rota": "/ui-lab/",
+    "estado": "blocos-expandidos",
+    "arquivo": "lab-ui-lab-completo-blocos-expandidos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  }
+]

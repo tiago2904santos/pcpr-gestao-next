@@ -630,6 +630,126 @@
     "depois": "depois-planos-vazio-768.png"
   },
   {
+    "pagina": "prestacoes-lista-finalizados",
+    "largura": 1024,
+    "antes": "antes-prestacoes-lista-finalizados-1024.png",
+    "depois": "depois-prestacoes-lista-finalizados-1024.png"
+  },
+  {
+    "pagina": "prestacoes-lista-finalizados",
+    "largura": 1440,
+    "antes": "antes-prestacoes-lista-finalizados-1440.png",
+    "depois": "depois-prestacoes-lista-finalizados-1440.png"
+  },
+  {
+    "pagina": "prestacoes-lista-finalizados",
+    "largura": 360,
+    "antes": "antes-prestacoes-lista-finalizados-360.png",
+    "depois": "depois-prestacoes-lista-finalizados-360.png"
+  },
+  {
+    "pagina": "prestacoes-lista-finalizados",
+    "largura": 390,
+    "antes": "antes-prestacoes-lista-finalizados-390.png",
+    "depois": "depois-prestacoes-lista-finalizados-390.png"
+  },
+  {
+    "pagina": "prestacoes-lista-finalizados",
+    "largura": 768,
+    "antes": "antes-prestacoes-lista-finalizados-768.png",
+    "depois": "depois-prestacoes-lista-finalizados-768.png"
+  },
+  {
+    "pagina": "prestacoes-lista-liberadas",
+    "largura": 1024,
+    "antes": "antes-prestacoes-lista-liberadas-1024.png",
+    "depois": "depois-prestacoes-lista-liberadas-1024.png"
+  },
+  {
+    "pagina": "prestacoes-lista-liberadas",
+    "largura": 1440,
+    "antes": "antes-prestacoes-lista-liberadas-1440.png",
+    "depois": "depois-prestacoes-lista-liberadas-1440.png"
+  },
+  {
+    "pagina": "prestacoes-lista-liberadas",
+    "largura": 360,
+    "antes": "antes-prestacoes-lista-liberadas-360.png",
+    "depois": "depois-prestacoes-lista-liberadas-360.png"
+  },
+  {
+    "pagina": "prestacoes-lista-liberadas",
+    "largura": 390,
+    "antes": "antes-prestacoes-lista-liberadas-390.png",
+    "depois": "depois-prestacoes-lista-liberadas-390.png"
+  },
+  {
+    "pagina": "prestacoes-lista-liberadas",
+    "largura": 768,
+    "antes": "antes-prestacoes-lista-liberadas-768.png",
+    "depois": "depois-prestacoes-lista-liberadas-768.png"
+  },
+  {
+    "pagina": "prestacoes-lista-todas",
+    "largura": 1024,
+    "antes": "antes-prestacoes-lista-todas-1024.png",
+    "depois": "depois-prestacoes-lista-todas-1024.png"
+  },
+  {
+    "pagina": "prestacoes-lista-todas",
+    "largura": 1440,
+    "antes": "antes-prestacoes-lista-todas-1440.png",
+    "depois": "depois-prestacoes-lista-todas-1440.png"
+  },
+  {
+    "pagina": "prestacoes-lista-todas",
+    "largura": 360,
+    "antes": "antes-prestacoes-lista-todas-360.png",
+    "depois": "depois-prestacoes-lista-todas-360.png"
+  },
+  {
+    "pagina": "prestacoes-lista-todas",
+    "largura": 390,
+    "antes": "antes-prestacoes-lista-todas-390.png",
+    "depois": "depois-prestacoes-lista-todas-390.png"
+  },
+  {
+    "pagina": "prestacoes-lista-todas",
+    "largura": 768,
+    "antes": "antes-prestacoes-lista-todas-768.png",
+    "depois": "depois-prestacoes-lista-todas-768.png"
+  },
+  {
+    "pagina": "prestacoes-lista-vazio",
+    "largura": 1024,
+    "antes": "antes-prestacoes-lista-vazio-1024.png",
+    "depois": "depois-prestacoes-lista-vazio-1024.png"
+  },
+  {
+    "pagina": "prestacoes-lista-vazio",
+    "largura": 1440,
+    "antes": "antes-prestacoes-lista-vazio-1440.png",
+    "depois": "depois-prestacoes-lista-vazio-1440.png"
+  },
+  {
+    "pagina": "prestacoes-lista-vazio",
+    "largura": 360,
+    "antes": "antes-prestacoes-lista-vazio-360.png",
+    "depois": "depois-prestacoes-lista-vazio-360.png"
+  },
+  {
+    "pagina": "prestacoes-lista-vazio",
+    "largura": 390,
+    "antes": "antes-prestacoes-lista-vazio-390.png",
+    "depois": "depois-prestacoes-lista-vazio-390.png"
+  },
+  {
+    "pagina": "prestacoes-lista-vazio",
+    "largura": 768,
+    "antes": "antes-prestacoes-lista-vazio-768.png",
+    "depois": "depois-prestacoes-lista-vazio-768.png"
+  },
+  {
     "pagina": "roteiros-editar",
     "largura": 1024,
     "antes": "antes-roteiros-editar-1024.png",
@@ -1108,5 +1228,779 @@
     "largura": 768,
     "antes": "antes-viagens-lista-vazio-768.png",
     "depois": "depois-viagens-lista-vazio-768.png"
+  },
+  {
+    "pagina": "anexos-consulta",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-anexos-consulta-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-consulta-1440.png"
+  },
+  {
+    "pagina": "anexos-consulta",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-anexos-consulta-360.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-consulta-360.png"
+  },
+  {
+    "pagina": "anexos-consulta",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-anexos-consulta-768.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-consulta-768.png"
+  },
+  {
+    "pagina": "anexos-equipe",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-anexos-equipe-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-equipe-1440.png"
+  },
+  {
+    "pagina": "anexos-equipe",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-anexos-equipe-360.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-equipe-360.png"
+  },
+  {
+    "pagina": "anexos-equipe",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-anexos-equipe-768.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-equipe-768.png"
+  },
+  {
+    "pagina": "anexos-parcial",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-anexos-parcial-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-parcial-1440.png"
+  },
+  {
+    "pagina": "anexos-parcial",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-anexos-parcial-360.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-parcial-360.png"
+  },
+  {
+    "pagina": "anexos-parcial",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-anexos-parcial-768.png",
+    "depois": "../migracao-identidade-20261012/depois-anexos-parcial-768.png"
+  },
+  {
+    "pagina": "assinados-inclusao",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-assinados-inclusao-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-assinados-inclusao-1440.png"
+  },
+  {
+    "pagina": "assinados-inclusao",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-assinados-inclusao-360.png",
+    "depois": "../migracao-identidade-20261012/depois-assinados-inclusao-360.png"
+  },
+  {
+    "pagina": "assinados-inclusao",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-assinados-inclusao-768.png",
+    "depois": "../migracao-identidade-20261012/depois-assinados-inclusao-768.png"
+  },
+  {
+    "pagina": "diarias-oficio",
+    "largura": 1024,
+    "antes": "../migracao-identidade-20261012/antes-diarias-oficio-1024.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-oficio-1024.png"
+  },
+  {
+    "pagina": "diarias-oficio",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diarias-oficio-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-oficio-1440.png"
+  },
+  {
+    "pagina": "diarias-oficio",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diarias-oficio-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-oficio-360.png"
+  },
+  {
+    "pagina": "diarias-oficio",
+    "largura": 390,
+    "antes": "../migracao-identidade-20261012/antes-diarias-oficio-390.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-oficio-390.png"
+  },
+  {
+    "pagina": "diarias-oficio",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diarias-oficio-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-oficio-768.png"
+  },
+  {
+    "pagina": "diarias-plano",
+    "largura": 1024,
+    "antes": "../migracao-identidade-20261012/antes-diarias-plano-1024.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-plano-1024.png"
+  },
+  {
+    "pagina": "diarias-plano",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diarias-plano-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-plano-1440.png"
+  },
+  {
+    "pagina": "diarias-plano",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diarias-plano-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-plano-360.png"
+  },
+  {
+    "pagina": "diarias-plano",
+    "largura": 390,
+    "antes": "../migracao-identidade-20261012/antes-diarias-plano-390.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-plano-390.png"
+  },
+  {
+    "pagina": "diarias-plano",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diarias-plano-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-plano-768.png"
+  },
+  {
+    "pagina": "diarias-roteiro",
+    "largura": 1024,
+    "antes": "../migracao-identidade-20261012/antes-diarias-roteiro-1024.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-roteiro-1024.png"
+  },
+  {
+    "pagina": "diarias-roteiro",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diarias-roteiro-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-roteiro-1440.png"
+  },
+  {
+    "pagina": "diarias-roteiro",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diarias-roteiro-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-roteiro-360.png"
+  },
+  {
+    "pagina": "diarias-roteiro",
+    "largura": 390,
+    "antes": "../migracao-identidade-20261012/antes-diarias-roteiro-390.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-roteiro-390.png"
+  },
+  {
+    "pagina": "diarias-roteiro",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diarias-roteiro-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diarias-roteiro-768.png"
+  },
+  {
+    "pagina": "diario-cinco-trechos",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diario-cinco-trechos-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-cinco-trechos-1440.png"
+  },
+  {
+    "pagina": "diario-cinco-trechos",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diario-cinco-trechos-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-cinco-trechos-360.png"
+  },
+  {
+    "pagina": "diario-cinco-trechos",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diario-cinco-trechos-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-cinco-trechos-768.png"
+  },
+  {
+    "pagina": "diario-edicao",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diario-edicao-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-edicao-1440.png"
+  },
+  {
+    "pagina": "diario-edicao",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diario-edicao-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-edicao-360.png"
+  },
+  {
+    "pagina": "diario-edicao",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diario-edicao-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-edicao-768.png"
+  },
+  {
+    "pagina": "diario-pendente",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diario-pendente-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-pendente-1440.png"
+  },
+  {
+    "pagina": "diario-pendente",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diario-pendente-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-pendente-360.png"
+  },
+  {
+    "pagina": "diario-pendente",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diario-pendente-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-pendente-768.png"
+  },
+  {
+    "pagina": "diario-realizada-travada",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-diario-realizada-travada-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-realizada-travada-1440.png"
+  },
+  {
+    "pagina": "diario-realizada-travada",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-diario-realizada-travada-360.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-realizada-travada-360.png"
+  },
+  {
+    "pagina": "diario-realizada-travada",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-diario-realizada-travada-768.png",
+    "depois": "../migracao-identidade-20261012/depois-diario-realizada-travada-768.png"
+  },
+  {
+    "pagina": "painel-viagens",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-painel-viagens-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-painel-viagens-1440.png"
+  },
+  {
+    "pagina": "painel-viagens",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-painel-viagens-360.png",
+    "depois": "../migracao-identidade-20261012/depois-painel-viagens-360.png"
+  },
+  {
+    "pagina": "painel-viagens",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-painel-viagens-768.png",
+    "depois": "../migracao-identidade-20261012/depois-painel-viagens-768.png"
+  },
+  {
+    "pagina": "relatorio-consulta",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-consulta-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-consulta-1440.png"
+  },
+  {
+    "pagina": "relatorio-consulta",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-consulta-360.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-consulta-360.png"
+  },
+  {
+    "pagina": "relatorio-consulta",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-consulta-768.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-consulta-768.png"
+  },
+  {
+    "pagina": "relatorio-equipe",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-equipe-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-equipe-1440.png"
+  },
+  {
+    "pagina": "relatorio-equipe",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-equipe-360.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-equipe-360.png"
+  },
+  {
+    "pagina": "relatorio-equipe",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-equipe-768.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-equipe-768.png"
+  },
+  {
+    "pagina": "relatorio-parcial",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-parcial-1440.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-parcial-1440.png"
+  },
+  {
+    "pagina": "relatorio-parcial",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-parcial-360.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-parcial-360.png"
+  },
+  {
+    "pagina": "relatorio-parcial",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/antes-relatorio-parcial-768.png",
+    "depois": "../migracao-identidade-20261012/depois-relatorio-parcial-768.png"
+  },
+  {
+    "pagina": "textos-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/textos-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/textos-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "textos-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/textos-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/textos-final-dialogo-360.png"
+  },
+  {
+    "pagina": "textos-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/textos-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/textos-final-dialogo-768.png"
+  },
+  {
+    "pagina": "textos-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/textos-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/textos-final-lista-1440.png"
+  },
+  {
+    "pagina": "textos-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/textos-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/textos-final-lista-360.png"
+  },
+  {
+    "pagina": "textos-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/textos-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/textos-final-lista-768.png"
+  },
+  {
+    "pagina": "configuracao",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-1440.png"
+  },
+  {
+    "pagina": "configuracao",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-360.png"
+  },
+  {
+    "pagina": "configuracao",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-768.png"
+  },
+  {
+    "pagina": "configuracao-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "configuracao-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-dialogo-360.png"
+  },
+  {
+    "pagina": "configuracao-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-dialogo-768.png"
+  },
+  {
+    "pagina": "configuracao-t-assinaturas",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-assinaturas-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-assinaturas-1440.png"
+  },
+  {
+    "pagina": "configuracao-t-assinaturas",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-assinaturas-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-assinaturas-360.png"
+  },
+  {
+    "pagina": "configuracao-t-assinaturas",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-assinaturas-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-assinaturas-768.png"
+  },
+  {
+    "pagina": "configuracao-t-instituicao",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-instituicao-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-instituicao-1440.png"
+  },
+  {
+    "pagina": "configuracao-t-instituicao",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-instituicao-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-instituicao-360.png"
+  },
+  {
+    "pagina": "configuracao-t-instituicao",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-instituicao-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-instituicao-768.png"
+  },
+  {
+    "pagina": "configuracao-t-oficio",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-oficio-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-oficio-1440.png"
+  },
+  {
+    "pagina": "configuracao-t-oficio",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-oficio-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-oficio-360.png"
+  },
+  {
+    "pagina": "configuracao-t-oficio",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-oficio-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-oficio-768.png"
+  },
+  {
+    "pagina": "configuracao-t-substituicoes",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-substituicoes-1440.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-substituicoes-1440.png"
+  },
+  {
+    "pagina": "configuracao-t-substituicoes",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-substituicoes-360.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-substituicoes-360.png"
+  },
+  {
+    "pagina": "configuracao-t-substituicoes",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/configuracao-antes-t-substituicoes-768.png",
+    "depois": "../migracao-identidade-20261012/configuracao-final-t-substituicoes-768.png"
+  },
+  {
+    "pagina": "usuarios-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "usuarios-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-dialogo-360.png"
+  },
+  {
+    "pagina": "usuarios-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-dialogo-768.png"
+  },
+  {
+    "pagina": "usuarios-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-lista-1440.png"
+  },
+  {
+    "pagina": "usuarios-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-lista-360.png"
+  },
+  {
+    "pagina": "usuarios-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/usuarios-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/usuarios-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-unidades-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-unidades-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-unidades-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-unidades-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-unidades-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-unidades-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-unidades-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-unidades-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-cargos-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-cargos-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-cargos-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-cargos-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-cargos-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-cargos-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-cargos-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-cargos-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-combustiveis-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-combustiveis-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-combustiveis-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-tipos-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-tipos-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-tipos-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-tipos-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-tipos-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-tipos-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-tipos-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-tipos-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-programas-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-programas-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-programas-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-programas-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-programas-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-programas-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-programas-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-programas-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-horarios-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-horarios-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-horarios-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-horarios-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-horarios-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-horarios-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-horarios-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-horarios-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-atividades-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-atividades-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-atividades-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-atividades-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-atividades-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-atividades-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-atividades-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-atividades-final-lista-768.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-dialogo",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-dialogo-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-dialogo-1440.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-dialogo",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-dialogo-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-dialogo-360.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-dialogo",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-dialogo-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-dialogo-768.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-lista",
+    "largura": 1440,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-lista-1440.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-lista-1440.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-lista",
+    "largura": 360,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-lista-360.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-lista-360.png"
+  },
+  {
+    "pagina": "catalogo-conjuntos-lista",
+    "largura": 768,
+    "antes": "../migracao-identidade-20261012/catalogo-conjuntos-antes-lista-768.png",
+    "depois": "../migracao-identidade-20261012/catalogo-conjuntos-final-lista-768.png"
   }
 ]

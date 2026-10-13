@@ -1,0 +1,119 @@
+[
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "página inteira · validado tecnicamente",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "depois-painel-viagens-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · ações do Ofício",
+    "estado": "menu aberto · validado tecnicamente",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-menu-aberto-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · Resumo do Ofício",
+    "estado": "diálogo aberto · validado tecnicamente",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-resumo-aberto-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "página inteira · validado tecnicamente",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "depois-painel-viagens-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · ações do Ofício",
+    "estado": "menu aberto · validado tecnicamente",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-menu-aberto-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · Resumo do Ofício",
+    "estado": "diálogo aberto · validado tecnicamente",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-resumo-aberto-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "página inteira · validado tecnicamente",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "depois-painel-viagens-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · ações do Ofício",
+    "estado": "menu aberto · validado tecnicamente",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-menu-aberto-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · Resumo do Ofício",
+    "estado": "diálogo aberto · validado tecnicamente",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-resumo-aberto-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "unidade sem ofícios",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "painel-vazio-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "unidade sem ofícios",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "painel-vazio-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel de Viagens",
+    "estado": "unidade sem ofícios",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/",
+    "arquivo": "painel-vazio-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Painel · consulta",
+    "estado": "menu sem ações de escrita",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/",
+    "arquivo": "painel-consulta-menu-1440.png",
+    "integral": true
+  }
+]

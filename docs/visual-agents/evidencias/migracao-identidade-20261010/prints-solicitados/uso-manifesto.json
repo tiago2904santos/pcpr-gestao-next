@@ -1,0 +1,1430 @@
+[
+  {
+    "titulo": "Cabeçalho institucional",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-cabecalho-institucional-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Identidade/número documental",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-identidade-numero-documental-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Filtros integrados",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-filtros-integrados-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Abas e contadores",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-abas-e-contadores-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional da lista",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-registro-operacional-da-lista-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paginação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-paginacao-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Barra de ações",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-barra-de-acoes-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Status documentais e prazos",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-status-documentais-e-prazos-oficios-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Índice de preparação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-indice-de-preparacao-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seção de preparação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-secao-de-preparacao-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe selecionada",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-equipe-selecionada-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor selecionado",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-servidor-selecionado-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Transporte e viatura",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-transporte-e-viatura-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Viatura selecionada",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-viatura-selecionada-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seleção de roteiro existente",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-selecao-de-roteiro-existente-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Destinos operacionais",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-destinos-operacionais-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Mapa/resumo da rota",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-mapa-resumo-da-rota-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trecho operacional",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-trecho-operacional-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diárias e valores",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-diarias-e-valores-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência/pendências",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-conferencia-pendencias-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dados copiáveis para eProtocolo",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-dados-copiaveis-para-eprotocolo-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 938
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Ferramentas do editor",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-ferramentas-do-editor-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documento/minuta",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-documento-minuta-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 2479
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico operacional",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-historico-operacional-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Texto pronto",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-texto-pronto-oficios-cadastro-edicao-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Motivo da viagem",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-motivo-da-viagem-oficios-resumo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiro de consulta",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-roteiro-de-consulta-oficios-resumo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe compacta de consulta",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-equipe-compacta-de-consulta-oficios-resumo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 936
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro institucional",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-registro-institucional-oficios-resumo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos de resultados",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "Planos · Resultados",
+    "arquivo": "uso-lancamentos-de-resultados-planos-resultados-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 1020
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documentos relacionados",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-documentos-relacionados-viagens-folha-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência de etapas",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-conferencia-de-etapas-viagens-folha-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe da prestação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-equipe-da-prestacao-prestacao-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 2933
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor da prestação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-servidor-da-prestacao-prestacao-lista-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Cabeçalho institucional",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-cabecalho-institucional-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Identidade/número documental",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-identidade-numero-documental-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Filtros integrados",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-filtros-integrados-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Abas e contadores",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-abas-e-contadores-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional da lista",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-registro-operacional-da-lista-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paginação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-paginacao-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Barra de ações",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-barra-de-acoes-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Status documentais e prazos",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-status-documentais-e-prazos-oficios-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Índice de preparação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-indice-de-preparacao-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seção de preparação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-secao-de-preparacao-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe selecionada",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-equipe-selecionada-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor selecionado",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-servidor-selecionado-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Transporte e viatura",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-transporte-e-viatura-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Viatura selecionada",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-viatura-selecionada-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seleção de roteiro existente",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-selecao-de-roteiro-existente-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Destinos operacionais",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-destinos-operacionais-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Mapa/resumo da rota",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-mapa-resumo-da-rota-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trecho operacional",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-trecho-operacional-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diárias e valores",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-diarias-e-valores-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência/pendências",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-conferencia-pendencias-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dados copiáveis para eProtocolo",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-dados-copiaveis-para-eprotocolo-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Ferramentas do editor",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-ferramentas-do-editor-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documento/minuta",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-documento-minuta-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1815
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico operacional",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-historico-operacional-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Texto pronto",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-texto-pronto-oficios-cadastro-edicao-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Motivo da viagem",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-motivo-da-viagem-oficios-resumo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiro de consulta",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-roteiro-de-consulta-oficios-resumo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe compacta de consulta",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-equipe-compacta-de-consulta-oficios-resumo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro institucional",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-registro-institucional-oficios-resumo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos de resultados",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "Planos · Resultados",
+    "arquivo": "uso-lancamentos-de-resultados-planos-resultados-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documentos relacionados",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-documentos-relacionados-viagens-folha-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência de etapas",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-conferencia-de-etapas-viagens-folha-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe da prestação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-equipe-da-prestacao-prestacao-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 2325
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor da prestação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-servidor-da-prestacao-prestacao-lista-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Cabeçalho institucional",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-cabecalho-institucional-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Identidade/número documental",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-identidade-numero-documental-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Filtros integrados",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-filtros-integrados-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Abas e contadores",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-abas-e-contadores-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro operacional da lista",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-registro-operacional-da-lista-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Paginação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-paginacao-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Barra de ações",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-barra-de-acoes-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Status documentais e prazos",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/",
+    "estado": "Ofícios · Lista",
+    "arquivo": "uso-status-documentais-e-prazos-oficios-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Índice de preparação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-indice-de-preparacao-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seção de preparação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-secao-de-preparacao-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe selecionada",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-equipe-selecionada-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor selecionado",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-servidor-selecionado-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Transporte e viatura",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-transporte-e-viatura-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Viatura selecionada",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-viatura-selecionada-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Seleção de roteiro existente",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-selecao-de-roteiro-existente-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Destinos operacionais",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-destinos-operacionais-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Mapa/resumo da rota",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-mapa-resumo-da-rota-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Trecho operacional",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-trecho-operacional-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Diárias e valores",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-diarias-e-valores-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência/pendências",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-conferencia-pendencias-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Dados copiáveis para eProtocolo",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-dados-copiaveis-para-eprotocolo-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Ferramentas do editor",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-ferramentas-do-editor-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documento/minuta",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-documento-minuta-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1579
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Histórico operacional",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-historico-operacional-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Texto pronto",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "Ofícios · Cadastro/edição",
+    "arquivo": "uso-texto-pronto-oficios-cadastro-edicao-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Motivo da viagem",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-motivo-da-viagem-oficios-resumo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiro de consulta",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-roteiro-de-consulta-oficios-resumo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe compacta de consulta",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-equipe-compacta-de-consulta-oficios-resumo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Registro institucional",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "Ofícios · Resumo",
+    "arquivo": "uso-registro-institucional-oficios-resumo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Lançamentos de resultados",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "Planos · Resultados",
+    "arquivo": "uso-lancamentos-de-resultados-planos-resultados-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Documentos relacionados",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-documentos-relacionados-viagens-folha-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Conferência de etapas",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/viagens/1/",
+    "estado": "Viagens · Folha",
+    "arquivo": "uso-conferencia-de-etapas-viagens-folha-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Equipe da prestação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-equipe-da-prestacao-prestacao-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 2070
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Servidor da prestação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/",
+    "estado": "Prestação · Lista",
+    "arquivo": "uso-servidor-da-prestacao-prestacao-lista-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false,
+    "overflow": false
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "resumo",
+    "rota": "/viagens/oficios/?resumo=256",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "prestacoes-lista",
+    "rota": "/viagens/prestacoes/?aba=liberadas",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "oficios",
+    "rota": "/viagens/oficios/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "resumo",
+    "rota": "/viagens/oficios/?resumo=256",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-lista",
+    "rota": "/viagens/roteiros/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "roteiros-editar",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "termos-editar",
+    "rota": "/viagens/termos/7/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "prestacoes-lista",
+    "rota": "/viagens/prestacoes/?aba=liberadas",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

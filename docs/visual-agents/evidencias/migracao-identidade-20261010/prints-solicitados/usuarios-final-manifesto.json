@@ -1,0 +1,191 @@
+[
+  {
+    "titulo": "Usuários e perfis · dialogo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · dialogo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · dialogo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · dialogo-inferior",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-inferior-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · dialogo-inferior",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-inferior-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · dialogo-inferior",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-dialogo-inferior-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Usuários e perfis · inativos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-inativos-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · inativos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-inativos-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · inativos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-inativos-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · menu",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-menu-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · menu",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-menu-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · menu",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-menu-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · pagina2",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-pagina2-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · pagina2",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-pagina2-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · pagina2",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-pagina2-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · sem-resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-sem-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · sem-resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-sem-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Usuários e perfis · sem-resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/usuarios/",
+    "estado": "Validado tecnicamente · 0ec18f8",
+    "arquivo": "usuarios-final-sem-resultados-768.png",
+    "integral": true
+  }
+]

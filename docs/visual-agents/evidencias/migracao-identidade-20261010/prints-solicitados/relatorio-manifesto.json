@@ -1,0 +1,209 @@
+[
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "equipe",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+    "arquivo": "depois-relatorio-equipe-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "parcial",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+    "arquivo": "depois-relatorio-parcial-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "consulta",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+    "arquivo": "depois-relatorio-consulta-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "equipe",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+    "arquivo": "depois-relatorio-equipe-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "parcial",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+    "arquivo": "depois-relatorio-parcial-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "consulta",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+    "arquivo": "depois-relatorio-consulta-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "equipe",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+    "arquivo": "depois-relatorio-equipe-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "parcial",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+    "arquivo": "depois-relatorio-parcial-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "consulta",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+    "arquivo": "depois-relatorio-consulta-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "equipe",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+    "arquivo": "depois-relatorio-equipe-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "parcial",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+    "arquivo": "depois-relatorio-parcial-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "consulta",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+    "arquivo": "depois-relatorio-consulta-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "equipe",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/relatorio/",
+    "arquivo": "depois-relatorio-equipe-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "parcial",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/relatorio/",
+    "arquivo": "depois-relatorio-parcial-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Relatório Técnico",
+    "estado": "consulta",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/relatorio/",
+    "arquivo": "depois-relatorio-consulta-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Texto pronto — oficio",
+    "estado": "Seletor aberto",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "arquivo": "texto-compat-oficio-0-360.png"
+  },
+  {
+    "titulo": "Texto pronto — ordem",
+    "estado": "Seletor aberto",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "arquivo": "texto-compat-ordem-0-360.png"
+  },
+  {
+    "titulo": "Texto pronto — justificativa",
+    "estado": "Seletor aberto",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/?editar=242",
+    "arquivo": "texto-compat-justificativa-0-360.png"
+  },
+  {
+    "titulo": "Texto pronto — oficio",
+    "estado": "Seletor aberto",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "arquivo": "texto-compat-oficio-0-768.png"
+  },
+  {
+    "titulo": "Texto pronto — ordem",
+    "estado": "Seletor aberto",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "arquivo": "texto-compat-ordem-0-768.png"
+  },
+  {
+    "titulo": "Texto pronto — justificativa",
+    "estado": "Seletor aberto",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/?editar=242",
+    "arquivo": "texto-compat-justificativa-0-768.png"
+  },
+  {
+    "titulo": "Texto pronto — oficio",
+    "estado": "Seletor aberto",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "arquivo": "texto-compat-oficio-0-1440.png"
+  },
+  {
+    "titulo": "Texto pronto — ordem",
+    "estado": "Seletor aberto",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/ordens/5/",
+    "arquivo": "texto-compat-ordem-0-1440.png"
+  },
+  {
+    "titulo": "Texto pronto — justificativa",
+    "estado": "Seletor aberto",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/?editar=242",
+    "arquivo": "texto-compat-justificativa-0-1440.png"
+  }
+]

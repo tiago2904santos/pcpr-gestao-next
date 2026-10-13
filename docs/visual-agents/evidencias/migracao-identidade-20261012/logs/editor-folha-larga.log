@@ -1,0 +1,124 @@
+2026-10-12 20:50:37,434 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 38 consultas (limite 25)
+.2026-10-12 20:50:50,568 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+.2026-10-12 20:51:02,742 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 38 consultas (limite 25)
+.Timeout (0:01:00)!
+Thread 0x00005198 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x000021c0 (most recent call first):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\waiting.py", line 347 in wait_select
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\connection.py", line 495 in wait
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py", line 113 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 105 in _execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 92 in _execute_with_wrappers
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 79 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1643 in execute_sql
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 131 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2287 in _fetch_all
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 473 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 840 in get_prefetch_querysets
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2905 in prefetch_one_level
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2749 in prefetch_related_objects
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\queries.py", line 73 in trechos_de
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 414 in calcular
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 450 in <lambda>
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 433 in _gravar_diarias
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 450 in recalcular_diarias
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 336 in _tocar
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 302 in adicionar_viajante
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\tests\cenarios.py", line 157 in cenario_completo
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\conftest.py", line 38 in dados_e2e
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1005 in call_fixture_func
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1328 in pytest_fixture_setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1232 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1181 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1181 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 630 in getfixturevalue
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 806 in _fillfixtures
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\python.py", line 1710 in setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 536 in setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 170 in pytest_runtest_setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 250 in <lambda>
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 361 in from_call
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 249 in call_and_report
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 132 in runtestprotocol
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 118 in pytest_runtest_protocol
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 408 in pytest_runtestloop
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 384 in _main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 330 in wrap_session
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 377 in pytest_cmdline_main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\config\__init__.py", line 229 in _main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\config\__init__.py", line 253 in _console_main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pytest\__main__.py", line 9 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 203 in _run_module_as_main
+2026-10-12 20:53:25,785 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/4/: 38 consultas (limite 25)
+.2026-10-12 20:53:44,851 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/22/documento/oficio/salvar/: 27 consultas (limite 25)
+2026-10-12 20:53:47,123 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/22/documento/oficio/salvar/: 26 consultas (limite 25)
+.
+(process:27580): GLib-GIO-WARNING **: 20:53:49.150: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:50.240: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:50.240: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:52.129: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:52.195: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:52.269: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:27580): GLib-GIO-WARNING **: 20:53:52.414: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+.2026-10-12 20:54:21,818 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/32/documento/oficio/salvar/: 27 consultas (limite 25)
+.2026-10-12 20:54:38,701 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:54:38,760 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:54:38,815 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 20:54:52,711 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:54:52,754 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:54:52,796 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 20:55:10,025 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:55:10,106 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:55:10,171 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 20:55:26,721 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/5/: 40 consultas (limite 25)
+2026-10-12 20:55:29,408 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/5/autosave/: 42 consultas (limite 25)
+2026-10-12 20:55:29,865 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/5/: 40 consultas (limite 25)
+2026-10-12 20:55:30,823 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:55:30,882 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:55:30,915 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 20:55:31,311 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/5/autosave/: 40 consultas (limite 25)
+..[12/Oct/2026 20:56:02,060] - Broken pipe from ('127.0.0.1', 57166)
+                                                             [100%]
+============================== warnings summary ===============================
+tests/e2e/test_editor.py::test_escrever_na_folha_salva_e_persiste
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_termos.py::test_cancelar_e_reativar_termo
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_3ab8f10f" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+12 passed, 2 warnings in 357.34s (0:05:57)

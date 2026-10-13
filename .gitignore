@@ -34,3 +34,6 @@ artifacts/
 .idea/
 .DS_Store
 .hypothesis/
+
+# Anexos recebidos pelo chat; não são fontes do projeto
+.codex-remote-attachments/

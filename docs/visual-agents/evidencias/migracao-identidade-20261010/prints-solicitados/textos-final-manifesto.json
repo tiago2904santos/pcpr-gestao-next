@@ -1,0 +1,299 @@
+[
+  {
+    "titulo": "Textos prontos · dialogo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-dialogo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · dialogo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-dialogo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · dialogo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-dialogo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · justificativas",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-justificativas-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · justificativas",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-justificativas-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · justificativas",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-justificativas-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · menu",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-menu-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · menu",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-menu-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · menu",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-menu-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-sem-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-sem-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-sem-resultados-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · trechos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-trechos-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · trechos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-trechos-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · trechos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Candidato em validação",
+    "arquivo": "textos-final-trechos-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · erro",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-erro-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · erro",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-erro-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · erro",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-erro-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Textos prontos · leitura",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-leitura-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · leitura",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-leitura-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · leitura",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-leitura-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-sem-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-sem-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · sem-resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-sem-resultados-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · vazio",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-vazio-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · vazio",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-vazio-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Textos prontos · vazio",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/textos-prontos/",
+    "estado": "Teste isolado · validado tecnicamente",
+    "arquivo": "textos-estado-vazio-768.png",
+    "integral": true
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "pagina": "lista",
+    "rota": "/viagens/roteiros/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/roteiros/novo/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "edicao",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "rota": "/viagens/roteiros/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/roteiros/novo/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "edicao",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "rota": "/viagens/roteiros/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/roteiros/novo/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "edicao",
+    "rota": "/viagens/roteiros/60/editar/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

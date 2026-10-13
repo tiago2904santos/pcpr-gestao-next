@@ -539,3 +539,38 @@ grade responsiva para Nome/Sigla, empilhando no celular. Demais parciais conserv
 seus controles específicos. Sem CSS/JS adicional ou mudança das consultas.
 Validar cada rota separadamente, inclusive diálogo e estados condicionais;
 herança do template compartilhado não conclui automaticamente as oito páginas.
+
+## GL01 — Central de módulos
+
+GET / é uma entrada de navegação sem salvamento próprio. Preservar módulos,
+grupos, itens e permissões de navegacao_para; indicadores de Viagens respeitam
+oficios_visiveis, e Coffee mantém saldo/pendências/alertas calculados na origem.
+Fontes: painel.views.inicio, plataforma.navegacao e coffee/test_integracoes.
+Autenticação e troca obrigatória de senha não mudam.
+
+Cabeçalho passa ao hero. Atalhos diretos permanecem visíveis; grupos em_menu
+usam o menu canônico, como na navegação superior, sem retirar links. Extrair
+acessos de módulo para parcial reutilizável. Simplificar ícone e métricas na
+origem, testando também Eventos/painel e Eventos/cadastros, consumidores reais
+de modulo__*. Somente regras de atalhos comprovadamente substituídas podem sair.
+FUTUROS é estado condicional legítimo e permanece mesmo vazio no DEMO.
+
+
+## GL02 — Agenda: contrato antes da edição
+
+GET `/agenda/`: mês, semana, dia e lista. Preservar parâmetros mes/dia/vista,
+fonte (múltiplo), encerrados e meus; navegação anterior/seguinte/hoje, fontes
+filtradas por permissão, dossiê e retorno, pauta PDF e escala. Assinatura é POST
+com CSRF, geração/rotação/revogação de token; o token só aparece uma vez.
+Não alterar conteúdo da pauta oficial nem lógica de autorização.
+Fontes: painel/views_agenda.py, plataforma/agenda.py, testes/test_agenda e
+painel/tests/test_assinatura_agenda.py. A referência funcional já está documentada
+nesses módulos; nenhuma decisão institucional nova é necessária.
+
+Diagnóstico com quatro vistas em360/768/1440: controles de anterior/seguinte
+se separam no celular; filtros de fontes ocupam quase toda primeira dobra;
+checkbox azul nativo difere do sistema; descrição antiga e divisor dourado
+isolado; dossiê requer revisão junto das vistas. Preservar calendário servidor
+sem adicionar biblioteca. Direção: hero compacto, navegação do período inseparável,
+ações e vistas agrupadas; filtros em painel integrado explícito e opções canônicas;
+lista/dia com registros canônicos. Assinatura permanece segura e identificável.

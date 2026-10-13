@@ -1,0 +1,37 @@
+{
+  "captura": "renderização real DEV; sem edição de imagens",
+  "origem": "http://127.0.0.1:8000",
+  "oficio": 3,
+  "registro_utc": "2026-10-09T18:57:28.289597+00:00",
+  "nota": "Resumo em duas posições por possuir rolagem interna. Lista e Cadastro com extensão integral. Código e dados não alterados para esta captura.",
+  "arquivos": [
+    {
+      "arquivo": "lista-completa.png",
+      "dimensoes": [
+        1440,
+        1001
+      ]
+    },
+    {
+      "arquivo": "resumo-inicio.png",
+      "dimensoes": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "arquivo": "resumo-final.png",
+      "dimensoes": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "arquivo": "cadastro-completo.png",
+      "dimensoes": [
+        1440,
+        5447
+      ]
+    }
+  ]
+}

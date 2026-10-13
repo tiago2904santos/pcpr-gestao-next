@@ -2,14 +2,7 @@
 {% block estilos %}{% load static %}<link rel="stylesheet" href="{% static 'css/painel.css' %}">{% endblock %}
 {% block titulo %}Início{% endblock %}
 {% block cabecalho_pagina %}
-<header class="pagina-cabecalho">
-  <span class="pagina-cabecalho__icone" aria-hidden="true">{% icone "home" classe="icone--lg" %}</span>
-  <div class="pagina-cabecalho__texto">
-    <p class="pagina-cabecalho__sobretitulo rotulo-caixa-alta">Bem-vindo(a), {{ user.primeiro_nome }}</p>
-    <h1 class="pagina-cabecalho__titulo">Central de módulos</h1>
-    <p class="pagina-cabecalho__descricao">Escolha um módulo para trabalhar. Os indicadores mostram a situação atual de cada um.</p>
-  </div>
-</header>
+{% include "componentes/registro_hero.html" with pagina=True contexto="PCPR Gestão" titulo="Central de módulos" complemento_template="painel/_boas_vindas.html" %}
 {% endblock %}
 {% block conteudo %}
 <div class="modulos">
@@ -25,11 +18,7 @@
             {% for rotulo, valor, destaque in m.indicadores %}<div{% if destaque %} class="modulo__numero--destaque"{% endif %}><dd>{{ valor }}</dd><dt>{{ rotulo }}</dt></div>{% endfor %}
           </dl>
         {% endif %}
-        <div class="modulo__acoes">
-          <a class="botao botao--primario" href="{{ m.url }}">Entrar no módulo {% icone "arrow-right" classe="icone--seta" %}</a>
-          {# Entradas diretas: os itens do menu do módulo que o usuário pode ver (menos o próprio painel). #}
-          {% for grupo in m.grupos %}{% for item in grupo.itens %}{% if item.url != m.url %}<a class="modulo__atalho" href="{{ item.url }}">{% icone item.icone classe="icone--sm" %}{{ item.rotulo }}</a>{% endif %}{% endfor %}{% endfor %}
-        </div>
+        {% include "componentes/acessos_modulo.html" with modulo=m only %}
       </div>
     </section>
   {% endfor %}

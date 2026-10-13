@@ -710,3 +710,16 @@ e Conjuntos). O contrato da variante não mudou: cada consumidor mantém seus
 metadados e permissões. Catálogos reutilizam `_catalogo_criar.html` no hero e na
 barra final, preservando a diferença entre abrir diálogo e sair da edição para
 um cadastro novo. Formulários específicos continuam parciais do catálogo.
+
+
+### Acessos de um módulo — Central (GL01)
+
+`componentes/acessos_modulo.html` recebe `modulo` da navegação autorizada, com
+`url`, `rotulo` e `grupos`. A entrada principal usa botão primário; grupos
+`em_menu` utilizam o `pc-menu` canônico; os demais preservam links diretos.
+Não refaz permissões nem URLs. Itens que já apontam para a entrada principal
+não são duplicados. O nome acessível permanece “Entrar no módulo”.
+
+Consumidor inicial: `painel/inicio.html`. Os estilos `modulo__corpo` e
+`modulo__numeros` também atendem aos catálogos e ao painel de Eventos; a
+validação de compatibilidade não declara essas páginas migradas.

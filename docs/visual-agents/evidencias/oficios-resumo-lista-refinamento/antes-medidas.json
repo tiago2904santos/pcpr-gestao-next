@@ -1,0 +1,830 @@
+[
+  {
+    "pagina": "lista",
+    "largura": 360,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 1000,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 14.390625,
+        "y": 106.78125,
+        "w": 331.21875,
+        "h": 106.15625,
+        "display": "grid",
+        "rows": "70.1562px",
+        "columns": "295.219px",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 14.390625,
+        "y": 408.796875,
+        "w": 331.21875,
+        "h": 330.34375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 360,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 5744.671875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 1000,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 14.390625,
+        "y": 106.78125,
+        "w": 331.21875,
+        "h": 106.15625,
+        "display": "grid",
+        "rows": "70.1562px",
+        "columns": "295.219px",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 18,
+        "y": 398.953125,
+        "w": 324,
+        "h": 62.78125,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 42.765625,
+        "y": 484.109375,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 18,
+        "y": 1160.359375,
+        "w": 324,
+        "h": 505.15625,
+        "display": "grid",
+        "rows": "319.297px 164.266px",
+        "columns": "324px",
+        "overflow": "visible"
+      },
+      "diarias": {
+        "x": 18,
+        "y": 1160.359375,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 14.390625,
+        "y": 408.796875,
+        "w": 331.21875,
+        "h": 5172.96875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "lista",
+    "largura": 390,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 1000,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 14.390625,
+        "y": 106.78125,
+        "w": 361.21875,
+        "h": 106.15625,
+        "display": "grid",
+        "rows": "70.1562px",
+        "columns": "325.219px",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 14.390625,
+        "y": 408.796875,
+        "w": 361.21875,
+        "h": 330.34375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 390,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 5744.671875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 390,
+        "h": 1000,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 14.390625,
+        "y": 106.78125,
+        "w": 361.21875,
+        "h": 106.15625,
+        "display": "grid",
+        "rows": "70.1562px",
+        "columns": "325.219px",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 18,
+        "y": 398.953125,
+        "w": 354,
+        "h": 62.78125,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 42.765625,
+        "y": 484.109375,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 18,
+        "y": 1131.578125,
+        "w": 354,
+        "h": 505.15625,
+        "display": "grid",
+        "rows": "319.297px 164.266px",
+        "columns": "354px",
+        "overflow": "visible"
+      },
+      "diarias": {
+        "x": 18,
+        "y": 1131.578125,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 14.390625,
+        "y": 408.796875,
+        "w": 361.21875,
+        "h": 5172.96875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "lista",
+    "largura": 768,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 1000.984375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 21.59375,
+        "y": 161.78125,
+        "w": 724.8125,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 21.59375,
+        "y": 488.609375,
+        "w": 724.8125,
+        "h": 214.546875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 768,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 768,
+        "h": 3559.40625,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 18,
+        "y": 18,
+        "w": 732,
+        "h": 964,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 21.59375,
+        "y": 161.78125,
+        "w": 724.8125,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 39.59375,
+        "y": 405.265625,
+        "w": 688.8125,
+        "h": 43.859375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 64.359375,
+        "y": 471.5,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 39.59375,
+        "y": 1058.65625,
+        "w": 688.8125,
+        "h": 319.296875,
+        "display": "grid",
+        "rows": "319.297px",
+        "columns": "333.609px 333.609px",
+        "overflow": "visible"
+      },
+      "diarias": {
+        "x": 39.59375,
+        "y": 1058.65625,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 21.59375,
+        "y": 488.609375,
+        "w": 724.8125,
+        "h": 2931.265625,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "lista",
+    "largura": 1024,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1024,
+        "h": 1000.984375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 21.59375,
+        "y": 161.78125,
+        "w": 980.8125,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 215.984375,
+        "y": 405.8125,
+        "w": 786.421875,
+        "h": 214.546875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 1024,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1024,
+        "h": 3476.609375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 18,
+        "y": 18,
+        "w": 988,
+        "h": 964,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 21.59375,
+        "y": 161.78125,
+        "w": 980.8125,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 46.796875,
+        "y": 395.375,
+        "w": 572.203125,
+        "h": 68.15625,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 71.5625,
+        "y": 503.484375,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 640.59375,
+        "y": 395.375,
+        "w": 336.609375,
+        "h": 691.25,
+        "display": "grid",
+        "rows": "498.203px 171.453px",
+        "columns": "336.609px",
+        "overflow": "auto"
+      },
+      "diarias": {
+        "x": 640.59375,
+        "y": 395.375,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 215.984375,
+        "y": 405.8125,
+        "w": 786.421875,
+        "h": 2931.265625,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "lista",
+    "largura": 1440,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 1000.984375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 108.78125,
+        "y": 161.78125,
+        "w": 1222.421875,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 303.171875,
+        "y": 405.8125,
+        "w": 1028.03125,
+        "h": 179.375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 1440,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 2773.171875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 100.796875,
+        "y": 18,
+        "w": 1238.390625,
+        "h": 964,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 108.78125,
+        "y": 161.78125,
+        "w": 1222.421875,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 129.59375,
+        "y": 375.578125,
+        "w": 729.859375,
+        "h": 43.859375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 154.359375,
+        "y": 481.4375,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 881.046875,
+        "y": 375.578125,
+        "w": 429.34375,
+        "h": 711.046875,
+        "display": "grid",
+        "rows": "518px 171.453px",
+        "columns": "429.344px",
+        "overflow": "auto"
+      },
+      "diarias": {
+        "x": 881.046875,
+        "y": 375.578125,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 303.171875,
+        "y": 405.8125,
+        "w": 1028.03125,
+        "h": 2227.828125,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "lista",
+    "largura": 1920,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1000.984375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "display": "none",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 348.78125,
+        "y": 161.78125,
+        "w": 1222.421875,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": null,
+      "roteiro": null,
+      "coluna": null,
+      "diarias": null,
+      "resultados": {
+        "x": 543.171875,
+        "y": 405.8125,
+        "w": 1028.03125,
+        "h": 179.375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  },
+  {
+    "pagina": "resumo",
+    "largura": 1920,
+    "medidas": {
+      "body": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 2773.171875,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "dialog": {
+        "x": 340.796875,
+        "y": 18,
+        "w": 1238.390625,
+        "h": 964,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "hidden"
+      },
+      "hero": {
+        "x": 348.78125,
+        "y": 161.78125,
+        "w": 1222.421875,
+        "h": 130.46875,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "motivo": {
+        "x": 369.59375,
+        "y": 375.578125,
+        "w": 729.859375,
+        "h": 43.859375,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "roteiro": {
+        "x": 394.359375,
+        "y": 481.4375,
+        "w": 56.140625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "coluna": {
+        "x": 1121.046875,
+        "y": 375.578125,
+        "w": 429.34375,
+        "h": 711.046875,
+        "display": "grid",
+        "rows": "518px 171.453px",
+        "columns": "429.344px",
+        "overflow": "auto"
+      },
+      "diarias": {
+        "x": 1121.046875,
+        "y": 375.578125,
+        "w": 70.5625,
+        "h": 14.625,
+        "display": "flex",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "resultados": {
+        "x": 543.171875,
+        "y": 405.8125,
+        "w": 1028.03125,
+        "h": 2227.828125,
+        "display": "block",
+        "rows": "none",
+        "columns": "none",
+        "overflow": "visible"
+      },
+      "overflow": false
+    }
+  }
+]

@@ -1,0 +1,254 @@
+[
+  {
+    "titulo": "Viaturas · final-editar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-editar-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-editar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-editar-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-editar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-editar-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-incompletos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-incompletos-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-incompletos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-incompletos-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-incompletos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-incompletos-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-novo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-novo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-novo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-novo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-novo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-novo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · final-sem-resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-sem-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-sem-resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-sem-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · final-sem-resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-final-sem-resultados-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viaturas · aberto-combustivel",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-combustivel-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-combustivel",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-combustivel-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-combustivel",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-combustivel-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-filtro",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-filtro-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-filtro",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-filtro-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-filtro",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-filtro-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-menu",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-menu-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-menu",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-menu-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · aberto-menu",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/viaturas/",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-aberto-menu-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · compat-lote",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-lote",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-compat-lote-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · compat-lote",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-lote",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-compat-lote-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · compat-termo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-termo",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-compat-termo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Viaturas · compat-termo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-termo",
+    "estado": "12/10 · validado tecnicamente",
+    "arquivo": "viaturas-compat-termo-360.png",
+    "integral": false
+  }
+]

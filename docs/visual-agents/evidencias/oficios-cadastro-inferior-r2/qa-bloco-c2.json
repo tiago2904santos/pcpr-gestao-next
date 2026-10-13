@@ -1,0 +1,37 @@
+[
+  {
+    "estado": "obrigatoria",
+    "largura": 360,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "obrigatoria",
+    "largura": 390,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "obrigatoria",
+    "largura": 768,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "obrigatoria",
+    "largura": 1024,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  },
+  {
+    "estado": "obrigatoria",
+    "largura": 1440,
+    "axe": [],
+    "console": [],
+    "overflow": 0
+  }
+]

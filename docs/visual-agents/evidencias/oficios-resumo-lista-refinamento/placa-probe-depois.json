@@ -1,0 +1,110 @@
+[
+  {
+    "largura": 360,
+    "numero": "1/2026",
+    "plateW": 115.1875,
+    "plateH": 52.078125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 51.28125
+  },
+  {
+    "largura": 360,
+    "numero": "03/2026",
+    "plateW": 115.1875,
+    "plateH": 52.078125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 60.453125
+  },
+  {
+    "largura": 360,
+    "numero": "165/2026",
+    "plateW": 115.1875,
+    "plateH": 52.078125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 69.609375
+  },
+  {
+    "largura": 360,
+    "numero": "1250/2026",
+    "plateW": 115.1875,
+    "plateH": 52.078125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 78.78125
+  },
+  {
+    "largura": 768,
+    "numero": "1/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 57.65625
+  },
+  {
+    "largura": 768,
+    "numero": "03/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 67.953125
+  },
+  {
+    "largura": 768,
+    "numero": "165/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 78.265625
+  },
+  {
+    "largura": 768,
+    "numero": "1250/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 88.5625
+  },
+  {
+    "largura": 1440,
+    "numero": "1/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 57.65625
+  },
+  {
+    "largura": 1440,
+    "numero": "03/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 67.953125
+  },
+  {
+    "largura": 1440,
+    "numero": "165/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 78.265625
+  },
+  {
+    "largura": 1440,
+    "numero": "1250/2026",
+    "plateW": 115.1875,
+    "plateH": 56.828125,
+    "scroll": 115,
+    "client": 115,
+    "numberW": 88.5625
+  }
+]

@@ -1,0 +1,164 @@
+{
+  "head": "722198f00a277f24b43aab94bde8c60e579ea71d",
+  "base": "Snapshot das fontes locais, incluindo ajustes do usuário, antes desta rodada",
+  "alterados": [
+    {
+      "arquivo": "docs/design-system/components.md",
+      "antesSha256": "06117111564848c8f17ceffc1e9676ef26b650b769b6d85504c25a89e152e474",
+      "depoisSha256": "0d2c55295d2708ee7cf731bce758e20b11ad23d72132b611f836927d198d1d79"
+    },
+    {
+      "arquivo": "docs/parity/oficio.md",
+      "antesSha256": "b8b3dfe3fe1ce094183a5a9d72d3d73ee8ed74ef26cfd3071c72fc88188d7eeb",
+      "depoisSha256": "044b426b4365b699ef49c639fcb32fd41178d046e49fc50a28a97c007435eaf5"
+    },
+    {
+      "arquivo": "docs/product/oficios-eprotocolo.md",
+      "antesSha256": "c487cb848247c72894ff30cd6452c0ebf5d80450bb8ec705a808ad95cb8f1da2",
+      "depoisSha256": "34dc6e8b5bac656ff5b763db31bfec27d25d5cc37fdba685617d35e8109d9cbe"
+    },
+    {
+      "arquivo": "docs/visual-agents/current-page.md",
+      "antesSha256": "62e6c9ab0f05a32b57f324c613b603b8a38507bad5d965e6eefdf46b10691449",
+      "depoisSha256": "f33060290554d4918cd21d7421d90f39a5dc774620f8c793fd3b2213ee960df2"
+    },
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/_dossie.html",
+      "antesSha256": "6ca6bdc62c4a1ecb0d79b722f8f6c7489f2dbc184b882a76e6ec979e3b0dc8fb",
+      "depoisSha256": "72f5b9707fb0d109e4b377778057917933db49495eb287dba33aca2c40ede7fe"
+    },
+    {
+      "arquivo": "gestao/ui_lab/templates/ui_lab/_mesa_conferencia.html",
+      "antesSha256": "99cdbc58fd2bb67634c5f1322e7935bff5207ea8509530126500e953d6a37ae2",
+      "depoisSha256": "7fbd5648e5e37508bbfcaae7a4816dbff7026721966fac2012ec3c03d0b27e67"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_resumo.html",
+      "antesSha256": "e8ebf4d4c42e3c7b620c04fb5086609244cf80edbc67ab18b1be8e1968a4827d",
+      "depoisSha256": "dc7f2885807027158fd0dbe469ee2205d011ae4c27ef9ef787a5a1416042d943"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_resumo_conferencia.html",
+      "antesSha256": "3cacb3a41de37d3fe5525742d49458dc3a05b99e3a312900f3f34e83b9f6e776",
+      "depoisSha256": "3989c1190fb942ba2bdace6073e0aea1bf5847ddc78b508545f45735000044e2"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_resumo_documentos.html",
+      "antesSha256": "cb835df1e0aafdecb3978e8552cc79448f79490a02a5cee5104ffa7886d87930",
+      "depoisSha256": "4acb3c28db91849892822f30f1b3d62fd4c5c82259860d1cfe438b85f496cc0f"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_resumo_equipe.html",
+      "antesSha256": "efda98b3399c96b428dc92eaa26368439b72d88994c22daba62e7aa0251a775f",
+      "depoisSha256": "dfc6ee96c7ec131e1bf4568a1213b0c83b6a0e30cd584c1dd22c4563b3544235"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/_resumo_percurso.html",
+      "antesSha256": "56545113fab50d8c9852f2e8bb955cefb22201b3ec39ab70ad891654dfb31b65",
+      "depoisSha256": "cea3fcfdce7ceb1d4f505e8cb19e95c8c7230eac01f6d48ee24d2fc47711dc9c"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/oficios/lista.html",
+      "antesSha256": "e3c9eb9e315ac5d029e81fa6f313df3047be4582cce03b7a6e1571553b8384e1",
+      "depoisSha256": "613af0ae7c7a3da4a20d17769828906e5597976cbfebb86b439e26076d275d72"
+    },
+    {
+      "arquivo": "gestao/viagens/templatetags/viagens.py",
+      "antesSha256": "65973ab751c89a9aaeb3a88e9030b256220a50f601dff690c8aa9c50b4df4b07",
+      "depoisSha256": "adb3d7df4c19a5f8b9eee223f5155ba79a99a031a9e2074ce18d4120e014b05b"
+    },
+    {
+      "arquivo": "gestao/viagens/tests/test_eprotocolo_http.py",
+      "antesSha256": "951e5c10872b06a7265dd6259fc584852b069d13d4e3f2f50c6a5b9cb8cfaace",
+      "depoisSha256": "f87bbf4ea9869ec642d57e8bbb8d4e76d42bf7117b2112bd08de4e5a5ec8b5e0"
+    },
+    {
+      "arquivo": "gestao/viagens/tests/test_views.py",
+      "antesSha256": "f120768cc9db0d7030a724e7d7c8cc8e8d2cd7a2893242b4eb0b9bdab2b95573",
+      "depoisSha256": "4453eecf113055b1093abc52fa756ef9b28bcdcc9c7dc91ad16abccc5e5ec67f"
+    },
+    {
+      "arquivo": "static/css/components.css",
+      "antesSha256": "04fcf77d3b924851a23cf8a360889fce933591301124bac560c3840fc97273bd",
+      "depoisSha256": "214ecfc45cc4d89482a33198c787b7ba0502f6387c2882e538293a95d58f43c5"
+    },
+    {
+      "arquivo": "templates/componentes/conferencia_valores.html",
+      "antesSha256": "814e0b129a3e875139468ed5a33e7f106f3c67ed9b18a8a17f1f4f4990af0294",
+      "depoisSha256": "27fd0569c6b24f5b5c0db1ba2d8cbdc1d9f2dba3be9be65a5ca04db2e6a462b7"
+    },
+    {
+      "arquivo": "templates/componentes/dados_eprotocolo.html",
+      "antesSha256": "e3ac72da38c70e1c68a5886f5eff1fd7b5159ac6a5f823854f604c66c8fed787",
+      "depoisSha256": "a276df2ecf85d6000603945a593b5e53c12421617b8825f399c5475d6f88d63e"
+    },
+    {
+      "arquivo": "tests/e2e/test_eprotocolo_copia.py",
+      "antesSha256": "7243cd8879b72c6c554d5a0250834b08ba9495a9e4c77da008d502579ab68d04",
+      "depoisSha256": "cf9152d1fc25ab552026274da40f4c461a123c20abe2aa221359a609b1b02b45"
+    },
+    {
+      "arquivo": "tests/e2e/test_resumo_versoes_documentais.py",
+      "antesSha256": "10f8d8166ee6fb8de785104e7bfc101f09fcbedebde11d147b54870e762e8f61",
+      "depoisSha256": "9c72bc09b69a7305f7611c2fe05b55ec59ddb636a04e050366fe9a366048ff6c"
+    },
+    {
+      "arquivo": "tests/e2e/test_resumo_visual.py",
+      "antesSha256": "c544f96fd9e1cd703aef478fac4da8f3418ae2219379f7d4f91d19aeebb89a3b",
+      "depoisSha256": "de0d8b870578d6166d017d895ff7275a9e3086728423bffd53437c4bd800bcbf"
+    }
+  ],
+  "indexPreservado": true,
+  "templatesCadastroPreservados": {
+    "gestao/viagens/templates/viagens/oficios/_abas.html": true,
+    "gestao/viagens/templates/viagens/oficios/_acoes.html": true,
+    "gestao/viagens/templates/viagens/oficios/_acoes_ciclo.html": true,
+    "gestao/viagens/templates/viagens/oficios/_barra_status.html": true,
+    "gestao/viagens/templates/viagens/oficios/_botao_novo.html": true,
+    "gestao/viagens/templates/viagens/oficios/_conta_filtros.html": true,
+    "gestao/viagens/templates/viagens/oficios/_dialogo_resumo.html": true,
+    "gestao/viagens/templates/viagens/oficios/_diarias.html": true,
+    "gestao/viagens/templates/viagens/oficios/_diarias_corpo.html": true,
+    "gestao/viagens/templates/viagens/oficios/_documentos.html": true,
+    "gestao/viagens/templates/viagens/oficios/_editor.html": true,
+    "gestao/viagens/templates/viagens/oficios/_equipe.html": true,
+    "gestao/viagens/templates/viagens/oficios/_evento.html": true,
+    "gestao/viagens/templates/viagens/oficios/_fichas.html": true,
+    "gestao/viagens/templates/viagens/oficios/_historico_documentos.html": true,
+    "gestao/viagens/templates/viagens/oficios/_justificativa.html": true,
+    "gestao/viagens/templates/viagens/oficios/_justificativa_campos.html": true,
+    "gestao/viagens/templates/viagens/oficios/_justificativa_contexto.html": true,
+    "gestao/viagens/templates/viagens/oficios/_limpar_gaveta.html": true,
+    "gestao/viagens/templates/viagens/oficios/_menu_oficio.html": true,
+    "gestao/viagens/templates/viagens/oficios/_motorista_externo.html": true,
+    "gestao/viagens/templates/viagens/oficios/_motorista_externo_campos.html": true,
+    "gestao/viagens/templates/viagens/oficios/_motorista_externo_contexto.html": true,
+    "gestao/viagens/templates/viagens/oficios/_preparacao_acoes.html": true,
+    "gestao/viagens/templates/viagens/oficios/_preparacao_contexto.html": true,
+    "gestao/viagens/templates/viagens/oficios/_prontidao.html": true,
+    "gestao/viagens/templates/viagens/oficios/_refino.html": true,
+    "gestao/viagens/templates/viagens/oficios/_regenerar_documento.html": true,
+    "gestao/viagens/templates/viagens/oficios/_registro.html": true,
+    "gestao/viagens/templates/viagens/oficios/_vazio_filtrado.html": true,
+    "gestao/viagens/templates/viagens/oficios/editar.html": true
+  },
+  "testeNovo": "tests/e2e/test_oficios_consulta_composicao.py",
+  "adicionados": [
+    {
+      "arquivo": "docs/adr/0033-separar-leitura-e-conferencia-do-resumo.md",
+      "sha256": "0399f87aa5200ee8e9fa15f084f9a29d271ab9fd4b839b886f7c76831fd3984c"
+    },
+    {
+      "arquivo": "docs/product/oficios-consulta-visual.md",
+      "sha256": "ded5a3f446ccf34a80aa6612db8b7e4c415e187804b06f0b7e54be5e78319feb"
+    },
+    {
+      "arquivo": "docs/visual-agents/qa/resumo-lista-refinamento-2026-10-10.md",
+      "sha256": "55d248a31c77bbdceff0c8384c4afcba3a7dc4cd918c3d0ddd81ed19022dc01d"
+    },
+    {
+      "arquivo": "tests/e2e/test_oficios_consulta_composicao.py",
+      "sha256": "d5f216698faa8cc782a8e346d3d217b7d49d9681b304874d99e4eac39803a6aa"
+    }
+  ]
+}

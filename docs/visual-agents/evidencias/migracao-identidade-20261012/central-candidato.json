@@ -1,0 +1,683 @@
+[
+  {
+    "largura": 360,
+    "http": 200,
+    "titulo": "Central de módulos",
+    "links": [
+      {
+        "texto": "Entrar no módulo",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/viagens/"
+      },
+      {
+        "texto": "Ofícios",
+        "href": "/viagens/oficios/"
+      },
+      {
+        "texto": "Roteiros",
+        "href": "/viagens/roteiros/"
+      },
+      {
+        "texto": "Justificativas",
+        "href": "/viagens/justificativas/"
+      },
+      {
+        "texto": "Termos de autorização",
+        "href": "/viagens/termos/"
+      },
+      {
+        "texto": "Ordens de serviço",
+        "href": "/viagens/ordens/"
+      },
+      {
+        "texto": "Planos de trabalho",
+        "href": "/viagens/planos/"
+      },
+      {
+        "texto": "Prestação de contas",
+        "href": "/viagens/prestacoes/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/cadastros/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      },
+      {
+        "texto": "Usuários e perfis",
+        "href": "/cadastros/usuarios/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/eventos/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/eventos/solicitacoes/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/eventos/solicitacoes/nova/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/eventos/cadastros/"
+      },
+      {
+        "texto": "Tipos de evento",
+        "href": "/eventos/cadastros/tipos-evento/"
+      },
+      {
+        "texto": "Serviços",
+        "href": "/eventos/cadastros/servicos/"
+      },
+      {
+        "texto": "Equipes",
+        "href": "/eventos/cadastros/equipes/"
+      },
+      {
+        "texto": "Órgãos responsáveis",
+        "href": "/eventos/cadastros/orgaos/"
+      },
+      {
+        "texto": "Unidades móveis",
+        "href": "/eventos/cadastros/unidades-moveis/"
+      },
+      {
+        "texto": "Textos prontos do despacho",
+        "href": "/eventos/cadastros/textos-despacho/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/agenda/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/imprensa/"
+      },
+      {
+        "texto": "Atendimentos",
+        "href": "/imprensa/atendimentos/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/imprensa/cadastros/equipe/"
+      },
+      {
+        "texto": "Veículos de imprensa",
+        "href": "/imprensa/cadastros/veiculos/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/publicacoes/"
+      },
+      {
+        "texto": "Pautas",
+        "href": "/publicacoes/pautas/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/publicacoes/cadastros/equipe/"
+      },
+      {
+        "texto": "Unidades responsáveis",
+        "href": "/publicacoes/cadastros/unidades/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/palestras/"
+      },
+      {
+        "texto": "Palestras e eventos",
+        "href": "/palestras/pedidos/"
+      },
+      {
+        "texto": "Palestrantes",
+        "href": "/palestras/cadastros/palestrantes/"
+      },
+      {
+        "texto": "Temas",
+        "href": "/palestras/cadastros/temas/"
+      },
+      {
+        "texto": "Respostas padrão",
+        "href": "/palestras/cadastros/respostas/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/coffee/painel/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/coffee/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/coffee/nova/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/lotes/"
+      },
+      {
+        "texto": "Certidões",
+        "href": "/coffee/certidoes/"
+      },
+      {
+        "texto": "Fornecedores",
+        "href": "/coffee/cadastros/fornecedores/"
+      },
+      {
+        "texto": "Contratos",
+        "href": "/coffee/cadastros/contratos/"
+      },
+      {
+        "texto": "Termos aditivos",
+        "href": "/coffee/cadastros/aditivos/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/cadastros/lotes/"
+      },
+      {
+        "texto": "Ofício e protocolo",
+        "href": "/coffee/cadastros/oficio/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/relatorios/"
+      }
+    ]
+  },
+  {
+    "largura": 768,
+    "http": 200,
+    "titulo": "Central de módulos",
+    "links": [
+      {
+        "texto": "Entrar no módulo",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/viagens/"
+      },
+      {
+        "texto": "Ofícios",
+        "href": "/viagens/oficios/"
+      },
+      {
+        "texto": "Roteiros",
+        "href": "/viagens/roteiros/"
+      },
+      {
+        "texto": "Justificativas",
+        "href": "/viagens/justificativas/"
+      },
+      {
+        "texto": "Termos de autorização",
+        "href": "/viagens/termos/"
+      },
+      {
+        "texto": "Ordens de serviço",
+        "href": "/viagens/ordens/"
+      },
+      {
+        "texto": "Planos de trabalho",
+        "href": "/viagens/planos/"
+      },
+      {
+        "texto": "Prestação de contas",
+        "href": "/viagens/prestacoes/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/cadastros/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      },
+      {
+        "texto": "Usuários e perfis",
+        "href": "/cadastros/usuarios/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/eventos/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/eventos/solicitacoes/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/eventos/solicitacoes/nova/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/eventos/cadastros/"
+      },
+      {
+        "texto": "Tipos de evento",
+        "href": "/eventos/cadastros/tipos-evento/"
+      },
+      {
+        "texto": "Serviços",
+        "href": "/eventos/cadastros/servicos/"
+      },
+      {
+        "texto": "Equipes",
+        "href": "/eventos/cadastros/equipes/"
+      },
+      {
+        "texto": "Órgãos responsáveis",
+        "href": "/eventos/cadastros/orgaos/"
+      },
+      {
+        "texto": "Unidades móveis",
+        "href": "/eventos/cadastros/unidades-moveis/"
+      },
+      {
+        "texto": "Textos prontos do despacho",
+        "href": "/eventos/cadastros/textos-despacho/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/agenda/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/imprensa/"
+      },
+      {
+        "texto": "Atendimentos",
+        "href": "/imprensa/atendimentos/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/imprensa/cadastros/equipe/"
+      },
+      {
+        "texto": "Veículos de imprensa",
+        "href": "/imprensa/cadastros/veiculos/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/publicacoes/"
+      },
+      {
+        "texto": "Pautas",
+        "href": "/publicacoes/pautas/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/publicacoes/cadastros/equipe/"
+      },
+      {
+        "texto": "Unidades responsáveis",
+        "href": "/publicacoes/cadastros/unidades/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/palestras/"
+      },
+      {
+        "texto": "Palestras e eventos",
+        "href": "/palestras/pedidos/"
+      },
+      {
+        "texto": "Palestrantes",
+        "href": "/palestras/cadastros/palestrantes/"
+      },
+      {
+        "texto": "Temas",
+        "href": "/palestras/cadastros/temas/"
+      },
+      {
+        "texto": "Respostas padrão",
+        "href": "/palestras/cadastros/respostas/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/coffee/painel/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/coffee/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/coffee/nova/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/lotes/"
+      },
+      {
+        "texto": "Certidões",
+        "href": "/coffee/certidoes/"
+      },
+      {
+        "texto": "Fornecedores",
+        "href": "/coffee/cadastros/fornecedores/"
+      },
+      {
+        "texto": "Contratos",
+        "href": "/coffee/cadastros/contratos/"
+      },
+      {
+        "texto": "Termos aditivos",
+        "href": "/coffee/cadastros/aditivos/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/cadastros/lotes/"
+      },
+      {
+        "texto": "Ofício e protocolo",
+        "href": "/coffee/cadastros/oficio/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/relatorios/"
+      }
+    ]
+  },
+  {
+    "largura": 1440,
+    "http": 200,
+    "titulo": "Central de módulos",
+    "links": [
+      {
+        "texto": "Entrar no módulo",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/viagens/"
+      },
+      {
+        "texto": "Ofícios",
+        "href": "/viagens/oficios/"
+      },
+      {
+        "texto": "Roteiros",
+        "href": "/viagens/roteiros/"
+      },
+      {
+        "texto": "Justificativas",
+        "href": "/viagens/justificativas/"
+      },
+      {
+        "texto": "Termos de autorização",
+        "href": "/viagens/termos/"
+      },
+      {
+        "texto": "Ordens de serviço",
+        "href": "/viagens/ordens/"
+      },
+      {
+        "texto": "Planos de trabalho",
+        "href": "/viagens/planos/"
+      },
+      {
+        "texto": "Prestação de contas",
+        "href": "/viagens/prestacoes/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/cadastros/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      },
+      {
+        "texto": "Usuários e perfis",
+        "href": "/cadastros/usuarios/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/eventos/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/eventos/solicitacoes/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/eventos/solicitacoes/nova/"
+      },
+      {
+        "texto": "Todos os cadastros",
+        "href": "/eventos/cadastros/"
+      },
+      {
+        "texto": "Tipos de evento",
+        "href": "/eventos/cadastros/tipos-evento/"
+      },
+      {
+        "texto": "Serviços",
+        "href": "/eventos/cadastros/servicos/"
+      },
+      {
+        "texto": "Equipes",
+        "href": "/eventos/cadastros/equipes/"
+      },
+      {
+        "texto": "Órgãos responsáveis",
+        "href": "/eventos/cadastros/orgaos/"
+      },
+      {
+        "texto": "Unidades móveis",
+        "href": "/eventos/cadastros/unidades-moveis/"
+      },
+      {
+        "texto": "Textos prontos do despacho",
+        "href": "/eventos/cadastros/textos-despacho/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/agenda/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/imprensa/"
+      },
+      {
+        "texto": "Atendimentos",
+        "href": "/imprensa/atendimentos/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/imprensa/cadastros/equipe/"
+      },
+      {
+        "texto": "Veículos de imprensa",
+        "href": "/imprensa/cadastros/veiculos/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/publicacoes/"
+      },
+      {
+        "texto": "Pautas",
+        "href": "/publicacoes/pautas/"
+      },
+      {
+        "texto": "Equipe",
+        "href": "/publicacoes/cadastros/equipe/"
+      },
+      {
+        "texto": "Unidades responsáveis",
+        "href": "/publicacoes/cadastros/unidades/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/palestras/"
+      },
+      {
+        "texto": "Palestras e eventos",
+        "href": "/palestras/pedidos/"
+      },
+      {
+        "texto": "Palestrantes",
+        "href": "/palestras/cadastros/palestrantes/"
+      },
+      {
+        "texto": "Temas",
+        "href": "/palestras/cadastros/temas/"
+      },
+      {
+        "texto": "Respostas padrão",
+        "href": "/palestras/cadastros/respostas/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/coffee/painel/"
+      },
+      {
+        "texto": "Solicitações",
+        "href": "/coffee/"
+      },
+      {
+        "texto": "Nova solicitação",
+        "href": "/coffee/nova/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/lotes/"
+      },
+      {
+        "texto": "Certidões",
+        "href": "/coffee/certidoes/"
+      },
+      {
+        "texto": "Fornecedores",
+        "href": "/coffee/cadastros/fornecedores/"
+      },
+      {
+        "texto": "Contratos",
+        "href": "/coffee/cadastros/contratos/"
+      },
+      {
+        "texto": "Termos aditivos",
+        "href": "/coffee/cadastros/aditivos/"
+      },
+      {
+        "texto": "Lotes",
+        "href": "/coffee/cadastros/lotes/"
+      },
+      {
+        "texto": "Ofício e protocolo",
+        "href": "/coffee/cadastros/oficio/"
+      },
+      {
+        "texto": "Entrar no módulo",
+        "href": "/relatorios/"
+      }
+    ]
+  }
+]

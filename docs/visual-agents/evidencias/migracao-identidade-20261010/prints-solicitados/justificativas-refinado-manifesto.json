@@ -1,0 +1,110 @@
+[
+  {
+    "titulo": "Justificativas · pendentes",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-pendentes-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · preenchidas",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-preenchidas-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · vazio",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-vazio-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · dialogo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-dialogo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Justificativas · pendentes",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-pendentes-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · preenchidas",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-preenchidas-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · vazio",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-vazio-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · dialogo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-dialogo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Justificativas · pendentes",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-pendentes-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · preenchidas",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-preenchidas-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · vazio",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-vazio-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Justificativas · dialogo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/justificativas/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "justificativas-refinado-dialogo-1440.png",
+    "integral": false
+  }
+]

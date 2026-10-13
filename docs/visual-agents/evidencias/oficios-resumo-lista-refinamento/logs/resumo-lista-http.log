@@ -1,0 +1,172 @@
+...FF.....FF...................................F........................ [ 61%]
+.............................................                            [100%]
+================================== FAILURES ===================================
+________________ test_copia_respeita_escopo_da_unidade[editar] ________________
+
+client = <django.test.client.Client object at 0x00000176E31B4490>
+cenario = Cenario(ids={'oficio_emitido': 436, 'oficio_rascunho': 437, 'oficio_vazio': 438, 'oficio_cancelado': 439, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = 'editar'
+
+    @pytest.mark.parametrize("rota", ["editar", "resumo"])
+    def test_copia_respeita_escopo_da_unidade(client, cenario, rota):
+        client.force_login(cenario.usuarios["operador"])
+        resposta = client.get(reverse(f"viagens:{rota}", args=[cenario.ids["oficio_outra_unidade"]]))
+        assert resposta.status_code == 404
+>       assert "data-dados-eprotocolo" not in resposta.content.decode()
+                                          ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=404, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 23:56:17,892 WARNING django.request Not Found: /viagens/oficios/440/editar/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Not Found: /viagens/oficios/440/editar/
+________________ test_copia_respeita_escopo_da_unidade[resumo] ________________
+
+client = <django.test.client.Client object at 0x00000176E36A4250>
+cenario = Cenario(ids={'oficio_emitido': 441, 'oficio_rascunho': 442, 'oficio_vazio': 443, 'oficio_cancelado': 444, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = 'resumo'
+
+    @pytest.mark.parametrize("rota", ["editar", "resumo"])
+    def test_copia_respeita_escopo_da_unidade(client, cenario, rota):
+        client.force_login(cenario.usuarios["operador"])
+        resposta = client.get(reverse(f"viagens:{rota}", args=[cenario.ids["oficio_outra_unidade"]]))
+        assert resposta.status_code == 404
+>       assert "data-dados-eprotocolo" not in resposta.content.decode()
+                                          ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=404, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 23:56:39,246 WARNING django.request Not Found: /viagens/oficios/445/resumo/
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:283 Not Found: /viagens/oficios/445/resumo/
+________ test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[gerando] _________
+
+client = <django.test.client.Client object at 0x00000176E3427610>
+cenario = Cenario(ids={'oficio_emitido': 471, 'oficio_rascunho': 472, 'oficio_vazio': 473, 'oficio_cancelado': 474, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+situacao = Documento.Situacao.GERANDO
+
+    @pytest.mark.parametrize("situacao", [Documento.Situacao.GERANDO, Documento.Situacao.FALHOU])
+    def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situacao):
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        anterior = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+        Documento.objects.filter(pk=anterior.pk).update(situacao="pronto", sha256="a" * 64)
+        snapshot = deepcopy(anterior.dados)
+        snapshot["motivo"] = "Motivo da segunda emissão"
+        atual = Documento.objects.create(
+            oficio=oficio, tipo="oficio", versao=2, situacao=situacao,
+            dados=snapshot, emitido_por=cenario.usuarios["operador"],
+            erro="Falha de geração" if situacao == Documento.Situacao.FALHOU else "")
+        resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
+        copia = resposta.context["copia"]
+        assert copia.versao == atual.versao == 2
+        assert copia.situacao_documento == situacao
+        assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
+        assert copia.fonte == "emissao"
+>       assert "Motivo da segunda emissão" in _bloco(resposta)
+E       assert 'data-dados-eprotocolo' not in '\n\n\n\n<he...</div>\n\n\n'
+E         
+E         'data-dados-eprotocolo' is contained here:
+E           ia-bloco" data-dados-eprotocolo>
+E             <summary id="resumo-copia-abrir"><svg class="icone icone--sm" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-copy"></use></svg>Dados para o eProtocolo</summary>
+E             <div class="divulgacao__corpo pilha">
+E               
+E                 <div class="dados-copiaveis__cabecalho">...
+E         
+E         ...Full output truncated (214 lines hidden), use '-vv' to show
+
+gestao\viagens\tests\test_eprotocolo_http.py:161: AssertionError
+_________ test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[falhou] _________
+
+client = <django.test.client.Client object at 0x00000176E35DFB10>
+cenario = Cenario(ids={'oficio_emitido': 476, 'oficio_rascunho': 477, 'oficio_vazio': 478, 'oficio_cancelado': 479, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+situacao = Documento.Situacao.FALHOU
+
+    @pytest.mark.parametrize("situacao", [Documento.Situacao.GERANDO, Documento.Situacao.FALHOU])
+    def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situacao):
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        anterior = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+        Documento.objects.filter(pk=anterior.pk).update(situacao="pronto", sha256="a" * 64)
+        snapshot = deepcopy(anterior.dados)
+        snapshot["motivo"] = "Motivo da segunda emissão"
+        atual = Documento.objects.create(
+            oficio=oficio, tipo="oficio", versao=2, situacao=situacao,
+            dados=snapshot, emitido_por=cenario.usuarios["operador"],
+            erro="Falha de geração" if situacao == Documento.Situacao.FALHOU else "")
+        resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
+        copia = resposta.context["copia"]
+        assert copia.versao == atual.versao == 2
+        assert copia.situacao_documento == situacao
+        assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
+        assert copia.fonte == "emissao"
+>       assert "Motivo da segunda emissão" in _bloco(resposta)
+E       assert 'data-dados-eprotocolo' not in '\n\n\n\n<he...</div>\n\n\n'
+E         
+E         'data-dados-eprotocolo' is contained here:
+E           ia-bloco" data-dados-eprotocolo>
+E             <summary id="resumo-copia-abrir"><svg class="icone icone--sm" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-copy"></use></svg>Dados para o eProtocolo</summary>
+E             <div class="divulgacao__corpo pilha">
+E               
+E                 <div class="dados-copiaveis__cabecalho">...
+E         
+E         ...Full output truncated (214 lines hidden), use '-vv' to show
+
+gestao\viagens\tests\test_eprotocolo_http.py:161: AssertionError
+_ TestSelosDasListas.test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo _
+
+self = <gestao.viagens.tests.test_views.TestSelosDasListas object at 0x00000176E208BAC0>
+operador = <django.test.client.Client object at 0x00000176E31CC2D0>
+cenario = Cenario(ids={'oficio_emitido': 656, 'oficio_rascunho': 657, 'oficio_vazio': 658, 'oficio_cancelado': 659, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        resposta = operador.get(reverse("viagens:resumo", args=[rascunho.pk]))
+        html = resposta.content.decode()
+        assert "Fora do prazo" not in html
+        assert "Justificativa pendente" in html  # o mesmo selo da linha
+        # A cópia fica somente na Folha; o assunto continua na projeção autorizada.
+        campos = {campo.rotulo: campo.valor for campo in resposta.context["copia"].dados.campos}
+        assert "Solicitação de autorização" in campos["Assunto"]
+>       assert "data-copiar-alvo" not in html
+E       assert 'data-copiar-alvo' not in '\n\n\n\n<he...</div>\n\n\n'
+E         
+E         'data-copiar-alvo' is contained here:
+E           primario" data-copiar-alvo="resumo-copia-tudo" data-copiar-revelar="resumo-copia-selecao" aria-controls="resumo-copia-selecao" aria-live="polite">
+E         ?           ++++++++++++++++
+E             <svg class="icone" aria-hidden="true" focusable="false"><use href="/static/icons/sprite.svg#i-copy"></use></svg><span data-copiar-rotulo>Copiar tudo</span>
+E           </button>
+E           </div>...
+E         
+E         ...Full output truncated (206 lines hidden), use '-vv' to show
+
+gestao\viagens\tests\test_views.py:1299: AssertionError
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_copia_respeita_escopo_da_unidade[editar]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_copia_respeita_escopo_da_unidade[resumo]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[gerando]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[falhou]
+FAILED gestao/viagens/tests/test_views.py::TestSelosDasListas::test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo
+5 failed, 112 passed in 1120.54s (0:18:40)

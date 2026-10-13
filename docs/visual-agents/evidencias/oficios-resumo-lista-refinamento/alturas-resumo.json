@@ -1,0 +1,38 @@
+[
+  {
+    "fase": "antes",
+    "viewportHeight": 900,
+    "gap": 22.375,
+    "diariasH": 392.578125
+  },
+  {
+    "fase": "antes",
+    "viewportHeight": 1000,
+    "gap": 62,
+    "diariasH": 492.578125
+  },
+  {
+    "fase": "antes",
+    "viewportHeight": 1200,
+    "gap": 162,
+    "diariasH": 692.578125
+  },
+  {
+    "fase": "final",
+    "viewportHeight": 900,
+    "gap": 22.375,
+    "diariasH": 238.28125
+  },
+  {
+    "fase": "final",
+    "viewportHeight": 1000,
+    "gap": 22.375,
+    "diariasH": 238.28125
+  },
+  {
+    "fase": "final",
+    "viewportHeight": 1200,
+    "gap": 22.375,
+    "diariasH": 238.28125
+  }
+]

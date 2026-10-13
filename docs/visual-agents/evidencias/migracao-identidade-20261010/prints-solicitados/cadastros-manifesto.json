@@ -1,0 +1,236 @@
+[
+  {
+    "titulo": "Cadastro rápido · servidor",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-servidor-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar cargo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-cargo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-unidade-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastro rápido · viatura",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-viatura-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar combustível",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-combustivel-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-unidade-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastro rápido · servidor",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-servidor-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar cargo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-cargo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-unidade-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastro rápido · viatura",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-viatura-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar combustível",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-combustivel-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-unidade-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastro rápido · servidor",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-servidor-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar cargo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-cargo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-servidor-dialogo-unidade-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastro rápido · viatura",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-viatura-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar combustível",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-combustivel-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Cadastrar unidade",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "diálogo integral · sem salvar",
+    "arquivo": "cadastros-dialogo-viatura-dialogo-unidade-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  }
+]

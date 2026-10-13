@@ -1,0 +1,16 @@
+[
+  {
+    "width": 360,
+    "antes": 0,
+    "depois": 18,
+    "headerFooterEstaveis": true,
+    "escapeFecha": true
+  },
+  {
+    "width": 1440,
+    "antes": 0,
+    "depois": 49,
+    "headerFooterEstaveis": true,
+    "escapeFecha": true
+  }
+]

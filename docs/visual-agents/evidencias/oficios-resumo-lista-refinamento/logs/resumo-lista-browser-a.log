@@ -1,0 +1,239 @@
+...........FF.......FFF.....                                             [100%]
+================================== FAILURES ===================================
+_______________ test_polling_real_pronta_v2_atualiza_acoes[360] _______________
+
+logado = <Page url='http://localhost:50181/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 443, 'oficio_rascunho': 444, 'oficio_vazio': 445, 'oficio_cancelado': 446, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_polling_real_pronta_v2_atualiza_acoes(
+            logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        oficio, anterior, atual = _versoes(dados_e2e)
+        janela, _ = _abrir(pg, oficio)
+        rodape = janela.locator("#resumo-rodape")
+        expect(rodape).to_contain_text("PDF v2 em geração")
+        expect(rodape.get_by_text("Ver minuta", exact=True)).to_have_count(0)
+        expect(rodape.get_by_text("Ver o PDF", exact=True)).to_have_count(0)
+        expect(rodape.get_by_text("Baixar em Word", exact=True)).to_have_count(0)
+        # A janela mostra só a emissão corrente (decisão de produto, 08/10/2026): a v1 continua
+        # guardada, mas não aparece aqui — nem como link para baixar.
+        expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
+        expect(janela.locator(f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
+>           .to_have_count(0)
+             ^^^^^^^^^^^^^^^^
+E       AssertionError: Locator expected to have count '0'
+E       Actual value: 1 
+E       Call log:
+E         - Expect "to_have_count" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator("a[href=\"/viagens/documentos/93/\"]")
+E           9 × locator resolved to 1 element
+E             - unexpected value "1"
+
+tests\e2e\test_resumo_versoes_documentais.py:68: AssertionError
+______________ test_polling_real_pronta_v2_atualiza_acoes[1440] _______________
+
+logado = <Page url='http://localhost:50181/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 448, 'oficio_rascunho': 449, 'oficio_vazio': 450, 'oficio_cancelado': 451, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_polling_real_pronta_v2_atualiza_acoes(
+            logado, dados_e2e, largura):
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        oficio, anterior, atual = _versoes(dados_e2e)
+        janela, _ = _abrir(pg, oficio)
+        rodape = janela.locator("#resumo-rodape")
+        expect(rodape).to_contain_text("PDF v2 em geração")
+        expect(rodape.get_by_text("Ver minuta", exact=True)).to_have_count(0)
+        expect(rodape.get_by_text("Ver o PDF", exact=True)).to_have_count(0)
+        expect(rodape.get_by_text("Baixar em Word", exact=True)).to_have_count(0)
+        # A janela mostra só a emissão corrente (decisão de produto, 08/10/2026): a v1 continua
+        # guardada, mas não aparece aqui — nem como link para baixar.
+        expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
+        expect(janela.locator(f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')) \
+>           .to_have_count(0)
+             ^^^^^^^^^^^^^^^^
+E       AssertionError: Locator expected to have count '0'
+E       Actual value: 1 
+E       Call log:
+E         - Expect "to_have_count" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator("a[href=\"/viagens/documentos/95/\"]")
+E           9 × locator resolved to 1 element
+E             - unexpected value "1"
+
+tests\e2e\test_resumo_versoes_documentais.py:68: AssertionError
+_______ test_reaberto_preserva_minuta_e_documentos_assinados_historicos _______
+
+logado = <Page url='http://localhost:50181/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 488, 'oficio_rascunho': 489, 'oficio_vazio': 490, 'oficio_cancelado': 491, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_reaberto_preserva_minuta_e_documentos_assinados_historicos(logado, dados_e2e):
+        pg = logado
+        oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)
+        via = ViaAssinada.objects.create(
+            oficio=oficio, tipo="oficio", documento=atual, arquivo="assinados/rs02.pdf",
+            sha256="c" * 64, tamanho=10, enviado_por=dados_e2e.usuarios["operador"])
+        services.reabrir(oficio, dados_e2e.usuarios["gestor"], "Revisar o destino.")
+        oficio.refresh_from_db()
+        janela, _ = _abrir(pg, oficio)
+        expect(janela.locator("[data-resumo-poll]")).to_have_count(0)
+        expect(janela.locator("#resumo-rodape")).to_contain_text("Ver minuta")
+        expect(janela.locator("#resumo-rodape")).not_to_contain_text("Ver o PDF")
+        expect(janela.locator('[aria-label="Documentos históricos"]')).to_have_count(0)
+        expect(janela.locator(f'a[href="{reverse("viagens:abrir_via_assinada", args=[via.pk])}"]')) \
+>           .to_have_count(0)
+             ^^^^^^^^^^^^^^^^
+E       AssertionError: Locator expected to have count '0'
+E       Actual value: 1 
+E       Call log:
+E         - Expect "to_have_count" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator("a[href=\"/viagens/assinados/via/6/\"]")
+E           9 × locator resolved to 1 element
+E             - unexpected value "1"
+
+tests\e2e\test_resumo_versoes_documentais.py:265: AssertionError
+_ test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id] _
+
+logado = <Page url='http://localhost:50181/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 493, 'oficio_rascunho': 494, 'oficio_vazio': 495, 'oficio_cancelado': 496, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+alvo = 'word_com_id'
+
+    @pytest.mark.parametrize("alvo", ["word_com_id", "item_sem_id"])
+    def test_polling_justificativa_preserva_foco_operavel_em_mais_acoes(
+            logado, dados_e2e, alvo):
+        pg = logado
+        oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)
+        snapshot = deepcopy(atual.dados)
+        snapshot["justificativa"] = "Convite tardio registrado na emissão v2."
+        Documento.objects.filter(pk=atual.pk).update(dados=snapshot)
+        justificativa = Documento.objects.create(
+            oficio=oficio, tipo="justificativa", versao=1, situacao="gerando",
+            dados=snapshot, arquivo="documentos/rs02-justificativa-v1.pdf",
+            emitido_por=dados_e2e.usuarios["operador"])
+        janela, _ = _abrir(pg, oficio)
+        expect(janela.locator("[data-resumo-poll]")).to_have_count(1)
+        rodape = janela.locator("#resumo-rodape")
+        gatilho = rodape.locator(f"#resumo-mais-acoes-{oficio.pk}")
+        gatilho.click()
+        expect(gatilho).to_have_attribute("aria-expanded", "true")
+        word = rodape.locator(f"#resumo-word-{oficio.pk}")
+        expect(word).to_be_visible()
+        item = (word if alvo == "word_com_id" else rodape.locator(
+            '[role="menuitem"]:not([id]):not([aria-disabled="true"])').first)
+        if alvo == "item_sem_id":
+            assert not item.get_attribute("id")
+        item.focus()
+        expect(item).to_be_focused()
+        Documento.objects.filter(pk=justificativa.pk).update(
+            situacao="pronto", sha256="d" * 64)
+        # A conclusão vem do GET HTMX real; nenhuma resposta/ação OOB é simulada.
+        expect(janela.locator("[data-resumo-poll]")).to_have_count(0, timeout=10000)
+        pg.wait_for_function("""id => {
+          const foco = document.activeElement;
+          const gatilho = document.getElementById(id);
+          if (!(foco instanceof HTMLElement) || !gatilho || !foco.isConnected
+              || !foco.getClientRects().length || getComputedStyle(foco).visibility === 'hidden') {
+            return false;
+          }
+          if (foco === gatilho) return gatilho.getAttribute('aria-expanded') === 'false';
+          const painel = foco.closest('[role="menu"]');
+          return painel && gatilho.getAttribute('aria-expanded') === 'true'
+            && gatilho.getAttribute('aria-controls') === painel.id;
+        }""", arg=f"resumo-mais-acoes-{oficio.pk}", timeout=10000)
+        if gatilho.get_attribute("aria-expanded") == "true":
+            pg.keyboard.press("Escape")
+        expect(gatilho).to_be_focused()
+        gatilho.press("Enter")
+        expect(word).to_be_visible()
+>       expect(word).to_be_focused()
+E       AssertionError: Locator expected to be focused
+E       Actual value: inactive 
+E       Call log:
+E         - Expect "to_be_focused" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator("#resumo-rodape").locator("#resumo-word-493")
+E           9 × locator resolved to <a download="" role="menuitem" id="resumo-word-493" aria-describedby="r493-wd" class="menu__item menu__item--descrito" href="/viagens/oficios/493/documento/oficio.docx">…</a>
+E             - unexpected value "inactive"
+
+tests\e2e\test_resumo_versoes_documentais.py:318: AssertionError
+_ test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id] _
+
+logado = <Page url='http://localhost:50181/viagens/oficios/?q=01/2026&escopo=numero'>
+dados_e2e = Cenario(ids={'oficio_emitido': 498, 'oficio_rascunho': 499, 'oficio_vazio': 500, 'oficio_cancelado': 501, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+alvo = 'item_sem_id'
+
+    @pytest.mark.parametrize("alvo", ["word_com_id", "item_sem_id"])
+    def test_polling_justificativa_preserva_foco_operavel_em_mais_acoes(
+            logado, dados_e2e, alvo):
+        pg = logado
+        oficio, _, atual = _versoes(dados_e2e, historico_gerando=True)
+        snapshot = deepcopy(atual.dados)
+        snapshot["justificativa"] = "Convite tardio registrado na emissão v2."
+        Documento.objects.filter(pk=atual.pk).update(dados=snapshot)
+        justificativa = Documento.objects.create(
+            oficio=oficio, tipo="justificativa", versao=1, situacao="gerando",
+            dados=snapshot, arquivo="documentos/rs02-justificativa-v1.pdf",
+            emitido_por=dados_e2e.usuarios["operador"])
+        janela, _ = _abrir(pg, oficio)
+        expect(janela.locator("[data-resumo-poll]")).to_have_count(1)
+        rodape = janela.locator("#resumo-rodape")
+        gatilho = rodape.locator(f"#resumo-mais-acoes-{oficio.pk}")
+        gatilho.click()
+        expect(gatilho).to_have_attribute("aria-expanded", "true")
+        word = rodape.locator(f"#resumo-word-{oficio.pk}")
+        expect(word).to_be_visible()
+        item = (word if alvo == "word_com_id" else rodape.locator(
+            '[role="menuitem"]:not([id]):not([aria-disabled="true"])').first)
+        if alvo == "item_sem_id":
+            assert not item.get_attribute("id")
+        item.focus()
+        expect(item).to_be_focused()
+        Documento.objects.filter(pk=justificativa.pk).update(
+            situacao="pronto", sha256="d" * 64)
+        # A conclusão vem do GET HTMX real; nenhuma resposta/ação OOB é simulada.
+        expect(janela.locator("[data-resumo-poll]")).to_have_count(0, timeout=10000)
+        pg.wait_for_function("""id => {
+          const foco = document.activeElement;
+          const gatilho = document.getElementById(id);
+          if (!(foco instanceof HTMLElement) || !gatilho || !foco.isConnected
+              || !foco.getClientRects().length || getComputedStyle(foco).visibility === 'hidden') {
+            return false;
+          }
+          if (foco === gatilho) return gatilho.getAttribute('aria-expanded') === 'false';
+          const painel = foco.closest('[role="menu"]');
+          return painel && gatilho.getAttribute('aria-expanded') === 'true'
+            && gatilho.getAttribute('aria-controls') === painel.id;
+        }""", arg=f"resumo-mais-acoes-{oficio.pk}", timeout=10000)
+        if gatilho.get_attribute("aria-expanded") == "true":
+            pg.keyboard.press("Escape")
+        expect(gatilho).to_be_focused()
+        gatilho.press("Enter")
+        expect(word).to_be_visible()
+>       expect(word).to_be_focused()
+E       AssertionError: Locator expected to be focused
+E       Actual value: inactive 
+E       Call log:
+E         - Expect "to_be_focused" with timeout 5000ms
+E         - waiting for locator("#dialogo-resumo").locator("#resumo-rodape").locator("#resumo-word-498")
+E           9 × locator resolved to <a download="" role="menuitem" id="resumo-word-498" aria-describedby="r498-wd" class="menu__item menu__item--descrito" href="/viagens/oficios/498/documento/oficio.docx">…</a>
+E             - unexpected value "inactive"
+
+tests\e2e\test_resumo_versoes_documentais.py:318: AssertionError
+============================== warnings summary ===============================
+tests/e2e/test_resumo_visual.py::test_historico_secundario_preserva_corrente_e_devolve_foco[360]
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes[360]
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes[1440]
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_reaberto_preserva_minuta_e_documentos_assinados_historicos
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id]
+FAILED tests/e2e/test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id]
+5 failed, 23 passed, 1 warning in 903.55s (0:15:03)

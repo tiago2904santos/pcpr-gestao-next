@@ -1,0 +1,217 @@
+......F..FFFFF.......................................................... [ 62%]
+...........................................                              [100%]
+================================== FAILURES ===================================
+____________ test_get_com_copia_nao_escreve_negocio[resumo-False] _____________
+
+client = <django.test.client.Client object at 0x00000240ABD9A430>
+cenario = Cenario(ids={'oficio_emitido': 106, 'oficio_rascunho': 107, 'oficio_vazio': 108, 'oficio_cancelado': 109, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+rota = 'resumo', revisar = False
+
+    @pytest.mark.parametrize("rota,revisar", [("resumo", False), ("editar", False), ("editar", True)])
+    def test_get_com_copia_nao_escreve_negocio(client, cenario, rota, revisar):
+        client.force_login(cenario.usuarios["operador"])
+        pk = cenario.ids["oficio_rascunho"]
+        antes = Oficio.objects.filter(pk=pk).values().get()
+        historico = Historico.objects.filter(oficio_id=pk).count()
+        documentos = list(Documento.objects.filter(oficio_id=pk).values())
+        outbox = MensagemOutbox.objects.count()
+        resposta = client.get(reverse(f"viagens:{rota}", args=[pk]),
+                              {"revisar": "1"} if revisar else {})
+        assert resposta.status_code == 200
+>       assert "data-dados-eprotocolo" in resposta.content.decode()
+E       assert 'data-dados-eprotocolo' in '\n\n\n\n<header class="registro-hero">\n  <div class="registro-hero__identidade">\n<div class="identidade-documental"...true" focusable="false"><use href="/static/icons/sprite.svg#i-pencil"></use></svg>Abrir o ofício</a>\n  \n</div>\n\n\n'
+E        +  where '\n\n\n\n<header class="registro-hero">\n  <div class="registro-hero__identidade">\n<div class="identidade-documental"...true" focusable="false"><use href="/static/icons/sprite.svg#i-pencil"></use></svg>Abrir o ofício</a>\n  \n</div>\n\n\n' = <built-in method decode of bytes object at 0x00000240AB54C8E0>()
+E        +    where <built-in method decode of bytes object at 0x00000240AB54C8E0> = b'\n\n\n\n<header class="registro-hero">\n  <div class="registro-hero__identidade">\n<div class="identidade-documental...ocusable="false"><use href="/static/icons/sprite.svg#i-pencil"></use></svg>Abrir o of\xc3\xadcio</a>\n  \n</div>\n\n\n'.decode
+E        +      where b'\n\n\n\n<header class="registro-hero">\n  <div class="registro-hero__identidade">\n<div class="identidade-documental...ocusable="false"><use href="/static/icons/sprite.svg#i-pencil"></use></svg>Abrir o of\xc3\xadcio</a>\n  \n</div>\n\n\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+gestao\viagens\tests\test_eprotocolo_http.py:110: AssertionError
+_____________ test_emitido_copia_snapshot_apos_renomear_cadastros _____________
+
+client = <django.test.client.Client object at 0x00000240AD634230>
+cenario = Cenario(ids={'oficio_emitido': 121, 'oficio_rascunho': 122, 'oficio_vazio': 123, 'oficio_cancelado': 124, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_emitido_copia_snapshot_apos_renomear_cadastros(client, cenario):
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        documento = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+        snapshot = deepcopy(documento.dados)
+        antes = client.get(reverse("viagens:resumo", args=[oficio.pk])).context["copia"].dados
+        for servidor in Servidor.objects.filter(viagens__oficio=oficio):
+            Servidor.objects.filter(pk=servidor.pk).update(
+                nome=f"Nome atual após emissão {servidor.pk}")
+        destinos = oficio.trechos.exclude(destino_id=oficio.sede_id).values("destino_id")
+        Municipio.objects.filter(pk__in=destinos).update(nome="Destino atual após emissão")
+        resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
+        assert resposta.status_code == 200
+        assert resposta.context["copia"].dados == antes
+>       bloco = _bloco(resposta)
+                ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=200, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+________ test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[gerando] _________
+
+client = <django.test.client.Client object at 0x00000240AD637890>
+cenario = Cenario(ids={'oficio_emitido': 126, 'oficio_rascunho': 127, 'oficio_vazio': 128, 'oficio_cancelado': 129, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+situacao = Documento.Situacao.GERANDO
+
+    @pytest.mark.parametrize("situacao", [Documento.Situacao.GERANDO, Documento.Situacao.FALHOU])
+    def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situacao):
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        anterior = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+        Documento.objects.filter(pk=anterior.pk).update(situacao="pronto", sha256="a" * 64)
+        snapshot = deepcopy(anterior.dados)
+        snapshot["motivo"] = "Motivo da segunda emissão"
+        atual = Documento.objects.create(
+            oficio=oficio, tipo="oficio", versao=2, situacao=situacao,
+            dados=snapshot, emitido_por=cenario.usuarios["operador"],
+            erro="Falha de geração" if situacao == Documento.Situacao.FALHOU else "")
+        resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
+        copia = resposta.context["copia"]
+        assert copia.versao == atual.versao == 2
+        assert copia.situacao_documento == situacao
+        assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
+>       assert "Dados da emissão v2" in _bloco(resposta)
+                                        ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=200, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+_________ test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[falhou] _________
+
+client = <django.test.client.Client object at 0x00000240AD8FA850>
+cenario = Cenario(ids={'oficio_emitido': 131, 'oficio_rascunho': 132, 'oficio_vazio': 133, 'oficio_cancelado': 134, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+situacao = Documento.Situacao.FALHOU
+
+    @pytest.mark.parametrize("situacao", [Documento.Situacao.GERANDO, Documento.Situacao.FALHOU])
+    def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situacao):
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
+        anterior = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
+        Documento.objects.filter(pk=anterior.pk).update(situacao="pronto", sha256="a" * 64)
+        snapshot = deepcopy(anterior.dados)
+        snapshot["motivo"] = "Motivo da segunda emissão"
+        atual = Documento.objects.create(
+            oficio=oficio, tipo="oficio", versao=2, situacao=situacao,
+            dados=snapshot, emitido_por=cenario.usuarios["operador"],
+            erro="Falha de geração" if situacao == Documento.Situacao.FALHOU else "")
+        resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
+        copia = resposta.context["copia"]
+        assert copia.versao == atual.versao == 2
+        assert copia.situacao_documento == situacao
+        assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
+>       assert "Dados da emissão v2" in _bloco(resposta)
+                                        ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=200, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+__________ test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos __________
+
+client = <django.test.client.Client object at 0x00000240AD8FB570>
+cenario = Cenario(ids={'oficio_emitido': 136, 'oficio_rascunho': 137, 'oficio_vazio': 138, 'oficio_cancelado': 139, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos(client, cenario):
+        client.force_login(cenario.usuarios["operador"])
+        pk = cenario.ids["oficio_emitido"]
+        Documento.objects.filter(oficio_id=pk).update(dados={})
+        resposta = client.get(reverse("viagens:resumo", args=[pk]))
+        assert resposta.status_code == 200
+        assert not resposta.context["copia"].disponivel
+>       assert "Os dados desta emissão estão indisponíveis" in _bloco(resposta)
+                                                               ^^^^^^^^^^^^^^^^
+
+gestao\viagens\tests\test_eprotocolo_http.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resposta = <HttpResponse status_code=200, "text/html; charset=utf-8">
+
+    def _bloco(resposta):
+        encontrado = re.search(
+            r"<details[^>]*data-dados-eprotocolo.*?</details>", resposta.content.decode(), re.S)
+>       assert encontrado is not None
+E       assert None is not None
+
+gestao\viagens\tests\test_eprotocolo_http.py:51: AssertionError
+____________ test_revisao_copia_assunto_da_data_efetiva_sem_gravar ____________
+
+client = <django.test.client.Client object at 0x00000240AD8FBCF0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000240AD8A24C0>
+
+    def test_revisao_copia_assunto_da_data_efetiva_sem_gravar(client, monkeypatch):
+        referencia = date(2026, 10, 7)
+        localdate_real = timezone.localdate
+    
+        def dia_local(value=None, timezone=None):
+            return referencia if value is None else localdate_real(value, timezone)
+    
+        monkeypatch.setattr(timezone, "localdate", dia_local)
+        cenario = cenario_completo(hoje=referencia)
+        client.force_login(cenario.usuarios["operador"])
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        original = referencia - timedelta(days=2)
+        Oficio.objects.filter(pk=oficio.pk).update(data_oficio=original, data_oficio_manual=False)
+        for trecho in oficio.trechos.all():
+            Trecho.objects.filter(pk=trecho.pk).update(
+                saida_em=trecho.saida_em - timedelta(days=3),
+                chegada_em=trecho.chegada_em - timedelta(days=3))
+        resposta = client.get(reverse("viagens:editar", args=[oficio.pk]), {"revisar": "1"})
+        assert resposta.status_code == 200
+        folha = _campos(resposta.context["copia"])
+        revisao = _campos(resposta.context["resumo"]["copia"])
+        assert "autorização" in folha["Assunto"]
+        assert "convalidação" in revisao["Assunto"]
+        html = resposta.content.decode()
+        assert 'id="eprotocolo-folha-1"' in html
+        assert 'id="eprotocolo-resumo-1"' not in html
+>       assert "Dados para a emissão revisada" in html
+E       assert 'Dados para a emissão revisada' in '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n'
+
+gestao\viagens\tests\test_eprotocolo_http.py:200: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-09 22:23:52,630 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/oficios/142/editar/: 26 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/oficios/142/editar/: 26 consultas (limite 25)
+============================== warnings summary ===============================
+gestao/viagens/tests/test_editor.py::TestVisoesDoEditor::test_original_paginas_presenca_e_textos
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_get_com_copia_nao_escreve_negocio[resumo-False]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_emitido_copia_snapshot_apos_renomear_cadastros
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[gerando]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto[falhou]
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos
+FAILED gestao/viagens/tests/test_eprotocolo_http.py::test_revisao_copia_assunto_da_data_efetiva_sem_gravar
+6 failed, 109 passed, 1 warning in 1112.95s (0:18:32)

@@ -1,0 +1,209 @@
+EEEEE                                                                    [100%]
+=================================== ERRORS ====================================
+______ ERROR at setup of test_polling_real_pronta_v2_atualiza_acoes[360] ______
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\resumo-lista-refinamento-baseline\tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+var\resumo-lista-refinamento-baseline\gestao\viagens\tests\cenarios.py:68: in cenario_completo
+    garantir_municipios()
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:31: in garantir_municipios
+    coords = coordenadas() if com_coordenadas else {}
+             ^^^^^^^^^^^^^
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:19: in coordenadas
+    with CSV_COORDENADAS.open(encoding="utf-8") as arquivo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/tiago/OneDrive/Documentos/pcpr-gestao-next/var/resumo-lista-refinamento-baseline/gestao/cadastros/dados/municipios_coordenadas.csv')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\var\\resumo-lista-refinamento-baseline\\gestao\\cadastros\\dados\\municipios_coordenadas.csv'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:537: FileNotFoundError
+_____ ERROR at setup of test_polling_real_pronta_v2_atualiza_acoes[1440] ______
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\resumo-lista-refinamento-baseline\tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+var\resumo-lista-refinamento-baseline\gestao\viagens\tests\cenarios.py:68: in cenario_completo
+    garantir_municipios()
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:31: in garantir_municipios
+    coords = coordenadas() if com_coordenadas else {}
+             ^^^^^^^^^^^^^
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:19: in coordenadas
+    with CSV_COORDENADAS.open(encoding="utf-8") as arquivo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/tiago/OneDrive/Documentos/pcpr-gestao-next/var/resumo-lista-refinamento-baseline/gestao/cadastros/dados/municipios_coordenadas.csv')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\var\\resumo-lista-refinamento-baseline\\gestao\\cadastros\\dados\\municipios_coordenadas.csv'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:537: FileNotFoundError
+_ ERROR at setup of test_reaberto_preserva_minuta_e_documentos_assinados_historicos _
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\resumo-lista-refinamento-baseline\tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+var\resumo-lista-refinamento-baseline\gestao\viagens\tests\cenarios.py:68: in cenario_completo
+    garantir_municipios()
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:31: in garantir_municipios
+    coords = coordenadas() if com_coordenadas else {}
+             ^^^^^^^^^^^^^
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:19: in coordenadas
+    with CSV_COORDENADAS.open(encoding="utf-8") as arquivo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/tiago/OneDrive/Documentos/pcpr-gestao-next/var/resumo-lista-refinamento-baseline/gestao/cadastros/dados/municipios_coordenadas.csv')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\var\\resumo-lista-refinamento-baseline\\gestao\\cadastros\\dados\\municipios_coordenadas.csv'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:537: FileNotFoundError
+_ ERROR at setup of test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id] _
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\resumo-lista-refinamento-baseline\tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+var\resumo-lista-refinamento-baseline\gestao\viagens\tests\cenarios.py:68: in cenario_completo
+    garantir_municipios()
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:31: in garantir_municipios
+    coords = coordenadas() if com_coordenadas else {}
+             ^^^^^^^^^^^^^
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:19: in coordenadas
+    with CSV_COORDENADAS.open(encoding="utf-8") as arquivo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/tiago/OneDrive/Documentos/pcpr-gestao-next/var/resumo-lista-refinamento-baseline/gestao/cadastros/dados/municipios_coordenadas.csv')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\var\\resumo-lista-refinamento-baseline\\gestao\\cadastros\\dados\\municipios_coordenadas.csv'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:537: FileNotFoundError
+_ ERROR at setup of test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id] _
+
+transactional_db = None
+
+    @pytest.fixture
+    def dados_e2e(transactional_db):
+        """Cenário fictício completo (usuários, cadastros, ofícios em vários estados)."""
+        from gestao.viagens.tests.cenarios import cenario_completo
+    
+>       return cenario_completo(senha=SENHA)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+var\resumo-lista-refinamento-baseline\tests\e2e\conftest.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+var\resumo-lista-refinamento-baseline\gestao\viagens\tests\cenarios.py:68: in cenario_completo
+    garantir_municipios()
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:31: in garantir_municipios
+    coords = coordenadas() if com_coordenadas else {}
+             ^^^^^^^^^^^^^
+var\resumo-lista-refinamento-baseline\gestao\cadastros\carga.py:19: in coordenadas
+    with CSV_COORDENADAS.open(encoding="utf-8") as arquivo:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/tiago/OneDrive/Documentos/pcpr-gestao-next/var/resumo-lista-refinamento-baseline/gestao/cadastros/dados/municipios_coordenadas.csv')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\tiago\\OneDrive\\Documentos\\pcpr-gestao-next\\var\\resumo-lista-refinamento-baseline\\gestao\\cadastros\\dados\\municipios_coordenadas.csv'
+
+..\..\..\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\pathlib\_local.py:537: FileNotFoundError
+=========================== short test summary info ===========================
+ERROR var\resumo-lista-refinamento-baseline\tests\e2e\test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes[360]
+ERROR var\resumo-lista-refinamento-baseline\tests\e2e\test_resumo_versoes_documentais.py::test_polling_real_pronta_v2_atualiza_acoes[1440]
+ERROR var\resumo-lista-refinamento-baseline\tests\e2e\test_resumo_versoes_documentais.py::test_reaberto_preserva_minuta_e_documentos_assinados_historicos
+ERROR var\resumo-lista-refinamento-baseline\tests\e2e\test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[word_com_id]
+ERROR var\resumo-lista-refinamento-baseline\tests\e2e\test_resumo_versoes_documentais.py::test_polling_justificativa_preserva_foco_operavel_em_mais_acoes[item_sem_id]
+7 deselected, 5 errors in 217.04s (0:03:37)

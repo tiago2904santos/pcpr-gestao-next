@@ -1,0 +1,214 @@
+2026-10-12 23:26:00,465 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+.2026-10-12 23:26:20,195 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+.2026-10-12 23:26:40,137 WARNING django.request Unprocessable Content: /cadastros/configuracao/
+.FFF                                                                   [100%]
+================================== FAILURES ===================================
+____________ test_configuracao_ausente_e_usuario_sem_unidade[360] _____________
+
+pagina = <Page url='about:blank'>, largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_configuracao_ausente_e_usuario_sem_unidade(pagina, largura):
+        nova = Unidade.objects.create(nome="Unidade sintética sem configuração", sigla="NOVA")
+>       Lotacao.objects.filter(usuario__username="gestor").update(unidade=nova)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_configuracao_identidade.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1701: in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1719: in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+.venv\Lib\site-packages\django\db\models\query.py:1729: in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+.venv\Lib\site-packages\django\db\models\sql\query.py:1680: in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1712: in _add_q
+    child_clause, needed_inner = self.build_filter(
+.venv\Lib\site-packages\django\db\models\sql\query.py:1612: in build_filter
+    condition = self.build_lookup(lookups, col, value)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1433: in build_lookup
+    lhs = self.try_transform(lhs, lookup_name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.models.sql.query.Query object at 0x0000020369DCF610>
+lhs = Col(cadastros_lotacao, cadastros.Lotacao.usuario), name = 'username'
+lookups = None
+
+    def try_transform(self, lhs, name, lookups=None):
+        """
+        Helper method for build_lookup(). Try to fetch and initialize
+        a transform for name parameter from lhs.
+        """
+        transform_class = lhs.get_transform(name)
+        if transform_class:
+            return transform_class(lhs)
+        else:
+            output_field = lhs.output_field.__class__
+            suggested_lookups = difflib.get_close_matches(
+                name, lhs.output_field.get_lookups()
+            )
+            if suggested_lookups:
+                suggestion = ", perhaps you meant %s?" % " or ".join(suggested_lookups)
+            else:
+                suggestion = "."
+            if lookups is not None:
+                name_index = lookups.index(name)
+                unsupported_lookup = LOOKUP_SEP.join(lookups[name_index:])
+            else:
+                unsupported_lookup = name
+>           raise FieldError(
+                "Unsupported lookup '%s' for %s or join on the field not "
+                "permitted%s" % (unsupported_lookup, output_field.__name__, suggestion)
+            )
+E           django.core.exceptions.FieldError: Unsupported lookup 'username' for OneToOneField or join on the field not permitted.
+
+.venv\Lib\site-packages\django\db\models\sql\query.py:1482: FieldError
+____________ test_configuracao_ausente_e_usuario_sem_unidade[768] _____________
+
+pagina = <Page url='about:blank'>, largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_configuracao_ausente_e_usuario_sem_unidade(pagina, largura):
+        nova = Unidade.objects.create(nome="Unidade sintética sem configuração", sigla="NOVA")
+>       Lotacao.objects.filter(usuario__username="gestor").update(unidade=nova)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_configuracao_identidade.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1701: in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1719: in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+.venv\Lib\site-packages\django\db\models\query.py:1729: in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+.venv\Lib\site-packages\django\db\models\sql\query.py:1680: in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1712: in _add_q
+    child_clause, needed_inner = self.build_filter(
+.venv\Lib\site-packages\django\db\models\sql\query.py:1612: in build_filter
+    condition = self.build_lookup(lookups, col, value)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1433: in build_lookup
+    lhs = self.try_transform(lhs, lookup_name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.models.sql.query.Query object at 0x0000020368C90D70>
+lhs = Col(cadastros_lotacao, cadastros.Lotacao.usuario), name = 'username'
+lookups = None
+
+    def try_transform(self, lhs, name, lookups=None):
+        """
+        Helper method for build_lookup(). Try to fetch and initialize
+        a transform for name parameter from lhs.
+        """
+        transform_class = lhs.get_transform(name)
+        if transform_class:
+            return transform_class(lhs)
+        else:
+            output_field = lhs.output_field.__class__
+            suggested_lookups = difflib.get_close_matches(
+                name, lhs.output_field.get_lookups()
+            )
+            if suggested_lookups:
+                suggestion = ", perhaps you meant %s?" % " or ".join(suggested_lookups)
+            else:
+                suggestion = "."
+            if lookups is not None:
+                name_index = lookups.index(name)
+                unsupported_lookup = LOOKUP_SEP.join(lookups[name_index:])
+            else:
+                unsupported_lookup = name
+>           raise FieldError(
+                "Unsupported lookup '%s' for %s or join on the field not "
+                "permitted%s" % (unsupported_lookup, output_field.__name__, suggestion)
+            )
+E           django.core.exceptions.FieldError: Unsupported lookup 'username' for OneToOneField or join on the field not permitted.
+
+.venv\Lib\site-packages\django\db\models\sql\query.py:1482: FieldError
+____________ test_configuracao_ausente_e_usuario_sem_unidade[1440] ____________
+
+pagina = <Page url='about:blank'>, largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_configuracao_ausente_e_usuario_sem_unidade(pagina, largura):
+        nova = Unidade.objects.create(nome="Unidade sintética sem configuração", sigla="NOVA")
+>       Lotacao.objects.filter(usuario__username="gestor").update(unidade=nova)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\e2e\test_configuracao_identidade.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\django\db\models\manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1701: in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\query.py:1719: in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+.venv\Lib\site-packages\django\db\models\query.py:1729: in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+.venv\Lib\site-packages\django\db\models\sql\query.py:1680: in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1712: in _add_q
+    child_clause, needed_inner = self.build_filter(
+.venv\Lib\site-packages\django\db\models\sql\query.py:1612: in build_filter
+    condition = self.build_lookup(lookups, col, value)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\django\db\models\sql\query.py:1433: in build_lookup
+    lhs = self.try_transform(lhs, lookup_name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.models.sql.query.Query object at 0x000002036A28C9B0>
+lhs = Col(cadastros_lotacao, cadastros.Lotacao.usuario), name = 'username'
+lookups = None
+
+    def try_transform(self, lhs, name, lookups=None):
+        """
+        Helper method for build_lookup(). Try to fetch and initialize
+        a transform for name parameter from lhs.
+        """
+        transform_class = lhs.get_transform(name)
+        if transform_class:
+            return transform_class(lhs)
+        else:
+            output_field = lhs.output_field.__class__
+            suggested_lookups = difflib.get_close_matches(
+                name, lhs.output_field.get_lookups()
+            )
+            if suggested_lookups:
+                suggestion = ", perhaps you meant %s?" % " or ".join(suggested_lookups)
+            else:
+                suggestion = "."
+            if lookups is not None:
+                name_index = lookups.index(name)
+                unsupported_lookup = LOOKUP_SEP.join(lookups[name_index:])
+            else:
+                unsupported_lookup = name
+>           raise FieldError(
+                "Unsupported lookup '%s' for %s or join on the field not "
+                "permitted%s" % (unsupported_lookup, output_field.__name__, suggestion)
+            )
+E           django.core.exceptions.FieldError: Unsupported lookup 'username' for OneToOneField or join on the field not permitted.
+
+.venv\Lib\site-packages\django\db\models\sql\query.py:1482: FieldError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_configuracao_identidade.py::test_configuracao_ausente_e_usuario_sem_unidade[360]
+FAILED tests/e2e/test_configuracao_identidade.py::test_configuracao_ausente_e_usuario_sem_unidade[768]
+FAILED tests/e2e/test_configuracao_identidade.py::test_configuracao_ausente_e_usuario_sem_unidade[1440]
+3 failed, 3 passed in 117.22s (0:01:57)

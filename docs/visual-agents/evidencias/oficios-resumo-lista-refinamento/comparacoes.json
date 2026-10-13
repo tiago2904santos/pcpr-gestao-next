@@ -1,0 +1,260 @@
+[
+  [
+    "Resumo — causa do espaço vazio",
+    1440,
+    "antes-resumo-altura-1200.png",
+    "final-resumo-altura-1200.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    360,
+    "antes-resumo-viewport-360.png",
+    "final-resumo-viewport-360.png"
+  ],
+  [
+    "Lista — vazia",
+    360,
+    "antes-lista-zero-360.png",
+    "final-lista-zero-360.png"
+  ],
+  [
+    "Lista — um registro",
+    360,
+    "antes-lista-um-360.png",
+    "final-lista-um-360.png"
+  ],
+  [
+    "Lista — três arquivados",
+    360,
+    "antes-lista-tres-360.png",
+    "final-lista-tres-360.png"
+  ],
+  [
+    "Lista — populosa",
+    360,
+    "antes-lista-muitos-360.png",
+    "final-lista-muitos-360.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    390,
+    "antes-resumo-viewport-390.png",
+    "final-resumo-viewport-390.png"
+  ],
+  [
+    "Lista — vazia",
+    390,
+    "antes-lista-zero-390.png",
+    "final-lista-zero-390.png"
+  ],
+  [
+    "Lista — um registro",
+    390,
+    "antes-lista-um-390.png",
+    "final-lista-um-390.png"
+  ],
+  [
+    "Lista — três arquivados",
+    390,
+    "antes-lista-tres-390.png",
+    "final-lista-tres-390.png"
+  ],
+  [
+    "Lista — populosa",
+    390,
+    "antes-lista-muitos-390.png",
+    "final-lista-muitos-390.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    768,
+    "antes-resumo-viewport-768.png",
+    "final-resumo-viewport-768.png"
+  ],
+  [
+    "Lista — vazia",
+    768,
+    "antes-lista-zero-768.png",
+    "final-lista-zero-768.png"
+  ],
+  [
+    "Lista — um registro",
+    768,
+    "antes-lista-um-768.png",
+    "final-lista-um-768.png"
+  ],
+  [
+    "Lista — três arquivados",
+    768,
+    "antes-lista-tres-768.png",
+    "final-lista-tres-768.png"
+  ],
+  [
+    "Lista — populosa",
+    768,
+    "antes-lista-muitos-768.png",
+    "final-lista-muitos-768.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    1024,
+    "antes-resumo-viewport-1024.png",
+    "final-resumo-viewport-1024.png"
+  ],
+  [
+    "Lista — vazia",
+    1024,
+    "antes-lista-zero-1024.png",
+    "final-lista-zero-1024.png"
+  ],
+  [
+    "Lista — um registro",
+    1024,
+    "antes-lista-um-1024.png",
+    "final-lista-um-1024.png"
+  ],
+  [
+    "Lista — três arquivados",
+    1024,
+    "antes-lista-tres-1024.png",
+    "final-lista-tres-1024.png"
+  ],
+  [
+    "Lista — populosa",
+    1024,
+    "antes-lista-muitos-1024.png",
+    "final-lista-muitos-1024.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    1440,
+    "antes-resumo-viewport-1440.png",
+    "final-resumo-viewport-1440.png"
+  ],
+  [
+    "Lista — vazia",
+    1440,
+    "antes-lista-zero-1440.png",
+    "final-lista-zero-1440.png"
+  ],
+  [
+    "Lista — um registro",
+    1440,
+    "antes-lista-um-1440.png",
+    "final-lista-um-1440.png"
+  ],
+  [
+    "Lista — três arquivados",
+    1440,
+    "antes-lista-tres-1440.png",
+    "final-lista-tres-1440.png"
+  ],
+  [
+    "Lista — populosa",
+    1440,
+    "antes-lista-muitos-1440.png",
+    "final-lista-muitos-1440.png"
+  ],
+  [
+    "Resumo — visão inicial",
+    1920,
+    "antes-resumo-viewport-1920.png",
+    "final-resumo-viewport-1920.png"
+  ],
+  [
+    "Lista — vazia",
+    1920,
+    "antes-lista-zero-1920.png",
+    "final-lista-zero-1920.png"
+  ],
+  [
+    "Lista — um registro",
+    1920,
+    "antes-lista-um-1920.png",
+    "final-lista-um-1920.png"
+  ],
+  [
+    "Lista — três arquivados",
+    1920,
+    "antes-lista-tres-1920.png",
+    "final-lista-tres-1920.png"
+  ],
+  [
+    "Lista — populosa",
+    1920,
+    "antes-lista-muitos-1920.png",
+    "final-lista-muitos-1920.png"
+  ],
+  [
+    "Resumo — dados incompletos",
+    360,
+    "antes-resumo-incompleto-360.png",
+    "final-resumo-incompleto-360.png"
+  ],
+  [
+    "Resumo — seis trechos",
+    360,
+    "antes-resumo-seis-trechos-360.png",
+    "final-resumo-seis-trechos-360.png"
+  ],
+  [
+    "Resumo — 12 servidores e valor alto",
+    360,
+    "antes-resumo-muitos-servidores-valor-alto-360.png",
+    "final-resumo-muitos-servidores-valor-alto-360.png"
+  ],
+  [
+    "Resumo — dois trechos",
+    360,
+    "antes-resumo-dois-trechos-360.png",
+    "final-resumo-dois-trechos-360.png"
+  ],
+  [
+    "Resumo — dados incompletos",
+    768,
+    "antes-resumo-incompleto-768.png",
+    "final-resumo-incompleto-768.png"
+  ],
+  [
+    "Resumo — seis trechos",
+    768,
+    "antes-resumo-seis-trechos-768.png",
+    "final-resumo-seis-trechos-768.png"
+  ],
+  [
+    "Resumo — 12 servidores e valor alto",
+    768,
+    "antes-resumo-muitos-servidores-valor-alto-768.png",
+    "final-resumo-muitos-servidores-valor-alto-768.png"
+  ],
+  [
+    "Resumo — dois trechos",
+    768,
+    "antes-resumo-dois-trechos-768.png",
+    "final-resumo-dois-trechos-768.png"
+  ],
+  [
+    "Resumo — dados incompletos",
+    1440,
+    "antes-resumo-incompleto-1440.png",
+    "final-resumo-incompleto-1440.png"
+  ],
+  [
+    "Resumo — seis trechos",
+    1440,
+    "antes-resumo-seis-trechos-1440.png",
+    "final-resumo-seis-trechos-1440.png"
+  ],
+  [
+    "Resumo — 12 servidores e valor alto",
+    1440,
+    "antes-resumo-muitos-servidores-valor-alto-1440.png",
+    "final-resumo-muitos-servidores-valor-alto-1440.png"
+  ],
+  [
+    "Resumo — dois trechos",
+    1440,
+    "antes-resumo-dois-trechos-1440.png",
+    "final-resumo-dois-trechos-1440.png"
+  ]
+]

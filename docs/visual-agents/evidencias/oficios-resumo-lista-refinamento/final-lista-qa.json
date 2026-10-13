@@ -1,0 +1,3398 @@
+[
+  {
+    "width": 360,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 360,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 360,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 360,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1024,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1920,
+    "estado": "zero",
+    "registros": 0,
+    "geometria": [],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1920,
+    "estado": "um",
+    "registros": 1,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1920,
+    "estado": "tres",
+    "registros": 3,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n03/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.498,74",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n02/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.249,37",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n01/2024",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 6.973,20",
+            "overflow": false
+          }
+        ]
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  },
+  {
+    "width": 1920,
+    "estado": "muitos",
+    "registros": 20,
+    "geometria": [
+      {
+        "numero": "OFÍCIO\n161/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.162,20",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n160/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 39 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 12.790,68",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n159/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 26 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n158/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 41 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 581,10",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n157/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 21/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 101.956,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n156/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 10 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.930,56",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n155/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 34 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.872,48",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n153/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 11 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n152/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 22 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 2.324,40",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n151/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 35 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 290,55",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n150/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 8 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 871,65",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n148/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n147/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 5 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 3.861,12",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n146/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 23 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 755,44",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n145/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "em andamento · até 17/10",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 5.811,00",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n144/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Complementar",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 8.910,24",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n143/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Convalidação",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "Justificativa pendente",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.452,75",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n142/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      },
+      {
+        "numero": "OFÍCIO\n141/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Emitido",
+            "quebra": false,
+            "overflow": false
+          },
+          {
+            "texto": "faltam 7 dias",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": [
+          {
+            "texto": "R$ 1.743,30",
+            "overflow": false
+          }
+        ]
+      },
+      {
+        "numero": "OFÍCIO\n140/2026",
+        "placaW": 115.1875,
+        "deltaCentro": 0.0078125,
+        "selos": [
+          {
+            "texto": "Rascunho",
+            "quebra": false,
+            "overflow": false
+          }
+        ],
+        "valor": []
+      }
+    ],
+    "axe": [],
+    "console": [],
+    "overflow": false
+  }
+]

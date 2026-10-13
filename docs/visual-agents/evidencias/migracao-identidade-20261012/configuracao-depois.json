@@ -1,0 +1,350 @@
+[
+  {
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": true,
+    "recursos": [
+      {
+        "name": "http://127.0.0.1:8017/static/fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48556
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/tokens.css",
+        "bytes": 13783
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/base.css",
+        "bytes": 13370
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/layout.css",
+        "bytes": 26344
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/components.css",
+        "bytes": 195891
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/formulario.css",
+        "bytes": 42569
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/listas.css",
+        "bytes": 64190
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/documento.css",
+        "bytes": 21376
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/shell.js",
+        "bytes": 3714
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/menu.js",
+        "bytes": 19712
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/dialogo.js",
+        "bytes": 14078
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/toasts.js",
+        "bytes": 4682
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/comandos.js",
+        "bytes": 6365
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/acao.js",
+        "bytes": 4869
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/vendor/htmx.min.js",
+        "bytes": 52482
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/app.js",
+        "bytes": 13958
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/img/brasao-pcpr-96.webp",
+        "bytes": 5750
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/icons/sprite.svg#i-menu",
+        "bytes": 25961
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/combobox.js",
+        "bytes": 17484
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/mascara.js",
+        "bytes": 3378
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/registro.js",
+        "bytes": 4212
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/guia.js",
+        "bytes": 5166
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-data.js",
+        "bytes": 14616
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor.js",
+        "bytes": 10128
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/limpar.js",
+        "bytes": 2456
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/painel-flutuante.js",
+        "bytes": 4137
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-base.js",
+        "bytes": 6856
+      }
+    ]
+  },
+  {
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "recursos": [
+      {
+        "name": "http://127.0.0.1:8017/static/fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48556
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/tokens.css",
+        "bytes": 13783
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/base.css",
+        "bytes": 13370
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/layout.css",
+        "bytes": 26344
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/components.css",
+        "bytes": 195891
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/formulario.css",
+        "bytes": 42569
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/listas.css",
+        "bytes": 64190
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/documento.css",
+        "bytes": 21376
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/shell.js",
+        "bytes": 3714
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/menu.js",
+        "bytes": 19712
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/dialogo.js",
+        "bytes": 14078
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/toasts.js",
+        "bytes": 4682
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/comandos.js",
+        "bytes": 6365
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/acao.js",
+        "bytes": 4869
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/vendor/htmx.min.js",
+        "bytes": 52482
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/app.js",
+        "bytes": 13958
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/img/brasao-pcpr-96.webp",
+        "bytes": 5750
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/icons/sprite.svg#i-menu",
+        "bytes": 25961
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/combobox.js",
+        "bytes": 17484
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/mascara.js",
+        "bytes": 3378
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/registro.js",
+        "bytes": 4212
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/guia.js",
+        "bytes": 5166
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-data.js",
+        "bytes": 14616
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor.js",
+        "bytes": 10128
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/limpar.js",
+        "bytes": 2456
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/painel-flutuante.js",
+        "bytes": 4137
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-base.js",
+        "bytes": 6856
+      }
+    ]
+  },
+  {
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "recursos": [
+      {
+        "name": "http://127.0.0.1:8017/static/fonts/inter-latin-wght-normal.woff2",
+        "bytes": 48556
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/tokens.css",
+        "bytes": 13783
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/base.css",
+        "bytes": 13370
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/layout.css",
+        "bytes": 26344
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/components.css",
+        "bytes": 195891
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/formulario.css",
+        "bytes": 42569
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/listas.css",
+        "bytes": 64190
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/css/documento.css",
+        "bytes": 21376
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/shell.js",
+        "bytes": 3714
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/menu.js",
+        "bytes": 19712
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/dialogo.js",
+        "bytes": 14078
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/toasts.js",
+        "bytes": 4682
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/comandos.js",
+        "bytes": 6365
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/acao.js",
+        "bytes": 4869
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/vendor/htmx.min.js",
+        "bytes": 52482
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/app.js",
+        "bytes": 13958
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/img/brasao-pcpr-96.webp",
+        "bytes": 5750
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/icons/sprite.svg#i-menu",
+        "bytes": 25961
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/combobox.js",
+        "bytes": 17484
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/mascara.js",
+        "bytes": 3378
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/registro.js",
+        "bytes": 4212
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/guia.js",
+        "bytes": 5166
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-data.js",
+        "bytes": 14616
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor.js",
+        "bytes": 10128
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/limpar.js",
+        "bytes": 2456
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/painel-flutuante.js",
+        "bytes": 4137
+      },
+      {
+        "name": "http://127.0.0.1:8017/static/js/componentes/seletor-base.js",
+        "bytes": 6856
+      }
+    ]
+  }
+]

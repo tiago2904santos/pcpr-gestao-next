@@ -1,0 +1,42 @@
+[
+  {
+    "componente": "Editor 0",
+    "largura": 768,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 1",
+    "largura": 768,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 2",
+    "largura": 768,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 3",
+    "largura": 768,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 0",
+    "largura": 1440,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 1",
+    "largura": 1440,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 2",
+    "largura": 1440,
+    "motivo": "Timeout 30000ms exceeded."
+  },
+  {
+    "componente": "Editor 3",
+    "largura": 1440,
+    "motivo": "Timeout 30000ms exceeded."
+  }
+]

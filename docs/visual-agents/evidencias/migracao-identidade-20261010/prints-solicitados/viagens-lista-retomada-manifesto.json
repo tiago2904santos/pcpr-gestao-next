@@ -1,0 +1,146 @@
+[
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "todas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-todas-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "futuras · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-futuras-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "canceladas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-canceladas-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "vazio · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-vazio-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "todas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-todas-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "futuras · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-futuras-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "canceladas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-canceladas-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "vazio · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-vazio-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "todas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-todas-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "futuras · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-futuras-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "canceladas · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-canceladas-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "vazio · 12/10/2026",
+    "arquivo": "viagens-lista-retomada-vazio-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Consulta paginada",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/?q=Consulta",
+    "estado": "antes · TEST isolado",
+    "arquivo": "viagens-consulta-antes-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Consulta paginada",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/?q=Consulta",
+    "estado": "antes · TEST isolado",
+    "arquivo": "viagens-consulta-antes-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Consulta paginada",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/?q=Consulta",
+    "estado": "depois · TEST isolado",
+    "arquivo": "viagens-consulta-depois-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Viagens · Consulta paginada",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/?q=Consulta",
+    "estado": "depois · TEST isolado",
+    "arquivo": "viagens-consulta-depois-1440.png",
+    "integral": true
+  }
+]

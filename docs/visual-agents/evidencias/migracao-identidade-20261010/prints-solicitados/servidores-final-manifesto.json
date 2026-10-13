@@ -1,0 +1,272 @@
+[
+  {
+    "titulo": "Servidores · final-editar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-editar-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-editar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-editar-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-editar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-editar-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-incompletos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-incompletos-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-incompletos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-incompletos-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-incompletos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-incompletos-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-novo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-novo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-novo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-novo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-novo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-novo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · final-sem-resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-sem-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-sem-resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-sem-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · final-sem-resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-final-sem-resultados-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Servidores · aberto-cargo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-cargo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-cargo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-cargo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-cargo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-cargo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-filtro",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-filtro-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-filtro",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-filtro-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-filtro",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-filtro-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-menu",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-menu-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-menu",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-menu-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · aberto-menu",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/servidores/",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-aberto-menu-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-lote",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-lote",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-lote-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-lote",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-lote",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-lote-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-ordem",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-ordem",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-ordem-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-ordem",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-ordem",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-ordem-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-termo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-termo",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-termo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Servidores · compat-termo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "Consumidor compartilhado · compat-termo",
+    "estado": "Candidato em validação · 12/10",
+    "arquivo": "servidores-compat-termo-360.png",
+    "integral": false
+  }
+]

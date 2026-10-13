@@ -1,0 +1,374 @@
+[
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "edicao",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "depois-diario-edicao-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "pendente",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/diario/",
+    "arquivo": "depois-diario-pendente-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "realizada-travada",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/diario/",
+    "arquivo": "depois-diario-realizada-travada-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "cinco-trechos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/199/diario/",
+    "arquivo": "depois-diario-cinco-trechos-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "edicao",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "depois-diario-edicao-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "pendente",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/diario/",
+    "arquivo": "depois-diario-pendente-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "realizada-travada",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/diario/",
+    "arquivo": "depois-diario-realizada-travada-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "cinco-trechos",
+    "largura": 390,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/199/diario/",
+    "arquivo": "depois-diario-cinco-trechos-390.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "edicao",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "depois-diario-edicao-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "pendente",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/diario/",
+    "arquivo": "depois-diario-pendente-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "realizada-travada",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/diario/",
+    "arquivo": "depois-diario-realizada-travada-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "cinco-trechos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/199/diario/",
+    "arquivo": "depois-diario-cinco-trechos-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "edicao",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "depois-diario-edicao-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "pendente",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/diario/",
+    "arquivo": "depois-diario-pendente-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "realizada-travada",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/diario/",
+    "arquivo": "depois-diario-realizada-travada-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "cinco-trechos",
+    "largura": 1024,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/199/diario/",
+    "arquivo": "depois-diario-cinco-trechos-1024.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "edicao",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "depois-diario-edicao-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "pendente",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/190/diario/",
+    "arquivo": "depois-diario-pendente-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "realizada-travada",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/201/diario/",
+    "arquivo": "depois-diario-realizada-travada-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário de Bordo",
+    "estado": "cinco-trechos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/equipe/199/diario/",
+    "arquivo": "depois-diario-cinco-trechos-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "em uso",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-20-360.png"
+  },
+  {
+    "titulo": "Diário · Viagem realizada",
+    "estado": "em uso",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-21-360.png"
+  },
+  {
+    "titulo": "Diário · Hodômetro e abastecimento",
+    "estado": "em uso",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-22-360.png"
+  },
+  {
+    "titulo": "Diário · Conferência do hodômetro",
+    "estado": "em uso",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-23-360.png"
+  },
+  {
+    "titulo": "Diário · Salvamento e ações",
+    "estado": "em uso",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-24-360.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "oficio / oficio — aberto sem salvar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-oficio-oficio-360.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "servidor / cadastro — aberto sem salvar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-servidor-cadastro-360.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "outro_oficio / manual — aberto sem salvar",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-outro_oficio-manual-360.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "em uso",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-28-768.png"
+  },
+  {
+    "titulo": "Diário · Viagem realizada",
+    "estado": "em uso",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-29-768.png"
+  },
+  {
+    "titulo": "Diário · Hodômetro e abastecimento",
+    "estado": "em uso",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-30-768.png"
+  },
+  {
+    "titulo": "Diário · Conferência do hodômetro",
+    "estado": "em uso",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-31-768.png"
+  },
+  {
+    "titulo": "Diário · Salvamento e ações",
+    "estado": "em uso",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-32-768.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "oficio / oficio — aberto sem salvar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-oficio-oficio-768.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "servidor / cadastro — aberto sem salvar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-servidor-cadastro-768.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "outro_oficio / manual — aberto sem salvar",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-outro_oficio-manual-768.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "em uso",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-36-1440.png"
+  },
+  {
+    "titulo": "Diário · Viagem realizada",
+    "estado": "em uso",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-37-1440.png"
+  },
+  {
+    "titulo": "Diário · Hodômetro e abastecimento",
+    "estado": "em uso",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-38-1440.png"
+  },
+  {
+    "titulo": "Diário · Conferência do hodômetro",
+    "estado": "em uso",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-39-1440.png"
+  },
+  {
+    "titulo": "Diário · Salvamento e ações",
+    "estado": "em uso",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-componente-40-1440.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "oficio / oficio — aberto sem salvar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-oficio-oficio-1440.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "servidor / cadastro — aberto sem salvar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-servidor-cadastro-1440.png"
+  },
+  {
+    "titulo": "Diário · Motorista e viatura",
+    "estado": "outro_oficio / manual — aberto sem salvar",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/prestacoes/equipe/211/diario/",
+    "arquivo": "diario-modos-outro_oficio-manual-1440.png"
+  }
+]

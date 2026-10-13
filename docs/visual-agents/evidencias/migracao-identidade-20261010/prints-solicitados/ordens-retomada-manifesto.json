@@ -1,0 +1,92 @@
+[
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-lista-360.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova ordem",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-novo-360.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Folha",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-folha-360.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-lista-768.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova ordem",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-novo-768.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Folha",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-folha-768.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-lista-1440.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova ordem",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-novo-1440.png",
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Folha",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "ordens-retomada-folha-1440.png",
+    "integral": true,
+    "overflow": false
+  }
+]

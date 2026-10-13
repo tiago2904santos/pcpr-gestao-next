@@ -1,0 +1,22 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ TestSelosDasListas.test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo _
+
+self = <gestao.viagens.tests.test_views.TestSelosDasListas object at 0x000001DE8D5CAF10>
+operador = <django.test.client.Client object at 0x000001DE8D7FE490>
+cenario = Cenario(ids={'oficio_emitido': 376, 'oficio_rascunho': 377, 'oficio_vazio': 378, 'oficio_cancelado': 379, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo(self, operador, cenario):
+        rascunho = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
+        html = operador.get(reverse("viagens:resumo", args=[rascunho.pk])).content.decode()
+        assert "Fora do prazo" not in html
+        assert "Justificativa pendente" in html  # o mesmo selo da linha
+        # A composição aprovada comunica o assunto na cópia e o prazo na pendência,
+        # sem exigir a apresentação antiga em um metadado duplicado.
+>       assert "Solicitação de autorização" in html and "3 dias de antecedência" in html
+E       assert ('Solicitação de autorização' in '\n\n\n\n<header class="registro-hero">\n  <div class="registro-hero__identidade">\n<div class="identidade-documental"...true" focusable="false"><use href="/static/icons/sprite.svg#i-pencil"></use></svg>Abrir o ofício</a>\n  \n</div>\n\n\n')
+
+gestao\viagens\tests\test_views.py:1297: AssertionError
+=========================== short test summary info ===========================
+FAILED gestao/viagens/tests/test_views.py::TestSelosDasListas::test_resumo_usa_o_mesmo_vocabulario_sem_duplicar_o_prazo
+1 failed in 59.83s

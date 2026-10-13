@@ -1,0 +1,319 @@
+[
+  {
+    "titulo": "Planos · lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-lista-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · novo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-novo-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · incompleto",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-incompleto-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · multievento",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-multievento-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · gerado",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-gerado-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · evento",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-evento-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/resultados/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-resultados-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-lista-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · novo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-novo-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · incompleto",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-incompleto-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · multievento",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-multievento-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · gerado",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-gerado-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · evento",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-evento-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/resultados/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-resultados-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-lista-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · novo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-novo-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · incompleto",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-incompleto-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · multievento",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-multievento-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · gerado",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-gerado-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · evento",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-evento-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/resultados/",
+    "estado": "Revisão atual · 12/10/2026",
+    "arquivo": "planos-refinado-resultados-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "antes",
+    "arquivo": "planos-coordenacao-antes-360.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 390,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "antes",
+    "arquivo": "planos-coordenacao-antes-390.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "antes",
+    "arquivo": "planos-coordenacao-antes-768.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 1024,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "antes",
+    "arquivo": "planos-coordenacao-antes-1024.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "antes",
+    "arquivo": "planos-coordenacao-antes-1440.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "depois",
+    "arquivo": "planos-coordenacao-depois-360.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 390,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "depois",
+    "arquivo": "planos-coordenacao-depois-390.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "depois",
+    "arquivo": "planos-coordenacao-depois-768.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 1024,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "depois",
+    "arquivo": "planos-coordenacao-depois-1024.png"
+  },
+  {
+    "titulo": "Planos · Coordenação",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/planos/2/",
+    "estado": "depois",
+    "arquivo": "planos-coordenacao-depois-1440.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "topo",
+    "arquivo": "planos-dialogo-topo-360.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "topo",
+    "arquivo": "planos-dialogo-topo-768.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "topo",
+    "arquivo": "planos-dialogo-topo-1440.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "acoes",
+    "arquivo": "planos-dialogo-acoes-360.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "acoes",
+    "arquivo": "planos-dialogo-acoes-768.png"
+  },
+  {
+    "titulo": "Planos · Novo evento",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "estado": "acoes",
+    "arquivo": "planos-dialogo-acoes-1440.png"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "componente": "Motorista externo",
+    "largura": 360,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  },
+  {
+    "componente": "Formulário com contexto",
+    "largura": 360,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  },
+  {
+    "componente": "Motorista externo",
+    "largura": 768,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  },
+  {
+    "componente": "Formulário com contexto",
+    "largura": 768,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  },
+  {
+    "componente": "Motorista externo",
+    "largura": 1440,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  },
+  {
+    "componente": "Formulário com contexto",
+    "largura": 1440,
+    "motivo": "sem caixa visível nas páginas escolhidas; conferir vitrine/seletores"
+  }
+]

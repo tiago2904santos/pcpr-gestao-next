@@ -1,0 +1,119 @@
+[
+  {
+    "titulo": "Motorista externo · manual",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/33/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-manual-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Motorista externo · servidor",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/20/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-servidor-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Justificativa de prazo",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/256/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-justificativa-de-prazo-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Motorista externo · manual",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/33/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-manual-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Motorista externo · servidor",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/20/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-servidor-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Justificativa de prazo",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/256/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-justificativa-de-prazo-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Motorista externo · manual",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/33/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-manual-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Motorista externo · servidor",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/20/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-motorista-externo-servidor-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Justificativa de prazo",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/viagens/oficios/256/editar/",
+    "estado": "dados DEMO existentes",
+    "arquivo": "complementos-justificativa-de-prazo-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  }
+]

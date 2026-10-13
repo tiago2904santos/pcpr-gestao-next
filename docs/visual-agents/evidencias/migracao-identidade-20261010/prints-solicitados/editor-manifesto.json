@@ -1,0 +1,158 @@
+[
+  {
+    "titulo": "Editor · Tamanho da fonte",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-tamanho-da-fonte-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Cor da fonte",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-cor-da-fonte-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Inserir tabela",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-inserir-tabela-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Textos prontos",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-textos-prontos-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Tamanho da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-tamanho-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Cor da fonte",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-cor-da-fonte-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Inserir tabela",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-inserir-tabela-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Textos prontos",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-textos-prontos-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Tamanho da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-tamanho-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Cor da fonte",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-cor-da-fonte-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Inserir tabela",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-inserir-tabela-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  },
+  {
+    "titulo": "Editor · Textos prontos",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/ui-lab/",
+    "estado": "menu-aberto",
+    "arquivo": "editor-textos-prontos-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": false
+  }
+]

@@ -1,0 +1,16 @@
+{# Usa os mesmos grupos e permissões da navegação superior, sem remontar URLs. #}
+<div class="modulo__acoes">
+  <a class="botao botao--primario" href="{{ modulo.url }}">Entrar<span class="sr-only"> no módulo</span> {% icone "arrow-right" classe="icone--seta" %}</a>
+  {% for grupo in modulo.grupos %}
+    {% if grupo.em_menu %}
+      <pc-menu class="menu">
+        <button class="botao" type="button" data-menu-botao aria-haspopup="menu" aria-label="{{ grupo.rotulo }} — {{ modulo.rotulo }}">{{ grupo.rotulo }}{% icone "chevron-down" classe="icone--sm" %}</button>
+        <div class="menu__painel" role="menu" hidden>
+          {% for item in grupo.itens %}{% if item.url != modulo.url %}<a class="menu__item" role="menuitem" href="{{ item.url }}">{% icone item.icone classe="icone--sm" %}{{ item.rotulo }}</a>{% endif %}{% endfor %}
+        </div>
+      </pc-menu>
+    {% else %}
+      {% for item in grupo.itens %}{% if item.url != modulo.url %}<a class="botao botao--texto" href="{{ item.url }}">{% icone item.icone classe="icone--sm" %}{{ item.rotulo }}</a>{% endif %}{% endfor %}
+    {% endif %}
+  {% endfor %}
+</div>

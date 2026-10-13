@@ -1,0 +1,154 @@
+{
+  "base": "722198f mais alterações locais preservadas em snapshot",
+  "nota": "LAB fictício; timings locais com suítes concorrentes, sem SLA.",
+  "antes-preenchido": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 158118,
+        "html_gzip_bytes": 23685,
+        "ms": 1494.9
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 158118,
+        "html_gzip_bytes": 23686,
+        "ms": 1887.14
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 158118,
+        "html_gzip_bytes": 23692,
+        "ms": 1799.86
+      }
+    ],
+    "mediana_ms": 1799.86
+  },
+  "antes-justificativa": {
+    "amostras": [
+      {
+        "consultas": 25,
+        "html_bytes": 174274,
+        "html_gzip_bytes": 24554,
+        "ms": 2001.66
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 174274,
+        "html_gzip_bytes": 24551,
+        "ms": 1938.01
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 174274,
+        "html_gzip_bytes": 24552,
+        "ms": 1596.09
+      }
+    ],
+    "mediana_ms": 1938.01
+  },
+  "antes-pendencias": {
+    "amostras": [
+      {
+        "consultas": 21,
+        "html_bytes": 145612,
+        "html_gzip_bytes": 23187,
+        "ms": 1293.08
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 145612,
+        "html_gzip_bytes": 23182,
+        "ms": 2676.38
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 145612,
+        "html_gzip_bytes": 23187,
+        "ms": 1204.17
+      }
+    ],
+    "mediana_ms": 1293.08
+  },
+  "depois-preenchido": {
+    "amostras": [
+      {
+        "consultas": 24,
+        "html_bytes": 160269,
+        "html_gzip_bytes": 23822,
+        "ms": 1348.09
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 160269,
+        "html_gzip_bytes": 23822,
+        "ms": 2054.55
+      },
+      {
+        "consultas": 24,
+        "html_bytes": 160269,
+        "html_gzip_bytes": 23829,
+        "ms": 2014.52
+      }
+    ],
+    "mediana_ms": 2014.52
+  },
+  "depois-justificativa": {
+    "amostras": [
+      {
+        "consultas": 25,
+        "html_bytes": 176287,
+        "html_gzip_bytes": 24710,
+        "ms": 2081.14
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 176287,
+        "html_gzip_bytes": 24711,
+        "ms": 1602.06
+      },
+      {
+        "consultas": 25,
+        "html_bytes": 176287,
+        "html_gzip_bytes": 24711,
+        "ms": 2177.19
+      }
+    ],
+    "mediana_ms": 2081.14
+  },
+  "depois-pendencias": {
+    "amostras": [
+      {
+        "consultas": 21,
+        "html_bytes": 147893,
+        "html_gzip_bytes": 23315,
+        "ms": 1327.43
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 147893,
+        "html_gzip_bytes": 23317,
+        "ms": 1647.1
+      },
+      {
+        "consultas": 21,
+        "html_bytes": 147893,
+        "html_gzip_bytes": 23315,
+        "ms": 1523.31
+      }
+    ],
+    "mediana_ms": 1523.31
+  },
+  "static/css/components.css": {
+    "antes_bytes": 175671,
+    "depois_bytes": 180783,
+    "antes_gzip_bytes": 34913,
+    "depois_gzip_bytes": 35417
+  },
+  "static/js/componentes/itinerario.js": {
+    "antes_bytes": 44215,
+    "depois_bytes": 44599,
+    "antes_gzip_bytes": 12376,
+    "depois_gzip_bytes": 12452
+  }
+}

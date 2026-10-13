@@ -1,0 +1,26 @@
+[
+  {
+    "width": 360,
+    "estado": "lab-dossie",
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 360,
+    "estado": "lab-dossie-vazio",
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1440,
+    "estado": "lab-dossie",
+    "axe": [],
+    "console": []
+  },
+  {
+    "width": 1440,
+    "estado": "lab-dossie-vazio",
+    "axe": [],
+    "console": []
+  }
+]

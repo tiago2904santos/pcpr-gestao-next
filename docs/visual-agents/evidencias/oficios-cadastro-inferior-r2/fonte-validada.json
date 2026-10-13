@@ -1,0 +1,109 @@
+{
+  "base": "722198f mais alterações locais do usuário",
+  "header_identificacao_recursos_preservados": true,
+  "equipe_visual_preservada": true,
+  "arquivos": {
+    "gestao/ui_lab/templates/ui_lab/_cadastro_inferior.html": {
+      "validado": "70aec835e76241dd82011af8270b0eae8798c7a5f25bfaad1fa37094490a4374",
+      "baseline": "3a3f683a296668946e204cbf49e1ff4310c3b1c737d5a466c3ba40131d71435c"
+    },
+    "gestao/viagens/templates/viagens/_itinerario.html": {
+      "validado": "cb78e5b425c6961f213afa71221ab082a25a423b46fa029813a295181a17a80d",
+      "baseline": "c3194dc759d86f42569adf7fe0e605df5064370b728496f7fc1c4f6310d38151"
+    },
+    "gestao/viagens/templates/viagens/_trecho_campos.html": {
+      "validado": "762a695abb4bc0c5c99d1fb8a4ce7e18763e74826f468d7bcca1c5fc447ce885",
+      "baseline": "46f3b66347744281bc21891d935c0579a11377b30774f2aa8ddefcf200602179"
+    },
+    "gestao/viagens/templates/viagens/oficios/_diarias.html": {
+      "validado": "a5094d05c14df4d1278121740b2a43a3ba9cc8e042e3a4ce6e920c95f58c6970",
+      "baseline": "96ade75139862ca4d151afea5051570fec901f7a243b34821e756ed112dfa104"
+    },
+    "gestao/viagens/templates/viagens/oficios/_editor.html": {
+      "validado": "9cf4e82b6d278f696590af84eda0b8b3607ab2d53b478557d4f9eae07c2953c7",
+      "baseline": "5e2a02169b00e35c3bc7aff3f219bc55f1f0b6f524cf837ac90d49367d5bd4c3"
+    },
+    "gestao/viagens/templates/viagens/oficios/_equipe.html": {
+      "validado": "d0a8631af0a3cf19d112853c57ec334e68c40183d68c88e07c7d1c9752269954",
+      "baseline": "24407ddbe42ec4d86c0f985dde7817b94066349e1b01d214ca535d07ed620eb8"
+    },
+    "gestao/viagens/templates/viagens/oficios/_evento.html": {
+      "validado": "98916b64271f37cf379ee16a7e5449ced0e7e7c7141f1e92d6f9ba81e0c435ec",
+      "baseline": "ae9df9b66684e9c00cefb95d18fb1cc1e246c72cf8b9da80df2fc831ed032537"
+    },
+    "gestao/viagens/templates/viagens/oficios/_justificativa.html": {
+      "validado": "bce91e6075ebd0a898850bb030a45019219a2766ea7f9307229c1a33eaf4afa6",
+      "baseline": "2cbba35c6b21382141d0a6dd515f2b4b48e0f05de158cd3fa4aa5d2c72c8cdb7"
+    },
+    "gestao/viagens/templates/viagens/oficios/_justificativa_campos.html": {
+      "validado": "10ba7134e52b7784531d4b515f2055e1840c884724d6a9a2080ade513d9e64da",
+      "baseline": "ff472d56fcdd7a221ace6b6fac2a2175557b3f3a57976629165891290c08d5b3"
+    },
+    "gestao/viagens/templates/viagens/oficios/_justificativa_contexto.html": {
+      "validado": "f61078b925043f7dd88053a0b5c85b3c80e2d5172e01e99d9d842e4b2a0d344a",
+      "baseline": "090885b5a41469dda5a56d5859f02cfb26a1abd1d1f4a525a6cbcc9a7a646bbf"
+    },
+    "gestao/viagens/templates/viagens/oficios/editar.html": {
+      "validado": "c9b1bc581c669758e3a0de4d22b6150b79bcd8d57a2f499d3ecbc035211061e0",
+      "baseline": "58182cdcd1622923f03631ac60c834b22fa69d0e3a968befd5f17ce39d969d85"
+    },
+    "gestao/viagens/templatetags/viagens.py": {
+      "validado": "65973ab751c89a9aaeb3a88e9030b256220a50f601dff690c8aa9c50b4df4b07",
+      "baseline": "862a136f135672cdaaeab23e13aba6f25c446bfa34db69dcc8b00c34c11fa66c"
+    },
+    "static/css/components.css": {
+      "validado": "04fcf77d3b924851a23cf8a360889fce933591301124bac560c3840fc97273bd",
+      "baseline": "c973b8cecffa2ea2038e76ffff35bd467dc08f5b5acfd4f767c67e26111a5256"
+    },
+    "static/js/componentes/itinerario.js": {
+      "validado": "c6ae5f2f998d2163414f8ba976e68fccee96e4acc49a623ae8f49b642c8544d1",
+      "baseline": "bebf38c779dd3387b8e55970bbe7463e1b4a47a91e42ae8dec178e998edbab54"
+    },
+    "templates/componentes/formulario_contextual.html": {
+      "validado": "1dbad588b946f69fb041c33a0c70fd99ca1b68ad69de98d1bb9af9e5633f3161",
+      "baseline": "238cd167e1534d8eca1340e524c071a2a55e2a2f9af7c2f5a938efa9c106226e"
+    },
+    "templates/componentes/selecao_roteiro.html": {
+      "validado": "1131e8d8d675cb8c6f9174a8212ad811b33cea80940fef07f2d8050664ec6f3b",
+      "baseline": "71079cc0276affbb88c7271af8c0a4ad0b891c7cce39f5c8a042f318ce04b1d6"
+    },
+    "tests/e2e/test_resumo_visual.py": {
+      "validado": "c544f96fd9e1cd703aef478fac4da8f3418ae2219379f7d4f91d19aeebb89a3b",
+      "baseline": "f9a9d1d168090fc0ae2eb14171b2193377dab846e2f4841bc89393cd7116d956"
+    },
+    "tests/e2e/test_roteiros.py": {
+      "validado": "206e46edd7f9aa4dd403f6f7321fec753c8bb56309e887c44d7dc7bf0f99cd08",
+      "baseline": "8d23469a940ea362468b7beed58ed29bf089134f29d5183d933c504c7d1e3aa8"
+    },
+    "templates/componentes/painel_rota.html": {
+      "validado": "0cd7eeb340dc8093174b9ea9e5143c70f776d8ced5c47df01d295502a0902d4e",
+      "novo": true
+    },
+    "templates/componentes/dados_eprotocolo.html": {
+      "validado": "e3ac72da38c70e1c68a5886f5eff1fd7b5159ac6a5f823854f604c66c8fed787",
+      "baseline": "5ac7448d5e4611346c482874d1eb12037bcd1c84044d92bd981ee0c7898d031a"
+    },
+    "templates/componentes/acao_copiar_tudo.html": {
+      "validado": "d1c450b59f871902a57d062f165dad9cb24b8a0ecfff1963e4b0bcb68e41974f",
+      "novo": true
+    },
+    "gestao/viagens/tests/test_eprotocolo_http.py": {
+      "validado": "951e5c10872b06a7265dd6259fc584852b069d13d4e3f2f50c6a5b9cb8cfaace",
+      "baseline": "412b4e2824b3c4253843c9430b8bd67402368d344c2eda5ac470d23f48de14f7"
+    },
+    "gestao/viagens/templates/viagens/oficios/_resumo.html": {
+      "validado": "e8ebf4d4c42e3c7b620c04fb5086609244cf80edbc67ab18b1be8e1968a4827d",
+      "baseline": "b3af2f17c64493a55d4ddd4f9df4bcb395e2d7f3289adb05c7baece14bc2281b"
+    },
+    "gestao/viagens/tests/test_duracao_curta.py": {
+      "validado": "bfb38dfd7ef618b5321fc30703a4c8a7807099c48b4abfe6dc4cc4597d4b2740",
+      "origem": "Arquivo local preexistente do usuário; removido apenas marcador pytest desconhecido."
+    },
+    "gestao/viagens/tests/test_views.py": {
+      "validado": "f120768cc9db0d7030a724e7d7c8cc8e8d2cd7a2893242b4eb0b9bdab2b95573",
+      "baseline": "fba7ecd8d7587335ab3f7aee9f40b0807cecc1e50b9419afd5ad28e3271bf048"
+    }
+  },
+  "gate": "1 passed in 58.71s; scripts/verificar.sh verde em confirmação incremental do contrato corrigido.",
+  "gate_integral": "1 failed, 2290 passed, 9 warnings in 3045.12s (0:50:45); um contrato preexistente reproduzido na base e corrigido."
+}

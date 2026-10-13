@@ -1,0 +1,1052 @@
+[
+  {
+    "titulo": "Ofícios · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro/edição",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-cadastro-edicao-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Resumo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "modal-integral",
+    "arquivo": "telas-oficios-resumo-modal-integral-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 2192
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Novo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/novo/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-novo-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Edição",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/60/editar/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-edicao-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "estado": "normal",
+    "arquivo": "telas-termos-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Novo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-termos-novo-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Edição/documentos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/7/",
+    "estado": "normal",
+    "arquivo": "telas-termos-edicao-documentos-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-nova-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Edição/documentos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-edicao-documentos-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "normal",
+    "arquivo": "telas-planos-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Novo",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-planos-novo-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Folha",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "normal",
+    "arquivo": "telas-planos-folha-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Multievento",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "normal",
+    "arquivo": "telas-planos-multievento-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Documentos",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "normal",
+    "arquivo": "telas-planos-documentos-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Resultados",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "normal",
+    "arquivo": "telas-planos-resultados-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Edição",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/?editar=242",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-edicao-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Folha",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-folha-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Preparação em lote",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-preparacao-em-lote-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Lista",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-lista-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Liberadas",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/?aba=liberadas",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-liberadas-normal-360.png",
+    "viewport": {
+      "width": 360,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro/edição",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-cadastro-edicao-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Resumo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "modal-integral",
+    "arquivo": "telas-oficios-resumo-modal-integral-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 1645
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Novo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/novo/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-novo-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Edição",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/60/editar/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-edicao-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "estado": "normal",
+    "arquivo": "telas-termos-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Novo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-termos-novo-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Edição/documentos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/7/",
+    "estado": "normal",
+    "arquivo": "telas-termos-edicao-documentos-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-nova-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Edição/documentos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-edicao-documentos-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "normal",
+    "arquivo": "telas-planos-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Novo",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-planos-novo-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Folha",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "normal",
+    "arquivo": "telas-planos-folha-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Multievento",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "normal",
+    "arquivo": "telas-planos-multievento-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Documentos",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "normal",
+    "arquivo": "telas-planos-documentos-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Resultados",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "normal",
+    "arquivo": "telas-planos-resultados-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Edição",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/?editar=242",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-edicao-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Folha",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-folha-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Preparação em lote",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-preparacao-em-lote-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Lista",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-lista-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Liberadas",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/?aba=liberadas",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-liberadas-normal-768.png",
+    "viewport": {
+      "width": 768,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Cadastro/edição",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/259/editar/",
+    "estado": "normal",
+    "arquivo": "telas-oficios-cadastro-edicao-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ofícios · Resumo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/oficios/?resumo=256",
+    "estado": "modal-integral",
+    "arquivo": "telas-oficios-resumo-modal-integral-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 1391
+    },
+    "integral": false,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Novo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/novo/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-novo-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Roteiros · Edição",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/roteiros/60/editar/",
+    "estado": "normal",
+    "arquivo": "telas-roteiros-edicao-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/",
+    "estado": "normal",
+    "arquivo": "telas-termos-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Novo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-termos-novo-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Termos · Edição/documentos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/termos/7/",
+    "estado": "normal",
+    "arquivo": "telas-termos-edicao-documentos-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Nova",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/nova/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-nova-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Ordens de Serviço · Edição/documentos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/ordens/5/",
+    "estado": "normal",
+    "arquivo": "telas-ordens-de-servico-edicao-documentos-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/",
+    "estado": "normal",
+    "arquivo": "telas-planos-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Novo",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/novo/",
+    "estado": "normal",
+    "arquivo": "telas-planos-novo-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Folha",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/4/",
+    "estado": "normal",
+    "arquivo": "telas-planos-folha-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Multievento",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/",
+    "estado": "normal",
+    "arquivo": "telas-planos-multievento-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Documentos",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/1/",
+    "estado": "normal",
+    "arquivo": "telas-planos-documentos-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Planos · Resultados",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/planos/2/resultados/",
+    "estado": "normal",
+    "arquivo": "telas-planos-resultados-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Justificativas · Edição",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/justificativas/?editar=242",
+    "estado": "normal",
+    "arquivo": "telas-justificativas-edicao-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Folha",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-folha-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Viagens · Preparação em lote",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/viagens/1/gerar-documentos/",
+    "estado": "normal",
+    "arquivo": "telas-viagens-preparacao-em-lote-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Lista",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-lista-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  },
+  {
+    "titulo": "Prestação · Liberadas",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/viagens/prestacoes/?aba=liberadas",
+    "estado": "normal",
+    "arquivo": "telas-prestacao-liberadas-normal-1440.png",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "integral": true,
+    "overflow": false
+  }
+]

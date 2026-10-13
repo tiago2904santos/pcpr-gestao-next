@@ -1,0 +1,102 @@
+[
+  {
+    "fase": "antes",
+    "largura": 360,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "fase": "depois",
+    "largura": 360,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 360,
+    "axe": [],
+    "overflow": 0
+  },
+  {
+    "fase": "antes",
+    "largura": 390,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "fase": "depois",
+    "largura": 390,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 390,
+    "axe": [],
+    "overflow": 0
+  },
+  {
+    "fase": "antes",
+    "largura": 768,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "fase": "depois",
+    "largura": 768,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 768,
+    "axe": [],
+    "overflow": 0
+  },
+  {
+    "fase": "antes",
+    "largura": 1024,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "fase": "depois",
+    "largura": 1024,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1024,
+    "axe": [],
+    "overflow": 0
+  },
+  {
+    "fase": "antes",
+    "largura": 1440,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "fase": "depois",
+    "largura": 1440,
+    "requests_abertura": 39,
+    "editor_antecipado": false,
+    "console": []
+  },
+  {
+    "pagina": "ui-lab",
+    "largura": 1440,
+    "axe": [],
+    "overflow": 0
+  }
+]

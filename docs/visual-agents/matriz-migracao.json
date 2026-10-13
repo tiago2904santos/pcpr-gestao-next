@@ -2267,16 +2267,30 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "base.html"
+        "registro_hero",
+        "acessos_modulo",
+        "pc-menu",
+        "botao",
+        "modulo__numeros"
       ],
-      "situacao": "NÃO INICIADA",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Cabeçalho registro_hero; acessos_modulo com pc-menu e grupos autorizados; indicadores compactos."
+      ],
+      "testes_executados": [
+        "central-perfil-corrigido:95passed256,48s",
+        "central-poslimpeza:95passed268,34s",
+        "Ruff verde; compatibilidade Eventos e seus catálogos nas3larguras"
+      ],
+      "evidencias": [
+        "docs/visual-agents/evidencias/migracao-identidade-20261012/central-assets.json",
+        "docs/visual-agents/qa/central-2026-10-13.md",
+        "docs/visual-agents/evidencias/migracao-identidade-20261010/prints-solicitados/central-atual-1440.png"
+      ],
+      "revisao_final": "Revisão independente favorável; compatibilidade admin e pós-limpeza verdes. Homologação visual pendente do usuário.",
+      "revisao_codigo": "7ff77f3 + candidato Central não commitado",
+      "dependencias_antigas": "modulo__atalho removido; demais modulo__* e Futuros mantidos por consumidores legítimos.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

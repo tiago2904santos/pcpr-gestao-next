@@ -1,0 +1,164 @@
+[
+  {
+    "titulo": "Configuração da unidade · pagina",
+    "largura": 1440,
+    "categoria": "Telas",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-1440.png",
+    "integral": true
+  },
+  {
+    "titulo": "Configuração da unidade · pagina",
+    "largura": 360,
+    "categoria": "Telas",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-360.png",
+    "integral": true
+  },
+  {
+    "titulo": "Configuração da unidade · pagina",
+    "largura": 768,
+    "categoria": "Telas",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-768.png",
+    "integral": true
+  },
+  {
+    "titulo": "Configuração da unidade · dialogo",
+    "largura": 1440,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-dialogo-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · dialogo",
+    "largura": 360,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-dialogo-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · dialogo",
+    "largura": 768,
+    "categoria": "Componentes · Abertos",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-dialogo-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-assinaturas",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-assinaturas-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-assinaturas",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-assinaturas-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-assinaturas",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-assinaturas-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-instituicao",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-instituicao-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-instituicao",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-instituicao-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-instituicao",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-instituicao-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-oficio",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-oficio-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-oficio",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-oficio-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-oficio",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-oficio-768.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-substituicoes",
+    "largura": 1440,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-substituicoes-1440.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-substituicoes",
+    "largura": 360,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-substituicoes-360.png",
+    "integral": false
+  },
+  {
+    "titulo": "Configuração da unidade · t-substituicoes",
+    "largura": 768,
+    "categoria": "Componentes · Em uso",
+    "rota": "/cadastros/configuracao/",
+    "estado": "Captura atual · validação funcional em andamento",
+    "arquivo": "configuracao-final-t-substituicoes-768.png",
+    "integral": false
+  }
+]
