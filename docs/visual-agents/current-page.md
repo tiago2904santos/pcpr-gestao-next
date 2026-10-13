@@ -1,5 +1,23 @@
 # Página atual
 
+## Estado vigente — CD07 fechada tecnicamente
+
+89testes finais, Ruff e16contratos de arquitetura aprovados. Cobertura30/100.
+Preview8017 ativo na sessão50193. Próxima entrada CD08: conferir rota e contrato
+antes de editar. Preservar _equipe e evidências anteriores não commitadas.
+
+# Página atual
+
+## Estado vigente — CD07 em validação final
+
+HEAD24647e7; suíte84540 terminou88passed106,23s. Segunda passada unifica
+rótulos; suíte14752 usuarios-final ativa. Preview8017 reiniciado por50193,
+somente servidor próprio; banco/mídia DEMO preservados. Capturas finais15
+lista/dialogo/parte inferior/menu/semresultados feitas. Revisor conferindo
+rótulos finais. Cobertura29/100 até final verde; preservar _equipe.
+
+# Página atual
+
 ## Estado vigente — CD06 fechada tecnicamente
 
 90 testes finais aprovados. Cobertura29/100. Próxima entrada desbloqueada da

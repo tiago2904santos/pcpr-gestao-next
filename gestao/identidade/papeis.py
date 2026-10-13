@@ -16,6 +16,20 @@ class Papel(TypedDict):
     permissoes: list[str]
 
 
+# Rótulos de apresentação; as chaves dos grupos e suas permissões não mudam.
+ROTULOS_PAPEIS = {
+    "OPERADOR_VIAGENS": "Operador de viagens",
+    "GESTOR_VIAGENS": "Gestor de viagens",
+    "CONSULTA": "Consulta",
+    "ADMINISTRADOR": "Administrador",
+    "ASCOM_IMPRENSA": "Atendimento à imprensa (ASCOM)",
+    "ASCOM_PUBLICACOES": "Publicações (ASCOM)",
+    "ASCOM_COFFEE_BREAK": "Coffee Break (ASCOM)",
+    "ASCOM_PALESTRAS": "Palestras e eventos (ASCOM)",
+    "GESTOR_DG": "Diretoria-Geral (despacho de eventos)",
+}
+
+
 # Como na referência, a equipe de viagens (gestor e operador) mantém os cadastros de apoio;
 # a tabela de diárias (dinheiro) e a configuração da unidade são só do gestor.
 CADASTROS_DA_EQUIPE = [

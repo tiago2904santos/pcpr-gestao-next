@@ -637,13 +637,11 @@ class FormularioUsuario(forms.Form):
     def __init__(self, *args, instancia=None, **kwargs):
         from django.conf import settings
 
-        from gestao.identidade.papeis import PAPEIS
+        from gestao.identidade.papeis import PAPEIS, ROTULOS_PAPEIS
         super().__init__(*args, **kwargs)
         self.instancia = instancia
         papeis = cast(forms.MultipleChoiceField, self.fields["papeis"])
-        rotulos = {"OPERADOR_VIAGENS": "Operador de viagens",
-                   "GESTOR_VIAGENS": "Gestor de viagens", "CONSULTA": "Consulta",
-                   "ADMINISTRADOR": "Administrador"}
+        rotulos = ROTULOS_PAPEIS
         papeis.choices = [(nome, rotulos.get(nome, nome)) for nome in PAPEIS]
         papeis.help_text = " · ".join(f"{rotulos.get(n, n)}: {p['descricao']}"
                                       for n, p in PAPEIS.items())

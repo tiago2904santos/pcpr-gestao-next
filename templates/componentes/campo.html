@@ -12,6 +12,9 @@ para campos curtos numa linha cheia, onde a ajuda quebraria sob o campo).
 - ajuda e erro ligados via aria-describedby; aria-invalid quando houver erro.
 {% endcomment %}
 {% with id=campo.auto_id ajuda_texto=ajuda|default:campo.help_text %}
+{% if campo.field.widget.input_type == "checkbox" and campo.field.widget.allow_multiple_selected %}
+  {% include "componentes/campo_escolhas.html" %}
+{% else %}
 <div class="campo {{ classe }}{% if campo.errors %} campo--erro{% endif %}"{% if campo.field.widget.input_type == "hidden" %} hidden{% endif %}>
   {% if campo.field.widget.input_type == "checkbox" %}
     <label class="escolha" for="{{ id }}">
@@ -40,4 +43,5 @@ para campos curtos numa linha cheia, onde a ajuda quebraria sob o campo).
     <p class="campo__erro" id="{{ id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>
   {% endif %}
 </div>
+{% endif %}
 {% endwith %}

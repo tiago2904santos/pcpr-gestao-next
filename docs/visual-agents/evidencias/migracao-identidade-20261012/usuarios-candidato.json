@@ -1,0 +1,48 @@
+{
+  "base": "24647e7",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/usuarios.html",
+      "sha256": "c890151dedd8a78a9192805f91e85dcde1673fbf1c2cfbb3040712cb3f5b0d5a"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_usuarios_criar.html",
+      "sha256": "4940182777dee31bf392ce92b30fb9c7c81f595ce3b070509ba02f4b5fe59fb9"
+    },
+    {
+      "arquivo": "templates/componentes/campo.html",
+      "sha256": "397d7838a500ce0075c89c2b131189c49b0b331667cff894b5815c421c4cb82a"
+    },
+    {
+      "arquivo": "templates/componentes/campo_escolhas.html",
+      "sha256": "401e3884783524705cd5428e70fcbc106f14208ee1f189503f34c1a1666acee0"
+    },
+    {
+      "arquivo": "gestao/cadastros/forms.py",
+      "sha256": "dd209260539d61242389a45ecafc0300ebe169a6f75a5cac9c817bbdc371db3c"
+    },
+    {
+      "arquivo": "gestao/cadastros/views_usuarios.py",
+      "sha256": "c6adfac966a5988084b9083daee215f5b26bf4c4384417f0386d705e84555dc3"
+    },
+    {
+      "arquivo": "gestao/identidade/papeis.py",
+      "sha256": "a03d69ebe27b2428ffcf2d1da58314c1c33d3a3ed9f50cd653200e6fe0911827"
+    },
+    {
+      "arquivo": "tests/test_campo_escolhas.py",
+      "sha256": "4352ef7e124268f2ded4429e2ac911265f6c5f2f2211c97ac9de19d872f32b29"
+    },
+    {
+      "arquivo": "tests/e2e/test_usuarios_identidade.py",
+      "sha256": "146ea7a60a8511eadae577b4cb1588c49f5356a174d40a22de840c7b5bb3f2a9"
+    }
+  ],
+  "testes": [
+    "89 testes finais aprovados106,49s",
+    "Ruff aprovado",
+    "16 contratos de arquitetura preservados",
+    "Browser/axe/teclado em3607681440"
+  ],
+  "homologacao_visual": false
+}

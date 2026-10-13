@@ -1,0 +1,61 @@
+2026-10-12 23:51:37,874 WARNING django.request Forbidden (Permission denied): /cadastros/usuarios/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_usuarios.py", line 104, in usuarios
+    return _tela(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_usuarios.py", line 53, in _tela
+    politica.exigir(politica.pode_ver_usuarios(request.user))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\identidade\policies.py", line 15, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+2026-10-12 23:51:37,932 WARNING django.request Forbidden (Permission denied): /cadastros/usuarios/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_usuarios.py", line 104, in usuarios
+    return _tela(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_usuarios.py", line 53, in _tela
+    politica.exigir(politica.pode_ver_usuarios(request.user))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\identidade\policies.py", line 15, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não tem permissão para esta ação.
+..2026-10-12 23:51:40,363 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:51:41,436 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:51:42,485 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:51:43,535 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:51:44,568 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:51:45,574 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+..2026-10-12 23:51:47,601 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+..2026-10-12 23:51:50,117 WARNING django.request Forbidden (Permission denied): /cadastros/usuarios/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\cadastros\views_usuarios.py", line 113, in salvar_usuario
+    politica.exigir(politica.pode_editar_usuario(request.user, editando),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Você não pode alterar este usuário.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\identidade\policies.py", line 15, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Você não pode alterar este usuário.
+...2026-10-12 23:51:58,461 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:52:14,848 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+.2026-10-12 23:52:30,328 WARNING django.request Unprocessable Content: /cadastros/usuarios/salvar/
+........................................................ [ 81%]
+................                                                         [100%]
+88 passed in 106.23s (0:01:46)

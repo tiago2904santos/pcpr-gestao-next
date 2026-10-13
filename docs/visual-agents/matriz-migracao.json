@@ -1794,20 +1794,42 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/cadastro_rapido.html",
-        "componentes/campo.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registro--catalogo",
+        "campo_escolhas",
+        "grade--2",
+        "dialogo",
+        "cadastro_rapido",
+        "menu",
+        "paginacao"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Labels aninhados e ajuda fora do diálogo móvel",
+        "Campos estreitos em duas colunas no celular",
+        "Rótulos técnicos inconsistentes entre cadastro e lista"
+      ],
+      "alteracoes_implementadas": [
+        "Campo múltiplo semântico compartilhado",
+        "Hero e variante catálogo",
+        "Grade responsiva",
+        "Rótulos de perfis canônicos"
+      ],
+      "testes_executados": [
+        "89 testes finais aprovados106,49s",
+        "Ruff aprovado",
+        "16 contratos de arquitetura preservados",
+        "Browser/axe/teclado em3607681440"
+      ],
+      "evidencias": [
+        "qa/usuarios-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/usuarios-antes.json",
+        "evidencias/migracao-identidade-20261012/usuarios-final.json",
+        "evidencias/migracao-identidade-20261012/usuarios-candidato.json"
+      ],
+      "revisao_final": "Revisão independente sem bloqueante, inclusive rótulos finais. Homologação visual pendente.",
+      "revisao_codigo": "24647e7 + hashes em usuarios-candidato.json",
+      "dependencias_antigas": "Cabeçalho anterior e mapas duplicados de rótulos substituídos. Nenhum CSS novo; checkbox simples mantém contrato legítimo.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

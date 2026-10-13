@@ -1,0 +1,7 @@
+{% comment %}Grupo de checkboxes: cada opção já possui seu próprio label no widget.{% endcomment %}
+<fieldset class="grupo-campos {{ classe }}{% if campo.errors %} campo--erro{% endif %}"{% if ajuda_texto or campo.errors %} aria-describedby="{% if ajuda_texto %}{{ id }}-ajuda{% endif %}{% if campo.errors %} {{ id }}-erro{% endif %}"{% endif %}>
+  <legend class="campo__rotulo">{{ rotulo|default:campo.label }}{% if campo.field.required %}<span class="campo__obrigatorio" aria-hidden="true">*</span>{% endif %}</legend>
+  {{ campo|campo_acessivel:ajuda_texto }}
+  {% if ajuda_texto %}<p class="campo__ajuda{% if ajuda_oculta %} sr-only{% endif %}" id="{{ id }}-ajuda">{{ ajuda_texto }}</p>{% endif %}
+  {% if campo.errors %}<p class="campo__erro" id="{{ id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ campo.errors|join:" " }}</span></p>{% endif %}
+</fieldset>

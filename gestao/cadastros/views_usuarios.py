@@ -25,19 +25,13 @@ from django.views.decorators.http import require_GET, require_POST
 from gestao.identidade import policies as politica
 from gestao.identidade import services as contas
 from gestao.identidade.models import Usuario
-from gestao.identidade.papeis import PAPEIS
+from gestao.identidade.papeis import PAPEIS, ROTULOS_PAPEIS
 
 from .forms import FormularioUsuario
 from .models import Lotacao
 from .views_crud import _abrir, _inteiro, _migalhas, _parametros, _querystring
 
 ABAS = [("", "Ativos", "ativos"), ("inativos", "Inativos", "inativos")]
-ROTULOS = {"OPERADOR_VIAGENS": "Operador de viagens", "GESTOR_VIAGENS": "Gestor de viagens",
-           "CONSULTA": "Consulta", "ADMINISTRADOR": "Administrador",
-           "ASCOM_IMPRENSA": "Atendimento à imprensa (ASCOM)",
-           "ASCOM_PUBLICACOES": "Publicações (ASCOM)",
-           "ASCOM_PALESTRAS": "Palestras e eventos (ASCOM)",
-           "GESTOR_DG": "Diretoria-Geral (despacho de eventos)"}
 
 
 def _voltar(request: HttpRequest) -> str:
@@ -62,7 +56,7 @@ def _tela(request: HttpRequest, *, form=None, editando=None, status: int = 200) 
                        | Q(email__icontains=termo))
     por_perfil = dict(Group.objects.filter(name__in=PAPEIS, user__in=qs)
                       .annotate(n=Count("user", distinct=True)).values_list("name", "n"))
-    perfis = [(nome, ROTULOS.get(nome, nome), por_perfil.get(nome, 0)) for nome in PAPEIS]
+    perfis = [(nome, ROTULOS_PAPEIS.get(nome, nome), por_perfil.get(nome, 0)) for nome in PAPEIS]
     total_filtro = qs.count()
     if perfil in PAPEIS:
         qs = qs.filter(groups__name=perfil)
@@ -78,7 +72,7 @@ def _tela(request: HttpRequest, *, form=None, editando=None, status: int = 200) 
     abrir = form is not None or (novo and pode_criar)
     if form is None:
         form = FormularioUsuario()
-    linhas = [{"u": u, "papeis": [ROTULOS.get(g.name, g.name) for g in u.groups.all()
+    linhas = [{"u": u, "papeis": [ROTULOS_PAPEIS.get(g.name, g.name) for g in u.groups.all()
                                   if g.name in PAPEIS],
                "unidade": u.lotacao.unidade if _tem_lotacao(u) else None,
                "editar": politica.pode_editar_usuario(request.user, u),

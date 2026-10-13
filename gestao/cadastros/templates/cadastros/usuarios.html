@@ -2,9 +2,8 @@
 {% block modulos %}{{ block.super }}{% load static %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block titulo %}Usuários{% endblock %}
 {% block estilos %}{{ block.super }}{% load static %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}">{% endblock %}
-{% block titulo_lista %}Usuários e perfis{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Quem entra no sistema, com que perfil e em que unidade. A senha cadastrada aqui é trocada pela pessoa no primeiro acesso.</p>{% endblock %}
-{% block acoes_lista %}{% if pode_criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo usuário</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-usuario">{% icone "plus" %}Novo usuário</button>{% endif %}{% endif %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Administração de acesso" titulo="Usuários e perfis" complemento="Pessoas, permissões e unidades do sistema." acoes_template="cadastros/_usuarios_criar.html" %}{% endblock %}
 {% comment %}
 Paridade com a gestão de usuários da referência: busca (nome, login, e-mail), filtro por
 perfil com contagem que respeita a busca, ativos/inativos, último acesso; cadastro com
@@ -50,8 +49,8 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
 {% if linhas %}
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with u=l.u %}
-      <li class="registro{% if not u.is_active %} registro--inativo{% endif %}">
-        <span class="avatar" aria-hidden="true">{{ u.iniciais }}</span>
+      <li class="registro registro--catalogo{% if not u.is_active %} registro--inativo{% endif %}">
+        <span class="avatar registro__icone" aria-hidden="true">{{ u.iniciais }}</span>
         <div class="registro__corpo">
           <div class="registro__titulo">
             {% if l.editar %}<a class="registro__link" href="?{{ querystring_base }}editar={{ u.pk }}">{{ u.nome }}</a>
@@ -113,7 +112,7 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
       regras diferentes e saíam desiguais. O grupo se nomeia por aria-label.
       {% endcomment %}
       <fieldset class="grupo-campos" aria-label="Dados do usuário">
-        <div class="campos campos--iguais">
+        <div class="grade grade--2">
           {% include "componentes/campo.html" with campo=form.nome %}
           {% include "componentes/campo.html" with campo=form.login %}
         </div>
@@ -128,7 +127,7 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
           <p class="campo__ajuda">{{ form.unidade.help_text }}</p>
           {% if form.unidade.errors %}<p class="campo__erro" id="{{ form.unidade.auto_id }}-erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.unidade.errors|join:" " }}</span></p>{% endif %}
         </div>
-        <div class="campos campos--iguais">
+        <div class="grade grade--2">
           {% include "componentes/campo.html" with campo=form.senha %}
           {% include "componentes/campo.html" with campo=form.confirmacao %}
         </div>

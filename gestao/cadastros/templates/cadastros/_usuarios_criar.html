@@ -1,0 +1,1 @@
+{% if pode_criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo usuário</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-usuario">{% icone "plus" %}Novo usuário</button>{% endif %}{% endif %}

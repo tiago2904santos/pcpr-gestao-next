@@ -510,3 +510,15 @@ viagens/tests/test_textos_prontos.py. Sem regra nova ou alteração documental.
 Substituições visuais: cabeçalho antigo por registro_hero, registro sem placa
 por registro--catalogo, ação reutilizada no topo/rodapé. Explicação em bloco
 único para não fragmentar palavras no flex. Diálogo conserva controles existentes.
+# CD07 — Usuários e perfis
+
+Lista com busca nome/login/e-mail, abas de acesso e filtro por perfil; paginação25.
+Administrador cria/edita, ativa/inativa com confirmação, sem exclusão. Cadastro:
+nome, login, e-mail institucional, múltiplos perfis, unidade e senha confirmada.
+Primeiro acesso exige troca; edição permite conservar senha vazia. Proteções de
+auto-inativação e retirada do próprio administrador permanecem. Fontes:
+cadastros/views_usuarios.py, tests/test_usuarios.py e tests/e2e/test_usuarios.py.
+Migração sem regra nova: hero canônico, registro de catálogo e campos proporcionais.
+Correção compartilhada: campo.html deve distinguir CheckboxSelectMultiple de
+checkbox simples, usando fieldset/legend com ajuda/erro associados ao grupo;
+nunca envolver uma coleção de labels por outro label.
