@@ -1502,18 +1502,29 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "base.html",
-        "componentes/migalhas.html",
-        "componentes/pagina_cabecalho.html"
+        "registro_hero",
+        "grade--2",
+        "lista_catalogo",
+        "registros/registro"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Cabeçalho anterior e registros estendidos por toda a largura do desktop."
+      ],
+      "alteracoes_implementadas": [
+        "Hero compacto canônico, grade responsiva, extração dos três grupos repetidos."
+      ],
+      "testes_executados": [
+        "96 aprovados112.58s; Ruff; capturas360/768/1440; links/contadores idênticos antes/depois."
+      ],
+      "evidencias": [
+        "qa/cadastros-indice-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/cadastros-indice-depois.json",
+        "evidencias/migracao-identidade-20261012/cadastros-indice-candidato.json"
+      ],
+      "revisao_final": "Revisão independente favorável e suíte verde. Homologação visual do usuário e gate global pendentes.",
+      "revisao_codigo": "352b3fb + hashes em cadastros-indice-candidato.json",
+      "dependencias_antigas": "pagina_cabecalho removido deste consumidor; bases mantidas por consumidores legítimos, sem CSS novo.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

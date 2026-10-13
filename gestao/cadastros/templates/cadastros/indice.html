@@ -3,66 +3,14 @@
 {% block titulo %}Cadastros{% endblock %}
 {% block estilos %}<link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
-{% comment %}
-Entrada dos cadastros (paridade com a entrada da referência: Servidores, Cargos, Viaturas,
-Combustíveis, Unidades e Configurações; aqui também a tabela de diárias e os textos
-prontos). Cada perfil vê só o que pode abrir.
-{% endcomment %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
 {% block conteudo %}
-{% include "componentes/pagina_cabecalho.html" with titulo="Cadastros" icone="layers" descricao="Dados-base compartilhados pelos ofícios, roteiros e documentos de viagem." %}
-
-{% if cartoes %}
-<section class="cartao mt-4" aria-labelledby="t-principais">
-  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-principais">Cadastros principais</h2></div>
-  <ul class="registros" aria-labelledby="t-principais">
-    {% for c in cartoes %}
-      <li class="registro">
-        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
-        <div class="registro__corpo">
-          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
-          <p class="registro__texto">{{ c.texto }}</p>
-          {% if c.resumo or c.pendencia %}<div class="registro__meta">
-            {% if c.resumo %}<span class="registro__meta-item">{{ c.resumo }}</span>{% endif %}
-            {% if c.pendencia %}<a class="registro__meta-item registro__meta-item--acao registro__meta-item--alvo" href="{{ c.pendencia.1 }}">{% icone "alert-triangle" classe="icone--sm" %}{{ c.pendencia.0 }}</a>{% endif %}
-          </div>{% endif %}
-        </div>
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
-{% if plano %}
-<section class="cartao mt-4" aria-labelledby="t-plano">
-  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-plano">Plano de trabalho</h2></div>
-  <ul class="registros" aria-labelledby="t-plano">
-    {% for c in plano %}
-      <li class="registro">
-        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
-        <div class="registro__corpo">
-          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
-          <p class="registro__texto">{{ c.texto }}</p>
-        </div>
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
-{% if apoio %}
-<section class="cartao mt-4" aria-labelledby="t-apoio">
-  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="t-apoio">Configuração e textos</h2></div>
-  <ul class="registros" aria-labelledby="t-apoio">
-    {% for c in apoio %}
-      <li class="registro">
-        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
-        <div class="registro__corpo">
-          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
-          <p class="registro__texto">{{ c.texto }}</p>
-        </div>
-      </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
+{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Cadastros" complemento="Pessoas, veículos e dados compartilhados pelos documentos." %}
+<div class="grade{% if cartoes and plano or cartoes and apoio %} grade--2{% endif %}">
+  {% if cartoes %}<div>{% include "componentes/lista_catalogo.html" with identificador="t-principais" titulo="Cadastros principais" itens=cartoes only %}</div>{% endif %}
+  {% if plano or apoio %}<div>
+    {% if plano %}{% include "componentes/lista_catalogo.html" with identificador="t-plano" titulo="Plano de trabalho" itens=plano only %}{% endif %}
+    {% if apoio %}<div{% if plano %} class="mt-4"{% endif %}>{% include "componentes/lista_catalogo.html" with identificador="t-apoio" titulo="Configuração e textos" itens=apoio only %}</div>{% endif %}
+  </div>{% endif %}
+</div>
 {% endblock %}

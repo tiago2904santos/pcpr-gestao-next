@@ -434,3 +434,15 @@ sem reduzir a fonte ou modificar HTML, margens e paginação do documento oficia
 A página externa continua responsável pela rolagem vertical. A altura acompanha
 o conteúdo e reserva a barra horizontal quando presente, sem crescimento cíclico.
 Validar leitura até o fim da linha, teclado, seleção, redimensionamento e edição.
+
+## CD01 — Índice de Cadastros, 12/10/2026
+
+Entrada de navegação sem gravação: três grupos condicionais (principais, plano,
+configuração/textos), links e contadores fornecidos por views_crud.indice.
+Permissões permanecem em policies; ausência total de acesso retorna403. Sem filtros,
+documentos ou salvamento nesta página. Preservar atalhos de incompletos e quantidades.
+Migrar cabeçalho para registro_hero compacto e distribuir grupos na grade canônica
+de duas colunas, uma no celular. Extrair repetição de registros para lista_catalogo,
+mantendo ícones, descrição, links e metadados opcionais. Sem CSS/JS novo ou mudança
+das consultas. Capturas antes/depois com mesmos dados; teclado, axe, permissões e
+navegação são o contrato de validação. Não eliminar estilos ainda usados em outras páginas.

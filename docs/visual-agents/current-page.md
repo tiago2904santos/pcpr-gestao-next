@@ -1,5 +1,23 @@
 # Página atual
 
+## Estado vigente — CD01 validada; próxima CD02 Servidores
+
+Suíte12084 terminal:96passed112.58s; revisão independente favorável.
+Cobertura24/100. Candidato em cadastros-indice-candidato.json. Nenhuma suíte
+mutável ativa. Próxima ação: contrato/capturas da lista e diálogos de Servidores,
+sem presumir migração anterior suficiente. _equipe.html protegido.
+
+
+## Estado vigente — CD01 implementada, em validação
+
+VI02/VI03 commit352b3fb;23/100. CD01 usa hero/grade canônicos e lista_catalogo
+extraído, zeroCSS/JSnovo. Capturas360/768/1440, links antes/depois idênticos,
+Ruff verde e revisão independente favorável. Suíte12084 ativa:
+cadastros-indice-final.log, não reiniciar por silêncio. Próxima ação: acompanhar
+resultado terminal, tratar falhas se houver, incluir evidências na galeria e
+fechar CD01 somente validada. Preservar _equipe do usuário.
+
+
 ## Estado vigente — VI02/VI03 validadas; próxima CD01
 
 Baseline integrado:17 aprovados320s. Candidato final:13 aprovados145,02s.

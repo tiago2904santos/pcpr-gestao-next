@@ -1,0 +1,230 @@
+[
+  {
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "links": [
+      {
+        "texto": "Início",
+        "href": "/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "3 incompletos",
+        "href": "/cadastros/servidores/?aba=incompletos"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "1 incompleta",
+        "href": "/cadastros/viaturas/?aba=incompletas"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Programas solicitantes",
+        "href": "/cadastros/programas/"
+      },
+      {
+        "texto": "Horários de atendimento",
+        "href": "/cadastros/horarios/"
+      },
+      {
+        "texto": "Atividades do plano",
+        "href": "/cadastros/atividades/"
+      },
+      {
+        "texto": "Conjuntos de atividades",
+        "href": "/cadastros/conjuntos/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      }
+    ]
+  },
+  {
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "links": [
+      {
+        "texto": "Início",
+        "href": "/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "3 incompletos",
+        "href": "/cadastros/servidores/?aba=incompletos"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "1 incompleta",
+        "href": "/cadastros/viaturas/?aba=incompletas"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Programas solicitantes",
+        "href": "/cadastros/programas/"
+      },
+      {
+        "texto": "Horários de atendimento",
+        "href": "/cadastros/horarios/"
+      },
+      {
+        "texto": "Atividades do plano",
+        "href": "/cadastros/atividades/"
+      },
+      {
+        "texto": "Conjuntos de atividades",
+        "href": "/cadastros/conjuntos/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      }
+    ]
+  },
+  {
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false,
+    "links": [
+      {
+        "texto": "Início",
+        "href": "/"
+      },
+      {
+        "texto": "Viagens",
+        "href": "/viagens/"
+      },
+      {
+        "texto": "Servidores",
+        "href": "/cadastros/servidores/"
+      },
+      {
+        "texto": "3 incompletos",
+        "href": "/cadastros/servidores/?aba=incompletos"
+      },
+      {
+        "texto": "Viaturas",
+        "href": "/cadastros/viaturas/"
+      },
+      {
+        "texto": "1 incompleta",
+        "href": "/cadastros/viaturas/?aba=incompletas"
+      },
+      {
+        "texto": "Unidades",
+        "href": "/cadastros/unidades/"
+      },
+      {
+        "texto": "Cargos",
+        "href": "/cadastros/cargos/"
+      },
+      {
+        "texto": "Combustíveis",
+        "href": "/cadastros/combustiveis/"
+      },
+      {
+        "texto": "Tabela de diárias",
+        "href": "/cadastros/diarias/"
+      },
+      {
+        "texto": "Tipos de viagem",
+        "href": "/cadastros/tipos-de-viagem/"
+      },
+      {
+        "texto": "Programas solicitantes",
+        "href": "/cadastros/programas/"
+      },
+      {
+        "texto": "Horários de atendimento",
+        "href": "/cadastros/horarios/"
+      },
+      {
+        "texto": "Atividades do plano",
+        "href": "/cadastros/atividades/"
+      },
+      {
+        "texto": "Conjuntos de atividades",
+        "href": "/cadastros/conjuntos/"
+      },
+      {
+        "texto": "Configuração da unidade",
+        "href": "/cadastros/configuracao/"
+      },
+      {
+        "texto": "Textos prontos",
+        "href": "/cadastros/textos-prontos/"
+      }
+    ]
+  }
+]

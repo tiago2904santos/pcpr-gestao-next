@@ -1,0 +1,19 @@
+{% comment %}Grupo de navegação; itens com titulo, url, icone, texto e metadados opcionais. Identificador único por página.{% endcomment %}
+<section class="cartao" aria-labelledby="{{ identificador }}">
+  <div class="lista-cabecalho"><h2 class="peso-semi texto-lg" id="{{ identificador }}">{{ titulo }}</h2></div>
+  <ul class="registros" aria-labelledby="{{ identificador }}">
+    {% for c in itens %}
+      <li class="registro">
+        <span class="registro__icone" aria-hidden="true">{% icone c.icone %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo"><a class="registro__link" href="{{ c.url }}">{{ c.titulo }}</a></div>
+          <p class="registro__texto">{{ c.texto }}</p>
+          {% if c.resumo or c.pendencia %}<div class="registro__meta">
+            {% if c.resumo %}<span class="registro__meta-item">{{ c.resumo }}</span>{% endif %}
+            {% if c.pendencia %}<a class="registro__meta-item registro__meta-item--acao registro__meta-item--alvo" href="{{ c.pendencia.1 }}">{% icone "alert-triangle" classe="icone--sm" %}{{ c.pendencia.0 }}</a>{% endif %}
+          </div>{% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

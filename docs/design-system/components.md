@@ -686,3 +686,13 @@ indivisíveis do modelo oficial. Não reduz a tipografia nem quebra esses pares.
 horizontal; não deve acumular altura ao recalcular. O PDF não carrega essa folha
 de estilo de apresentação. Consumidores: Ofícios/Justificativa, Termos, Ordens
 e Planos; a apresentação do aviso sem documento também usa `folha.css`.
+
+### Lista de catálogo
+
+`componentes/lista_catalogo.html` apresenta um grupo de navegação com título,
+descrição e metadados opcionais por entrada. Recebe `identificador` único,
+`titulo` e `itens` (`titulo`, `url`, `icone`, `texto`, `resumo` e `pendencia`).
+Pendência é o par texto/URL, com alvo independente do link expandido do registro.
+Usa as bases `registros`, `registro` e `registro__meta`; não adiciona CSS ou JS.
+Consumidores: os três grupos do índice de Cadastros. Não decide permissões:
+a view fornece somente os itens permitidos; grupo vazio é omitido pelo consumidor.

@@ -1,0 +1,20 @@
+{
+  "base": "352b3fb",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/indice.html",
+      "sha256_lf": "0a55e7a25db0897e5d214b1cd7af5c91bab746ee44716ed31c2de6f5c7ea7ef6"
+    },
+    {
+      "arquivo": "templates/componentes/lista_catalogo.html",
+      "sha256_lf": "f8624eb642b577b80ea1d53d52774d62b8300d9fe99a420d8e4672f5c957d3c8"
+    },
+    {
+      "arquivo": "tests/e2e/test_cadastros_indice_identidade.py",
+      "sha256_lf": "dc7d154084e2f469f088e0544f6378503583e10af11938fc11202cb48efc277f"
+    }
+  ],
+  "testes": "96 passed in 112.58s",
+  "homologacao_visual": false,
+  "css_js_delta_bytes": 0
+}
