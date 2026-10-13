@@ -33,6 +33,21 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | 20 | Testes do produto pertinentes (`gestao/plataforma`, `gestao/identidade`) | ✅ 73 passed |
 | 21 | Suíte rápida completa | ver a seção "Suíte" abaixo |
 
+### Revisão da PR (Codex) — revalidação na mesma VPS simulada
+
+| # | Verificação | Resultado |
+|---|---|---|
+| R1 | Instância de nome arbitrário (`prod`) com `config.settings.production` | ✅ recusa commit não aprovado, `--sem-backup`, `--semear` e imagem do produto ausente (sem `--construir-base`); `testar-classes`, `testar-documentos` e `comparar-renderizacao` recusam |
+| R2 | Migração pendente (0050 desaplicada no banco sintético) | ✅ web e worker param, migração aplicada, serviços sobem, smoke ok |
+| R3 | Migração que falha (coluna já existente) | ✅ alerta crítico, web e worker **ficam parados**, saída 1 |
+| R4 | `restaurar-banco` com dump truncado / com SHA-256 divergente | ✅ ambos recusados **antes** do DROP (banco intacto: 258 ofícios); dump válido restaura com smoke ok |
+| R5 | `comparar-renderizacao` | ✅ 8/8 iguais ao gravado (saída 0); com SHA gravado adulterado, saída 1 |
+| R6 | `testar-documentos` interrompido (SIGTERM) com a pasta travada | ✅ trap devolve 0750; execução completa: tudo ok |
+| R7 | Token do feed ICS nos logs | ✅ Gunicorn, Caddy (URI e Referer) e Nginx 1.29 (portas 80 e 443) gravam `/agenda/ics/[token]`; antes, o Gunicorn gravava o token |
+| R8 | `docker stop` do worker | ✅ 0 s com `init: true` (antes: 60 s até o SIGKILL) |
+| R9 | Reimplantar a mesma imagem | ✅ a imagem anterior registrada é preservada |
+| R10 | Regressão | ✅ smoke 20/20, classes documentais 13/13, `shellcheck`, `ruff` |
+
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
 ## Achados durante a validação (corrigidos na infraestrutura)
