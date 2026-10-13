@@ -1,0 +1,65 @@
+[
+  {
+    "page": "lista",
+    "width": 360,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "novo",
+    "width": 360,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "folha",
+    "width": 360,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "lista",
+    "width": 768,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "novo",
+    "width": 768,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "folha",
+    "width": 768,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "lista",
+    "width": 1440,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "novo",
+    "width": 1440,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "page": "folha",
+    "width": 1440,
+    "status": 200,
+    "console": [],
+    "overflow": false
+  }
+]

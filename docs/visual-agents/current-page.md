@@ -1,5 +1,32 @@
 # Página atual
 
+## Estado vigente — fechamento de OS e início de Planos
+
+OS01/OS02/OS03 fechadas tecnicamente: 64 testes aprovados, Ruff verde,
+nove capturas 360/768/1440 examinadas e revisão independente favorável.
+Captura móvel corrigida para aguardar documento/fontes do iframe; produto intacto.
+Cobertura 15/100; aprovação visual do usuário não presumida. Galeria com685prints.
+Nenhuma suíte ativa. Próxima unidade: Planos PT01→PT04, retomada do candidato
+existente (lista, nova, folha/multievento, resultados), confrontando navegador e
+contratos antes de decidir mudanças. _equipe.html do usuário intocado.
+Branch codex/oficios-transporte-cartoes; commit local de OS a registrar.
+
+## Estado vigente — Ordens de Serviço, 12/10/2026 21:44
+
+Fechamento de Termos commitado em a76e620; fonte do visualizador em9951a73.
+Cobertura12/100. Ressalva históricaaxe mantida sem alegar causa comprovada.
+Página ativa OS01→OS03. Corrigida cobertura do teste: aba=cancelados era inválida;
+agora aba=canceladas e exige aba ativa Canceladas + um registro. Produto inalterado.
+Captura somenteleitura de Lista/Nova/OS5 em360/768/1440 ativa37107.
+37107 TERMINOU:9capturasHTTP200,consolezero,semoverflow. NovaOS1440 e Lista360
+revisadas; composição canônica preservada. Faltam revisão dos outrosquadros e
+resultado16768 antes de fechar. Evidência ordens-retomada-capturas.json.
+Suíte integrada isolada ativa16768, log ordens-retomada-final.log. Não reiniciar.
+Próxima ação: acompanhar ambas, examinar capturas completas e fechar deficiências
+concretas antes de marcar OS concluída. _equipe.html do usuário preservado.
+
+Os estados abaixo são cronologia anterior.
+
 ## Estado vigente — fechamento de Termos, 12/10/2026 21:43
 
 TE01/TE02/TE03 concluídas tecnicamente COM RESSALVA registrada no QA:

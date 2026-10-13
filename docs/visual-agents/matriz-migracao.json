@@ -614,14 +614,30 @@
         "componentes/vazio.html",
         "viagens/ordens/_botao_novo.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Teste usava aba cancelados inválida; corrigido para canceladas com asserções de estado.",
+        "Captura inicial móvel antecedia carregamento da minuta; recapturada após conteúdo e fontes reais."
+      ],
+      "alteracoes_implementadas": [
+        "Composição canônica existente preservada após revisão real de lista, criação e folha.",
+        "Teste do filtro Canceladas agora comprova o estado efetivo; nenhum contrato funcional alterado."
+      ],
+      "testes_executados": [
+        "64 testes integrados aprovados em 220,97s: identidade, criação, autosave, HTTP, documentos, permissões e assinados.",
+        "Ruff aprovado; nove capturas HTTP200, console sem erros e sem overflow externo.",
+        "Revisão visual das seções inferiores e documento carregado em 360/768/1440; revisão independente do candidato."
+      ],
+      "evidencias": [
+        "qa/ordens-retomada-2026-10-12.md",
+        "qa/ordens-identidade-2026-10-10.md",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/ordens-retomada-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente; homologação visual do usuário pendente. Dívida SQL anterior e aviso HarfBuzz registrados. Gate global não declarado.",
+      "revisao_codigo": "a76e620 + teste atual; fontes exatas em ordens-retomada-candidato.json",
+      "dependencias_antigas": "Nenhum resíduo exclusivo de OS comprovado. Bases compartilhadas mantidas por consumidores reais; documento oficial protegido.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -664,14 +680,30 @@
         "viagens/oficios/_editor.html",
         "viagens/oficios/_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Teste usava aba cancelados inválida; corrigido para canceladas com asserções de estado.",
+        "Captura inicial móvel antecedia carregamento da minuta; recapturada após conteúdo e fontes reais."
+      ],
+      "alteracoes_implementadas": [
+        "Composição canônica existente preservada após revisão real de lista, criação e folha.",
+        "Teste do filtro Canceladas agora comprova o estado efetivo; nenhum contrato funcional alterado."
+      ],
+      "testes_executados": [
+        "64 testes integrados aprovados em 220,97s: identidade, criação, autosave, HTTP, documentos, permissões e assinados.",
+        "Ruff aprovado; nove capturas HTTP200, console sem erros e sem overflow externo.",
+        "Revisão visual das seções inferiores e documento carregado em 360/768/1440; revisão independente do candidato."
+      ],
+      "evidencias": [
+        "qa/ordens-retomada-2026-10-12.md",
+        "qa/ordens-identidade-2026-10-10.md",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/ordens-retomada-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente; homologação visual do usuário pendente. Dívida SQL anterior e aviso HarfBuzz registrados. Gate global não declarado.",
+      "revisao_codigo": "a76e620 + teste atual; fontes exatas em ordens-retomada-candidato.json",
+      "dependencias_antigas": "Nenhum resíduo exclusivo de OS comprovado. Bases compartilhadas mantidas por consumidores reais; documento oficial protegido.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -719,14 +751,30 @@
         "viagens/oficios/_editor.html",
         "viagens/oficios/_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Teste usava aba cancelados inválida; corrigido para canceladas com asserções de estado.",
+        "Captura inicial móvel antecedia carregamento da minuta; recapturada após conteúdo e fontes reais."
+      ],
+      "alteracoes_implementadas": [
+        "Composição canônica existente preservada após revisão real de lista, criação e folha.",
+        "Teste do filtro Canceladas agora comprova o estado efetivo; nenhum contrato funcional alterado."
+      ],
+      "testes_executados": [
+        "64 testes integrados aprovados em 220,97s: identidade, criação, autosave, HTTP, documentos, permissões e assinados.",
+        "Ruff aprovado; nove capturas HTTP200, console sem erros e sem overflow externo.",
+        "Revisão visual das seções inferiores e documento carregado em 360/768/1440; revisão independente do candidato."
+      ],
+      "evidencias": [
+        "qa/ordens-retomada-2026-10-12.md",
+        "qa/ordens-identidade-2026-10-10.md",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/ordens-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/ordens-retomada-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente; homologação visual do usuário pendente. Dívida SQL anterior e aviso HarfBuzz registrados. Gate global não declarado.",
+      "revisao_codigo": "a76e620 + teste atual; fontes exatas em ordens-retomada-candidato.json",
+      "dependencias_antigas": "Nenhum resíduo exclusivo de OS comprovado. Bases compartilhadas mantidas por consumidores reais; documento oficial protegido.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
