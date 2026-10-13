@@ -225,11 +225,13 @@ reimplantar o mesmo commit do produto — o script recusa `deploy/` com mudança
   (sem senhas), validação com `pg_restore --list` + SHA-256; retenção local de 7 dias.
 - **Externo**: `restic` (imagem fixada por digest) envia dumps **e** documentos —
   criptografia AES-256 no cliente, deduplicação, retenção 14 diários / 8 semanais / 12 mensais,
-  `restic check` diário (5% dos dados aos domingos). O dump é feito antes dos documentos, então
-  todo PDF referenciado pelo banco está no snapshot.
-- **Destino externo** (decisão do dono — nada foi contratado): qualquer backend do restic —
-  `sftp:` (outro servidor), `s3:` (bucket S3-compatível), `b2:`, `rclone:` (ex.: Google Drive
-  institucional). **Guarde a senha do repositório fora da VPS** (cofre de senhas): sem ela não
+  `restic check` diário (5% dos dados aos domingos). Banco e documentos são do mesmo instante:
+  web e worker ficam congelados (`docker compose pause`, as requisições esperam) só durante o
+  dump e uma cópia por hardlinks da pasta de documentos; o envio parte dessa cópia.
+- **Destino externo** (decisão do dono — nada foi contratado): um backend do restic
+  configurável só por variáveis de ambiente — `rest:` (rest-server em outro servidor, HTTPS
+  com usuário e senha), `s3:` (bucket S3-compatível) ou `b2:`. `sftp:` e `rclone:` exigem chave
+  SSH ou arquivo de configuração dentro do contêiner e **não** são suportados pelo `backup.sh`. **Guarde a senha do repositório fora da VPS** (cofre de senhas): sem ela não
   há restauração.
 - **Backup nativo da Hostinger** (snapshot/backup semanal da VPS no painel): complementar e
   útil contra perda total, mas não é consistente com o banco nem fica fora do provedor — não

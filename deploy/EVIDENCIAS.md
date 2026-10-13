@@ -47,6 +47,12 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R8 | `docker stop` do worker | ✅ 0 s com `init: true` (antes: 60 s até o SIGKILL) |
 | R9 | Reimplantar a mesma imagem | ✅ a imagem anterior registrada é preservada |
 | R10 | Regressão | ✅ smoke 20/20, classes documentais 13/13, `shellcheck`, `ruff` |
+| R11 | Backup com banco e documentos do mesmo instante | ✅ web e worker congelados ~3 s (dump + cópia por hardlinks), depois descongelados; snapshot externo restaurado e **aprovado** (300 documentos, cadeia íntegra) |
+| R12 | Falha do dump com os serviços congelados | ✅ alerta crítico e web/worker descongelados pelo trap |
+| R13 | `restaurar-teste --origem extenro` | ✅ recusado; `externo` aprovado 3×, após corrigir a espera pelo PostgreSQL efêmero (o servidor temporário da imagem respondia ao `pg_isready` e reiniciava) |
+| R14 | `comparar_renderizacao.py` com amostras diferentes | ✅ documento só de um lado = divergência (saída 1), nos dois sentidos |
+| R15 | `impressoes.tsv` das classes | ✅ bytes, SHA-256 do arquivo, páginas, fontes e SHA-256 do texto extraído (pypdf da imagem) |
+| R16 | Boot do Gunicorn 26 | ✅ sem o ERROR do socket de controle (desligado; a raiz é somente leitura) |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 

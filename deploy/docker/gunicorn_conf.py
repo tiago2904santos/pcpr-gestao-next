@@ -19,3 +19,7 @@ class LoggerMascarado(Logger):
 
 
 logger_class = LoggerMascarado
+
+# O socket de controle (Gunicorn 26) tentaria escrever em ~/.gunicorn, na raiz somente leitura
+# do contêiner (ERROR a cada boot); a implantação não usa essa interface.
+control_socket_disable = True

@@ -6,9 +6,12 @@
 #   deploy/vps/backup.sh <instância> --iniciar-repositorio     # uma vez, cria o repositório
 #
 # Cópia externa: $CONF/backup.env (0600), por exemplo
-#   RESTIC_REPOSITORY=sftp:backup@outro-servidor:/pcpr/homologacao   # ou s3:/b2:/rclone:
+#   RESTIC_REPOSITORY=rest:https://usuario:senha@backup.exemplo:8000/pcpr-homologacao
+#                     # ou s3:<endpoint>/<bucket>/pcpr-homologacao  ou  b2:<bucket>:pcpr-homologacao
 #   RESTIC_PASSWORD=<senha longa — guarde também FORA da VPS, sem ela não há restauração>
 #   (+ credenciais do destino, ex.: AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY ou B2_ACCOUNT_*)
+# O restic roda num contêiner que recebe SÓ estas variáveis: destinos que exigem arquivos
+# (sftp: com chave SSH, rclone: com rclone.conf) não são suportados por este script.
 # Sem backup.env o backup local ainda roda, mas é tratado como DEGRADADO (alerta).
 . "$(dirname "$0")/lib.sh"
 carregar_instancia "${1:-}"; shift || true
@@ -26,9 +29,10 @@ done
 RETENCAO_LOCAL_DIAS="${PCPR_BACKUP_RETENCAO_LOCAL_DIAS:-7}"
 CACHE="$PCPR_RAIZ/.cache-restic"; mkdir -p "$CACHE"
 
+MIDIA_ORIGEM="$PCPR_DADOS/midia"   # trocada pela cópia por hardlinks feita junto do dump
 restic() {  # restic em contêiner fixado; repositório e senha só do backup.env
   docker run --rm -i --env-file "$CONF/backup.env" --hostname "pcpr-$INST" \
-    -v "$CACHE:/cache" -v "$BACKUPS/banco:/dados/banco:ro" -v "$PCPR_DADOS/midia:/dados/midia:ro" \
+    -v "$CACHE:/cache" -v "$BACKUPS/banco:/dados/banco:ro" -v "$MIDIA_ORIGEM:/dados/midia:ro" \
     "$IMAGEM_RESTIC" --cache-dir /cache "$@"
 }
 
@@ -41,16 +45,38 @@ fi
 
 falhou() { rm -f "${ARQ:-}.parcial"; alertar CRITICO "backup ($MOTIVO) falhou na linha $1"; }
 trap 'falhou $LINENO' ERR
+CONGELADOS=""
+SNAP="$BACKUPS/.midia-$$"
+encerrar() {
+  [ -z "$CONGELADOS" ] || dc unpause $CONGELADOS >/dev/null 2>&1 || true
+  rm -rf "$SNAP"
+}
+trap encerrar EXIT
 
 export PCPR_IMAGEM="${PCPR_IMAGEM:-indefinida}"   # só para interpolar o compose
 TS="$(date +%Y%m%dT%H%M%S)"
 ARQ="$BACKUPS/banco/${PCPR_DB_NOME}-${TS}-${MOTIVO}.dump"
 
-# 1. Dump consistente (snapshot MVCC) pelo superusuário do cluster, gravado pelo host.
-registrar "backup ($MOTIVO): dump de $PCPR_DB_NOME"
+# 1. Banco e documentos do MESMO instante. Web e worker ficam congelados (pause: requisições
+#    esperam, nada falha) só durante o dump e uma cópia por hardlinks da pasta de documentos —
+#    instantânea, sem duplicar dados. Sem isso, um anexo substituído depois do dump (o Coffee
+#    apaga o arquivo antigo ao gravar o novo) faltaria na cópia externa. O envio ao restic,
+#    demorado, parte da cópia, já com tudo descongelado.
+CONGELADOS="$(dc ps --status running --services web worker 2>/dev/null | xargs)"
+[ -z "$CONGELADOS" ] || dc pause $CONGELADOS >/dev/null
+registrar "backup ($MOTIVO): dump de $PCPR_DB_NOME${CONGELADOS:+ (congelados: $CONGELADOS)}"
 dc exec -T db pg_dump -U postgres -d "$PCPR_DB_NOME" -Fc -Z 6 >"$ARQ.parcial"
 dc exec -T db pg_dumpall -U postgres --globals-only --no-role-passwords >"$ARQ.papeis.sql"
 mv "$ARQ.parcial" "$ARQ"
+if [ -f "$CONF/backup.env" ]; then
+  if cp -al "$PCPR_DADOS/midia" "$SNAP" 2>/dev/null; then
+    MIDIA_ORIGEM="$SNAP"
+  else
+    rm -rf "$SNAP"
+    registrar "aviso: cópia por hardlinks indisponível (outro sistema de arquivos?); documentos lidos ao vivo"
+  fi
+fi
+[ -z "$CONGELADOS" ] || { dc unpause $CONGELADOS >/dev/null; CONGELADOS=""; }
 
 # 2. Validação: o arquivo precisa ser legível pelo pg_restore.
 OBJETOS="$(dc exec -T db pg_restore --list <"$ARQ" | grep -vc '^;')"
@@ -63,10 +89,10 @@ registrar "dump ok: $(basename "$ARQ") ($TAMANHO, $OBJETOS objetos)"
 find "$BACKUPS/banco" -maxdepth 1 -type f -name "${PCPR_DB_NOME}-*" -mtime "+$RETENCAO_LOCAL_DIAS" -delete
 find "$BACKUPS/banco" -maxdepth 1 -type f -name "${PCPR_DB_NOME}-*.parcial" -mmin +60 -delete
 
-# 4. Cópia externa: dumps + documentos. O dump é feito ANTES dos documentos: todo PDF
-#    referenciado pelo banco já existe no disco (arquivos emitidos não são reescritos).
+# 4. Cópia externa: dumps + documentos (a cópia do passo 1, coerente com o dump).
 if [ -f "$CONF/backup.env" ]; then
-  restic backup --tag "$INST" --tag "$MOTIVO" /dados/banco /dados/midia --quiet
+  # --ignore-ctime: criar os hardlinks muda o ctime de todo arquivo, não o conteúdo.
+  restic backup --tag "$INST" --tag "$MOTIVO" --ignore-ctime /dados/banco /dados/midia --quiet
   if [ "$MOTIVO" = diario ]; then
     restic forget --tag "$INST" --keep-daily 14 --keep-weekly 8 --keep-monthly 12 --prune --quiet
     # Verificação leve diária; amostra de 5% dos dados aos domingos.

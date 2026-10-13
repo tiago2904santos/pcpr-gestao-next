@@ -15,6 +15,7 @@ while [ $# -gt 0 ]; do
   case "$1" in --origem) ORIGEM="$2"; shift 2 ;; *) morrer "opção desconhecida: $1" ;; esac
 done
 [ -n "$ORIGEM" ] || { [ -f "$CONF/backup.env" ] && ORIGEM=externo || ORIGEM=local; }
+case "$ORIGEM" in externo|local) ;; *) morrer "--origem inválida: '$ORIGEM' (externo|local)" ;; esac
 export PCPR_IMAGEM="${PCPR_IMAGEM:?instância sem imagem implantada}"
 
 TS="$(date +%Y%m%dT%H%M%S)"
@@ -52,7 +53,9 @@ docker network create --internal "$REDE" >/dev/null
 SENHA="$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')"
 docker run -d --name "$NOME" --network "$REDE" --network-alias db --tmpfs /var/lib/postgresql/data \
   -e POSTGRES_PASSWORD="$SENHA" -e POSTGRES_DB=restauracao_demo "$IMAGEM_PG" >/dev/null
-for _ in $(seq 60); do docker exec "$NOME" pg_isready -U postgres -d restauracao_demo -q && break; sleep 1; done
+# Por TCP: o servidor temporário da inicialização da imagem só escuta no socket Unix e logo
+# reinicia; esperar pelo socket deixava o psql seguinte pegar esse reinício.
+for _ in $(seq 60); do docker exec "$NOME" pg_isready -h 127.0.0.1 -U postgres -d restauracao_demo -q && break; sleep 1; done
 docker exec "$NOME" psql -U postgres -qc "CREATE ROLE pcpr_owner; CREATE ROLE pcpr_app; CREATE ROLE pcpr_leitura;" >/dev/null
 docker exec -i "$NOME" pg_restore -U postgres -d restauracao_demo --exit-on-error --no-owner <"$DUMP"
 q() { docker exec "$NOME" psql -U postgres -d restauracao_demo -XAtq -v ON_ERROR_STOP=1 -c "$1"; }

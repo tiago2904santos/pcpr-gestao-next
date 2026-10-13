@@ -57,6 +57,11 @@ def comparar(a: str, b: str) -> int:
         lado_a = {d["id"]: d for d in json.load(fa)}
         lado_b = {d["id"]: d for d in json.load(fb)}
     divergencias = 0
+    # Amostras diferentes (arquivo velho, truncado, outra amostra) não provam nada.
+    for ident in sorted(lado_a.keys() ^ lado_b.keys()):
+        lado = "A" if ident in lado_a else "B"
+        sys.stdout.write(f"  doc {ident:>5} só no lado {lado} | DIVERGENTE (amostras diferentes)\n")
+        divergencias += 1
     for ident, da in sorted(lado_a.items()):
         db = lado_b.get(ident)
         if db is None:

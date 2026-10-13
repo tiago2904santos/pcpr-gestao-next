@@ -4,8 +4,9 @@
 #
 #   deploy/homologacao/testar-classes.sh <instância>
 #
-# Grava em $ESTADO/classes/ os PDFs baixados e impressoes.tsv (classe, bytes, páginas,
-# SHA-256 do texto extraído) para comparar a renderização da VPS com a local.
+# Grava em $ESTADO/classes/ os PDFs baixados e impressoes.tsv (classe, bytes, SHA-256 do
+# arquivo, páginas, fontes embutidas e SHA-256 do texto extraído) para comparar a
+# renderização da VPS com a local.
 . "$(dirname "$0")/../vps/lib.sh"
 carregar_instancia "${1:-}"
 recusar_dados_reais "use somente na homologação (dados sintéticos)"
@@ -55,14 +56,23 @@ baixar relatorio-docx 'PK' "SELECT '/viagens/prestacoes/equipe/' || prestacao_id
 baixar pauta-pdf '%PDF' "SELECT '/agenda/pauta/'"
 
 # Impressão digital para comparar com a renderização local (mesma imagem ⇒ mesmo resultado).
-python3 - "$SAIDA" >"$SAIDA/impressoes.tsv" <<'PY' || true
-import hashlib, pathlib, re, sys, zlib
-for arq in sorted(pathlib.Path(sys.argv[1]).glob("*.pdf")):
+# O texto vem do pypdf da própria imagem (o host pode não ter pypdf).
+docker run --rm -i --read-only --network none --user "$(id -u):$(id -g)" -v "$SAIDA:/classes:ro" \
+  --entrypoint python "${PCPR_IMAGEM:?}" - >"$SAIDA/impressoes.tsv" <<'PY'
+import hashlib, pathlib
+from pypdf import PdfReader
+print("arquivo\tbytes\tsha256\tpaginas\tfontes\tsha256_texto")
+for arq in sorted(pathlib.Path("/classes").glob("*.pdf")):
     dados = arq.read_bytes()
-    paginas = len(re.findall(rb"/Type\s*/Page[^s]", dados))
-    fontes = sorted(set(re.findall(rb"/BaseFont\s*/([A-Za-z0-9+_-]+)", dados)))
-    print(f"{arq.stem}\t{len(dados)}\t{paginas}\t{b','.join(f.split(b'+')[-1] for f in fontes).decode()}")
+    leitor = PdfReader(arq)
+    fontes = set()
+    for pagina in leitor.pages:
+        for fonte in ((pagina.get("/Resources") or {}).get("/Font") or {}).values():
+            fontes.add(str(fonte.get_object().get("/BaseFont", "")).split("+")[-1])
+    texto = "\f".join(p.extract_text() or "" for p in leitor.pages)
+    print(f"{arq.stem}\t{len(dados)}\t{hashlib.sha256(dados).hexdigest()[:16]}\t{len(leitor.pages)}"
+          f"\t{','.join(sorted(fontes))}\t{hashlib.sha256(texto.encode()).hexdigest()[:16]}")
 PY
-column -t "$SAIDA/impressoes.tsv" 2>/dev/null | sed 's/^/       /' || true
+{ column -t "$SAIDA/impressoes.tsv" 2>/dev/null || cat "$SAIDA/impressoes.tsv"; } | sed 's/^/       /'
 rm -f "$JAR"
 [ "$FALHAS" = 0 ] && echo "Classes documentais: tudo ok." || { echo "Classes documentais: $FALHAS falha(s)."; exit 1; }
