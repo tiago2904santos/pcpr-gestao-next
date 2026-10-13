@@ -6,7 +6,7 @@ from playwright.sync_api import expect
 from gestao.cadastros.models import AtividadePlano
 from gestao.viagens import planos, resultados
 from gestao.viagens.tests.test_planos import _completo
-from tests.e2e.conftest import rodar_axe
+from tests.e2e.conftest import estabilizar, rodar_axe
 
 pytestmark = pytest.mark.e2e
 
@@ -23,6 +23,7 @@ def test_lancamento_zero_milhar_limpeza_e_teclado(logado, dados_e2e, largura):
     observacao = pg.locator(f"#observacao_{cin.pk}")
     expect(quantidade).to_have_accessible_name(f"Realizado — {cin.nome}")
     if largura < 1024:
+        estabilizar(pg)
         rotulo = pg.locator(f'label[for="realizado_{cin.pk}"]')
         assert rotulo.bounding_box()["y"] + rotulo.bounding_box()["height"] <= quantidade.bounding_box()["y"]
     expect(observacao).to_have_attribute("maxlength", "500")

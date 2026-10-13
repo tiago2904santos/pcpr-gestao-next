@@ -135,6 +135,9 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     emitidos = _total(pg)
     assert 0 < emitidos < total
     pg.locator("#filtros-mais > summary").click()  # a ordem mora na gaveta
+    # Os controles da gaveta só se montam quando ela abre (ADR 0026): espera o seletor próprio
+    # trocar o <select> antes de clicar — senão o clique pega o nativo no meio da troca.
+    pg.locator("#filtros-mais pc-select.seletor--ativo").first.wait_for()
     pg.get_by_role("combobox", name="Ordenar por").click()
     pg.get_by_role("option", name="Saída, mais antiga primeiro").click()
     expect(pg).to_have_url(re.compile("ordem=saida"))

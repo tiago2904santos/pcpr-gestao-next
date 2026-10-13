@@ -12,7 +12,8 @@ import re
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Browser, Page, sync_playwright
+from playwright.sync_api import Browser, Locator, Page, sync_playwright
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import TimeoutError as PlaywrightTimeout
 
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
@@ -22,6 +23,45 @@ ARTEFATOS = RAIZ / "artifacts"
 AXE = RAIZ / "tests" / "_vendor" / "axe.min.js"
 LARGURAS = [360, 390, 768, 1024, 1280, 1440]
 SENHA = "senha-e2e-123"
+
+
+# Os controles da página são importados sob demanda (app.js): logo após uma navegação, um
+# <select> ainda é o nativo e um formulário ainda não tem autosave. Agir nesse instante pega o
+# elemento no meio da troca — e numa máquina lenta (CI) isso acontece. Toda ação espera o sinal
+# <html data-controladores="prontos"> (páginas sem app.js passam direto).
+CONTROLADORES_PRONTOS = """() => document.documentElement.dataset.controladores !== 'carregando'
+    && (document.documentElement.dataset.controladores === 'prontos'
+        || !document.querySelector('script[src*="/js/app."]'))"""
+_ACOES = ("click", "dblclick", "fill", "press", "press_sequentially", "type", "check",
+          "uncheck", "set_checked", "select_option", "set_input_files", "hover", "tap")
+
+
+def aguardar_controladores(pg: Page) -> None:
+    with contextlib.suppress(PlaywrightTimeout, PlaywrightError):
+        pg.main_frame.wait_for_function(CONTROLADORES_PRONTOS, timeout=15_000)
+
+
+def estabilizar(pg: Page) -> None:
+    """Antes de medir geometria: controles montados, fontes carregadas e o layout assentado
+    (dois quadros) — medir no instante da navegação pegava o rótulo antes da fonte final."""
+    aguardar_controladores(pg)
+    pg.evaluate("""() => document.fonts.ready.then(() => new Promise(
+        r => requestAnimationFrame(() => requestAnimationFrame(() => r(true)))))""")
+
+
+def _esperando(original):
+    def acao(self, *args, **kwargs):
+        aguardar_controladores(self.page if isinstance(self, Locator) else self)
+        return original(self, *args, **kwargs)
+
+    acao.__wrapped__ = original
+    return acao
+
+
+for _alvo in (Locator, Page):
+    for _nome in _ACOES:
+        if hasattr(_alvo, _nome) and not hasattr(getattr(_alvo, _nome), "__wrapped__"):
+            setattr(_alvo, _nome, _esperando(getattr(_alvo, _nome)))
 
 
 @pytest.fixture(scope="session")
