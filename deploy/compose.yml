@@ -1,0 +1,168 @@
+# Instância do PCPR Gestão (HOMOLOGAÇÃO ou PRODUÇÃO) na VPS — deploy/README.md.
+#
+# Não use diretamente: deploy/vps/pcpr.sh monta o comando com o arquivo de interpolação
+# da instância, por exemplo:
+#   docker compose -p pcpr-homologacao --env-file /etc/pcpr/homologacao/instancia.env \
+#     -f /srv/pcpr/infra/deploy/compose.yml up -d --wait
+#
+# Separação (deploy/README.md §Dados):
+#   código ........ imagem imutável pcpr-gestao-implantacao:<commit> (sem dados, sem segredos)
+#   configuração .. ${PCPR_CONFIG}/app.env, owner.env, banco.env (0600, fora do Git)
+#   banco ......... ${PCPR_DADOS}/postgres (bind mount; rede interna, sem porta publicada)
+#   documentos .... ${PCPR_DADOS}/midia (bind mount; só a aplicação lê, nunca o proxy)
+#   temporários ... tmpfs /tmp de cada contêiner (somem ao reiniciar)
+#   logs .......... json-file com rotação (docker compose logs / journal do host)
+#   backups ....... /srv/pcpr/<instância>/backups no host + repositório restic externo
+name: pcpr-${PCPR_INSTANCIA:?defina PCPR_INSTANCIA}
+
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-endurecido: &endurecido
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging: *logs
+  restart: unless-stopped
+
+x-app: &app
+  <<: *endurecido
+  image: ${PCPR_IMAGEM:?defina PCPR_IMAGEM (deploy/vps/implantar.sh)}
+  # UID dedicado, inexistente no host (o uid 1000 da imagem costuma ser um usuário real da VPS).
+  user: "${PCPR_UID:-10001}:${PCPR_UID:-10001}"
+  env_file:
+    - ${PCPR_CONFIG:?}/app.env
+  environment:
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+  tmpfs:
+    - /tmp:size=${PCPR_TMP_TAMANHO:-512m},mode=1777
+  volumes:
+    - ${PCPR_DADOS:?}/midia:/app/var/media
+  networks:
+    - banco
+    - saida
+
+services:
+  db:
+    <<: *endurecido
+    # Fixada por digest (PostgreSQL 16.15). PCPR_IMAGEM_POSTGRES aceita um espelho com o
+    # mesmo digest (ex.: mirror.gcr.io/library/postgres@sha256:…) se o Docker Hub limitar.
+    image: ${PCPR_IMAGEM_POSTGRES:-postgres:16.15-bookworm@sha256:0ea6700a3b4f0ae6ce746519073558aed4d88a79d8d07622a9a644946c7319c4}
+    # O entrypoint oficial precisa trocar de usuário e ajustar o diretório de dados.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    env_file:
+      - ${PCPR_CONFIG}/banco.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: ${PCPR_DB_NOME:?}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${PCPR_PG_SHARED_BUFFERS:-256MB}
+      - -c
+      - effective_cache_size=${PCPR_PG_CACHE:-768MB}
+      - -c
+      - max_connections=80
+      - -c
+      - log_min_duration_statement=2000
+      - -c
+      - log_lock_waits=on
+      - -c
+      - timezone=America/Sao_Paulo
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    shm_size: 256m
+    volumes:
+      - ${PCPR_DADOS}/postgres:/var/lib/postgresql/data
+      - ./postgres/01-papeis.sh:/docker-entrypoint-initdb.d/01-papeis.sh:ro
+    networks:
+      - banco
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${PCPR_DB_NOME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    mem_limit: ${PCPR_DB_MEMORIA:-1g}
+    stop_grace_period: 60s
+
+  web:
+    <<: *app
+    command: ["web"]
+    ports:
+      # Só o proxy do host alcança (nunca 0.0.0.0).
+      - "127.0.0.1:${PCPR_PORTA:?}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "/opt/pcpr/saude.py"]
+      interval: 15s
+      timeout: 6s
+      retries: 4
+      start_period: 40s
+    mem_limit: ${PCPR_WEB_MEMORIA:-1g}
+    stop_grace_period: 40s
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: ${PCPR_WORKER_MEMORIA:-1g}
+    # Mensagem em processamento termina ou volta à fila (transação); 60 s basta para um PDF.
+    stop_grace_period: 60s
+
+  # ---- Tarefas sob demanda (profile "ops"): docker compose run --rm <serviço> ----
+  migrar:
+    <<: *app
+    profiles: ["ops"]
+    command: ["migrar"]
+    restart: "no"
+    env_file:
+      - ${PCPR_CONFIG}/app.env
+      - ${PCPR_CONFIG}/owner.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  tarefa:
+    <<: *app
+    profiles: ["ops"]
+    entrypoint: ["pcpr-entrypoint", "tarefa"]
+    command: ["check"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Dataset sintético (só HOMOLOGAÇÃO com config.settings.preview; o produto recusa em
+  # qualquer outro ambiente). Roda como dono do schema: o dataset usa TRUNCATE/ANALYZE.
+  semear:
+    <<: *app
+    profiles: ["ops"]
+    entrypoint: ["pcpr-entrypoint", "tarefa"]
+    command: ["semear_demo", "--se-vazio"]
+    restart: "no"
+    env_file:
+      - ${PCPR_CONFIG}/app.env
+      - ${PCPR_CONFIG}/owner.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  # Banco isolado: sem rota para fora e sem porta publicada.
+  banco:
+    internal: true
+  # Saída da aplicação (provedor de rotas, SMTP, eProtocolo quando houver).
+  saida: {}

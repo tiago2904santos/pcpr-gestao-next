@@ -1,0 +1,12 @@
+[Unit]
+Description=PCPR Gestão — backup diário (%i)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/srv/pcpr/infra/deploy/vps/backup.sh %i --motivo diario
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=3h

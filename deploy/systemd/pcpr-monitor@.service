@@ -1,0 +1,10 @@
+[Unit]
+Description=PCPR Gestão — verificações leves (%i)
+After=docker.service
+
+[Service]
+Type=oneshot
+# Código de saída ≠ 0 só indica que há problemas (já alertados); não marca a unidade como falha.
+SuccessExitStatus=1
+ExecStart=/srv/pcpr/infra/deploy/vps/monitorar.sh %i
+TimeoutStartSec=4m

@@ -1,0 +1,40 @@
+# Site de UMA instância. Copie para /etc/pcpr/proxy/sites/<instância>.caddy trocando
+# DOMINIO e PORTA (a porta é PCPR_PORTA da instância, publicada só em 127.0.0.1).
+DOMINIO {
+	encode zstd gzip
+
+	# Via assinada até 15 MB + formulário (a aplicação também recusa com 413).
+	request_body {
+		max_size 16MB
+	}
+
+	# Documentos e mídia NUNCA saem pelo proxy: só pelas views, com autorização por objeto.
+	@interno path /media/* /var/*
+	respond @interno 404
+
+	# Django já envia CSP, X-Frame-Options, nosniff, Referrer-Policy e COOP; aqui só o que
+	# falta. "?" = definir apenas se a aplicação não enviou.
+	header {
+		?Strict-Transport-Security "max-age=31536000"
+		?Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:PORTA {
+		# Sobrescreve qualquer valor vindo do cliente (o Caddy não confia em X-Forwarded-* externos).
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 130s
+		}
+	}
+
+	log {
+		output file /data/logs/DOMINIO.log {
+			roll_size 20MiB
+			roll_keep 10
+		}
+		format json
+	}
+}

@@ -1,0 +1,53 @@
+# Integração com um Nginx JÁ EXISTENTE no host (não suba o Caddy nesse caso).
+# Copie para /etc/nginx/sites-available/pcpr-<instância>.conf, troque DOMINIO e PORTA,
+# emita o certificado (ex.: certbot --nginx -d DOMINIO) e rode `nginx -t` ANTES do reload.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name DOMINIO;
+    # Desafio ACME (certbot webroot) e redirecionamento para HTTPS.
+    location /.well-known/acme-challenge/ { root /var/www/letsencrypt; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name DOMINIO;
+
+    ssl_certificate     /etc/letsencrypt/live/DOMINIO/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/DOMINIO/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:pcpr_ssl:10m;
+    ssl_session_timeout 1d;
+
+    # Via assinada até 15 MB + formulário.
+    client_max_body_size 16m;
+    server_tokens off;
+
+    # Django já envia CSP, X-Frame-Options, nosniff, Referrer-Policy e COOP.
+    add_header Strict-Transport-Security "max-age=31536000" always;
+
+    # Documentos e mídia nunca saem pelo proxy (só pelas views, com autorização).
+    location ^~ /media/ { return 404; }
+    location ^~ /var/   { return 404; }
+
+    location / {
+        proxy_pass http://127.0.0.1:PORTA;
+        proxy_set_header Host $host;
+        # Sobrescreve o que o cliente mandar — a auditoria usa X-Real-IP.
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 130s;
+        proxy_send_timeout 130s;
+        proxy_request_buffering on;
+    }
+
+    access_log /var/log/nginx/pcpr-DOMINIO.access.log;
+    error_log  /var/log/nginx/pcpr-DOMINIO.error.log warn;
+}
