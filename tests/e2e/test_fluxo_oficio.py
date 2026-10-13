@@ -511,7 +511,9 @@ def test_folha_mostra_a_minuta_emoldurada(logado, dados_e2e):
     assert resposta.value.status == 200
     assert resposta.value.headers["content-type"].startswith("text/html")
     assert "frame-ancestors 'self'" in resposta.value.headers["content-security-policy"]
-    # No bloco de editores só a barra do editor ativo aparece (editores.js o marca ao montar).
+    # No bloco de editores só a barra do editor ativo aparece — e, rolando, ativa é a página no
+    # meio da tela (pode ser a justificativa). Escolhe o ofício pelo índice, como a pessoa faz.
+    pg.click("#indice-oficio [data-ir-pagina='oficio']")
     pg.locator("#editor-oficio.editor--ativo").wait_for(state="attached")
     with pg.expect_response(lambda r: f"/viagens/oficios/{pk}/minuta.pdf" in r.url) as pdf:
         pg.click("#editor-oficio [data-modo='pdf']")

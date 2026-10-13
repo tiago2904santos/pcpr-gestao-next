@@ -182,7 +182,9 @@ def test_import_em_curso_preserva_foco_do_select_nativo(logado, dados_e2e, largu
     pg.route("**/componentes/seletor.js", entregar_depois_do_foco, times=1)
     pg.goto("/viagens/oficios/", wait_until="networkidle")
     pg.locator("#filtros-mais > summary").click()
-    expect(pg.locator("#ordem-oficios-gatilho")).to_be_visible()
+    # O próprio teste segura o módulo até o foco (fetch + espera no handler): o prazo padrão
+    # de 5 s não comporta esse atraso numa máquina lenta (CI).
+    expect(pg.locator("#ordem-oficios-gatilho")).to_be_visible(timeout=15_000)
     expect(pg.locator("#ordem-oficios-gatilho")).to_be_focused()
     pg.keyboard.press("ArrowDown")
     expect(pg.locator("#ordem-oficios-gatilho-lista")).to_be_visible()
