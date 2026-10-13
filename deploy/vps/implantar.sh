@@ -57,6 +57,16 @@ NÃO testadas)"
 fi
 BASE_ID="$(docker image inspect -f '{{.Id}}' "$BASE")"
 registrar "imagem do produto: $BASE ($BASE_ID)"
+# Com dados reais, o trio produto + infraestrutura + imagem tem de ter sido implantado com
+# sucesso (smoke incluído) numa instância sintética deste host — a tag local sozinha não
+# prova isso (pode sobrar de uma homologação que falhou).
+HOMOLOGADOS="$PCPR_RAIZ/homologados.tsv"
+if [ "$REAL" = 1 ] && [ "$CONSTRUIR_BASE" = 0 ]; then
+  awk -F'\t' -v s="$SHA" -v i="$INFRA" -v b="$BASE_ID" '$2==s && $3==i && $4==b {ok=1} END {exit !ok}' \
+    "$HOMOLOGADOS" 2>/dev/null || morrer "produto ${SHA:0:12} + infraestrutura ${INFRA:0:12} \
++ imagem $BASE_ID não passaram por uma homologação deste host ($HOMOLOGADOS); implante na \
+homologação antes (ou --construir-base, decisão explícita de usar um par não testado)"
+fi
 docker build -q -t "$NOVA" --build-arg "BASE=$BASE" --build-arg "PRODUTO_COMMIT=$SHA" \
   --build-arg "INFRA_COMMIT=$INFRA" "$DEPLOY_DIR/docker" >/dev/null
 registrar "imagem pronta: $NOVA"
@@ -130,6 +140,9 @@ fi
 printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$NOVA" "${SUDO_USER:-$(id -un)}" "$BASE_ID" \
   >>"$PCPR_RAIZ/$INST/implantacoes.tsv"
 echo "$SHA" >"$ESTADO/versao-ativa"
+if [ "$REAL" = 0 ]; then  # registro do que passou na homologação (consultado com dados reais)
+  printf '%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$BASE_ID" "$INST" >>"$HOMOLOGADOS"
+fi
 registrar "implantação concluída: $NOVA (anterior: ${ANTERIOR:-nenhuma})"
 
 # Limpeza: mantém a imagem atual e a anterior de TODAS as instâncias (reversão sem rebuild).

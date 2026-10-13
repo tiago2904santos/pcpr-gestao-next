@@ -69,12 +69,11 @@ dc exec -T db pg_dump -U postgres -d "$PCPR_DB_NOME" -Fc -Z 6 >"$ARQ.parcial"
 dc exec -T db pg_dumpall -U postgres --globals-only --no-role-passwords >"$ARQ.papeis.sql"
 mv "$ARQ.parcial" "$ARQ"
 if [ -f "$CONF/backup.env" ]; then
-  if cp -al "$PCPR_DADOS/midia" "$SNAP" 2>/dev/null; then
-    MIDIA_ORIGEM="$SNAP"
-  else
-    rm -rf "$SNAP"
-    registrar "aviso: cópia por hardlinks indisponível (outro sistema de arquivos?); documentos lidos ao vivo"
-  fi
+  # Sem a cópia, ler os documentos ao vivo reabriria a inconsistência: falha (o dump local
+  # já gravado continua válido). backups/ e dados/ precisam estar no mesmo sistema de arquivos.
+  cp -al "$PCPR_DADOS/midia" "$SNAP" || { registrar "cópia por hardlinks falhou \
+(backups/ e dados/ no mesmo sistema de arquivos?)"; false; }
+  MIDIA_ORIGEM="$SNAP"
 fi
 [ -z "$CONGELADOS" ] || { dc unpause $CONGELADOS >/dev/null; CONGELADOS=""; }
 

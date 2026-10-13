@@ -64,9 +64,11 @@ case "$CMD" in
     else
       registrar "aviso: $DUMP sem .sha256 (só a estrutura do dump foi conferida)"
     fi
-    "$DEPLOY_DIR/vps/backup.sh" "$INST" --motivo antes-de-restaurar --sem-trava
-    registrar "RESTAURANDO banco de $INST a partir de $(basename "$DUMP")"
+    # Escritas param ANTES do backup de segurança: tudo o que foi gravado até aqui fica nele.
     dc stop web worker
+    "$DEPLOY_DIR/vps/backup.sh" "$INST" --motivo antes-de-restaurar --sem-trava || {
+      dc up -d web worker; morrer "backup de segurança falhou: nada foi restaurado"; }
+    registrar "RESTAURANDO banco de $INST a partir de $(basename "$DUMP")"
     dc exec -T db psql -U postgres -v ON_ERROR_STOP=1 -c "DROP DATABASE \"$PCPR_DB_NOME\" WITH (FORCE)" \
       -c "CREATE DATABASE \"$PCPR_DB_NOME\" OWNER pcpr_owner" \
       -c "REVOKE ALL ON DATABASE \"$PCPR_DB_NOME\" FROM PUBLIC" \

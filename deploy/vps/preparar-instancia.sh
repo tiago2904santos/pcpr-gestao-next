@@ -22,7 +22,8 @@ while [ $# -gt 0 ]; do
 done
 [[ "$INST" =~ ^[a-z][a-z0-9-]{1,30}$ ]] || morrer "uso: $0 <instância> --dominio <fqdn> --porta <n>"
 [[ "$DOMINIO" =~ ^[a-z0-9.-]+\.[a-z]{2,}$ ]] || morrer "--dominio inválido"
-[[ "$PORTA" =~ ^[0-9]{4,5}$ ]] || morrer "--porta inválida"
+[[ "$PORTA" =~ ^[0-9]{4,5}$ ]] && [ "$PORTA" -ge 1024 ] && [ "$PORTA" -le 65535 ] \
+  || morrer "--porta inválida (1024–65535)"
 [ "$(id -u)" = 0 ] || morrer "rode como root (cria /etc/pcpr e ajusta donos)"
 
 if [ -z "$SETTINGS" ]; then

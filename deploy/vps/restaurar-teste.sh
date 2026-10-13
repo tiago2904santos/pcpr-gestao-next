@@ -77,14 +77,16 @@ docker run --rm --network "$REDE" --read-only --tmpfs /tmp \
   -e POSTGRES_HOST=db -e POSTGRES_DB=restauracao_demo -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD="$SENHA" "$PCPR_IMAGEM" tarefa verificar_auditoria | tee -a "$RELATORIO"
 
-# 5. Documentos: todo PDF pronto existe e confere com o SHA-256 gravado no banco
-q "COPY (SELECT sha256 || '  ' || arquivo FROM viagens_documento WHERE arquivo <> '' AND sha256 <> '') TO STDOUT" \
-  >"$TRAB/documentos.sha256"
+# 5. Arquivos com SHA-256 do CONTEÚDO gravado no banco: documentos gerados, vias assinadas e
+#    anexos de prestação — todos existem e conferem. (coffee_via.sha256 é o da folha HTML.)
+for t in viagens_documento viagens_viaassinada viagens_anexoprestacao; do
+  q "COPY (SELECT sha256 || '  ' || arquivo FROM $t WHERE arquivo <> '' AND sha256 <> '') TO STDOUT"
+done >"$TRAB/documentos.sha256"
 TOTAL="$(wc -l <"$TRAB/documentos.sha256")"
 if [ "$TOTAL" -gt 0 ]; then
-  ( cd "$MIDIA" && sha256sum -c --quiet "$TRAB/documentos.sha256" ) || morrer "documentos divergentes do banco"
+  ( cd "$MIDIA" && sha256sum -c --quiet "$TRAB/documentos.sha256" ) || morrer "arquivos divergentes do banco"
 fi
-# Demais anexos (vias assinadas, prestação, coffee, eventos): só existência.
+# Demais anexos (coffee, eventos): só existência.
 FALTANDO=0
 while IFS= read -r caminho; do
   [ -f "$MIDIA/$caminho" ] || { echo "  faltando: $caminho"; FALTANDO=$((FALTANDO + 1)); }
@@ -93,8 +95,8 @@ done < <(q "SELECT c.table_name || '|' || c.column_name FROM information_schema.
               AND c.data_type LIKE 'character varying%'" | while IFS='|' read -r t c; do
               q "SELECT $c FROM $t WHERE coalesce($c,'') <> ''"; done)
 [ "$FALTANDO" = 0 ] || morrer "$FALTANDO anexo(s) referenciado(s) no banco ausente(s) no backup"
-echo "  documentos com SHA-256 conferido: $TOTAL; demais anexos presentes" | tee -a "$RELATORIO"
+echo "  arquivos com SHA-256 conferido: $TOTAL (documentos, vias assinadas, anexos de prestação); demais anexos presentes" | tee -a "$RELATORIO"
 
 cp "$RELATORIO" "$ESTADO/ultima-restauracao.txt"
 date -Is >"$ESTADO/restauracao-ok"
-registrar "restauração-teste ($ORIGEM) APROVADA: $TOTAL documentos conferidos"
+registrar "restauração-teste ($ORIGEM) APROVADA: $TOTAL arquivos conferidos"

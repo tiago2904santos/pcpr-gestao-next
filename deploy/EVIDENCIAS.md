@@ -31,7 +31,7 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | 18 | Limpeza de imagens | ✅ mantém atual + anterior de todas as instâncias e a base do produto |
 | 19 | Lint | ✅ `shellcheck -S warning` em todos os scripts; `ruff check .` limpo; `lint-imports` 16 contratos; `tsc` ok |
 | 20 | Testes do produto pertinentes (`gestao/plataforma`, `gestao/identidade`) | ✅ 73 passed |
-| 21 | Suíte rápida completa | ver a seção "Suíte" abaixo |
+| 21 | `scripts/verificar.sh` (o mesmo que o CI roda, exceto o navegador) | ✅ ruff, import-linter (16 contratos), mypy, bandit, migrações sem pendência, `tsc` e **2376 testes** passaram (`✔ tudo verde`, 21 min). O E2E (navegador) desta branch falha pelas mesmas causas da `main` (`b3471bd`), corrigidas na PR #10 — este diff só toca `deploy/` e o ADR |
 
 ### Revisão da PR (Codex) — revalidação na mesma VPS simulada
 
@@ -53,6 +53,11 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R14 | `comparar_renderizacao.py` com amostras diferentes | ✅ documento só de um lado = divergência (saída 1), nos dois sentidos |
 | R15 | `impressoes.tsv` das classes | ✅ bytes, SHA-256 do arquivo, páginas, fontes e SHA-256 do texto extraído (pypdf da imagem) |
 | R16 | Boot do Gunicorn 26 | ✅ sem o ERROR do socket de controle (desligado; a raiz é somente leitura) |
+| R17 | Instância de dados reais sem registro de homologação do trio produto + infra + imagem | ✅ recusada (registro em `/srv/pcpr/homologados.tsv`, gravado só por implantação sintética bem-sucedida) |
+| R18 | `--porta 99999` | ✅ recusada antes de criar qualquer arquivo |
+| R19 | Cópia por hardlinks impossível (simulada) | ✅ backup falha com alerta crítico; web/worker descongelados; nenhuma cópia ao vivo |
+| R20 | `restaurar-banco` | ✅ web e worker param **antes** do backup de segurança (sem congelamento: já parados); restauração e smoke ok |
+| R21 | Restauração-teste com SHA-256 de vias assinadas e anexos de prestação | ✅ externa aprovada com 318 arquivos conferidos (300 + 3 + 15); anexo adulterado reprovado ("arquivos divergentes do banco") |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
