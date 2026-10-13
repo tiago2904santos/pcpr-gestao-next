@@ -33,7 +33,8 @@ case "${1:-web}" in
       --max-requests 1000 --max-requests-jitter 100 \
       --worker-tmp-dir /dev/shm \
       --forwarded-allow-ips "*" \
-      --access-logfile - --error-logfile -
+      --access-logfile - --error-logfile - \
+      --config /opt/pcpr/gunicorn_conf.py
     ;;
   worker)
     python manage.py check --fail-level ERROR

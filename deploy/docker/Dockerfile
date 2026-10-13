@@ -8,6 +8,8 @@ ARG PRODUTO_COMMIT=desconhecido
 ARG INFRA_COMMIT=desconhecido
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/pcpr-entrypoint
 COPY --chmod=0755 saude.py pos_migracao.py verificar.py /opt/pcpr/
+# Configuração do Gunicorn: log de acesso sem o token do feed ICS da agenda.
+COPY --chmod=0644 gunicorn_conf.py /opt/pcpr/
 ENV PCPR_PRODUTO_COMMIT=${PRODUTO_COMMIT} \
     PCPR_INFRA_COMMIT=${INFRA_COMMIT}
 LABEL org.opencontainers.image.title="pcpr-gestao" \

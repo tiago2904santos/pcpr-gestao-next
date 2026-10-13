@@ -8,7 +8,7 @@
 # SHA-256 do texto extraído) para comparar a renderização da VPS com a local.
 . "$(dirname "$0")/../vps/lib.sh"
 carregar_instancia "${1:-}"
-[ "$INST" != producao ] || morrer "use somente na homologação (dados sintéticos)"
+recusar_dados_reais "use somente na homologação (dados sintéticos)"
 [ -f "$CONF/smoke.env" ] || morrer "crie $CONF/smoke.env com o usuário de teste"
 export PCPR_IMAGEM="${PCPR_IMAGEM:?}"
 # shellcheck disable=SC1091

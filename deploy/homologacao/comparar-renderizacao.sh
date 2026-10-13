@@ -7,7 +7,7 @@
 #   deploy/homologacao/comparar-renderizacao.sh <instância> [quantidade]
 . "$(dirname "$0")/../vps/lib.sh"
 carregar_instancia "${1:-}"
-[ "$INST" != producao ] || morrer "não exporte dados de produção"
+recusar_dados_reais "não exporte dados de produção"
 export PCPR_IMAGEM="${PCPR_IMAGEM:?}"
 N="${2:-6}"
 DIR="$ESTADO/renderizacao"; mkdir -p "$DIR"; chmod 0755 "$DIR"

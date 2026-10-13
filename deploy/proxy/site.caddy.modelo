@@ -35,6 +35,14 @@ DOMINIO {
 			roll_size 20MiB
 			roll_keep 10
 		}
-		format json
+		# O token do feed ICS da agenda (/agenda/ics/<token>.ics) é a credencial do feed:
+		# nunca vai para o log (a aplicação aplica a mesma regra aos próprios logs).
+		format filter {
+			wrap json
+			fields {
+				request>uri regexp "(/agenda/ics/)[^/?]+" "${1}[token]"
+				request>headers>Referer regexp "(/agenda/ics/)[^/?]+" "${1}[token]"
+			}
+		}
 	}
 }

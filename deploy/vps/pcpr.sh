@@ -54,6 +54,16 @@ case "$CMD" in
     [ -f "$DUMP" ] || morrer "dump não encontrado: $DUMP"
     [ "$CONFIRMA" = "--confirmo-sobrescrever-$INST" ] || \
       morrer "operação destrutiva: repita com --confirmo-sobrescrever-$INST"
+    # Antes de apagar qualquer coisa: o arquivo é um dump legível e, se houver, confere com o
+    # SHA-256 gravado pelo backup.sh (arquivo truncado/trocado é recusado com o banco intacto).
+    dc up -d --wait db
+    dc exec -T db pg_restore --list <"$DUMP" >/dev/null || morrer "dump ilegível: $DUMP"
+    if [ -f "$DUMP.sha256" ]; then
+      ( cd "$(dirname "$DUMP")" && grep -F "  $(basename "$DUMP")" "$(basename "$DUMP").sha256" | sha256sum -c --quiet ) \
+        || morrer "SHA-256 do dump não confere: $DUMP"
+    else
+      registrar "aviso: $DUMP sem .sha256 (só a estrutura do dump foi conferida)"
+    fi
     "$DEPLOY_DIR/vps/backup.sh" "$INST" --motivo antes-de-restaurar --sem-trava
     registrar "RESTAURANDO banco de $INST a partir de $(basename "$DUMP")"
     dc stop web worker

@@ -68,7 +68,11 @@ def comparar(a: str, b: str) -> int:
         else:
             veredito = "DIVERGENTE"
             divergencias += 1
-        gravado = "sim" if da["sha256"] == da["sha256_gravado"] else "não"
+        # O lado A (a VPS) tem de reproduzir o PDF gravado no banco; senão, é divergência
+        # mesmo que A e B concordem entre si (ex.: comparar vps.json com ele mesmo).
+        gravado = "sim" if da["sha256"] == da["sha256_gravado"] else "NÃO"
+        if gravado == "NÃO" and veredito != "DIVERGENTE":
+            divergencias += 1
         sys.stdout.write(f"  doc {ident:>5} {da['tipo']:<14} {da['paginas']} pág. "
                          f"| igual ao gravado no banco: {gravado} | {veredito}\n")
     return 1 if divergencias else 0

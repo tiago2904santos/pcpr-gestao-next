@@ -180,12 +180,20 @@ sudo deploy/vps/instalar-timers.sh homologacao
 
 `deploy/vps/implantar.sh <instância> <sha-40>` — **nunca** nome de branch:
 
-1. valida o commit (existe; em produção, consta de `/etc/pcpr/producao/aprovados.txt`);
+1. valida o commit (existe; com **dados reais** — `app.env` fora de `config.settings.preview`/
+   `APP_ENV=preview`, qualquer que seja o nome da instância —, consta de
+   `/etc/pcpr/<instância>/aprovados.txt`, e `--sem-backup`/`--semear` são recusados);
 2. constrói `pcpr-gestao:<sha>` com `git archive <sha> | docker build -` (exatamente o commit,
-   sem arquivos locais) e a camada `pcpr-gestao-implantacao:<sha12>-<infra12>`;
+   sem arquivos locais) e a camada `pcpr-gestao-implantacao:<sha12>-<infra12>`. O `Dockerfile`
+   do produto parte de uma tag móvel (`python:3.13-slim`); por isso, com dados reais, a imagem
+   do produto **tem de ser a já construída e testada na homologação deste host** — o script
+   recusa reconstruí-la sem `--construir-base` (decisão explícita: camadas não testadas). O ID
+   da imagem fica registrado em `implantacoes.tsv`;
 3. `check --deploy` da nova imagem (falha em ERROR) antes de tocar no que está no ar;
 4. backup prévio (dump validado + cópia externa);
-5. migrações com o papel dono (`migrar`) + privilégios pós-migração;
+5. migrações com o papel dono (`migrar`) + privilégios pós-migração. Se há migração
+   pendente, **web e worker param antes** (o código antigo não roda contra um schema novo nem
+   parcial); se a migração falhar, ficam parados e o alerta é crítico (§5);
 6. troca a versão em `instancia.env` (guarda a anterior);
 7. `docker compose up -d --wait` (web e worker; banco intacto);
 8. saúde (health check do contêiner);
@@ -195,7 +203,8 @@ sudo deploy/vps/instalar-timers.sh homologacao
 
 Falha **sem migração nova** → volta sozinho para a imagem anterior. Falha **com migração** →
 para e alerta: a reversão exige decisão humana (§5). A troca de web/worker causa alguns
-segundos de indisponibilidade (instância única) — em produção, dentro da janela.
+segundos de indisponibilidade (instância única), e a migração, a duração dela — em produção,
+dentro da janela.
 
 Atualizar a infraestrutura: `git -C /srv/pcpr/infra pull` (ou checkout do commit revisado) e
 reimplantar o mesmo commit do produto — o script recusa `deploy/` com mudanças não commitadas.
@@ -206,9 +215,9 @@ reimplantar o mesmo commit do produto — o script recusa `deploy/` com mudança
 |---|---|
 | Nova versão com defeito, **sem** migração | `pcpr.sh <inst> reverter` (troca a imagem; banco intacto; smoke) |
 | Nova versão com defeito, **com** migração | decidir: corrigir para frente **ou** `reverter` + `restaurar-banco` com o dump `*-pre-implantacao.dump` (perde o que foi gravado depois) |
-| Exclusão acidental / corrupção lógica | `restaurar-teste.sh` para examinar; `pcpr.sh <inst> restaurar-banco <dump> --confirmo-sobrescrever-<inst>` (faz backup antes) |
+| Exclusão acidental / corrupção lógica | `restaurar-teste.sh` para examinar; `pcpr.sh <inst> restaurar-banco <dump> --confirmo-sobrescrever-<inst>` (confere o dump com `pg_restore --list` e o `.sha256` **antes** de apagar; faz backup antes) |
 | Documento apagado/corrompido no disco | `restic restore` do caminho (`/dados/midia/...`); conferir com o SHA-256 em `viagens_documento` |
-| Falha de disco / perda total da VPS | nova VPS → §3.2–3.4 → `restic restore latest --target /restauro` → copiar `dados/midia`, criar o cluster (`implantar.sh` com o mesmo commit) e `restaurar-banco` com o dump restaurado |
+| Falha de disco / perda total da VPS | nova VPS → §3.2–3.4 → `restic restore latest --target /restauro` → copiar `dados/midia`, criar o cluster (`implantar.sh` com o mesmo commit — na VPS nova a imagem do produto não existe: homologar de novo ou, por decisão registrada, `--construir-base`) e `restaurar-banco` com o dump restaurado |
 
 ## 6. Backups
 
@@ -243,6 +252,12 @@ da cadeia de auditoria (> 26 h). Alerta apenas quando o conjunto de problemas mu
 Alertas: journal (`journalctl -t pcpr-<inst>`), `/srv/pcpr/<inst>/operacoes.log` e, se
 configurado, webhook em `/etc/pcpr/alertas.env` (`PCPR_ALERTA_URL`, `PCPR_ALERTA_FORMATO=
 texto|slack|discord` — ex.: tópico privado do ntfy ou canal institucional).
+
+**Segredos fora dos logs:** o token do feed ICS da agenda (`/agenda/ics/<token>.ics`) é a
+única credencial do feed. A aplicação já o mascara nos próprios logs; o log de acesso do
+Gunicorn (`docker/gunicorn_conf.py`), o do Caddy (`format filter` em `proxy/site.caddy.modelo`)
+e o do Nginx (`log_format pcpr_PORTA`) gravam `/agenda/ics/[token]`. O `error_log` do Nginx
+pode citar a linha da requisição: mantenha-o legível só por root/adm.
 
 ## 8. Segurança da VPS
 

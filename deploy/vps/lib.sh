@@ -81,3 +81,17 @@ trava() {  # impede duas operações concorrentes na mesma instância
   exec 9>"$PCPR_RAIZ/$INST/.trava"
   flock -n 9 || morrer "outra operação já está em andamento em $INST"
 }
+
+# Dados reais? Decide pela configuração que a aplicação usa de fato (app.env), não pelo nome
+# da instância: só homologação com config.settings.preview e APP_ENV=preview é sintética.
+# Na dúvida (arquivo ilegível, valor ausente), trata como real.
+dados_reais() {
+  local env settings
+  env="$(sed -n 's/^APP_ENV=//p' "$CONF/app.env" 2>/dev/null | tail -1)"
+  settings="$(sed -n 's/^DJANGO_SETTINGS_MODULE=//p' "$CONF/app.env" 2>/dev/null | tail -1)"
+  [ "$env" != preview ] || [ "$settings" != config.settings.preview ]
+}
+
+recusar_dados_reais() {  # recusar_dados_reais <motivo>
+  ! dados_reais || morrer "$1 (instância $INST usa dados reais: APP_ENV/settings fora de preview)"
+}

@@ -47,7 +47,10 @@ a porta 8102. Ajustar recursos no `instancia.env` (memória, `WEB_CONCURRENCY`).
 
 ## 5. Janela de implantação (sugestão: fora do expediente, 1 h, com responsável de plantão)
 1. Comunicar o início; congelar mudanças.
-2. `implantar.sh producao <sha-aprovado>` (constrói, verifica, migra, sobe, smoke).
+2. `implantar.sh producao <sha-aprovado>` (verifica, migra, sobe, smoke). Usa a imagem do
+   produto já construída e testada na homologação deste host — sem ela, o script recusa (o
+   `Dockerfile` parte de uma tag móvel). Com migração pendente, web e worker param durante a
+   migração.
 3. Criar o primeiro administrador; `smoke.env` de produção com um usuário de teste **sem dados
    reais sensíveis** (ou só o smoke anônimo).
 4. `backup.sh producao --iniciar-repositorio` e `backup.sh producao --motivo manual`;

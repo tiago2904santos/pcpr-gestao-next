@@ -10,7 +10,7 @@
 # 3. Baixa o PDF novo pelo endereço público, autenticado (smoke.env).
 . "$(dirname "$0")/../vps/lib.sh"
 carregar_instancia "${1:-}"
-[ "$INST" != producao ] || morrer "este teste altera dados: proibido em produção"
+recusar_dados_reais "este teste altera dados: proibido em produção"
 grep -q '^DJANGO_SETTINGS_MODULE=config.settings.preview' "$CONF/app.env" \
   || morrer "só para homologação com dados sintéticos (config.settings.preview)"
 export PCPR_IMAGEM="${PCPR_IMAGEM:?}"
@@ -66,12 +66,14 @@ echo "       classes documentais já geradas na instância: $TIPOS"
 # 2. Falha induzida e retry automático
 ANO="$(date +%Y)"
 install -d -o 10001 -g 10001 -m 0750 "$MIDIA/documentos/$ANO"
+# Devolve a escrita em qualquer saída (erro, Ctrl-C): a pasta não pode ficar travada.
+trap 'chmod 0750 "$MIDIA/documentos/$ANO"' EXIT
 chmod 0550 "$MIDIA/documentos/$ANO"
 OF2="$(reemitir DPI)"
 sleep 8
 FALHOU="$(sql_valor "SELECT count(*) FROM viagens_documento WHERE oficio_id=$OF2 AND situacao='falhou'")"
 ERRO="$(sql_valor "SELECT left(ultimo_erro, 90) FROM plataforma_outbox WHERE topico='viagens.documento.gerar' AND ultimo_erro<>'' ORDER BY id DESC LIMIT 1")"
-chmod 0750 "$MIDIA/documentos/$ANO"
+chmod 0750 "$MIDIA/documentos/$ANO"; trap - EXIT
 [ "$FALHOU" -gt 0 ] && ok "falha de escrita registrada ($FALHOU documento(s) 'falhou': $ERRO)" \
   || falha "a falha induzida não foi registrada"
 if esperar_pronto "$OF2" 90; then ok "retry automático da outbox concluiu após devolver a escrita"; else falha "retry não concluiu em 90 s"; fi
