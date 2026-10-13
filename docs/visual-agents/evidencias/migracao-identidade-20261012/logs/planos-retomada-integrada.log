@@ -1,0 +1,274 @@
+...............2026-10-12 21:52:04,852 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/novo/: 35 consultas (limite 25)
+..2026-10-12 21:52:07,677 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/novo/: 35 consultas (limite 25)
+2026-10-12 21:52:07,817 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/22/: 35 consultas (limite 25)
+..2026-10-12 21:52:10,328 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/23/autosave/: 39 consultas (limite 25)
+..2026-10-12 21:52:12,688 WARNING django.request Forbidden (Permission denied): /viagens/planos/25/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 361, in editar
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:12,773 WARNING django.request Forbidden (Permission denied): /viagens/planos/25/folha/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 513, in folha
+    policies.exigir(policies.pode_ver_documento_plano(request.user, plano),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Reative o plano para ver o documento.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Reative o plano para ver o documento.
+.2026-10-12 21:52:15,025 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:52:15,057 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:52:15,087 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.2026-10-12 21:52:17,169 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/do-oficio/116/: 40 consultas (limite 25)
+.
+(process:15172): GLib-GIO-WARNING **: 21:52:18.139: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:15172): GLib-GIO-WARNING **: 21:52:18.714: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:15172): GLib-GIO-WARNING **: 21:52:18.714: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+.
+(process:15172): GLib-GIO-WARNING **: 21:52:19.953: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:15172): GLib-GIO-WARNING **: 21:52:19.997: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:15172): GLib-GIO-WARNING **: 21:52:20.039: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:15172): GLib-GIO-WARNING **: 21:52:20.117: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+2026-10-12 21:52:20,719 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/37/: 35 consultas (limite 25)
+.2026-10-12 21:52:22,278 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/38/finalizar/: 58 consultas (limite 25)
+.2026-10-12 21:52:23,781 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/39/autosave/: 28 consultas (limite 25)
+.2026-10-12 21:52:24,943 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/40/autosave/: 43 consultas (limite 25)
+..2026-10-12 21:52:27,272 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/autosave/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 373, in autosave
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,309 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/finalizar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 472, in finalizar
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,349 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/documento.pdf
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 541, in documento
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,397 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/cancelar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 602, in cancelar
+    return _acao(request, pk, executar)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 584, in _acao
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,433 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/reativar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 607, in reativar
+    return _acao(request, pk, lambda p: f"{planos.reativar(request.user, p.pk)} reativado.")
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 584, in _acao
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,476 WARNING django.request Forbidden (Permission denied): /viagens/planos/42/excluir/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 615, in excluir
+    resposta = _acao(request, pk, executar)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 584, in _acao
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:27,500 WARNING django.request Not Found: /viagens/planos/do-oficio/151/
+.....2026-10-12 21:52:34,054 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/: 43 consultas (limite 25)
+2026-10-12 21:52:34,152 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/eventos/salvar/: 49 consultas (limite 25)
+2026-10-12 21:52:34,332 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/: 41 consultas (limite 25)
+2026-10-12 21:52:34,536 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/: 59 consultas (limite 25)
+2026-10-12 21:52:34,765 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/eventos/salvar/: 58 consultas (limite 25)
+2026-10-12 21:52:34,766 WARNING django.request Unprocessable Content: /viagens/planos/47/eventos/salvar/
+2026-10-12 21:52:34,858 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/47/eventos/3/remover/: 36 consultas (limite 25)
+.2026-10-12 21:52:36,170 WARNING django.request Forbidden (Permission denied): /viagens/planos/48/eventos/salvar/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 396, in salvar_evento
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+...2026-10-12 21:52:39,725 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/51/autosave/: 43 consultas (limite 25)
+.....2026-10-12 21:52:44,971 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/55/resultados/: 27 consultas (limite 25)
+2026-10-12 21:52:44,972 WARNING django.request Unprocessable Content: /viagens/planos/55/resultados/
+2026-10-12 21:52:45,023 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/55/resultados/: 29 consultas (limite 25)
+2026-10-12 21:52:45,072 WARNING django.request Forbidden (Permission denied): /viagens/planos/55/resultados/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 437, in resultados_do_plano
+    plano = _plano_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 139, in _plano_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+2026-10-12 21:52:45,120 WARNING django.request Forbidden (Permission denied): /viagens/planos/55/resultados/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 442, in resultados_do_plano
+    policies.exigir(editavel, "Este plano de trabalho não pode ser alterado.")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Este plano de trabalho não pode ser alterado.
+2026-10-12 21:52:45,173 WARNING django.request Forbidden (Permission denied): /viagens/planos/55/resultados/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_planos.py", line 442, in resultados_do_plano
+    policies.exigir(editavel, "Este plano de trabalho não pode ser alterado.")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Este plano de trabalho não pode ser alterado.
+..2026-10-12 21:52:47,385 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/58/finalizar/: 26 consultas (limite 25)
+.2026-10-12 21:52:48,684 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/59/duplicar/: 56 consultas (limite 25)
+.....2026-10-12 21:54:06,271 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/88/: 35 consultas (limite 25)
+2026-10-12 21:54:08,491 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/88/autosave/: 43 consultas (limite 25)
+2026-10-12 21:54:08,661 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/88/: 37 consultas (limite 25)
+.2026-10-12 21:54:32,030 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/89/: 35 consultas (limite 25)
+2026-10-12 21:54:34,474 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/89/autosave/: 43 consultas (limite 25)
+2026-10-12 21:54:34,745 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/89/: 37 consultas (limite 25)
+.2026-10-12 21:55:04,750 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/90/: 35 consultas (limite 25)
+2026-10-12 21:55:08,325 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/90/autosave/: 43 consultas (limite 25)
+2026-10-12 21:55:08,675 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/90/: 37 consultas (limite 25)
+.2026-10-12 21:55:35,006 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 35 consultas (limite 25)
+2026-10-12 21:55:36,420 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 43 consultas (limite 25)
+[12/Oct/2026 21:55:37,416] - Broken pipe from ('127.0.0.1', 55233)
+2026-10-12 21:55:40,123 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/eventos/salvar/: 47 consultas (limite 25)
+2026-10-12 21:55:40,323 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 41 consultas (limite 25)
+2026-10-12 21:55:41,730 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 59 consultas (limite 25)
+[12/Oct/2026 21:55:42,040] - Broken pipe from ('127.0.0.1', 62911)
+2026-10-12 21:55:43,316 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/eventos/salvar/: 59 consultas (limite 25)
+2026-10-12 21:55:43,318 WARNING django.request Unprocessable Content: /viagens/planos/91/eventos/salvar/
+2026-10-12 21:55:44,832 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 41 consultas (limite 25)
+2026-10-12 21:55:46,410 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/finalizar/: 32 consultas (limite 25)
+[12/Oct/2026 21:55:47,611] - Broken pipe from ('127.0.0.1', 52328)
+2026-10-12 21:55:48,472 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:55:48,519 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:55:48,589 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:55:48,975 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 41 consultas (limite 25)
+2026-10-12 21:55:50,867 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/eventos/5/remover/: 34 consultas (limite 25)
+2026-10-12 21:55:51,047 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/91/: 37 consultas (limite 25)
+[12/Oct/2026 21:55:51,717] - Broken pipe from ('127.0.0.1', 61414)
+[12/Oct/2026 21:55:51,871] - Broken pipe from ('127.0.0.1', 65050)
+[12/Oct/2026 21:55:52,202] - Broken pipe from ('127.0.0.1', 53293)
+.2026-10-12 21:56:04,819 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/92/resultados/: 27 consultas (limite 25)
+.2026-10-12 21:56:31,275 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/93/resultados/: 27 consultas (limite 25)
+.2026-10-12 21:56:51,666 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/94/resultados/: 27 consultas (limite 25)
+.2026-10-12 21:57:13,044 WARNING django.request Unprocessable Content: /viagens/planos/95/resultados/
+..2026-10-12 21:57:45,301 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/do-oficio/306/: 38 consultas (limite 25)
+2026-10-12 21:57:45,503 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/: 40 consultas (limite 25)
+2026-10-12 21:57:48,194 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/autosave/: 41 consultas (limite 25)
+2026-10-12 21:57:48,556 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/: 40 consultas (limite 25)
+2026-10-12 21:57:50,609 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/autosave/: 42 consultas (limite 25)
+2026-10-12 21:57:51,003 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/: 40 consultas (limite 25)
+2026-10-12 21:57:53,446 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/autosave/: 42 consultas (limite 25)
+2026-10-12 21:57:53,746 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/: 41 consultas (limite 25)
+2026-10-12 21:57:54,392 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/autosave/: 42 consultas (limite 25)
+[12/Oct/2026 21:57:54,804] - Broken pipe from ('127.0.0.1', 57210)
+[12/Oct/2026 21:57:54,854] - Broken pipe from ('127.0.0.1', 59091)
+2026-10-12 21:57:55,177 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/: 41 consultas (limite 25)
+2026-10-12 21:57:55,656 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/97/autosave/: 26 consultas (limite 25)
+2026-10-12 21:57:56,846 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:57:56,943 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:57:57,091 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+.[12/Oct/2026 21:58:10,052] - Broken pipe from ('127.0.0.1', 65054)
+           [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_planos.py::TestTelas::test_documento_pdf_docx_e_previa
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+62 passed, 1 warning in 415.61s (0:06:55)

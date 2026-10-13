@@ -1,0 +1,70 @@
+{
+  "base": "9b3ccaee46890f99a769d6f5d4c926da7fd96f15",
+  "fontes": [
+    {
+      "arquivo": "static/css/components.css",
+      "sha256_lf": "691b71863c440ce3851e531ba6e8cd68a4c6c200c6c500967de5f0d5cf00709e"
+    },
+    {
+      "arquivo": "tests/e2e/test_planos_preparacao_identidade.py",
+      "sha256_lf": "6ed0acd5e2a1a48a3d5cfb37bb5563393cf53b170e06c0f26334921cdf02e285"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/editar.html",
+      "sha256_lf": "ace1f361a3326398ef04dc9685ee5c3b5060ceb4db457e477262d7f41ddeb03a"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/lista.html",
+      "sha256_lf": "362a62eb86e1f8ec1689b99d95f53a023ac06866de52963154679538d174ca51"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/resultados.html",
+      "sha256_lf": "0ec035e4da01b455c6bb3153cc65e87cf3d9cc8107e8deab99b50ee2713178ef"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_abas.html",
+      "sha256_lf": "ed536770eb03030442b7fbc26fc023ca7837476920bddb64b7ce0b6da164f311"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_acoes.html",
+      "sha256_lf": "25b6f5ac4ff8044134abe12b321507dc08c4ea4c608b3968fb7081cc61f20018"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_atividades.html",
+      "sha256_lf": "31bb380b6c20d15432c626d297356cbf81b09f1230bf4746b700bf578751ef5d"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_botao_novo.html",
+      "sha256_lf": "f1db6afef285d1d03d816bfbac0e27a3ed447913d2f5295a66f74ff15292c071"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_cabecalho_contexto.html",
+      "sha256_lf": "f23e658c445dd45e63db6757a575c9f6230c0363cb09fac9d3c27272a32a1e2b"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_dialogo_conjunto.html",
+      "sha256_lf": "3a079bba001c52703462c51a248dd185b8d9ac4574227a1ec39f7018bb56d9bd"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_dialogo_evento.html",
+      "sha256_lf": "596c5ba6d32eafdac4cc3adddb4043e26bfc4de090a51ad5b6d1bd5e8a17e142"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_linha_efetivo.html",
+      "sha256_lf": "3fe0e7f51f94be2dddbee1cccf856740ef4139b34cba0e2578d846b50665ab4e"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_registro_evento.html",
+      "sha256_lf": "f109782bc3bd7c6644e600c55c735cd1edaae4e152ba1e2762e06aefacdb222f"
+    },
+    {
+      "arquivo": "gestao/viagens/templates/viagens/planos/_resultados_contexto.html",
+      "sha256_lf": "ca8518c324bca6c939e800820e6083333ccf987907210a0107493b3866317319"
+    }
+  ],
+  "integrada": "62 passed,1warning415.61s antes da correção CSS",
+  "focada": "72 passed, 2 warnings in 310.57s (0:05:10)",
+  "css_delta_bytes_lf": 60,
+  "css_delta_gzip": 0,
+  "homologacao_visual": false
+}

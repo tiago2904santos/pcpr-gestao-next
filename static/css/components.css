@@ -4463,17 +4463,18 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
    seguinte. Mesma composição no formulário e no diálogo de evento. */
 .campos.campos--agenda { display: grid; grid-template-columns: minmax(0, 1fr); }
 .campos--agenda > .programa-plano__outro { order: 1; grid-column: 1 / -1; }
-.campos.campos--coordenacao { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.campos.campos--coordenacao { display: grid; grid-template-columns: minmax(0, 1fr); }
 .campos--coordenacao > :is(.coordenador__cadastro, .coordenador__manual) { grid-column: 1 / -1; }
 .documento--preparacao .secao__bloco--integrado { margin-top: 0; padding-top: 0; border-top: 0; }
 @media (min-width: 768px) {
+  .campos.campos--coordenacao { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .campos.campos--agenda { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .campos--agenda > .campo:has(> pc-escolhas) { grid-column: 1 / -1; }
 }
 @media (min-width: 1024px) {
   .campos.campos--agenda { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 1fr); }
   .campos--agenda > .campo:has(> pc-escolhas) { grid-column: auto; }
-  .campos.campos--coordenacao { grid-template-columns: calc(var(--esp-12) * 3) calc(var(--esp-12) * 3.5) repeat(2, minmax(0, 1fr)); }
+  .campos.campos--coordenacao { grid-template-columns: repeat(2, calc(var(--esp-12) * 4.5)) repeat(2, minmax(0, 1fr)); }
   .campos--coordenacao > .coordenador__cadastro { grid-column: span 2; }
   .campos--coordenacao > .coordenador__manual { grid-column: auto; }
 }

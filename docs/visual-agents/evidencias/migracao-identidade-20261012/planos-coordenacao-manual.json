@@ -1,0 +1,117 @@
+[
+  {
+    "width": 360,
+    "controles": [
+      {
+        "texto": "Pessoa não cadastrada",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 214,
+        "scroll": 214,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "controles": [
+      {
+        "texto": "Pessoa não cadastrada",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 244,
+        "scroll": 244,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "controles": [
+      {
+        "texto": "Pessoa não cadastrada",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 593,
+        "scroll": 593,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "controles": [
+      {
+        "texto": "Pessoa não cadastrada",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 165,
+        "scroll": 165,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "controles": [
+      {
+        "texto": "Pessoa não cadastrada",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 286,
+        "scroll": 286,
+        "cabe": true
+      }
+    ]
+  }
+]

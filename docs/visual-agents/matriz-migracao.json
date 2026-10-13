@@ -813,14 +813,29 @@
         "viagens/planos/_abas.html",
         "viagens/planos/_botao_novo.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Origem e tratamento da coordenação truncados em mobile e desktop; corrigidos na variante canônica."
+      ],
+      "alteracoes_implementadas": [
+        "Estrutura existente preservada após revisão real das páginas e estados; coordenação redistribuída por largura sem reduzir fontes."
+      ],
+      "testes_executados": [
+        "62 testes integrados aprovados antes da correção delimitada.",
+        "72 passed, 2 warnings in 310.57s (0:05:10) após CSS: preparação/autosave/evento/validação/PDF/tokens.",
+        "21 capturas completas em360/768/1440; controle cadastrado/manual em5larguras; diálogo topo/ações; Ruff aprovado."
+      ],
+      "evidencias": [
+        "qa/planos-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/planos-refinado-candidato.json",
+        "evidencias/migracao-identidade-20261012/planos-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-depois.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-manual.json",
+        "evidencias/migracao-identidade-20261012/logs/planos-coordenacao-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente após segunda inspeção e revisão independente. Homologação visual e gate global pendentes; ressalvas SQL/numeração manual/rolagem global registradas.",
+      "revisao_codigo": "9b3ccae + fontes exatas em planos-refinado-candidato.json",
+      "dependencias_antigas": "tabela--resultados/relatorio-final substituídos e removidos anteriormente; remoção revalidada. Classes de programas/coordenação/atividades/eventos mantidas por contrato real, sem compatibilidade nova.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -866,14 +881,29 @@
         "viagens/planos/_linha_efetivo.html",
         "viagens/planos/_registro_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Origem e tratamento da coordenação truncados em mobile e desktop; corrigidos na variante canônica."
+      ],
+      "alteracoes_implementadas": [
+        "Estrutura existente preservada após revisão real das páginas e estados; coordenação redistribuída por largura sem reduzir fontes."
+      ],
+      "testes_executados": [
+        "62 testes integrados aprovados antes da correção delimitada.",
+        "72 passed, 2 warnings in 310.57s (0:05:10) após CSS: preparação/autosave/evento/validação/PDF/tokens.",
+        "21 capturas completas em360/768/1440; controle cadastrado/manual em5larguras; diálogo topo/ações; Ruff aprovado."
+      ],
+      "evidencias": [
+        "qa/planos-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/planos-refinado-candidato.json",
+        "evidencias/migracao-identidade-20261012/planos-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-depois.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-manual.json",
+        "evidencias/migracao-identidade-20261012/logs/planos-coordenacao-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente após segunda inspeção e revisão independente. Homologação visual e gate global pendentes; ressalvas SQL/numeração manual/rolagem global registradas.",
+      "revisao_codigo": "9b3ccae + fontes exatas em planos-refinado-candidato.json",
+      "dependencias_antigas": "tabela--resultados/relatorio-final substituídos e removidos anteriormente; remoção revalidada. Classes de programas/coordenação/atividades/eventos mantidas por contrato real, sem compatibilidade nova.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -924,16 +954,29 @@
         "viagens/planos/_linha_efetivo.html",
         "viagens/planos/_registro_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [
-        "Cascata antiga de Diárias sobrescreve composição operacional."
+        "Origem e tratamento da coordenação truncados em mobile e desktop; corrigidos na variante canônica."
       ],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Estrutura existente preservada após revisão real das páginas e estados; coordenação redistribuída por largura sem reduzir fontes."
+      ],
+      "testes_executados": [
+        "62 testes integrados aprovados antes da correção delimitada.",
+        "72 passed, 2 warnings in 310.57s (0:05:10) após CSS: preparação/autosave/evento/validação/PDF/tokens.",
+        "21 capturas completas em360/768/1440; controle cadastrado/manual em5larguras; diálogo topo/ações; Ruff aprovado."
+      ],
+      "evidencias": [
+        "qa/planos-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/planos-refinado-candidato.json",
+        "evidencias/migracao-identidade-20261012/planos-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-depois.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-manual.json",
+        "evidencias/migracao-identidade-20261012/logs/planos-coordenacao-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente após segunda inspeção e revisão independente. Homologação visual e gate global pendentes; ressalvas SQL/numeração manual/rolagem global registradas.",
+      "revisao_codigo": "9b3ccae + fontes exatas em planos-refinado-candidato.json",
+      "dependencias_antigas": "tabela--resultados/relatorio-final substituídos e removidos anteriormente; remoção revalidada. Classes de programas/coordenação/atividades/eventos mantidas por contrato real, sem compatibilidade nova.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -963,14 +1006,29 @@
         "componentes/migalhas.html",
         "componentes/registro_hero.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Origem e tratamento da coordenação truncados em mobile e desktop; corrigidos na variante canônica."
+      ],
+      "alteracoes_implementadas": [
+        "Estrutura existente preservada após revisão real das páginas e estados; coordenação redistribuída por largura sem reduzir fontes."
+      ],
+      "testes_executados": [
+        "62 testes integrados aprovados antes da correção delimitada.",
+        "72 passed, 2 warnings in 310.57s (0:05:10) após CSS: preparação/autosave/evento/validação/PDF/tokens.",
+        "21 capturas completas em360/768/1440; controle cadastrado/manual em5larguras; diálogo topo/ações; Ruff aprovado."
+      ],
+      "evidencias": [
+        "qa/planos-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/planos-refinado-candidato.json",
+        "evidencias/migracao-identidade-20261012/planos-refinado-capturas.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-depois.json",
+        "evidencias/migracao-identidade-20261012/planos-coordenacao-manual.json",
+        "evidencias/migracao-identidade-20261012/logs/planos-coordenacao-final.log"
+      ],
+      "revisao_final": "Concluída tecnicamente após segunda inspeção e revisão independente. Homologação visual e gate global pendentes; ressalvas SQL/numeração manual/rolagem global registradas.",
+      "revisao_codigo": "9b3ccae + fontes exatas em planos-refinado-candidato.json",
+      "dependencias_antigas": "tabela--resultados/relatorio-final substituídos e removidos anteriormente; remoção revalidada. Classes de programas/coordenação/atividades/eventos mantidas por contrato real, sem compatibilidade nova.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

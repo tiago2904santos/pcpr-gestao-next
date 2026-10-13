@@ -1,0 +1,170 @@
+[
+  {
+    "pagina": "lista",
+    "rota": "/viagens/planos/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "incompleto",
+    "rota": "/viagens/planos/4/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "resultados",
+    "rota": "/viagens/planos/1/resultados/",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "rota": "/viagens/planos/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "incompleto",
+    "rota": "/viagens/planos/4/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "resultados",
+    "rota": "/viagens/planos/1/resultados/",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "lista",
+    "rota": "/viagens/planos/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "novo",
+    "rota": "/viagens/planos/novo/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "incompleto",
+    "rota": "/viagens/planos/4/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "multievento",
+    "rota": "/viagens/planos/2/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "gerado",
+    "rota": "/viagens/planos/1/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "evento",
+    "rota": "/viagens/planos/2/?evento=novo#eventos",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "pagina": "resultados",
+    "rota": "/viagens/planos/1/resultados/",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

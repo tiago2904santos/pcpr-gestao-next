@@ -1,5 +1,44 @@
 # Página atual
 
+## Estado vigente — Planos fechados tecnicamente
+
+PT01–PT04 validadas:62integrados +72focados posteriores ao CSS,21capturas finais,
+coordenação cadastral/manual nas5larguras, revisão independente favorável.
+Cobertura19/100. Galeria722 validada; avisos HarfBuzz/conexão TEST registrados.
+Suítes67345 e capturas31042 terminaram; nenhuma suíte mutável ativa.
+Próxima páginaJU01 Justificativas: contrato/QA anterior já lidos, retomar lista,
+diálogo, filtros e editor conforme código atual. Não presumir conclusão antiga.
+Branch codex/oficios-transporte-cartoes; fechamento de Planos a commitar.
+_equipe.html do usuário preservado; sem alteração de dados/documentos oficiais.
+
+## Estado vigente — correção de coordenação de Planos
+
+34447 terminou62pass1warning415,61s. Capturas98103 terminaram21estados;
+seções/diálogo34086 terminaram. Revisão independente favorável ao contrato e limpeza.
+Defeito concreto: origem/tratamento truncados em360/390/1024/1440. Medição antes
+preservada. CSS canônico campos--coordenacao corrigido para1colmobile/2tablet e
+largurasdesktop suficientes; cinco larguras pós-ajuste sem truncamento.
+Ruff verde. Suíte focada67345 ativa (planos-coordenacao-final.log), banco/mídia
+isolados. Não reiniciar. Falta resultado, revisão final da correção, capturas
+integrais atualizadas, galeria/matriz/commit. Cobertura continua15/100.
+_equipe.html do usuário preservado; nenhum documento oficial alterado.
+Recaptura final31042 ativa com prefixo planos-refinado, preservando21originais.
+Revisor recebeu ajuste CSS/medições e fotos completas do diálogo. Próxima ação:
+acompanhar67345/31042, não reiniciar por silêncio; finalizar matriz após evidência.
+
+## Estado vigente — Planos em revisão
+
+OS fechada no commit 9b3ccae; cobertura permanece15/100.
+Planos PT01→PT04 em revisão, contratos lidos em product/propagacao-identidade.md.
+Suíte integrada isolada ativa34447, log planos-retomada-integrada.log; não reiniciar.
+Captura somente leitura ativa57222, sete cenários em360/768/1440.
+Tentativas1596/42297 terminaram em timeout do script: iframe ainda lazy e wrapper
+display:contents sem caixa própria. Script corrigido para rolar #previa antes de
+aguardar documento e fontes. Nenhuma alteração do produto para contornar captura.
+Próxima ação: acompanhar34447/57222, revisar imagens de Planos incluindo editor,
+evento e Resultados, corrigir apenas defeitos concretos e pedir revisão independente.
+_equipe.html do usuário preservado. Sem outra suíte mutável ativa.
+
 ## Estado vigente — fechamento de OS e início de Planos
 
 OS01/OS02/OS03 fechadas tecnicamente: 64 testes aprovados, Ruff verde,

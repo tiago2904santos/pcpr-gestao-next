@@ -22,6 +22,11 @@ def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largu
     expect(pg.locator(".registro-hero .identidade-documental__complemento")).to_have_text(
         plano.sufixo)
     expect(pg.locator("#conferencia")).to_contain_text("dá para gerar o plano")
+    escolhas_coordenacao = pg.locator('.campos--coordenacao pc-select .seletor__valor:visible')
+    expect(escolhas_coordenacao.first).to_be_visible()
+    assert escolhas_coordenacao.evaluate_all(
+        "els => els.every(e => e.scrollWidth <= e.clientWidth)"
+    ), "A origem e o tratamento da coordenação devem ser legíveis sem truncamento"
     assert pg.get_by_role("button", name="Programa", exact=True).bounding_box()["width"] > 200
     quantidade = pg.locator("#efetivo-quantidade-1")
     # Área de toque válida e três dígitos (limite 999) legíveis, sem limiar arbitrário.

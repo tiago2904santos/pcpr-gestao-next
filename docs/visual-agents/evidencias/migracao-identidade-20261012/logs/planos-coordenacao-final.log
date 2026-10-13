@@ -1,0 +1,138 @@
+2026-10-12 21:59:23,603 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 35 consultas (limite 25)
+2026-10-12 21:59:25,631 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/autosave/: 43 consultas (limite 25)
+2026-10-12 21:59:25,832 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/1/: 37 consultas (limite 25)
+.2026-10-12 21:59:40,248 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 35 consultas (limite 25)
+2026-10-12 21:59:42,366 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/autosave/: 43 consultas (limite 25)
+2026-10-12 21:59:42,479 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/2/: 37 consultas (limite 25)
+.Timeout (0:01:00)!
+Thread 0x00007100 (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 90 in _worker
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 995 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x0000729c (most recent call first):
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 305 in _select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\selectors.py", line 314 in select
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\socketserver.py", line 235 in serve_forever
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\test\testcases.py", line 1770 in run
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1044 in _bootstrap_inner
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\threading.py", line 1015 in _bootstrap
+
+Thread 0x000040d4 (most recent call first):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\waiting.py", line 347 in wait_select
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\connection.py", line 495 in wait
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\psycopg\cursor.py", line 113 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 105 in _execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 92 in _execute_with_wrappers
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\backends\utils.py", line 79 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1643 in execute_sql
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 131 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2287 in _fetch_all
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 473 in __iter__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 840 in get_prefetch_querysets
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2905 in prefetch_one_level
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\db\models\query.py", line 2749 in prefetch_related_objects
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\queries.py", line 73 in trechos_de
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 414 in calcular
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 450 in <lambda>
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 433 in _gravar_diarias
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 450 in recalcular_diarias
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 336 in _tocar
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\services.py", line 302 in adicionar_viajante
+  File "C:\Users\tiago\AppData\Roaming\uv\python\cpython-3.13-windows-x86_64-none\Lib\contextlib.py", line 85 in inner
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\tests\cenarios.py", line 157 in cenario_completo
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\tests\e2e\conftest.py", line 38 in dados_e2e
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1005 in call_fixture_func
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1328 in pytest_fixture_setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1232 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1181 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 1181 in execute
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 726 in _get_active_fixturedef
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 630 in getfixturevalue
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\fixtures.py", line 806 in _fillfixtures
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\python.py", line 1710 in setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 536 in setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 170 in pytest_runtest_setup
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 250 in <lambda>
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 361 in from_call
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 249 in call_and_report
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 132 in runtestprotocol
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\runner.py", line 118 in pytest_runtest_protocol
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 408 in pytest_runtestloop
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 384 in _main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 330 in wrap_session
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\main.py", line 377 in pytest_cmdline_main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\config\__init__.py", line 229 in _main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\_pytest\config\__init__.py", line 253 in _console_main
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pytest\__main__.py", line 9 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 203 in _run_module_as_main
+2026-10-12 22:03:06,114 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 35 consultas (limite 25)
+2026-10-12 22:03:08,498 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/autosave/: 43 consultas (limite 25)
+2026-10-12 22:03:08,681 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/3/: 37 consultas (limite 25)
+.2026-10-12 22:03:25,947 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 35 consultas (limite 25)
+2026-10-12 22:03:26,933 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 43 consultas (limite 25)
+[12/Oct/2026 22:03:30,952] - Broken pipe from ('127.0.0.1', 60425)
+2026-10-12 22:03:31,367 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 47 consultas (limite 25)
+2026-10-12 22:03:31,643 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+2026-10-12 22:03:33,436 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 59 consultas (limite 25)
+[12/Oct/2026 22:03:33,801] - Broken pipe from ('127.0.0.1', 57392)
+2026-10-12 22:03:35,299 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/salvar/: 59 consultas (limite 25)
+2026-10-12 22:03:35,302 WARNING django.request Unprocessable Content: /viagens/planos/4/eventos/salvar/
+2026-10-12 22:03:37,011 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+
+(process:25452): GLib-GIO-WARNING **: 22:03:38.493: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+2026-10-12 22:03:38,653 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/finalizar/: 32 consultas (limite 25)
+[12/Oct/2026 22:03:39,604] - Broken pipe from ('127.0.0.1', 58763)
+
+(process:25452): GLib-GIO-WARNING **: 22:03:39.847: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:25452): GLib-GIO-WARNING **: 22:03:39.847: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 22:03:41,105 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 22:03:41,180 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 22:03:41,245 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 22:03:41,763 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 41 consultas (limite 25)
+
+(process:25452): GLib-GIO-WARNING **: 22:03:42.081: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:25452): GLib-GIO-WARNING **: 22:03:42.203: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:25452): GLib-GIO-WARNING **: 22:03:42.270: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:25452): GLib-GIO-WARNING **: 22:03:42.411: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+2026-10-12 22:03:43,737 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/eventos/1/remover/: 34 consultas (limite 25)
+2026-10-12 22:03:44,070 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/planos/4/: 37 consultas (limite 25)
+[12/Oct/2026 22:03:45,663] - Broken pipe from ('127.0.0.1', 53734)
+[12/Oct/2026 22:03:45,687] - Broken pipe from ('127.0.0.1', 57809)
+[12/Oct/2026 22:03:45,741] - Broken pipe from ('127.0.0.1', 61875)
+.[12/Oct/2026 22:03:46,296] - Broken pipe from ('127.0.0.1', 51741)
+....................................................................[12/Oct/2026 22:04:02,064] - Broken pipe from ('127.0.0.1', 54857)
+ [100%]
+============================== warnings summary ===============================
+tests/e2e/test_planos_preparacao_identidade.py::test_evento_manual_diarias_menu_remocao_e_pdf
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/test_design_tokens.py::test_view_transitions_respeitam_movimento_reduzido
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_4f266903" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+72 passed, 2 warnings in 310.57s (0:05:10)

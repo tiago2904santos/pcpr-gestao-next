@@ -1,0 +1,207 @@
+[
+  {
+    "width": 360,
+    "controles": [
+      {
+        "texto": "Servidor cadastrado",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "a Coordenadora",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      },
+      {
+        "texto": "Servidor cadastrado",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 257,
+        "scroll": 257,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "controles": [
+      {
+        "texto": "Servidor cadastrado",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "a Coordenadora",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      },
+      {
+        "texto": "Servidor cadastrado",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 287,
+        "scroll": 287,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "controles": [
+      {
+        "texto": "Servidor cadastrado",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "a Coordenadora",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      },
+      {
+        "texto": "Servidor cadastrado",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 289,
+        "scroll": 289,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 1024,
+    "controles": [
+      {
+        "texto": "Servidor cadastrado",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "a Coordenadora",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      },
+      {
+        "texto": "Servidor cadastrado",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "controles": [
+      {
+        "texto": "Servidor cadastrado",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "a Coordenadora",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      },
+      {
+        "texto": "Servidor cadastrado",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Escolha…",
+        "width": 151,
+        "scroll": 151,
+        "cabe": true
+      },
+      {
+        "texto": "Selecione o cargo",
+        "width": 0,
+        "scroll": 0,
+        "cabe": true
+      }
+    ]
+  }
+]

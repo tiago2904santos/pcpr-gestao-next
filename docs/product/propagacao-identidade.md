@@ -131,6 +131,13 @@ do hero têm contextos separados; sufixo documental é explícito.
 
 ## Planos — Folha e eventos adicionais
 
+Refinamento de 12/10: controles de origem e tratamento da coordenação precisam
+mostrar rótulos e escolha atual completos no celular. A variante compartilhada
+campos--coordenacao passa a uma coluna abaixo de768px, duas no tablet e mantém
+a distribuição proporcional desktop. Consumidores atuais: coordenação
+administrativa e operacional da Folha/Novo Plano. Campos condicionais e regras
+de tratamento documental permanecem iguais.
+
 Contrato atual: /viagens/planos/novo/, /<id>/ e ?evento=novo/id. Preparação com
 Ofícios, programas múltiplos/Outro, período/horário, destinos, coordenadores
 cadastrados ou manuais e tratamento explícito; efetivo por cargo/unidade/quantidade,

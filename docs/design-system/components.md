@@ -517,7 +517,9 @@ compatibilidade sem mudar campos, ações ou os grid areas principais.
 - `campos--agenda`: conteúdo, período e horário; escolha livre na linha seguinte.
   Folha e diálogo de evento compartilham a composição; exemplo interativo no UI Lab.
 - `campos--coordenacao`: origem/tratamento proporcionais e pessoa ou campos manuais;
-  preserva controles condicionais existentes. Não define gênero ou regras novas.
+  uma coluna no celular, duas no tablet; desktop reserva largura para ler origem
+  e tratamento completos. Preserva controles condicionais existentes. Não define
+  gênero ou regras novas.
 - `secao__bloco--integrado`: tira divisão/margem duplicada de agrupamentos internos
   numa preparação contínua. Consumidor atual: Planos.
 - `conferencia_preparacao`: recebe pendências calculadas e ação ligada a formulário
