@@ -1,3 +1,11 @@
+# Envio imediato autorizado pelo usuário
+
+Usuário pediu push rápido sem aguardar gate geral. Código consolidado em1483dbf.
+Central:95testes pós-limpeza aprovados. Gate geral22810 ainda em execução;
+resultado final não conhecido no momento do envio. Etapas estáticas aprovadas,
+migrações verificadas separadamente em conexão somente leitura.
+Migração visual39/100, ainda incompleta; próxima página Agenda com antes capturado.
+
 # Estado atual — envio autorizado à main
 
 Usuário: “Sobe tudo pro main”. HEAD7ff77f3 + alterações locais.
