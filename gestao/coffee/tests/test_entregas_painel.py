@@ -97,15 +97,22 @@ def test_painel_numeros_alertas_e_grupos(base):
     u, mun, hoje, _f = base
     _os(u, mun, hoje, data_evento=hoje + timedelta(days=3), local_entrega="Auditório",
         horario="09:00")
-    parada = _os(u, mun, hoje, data_evento=hoje - timedelta(days=12), quantidade=80)
-    Movimento.objects.filter(solicitacao=parada).update(em=timezone.now() - timedelta(days=20))
+    # Evento no último mês completo (há ritmo para projetar o saldo) em qualquer dia do mês,
+    # com o histórico anterior ao fim do evento.
+    fim_parada = min(hoje - timedelta(days=12), hoje.replace(day=1) - timedelta(days=1))
+    dias_parada = (hoje - fim_parada).days
+    parada = _os(u, mun, hoje, data_evento=fim_parada, quantidade=80)
+    Movimento.objects.filter(solicitacao=parada).update(
+        em=timezone.now() - timedelta(days=dias_parada + 8))
     _os(u, mun, hoje, nota_fiscal="77", ordem_bancaria_em=hoje, protocolo_pagamento="1")
     p = painel.montar(hoje)
     assert p.indicadores.capacidade == 100 and p.indicadores.consumido == 100
     assert p.indicadores.restante == 0 and p.indicadores.pendencias == 3
-    assert p.indicadores.gasto == Decimal("2000.00") and p.indicadores.pago == Decimal("200.00")
-    # Evento de 12 dias atrás cai no último mês completo: há ritmo, e o saldo zerado "acaba"
-    # hoje, antes do fim do contrato (como na referência).
+    # O gasto é do ano corrente (R$ 20 por unidade): na virada do ano, um dos eventos fica fora.
+    eventos = [(hoje + timedelta(days=3), 10), (fim_parada, 80), (hoje, 10)]
+    gasto = sum(Decimal(20 * n) for dia, n in eventos if dia.year == hoje.year)
+    assert p.indicadores.gasto == gasto and p.indicadores.pago == Decimal("200.00")
+    # Há ritmo: o saldo zerado "acaba" hoje, antes do fim do contrato (como na referência).
     assert p.alertas_de_saldo[0].alerta.startswith("No ritmo dos últimos 3 meses (")
     assert "faixa de 60 dias" in p.vigencia[0][1]
     Lote.objects.update(quantidade_total=200)  # cabe mais uma OS, com evento hoje
@@ -117,7 +124,8 @@ def test_painel_numeros_alertas_e_grupos(base):
     assert p.certidoes and len(p.certidoes[0][1]) == 5  # nenhuma certidão cadastrada
     grupos = {g.chave: g for g in p.grupos}
     assert list(grupos) == ["entregas", "sem_nota", "ob_nao_enviada"]
-    assert grupos["sem_nota"].itens[0][1] == 12  # desde o fim do evento, posterior ao histórico
+    # desde o fim do evento, posterior ao histórico
+    assert grupos["sem_nota"].itens[0][1] == dias_parada
     entrega = grupos["entregas"].itens[0]
     assert entrega[2:] == ("Abrir a OS", "entrega")  # evento futuro: conferir local e quem recebe
     assert grupos["ob_nao_enviada"].itens[0][2] == "Informar o envio da OB"
