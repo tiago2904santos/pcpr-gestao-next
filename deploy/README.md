@@ -281,8 +281,9 @@ espaço para ~2,5 GB de camadas (estimativa: ≥ 2 GB de RAM livre durante o bui
 
 1. **`check --deploy` falha com `mail.E001`** (Django 6.1) quando não há SMTP — inclusive no
    `scripts/preview-entrypoint.sh` do commit `b3471bd`, que por isso **não sobe** o contêiner do
-   PREVIEW. A implantação trata explicitamente (`deploy/docker/verificar.py`): ignora só
-   `mail.E001` e só sem SMTP e com `NOTIFICACOES_POR_EMAIL=false`.
+   PREVIEW. **Corrigido em STAGING/PRODUCTION** (`config/settings/production_base.py`: silencia
+   `mail.E001` só sem SMTP e com `NOTIFICACOES_POR_EMAIL=false`). O PREVIEW (homologação com
+   dados sintéticos) segue coberto pela mesma regra em `deploy/docker/verificar.py`.
 2. **Bloqueio de login por IP usa `REMOTE_ADDR`** (`gestao/identidade/forms.py`); atrás de
    proxy é o IP do proxy, então o bloqueio vale por e-mail (mais restritivo, não inseguro).
    A auditoria usa `X-Real-IP`, que os proxies daqui sobrescrevem.
