@@ -8,7 +8,7 @@ VPS (Hostinger) que pode já hospedar outros serviços. O produto já define a i
 (`Dockerfile` da raiz), o PREVIEW (ADR 0011), a auditoria pelo banco (ADR 0004) e a outbox
 transacional no PostgreSQL (ADR 0005). Faltava decidir como rodar tudo isso fora do CI sem
 mexer no produto e sem pôr em risco o que já existe no servidor. A validação está em
-`deploy/EVIDENCIAS.md` (VPS simulada).
+`docs/ops/implantacao-vps-evidencias.md` (VPS simulada).
 
 ## Decisão
 Toda a implantação fica em `deploy/`, separada do código do produto:

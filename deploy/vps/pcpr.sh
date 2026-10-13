@@ -114,6 +114,10 @@ banco — pcpr.sh $INST reverter <dump-pre-implantacao> --confirmo-sobrescrever-
     validar_dump "$DUMP" "${2:-}"
     parar_e_guardar
     substituir_banco "$DUMP"
+    # O dump pode ser anterior a migrações da imagem atual: leva o banco até ela antes de subir
+    # (as entradas de web/worker não migram de propósito).
+    dc run --rm -T migrar || { alertar CRITICO "migração após restaurar $(basename "$DUMP") falhou: \
+web e worker seguem PARADOS"; exit 1; }
     dc up -d --wait web worker
     "$DEPLOY_DIR/vps/smoke.sh" "$INST"
     registrar "banco restaurado de $(basename "$DUMP")"

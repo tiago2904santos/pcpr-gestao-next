@@ -45,6 +45,11 @@ registrar "implantação iniciada: produto=$SHA infra=$INFRA ($(git -C "$REPO_DI
 # 2. Imagens -------------------------------------------------------------------------------
 BASE="pcpr-gestao:$SHA"
 NOVA="pcpr-gestao-implantacao:${SHA:0:12}-${INFRA:0:12}"
+# Imagens desta implantação em curso: a limpeza de OUTRA instância que termine antes não pode
+# apagá-las (as travas são por instância).
+EM_CURSO="$PCPR_RAIZ/.implantacoes-em-curso"; mkdir -p "$EM_CURSO"
+printf '%s\n%s\n' "$BASE" "$NOVA" >"$EM_CURSO/$INST"
+trap 'rm -f "$EM_CURSO/$INST"' EXIT
 if ! docker image inspect "$BASE" >/dev/null 2>&1; then
   # O Dockerfile do produto parte de uma tag móvel (python:3.13-slim): reconstruir o mesmo
   # commit noutro dia pode trazer outras camadas de SO/Python. Com dados reais, usa-se a
@@ -105,6 +110,10 @@ dc run --rm -T migrar || {
 }
 MIGRACOES_DEPOIS="$(sql_valor "SELECT count(*) FROM django_migrations")"
 registrar "migrações aplicadas: $((MIGRACOES_DEPOIS - MIGRACOES_ANTES))"
+# Gravado já aqui: se a subida ou o smoke falharem depois, o schema JÁ mudou e `pcpr.sh
+# reverter` precisa saber disso (exige o dump). Sem migração, o valor da versão anterior vale.
+[ "$MIGRACOES_DEPOIS" = "$MIGRACOES_ANTES" ] || \
+  echo "$((MIGRACOES_DEPOIS - MIGRACOES_ANTES))" >"$ESTADO/migracoes-versao-ativa"
 
 # 6–7. Troca de versão e subida ------------------------------------------------------------
 definir_variavel PCPR_IMAGEM_ANTERIOR "$ANTERIOR"
@@ -147,11 +156,13 @@ fi
 registrar "implantação concluída: $NOVA (anterior: ${ANTERIOR:-nenhuma})"
 
 # Limpeza: mantém a imagem atual e a anterior de TODAS as instâncias (reversão sem rebuild).
-MANTER="$(sed -n 's/^PCPR_IMAGEM\(_ANTERIOR\)\{0,1\}=//p' "$PCPR_ETC"/*/instancia.env | sort -u)"
+MANTER="$( { sed -n 's/^PCPR_IMAGEM\(_ANTERIOR\)\{0,1\}=//p' "$PCPR_ETC"/*/instancia.env
+             cat "$EM_CURSO"/* 2>/dev/null; } | sort -u)"
 for img in $(docker image ls --format '{{.Repository}}:{{.Tag}}' pcpr-gestao-implantacao); do
   grep -qx "$img" <<<"$MANTER" || docker image rm "$img" >/dev/null 2>&1 || true
 done
 for img in $(docker image ls --format '{{.Repository}}:{{.Tag}}' pcpr-gestao); do
   curto="${img#pcpr-gestao:}"; curto="${curto:0:12}"
-  grep -q "^pcpr-gestao-implantacao:${curto}-" <<<"$MANTER" || docker image rm "$img" >/dev/null 2>&1 || true
+  grep -qx "$img" <<<"$MANTER" || grep -q "^pcpr-gestao-implantacao:${curto}-" <<<"$MANTER" \
+    || docker image rm "$img" >/dev/null 2>&1 || true
 done

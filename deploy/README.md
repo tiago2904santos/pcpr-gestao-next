@@ -8,7 +8,7 @@ alterações, e esta pasta só acrescenta uma camada fina (entrada, health check
 
 > **Estado (2026-10-13).** Tudo foi validado numa **VPS simulada** (Docker em ambiente isolado,
 > domínio fictício `homologacao.pcpr.test`, TLS interno). A VPS real ainda **não** foi acessada:
-> falta acesso SSH (§1). Ver as evidências em `deploy/EVIDENCIAS.md`.
+> falta acesso SSH (§1). Ver as evidências em `docs/ops/implantacao-vps-evidencias.md`.
 > Produção: `deploy/PRODUCAO.md` (exige autorização explícita).
 
 ## Sumário

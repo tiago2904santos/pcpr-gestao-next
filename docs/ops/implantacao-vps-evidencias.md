@@ -61,6 +61,9 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R22 | `reverter` depois de uma implantação que migrou (0050) | ✅ sem dump: recusado; com o dump pré-implantação: para, backup, restaura, sobe a imagem anterior, smoke ok (0050 desfeita) |
 | R23 | `restaurar-banco` com um anexo referenciado ausente | ✅ alerta crítico listando o arquivo; web e worker ficam parados (antes desta correção, o `docker compose exec` no laço consumia a entrada e a checagem não via nada) |
 | R24 | Monitor com o webhook fora do ar | ✅ estado não é dado por avisado; com o webhook de volta, o alerta é entregue e registrado; rodada seguinte não repete |
+| R25 | `restaurar-banco` com dump anterior à 0050 | ✅ `migrar` aplica a 0050 antes de subir web/worker; smoke ok |
+| R26 | Implantação que migra e depois falha no smoke | ✅ `migracoes-versao-ativa` gravado logo após a migração (1); `reverter` sem dump recusado |
+| R27 | Imagem de outra implantação em curso durante a limpeza | ✅ preservada (`.implantacoes-em-curso/`); o registro da própria implantação some ao sair |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
