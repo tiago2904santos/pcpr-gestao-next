@@ -68,11 +68,12 @@ a porta 8102. Ajustar recursos no `instancia.env` (memória, `WEB_CONCURRENCY`).
   recusam).
 
 ## 7. Rollback
-- Até a primeira gravação real: `pcpr.sh producao reverter` (imagem anterior) ou desligar o
-  site no proxy.
-- Com migração aplicada e defeito grave: `reverter` + `restaurar-banco` com o dump
-  `*-pre-implantacao.dump` gerado na própria janela (perde o que foi gravado depois — decisão
-  do responsável).
+- Sem migração na versão nova: `pcpr.sh producao reverter` (imagem anterior, banco intacto) ou
+  desligar o site no proxy.
+- Com migração aplicada e defeito grave: `pcpr.sh producao reverter <*-pre-implantacao.dump>
+  --confirmo-sobrescrever-producao` — para tudo, restaura o banco e só então sobe a imagem
+  anterior (perde o que foi gravado depois do dump — decisão do responsável). Sem o dump, o
+  `reverter` recusa: a imagem antiga não roda contra o schema novo.
 - Retirar do ar sem perder nada: `pcpr.sh producao compose stop web worker` (banco e arquivos
   intactos) e página de manutenção no proxy.
 

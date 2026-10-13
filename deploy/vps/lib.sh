@@ -28,9 +28,13 @@ registrar() {
 # Alerta: journal sempre; webhook se configurado em /etc/pcpr/alertas.env:
 #   PCPR_ALERTA_URL=https://ntfy.sh/<tópico-secreto>   (POST texto puro — ntfy, etc.)
 #   PCPR_ALERTA_FORMATO=texto|slack|discord            (slack/google chat = {"text": …})
+# ALERTA_ENTREGUE=0 quando o webhook configurado falhou (o monitor tenta de novo depois);
+# alertar nunca falha, para não interromper quem o chama sob `set -e`.
+ALERTA_ENTREGUE=1
 alertar() {
   local nivel="$1"; shift
   local msg="[PCPR ${INST:-geral}] $nivel: $*"
+  ALERTA_ENTREGUE=1
   registrar "ALERTA $nivel: $*"
   [ -f "$PCPR_ETC/alertas.env" ] || return 0
   # shellcheck disable=SC1091
@@ -42,7 +46,7 @@ alertar() {
       discord) corpo="$(python3 -c 'import json,sys; print(json.dumps({"content": sys.argv[1]}))' "$msg")"
                curl -fsS -m 15 -H 'Content-Type: application/json' -d "$corpo" "$PCPR_ALERTA_URL" ;;
       *)       curl -fsS -m 15 -H "Title: PCPR $nivel" -d "$msg" "$PCPR_ALERTA_URL" ;;
-    esac >/dev/null ) || registrar "falha ao enviar alerta pelo webhook"
+    esac >/dev/null ) || { ALERTA_ENTREGUE=0; registrar "falha ao enviar alerta pelo webhook"; }
 }
 
 carregar_instancia() {
@@ -94,4 +98,18 @@ dados_reais() {
 
 recusar_dados_reais() {  # recusar_dados_reais <motivo>
   ! dados_reais || morrer "$1 (instância $INST usa dados reais: APP_ENV/settings fora de preview)"
+}
+
+# Lista (uma por linha) os anexos referenciados pelo banco que faltam em <pasta-de-mídia>.
+# <consulta> é a função que roda SQL e devolve linhas (sql_valor na instância; outra no banco
+# isolado da restauração-teste). </dev/null: `docker compose exec` leria a entrada do laço.
+anexos_ausentes() {  # anexos_ausentes <pasta-de-mídia> <consulta>
+  local midia="$1" consulta="$2" t c caminho
+  while IFS='|' read -r t c; do
+    while IFS= read -r caminho; do
+      [ -z "$caminho" ] || [ -f "$midia/$caminho" ] || printf '%s\n' "$caminho"
+    done < <("$consulta" "SELECT $c FROM $t WHERE coalesce($c,'') <> ''" </dev/null)
+  done < <("$consulta" "SELECT c.table_name || '|' || c.column_name FROM information_schema.columns c
+            WHERE c.table_schema='public' AND c.column_name IN ('arquivo','nota_pdf','ob_pdf','anexo')
+              AND c.data_type LIKE 'character varying%'" </dev/null)
 }

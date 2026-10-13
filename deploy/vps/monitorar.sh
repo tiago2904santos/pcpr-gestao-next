@@ -82,6 +82,7 @@ ANTERIOR="$(cat "$ESTADO/monitor.ultimo" 2>/dev/null || true)"
 if [ "$RESUMO" != "$ANTERIOR" ]; then
   if [ -n "$RESUMO" ]; then alertar PROBLEMA "$(echo "$RESUMO" | paste -sd ';' -)"
   else alertar RESOLVIDO "todos os itens monitorados voltaram ao normal"; fi
-  printf '%s' "$RESUMO" >"$ESTADO/monitor.ultimo"
+  # Só dá o estado por avisado se o webhook entregou; senão, a próxima rodada tenta de novo.
+  [ "$ALERTA_ENTREGUE" = 0 ] || printf '%s' "$RESUMO" >"$ESTADO/monitor.ultimo"
 fi
 [ -z "$RESUMO" ]

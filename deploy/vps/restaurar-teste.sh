@@ -87,14 +87,9 @@ if [ "$TOTAL" -gt 0 ]; then
   ( cd "$MIDIA" && sha256sum -c --quiet "$TRAB/documentos.sha256" ) || morrer "arquivos divergentes do banco"
 fi
 # Demais anexos (coffee, eventos): só existência.
-FALTANDO=0
-while IFS= read -r caminho; do
-  [ -f "$MIDIA/$caminho" ] || { echo "  faltando: $caminho"; FALTANDO=$((FALTANDO + 1)); }
-done < <(q "SELECT c.table_name || '|' || c.column_name FROM information_schema.columns c
-            WHERE c.table_schema='public' AND c.column_name IN ('arquivo','nota_pdf','ob_pdf','anexo')
-              AND c.data_type LIKE 'character varying%'" | while IFS='|' read -r t c; do
-              q "SELECT $c FROM $t WHERE coalesce($c,'') <> ''"; done)
-[ "$FALTANDO" = 0 ] || morrer "$FALTANDO anexo(s) referenciado(s) no banco ausente(s) no backup"
+AUSENTES="$(anexos_ausentes "$MIDIA" q)"
+[ -z "$AUSENTES" ] || { sed 's/^/  faltando: /' <<<"$AUSENTES"
+  morrer "$(wc -l <<<"$AUSENTES") anexo(s) referenciado(s) no banco ausente(s) no backup"; }
 echo "  arquivos com SHA-256 conferido: $TOTAL (documentos, vias assinadas, anexos de prestação); demais anexos presentes" | tee -a "$RELATORIO"
 
 cp "$RELATORIO" "$ESTADO/ultima-restauracao.txt"

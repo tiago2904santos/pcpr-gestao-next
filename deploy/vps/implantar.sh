@@ -140,6 +140,7 @@ fi
 printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$NOVA" "${SUDO_USER:-$(id -un)}" "$BASE_ID" \
   >>"$PCPR_RAIZ/$INST/implantacoes.tsv"
 echo "$SHA" >"$ESTADO/versao-ativa"
+echo "$((MIGRACOES_DEPOIS - MIGRACOES_ANTES))" >"$ESTADO/migracoes-versao-ativa"  # lido por pcpr.sh reverter
 if [ "$REAL" = 0 ]; then  # registro do que passou na homologação (consultado com dados reais)
   printf '%s\t%s\t%s\t%s\t%s\n' "$(date -Is)" "$SHA" "$INFRA" "$BASE_ID" "$INST" >>"$HOMOLOGADOS"
 fi

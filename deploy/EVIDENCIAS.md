@@ -58,6 +58,9 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R19 | Cópia por hardlinks impossível (simulada) | ✅ backup falha com alerta crítico; web/worker descongelados; nenhuma cópia ao vivo |
 | R20 | `restaurar-banco` | ✅ web e worker param **antes** do backup de segurança (sem congelamento: já parados); restauração e smoke ok |
 | R21 | Restauração-teste com SHA-256 de vias assinadas e anexos de prestação | ✅ externa aprovada com 318 arquivos conferidos (300 + 3 + 15); anexo adulterado reprovado ("arquivos divergentes do banco") |
+| R22 | `reverter` depois de uma implantação que migrou (0050) | ✅ sem dump: recusado; com o dump pré-implantação: para, backup, restaura, sobe a imagem anterior, smoke ok (0050 desfeita) |
+| R23 | `restaurar-banco` com um anexo referenciado ausente | ✅ alerta crítico listando o arquivo; web e worker ficam parados (antes desta correção, o `docker compose exec` no laço consumia a entrada e a checagem não via nada) |
+| R24 | Monitor com o webhook fora do ar | ✅ estado não é dado por avisado; com o webhook de volta, o alerta é entregue e registrado; rodada seguinte não repete |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
