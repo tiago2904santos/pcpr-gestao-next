@@ -29,8 +29,16 @@ limpar() {
   docker network rm "$REDE" >/dev/null 2>&1 || true
   rm -rf "$TRAB"
 }
-trap limpar EXIT
-trap 'alertar CRITICO "teste de restauração ($ORIGEM) FALHOU na linha $LINENO"' ERR
+# Qualquer saída com erro alerta — inclusive as recusas explícitas (`morrer` sai sem passar
+# pelo ERR): um teste mensal reprovado não pode ficar mudo.
+LINHA_ERRO=""
+trap 'LINHA_ERRO=$LINENO' ERR
+encerrar() {
+  local st=$?
+  limpar
+  [ "$st" = 0 ] || alertar CRITICO "teste de restauração ($ORIGEM) FALHOU${LINHA_ERRO:+ na linha $LINHA_ERRO} (saída $st)"
+}
+trap encerrar EXIT
 
 # 1. Obter os dados
 if [ "$ORIGEM" = externo ]; then

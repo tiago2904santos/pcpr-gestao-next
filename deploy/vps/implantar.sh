@@ -105,7 +105,11 @@ if [ "$PRIMEIRA" = 0 ] && ! dc run --rm -T tarefa migrate --check >/dev/null 2>&
   PARADO=1
 fi
 dc run --rm -T migrar || {
-  [ -z "${PARADO:-}" ] || alertar CRITICO "migração de ${SHA:0:12} falhou com web/worker PARADOS"
+  # Parte das migrações pode ter sido gravada antes da falha: o estado tem de dizer isso, senão
+  # um `reverter` ou reinício confiaria no valor da versão anterior.
+  MIGRADAS="$(( $(sql_valor "SELECT count(*) FROM django_migrations" 2>/dev/null || echo "$MIGRACOES_ANTES") - MIGRACOES_ANTES ))"
+  [ "$MIGRADAS" = 0 ] || echo "$MIGRADAS" >"$ESTADO/migracoes-versao-ativa"
+  [ -z "${PARADO:-}" ] || alertar CRITICO "migração de ${SHA:0:12} falhou com web/worker PARADOS ($MIGRADAS aplicada(s))"
   morrer "migração falhou — ${PARADO:+web/worker parados (schema possivelmente parcial); }veja deploy/README.md §Reversão"
 }
 MIGRACOES_DEPOIS="$(sql_valor "SELECT count(*) FROM django_migrations")"

@@ -64,6 +64,8 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R25 | `restaurar-banco` com dump anterior à 0050 | ✅ `migrar` aplica a 0050 antes de subir web/worker; smoke ok |
 | R26 | Implantação que migra e depois falha no smoke | ✅ `migracoes-versao-ativa` gravado logo após a migração (1); `reverter` sem dump recusado |
 | R27 | Imagem de outra implantação em curso durante a limpeza | ✅ preservada (`.implantacoes-em-curso/`); o registro da própria implantação some ao sair |
+| R28 | Migração parcial (0049 aplicada, 0050 falha) | ✅ alerta crítico "1 aplicada(s)", `migracoes-versao-ativa`=1, `reverter` sem dump recusado |
+| R29 | Restauração-teste reprovada por recusa explícita (`morrer`) | ✅ alerta crítico enviado (antes só o ERR alertava); aprovação não alerta |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
