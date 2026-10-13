@@ -1,5 +1,35 @@
 # Página atual
 
+## Estado vigente — VI01 validada; próxima Folha/lote
+
+52555 terminou7passed144.30s. Capturas consulta finais guardadas e revisadas;
+barra estática e contagem visível; operador intacto. Matriz21/100, candidato
+em viagens-lista-retomada-candidato.json. VI01 a commitar. Próximas VI02/VI03:
+Folha e geração em lote, contrato e QA anterior lidos; revalidar com capturas
+e testes atuais. Nenhuma suíte mutável ativa. Dados e trabalho alheio preservados.
+
+## Estado vigente — VI01 correção de consulta em validação
+
+36035 terminou6aprovados116,54s. 12capturas revistas e revisor favorável
+a preservar composição. Defeito novo demonstrado por42414 (2falhas62,98s):
+consulta paginada sem ação fica sticky; status some no mobile.
+Template corrigido apenas nesse contexto, sem CSS/JS/permissão global.
+52555 ativa: viagens-consulta-final,7cenários. Não reiniciar por silêncio.
+Ruff verde. QA viagens-lista-retomada-2026-10-12.md. Próxima ação: resultado,
+capturas de consulta do tmp_path, segunda revisão, matriz/galeria/commit.
+Cobertura permanece20/100. _equipe.html do usuário intocado.
+
+## Estado vigente — VI01 em revisão
+
+JU01 fechada no commit e973289; cobertura20/100. Lista de Viagens ativa.
+Contrato, template e QA anterior lidos. Suíte isolada36035 ativa, chave
+viagens-lista-browser (identidade/paginação/permissões e fluxo Viagem).
+Captura somente leitura99432 ativa: todas/futuras/canceladas/vazio nas três
+larguras, prefixo viagens-lista-retomada. Não reiniciar por silêncio.
+Próxima ação: obter resultados, inspecionar imagens em tamanho legível,
+verificar consumidor da barra aderente com ação Nova viagem e fechar VI01
+somente após evidência. Nenhuma mudança de produto VI01 feita ainda.
+
 ## Estado vigente — JU01 fechada; próxima VI01
 
 96068 terminou7aprovados1avisoHarfBuzz190,05s; baseline14aprovados.

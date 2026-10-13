@@ -1119,14 +1119,27 @@
         "componentes/vazio.html",
         "viagens/viagem/_botao_nova.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Consulta paginada mantinha barra sticky sem ação e ocultava contagem no celular; corrigido."
+      ],
+      "alteracoes_implementadas": [
+        "Composição existente preservada após inspeção real; barra informativa no fluxo e contagem visível em consulta, operador preservado."
+      ],
+      "testes_executados": [
+        "6 E2E baseline116.54s; reprodução2falhas esperadas62.98s.",
+        "7 passed in 144.30s (0:02:24)",
+        "12 capturas360/768/1440; consulta paginada360/1440; Ruff verde."
+      ],
+      "evidencias": [
+        "qa/viagens-lista-retomada-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/viagens-lista-retomada-candidato.json",
+        "evidencias/migracao-identidade-20261012/viagens-lista-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/logs/viagens-consulta-final.log"
+      ],
+      "revisao_final": "Inspeção e revisão independente favoráveis; homologação visual e gate global pendentes.",
+      "revisao_codigo": "e973289 + fontes em viagens-lista-retomada-candidato.json",
+      "dependencias_antigas": "Nenhum CSS exclusivo obsoleto comprovado. Reuso canônico sem CSS/JS novo; aplicação inadequada do status/sticky removida da consulta.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

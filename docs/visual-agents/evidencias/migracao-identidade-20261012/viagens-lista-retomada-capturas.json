@@ -1,0 +1,86 @@
+[
+  {
+    "estado": "todas",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 360,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 768,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "todas",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "futuras",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "canceladas",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  },
+  {
+    "estado": "vazio",
+    "largura": 1440,
+    "http": 200,
+    "console": [],
+    "overflow": false
+  }
+]

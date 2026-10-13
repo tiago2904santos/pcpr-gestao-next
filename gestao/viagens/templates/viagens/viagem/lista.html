@@ -70,8 +70,8 @@ Documentos e ações secundárias continuam na Folha.{% endcomment %}
 {% else %}
   {% include "componentes/vazio.html" with icone="map" titulo="Nenhuma viagem registrada ainda" texto="Crie uma viagem para juntar o roteiro, os ofícios, os termos, a OS e o plano de uma mesma ação." %}
 {% endif %}
-<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 %} barra-acoes--acompanha{% endif %}">
-  <p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
+<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 and pode_criar %} barra-acoes--acompanha{% endif %}">
+  <p class="{% if pode_criar %}barra-acoes__status{% else %}texto-secundario texto-sm{% endif %}" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
   {% if pode_criar %}{% include "viagens/viagem/_botao_nova.html" %}{% endif %}
 </div>
 </div>

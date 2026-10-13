@@ -116,3 +116,29 @@ def test_vinte_registros_barra_e_ultima_pagina(logado, dados_e2e, tmp_path):
     expect(pg.locator(".barra-acoes__status")).to_contain_text("21 viagens")
     _axe_estavel(pg)
     assert pg.erros_console == []
+
+
+@pytest.mark.parametrize("largura", [360, 1440])
+def test_consulta_paginada_mantem_contagem_sem_barra_sobreposta(pagina, dados_e2e, largura, tmp_path):
+    unidade = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]).unidade
+    Viagem.objects.bulk_create([
+        Viagem(unidade=unidade, criado_por=dados_e2e.usuarios["operador"],
+               titulo=f"Consulta da viagem institucional {i}") for i in range(21)
+    ])
+    pg = pagina
+    pg.set_viewport_size({"width": largura, "height": 500})
+    entrar(pg, "consulta")
+    pg.goto("/viagens/viagens/?q=Consulta")
+    expect(pg.locator(".registro-operacional")).to_have_count(20)
+    expect(pg.get_by_role("button", name="Nova viagem")).to_have_count(0)
+    barra = pg.locator(".barra-acoes--colecao")
+    barra.scroll_into_view_if_needed()
+    _axe_estavel(pg)
+    pg.screenshot(path=str(tmp_path / f"consulta-paginada-{largura}.png"), full_page=True)
+    expect(barra.get_by_role("status")).to_be_visible()
+    expect(barra.get_by_role("status")).to_contain_text("21 viagens")
+    assert barra.evaluate("e => getComputedStyle(e).position") == "static"
+    pg.get_by_role("link", name="Próxima página", exact=True).click()
+    expect(pg.locator(".registro-operacional")).to_have_count(1)
+    expect(pg.get_by_role("searchbox", name="Buscar")).to_have_value("Consulta")
+    assert pg.erros_console == []

@@ -1,0 +1,13 @@
+2026-10-12 22:15:25,855 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 66 consultas (limite 25)
+.2026-10-12 22:15:39,468 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 66 consultas (limite 25)
+.2026-10-12 22:15:52,810 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/: 66 consultas (limite 25)
+.2026-10-12 22:16:06,050 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/7/: 32 consultas (limite 25)
+..2026-10-12 22:16:30,091 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/: 62 consultas (limite 25)
+2026-10-12 22:16:31,947 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/autosave/: 29 consultas (limite 25)
+2026-10-12 22:16:32,117 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/: 62 consultas (limite 25)
+2026-10-12 22:16:34,201 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/autosave/: 29 consultas (limite 25)
+2026-10-12 22:16:34,343 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/: 69 consultas (limite 25)
+2026-10-12 22:16:35,534 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/30/autosave/: 27 consultas (limite 25)
+.[12/Oct/2026 22:16:35,616] - Broken pipe from ('127.0.0.1', 49678)
+                                                                   [100%]
+6 passed in 116.54s (0:01:56)

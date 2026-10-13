@@ -224,7 +224,10 @@ GET de lista não grava. Preservar IDs/HTMX/OOB/querystring e botão POST separa
 Composição: hero compacto, filtros temporais integrados, busca, registros de relações
 sem coluna de ação fictícia. Título e destino legíveis; situação documental e tempo
 separados; documentos agrupados como metadados. Barra dentro do fragmento, no fluxo
-com poucos registros e acompanhando apenas quando paginada. Sem grandes alturas.
+com poucos registros e acompanhando apenas quando paginada e com ação de criação.
+Na consulta sem permissão de criar, permanece no fluxo e a contagem continua visível
+inclusive no celular; não usar o status de salvamento que se oculta nessa largura.
+Sem grandes alturas.
 Legado tem filtros combináveis,25por página, busca por protocolo e ações de linha;
 lacunas/diferenças já levantadas ficam explícitas, não são ampliadas por uma missão visual.
 

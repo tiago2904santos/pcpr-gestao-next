@@ -1,0 +1,72 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______ test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[360] _______
+
+pagina = <Page url='http://localhost:51171/viagens/viagens/?q=Consulta'>
+dados_e2e = Cenario(ids={'oficio_emitido': 1, 'oficio_rascunho': 2, 'oficio_vazio': 3, 'oficio_cancelado': 4, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 360
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-75/test_consulta_paginada_mantem_0')
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_consulta_paginada_mantem_contagem_sem_barra_sobreposta(pagina, dados_e2e, largura, tmp_path):
+        unidade = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]).unidade
+        Viagem.objects.bulk_create([
+            Viagem(unidade=unidade, criado_por=dados_e2e.usuarios["operador"],
+                   titulo=f"Consulta da viagem institucional {i}") for i in range(21)
+        ])
+        pg = pagina
+        pg.set_viewport_size({"width": largura, "height": 500})
+        entrar(pg, "consulta")
+        pg.goto("/viagens/viagens/?q=Consulta")
+        expect(pg.locator(".registro-operacional")).to_have_count(20)
+        expect(pg.get_by_role("button", name="Nova viagem")).to_have_count(0)
+        barra = pg.locator(".barra-acoes--colecao")
+        barra.scroll_into_view_if_needed()
+        _axe_estavel(pg)
+        pg.screenshot(path=str(tmp_path / f"consulta-paginada-{largura}.png"), full_page=True)
+>       expect(barra.get_by_role("status")).to_be_visible()
+E       AssertionError: Locator expected to be visible
+E       Actual value: None
+E       Error: element(s) not found 
+E       Call log:
+E         - Expect "to_be_visible" with timeout 5000ms
+E         - waiting for locator(".barra-acoes--colecao").get_by_role("status")
+
+tests\e2e\test_viagens_lista_identidade.py:138: AssertionError
+______ test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[1440] ______
+
+pagina = <Page url='http://localhost:51171/viagens/viagens/?q=Consulta'>
+dados_e2e = Cenario(ids={'oficio_emitido': 6, 'oficio_rascunho': 7, 'oficio_vazio': 8, 'oficio_cancelado': 9, 'oficio_outra_unidad...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+largura = 1440
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-75/test_consulta_paginada_mantem_1')
+
+    @pytest.mark.parametrize("largura", [360, 1440])
+    def test_consulta_paginada_mantem_contagem_sem_barra_sobreposta(pagina, dados_e2e, largura, tmp_path):
+        unidade = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]).unidade
+        Viagem.objects.bulk_create([
+            Viagem(unidade=unidade, criado_por=dados_e2e.usuarios["operador"],
+                   titulo=f"Consulta da viagem institucional {i}") for i in range(21)
+        ])
+        pg = pagina
+        pg.set_viewport_size({"width": largura, "height": 500})
+        entrar(pg, "consulta")
+        pg.goto("/viagens/viagens/?q=Consulta")
+        expect(pg.locator(".registro-operacional")).to_have_count(20)
+        expect(pg.get_by_role("button", name="Nova viagem")).to_have_count(0)
+        barra = pg.locator(".barra-acoes--colecao")
+        barra.scroll_into_view_if_needed()
+        _axe_estavel(pg)
+        pg.screenshot(path=str(tmp_path / f"consulta-paginada-{largura}.png"), full_page=True)
+        expect(barra.get_by_role("status")).to_be_visible()
+        expect(barra.get_by_role("status")).to_contain_text("21 viagens")
+>       assert barra.evaluate("e => getComputedStyle(e).position") == "static"
+E       AssertionError: assert 'sticky' == 'static'
+E         
+E         - static
+E         + sticky
+
+tests\e2e\test_viagens_lista_identidade.py:140: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[360]
+FAILED tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[1440]
+2 failed in 62.98s (0:01:02)

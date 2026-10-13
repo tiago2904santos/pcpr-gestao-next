@@ -1,0 +1,6 @@
+2026-10-12 22:19:12,411 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/1/: 66 consultas (limite 25)
+.2026-10-12 22:19:27,241 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/3/: 66 consultas (limite 25)
+.2026-10-12 22:19:43,021 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/5/: 66 consultas (limite 25)
+.2026-10-12 22:19:58,641 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/7/: 32 consultas (limite 25)
+....                                                                  [100%]
+7 passed in 144.30s (0:02:24)
