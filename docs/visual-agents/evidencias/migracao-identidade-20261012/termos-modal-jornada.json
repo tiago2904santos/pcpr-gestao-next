@@ -1,0 +1,515 @@
+[
+  {
+    "iteration": 0,
+    "width": 360,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 1,
+    "width": 768,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 2,
+    "width": 1440,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 3,
+    "width": 360,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 4,
+    "width": 768,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 5,
+    "width": 1440,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 6,
+    "width": 360,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 15.59375,
+        "y": 246.984375,
+        "width": 328.796875,
+        "height": 406.03125,
+        "top": 246.984375,
+        "right": 344.390625,
+        "bottom": 653.015625,
+        "left": 15.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 7,
+    "width": 768,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 153.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 614.390625,
+        "bottom": 613.875,
+        "left": 153.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  },
+  {
+    "iteration": 8,
+    "width": 1440,
+    "before": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "after": {
+      "open": true,
+      "modal": true,
+      "transition": false,
+      "opacity": "1",
+      "transform": "none",
+      "rect": {
+        "x": 489.59375,
+        "y": 286.109375,
+        "width": 460.796875,
+        "height": 327.765625,
+        "top": 286.109375,
+        "right": 950.390625,
+        "bottom": 613.875,
+        "left": 489.59375
+      },
+      "inside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "outside": [
+        "DIALOG#dialogo-assinado.dialogo dialogo--anexo",
+        "HTML#."
+      ],
+      "animations": []
+    },
+    "violations": []
+  }
+]

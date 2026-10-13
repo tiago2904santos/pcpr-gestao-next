@@ -1,5 +1,6 @@
 """Identidade migrada: seleção visível, destinos, calendário e ações HTMX."""
 
+import json
 import os
 import re
 from pathlib import Path
@@ -118,7 +119,28 @@ def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
     bloco.get_by_role("link", name="Anexar", exact=True).click()
     janela = pg.get_by_role("dialog", name="Anexar via assinada")
     expect(janela).to_be_visible()
-    assert not rodar_axe(pg)
+    # A superfície é visível antes de terminar o fade de entrada. Medir suas
+    # cores intermediárias gera resultado dependente da velocidade da máquina.
+    # Aguarda o término real (também funciona com reduced-motion), sem desligar
+    # animações, alterar cores ou excluir qualquer nó da auditoria.
+    janela.evaluate("""async d => {
+        await document.fonts.ready;
+        await Promise.all(document.getAnimations()
+            .filter(a => a.effect?.getComputedTiming().iterations !== Infinity)
+            .map(a => a.finished.catch(() => {})));
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }""")
+    expect(janela).to_be_visible()
+    assert janela.evaluate("d => d.matches(':modal')"), "O diálogo perdeu modalidade antes da auditoria"
+    violacoes = rodar_axe(pg)
+    if violacoes:
+        print("ESTADO_DIALOGO", janela.evaluate("""d => ({open:d.open,modal:d.matches(':modal'),
+            opacity:getComputedStyle(d).opacity,active:document.activeElement?.outerHTML,
+            transition:document.documentElement.matches(':active-view-transition'),
+            animations:document.getAnimations().map(a=>({name:a.animationName,state:a.playState})),
+            html:d.outerHTML,rect:d.getBoundingClientRect().toJSON()})"""))
+        pg.screenshot(path=str(tmp_path / 'dialogo-axe-falha.png'), full_page=True)
+    assert not violacoes, json.dumps(violacoes, ensure_ascii=False, indent=2)
     if os.environ.get("MIGRACAO_CAPTURAS"):
         pg.screenshot(path=str(Path(os.environ["MIGRACAO_CAPTURAS"]) /
                                f"termos-menu-assinado-{largura}.png"),

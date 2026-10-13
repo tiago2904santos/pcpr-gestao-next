@@ -412,18 +412,33 @@
         "componentes/vazio.html",
         "viagens/termos/_botao_novo.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [
         "Menu de via assinada apontava para#lista-documentos inexistente na folha."
       ],
       "alteracoes_implementadas": [
-        "Link para#previa e E2E de navegação pela Lista, com upload real em3larguras."
+        "Link para#previa e E2E de navegação pela Lista, com upload real em3larguras.",
+        "Removido controlador antigo de troca de prévia; navegação documental usa editores.js sem substituir o DOM."
       ],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "EM VALIDAÇÃO: suíte termos-retomada-final4845 ativa.",
-      "revisao_codigo": "34d1d57 + candidato Termos local",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "testes_executados": [
+        "52 aprovados no atalho cef0e77; log preservado termos-retomada-cef0e77.log.",
+        "Editor: 137 aprovados e uma falha de sincronização; correção revalidada com 6 aprovados em 9951a73.",
+        "Pós-remoção:52aprovados em termos-poslimpeza-diagnostico e9E2E finais com superfície estável; ruff/typecheck verdes. Falhas históricas preservadas e limitação no QA.",
+        "Índice documental real e rolagem pós-remoção em 360/390/768/1440: alturas estáveis, quatro cenários aprovados."
+      ],
+      "evidencias": [
+        "qa/termos-identidade-2026-10-10.md",
+        "qa/termos-retomada-2026-10-12.md",
+        "qa/editor-folha-larga-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/termos-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-indice.json",
+        "evidencias/migracao-identidade-20261012/editor-folha-candidato.json",
+        "evidencias/migracao-identidade-20261012/termos-contraste-abertura.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-candidato.json"
+      ],
+      "revisao_final": "Concluída tecnicamente com ressalva: variação histórica axe sobre fundo sem causa exata comprovada; superfície estável atual validada por9E2E,9observações e revisão independente. Homologação visual pendente; gate global não declarado.",
+      "revisao_codigo": "9951a73 + fontes exatas em termos-poslimpeza-candidato.json; commit de fechamento a registrar.",
+      "dependencias_antigas": "registro__meta--termo removido após migrar Lista/UI Lab; listener data-trocar-previa removido, substituído por editores.js/data-ir-pagina. Bases registro__*, mapas e seletores mantidas por consumidores reais; documento oficial preservado.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -465,14 +480,30 @@
         "viagens/oficios/_editor.html",
         "viagens/oficios/_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
       "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "alteracoes_implementadas": [
+        "Removido controlador antigo de troca de prévia; navegação documental usa editores.js sem substituir o DOM."
+      ],
+      "testes_executados": [
+        "52 aprovados no atalho cef0e77; log preservado termos-retomada-cef0e77.log.",
+        "Editor: 137 aprovados e uma falha de sincronização; correção revalidada com 6 aprovados em 9951a73.",
+        "Pós-remoção:52aprovados em termos-poslimpeza-diagnostico e9E2E finais com superfície estável; ruff/typecheck verdes. Falhas históricas preservadas e limitação no QA.",
+        "Índice documental real e rolagem pós-remoção em 360/390/768/1440: alturas estáveis, quatro cenários aprovados."
+      ],
+      "evidencias": [
+        "qa/termos-identidade-2026-10-10.md",
+        "qa/termos-retomada-2026-10-12.md",
+        "qa/editor-folha-larga-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/termos-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-indice.json",
+        "evidencias/migracao-identidade-20261012/editor-folha-candidato.json",
+        "evidencias/migracao-identidade-20261012/termos-contraste-abertura.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-candidato.json"
+      ],
+      "revisao_final": "Concluída tecnicamente com ressalva: variação histórica axe sobre fundo sem causa exata comprovada; superfície estável atual validada por9E2E,9observações e revisão independente. Homologação visual pendente; gate global não declarado.",
+      "revisao_codigo": "9951a73 + fontes exatas em termos-poslimpeza-candidato.json; commit de fechamento a registrar.",
+      "dependencias_antigas": "registro__meta--termo removido após migrar Lista/UI Lab; listener data-trocar-previa removido, substituído por editores.js/data-ir-pagina. Bases registro__*, mapas e seletores mantidas por consumidores reais; documento oficial preservado.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",
@@ -519,14 +550,33 @@
         "viagens/oficios/_editor.html",
         "viagens/oficios/_evento.html"
       ],
-      "situacao": "EM VALIDAÇÃO",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "Linha indivisível cortada no celular por overflow hidden do iframe."
+      ],
+      "alteracoes_implementadas": [
+        "Rolagem horizontal acessível, altura sem acumulação e superfície de papel com largura intrínseca; documento oficial intacto.",
+        "Removido controlador antigo de troca de prévia; navegação documental usa editores.js sem substituir o DOM."
+      ],
+      "testes_executados": [
+        "52 aprovados no atalho cef0e77; log preservado termos-retomada-cef0e77.log.",
+        "Editor: 137 aprovados e uma falha de sincronização; correção revalidada com 6 aprovados em 9951a73.",
+        "Pós-remoção:52aprovados em termos-poslimpeza-diagnostico e9E2E finais com superfície estável; ruff/typecheck verdes. Falhas históricas preservadas e limitação no QA.",
+        "Índice documental real e rolagem pós-remoção em 360/390/768/1440: alturas estáveis, quatro cenários aprovados."
+      ],
+      "evidencias": [
+        "qa/termos-identidade-2026-10-10.md",
+        "qa/termos-retomada-2026-10-12.md",
+        "qa/editor-folha-larga-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/termos-retomada-capturas.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-indice.json",
+        "evidencias/migracao-identidade-20261012/editor-folha-candidato.json",
+        "evidencias/migracao-identidade-20261012/termos-contraste-abertura.json",
+        "evidencias/migracao-identidade-20261012/termos-poslimpeza-candidato.json"
+      ],
+      "revisao_final": "Concluída tecnicamente com ressalva: variação histórica axe sobre fundo sem causa exata comprovada; superfície estável atual validada por9E2E,9observações e revisão independente. Homologação visual pendente; gate global não declarado.",
+      "revisao_codigo": "9951a73 + fontes exatas em termos-poslimpeza-candidato.json; commit de fechamento a registrar.",
+      "dependencias_antigas": "registro__meta--termo removido após migrar Lista/UI Lab; listener data-trocar-previa removido, substituído por editores.js/data-ir-pagina. Bases registro__*, mapas e seletores mantidas por consumidores reais; documento oficial preservado.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

@@ -1,0 +1,38 @@
+[
+  {
+    "viewport": 360,
+    "width": 277,
+    "content": 383,
+    "scroll": 106,
+    "overflowX": "auto",
+    "before": 1187,
+    "after": 1187
+  },
+  {
+    "viewport": 390,
+    "width": 307,
+    "content": 383,
+    "scroll": 76,
+    "overflowX": "auto",
+    "before": 1187,
+    "after": 1187
+  },
+  {
+    "viewport": 768,
+    "width": 498,
+    "content": 498,
+    "scroll": 0,
+    "overflowX": "auto",
+    "before": 1138,
+    "after": 1138
+  },
+  {
+    "viewport": 1440,
+    "width": 995,
+    "content": 995,
+    "scroll": 0,
+    "overflowX": "auto",
+    "before": 1169,
+    "after": 1169
+  }
+]

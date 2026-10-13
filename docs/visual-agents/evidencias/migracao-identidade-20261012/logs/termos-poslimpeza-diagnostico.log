@@ -1,0 +1,112 @@
+2026-10-12 21:33:55,554 INFO pikepdf._core pikepdf C++ to Python logger bridge initialized
+..............2026-10-12 21:34:43,083 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:43,133 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:43,158 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:43,809 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:43,871 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:43,934 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:44,314 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:44,404 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:44,491 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:44,901 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:44,953 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:45,001 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:45,337 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:45,383 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:45,418 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:34:46,028 WARNING django.request Not Found: /viagens/termos/9/documento/generico.exe
+.
+(process:7756): GLib-GIO-WARNING **: 21:34:46.516: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:7756): GLib-GIO-WARNING **: 21:34:46.876: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:7756): GLib-GIO-WARNING **: 21:34:46.876: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 21:34:47,514 WARNING django.request Forbidden (Permission denied): /viagens/termos/10/documento/generico.pdf
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 316, in documento
+    policies.exigir(policies.pode_editar_termo(request.user, termo),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Reative o termo para gerar documentos.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Reative o termo para gerar documentos.
+.
+(process:7756): GLib-GIO-WARNING **: 21:34:47.686: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:7756): GLib-GIO-WARNING **: 21:34:47.726: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:7756): GLib-GIO-WARNING **: 21:34:47.752: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:7756): GLib-GIO-WARNING **: 21:34:47.805: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+.....2026-10-12 21:34:55,694 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/novo/: 37 consultas (limite 25)
+..2026-10-12 21:34:58,204 WARNING django.request Unprocessable Content: /viagens/termos/novo/
+..2026-10-12 21:35:01,590 WARNING django.request Forbidden (Permission denied): /viagens/termos/20/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 253, in editar
+    termo = _termo_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 135, in _termo_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+...2026-10-12 21:35:05,032 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/novo/: 37 consultas (limite 25)
+.2026-10-12 21:35:06,326 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/23/: 27 consultas (limite 25)
+.........2026-10-12 21:35:17,465 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/34/duplicar/: 30 consultas (limite 25)
+..2026-10-12 21:35:20,132 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:35:20,162 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:35:20,192 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:35:20,543 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/37/: 40 consultas (limite 25)
+..2026-10-12 21:35:23,402 WARNING django.request Not Found: /viagens/assinados/termo/39/999999/
+.2026-10-12 21:35:28,477 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/: 38 consultas (limite 25)
+2026-10-12 21:35:31,163 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/autosave/: 40 consultas (limite 25)
+2026-10-12 21:35:31,622 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/: 40 consultas (limite 25)
+2026-10-12 21:35:32,076 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:35:46,673 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/: 38 consultas (limite 25)
+2026-10-12 21:35:49,138 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/autosave/: 40 consultas (limite 25)
+2026-10-12 21:35:49,743 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/: 40 consultas (limite 25)
+2026-10-12 21:35:50,112 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:36:04,290 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/: 38 consultas (limite 25)
+2026-10-12 21:36:07,776 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/autosave/: 40 consultas (limite 25)
+2026-10-12 21:36:08,258 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/: 40 consultas (limite 25)
+2026-10-12 21:36:08,633 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:36:25,037 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/63/: 31 consultas (limite 25)
+.2026-10-12 21:36:38,830 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/64/: 38 consultas (limite 25)
+2026-10-12 21:36:41,227 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/64/505/: 29 consultas (limite 25)
+2026-10-12 21:36:41,445 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/64/: 41 consultas (limite 25)
+.2026-10-12 21:36:57,331 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/65/: 38 consultas (limite 25)
+2026-10-12 21:37:00,196 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/65/517/: 29 consultas (limite 25)
+2026-10-12 21:37:00,486 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/65/: 41 consultas (limite 25)
+.2026-10-12 21:37:18,037 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/66/: 38 consultas (limite 25)
+2026-10-12 21:37:21,012 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/66/529/: 29 consultas (limite 25)
+2026-10-12 21:37:21,292 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/66/: 41 consultas (limite 25)
+.2026-10-12 21:37:35,510 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/: 40 consultas (limite 25)
+2026-10-12 21:37:37,948 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/autosave/: 42 consultas (limite 25)
+2026-10-12 21:37:38,342 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/: 40 consultas (limite 25)
+2026-10-12 21:37:39,074 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:37:39,101 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:37:39,125 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:37:39,425 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/autosave/: 40 consultas (limite 25)
+..[12/Oct/2026 21:37:59,440] - Broken pipe from ('127.0.0.1', 55099)
+                     [100%]
+============================== warnings summary ===============================
+gestao/viagens/tests/test_termos.py::TestDocumentos::test_telas_geram_pdf_docx_pdf_unico_e_zip
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+52 passed, 1 warning in 246.11s (0:04:06)

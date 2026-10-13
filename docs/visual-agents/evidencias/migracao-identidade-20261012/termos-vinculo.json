@@ -1,6 +1,6 @@
 {
   "base": "34f0d7d",
-  "head": "34d1d57 + correção local do href",
+  "head": "9951a73d3f9c6e1016496380a650f6d46c3a7c5b",
   "fontes": [
     {
       "arquivo": "gestao/ui_lab/templates/ui_lab/_registro_termo.html",
@@ -11,7 +11,7 @@
     {
       "arquivo": "gestao/ui_lab/templates/ui_lab/indice.html",
       "anterior": "bbe049c52b51f4a8a31f78501b32a3a8741525b37495530b69f00e7b7d40f9b2",
-      "atual": "b79f01107f20ac013a1d57ea6e8f8892a9218845e4c7fb292586d9d86f237f97",
+      "atual": "b81c8c30e51bfb1833a085eacd5668a2ab3907726202d2fe0436624deda732b8",
       "identico": false
     },
     {
@@ -23,55 +23,55 @@
     {
       "arquivo": "gestao/viagens/templates/viagens/_campo_viatura.html",
       "anterior": "e5ab8c70ca416c4a34a2c5624af794964eac760d5e8f64e753b1faa2f127b0b9",
-      "atual": "e5ab8c70ca416c4a34a2c5624af794964eac760d5e8f64e753b1faa2f127b0b9",
-      "identico": true
+      "atual": "fa5ba1c11a3779dbc10c84f985557896a7ff325b6cc0a60ed85134663d87e1a0",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/_destino.html",
       "anterior": "356e1e05b4a235b8139c92652e033c3ccf87b42051f2115133525de08cbe1d13",
-      "atual": "356e1e05b4a235b8139c92652e033c3ccf87b42051f2115133525de08cbe1d13",
-      "identico": true
+      "atual": "f254787c79f4814c45879e4c5718f4588d03c8ce7c645619d2f3649aa9c6efa2",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/_destinos.html",
       "anterior": "b79acc4ad2448f8746d02ed66fb44ae194e945e529514bbb71e0eb10d8848689",
-      "atual": "b79acc4ad2448f8746d02ed66fb44ae194e945e529514bbb71e0eb10d8848689",
-      "identico": true
+      "atual": "a149b58c0097151d8af3d4b5dd21c3fe2199582085ab82c43bd582ddca6f8f70",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/termos/_cabecalho_contexto.html",
       "anterior": "14e650f63fefd944bfb9b8ace635fefca771e995e4dadf2c805eb7ea1de384e3",
-      "atual": "9f91a3883fe08cf3c3c23b480d6b0c8b679ddcdbdc2f8f8d33bed3ed83ba6267",
+      "atual": "467b0c4f777d42ffbb0cb58ca91252b9b586a4564cdbba7bc9bd3efa7614bf27",
       "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/termos/editar.html",
       "anterior": "746004f37cba009c3cd0e7e8576c03b21519c31bb40e2206d3138cb7de77df42",
-      "atual": "746004f37cba009c3cd0e7e8576c03b21519c31bb40e2206d3138cb7de77df42",
-      "identico": true
+      "atual": "127f833db98986da28001a5e663cb5a98c3cba5b0ef6a213e1c50c12e9db2222",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/termos/lista.html",
       "anterior": "a09ad7d5c08185df1c7c49f12134c5af9d752b9322c5e7727535751bb030b20e",
-      "atual": "34ab767f157a783ca0fc357cf26dcc88f9ab0c58ef64080ea40bfa642ec40a13",
+      "atual": "236e1fba2ffaab119fee4b7f0264b79995b29f8ee8e982d96e0fca6cdc40938a",
       "identico": false
     },
     {
       "arquivo": "gestao/viagens/templates/viagens/widgets/equipe.html",
       "anterior": "afc918e148051a24eb84c56c10865d0d53420f292cdbc47f99fa0181837f76e0",
-      "atual": "afc918e148051a24eb84c56c10865d0d53420f292cdbc47f99fa0181837f76e0",
-      "identico": true
+      "atual": "233b580b58f335c4d9bf8be6542e252c6bd06630f2a89c62398f9f77a06b4dfe",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/templatetags/viagens.py",
       "anterior": "c3585077e1d65d34a935881b2dc076731edc5dd5ce2608d618cd5a1f8890f4da",
-      "atual": "c3585077e1d65d34a935881b2dc076731edc5dd5ce2608d618cd5a1f8890f4da",
-      "identico": true
+      "atual": "2dcf81487cd81adfaa9c69ef3115be3b9f2794126fa9b58105f7e006980f2e15",
+      "identico": false
     },
     {
       "arquivo": "gestao/viagens/tests/test_views.py",
       "anterior": "4a95dc653a4458975ca2c121589d6af22ab1000148bcc64cf8007d964f0e105b",
-      "atual": "431ed2522138ae6b44d35094a0ca419d50a93deb0d141e2394a9926b4794f289",
+      "atual": "4709ec72a76148c1ce01625110338a901025905569c2f0c15caa4af3a3fc7b9c",
       "identico": false
     },
     {
@@ -89,32 +89,32 @@
     {
       "arquivo": "static/js/componentes/multiescolha.js",
       "anterior": "c81a082259ed5976b6f2fafb9c83c6205cee8f89dbe4cfe9ef811856160cf859",
-      "atual": "c81a082259ed5976b6f2fafb9c83c6205cee8f89dbe4cfe9ef811856160cf859",
-      "identico": true
+      "atual": "18e09525b7f3c7881027f84aa94aa7ddc7c14727cec7c5a10404b3cdbeb7ae2a",
+      "identico": false
     },
     {
       "arquivo": "tests/e2e/test_baixar.py",
       "anterior": "f457715e91b81937657665c0b9c53bae633f7f0674a257dab1747bda7b4e3fcb",
-      "atual": "f457715e91b81937657665c0b9c53bae633f7f0674a257dab1747bda7b4e3fcb",
-      "identico": true
+      "atual": "8f6c8f8ff40fb316d0792158cec7e1f1c64b4e055ddc0d7c86fb4b304d3fe535",
+      "identico": false
     },
     {
       "arquivo": "tests/e2e/test_termos.py",
       "anterior": "e3f133f6c95612ad2c733fb9cb66092ba92850b3344102577aa21b2bc01ac02b",
-      "atual": "e3f133f6c95612ad2c733fb9cb66092ba92850b3344102577aa21b2bc01ac02b",
-      "identico": true
+      "atual": "806c4fffd5e88bcf13297494e3ea46ee0577d644c1e1b2f6d68fd192047a9fb1",
+      "identico": false
     },
     {
       "arquivo": "tests/e2e/test_termos_identidade.py",
       "anterior": "09d37facb2ff5b86b511afb52cdf49d6199d325c59baf2434aef5947cb876136",
-      "atual": "323cd17c85a189e6847d5e3dd668ca9d141680473326a4c440b8f91b584a9d8b",
+      "atual": "de46f9fd2d0ed3f7c652c82ad1a397404d8ab3f9a94bfef4df2708a96d0c7c68",
       "identico": false
     }
   ],
-  "alteracao": "Lista aponta para#previa; E2E passa pelo menu real em3larguras.",
+  "alteracao": "Atalho #previa validado no commit cef0e77; visualizador compartilhado validado no commit 9951a73, manifesto editor-folha-candidato.json.",
   "limites": [
-    "SQL preexistente da Folha acima do orçamento; sem alteração de consulta neste candidato.",
-    "Teste4845 e recaptura72347 em execução.",
+    "SQL preexistente da Folha acima do orçamento; sem alteração de consultas nesta correção.",
+    "52 testes de Termos aprovados antes da correção do visualizador; testes afetados adicionais documentados no QA editor-folha-larga-2026-10-12.md.",
     "Aprovação visual não presumida."
   ]
 }

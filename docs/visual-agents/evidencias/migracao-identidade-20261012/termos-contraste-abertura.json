@@ -1,0 +1,1282 @@
+[
+  {
+    "iteration": 0,
+    "state": {
+      "opacity": "1",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 183.37699998433132,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 1,
+    "state": {
+      "opacity": "0.502284",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.355000020347525,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#8c8983",
+                  "bgColor": "#faf9f7",
+                  "contrastRatio": 3.31,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.31 (foreground color: #8c8983, background color: #faf9f7, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #8c8983, background color: #faf9f7, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#a6936a",
+                  "bgColor": "#fcfcfa",
+                  "contrastRatio": 2.91,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 2.91 (foreground color: #a6936a, background color: #fcfcfa, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.91 (foreground color: #a6936a, background color: #fcfcfa, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#928f8a",
+                  "bgColor": "#fcfcfa",
+                  "contrastRatio": 3.13,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.13 (foreground color: #928f8a, background color: #fcfcfa, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.13 (foreground color: #928f8a, background color: #fcfcfa, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 2,
+    "state": {
+      "opacity": "0.502527",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.37500001162663,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 3,
+    "state": {
+      "opacity": "0.501968",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.329000029776346,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#79756f",
+                  "bgColor": "#fcfcfb",
+                  "contrastRatio": 4.45,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#947e4c",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 3.79,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#7c7973",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 4.19,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 4,
+    "state": {
+      "opacity": "0.502381",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.3630000136349,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#79756f",
+                  "bgColor": "#fcfcfb",
+                  "contrastRatio": 4.45,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#947e4c",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 3.79,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#7c7973",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 4.19,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 5,
+    "state": {
+      "opacity": "0.502016",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.33299998704753,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#79756f",
+                  "bgColor": "#fcfcfb",
+                  "contrastRatio": 4.45,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#947e4c",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 3.79,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#7c7973",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 4.19,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 6,
+    "state": {
+      "opacity": "0.502381",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.362999985817154,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#79756f",
+                  "bgColor": "#fcfcfb",
+                  "contrastRatio": 4.45,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.45 (foreground color: #79756f, background color: #fcfcfb, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#947e4c",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 3.79,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.79 (foreground color: #947e4c, background color: #fcfbf9, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#7c7973",
+                  "bgColor": "#fcfbf9",
+                  "contrastRatio": 4.19,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #7c7973, background color: #fcfbf9, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  },
+  {
+    "iteration": 7,
+    "state": {
+      "opacity": "0.502065",
+      "animations": [
+        {
+          "name": "dialogo-entrar",
+          "time": 33.33699999208051,
+          "state": "running"
+        }
+      ],
+      "nodes": [
+        {
+          "text": "Gabriela Junqueira Junqueira",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Já há uma via assinada valendo. A nova passa a valer; a anterior fica guardada no histórico.",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(238, 244, 251)"
+        },
+        {
+          "text": "Arraste o PDF assinado para cá ou escolha o arquivo",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "PDF escaneado ou com assinatura digital · até 15 MB",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Escolha o PDF assinado.",
+          "color": "rgb(163, 36, 26)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "A via fica guardada com o documento. Gerar o PDF continua gerando o documento atualizado.",
+          "color": "rgb(95, 91, 84)",
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "text": "Voltar",
+          "color": "rgb(31, 30, 27)",
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "Anexar via assinada",
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(38, 39, 43)"
+        }
+      ]
+    },
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#8c8983",
+                  "bgColor": "#faf9f7",
+                  "contrastRatio": 3.31,
+                  "fontSize": "8.8pt (11.7px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<dialog id=\"dialogo-assinado\" class=\"dialogo dialogo--anexo\" aria-labelledby=\"dialogo-assinado-titulo\" aria-describedby=\"dialogo-assinado-documento\" open=\"\">",
+                    "target": [
+                      "#dialogo-assinado"
+                    ]
+                  },
+                  {
+                    "html": "<div class=\"editores editores--unidos editores--documental editores--operacional\" data-editores=\"\" data-pdf-todos=\"/viagens/termos/7/todos.pdf\" style=\"--altura-barra: 165px;\">",
+                    "target": [
+                      ".editores"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.31 (foreground color: #8c8983, background color: #faf9f7, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<p class=\"texto-secundario texto-sm\" id=\"dialogo-assinado-documento\" data-assinado-documento=\"\">Gabriela Junqueira Junqueira</p>",
+            "target": [
+              "#dialogo-assinado-documento"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.31 (foreground color: #8c8983, background color: #faf9f7, font size: 8.8pt (11.7px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#a6936a",
+                  "bgColor": "#fcfcfa",
+                  "contrastRatio": 2.91,
+                  "fontSize": "9.4pt (12.6px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 2.91 (foreground color: #a6936a, background color: #fcfcfa, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__link\">escolha o arquivo</span>",
+            "target": [
+              ".anexo__link"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.91 (foreground color: #a6936a, background color: #fcfcfa, font size: 9.4pt (12.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "fgColor": "#928f8a",
+                  "bgColor": "#fcfcfa",
+                  "contrastRatio": 3.13,
+                  "fontSize": "8.1pt (10.8px)",
+                  "fontWeight": "normal",
+                  "messageKey": null,
+                  "expectedContrastRatio": "4.5:1",
+                  "shadowColor": null,
+                  "colorParse": null
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<label class=\"anexo__area\" for=\"dialogo-assinado-arquivo\" data-assinado-area=\"\">",
+                    "target": [
+                      ".anexo__area"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element has insufficient color contrast of 3.13 (foreground color: #928f8a, background color: #fcfcfa, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<span class=\"anexo__limite\" id=\"dialogo-assinado-ajuda\">PDF escaneado ou com assinatura digital · até 15 MB</span>",
+            "target": [
+              "#dialogo-assinado-ajuda"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.13 (foreground color: #928f8a, background color: #fcfcfa, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "stable_opacity": "1",
+    "stable_violations": []
+  }
+]

@@ -1,0 +1,671 @@
+2026-10-12 21:28:13,712 INFO pikepdf._core pikepdf C++ to Python logger bridge initialized
+..............2026-10-12 21:28:51,859 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:51,901 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:51,926 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,483 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,509 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,534 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,755 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,778 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:52,805 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,028 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,053 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,080 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,287 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,319 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,337 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:28:53,738 WARNING django.request Not Found: /viagens/termos/9/documento/generico.exe
+.
+(process:26988): GLib-GIO-WARNING **: 21:28:54.005: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:26988): GLib-GIO-WARNING **: 21:28:54.337: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:26988): GLib-GIO-WARNING **: 21:28:54.337: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+2026-10-12 21:28:54,787 WARNING django.request Forbidden (Permission denied): /viagens/termos/10/documento/generico.pdf
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\clickjacking.py", line 57, in _view_wrapper
+    response = view_func(*args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\csp.py", line 20, in _wrapped_sync_view
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 316, in documento
+    policies.exigir(policies.pode_editar_termo(request.user, termo),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "Reative o termo para gerar documentos.")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\policies.py", line 475, in exigir
+    raise PermissionDenied(mensagem)
+django.core.exceptions.PermissionDenied: Reative o termo para gerar documentos.
+.
+(process:26988): GLib-GIO-WARNING **: 21:28:55.011: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:26988): GLib-GIO-WARNING **: 21:28:55.057: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:26988): GLib-GIO-WARNING **: 21:28:55.078: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:26988): GLib-GIO-WARNING **: 21:28:55.118: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+.....2026-10-12 21:29:01,357 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/novo/: 37 consultas (limite 25)
+..2026-10-12 21:29:03,509 WARNING django.request Unprocessable Content: /viagens/termos/novo/
+..2026-10-12 21:29:06,122 WARNING django.request Forbidden (Permission denied): /viagens/termos/20/
+Traceback (most recent call last):
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\exception.py", line 56, in inner
+    response = get_response(request)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\core\handlers\base.py", line 199, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\django\views\decorators\http.py", line 63, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 253, in editar
+    termo = _termo_visivel(request, pk)
+  File "C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\gestao\viagens\views_termos.py", line 135, in _termo_visivel
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+...2026-10-12 21:29:09,494 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/novo/: 37 consultas (limite 25)
+.2026-10-12 21:29:10,600 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/23/: 27 consultas (limite 25)
+.........2026-10-12 21:29:18,852 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/34/duplicar/: 30 consultas (limite 25)
+..2026-10-12 21:29:21,044 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:29:21,072 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:29:21,098 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:29:21,407 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/37/: 40 consultas (limite 25)
+..2026-10-12 21:29:23,810 WARNING django.request Not Found: /viagens/assinados/termo/39/999999/
+.2026-10-12 21:29:28,429 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/: 38 consultas (limite 25)
+2026-10-12 21:29:31,119 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/autosave/: 40 consultas (limite 25)
+2026-10-12 21:29:31,591 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/: 40 consultas (limite 25)
+2026-10-12 21:29:32,136 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/40/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:29:45,996 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/: 38 consultas (limite 25)
+2026-10-12 21:29:48,341 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/autosave/: 40 consultas (limite 25)
+2026-10-12 21:29:48,881 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/: 40 consultas (limite 25)
+2026-10-12 21:29:49,418 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/41/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:30:02,934 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/: 38 consultas (limite 25)
+2026-10-12 21:30:06,012 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/autosave/: 40 consultas (limite 25)
+2026-10-12 21:30:06,469 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/: 40 consultas (limite 25)
+2026-10-12 21:30:06,819 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/42/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:30:22,823 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/63/: 31 consultas (limite 25)
+.2026-10-12 21:30:36,900 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/64/: 38 consultas (limite 25)
+F2026-10-12 21:30:51,899 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/65/: 38 consultas (limite 25)
+F2026-10-12 21:31:06,170 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/66/: 38 consultas (limite 25)
+F2026-10-12 21:31:21,263 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/: 40 consultas (limite 25)
+2026-10-12 21:31:23,910 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/autosave/: 42 consultas (limite 25)
+2026-10-12 21:31:24,314 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/: 40 consultas (limite 25)
+2026-10-12 21:31:25,238 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:31:25,259 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:31:25,281 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:31:25,587 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/67/autosave/: 40 consultas (limite 25)
+..[12/Oct/2026 21:31:47,952] - Broken pipe from ('127.0.0.1', 61018)
+                     [100%]
+================================== FAILURES ===================================
+__________________ test_via_assinada_no_editor_migrado[360] ___________________
+
+logado = <Page url='http://localhost:51238/viagens/termos/64/#previa'>
+dados_e2e = Cenario(ids={'oficio_emitido': 211, 'oficio_rascunho': 212, 'oficio_vazio': 213, 'oficio_cancelado': 214, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-69/test_via_assinada_no_editor_mi0')
+largura = 360
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
+        """Anexo real pela barra operacional; via permanece separada do PDF gerado."""
+        from gestao.viagens.models import ViaAssinada
+        from tests.e2e.test_assinados import PDF
+    
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        termo = termos.salvar(
+            dados_e2e.usuarios["operador"],
+            oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]),
+        )
+        pg.goto("/viagens/termos/")
+        pg.get_by_role("button", name=f"Ações do {termo}").click()
+        atalho = pg.get_by_role("menuitem", name="Anexar ou abrir termo assinado", exact=True)
+        expect(atalho).to_have_attribute("href", f"/viagens/termos/{termo.pk}/#previa")
+        atalho.click()
+        expect(pg).to_have_url(re.compile(rf"/viagens/termos/{termo.pk}/#previa$"))
+        expect(pg.locator("#previa")).to_be_in_viewport()
+        bloco = pg.locator("pc-editor-documento").first
+        bloco.get_by_role("link", name="Anexar", exact=True).click()
+        janela = pg.get_by_role("dialog", name="Anexar via assinada")
+        expect(janela).to_be_visible()
+        # A superfície é visível antes de terminar o fade de entrada. Medir suas
+        # cores intermediárias gera resultado dependente da velocidade da máquina.
+        # Aguarda o término real (também funciona com reduced-motion), sem desligar
+        # animações, alterar cores ou excluir qualquer nó da auditoria.
+        janela.evaluate("""async d => {
+            await Promise.all(d.getAnimations({subtree:true})
+                .filter(a => a.effect?.getComputedTiming().iterations !== Infinity)
+                .map(a => a.finished.catch(() => {})));
+        }""")
+        violacoes = rodar_axe(pg)
+>       assert not violacoes, json.dumps(violacoes, ensure_ascii=False, indent=2)
+E       AssertionError: [
+E           {
+E             "id": "color-contrast",
+E             "impact": "serious",
+E             "tags": [
+E               "cat.color",
+E               "wcag2aa",
+E               "wcag143",
+E               "TTv5",
+E               "TT13.c",
+E               "EN-301-549",
+E               "EN-9.1.4.3",
+E               "ACT",
+E               "RGAAv4",
+E               "RGAA-3.2.1"
+E             ],
+E             "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+E             "help": "Elements must meet minimum color contrast ratio thresholds",
+E             "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+E             "nodes": [
+E               {
+E                 "any": [
+E                   {
+E                     "id": "color-contrast",
+E                     "data": {
+E                       "fgColor": "#b7b5b2",
+E                       "bgColor": "#ffffff",
+E                       "contrastRatio": 2.04,
+E                       "fontSize": "8.1pt (10.8px)",
+E                       "fontWeight": "normal",
+E                       "messageKey": null,
+E                       "expectedContrastRatio": "4.5:1",
+E                       "shadowColor": null,
+E                       "colorParse": null
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<div class=\"documento documento--preparacao\">",
+E                         "target": [
+E                           ".documento"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<span class=\"itin__total-rotulo\">Ida</span>",
+E                 "target": [
+E                   ".itin__total:nth-child(1) > .itin__total-rotulo"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E               },
+E               {
+E                 "any": [
+E                   {
+E                     "id": "color-contrast",
+E                     "data": {
+E                       "fgColor": "#b7b5b2",
+E                       "bgColor": "#ffffff",
+E                       "contrastRatio": 2.04,
+E                       "fontSize": "8.1pt (10.8px)",
+E                       "fontWeight": "normal",
+E                       "messageKey": null,
+E                       "expectedContrastRatio": "4.5:1",
+E                       "shadowColor": null,
+E                       "colorParse": null
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<div class=\"documento documento--preparacao\">",
+E                         "target": [
+E                           ".documento"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<span class=\"itin__total-rotulo itin__so-destinos\">Ida e volta</span>",
+E                 "target": [
+E                   ".itin__so-destinos"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E               }
+E             ]
+E           }
+E         ]
+E       assert not [{'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-5...'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}]
+
+tests\e2e\test_termos_identidade.py:132: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 21:30:36,900 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/64/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/64/: 38 consultas (limite 25)
+__________________ test_via_assinada_no_editor_migrado[768] ___________________
+
+logado = <Page url='http://localhost:51238/viagens/termos/65/#previa'>
+dados_e2e = Cenario(ids={'oficio_emitido': 216, 'oficio_rascunho': 217, 'oficio_vazio': 218, 'oficio_cancelado': 219, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-69/test_via_assinada_no_editor_mi1')
+largura = 768
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
+        """Anexo real pela barra operacional; via permanece separada do PDF gerado."""
+        from gestao.viagens.models import ViaAssinada
+        from tests.e2e.test_assinados import PDF
+    
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        termo = termos.salvar(
+            dados_e2e.usuarios["operador"],
+            oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]),
+        )
+        pg.goto("/viagens/termos/")
+        pg.get_by_role("button", name=f"Ações do {termo}").click()
+        atalho = pg.get_by_role("menuitem", name="Anexar ou abrir termo assinado", exact=True)
+        expect(atalho).to_have_attribute("href", f"/viagens/termos/{termo.pk}/#previa")
+        atalho.click()
+        expect(pg).to_have_url(re.compile(rf"/viagens/termos/{termo.pk}/#previa$"))
+        expect(pg.locator("#previa")).to_be_in_viewport()
+        bloco = pg.locator("pc-editor-documento").first
+        bloco.get_by_role("link", name="Anexar", exact=True).click()
+        janela = pg.get_by_role("dialog", name="Anexar via assinada")
+        expect(janela).to_be_visible()
+        # A superfície é visível antes de terminar o fade de entrada. Medir suas
+        # cores intermediárias gera resultado dependente da velocidade da máquina.
+        # Aguarda o término real (também funciona com reduced-motion), sem desligar
+        # animações, alterar cores ou excluir qualquer nó da auditoria.
+        janela.evaluate("""async d => {
+            await Promise.all(d.getAnimations({subtree:true})
+                .filter(a => a.effect?.getComputedTiming().iterations !== Infinity)
+                .map(a => a.finished.catch(() => {})));
+        }""")
+        violacoes = rodar_axe(pg)
+>       assert not violacoes, json.dumps(violacoes, ensure_ascii=False, indent=2)
+E       AssertionError: [
+E           {
+E             "id": "color-contrast",
+E             "impact": "serious",
+E             "tags": [
+E               "cat.color",
+E               "wcag2aa",
+E               "wcag143",
+E               "TTv5",
+E               "TT13.c",
+E               "EN-301-549",
+E               "EN-9.1.4.3",
+E               "ACT",
+E               "RGAAv4",
+E               "RGAA-3.2.1"
+E             ],
+E             "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+E             "help": "Elements must meet minimum color contrast ratio thresholds",
+E             "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+E             "nodes": [
+E               {
+E                 "any": [
+E                   {
+E                     "id": "color-contrast",
+E                     "data": {
+E                       "fgColor": "#b7b5b2",
+E                       "bgColor": "#ffffff",
+E                       "contrastRatio": 2.04,
+E                       "fontSize": "8.1pt (10.8px)",
+E                       "fontWeight": "normal",
+E                       "messageKey": null,
+E                       "expectedContrastRatio": "4.5:1",
+E                       "shadowColor": null,
+E                       "colorParse": null
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<div class=\"documento documento--preparacao\">",
+E                         "target": [
+E                           ".documento"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<span class=\"itin__total-rotulo\">Ida</span>",
+E                 "target": [
+E                   ".itin__total:nth-child(1) > .itin__total-rotulo"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E               },
+E               {
+E                 "any": [
+E                   {
+E                     "id": "color-contrast",
+E                     "data": {
+E                       "fgColor": "#b7b5b2",
+E                       "bgColor": "#ffffff",
+E                       "contrastRatio": 2.04,
+E                       "fontSize": "8.1pt (10.8px)",
+E                       "fontWeight": "normal",
+E                       "messageKey": null,
+E                       "expectedContrastRatio": "4.5:1",
+E                       "shadowColor": null,
+E                       "colorParse": null
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<div class=\"documento documento--preparacao\">",
+E                         "target": [
+E                           ".documento"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<span class=\"itin__total-rotulo itin__so-destinos\">Ida e volta</span>",
+E                 "target": [
+E                   ".itin__so-destinos"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.04 (foreground color: #b7b5b2, background color: #ffffff, font size: 8.1pt (10.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+E               }
+E             ]
+E           }
+E         ]
+E       assert not [{'id': 'color-contrast', 'impact': 'serious', 'tags': ['cat.color', 'wcag2aa', 'wcag143', 'TTv5', 'TT13.c', 'EN-301-5...'Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds', ...}]
+
+tests\e2e\test_termos_identidade.py:132: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 21:30:51,899 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/65/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/65/: 38 consultas (limite 25)
+__________________ test_via_assinada_no_editor_migrado[1440] __________________
+
+logado = <Page url='http://localhost:51238/viagens/termos/66/#previa'>
+dados_e2e = Cenario(ids={'oficio_emitido': 221, 'oficio_rascunho': 222, 'oficio_vazio': 223, 'oficio_cancelado': 224, 'oficio_outr...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+tmp_path = WindowsPath('C:/Users/tiago/AppData/Local/Temp/pytest-of-tiago/pytest-69/test_via_assinada_no_editor_mi2')
+largura = 1440
+
+    @pytest.mark.parametrize("largura", [360, 768, 1440])
+    def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
+        """Anexo real pela barra operacional; via permanece separada do PDF gerado."""
+        from gestao.viagens.models import ViaAssinada
+        from tests.e2e.test_assinados import PDF
+    
+        pg = logado
+        pg.set_viewport_size({"width": largura, "height": 900})
+        termo = termos.salvar(
+            dados_e2e.usuarios["operador"],
+            oficio=Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"]),
+        )
+        pg.goto("/viagens/termos/")
+        pg.get_by_role("button", name=f"Ações do {termo}").click()
+        atalho = pg.get_by_role("menuitem", name="Anexar ou abrir termo assinado", exact=True)
+        expect(atalho).to_have_attribute("href", f"/viagens/termos/{termo.pk}/#previa")
+        atalho.click()
+        expect(pg).to_have_url(re.compile(rf"/viagens/termos/{termo.pk}/#previa$"))
+        expect(pg.locator("#previa")).to_be_in_viewport()
+        bloco = pg.locator("pc-editor-documento").first
+        bloco.get_by_role("link", name="Anexar", exact=True).click()
+        janela = pg.get_by_role("dialog", name="Anexar via assinada")
+        expect(janela).to_be_visible()
+        # A superfície é visível antes de terminar o fade de entrada. Medir suas
+        # cores intermediárias gera resultado dependente da velocidade da máquina.
+        # Aguarda o término real (também funciona com reduced-motion), sem desligar
+        # animações, alterar cores ou excluir qualquer nó da auditoria.
+        janela.evaluate("""async d => {
+            await Promise.all(d.getAnimations({subtree:true})
+                .filter(a => a.effect?.getComputedTiming().iterations !== Infinity)
+                .map(a => a.finished.catch(() => {})));
+        }""")
+        violacoes = rodar_axe(pg)
+>       assert not violacoes, json.dumps(violacoes, ensure_ascii=False, indent=2)
+E       AssertionError: [
+E           {
+E             "id": "target-size",
+E             "impact": "serious",
+E             "tags": [
+E               "cat.sensory-and-visual-cues",
+E               "wcag22aa",
+E               "wcag258"
+E             ],
+E             "description": "Ensure touch targets have sufficient size and space",
+E             "help": "All touch targets must be 24px large, or leave sufficient space",
+E             "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/target-size?application=axeAPI",
+E             "nodes": [
+E               {
+E                 "any": [
+E                   {
+E                     "id": "target-size",
+E                     "data": {
+E                       "messageKey": "partiallyObscured",
+E                       "minSize": 24,
+E                       "width": 446.4,
+E                       "height": 15
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<a class=\"navegacao__link\" href=\"/viagens/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-layout-dashboard\"></use></svg>Painel</a>",
+E                         "target": [
+E                           "li:nth-child(1) > .navegacao__link[href$=\"viagens/\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<a class=\"navegacao__link\" href=\"/viagens/viagens/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-map\"></use></svg>Viagens</a>",
+E                         "target": [
+E                           "li:nth-child(2) > .navegacao__link[href$=\"viagens/\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<a class=\"navegacao__link\" href=\"/viagens/oficios/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-file-text\"></use></svg>Ofícios</a>",
+E                         "target": [
+E                           "a[href$=\"oficios/\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<a class=\"navegacao__link\" href=\"/viagens/roteiros/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-route\"></use></svg>Roteiros</a>",
+E                         "target": [
+E                           "a[href$=\"roteiros/\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+E                         "target": [
+E                           ".itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient size because it is partially obscured (smallest space is 446.4px by 15px, should be at least 24px by 24px)"
+E                   },
+E                   {
+E                     "id": "target-offset",
+E                     "data": {
+E                       "closestOffset": 3.6,
+E                       "minOffset": 24
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<a class=\"navegacao__link\" href=\"/viagens/oficios/\"><svg class=\"icone\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/static/icons/sprite.svg#i-file-text\"></use></svg>Ofícios</a>",
+E                         "target": [
+E                           "a[href$=\"oficios/\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+E                         "target": [
+E                           ".itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"itin__remover\" data-remover-destino=\"\" title=\"Remover destino\">",
+E                         "target": [
+E                           ".itin__remover"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<input class=\"entrada\" type=\"text\" role=\"combobox\" value=\"Arapongas/PR\" placeholder=\"Digite e escolha na lista\" autocomplete=\"off\" aria-label=\"Destino 1\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\">",
+E                 "target": [
+E                   "input[placeholder=\"Digite e escolha na lista\"]"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 446.4px by 15px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 3.6px instead of at least 24px."
+E               },
+E               {
+E                 "any": [
+E                   {
+E                     "id": "target-size",
+E                     "data": {
+E                       "messageKey": "partiallyObscured",
+E                       "minSize": 24,
+E                       "width": 28.8,
+E                       "height": 11.4
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.4px, should be at least 24px by 24px)"
+E                   },
+E                   {
+E                     "id": "target-offset",
+E                     "data": {
+E                       "closestOffset": 10.4,
+E                       "minOffset": 24
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<input class=\"entrada\" type=\"text\" role=\"combobox\" value=\"Arapongas/PR\" placeholder=\"Digite e escolha na lista\" autocomplete=\"off\" aria-label=\"Destino 1\" aria-controls=\"cbx-2-lista\" aria-expanded=\"false\" aria-autocomplete=\"list\">",
+E                         "target": [
+E                           "input[placeholder=\"Digite e escolha na lista\"]"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.4px instead of at least 24px."
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<button type=\"button\" class=\"entrada-composta__botao\" title=\"Limpar o campo\"><svg class=\"icone\" aria-hidden=\"true\"><use href=\"/static/icons/sprite.svg#i-x\"></use></svg><span class=\"sr-only\">Limpar o campo</span></button>",
+E                 "target": [
+E                   ".itin__cidade.campo > pc-combobox[data-minimo=\"2\"] > .entrada-composta--limpavel.entrada-composta > .entrada-composta__botao[title=\"Limpar o campo\"][type=\"button\"]"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 28.8px by 11.4px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 10.4px instead of at least 24px."
+E               },
+E               {
+E                 "any": [
+E                   {
+E                     "id": "target-size",
+E                     "data": {
+E                       "messageKey": "partiallyObscured",
+E                       "minSize": 24,
+E                       "width": 32.4,
+E                       "height": 13.2
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hir593y\" aria-expanded=\"false\" id=\"menu-hir593y-botao\">",
+E                         "target": [
+E                           "#menu-hir593y-botao"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient size because it is partially obscured (smallest space is 32.4px by 13.2px, should be at least 24px by 24px)"
+E                   },
+E                   {
+E                     "id": "target-offset",
+E                     "data": {
+E                       "closestOffset": 14.2,
+E                       "minOffset": 24
+E                     },
+E                     "relatedNodes": [
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link navegacao__link--ativo\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-uxdrfhi\" aria-expanded=\"false\" id=\"menu-uxdrfhi-botao\">",
+E                         "target": [
+E                           "#menu-uxdrfhi-botao"
+E                         ]
+E                       },
+E                       {
+E                         "html": "<button type=\"button\" class=\"navegacao__link\" data-menu-botao=\"\" aria-haspopup=\"menu\" aria-controls=\"menu-hir593y\" aria-expanded=\"false\" id=\"menu-hir593y-botao\">",
+E                         "target": [
+E                           "#menu-hir593y-botao"
+E                         ]
+E                       }
+E                     ],
+E                     "impact": "serious",
+E                     "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.2px instead of at least 24px."
+E                   }
+E                 ],
+E                 "all": [],
+E                 "none": [],
+E                 "impact": "serious",
+E                 "html": "<button type=\"button\" class=\"itin__remover\" data-remover-destino=\"\" title=\"Remover destino\">",
+E                 "target": [
+E                   ".itin__remover"
+E                 ],
+E                 "failureSummary": "Fix any of the following:\n  Target has insufficient size because it is partially obscured (smallest space is 32.4px by 13.2px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 14.2px instead of at least 24px."
+E               }
+E             ]
+E           }
+E         ]
+E       assert not [{'id': 'target-size', 'impact': 'serious', 'tags': ['cat.sensory-and-visual-cues', 'wcag22aa', 'wcag258'], 'description': 'Ensure touch targets have sufficient size and space', ...}]
+
+tests\e2e\test_termos_identidade.py:132: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-12 21:31:06,170 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/66/: 38 consultas (limite 25)
+------------------------------ Captured log call ------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/termos/66/: 38 consultas (limite 25)
+============================== warnings summary ===============================
+gestao/viagens/tests/test_termos.py::TestDocumentos::test_telas_geram_pdf_docx_pdf_unico_e_zip
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado[360]
+FAILED tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado[768]
+FAILED tests/e2e/test_termos_identidade.py::test_via_assinada_no_editor_migrado[1440]
+3 failed, 49 passed, 1 warning in 217.75s (0:03:37)

@@ -1,5 +1,77 @@
 # Página atual
 
+## Estado vigente — fechamento de Termos, 12/10/2026 21:43
+
+TE01/TE02/TE03 concluídas tecnicamente COM RESSALVA registrada no QA:
+variação histórica axe sobre fundo sem causa exata comprovada. Auditoria final
+exige fontes/animações/composição estáveis e modalidade nativa; nove E2E finais
+aprovados (31326,177,67s,2warnings),52integrados aprovados(8419),9jornadasreais.
+Revisor favorável ao fechamento nesse alcance. 31linhas antigas removidas.
+Cobertura:12/100páginas;5superfícies oficiais associadas permanecem inventariadas.
+Próxima página:OS01→OS03; conferir filtrocanceladas no E2E e recapturar estadoatual.
+Nenhuma suíte ativa. Branch codex/oficios-transporte-cartoes; commit de fechamento
+a registrar após stagedcheck. _equipe.html do usuário intocado; sem seed/reset.
+Gate global e homologação visual do usuário continuam pendentes.
+
+As cronologias seguintes são históricas; o estado acima prevalece.
+
+## Checkpoint vigente — 12/10/2026, 21:20
+
+Branch codex/oficios-transporte-cartoes; HEAD 9951a73. Visualizador corrigido,
+commitado e validado: revalidação 98230 terminou 6 passed, 2 warnings, 153,71s.
+Hashes conferidos. Galeria 676 validada e entregue ao usuário.
+
+Termos TE01/02/03 permanecem em validação final. Revisor não encontrou bloqueante
+funcional. Resíduo identificado: listener data-trocar-previa em termo.js, já
+substituído pelo índice de editores.js. Removido após conferir views, ramos do
+template, consumidores dinâmicos e preservação do DOM. Não commitado ainda.
+Suíte pós-remoção ativa: sessão 98607, termos-retomada-final (52 testes), banco
+e mídia isolados. NÃO reiniciar. Log anterior preservado como
+termos-retomada-cef0e77.log; log corrente termos-retomada-final.log. Typecheck verde.
+Próxima ação: acompanhar 98607, validar navegação do índice após remoção,
+atualizar matriz/vínculo e commitar limpeza. Só depois iniciar OS01→OS03.
+98607 TERMINOU: 51 passed, 1 failed, 1 warning, 223,04s. Falha de contraste axe
+no diálogo de via assinada em1440 (test_via_assinada_no_editor_migrado).
+Não atribuída à remoção nem classificada como preexistente sem diagnóstico.
+Teste ganhou saída JSON integral das violações, sem alterar asserção.
+Rodada diagnóstica48265 TERMINOU:3passed,1warning de teardown,92,03s.
+Não reproduziu color-contrast e não explica a falha anterior. Nenhuma suíte ativa.
+Próxima ação: instrumentar abertura real do diálogo para capturar relatório axe
+completo e estilos/animações do elemento; não aprovar pela simples repetição verde.
+Diagnóstico concluído: seis de oito aberturas falharam durante fade, todas as
+oito passaram estáveis. Evidência termos-contraste-abertura.json. Teste aguarda
+Animation.finished finitas antes do axe global; revisor confirmou adequação.
+Suíte final pós-limpeza ativa72449, log termos-poslimpeza-final.log (52testes).
+Não reiniciar. Script var/termos_fechar_validado.py só aceita resultado verde;
+depois registrar commit e avançar OS01→OS03. Typecheck/ruff verdes.
+Contagem mantida em 9/100; aprovação visual do usuário não presumida.
+72449 TERMINOU:49pass,3falhasaxe,1warning217,75s. Diferentes da falha original:
+agora apontam controles ao fundo do modal (Ida/Idaevolta/itin__remover).
+Isolado1440 sessão18475 passou1comwarningteardown,54,77s, sem explicar causa.
+Teste registra estado open/:modal/opacidade/foco/HTML e PNG quando axe falha.
+Suíte diagnóstica mesma ordem52 ativa8419, termos-poslimpeza-diagnostico.log.
+Não reiniciar nem fecharTermos. Revisor investiga lifecycle somenteleitura.
+Próxima ação: acompanhar8419 e examinar ESTADO_DIALOGO junto ao relatórioaxe.
+Script termos_fechar_validado.py ainda NÃO pode ser executado.
+8419 TERMINOU:52passed,1warningHarfBuzz,246,11s. Não reproduziu as três
+falhas sobre o fundo. Nenhuma suíte ativa. Fade inicial tem causa comprovada;
+detecção do fundo ainda exige evidência. Revisor confirmou showModal/foco e
+ausência de lifecycle que feche o diálogo. Axe detecta modal por hit-test, sem
+:modal; transição de navegação é hipótese, não causa confirmada. Próxima ação:
+instrumentar active-view-transition, animações globais e elementsFromPoint nos
+pontos internos/externos do diálogo, na jornada real Lista→#previa→Anexar.
+Não excluir fundo do axe nem inserir inert apenas para aprovar. Não fecharTE.
+Jornada91758 encerrada: nove aberturas reais em3larguras, todas sem violações,
+modalidade e hit-test corretos, sem transições ativas; evidência termos-modal-jornada.json.
+Teste fortalecido: fontes, animações finitas globais, doisframes e assert :modal.
+Suíte navegador ativa31326, termos-assinado-superficie-estavel.log; não reiniciar.
+Próxima ação conferir resultado e revisar diagnóstico remanescente sem alegar
+que a hipótese view-transition já esteja provada. Produto visual inalterado.
+Arquivo _equipe.html do usuário protegido. Nenhum dado DEMO alterado.
+
+As seções seguintes preservam a cronologia anterior; processos ali descritos
+como ativos foram substituídos pelo estado acima.
+
 ## Meta integral vigente — 12/10/2026
 
 Meta integral ativa:100 páginas reais +5 superfícies HTML oficiais.
@@ -15,7 +87,26 @@ do iframe (.par nowrap + ajustarAltura overflow hidden), preexistente34f0d7d.
 NÃO concluir Termos: próxima ação corrigir visualizador sem alterar documento
 oficial, testar leitura integral e interação. Ver editor-documento.js ajustarAltura
 linha159 e termos-documento-3-360.png. Revisor confirmou o corte.
-Nenhuma suíte ativa; galeria653 validada. Correção do atalho pronta para commit.
+Atalho commitado em cef0e77; galeria653 validada.
+Candidato atual: rolagem horizontal acessível e papel com largura mínima intrínseca,
+sem alteração de documento oficial. Duas passagens visuais realizadas; capturas e
+medições em termos-editor-rolagem.json. Tipos e ruff verdes. Suíte70490 terminou:
+12pass,357,34s,2avisos (HarfBuzz e conexão no teardown). Rodada ampliada72287
+ATIVA: editor-folha-larga-final; inclui encolhimento/rodapé, OS, Planos e HTTP.
+72287 TERMINOU:137pass,1falha (OS clica select nativo que ficou oculto),777,42s.
+12586 foi inválida (erro no callback de interceptação);26063 corrigida terminou
+1pass com assets cef0e77. Não prova preexistência isoladamente. Log/DOM confirmam
+alvo nativo ocultado no aprimoramento. E2E agora aguarda o botão combobox canônico,
+usa teclado e cobre360/1440, mantendo persistência/PDF. Aplicação de OS inalterada.
+Próxima ação: acompanhar98230 (editor-os-controle-visivel),2fluxosOS+4casosdoeditor.
+98230 encerrada: 6 passed, 2 warnings, 153,71s. Candidato validado para commit;
+avisos HarfBuzz/teardown registrados no QA, sem ocultar falha da rodada anterior.
+Quatro casos de largura, incluindo encolhimento/rodapé360, passaram. Compatibilidade
+visual:15capturas atuais de Ofícios, Justificativa, OS e Planos,3larguras, alturas
+estáveis, sem overflow externo. Galeria676 validada. Não reiniciar execução ativa.
+Após resultado: se falha for anterior, reproduzir com assets de cef0e77 em ambiente
+isolado sem sobrescrever fontes. Se for regressão, corrigir visualizador e retestar.
+QA vigente: editor-folha-larga-2026-10-12.md. Não commitar antes da validação.
 Arquivo _equipe.html do usuário protegido; nenhuma alteração no DEMO.
 Homologação visual do usuário não presumida; gate2343 não é gate global atual.
 

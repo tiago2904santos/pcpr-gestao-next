@@ -1,0 +1,20 @@
+{
+  "base": "9951a73d3f9c6e1016496380a650f6d46c3a7c5b",
+  "fontes": [
+    {
+      "arquivo": "static/js/componentes/termo.js",
+      "sha256": "d215d3d0fc275c710c3e4ed8081dd13373591c62321b11379f57a8c4bc92a6b4",
+      "bytes": 4627
+    },
+    {
+      "arquivo": "tests/e2e/test_termos_identidade.py",
+      "sha256": "8eb3c28a323bd24accbe5b4549d6705ce1972786b1ffa3114e9e0a506f090fd7",
+      "bytes": 8136
+    }
+  ],
+  "sessao": 31326,
+  "resultado": "9 passed, 2 warnings in 177.67s (0:02:57)",
+  "log": "logs/termos-assinado-superficie-estavel.log",
+  "homologacao_visual": false,
+  "ressalva": "Falhas históricas do axe sobre fundo do modal sem causa exata comprovada; superfície estável atual validada."
+}

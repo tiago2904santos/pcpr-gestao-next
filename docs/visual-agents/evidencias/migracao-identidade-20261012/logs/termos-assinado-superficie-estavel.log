@@ -1,0 +1,55 @@
+2026-10-12 21:40:56,316 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 38 consultas (limite 25)
+2026-10-12 21:40:58,649 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/autosave/: 40 consultas (limite 25)
+2026-10-12 21:40:59,098 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/: 40 consultas (limite 25)
+2026-10-12 21:40:59,512 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/1/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:41:12,709 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 38 consultas (limite 25)
+2026-10-12 21:41:15,006 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/autosave/: 40 consultas (limite 25)
+2026-10-12 21:41:15,461 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/: 40 consultas (limite 25)
+2026-10-12 21:41:15,961 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/2/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:41:29,478 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 38 consultas (limite 25)
+2026-10-12 21:41:32,367 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/autosave/: 40 consultas (limite 25)
+2026-10-12 21:41:32,771 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/: 40 consultas (limite 25)
+2026-10-12 21:41:33,166 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/3/autosave/: 37 consultas (limite 25)
+.2026-10-12 21:41:47,614 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/24/: 31 consultas (limite 25)
+.2026-10-12 21:41:59,193 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/25/: 38 consultas (limite 25)
+2026-10-12 21:42:01,540 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/25/49/: 29 consultas (limite 25)
+2026-10-12 21:42:01,703 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/25/: 41 consultas (limite 25)
+.2026-10-12 21:42:15,328 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/26/: 38 consultas (limite 25)
+2026-10-12 21:42:17,361 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/26/61/: 29 consultas (limite 25)
+2026-10-12 21:42:17,544 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/26/: 41 consultas (limite 25)
+.2026-10-12 21:42:31,593 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/27/: 38 consultas (limite 25)
+2026-10-12 21:42:34,139 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/assinados/termo/27/73/: 29 consultas (limite 25)
+2026-10-12 21:42:34,294 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/27/: 41 consultas (limite 25)
+.2026-10-12 21:42:48,948 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/28/: 40 consultas (limite 25)
+2026-10-12 21:42:51,571 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/28/autosave/: 42 consultas (limite 25)
+2026-10-12 21:42:51,969 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/28/: 40 consultas (limite 25)
+2026-10-12 21:42:54,085 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:42:54,136 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:42:54,168 WARNING weasyprint Using fontTools instead of HarfBuzz-Subset for font "Doc Serif". This will be unsupported in future versions of WeasyPrint. Please install HarfBuzz-Subset >= 4.1.0 with your package manager.
+2026-10-12 21:42:54,606 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/termos/28/autosave/: 40 consultas (limite 25)
+.
+(process:4816): GLib-GIO-WARNING **: 21:42:57.105: Unexpectedly, UWP app `Microsoft.OutlookForWindows_1.2025.219.400_x64__8wekyb3d8bbwe' (AUMId `Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows') supports 4 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:57.748: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Python.Exe') supports 4 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:57.748: Unexpectedly, UWP app `PythonSoftwareFoundation.PythonManager_26.1.240.0_x64__3847v3x7pw1km' (AUMId `PythonSoftwareFoundation.PythonManager_3847v3x7pw1km!Pythonw.Exe') supports 2 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:58.871: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.7.10020.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:58.914: Unexpectedly, UWP app `OpenAI.Codex_26.1002.7124.0_x64__2p2nqsd0c76g0' (AUMId `OpenAI.Codex_2p2nqsd0c76g0!App') supports 8 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:58.951: Unexpectedly, UWP app `SAMSUNGELECTRONICSCO.LTD.PCGallery_8.5.23.0_x64__3c1yjt4zspk6g' (AUMId `SAMSUNGELECTRONICSCO.LTD.PCGallery_3c1yjt4zspk6g!App') supports 22 extensions but has no verbs
+
+(process:4816): GLib-GIO-WARNING **: 21:42:59.071: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2608.41.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+.[12/Oct/2026 21:43:23,808] - Broken pipe from ('127.0.0.1', 63972)
+                                                                [100%]
+============================== warnings summary ===============================
+tests/e2e/test_termos.py::test_termo_a_partir_do_oficio
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+tests/e2e/test_termos.py::test_cancelar_e_reativar_termo
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next:0: PytestWarning: Error when trying to teardown test databases: OperationalError('database "test_pcpr_lab_migracao_viagens_folha_focused_ab12e690" is being accessed by other users\nDETAIL:  There is 1 other session using the database.')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+9 passed, 2 warnings in 177.67s (0:02:57)

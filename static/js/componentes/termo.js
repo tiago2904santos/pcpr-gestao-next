@@ -95,35 +95,4 @@ document.addEventListener("pc-escolhido", async (evento) => {
 
 
 
-// ------------------------------------------------------------------ trocar o documento
-// Escolher outro documento na lista troca só a lista e o visualizador "Como vai sair" —
-// sem recarregar a página (que piscava e pulava de lugar). Texto editado e ainda não
-// salvo no editor é gravado antes da troca. Sem JS, o link continua levando à página.
-document.addEventListener("click", async (evento) => {
-  const link = /** @type {HTMLAnchorElement | null} */ (
-    /** @type {HTMLElement} */ (evento.target).closest("a[data-trocar-previa]"));
-  if (!link || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.button !== 0) return;
-  evento.preventDefault();
-  if (link.getAttribute("aria-current") === "true") return;
-  const editor = /** @type {any} */ (document.querySelector("#previa pc-editor-documento"));
-  if (editor?.sujo && typeof editor.salvar === "function") await editor.salvar();
-  const url = new URL(link.href, window.location.href);
-  url.hash = "";
-  try {
-    const resposta = await fetch(url, { headers: { Accept: "text/html" } });
-    if (!resposta.ok) throw new Error(String(resposta.status));
-    const nova = new DOMParser().parseFromString(await resposta.text(), "text/html");
-    for (const id of ["lista-documentos", "previa"]) {
-      const atual = document.getElementById(id);
-      const substituta = nova.getElementById(id);
-      if (atual && substituta) atual.replaceWith(document.importNode(substituta, true));
-    }
-    window.history.replaceState(window.history.state, "", url.pathname + url.search + "#previa");
-    /** @type {HTMLElement | null} */ (document.querySelector("#lista-documentos [aria-current='true']"))
-      ?.focus({ preventScroll: true });
-  } catch {
-    window.location.href = link.href;  // sem rede ou erro: a navegação comum
-  }
-});
-
 export {};
