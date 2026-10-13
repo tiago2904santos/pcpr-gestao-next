@@ -1,0 +1,27 @@
+{
+  "base": "0cbe620",
+  "fontes": [
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/servidores.html",
+      "sha256_lf": "260f2a9dcebc1158144be700f14f218fc283ca7d8ab7d88c6ef9e1d9672d6be5"
+    },
+    {
+      "arquivo": "gestao/cadastros/templates/cadastros/_servidores_criar.html",
+      "sha256_lf": "b6dff8e9e72fb129bf3e4bd20be99b2d75575652a34d6e38c3398a53ccd9d802"
+    },
+    {
+      "arquivo": "templates/componentes/dialogo_servidor.html",
+      "sha256_lf": "711ac92b26ad6bb527373cda872c48a69ecadf593a1debbb654431d4e9e76eea"
+    },
+    {
+      "arquivo": "tests/e2e/test_servidores_identidade.py",
+      "sha256_lf": "35ef25d86d5e45c79d654191b0c32d683094af9c79f78665ba209fef7a4feda6"
+    }
+  ],
+  "testes": [
+    "151 passed,1 warning313.71s integrada",
+    "3 passed99.88s final"
+  ],
+  "homologacao_visual": false,
+  "css_js_delta_bytes": 0
+}

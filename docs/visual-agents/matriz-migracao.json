@@ -1546,20 +1546,34 @@
         "360/768/1440"
       ],
       "componentes_utilizados": [
-        "arquetipos/lista.html",
-        "componentes/cadastro_rapido.html",
-        "componentes/dialogo_servidor.html",
-        "componentes/paginacao.html",
-        "componentes/vazio.html"
+        "registro_hero",
+        "registros",
+        "filtros",
+        "dialogo_servidor",
+        "grade--2/3",
+        "cadastro_rapido"
       ],
-      "situacao": "NÃO INICIADA",
-      "problemas_encontrados": [],
-      "alteracoes_implementadas": [],
-      "testes_executados": [],
-      "evidencias": [],
-      "revisao_final": "Pendente nesta meta; relatórios anteriores não bastam.",
-      "revisao_codigo": "73972833063dc17e90af74e19281be537da84ee8 + alterações locais preservadas",
-      "dependencias_antigas": "A conferir por consumidor, incluindo estados dinâmicos.",
+      "situacao": "CONCLUÍDA TECNICAMENTE",
+      "problemas_encontrados": [
+        "CPF/cargo cortados no diálogo360; corrigido.",
+        "Variante filtros--barra introduziu ordem visual divergente; removida."
+      ],
+      "alteracoes_implementadas": [
+        "Hero compacto; grade responsiva do diálogo compartilhado, sem CSS/JS novo."
+      ],
+      "testes_executados": [
+        "151 passed,1 warning313.71s integrada",
+        "3 passed99.88s final",
+        "Termos/OS/lote360/1440; Escape/foco; Ruff; galeria validada."
+      ],
+      "evidencias": [
+        "qa/servidores-2026-10-12.md",
+        "evidencias/migracao-identidade-20261012/servidores-final.json",
+        "evidencias/migracao-identidade-20261012/servidores-candidato.json"
+      ],
+      "revisao_final": "Revisão independente favorável ao candidato corrigido; focused final verde. Homologação visual e gate global pendentes.",
+      "revisao_codigo": "0cbe620 + hashes em servidores-candidato.json",
+      "dependencias_antigas": "campos--iguais removido deste diálogo; base permanece para demais consumidores. Sem exclusão global segura identificada.",
       "fontes_descoberta": [
         "config/urls.py",
         "urls.py e views do módulo",

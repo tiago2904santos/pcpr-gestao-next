@@ -446,3 +446,17 @@ de duas colunas, uma no celular. Extrair repetição de registros para lista_cat
 mantendo ícones, descrição, links e metadados opcionais. Sem CSS/JS novo ou mudança
 das consultas. Capturas antes/depois com mesmos dados; teclado, axe, permissões e
 navegação são o contrato de validação. Não eliminar estilos ainda usados em outras páginas.
+
+## CD02 — Servidores, lista e diálogos
+
+Busca por nome/cargo/unidade/CPF/RG, abas ativos/incompletos/inativos, filtro cargo,
+paginação, edição, ativação e exclusão condicionadas pelas permissões/vínculos.
+Só nome obrigatório; CPF/RG/telefone com máscara; cargo/unidade com cadastro rápido.
+Salvar mantém retorno/filtros. Sem autosave ou documento próprio neste cadastro.
+Preservar dados, contadores, mensagens e POSTs. Contrato já explicado em test_crud.py
+e test_cadastros.py a partir da referência funcional.
+Aplicar hero compacto e filtros canônicos; manter registro denso. No diálogo compartilhado,
+substituir campos--iguais por grade responsiva: campos completos no celular, duas/três
+colunas em telas maiores. Antes360 comprova corte de CPF/cargo. Consumidores diretos:
+Servidores e dialogos_cadastro (Termos, OS, lote de Viagens e carregamentos dinâmicos).
+Validar criação, edição, máscaras, atalhos, erro, teclado e consumidores afetados.

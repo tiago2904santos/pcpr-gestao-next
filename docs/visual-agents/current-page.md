@@ -1,5 +1,50 @@
 # Página atual
 
+## Estado vigente — CD02 validada; próxima CD03
+
+Final45948:3passed99.88s, integrada151passed313.71s e revisão independente
+favoráveis. Cobertura25/100. Galeria824validada. CD03 tem15capturas antes e
+diagnóstico em qa/viaturas-2026-10-12.md. Próxima ação: migrar cabeçalho e
+dimensionamento dos campos Tipo/Combustível, testar consumidores. _equipe protegido.
+
+
+## Estado vigente — CD02 focused de geometria em reexecução
+
+57117 terminal:2passed1failed104.26s. Apenas diferença subpixel0.086 em1440,
+não reorder; log salvo servidores-focused-subpixel.log. Teste agora aguarda
+fontes/animações, mobile exige busca inteira acima do cargo e desktop alinhamento
+até1px.45948 ativa, servidores-focused-final.log. Não reiniciar por silêncio.
+Revisor aprovou candidato funcional corrigido; integrada151verde preservada.
+Galeria+30capturas, total824; validar retorno do script de galeria. Viaturas tem
+15capturas antes (39436 terminal), somente descoberta, sem edição. Próxima ação:
+resultado45948, fechar CD02 apenas verde, depois implementarCD03. Cobertura24/100.
+
+## Estado vigente — CD02 integrada verde, focused final ativo
+
+8028 terminou151passed1warning313.71s. Compatibilidade Termos/OS/lote360/1440
+concluída, Escape/foco preservados (servidores-compat.json). Correção de ordem
+dos filtros capturada em servidores-final-*. Suíte57117 ativa:servidores-focused-final,
+nova asserção busca.y<=cargo.y. Não reiniciar por silêncio. Revisor solicitado
+para candidato corrigido. Próxima ação: resultado57117, revisão final, galeria,
+manifesto/matriz/commit se verdes. Cobertura24/100 até fechamento. Nenhum arquivo
+de equipe do usuário alterado. Scripts de capturas todos terminais; DEMO preservado.
+
+## Estado vigente — CD02 Servidores em validação
+
+Base0cbe620, cobertura24/100. Turno anterior teve progresso: CD01 implementada,
+96testes verdes, revisão independente e commit. Agora CD02: hero compacto e
+diálogo compartilhado com grade responsiva; CPF/cargo antes cortados em360.
+45capturas antes/depois/final e9de controles abertos; DEMO somente GET/HEAD.
+Revisor encontrou reorder incorreto de filtros--barra; variante retirada somente
+de Servidores, ordem final Busca/Cargo/Buscar conferida em360. QA servidores-2026-10-12.md.
+Suíte8028 ativa, log servidores-identidade.log (HTTP+E2E+cadastro adiado Ofícios).
+Iniciada antes da correção dos filtros: após terminal, executar focused final
+test_servidores_identidade.py incluindo nova asserção de ordem. Não reiniciar por
+silêncio. Capturas45201/68743/9286 e controles49357 terminadas. Falha26174 era
+nome errado do diálogo no script, corrigido pelo ID real. Nenhuma falha de produto
+atribuída a esse erro. Ruff verde. Falta resultado, focused final, compatibilidade
+demais consumidores, revisão final, galeria, matriz e commit. _equipe protegido.
+
 ## Estado vigente — CD01 validada; próxima CD02 Servidores
 
 Suíte12084 terminal:96passed112.58s; revisão independente favorável.

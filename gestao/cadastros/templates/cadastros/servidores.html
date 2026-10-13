@@ -1,9 +1,8 @@
 {% extends "arquetipos/lista.html" %}
 {% block modulos %}{{ block.super }}{% load static %}<script type="module" src="{% static 'js/componentes/cadastro-rapido.js' %}" nonce="{{ csp_nonce }}"></script>{% endblock %}
 {% block titulo %}Servidores{% endblock %}
-{% block titulo_lista %}Servidores{% endblock %}
-{% block descricao_lista %}<p class="pagina-cabecalho__descricao">Pessoas que compõem as equipes de viagem, dirigem as viaturas e assinam os documentos.</p>{% endblock %}
-{% block acoes_lista %}{% if acoes.criar %}{% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo servidor</a>{% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-servidor">{% icone "plus" %}Novo servidor</button>{% endif %}{% endif %}{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Servidores" complemento="Pessoas, funções e dados das equipes de viagem." acoes_template="cadastros/_servidores_criar.html" %}{% endblock %}
 {% comment %}
 Paridade com a lista e o cadastro de servidores da referência: busca sem acento (nome,
 cargo, unidade, CPF, RG), filtro por cargo com contagem que respeita a busca, dados na

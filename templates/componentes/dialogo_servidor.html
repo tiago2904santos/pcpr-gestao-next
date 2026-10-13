@@ -28,11 +28,11 @@ abre precisam estar na mesma página.
       {% endcomment %}
       <fieldset class="grupo-campos" aria-label="Dados do servidor">
         {# Nome e cargo dividem a linha ao meio; o cargo leva ao lado o atalho de cadastro. #}
-        <div class="campos campos--iguais">
+        <div class="grade grade--2">
           {% include "componentes/campo.html" with campo=form.nome %}
           {% include "componentes/campo.html" with campo=form.cargo acao_dialogo="dialogo-cargo" acao_rotulo="Cadastrar cargo" %}
         </div>
-        <div class="campos campos--iguais">
+        <div class="grade grade--3">
           {% include "componentes/campo.html" with campo=form.cpf %}
           {% include "componentes/campo.html" with campo=form.rg %}
           {% include "componentes/campo.html" with campo=form.telefone %}
