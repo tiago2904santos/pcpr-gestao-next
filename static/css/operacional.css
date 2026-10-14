@@ -405,6 +405,9 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 /* O histórico fecha a folha: respiro maior para não encostar na minuta logo acima. */
 .documento--preparacao #historico { margin-top: var(--esp-8); }
 .documento--preparacao #historico .secao__bloco-cabecalho { margin-bottom: var(--esp-4); }
+/* Cadastro da OS: a seção já é uma grade com vão entre os blocos; o bloco não soma a própria margem (o vão
+   dobrava, como entre a folha e o histórico). Fica o filete com o respiro de cima. */
+.documento--ordem .secao > .secao__bloco, .documento--preparacao.documento--ordem #historico { margin-top: 0; }
 .documento--preparacao :where(.secao__bloco[id], #dados, #diarias-secao) { scroll-margin-top: var(--esp-4); }
 .campos.campos--registro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-3); }
 .campos--registro > .campo { min-width: 0; }
