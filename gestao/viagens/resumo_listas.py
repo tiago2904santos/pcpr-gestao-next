@@ -76,8 +76,7 @@ def da_ordem(o, linha: dict) -> dict:
                   {"rotulo": "Tipo de necessidade", "valor": o.get_tipo_display()},
                   {"rotulo": "Documento", "valor": f"Gerado em {_quando(o.documento_gerado_em)}"
                    if gerada else "Ainda não gerado"},
-                  {"rotulo": "Assina", "valor": str(o.assinante) if o.assinante_id else ""},
-                  {"rotulo": "Motivo", "valor": o.motivo, "largo": True}],
+                  {"rotulo": "Motivo", "valor": o.motivo, "linha": True}],
         "equipe_titulo": "Equipe", "equipe": _servidores(servidores),
         "equipe_nota": f"{len(servidores)} servidor{'es' if len(servidores) != 1 else ''}",
         "equipe_vazio": "Ninguém na equipe ainda.",

@@ -951,16 +951,12 @@ class FormularioOrdem(forms.Form):
         label="Motivo", required=False, max_length=4000,
         help_text="Completa a frase “… para realizar ___.”",
         widget=forms.Textarea(attrs=_attrs("area-texto", rows=3)))
-    assinante = forms.ModelChoiceField(
-        label="Quem assina esta OS", queryset=Servidor.objects.none(), required=False,
-        empty_label="O da configuração (substituto do período ou chefia)")
 
     def __init__(self, *args, oficios=None, ordem=None, fonte_oficios: str = "",
                  fonte_servidores: str = "", fonte_municipios: str = "", unidade=None,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.ordem = ordem
-        unidade_id = ordem.unidade_id if ordem else getattr(unidade, "pk", None)
         ligados = list(ordem.oficios.values_list("pk", flat=True)) if ordem else []
         base = oficios if oficios is not None else Oficio.objects.none()
         if ordem is not None:
@@ -977,11 +973,6 @@ class FormularioOrdem(forms.Form):
         self.fields["destinos"].widget.fonte = fonte_municipios
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
             ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
-        # Quem assina: servidores ativos da unidade da OS (o assinante atual continua).
-        assinante = cast(forms.ModelChoiceField, self.fields["assinante"])
-        assinante.queryset = Servidor.objects.filter(
-            Q(ativo=True, unidade_id=unidade_id)
-            | Q(pk=ordem.assinante_id if ordem else None)).order_by("nome")
         # Funções da equipe (tipos com função): um campo por servidor já gravado na OS.
         self.campos_de_funcao: list[tuple[Servidor, str]] = []
         tipo = (self.data.get("tipo") if self.is_bound else None) or (
@@ -1033,8 +1024,8 @@ class FormularioOrdem(forms.Form):
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,
             "data_fim": ordem.data_fim if ordem.data_fim != ordem.data_inicio else None,
-            "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo,
-            "assinante": ordem.assinante_id}, **kwargs)
+            "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo},
+            **kwargs)
 
     def clean(self):
         dados = super().clean() or {}

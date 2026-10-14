@@ -8,8 +8,8 @@
 Folha da OS, com as peças e o arranjo da folha do termo (viagens/termos/editar.html):
 cabeçalho com placa, frase e ações; cartões numerados — 1 Identificação (a primeira linha
 em colunas iguais: ofícios, tipo e período num calendário só; depois os blocos Destinos,
-Equipe, Motivo e Assinatura) e 2 Documento (o que falta, a via assinada, o documento num
-editor como o do ofício e o histórico); e a barra do rodapé com Voltar, Gerar e Ações.
+Equipe e Motivo — quem assina terá módulo próprio) e 2 Documento (o que falta, a via
+assinada, o documento num editor como o do ofício e o histórico); e a barra do rodapé com Voltar, Gerar e Ações.
 A OS nasce na hora ("Nova OS") e se grava sozinha a cada pausa; ligar um ofício novo
 preenche os campos vazios com os dados dele (a página se redesenha). As regiões `data-vivo`
 se refazem depois de cada gravação — os ids delas são parte do contrato.
@@ -38,10 +38,10 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
   {{ form.versao }}
   <fieldset class="grupo-campos--livre"{% if not editavel %} disabled{% endif %}>
   <legend class="sr-only">Dados da ordem de serviço</legend>
-  <div class="documento documento--preparacao">
+  <div class="documento documento--preparacao documento--ordem">
 
   {% comment %}
-  1. Identificação — de onde a OS vem, para onde e quando, quem vai, por quê e quem assina.
+  1. Identificação — de onde a OS vem, para onde e quando, quem vai e por quê.
   {% endcomment %}
   <section class="secao{% if ordem and not faltando %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
@@ -100,7 +100,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       {% endif %}
     </div>
 
-    <div class="preparacao-relacoes">
     <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
@@ -110,23 +109,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
         {% include "componentes/campo.html" with campo=form.motivo %}
       </div>
-    </div>
-
-    <div class="secao__bloco" id="assinatura" aria-labelledby="t-assinatura">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-assinatura">{% icone "stamp" classe="icone--sm" %}Assinatura</h3>
-      </div>
-      {% comment %}
-      Quem assina já vem preenchido com o da configuração da unidade (substituto do período,
-      titular ou chefia — `data-vazio-e-valor` mostra a escolha "da configuração" como valor);
-      escolher um servidor troca.
-      {% endcomment %}
-      <div class="campo">
-        <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
-        <pc-combobox class="combobox" data-placeholder="Nome do servidor…" data-vazio-e-valor>{{ form.assinante|campo_acessivel:"" }}</pc-combobox>
-      </div>
-      {% if not assinatura_prevista %}<p class="heranca">{% icone "stamp" classe="icone--sm" %}Sem configuração da unidade, a OS sai sem nome — peça ao gestor a configuração ou escolha quem assina.</p>{% endif %}
-    </div>
     </div>
   </section>
 
@@ -138,7 +120,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">3</span>Documento</h2>
       {% if ordem and not ordem.cancelada %}<div class="secao__estado">{% if ordem.documento_gerado_em %}<span class="selo selo--sucesso selo--situacao-emitido">Gerada em {{ ordem.documento_gerado_em|date:"d/m/Y" }}</span>{% elif not faltando %}<span class="selo selo--sucesso selo--situacao-emitido">Pronta para gerar</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Faltam dados</span>{% endif %}</div>{% endif %}
-      <p class="secao__nota">{% if ordem %}Sai do que está salvo — a OS se grava sozinha enquanto você preenche.{% if ordem.documento_gerado_em %} Já foi gerada: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada na primeira geração.{% endif %}{% else %}Ao criar, o documento aparece aqui como vai sair.{% endif %}</p>
     </div>
 
     {% if ordem %}
@@ -160,12 +141,8 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     {% endif %}
     {% endif %}
 
-    {# Como vai sair: o mesmo editor do ofício — o texto da OS se edita na folha. #}
-    <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-pen-line" classe="icone--sm" %}Como vai sair</h3>
-        {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">{% if ordem.documento_gerado_em %}refeita a cada gravação{% else %}com marca de minuta até a primeira geração{% endif %}</span></div>{% endif %}
-      </div>
+    {# A folha da OS, logo abaixo do título da seção: o mesmo editor do ofício — o texto da OS se edita nela. #}
+    <div class="secao__bloco secao__bloco--integrado" id="previa" aria-label="Documento da OS">
       {% if pode_ver_documento %}
         {% if editavel %}{% url 'viagens:baixar_ordem' ordem.pk as baixar_url %}{% endif %}
         {% url 'viagens:folha_ordem' ordem.pk as folha_url %}{% url 'viagens:documento_ordem' ordem.pk 'pdf' as pdf_url %}{% url 'viagens:editor_ordem_estado' ordem.pk as estado_url %}
