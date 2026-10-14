@@ -4,14 +4,12 @@ serviço" a partir do ofício."""
 
 from __future__ import annotations
 
-from typing import cast
 from urllib.parse import urlsplit
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import OuterRef, Q, Subquery
-from django.forms import ModelChoiceField
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
@@ -228,12 +226,7 @@ SECAO_DA_FALTA = {"período": "dados", "destino": "destinos", "equipe": "equipe"
 
 def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int = 200):
     editavel = ordem is None or policies.pode_editar_ordem(request.user, ordem)
-    unidade = ordem.unidade if ordem else policies.unidade_do_usuario(request.user)
     faltando = ordens.faltando(ordem) if ordem else []
-    prevista = ordens.assinatura_prevista(ordem, unidade)
-    if prevista and "assinante" in form.fields:
-        # A escolha "da configuração" aparece com o nome de quem assina (o campo vem preenchido).
-        cast(ModelChoiceField, form.fields["assinante"]).empty_label = prevista
     return render(request, "viagens/ordens/editar.html", {
         "form": form, "ordem": ordem, "editavel": editavel,
         "faltando": faltando,
@@ -251,7 +244,6 @@ def _tela(request: HttpRequest, form: FormularioOrdem, ordem=None, status: int =
             if ordem is not None else None),
         "hoje": timezone.localdate(),
         "copia": _copia_prevista(form, ordem),
-        "assinatura_prevista": prevista,
         "periodo": ordens.periodo_curto(ordem) if ordem else "",
         "proximo_numero": None if ordem else ordens.proximo_numero_do_ano(
             timezone.localdate().year),

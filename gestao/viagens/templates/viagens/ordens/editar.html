@@ -8,8 +8,8 @@
 Folha da OS, com as peças e o arranjo da folha do termo (viagens/termos/editar.html):
 cabeçalho com placa, frase e ações; cartões numerados — 1 Identificação (a primeira linha
 em colunas iguais: ofícios, tipo e período num calendário só; depois os blocos Destinos,
-Equipe, Motivo e Assinatura) e 2 Documento (o que falta, a via assinada, o documento num
-editor como o do ofício e o histórico); e a barra do rodapé com Voltar, Gerar e Ações.
+Equipe e Motivo — quem assina terá módulo próprio) e 2 Documento (o que falta, a via
+assinada, o documento num editor como o do ofício e o histórico); e a barra do rodapé com Voltar, Gerar e Ações.
 A OS nasce na hora ("Nova OS") e se grava sozinha a cada pausa; ligar um ofício novo
 preenche os campos vazios com os dados dele (a página se redesenha). As regiões `data-vivo`
 se refazem depois de cada gravação — os ids delas são parte do contrato.
@@ -41,7 +41,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
   <div class="documento documento--preparacao">
 
   {% comment %}
-  1. Identificação — de onde a OS vem, para onde e quando, quem vai, por quê e quem assina.
+  1. Identificação — de onde a OS vem, para onde e quando, quem vai e por quê.
   {% endcomment %}
   <section class="secao{% if ordem and not faltando %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
@@ -100,7 +100,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
       {% endif %}
     </div>
 
-    <div class="preparacao-relacoes">
     <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
@@ -110,23 +109,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {% include "componentes/texto_pronto.html" with campo=form.motivo_modelo alvo=form.motivo.auto_id tipo="motivo" pode_gerir=pode_gerir_textos %}
         {% include "componentes/campo.html" with campo=form.motivo %}
       </div>
-    </div>
-
-    <div class="secao__bloco" id="assinatura" aria-labelledby="t-assinatura">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-assinatura">{% icone "stamp" classe="icone--sm" %}Assinatura</h3>
-      </div>
-      {% comment %}
-      Quem assina já vem preenchido com o da configuração da unidade (substituto do período,
-      titular ou chefia — `data-vazio-e-valor` mostra a escolha "da configuração" como valor);
-      escolher um servidor troca.
-      {% endcomment %}
-      <div class="campo">
-        <label class="campo__rotulo" for="{{ form.assinante.id_for_label }}">{{ form.assinante.label }}</label>
-        <pc-combobox class="combobox" data-placeholder="Nome do servidor…" data-vazio-e-valor>{{ form.assinante|campo_acessivel:"" }}</pc-combobox>
-      </div>
-      {% if not assinatura_prevista %}<p class="heranca">{% icone "stamp" classe="icone--sm" %}Sem configuração da unidade, a OS sai sem nome — peça ao gestor a configuração ou escolha quem assina.</p>{% endif %}
-    </div>
     </div>
   </section>
 
