@@ -1,0 +1,12 @@
+---
+description: Agrupa testes e validações para evitar execuções repetidas durante os ajustes
+alwaysApply: true
+---
+
+# Validar uma vez no final
+
+- Não executar a suíte ou os mesmos testes depois de cada pequeno ajuste.
+- Fazer as alterações relacionadas em sequência e agrupar a validação em uma única rodada ao final.
+- Durante a implementação, rodar teste antecipado somente quando ele for necessário para diagnosticar um bloqueio.
+- Em correções visuais, priorizar a validação da tela no navegador e a captura de 1440 px.
+- Na entrega final, cumprir uma única vez os gates obrigatórios aplicáveis do `AGENTS.md`.

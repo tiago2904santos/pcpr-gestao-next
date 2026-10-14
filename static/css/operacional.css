@@ -619,6 +619,15 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .prontidao-documental .checklist__item { font-size: var(--texto-sm); line-height: var(--altura-linha); }
 .prontidao-documental .checklist__item a { color: var(--cor-texto); }
 .prontidao-documental > .botao { justify-self: start; }
+/* No resumo da Viagem, a ausência de pendências é uma confirmação serena: sem o
+   contorno nem o filete de atenção usados quando ainda existe algo a resolver. */
+.prontidao-documental--pronta.prontidao-documental--resumo-neutro,
+.prontidao-documental--pronta.prontidao-documental--resumo-neutro:hover {
+  translate: none;
+  border: 0;
+  background: var(--cor-superficie-sutil);
+  box-shadow: none;
+}
 @media (min-width: 1024px) {
   .preparacao-documental { gap: var(--esp-5); }
   .prontidao-documental { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }
@@ -1154,6 +1163,38 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "identidade titulo recursos" "identidade estado recursos" "identidade agenda recursos"; }
 }
 
+/* No desktop, o prazo/situação acompanha o título. Esta regra precisa vir depois da
+   composição operacional: o título deixa de ser `display: contents`, portanto os selos
+   passam a pertencer a ele e a antiga faixa `estado` pode ter altura zero. */
+@media (min-width: 1024px) {
+  .registros--operacionais .registro-operacional .registro__titulo {
+    display: flex;
+    grid-area: titulo;
+    align-items: center;
+    align-self: end;
+    flex-wrap: nowrap;
+    gap: var(--esp-3);
+    min-width: 0;
+  }
+  .registros--operacionais > .registro.registro-operacional {
+    grid-template-rows: auto 0 auto;
+  }
+  .registros--operacionais .registro-operacional .registro__agenda {
+    align-self: start;
+    margin-top: calc(-1 * var(--esp-2));
+  }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__link {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: baseline;
+    min-width: 0;
+  }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__selos {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+}
+
 /* Documentos vinculáveis: várias escolhas em linhas compactas, sem outro cartão. */
 .campo--documentos .caixas { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--esp-12) * 8)), 1fr)); gap: var(--esp-1) var(--esp-3); }
 .campo--documentos .caixas__item { align-items: center; min-height: var(--altura-controle-sm); padding: var(--esp-2); border: 0; border-bottom: var(--borda-sutil); border-radius: var(--raio-sm); background: transparent; font-size: var(--texto-sm); }
@@ -1176,20 +1217,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .conferencia-etapas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .secao__grupo.secao__grupo--relacoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .secao__grupo--relacoes > .secao__bloco:last-child:nth-child(odd) { grid-column: 1 / -1; }
-}
-
-/* Registros das listas (desktop): o selo de situação e o prazo ("Rascunho · faltam 33 dias") na mesma linha do
-   título. O bloco do título fica na faixa "titulo" e a de "estado" fica vazia, com altura zero, então nenhuma variante
-   (relações, sem ações) precisa de outra grade; o título encolhe com reticências antes dos selos. */
-@media (min-width: 1024px) {
-  .registros--operacionais .registro-operacional .registro__titulo { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--esp-3); min-width: 0; grid-area: titulo; }
-  /* A faixa "estado" fica vazia: altura zero e sem o respiro dela (a margem negativa desfaz um dos dois vãos). */
-  .registros--operacionais > .registro.registro-operacional { grid-template-rows: auto 0; }
-  .registros--operacionais .registro-operacional .registro__agenda { margin-top: calc(-1 * var(--esp-2)); align-self: start; }
-  /* Título e agenda encostam um no outro; a sobra de altura (a placa é mais alta) fica em cima e embaixo do par. */
-  .registros--operacionais .registro-operacional .registro__titulo { align-self: end; }
-  .registros--operacionais .registro-operacional .registro__titulo > .registro__link { display: flex; align-items: baseline; flex: 0 1 auto; min-width: 0; }
-  .registros--operacionais .registro-operacional .registro__titulo > .registro__selos { flex: none; flex-wrap: nowrap; }
 }
 
 /* Roteiro com a viagem em andamento (estado_trecho): a linha mantém o desenho padrão; só o veículo se mexe — no

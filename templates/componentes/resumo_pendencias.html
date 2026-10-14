@@ -1,4 +1,4 @@
-{% load ui %}<div class="prontidao-documental prontidao-documental--etapas{% if not r.pendencias %} prontidao-documental--pronta{% endif %}" role="status">
+{% load ui %}<div class="prontidao-documental prontidao-documental--etapas{% if not r.pendencias %} prontidao-documental--pronta{% endif %}{% if r.pronto_neutro %} prontidao-documental--resumo-neutro{% endif %}" role="status">
   <div class="prontidao-documental__cabecalho">
     {% if r.pendencias %}{% icone "list-checks" %}{% else %}{% icone "stamp" %}{% endif %}
     <div>
