@@ -120,7 +120,6 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-documento"><span class="secao__numero">3</span>Documento</h2>
       {% if ordem and not ordem.cancelada %}<div class="secao__estado">{% if ordem.documento_gerado_em %}<span class="selo selo--sucesso selo--situacao-emitido">Gerada em {{ ordem.documento_gerado_em|date:"d/m/Y" }}</span>{% elif not faltando %}<span class="selo selo--sucesso selo--situacao-emitido">Pronta para gerar</span>{% else %}<span class="selo selo--aviso selo--situacao-rascunho">Faltam dados</span>{% endif %}</div>{% endif %}
-      <p class="secao__nota">{% if ordem %}Sai do que está salvo — a OS se grava sozinha enquanto você preenche.{% if ordem.documento_gerado_em %} Já foi gerada: o número não se libera mais (para desistir, cancele).{% else %} A data do documento fica fixada na primeira geração.{% endif %}{% else %}Ao criar, o documento aparece aqui como vai sair.{% endif %}</p>
     </div>
 
     {% if ordem %}
@@ -142,12 +141,8 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     {% endif %}
     {% endif %}
 
-    {# Como vai sair: o mesmo editor do ofício — o texto da OS se edita na folha. #}
-    <div class="secao__bloco" id="previa" aria-labelledby="t-previa">
-      <div class="secao__bloco-cabecalho">
-        <h3 class="secao__bloco-titulo" id="t-previa">{% icone "file-pen-line" classe="icone--sm" %}Como vai sair</h3>
-        {% if pode_ver_documento %}<div class="secao__estado"><span class="texto-terciario texto-xs">{% if ordem.documento_gerado_em %}refeita a cada gravação{% else %}com marca de minuta até a primeira geração{% endif %}</span></div>{% endif %}
-      </div>
+    {# A folha da OS, logo abaixo do título da seção: o mesmo editor do ofício — o texto da OS se edita nela. #}
+    <div class="secao__bloco secao__bloco--integrado" id="previa" aria-label="Documento da OS">
       {% if pode_ver_documento %}
         {% if editavel %}{% url 'viagens:baixar_ordem' ordem.pk as baixar_url %}{% endif %}
         {% url 'viagens:folha_ordem' ordem.pk as folha_url %}{% url 'viagens:documento_ordem' ordem.pk 'pdf' as pdf_url %}{% url 'viagens:editor_ordem_estado' ordem.pk as estado_url %}
