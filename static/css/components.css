@@ -4453,20 +4453,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .secao__grupo--relacoes > .secao__bloco:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 
-/* Registros das listas (desktop): o selo de situação e o prazo ("Rascunho · faltam 33 dias") na mesma linha do
-   título. O bloco do título fica na faixa "titulo" e a de "estado" fica vazia, com altura zero, então nenhuma variante
-   (relações, sem ações) precisa de outra grade; o título encolhe com reticências antes dos selos. */
-@media (min-width: 1024px) {
-  .registros--operacionais .registro-operacional .registro__titulo { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--esp-3); min-width: 0; grid-area: titulo; }
-  /* A faixa "estado" fica vazia: altura zero e sem o respiro dela (a margem negativa desfaz um dos dois vãos). */
-  .registros--operacionais > .registro.registro-operacional { grid-template-rows: auto 0; }
-  .registros--operacionais .registro-operacional .registro__agenda { margin-top: calc(-1 * var(--esp-2)); align-self: start; }
-  /* Título e agenda encostam um no outro; a sobra de altura (a placa é mais alta) fica em cima e embaixo do par. */
-  .registros--operacionais .registro-operacional .registro__titulo { align-self: end; }
-  .registros--operacionais .registro-operacional .registro__titulo > .registro__link { display: flex; align-items: baseline; flex: 0 1 auto; min-width: 0; }
-  .registros--operacionais .registro-operacional .registro__titulo > .registro__selos { flex: none; flex-wrap: nowrap; }
-}
-
 /* Roteiro com a viagem em andamento (estado_trecho): a linha mantém o desenho padrão; só o veículo se mexe — no
    trecho da vez a viatura vai e volta pelo fio; esperando a saída, ela pulsa. Quem pede movimento reduzido não vê
    animação (base.css). */

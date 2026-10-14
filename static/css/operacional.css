@@ -1045,6 +1045,38 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registros--operacionais > .registro.registro-operacional--relacoes.registro-operacional--sem-acoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "identidade titulo recursos" "identidade estado recursos" "identidade agenda recursos"; }
 }
 
+/* No desktop, o prazo/situação acompanha o título. Esta regra precisa vir depois da
+   composição operacional: o título deixa de ser `display: contents`, portanto os selos
+   passam a pertencer a ele e a antiga faixa `estado` pode ter altura zero. */
+@media (min-width: 1024px) {
+  .registros--operacionais .registro-operacional .registro__titulo {
+    display: flex;
+    grid-area: titulo;
+    align-items: center;
+    align-self: end;
+    flex-wrap: nowrap;
+    gap: var(--esp-3);
+    min-width: 0;
+  }
+  .registros--operacionais > .registro.registro-operacional {
+    grid-template-rows: auto 0 auto;
+  }
+  .registros--operacionais .registro-operacional .registro__agenda {
+    align-self: start;
+    margin-top: calc(-1 * var(--esp-2));
+  }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__link {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: baseline;
+    min-width: 0;
+  }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__selos {
+    flex: none;
+    flex-wrap: nowrap;
+  }
+}
+
 /* Documentos vinculáveis: várias escolhas em linhas compactas, sem outro cartão. */
 .campo--documentos .caixas { grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--esp-12) * 8)), 1fr)); gap: var(--esp-1) var(--esp-3); }
 .campo--documentos .caixas__item { align-items: center; min-height: var(--altura-controle-sm); padding: var(--esp-2); border: 0; border-bottom: var(--borda-sutil); border-radius: var(--raio-sm); background: transparent; font-size: var(--texto-sm); }
