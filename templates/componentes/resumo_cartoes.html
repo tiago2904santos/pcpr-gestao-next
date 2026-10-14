@@ -7,6 +7,7 @@
       {% if c.url %}<a class="pessoa__nome" href="{{ c.url }}">{{ c.nome }}</a>{% else %}<span class="pessoa__nome">{{ c.nome }}</span>{% endif %}
       {% if c.meta %}<span class="pessoa__meta">{{ c.meta }}</span>{% endif %}
     </span>
+    {% if c.url %}<span class="pessoa__seta" aria-hidden="true">{% icone "arrow-right" classe="icone--sm" %}</span>{% endif %}
   </li>
   {% endfor %}
 </ul>

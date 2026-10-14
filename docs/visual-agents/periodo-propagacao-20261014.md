@@ -115,3 +115,21 @@ Checagem visual/geométrica em 1440 px: centro do marcador em 471,977 px e
 centro das duas folhas em 471,984 px (diferença inferior a 0,01 px).
 Captura revisada: `evidencias/periodo-propagacao-20261014/substituicao/1440/substituicao-marcador-centralizado.png`.
 Sem gravar registros, repetir suíte geral, commit ou push.
+
+## Integração autorizada no main
+
+Usuário aprovou publicar todas as alterações. Integrado `origin/main` (6628a61),
+preservando os ajustes de OS/resumo e a divisão recente do CSS. Resolvido conflito
+por movimentação: calendário compartilhado e layout da agenda ficam no Design
+System; removido o calendário antigo de `operacional.css` para não sobrescrever
+o componente aprovado. Nenhum force-push.
+
+Conferência pós-integração: sete páginas com abertura, seleção, atualização,
+limpeza e Escape/foco aprovados; UI Lab com Axe sem violações e nenhum erro JS.
+Nova substituição conferida em 1440 e 360 px; sete cadastros capturados em 360 px
+e verificados sem overflow interno do calendário. Prints públicos só em 1440 px,
+conforme pedido do usuário. Capturas internas em `evidencias/periodo-propagacao-20261014/integracao/`.
+
+Para superar a limitação de CREATEDB do banco habitual, criado PostgreSQL 16
+temporário, descartável, isolado em `127.0.0.1:55433`, sem volumes persistentes.
+Nenhuma alteração de permissões ou de dados no banco habitual/PREVIEW.

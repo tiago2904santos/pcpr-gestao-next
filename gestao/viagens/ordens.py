@@ -138,7 +138,7 @@ def _funcoes_validas(tipo: str, funcoes: dict, servidores: list[Servidor]) -> di
 def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PADRAO,
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
            servidores=(), motivo: str = "", funcoes: dict | None = None,
-           assinante: Servidor | None = None,
+           assinante: Servidor | object | None = MANTER,
            data_documento: date | object | None = MANTER,
            versao: str = "") -> tuple[OrdemServico, list[str]]:
     """Cria (numera) ou altera. Devolve a OS e o que foi copiado dos ofícios.
@@ -179,7 +179,7 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
     # Mais de um ofício: só da mesma ação (mesma viagem ou mesmo roteiro).
     if {o.pk for o in oficios} != ja_ligados and (erro := incompatibilidade(oficios)):
         raise OrdemInvalida(erro)
-    if assinante is not None and assinante.unidade_id != ordem.unidade_id \
+    if isinstance(assinante, Servidor) and assinante.unidade_id != ordem.unidade_id \
             and assinante.pk != ordem.assinante_id:
         raise OrdemInvalida("Quem assina a OS precisa ser da unidade da OS.")
     if data_inicio and data_fim and data_fim < data_inicio:
@@ -215,7 +215,8 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
     ordem.tipo = tipo
     ordem.data_inicio, ordem.data_fim = data_inicio, (data_fim or data_inicio)
     ordem.motivo = (motivo or "").strip()
-    ordem.assinante = assinante
+    if assinante is not MANTER:  # a tela não tem o campo (a assinatura terá módulo próprio)
+        ordem.assinante = cast("Servidor | None", assinante)
     if data_documento is not MANTER:  # a tela não tem o campo: vale a fixada na 1ª geração
         ordem.data_documento = cast("date | None", data_documento)
     if funcoes is None:  # a tela não mostrou as funções: valem as gravadas
