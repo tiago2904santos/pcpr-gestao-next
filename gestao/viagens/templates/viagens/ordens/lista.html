@@ -43,7 +43,7 @@
 {% if linhas %}
   <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with o=l.ordem %}
-      <li class="registro registro-operacional registro-operacional--relacoes{% if o.cancelada %} registro--inativo{% endif %}">
+      <li class="registro registro-operacional registro-operacional--duas-linhas{% if o.cancelada %} registro--inativo{% endif %}">
         <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="OS" numero=o.numero_formatado compacta=True only %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
@@ -60,11 +60,6 @@
             <span class="registro__meta-item{% if not l.periodo %} registro__meta-item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">{{ l.periodo|default:"Sem período" }}</span></span>
             {% if o.tipo != "padrao" %}<span class="registro__meta-item" title="{{ o.get_tipo_display }}">{% icone "layers" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.get_tipo_display }}</span></span>{% endif %}
           </div>
-        </div>
-        <div class="registro-operacional__recursos">
-          <span class="registro-operacional__rotulo">Equipe e vínculos</span>
-          <span class="registro__meta-item" title="{{ o.servidores.all|join:', ' }}">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">{% for servidor in o.servidores.all|slice:":3" %}{{ servidor.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem equipe</span>{% endfor %}</span>{% if o.servidores.all|length > 3 %}<span class="registro__mais" aria-hidden="true">+{{ o.servidores.all|length|add:"-3" }}</span><span class="sr-only"> e mais {{ o.servidores.all|length|add:"-3" }} servidores</span>{% endif %}</span>
-          <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% for of in o.oficios.all %}{{ of }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Avulsa</span>{% endfor %}</span></span>
         </div>
         <div class="registro__acoes">
           <pc-menu class="menu">
