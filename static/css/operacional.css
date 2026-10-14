@@ -778,6 +778,11 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 /* Sem documentos (OS, termo, plano, viagem), a faixa "documentos" fica vazia mas ainda soma um vão antes do
    Registro — com o respiro do corpo, o espaço dobrava. A margem negativa desfaz esse vão. */
 .dialogo--mesa .mesa-registro > .resumo:not(:has(> .mesa-registro__documentos)):has(> .mesa-registro__registro) { margin-top: calc(-1 * var(--esp-6)); }
+/* Sem documentos nem registro (roteiro), no celular e no tablet: a grade de uma coluna não reserva essas faixas
+   (vazias, cada uma ainda somava um vão antes da equipe). No desktop a regra equivalente está no bloco de 1024px. */
+@media (max-width: 1023.98px) {
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(> .mesa-registro__documentos, > .mesa-registro__registro)) { grid-template-areas: "equipe" "principal" "contexto"; }
+}
 .registro__selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-secundario); }
 .dialogo--mesa .dialogo__linha-selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
 .dialogo--mesa .dialogo__linha-selos .selo--condicao { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
