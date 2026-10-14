@@ -26,7 +26,7 @@ def _servidores(servidores) -> list[dict]:
 
 def _equipe_das_ordens(ordens) -> list[dict]:
     """Servidores das OS da viagem, uma única vez mesmo quando estão em mais de uma OS."""
-    unicos = {}
+    unicos: dict[int, object] = {}
     for ordem in ordens:
         for servidor in ordem.servidores.all():
             unicos.setdefault(servidor.pk, servidor)
