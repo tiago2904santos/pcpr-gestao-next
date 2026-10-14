@@ -34,6 +34,12 @@ SOBREPOSICAO_JS = """() => {
       const DENTRO_DO_CAMPO = '.seletor, .entrada-composta--senha, .entrada-composta--limpavel';
       const seletor = alvos[i].closest(DENTRO_DO_CAMPO);
       if (seletor && seletor === alvos[j].closest(DENTRO_DO_CAMPO)) continue;
+      // Cartão clicável inteiro (o botão cobre a peça, sem desenho próprio) com as ações
+      // dele por cima — ex.: marcar o motorista na equipe e o X de remover (formulario.css).
+      const CARTAO_CLICAVEL = '.equipe__cartao';
+      const cartao = alvos[i].closest(CARTAO_CLICAVEL);
+      if (cartao && cartao === alvos[j].closest(CARTAO_CLICAVEL)
+          && [alvos[i], alvos[j]].some(e => e.matches('.equipe__motorista-alvo'))) continue;
       const b = alvos[j].getBoundingClientRect();
       const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
       const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);

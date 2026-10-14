@@ -106,7 +106,8 @@
 }
 
 .agenda-dia--hoje .agenda-dia__numero {
-  background: var(--cor-marca);
+  /* Dourado de texto (≥ 4,5:1 com o branco); o dourado da marca ficava em 3,7:1. */
+  background: var(--cor-marca-texto);
   color: var(--cor-texto-inverso);
 }
 
@@ -184,7 +185,8 @@
 }
 
 .agenda-semana__dia--hoje .agenda-dia__numero {
-  background: var(--cor-marca);
+  /* Dourado de texto (≥ 4,5:1 com o branco); o dourado da marca ficava em 3,7:1. */
+  background: var(--cor-marca-texto);
   color: var(--cor-texto-inverso);
 }
 

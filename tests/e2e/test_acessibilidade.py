@@ -57,8 +57,10 @@ def _carregar_previa(pg):
     pg.locator("#previa").scroll_into_view_if_needed()
     # Espera o conteúdo da folha (não a rede ociosa): com a suíte inteira em paralelo a
     # máquina fica carregada e o visualizador demora a carregar.
-    pg.locator("iframe[data-quadro='texto']:not([hidden])").wait_for()
-    pg.frame_locator("iframe[data-quadro='texto']").locator("body main").wait_for()
+    # O termo mostra uma folha por documento (servidores, genérico, viatura): basta a primeira.
+    pg.locator("iframe[data-quadro='texto']:not([hidden])").first.wait_for()
+    pg.frame_locator("iframe[data-quadro='texto']:not([hidden])").first.locator(
+        "body main").wait_for()
 
 
 @pytest.mark.parametrize("largura", [360, 1440])
