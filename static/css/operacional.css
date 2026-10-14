@@ -775,6 +775,9 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .dialogo--mesa .dialogo__conteudo > .dialogo__corpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
 .mesa-registro :is(a, button, input, textarea, summary) { scroll-margin-block: var(--esp-4); }
 .dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "registro registro" "equipe equipe" "principal contexto"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
+/* Sem documentos (OS, termo, plano, viagem), a faixa "documentos" fica vazia mas ainda soma um vão antes do
+   Registro — com o respiro do corpo, o espaço dobrava. A margem negativa desfaz esse vão. */
+.dialogo--mesa .mesa-registro > .resumo:not(:has(> .mesa-registro__documentos)):has(> .mesa-registro__registro) { margin-top: calc(-1 * var(--esp-6)); }
 .registro__selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-secundario); }
 .dialogo--mesa .dialogo__linha-selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
 .dialogo--mesa .dialogo__linha-selos .selo--condicao { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
