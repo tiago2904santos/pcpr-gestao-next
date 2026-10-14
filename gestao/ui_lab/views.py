@@ -79,6 +79,11 @@ class FormularioSeletores(forms.Form):
         error_messages={"invalid": "Informe data e hora, ex.: 08/10/2026 09:00."})
 
 
+class FormularioPeriodoExemplo(forms.Form):
+    inicio = forms.DateField(required=False, input_formats=FORMATOS_DATA)
+    fim = forms.DateField(required=False, input_formats=FORMATOS_DATA)
+
+
 MUNICIPIOS = [
     "Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais",
     "Foz do Iguaçu", "Colombo", "Guarapuava", "Paranaguá", "Araucária", "Toledo", "Apucarana",
@@ -181,6 +186,9 @@ def indice(request: HttpRequest) -> HttpResponse:
          "Apoio às atividades institucionais. Não corresponde a um documento emitido."),
     ]
     contexto = {
+        "lab_periodo_erro": FormularioPeriodoExemplo(
+            prefix="periodo-erro", data={"periodo-erro-inicio": "31/02/2026",
+                                         "periodo-erro-fim": ""}),
         "lab_prontidao_pronta": {"pode_emitir": True, "bloqueantes": [], "pendencias": []},
         "lab_prontidao_pendente": {"pode_emitir": False,
                                   "bloqueantes": [{"mensagem": "Informe o protocolo."}],

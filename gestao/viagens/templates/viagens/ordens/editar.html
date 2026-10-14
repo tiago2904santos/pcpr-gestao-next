@@ -56,20 +56,10 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {{ form.oficios }}
         {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
       </div>
-      {# Colunas iguais: tipo · período (ida e volta num calendário só). #}
-      <div class="campos campos--conteudo-periodo">
+      {# Tipo seguido do calendário compartilhado, com ida e volta. #}
+      <div class="pilha">
         {% include "componentes/campo.html" with campo=form.tipo ajuda_oculta=True %}
-        <div class="campo{% if form.data_inicio.errors or form.data_fim.errors %} campo--erro{% endif %}">
-          <label class="campo__rotulo" for="ordem-periodo">Período</label>
-          <pc-data class="seletor" data-periodo>
-            <input class="entrada" type="text" id="ordem-periodo" value="{{ form.periodo_texto }}" placeholder="Ida e volta" autocomplete="off" aria-describedby="ordem-periodo-ajuda">
-            <button type="button" class="seletor__botao" hidden aria-haspopup="dialog" aria-expanded="false">{% icone "calendar-days" %}<span class="sr-only">Abrir calendário</span></button>
-            {{ form.data_inicio }}{{ form.data_fim }}
-          </pc-data>
-          <p class="campo__ajuda sr-only" id="ordem-periodo-ajuda">Marque a ida e a volta no mesmo calendário. Um dia só: marque só a ida.</p>
-          {% for e in form.data_inicio.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-          {% for e in form.data_fim.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ e }}</span></p>{% endfor %}
-        </div>
+        {% periodo_calendario form.data_inicio form.data_fim prefixo="ordem" rotulo="Período da ordem de serviço" natureza="viagem" editavel=editavel %}
       </div>
     </div>
 

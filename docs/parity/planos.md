@@ -1,5 +1,13 @@
 # Planos — migração visual por unidade, 10/10/2026
 
+## Calendário compartilhado — 14/10/2026
+
+Folha e diálogo de evento adicional usam o calendário compacto de Termos, em
+linha própria após Programa/Horário. Preservados campos/prefixos, eventos distintos,
+valores/erros, horários e datas de saída/chegada com horário. Duração e antecedência
+separadas, apresentação atualiza imediatamente. Não altera regra de emissão/cálculo.
+Evidência: `../visual-agents/periodo-propagacao-20261014.md`.
+
 Referência funcional consultada somente leitura; contrato vigente no código e
 `docs/product/propagacao-identidade.md`. Ficha antiga `migration/planos.md` corrigida
 para refletir efetivo/diárias por evento, programas múltiplos e Finalizados já existentes.

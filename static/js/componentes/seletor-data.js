@@ -71,6 +71,8 @@ export class PcData extends SeletorFlutuante {
   foco = new Date();
   /** Já há um começo escolhido e o próximo clique fecha o período. */
   aguardandoFim = false;
+  /** @type {HTMLButtonElement | undefined} */
+  semDataFinal;
 
   /** Campo do fim do período, quando este calendário marca um intervalo. */
   get campoFim() {
@@ -112,11 +114,96 @@ export class PcData extends SeletorFlutuante {
   connectedCallback() {
     super.connectedCallback();
     this.parear();
+    if (this.closest("[data-resumo-periodo]")) {
+      this.addEventListener("change", () => this.atualizarResumo());
+    }
     // Digitar o período à mão também vale: os campos escondidos acompanham o que foi escrito.
     if (this.ehPeriodo && this.entrada) {
       this.entrada.addEventListener("change", () => this.gravarEscondidos(this.inicioAtual,
                                                                           this.fimAtual));
     }
+  }
+
+  /** Refaz somente a apresentação do calendário de mesa; o botão e o painel ficam estáveis. */
+  atualizarResumo() {
+    const mesa = /** @type {HTMLElement | null} */ (this.closest("[data-resumo-periodo]"));
+    const folhas = mesa?.querySelector(".mesa-evento__folhas");
+    if (!mesa || !folhas) return;
+    const de = this.inicioAtual;
+    const ate = this.fimAtual || de;
+    const aberto = mesa.hasAttribute("data-fim-aberto") && de && !this.fimAtual;
+    /** @param {string} classe @param {string} texto @param {string} nome */
+    const criar = (classe, texto = "", nome = "span") => {
+      const el = document.createElement(nome);
+      el.className = classe;
+      el.textContent = texto;
+      return el;
+    };
+    /** @param {Date} data @param {string} extremo */
+    const folha = (data, extremo) => {
+      const el = criar("mesa-evento__folha");
+      const pagina = criar("mesa-evento__pagina");
+      pagina.append(criar("mesa-evento__mes", new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(data).replace(".", "")),
+        criar("mesa-evento__dia", dois(data.getDate()), "strong"),
+        criar("mesa-evento__semana", new Intl.DateTimeFormat("pt-BR", { weekday: "short" }).format(data).replace(".", "")));
+      el.append(criar("mesa-evento__extremo", extremo), pagina);
+      return el;
+    };
+    /** @param {Date} data */
+    const diaCivil = (data) => Date.UTC(data.getFullYear(), data.getMonth(), data.getDate());
+    /** @param {string} seletor @param {string} texto */
+    const escrever = (seletor, texto) => {
+      const alvo = mesa.querySelector(seletor);
+      if (alvo) alvo.textContent = texto;
+    };
+    mesa.classList.toggle("mesa-evento--vazia", !de);
+    mesa.classList.remove("mesa-evento--evento");
+    folhas.replaceChildren();
+    if (!de || !ate) {
+      const vazia = criar("mesa-evento__folha mesa-evento__folha--vazia");
+      const pagina = criar("mesa-evento__pagina");
+      pagina.append(criar("mesa-evento__mes", "—"), criar("mesa-evento__dia", "?", "strong"), criar("mesa-evento__semana", "\u00a0"));
+      vazia.append(pagina);
+      folhas.append(vazia);
+      escrever(".mesa-evento__frase", "Defina o período");
+      escrever(".mesa-evento__antecedencia strong", "—");
+      escrever("[data-antecedencia-rotulo]", "defina o período");
+      escrever("[data-periodo-fonte]", "Escolha o início e o fim nas folhas do calendário");
+      return;
+    }
+    folhas.append(folha(de, aberto ? "Início" : mesmoDia(de, ate) ? "Dia" : "Início"));
+    if (aberto) {
+      const ponte = criar("mesa-evento__ate");
+      ponte.append(criar("mesa-evento__duracao", "até encerrar"));
+      const final = criar("mesa-evento__folha mesa-evento__folha--vazia");
+      const pagina = criar("mesa-evento__pagina");
+      pagina.append(criar("mesa-evento__mes", "—"), criar("mesa-evento__dia", "∞", "strong"), criar("mesa-evento__semana", "aberto"));
+      final.append(criar("mesa-evento__extremo", "Fim"), pagina);
+      folhas.append(ponte, final);
+    } else if (!mesmoDia(de, ate)) {
+      const dias = Math.round((diaCivil(ate) - diaCivil(de)) / 86400000) + 1;
+      const ponte = criar("mesa-evento__ate");
+      ponte.append(criar("mesa-evento__duracao", `${dias} dia${dias === 1 ? "" : "s"} de ${mesa.dataset.natureza || "evento"}`));
+      folhas.append(ponte, folha(ate, "Fim"));
+    }
+    const extenso = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+    let frase = aberto ? `A partir de ${extenso.format(de)}` : extenso.format(de);
+    if (!aberto && !mesmoDia(de, ate)) {
+      const inicio = de.getFullYear() !== ate.getFullYear() ? extenso.format(de)
+        : de.getMonth() === ate.getMonth() ? String(de.getDate())
+          : new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long" }).format(de);
+      frase = `${inicio} a ${extenso.format(ate)}`;
+    }
+    escrever(".mesa-evento__frase", frase);
+    const hoje = new Date(`${mesa.dataset.hoje}T12:00`);
+    const dias = Math.round((diaCivil(de) - diaCivil(hoje)) / 86400000);
+    const quantidade = Math.abs(dias);
+    escrever(".mesa-evento__antecedencia strong", String(quantidade));
+    escrever("[data-antecedencia-rotulo]", dias === 0 ? "começa hoje"
+      : `dia${quantidade === 1 ? "" : "s"} ${dias > 0 ? "de antecedência" : "desde o início"}`);
+    escrever("[data-periodo-fonte]", mesa.hasAttribute("data-fim-aberto")
+      ? "Fim em branco: até ser encerrada." : "Informado no calendário");
+    mesa.querySelector(".mesa-evento__viagem")?.remove();
   }
 
   /** Liga este campo ao outro do período, pelo nome (ver PARES): o do começo ganha
@@ -231,6 +318,16 @@ export class PcData extends SeletorFlutuante {
           this.fechar(true);
         }),
       );
+      if (this.hasAttribute("data-fim-aberto")) {
+        this.semDataFinal = this.botaoDoPainel("Sem data final", "botao botao--sm botao--texto", () => {
+          const inicio = this.inicioAtual;
+          if (!inicio) return;
+          this.definir(inicio, null);
+          this.aguardandoFim = false;
+          this.fechar(true);
+        });
+        rodape.append(this.semDataFinal);
+      }
       painel.append(topo, grade, rodape);
     }
     this.renderizar();
@@ -240,6 +337,7 @@ export class PcData extends SeletorFlutuante {
     const corpo = /** @type {HTMLTableSectionElement} */ (this.corpo);
     const escolhida = this.inicioAtual;
     const fim = this.fimAtual;
+    if (this.semDataFinal) this.semDataFinal.disabled = !escolhida;
     const hoje = new Date();
     const [ano, mes] = [this.foco.getFullYear(), this.foco.getMonth()];
     const nomeMes = MESES[mes];

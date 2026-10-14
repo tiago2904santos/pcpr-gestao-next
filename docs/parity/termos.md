@@ -19,3 +19,19 @@ Interface nova não apresenta integração externa que não exista no contrato.
 
 Cobertura, lacunas e evidências: `../visual-agents/qa/termos-identidade-2026-10-10.md`.
 Não declara aprovação visual do usuário nem cobertura integral do legado ausente.
+
+## Período — refinamento de 14/10/2026
+
+As folhas do calendário são o gatilho nativo da edição, com dobra de canto e layout
+ampliado. Mantidos `pc-data`, campos ocultos de início/fim, calendário de intervalo,
+origem das datas, teclado e retorno de foco. Folhas e descrição atualizam em regiões
+vivas separadas, sem substituir o gatilho. Não altera cálculo do evento nem documento.
+Evidência: `../visual-agents/termo-periodo-folhas-20261014.md`.
+
+Indicador visual adicional de antecedência ao início, solicitado pelo usuário:
+conta dias de calendário a partir de hoje no fuso da aplicação. Não altera prazo
+institucional nem obrigatoriedade de justificativa; duração permanece entre folhas.
+
+O calendário agora consome o template compartilhado da Plataforma. Mantidos os
+IDs vivos `periodo-evento` e `periodo-evento-folhas`, a origem efetiva do período e
+o gatilho estável. Evidência da extração: `../visual-agents/periodo-propagacao-20261014.md`.

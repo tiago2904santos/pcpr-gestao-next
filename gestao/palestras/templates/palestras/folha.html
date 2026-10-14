@@ -87,10 +87,9 @@ com o seu formulário.
       <legend class="sr-only">Evento</legend>
       <div class="campos">
         {% include "componentes/campo.html" with campo=form.evento classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.data_inicio_evento classe="campo--md" %}
-        {% include "componentes/campo.html" with campo=form.data_fim_evento classe="campo--md" %}
         {% include "componentes/campo.html" with campo=form.hora_inicio classe="campo--sm" %}
       </div>
+      {% periodo_calendario form.data_inicio_evento form.data_fim_evento prefixo="palestra" rotulo="Período do evento" natureza="evento" editavel=editavel %}
       <div class="campos">
         <div class="campo campo--md{% if form.municipio.errors %} campo--erro{% endif %}">
           <label class="campo__rotulo" for="{{ form.municipio.id_for_label }}">{{ form.municipio.label }}</label>
