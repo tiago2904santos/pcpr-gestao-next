@@ -1,0 +1,15 @@
+# Configuração global do proxy compartilhado (deploy/proxy/compose.yml).
+{
+	email {$ACME_EMAIL}
+	# API de administração só no loopback do host (caddy reload).
+	admin localhost:2019
+	servers {
+		# Tempo para respostas longas (geração de PDF síncrona) sem prender conexões ociosas.
+		timeouts {
+			read_body 60s
+			idle 2m
+		}
+	}
+}
+
+import /etc/caddy/sites/*.caddy

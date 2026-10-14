@@ -21,3 +21,7 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")  # noqa: F405
 # Preload de HSTS é decisão do domínio institucional (afeta subdomínios fora deste
 # sistema); fica a cargo da equipe de infraestrutura — docs/ops/deploy.md.
 SILENCED_SYSTEM_CHECKS = ["security.W021"]
+# Sem SMTP e sem notificações por e-mail, o backend "console" é intencional (nada sai da
+# máquina — gestao/plataforma/notificacoes.py); com SMTP ou notificações, o check vale.
+if not EMAIL_HOST_SMTP and not NOTIFICACOES_POR_EMAIL:  # noqa: F405
+    SILENCED_SYSTEM_CHECKS = [*SILENCED_SYSTEM_CHECKS, "mail.E001"]

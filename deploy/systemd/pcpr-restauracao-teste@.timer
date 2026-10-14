@@ -1,0 +1,10 @@
+[Unit]
+Description=PCPR Gestão — teste de restauração mensal (%i)
+
+[Timer]
+# Primeiro domingo do mês, 04:10.
+OnCalendar=Sun *-*-01..07 04:10
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=PCPR Gestão — cadeia de auditoria e rotinas diárias (%i)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/pcpr/infra/deploy/vps/pcpr.sh %i rotinas
+TimeoutStartSec=30m

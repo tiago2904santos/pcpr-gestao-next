@@ -1,0 +1,10 @@
+[Unit]
+Description=PCPR Gestão — teste de restauração isolado (%i)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/pcpr/infra/deploy/vps/restaurar-teste.sh %i
+Nice=10
+TimeoutStartSec=3h

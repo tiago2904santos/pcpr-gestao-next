@@ -22,3 +22,7 @@ recusam).
 
 Dependências do sistema: `libpango-1.0-0`, `libpangoft2-1.0-0`, `libharfbuzz-subset0`
 (WeasyPrint/PDF/A).
+
+Implantação em VPS com Docker Compose (homologação e produção, imagem por commit aprovado,
+backup externo e restauração testada): `deploy/README.md`, ADR 0035 e as evidências em
+`docs/ops/implantacao-vps-evidencias.md`.

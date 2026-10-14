@@ -1,0 +1,11 @@
+[Unit]
+Description=PCPR Gestão — verificações leves (%i)
+After=docker.service
+
+[Service]
+Type=oneshot
+# Saída 3 = há problemas (já alertados): não é falha da unidade. Outros códigos ≠ 0 são falha
+# do próprio monitor e aparecem em `systemctl --failed`.
+SuccessExitStatus=3
+ExecStart=/srv/pcpr/infra/deploy/vps/monitorar.sh %i
+TimeoutStartSec=4m
