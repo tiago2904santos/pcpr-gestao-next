@@ -807,6 +807,8 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 @media (min-width: 1024px) {
   /* Registro institucional no alto, na largura toda: quatro dados lado a lado; motivo e justificativa em linha inteira. */
   .dialogo--mesa .mesa-registro__registro .resumo__definicoes.metadados { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-6); }
+  /* Motivo numa célula só (resumo da OS): a última coluna é um pouco mais larga para ele. */
+  .dialogo--mesa .mesa-registro__registro .resumo__definicoes.metadados:has(> .metadado--linha:not(.resumo__largo)) { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); }
   /* Motivo e justificativa: metade da linha cada, na mesma linha, no máximo duas linhas de texto (o resto fica no title). */
   .dialogo--mesa .mesa-registro__registro .resumo__definicoes .metadado--texto { grid-column: span 2; }
   .dialogo--mesa .mesa-registro__registro .metadado--texto dd { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
@@ -1330,6 +1332,41 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .dialogo--mesa .pessoa--ligacao:hover .avatar { scale: 1.06; }
 .dialogo--mesa .pessoa--ligacao .pessoa__nome { transition: color var(--duracao-rapida) var(--curva-padrao); }
 .dialogo--mesa .pessoa--ligacao:hover .pessoa__nome { color: var(--hover-cartao-texto); }
+
+/* Cartões do resumo (equipe e vínculos). Os vínculos têm o mesmo cartão da equipe; quando o cartão leva a algum
+   lugar, ele inteiro é o alvo (o ::after do link cobre o cartão), sem sublinhado nem azul de link: o nome fica na
+   cor do texto e, no hover, ganha o tom da marca, o cartão sobe e a seta desliza para a direita. Na abertura do
+   resumo os cartões entram em cascata. Tudo segue os tokens de duração (0ms com movimento reduzido). */
+.dialogo--mesa .mesa-registro__principal .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.dialogo--mesa .mesa-registro__principal .equipe-transporte > .pessoa { flex: 1 1 17rem; align-self: stretch; background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); box-shadow: none; padding: var(--esp-3) var(--esp-4); }
+.dialogo--mesa .mesa-registro__principal .equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); font-size: var(--texto-xs); }
+.dialogo--mesa .mesa-registro__principal .equipe-transporte .avatar--escuro { background: var(--grafite-900); color: var(--neutro-0); }
+.dialogo--mesa .mesa-registro__principal .equipe-transporte .pessoa__nome { font-size: var(--texto-md); color: var(--cor-texto); }
+.dialogo--mesa .pessoa--ligacao { position: relative; cursor: pointer; }
+.dialogo--mesa .pessoa--ligacao a.pessoa__nome { color: var(--cor-texto); text-decoration: none; }
+.dialogo--mesa .pessoa--ligacao a.pessoa__nome::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.dialogo--mesa .pessoa--ligacao a.pessoa__nome:focus-visible { outline: none; }
+.dialogo--mesa .pessoa--ligacao:has(a.pessoa__nome:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: var(--foco-offset); }
+.dialogo--mesa :is(.mesa-registro__equipe, .mesa-registro__principal) .equipe-transporte > .pessoa--ligacao:is(:hover, :focus-within) {
+  background: var(--cor-superficie);
+  border-color: var(--hover-cartao-borda);
+  box-shadow: var(--sombra-2);
+  translate: 0 -1px;
+}
+.dialogo--mesa :is(.mesa-registro__equipe, .mesa-registro__principal) .pessoa--ligacao:is(:hover, :focus-within) .pessoa__nome { color: var(--hover-cartao-texto); }
+.dialogo--mesa .equipe-transporte > .pessoa--ligacao:active { translate: 0 0; scale: var(--escala-pressao); box-shadow: var(--sombra-1); }
+.dialogo--mesa .pessoa__seta {
+  display: inline-flex; flex: none; margin-left: auto; color: var(--cor-texto-terciario); opacity: 0; translate: calc(-1 * var(--esp-2)) 0;
+  transition: opacity var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-media) var(--curva-expressiva), color var(--duracao-rapida) var(--curva-padrao);
+}
+.dialogo--mesa .pessoa--ligacao:is(:hover, :focus-within) .pessoa__seta { opacity: 1; translate: 0 0; color: var(--hover-cartao-texto); }
+@media (hover: none) { .dialogo--mesa .pessoa__seta { opacity: 1; translate: 0 0; } }
+.dialogo--mesa .resumo__cartoes > .pessoa { animation: aparecer var(--duracao-lenta) var(--curva-padrao) both; }
+.dialogo--mesa .resumo__cartoes > .pessoa:nth-child(2) { animation-delay: calc(var(--duracao-rapida) * 0.3); }
+.dialogo--mesa .resumo__cartoes > .pessoa:nth-child(3) { animation-delay: calc(var(--duracao-rapida) * 0.6); }
+.dialogo--mesa .resumo__cartoes > .pessoa:nth-child(4) { animation-delay: calc(var(--duracao-rapida) * 0.9); }
+.dialogo--mesa .resumo__cartoes > .pessoa:nth-child(5) { animation-delay: calc(var(--duracao-rapida) * 1.2); }
+.dialogo--mesa .resumo__cartoes > .pessoa:nth-child(n+6) { animation-delay: calc(var(--duracao-rapida) * 1.5); }
 
 /* Totais do percurso numa linha só: "→ Ida 1.812,3 km · 28 h 45" e "↩ Ida e volta 2.417,6 km · 57 h 30", lado a lado. */
 .itin--operacional .itin__total { display: flex; flex-wrap: nowrap; align-items: baseline; gap: var(--esp-2); min-width: 0; white-space: nowrap; }

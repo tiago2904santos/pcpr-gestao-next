@@ -12,6 +12,7 @@ toda). Cada um abre o resumo do ofício na lista de ofícios.
         <a class="pessoa__nome" href="{% url 'viagens:oficios' %}?q={{ o.numero_formatado|urlencode }}&amp;resumo={{ o.pk }}">Ofício {{ o.numero_formatado }}</a>
         <span class="pessoa__meta">{{ o.get_situacao_display }}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}</span>
       </span>
+      <span class="pessoa__seta" aria-hidden="true">{% icone "arrow-right" classe="icone--sm" %}</span>
     </li>
   {% endfor %}
 </ul>
