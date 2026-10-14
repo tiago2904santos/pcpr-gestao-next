@@ -80,9 +80,11 @@ class TestFolhaDaOS:
         ordem, _ = ordens.salvar(c.usuarios["operador"], destinos=[_londrina()])
         html = _cliente(c.usuarios["operador"]).get(
             reverse("viagens:editar_ordem", args=[ordem.pk])).content.decode()
-        for ancora in ("identificacao", "dados", "destinos", "equipe", "motivo", "assinatura",
+        for ancora in ("identificacao", "dados", "destinos", "equipe", "motivo",
                        "documento", "conferencia", "previa", "historico"):
             assert f'id="{ancora}"' in html
+        # Quem assina terá módulo próprio: a tela da OS não tem mais o bloco.
+        assert 'id="assinatura"' not in html
         # Cada pendência da conferência é um atalho até o cartão (ícone + texto no link).
         assert re.search(r'href="#equipe">.*?Falta equipe', html)
         assert re.search(r'href="#motivo">.*?Falta motivo', html)
