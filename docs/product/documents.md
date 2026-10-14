@@ -136,3 +136,11 @@ Roteiro no documento (D7): viagem simples → "ROTEIRO DE IDA" e "ROTEIRO DE RET
 com volta intermediária à sede (bate-volta) → "ROTEIRO POR TRECHOS", numerados na ordem.
 
 Protocolo (D1): obrigatório para emitir (pendência bloqueante); opcional no rascunho.
+
+## Cadastro da OS — contrato da tela (14/10/2026)
+
+O main removeu o bloco de assinatura e seu campo do cadastro da OS em `10a8764`.
+Os cartões restantes, conferência, prévia e histórico continuam disponíveis.
+A assinatura existente no documento não é removida: o autosave mantém o assinante
+quando não recebe esse campo. A integração do calendário deve preservar essa tela;
+o teste de âncoras não deve exigir nem reintroduzir o bloco “Assinatura”.

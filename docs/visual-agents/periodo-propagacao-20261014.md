@@ -133,3 +133,17 @@ conforme pedido do usuário. Capturas internas em `evidencias/periodo-propagacao
 Para superar a limitação de CREATEDB do banco habitual, criado PostgreSQL 16
 temporário, descartável, isolado em `127.0.0.1:55433`, sem volumes persistentes.
 Nenhuma alteração de permissões ou de dados no banco habitual/PREVIEW.
+
+### Resultado e publicação imediata solicitada
+
+Ruff, 16 contratos de imports, Mypy (307 arquivos), Bandit, migrações e tipos JS
+passaram. Os 16 testes de navegador do UI Lab passaram. Sete telas e substituição
+foram conferidas no navegador com as capturas pós-integração.
+
+A suíte geral encontrou um teste desatualizado do próprio main: exigia a âncora
+`assinatura`, removida em `10a8764`. Atualizado somente o contrato do teste,
+agora exigindo ausência desse bloco, sem mudar a tela aprovada. Documentado em
+`docs/product/documents.md`. A nova rodada Linux passou de 28% sem falhas,
+mas não terminou; não se declara `scripts/verificar.sh` integralmente verde.
+O usuário pediu “Sobe logo” após ser informado da validação pendente, autorizando
+a publicação imediata. Suíte completa permanece não validada nesta entrega.
