@@ -139,7 +139,10 @@ def test_equipe_htmx_preserva_foco_na_copia_durante_resposta(logado, dados_e2e):
         finally:
             rota.fulfill(response=resposta)
 
-    pg.route("**" + url, responder, times=1)
+    # Sem `times=1`: a rota expirada se desfaz no instante em que a resposta liberada dispara
+    # diárias e folha, e às vezes uma dessas requisições fica parada no Playwright para
+    # sempre (o networkidle abaixo estourava no CI). Só há um POST nesta URL no teste.
+    pg.route("**" + url, responder)
     with pg.expect_response(lambda r: url in r.url and r.request.method == "POST") as envio:
         pg.get_by_role("button", name=f"Desmarcar {nome} como motorista", exact=True).click()
     assert envio.value.status == 200
