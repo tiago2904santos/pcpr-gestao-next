@@ -6,11 +6,11 @@ vínculos e a conferência ao lado; no rodapé, "Mais ações" (o mesmo ⋮ da l
 complemento, selos [{texto, tom}], dados [{rotulo, valor, largo}], equipe/vinculos
 [{avatar|icone, escuro, nome, meta, url}], equipe_titulo, vinculos_titulo, vinculos_vazio,
 pendencias [{mensagem, url}], pronto (texto quando nada falta), menu_template, abrir_url,
-abrir_rotulo, nome; lado_a_lado (opcional) põe equipe e vínculos lado a lado no desktop.
+abrir_rotulo, nome.
 {% endcomment %}
 {% include "componentes/registro_hero.html" with rotulo=r.rotulo numero=r.numero situacao=r.situacao contexto=r.contexto titulo=r.titulo complemento=r.complemento situacao_template="componentes/resumo_selos.html" %}
 <div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo">
-  <div class="mesa-registro"><div class="resumo{% if r.lado_a_lado %} resumo--lado-a-lado{% endif %}">
+  <div class="mesa-registro"><div class="resumo">
     <div class="mesa-registro__registro">
       {% include "componentes/bloco_registro.html" with titulo="Registro" icone="landmark" id_titulo="resumo-registro" conteudo="componentes/resumo_dados.html" %}
     </div>

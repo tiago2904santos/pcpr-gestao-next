@@ -74,7 +74,6 @@ def da_ordem(o, linha: dict) -> dict:
         "equipe_vazio": "Ninguém na equipe ainda.",
         "vinculos_titulo": "Ofícios vinculados", "vinculos": _oficios(oficios),
         "vinculos_vazio": "OS avulsa: nenhum ofício vinculado.",
-        "lado_a_lado": True,
         "pendencias": [] if o.cancelada else linha["pendencias"],
         "pronto": "Pronta" if gerada else "Pronta para gerar",
         "menu_template": "viagens/ordens/_menu_linha.html",

@@ -856,8 +856,6 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados dd { font-size: clamp(var(--texto-md), 7.5cqi, var(--texto-3xl)); line-height: var(--altura-linha-justa); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), 3.6cqi, var(--texto-md)); }
   .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados:not(:has(> .conferencia-serena__por-servidor)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* Resumo da OS: equipe e ofícios vinculados lado a lado; a conferência desce para a largura toda. */
-  .dialogo--mesa .mesa-registro > .resumo.resumo--lado-a-lado:not(:has(.percurso-registro__trecho:nth-child(6))) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "registro registro" "equipe principal" "contexto contexto"; }
 }
 .mesa-registro__contexto > .bloco-registro { min-width: 0; padding: var(--esp-5); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
 /* Diárias não ganha cartão: só o título e o bloco escuro. */
