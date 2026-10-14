@@ -1,0 +1,12 @@
+---
+description: Exige capturas de tela nas entregas visuais do projeto
+alwaysApply: true
+---
+
+# Sempre entregar capturas
+
+- Toda avaliação, alteração ou entrega que envolva interface deve incluir capturas do resultado.
+- Para páginas web, enviar no mínimo as larguras 360 px e 1440 px, salvo quando outra largura for essencial ao caso.
+- As capturas devem mostrar o estado realmente validado, não uma tela genérica ou antiga.
+- Registrar as evidências em `docs/` conforme o ciclo obrigatório do `AGENTS.md` e também apresentá-las ao usuário na resposta.
+- Quando o ambiente impedir a captura, explicar claramente a limitação e não declarar aprovação visual.
