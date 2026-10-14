@@ -1255,7 +1255,7 @@ def termo_de_dois_oficios(unidade, autor):
         unidade=unidade, viatura__isnull=False, tipo_transporte=Oficio.TipoTransporte.VIATURA,
         trechos__isnull=False, viajantes__isnull=False).exclude(
         situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:12])
-    par = []
+    par: list[Oficio] = []
     for o in candidatos:
         if all(o.viatura_id != p.viatura_id and o.pk != p.pk for p in par):
             par.append(o)
@@ -1263,7 +1263,10 @@ def termo_de_dois_oficios(unidade, autor):
             break
     if len(par) < 2:
         return None
-    saida = timezone.localtime(par[0].trechos.order_by("ordem").first().saida_em).date()
+    primeiro_trecho = par[0].trechos.order_by("ordem").first()
+    if primeiro_trecho is None:
+        return None
+    saida = timezone.localtime(primeiro_trecho.saida_em).date()
     viagem = Viagem.objects.create(
         unidade=unidade, criado_por=autor, titulo="Ação conjunta (DEMO)",
         motivo="Duas equipes, cada uma na sua viatura (DEMO).",

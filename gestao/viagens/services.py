@@ -708,8 +708,9 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
         html = sanear_html(regioes[chave])
         faltando = campos_presentes(original) - campos_presentes(html)
         if faltando:
-            rotulos = ", ".join((campo_de(c).rotulo if campo_de(c) else c)
-                                for c in sorted(faltando))
+            campos = ((c, campo_de(c)) for c in sorted(faltando))
+            rotulos = ", ".join(campo.rotulo if campo is not None else chave_campo
+                                for chave_campo, campo in campos)
             raise RegraViolada(f"O trecho «{rotulos}» vem do cadastro e não pode ser removido "
                                "do texto. Desfaça a alteração ou volte ao modelo.")
         # Compara os dois lados saneados: o navegador e o saneador reescrevem entidades e
@@ -724,8 +725,9 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
         # desatualizada, sem modelo, continua sem — fundir a partir do modelo de agora
         # trataria os dados velhos como mudança da pessoa e apagaria os novos.
         anterior = vigente.regioes.get(chave) if vigente is not None else None
+        impressao_anterior = vigente.impressoes.get(chave) if vigente is not None else None
         if (anterior is None or chave in modelos_vigentes
-                or vigente.impressoes.get(chave) == impressoes[chave]):
+                or impressao_anterior == impressoes[chave]):
             modelos[chave] = original
     acao = EdicaoDocumento.Acao.EDITADO if limpas else EdicaoDocumento.Acao.MODELO
     if vigente is not None and vigente.regioes == limpas:

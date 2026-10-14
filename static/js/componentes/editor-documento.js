@@ -80,6 +80,8 @@ export class PcEditorDocumento extends HTMLElement {
     this.vendoVersao = null;
     /** @type {HTMLElement | null} */
     this.blocoAtual = null;
+    /** @type {HTMLElement | null} */
+    this.campoRecente = null;
     /** @type {TextoPronto[] | null} */
     this.textos = null;
     this.vitrine = !this.dataset.base;

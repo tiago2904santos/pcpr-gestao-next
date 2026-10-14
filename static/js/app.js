@@ -50,6 +50,19 @@ const sobDemanda = [
   ["[data-sugerir], [data-copiar-de]", () => import("./componentes/sugerir.js")],
 ];
 const carregados = new Set();
+// Prontidão dos controles (<html data-controladores>): "carregando" enquanto algum componente
+// está sendo importado, "prontos" quando todos chegaram. Os testes de navegador esperam por ele
+// antes de agir — um clique logo após a navegação pegava o <select> nativo no meio da troca.
+let importsPendentes = 0;
+/** @param {Promise<unknown>} promessa */
+function acompanhar(promessa) {
+  importsPendentes += 1;
+  document.documentElement.dataset.controladores = "carregando";
+  return promessa.finally(() => {
+    importsPendentes -= 1;
+    if (!importsPendentes) document.documentElement.dataset.controladores = "prontos";
+  });
+}
 /** @type {{botao: HTMLElement, cancelada: boolean} | null} */
 let aberturaBaixar = null;
 document.addEventListener("click", async (evento) => {
@@ -123,10 +136,10 @@ function carregarSobDemanda() {
     if (carregados.has(seletor)
         || !Array.from(document.querySelectorAll(seletor)).some(disponivel)) continue;
     carregados.add(seletor);
-    carregar().then(preservarFocoAdiado).catch((erro) => {
+    acompanhar(carregar().then(preservarFocoAdiado).catch((erro) => {
       carregados.delete(seletor);
       console.error("Não foi possível carregar os controles da página.", erro);
-    });
+    }));
   }
 }
 carregarSobDemanda();
@@ -182,10 +195,10 @@ function carregarQuandoVisivel(evento) {
     const carregarAlvo = (/** @type {Element} */ alvo) => {
       if (!alvo.isConnected || iniciados.has(alvo)) return;
       iniciados.add(alvo);
-      carregar(alvo).catch((erro) => {
+      acompanhar(carregar(alvo).catch((erro) => {
         iniciados.delete(alvo);  // próximo swap pode tentar novamente se o import falhou
         console.error("Não foi possível carregar o editor do documento.", erro);
-      });
+      }));
     };
     if (!("IntersectionObserver" in window)) { alvos.forEach(carregarAlvo); continue; }
     const observador = new IntersectionObserver((entradas) => {
@@ -202,6 +215,7 @@ function carregarQuandoVisivel(evento) {
   }
 }
 carregarQuandoVisivel();
+if (!importsPendentes) document.documentElement.dataset.controladores = "prontos";
 document.body.addEventListener("htmx:afterSwap", carregarQuandoVisivel);
 document.addEventListener("pcpr:editores-repostos", carregarQuandoVisivel);
 

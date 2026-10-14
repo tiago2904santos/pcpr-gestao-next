@@ -1,4 +1,5 @@
 // @ts-check
+export {};
 /**
  * Conferência do cadastro (componentes/prontidao_documental.html): cada pendência leva até o
  * que falta. Em vez do salto seco da âncora, a folha desliza até a seção e acende, por alguns

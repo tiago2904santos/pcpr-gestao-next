@@ -1,0 +1,9 @@
+[Unit]
+Description=PCPR Gestão — cadeia de auditoria e rotinas diárias (%i)
+
+[Timer]
+OnCalendar=*-*-* 05:40
+Persistent=true
+
+[Install]
+WantedBy=timers.target

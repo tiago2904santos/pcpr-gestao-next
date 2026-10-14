@@ -1,0 +1,9 @@
+[Unit]
+Description=PCPR Gestão — verificações leves a cada 5 min (%i)
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

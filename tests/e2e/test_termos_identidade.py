@@ -114,7 +114,11 @@ def test_via_assinada_no_editor_migrado(logado, dados_e2e, tmp_path, largura):
     atalho.click()
     expect(pg).to_have_url(re.compile(rf"/viagens/termos/{termo.pk}/#previa$"))
     expect(pg.locator("#previa")).to_be_in_viewport()
-    bloco = pg.locator("pc-editor-documento").first
+    # No bloco de editores só a barra do editor ativo aparece (editores.js o marca ao montar;
+    # a rolagem até #previa pode ativar outra folha que não a primeira): usa a ativa.
+    ativo = pg.locator("pc-editor-documento.editor--ativo").first
+    ativo.wait_for(state="attached")
+    bloco = pg.locator(f"#{ativo.get_attribute('id')}")
     bloco.get_by_role("link", name="Anexar", exact=True).click()
     janela = pg.get_by_role("dialog", name="Anexar via assinada")
     expect(janela).to_be_visible()

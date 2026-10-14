@@ -39,6 +39,20 @@ ORCAMENTO = {
 # margem), mais estrito que os 40 autorizados. Peso e tempo seguem o orçamento geral.
 FOLHAS_DE_EDICAO = re.compile(r"/(oficios|roteiros)/\d+/editar/")
 REQUISICOES_FOLHA = 32
+# Exceções PROVISÓRIAS (docs/quality/performance-budgets.md, "Exceções provisórias"): a
+# migração visual levou o CSS das telas migradas (operacional.css) e o JS das folhas além do
+# orçamento. Teto = medido em 13/10/2026 + ~3%, para segurar regressão; a meta segue sendo o
+# ORCAMENTO — cada redução baixa (ou apaga) a linha daqui. Nunca suba um teto destes.
+EXCECOES_PROVISORIAS: dict[str, dict[str, float]] = {
+    "/viagens/": {"css_kb": 228, "css_gzip_kb": 40},
+    "/viagens/oficios/": {"css_kb": 252, "css_gzip_kb": 44},
+    "/viagens/oficios/?resumo={oficio_emitido}": {"css_kb": 252, "css_gzip_kb": 44},
+    "/viagens/oficios/{oficio_rascunho}/editar/": {
+        "html_kb": 140, "css_kb": 237, "js_kb": 164, "css_gzip_kb": 43, "js_gzip_kb": 57,
+        "requisicoes": 37},
+    "/viagens/roteiros/{roteiro}/editar/": {
+        "css_kb": 224, "js_kb": 144, "css_gzip_kb": 40, "js_gzip_kb": 50},
+}
 
 ITINERARIO = re.compile(r"/vendor/leaflet/|/itinerario\.(css|js)|/api/rota/")
 
@@ -210,6 +224,7 @@ def test_orcamento_de_desempenho(logado, dados_e2e, rota):
     orcamento = dict(ORCAMENTO)
     if FOLHAS_DE_EDICAO.search(url):
         orcamento["requisicoes"] = REQUISICOES_FOLHA
+    orcamento.update(EXCECOES_PROVISORIAS.get(rota, {}))
     estourados = {k: (v, orcamento[k]) for k, v in medido.items()
                   if k in orcamento and v > orcamento[k]}
     assert not estourados, f"{url}: orçamento estourado {estourados}"

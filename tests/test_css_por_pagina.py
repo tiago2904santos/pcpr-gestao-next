@@ -27,7 +27,8 @@ from gestao.viagens.models import (
 )
 
 CSS = Path(__file__).resolve().parents[1] / "static" / "css"
-PACOTES = ["formulario", "documento", "listas", "painel", "assistente", "itinerario", "editor"]
+PACOTES = ["formulario", "documento", "listas", "painel", "assistente", "itinerario", "editor",
+           "operacional"]
 COMPARTILHADOS = ["tokens", "base", "layout", "components"]
 # Elementos cujo CSS é montado pelo JS (não está no HTML servido) → pacote exigido.
 POR_ELEMENTO = {"pc-data": "formulario", "pc-hora": "formulario", "pc-itinerario": "itinerario"}

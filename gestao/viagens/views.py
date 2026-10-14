@@ -355,7 +355,7 @@ def lista(request: HttpRequest) -> HttpResponse:
     atencao = atencao if atencao in queries.ATENCOES else ""
     qs = r.qs.filter(queries.q_da_atencao(atencao, hoje)) if atencao else r.qs
     if atencao == "urgentes":
-        qs = qs.order_by("_saida", "pk")
+        qs = qs.order_by("_saida", "pk")  # type: ignore[misc]  # anotação de com_primeira_saida
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
     # Urgentes vêm pela saída: os meses do cabeçalho também.
@@ -366,7 +366,7 @@ def lista(request: HttpRequest) -> HttpResponse:
     _grupos_por_mes(pagina.object_list, "saida" if por_saida else r.ordem, pagina, totais)
     agora = timezone.now()
     for o in pagina.object_list:
-        o.linha = _situacao_da_linha(request.user, o, agora)
+        o.linha = _situacao_da_linha(request.user, o, agora)  # type: ignore[attr-defined]
     contagens = queries.contagens_do_recorte(
         base, r.filtrado if (r.termo or r.avancados.validos) else None, r.aba, r.documento)
     get = request.GET

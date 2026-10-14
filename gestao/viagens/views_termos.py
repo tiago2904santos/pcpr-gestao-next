@@ -150,7 +150,7 @@ def _linha_da_lista(request: HttpRequest, t: TermoAutorizacao, agora) -> dict:
     ef = termos.efetivo(t)
     docs = termos.documentos_do_termo(t, ef)
     folha = reverse("viagens:editar_termo", args=[t.pk])
-    assinado = bool(docs) and (t.vias_vigentes or 0) >= len(docs)
+    assinado = bool(docs) and (getattr(t, "vias_vigentes", 0) or 0) >= len(docs)
     pendencias = []
     if not ef.destinos:
         pendencias.append({"mensagem": "Informe o destino (ou ligue um ofício).",
@@ -159,7 +159,7 @@ def _linha_da_lista(request: HttpRequest, t: TermoAutorizacao, agora) -> dict:
         pendencias.append({"mensagem": "Informe o período (ou ligue um ofício).",
                            "url": f"{folha}#dados"})
     vazio = not (t.oficio_id or ef.destinos or ef.inicio or ef.servidores or ef.viatura
-                 or t.vias_total)
+                 or getattr(t, "vias_total", 0))
     return {"termo": t, "ef": ef, "docs": docs, "pendencias": pendencias, "url_folha": folha,
             "vazio": vazio,
             "tempo": linha_lista.estado_temporal(ef.inicio, ef.fim, agora,
@@ -253,7 +253,8 @@ def _viaturas_da_tela(ef) -> dict:
         return {}
     colunas = [{"viatura": g.viatura, "herdada": "viatura" in ef.herdados, "pessoas": []}
                for g in ef.viaturas]
-    pessoas, sem = [], []
+    pessoas: list[dict] = []
+    sem: list = []
     for s in ef.servidores:
         v = ef.viatura_de(s)
         alvo = next((c for c in colunas if v is not None and c["viatura"].pk == v.pk), None)

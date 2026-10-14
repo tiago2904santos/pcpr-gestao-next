@@ -20,6 +20,9 @@
 /** @typedef {{id: string, unidade: string, nome: string, motorista: boolean}} Membro */
 
 export class PcTransporte extends HTMLElement {
+  /** @type {string | undefined} */
+  ultimaViatura;
+
   connectedCallback() {
     this.select = /** @type {HTMLSelectElement | null} */ (
       this.querySelector("select[name='viatura']") || this.querySelector("select"));

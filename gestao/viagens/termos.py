@@ -210,9 +210,12 @@ def viaturas_dos_oficios(oficios: list[Oficio]) -> list[ViaturaDoTermo]:
     for oficio in oficios:
         if not (oficio.viatura_id and oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA):
             continue
+        viatura = oficio.viatura
+        if viatura is None:
+            continue
         grupo = next((g for g in grupos if g.viatura.pk == oficio.viatura_id), None)
         if grupo is None:
-            grupo = ViaturaDoTermo(oficio.viatura)
+            grupo = ViaturaDoTermo(viatura)
             grupos.append(grupo)
         for v in oficio.viajantes.all():
             if v.servidor_id not in alocados:
@@ -416,7 +419,7 @@ def _gravar_viaturas(termo: TermoAutorizacao, viaturas: list) -> None:
     """Regrava as viaturas só se mudaram (a trilha de auditoria fica limpa). Cada servidor
     vai numa só: aparecendo em duas, vale a primeira."""
     alocados: set[int] = set()
-    desejado = []
+    desejado: list[tuple[Viatura, list[int], int]] = []
     for i, (viatura, equipe) in enumerate(viaturas):
         if any(v.pk == viatura.pk for v, _, _ in desejado):
             continue

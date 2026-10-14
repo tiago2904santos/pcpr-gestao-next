@@ -1616,6 +1616,14 @@ a.resumo__documento:hover {
   text-decoration: none;
 }
 
+/* O link da linha é alvo de toque: nunca abaixo de 24px de altura (WCAG 2.5.8) — com a
+   tipografia da tabela ele ficava em 15px, a 13px do vizinho. */
+a.tabela__principal {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo-minimo);
+}
+
 a.tabela__principal:hover {
   text-decoration: underline;
 }
@@ -3027,8 +3035,17 @@ fieldset.campo--escolhas > .campo__erro {
   background: var(--cor-superficie-realce);
 }
 
+/* O rádio some da tela sem sair do teclado nem do leitor de tela (como .sr-only): 1×1 px
+   e recortado — com o tamanho natural, os rádios absolutos de um segmentado flex caíam
+   todos no mesmo ponto, uns sobre os outros. */
 .segmentado > input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   opacity: 0;
   pointer-events: none;
 }
@@ -3603,6 +3620,9 @@ dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height
 dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }
 dialog.dialogo--mesa::backdrop { backdrop-filter: none; animation: none; }
 dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instantanea) var(--curva-saida) forwards; }
+/* =============== Cabeçalho de registro (.registro-hero) =============== */
+/* Faixa escura de identidade das páginas e janelas de registro; de uso geral (a Central
+   também o usa), por isso fica no compartilhado e não em operacional.css. */
 .registro-hero { display: flex; align-items: center; gap: var(--esp-8); padding: var(--esp-8) var(--esp-16) var(--esp-8) var(--esp-8); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
 .registro-hero__identidade { flex: none; padding-right: var(--esp-8); border-right: var(--filete-fino) solid var(--cor-marca); }
 .registro-hero .identidade-documental__rotulo, .registro-hero__rotulo { color: var(--cor-texto-inverso-sutil); font-size: var(--texto-2xs); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; margin: 0 0 var(--esp-2); font-weight: var(--peso-semi); }
@@ -3614,20 +3634,9 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero__metadados { display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); margin-top: var(--esp-3); color: var(--cor-texto-inverso-sutil); font-size: var(--texto-xs); }
 .registro-hero__metadado { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 0; color: inherit; overflow-wrap: anywhere; }
 .registro-hero__metadado > .icone { flex: none; color: var(--shell-filete-claro); }
-/* Título e selos dividem a mesma linha: o estado pertence ao nome do registro. */
 .registro-hero__linha { display: flex; align-items: center; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); }
-.registro-hero .dialogo__linha-selos { margin: 0; padding: 0; border: 0; gap: var(--esp-2); }
-.registro-hero .dialogo__linha-selos > .texto-secundario { font-size: var(--texto-xs); }
-/* Sobre o cabeçalho escuro o selo não carrega fundo claro: vira contorno de luz, e quem
-   diz o estado é a FORMA do marcador (anel, ✓, ×) e o texto, como no claro. */
 .registro-hero .selo { --selo-fundo: transparent; --selo-borda: var(--luz-28); --selo-texto: var(--cor-texto-inverso); padding: var(--esp-05) var(--esp-3); font-weight: var(--peso-medio); }
-/* O primeiro selo é a SITUAÇÃO (único com contorno); os seguintes são circunstância (prazo,
-   tipo, arquivado) e viram texto com ícone — informam sem disputar com o título. */
-.registro-hero .dialogo__linha-selos > .selo ~ .selo { --selo-borda: transparent; --selo-texto: var(--cor-texto-inverso-sutil); padding-inline: 0; }
 .registro-hero .texto-secundario { color: var(--cor-texto-inverso-sutil); }
-
-/* O cabeçalho oficial também abre páginas operacionais. O modal mantém a variante original. */
-/* Sem fita dourada no topo: o cabeçalho escuro já se impõe sozinho. */
 .registro-hero--pagina { padding: var(--esp-6) var(--esp-8); border-radius: var(--raio-lg); margin-bottom: var(--esp-6); }
 .registro-hero--pagina .registro-hero__titulo { margin: 0; font-size: var(--texto-4xl); }
 .registro-hero--pagina .registro-hero__conteudo { flex: 1; }
@@ -3635,12 +3644,6 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-hero--pagina :is(.botao, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
 .registro-hero__acoes .botao { --botao-fundo: transparent; --botao-borda: var(--luz-28); --botao-texto: var(--cor-texto-inverso); }
 .registro-hero__acoes .botao:hover { --botao-fundo-hover: var(--luz-10); }
-.registro-valor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem); align-items: center; gap: var(--esp-3) var(--esp-6); padding-block: var(--esp-4); border-bottom: var(--borda-sutil); }
-.registro-valor__identidade { display: grid; justify-items: start; gap: var(--esp-1); min-width: 0; overflow-wrap: anywhere; }
-.registro-valor > .campo { min-width: 0; }
-@media (max-width: 599.98px) {
-  .registro-valor { grid-template-columns: minmax(0, 1fr); }
-}
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .registro-hero--pagina:has(> .registro-hero__identidade):has(> .registro-hero__acoes > :nth-child(2)) {
     display: grid;
@@ -4031,209 +4034,6 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
   .conferencia-serena--operacional .conferencia-serena__quantidade { grid-column: auto; }
 }
 @media (max-width: 767px) {
-  .selecao-recurso { gap: var(--esp-2); margin-bottom: var(--esp-4); }
-  .selecao-recurso__controles { grid-template-columns: minmax(0, 1fr); }
-  .selecao-recurso__controles > .botao { justify-self: end; }
-  .itin--operacional .itin__dica { display: none; }
-  .itin--operacional .itin__local { grid-template-columns: calc(var(--esp-4) * 4.5) minmax(0, 1fr); }
-  .itin--operacional .itin__mapa { height: calc(var(--esp-12) * 4); }
-}
-/* Decisão contextual: situação e motivo ao lado da área de trabalho, sem cartão extra. */
-.formulario-contextual { display: grid; gap: var(--esp-5); align-items: start; }
-.formulario-contextual__contexto { display: grid; gap: var(--esp-3); min-width: 0; padding-left: var(--esp-3); border-left: var(--filete) solid var(--cor-marca-borda); }
-.formulario-contextual__contexto p { margin: 0; }
-.formulario-contextual__explicacao { color: var(--cor-texto); font-size: var(--texto-sm); line-height: var(--altura-linha); }
-.formulario-contextual__nota { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
-.formulario-contextual__rotulo { font-size: var(--texto-2xs); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); color: var(--cor-texto-secundario); }
-.formulario-contextual--redacao .formulario-contextual__contexto { padding-left: 0; border: 0; gap: var(--esp-2); }
-.formulario-contextual--redacao .formulario-contextual__campos > .campo { border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-4); }
-.formulario-contextual--redacao .formulario-contextual__campos > .campo > textarea { background: var(--cor-superficie-sutil); }
-.formulario-contextual--redacao .texto-pronto { padding-left: var(--esp-4); }
-.formulario-contextual__edicao { min-width: 0; }
-.formulario-contextual__campos { display: grid; gap: var(--esp-4); }
-/* A escolha do texto pronto acompanha a largura do campo que ela preenche — nada de uma
-   linha curta em cima de um campo largo. */
-.formulario-contextual__campos .texto-pronto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); align-items: end; width: 100%; }
-.formulario-contextual__campos .texto-pronto__escolha { min-width: 0; }
-.formulario-contextual .formulario-contextual__campos .campo { padding-top: 0; gap: var(--esp-2); }
-.formulario-contextual__campos .campo > .campo__rotulo { position: static; display: block; transform: none; inset: auto; margin: 0; padding: 0; background: transparent; font-size: var(--texto-xs); }
-.formulario-contextual__campos textarea { min-height: calc(var(--esp-12) * 3); field-sizing: content; max-height: calc(var(--esp-12) * 6); line-height: var(--altura-linha); }
-@media (min-width: 1024px) {
-  .formulario-contextual { grid-template-columns: minmax(0, .7fr) minmax(0, 2fr); gap: var(--esp-6); }
-  .formulario-contextual__campos textarea { min-height: calc(var(--esp-12) * 2); }
-}
-@media (max-width: 767px) {
-  .formulario-contextual { gap: var(--esp-4); }
-  .formulario-contextual__campos .texto-pronto { grid-template-columns: minmax(0, 1fr); }
-  .formulario-contextual__campos .texto-pronto__acoes { justify-self: end; }
-}
-/* Conferência e dados de protocolo: decisão primeiro, cópia no mesmo eixo de edição. */
-.preparacao-documental { display: grid; gap: var(--esp-5); align-items: start; }
-.preparacao-documental > [data-vivo] { min-width: 0; }
-.dados-copiaveis__cabecalho { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--esp-3) var(--esp-5); }
-.dados-copiaveis__cabecalho > p { flex: 1 1 18rem; margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
-.dados-copiaveis__cabecalho > .botao { flex: none; }
-.preparacao-documental--conferencia { gap: var(--esp-5) var(--esp-6); }
-.preparacao-documental--conferencia > [data-vivo] > details { padding: 0; border: 0; background: transparent; }
-.preparacao-documental--conferencia > [data-vivo] > details > summary { font-weight: var(--peso-semi); color: var(--cor-texto); }
-.preparacao-documental--conferencia .prontidao-documental { grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--esp-4); }
-.preparacao-documental--conferencia .prontidao-documental > .botao { justify-self: start; }
-.preparacao-documental--conferencia .checklist { display: grid; gap: var(--esp-3); list-style: none; padding: 0; }
-.preparacao-documental--conferencia .checklist__item { padding-bottom: var(--esp-2); border-bottom: var(--borda-sutil); }
-.preparacao-documental--conferencia .checklist__item:last-child { border-bottom: 0; padding-bottom: 0; }
-.preparacao-documental--conferencia .checklist__item a { display: inline-block; min-height: var(--alvo-minimo); text-underline-offset: var(--esp-1); }
-.preparacao-documental--conferencia .checklist__item .texto-secundario { display: block; }
-@media (min-width: 1024px) {
-  .preparacao-documental--conferencia .prontidao-documental { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }
-  .preparacao-documental--conferencia .prontidao-documental > .botao { justify-self: end; }
-}
-.registros.registros--operacionais:last-child > .registro.registro-operacional:last-child { border-radius: var(--raio-lg); }
-.prontidao-documental { display: grid; gap: var(--esp-4); min-width: 0; border-left: var(--filete) solid var(--cor-aviso); padding: var(--esp-4); background: var(--cor-superficie-sutil); }
-.prontidao-documental--pronta { border-color: var(--cor-marca); }
-.prontidao-documental__cabecalho { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-3); align-items: start; }
-.prontidao-documental__cabecalho > .icone { color: var(--cor-marca-texto); margin-top: var(--esp-1); }
-.prontidao-documental p { margin: 0; }
-.prontidao-documental__rotulo { color: var(--cor-texto-secundario); font-size: var(--texto-2xs); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); margin-bottom: var(--esp-2); }
-.prontidao-documental__titulo { font-size: var(--texto-lg); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); }
-.prontidao-documental__nota { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
-.prontidao-documental .checklist { padding-left: var(--esp-4); margin: 0; }
-.prontidao-documental .checklist__item { font-size: var(--texto-sm); line-height: var(--altura-linha); }
-.prontidao-documental .checklist__item a { color: var(--cor-texto); }
-.prontidao-documental > .botao { justify-self: start; }
-@media (min-width: 1024px) {
-  .preparacao-documental { gap: var(--esp-5); }
-  .prontidao-documental { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }
-  .prontidao-documental > .botao { justify-self: end; }
-}
-/* Estação de edição: cabeçalho institucional, modos e ações separados das ferramentas. */
-/* A estação de edição é uma peça fechada: cantos arredondados e nada vazando — a barra
-   escura e o índice das páginas acompanham a moldura. */
-/* `clip`, não `hidden`: hidden faria desta caixa o contexto de rolagem e a barra grudada
-   (sticky) pararia de acompanhar a leitura, deixando um vão acima dela. */
-.editores.editores--documental.editores--operacional { border-radius: var(--raio-lg); border: var(--borda); box-shadow: none; background: var(--cor-superficie-realce); overflow: clip; }
-/* O padding de rolagem da página já protege a estação do topo fixo. Não somar outra margem. */
-.documento--preparacao .secao__bloco.secao__bloco--estacao { scroll-margin-top: 0; }
-.editor.editor--operacional > .editor__barra,
-.editores.editores--operacional.editores--unidos .editor--operacional > .editor__barra { padding: 0; border: 0; border-bottom: var(--filete) solid var(--cor-marca); border-radius: 0; gap: 0; background: var(--cor-superficie); }
-.editor--operacional > .editor__barra > .editor__linha:first-child { padding: var(--esp-3) var(--esp-4); background: var(--cor-primaria); color: var(--cor-texto-inverso); gap: var(--esp-3); }
-.editor--operacional > .editor__barra > .editor__linha:first-child :is(button, a):focus-visible { --foco-cor: var(--foco-cor-inverso); --foco-contraste: var(--foco-contraste-inverso); }
-.editor--operacional .editor__estado { color: var(--cor-texto-inverso-sutil); }
-.editor--operacional .editor__identidade { font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto-inverso); }
-.editor--operacional .editor__estado .selo { background: var(--luz-10); color: var(--cor-texto-inverso); border-color: var(--luz-16); }
-.editor--operacional .editor__fim { gap: var(--esp-4); }
-.editor--operacional .editor__acoes { display: flex; gap: var(--esp-2); align-items: center; flex-wrap: wrap; }
-.editor--operacional .editor__linha:first-child .botao { background: transparent; color: var(--cor-texto-inverso); border-color: var(--luz-28); box-shadow: none; }
-.editor--operacional .editor__linha:first-child .botao:hover { background: var(--luz-16); }
-/* Texto|PDF sobre a barra escura: controle segmentado em pílula, sem moldura dupla. O modo
-   em uso é a única peça clara; o outro é texto sutil que acende no hover. */
-.editor--operacional .editor__modos { padding: var(--esp-05); gap: var(--esp-05); border: 0; border-radius: var(--raio-pilula); background: var(--luz-10); }
-.editor--operacional .editor__modos .botao { height: var(--altura-controle-sm); padding-inline: var(--esp-3); border: 0; border-radius: var(--raio-pilula); background: transparent; color: var(--cor-texto-inverso-sutil); font-weight: var(--peso-medio); }
-.editor--operacional .editor__modos .botao:hover { background: var(--luz-16); color: var(--cor-texto-inverso); }
-.editor--operacional .editor__modos .botao[aria-pressed="true"] { background: var(--cor-superficie); color: var(--cor-primaria); font-weight: var(--peso-semi); }
-.editor--operacional .editor__modos .botao[aria-pressed="true"]:hover { background: var(--cor-superficie); color: var(--cor-primaria); }
-/* Grupos nomeados: a ferramenta é reconhecida antes de se procurar um ícone. */
-.editor--operacional .editor__ferramentas { display: block; margin: 0; padding: var(--esp-3) var(--esp-4); border-top: 0; }
-.editor--operacional .editor__ferramentas .editor__linha--ferramentas { gap: var(--esp-3) var(--esp-4); align-items: stretch; padding-top: var(--esp-3); border-top: 0; }
-.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: grid; align-content: start; gap: var(--esp-1); padding: 0; min-width: 0; border: 0; }
-.editor--operacional .editor__linha--ferramentas .editor__rotulo { display: block; }
-.editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { padding-left: var(--esp-4); border-left: var(--borda-sutil); }
-.editor--operacional .editor__rotulo { font-size: var(--texto-2xs); color: var(--cor-texto-secundario); text-transform: uppercase; letter-spacing: var(--rastreio-rotulo); }
-.editor--operacional .editor__controles { display: flex; align-items: center; gap: var(--esp-1); flex-wrap: wrap; }
-.editores--operacional.editores--unidos .editores__titulo { font-size: var(--texto-sm); color: var(--cor-texto); padding: var(--esp-3) var(--esp-4); margin: 0; background: var(--cor-superficie-sutil); }
-.editores--operacional .editores__indice { background: var(--cor-superficie-sutil); gap: var(--esp-3); }
-.editores--operacional .editores__pagina { box-shadow: none; }
-@media (max-width: 767px) {
-  .editor--operacional > .editor__barra > .editor__linha:first-child { display: grid; grid-template-columns: auto minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-2); }
-  .editor--operacional .editor__fim { grid-column: 1 / -1; width: 100%; margin-left: 0; justify-content: space-between; gap: var(--esp-2); }
-  .editor--operacional .editor__ferramentas { padding: var(--esp-3); }
-  .editor--operacional .editor__ferramentas .editor__linha--ferramentas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
-  .editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { border-left: 0; padding: 0; }
-  .editor--operacional .editor__linha--ferramentas > .editor__grupo:last-child { grid-column: 1 / -1; border-top: var(--borda-sutil); padding-top: var(--esp-2); }
-}
-/* Log institucional e conclusão da preparação: sequência legível, sem cartões por evento. */
-/* Um trilho discreto liga os eventos; data, fato e responsável não viram cartões. */
-.historico__linhas.historico__linhas--operacional { border: 0; border-radius: 0; background: transparent; padding: 0; margin: 0; }
-.historico__linhas--operacional .historico__linha { position: relative; display: grid; grid-template-columns: var(--esp-6) calc(var(--esp-12) * 1.6) minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-3) 0; border: 0; align-items: center; }
-.historico__linhas--operacional .historico__linha:not(:last-child)::before { content: ""; position: absolute; left: var(--esp-3); top: 50%; bottom: calc(var(--esp-3) * -1); border-left: var(--borda-sutil); }
-.historico__linhas--operacional .historico__marcador { position: relative; display: grid; place-items: center; width: var(--esp-6); height: var(--esp-6); color: var(--cor-texto-terciario); background: var(--cor-superficie); }
-.historico__linhas--operacional .historico__linha--marca .historico__marcador { color: var(--cor-marca-texto); }
-.historico__linhas--operacional .historico__linha:hover { background: var(--cor-superficie-sutil); }
-.historico__linhas--operacional .historico__quando { padding-right: var(--esp-4); border-right: var(--borda-sutil); align-content: center; align-self: stretch; gap: 0; font-size: var(--texto-xs); }
-.historico__linhas--operacional .historico__quando b { font-size: var(--texto-sm); font-variant-numeric: tabular-nums; }
-.historico__linhas--operacional .historico__linha--marca .historico__quando b { color: var(--cor-marca-texto); }
-.historico__linhas--operacional .historico__detalhe { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--esp-1) var(--esp-4); }
-.historico__linhas--operacional .historico__texto { font-size: var(--texto-sm); }
-.historico__linhas--operacional .historico__quem { justify-self: end; margin-left: auto; font-size: var(--texto-xs); color: var(--cor-texto-terciario); white-space: nowrap; }
-.historico__linhas--operacional .historico__linha--vazia { display: block; color: var(--cor-texto-secundario); }
-/* A conclusão permanece no fluxo, com separação por filete e sem sombra decorativa. */
-.barra-acoes.barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--esp-3) var(--esp-3); align-items: center; padding: var(--esp-4) var(--esp-5); margin-inline: 0; border: 0; border-top: var(--borda-forte); border-radius: 0; box-shadow: none; background: var(--cor-superficie); }
-/* Sair fica onde se sai: à esquerda. O estado do salvamento no meio e as decisões à direita. */
-.barra-acoes--preparacao .barra-acoes__acoes { display: contents; }
-.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { order: -1; justify-self: start; margin: 0; }
-.barra-acoes--preparacao [data-status-salvamento] { order: 0; }
-.barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { order: 1; }
-.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { display: flex; position: static; inset: auto; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; animation: none; min-width: 0; font-size: var(--texto-sm); }
-/* "Não salvo" não pode ostentar um ✓: no estado sujo o ponto âmbar é o único sinal. */
-.barra-acoes--preparacao .barra-acoes__status--sujo > .icone,
-.barra-acoes--preparacao .barra-acoes__status--erro > .icone { display: none; }
-.barra-acoes--preparacao [data-status-salvamento] > .icone { flex: none; color: var(--cor-sucesso); }
-.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
-.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto:hover { color: var(--cor-texto); }
-.barra-acoes__acoes { display: flex; align-items: center; gap: var(--esp-2); }
-.barra-acoes.barra-acoes--confirmacao { display: flex; justify-content: space-between; }
-.barra-acoes__acoes > .botao--texto { color: var(--cor-texto-secundario); }
-@media (max-width: 767px) {
-  .historico__linhas--operacional .historico__linha { grid-template-columns: var(--esp-6) minmax(0, 1fr); gap: var(--esp-1) var(--esp-3); padding: var(--esp-3) 0; align-items: start; }
-  .historico__linhas--operacional .historico__marcador { grid-row: 1 / 3; }
-  .historico__linhas--operacional .historico__quando { grid-column: 2; display: flex; align-items: baseline; gap: var(--esp-2); padding: 0; border: 0; }
-  .historico__linhas--operacional .historico__detalhe { grid-column: 2; display: grid; gap: var(--esp-1); }
-  .historico__linhas--operacional .historico__detalhe > :is(.historico__texto, .historico__quem) { grid-column: auto; }
-  .historico__linhas--operacional .historico__linha:not(:last-child)::before { top: var(--esp-6); bottom: calc(var(--esp-6) * -1); }
-  .historico__linhas--operacional .historico__quem { justify-self: start; }
-  .historico__linhas--operacional .historico__quem { margin-left: 0; white-space: normal; }
-  .barra-acoes.barra-acoes--preparacao { grid-template-columns: auto minmax(0, 1fr); padding: var(--esp-3); gap: var(--esp-2) var(--esp-3); }
-  .barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { grid-column: span 1; }
-  .barra-acoes--preparacao .barra-acoes__acoes { justify-content: space-between; }
-  .barra-acoes--preparacao .barra-acoes__acoes > .menu { flex: 0 0 auto; }
-}
-/* A viatura é peça da mesma família dos servidores: mesma altura do cartão de equipe e,
-   como ele não é alvo clicável inteiro, sem realce de hover. */
-.recurso-selecionado { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; padding: var(--esp-2) var(--esp-3); gap: var(--esp-3); background: var(--cor-superficie-sutil); box-shadow: none; }
-.recurso-selecionado:hover { box-shadow: none; }
-.recurso-selecionado .pessoa__nome { font-size: var(--texto-sm); }
-.recurso-selecionado .pessoa__nome,
-.recurso-selecionado .pessoa__meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.recurso-selecionado__origem { display: block; font-size: var(--texto-xs); color: var(--cor-marca-texto); }
-.recurso-selecionado[data-escolhida-pelo-motorista] { animation: recurso-confirmado var(--duracao-enfase) var(--curva-padrao); }
-@keyframes recurso-confirmado {
-  from { background: var(--cor-marca-fundo-forte); box-shadow: 0 0 0 var(--esp-1) var(--cor-marca-fundo); }
-  to { background: var(--cor-superficie-sutil); box-shadow: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .recurso-selecionado[data-escolhida-pelo-motorista] { animation: none; }
-}
-/* A folha não se divide em duas colunas: título e nota abrem a seção na largura inteira e o
-   conteúdo usa toda a linha — campos, mapa e cartões rendem mais do que uma margem de texto. */
-.documento--preparacao .secao__nota { max-width: var(--largura-leitura); }
-/* Alerta solto no meio da seção (conferência antes de emitir) não encosta no que vem antes. */
-.documento--preparacao .secao__conteudo > .alerta { margin-top: var(--esp-5); }
-@media (min-width: 1280px) {
-  .secao__grupo { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
-  .secao__grupo .pessoas--compactas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .campos.campos--registro { grid-template-columns: minmax(0, .7fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1.5fr) minmax(0, 1.5fr); }
-  .campos--registro > .campo:nth-child(4) { grid-column: auto; }
-}
-@media (max-width: 767px) {
-  .documento--preparacao > .secao,
-  .documento--preparacao > .formulario--secoes > .secao,
-.documento--preparacao > [data-previa-diarias] > .secao { padding: var(--esp-4); gap: var(--esp-4); }
-  .documento--preparacao .secao__titulo { font-size: var(--texto-lg); }
-  .documento--preparacao .secao__cabecalho { gap: var(--esp-2); }
-  .campos.campos--registro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .campos--registro > .campo:nth-child(4) { grid-column: auto; }
-  .campos--registro > .campo:nth-child(5) { grid-column: 1 / -1; }
-  .pessoas--compactas > .pessoa { border-bottom: 0; }
-  .indice-preparacao__item { font-size: var(--texto-xs); flex: none; }
   .registro-hero--pagina .registro-hero__acoes { flex-wrap: nowrap; width: 100%; }
   .registro-hero--pagina .registro-hero__acoes > .botao { padding-inline: var(--esp-2); font-size: var(--texto-xs); }
 }
@@ -4517,14 +4317,8 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
   .registro-hero__identidade { padding-right: var(--esp-5); }
   .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }
-  .dialogo--mesa .dialogo__corpo { padding: var(--esp-6); }
-  .mesa-registro__contexto { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: none; gap: var(--esp-6); position: static; height: auto; max-height: none; overflow: visible; }
-  .mesa-registro__contexto > .bloco-registro:not(.bloco-registro--conferencia) { padding: var(--esp-5); }
-  .estacao-documental { grid-template-columns: minmax(0, 1fr); }
-  .estacao-documental > h4.resumo__titulo { grid-column: 1 / -1; }
 }
 @media (max-width: 767.98px) {
-  dialog.dialogo--mesa { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; margin: 0; inset: 0; }
   .registro-hero { display: grid; gap: var(--esp-3); padding: var(--esp-5); }
   .registro-hero__identidade { border: 0; padding: 0 var(--esp-12) 0 0; }
   .registro-hero__identidade .identidade-documental { display: flex; align-items: center; gap: var(--esp-3); }
@@ -4601,7 +4395,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .registro-hero a.registro-hero__metadado { color: var(--cor-texto-inverso-sutil); text-underline-offset: var(--esp-1); }
 .registro-hero a.registro-hero__metadado:hover { color: var(--cor-texto-inverso); }
 .registro-hero .identidade-documental__complemento { color: var(--cor-texto-inverso-sutil); }
-
 .registro-hero__metadado--vazio { font-style: italic; }
 
 

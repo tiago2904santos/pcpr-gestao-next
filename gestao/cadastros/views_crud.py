@@ -662,7 +662,8 @@ def dialogo_viatura(request: HttpRequest, pk: int) -> HttpResponse:
     policies.exigir(policies.pode_alterar_cadastro(request.user, Viatura))
     viatura = get_object_or_404(Viatura, pk=pk)
     return render(request, "componentes/dialogo_viatura.html", {
-        "form": FormularioViatura.de(viatura, fonte_motoristas=reverse("cadastros:buscar_servidores")),
+        "form": FormularioViatura.de(
+            viatura, fonte_motoristas=reverse("cadastros:buscar_servidores")),
         "editando": viatura, "cadastro_rapido": True})
 
 

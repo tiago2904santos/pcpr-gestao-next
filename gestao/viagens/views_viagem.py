@@ -163,8 +163,8 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
                   n_termos=Count("termos", distinct=True),
                   n_roteiros=Count("roteiros", distinct=True)), pk=pk)
     linha = _linha_da_lista(request.user, v, timezone.localdate(), timezone.now())
-    documentos = {"oficios": v.n_oficios, "ordens": v.n_ordens, "planos": v.n_planos,
-                  "termos": v.n_termos, "roteiros": v.n_roteiros}
+    documentos = {chave: getattr(v, f"n_{chave}")
+                  for chave in ("oficios", "ordens", "planos", "termos", "roteiros")}
     return render(request, "componentes/resumo_documento.html",
                   {"r": resumo_listas.da_viagem(v, linha, documentos), "v": v, "l": linha,
                    "editavel": policies.pode_editar_viagem(request.user, v)})

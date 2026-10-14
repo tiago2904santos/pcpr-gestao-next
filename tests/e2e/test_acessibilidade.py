@@ -61,7 +61,8 @@ def _carregar_previa(pg):
     # máquina fica carregada e o visualizador demora a carregar.
     # O termo tem uma folha por documento (servidores, genérico, viaturas): basta a primeira.
     pg.locator("iframe[data-quadro='texto']:not([hidden])").first.wait_for()
-    pg.frame_locator("iframe[data-quadro='texto'] >> nth=0").locator("body main").wait_for()
+    pg.frame_locator("iframe[data-quadro='texto']:not([hidden])").first.locator(
+        "body main").wait_for()
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

@@ -80,8 +80,10 @@ def lista(request: HttpRequest) -> HttpResponse:
     pagina.object_list = list(pagina.object_list)
     agora = timezone.now()
     for r in pagina.object_list:  # a estrada da linha: o roteiro em andamento agora
-        r.tempo = linha_lista.estado_temporal(
-            None if r.situacao == "cancelado" else r.primeira_saida, r.ultima_chegada, agora)
+        primeira_saida = getattr(r, "primeira_saida", None)
+        ultima_chegada = getattr(r, "ultima_chegada", None)
+        r.tempo = linha_lista.estado_temporal(  # type: ignore[attr-defined]
+            None if r.situacao == "cancelado" else primeira_saida, ultima_chegada, agora)
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     contexto = {
