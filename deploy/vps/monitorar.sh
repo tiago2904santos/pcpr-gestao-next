@@ -30,7 +30,9 @@ if [ "${PCPR_SMOKE_MODO:-publico}" = publico ]; then
   read -r -a EXTRA <<<"${PCPR_SMOKE_CURL_OPTS:-}"
   codigo="$(curl -sS -m 10 "${EXTRA[@]}" -o /dev/null -w '%{http_code}' "https://$PCPR_DOMINIO/saude/" || echo 000)"
   [ "$codigo" = 200 ] || p "https://$PCPR_DOMINIO/saude/ → $codigo"
-  if [ -z "${PCPR_SMOKE_CURL_OPTS:-}" ]; then
+  # Validade do certificado sempre, salvo desligamento explícito (só a simulação com TLS interno
+  # do Caddy, de certificados de horas, usa PCPR_MONITOR_CERTIFICADO=nao).
+  if [ "${PCPR_MONITOR_CERTIFICADO:-sim}" != nao ]; then
     fim="$(echo | timeout 10 openssl s_client -servername "$PCPR_DOMINIO" -connect "$PCPR_DOMINIO:443" 2>/dev/null \
            | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)"
     if [ -n "$fim" ]; then

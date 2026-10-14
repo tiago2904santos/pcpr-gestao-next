@@ -35,10 +35,18 @@ validar_dump() {  # validar_dump <dump> <confirmação>
 }
 
 # Escritas param ANTES do backup de segurança: tudo o que foi gravado até aqui fica nele.
+# Se o backup falhar, só volta o que estava rodando — e nunca com migração parcial pendente
+# (aí a imagem ativa é a antiga e o schema já andou: subir seria o estado que se quer evitar).
 parar_e_guardar() {
+  local rodando
+  rodando="$(dc ps --status running --services web worker 2>/dev/null | xargs)"
   dc stop web worker
   "$DEPLOY_DIR/vps/backup.sh" "$INST" --motivo antes-de-restaurar --sem-trava || {
-    dc up -d web worker; morrer "backup de segurança falhou: nada foi restaurado"; }
+    local situacao="web/worker parados"
+    if [ -n "$rodando" ] && [ ! -f "$ESTADO/migracao-falhou" ]; then
+      dc up -d $rodando; situacao="de volta: $rodando"
+    fi
+    morrer "backup de segurança falhou: nada foi restaurado ($situacao)"; }
 }
 
 # Troca o banco pelo dump (web e worker já parados) e confere os anexos que ele referencia:
@@ -89,6 +97,11 @@ case "$CMD" in
       alertar CRITICO "cadeia de auditoria QUEBRADA ou verificação falhou"; exit 1
     fi
     dc run --rm -T tarefa rodar_rotinas_diarias || { alertar AVISO "rotinas diárias falharam"; exit 1; }
+    # O comando sai com 0 mesmo se uma rotina falhou (o produto grava "falhou" no resultado do
+    # dia e não tenta de novo): confere o resultado gravado.
+    FALHAS="$(sql_valor "SELECT string_agg(r.key, ', ') FROM plataforma_rotinadodia d,
+             jsonb_each_text(d.resultado::jsonb) r WHERE d.dia = current_date AND r.value = 'falhou'")"
+    [ -z "$FALHAS" ] || { alertar AVISO "rotinas diárias com falha: $FALHAS (veja os logs do web/worker)"; exit 1; }
     ;;
   senha) [ -n "${1:-}" ] || morrer "uso: pcpr.sh $INST senha <login>"; dc run --rm tarefa changepassword "$1" ;;
   manage) dc run --rm -T tarefa "$@" ;;

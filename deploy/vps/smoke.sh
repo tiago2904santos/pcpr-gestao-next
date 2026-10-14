@@ -101,7 +101,9 @@ if [ -f "$CONF/smoke.env" ]; then
     fi
     rm -f "$JAR"
     s="$(pedir pdfanon "/viagens/documentos/$DOC/")"
-    [ "$s" != 200 ] && ok "documento sem sessão bloqueado ($s)" || falha "documento acessível sem sessão"
+    # Só o redirecionamento ao login prova a proteção (404/500 seria rota quebrada).
+    [[ "$s" = 302 && "$(cabecalho pdfanon location)" == */conta/entrar/* ]] \
+      && ok "documento sem sessão → login" || falha "documento sem sessão → $s (esperado 302 para o login)"
   else
     echo "  (sem documento pronto no banco para testar o download)"
   fi

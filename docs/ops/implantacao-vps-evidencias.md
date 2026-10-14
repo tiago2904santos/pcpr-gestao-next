@@ -70,6 +70,11 @@ construída por `git archive` do commit, `Dockerfile` da raiz sem alterações);
 | R31 | Saída do monitor | ✅ 0 sem problemas, **3** com problema alertado (o systemd aceita só o 3; outras falhas do monitor aparecem em `systemctl --failed`) |
 | R32 | Healthcheck do PostgreSQL | ✅ `pg_isready -h 127.0.0.1` (TCP) no compose |
 | R33 | Restauração-teste com vias assinadas do Coffee | ✅ incluídas na conferência de SHA-256 (`assinada`); a base sintética não tem nenhuma — consulta executada, 318 conferidos |
+| R34 | Backup de segurança falha no `restaurar-banco` | ✅ sem marcador: só o que estava rodando volta; com `migracao-falhou`: web/worker ficam parados |
+| R35 | Rotina diária que falha (resultado "falhou" gravado) | ✅ `pcpr.sh rotinas` alerta e sai com 1 (o comando do produto sai com 0) |
+| R36 | Documento sem sessão no smoke | ✅ exige 302 para `/conta/entrar/` (404/500 reprovam) |
+| R37 | Validade do certificado com `PCPR_SMOKE_CURL_OPTS` | ✅ checada sempre; só `PCPR_MONITOR_CERTIFICADO=nao` (simulação, TLS interno de horas) desliga |
+| R38 | Porta já reservada por outra instância (parada) | ✅ `preparar-instancia.sh` recusa antes de criar arquivos |
 
 Consumo em repouso: web 303 MiB (3 workers), worker 69 MiB, PostgreSQL 80 MiB, Caddy 13 MiB.
 
@@ -87,6 +92,7 @@ export PCPR_RAIZ=$PWD/sim/srv PCPR_ETC=$PWD/sim/etc
 git clone -b <branch-de-deploy> <repo> sim/srv/infra && cd sim/srv/infra
 deploy/vps/preparar-instancia.sh homologacao --dominio homologacao.pcpr.test --porta 8101
 echo 'PCPR_SMOKE_MODO=local' >> "$PCPR_ETC/homologacao/instancia.env"
+echo 'PCPR_MONITOR_CERTIFICADO=nao' >> "$PCPR_ETC/homologacao/instancia.env"  # TLS interno (horas)
 deploy/vps/implantar.sh homologacao <sha-40> --semear
 ```
 (Proxy com `tls internal` e `/etc/hosts` só na simulação; na VPS o certificado é Let's Encrypt.)

@@ -42,6 +42,11 @@ esac
 if ss -ltnH 2>/dev/null | awk '{print $4}' | grep -qE "[:.]${PORTA}\$"; then
   morrer "a porta $PORTA já está em uso no host"
 fi
+# Também as reservadas por instâncias paradas ou ainda não implantadas.
+for outra in "$PCPR_ETC"/*/instancia.env; do
+  [ -f "$outra" ] && [ "$outra" != "$PCPR_ETC/$INST/instancia.env" ] || continue
+  ! grep -qx "PCPR_PORTA=$PORTA" "$outra" || morrer "a porta $PORTA já é da instância $(basename "$(dirname "$outra")")"
+done
 
 CONF="$PCPR_ETC/$INST"
 install -d -m 0711 "$PCPR_ETC"
