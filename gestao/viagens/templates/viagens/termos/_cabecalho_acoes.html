@@ -1,0 +1,5 @@
+{% load viagens %}{% comment %}
+Ações do cabeçalho do termo, como as da folha do ofício: o documento à vista ("Ver PDF",
+todos os termos num PDF, em outra aba — como "Ver minuta") e o ⋮ com o resto.
+{% endcomment %}{% if pode_ver_documento %}<a class="botao" href="{% url 'viagens:todos_termo' termo.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "printer" %}Ver PDF<span class="sr-only"> (nova aba)</span></a>{% endif %}
+{% include "viagens/termos/_acoes.html" with onde="cabeçalho" %}

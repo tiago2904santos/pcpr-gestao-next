@@ -73,10 +73,9 @@ def test_coluna_de_leitura_independe_da_conferencia(logado, dados_e2e, largura, 
     )
     if quantidade > 1:
         expect(janela.locator(".percurso-registro")).to_contain_text(cidades_longas[0].nome)
-    motivo_caixa = janela.locator(".missao-registro").bounding_box()
-    roteiro = janela.locator("#resumo-roteiro").bounding_box()
-    assert motivo_caixa and roteiro
-    assert 0 <= roteiro["y"] - motivo_caixa["y"] - motivo_caixa["height"] <= 40
+    # O motivo mora no cartão Registro institucional; o roteiro abre a coluna de leitura.
+    expect(janela.locator(".missao-registro")).to_have_count(0)
+    expect(janela.locator("#resumo-roteiro")).to_be_visible()
     assert janela.evaluate("e => e.scrollWidth <= e.clientWidth + 1")
     assert not rodar_axe(pg)
     janela.locator(".percurso-registro__trecho").last.scroll_into_view_if_needed()
@@ -113,7 +112,8 @@ def test_lista_poucos_muitos_numeros_e_paginacao(logado, dados_e2e, largura):
         pg.goto(f"/viagens/oficios/?q={grupo}")
         expect(pg.locator(".registro-operacional")).to_have_count(min(quantidade, 20))
         assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        assert not rodar_axe(pg)
+        violacoes = rodar_axe(pg)
+        assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:4]) for v in violacoes]
         for linha in pg.locator(".registro-operacional").all():
             placa = linha.locator(".placa").bounding_box()
             acao = linha.locator("[data-menu-botao]").bounding_box()

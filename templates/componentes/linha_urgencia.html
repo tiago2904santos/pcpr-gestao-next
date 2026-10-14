@@ -1,0 +1,4 @@
+{% load ui %}{% comment %}
+Selo de urgência da linha: o documento ainda não saiu e a viagem começa em até 7 dias
+(linha_lista.estado_temporal). Parâmetros: urgencia ("aviso"|"perigo"), dias, acao ("emitir").
+{% endcomment %}<span class="selo selo--urgencia selo--urgencia-{{ urgencia }}" title="Ainda não saiu: precisa ficar pronto antes da viagem">{% icone "timer" classe="icone--sm" %}{% if dias == 0 %}sai hoje{% elif dias == 1 %}sai amanhã{% else %}sai em {{ dias }} dias{% endif %}<span class="selo__extra"> · {{ acao|default:"emitir" }}</span></span>

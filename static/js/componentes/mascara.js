@@ -19,6 +19,12 @@ const MASCARAS = /** @type {Record<string, (d: string) => string>} */ ({
       .replace(/^(\d{2})(\d)/, "$1/$2")
       .replace(/^(\d{1,2}\/)(\d{2})(\d)/, "$1$2/$3"),
   hora: (v) => v.replace(/[^\d:]/g, "").slice(0, 5).replace(/^(\d{2})(\d)/, "$1:$2"),
+  // Data e hora juntas (saída/chegada de trecho no documento): 13/12/2026 08:30.
+  datahora: (v) => v.replace(/\D/g, "").slice(0, 12)
+    .replace(/^(\d{2})(\d)/, "$1/$2")
+    .replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3")
+    .replace(/^(\d{2})\/(\d{2})\/(\d{4})(\d)/, "$1/$2/$3 $4")
+    .replace(/ (\d{2})(\d)/, " $1:$2"),
   cpf: (d) => {
     const v = d.replace(/\D/g, "").slice(0, 11);
     return v
@@ -65,5 +71,5 @@ document.addEventListener("input", (e) => {
   if (fim) campo.setSelectionRange(campo.value.length, campo.value.length);
 });
 
-// Sem exportações: a marca de módulo permite o import() sob demanda (app.js).
-export {};
+// As máscaras também valem para os campos escritos de dentro do documento (editor-documento.js).
+export { MASCARAS };

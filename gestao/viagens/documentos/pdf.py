@@ -69,7 +69,17 @@ def _recursos(folha: bool) -> dict[str, Any]:
 
 
 def valores_dos_campos(tipo: str, dados: dict[str, Any]) -> dict[str, str]:
-    return {c.chave: str(dados.get(c.chave) or "") for c in campos_do_documento(tipo)}
+    valores = {c.chave: str(dados.get(c.chave) or "") for c in campos_do_documento(tipo)}
+    valores["destinos"] = ", ".join(dados.get("destinos") or [])
+    trechos = [*(dados.get("ida") or []), *(dados.get("volta") or []),
+               *(dados.get("trechos") or [])]
+    for t in trechos:
+        if isinstance(t, dict) and t.get("ordem"):
+            for lado in ("saida", "chegada"):
+                momento = t.get(lado) or {}
+                texto = f"{momento.get('data', '')} {momento.get('hora', '')}".strip()
+                valores[f"trecho_{t['ordem']}_{lado}"] = texto
+    return valores
 
 
 def html_do_modelo(tipo: str, dados: dict[str, Any], *, previa: bool = False,

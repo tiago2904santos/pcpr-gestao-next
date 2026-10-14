@@ -42,7 +42,7 @@ def test_lancamento_zero_milhar_limpeza_e_teclado(logado, dados_e2e, largura):
     assert salvo.value.status == 302
     expect(pg.locator("#relatorio")).to_contain_text("1234 (RGs emitidos)")
     assert plano.resultados.get(atividade=cin).realizado == 1234
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     pg.evaluate("scrollTo(0,0)")
     pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>

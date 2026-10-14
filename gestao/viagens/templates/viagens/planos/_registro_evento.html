@@ -9,12 +9,12 @@
     </div>
   </div>
   <div class="registro-operacional__recursos">
-    <span class="registro-operacional__rotulo">Programa e efetivo</span>
+    
     <span class="registro__meta-item">{% icone "landmark" classe="icone--sm" %}<span class="registro__meta-texto">{{ e.programa_nome|default:"Sem programa" }}</span></span>
     {% with n=e.efetivo_total %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}<span class="vazio-inline">Sem efetivo</span>{% endif %}</span>{% endwith %}
     <span class="registro__meta-item">{% icone "list-checks" classe="icone--sm" %}{{ e.atividades.all|length|pluralizar:"atividade,atividades" }}</span>
   </div>
-  <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias do evento</span><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto">{% if e.diarias_total is not None %}<span class="registro__valor">{{ e.diarias_total|moeda }}</span>{% else %}<span class="texto-secundario">Sem cálculo</span>{% endif %}</span></span></div>
+  <div class="registro-operacional__conferencia"><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto">{% if e.diarias_total is not None %}<span class="registro__valor">{{ e.diarias_total|moeda }}</span>{% else %}<span class="texto-secundario">Sem cálculo</span>{% endif %}</span></span></div>
   {% if editavel %}<div class="registro__acoes"><pc-menu class="menu">
     <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações do evento {{ forloop.counter|add:1 }}">{% icone "ellipsis-vertical" %}</button>
     <div class="menu__painel" role="menu" hidden>

@@ -85,6 +85,16 @@ export class PcTransporte extends HTMLElement {
     const opcao = this.select?.selectedOptions[0];
     if (!cartao) return;
     cartao.hidden = !opcao?.value;
+    // Outra viatura escolhida (não a da página que abriu): ela "chega" ao cartão.
+    const valor = opcao?.value || "";
+    if (this.ultimaViatura !== undefined && valor && valor !== this.ultimaViatura) {
+      const avatar = cartao.querySelector(".avatar");
+      avatar?.classList.remove("avatar--viatura-chegando");
+      void (/** @type {HTMLElement | undefined} */ (avatar))?.offsetWidth;
+      avatar?.classList.add("avatar--viatura-chegando");
+      avatar?.addEventListener("animationend", () => avatar.classList.remove("avatar--viatura-chegando"), { once: true });
+    }
+    this.ultimaViatura = valor;
     cartao.removeAttribute("data-escolhida-pelo-motorista");
     const origem = /** @type {HTMLElement | null} */ (cartao.querySelector("[data-recurso-origem]"));
     if (origem) origem.hidden = true;
@@ -179,6 +189,8 @@ export class PcTransporte extends HTMLElement {
     if (!bloco || !quem) return;
     const primeira = () => Array.from(quem.options).find((o) => o.value)?.value || "";
     const campos = Array.from(bloco.querySelectorAll("input, select, textarea"));
+    // Sem a opção "Ninguém de fora": bloco fechado = campo vazio (o navegador marcaria a 1ª opção sozinho).
+    if (!bloco.open) quem.value = "";
     const habilitar = () => {
       for (const campo of campos) {
         /** @type {HTMLInputElement} */ (campo).disabled = !bloco.open;
@@ -241,3 +253,25 @@ export class PcTransporte extends HTMLElement {
 }
 
 customElements.define("pc-transporte", PcTransporte);
+
+// Quem dirige trocou (a equipe do ofício volta inteira pelo HTMX): o cartão do novo motorista
+// ganha a animação de assumir o volante. Só na troca — abrir a página não anima.
+/** @type {string | null} */
+let motoristaAntes = null;
+document.body.addEventListener("htmx:beforeSwap", (e) => {
+  const alvo = /** @type {CustomEvent} */ (e).detail?.target;
+  if (!(alvo instanceof HTMLElement) || alvo.id !== "equipe") return;
+  const atual = /** @type {HTMLElement | null} */ (document.querySelector("#equipe [data-motorista]"));
+  motoristaAntes = atual?.dataset.servidor || "";
+});
+document.body.addEventListener("htmx:afterSettle", () => {
+  if (motoristaAntes === null) return;
+  const novo = /** @type {HTMLElement | null} */ (document.querySelector("#equipe [data-motorista]"));
+  if (novo && novo.dataset.servidor !== motoristaAntes) {
+    novo.classList.add("equipe__cartao--assumiu");
+    novo.addEventListener("animationend", (ev) => {
+      if (ev.target === novo) novo.classList.remove("equipe__cartao--assumiu");
+    });
+  }
+  motoristaAntes = null;
+});

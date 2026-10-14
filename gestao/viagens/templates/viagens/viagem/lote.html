@@ -34,11 +34,25 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
       {% if form.quantidade > 1 and forloop.last %}<div class="secao__estado"><button type="submit" name="acao" value="remover" class="botao botao--sm botao--texto">{% icone "trash-2" %}Remover este ofício</button></div>{% endif %}
       <p class="secao__nota">A equipe que viaja neste ofício, quem dirige e em qual viatura.</p>
     </div>
-    <div class="pilha">
-      {% include "viagens/_campo_equipe.html" with campo=c.equipe compacta=True %}
-      {% include "viagens/_campo_equipe.html" with campo=c.motorista compacta=True %}
-      <div class="campos">
-        {% with n=c.n|stringformat:"s" %}{% include "viagens/_campo_viatura.html" with campo=c.viatura cadastrar=True cartao=True equipe="#oficio-"|add:n %}{% endwith %}
+    {# Equipe | Transporte: a mesma peça (e a mesma grade) da folha do ofício. #}
+    <div class="secao__conteudo secao__grupo">
+      <div class="secao__bloco" aria-labelledby="t-equipe-{{ c.n }}">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-equipe-{{ c.n }}">{% icone "users" classe="icone--sm" %}Equipe</h3>
+          <div class="secao__estado">{% with n=c.equipe.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}</div>
+        </div>
+        {% include "viagens/_campo_equipe.html" with campo=c.equipe compacta=True %}
+      </div>
+      <div class="secao__bloco" aria-labelledby="t-transporte-{{ c.n }}">
+        <div class="secao__bloco-cabecalho">
+          <h3 class="secao__bloco-titulo" id="t-transporte-{{ c.n }}">{% icone "car" classe="icone--sm" %}Transporte</h3>
+        </div>
+        <div class="pilha">
+          {% include "viagens/_campo_equipe.html" with campo=c.motorista compacta=True %}
+          <div class="campos">
+            {% with n=c.n|stringformat:"s" %}{% include "viagens/_campo_viatura.html" with campo=c.viatura cadastrar=True cartao=True equipe="#oficio-"|add:n %}{% endwith %}
+          </div>
+        </div>
       </div>
     </div>
     {% if forloop.last %}<div class="secao__bloco secao__bloco--integrado"><button type="submit" name="acao" value="adicionar" class="botao">{% icone "plus" %}Adicionar ofício</button></div>{% endif %}
@@ -59,8 +73,8 @@ nasce em rascunho, já vinculado à viagem. "Adicionar/Remover ofício" reenviam
     </fieldset>
   </section>
 
-  <div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
-    <div class="barra-acoes__status" role="status">{{ form.quantidade|pluralizar:"ofício,ofícios" }} para gerar</div>
+  <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+    <div class="barra-acoes__status" data-status-salvamento role="status">{{ form.quantidade|pluralizar:"ofício,ofícios" }} para gerar</div>
     <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:editar_viagem' v.pk %}">Voltar</a>
     <button type="submit" name="acao" value="gerar" class="botao botao--primario">{% icone "files" %}Gerar documentos</button></div>
   </div>

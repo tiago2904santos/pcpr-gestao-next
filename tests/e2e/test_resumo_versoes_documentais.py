@@ -71,8 +71,8 @@ def test_polling_real_pronta_v2_atualiza_acoes(
     expect(historico).not_to_be_visible()
     expect(historico.locator(
         f'a[href="{reverse("viagens:baixar_documento", args=[anterior.pk])}"]')).to_have_count(1)
-    # Consulta copiável autorizada preservada enquanto documentos recebem polling.
-    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(1)
+    # O Resumo não traz mais os dados para o eProtocolo (só a folha); o protocolo fica no cabeçalho.
+    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(0)
     expect(janela.locator(".registro-hero__complemento")).to_contain_text(oficio.protocolo_formatado)
     # Simula somente a conclusão do worker; a atualização da tela é GET HTMX real.
     Documento.objects.filter(pk=atual.pk).update(situacao="pronto", sha256="b" * 64)

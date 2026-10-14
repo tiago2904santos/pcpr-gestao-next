@@ -13,7 +13,7 @@ form_id / emitir_acao mantêm a ação institucional da página consumidora.
   {% if prontidao.pendencias %}
   <ul class="checklist">
     {% for p in prontidao.pendencias %}
-    <li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a>{% if not p.bloqueia %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</li>
+    {% include "componentes/conferencia_item.html" with secao=p.secao mensagem=p.mensagem aviso=p.bloqueia|yesno:",1" only %}
     {% endfor %}
   </ul>
   {% endif %}

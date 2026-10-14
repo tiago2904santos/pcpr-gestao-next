@@ -73,9 +73,11 @@ class FiltrosOficio(forms.Form):
     # são os anos que existem na numeração; outro ano é ignorado.
     ano = forms.TypedChoiceField(label="Ano do número", required=False, coerce=int,
                                  empty_value=None, widget=Selecao(), choices=[("", "Qualquer")])
-    protocolo = forms.CharField(label="Protocolo", required=False, max_length=20,
+    # Máscara do eProtocolo (12.345.678-9); a consulta só olha os dígitos (queries.py).
+    protocolo = forms.CharField(label="Protocolo", required=False, max_length=14,
                                 widget=forms.TextInput(attrs=_attrs(
-                                    inputmode="numeric", placeholder="Dígitos do protocolo")))
+                                    inputmode="numeric", placeholder="12.345.678-9",
+                                    **{"data-mascara": "protocolo"})))
     veiculo = forms.ChoiceField(
         label="Veículo", required=False, widget=Selecao(),
         choices=[("", "Qualquer"), ("unidade_movel", "Unidade móvel"), ("onibus", "Ônibus"),
@@ -324,9 +326,9 @@ class FormularioOficio(AssociadoAoFormularioDoOficio, forms.ModelForm):
         ]
         # Sem "Alguém da equipe": quem dirige pela equipe se marca na própria equipe. Aqui
         # só se diz QUEM é o de fora — abrir ou fechar o bloco é que liga e desliga o caso
-        # (transporte.js devolve o campo a vazio ao fechar).
+        # (transporte.js devolve o campo a vazio ao fechar). "Ninguém de fora" não é opção da
+        # lista: é o bloco fechado — o campo vai desabilitado e a gravação fica vazia.
         cast(forms.ChoiceField, self.fields["motorista_externo"]).choices = [
-            (Oficio.MotoristaExterno.NENHUM, "Ninguém de fora da equipe"),
             (Oficio.MotoristaExterno.SERVIDOR, "Servidor de outro ofício"),
             (Oficio.MotoristaExterno.MANUAL, "Pessoa não cadastrada"),
         ]
@@ -773,10 +775,6 @@ class FormularioTermo(forms.Form):
     # dados deles (termos.uniao_dos_oficios).
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False)
-    evento = forms.CharField(
-        label="Evento", max_length=160, required=False, initial="PCPR na Comunidade",
-        help_text="Sai no documento: “manifesto o interesse em participar do …”.",
-        widget=forms.TextInput(attrs=_attrs(autocomplete="off")))
     destinos = CampoMunicipios(label="Destinos", required=False,
                                help_text="Em branco, valem os destinos do ofício.")
     # O período é um campo só na tela (<pc-data data-periodo>, o calendário que marca ida e
@@ -788,8 +786,12 @@ class FormularioTermo(forms.Form):
     servidores = forms.ModelMultipleChoiceField(
         label="Servidores", queryset=Servidor.objects.none(), required=False,
         help_text="Um termo por servidor. Em branco, vale a equipe do ofício.")
-    viatura = forms.ModelChoiceField(label="Viatura", queryset=Viatura.objects.none(),
-                                     required=False, empty_label="A do ofício (ou nenhuma)")
+    # Mais de uma viatura (cada ofício costuma levar a sua): escolher aqui acrescenta um
+    # cartão; cada cartão manda `viaturas` (o id, desmarcado = sai) e cada servidor da equipe
+    # manda `viatura_do_<id>` com a viatura em que vai (rádio: uma só por servidor).
+    adicionar_viatura = forms.ModelChoiceField(label="Adicionar viatura",
+                                               queryset=Viatura.objects.none(), required=False,
+                                               empty_label="Placa ou modelo…")
 
     def __init__(self, *args, oficios=None, fonte_oficios: str = "", fonte_servidores: str = "",
                  fonte_municipios: str = "", termo=None, **kwargs):
@@ -808,10 +810,10 @@ class FormularioTermo(forms.Form):
         servidores.widget = CampoEquipe(fonte=fonte_servidores, cadastrar="dialogo-servidor")
         servidores.widget.choices = servidores.choices
         self.fields["destinos"].widget.fonte = fonte_municipios
-        viatura = cast(forms.ModelChoiceField, self.fields["viatura"])
-        viatura.queryset = (Viatura.objects.filter(
-            Q(ativo=True) | Q(pk=termo.viatura_id if termo else None)).order_by("placa")
-            .select_related("combustivel", "unidade").prefetch_related("motoristas"))
+        viatura = cast(forms.ModelChoiceField, self.fields["adicionar_viatura"])
+        viatura.queryset = (Viatura.objects.filter(ativo=True).order_by("placa")
+                            .select_related("combustivel", "unidade")
+                            .prefetch_related("motoristas"))
         # A mesma escolha do ofício: sugeridas pela equipe, com os chips (transporte.js).
         viatura.widget = SelecaoDeViatura(attrs=_attrs("selecao"))
         viatura.widget.choices = viatura.choices
@@ -843,7 +845,25 @@ class FormularioTermo(forms.Form):
             self.add_error("data_fim", "A data final não pode ser anterior à inicial.")
         if fim and not inicio:
             self.add_error("data_inicio", "Informe a data inicial.")
+        if self.is_bound:
+            dados["viaturas"] = self._viaturas(dados.pop("adicionar_viatura", None))
         return dados
+
+    def _viaturas(self, nova) -> list:
+        """[(viatura, quem vai nela)] dos cartões da tela, na ordem, mais a acrescentada."""
+        dados = cast(Any, self.data)
+        ids = list(dict.fromkeys(int(v) for v in dados.getlist("viaturas") if str(v).isdigit()))
+        por_id = {v.pk: v for v in Viatura.objects.filter(pk__in=ids)}
+        lista = [por_id[i] for i in ids if i in por_id]
+        if nova is not None and nova.pk not in por_id:
+            lista.append(nova)
+        marcas = {int(chave.removeprefix("viatura_do_")): int(valor)
+                  for chave, valor in dados.items()
+                  if chave.startswith("viatura_do_") and chave[11:].isdigit()
+                  and str(valor).isdigit()}
+        pessoas = {s.pk: s for s in Servidor.objects.filter(pk__in=list(marcas))}
+        return [(v, [pessoas[sid] for sid, vid in marcas.items()
+                     if vid == v.pk and sid in pessoas]) for v in lista]
 
     def clean_servidores(self):
         servidores = self.cleaned_data["servidores"]
@@ -889,19 +909,16 @@ class FormularioTermo(forms.Form):
         inicio = termo.data_inicio
         fim = termo.data_fim if termo.data_fim != termo.data_inicio else None
         servidores = [s.pk for s in termo.servidores.all()]
-        viatura = termo.viatura_id
         if oficios:
             of = cls.campos_dos_oficios(oficios)
             destinos = destinos or of["destinos"]
             if not inicio:
                 inicio, fim = of["data_inicio"], of["data_fim"]
             servidores = servidores or of["servidores"]
-            viatura = viatura or of["viatura"]
         return cls(termo=termo, initial={
             "versao": versao_de(termo), "oficios": [o.pk for o in oficios],
-            "evento": termo.evento,
             "destinos": destinos, "data_inicio": inicio, "data_fim": fim,
-            "servidores": servidores, "viatura": viatura}, **kwargs)
+            "servidores": servidores}, **kwargs)
 
 
 # ---------------------------------------------------------------- ordens de serviço

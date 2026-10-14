@@ -117,7 +117,8 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     assert total >= 60
     expect(pg.locator(".registro")).to_have_count(20)
     pg.get_by_role("link", name="Próxima página").first.click()
-    expect(pg.locator(".paginacao")).to_contain_text(f"Mostrando 21–40 de {total}")
+    # O "Mostrando" mora no rodapé da lista, junto da paginação.
+    expect(pg.locator(".barra-acoes__status").first).to_contain_text(f"Mostrando 21–40 de {total}")
     _sem_rolagem_lateral(pg)
 
     # Busca, filtro e ordenação.
@@ -134,7 +135,11 @@ def test_fluxo_demo_com_base_populosa(navegador, base, largura):
     expect(pg.locator(ABA_ATUAL)).not_to_have_text(str(total))
     emitidos = _total(pg)
     assert 0 < emitidos < total
+    # A lista se refaz ao vivo (HTMX): abrir a gaveta só depois da última resposta, para a
+    # troca da região não fechá-la debaixo do clique.
+    pg.wait_for_load_state("networkidle")
     pg.locator("#filtros-mais > summary").click()  # a ordem mora na gaveta
+    expect(pg.locator("#filtros-mais")).to_have_js_property("open", True)
     pg.get_by_role("combobox", name="Ordenar por").click()
     pg.get_by_role("option", name="Saída, mais antiga primeiro").click()
     expect(pg).to_have_url(re.compile("ordem=saida"))

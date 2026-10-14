@@ -117,7 +117,10 @@ ICONE_MEIO = {"aereo": "plane", "onibus_linha": "bus", "onibus_fretado": "bus"}
 
 @register.filter
 def icone_transporte(oficio) -> str:
-    """Ícone pelo modal: avião, ônibus ou carro (viatura e os demais rodoviários)."""
+    """Ícone pelo modal: avião, ônibus ou carro (viatura e os demais rodoviários). Sem ofício
+    (percurso de um roteiro), carro."""
+    if oficio is None or oficio == "":
+        return "car"
     if oficio.viatura_id:
         return "car"
     return ICONE_MEIO.get(oficio.transporte_meio, "car" if oficio.transporte_meio else "bus")
@@ -334,3 +337,22 @@ def duracao_curta(fim, inicio):
     if not horas:
         return f"{resto} min"
     return f"{horas}h{resto:02d}"
+
+
+@register.filter
+def estado_trecho(trecho, trechos) -> str:
+    """Onde a viagem está em relação ao trecho, só enquanto ela está em andamento: "feito",
+    "andando" (saiu e não chegou), "proximo" (o primeiro ainda não concluído, antes da saída)
+    ou "futuro". Vazio antes da primeira saída, depois da última chegada ou sem horários."""
+    lista = [t for t in trechos if t.saida_em and t.chegada_em]
+    if trecho not in lista:
+        return ""
+    agora = timezone.now()
+    if min(t.saida_em for t in lista) > agora or max(t.chegada_em for t in lista) <= agora:
+        return ""
+    if trecho.chegada_em <= agora:
+        return "feito"
+    atual = min((t for t in lista if t.chegada_em > agora), key=lambda t: t.saida_em)
+    if trecho is atual or trecho == atual:
+        return "andando" if trecho.saida_em <= agora else "proximo"
+    return "futuro"

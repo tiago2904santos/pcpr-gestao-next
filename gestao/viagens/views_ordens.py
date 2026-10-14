@@ -23,7 +23,17 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from gestao.cadastros import policies as politicas_cadastros
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
 
-from . import assinados, linha_do_tempo, ordens, policies, prestacao, views_assinados
+from . import (
+    assinados,
+    atencao_listas,
+    linha_do_tempo,
+    linha_lista,
+    ordens,
+    policies,
+    prestacao,
+    resumo_listas,
+    views_assinados,
+)
 from .forms import FormularioOrdem
 from .models import Oficio, OrdemServico, ViaAssinada
 from .views import POR_PAGINA, _migalhas
@@ -92,27 +102,78 @@ def lista(request: HttpRequest) -> HttpResponse:
     # A via assinada em vigor (selo e "Abrir via assinada" no menu), numa subconsulta.
     via = (ViaAssinada.objects.filter(ordem=OuterRef("pk"), revogada_em__isnull=True)
            .order_by("-enviado_em").values("pk")[:1])
-    qs = ordens.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-ano", "-numero")
-                          ).annotate(via_vigente=Subquery(via))
+    # "Pede atenção" (atencao_listas): urgentes (não gerada, começa em até 7 dias) e vazias.
+    hoje, agora = timezone.localdate(), timezone.now()
+    atencao = atencao_listas.recorte_pedido(request)
+    filtrado = _buscar(_filtrar(base, aba), busca)
+    ordenado = (atencao_listas.aplicar(filtrado, atencao_listas.ORDEM, atencao, hoje)
+                if atencao else filtrado.order_by("-ano", "-numero"))
+    qs = ordens.com_dados(ordenado).annotate(via_vigente=Subquery(via))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    linhas = [{"ordem": o, "periodo": ordens.periodo_curto(o), "faltando": ordens.faltando(o),
-               "editavel": policies.pode_editar_ordem(request.user, o),
-               "cancelavel": policies.pode_cancelar_ordem(request.user, o),
-               "excluivel": policies.pode_excluir_ordem(request.user, o)}
-              for o in pagina.object_list]
+    linhas = [_linha_da_lista(request, o, agora) for o in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     return render(request, "viagens/ordens/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
         "contagens": {"todas": base.count(),
                       **{c: _filtrar(base, c).count() for c, _, _ in ABAS if c}},
-        "hoje": timezone.localdate(), "oficio": oficio,
+        "hoje": hoje, "oficio": oficio, "atencao": atencao,
+        "cartoes_atencao": atencao_listas.cartoes(
+            request, atencao_listas.ORDEM, atencao,
+            atencao_listas.contas(base, atencao_listas.ORDEM, hoje),
+            reverse("viagens:excluir_ordens_vazias")),
         "oficio_filtro": oficio_pk if oficio is not None else "",
         "pode_os_do_oficio": (oficio is not None
                               and policies.pode_criar_ordem_do_oficio(request.user, oficio)),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
         "voltar": request.get_full_path(), "pode_criar": policies.pode_criar_ordem(request.user),
         "migalhas": _migalhas(("Ordens de serviço", ""))})
+
+
+# O cartão da folha onde cada falta se resolve (os mesmos ids da conferência da OS).
+ANCORA_DA_FALTA = {"período": "dados", "destino": "destinos", "equipe": "equipe",
+                   "motivo": "motivo", "função da equipe": "equipe"}
+
+
+def _linha_da_lista(request: HttpRequest, o: OrdemServico, agora) -> dict:
+    """Uma linha: o que falta (com atalho), o tempo (urgência e estrada) e a ação da vez."""
+    faltando = ordens.faltando(o)
+    folha = reverse("viagens:editar_ordem", args=[o.pk])
+    gerada = o.documento_gerado_em is not None
+    return {
+        "ordem": o, "periodo": ordens.periodo_curto(o), "faltando": faltando,
+        "pendencias": [{"mensagem": f"Falta {f}.", "url": f"{folha}#{ANCORA_DA_FALTA.get(f, '')}"}
+                       for f in faltando],
+        "url_folha": folha,
+        "vazio": not (gerada or o.data_inicio or o.motivo.strip() or o.destinos.all()
+                      or o.servidores.all() or o.oficios.all()),
+        "tempo": linha_lista.estado_temporal(o.data_inicio, o.data_fim, agora,
+                                             pendente=not gerada and not o.cancelada),
+        "editavel": policies.pode_editar_ordem(request.user, o),
+        "cancelavel": policies.pode_cancelar_ordem(request.user, o),
+        "excluivel": policies.pode_excluir_ordem(request.user, o)}
+
+
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo da OS (o mesmo desenho do resumo do ofício)."""
+    if not request.user.has_perm("viagens.view_ordemservico"):
+        raise PermissionDenied
+    via = (ViaAssinada.objects.filter(ordem=OuterRef("pk"), revogada_em__isnull=True)
+           .order_by("-enviado_em").values("pk")[:1])
+    o = get_object_or_404(ordens.com_dados(policies.ordens_visiveis(request.user))
+                          .annotate(via_vigente=Subquery(via)), pk=pk)
+    linha = _linha_da_lista(request, o, timezone.now())
+    return render(request, "componentes/resumo_documento.html",
+                  {"r": resumo_listas.da_ordem(o, linha), "o": o, "l": linha})
+
+
+@require_POST
+def excluir_vazias(request: HttpRequest) -> HttpResponse:
+    """"Excluir as vazias" da faixa de atenção (pede confirmação; regra de `ordens.excluir`)."""
+    excluidas = atencao_listas.excluir_vazios(
+        request.user, policies.ordens_visiveis(request.user), atencao_listas.ORDEM)
+    messages.success(request, atencao_listas.mensagem_exclusao(atencao_listas.ORDEM, excluidas))
+    return redirect("viagens:ordens")
 
 
 def _ordem_visivel(request: HttpRequest, pk: int) -> OrdemServico:

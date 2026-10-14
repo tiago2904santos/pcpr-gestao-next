@@ -4,7 +4,7 @@
 <div class="conferencia-serena{% if operacional %} conferencia-serena--operacional{% else %} resumo__indicadores{% endif %}{% if consulta %} conferencia-serena--consulta{% endif %}">
   <p class="conferencia-serena__total"><span class="rotulo-caixa-alta">Valor total</span><strong>{{ calculo.total|moeda }}</strong></p>
   <dl class="conferencia-serena__dados">
-    {% if sempre_por_servidor or calculo.servidores > 1 %}<div><dt>Por servidor</dt><dd>{{ calculo.por_servidor|moeda }}</dd></div>{% endif %}
+    {% if sempre_por_servidor or calculo.servidores > 1 %}<div class="conferencia-serena__por-servidor"><dt>Por servidor</dt><dd>{{ calculo.por_servidor|moeda }}</dd></div>{% endif %}
     <div><dt>Tipo de destino</dt><dd>{{ calculo.tipo_destino }}</dd></div>
     <div class="conferencia-serena__quantidade"><dt>Quantidade por servidor</dt><dd>{{ calculo.resumo }}</dd></div>
   </dl>

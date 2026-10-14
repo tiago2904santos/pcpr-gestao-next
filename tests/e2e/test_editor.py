@@ -153,5 +153,10 @@ def test_modo_pdf_e_barra_acessivel(logado: Page, dados_e2e, largura):
         ferramentas.locator("summary").press("Enter")
         expect(ferramentas).to_have_attribute("open", "")
     expect(barra.get_by_role("button", name="Negrito (Ctrl+B)")).to_be_visible()
+    # O cabeçalho e o rodapé grudados cobrem o que calhar atrás deles: mede do topo, com o
+    # rodapé em repouso.
+    pg.evaluate("window.scrollTo(0, 0); document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
     violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
-    assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:5]) for v in violacoes]
+    assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]][:5],
+                            [r["target"] for a in v["nodes"][0]["any"]
+                             for r in a.get("relatedNodes", [])][:4]) for v in violacoes]

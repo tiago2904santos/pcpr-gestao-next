@@ -20,9 +20,24 @@
  */
 import { confirmar } from "./dialogo.js";
 import { icone } from "./menu.js";
+import { MASCARAS } from "./mascara.js";
 
 const ESPERA_SALVAR = 1200;
 const ESPERA_CAMPO = 700;
+/**
+ * Blocos do modelo que mostram dados do formulário: um clique neles abre a parte da folha
+ * que os altera (entidades-documento.js). Texto livre (saudação, declaração) não entra.
+ * @type {Record<string, string>}
+ */
+const BLOCOS_DO_FORMULARIO = {
+  identificacao: "identificacao", custos: "identificacao",
+  resumo: "roteiro", roteiro: "roteiro",
+  assinatura: "configuracao", destinatario: "configuracao",
+};
+/** Quantos algarismos fecham cada máscara de tamanho fixo (data e hora, protocolo). */
+const DIGITOS_DA_MASCARA = /** @type {Record<string, number>} */ ({ datahora: 12, data: 8, hora: 4, protocolo: 9 });
+/** Marca invisível que segura o cursor dentro de um campo vazio (nunca é gravada). */
+const INVISIVEL = "\u200B";
 const PRESENCA_MS = 30000;
 const SELETOR_BLOCO = "p, div, table, h1, h2, h3, li, blockquote";
 
@@ -197,14 +212,80 @@ export class PcEditorDocumento extends HTMLElement {
     doc.querySelectorAll("[data-campo]").forEach((c) => {
       c.setAttribute("role", "textbox");
       c.setAttribute("aria-label", c.getAttribute("data-rotulo") || "Campo");
-      if (podeEditar) c.setAttribute("tabindex", "0");
+      // Dentro de uma região de texto o campo já é editável com ela (e não pode ter foco
+      // próprio: o teclado só escreve com o foco no texto editável). Fora dela, ele mesmo
+      // vira editável (só texto). Nos dois casos, o clique no amarelo libera a digitação.
+      if (podeEditar && c.parentElement?.closest("[contenteditable='true']")) {
+        c.removeAttribute("tabindex");
+      } else if (podeEditar) {
+        c.setAttribute("tabindex", "0");
+        c.setAttribute("contenteditable", "plaintext-only");
+        c.setAttribute("spellcheck", "false");
+      }
+      const mascara = this.mascaraDe(c.getAttribute("data-campo") || "");
+      if (mascara) c.setAttribute("data-mascara-campo", mascara);
     });
     if (!podeEditar) return;
     doc.addEventListener("input", (e) => this.aoDigitar(/** @type {InputEvent} */ (e)));
-    doc.addEventListener("beforeinput", (e) => this.protegerCampos(/** @type {InputEvent} */ (e)));
+    doc.addEventListener("beforeinput", (e) => {
+      const ev = /** @type {InputEvent} */ (e);
+      if (!this.digitarEmCampoVazio(ev) && !this.digitarNaBorda(ev) && !this.apagarComMascara(ev)) {
+        this.sobrescreverComMascara(ev);
+        this.protegerCampos(ev);
+      }
+    });
     doc.addEventListener("selectionchange", () => this.aoMudarSelecao());
     doc.addEventListener("paste", (e) => this.colar(/** @type {ClipboardEvent} */ (e)));
     doc.addEventListener("keydown", (e) => this.atalhos(/** @type {KeyboardEvent} */ (e)));
+    // Clique no que vem do cadastro (servidor, motorista, transporte): avisa a página, que
+    // abre a peça do formulário que o altera (entidades-documento.js).
+    doc.addEventListener("click", (e) => {
+      const alvo = /** @type {HTMLElement} */ (e.target);
+      if (!this.quadro || alvo.closest("[data-campo]")) return;
+      let entidade = /** @type {HTMLElement | null} */ (alvo.closest?.("[data-entidade]"));
+      let tipo = entidade?.getAttribute("data-entidade") || "";
+      let nome = "";
+      if (entidade) {
+        nome = tipo === "transporte" ? "Transporte"
+          : entidade.matches("tr") ? (/** @type {HTMLTableRowElement} */ (entidade).cells[0]?.textContent || "") : (entidade.textContent || "");
+      } else {
+        // Blocos que mostram dados do formulário (e não texto livre): o clique leva a eles.
+        const bloco = /** @type {HTMLElement | null} */ (alvo.closest("[data-bloco]"));
+        const area = alvo.closest(".timbre, .rodape") ? "configuracao"
+          : BLOCOS_DO_FORMULARIO[bloco?.getAttribute("data-bloco") || ""];
+        if (!area) return;
+        tipo = area;
+        entidade = /** @type {HTMLElement} */ (alvo.closest("td, p, div, header") || bloco);
+        nome = alvo.closest(".timbre") ? "Cabeçalho" : alvo.closest(".rodape") ? "Rodapé"
+          : bloco?.getAttribute("data-rotulo") || "";
+      }
+      if (!entidade) return;
+      const q = this.quadro.getBoundingClientRect();
+      const r = entidade.getBoundingClientRect();
+      this.dispatchEvent(new CustomEvent("pc-editor:entidade", { bubbles: true, detail: {
+        tipo, id: entidade.getAttribute("data-id") || "",
+        nome: nome.trim().replace(/\s+/g, " ").slice(0, 80),
+        caixa: { left: q.left + r.left, top: q.top + r.top, bottom: q.top + r.bottom, width: r.width },
+      } }));
+    });
+    // Clique no campo: o cursor entra nele (num campo vazio o navegador o deixaria fora).
+    doc.addEventListener("click", (e) => {
+      const campo = /** @type {HTMLElement} */ (e.target).closest?.("[data-campo]");
+      if (!campo) return;
+      const sel = doc.getSelection();
+      if (sel && sel.anchorNode && this.campoDe(sel.anchorNode) === campo && (campo.textContent || "").length) return;
+      this.entrarNoCampo(/** @type {HTMLElement} */ (campo));
+    });
+    // Saindo de um campo que ficou vazio, ele volta a mostrar o rótulo (o amarelo).
+    doc.addEventListener("selectionchange", () => {
+      this.limparVazio();
+      // O campo em que o cursor estava por último: se o navegador o empurrar para a borda
+      // de fora (apagou-se o primeiro caractere), a digitação ainda volta para ele.
+      const no = doc.getSelection()?.anchorNode;
+      const dentro = no ? this.campoDe(no) : null;
+      if (dentro) this.campoRecente = dentro;
+      else if (!this.bordaDoCampo(doc.getSelection())) this.campoRecente = null;
+    });
     doc.addEventListener("click", (e) => {
       // Só o marcador de quebra (um bloco do modelo nunca é: `[data-bloco]`).
       const quebra = /** @type {HTMLElement} */ (e.target).closest(".quebra:not([data-bloco])");
@@ -215,6 +296,130 @@ export class PcEditorDocumento extends HTMLElement {
       this.marcarSujo();
     });
     this.aplicarPaginas();
+    this.marcarEntidades(doc);
+  }
+
+  /**
+   * Troca partes da folha pelas do servidor (o roteiro, depois de mudar o destino no texto).
+   * @param {string[]} seletores
+   */
+  async recarregarDaPagina(seletores) {
+    const r = await fetch(window.location.pathname, { credentials: "same-origin", headers: { "X-Requested-With": "fetch" } }).catch(() => null);
+    if (!r || !r.ok) return;
+    const html = new DOMParser().parseFromString(await r.text(), "text/html");
+    for (const seletor of seletores) {
+      const novo = html.querySelector(seletor);
+      const atual = document.querySelector(seletor);
+      if (!novo || !atual) continue;
+      const importado = /** @type {HTMLElement} */ (document.importNode(novo, true));
+      atual.replaceWith(importado);
+      /** @type {any} */ (window).htmx?.process(importado);
+    }
+  }
+
+  /**
+   * Quem é quem no texto. O modelo já marca servidor, motorista e transporte
+   * (`data-entidade`), mas um trecho editado e salvo antes guarda a cópia de então, sem as
+   * marcas: aqui elas voltam, pelo que a folha da página mostra (a equipe e a viatura).
+   * Só atributos — o texto não muda.
+   * @param {Document} doc
+   */
+  marcarEntidades(doc) {
+    /** @type {Map<string, string>} */
+    const equipe = new Map();
+    document.querySelectorAll("#equipe [data-servidor][data-nome]").forEach((c) => {
+      const el = /** @type {HTMLElement} */ (c);
+      equipe.set((el.dataset.nome || "").trim().toLowerCase(), el.dataset.servidor || "");
+    });
+    doc.querySelectorAll("[data-bloco='equipe'] tbody tr:not([data-entidade])").forEach((tr) => {
+      const id = equipe.get((/** @type {HTMLTableRowElement} */ (tr).cells[0]?.textContent || "").trim().toLowerCase());
+      if (!id) return;
+      tr.setAttribute("data-entidade", "servidor");
+      tr.setAttribute("data-id", id);
+    });
+    const viatura = /** @type {HTMLSelectElement | null} */ (document.querySelector("#transporte select[name='viatura'], #transporte [name='viatura']"));
+    doc.querySelectorAll("[data-bloco='transporte'] tr:not([data-entidade])").forEach((tr) => {
+      tr.setAttribute("data-entidade", "transporte");
+      if (viatura?.value && /^\d+$/.test(viatura.value)) tr.setAttribute("data-id", viatura.value);
+    });
+    // Datas dos trechos num texto salvo antes de elas virarem campos: "Saída X: 13/12/2026
+    // 08:30" ganha o campo do trecho (a ordem é a do documento — a mesma dos trechos). A
+    // marcação é salva com o texto (só ela muda), e daí em diante a data acompanha o
+    // cadastro e grava no trecho quando escrita aqui.
+    let marcouTrechos = false;
+    doc.querySelectorAll("[data-bloco='roteiro']").forEach((bloco) => {
+      let ordem = 0;
+      bloco.querySelectorAll("strong").forEach((forte) => {
+        if (forte.querySelector("[data-campo]")) {
+          if (/^Saída\b/.test(forte.textContent || "")) ordem += 1;
+          return;
+        }
+        const texto = forte.lastChild;
+        const m = /^(Saída|Chegada)\b.*?:\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})\s*$/.exec(forte.textContent || "");
+        if (!m || texto?.nodeType !== Node.TEXT_NODE) return;
+        if (m[1] === "Saída") ordem += 1;
+        if (!ordem) return;
+        const no = /** @type {Text} */ (texto);
+        const inicio = no.data.lastIndexOf(m[2]);
+        if (inicio < 0) return;
+        const data = no.splitText(inicio);
+        data.splitText(m[2].length);
+        const lado = m[1] === "Saída" ? "saida" : "chegada";
+        const span = doc.createElement("span");
+        span.setAttribute("data-campo", `trecho_${ordem}_${lado}`);
+        span.setAttribute("data-rotulo", `${m[1]} do trecho ${ordem}`);
+        span.setAttribute("data-obrigatorio", "");
+        span.setAttribute("role", "textbox");
+        span.setAttribute("aria-label", `${m[1]} do trecho ${ordem}`);
+        span.setAttribute("data-mascara-campo", "datahora");
+        data.replaceWith(span);
+        span.append(data);
+        marcouTrechos = true;
+      });
+    });
+    // "Destino da viagem:" num texto salvo antes: o nome vira o campo dos destinos. Se o texto
+    // diz outra cidade que o roteiro da folha (foi trocada aqui), ela vai para o roteiro.
+    doc.querySelectorAll("[data-bloco='resumo'] td").forEach((celula) => {
+      const rotulo = celula.querySelector("strong");
+      if (!rotulo || !/^Destinos? da viagem:?$/.test((rotulo.textContent || "").trim()) || celula.querySelector("[data-campo]")) return;
+      const texto = [...celula.childNodes].reverse().find((n) => n.nodeType === Node.TEXT_NODE && (n.textContent || "").trim());
+      if (!texto) return;
+      const no = /** @type {Text} */ (texto);
+      const nome = no.data.trim();
+      const resto = no.splitText(no.data.indexOf(nome));
+      resto.splitText(nome.length);
+      const span = doc.createElement("span");
+      span.setAttribute("data-campo", "destinos");
+      span.setAttribute("data-rotulo", "Destinos da viagem");
+      span.setAttribute("data-obrigatorio", "");
+      span.setAttribute("role", "textbox");
+      span.setAttribute("aria-label", "Destinos da viagem");
+      resto.replaceWith(span);
+      span.append(resto);
+      marcouTrechos = true;
+      const sede = /** @type {HTMLInputElement | null} */ (document.querySelector(".itin__parada--sede input[name$='cidade']"))?.value.trim();
+      const naFolha = [...new Set([...document.querySelectorAll(".itin__paradas [data-parada]:not(.itin__parada--sede) input[name$='-cidade']")]
+        .map((c) => /** @type {HTMLInputElement} */ (c).value.trim()).filter((v) => v && v !== sede))];
+      if (naFolha.length && naFolha.join(", ").toLowerCase() !== nome.toLowerCase()) this.agendarCampo(span);
+    });
+    if (marcouTrechos) this.marcarSujo();
+    // "Motorista: Fulano" — o nome logo depois do rótulo vira o trecho clicável.
+    doc.querySelectorAll("[data-bloco='transporte'] strong").forEach((rotulo) => {
+      if (!/^Motorista:?$/.test((rotulo.textContent || "").trim())) return;
+      const proximo = rotulo.nextSibling;
+      if (proximo?.nodeType === Node.ELEMENT_NODE && /** @type {HTMLElement} */ (proximo).matches("[data-entidade]")) return;
+      if (proximo?.nodeType !== Node.TEXT_NODE || !(proximo.textContent || "").trim()) return;
+      const texto = /** @type {Text} */ (proximo);
+      const nome = (texto.data.match(/^\s*([^\n]+?)\s*$/) || [])[1];
+      if (!nome) return;
+      const inicio = texto.data.indexOf(nome);
+      const resto = texto.splitText(inicio);
+      resto.splitText(nome.length);
+      const span = doc.createElement("span");
+      span.setAttribute("data-entidade", "motorista");
+      resto.replaceWith(span);
+      span.append(resto);
+    });
   }
 
   /** @param {InputEvent} e */
@@ -228,10 +433,228 @@ export class PcEditorDocumento extends HTMLElement {
     const no = selecao && selecao.anchorNode;
     const campo = no ? this.campoDe(no) : null;
     if (campo) {
+      this.limparVazio();
+      this.mascarar(campo);
       this.agendarCampo(campo);
       return;
     }
     if (alvo && alvo.closest("[data-regiao]")) this.marcarSujo();
+  }
+
+  /**
+   * Campo vazio: o navegador não deixa o cursor "dentro" de um elemento sem texto — o que
+   * se digita cai no texto em volta ("Protocolo Nº: 123" fora do campo) e nunca chega ao
+   * cadastro. Digitando (ou colando) com o cursor no campo vazio ou encostado nele, o texto
+   * entra no campo e o cursor fica dentro dele, como em qualquer campo preenchido.
+   * @param {InputEvent} e @returns {boolean} se cuidou da digitação
+   */
+  digitarEmCampoVazio(e) {
+    if (e.inputType !== "insertText" && e.inputType !== "insertReplacementText") return false;
+    const texto = e.data || "";
+    return Boolean(texto) && this.inserirEmCampoVazio(texto, () => e.preventDefault());
+  }
+
+  /** @param {string} texto @param {() => void} antes @returns {boolean} */
+  inserirEmCampoVazio(texto, antes) {
+    const doc = this.doc;
+    const sel = doc ? doc.getSelection() : null;
+    if (!doc || !sel || !sel.rangeCount || !sel.isCollapsed) return false;
+    const campo = this.campoVazioNoCursor(sel);
+    if (!campo) return false;
+    antes();
+    campo.textContent = "";  // só tinha a marca invisível (ou nada)
+    this.marcaVazio = null;
+    const no = doc.createTextNode(texto.replace(/\s*\n\s*/g, " "));
+    campo.append(no);
+    const r = doc.createRange();
+    r.setStart(no, no.length);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    this.mascarar(campo);
+    this.agendarCampo(campo);
+    return true;
+  }
+
+  /**
+   * O campo encostado no cursor (logo antes ou logo depois dele), e de que lado.
+   * @param {Selection | null | undefined} sel
+   * @returns {{campo: HTMLElement, lado: "inicio" | "fim"} | null}
+   */
+  bordaDoCampo(sel) {
+    if (!sel || !sel.isCollapsed || !sel.anchorNode) return null;
+    const no = sel.anchorNode;
+    const pos = sel.anchorOffset;
+    const campo = (/** @type {Node | null | undefined} */ el) => (el && el.nodeType === Node.ELEMENT_NODE
+      && /** @type {HTMLElement} */ (el).matches("[data-campo]") ? /** @type {HTMLElement} */ (el) : null);
+    if (this.campoDe(no)) return null;
+    if (no.nodeType === Node.TEXT_NODE) {
+      const depois = pos === (no.textContent || "").length ? campo(no.nextSibling) : null;
+      if (depois) return { campo: depois, lado: "inicio" };
+      const antes = pos === 0 ? campo(no.previousSibling) : null;
+      if (antes) return { campo: antes, lado: "fim" };
+      return null;
+    }
+    const depois = campo(no.childNodes[pos]);
+    if (depois) return { campo: depois, lado: "inicio" };
+    const antes = campo(no.childNodes[pos - 1]);
+    return antes ? { campo: antes, lado: "fim" } : null;
+  }
+
+  /**
+   * Digitando encostado num campo (o navegador tirou o cursor dele — ex.: apagou-se o
+   * primeiro algarismo da data): o texto entra no campo quando ele tem máscara (data, hora,
+   * protocolo: ao redor não se escreve número solto) ou quando o cursor acabou de sair dele.
+   * @param {InputEvent} e @returns {boolean}
+   */
+  digitarNaBorda(e) {
+    if ((e.inputType !== "insertText" && e.inputType !== "insertReplacementText") || !e.data) return false;
+    const doc = this.doc;
+    const sel = doc?.getSelection();
+    const borda = this.bordaDoCampo(sel);
+    if (!doc || !sel || !borda) return false;
+    const { campo, lado } = borda;
+    const algarismo = campo.hasAttribute("data-mascara-campo") && /^\d+$/.test(e.data);
+    if (!algarismo && campo !== this.campoRecente) return false;
+    e.preventDefault();
+    const texto = e.data.replace(/\s*\n\s*/g, " ");
+    let no = /** @type {Text | null} */ (lado === "inicio" ? campo.firstChild : campo.lastChild);
+    if (!no || no.nodeType !== Node.TEXT_NODE) {
+      no = doc.createTextNode("");
+      if (lado === "inicio") campo.prepend(no); else campo.append(no);
+    }
+    const alvo = /** @type {Text} */ (no);
+    const pos = lado === "inicio" ? texto.length : alvo.length + texto.length;
+    if (lado === "inicio") alvo.insertData(0, texto); else alvo.appendData(texto);
+    const r = doc.createRange();
+    r.setStart(alvo, pos);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    this.campoRecente = campo;
+    this.mascarar(campo);
+    this.agendarCampo(campo);
+    return true;
+  }
+
+  /** O campo vazio em que o cursor está (ou em foco, ou logo encostado). @param {Selection} sel */
+  campoVazioNoCursor(sel) {
+    const vazio = (/** @type {Node | null | undefined} */ el) => (el && el.nodeType === Node.ELEMENT_NODE
+      && /** @type {HTMLElement} */ (el).matches("[data-campo]") && !(el.textContent || "").split(INVISIVEL).join("").length
+      ? /** @type {HTMLElement} */ (el) : null);
+    const no = sel.anchorNode;
+    const pos = sel.anchorOffset;
+    if (!no) return null;
+    const dentro = this.campoDe(no);
+    if (dentro) return vazio(dentro);
+    const ativo = vazio(this.doc?.activeElement);
+    if (ativo) return ativo;
+    if (no.nodeType === Node.ELEMENT_NODE) return vazio(no.childNodes[pos]) || vazio(no.childNodes[pos - 1]);
+    if (no.nodeType === Node.TEXT_NODE) {
+      if (pos === (no.textContent || "").length && vazio(no.nextSibling)) return vazio(no.nextSibling);
+      if (pos === 0) return vazio(no.previousSibling);
+    }
+    return null;
+  }
+
+  /**
+   * A máscara do campo: a do controle de mesmo nome no formulário da página (data-mascara),
+   * ou a do formato do campo (data). Sem máscara, o texto fica como foi digitado.
+   * @param {string} chave
+   */
+  mascaraDe(chave) {
+    if (!chave) return "";
+    const controle = /** @type {HTMLElement | null} */ (document.querySelector(`[name="${CSS.escape(chave)}"][data-mascara]`));
+    const tipo = controle?.dataset.mascara || (chave.startsWith("data_") ? "data" : "")
+      || (/^trecho_\d+_(saida|chegada)$/.test(chave) ? "datahora" : "");
+    return tipo && MASCARAS[tipo] ? tipo : "";
+  }
+
+  /**
+   * Aplica a máscara ao campo sem tirar o cursor do lugar: ele fica depois do mesmo número de
+   * algarismos/letras que tinha antes (apagar um dígito do meio não joga o cursor para o fim).
+   * @param {HTMLElement} campo
+   */
+  mascarar(campo) {
+    const tipo = campo.getAttribute("data-mascara-campo");
+    const doc = this.doc;
+    if (!tipo || !MASCARAS[tipo] || !doc) return;
+    const atual = campo.textContent || "";
+    const novo = MASCARAS[tipo](atual.split(INVISIVEL).join(""));
+    if (novo === atual) return;
+    const sel = doc.getSelection();
+    let antes = atual.length;
+    if (sel && sel.rangeCount && sel.anchorNode && campo.contains(sel.anchorNode)) {
+      const ate = doc.createRange();
+      ate.selectNodeContents(campo);
+      ate.setEnd(sel.anchorNode, sel.anchorOffset);
+      antes = ate.toString().length;
+    }
+    const contam = atual.slice(0, antes).replace(/[^0-9A-Za-z]/g, "").length;
+    campo.textContent = novo;
+    let pos = 0;
+    for (let vistos = 0; pos < novo.length && vistos < contam; pos += 1) {
+      if (/[0-9A-Za-z]/.test(novo[pos])) vistos += 1;
+    }
+    const texto = campo.firstChild;
+    if (!sel || !texto) return;
+    const r = doc.createRange();
+    r.setStart(texto, Math.min(pos, novo.length));
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+
+  /**
+   * Campo de tamanho fixo já completo (13/12/2026 08:30): digitar troca o algarismo seguinte
+   * em vez de empurrar os outros — como num relógio, a data nunca fica embaralhada no meio.
+   * @param {InputEvent} e
+   */
+  sobrescreverComMascara(e) {
+    if (e.inputType !== "insertText" || !e.data || !/^\d$/.test(e.data)) return;
+    const doc = this.doc;
+    const sel = doc?.getSelection();
+    if (!doc || !sel || !sel.isCollapsed || !sel.anchorNode || sel.anchorNode.nodeType !== Node.TEXT_NODE) return;
+    const campo = this.campoDe(sel.anchorNode);
+    const tipo = campo?.getAttribute("data-mascara-campo") || "";
+    const limite = DIGITOS_DA_MASCARA[tipo];
+    if (!campo || !limite || (campo.textContent || "").replace(/\D/g, "").length < limite) return;
+    const no = /** @type {Text} */ (sel.anchorNode);
+    let i = sel.anchorOffset;
+    while (i < no.length && !/\d/.test(no.data[i])) i += 1;
+    if (i >= no.length) return;
+    const r = doc.createRange();
+    r.setStart(no, sel.anchorOffset);
+    r.setEnd(no, i + 1);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+
+  /**
+   * Backspace logo depois de um separador da máscara ("/", ":", " "): apaga o dígito de
+   * antes dele, em vez de apagar o separador que a máscara poria de volta (parecia travado).
+   * @param {InputEvent} e @returns {boolean} se cuidou
+   */
+  apagarComMascara(e) {
+    if (e.inputType !== "deleteContentBackward") return false;
+    const doc = this.doc;
+    const sel = doc?.getSelection();
+    if (!doc || !sel || !sel.isCollapsed || !sel.anchorNode) return false;
+    const campo = this.campoDe(sel.anchorNode);
+    if (!campo?.getAttribute("data-mascara-campo") || sel.anchorNode.nodeType !== Node.TEXT_NODE) return false;
+    const no = /** @type {Text} */ (sel.anchorNode);
+    const pos = sel.anchorOffset;
+    if (pos < 2 || /[0-9A-Za-z]/.test(no.data[pos - 1])) return false;
+    e.preventDefault();
+    no.deleteData(pos - 2, 1);
+    const r = doc.createRange();
+    r.setStart(no, pos - 2);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    this.mascarar(campo);
+    this.agendarCampo(campo);
+    return true;
   }
 
   /** @param {Node} no @returns {HTMLElement | null} */
@@ -246,6 +669,15 @@ export class PcEditorDocumento extends HTMLElement {
    * @param {InputEvent} e
    */
   protegerCampos(e) {
+    if (e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") {
+      const sel = this.doc?.getSelection();
+      const campo = sel && sel.anchorNode ? this.campoDe(sel.anchorNode) : null;
+      if (campo && !campo.hasAttribute("data-multilinha")) {
+        e.preventDefault();
+        /** @type {HTMLElement} */ (campo).blur();
+        return;
+      }
+    }
     if (!e.inputType.startsWith("delete") && e.inputType !== "insertFromPaste"
         && e.inputType !== "insertText" && e.inputType !== "insertParagraph") return;
     const faixas = typeof e.getTargetRanges === "function" ? e.getTargetRanges() : [];
@@ -297,6 +729,7 @@ export class PcEditorDocumento extends HTMLElement {
     e.preventDefault();
     const texto = e.clipboardData.getData("text/plain");
     if (!texto) return;
+    if (this.inserirEmCampoVazio(texto.trim(), () => {})) return;
     // Texto puro: parágrafos viram <p>, o resto é escapado — nada de formatação de fora.
     const paragrafos = texto.replace(/\r/g, "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
     const html = paragrafos.length > 1
@@ -740,7 +1173,14 @@ export class PcEditorDocumento extends HTMLElement {
 
   /** @param {HTMLElement} campo */
   agendarCampo(campo) {
-    this.campoPendente = campo.getAttribute("data-campo");
+    const chave = campo.getAttribute("data-campo");
+    // Trocou de campo antes da pausa: o anterior grava agora (senão o novo tomava o lugar
+    // dele na fila e o que foi digitado nele se perdia).
+    if (this.campoPendente && this.campoPendente !== chave) {
+      window.clearTimeout(this.timerCampo);
+      this.salvarCampo();
+    }
+    this.campoPendente = chave;
     window.clearTimeout(this.timerCampo);
     this.timerCampo = window.setTimeout(() => this.salvarCampo(), ESPERA_CAMPO);
   }
@@ -751,17 +1191,51 @@ export class PcEditorDocumento extends HTMLElement {
     if (!doc || !chave || this.vitrine) return;
     const span = /** @type {HTMLElement | null} */ (doc.querySelector(`[data-campo="${CSS.escape(chave)}"]`));
     if (!span) return;
+    const limite = DIGITOS_DA_MASCARA[span.getAttribute("data-mascara-campo") || ""];
+    const digitos = (span.textContent || "").replace(/\D/g, "").length;
+    if (limite && digitos && digitos < limite) return;  // grava quando a pessoa completar
     this.campoPendente = null;
     const valor = span.hasAttribute("data-multilinha") ? span.innerText.replace(/ /g, " ") : span.textContent || "";
     const versao = this.estado ? this.estado.versao_oficio : undefined;
-    const r = await this.pedir(`campos/${encodeURIComponent(chave)}/`, { valor, versao });
+    const r = await this.pedir(`campos/${encodeURIComponent(chave)}/`, { valor: valor.split(INVISIVEL).join(""), versao });
     if (!r) return;
     this.aplicarEstado(r);
     this.avisarGravado();
     const resultado = r.resultado || {};
     // O formulário da folha mostra o mesmo campo: acompanha, e a versão do ofício também.
-    const entrada = /** @type {HTMLInputElement | HTMLTextAreaElement | null} */ (document.querySelector(`#form-oficio [name="${CSS.escape(chave)}"], [form="form-oficio"][name="${CSS.escape(chave)}"]`));
-    if (entrada && typeof resultado.valor === "string") entrada.value = resultado.valor;
+    const nome = CSS.escape(chave);
+    const entrada = /** @type {HTMLInputElement | HTMLTextAreaElement | null} */ (document.querySelector(`#form-oficio [name="${nome}"], [form="form-oficio"][name="${nome}"]`)
+      || document.querySelector(`form [name="${nome}"]:not([type='hidden']), [form][name="${nome}"]:not([type='hidden'])`));
+    if (entrada && typeof resultado.valor === "string") {
+      entrada.value = resultado.valor;
+      entrada.dispatchEvent(new Event("pc-campo-externo", { bubbles: true }));
+    }
+    // Destino trocado no texto: o roteiro da folha vem de novo do servidor (paradas, mapa).
+    if (Array.isArray(resultado.recarregar) && resultado.recarregar.length) {
+      this.recarregarDaPagina(resultado.recarregar);
+      document.body.dispatchEvent(new CustomEvent("equipe-alterada"));
+    }
+    // Saída/chegada de um trecho: os campos do trecho no roteiro da folha acompanham (e o
+    // autosave não devolve o valor antigo); as diárias se refazem.
+    const trecho = resultado.trecho;
+    if (trecho) {
+      const linha = document.querySelectorAll(".itin__trechos [data-trecho]")[trecho.ordem - 1];
+      for (const [sufixo, novo] of [["saida_0", trecho.saida_data], ["saida_1", trecho.saida_hora], ["tempo_viagem", trecho.tempo_viagem]]) {
+        const controle = /** @type {HTMLInputElement | null} */ (linha?.querySelector(`[name$="-${sufixo}"]`) ?? null);
+        if (controle && novo && controle.value !== novo) {
+          controle.value = novo;
+          controle.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+      document.body.dispatchEvent(new CustomEvent("equipe-alterada"));
+    }
+    const vivo = doc.querySelector(`[data-campo="${nome}"]`);
+    const cursor = doc.getSelection()?.anchorNode;
+    const digitando = vivo === doc.activeElement || (cursor && this.campoDe(cursor) === vivo);
+    if (vivo && typeof resultado.valor === "string" && !digitando
+        && !vivo.hasAttribute("data-multilinha") && vivo.textContent !== resultado.valor) {
+      vivo.textContent = resultado.valor;
+    }
     const versaoForm = /** @type {HTMLInputElement | null} */ (document.querySelector("#form-oficio [name='versao']"));
     if (versaoForm && r.versao_oficio) versaoForm.value = String(r.versao_oficio);
     this.dispatchEvent(new CustomEvent("pc-editor:campo", { bubbles: true, detail: { chave, valor: resultado.valor } }));
@@ -880,15 +1354,57 @@ export class PcEditorDocumento extends HTMLElement {
       return;
     }
     span.scrollIntoView({ block: "center", behavior: "smooth" });
-    span.focus();
-    const sel = doc.getSelection();
-    if (sel) {
-      const r = doc.createRange();
-      r.selectNodeContents(span);
-      r.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(r);
+    this.entrarNoCampo(span);
+  }
+
+  /**
+   * Põe o cursor no fim do campo, pronto para digitar. O foco vai para quem edita (a região
+   * de texto, ou o próprio campo fora dela). Num campo vazio, o navegador não deixa o cursor
+   * dentro de um elemento sem texto: entra um caractere invisível (U+200B), que sai assim
+   * que se digita e nunca é gravado.
+   * @param {HTMLElement} campo
+   */
+  entrarNoCampo(campo) {
+    const doc = this.doc;
+    if (!doc) return;
+    const hospedeiro = /** @type {HTMLElement | null} */ (campo.closest("[contenteditable]"));
+    hospedeiro?.focus({ preventScroll: true });
+    if (!(campo.textContent || "").length) {
+      this.marcaVazio = doc.createTextNode(INVISIVEL);
+      campo.append(this.marcaVazio);
     }
+    const sel = doc.getSelection();
+    if (!sel) return;
+    const r = doc.createRange();
+    r.selectNodeContents(campo);
+    r.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+
+  /** O caractere invisível do campo vazio sai quando o campo recebe texto ou o cursor sai. */
+  limparVazio() {
+    const marca = this.marcaVazio;
+    const doc = this.doc;
+    if (!marca || !doc) return;
+    if (!marca.isConnected) { this.marcaVazio = null; return; }
+    const campo = marca.parentElement;
+    const cursor = doc.getSelection()?.anchorNode;
+    const dentro = Boolean(cursor && campo && this.campoDe(cursor) === campo);
+    if (dentro && marca.data === INVISIVEL) return;
+    if (marca.data === INVISIVEL) {
+      marca.remove();
+    } else if (marca.data.includes(INVISIVEL)) {
+      marca.data = marca.data.split(INVISIVEL).join("");
+      if (dentro) {
+        const r = doc.createRange();
+        r.setStart(marca, marca.length);
+        r.collapse(true);
+        doc.getSelection()?.removeAllRanges();
+        doc.getSelection()?.addRange(r);
+      }
+    }
+    this.marcaVazio = null;
   }
 
   // ---------------------------------------------------------------- versões

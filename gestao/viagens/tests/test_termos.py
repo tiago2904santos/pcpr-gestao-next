@@ -258,11 +258,12 @@ class TestTelas:
         um, dois = Servidor.objects.all()[:2]
         r = _cliente(c.usuarios["operador"]).post(reverse("viagens:novo_termo"), {
             "destinos": ["Londrina/PR", "Maringá/PR"], "data_inicio": "10/07/2030",
-            "data_fim": "12/07/2030", "servidores": [um.pk, dois.pk], "evento": "Feira"})
+            "data_fim": "12/07/2030", "servidores": [um.pk, dois.pk]})
         assert r.status_code == 302
         termo = TermoAutorizacao.objects.get()
         assert [str(d.municipio) for d in termo.destinos.all()] == ["Londrina/PR", "Maringá/PR"]
-        assert termo.evento == "Feira" and termo.servidores.count() == 2
+        # Sem campo de evento na tela: o termo fica com o padrão.
+        assert termo.evento == "PCPR na Comunidade" and termo.servidores.count() == 2
 
     def test_erro_volta_com_mensagem(self, c):
         r = _cliente(c.usuarios["operador"]).post(reverse("viagens:novo_termo"), {

@@ -1,0 +1,20 @@
+{% load viagens %}
+{% comment %}
+Ofícios que usaram este roteiro, em cartões iguais aos da equipe (colunas iguais na linha
+toda). Cada um abre o resumo do ofício na lista de ofícios.
+{% endcomment %}
+{% if oficios %}
+<ul class="equipe-transporte resumo__cartoes pessoas--faixa" role="list" aria-label="Ofícios vinculados">
+  {% for o in oficios %}
+    <li class="pessoa pessoa--ligacao">
+      <span class="avatar{% if o.situacao == "emitido" %} avatar--escuro{% endif %}" aria-hidden="true">{% icone "file-text" classe="icone--sm" %}</span>
+      <span class="pessoa__texto">
+        <a class="pessoa__nome" href="{% url 'viagens:oficios' %}?q={{ o.numero_formatado|urlencode }}&amp;resumo={{ o.pk }}">Ofício {{ o.numero_formatado }}</a>
+        <span class="pessoa__meta">{{ o.get_situacao_display }}{% with p=o.trechos.all|periodo %}{% if p %} · {{ p }}{% endif %}{% endwith %}</span>
+      </span>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="vazio-inline">Este roteiro ainda não foi usado em nenhum ofício.</p>
+{% endif %}

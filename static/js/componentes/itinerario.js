@@ -109,13 +109,16 @@ export class PcItinerario extends HTMLElement {
   // ------------------------------------------------------------------ prévia das diárias
   /** O servidor calcula com as mesmas regras do salvamento; aqui nada é decidido. */
   agendarDiarias(espera = 700) {
-    const alvo = document.querySelector("[data-previa-diarias]");
-    if (!alvo || !this.tocado) return;
+    if (!this.tocado) return;
     window.clearTimeout(this.atrasoDiarias);
+    // No bate-volta os trechos aparecem logo que os cinco campos do bloco estão preenchidos
+    // (em qualquer tela: o ofício não tem a prévia das diárias, mas tem os trechos gerados).
+    const bateVolta = this.classList.contains("itin--bate-volta");
     this.atrasoDiarias = window.setTimeout(() => {
       this.buscarTrechosGerados();
-      this.buscarDiarias(alvo);
-    }, espera);
+      const alvo = document.querySelector("[data-previa-diarias]");
+      if (alvo) this.buscarDiarias(alvo);
+    }, bateVolta ? Math.min(espera, 250) : espera);
   }
 
   /** Trechos gerados pelos blocos, pedidos ao servidor (mesma expansão do salvamento). */
@@ -344,7 +347,10 @@ export class PcItinerario extends HTMLElement {
   /** @param {Event} e */
   clique(e) {
     const alvo = /** @type {HTMLElement} */ (e.target);
-    if (alvo.closest("[data-adicionar]")) {
+    const chegada = /** @type {HTMLElement | null} */ (alvo.closest(".itin__trecho .itin__chegada"));
+    if (chegada && !alvo.closest(".itin__chegada-edicao")) {
+      this.editarChegada(chegada);
+    } else if (alvo.closest("[data-adicionar]")) {
       e.preventDefault();
       this.adicionar();
     } else if (alvo.closest("[data-preencher-datas]")) {
@@ -642,6 +648,75 @@ export class PcItinerario extends HTMLElement {
     this.texto("[data-total-km]", ida.km || regresso.km ? kmBR(ida.km + regresso.km) : "—");
     this.texto("[data-total-tempo]", tempo ? duracao(tempo * 2) : "—");
     this.agendarDiarias();
+  }
+
+  /**
+   * A chegada também se ajusta: clicar nela abre data e hora (com máscara); ao confirmar,
+   * o tempo de viagem passa a ser chegada − saída − tempo adicional, e tudo o que depende
+   * dele (as chegadas seguintes, os totais, as diárias) se refaz. Esc desiste.
+   * @param {HTMLElement} caixa
+   */
+  editarChegada(caixa) {
+    const trecho = /** @type {HTMLElement | null} */ (caixa.closest("[data-trecho]"));
+    const saida = trecho ? lerDataHora(this.campo(trecho, "saida_0")?.value || "", this.campo(trecho, "saida_1")?.value || "") : null;
+    const viagem = trecho ? this.campo(trecho, "tempo_viagem") : null;
+    if (!trecho || !viagem || viagem.disabled || viagem.readOnly) return;
+    if (!saida) {
+      this.anunciar("Informe a saída do trecho antes de ajustar a chegada.");
+      this.campo(trecho, "saida_0")?.focus();
+      return;
+    }
+    const saidaTexto = /** @type {HTMLElement | null} */ (caixa.querySelector("[data-chegada]"));
+    const data = caixa.querySelector("[data-chegada-data]")?.textContent?.trim() || dataBR(saida);
+    const hora = caixa.querySelector("[data-chegada-hora]")?.textContent?.trim() || "";
+    const edicao = document.createElement("span");
+    edicao.className = "itin__chegada-edicao";
+    const campoData = Object.assign(document.createElement("input"), {
+      className: "entrada", value: data === "—" ? dataBR(saida) : data, inputMode: "numeric", maxLength: 10,
+      placeholder: "dd/mm/aaaa", autocomplete: "off",
+    });
+    campoData.dataset.mascara = "data";
+    campoData.setAttribute("aria-label", "Data de chegada");
+    const campoHora = Object.assign(document.createElement("input"), {
+      className: "entrada", value: hora, inputMode: "numeric", maxLength: 5, placeholder: "hh:mm", autocomplete: "off",
+    });
+    campoHora.dataset.mascara = "hora";
+    campoHora.setAttribute("aria-label", "Hora de chegada");
+    edicao.append(campoData, campoHora);
+    if (saidaTexto) saidaTexto.hidden = true;
+    caixa.append(edicao);
+    caixa.classList.add("itin__chegada--editando");
+    let feito = false;
+    const fechar = (/** @type {boolean} */ aplicar) => {
+      if (feito) return;
+      feito = true;
+      if (aplicar) {
+        const nova = lerDataHora(campoData.value, campoHora.value);
+        const adicional = lerMinutos(this.campo(trecho, "tempo_adicional")?.value || "") ?? 0;
+        const minutos = nova ? Math.round((nova.getTime() - saida.getTime()) / 60000) - adicional : null;
+        if (minutos !== null && minutos > 0) {
+          viagem.value = hhmm(minutos);
+          viagem.dispatchEvent(new Event("input", { bubbles: true }));
+          viagem.dispatchEvent(new Event("change", { bubbles: true }));
+          this.anunciar(`Tempo de viagem ajustado para ${duracao(minutos)}.`);
+        } else if (nova) {
+          this.anunciar("A chegada precisa ser depois da saída (e do tempo adicional).");
+        }
+      }
+      edicao.remove();
+      if (saidaTexto) saidaTexto.hidden = false;
+      caixa.classList.remove("itin__chegada--editando");
+      this.recalcular();
+    };
+    edicao.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.preventDefault(); fechar(true); }
+      if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); fechar(false); }
+    });
+    edicao.addEventListener("focusout", (ev) => {
+      if (!edicao.contains(/** @type {Node | null} */ (ev.relatedTarget))) fechar(true);
+    });
+    campoHora.focus();
+    campoHora.select();
   }
 
   /** @param {string} seletor @param {string} valor */

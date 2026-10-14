@@ -18,6 +18,7 @@ retificado); no rascunho, "Marcar como retificado" liga a marca — como no lega
    hx-get="{% url 'viagens:resumo' o.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Ver resumo</a>
 {% if m.abrir %}
 <a class="menu__item" role="menuitem" href="{% url 'viagens:editar' o.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+{% if m.emitir %}<a class="menu__item menu__item--descrito" role="menuitem" href="{% url 'viagens:editar' o.pk %}?revisar=1" aria-describedby="{{ px }}{{ o.pk }}-em">{% icone "stamp" %}<span class="menu__item-texto"><span>Revisar e emitir</span><span class="menu__item-descricao" id="{{ px }}{{ o.pk }}-em" aria-hidden="true">Tudo preenchido: confira e gere o PDF oficial</span></span></a>{% endif %}
 {% elif m.retificar %}
 <form method="post" action="{% url 'viagens:retificar' o.pk %}"
       data-confirmar="O Ofício {{ o.numero_formatado }} volta a rascunho marcado como retificado e ganha uma versão nova. O PDF já emitido continua guardado no histórico; se houver via assinada, ela sai de uso e o ofício corrigido terá de ser assinado de novo."

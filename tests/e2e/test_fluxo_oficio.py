@@ -337,11 +337,11 @@ def test_gaveta_de_filtros_filtra_por_protocolo(logado, dados_e2e):
     gaveta.get_by_label("Protocolo").fill("123456789")
     expect(pg.locator(".aba[aria-current='page'] .aba__contagem")).to_have_text("1")
     expect(pg.locator("#conta-filtros")).to_have_text("1")
-    assert "protocolo=123456789" in pg.url
+    assert "protocolo=12.345.678-9" in pg.url  # o campo usa a máscara do protocolo
     pg.keyboard.press("Escape")
     expect(gaveta.locator(".filtros__avancados")).to_be_hidden()
     expect(gaveta.locator("summary")).to_be_focused()
-    expect(pg.locator(".filtros-ativos")).to_contain_text("Protocolo: 123456789")
+    expect(pg.locator(".filtros-ativos")).to_contain_text("Protocolo: 12.345.678-9")
 
 
 def test_lista_agrupa_por_mes_e_nomeia_transicoes(logado, dados_e2e):
@@ -387,7 +387,7 @@ def test_formulario_do_oficio_escolhas_itinerario_e_conferencia(logado, dados_e2
     expect(pg.locator("#roteiro .itin__trecho-rota").first).to_contain_text("Curitiba/PR")
     # Documentos: o aviso de conferência diz quantos itens faltam e cada pendência é um
     # atalho para o cartão onde se resolve (a situação dos cartões fica na faixa do topo).
-    expect(pg.locator("#emissao #conferencia .alerta__titulo")).to_contain_text("para emitir")
+    expect(pg.locator("#emissao #conferencia .prontidao-documental__titulo")).to_contain_text("para emitir")
     pendencias = pg.locator("#emissao .checklist a")
     expect(pendencias.first).to_have_attribute("href", re.compile(r"^#(dados|equipe|transporte|roteiro|diarias|justificativa)$"))
 
@@ -468,13 +468,13 @@ def test_relogio_e_lista_propria(logado, dados_e2e):
     hora = pg.locator("#id_destino-0-saida_1")
     hora.fill("09:00")
     pg.get_by_role("button", name=re.compile(r"^Escolher hora: Saída")).first.click()
-    horas = pg.get_by_role("listbox", name="Horas")
+    horas = pg.get_by_role("listbox", name="Hora")
     expect(horas).to_be_focused()
-    pg.keyboard.press("ArrowDown")
-    pg.keyboard.press("ArrowRight")
+    pg.keyboard.press("ArrowRight")  # 09 → 10 (↑/↓ andam uma faixa do dia: 6 horas)
+    pg.keyboard.press("Enter")  # confirma a hora e segue para os minutos
     expect(pg.get_by_role("listbox", name="Minutos")).to_be_focused()
-    pg.keyboard.press("ArrowDown")
-    pg.keyboard.press("ArrowDown")
+    pg.keyboard.press("ArrowRight")
+    pg.keyboard.press("ArrowRight")
     pg.keyboard.press("Enter")
     expect(hora).to_have_value("10:10")
     # Máscara: digitar só números monta a data.

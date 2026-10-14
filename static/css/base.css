@@ -180,6 +180,15 @@ a:not([class]):focus-visible {
   display: none !important;
 }
 
+/* Só sem JavaScript (ex.: "Aplicar" dos filtros, que a busca ao vivo dispensa): com scripts ligados some
+   já no primeiro desenho, sem piscar enquanto o app.js carrega (ele ainda marca `hidden`, para navegadores
+   sem a consulta `scripting`). */
+@media (scripting: enabled) {
+  [data-so-sem-js] {
+    display: none !important;
+  }
+}
+
 ::selection {
   background: var(--dourado-200);
   color: var(--grafite-950);

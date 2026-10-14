@@ -21,6 +21,8 @@ def _avaliar(pg, rota, antes=None):
     # repouso, no lugar dela no fim do formulário (estilo via CSSOM, que a CSP permite) — o
     # campo focado já rola para fora dela (protecao.js); a própria barra continua medida.
     pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
+    # O cabeçalho grudado cobre o que a rolagem do momento deixou atrás dele: mede do topo.
+    pg.evaluate("window.scrollTo(0, 0)")
     # Janelas que abrem ao carregar entram com animação de escala: medir no meio dela
     # dá alvos menores do que são. Espera as animações finitas acabarem (as infinitas, como
     # o pulso de "processando", ficam de fora).
@@ -57,8 +59,9 @@ def _carregar_previa(pg):
     pg.locator("#previa").scroll_into_view_if_needed()
     # Espera o conteúdo da folha (não a rede ociosa): com a suíte inteira em paralelo a
     # máquina fica carregada e o visualizador demora a carregar.
-    pg.locator("iframe[data-quadro='texto']:not([hidden])").wait_for()
-    pg.frame_locator("iframe[data-quadro='texto']").locator("body main").wait_for()
+    # O termo tem uma folha por documento (servidores, genérico, viaturas): basta a primeira.
+    pg.locator("iframe[data-quadro='texto']:not([hidden])").first.wait_for()
+    pg.frame_locator("iframe[data-quadro='texto'] >> nth=0").locator("body main").wait_for()
 
 
 @pytest.mark.parametrize("largura", [360, 1440])

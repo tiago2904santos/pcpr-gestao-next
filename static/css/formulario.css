@@ -200,49 +200,114 @@
   border-top: 1px solid var(--cor-borda);
 }
 
-/* Relógio: duas colunas roláveis (horas e minutos). */
+/* Relógio: tudo à vista, sem rolagem. No topo, o horário sendo montado; embaixo, as horas
+   em quatro faixas do dia (6 por linha) e os minutos de 5 em 5 — alinhados na mesma grade. */
 .relogio {
+  --relogio-faixas: 4.75rem;
+  --relogio-casa: 2.25rem;
+  display: grid;
+  gap: var(--esp-3);
+  width: max-content;
+}
+
+.relogio__visor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-05);
+  margin: 0;
+  padding: var(--esp-2);
+  border-radius: var(--raio-md);
+  background: var(--cor-superficie-sutil);
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-semi);
+  line-height: var(--altura-linha-justa);
+  font-variant-numeric: tabular-nums;
+  color: var(--cor-texto);
+}
+
+.relogio__parte {
+  padding: var(--esp-05) var(--esp-2);
+  border-radius: var(--raio-sm);
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
+}
+
+.relogio__parte--ativa {
+  background: var(--cor-marca-fundo);
+  color: var(--cor-marca-texto);
+}
+
+.relogio__separador {
+  color: var(--cor-texto-terciario);
+}
+
+.relogio__grupo {
+  display: grid;
+  gap: var(--esp-1);
+}
+
+.relogio__titulo {
+  margin: 0;
+  padding-left: calc(var(--relogio-faixas) + var(--esp-2));
+  font-size: var(--texto-2xs);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--rastreio-rotulo);
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.relogio__corpo {
   display: flex;
   gap: var(--esp-2);
 }
 
-.relogio__coluna {
-  width: 4.5rem;
+.relogio__grupo--minutos .relogio__corpo {
+  padding-left: calc(var(--relogio-faixas) + var(--esp-2));
 }
 
-.relogio__titulo {
-  margin-bottom: var(--esp-1);
+.relogio__faixas {
+  display: grid;
+  grid-auto-rows: var(--relogio-casa);
+  gap: var(--esp-05);
+  width: var(--relogio-faixas);
   font-size: var(--texto-xs);
-  font-weight: var(--peso-semi);
-  color: var(--cor-texto-secundario);
-  text-align: center;
+  color: var(--cor-texto-terciario);
+}
+
+.relogio__faixas > span {
+  display: flex;
+  align-items: center;
 }
 
 .relogio__lista {
-  height: 13rem;
+  display: grid;
+  grid-template-columns: repeat(6, var(--relogio-casa));
+  grid-auto-rows: var(--relogio-casa);
+  gap: var(--esp-05);
   margin: 0;
-  padding: var(--esp-1);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  padding: 0;
   list-style: none;
-  border-radius: var(--raio-md);
-  background: var(--cor-superficie-sutil);
+}
+
+.relogio__lista:focus-visible {
+  outline: none;
 }
 
 .relogio__lista > li {
-  padding: var(--esp-1) 0;
+  display: grid;
+  place-items: center;
   border-radius: var(--raio-sm);
+  font-size: var(--texto-sm);
   font-variant-numeric: tabular-nums;
-  text-align: center;
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao),
+    color var(--duracao-rapida) var(--curva-padrao);
 }
 
 .relogio__lista > li:hover {
   background: var(--cor-marca-fundo);
-}
-
-.relogio__lista > .relogio__ativo {
-  background: var(--cor-superficie-realce);
+  color: var(--cor-marca-texto);
 }
 
 .relogio__lista:focus-visible > .relogio__ativo {
@@ -252,6 +317,7 @@
 .relogio__lista > li[aria-selected="true"] {
   background: var(--grafite-900);
   color: var(--neutro-0);
+  font-weight: var(--peso-semi);
 }
 
 /* =============== Progresso de preenchimento (formulário longo) =============== */
@@ -869,11 +935,11 @@ pc-transporte:has(select[name="tipo_transporte"] option[value="outro"]:checked) 
 .campos > .transporte-campo > .campo--lg { flex: 1 1 18rem; }
 .campos > .transporte-campo > .campo--md { flex: 0 1 14rem; }
 
-.equipe__cartoes.multiescolha__lista {
+.equipe__cartoes.multiescolha__lista:not(.pessoas--compactas) {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
-.equipe__cartao.multiescolha__item {
+.equipe__cartoes:not(.pessoas--compactas) > .equipe__cartao.multiescolha__item {
   flex-wrap: wrap;
   padding: var(--esp-3);
 }

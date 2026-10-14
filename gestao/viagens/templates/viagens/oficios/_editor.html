@@ -19,12 +19,12 @@ Sem JavaScript a folha ainda aparece (o iframe é HTML servido) e a barra fica o
 {% with ident=sufixo|default:tipo %}<pc-editor-documento class="editor{% if inteira %} editor--inteira{% endif %}{% if operacional %} editor--operacional{% endif %}" id="editor-{{ ident }}"{% if inteira %} data-folha-inteira{% endif %}{% if aplicar_url %} data-aplicar-em-todos="{{ aplicar_url }}"{% endif %}
     data-folha="{{ folha_url }}"{% if estado_url %} data-base="{{ estado_url }}"{% endif %}
     data-pdf="{{ pdf_url }}"
-    {% if pode_editar_texto %}data-editavel{% endif %}>
+    {% if pode_editar_texto %}data-editavel data-editar-servidor="{% url 'cadastros:dialogo_servidor' 0 %}" data-editar-viatura="{% url 'cadastros:dialogo_viatura' 0 %}"{% if perms.cadastros.view_configuracaoinstitucional %} data-configuracao="{% url 'cadastros:configuracao' %}"{% endif %}{% endif %}>
   <div class="editor__barra" role="toolbar" aria-label="Ferramentas {% if tipo == 'oficio' %}do ofício{% elif tipo == 'justificativa' %}da justificativa{% else %}— {{ rotulo }}{% endif %}" aria-controls="folha-{{ ident }}" hidden>
     <div class="editor__linha">
       {% if indice %}<button type="button" class="botao botao--sm botao--icone editor__indice" data-alternar-indice aria-controls="{{ indice }}" aria-expanded="true" title="Mostrar ou esconder as páginas">{% icone "panel-left" classe="icone--sm" %}<span class="sr-only">Páginas</span></button>{% endif %}
       <div class="editor__estado">
-        {% if operacional %}<span class="editor__identidade">{{ rotulo }}</span>{% endif %}
+        {% if operacional %}<span class="editor__identidade"><span class="editor__identidade-icone" aria-hidden="true">{% icone "file-text" classe="icone--sm" %}</span>{{ rotulo }}</span>{% endif %}
         {% comment %}Pendências do documento: na própria barra, como atalho para o trecho que
         falta. Num alerta acima da folha elas empurravam o documento para baixo e repetiam, em
         tom de erro, o que o cartão de conferência já lista.{% endcomment %}

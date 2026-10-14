@@ -52,6 +52,24 @@ def campo_vinculado(chave: str, valor: object) -> str:
 
 
 @register.simple_tag
+def campo_destinos(destinos) -> str:
+    """Os destinos da viagem como campo vinculado ("Cidade/UF, Cidade/UF")."""
+    return format_html('<span data-campo="destinos" data-rotulo="Destinos da viagem" '
+                       'data-obrigatorio>{}</span>', ", ".join(destinos or []))
+
+
+@register.simple_tag
+def campo_trecho(ordem: int, lado: str, momento: dict | None) -> str:
+    """Saída/chegada de um trecho como campo vinculado ("dd/mm/aaaa hh:mm")."""
+    momento = momento or {}
+    texto = f"{momento.get('data', '')} {momento.get('hora', '')}".strip()
+    rotulo = f"{'Saída' if lado == 'saida' else 'Chegada'} do trecho {ordem}"
+    return format_html(
+        '<span data-campo="trecho_{}_{}" data-rotulo="{}" data-obrigatorio>{}</span>',
+        ordem, lado, rotulo, texto)
+
+
+@register.simple_tag
 def ponto_de_quebra(chave: str, rotulo: str) -> str:
     return format_html('<div class="quebra" data-quebra="{}" data-rotulo="{}"></div>', chave,
                        rotulo)

@@ -23,7 +23,7 @@ from gestao.cadastros.validacoes import somente_digitos
 from gestao.plataforma import outbox
 
 from . import policies
-from .documentos.campos import CAMPOS, CampoVinculado
+from .documentos.campos import CampoVinculado, campo_de, trecho_do_campo
 from .documentos.regioes import (
     blocos_alterados,
     campos_presentes,
@@ -207,6 +207,12 @@ def _normalizar_motorista_externo(atual: Oficio) -> bool:
     if not modo:
         atual.motorista_oficio_origem = atual.motorista_protocolo_origem = ""
         return False
+    # Só tira a marca da equipe quando o de fora já tem nome: o modo escolhido sem ninguém
+    # (bloco recém-aberto, ou o select enviado com a 1ª opção) não desfaz o motorista atual.
+    identificado = (atual.motorista_externo_servidor_id if modo == Oficio.MotoristaExterno.SERVIDOR
+                    else atual.motorista_externo_nome.strip())
+    if not identificado:
+        return False
     return bool(atual.viajantes.filter(motorista=True).update(motorista=False))
 
 
@@ -245,6 +251,12 @@ def salvar_edicao(oficio: Oficio, usuario, dados: dict, trechos: list[TrechoInfo
         _aplicar_trechos(atual, trechos, tocar=False)  # a versão já subiu com os dados
         recalcular_diarias(atual)
     return atual
+
+
+def limpar_roteiro(oficio: Oficio, usuario) -> Oficio:
+    """Tira os trechos e o vínculo com o roteiro cadastrado: o percurso volta a ser montado do
+    zero (ou com outro roteiro). As diárias ficam sem cálculo até haver trechos de novo."""
+    return salvar_edicao(oficio, usuario, {"roteiro": None}, [])
 
 
 def _aplicar_dados(atual: Oficio, usuario, dados: dict, *, registrar: bool = True) -> None:
@@ -487,6 +499,18 @@ class Prontidao:
 
 
 def verificar_prontidao(oficio: Oficio) -> Prontidao:
+    p = pendencias_que_impedem(oficio)
+    viajantes = viajantes_de(oficio)
+    conflitos = conflitos_de_agenda(oficio)
+    p.extend(Pendencia("equipe", c, False) for c in conflitos)
+    p.extend(avisos_de_cadastro(oficio, viajantes))
+    return Prontidao(p)
+
+
+def pendencias_que_impedem(oficio: Oficio) -> list[Pendencia]:
+    """Só o que impede emitir, lido do que o ofício já traz (equipe, trechos, unidade): na
+    lista, com `com_dados_de_lista`, não faz consulta por linha. Os avisos (agenda, cadastro
+    incompleto) ficam em `verificar_prontidao`, que consulta o banco."""
     p: list[Pendencia] = []
     if not oficio.motivo.strip():
         p.append(Pendencia("dados", "Descreva o motivo da viagem."))
@@ -515,10 +539,7 @@ def verificar_prontidao(oficio: Oficio) -> Prontidao:
     prazo = avaliar_prazo_do_oficio(oficio)
     if prazo.justificativa_obrigatoria and not oficio.justificativa.strip():
         p.append(Pendencia("justificativa", prazo.mensagem))
-    conflitos = conflitos_de_agenda(oficio)
-    p.extend(Pendencia("equipe", c, False) for c in conflitos)
-    p.extend(avisos_de_cadastro(oficio, viajantes))
-    return Prontidao(p)
+    return p
 
 
 def avisos_de_cadastro(oficio: Oficio, viajantes) -> list[Pendencia]:
@@ -603,9 +624,35 @@ def edicao_vigente(oficio: Oficio, tipo: str) -> EdicaoDocumento | None:
             .order_by("-numero").first())
 
 
-def regioes_vigentes(oficio: Oficio, tipo: str) -> dict[str, str]:
+def regioes_vigentes(oficio: Oficio, tipo: str, dados: dict | None = None) -> dict[str, str]:
     edicao = edicao_vigente(oficio, tipo)
-    return dict(edicao.regioes) if edicao is not None else {}
+    if edicao is None or not edicao.regioes:
+        return {}
+    if dados is None:
+        from .documentos.dados import dados_do_oficio
+        dados = dados_do_oficio(oficio)
+    return regioes_mescladas(edicao, tipo, dados)
+
+
+def regioes_mescladas(edicao: EdicaoDocumento, tipo: str, dados: dict) -> dict[str, str]:
+    """O texto editado com os dados de agora. A edição foi feita sobre o modelo de então
+    (`modelos`); se os dados mudaram depois (mais um servidor, outra viatura, outro
+    trecho), o que a pessoa mudou no texto é levado para o modelo de agora por fusão a três
+    (regioes.mesclar_alteracao) — as duas coisas ficam: a edição e o dado novo. Região sem
+    modelo guardado (edição antiga) vale como foi salva."""
+    from .documentos.pdf import regioes_do_modelo
+    from .documentos.regioes import mesclar_alteracao, normalizar
+    regioes = dict(edicao.regioes)
+    modelos = edicao.modelos or {}
+    if not modelos:
+        return regioes
+    agora = regioes_do_modelo(tipo, dados)
+    for chave, html in regioes.items():
+        antes, novo = modelos.get(chave), agora.get(chave)
+        if antes is None or novo is None or normalizar(antes) == normalizar(novo):
+            continue
+        regioes[chave], _ = mesclar_alteracao(antes, html, novo)
+    return regioes
 
 
 def _descrever_texto(tipo: str, edicao: EdicaoDocumento) -> str:
@@ -647,17 +694,22 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
     limpas: dict[str, str] = {}
     alterados: list[dict[str, str]] = []
     impressoes: dict[str, str] = {}
+    modelos: dict[str, str] = {}
+    modelos_vigentes = (vigente.modelos or {}) if vigente is not None else {}
     for chave, original in originais.items():
         if chave not in regioes:
             if vigente is not None and chave in vigente.regioes:  # região não enviada: mantém
                 limpas[chave] = vigente.regioes[chave]
                 alterados += blocos_alterados(original, limpas[chave])
                 impressoes[chave] = vigente.impressoes.get(chave, impressao(original))
+                if chave in modelos_vigentes:
+                    modelos[chave] = modelos_vigentes[chave]
             continue
         html = sanear_html(regioes[chave])
         faltando = campos_presentes(original) - campos_presentes(html)
         if faltando:
-            rotulos = ", ".join(CAMPOS[c].rotulo for c in sorted(faltando))
+            rotulos = ", ".join((campo_de(c).rotulo if campo_de(c) else c)
+                                for c in sorted(faltando))
             raise RegraViolada(f"O trecho «{rotulos}» vem do cadastro e não pode ser removido "
                                "do texto. Desfaça a alteração ou volte ao modelo.")
         # Compara os dois lados saneados: o navegador e o saneador reescrevem entidades e
@@ -667,6 +719,14 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
         limpas[chave] = html
         alterados += blocos_alterados(original, html)
         impressoes[chave] = impressao(original)
+        # A folha mostrou esta região sobre o modelo de agora (região nova, já fundida, ou
+        # ainda em dia com o cadastro): este é o modelo da edição. Uma edição antiga já
+        # desatualizada, sem modelo, continua sem — fundir a partir do modelo de agora
+        # trataria os dados velhos como mudança da pessoa e apagaria os novos.
+        anterior = vigente.regioes.get(chave) if vigente is not None else None
+        if (anterior is None or chave in modelos_vigentes
+                or vigente.impressoes.get(chave) == impressoes[chave]):
+            modelos[chave] = original
     acao = EdicaoDocumento.Acao.EDITADO if limpas else EdicaoDocumento.Acao.MODELO
     if vigente is not None and vigente.regioes == limpas:
         return vigente  # nada mudou
@@ -678,12 +738,12 @@ def salvar_texto_do_documento(oficio: Oficio, usuario, tipo: str, regioes: dict[
                 and timezone.now() - vigente.criado_em < JANELA_DE_COALESCENCIA)
     if coalesce and vigente is not None:
         vigente.regioes, vigente.blocos_alterados = limpas, alterados
-        vigente.impressoes = impressoes
-        vigente.save(update_fields=["regioes", "blocos_alterados", "impressoes"])
+        vigente.impressoes, vigente.modelos = impressoes, modelos
+        vigente.save(update_fields=["regioes", "blocos_alterados", "impressoes", "modelos"])
         return vigente
     edicao = EdicaoDocumento.objects.create(
         oficio=atual, tipo=tipo, numero=numero_vigente + 1, acao=acao, regioes=limpas,
-        blocos_alterados=alterados, impressoes=impressoes, criado_por=usuario)
+        blocos_alterados=alterados, impressoes=impressoes, modelos=modelos, criado_por=usuario)
     _registrar(atual, Historico.Acao.TEXTO, _descrever_texto(tipo, edicao), usuario,
                tipo=tipo, versao=edicao.numero)
     return edicao
@@ -707,6 +767,7 @@ def restaurar_texto_do_documento(oficio: Oficio, usuario, tipo: str,
         oficio=atual, tipo=tipo, numero=(vigente.numero if vigente else 0) + 1,
         acao=EdicaoDocumento.Acao.RESTAURADO, regioes=dict(origem.regioes),
         blocos_alterados=list(origem.blocos_alterados), impressoes=dict(origem.impressoes),
+        modelos=dict(origem.modelos or {}),
         restaurada_de=origem, criado_por=usuario)
     _registrar(atual, Historico.Acao.TEXTO, _descrever_texto(tipo, edicao), usuario,
                tipo=tipo, versao=edicao.numero, restaurada_de=origem.numero)
@@ -763,9 +824,13 @@ def _data_do_documento(campo: CampoVinculado, valor: str, ano: int) -> date:
 def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *,
                               versao: int | None = None) -> Oficio:
     """Escreve um campo vinculado de dentro do documento (mesma concorrência do formulário)."""
-    if chave not in CAMPOS:
+    campo = campo_de(chave)
+    if campo is None:
         raise RegraViolada(f"Campo desconhecido: {chave}.")
-    campo = CAMPOS[chave]
+    if campo.formato == "trecho":
+        return _salvar_trecho_do_documento(oficio, usuario, campo, valor, versao=versao)
+    if campo.formato == "destinos":
+        return _salvar_destinos_do_documento(oficio, usuario, campo, valor, versao=versao)
     atual = _travar_para_edicao(oficio, usuario, versao)
     policies.exigir(policies.pode_editar_texto(usuario, atual))
     novo = _validar_campo_vinculado(campo, valor, atual.ano)
@@ -780,6 +845,114 @@ def salvar_campo_do_documento(oficio: Oficio, usuario, chave: str, valor: str, *
     atual.save(update_fields=gravar)
     _registrar(atual, Historico.Acao.ALTERADO, f"{campo.rotulo} alterado pelo texto do documento.",
                usuario, campos=[campo.atributo])
+    return atual
+
+
+def _municipio_escrito(nome: str) -> Municipio:
+    """"Arapongas/PR", "Arapongas - PR" ou "Arapongas PR" → o município (sem acento conta)."""
+    m = re.match(r"^\s*(.+?)\s*(?:/|-|\s)\s*([A-Za-z]{2})\s*$", nome or "")
+    if not m:
+        raise RegraViolada(f"Escreva o destino como Cidade/UF (ex.: Arapongas/PR): «{nome}».")
+    achados = list(Municipio.objects.filter(nome__unaccent__iexact=m.group(1),
+                                            uf__iexact=m.group(2))[:2])
+    if len(achados) != 1:
+        raise RegraViolada(f"Não encontrei o município «{nome}». Confira o nome e a UF.")
+    return achados[0]
+
+
+def _salvar_destinos_do_documento(oficio: Oficio, usuario, campo: CampoVinculado, valor: str, *,
+                                  versao: int | None) -> Oficio:
+    """"Destino da viagem" escrito no documento: cada destino trocado (na mesma posição)
+    troca a cidade em todos os trechos do roteiro. A distância desses trechos volta a ser
+    calculada pela rota; as diárias se refazem. Incluir ou tirar destinos é no roteiro."""
+    atual = _travar_para_edicao(oficio, usuario, versao)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    escrito = " ".join((valor or "").split())
+    nomes = [n.strip() for n in re.split(r"\s*[,;]\s*|\s+e\s+", escrito) if n.strip()]
+    trechos = list(atual.trechos.select_related("destino").order_by("ordem"))
+    atuais: list[Municipio] = []
+    for t in trechos:
+        if t.destino_id != atual.sede_id and t.destino not in atuais:
+            atuais.append(t.destino)
+    if len(nomes) != len(atuais):
+        raise RegraViolada(
+            f"O roteiro tem {len(atuais)} destino(s): escreva {len(atuais)} cidade(s) "
+            "separadas por "
+            "vírgula. Para incluir ou tirar destinos, use o roteiro da folha.")
+    trocas: dict[int, int] = {}
+    for antigo, nome in zip(atuais, nomes, strict=True):
+        if " ".join(nome.split()).casefold() == f"{antigo.nome}/{antigo.uf}".casefold():
+            continue
+        novo = _municipio_escrito(nome)
+        if novo.pk != antigo.pk:
+            trocas[antigo.pk] = novo.pk
+    if not trocas:
+        return atual
+    if any(novo == atual.sede_id for novo in trocas.values()):
+        raise RegraViolada("O destino não pode ser a própria sede.")
+    informados = [TrechoInformado(
+        origem_id=trocas.get(t.origem_id, t.origem_id),
+        destino_id=trocas.get(t.destino_id, t.destino_id),
+        saida_em=t.saida_em, chegada_em=t.chegada_em,
+        distancia_km=None if (t.origem_id in trocas or t.destino_id in trocas) else t.distancia_km,
+        tempo_viagem_min=t.tempo_viagem_min, tempo_adicional_min=t.tempo_adicional_min or 0)
+        for t in trechos]
+    _aplicar_trechos(atual, informados, tocar=False)
+    atual.versao += 1
+    atual.save(update_fields=["versao", "atualizado_em"])
+    recalcular_diarias(atual)
+    _registrar(atual, Historico.Acao.ALTERADO, "Destino alterado pelo texto do documento.",
+               usuario, campos=["trechos"])
+    return atual
+
+
+def _salvar_trecho_do_documento(oficio: Oficio, usuario, campo: CampoVinculado, valor: str, *,
+                                versao: int | None) -> Oficio:
+    """Saída ou chegada de um trecho escrita no documento ("dd/mm/aaaa hh:mm").
+
+    Saída nova: o trecho inteiro anda junto (a chegada mantém os mesmos tempos). Chegada
+    nova: o tempo de viagem passa a ser chegada − saída − tempo adicional. As mesmas regras
+    do formulário valem (um trecho não sai antes da chegada do anterior) e as diárias se
+    recalculam."""
+    from dataclasses import replace
+    ordem, lado = trecho_do_campo(campo.chave) or (0, "")
+    atual = _travar_para_edicao(oficio, usuario, versao)
+    policies.exigir(policies.pode_editar_texto(usuario, atual))
+    texto = " ".join((valor or "").split())
+    try:
+        momento = timezone.make_aware(datetime.strptime(texto, "%d/%m/%Y %H:%M"))
+    except ValueError:
+        raise RegraViolada(f"{campo.rotulo}: escreva dd/mm/aaaa hh:mm "
+                           f"(ex.: 13/12/{atual.ano} 08:30).") from None
+    trechos = list(atual.trechos.order_by("ordem"))
+    indice = next((i for i, t in enumerate(trechos) if t.ordem == ordem), None)
+    if indice is None:
+        raise RegraViolada(f"O trecho {ordem} não existe mais: atualize o documento.")
+    informados = [TrechoInformado(origem_id=t.origem_id, destino_id=t.destino_id,
+                                  saida_em=t.saida_em, chegada_em=t.chegada_em,
+                                  distancia_km=t.distancia_km, tempo_viagem_min=t.tempo_viagem_min,
+                                  tempo_adicional_min=t.tempo_adicional_min or 0)
+                  for t in trechos]
+    t = informados[indice]
+    if lado == "saida":
+        if momento == t.saida_em:
+            return atual
+        informados[indice] = replace(t, saida_em=momento,
+                                     chegada_em=momento + (t.chegada_em - t.saida_em))
+    else:
+        if momento == t.chegada_em:
+            return atual
+        minutos = int((momento - t.saida_em).total_seconds() // 60) - t.tempo_adicional_min
+        if minutos <= 0:
+            raise RegraViolada(f"{campo.rotulo}: a chegada tem de ser depois da saída "
+                               "(e do tempo adicional).")
+        informados[indice] = replace(t, chegada_em=momento, tempo_viagem_min=minutos)
+    _aplicar_trechos(atual, informados, tocar=False)
+    atual.versao += 1
+    atual.save(update_fields=["versao", "atualizado_em"])
+    recalcular_diarias(atual)
+    _registrar(atual, Historico.Acao.ALTERADO, f"{campo.rotulo} alterada pelo texto do documento.",
+               usuario, campos=["trechos"])
     return atual
 
 
@@ -884,7 +1057,8 @@ def emitir(oficio: Oficio, usuario, *, versao: int | None = None) -> Documento:
         edicao = edicao_vigente(atual, tipo)
         if edicao is not None and not edicao.do_modelo:
             # O PDF arquivado sai do instantâneo, texto editado incluído (ADR 0018).
-            dados["edicao"] = {"numero": edicao.numero, "regioes": edicao.regioes,
+            dados["edicao"] = {"numero": edicao.numero,
+                               "regioes": regioes_mescladas(edicao, tipo, dados),
                                "blocos_alterados": edicao.blocos_alterados}
         doc = Documento.objects.create(oficio=atual, tipo=tipo, versao=ultima + 1,
                                        dados=dados, emitido_por=usuario, edicao=edicao)
@@ -1098,6 +1272,20 @@ def excluir_rascunho(oficio: Oficio, usuario) -> str:
     # Só a exclusão libera número para reaproveitamento (decisão D5).
     LacunaNumeracao.objects.get_or_create(ano=ano, numero=livre)
     return numero
+
+
+def excluir_rascunhos_vazios(usuario, visiveis) -> list[str]:
+    """Limpa os rascunhos vazios que a pessoa enxerga e pode excluir (um a um, cada um na
+    sua transação, pela mesma regra de `excluir_rascunho`). "Vazio" é reconferido aqui:
+    um rascunho preenchido entre a tela e o clique não é apagado."""
+    from .queries import q_rascunho_vazio
+
+    excluidos = []
+    for oficio in visiveis.filter(q_rascunho_vazio()).order_by("ano", "numero"):
+        oficio.tem_documentos = False
+        if policies.pode_excluir(usuario, oficio):
+            excluidos.append(excluir_rascunho(oficio, usuario))
+    return excluidos
 
 
 def buscar_por_texto(qs, termo: str, escopo: str = ""):

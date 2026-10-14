@@ -4,16 +4,21 @@
     {% include "componentes/metadado.html" with rotulo="Protocolo" valor=oficio.protocolo_formatado only %}
     <div class="metadado"><dt>Custeio</dt><dd title="{{ oficio.get_custeio_display }}">{{ oficio.custeio|custeio_curto }}{% if oficio.custeio_instituicao %}: {{ oficio.custeio_instituicao }}{% endif %}</dd></div>
     {% include "componentes/metadado.html" with rotulo="Porte de arma" valor=oficio.porte_arma|yesno:"Sim,Não" only %}
+    {% comment %}Linha 2: motivo e justificativa; linha 3 (revisão): quem assina e o destinatário. Cada um
+    em uma linha só — o que não couber vira reticências e o texto inteiro fica no title.{% endcomment %}
+    {% include "componentes/metadado.html" with rotulo="Motivo" valor=oficio.motivo titulo=oficio.motivo classe="resumo__largo metadado--texto metadado--linha" only %}
+    {% if revisao %}
+      {% if dados.justificativa %}{% firstof "Incluída (documento à parte)" as just %}{% elif prazo.justificativa_obrigatoria %}{% firstof "" as just %}{% else %}{% firstof "Dispensada" as just %}{% endif %}
+      {% include "componentes/metadado.html" with rotulo="Justificativa" valor=just titulo=just ausente="Obrigatória e ausente" classe="resumo__largo metadado--texto metadado--linha" only %}
+      {% with assina=dados.chefia.nome|default:""|add:" — "|add:dados.chefia.cargo destinatario=dados.destinatario.nome|default:""|add:", "|add:dados.destinatario.cargo %}
+      {% if dados.chefia.cargo %}{% include "componentes/metadado.html" with rotulo="Assina" valor=assina titulo=assina classe="resumo__largo metadado--texto metadado--linha" only %}{% else %}{% include "componentes/metadado.html" with rotulo="Assina" valor=dados.chefia.nome titulo=dados.chefia.nome classe="resumo__largo metadado--texto metadado--linha" only %}{% endif %}
+      {% if dados.destinatario.cargo %}{% include "componentes/metadado.html" with rotulo="Destinatário" valor=destinatario titulo=destinatario classe="resumo__largo metadado--texto metadado--linha" only %}{% else %}{% include "componentes/metadado.html" with rotulo="Destinatário" valor=dados.destinatario.nome titulo=dados.destinatario.nome classe="resumo__largo metadado--texto metadado--linha" only %}{% endif %}
+      {% endwith %}
+    {% elif oficio.justificativa %}
+      {% include "componentes/metadado.html" with rotulo="Justificativa" valor=oficio.justificativa titulo=oficio.justificativa classe="resumo__largo metadado--texto metadado--linha" only %}
+    {% endif %}
     {% comment %}
     Tipo e prazo não entram aqui: o tipo já é selo no cabeçalho e a pendência de
     justificativa já aparece no alerta, logo acima (não repetir a mesma frase três vezes).
     {% endcomment %}
-    {% if revisao %}
-      {# Na revisão, o que vai no papel e não aparece na folha do ofício. #}
-      {# Nome com cargo é longo: duas colunas, senão quebra em três linhas ao lado de um vão. #}
-      <div class="resumo__medio"><dt>Destinatário</dt><dd>{{ dados.destinatario.nome }}{% if dados.destinatario.cargo %}, {{ dados.destinatario.cargo }}{% endif %}</dd></div>
-      <div class="resumo__medio"><dt>Assina</dt><dd>{{ dados.chefia.nome }}{% if dados.chefia.cargo %} — {{ dados.chefia.cargo }}{% endif %}</dd></div>
-      <div class="resumo__medio"><dt>Valor por extenso</dt><dd>{{ dados.diarias.extenso|default:"—" }}</dd></div>
-      <div class="resumo__medio"><dt>Justificativa</dt><dd>{% if dados.justificativa %}Incluída (documento à parte){% elif prazo.justificativa_obrigatoria %}<span class="vazio-inline">Obrigatória e ausente</span>{% else %}Dispensada{% endif %}</dd></div>
-    {% endif %}
   </dl>

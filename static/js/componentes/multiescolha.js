@@ -151,6 +151,7 @@ export class PcMultiescolha extends HTMLElement {
     if (this.vazio && this.lista) this.vazio.hidden = this.lista.children.length > 0;
     if (this.emCartoes) this.arrumarEquipe();
     if (this.dataset.variante === "equipe") {
+      this.contar();
       // A viatura acompanha a equipe (<pc-transporte>: sugestões, chips, quem dirige).
       this.dispatchEvent(new CustomEvent("pc-equipe-alterada", { bubbles: true }));
     }
@@ -179,6 +180,17 @@ export class PcMultiescolha extends HTMLElement {
       const ids = cartoes.map((c) => /** @type {HTMLElement} */ (c).dataset.id).join(",");
       busca.dataset.fonte = `${busca.dataset.fonteBase}?excluir=${ids}&q=`;
     }
+  }
+
+  /** O selo "N servidores" do cabeçalho do bloco (como na equipe do ofício) acompanha a lista. */
+  contar() {
+    const selo = this.closest(".secao__bloco")?.querySelector("[data-equipe-contagem]");
+    if (!selo || !this.lista) return;
+    const n = this.lista.children.length;
+    selo.textContent = `${n} ${n === 1 ? "servidor" : "servidores"}`;
+    selo.classList.toggle("selo--sucesso", n > 0);
+    selo.classList.toggle("selo--situacao-emitido", n > 0);
+    selo.classList.toggle("selo--situacao-rascunho", n === 0);
   }
 
   /** @param {string} texto */

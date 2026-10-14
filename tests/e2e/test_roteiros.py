@@ -57,15 +57,12 @@ def test_oficio_usa_roteiro_cadastrado(logado, dados_e2e):
     escolha.fill("ponta")
     pg.get_by_role("option", name=re.compile("Ponta Grossa")).click()
     pg.get_by_role("button", name="Usar este roteiro").click()
-    aviso = pg.locator("#roteiro-aplicado")
-    expect(aviso).to_contain_text("preenchidos")
-    expect(aviso).to_be_focused()
+    # Aplicar grava na hora (trechos, vínculo e diárias) e volta para a folha já salva.
+    expect(pg.locator(".toast")).to_contain_text("aplicado")
     expect(pg.locator("input[name='destino-0-cidade']")).to_have_value("Ponta Grossa/PR")
     expect(pg.get_by_label("Motivo da viagem")).to_have_value(
         "Motivo digitado antes de escolher o roteiro.")
-    pg.get_by_role("button", name="Salvar rascunho").click()
-    expect(pg.locator("[data-status-salvamento]")).to_contain_text("Rascunho salvo às")
-    expect(pg.locator(".usar-roteiro__origem")).to_contain_text(
+    expect(pg.locator(".selecao-recurso__nome")).to_contain_text(
         f"roteiro #{dados_e2e.ids['roteiro']}")
     oficio = Oficio.objects.get(pk=oficio_id)
     assert oficio.roteiro_id == dados_e2e.ids["roteiro"] and oficio.trechos.count() == 2

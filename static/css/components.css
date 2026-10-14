@@ -3100,6 +3100,17 @@ fieldset.campo--escolhas > .campo__erro {
   background: var(--cor-superficie-realce);
 }
 
+/* Segmentado de links (atalhos que trocam a página, ex.: "Pedem atenção" da prestação): o mesmo desenho dos rádios,
+   com a opção atual (aria-current) em grafite. */
+.segmentado > a { display: inline-flex; align-items: center; justify-content: center; min-width: 4.5rem; min-height: 2.25rem; padding: 0 var(--esp-4); border-radius: calc(var(--raio-md) - 0.1875rem); font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto-secundario); white-space: nowrap; text-decoration: none; transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.segmentado > a:not([aria-current]):hover { background: var(--cor-superficie); color: var(--cor-texto); text-decoration: none; }
+.segmentado > a[aria-current] { background: var(--grafite-900); color: var(--neutro-0); }
+.segmentado > a:focus-visible { outline: none; box-shadow: var(--anel-foco-interno); }
+.segmentado--contagem > a { gap: var(--esp-2); min-width: 0; min-height: calc(var(--altura-controle) - 0.375rem); padding: 0 var(--esp-3); font-weight: var(--peso-medio); }
+.segmentado--contagem > a[aria-current] { font-weight: var(--peso-semi); }
+.segmentado > a[aria-current] .segmentado__conta { background: var(--grafite-700); color: var(--neutro-0); }
+.segmentado--contagem > a:not([aria-current]) .segmentado__conta { background: var(--cor-superficie-realce); }
+
 /* Trilho que rola de lado quando não cabe (`data-rola-lado`: o segmentado Documento e as
    fichas de filtro no celular): sem barra visível, com a borda que esconde itens esmaecida
    (abas-rolagem.js marca data-rola, como nas abas). */
@@ -3585,7 +3596,8 @@ fieldset.campo--escolhas > .campo__erro {
 }
 
 /* Mesa de registro oficial — composição DETAIL com estação documental. */
-dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height: calc(100dvh - 2 * var(--esp-5)); max-height: calc(100dvh - 2 * var(--esp-5)); }
+/* Altura do conteúdo, até a da tela (aí o corpo rola): um resumo curto não fica com um vão branco embaixo. */
+dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height: fit-content; max-height: calc(100dvh - 2 * var(--esp-5)); }
 /* A mesa ampla entra sem deslocar seus alvos sob o ponteiro. A saída mantém o
    contrato do diálogo; duração também obedece ao movimento reduzido dos tokens. */
 dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }
@@ -3667,8 +3679,10 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .colecao-operacional__grupo { margin-top: var(--esp-3); }
 .colecao-operacional--consulta .colecao-operacional__indice .abas { display: flex; gap: var(--esp-1); overflow-x: auto; padding-bottom: var(--esp-1); }
 .colecao-operacional--consulta .colecao-operacional__indice .aba { display: inline-flex; flex: none; align-items: center; justify-content: center; min-height: var(--altura-controle); padding: var(--esp-2) var(--esp-3); white-space: nowrap; font-size: var(--texto-xs); }
-.barra-acoes.barra-acoes--colecao { position: static; margin-top: var(--esp-4); padding: var(--esp-3) var(--esp-4); box-shadow: none; border: var(--borda-sutil); border-radius: var(--raio-lg); }
-.barra-acoes--colecao.barra-acoes--acompanha { position: sticky; bottom: var(--esp-2); box-shadow: var(--sombra-1); }
+/* Barra das listas: acompanha a rolagem presa à borda de baixo da tela (cantos de cima arredondados, sombra) e, no
+   fim da lista, vira um cartão com os quatro cantos — barra-grudada.js marca `data-grudada` enquanto está presa. */
+.barra-acoes.barra-acoes--colecao { position: sticky; bottom: 0; margin-top: var(--esp-4); padding: var(--esp-3) var(--esp-4); box-shadow: none; border: var(--borda-sutil); border-radius: var(--raio-lg); }
+.barra-acoes.barra-acoes--colecao[data-grudada] { border-radius: var(--raio-lg) var(--raio-lg) 0 0; box-shadow: var(--sombra-1); }
 @media (min-width: 1024px) {
   .colecao-operacional--consulta .colecao-operacional__indice .abas { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .colecao-operacional--consulta .colecao-operacional__indice .aba { justify-content: space-between; }
@@ -3679,7 +3693,24 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .colecao-operacional--consulta > .registro-hero--pagina .registro-hero__complemento { justify-self: start; }
 }
 .colecao-operacional .filtros--barra { padding: var(--esp-4); background: var(--cor-superficie); border: var(--borda); border-radius: var(--raio-lg); margin-bottom: var(--esp-4); }
-.colecao-operacional .registros__grupo { position: static; padding: var(--esp-2) var(--esp-1); border: 0; background: transparent; }
+/* Conjunto de filtros (Ofícios): as abas de recorte viram o topo do mesmo cartão da busca, em vez de
+   uma fileira solta acima dele. A barra perde a própria moldura; o cartão é do conjunto. */
+.colecao-operacional .filtro-conjunto { background: var(--cor-superficie); border: var(--borda); border-radius: var(--raio-lg); margin-bottom: var(--esp-4); }
+/* Sem overflow no conjunto: a gaveta de Filtros é absoluta e precisa sair do cartão. Os cantos de cima são das abas. */
+.colecao-operacional .filtro-conjunto > .abas { border-radius: var(--raio-lg) var(--raio-lg) 0 0; padding-inline: var(--esp-3); background: var(--cor-superficie-sutil); scrollbar-width: none; }
+.colecao-operacional .filtro-conjunto > .abas::-webkit-scrollbar { display: none; }
+.colecao-operacional .filtro-conjunto > .abas .aba { flex: none; min-height: var(--altura-controle); font-size: var(--texto-sm); }
+.colecao-operacional .filtro-conjunto > .filtros--barra { margin: 0; border: 0; border-radius: 0; background: transparent; }
+/* Listas com o cartão do arquétipo (cadastros, eventos, imprensa…): as abas são o topo do próprio cartão. */
+.cartao > .abas:first-child { margin: 0; padding-inline: var(--esp-3); background: var(--cor-superficie-sutil); border-bottom: var(--borda); border-radius: var(--raio-lg) var(--raio-lg) 0 0; scrollbar-width: none; }
+.cartao > .abas:first-child::-webkit-scrollbar { display: none; }
+.cartao > .abas:first-child .aba { flex: none; min-height: var(--altura-controle); font-size: var(--texto-sm); }
+/* Mês do grupo: preso sob o topo enquanto o grupo rola, numa faixa da cor da página (os cartões passam por baixo).
+   Nome do mês legível (sem caixa alta miúda), filete dourado e a contagem numa pílula com borda. */
+.colecao-operacional .registros__grupo { position: sticky; top: var(--altura-topo); z-index: var(--z-grupo-lista); gap: var(--esp-3); margin-inline: calc(-1 * var(--esp-1)); padding: var(--esp-3) var(--esp-2); border: 0; background: var(--cor-fundo); font-size: var(--texto-sm); font-weight: var(--peso-semi); letter-spacing: 0; text-transform: none; }
+.colecao-operacional .registros__grupo::before { height: 1rem; }
+.colecao-operacional .registros__grupo > span:first-of-type::first-letter { text-transform: uppercase; }
+.colecao-operacional .registros__grupo-conta { padding: var(--esp-05) var(--esp-2); border: var(--borda-sutil); background: var(--cor-superficie); font-size: var(--texto-xs); font-weight: var(--peso-medio); }
 .colecao-operacional .registros--operacionais { display: grid; gap: var(--esp-2); }
 
 /* Registro reutilizável. Os quatro blocos têm hierarquia própria, sem cabeçalho de tabela. */
@@ -3708,7 +3739,6 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 .registro-operacional__recursos > .registro__meta-item,
 .registro-operacional__recursos > .menu,
 .registro-operacional__conferencia > .registro__meta-item { grid-area: auto; }
-.registro-operacional__rotulo { display: block; font-size: var(--texto-2xs); color: var(--cor-texto-secundario); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
 .registros--operacionais .registro-operacional .registro__meta-item { min-width: 0; margin: 0; font-size: var(--texto-xs); }
 .registros--operacionais .registro-operacional .registro__meta-item > .icone { display: inline; flex: none; }
 .registros--operacionais .registro-operacional .registro__meta-item--equipe { border: 0; padding: 0; }
@@ -3733,9 +3763,7 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   /* O filete separa as colunas de ponta a ponta: a conferência estica na altura do cartão,
      senão em registros curtos ("Sem diárias") a fita vira um traço solto no meio. */
   .registro-operacional__conferencia { align-self: stretch; align-content: center; border-top: 0; border-left: var(--filete-fino) solid var(--cor-marca-borda); padding: 0 0 0 var(--esp-3); display: grid; grid-template-columns: 1fr; gap: var(--esp-2); }
-  .registro-operacional__conferencia > .registro-operacional__rotulo { text-align: right; }
   .registro-operacional__recursos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .registro-operacional__recursos > .registro-operacional__rotulo { display: none; }
 }
 @media (min-width: 1024px) {
   .colecao-operacional__layout { grid-template-columns: calc(var(--esp-12) * 4) minmax(0, 1fr); gap: var(--esp-6); }
@@ -3746,8 +3774,8 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
 }
 @media (min-width: 1280px) {
   .registros--operacionais > .registro.registro-operacional { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr) calc(var(--esp-16) * 2.5) var(--altura-controle); grid-template-areas: "identidade titulo recursos conferencia acoes" "identidade estado recursos conferencia acoes" "identidade agenda recursos conferencia acoes"; gap: var(--esp-2) var(--esp-4); }
-  .registro-operacional__recursos { display: grid; grid-template-columns: 1fr; border-top: 0; padding-top: 0; }
-  .registro-operacional__recursos > .registro-operacional__rotulo { display: block; }
+  /* Equipe e transporte no meio da altura do cartão, não colado ao topo da linha. */
+  .registro-operacional__recursos { display: grid; grid-template-columns: 1fr; border-top: 0; padding-top: 0; align-self: center; }
 }
 @media (max-width: 767px) {
   .registro-hero--pagina { padding: var(--esp-5); gap: var(--esp-4); margin-bottom: var(--esp-4); flex-wrap: wrap; }
@@ -3767,10 +3795,11 @@ dialog.dialogo--mesa.dialogo--saindo { animation: recolher var(--duracao-instant
   .registros--operacionais .registro-operacional .registro__meta-item--periodo .registro__meta-texto { white-space: normal; }
   .registro-operacional__conferencia { border: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: var(--esp-1); justify-items: end; }
   .registro-operacional__recursos { padding-top: var(--esp-2); }
-  .registro-operacional__recursos > .registro-operacional__rotulo { display: none; }
 }
 /* Preparação de registro: índice e seções editoriais reutilizáveis. */
-.barra-acoes.barra-acoes--registro { bottom: 0; padding: var(--esp-2) var(--esp-4); border-radius: var(--raio-lg) var(--raio-lg) 0 0; }
+.barra-acoes.barra-acoes--registro { bottom: 0; padding: var(--esp-2) var(--esp-4); border-radius: var(--raio-lg); }
+/* Presa à borda de baixo da tela (barra-grudada.js): encosta na borda, só os cantos de cima arredondados. */
+.barra-acoes.barra-acoes--registro[data-grudada] { border-radius: var(--raio-lg) var(--raio-lg) 0 0; }
 .barra-acoes.barra-acoes--fluxo { position: static; margin-top: var(--esp-5); border-radius: var(--raio-lg); }
 /* O índice fica no fluxo (não acompanha a rolagem) e traz no pé uma barra com o quanto da
    preparação já fechou: seções com estado + a revisão. */
@@ -3846,7 +3875,9 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .documento--preparacao .secao__nota { order: 3; flex-basis: 100%; margin: 0; font-size: var(--texto-xs); line-height: var(--altura-linha); }
 /* O estado da seção ("2 pendências", "completo") anda junto do título, não na outra ponta. */
 .documento--preparacao .secao__estado { justify-content: start; margin-left: 0; }
-.documento--preparacao .secao__estado:has(.pendencia) { width: 100%; margin-left: 0; }
+/* Pendência na mesma linha do título (pílula do tamanho da linha), só aparece depois de salvar ou de pedir para emitir. */
+.documento--preparacao .secao__cabecalho .pendencia { align-items: center; padding: var(--esp-1) var(--esp-3); border-left: 0; border-radius: var(--raio-pilula); }
+.documento--preparacao .secao__cabecalho .pendencia > .icone { margin-top: 0; }
 .documento--preparacao .secao__cabecalho .selo { max-width: 100%; white-space: nowrap; }
 .secao__conteudo { min-width: 0; }
 .secao__grupo { display: grid; gap: var(--esp-5); align-items: start; }
@@ -3885,10 +3916,17 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .selecao-recurso__controles .campo { min-width: 0; }
 .selecao-recurso__controles > .botao { margin: 0; }
 /* Variante de percurso: os pontos são a edição; o mapa é a conferência. */
-.selecao-recurso--integrada { padding: var(--esp-3) var(--esp-4); margin-bottom: var(--esp-5); border: 0; border-left: var(--filete) solid var(--cor-marca); background: var(--cor-superficie-sutil); }
-.selecao-recurso--integrada .selecao-recurso__controles { grid-template-columns: minmax(0, 1fr) auto; gap: var(--esp-2); }
-.selecao-recurso--integrada .campo { padding-top: 0; gap: var(--esp-1); }
-.selecao-recurso--integrada .campo > .campo__rotulo { position: static; display: block; transform: none; inset: auto; margin: 0; padding: 0; background: transparent; font-size: var(--texto-xs); }
+/* Na folha do ofício: um cartão igual aos outros da folha (borda fina, fundo sutil, cantos largos), com ícone em
+   ladrilho e título à esquerda e a busca à direita — campo com o rótulo na borda, como todos os campos. */
+.selecao-recurso--integrada { padding: var(--esp-3) var(--esp-4); margin-bottom: var(--esp-5); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); }
+.selecao-recurso--integrada .selecao-recurso__controles { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: column; gap: var(--esp-2); }
+.selecao-recurso__cabeca { display: flex; align-items: center; gap: var(--esp-3); min-width: 0; }
+.selecao-recurso__marca { display: grid; place-items: center; flex: none; width: var(--altura-controle); height: var(--altura-controle); border-radius: var(--raio-md); background: var(--cor-superficie-realce); color: var(--cor-marca-texto); }
+.selecao-recurso__textos { display: grid; gap: var(--esp-05); min-width: 0; }
+.selecao-recurso__nome { font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.selecao-recurso__descricao { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+/* Uma linha cada (o que não couber termina em reticências, sem quebrar). */
+.selecao-recurso__nome, .selecao-recurso__descricao { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .itin.itin--operacional { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-6); }
 .itin__planejamento { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-5); align-items: start; }
 .itin--operacional .itin__bloco.itin__sequencia { grid-template-rows: auto auto; padding-top: 0; gap: var(--esp-4); }
@@ -4208,12 +4246,11 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 /* Uma rolagem para o conteúdo; cabeçalho e ações não recebem o trilho da scrollbar. */
 .dialogo--mesa .dialogo__conteudo > .dialogo__corpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-color: var(--cor-borda) var(--cor-superficie); scrollbar-width: thin; scroll-padding-block: var(--esp-4); }
 .mesa-registro :is(a, button, input, textarea, summary) { scroll-margin-block: var(--esp-4); }
-.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "principal contexto" "copia copia"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
-.mesa-registro__copia { grid-area: copia; min-width: 0; }
+.dialogo--mesa .mesa-registro > .resumo { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); grid-template-areas: "documentos documentos" "registro registro" "equipe equipe" "principal contexto"; align-items: start; gap: var(--esp-6); font-size: var(--texto-md); }
 .registro__selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-secundario); }
 .dialogo--mesa .dialogo__linha-selos .selo--temporal { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
 .dialogo--mesa .dialogo__linha-selos .selo--condicao { background: transparent; border-color: transparent; color: var(--cor-texto-inverso-sutil); }
-.estado-documental { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); background: var(--cor-superficie-sutil); border-radius: var(--raio-md); }
+.estado-documental { display: flex; align-items: center; gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
 .estado-documental > .icone { flex: none; color: var(--cor-marca-texto); }
 .estado-documental > div { min-width: 0; flex: 1; }
 .estado-documental__titulo { margin: 0; font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
@@ -4221,8 +4258,89 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .estado-documental > .botao { flex: none; }
 .mesa-registro__principal { grid-area: principal; min-width: 0; display: grid; gap: var(--esp-6); }
 .mesa-registro__documentos { grid-area: documentos; min-width: 0; }
-.mesa-registro__coluna { grid-area: contexto; min-width: 0; }
-.mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); align-content: start; }
+/* A coluna se estica até o fim do conteúdo para a conferência poder acompanhar a rolagem (sticky); ela cabe
+   na altura da tela — o que passar disso rola dentro dela — e nunca deixa um vão embaixo. */
+.mesa-registro__coluna { grid-area: contexto; min-width: 0; align-self: stretch; }
+.mesa-registro__registro { grid-area: registro; min-width: 0; }
+.mesa-registro__equipe { grid-area: equipe; min-width: 0; }
+/* Equipe e transporte: uma fileira de cartões (servidores + viatura), no mesmo desenho do cartão Registro institucional. */
+/* Cada linha se divide em colunas iguais e ocupa a largura toda (1 servidor + viatura = 2 colunas; 3 = 3; a última linha também se estica). */
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa { flex: 1 1 17rem; align-self: stretch; }
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa { background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); box-shadow: none; padding: var(--esp-3) var(--esp-4); }
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte .avatar { width: var(--esp-10); height: var(--esp-10); font-size: var(--texto-xs); }
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte .avatar--escuro { background: var(--grafite-900); color: var(--neutro-0); }
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte .pessoa__nome { font-size: var(--texto-md); color: var(--cor-texto); }
+/* Roteiro do Resumo: os trechos num cartão como os demais (registro, equipe), linhas com respiro uniforme, o fio
+   ocupando o meio de verdade (antes era um traço curto perdido entre saída e chegada) e a origem tão legível quanto
+   o destino. A linha sob o mouse se destaca para seguir o trecho de um lado ao outro. */
+.dialogo--mesa .mesa-registro__principal .resumo__moldura { background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); padding: var(--esp-1) var(--esp-2); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__trecho { align-items: center; padding: var(--esp-3); border-radius: var(--raio-md); transition: background-color var(--duracao-rapida) var(--curva-padrao); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__trecho:hover { background: var(--cor-superficie); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__rota { grid-template-columns: minmax(0, 1fr) minmax(8rem, 1.4fr) minmax(0, 1fr); align-items: center; gap: var(--esp-4); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__lugar { color: var(--cor-texto); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__dia small { color: var(--cor-marca-texto); }
+/* Fontes do roteiro mais contidas no Resumo: hora e data no tamanho do corpo, lugares um degrau abaixo. */
+.dialogo--mesa .mesa-registro__principal .percurso-registro__trecho { padding-block: var(--esp-2); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__dia b { font-size: var(--texto-sm); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__ponto time { font-size: var(--texto-md); }
+.dialogo--mesa .mesa-registro__principal .percurso-registro__lugar { font-size: var(--texto-xs); }
+.mesa-registro__registro > .bloco-registro { min-width: 0; padding: var(--esp-5); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
+.dialogo--mesa .mesa-registro__registro .bloco-registro__titulo { font-size: var(--texto-xs); }
+.mesa-registro__contexto { min-width: 0; display: grid; gap: var(--esp-6); align-content: start; position: sticky; top: var(--esp-2); scrollbar-width: thin; }
+@media (min-width: 1024px) {
+  /* Registro institucional no alto, na largura toda: quatro dados lado a lado; motivo e justificativa em linha inteira. */
+  .dialogo--mesa .mesa-registro__registro .resumo__definicoes.metadados { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-4) var(--esp-6); }
+  /* Motivo e justificativa: metade da linha cada, na mesma linha, no máximo duas linhas de texto (o resto fica no title). */
+  .dialogo--mesa .mesa-registro__registro .resumo__definicoes .metadado--texto { grid-column: span 2; }
+  .dialogo--mesa .mesa-registro__registro .metadado--texto dd { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  /* Diárias ao lado do Roteiro, sempre na altura dele: a coluna estica com o roteiro e o cartão a preenche — o valor total
+     cresce (número no meio) e os três dados se distribuem um por linha. */
+  .mesa-registro__contexto { position: static; min-height: 100%; grid-template-rows: minmax(min-content, 1fr); }
+  .mesa-registro__contexto > .bloco-registro--conferencia { display: grid; grid-template-rows: auto minmax(min-content, 1fr); }
+  .mesa-registro__contexto .conferencia-serena--consulta { grid-template-rows: minmax(min-content, 1fr) auto; }
+  .mesa-registro__contexto .conferencia-serena--consulta .conferencia-serena__total { align-content: center; }
+  /* A sobra de altura vai para o bloco escuro; os dados só ajudam a preencher (ver respiro em cqh abaixo); cada dado recebe uma parte igual da sobra (stretch nas faixas auto), centrado nela. */
+  .dialogo--mesa .mesa-registro__contexto .conferencia-serena--consulta .conferencia-serena__dados { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; gap: var(--esp-2); padding-block: var(--esp-3); align-content: stretch; }
+  .dialogo--mesa .mesa-registro__contexto .conferencia-serena--consulta .conferencia-serena__dados > div { align-content: center; }
+  .dialogo--mesa .mesa-registro__contexto .conferencia-serena--consulta .conferencia-serena__dados > div:not(:last-child) { padding-bottom: var(--esp-2); border-bottom: var(--borda-sutil); }
+  .dialogo--mesa .mesa-registro__contexto .conferencia-serena--consulta .conferencia-serena__dados dd { white-space: nowrap; }
+  .dialogo--mesa .mesa-registro__contexto .bloco-registro__titulo { font-size: var(--texto-xs); }
+  /* Ao lado do roteiro, o texto das Diárias cresce com a altura da coluna (que é a do roteiro) para não sobrar vão: a
+     coluna vira container de tamanho (sem contribuir para a altura da linha) e cada texto usa uma fração dela (cqh),
+     limitada pela largura (cqi) para nunca quebrar linha. */
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .mesa-registro__coluna { container-type: size; }
+  /* Altura definida (a da coluna): as frações de altura repartem a sobra em vez de crescerem a partir do conteúdo. */
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .mesa-registro__contexto { height: 100%; }
+  /* Blocos iguais: cada dado tem a mesma altura e o valor total 10% a mais; juntos, a altura do roteiro (1,1 + N faixas, N = 2 ou 3). */
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta { grid-template-rows: minmax(0, 1.1fr) minmax(0, 2fr); }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta:has(.conferencia-serena__por-servidor) { grid-template-rows: minmax(0, 1.1fr) minmax(0, 3fr); }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__total { padding-block: 0; align-content: center; }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__dados { grid-auto-rows: minmax(0, 1fr); padding-block: 0; gap: 0; align-content: stretch; }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__dados > div { align-content: center; padding-block: 0; }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__total > span { font-size: clamp(var(--texto-2xs), 3.2cqh, var(--texto-sm)); }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__total > strong { font-size: clamp(var(--texto-3xl), min(9cqh, 9cqi), 3.5rem); white-space: nowrap; }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), min(3.3cqh, 3.6cqi), var(--texto-md)); }
+  .dialogo--mesa .mesa-registro > .resumo:has(.percurso-registro__trecho:nth-child(6)) .conferencia-serena--consulta .conferencia-serena__dados dd { font-size: clamp(var(--texto-sm), min(5.4cqh, 6.5cqi), 2rem); line-height: var(--altura-linha-justa); overflow: hidden; text-overflow: ellipsis; }
+  /* Roteiro curto (até 5 trechos) não tem altura para as Diárias ao lado: elas descem para baixo do roteiro, na largura
+     toda, com tudo numa linha só — valor total, por servidor, tipo e quantidade. */
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) { grid-template-areas: "documentos documentos" "registro registro" "equipe equipe" "principal principal" "contexto contexto"; }
+  /* Resumo sem documentos nem registro (ex.: roteiro): a grade não reserva essas faixas — faixa vazia ainda soma o vão. */
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(> .mesa-registro__documentos, > .mesa-registro__registro)) { grid-template-areas: "equipe equipe" "principal contexto"; }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))):not(:has(> .mesa-registro__documentos, > .mesa-registro__registro)) { grid-template-areas: "equipe equipe" "principal principal" "contexto contexto"; }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena--consulta { grid-template-columns: minmax(max-content, 1fr) minmax(0, 3fr); grid-template-rows: none; }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: center; align-items: center; gap: var(--esp-6); }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados > div { grid-column: auto; padding: 0; border: 0; }
+  /* Na linha, cada dado tenta ocupar a sua coluna inteira: o tamanho do texto acompanha a largura da coluna (cqi), sem
+     quebrar linha — 7,5cqi é o que cabe para os valores mais longos ("18 x 100% + 1 x 15%", "CAPITAL + INTERIOR"). */
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados > div { container-type: inline-size; min-width: 0; }
+  /* Na linha, cada bloco (valor total e dados) com o texto centrado. */
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena--consulta .conferencia-serena__total,
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena--consulta .conferencia-serena__dados > div { justify-items: center; text-align: center; }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados dd { font-size: clamp(var(--texto-md), 7.5cqi, var(--texto-3xl)); line-height: var(--altura-linha-justa); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), 3.6cqi, var(--texto-md)); }
+  .dialogo--mesa .mesa-registro > .resumo:not(:has(.percurso-registro__trecho:nth-child(6))) .conferencia-serena__dados:not(:has(> .conferencia-serena__por-servidor)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .mesa-registro__contexto > .bloco-registro { min-width: 0; padding: var(--esp-5); background: var(--cor-superficie-sutil); border: var(--borda-sutil); border-radius: var(--raio-lg); }
 /* Diárias não ganha cartão: só o título e o bloco escuro. */
 .mesa-registro__contexto > .bloco-registro--conferencia { padding: 0; background: none; border: 0; border-radius: 0; }
@@ -4232,8 +4350,11 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .conferencia-serena--consulta .conferencia-serena__dados { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: var(--esp-4) var(--esp-5); gap: var(--esp-4); }
 .conferencia-serena--consulta .conferencia-serena__dados > div { justify-items: start; text-align: left; min-width: 0; }
 .conferencia-serena--consulta .conferencia-serena__dados dd { font-size: var(--texto-sm); line-height: var(--altura-linha); white-space: normal; }
-.conferencia-serena--consulta .conferencia-serena__dados > div:first-child { grid-column: 1 / -1; padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
-.conferencia-serena--consulta .conferencia-serena__dados > div:first-child dd { font-size: var(--texto-xl); }
+.conferencia-serena--consulta .conferencia-serena__por-servidor { grid-column: 1 / -1; padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
+.conferencia-serena--consulta .conferencia-serena__por-servidor dd { font-size: var(--texto-xl); }
+/* Um servidor só: não há "Por servidor" (o total já é o dele); tipo e quantidade se empilham no lugar da linha. */
+.conferencia-serena--consulta .conferencia-serena__dados:not(:has(> .conferencia-serena__por-servidor)) { grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+.conferencia-serena--consulta .conferencia-serena__dados:not(:has(> .conferencia-serena__por-servidor)) > div:first-child { padding-bottom: var(--esp-3); border-bottom: var(--borda-sutil); }
 .conferencia-serena--consulta .conferencia-serena__quantidade { grid-column: auto; }
 .missao-registro { min-width: 0; border-left: var(--filete) solid var(--cor-marca); padding-left: var(--esp-4); }
 .missao-registro__rotulo, .estacao-documental__rotulo { margin: 0 0 var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
@@ -4284,7 +4405,7 @@ strong.percurso-registro__lugar { color: var(--cor-texto); font-weight: var(--pe
 .dialogo--mesa .pessoa__nome { font-size: var(--texto-sm); }
 /* Documentos na largura inteira, com o cabeçalho dos outros blocos (título em caixa-alta e
    a nota "Arquivo da viagem" ao lado) — sem a coluna lateral que só servia de rótulo. */
-.estacao-documental { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding-bottom: var(--esp-6); border-bottom: var(--borda); }
+.estacao-documental { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); }
 .estacao-documental > .estacao-documental__cabecalho { margin-bottom: 0; }
 .estacao-documental > .vazio-inline { margin: 0; }
 .estacao-documental .resumo__documentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: var(--esp-4); }
@@ -4345,6 +4466,8 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .resumo__documentos--historico .ficha-documental__texto { font-size: var(--texto-sm); }
 .resumo__documentos--historico a.resumo__documento:hover { background: var(--cor-marca-fundo); }
 .bloco-registro--conferencia .bloco-registro__cabecalho { margin-bottom: var(--esp-3); border: 0; padding: 0; }
+/* No Resumo os cartões já separam as seções: os títulos não levam fio embaixo (era um fio por seção, somado às bordas dos cartões). */
+.dialogo--mesa .mesa-registro .bloco-registro__cabecalho { margin-bottom: var(--esp-3); border: 0; padding: 0; }
 /* O total é o mesmo bloco escuro da folha de cadastro: número centrado, tipografia fluida; os
    dados vêm embaixo, centrados, no mesmo ritmo. Mesa e folha leem igual. */
 .conferencia-serena__total { display: grid; justify-items: center; text-align: center; gap: var(--esp-1); margin: 0 0 var(--esp-4); padding: var(--esp-4) var(--esp-5); border-radius: var(--raio-md); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
@@ -4390,7 +4513,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .dialogo--mesa .dialogo__rodape > :first-child { margin-right: auto; }
 .dialogo--mesa .dialogo__rodape > .texto-secundario { align-self: center; }
 @media (max-width: 1023.98px) {
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "registro" "equipe" "principal" "contexto"; gap: var(--esp-6); }
   .registro-hero { gap: var(--esp-5); padding: var(--esp-6) var(--esp-16) var(--esp-6) var(--esp-6); }
   .registro-hero__identidade { padding-right: var(--esp-5); }
   .registro-hero .identidade-documental__numero { font-size: var(--texto-4xl); }
@@ -4409,7 +4532,7 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registro-hero__identidade .identidade-documental__rotulo { max-width: 6rem; margin: 0; }
   .registro-hero .registro-hero__titulo { font-size: var(--texto-2xl); }
   .dialogo--mesa .dialogo__corpo { padding: var(--esp-5); }
-  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "principal" "contexto" "copia"; gap: var(--esp-6); }
+  .dialogo--mesa .mesa-registro > .resumo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "documentos" "registro" "equipe" "principal" "contexto"; gap: var(--esp-6); }
   .estado-documental { flex-wrap: wrap; align-items: flex-start; }
   .estado-documental > div { flex-basis: calc(100% - var(--esp-8)); }
   .estado-documental > .botao { margin-left: var(--esp-6); }
@@ -4443,14 +4566,9 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
 .preparacao-relacoes { display: grid; gap: var(--esp-5); align-items: start; }
 .documento--preparacao .preparacao-relacoes > .secao__bloco { margin-top: 0; }
 .campos.campos--conteudo-periodo { display: grid; grid-template-columns: minmax(0, 1fr); }
-.campo-equipe--compacta .equipe-campo .equipe__cartoes { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
-.campo-equipe--compacta .equipe__cartao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-column: auto; padding: var(--esp-2) var(--esp-3); min-height: 0; }
-.campo-equipe--compacta :is(.pessoa__nome, .pessoa__meta) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (min-width: 768px) {
   .registros--operacionais > .registro.registro-operacional--relacoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1fr) var(--altura-controle); grid-template-areas: "identidade titulo acoes" "identidade estado acoes" "identidade agenda acoes" "identidade recursos acoes"; }
   .campos.campos--conteudo-periodo { grid-template-columns: minmax(0, 2fr) minmax(calc(var(--esp-12) * 6), 1fr); }
-  .campo-equipe--compacta .equipe-campo .equipe__cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .campo-equipe--compacta .equipe__cartao:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 @media (min-width: 1024px) {
   .preparacao-relacoes { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
@@ -4541,3 +4659,833 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .secao__grupo.secao__grupo--relacoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .secao__grupo--relacoes > .secao__bloco:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
+
+/* Registros das listas (desktop): o selo de situação e o prazo ("Rascunho · faltam 33 dias") na mesma linha do
+   título. O bloco do título fica na faixa "titulo" e a de "estado" fica vazia, com altura zero, então nenhuma variante
+   (relações, sem ações) precisa de outra grade; o título encolhe com reticências antes dos selos. */
+@media (min-width: 1024px) {
+  .registros--operacionais .registro-operacional .registro__titulo { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--esp-3); min-width: 0; grid-area: titulo; }
+  /* A faixa "estado" fica vazia: altura zero e sem o respiro dela (a margem negativa desfaz um dos dois vãos). */
+  .registros--operacionais > .registro.registro-operacional { grid-template-rows: auto 0; }
+  .registros--operacionais .registro-operacional .registro__agenda { margin-top: calc(-1 * var(--esp-2)); align-self: start; }
+  /* Título e agenda encostam um no outro; a sobra de altura (a placa é mais alta) fica em cima e embaixo do par. */
+  .registros--operacionais .registro-operacional .registro__titulo { align-self: end; }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__link { display: flex; align-items: baseline; flex: 0 1 auto; min-width: 0; }
+  .registros--operacionais .registro-operacional .registro__titulo > .registro__selos { flex: none; flex-wrap: nowrap; }
+}
+
+/* Roteiro com a viagem em andamento (estado_trecho): a linha mantém o desenho padrão; só o veículo se mexe — no
+   trecho da vez a viatura vai e volta pelo fio; esperando a saída, ela pulsa. Quem pede movimento reduzido não vê
+   animação (base.css). */
+.percurso-registro__trecho--andando .percurso-registro__fio { position: relative; min-height: 1.25rem; }
+/* O fio vira uma linha só (o mesmo desenho: metade clara, metade em degradê até o dourado) para a viatura passar. */
+.percurso-registro__trecho--andando .percurso-registro__fio::before { background: linear-gradient(to right, var(--cor-marca-borda) 50%, var(--cor-marca)); }
+.percurso-registro__trecho--andando .percurso-registro__fio::after { display: none; }
+.percurso-registro__trecho--andando .percurso-registro__fio > .icone {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  padding: 0 var(--esp-1);
+  box-sizing: content-box;
+  background: var(--cor-superficie-sutil);
+  translate: 0 -50%;
+  /* Ida e volta devagar (20s) e, ao mesmo tempo, o sobe e desce de quem está rodando. */
+  animation: viatura-ida-volta 20s ease-in-out infinite, viatura-sacudir 0.6s ease-in-out infinite alternate;
+}
+.dialogo--mesa .mesa-registro__principal .percurso-registro__trecho--andando:hover .percurso-registro__fio > .icone { background: var(--cor-superficie); }
+@keyframes viatura-sacudir { from { translate: 0 -50%; } to { translate: 0 calc(-50% - 2px); } }
+.percurso-registro__trecho--proximo .percurso-registro__fio > .icone { animation: veiculo-pulsar 1.6s ease-in-out infinite; }
+@keyframes viatura-ida-volta {
+  0% { left: 0; transform: rotateY(0deg); }
+  44% { left: calc(100% - 1.5rem); transform: rotateY(0deg); }
+  50% { left: calc(100% - 1.5rem); transform: rotateY(180deg); }
+  94% { left: 0; transform: rotateY(180deg); }
+  100% { left: 0; transform: rotateY(360deg); }
+}
+@keyframes veiculo-pulsar { 50% { scale: 1.25; color: var(--cor-marca-texto); } }
+
+/* "Voltar para …" dentro da barra de ações (voltar-na-barra.js): deixa de flutuar e vira o primeiro botão da barra. */
+.barra-acoes > .voltar-tarefa--na-barra { position: static; inset: auto; margin-right: var(--esp-3); box-shadow: none; flex: none; }
+
+/* Equipe vazia e Motorista de outro ofício (folha do ofício): o mesmo cartão — borda fina sólida, fundo sutil, cantos largos. */
+.documento .equipe__vazia,
+.documento .pessoa-externa { border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); }
+.pessoa-externa > summary:hover, .pessoa-externa > summary:focus-visible { border-radius: var(--raio-lg); }
+/* O cartão do motorista de outro ofício é o próprio "summary": a altura mínima fica nele (e não no cartão), para o
+   hover e o foco cobrirem o cartão inteiro, sem fitas sem resposta em cima e embaixo. */
+.documento .pessoa-externa { min-height: 0; align-content: start; }
+.documento .pessoa-externa > summary { min-height: calc(var(--esp-16) + var(--esp-3) - 2px); align-items: center; }
+.documento .equipe__vazia { min-height: calc(var(--esp-16) + var(--esp-3)); }
+/* Hover do cartão: só clareia o fundo (como as linhas das listas), sem escurecer nem trocar a cor do ícone. */
+.documento .pessoa-externa > summary:hover { background: var(--cor-superficie); }
+.documento .pessoa-externa:has(> summary:hover) { border-color: var(--cor-borda); }
+.documento .pessoa-externa > summary:hover .pessoa-externa__marca { background: var(--cor-superficie-realce); }
+/* Cartão aberto: os campos entram direto, sem o fio entre o cabeçalho e o corpo. */
+.documento .pessoa-externa[open] > .divulgacao__corpo { border-top: 0; padding-top: var(--esp-1); }
+
+/* Equipe e viatura na folha do ofício: os mesmos cartões dos demais da folha (borda fina, fundo sutil, cantos
+   largos) e todos da mesma altura — pessoa, viatura, "Ninguém na equipe" e "Motorista de outro ofício". O hover só
+   clareia o fundo e firma a borda, como no cartão do motorista; o avatar não muda. */
+.documento .equipe__cartao,
+.documento .recurso-selecionado {
+  min-height: calc(var(--esp-16) + var(--esp-3));
+  align-items: center;
+  border: var(--borda-sutil);
+  border-radius: var(--raio-lg);
+  background: var(--cor-superficie-sutil);
+  box-shadow: none;
+}
+.documento .equipe__cartao:hover,
+.documento .equipe__cartao:has(.equipe__motorista-alvo:focus-visible),
+.documento .recurso-selecionado:hover { background: var(--cor-superficie); border-color: var(--cor-borda); box-shadow: none; }
+.documento .equipe__motorista-alvo { border-radius: var(--raio-lg); }
+/* Mais contraste no texto: nome em cor plena e o detalhe um tom acima do terciário. */
+.documento :is(.equipe__cartao, .recurso-selecionado) .pessoa__nome { color: var(--cor-texto); }
+.documento :is(.equipe__cartao, .recurso-selecionado) .pessoa__meta { color: var(--cor-texto-secundario); }
+
+/* Cor do hover dos cartões (borda e título): tokens --hover-cartao-* em tokens.css. */
+.registros--operacionais > .registro-operacional:hover .registro__link { color: var(--hover-cartao-texto); }
+
+/* Hover dos cartões da folha (pessoa, viatura, motorista de outro ofício): o cartão "se levanta" — sobe 1px, ganha
+   sombra suave e borda dourada clara, e o X de remover acende. Tudo em transição
+   curta; com movimento reduzido fica só a mudança de cor (base.css zera as transições). */
+.documento .equipe__cartao,
+.documento .recurso-selecionado,
+.documento .pessoa-externa {
+  transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao);
+}
+.documento .equipe__cartao .avatar,
+.documento .recurso-selecionado .avatar,
+.documento .pessoa-externa__marca { transition: box-shadow var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.documento .equipe__cartao:hover,
+.documento .equipe__cartao:has(.equipe__motorista-alvo:focus-visible),
+.documento .recurso-selecionado:hover,
+.documento .pessoa-externa:has(> summary:hover) {
+  background: var(--cor-superficie);
+  border-color: var(--hover-cartao-borda);
+  box-shadow: var(--sombra-2);
+  translate: 0 -1px;
+}
+.documento .pessoa-externa > summary:hover { background: transparent; }
+.documento .pessoa-externa > summary:hover .pessoa-externa__marca { color: var(--hover-cartao-texto); }
+.documento .equipe__cartao:hover .equipe__acao,
+.documento .recurso-selecionado:hover .equipe__acao { color: var(--cor-texto); }
+
+/* Mais vida no hover: o avatar cresce um pouco e o nome ganha o tom da marca; o X de remover ganha um fundo redondo ao apontar para ele. */
+.documento .equipe__cartao,
+.documento .recurso-selecionado,
+.documento .pessoa-externa { position: relative; }
+.documento .equipe__cartao .avatar,
+.documento .recurso-selecionado .avatar,
+.documento .pessoa-externa__marca { transition: box-shadow var(--duracao-rapida) var(--curva-padrao), scale var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.documento .equipe__cartao:hover .avatar,
+.documento .recurso-selecionado:hover .avatar,
+.documento .pessoa-externa > summary:hover .pessoa-externa__marca { scale: 1.06; }
+.documento :is(.equipe__cartao, .recurso-selecionado) .pessoa__nome,
+.documento .pessoa-externa__titulo { transition: color var(--duracao-rapida) var(--curva-padrao); }
+.documento :is(.equipe__cartao, .recurso-selecionado):hover .pessoa__nome,
+.documento .pessoa-externa > summary:hover .pessoa-externa__titulo { color: var(--hover-cartao-texto); }
+.documento :is(.equipe__cartao, .recurso-selecionado) .equipe__acao { border-radius: var(--raio-pilula); transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.documento :is(.equipe__cartao, .recurso-selecionado) .equipe__acao:hover { background: var(--cor-perigo-fundo); color: var(--cor-perigo); }
+
+/* Primeiro cartão de cada coluna da seção 2 na mesma altura: o da equipe (pessoa ou "Ninguém na equipe") e o do
+   transporte (viatura ou, sem viatura, o "Motorista de outro ofício"). O espaço da viatura some quando não há
+   viatura escolhida — senão a margem dele empurrava o cartão do motorista para baixo. */
+.transporte__selecionada:not(:has(> .recurso-selecionado:not([hidden]))) { display: none; }
+.documento .pessoa-externa { margin-top: var(--esp-3); }
+.documento #equipe .equipe__vazia { margin-top: var(--esp-3); }
+
+/* O mesmo hover dos cartões da folha nos outros cartões que se clicam: os registros das listas (ofícios, roteiros,
+   termos…) e os ofícios vinculados do resumo do roteiro. Sobe 1px, sombra suave, borda dourada clara; o avatar ou a
+   placa crescem um pouco e o título ganha o tom da marca. Sem o trilho dourado lateral que as listas tinham. */
+.registros--operacionais > .registro.registro-operacional,
+.dialogo--mesa .pessoa--ligacao {
+  transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao),
+    box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao);
+}
+.registros--operacionais > .registro.registro-operacional:is(:hover, :focus-within),
+.dialogo--mesa .mesa-registro__equipe .equipe-transporte > .pessoa--ligacao:is(:hover, :focus-within) {
+  background: var(--cor-superficie);
+  border-color: var(--hover-cartao-borda);
+  box-shadow: var(--sombra-2);
+  translate: 0 -1px;
+}
+.registros--operacionais > .registro-operacional > .placa,
+.dialogo--mesa .pessoa--ligacao .avatar { transition: scale var(--duracao-rapida) var(--curva-padrao); }
+.registros--operacionais > .registro-operacional:hover > .placa { scale: 1.03; }
+.dialogo--mesa .pessoa--ligacao:hover .avatar { scale: 1.06; }
+.dialogo--mesa .pessoa--ligacao .pessoa__nome { transition: color var(--duracao-rapida) var(--curva-padrao); }
+.dialogo--mesa .pessoa--ligacao:hover .pessoa__nome { color: var(--hover-cartao-texto); }
+
+/* Totais do percurso numa linha só: "→ Ida 1.812,3 km · 28 h 45" e "↩ Ida e volta 2.417,6 km · 57 h 30", lado a lado. */
+.itin--operacional .itin__total { display: flex; flex-wrap: nowrap; align-items: baseline; gap: var(--esp-2); min-width: 0; white-space: nowrap; }
+.itin--operacional .itin__total > .icone { align-self: center; flex: none; }
+.itin--operacional .itin__total-rotulo, .itin--operacional .itin__total-valor { grid-column: auto; }
+.itin--operacional .itin__total-valor { font-size: var(--texto-md); }
+.itin--operacional .itin__total-valor + .itin__total-valor::before { content: "·"; margin-right: var(--esp-2); color: var(--cor-texto-terciario); }
+/* As duas medidas nas pontas da linha (Ida à esquerda, Ida e volta à direita); o fio passa a ser da linha inteira. */
+.itin--operacional .itin__totais { display: flex; justify-content: space-between; align-items: baseline; gap: var(--esp-4); border-top: var(--borda-sutil); }
+.itin--operacional .itin__totais > .itin__total { border-top: 0; }
+
+/* Mapa acompanha a lista de paradas (desktop): a coluna do mapa estica até a altura da coluna de sede e destinos e o
+   mapa ocupa o que sobra — os totais terminam na linha da "Volta à sede". Ao adicionar ou tirar destino, o mapa
+   cresce ou encolhe junto (mapa-rota.js redesenha pelo ResizeObserver). Altura mínima para continuar legível. */
+@media (min-width: 1024px) {
+  .itin--operacional .itin__planejamento { align-items: stretch; }
+  .itin--operacional .itin__painel { display: flex; flex-direction: column; }
+  .itin--operacional .itin__painel > .itin__rota { flex: 1 1 auto; display: flex; flex-direction: column; min-height: calc(var(--esp-12) * 4); }
+  .itin--operacional .itin__painel .itin__mapa { flex: 1 1 auto; height: auto; min-height: calc(var(--esp-12) * 4); }
+}
+
+/* Bate-volta no mesmo desenho das paradas do modo normal: sem cartão em volta; número no quadradinho do trilho,
+   título pequeno como o rótulo "Destino 1", lixeira só com o ícone; campos com o rótulo em cima e o fundo sutil. */
+.itin--operacional .itin__bvs { gap: var(--esp-4); }
+.itin--operacional .itin__bv { gap: var(--esp-2); padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.itin--operacional .itin__bv-cabecalho { gap: var(--esp-3); }
+.itin--operacional .itin__bv-cabecalho .itin__trecho-numero { display: grid; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); flex: none; border-radius: var(--raio-md); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; }
+.itin--operacional .itin__bv-titulo { font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__bv-cabecalho .itin__remover-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.itin--operacional .itin__bv > :not(.itin__bv-cabecalho) { margin-left: calc(var(--altura-controle-sm) + var(--esp-3)); }
+.itin--operacional .itin__bv .campo { padding-top: 0; gap: var(--esp-1); }
+.itin--operacional .itin__bv .campo__rotulo { position: static; display: block; transform: none; margin: 0; padding: 0; background: transparent; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__bv .itin__uf .campo__rotulo { padding-left: var(--esp-2); }
+.itin--operacional .itin__bv :is(.entrada, .seletor__gatilho) { background-color: var(--cor-superficie-sutil); border-color: var(--cor-borda-sutil); }
+.itin--operacional .itin__bv-onde { grid-template-columns: calc(var(--esp-4) * 4.5) minmax(0, 1fr); gap: 0; }
+.itin--operacional .itin__bv-quando { align-items: end; }
+.itin--operacional .itin__bv-rotulo { padding-top: 0; padding-bottom: var(--esp-2); font-size: var(--texto-xs); }
+
+/* Quadradinho do trilho (número/alça/casa da sede) no centro do campo UF: o deslocamento usa a altura real do
+   quadradinho (altura-controle-sm), não a do marco redondo antigo (1,75rem) — sobrava 1,8px para baixo. */
+.itin--operacional .itin__paradas > :not(.itin__parada--volta, .itin__adicionar) > :is(.itin__alca, .itin__marco) { margin-top: calc(var(--itin-centro) - var(--altura-controle-sm) / 2); }
+
+/* Foco no bate-volta: sem moldura em volta do bloco (era um retângulo dourado de cantos vivos). Como nas paradas,
+   quem marca onde a pessoa está é o número do trilho, que fica escuro. */
+.itin--operacional .itin__bv:focus-within { outline: none; box-shadow: none; background: transparent; }
+.itin--operacional .itin__bv:focus-within .itin__bv-cabecalho .itin__trecho-numero { background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.itin--operacional .itin__bv:focus-within .itin__bv-titulo { color: var(--cor-texto); }
+
+/* "Adicionar destino" como uma vaga da lista: o quadradinho do trilho com "+" (tracejado) e, ao lado, uma linha
+   tracejada da largura dos campos com o texto e a dica — a próxima parada já aparece no lugar onde vai entrar.
+   Ao apontar, a vaga acende em dourado claro e o tracejado vira linha cheia. */
+.itin--operacional .itin__adicionar { align-items: center; grid-template-columns: var(--itin-trilho) minmax(0, 1fr) 2.25rem; margin-top: calc(var(--itin-centro) - var(--altura-controle) / 2); }
+.itin--operacional .itin__adicionar > .itin__marco { display: inline-grid; margin-top: 0; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border: 1px dashed var(--cor-borda-forte); border-radius: var(--raio-md); background: var(--cor-superficie); box-shadow: none; color: var(--cor-marca-texto); transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__botao-adicionar { width: 100%; min-height: var(--altura-controle); margin: 0; padding: 0 var(--esp-3); gap: var(--esp-2); border: 1px dashed var(--cor-borda-forte); border-radius: var(--raio-md); background: transparent; color: var(--cor-marca-texto); font-weight: var(--peso-semi); cursor: pointer; transition: background-color var(--duracao-rapida) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__botao-adicionar small { display: inline; margin-left: auto; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__botao-adicionar > .icone { display: none; }
+.itin--operacional .itin__adicionar:has(.itin__botao-adicionar:is(:hover, :focus-visible)) > .itin__marco { border-style: solid; border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); }
+.itin--operacional .itin__botao-adicionar:is(:hover, :focus-visible) { border-style: solid; border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); text-decoration: none; }
+
+/* Animação do "Adicionar destino": ao apontar, o dourado claro preenche a vaga da esquerda para a direita (como uma
+   linha sendo "reservada"), a borda fica cheia e o quadradinho do trilho acende junto; o "+" cresce de leve. Ao clicar,
+   a vaga afunda um pouco. Só cor, tamanho de fundo e escala; zerado com movimento reduzido. */
+.itin--operacional .itin__botao-adicionar {
+  background-color: transparent;
+  background-image: linear-gradient(var(--cor-marca-fundo), var(--cor-marca-fundo));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size var(--duracao-media) var(--curva-padrao), border-color var(--duracao-rapida) var(--curva-padrao), scale var(--duracao-rapida) var(--curva-padrao);
+}
+.itin--operacional .itin__botao-adicionar:is(:hover, :focus-visible) { background-color: transparent; background-image: linear-gradient(var(--cor-marca-fundo), var(--cor-marca-fundo)); background-repeat: no-repeat; background-size: 100% 100%; }
+.itin--operacional .itin__botao-adicionar small { transition: color var(--duracao-media) var(--curva-padrao); }
+.itin--operacional .itin__botao-adicionar:is(:hover, :focus-visible) small { color: var(--cor-marca-texto); }
+.itin--operacional .itin__adicionar > .itin__marco .icone { transition: scale var(--duracao-media) var(--curva-padrao); }
+.itin--operacional .itin__adicionar:has(.itin__botao-adicionar:is(:hover, :focus-visible)) > .itin__marco .icone { scale: 1.2; }
+.itin--operacional .itin__botao-adicionar:active { scale: 0.99; }
+/* Trechos: cada deslocamento é um cartão, com o número no mesmo marcador quadrado das
+   paradas; à esquerda a rota, à direita uma única linha de campos — a chegada calculada lê
+   como um campo somente-leitura, da mesma altura dos outros. */
+.itin--operacional .itin__trechos { gap: var(--esp-2); }
+.itin--operacional .itin__trecho,
+.itin--operacional .itin__trecho:first-child { padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__trecho:hover { border-color: var(--cor-borda-forte); }
+.itin--operacional .itin__trecho:focus-within { border-color: var(--hover-cartao-borda); box-shadow: var(--sombra-1); }
+.itin--operacional .itin__trecho.itin__trecho--conflito { border-color: var(--cor-perigo-borda); }
+.itin--operacional .itin__trecho-cabecalho { gap: 0 var(--esp-3); }
+.itin--operacional .itin__trecho-numero { grid-area: numero; align-self: center; font-size: var(--texto-sm); transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__trecho--volta .itin__trecho-numero { border: 0; background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__trecho:focus-within .itin__trecho-numero { border: 0; background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.itin--operacional .itin__trecho-etapa { grid-area: etapa; line-height: var(--altura-linha-justa); }
+.itin--operacional .itin__trecho-rota { grid-area: rota; order: 0; font-size: var(--texto-md); line-height: var(--altura-linha-justa); }
+.itin--operacional .itin__trecho-km { grid-area: km; order: 0; justify-self: start; margin: 0; line-height: var(--altura-linha-justa); }
+.itin--operacional .itin__passo { border-color: var(--cor-borda-campo); background: var(--cor-superficie); }
+.itin--operacional .itin__tempos > .itin__chegada-campo { align-self: auto; padding: 0; background: transparent; border-left: 0; }
+.itin--operacional .itin__chegada { display: flex; flex-direction: row; align-items: center; min-height: var(--altura-controle); padding: 0 var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.itin--operacional .itin__chegada .indicador__valor { flex-direction: row; align-items: baseline; justify-content: space-between; gap: var(--esp-2); font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); white-space: nowrap; }
+.itin--operacional [data-chegada-hora] { font-size: var(--texto-md); font-weight: var(--peso-forte); color: var(--cor-texto); }
+.itin--operacional .itin__trecho:focus-within .itin__chegada { border-color: var(--hover-cartao-borda); }
+/* Cabeçalho do trecho: "Deslocamento · 603,5 km" em cima, a rota inteira (sede → destino)
+   embaixo, numa linha com espaço próprio. */
+.itin--operacional .itin__trecho-cabecalho { grid-template-columns: var(--altura-controle-sm) max-content minmax(0, 1fr); grid-template-areas: "numero etapa km" "numero rota rota"; gap: var(--esp-05) var(--esp-3); align-items: baseline; }
+.itin--operacional .itin__trecho-etapa { grid-area: etapa; font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__trecho-rota { grid-area: rota; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--esp-2); margin: 0; min-width: 0; font-size: var(--texto-md); line-height: var(--altura-linha-justa); }
+.itin--operacional .itin__trecho-km,
+.itin--operacional .itin__trecho-km:not(:empty) { grid-area: km; justify-self: start; margin: 0; padding: 0 0 0 var(--esp-3); border: 0; border-left: var(--borda-sutil); border-radius: 0; background: transparent; font-size: var(--texto-xs); font-weight: var(--peso-normal); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); white-space: nowrap; }
+.itin--operacional .itin__trecho-km:empty { display: none; }
+.itin__trechos-colunas { display: none; }
+/* Folha larga: uma tabela — os rótulos sobem para um cabeçalho de colunas e cada trecho
+   ocupa uma linha só (as colunas dos cartões e do cabeçalho são as mesmas). */
+@media (min-width: 1280px) {
+  .itin--operacional { --trechos-colunas: minmax(0, 2fr) minmax(0, 1.45fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, .95fr); }
+  /* Cabeçalho de colunas: uma faixa discreta, com o mesmo recuo dos cartões, ícone e rótulo
+     em caixa alta — lê como o topo de uma tabela, não como texto solto. */
+  .itin--operacional .itin__trechos-colunas { display: grid; grid-template-columns: var(--trechos-colunas); gap: var(--esp-3); align-items: center; margin-bottom: calc(var(--esp-2) - var(--esp-3)); padding: var(--esp-2) calc(var(--esp-4) + 1px); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+  .itin--operacional .itin__trechos-colunas > span { display: flex; align-items: center; gap: var(--esp-2); min-width: 0; white-space: nowrap; }
+  .itin--operacional .itin__trechos-colunas .icone { flex: none; color: var(--cor-marca-texto); }
+  .itin--operacional .itin__trechos-colunas .campo__obrigatorio { margin-left: calc(var(--esp-2) * -1 + var(--esp-05)); color: var(--cor-marca-texto); }
+  .itin--operacional .itin__trechos-colunas small { margin-left: calc(var(--esp-2) * -1 + var(--esp-1)); font-size: var(--texto-2xs); font-weight: var(--peso-normal); letter-spacing: normal; text-transform: none; color: var(--cor-texto-terciario); }
+  .itin--operacional .itin__trechos-colunas small::before { content: "· "; }
+  .itin--bate-volta .itin__trechos-colunas { display: none; }
+  .itin--operacional .itin__trecho { grid-template-columns: var(--trechos-colunas); gap: var(--esp-2) var(--esp-3); align-items: center; }
+  .itin--operacional .itin__trecho-cabecalho { grid-column: 1; }
+  .itin--operacional .itin__tempos { grid-column: 2 / -1; grid-template-columns: subgrid; gap: var(--esp-3); }
+  .itin--operacional .itin__ajustes { grid-column: span 2; grid-template-columns: subgrid; }
+  .itin--operacional .itin__aviso { grid-column: 1 / -1; }
+  .itin--operacional .itin__trecho .itin__tempos .campo__rotulo { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .itin--operacional .itin__trecho .itin__tempos .campo { gap: 0; }
+}
+/* Chegada: resultado, não campo — cartão polido (mesmo tom dos indicadores) com a bandeira
+   de chegada, a data discreta e a hora em destaque. */
+.itin--operacional .itin__chegada { gap: var(--esp-2); border: 0; background: linear-gradient(var(--cor-superficie), var(--cor-superficie-sutil)); box-shadow: inset 0 0 0 1px var(--cor-borda); }
+.itin--operacional .itin__chegada-icone { flex: none; color: var(--cor-marca-texto); }
+.itin--operacional .itin__chegada .indicador__valor { flex: 1; min-width: 0; }
+.itin--operacional [data-chegada-data] { font-variant-numeric: tabular-nums; }
+.itin--operacional [data-chegada-hora] { font-size: var(--texto-lg); letter-spacing: var(--rastreio-titulo); }
+.itin--operacional .itin__trecho:focus-within .itin__chegada { box-shadow: inset 0 0 0 1px var(--hover-cartao-borda); }
+/* Diárias logo abaixo dos trechos: sem filete e com um espaço só. */
+.documento--preparacao #diarias-secao > .secao__bloco { padding-top: 0; border-top: 0; }
+/* Totais do percurso: dois blocos lado a lado (ida | ida e volta), cada um com o ícone num
+   marcador quadrado, o rótulo em cima e a distância em destaque com o tempo ao lado. */
+.itin--operacional .itin__totais { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0; border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); overflow: clip; }
+.itin--operacional .itin__totais > .itin__total { display: grid; grid-template-columns: var(--altura-controle-sm) auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 0 var(--esp-3); align-items: baseline; padding: var(--esp-2) var(--esp-3); border: 0; white-space: nowrap; }
+.itin--operacional .itin__totais > .itin__total + .itin__total { border-left: 1px solid var(--cor-borda); }
+.itin--operacional .itin__totais > .itin__total > .icone { grid-column: 1; grid-row: 1 / 3; align-self: center; box-sizing: border-box; width: var(--altura-controle-sm); height: var(--altura-controle-sm); padding: var(--esp-2); border-radius: var(--raio-md); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.itin--operacional .itin__totais .itin__total-rotulo { grid-column: 2 / -1; grid-row: 1; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.itin--operacional .itin__totais .itin__total-valor { grid-row: 2; grid-column: 2; font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.itin--operacional .itin__totais .itin__total-valor:last-child { grid-column: 3; font-size: var(--texto-xs); font-weight: var(--peso-normal); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__totais .itin__total-valor + .itin__total-valor::before { content: none; }
+/* Diárias da folha = Diárias do Resumo (roteiro curto): valor total no bloco escuro e os dados
+   numa linha só, tudo centrado, o texto de cada dado acompanhando a largura da sua coluna. */
+.conferencia-serena.conferencia-serena--operacional { border: var(--borda-sutil); border-radius: var(--raio-lg); }
+.conferencia-serena--operacional .conferencia-serena__total { justify-items: center; text-align: center; padding: var(--esp-5); border-radius: 0; }
+.conferencia-serena--operacional .conferencia-serena__total > strong { font-size: var(--texto-3xl); }
+.conferencia-serena--operacional .conferencia-serena__dados > div { justify-items: center; text-align: center; container-type: inline-size; }
+@media (min-width: 1024px) {
+  .conferencia-serena.conferencia-serena--operacional { grid-template-columns: minmax(max-content, 1fr) minmax(0, 3fr); }
+  .conferencia-serena--operacional .conferencia-serena__dados { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: center; align-items: center; gap: var(--esp-6); }
+  .conferencia-serena--operacional .conferencia-serena__dados:not(:has(> .conferencia-serena__por-servidor)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .conferencia-serena--operacional .conferencia-serena__dados > div,
+  .conferencia-serena--operacional .conferencia-serena__quantidade { grid-column: auto; }
+  .conferencia-serena--operacional .conferencia-serena__dados dd,
+  .conferencia-serena--operacional .conferencia-serena__dados > div:first-child dd { font-size: clamp(var(--texto-md), 7.5cqi, var(--texto-3xl)); line-height: var(--altura-linha-justa); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conferencia-serena--operacional .conferencia-serena__dados dt { font-size: clamp(var(--texto-xs), 3.6cqi, var(--texto-md)); }
+}
+/* Km do trecho ao lado da etapa, sem filete separando. */
+.itin--operacional .itin__trecho-km:not(:empty) { padding-left: 0; border-left: 0; }
+/* Trechos do bate-volta: o mesmo desenho dos trechos editáveis — cabeçalho de colunas e um
+   cartão por dia (data no marcador, rota com a quilometragem ao lado da etapa, ida e volta em
+   caixas de resultado, como a chegada). */
+.itin--operacional { --gerados-colunas: 3.25rem minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); }
+.itin__gerados-colunas { display: none; }
+.itin--operacional .itin__gerados { gap: var(--esp-2); border: 0; border-radius: 0; overflow: visible; }
+.itin--operacional .itin__gerado { grid-template-columns: var(--gerados-colunas); gap: var(--esp-3); align-items: center; padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__gerado + .itin__gerado { border-top: 1px solid var(--cor-borda); }
+.itin--operacional .itin__gerado:hover { border-color: var(--cor-borda-forte); background: var(--cor-superficie); }
+.itin--operacional .itin__gerado:hover .itin__gerado-dia { transform: none; }
+.itin--operacional .itin__gerado-dia { display: grid; place-items: center; align-content: center; height: var(--altura-controle); border-radius: var(--raio-md); background: var(--cor-superficie-realce); font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); }
+.itin--operacional .itin__gerado-dia small { color: var(--cor-texto-secundario); }
+.itin--operacional .itin__gerado-trecho { display: grid; gap: var(--esp-05); min-width: 0; }
+.itin--operacional .itin__gerado-etapa { display: flex; gap: var(--esp-3); font-size: var(--texto-xs); line-height: var(--altura-linha-justa); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__gerado-km { font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.itin--operacional .itin__gerado-rota { gap: 0 var(--esp-2); font-size: var(--texto-md); line-height: var(--altura-linha-justa); }
+.itin--operacional .itin__gerado-horas { justify-content: start; gap: var(--esp-3); min-height: var(--altura-controle); padding: 0 var(--esp-3); border-radius: var(--raio-md); background: linear-gradient(var(--cor-superficie), var(--cor-superficie-sutil)); box-shadow: inset 0 0 0 1px var(--cor-borda); font-size: var(--texto-md); font-weight: var(--peso-semi); }
+.itin--operacional .itin__gerado-horas > span { font-weight: var(--peso-normal); }
+@media (min-width: 1280px) {
+  .itin--operacional .itin__gerados-colunas { display: grid; grid-template-columns: var(--gerados-colunas); margin-bottom: var(--esp-2); }
+  .itin--operacional .itin__gerados-colunas > :first-child { grid-column: 1 / 3; }
+  .itin--operacional .itin__gerado-horas small:not(.itin__gerado-seguinte) { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+/* Dados para o eProtocolo: cada dado é um cartão (rótulo em cima, valor embaixo, "Copiar" à
+   direita, no meio da altura) — o mesmo cartão e o mesmo hover dos outros cartões da folha.
+   Copiado, o botão fica verde por um instante. */
+.divulgacao--copiavel .dados-copiaveis { gap: var(--esp-3); margin: var(--esp-3) 0 0; }
+.divulgacao--copiavel .divulgacao__corpo { gap: var(--esp-3); }
+.divulgacao--copiavel .dado-copiavel { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; gap: var(--esp-1) var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao); }
+.divulgacao--copiavel .dado-copiavel:hover { translate: 0 -1px; border-color: var(--hover-cartao-borda); box-shadow: var(--sombra-2); }
+.divulgacao--copiavel .dado-copiavel > .campo__rotulo { grid-column: 1; grid-row: 1; margin: 0; padding: 0; }
+.divulgacao--copiavel .dado-copiavel > .linha { display: contents; }
+.divulgacao--copiavel .dado-copiavel .entrada[readonly] { grid-column: 1; grid-row: 2; font-size: var(--texto-md); }
+.divulgacao--copiavel .dado-copiavel .entrada[readonly]::placeholder { font-weight: var(--peso-normal); color: var(--cor-texto-terciario); }
+.divulgacao--copiavel .dado-copiavel textarea.entrada[readonly] { padding: 0; border: 0; background: transparent; font-size: var(--texto-sm); }
+.divulgacao--copiavel .dado-copiavel > .linha > .botao,
+.divulgacao--copiavel .dado-copiavel--largo > .linha > .botao { grid-column: 2; grid-row: 1 / 3; align-self: center; margin: 0; min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border-radius: var(--raio-sm); --botao-fundo: var(--cor-superficie-sutil); --botao-borda: var(--cor-borda); color: var(--cor-texto-secundario); }
+.divulgacao--copiavel .dado-copiavel:hover > .linha > .botao { --botao-fundo: var(--cor-marca-fundo); --botao-borda: var(--cor-marca-borda); color: var(--cor-marca-texto); }
+.divulgacao--copiavel .dado-copiavel > .linha > .botao[data-copiado],
+.divulgacao--copiavel .dado-copiavel:hover > .linha > .botao[data-copiado],
+[data-copiar-alvo][data-copiado] { --botao-fundo: var(--cor-sucesso-fundo); --botao-fundo-hover: var(--cor-sucesso-fundo); --botao-borda: var(--cor-sucesso-borda); --botao-texto: var(--cor-sucesso); border-color: var(--cor-sucesso-borda); color: var(--cor-sucesso); }
+/* "Copiar tudo" (primário): copiado, vira verde sólido — com o mouse em cima também, sem
+   voltar ao grafite do hover com o texto verde ilegível por cima. */
+.botao--primario[data-copiar-alvo][data-copiado],
+.botao--primario[data-copiar-alvo][data-copiado]:hover { --botao-fundo: var(--cor-sucesso-solida); --botao-fundo-hover: var(--cor-sucesso-solida); --botao-borda: var(--cor-sucesso-solida); --botao-texto: var(--neutro-0); border-color: var(--cor-sucesso-solida); color: var(--neutro-0); }
+.divulgacao--copiavel .dado-copiavel--largo { grid-template-rows: auto auto; }
+/* Conferência do cadastro: um cartão como os outros da folha (sem a fita lateral). O ícone
+   mora num marcador quadrado na cor do estado (âmbar falta, verde pronto); cada pendência é
+   um atalho clicável — ícone, o que falta e a seta que leva até o campo. */
+.prontidao-documental { padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); }
+.prontidao-documental--pronta { border-color: var(--cor-sucesso-borda); }
+.prontidao-documental__cabecalho { align-items: center; }
+.prontidao-documental__cabecalho > .icone { box-sizing: border-box; width: var(--altura-controle); height: var(--altura-controle); margin: 0; padding: var(--esp-2); border-radius: var(--raio-md); background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.prontidao-documental--pronta .prontidao-documental__cabecalho > .icone { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.prontidao-documental__rotulo { margin-bottom: var(--esp-05); }
+.prontidao-documental .checklist { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--esp-2); margin: 0; padding: 0; list-style: none; }
+.prontidao-documental .checklist__item { margin: 0; padding: 0; border: 0; }
+.prontidao-documental .checklist__item a { display: inline-flex; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle); padding: 0 var(--esp-3); border: 1px solid var(--cor-aviso-borda); border-radius: var(--raio-sm); background: var(--cor-aviso-fundo); color: var(--cor-texto); font-weight: var(--peso-medio); text-decoration: none; transition: border-color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.prontidao-documental .checklist__item a > .icone:first-child { color: var(--cor-aviso); }
+.prontidao-documental .checklist__item--aviso a { border-color: var(--cor-borda); background: var(--cor-superficie-sutil); }
+.prontidao-documental .checklist__item--aviso a > .icone:first-child { color: var(--cor-texto-secundario); }
+.prontidao-documental .checklist__item a > .icone--seta { color: var(--cor-texto-secundario); transition: translate var(--duracao-rapida) var(--curva-padrao); }
+.prontidao-documental .checklist__item a:hover { translate: 0 -1px; border-color: var(--hover-cartao-borda); background: var(--cor-marca-fundo); box-shadow: var(--sombra-1); }
+.prontidao-documental .checklist__item a:hover > .icone--seta { translate: 2px 0; color: var(--cor-marca-texto); }
+@media (min-width: 1024px) {
+  .preparacao-documental--conferencia .prontidao-documental,
+  .prontidao-documental { grid-template-columns: auto minmax(0, 1fr) auto; }
+}
+/* "Copiar" com o mouse em cima: o mesmo dourado do cartão — nunca a borda grafite do hover
+   genérico de botão. */
+.divulgacao--copiavel .dado-copiavel > .linha > .botao:hover:not([data-copiado]) { --botao-fundo-hover: var(--cor-marca-fundo); border-color: var(--cor-marca-borda); color: var(--cor-marca-texto); }
+.divulgacao--copiavel .dado-copiavel > .linha > .botao[data-copiado]:hover { border-color: var(--cor-sucesso-borda); }
+@media (min-width: 1024px) {
+  /* Sem o botão de emitir, as pendências encostam na borda direita do cartão. */
+  .prontidao-documental:not(:has(> .botao)) { grid-template-columns: auto minmax(0, 1fr); }
+}
+/* Conferência animada: pendente, o marcador âmbar "respira" (um anel que se abre e some) e
+   cada pendência entra deslizando, com a seta dando um toque de tempos em tempos — chama o
+   olho sem piscar. Pronta, o carimbo bate uma vez. Movimento reduzido: tudo parado (base.css). */
+.prontidao-documental:not(.prontidao-documental--pronta) .prontidao-documental__cabecalho > .icone { animation: conferencia-respirar 2.8s var(--curva-padrao) infinite; }
+.prontidao-documental--pronta .prontidao-documental__cabecalho > .icone { animation: carimbar var(--duracao-enfase) var(--curva-expressiva) backwards; }
+.prontidao-documental .checklist__item { animation: conferencia-entrar var(--duracao-lenta) var(--curva-expressiva) backwards; }
+.prontidao-documental .checklist__item:nth-child(2) { animation-delay: 80ms; }
+.prontidao-documental .checklist__item:nth-child(n + 3) { animation-delay: 160ms; }
+.prontidao-documental .checklist__item a > .icone--seta { animation: conferencia-cutucar 2.8s var(--curva-padrao) infinite; }
+.prontidao-documental .checklist__item a:hover > .icone--seta { animation: none; }
+@keyframes conferencia-respirar {
+  0%, 55%, 100% { box-shadow: 0 0 0 0 transparent; }
+  10% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-aviso-solida) 45%, transparent); }
+  45% { box-shadow: 0 0 0 var(--esp-2) transparent; }
+}
+@keyframes conferencia-entrar {
+  from { opacity: 0; transform: translateX(var(--esp-4)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes conferencia-cutucar {
+  0%, 70%, 100% { translate: 0 0; }
+  78% { translate: 3px 0; }
+  86% { translate: 0 0; }
+  92% { translate: 2px 0; }
+}
+/* Conferência com o mouse em cima: o cartão sobe como os outros da folha, a borda acende na
+   cor do estado e o marcador cresce um pouco. */
+.prontidao-documental { transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao), translate var(--duracao-rapida) var(--curva-padrao); }
+.prontidao-documental:hover { translate: 0 -1px; border-color: var(--cor-aviso-borda); box-shadow: var(--sombra-2); }
+.prontidao-documental--pronta:hover { border-color: var(--cor-sucesso-borda); }
+.prontidao-documental__cabecalho > .icone { transition: scale var(--duracao-rapida) var(--curva-expressiva); }
+.prontidao-documental:hover .prontidao-documental__cabecalho > .icone { scale: 1.08; }
+.prontidao-documental__titulo { transition: color var(--duracao-rapida) var(--curva-padrao); }
+.prontidao-documental:not(.prontidao-documental--pronta):hover .prontidao-documental__titulo { color: var(--cor-aviso); }
+/* O que falta, depois do clique na pendência: o campo acende em âmbar e pulsa duas vezes; o
+   rótulo "(para emitir)" ganha a cor do aviso. Some sozinho depois de alguns segundos. */
+.campo.campo--falta :is(.entrada, .selecao, .seletor__gatilho, .itin__passo) { border-color: var(--cor-aviso-solida); animation: campo-falta 1.2s var(--curva-padrao) 2; }
+.campo.campo--falta > .campo__rotulo,
+.campo.campo--falta > .campo__rotulo .campo__opcional { color: var(--cor-aviso); }
+.secao--falta { animation: secao-falta 1.2s var(--curva-padrao) 2; border-radius: var(--raio-md); }
+@keyframes campo-falta {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-aviso-solida) 55%, transparent); }
+  70% { box-shadow: 0 0 0 var(--esp-2) transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes secao-falta {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-aviso-solida) 40%, transparent); }
+  70% { box-shadow: 0 0 0 var(--esp-3) transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+/* Mais presença enquanto falta algo: o marcador pulsa (cresce e solta um anel âmbar mais
+   largo), o ícone de alerta da pendência balança e um brilho atravessa o atalho — os três no
+   mesmo compasso, a cada 2,4 s. Movimento reduzido: tudo parado. */
+.prontidao-documental:not(.prontidao-documental--pronta) .prontidao-documental__cabecalho > .icone { animation: conferencia-pulsar 2.4s var(--curva-padrao) infinite; }
+.prontidao-documental .checklist__item:not(.checklist__item--aviso) a { background-image: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--neutro-0) 75%, transparent) 50%, transparent 65%); background-size: 250% 100%; background-repeat: no-repeat; background-position: 150% 0; animation: conferencia-brilho 2.4s var(--curva-padrao) infinite, conferencia-anel 2.4s var(--curva-padrao) infinite; }
+.prontidao-documental .checklist__item:not(.checklist__item--aviso) a > .icone:first-child { transform-origin: 50% 20%; animation: conferencia-balancar 2.4s var(--curva-padrao) infinite; }
+.prontidao-documental .checklist__item a:hover,
+.prontidao-documental .checklist__item a:hover > .icone:first-child { animation: none; }
+@keyframes conferencia-pulsar {
+  0%, 60%, 100% { scale: 1; box-shadow: 0 0 0 0 transparent; }
+  8% { scale: 1.12; box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-aviso-solida) 60%, transparent); }
+  18% { scale: 1; }
+  45% { box-shadow: 0 0 0 var(--esp-3) transparent; }
+}
+@keyframes conferencia-brilho {
+  0%, 30% { background-position: 150% 0; }
+  60%, 100% { background-position: -50% 0; }
+}
+@keyframes conferencia-anel {
+  0%, 60%, 100% { box-shadow: 0 0 0 0 transparent; }
+  8% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-aviso-solida) 45%, transparent); }
+  45% { box-shadow: 0 0 0 var(--esp-2) transparent; }
+}
+@keyframes conferencia-balancar {
+  0%, 30%, 100% { rotate: 0deg; }
+  4% { rotate: -14deg; }
+  9% { rotate: 12deg; }
+  14% { rotate: -8deg; }
+  19% { rotate: 5deg; }
+  24% { rotate: 0deg; }
+}
+/* Equipe e transporte (ofício, termo…): quando só um dos dois existe, ele ocupa a linha toda. */
+.secao__grupo > .secao__bloco:only-child { grid-column: 1 / -1; }
+/* Menu do que vem do cadastro, aberto de dentro do documento (entidades-documento.js). */
+.entidade-menu { position: fixed; z-index: var(--z-dica); display: grid; min-width: calc(var(--esp-12) * 5); padding: var(--esp-1); animation: aparecer var(--duracao-rapida) var(--curva-padrao); }
+.entidade-menu__titulo { margin: 0; padding: var(--esp-2) var(--esp-3) var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.entidade-menu .menu__item { display: flex; align-items: center; gap: var(--esp-2); }
+.entidade-menu .menu__item .icone { color: var(--cor-marca-texto); }
+/* A janela que recebe o bloco da folha (Equipe, Transporte): a mesma folha, sem moldura de papel. */
+.dialogo--bloco-folha .dialogo__corpo.documento { margin: 0; padding: var(--esp-4) var(--esp-5); border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.dialogo--bloco-folha .dialogo__corpo > .secao__bloco { margin: 0; padding: 0; border: 0; }
+.dialogo.dialogo--bloco-folha.dialogo--bloco-amplo { width: min(calc(var(--esp-12) * 30), calc(100vw - var(--esp-8))); max-width: none; }
+/* Motorista escolhido: um gesto só, fluido — o avatar cresce de leve e assenta, o volante dá
+   meia-volta e para (sem quique), e um anel dourado se abre em volta do cartão. Só
+   propriedades que a placa de vídeo anima (escala, giro, sombra), sem 3D. */
+.equipe__cartao.equipe__cartao--assumiu { animation: motorista-cartao 700ms cubic-bezier(0.22, 1, 0.36, 1); }
+.equipe__cartao--assumiu > .avatar { animation: motorista-avatar 520ms cubic-bezier(0.22, 1, 0.36, 1); }
+.equipe__cartao--assumiu > .avatar .icone { animation: motorista-volante 620ms cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes motorista-cartao {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--cor-marca) 45%, transparent); }
+  100% { box-shadow: 0 0 0 var(--esp-3) transparent; }
+}
+@keyframes motorista-avatar {
+  0% { scale: 0.82; }
+  60% { scale: 1.06; }
+  100% { scale: 1; }
+}
+@keyframes motorista-volante {
+  0% { rotate: -180deg; opacity: 0.4; }
+  100% { rotate: 0deg; opacity: 1; }
+}
+/* Viatura escolhida: o carro entra no quadrado pela esquerda, passa um pouco freando, empina
+   a traseira (gira sobre a frente) e assenta. */
+.avatar.avatar--viatura-chegando { overflow: hidden; }
+.avatar--viatura-chegando .icone { transform-origin: 85% 90%; animation: viatura-chegar 1100ms var(--curva-padrao); }
+@keyframes viatura-chegar {
+  0% { translate: -240% 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+  52% { translate: 12% 0; rotate: 0deg; }
+  64% { translate: 0 0; rotate: 16deg; }
+  78% { translate: 0 0; rotate: -4deg; }
+  90% { rotate: 2deg; }
+  100% { translate: 0 0; rotate: 0deg; }
+}
+/* A chegada se ajusta com um clique (itinerario.js → editarChegada): muda o tempo de viagem. */
+.itin--operacional .itin__trecho .itin__chegada { cursor: pointer; transition: box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.itin--operacional .itin__trecho .itin__chegada:hover { box-shadow: inset 0 0 0 1px var(--hover-cartao-borda); }
+.itin--operacional .itin__chegada.itin__chegada--editando { cursor: default; box-shadow: inset 0 0 0 1px var(--cor-marca); }
+.itin__chegada-edicao { display: flex; flex: 1; gap: var(--esp-1); min-width: 0; }
+.itin__chegada-edicao .entrada { min-height: calc(var(--altura-controle) - var(--esp-2)); padding: 0 var(--esp-2); font-variant-numeric: tabular-nums; }
+.itin__chegada-edicao .entrada:first-child { flex: 1.4; min-width: 0; }
+.itin__chegada-edicao .entrada:last-child { flex: 1; min-width: 0; }
+/* Janela que recebe uma parte da folha (Equipe, Transporte, Identificação, Roteiro):
+   cabeçalho com o ícone da parte, corpo com folga e campos sem corte, rodapé que diz que
+   tudo já se salva e o "Concluir" à direita. */
+.dialogo.dialogo--bloco-folha { width: min(calc(var(--esp-12) * 18), calc(100vw - var(--esp-8))); max-width: none; }
+.dialogo.dialogo--bloco-folha.dialogo--bloco-medio { width: min(calc(var(--esp-12) * 15), calc(100vw - var(--esp-8))); }
+.dialogo--bloco-folha .dialogo__cabecalho { align-items: center; gap: var(--esp-3); padding: var(--esp-4) var(--esp-5); border-bottom: var(--borda-sutil); }
+.dialogo--bloco-folha .dialogo__icone { background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.dialogo--bloco-folha .dialogo__titulo { font-size: var(--texto-lg); }
+.dialogo--bloco-folha .dialogo__corpo.documento { padding: var(--esp-5); max-height: calc(100dvh - var(--esp-12) * 4); overflow-y: auto; }
+.dialogo--bloco-folha .dialogo__rodape { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-3); padding: var(--esp-3) var(--esp-5); border-top: var(--borda-sutil); background: var(--cor-superficie-sutil); }
+.dialogo-bloco__salvo { display: inline-flex; align-items: center; gap: var(--esp-2); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.dialogo-bloco__salvo .icone { color: var(--cor-sucesso); }
+/* Identificação na janela: duas colunas largas — número e data, protocolo e tipo, custeio e
+   instituição — em vez das cinco colunas estreitas da folha (que cortavam os rótulos). */
+.dialogo--bloco-folha[data-bloco="identificacao"] .dialogo__corpo > .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-5) var(--esp-4); }
+.dialogo--bloco-folha[data-bloco="identificacao"] .dialogo__corpo > .campos > .campo { grid-column: auto; min-width: 0; width: auto; max-width: none; flex: none; }
+.dialogo--bloco-folha[data-bloco="identificacao"] .dialogo__corpo > .campos > .campo.condicional { grid-column: 1 / -1; }
+/* Editor de documento: o filete e o espaço dobrado acima da estação somem — um espaço só. */
+.documento--preparacao .secao__bloco.secao__bloco--estacao { padding-top: 0; border-top: 0; }
+/* Barra de ações da folha (ofício, termo, OS, plano…): a mesma barra das listas — cartão
+   com borda sutil e cantos arredondados que acompanha a rolagem colada ao pé da tela
+   (sem raio embaixo quando gruda). À esquerda Voltar e o estado do salvamento (num selo);
+   à direita as ações. */
+.barra-acoes.barra-acoes--preparacao { position: sticky; bottom: 0; z-index: var(--z-barra-acoes); display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2) var(--esp-3); margin: var(--esp-4) 0 0; padding: var(--esp-3) var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); box-shadow: none; transition: border-radius var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.barra-acoes.barra-acoes--preparacao[data-grudada] { border-radius: var(--raio-lg) var(--raio-lg) 0 0; box-shadow: var(--sombra-1); }
+.barra-acoes--preparacao .barra-acoes__acoes { display: contents; }
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto { order: -1; }
+.barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto) { order: 1; }
+.barra-acoes--preparacao .barra-acoes__acoes > :not(.botao--texto):first-of-type,
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto ~ :not(.botao--texto) { margin-left: 0; }
+.barra-acoes--preparacao .barra-acoes__acoes > .botao--texto + * { margin-left: auto; }
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { order: 0; display: inline-flex; align-items: center; gap: var(--esp-1); padding: var(--esp-1) var(--esp-3); border-radius: var(--raio-pilula); background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); font-size: var(--texto-xs); font-weight: var(--peso-medio); margin-left: 0; }
+.barra-acoes.barra-acoes--preparacao .barra-acoes__status--sujo { background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.barra-acoes.barra-acoes--preparacao .barra-acoes__status--erro { background: var(--cor-perigo-fundo); color: var(--cor-perigo); }
+/* =============== Histórico da folha: linha do tempo =============== */
+/* Eventos por dia; cada um com o ícone do tipo num marcador redondo sobre um fio vertical.
+   Filtro por tipo só com rádios e :has(). Entram em cascata; o "ver completo" desliza. */
+.historico-folha { display: grid; gap: var(--esp-3); }
+.historico-folha__filtros { display: inline-flex; flex-wrap: wrap; justify-self: start; gap: var(--esp-05); padding: var(--esp-05); border-radius: var(--raio-md); background: var(--cor-superficie-realce); }
+.historico-folha__filtros > label { display: inline-flex; align-items: center; gap: var(--esp-1); min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border-radius: var(--raio-sm); font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); cursor: pointer; transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.historico-folha__filtros > label > input { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); }
+.historico-folha__filtros > label:hover { color: var(--cor-texto); }
+.historico-folha__filtros > label:has(input:checked) { background: var(--cor-superficie); color: var(--cor-texto); box-shadow: var(--sombra-1); font-weight: var(--peso-semi); }
+.historico-folha__filtros > label:has(input:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
+.historico-folha:has(input[value="dados"]:checked) .historico__linha:not([data-tipo="dados"]),
+.historico-folha:has(input[value="equipe"]:checked) .historico__linha:not([data-tipo="equipe"]),
+.historico-folha:has(input[value="texto"]:checked) .historico__linha:not([data-tipo="texto"]),
+.historico-folha:has(input[value="documentos"]:checked) .historico__linha:not([data-tipo="documentos"]),
+.historico-folha:has(input:not([value="tudo"]):checked) .historico__dia { display: none; }
+.historico-folha .historico__linhas.historico__linhas--operacional { position: relative; display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.historico-folha .historico__dia { margin: var(--esp-3) 0 var(--esp-1); padding-left: calc(var(--altura-controle-sm) + var(--esp-3) + var(--esp-2)); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.historico-folha .historico__dia:first-child { margin-top: 0; }
+.historico-folha .historico__linha { position: relative; display: grid; grid-template-columns: var(--altura-controle-sm) minmax(0, 1fr); align-items: center; gap: var(--esp-3); padding: var(--esp-2); border: 0; border-radius: var(--raio-md); background: transparent; transition: background-color var(--duracao-rapida) var(--curva-padrao); animation: historico-entrar 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.historico-folha .historico__linha::before { content: ""; position: absolute; left: calc(var(--esp-2) + var(--altura-controle-sm) / 2 - 1px); top: 0; bottom: 0; width: 2px; background: var(--cor-borda-sutil); }
+.historico-folha .historico__dia + .historico__linha::before { top: 50%; }
+.historico-folha .historico__linha:has(+ .historico__dia)::before,
+.historico-folha .historico__linha:last-child::before { bottom: 50%; }
+.historico-folha .historico__dia + .historico__linha:has(+ .historico__dia)::before,
+.historico-folha .historico__dia + .historico__linha:last-child::before { display: none; }
+.historico-folha .historico__linha:hover { background: var(--cor-superficie-sutil); }
+.historico-folha .historico__marcador { position: relative; z-index: 1; display: grid; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border: 1px solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-texto-secundario); transition: scale var(--duracao-rapida) var(--curva-expressiva), border-color var(--duracao-rapida) var(--curva-padrao); }
+.historico-folha .historico__linha:hover .historico__marcador { scale: 1.1; border-color: var(--cor-borda-forte); }
+.historico-folha .historico__linha--equipe .historico__marcador { border-color: var(--cor-info-borda); background: var(--cor-info-fundo); color: var(--cor-info); }
+.historico-folha .historico__linha--texto .historico__marcador { border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.historico-folha .historico__linha--documentos .historico__marcador { border-color: var(--cor-primaria); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.historico-folha .historico__linha--alerta .historico__marcador { border-color: var(--cor-perigo-borda); background: var(--cor-perigo-fundo); color: var(--cor-perigo); }
+.historico-folha .historico__detalhe { display: grid; gap: var(--esp-05); min-width: 0; }
+.historico-folha .historico__texto { font-size: var(--texto-sm); line-height: var(--altura-linha-justa); color: var(--cor-texto); }
+.historico-folha .historico__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1); font-size: var(--texto-xs); color: var(--cor-texto-terciario); }
+.historico-folha .historico__meta .historico__quando { padding: 0; border: 0; font-variant-numeric: tabular-nums; color: var(--cor-texto-secundario); }
+.historico-folha .historico__meta .historico__quem { margin: 0; white-space: normal; }
+.historico-folha .historico__linha:nth-child(2) { animation-delay: 40ms; }
+.historico-folha .historico__linha:nth-child(3) { animation-delay: 80ms; }
+.historico-folha .historico__linha:nth-child(4) { animation-delay: 120ms; }
+.historico-folha .historico__linha:nth-child(5) { animation-delay: 160ms; }
+.historico-folha .historico__linha:nth-child(6) { animation-delay: 200ms; }
+.historico-folha .historico__linha:nth-child(n + 7) { animation-delay: 240ms; }
+@keyframes historico-entrar {
+  from { opacity: 0; translate: 0 var(--esp-2); }
+  to { opacity: 1; translate: 0 0; }
+}
+.historico-folha__abrir { display: inline-flex; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle-sm); padding: 0 var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-pilula); font-size: var(--texto-xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); cursor: pointer; list-style: none; transition: border-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
+.historico-folha__abrir::-webkit-details-marker { display: none; }
+.historico-folha__abrir:hover { border-color: var(--hover-cartao-borda); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.historico-folha__seta { transition: rotate var(--duracao-media) var(--curva-padrao); }
+.historico-folha__mais[open] .historico-folha__seta { rotate: 180deg; }
+.historico-folha__mais > .historico__linhas { margin-top: var(--esp-3); }
+.historico-folha__mais[open] .linha-tempo__mais-abrir,
+.historico-folha__mais:not([open]) .linha-tempo__mais-fechar { display: none; }
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { flex: 0 1 auto; width: auto; max-width: 100%; }
+.historico-folha:has(input:not([value="tudo"]):checked) .historico__linha::before { display: none; }
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento] { margin-right: auto; }
+/* Alinhamento do histórico: marcadores na mesma linha de partida do título, dos filtros e
+   do botão (a linha recua o próprio respiro com margem negativa — o realce do hover sai um
+   pouco para fora, os marcadores não); o dia na coluna dos textos; o fio passa pelo centro
+   dos marcadores sem falhas. */
+.historico-folha { --historico-marcador: calc(var(--altura-controle-sm) + var(--esp-1)); }
+.historico-folha .historico__linhas.historico__linhas--operacional { margin: 0 calc(var(--esp-2) * -1); }
+.historico-folha .historico__linha { grid-template-columns: var(--historico-marcador) minmax(0, 1fr); gap: var(--esp-3); padding: var(--esp-2); }
+.historico-folha .historico__marcador { width: var(--historico-marcador); height: var(--historico-marcador); }
+.historico-folha .historico__linha::before { left: calc(var(--esp-2) + var(--historico-marcador) / 2 - 1px); top: 0; bottom: 0; }
+.historico-folha .historico__dia { margin: var(--esp-4) 0 var(--esp-1); padding-left: calc(var(--esp-2) + var(--historico-marcador) + var(--esp-3)); }
+.historico-folha .historico__dia:first-child { margin-top: var(--esp-1); }
+.historico-folha__mais > .historico__linhas { margin-top: var(--esp-2); }
+/* O fio da linha do tempo (vence a regra antiga de .historico__linhas--operacional). */
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__linha::before { content: ""; position: absolute; display: block; left: calc(var(--esp-2) + var(--historico-marcador) / 2 - 1px); top: 0; bottom: 0; width: 2px; background: var(--cor-borda-sutil); }
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__dia + .historico__linha::before,
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__linha:first-child::before { top: 50%; }
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__linha:has(+ .historico__dia)::before,
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__linha:last-child::before { bottom: 50%; }
+.historico-folha .historico__linhas.historico__linhas--operacional > .historico__dia + .historico__linha:is(:last-child, :has(+ .historico__dia))::before,
+.historico-folha:has(input:not([value="tudo"]):checked) .historico__linhas.historico__linhas--operacional > .historico__linha::before { display: none; }
+/* O selo do salvamento só fica verde (com o ✓) quando salvou; enquanto salva ou se não deu,
+   fica neutro — e vermelho no erro. */
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento]:not(.barra-acoes__status--salvo, .barra-acoes__status--sujo, .barra-acoes__status--erro) { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.barra-acoes.barra-acoes--preparacao [data-status-salvamento]:not(.barra-acoes__status--salvo) > .icone { display: none; }
+/* Bate-volta que chega depois da meia-noite: "+1 dia" ao lado da hora. */
+.itin__gerado-seguinte { margin-left: var(--esp-1); padding: 0 var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-aviso-fundo); color: var(--cor-aviso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); }
+/* =============== Bate-volta: trechos gerados no desenho do Resumo =============== */
+/* Um cartão por dia; a ida e a volta no mesmo eixo — a sede à esquerda e o destino à direita.
+   Na ida a viatura corre da sede para o destino; na volta, de frente para a sede, no sentido
+   contrário. Ao chegar ao fim ela some e outra surge no começo da linha. */
+.itin__gerados.percurso-registro--bv { display: grid; gap: var(--esp-2); margin: 0; padding: 0; border: 0; border-radius: 0; overflow: visible; list-style: none; }
+.percurso-registro--bv .percurso-registro__trecho { grid-template-columns: 4.5rem minmax(0, 1fr); align-items: center; gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao); }
+.percurso-registro--bv .percurso-registro__trecho + .percurso-registro__trecho { border-top: 1px solid var(--cor-borda); }
+.percurso-registro--bv .percurso-registro__trecho:hover { border-color: var(--cor-borda-forte); }
+.percurso-registro--bv .percurso-registro__dia { align-self: stretch; place-content: center; justify-items: center; padding: var(--esp-2) 0; border-radius: var(--raio-md); background: var(--cor-superficie-realce); text-align: center; }
+.percurso-registro--bv .percurso-registro__dia b { font-size: var(--texto-md); }
+.percurso-registro--bv .percurso-registro__dia small { color: var(--cor-marca-texto); }
+.percurso-registro__km { margin-top: var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); white-space: nowrap; }
+.percurso-registro__pernas { display: grid; min-width: 0; }
+.percurso-registro--bv .percurso-registro__rota { grid-template-columns: minmax(0, 1fr) minmax(8rem, 1.6fr) minmax(0, 1fr); align-items: center; gap: var(--esp-4); padding: var(--esp-2) 0; }
+.percurso-registro--bv .percurso-registro__rota + .percurso-registro__rota { border-top: 1px dashed var(--cor-borda-sutil); }
+.percurso-registro--bv .percurso-registro__ponto time { display: inline-flex; align-items: center; font-size: var(--texto-lg); }
+.percurso-registro--bv .percurso-registro__ponto--destino time { justify-content: end; }
+.percurso-registro--bv .percurso-registro__ponto time .itin__gerado-seguinte { margin-left: var(--esp-2); letter-spacing: 0; }
+.percurso-registro--bv .percurso-registro__duracao { display: inline-flex; align-items: center; gap: var(--esp-1); }
+.percurso-registro--bv .percurso-registro__rota--volta .percurso-registro__duracao { color: var(--cor-marca-texto); }
+/* A estrada: uma linha só, e a viatura correndo por cima dela. */
+.percurso-registro--bv .percurso-registro__fio { position: relative; display: block; height: 1.5rem; overflow: hidden; }
+.percurso-registro--bv .percurso-registro__fio::before { position: absolute; inset: 50% 0 auto; height: 2px; translate: 0 -50%; background: linear-gradient(to right, var(--cor-marca-borda), var(--cor-marca)); }
+.percurso-registro--bv .percurso-registro__rota--volta .percurso-registro__fio::before { background: linear-gradient(to left, var(--cor-marca-borda), var(--cor-marca)); }
+.percurso-registro--bv .percurso-registro__fio::after { display: none; }
+.percurso-registro--bv .percurso-registro__fio > .icone { position: absolute; top: 50%; left: 0; padding: 0 var(--esp-1); box-sizing: content-box; background: var(--cor-superficie); translate: 0 -50%; animation: viatura-seguir-ida 3.6s linear infinite, viatura-sacudir 0.5s ease-in-out infinite alternate; }
+.percurso-registro--bv .percurso-registro__rota--volta .percurso-registro__fio > .icone { scale: -1 1; animation-name: viatura-seguir-volta, viatura-sacudir; }
+/* Os dias não andam em fila indiana: cada um sai um pouco depois do anterior. */
+.percurso-registro--bv .percurso-registro__trecho:nth-child(3n + 2) .percurso-registro__fio > .icone { animation-delay: -1.2s, 0s; }
+.percurso-registro--bv .percurso-registro__trecho:nth-child(3n) .percurso-registro__fio > .icone { animation-delay: -2.4s, 0s; }
+.percurso-registro--bv .percurso-registro__rota--volta .percurso-registro__fio > .icone { animation-delay: -1.8s, 0s; }
+@keyframes viatura-seguir-ida {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { left: calc(100% - 1.5rem); opacity: 0; }
+}
+@keyframes viatura-seguir-volta {
+  0% { left: calc(100% - 1.5rem); opacity: 0; }
+  10% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { left: 0; opacity: 0; }
+}
+.percurso-registro__rotulo { margin-right: var(--esp-2); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-terciario); }
+/* Conferência da viagem: as pendências vêm de várias etapas (dados, roteiro, ofícios, OS…),
+   então ficam abaixo do cabeçalho, alinhadas à esquerda, cada uma com o nome da etapa. */
+@media (min-width: 1024px) {
+  .prontidao-documental.prontidao-documental--etapas { grid-template-columns: minmax(0, 1fr); }
+}
+.prontidao-documental--etapas .checklist { justify-content: flex-start; }
+.checklist__etapa { margin-right: var(--esp-1); padding: 0 var(--esp-1); border-radius: var(--raio-sm); background: var(--cor-aviso-fundo); color: var(--cor-aviso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
+.prontidao-documental .checklist__sem-link { display: inline-flex; align-items: center; gap: var(--esp-2); min-height: var(--altura-controle); padding: 0 var(--esp-3); border: 1px solid var(--cor-aviso-borda); border-radius: var(--raio-sm); font-size: var(--texto-sm); }
+.prontidao-documental .checklist__sem-link > .icone { color: var(--cor-aviso); }
+/* =============== Diário de bordo no desenho da folha do ofício =============== */
+/* Cada trecho é um cartão como os trechos do ofício: número no marcador quadrado, a rota em
+   destaque, os campos numa linha e a distância rodada como campo calculado. */
+.documento--preparacao .diario-linhas { gap: var(--esp-2); }
+.documento--preparacao .diario-linha,
+.documento--preparacao .diario-linha:first-child { align-items: center; padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.documento--preparacao .diario-linha:hover { border-color: var(--cor-borda-forte); }
+.documento--preparacao .diario-linha:focus-within { border-color: var(--hover-cartao-borda); box-shadow: var(--sombra-1); }
+.documento--preparacao .diario-linha__rota { align-items: center; }
+.documento--preparacao .diario-linha__rota .peso-semi { font-size: var(--texto-md); line-height: var(--altura-linha-justa); }
+.documento--preparacao .diario-linha__numero { width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); background: var(--cor-superficie-realce); font-size: var(--texto-sm); transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.documento--preparacao .diario-linha:focus-within .diario-linha__numero { background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.documento--preparacao .diario-linha__resultado { display: flex; flex-direction: column; justify-content: center; min-height: var(--altura-controle); padding: var(--esp-1) var(--esp-3); border: 1px solid var(--cor-borda); border-left: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.documento--preparacao .diario-linha__resultado > span { font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; }
+.documento--preparacao .diario-linha__resultado strong { font-size: var(--texto-md); font-weight: var(--peso-forte); }
+@media (min-width: 1024px) {
+  .documento--preparacao .diario-linha--hodometro { grid-template-columns: minmax(0, 1fr) minmax(22rem, 1.4fr) minmax(8rem, .35fr); }
+}
+/* Totais do hodômetro: as mesmas peças dos totais da rota, em três colunas. */
+.diario-totais { margin-top: var(--esp-4); }
+.diario-totais .itin__totais { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.diario-totais .itin__totais .itin__total-valor:last-child { grid-column: 2; font-size: var(--texto-lg); font-weight: var(--peso-semi); color: var(--cor-texto); }
+/* Registro institucional do resumo: motivo e justificativa numa linha, quem assina e o
+   destinatário na seguinte — cada valor numa linha só, sem quebra (o texto inteiro no title). */
+.resumo__definicoes .metadado--linha { min-width: 0; }
+.dialogo--mesa .mesa-registro__registro .resumo__definicoes .metadado--linha dd,
+.resumo__definicoes .metadado--linha dd { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; -webkit-line-clamp: none; line-clamp: none; }
+
+/* =============== Termo: Data do evento (calendário de mesa) =============== */
+/* A linha toda: as folhas do primeiro e do último dia (mês na faixa grafite, o dia, o dia da
+   semana) ligadas por um fio dourado com a duração; a data por extenso e de onde veio; a ida
+   e a volta quando a viagem vai além do evento; e o botão do calendário. Passar o mouse
+   levanta de leve a folha da frente (a de trás aparece embaixo). */
+.mesa-evento { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--esp-4); padding: var(--esp-3) var(--esp-4); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: linear-gradient(135deg, var(--cor-superficie) 0%, var(--cor-superficie-sutil) 100%); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.mesa-evento:hover { border-color: var(--cor-borda-forte); }
+.mesa-evento--evento { box-shadow: inset 3px 0 0 var(--cor-marca); }
+.mesa-evento--vazia { border-style: dashed; background: var(--cor-superficie); }
+.mesa-evento__vivo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-5); min-width: 0; }
+.mesa-evento__folhas { display: flex; align-items: center; padding-bottom: 3px; }
+.mesa-evento__folhas[data-abre-calendario] { cursor: pointer; }
+.mesa-evento__folha { position: relative; display: grid; width: 3.5rem; perspective: 14rem; }
+/* A folha de trás: aparece quando a da frente levanta. */
+.mesa-evento__folha::before { content: ""; position: absolute; inset: 3px 2px -3px; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie-realce); }
+.mesa-evento__pagina { position: relative; display: grid; justify-items: center; overflow: hidden; border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); box-shadow: var(--sombra-1); transform-origin: 50% 0; transition: transform var(--duracao-media) var(--curva-expressiva), box-shadow var(--duracao-media) var(--curva-padrao); animation: mesa-folha var(--duracao-lenta) var(--curva-expressiva) backwards; }
+.mesa-evento__folha + .mesa-evento__ate + .mesa-evento__folha .mesa-evento__pagina { animation-delay: 90ms; transition-delay: 50ms; }
+.mesa-evento:has(.mesa-evento__folhas[data-abre-calendario]:hover) .mesa-evento__pagina,
+.mesa-evento:has(.mesa-evento__botao:is(:hover, [aria-expanded="true"])) .mesa-evento__pagina { transform: rotateX(32deg) translateY(-2px); box-shadow: var(--sombra-2); }
+.mesa-evento__mes { width: 100%; padding: 2px 0; background: var(--cor-primaria); color: var(--cor-texto-inverso); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-align: center; text-transform: uppercase; }
+.mesa-evento--evento .mesa-evento__mes { background: linear-gradient(90deg, var(--cor-primaria), color-mix(in srgb, var(--cor-primaria) 82%, var(--cor-marca))); }
+.mesa-evento__dia { padding-top: 2px; font-size: var(--texto-xl); font-weight: var(--peso-forte); line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__semana { padding-bottom: var(--esp-1); font-size: var(--texto-2xs); font-weight: var(--peso-medio); color: var(--cor-texto-secundario); text-transform: capitalize; }
+.mesa-evento__folha--vazia .mesa-evento__pagina { border-style: dashed; box-shadow: none; }
+.mesa-evento__folha--vazia .mesa-evento__mes { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.mesa-evento__folha--vazia .mesa-evento__dia { color: var(--cor-texto-terciario); }
+.mesa-evento__ate { position: relative; display: grid; place-items: center; width: 4rem; }
+.mesa-evento__ate::before { content: ""; position: absolute; inset: 50% 0 auto; height: 2px; translate: 0 -50%; background: linear-gradient(90deg, var(--cor-marca-borda), var(--cor-marca), var(--cor-marca-borda)); }
+.mesa-evento__duracao { position: relative; padding: 1px var(--esp-2); border: 1px solid var(--cor-marca-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); color: var(--cor-marca-texto); font-size: var(--texto-2xs); font-weight: var(--peso-semi); white-space: nowrap; }
+.mesa-evento__texto { display: grid; gap: 2px; min-width: 0; }
+.mesa-evento__rotulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.mesa-evento__frase { margin: 0; overflow: hidden; font-size: var(--texto-xl); font-weight: var(--peso-semi); line-height: var(--altura-linha-justa); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto); }
+.mesa-evento--vazia .mesa-evento__frase { color: var(--cor-texto-secundario); }
+.mesa-evento__fonte { display: inline-flex; align-items: center; gap: var(--esp-1); margin: 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.mesa-evento--evento .mesa-evento__fonte { color: var(--cor-marca-texto); font-weight: var(--peso-medio); }
+.mesa-evento__viagem { display: inline-flex; align-items: center; gap: var(--esp-2); margin: 0; padding: var(--esp-1) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-pilula); background: var(--cor-superficie); font-size: var(--texto-xs); color: var(--cor-texto-secundario); white-space: nowrap; }
+.mesa-evento__viagem strong { font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.mesa-evento__erro { grid-column: 1 / -1; margin: 0; }
+.mesa-evento__seletor { position: relative; display: block; }
+.mesa-evento__botao.seletor__botao { position: static; width: var(--altura-controle); height: var(--altura-controle); border: 1px solid var(--cor-borda); border-radius: var(--raio-md); background: var(--cor-superficie); color: var(--cor-texto); translate: none; perspective: 8rem; box-shadow: var(--sombra-1); }
+.mesa-evento__botao.seletor__botao:hover { border-color: var(--cor-borda-forte); background: var(--cor-superficie-realce); }
+.mesa-evento__botao.seletor__botao[aria-expanded="true"] { border-color: var(--grafite-900); }
+.mesa-evento__botao > .icone { transform-origin: 50% 15%; transition: transform var(--duracao-media) var(--curva-expressiva); }
+.mesa-evento__botao:hover > .icone, .mesa-evento:has(.mesa-evento__folhas[data-abre-calendario]:hover) .mesa-evento__botao > .icone { transform: rotateX(30deg) translateY(-1px); }
+@keyframes mesa-folha { from { opacity: 0; transform: rotateX(-60deg); } }
+@media (prefers-reduced-motion: reduce) { .mesa-evento__pagina, .mesa-evento__botao > .icone { animation: none; transition: none; } }
+@media (max-width: 1023.98px) {
+  .mesa-evento__vivo { grid-template-columns: auto minmax(0, 1fr); }
+  .mesa-evento__viagem { grid-column: 1 / -1; justify-self: start; }
+}
+
+/* =============== Termo: viaturas e quem vai em cada uma =============== */
+/* As viaturas em cartões (placa, modelo, quantos vão nela, "×"); com mais de uma, uma linha
+   por servidor com a viatura num seletor segmentado — o realce desliza para a escolhida
+   (termo.js mede a opção e põe `--escala-x`/`--escala-w`; sem JS, a opção marcada é que
+   ganha o fundo). Com mais de uma viatura o bloco usa a linha toda. */
+.secao__grupo > .secao__bloco.secao__bloco--largo { grid-column: 1 / -1; }
+.frota { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--esp-2); margin: var(--esp-3) 0 0; padding: 0; list-style: none; }
+.frota__viatura { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--esp-3); padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); animation: atencao-entrar var(--duracao-lenta) var(--curva-expressiva) backwards; transition: border-color var(--duracao-rapida) var(--curva-padrao); }
+.frota__viatura:hover { border-color: var(--cor-borda-forte); }
+.frota__icone { display: grid; place-items: center; width: var(--altura-controle); height: var(--altura-controle); border-radius: var(--raio-md); background: var(--cor-primaria); color: var(--cor-texto-inverso); }
+.frota__nome { display: grid; gap: 1px; min-width: 0; }
+.frota__nome strong { font-size: var(--texto-md); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); font-variant-numeric: tabular-nums; color: var(--cor-texto); }
+.frota__nome small { overflow: hidden; font-size: var(--texto-xs); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto-secundario); }
+.frota__conta { display: inline-flex; align-items: center; gap: var(--esp-1); min-width: 1.75rem; height: 1.75rem; padding: 0 var(--esp-2); justify-content: center; border-radius: var(--raio-pilula); background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda); font-size: var(--texto-xs); font-weight: var(--peso-semi); font-variant-numeric: tabular-nums; color: var(--cor-texto); transition: background-color var(--duracao-rapida) var(--curva-padrao); }
+.frota__conta--mudou { animation: frota-conta var(--duracao-lenta) var(--curva-expressiva); }
+.frota__remover { position: relative; display: grid; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); color: var(--cor-texto-secundario); cursor: pointer; transition: background-color var(--duracao-rapida) var(--curva-padrao), color var(--duracao-rapida) var(--curva-padrao); }
+.frota__remover:hover { background: var(--cor-perigo-fundo); color: var(--cor-perigo); }
+.frota__remover > input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.frota__remover:has(> input:focus-visible) { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
+.frota__todos { display: inline-flex; align-items: center; gap: var(--esp-2); margin: var(--esp-2) 0 0; font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+@keyframes frota-conta { 0% { scale: 1; } 40% { scale: 1.2; background: var(--cor-marca-fundo); } 100% { scale: 1; } }
+
+.lotacao { display: grid; gap: var(--esp-2); margin-top: var(--esp-4); }
+.lotacao__titulo { margin: 0; font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.lotacao__lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(30rem, 1fr)); gap: var(--esp-2) var(--esp-4); margin: 0; padding: 0; list-style: none; }
+.lotacao__pessoa { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-3); padding: var(--esp-2) var(--esp-2) var(--esp-2) var(--esp-3); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie); transition: border-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao); }
+.lotacao__pessoa:hover { border-color: var(--hover-cartao-borda); box-shadow: var(--sombra-1); }
+.lotacao__pessoa:has(input[value=""]:checked) { border-style: dashed; background: var(--cor-superficie-sutil); }
+.lotacao__avatar { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); font-size: var(--texto-2xs); font-weight: var(--peso-semi); }
+.lotacao__nome { display: grid; min-width: 0; }
+.lotacao__nome > span { overflow: hidden; font-size: var(--texto-sm); font-weight: var(--peso-medio); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto); }
+.lotacao__nome > small { overflow: hidden; font-size: var(--texto-2xs); white-space: nowrap; text-overflow: ellipsis; color: var(--cor-texto-secundario); }
+
+/* Seletor segmentado com realce que desliza (a função do servidor na OS, reinterpretada). */
+.escala { position: relative; display: inline-flex; align-items: center; padding: 3px; border-radius: var(--raio-md); background: var(--cor-superficie-realce); isolation: isolate; }
+.escala > input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.escala > label { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; min-height: calc(var(--altura-controle-sm) - 2px); padding: 0 var(--esp-3); border-radius: calc(var(--raio-md) - 3px); font-size: var(--texto-xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); font-variant-numeric: tabular-nums; color: var(--cor-texto-secundario); white-space: nowrap; cursor: pointer; transition: color var(--duracao-media) var(--curva-padrao), background-color var(--duracao-rapida) var(--curva-padrao); }
+.escala > label.escala__nenhuma { font-weight: var(--peso-medio); letter-spacing: 0; }
+.escala > input:not(:checked):not(:disabled) + label:hover { color: var(--cor-texto); }
+.escala > input:checked + label { background: var(--grafite-900); color: var(--neutro-0); }
+.escala > input[value=""]:checked + label { background: var(--cor-superficie); color: var(--cor-texto); box-shadow: inset 0 0 0 1px var(--cor-borda-forte); }
+.escala > input:focus-visible + label { outline: var(--foco-espessura) solid var(--foco-cor); outline-offset: 1px; }
+.escala > input:disabled + label { cursor: default; }
+.escala__realce { position: absolute; top: 3px; bottom: 3px; left: 0; z-index: 0; width: var(--escala-w, 0); border-radius: calc(var(--raio-md) - 3px); background: var(--grafite-900); box-shadow: var(--sombra-1); opacity: 0; translate: var(--escala-x, 0) 0; transition: translate var(--duracao-media) var(--curva-expressiva), width var(--duracao-media) var(--curva-expressiva), background-color var(--duracao-rapida) var(--curva-padrao); }
+.escala--viva .escala__realce { opacity: 1; }
+.escala--viva > input:checked + label, .escala--viva > input[value=""]:checked + label { background: transparent; box-shadow: none; }
+.escala--viva:has(input[value=""]:checked) .escala__realce { background: var(--cor-superficie); box-shadow: inset 0 0 0 1px var(--cor-borda-forte); }
+.escala--parada .escala__realce { transition: none; }
+@media (prefers-reduced-motion: reduce) { .escala__realce { transition: none; } }
+@media (max-width: 1023.98px) { .lotacao__lista { grid-template-columns: minmax(0, 1fr); } .lotacao__pessoa { grid-template-columns: auto minmax(0, 1fr); } .escala { grid-column: 1 / -1; justify-self: start; } }

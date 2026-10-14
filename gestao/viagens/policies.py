@@ -192,6 +192,9 @@ class MenuDoOficio:
     duplicar: bool
     marcas: list[OpcaoDeMarca] = field(default_factory=list)
     ciclo: dict[str, bool] = field(default_factory=dict)
+    # Rascunho pronto (nada impede) e quem pede pode emitir: "Revisar e emitir" no menu e no
+    # rodapé do resumo — a emissão em si continua na janela de revisão.
+    emitir: bool = False
 
     @property
     def documento(self) -> bool:
@@ -298,7 +301,18 @@ def menu_do_oficio(usuario, oficio: Oficio, *, pdf=_CONSULTAR, via: bool | None 
         duplicar=pode_duplicar(usuario, oficio),
         marcas=marcas,
         ciclo=acoes_do_oficio(usuario, oficio, com_exclusao=True),
+        emitir=_pronto_para_emitir(usuario, oficio),
     )
+
+
+def _pronto_para_emitir(usuario, oficio: Oficio) -> bool:
+    if oficio.situacao != Oficio.Situacao.RASCUNHO or oficio.arquivado:
+        return False
+    if not pode_emitir(usuario, oficio):
+        return False
+    from .services import pendencias_que_impedem  # (services importa policies)
+
+    return not pendencias_que_impedem(oficio)
 
 
 def pode_excluir(usuario, oficio: Oficio) -> bool:

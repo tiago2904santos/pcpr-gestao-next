@@ -1,7 +1,8 @@
-{% comment %}Paginação acessível. Requer page_obj e querystring_base (filtros atuais sem "pagina").{% endcomment %}
+{% comment %}Paginação acessível. Requer page_obj e querystring_base (filtros atuais sem "pagina").
+na_barra=True: dentro da barra de ações da lista, só os números (a contagem já está no status da barra).{% endcomment %}
 {% if page_obj.paginator.num_pages > 1 %}
-<nav class="paginacao" aria-label="Paginação">
-  <span>Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}</span>
+<nav class="paginacao{% if na_barra %} paginacao--barra{% endif %}" aria-label="Paginação">
+  {% if not na_barra %}<span>Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}</span>{% endif %}
   <ul class="paginacao__paginas">
     <li>{% if page_obj.has_previous %}<a class="paginacao__pagina" href="{{ paginacao_destino|default:'' }}?{{ querystring_base }}pagina={{ page_obj.previous_page_number }}" aria-label="Página anterior">{% icone "chevron-left" %}</a>{% else %}<span class="paginacao__pagina" aria-disabled="true">{% icone "chevron-left" %}<span class="sr-only">Página anterior</span></span>{% endif %}</li>
     {% for n in page_obj.paginator.page_range %}

@@ -1,0 +1,4 @@
+{% load viagens %}
+<div class="dialogo__linha-selos">
+  {% if roteiro.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>{% else %}{% selo_tempo roteiro.primeira_saida roteiro.ultima_chegada %}{% endif %}
+</div>

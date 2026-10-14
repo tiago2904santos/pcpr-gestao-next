@@ -1,0 +1,22 @@
+{% load ui %}{% comment %}
+Faixa "pede atenção" acima de uma lista: cartões que filtram a lista (o ativo vira o "x" que
+volta). Parâmetros: cartoes — itens com tipo ("urgente"|"vazio"), icone, titulo, nota,
+url, ativo; e, opcional, excluir_url / excluir_rotulo / excluir_confirmar (só no ativo).
+{% endcomment %}{% if cartoes %}
+<div class="atencao-lista" role="group" aria-label="Pede atenção">
+  {% for c in cartoes %}
+  <div class="atencao-lista__cartao atencao-lista__cartao--{{ c.tipo }}{% if c.ativo %} atencao-lista__cartao--ativo{% endif %}">
+    <a class="atencao-lista__link" href="{{ c.url }}"{% if c.ativo %} aria-current="true"{% endif %}>
+      <span class="atencao-lista__icone" aria-hidden="true">{% icone c.icone %}</span>
+      <span class="atencao-lista__texto"><strong>{{ c.titulo }}</strong><small>{{ c.nota }}</small></span>
+      <span class="atencao-lista__seta" aria-hidden="true">{% if c.ativo %}{% icone "x" classe="icone--sm" %}{% else %}{% icone "arrow-right" classe="icone--sm" %}{% endif %}</span>
+    </a>
+    {% if c.ativo and c.excluir_url %}
+    <form method="post" action="{{ c.excluir_url }}" class="atencao-lista__form" data-confirmar="{{ c.excluir_confirmar }}" data-confirmar-titulo="Excluir os vazios?" data-confirmar-rotulo="{{ c.excluir_rotulo }}" data-confirmar-perigo>
+      {% csrf_token %}<button type="submit" class="botao botao--sm botao--perigo-sutil">{% icone "trash-2" classe="icone--sm" %}{{ c.excluir_rotulo }}</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

@@ -167,10 +167,12 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
       {% if conf.avisos %}<ul class="pilha-sm">{% for a in conf.avisos %}<li class="alerta alerta--aviso">{% icone "alert-triangle" classe="icone--sm" %}<span>{{ a }}</span></li>{% endfor %}</ul>
       {% elif completo %}<p class="alerta alerta--sucesso">{% icone "check-circle-2" classe="icone--sm" %}<span>Hodômetro coerente em todos os trechos.</span></p>
       {% else %}<p class="texto-secundario texto-sm">Preencha os km para conferir.</p>{% endif %}
-      <dl class="metadados grade grade--3 mt-4">
-        {% with total=conf.total_rodado|stringformat:"s"|add:" km" previsto=conf.total_previsto|stringformat:"s"|add:" km" %}{% include "componentes/metadado.html" with rotulo="Distância rodada" valor=total only %}{% if conf.total_previsto %}{% include "componentes/metadado.html" with rotulo="Distância prevista" valor=previsto only %}{% else %}{% include "componentes/metadado.html" with rotulo="Distância prevista" valor="" only %}{% endif %}{% endwith %}
-        <div class="metadado"><dt>Trechos preenchidos</dt><dd>{{ preenchidas }} de {{ linhas|length }}</dd></div>
-      </dl>
+      {# Os totais no mesmo desenho dos totais da rota do ofício (ícone, rótulo e valor). #}
+      <div class="itin--operacional diario-totais"><p class="itin__totais" role="status">
+        <span class="itin__total">{% icone "gauge" classe="icone--sm" %}<span class="itin__total-rotulo">Distância rodada</span><span class="itin__total-valor">{{ conf.total_rodado }} km</span></span>
+        <span class="itin__total">{% icone "route" classe="icone--sm" %}<span class="itin__total-rotulo">Distância prevista</span><span class="itin__total-valor">{% if conf.total_previsto %}{{ conf.total_previsto }} km{% else %}—{% endif %}</span></span>
+        <span class="itin__total">{% icone "list-checks" classe="icone--sm" %}<span class="itin__total-rotulo">Trechos preenchidos</span><span class="itin__total-valor">{{ preenchidas }} de {{ linhas|length }}</span></span>
+      </p></div>
     {% else %}
       <p class="texto-secundario texto-sm">O diário ainda não foi aberto pela equipe.</p>
     {% endif %}
@@ -182,7 +184,7 @@ trava quando todos estão finalizados. Consulta preserva dados sem controles de 
 Rodapé igual em toda folha de documento: Voltar à esquerda; à direita, Finalizar — grava o
 que estiver pendente e volta à prestação de contas (componentes/rodape_documento.html).
 {% endcomment %}
-<div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
   {% include "componentes/estado_salvamento.html" with atualizado_em=d.atualizado_em sem_emissao=True only %}
   <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a>
   {% include "componentes/rodape_documento.html" with nome="diário de bordo" finalizar_form="finalizar-diario" finalizar_primario=True %}</div>

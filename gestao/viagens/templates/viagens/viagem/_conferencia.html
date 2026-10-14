@@ -9,9 +9,23 @@ equipe, viatura), com "Aplicar em todos" — o que tem via assinada não se mexe
     <div class="secao__estado">{% if quadro.pronta %}<span class="selo selo--sucesso selo--sem-ponto">Pronta</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{{ quadro.resolvidas }} de {{ quadro.etapas|length }} etapas</span>{% endif %}</div>
     <p class="secao__nota">{% if quadro.pronta %}Nada falta: roteiro, documentos, assinaturas e protocolo em dia.{% else %}O que falta para a viagem ficar pronta: {{ quadro.pendencias|pluralizar:"item,itens" }}.{% endif %}</p>
   </div>
-  {% if not quadro.pronta %}
-  {% include "componentes/conferencia_etapas.html" with etapas=quadro.etapas %}
-  {% endif %}
+  {# O mesmo cartão de conferência das folhas de documento: cada pendência é um atalho até onde se resolve. #}
+  <div class="prontidao-documental prontidao-documental--etapas{% if quadro.pronta %} prontidao-documental--pronta{% endif %}" role="status">
+    <div class="prontidao-documental__cabecalho">
+      {% if quadro.pronta %}{% icone "stamp" %}{% else %}{% icone "list-checks" %}{% endif %}
+      <div>
+        <p class="prontidao-documental__rotulo">Conferência da viagem</p>
+        <p class="prontidao-documental__titulo">{% if quadro.pronta %}Tudo pronto para a viagem{% else %}{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }} para ficar pronta{% endif %}</p>
+      </div>
+    </div>
+    {% if not quadro.pronta %}
+    <ul class="checklist" aria-label="Pendências por etapa">
+      {% for e in quadro.etapas %}{% for i in e.itens %}
+      <li class="checklist__item">{% if i.link %}<a href="{{ i.link }}">{% else %}<span class="checklist__sem-link">{% endif %}{% icone "alert-circle" classe="icone--sm" %}<span><span class="checklist__etapa">{{ e.titulo }}</span> {{ i.mensagem }}</span>{% if i.link %}{% icone "arrow-right" classe="icone--sm icone--seta" %}</a>{% else %}</span>{% endif %}</li>
+      {% endfor %}{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
   {% if diferencas %}
   <div class="secao__bloco" id="coerencia" aria-labelledby="t-coerencia">
     <div class="secao__bloco-cabecalho">

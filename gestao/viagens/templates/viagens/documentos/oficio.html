@@ -89,14 +89,14 @@
       </thead>
       <tbody>
         {% for v in d.viajantes %}
-        <tr><td>{{ v.nome }}</td><td>CPF: {{ v.cpf|default:"—" }}</td><td><strong>{{ v.cargo }}</strong></td><td></td></tr>
+        <tr data-entidade="servidor" data-id="{{ v.id }}"><td>{{ v.nome }}</td><td>CPF: {{ v.cpf|default:"—" }}</td><td><strong>{{ v.cargo }}</strong></td><td></td></tr>
         {% endfor %}
       </tbody>
     </table>
 
     <table data-bloco="resumo" data-rotulo="Destino, diárias e valor">
       <tr>
-        <td class="centro"><strong>Destino da viagem:</strong><br>{{ d.destinos|join:", " }}</td>
+        <td class="centro"><strong>Destino da viagem:</strong><br>{% campo_destinos d.destinos %}</td>
         <td class="centro"><strong>Nº de diárias por servidor:</strong><br>{{ d.diarias.resumo }} diárias</td>
         <td class="centro"><strong>Valor total do ofício:</strong><br>{{ d.diarias.total }}</td>
       </tr>
@@ -110,8 +110,8 @@
       {% for t in d.trechos %}
       <tr>
         <td class="centro"><strong>Trecho {{ forloop.counter }}</strong></td>
-        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
-        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+        <td><strong>Saída {{ t.origem }}: {% campo_trecho t.ordem "saida" t.saida %}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {% campo_trecho t.ordem "chegada" t.chegada %}</strong></td>
       </tr>
       {% endfor %}
     </table>
@@ -120,8 +120,8 @@
     <table>
       {% for t in d.ida %}
       <tr>
-        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
-        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+        <td><strong>Saída {{ t.origem }}: {% campo_trecho t.ordem "saida" t.saida %}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {% campo_trecho t.ordem "chegada" t.chegada %}</strong></td>
       </tr>
       {% endfor %}
     </table>
@@ -130,8 +130,8 @@
     <table>
       {% for t in d.volta %}
       <tr>
-        <td><strong>Saída {{ t.origem }}: {{ t.saida.data }} {{ t.saida.hora }}</strong></td>
-        <td><strong>Chegada {{ t.destino }}: {{ t.chegada.data }} {{ t.chegada.hora }}</strong></td>
+        <td><strong>Saída {{ t.origem }}: {% campo_trecho t.ordem "saida" t.saida %}</strong></td>
+        <td><strong>Chegada {{ t.destino }}: {% campo_trecho t.ordem "chegada" t.chegada %}</strong></td>
       </tr>
       {% endfor %}
     </table>
@@ -139,11 +139,11 @@
     </div>
 
     <table data-bloco="transporte" data-rotulo="Transporte">
-      <tr>
+      <tr data-entidade="transporte"{% if d.transporte.viatura_id %} data-id="{{ d.transporte.viatura_id }}"{% endif %}>
         <td>
           <strong>Meio de transporte:</strong> {{ d.transporte.meio }}<br>
           {% if d.transporte.placa %}<strong>Placa{% if d.transporte.oficial %} oficial{% endif %}:</strong> {{ d.transporte.placa }}<br>{% endif %}
-          {% if d.motorista %}<strong>Motorista:</strong> {{ d.motorista }}{% endif %}
+          {% if d.motorista %}<strong>Motorista:</strong> <span data-entidade="motorista">{{ d.motorista }}</span>{% endif %}
         </td>
         <td>
           {% if d.transporte.combustivel %}<strong>Combustível:</strong> {{ d.transporte.combustivel }}<br>{% endif %}

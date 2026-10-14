@@ -23,7 +23,17 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
 from gestao.cadastros.validacoes import normalizar_placa, somente_digitos
 
-from . import assinados, linha_do_tempo, policies, prestacao, termos, views_assinados
+from . import (
+    assinados,
+    atencao_listas,
+    linha_do_tempo,
+    linha_lista,
+    policies,
+    prestacao,
+    resumo_listas,
+    termos,
+    views_assinados,
+)
 from .forms import FormularioTermo
 from .models import EdicaoTermo, Oficio, TermoAutorizacao, Trecho, Viajante
 from .views import POR_PAGINA, _migalhas
@@ -71,6 +81,7 @@ def _buscar(qs, termo: str):
               | Q(servidores__nome__unaccent__icontains=termo)
               | Q(oficio__viajantes__servidor__nome__unaccent__icontains=termo)
               | Q(viatura__modelo__unaccent__icontains=termo)
+              | Q(viaturas__viatura__modelo__unaccent__icontains=termo)
               | Q(evento__unaccent__icontains=termo))
     if "/" in termo and all(p.isascii() and p.isdecimal() for p in termo.split("/", 1)):
         numero, ano = termo.split("/", 1)
@@ -78,7 +89,8 @@ def _buscar(qs, termo: str):
     if len(digitos := somente_digitos(termo)) >= 3:
         filtro |= Q(oficio__protocolo__contains=digitos)
     if len(placa := normalizar_placa(termo)) >= 3:
-        filtro |= Q(viatura__placa__contains=placa) | Q(oficio__viatura__placa__contains=placa)
+        filtro |= (Q(viatura__placa__contains=placa) | Q(oficio__viatura__placa__contains=placa)
+                   | Q(viaturas__viatura__placa__contains=placa))
     return qs.filter(filtro).distinct()
 
 
@@ -98,28 +110,32 @@ def lista(request: HttpRequest) -> HttpResponse:
     if aba not in {chave for chave, _, _ in ABAS}:
         aba = ""
     busca = (request.GET.get("q") or "").strip()
-    qs = termos.com_dados(_buscar(_filtrar(base, aba), busca).order_by("-criado_em")).annotate(
+    # "Pede atenção" (atencao_listas): urgentes (sem via assinada, começa em até 7 dias) e
+    # vazios.
+    hoje, agora = timezone.localdate(), timezone.now()
+    atencao = atencao_listas.recorte_pedido(request)
+    filtrado = _buscar(_filtrar(base, aba), busca)
+    ordenado = (atencao_listas.aplicar(filtrado, atencao_listas.TERMO, atencao, hoje)
+                if atencao else filtrado.order_by("-criado_em"))
+    qs = termos.com_dados(ordenado).annotate(
         # Vias assinadas: as em vigor (selo "N de M assinados") e se há alguma guardada
         # (com via, o termo não se exclui) — numa consulta só para a página.
         vias_vigentes=Count("vias_assinadas", filter=Q(vias_assinadas__revogada_em__isnull=True),
                             distinct=True),
         vias_total=Count("vias_assinadas", distinct=True))
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    linhas = []
-    for t in pagina.object_list:
-        ef = termos.efetivo(t)
-        linhas.append({"termo": t, "ef": ef, "docs": termos.documentos_do_termo(t, ef),
-                       "editavel": policies.pode_editar_termo(request.user, t),
-                       "cancelavel": policies.pode_cancelar_termo(request.user, t),
-                       "excluivel": policies.pode_excluir_termo(request.user, t)})
+    linhas = [_linha_da_lista(request, t, agora) for t in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
-    hoje = timezone.localdate()
     contagens = {"todos": base.count(),
                  **{chave: _filtrar(base, chave).count() for chave, _, _ in ABAS if chave}}
     return render(request, "viagens/termos/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "termo_busca": busca,
-        "contagens": contagens, "hoje": hoje,
+        "contagens": contagens, "hoje": hoje, "atencao": atencao,
+        "cartoes_atencao": atencao_listas.cartoes(
+            request, atencao_listas.TERMO, atencao,
+            atencao_listas.contas(base, atencao_listas.TERMO, hoje),
+            reverse("viagens:excluir_termos_vazios")),
         "oficio_filtro": oficio_pk if oficio is not None else "", "oficio": oficio,
         "pode_termo_do_oficio": (oficio is not None and policies.pode_criar_termo(request.user)
                                  and oficio.situacao != Oficio.Situacao.CANCELADO),
@@ -127,6 +143,54 @@ def lista(request: HttpRequest) -> HttpResponse:
         "voltar": request.get_full_path(),
         "pode_criar": policies.pode_criar_termo(request.user),
         "migalhas": _migalhas(("Termos de autorização", ""))})
+
+
+def _linha_da_lista(request: HttpRequest, t: TermoAutorizacao, agora) -> dict:
+    """Uma linha: o que falta, o tempo (urgência até haver via assinada; estrada) e a ação."""
+    ef = termos.efetivo(t)
+    docs = termos.documentos_do_termo(t, ef)
+    folha = reverse("viagens:editar_termo", args=[t.pk])
+    assinado = bool(docs) and (t.vias_vigentes or 0) >= len(docs)
+    pendencias = []
+    if not ef.destinos:
+        pendencias.append({"mensagem": "Informe o destino (ou ligue um ofício).",
+                           "url": f"{folha}#destinos"})
+    if not ef.inicio:
+        pendencias.append({"mensagem": "Informe o período (ou ligue um ofício).",
+                           "url": f"{folha}#dados"})
+    vazio = not (t.oficio_id or ef.destinos or ef.inicio or ef.servidores or ef.viatura
+                 or t.vias_total)
+    return {"termo": t, "ef": ef, "docs": docs, "pendencias": pendencias, "url_folha": folha,
+            "vazio": vazio,
+            "tempo": linha_lista.estado_temporal(ef.inicio, ef.fim, agora,
+                                                 pendente=not t.cancelado and not assinado),
+            "editavel": policies.pode_editar_termo(request.user, t),
+            "cancelavel": policies.pode_cancelar_termo(request.user, t),
+            "excluivel": policies.pode_excluir_termo(request.user, t)}
+
+
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo do termo (o mesmo desenho do resumo do ofício)."""
+    if not request.user.has_perm("viagens.view_termoautorizacao"):
+        raise PermissionDenied
+    t = get_object_or_404(termos.com_dados(_com_inicio(policies.termos_visiveis(request.user)))
+                          .annotate(
+                              vias_vigentes=Count("vias_assinadas", filter=Q(
+                                  vias_assinadas__revogada_em__isnull=True), distinct=True),
+                              vias_total=Count("vias_assinadas", distinct=True)), pk=pk)
+    linha = _linha_da_lista(request, t, timezone.now())
+    return render(request, "componentes/resumo_documento.html",
+                  {"r": resumo_listas.do_termo(t, linha), "t": t, "l": linha,
+                   "ef": linha["ef"]})
+
+
+@require_POST
+def excluir_vazios(request: HttpRequest) -> HttpResponse:
+    """"Excluir os vazios" da faixa de atenção (pede confirmação; regra de `termos.excluir`)."""
+    excluidos = atencao_listas.excluir_vazios(
+        request.user, policies.termos_visiveis(request.user), atencao_listas.TERMO)
+    messages.success(request, atencao_listas.mensagem_exclusao(atencao_listas.TERMO, excluidos))
+    return redirect("viagens:termos")
 
 
 def _termo_visivel(request: HttpRequest, pk: int) -> TermoAutorizacao:
@@ -149,6 +213,55 @@ def _formulario(request: HttpRequest, *args, termo=None, **kwargs) -> Formulario
     if termo is not None and not args and not kwargs.get("initial"):
         return FormularioTermo.de(termo, **extras)
     return FormularioTermo(*args, termo=termo, **extras, **kwargs)
+
+
+def _periodo_em_frase(inicio, fim) -> str:
+    """"20 a 21 de outubro de 2026", "30 de outubro a 2 de novembro de 2026"."""
+    meses = termos.MESES
+    if fim == inicio:
+        return f"{inicio.day} de {meses[inicio.month - 1]} de {inicio.year}"
+    if (inicio.month, inicio.year) == (fim.month, fim.year):
+        return f"{inicio.day} a {fim.day} de {meses[fim.month - 1]} de {fim.year}"
+    if inicio.year == fim.year:
+        return (f"{inicio.day} de {meses[inicio.month - 1]} a {fim.day} de "
+                f"{meses[fim.month - 1]} de {fim.year}")
+    return (f"{inicio.day} de {meses[inicio.month - 1]} de {inicio.year} a {fim.day} de "
+            f"{meses[fim.month - 1]} de {fim.year}")
+
+
+def _periodo_da_tela(ef) -> dict:
+    """O calendário "Data do evento": as pontas do evento, a frase, de onde veio e — quando a
+    viagem vai além do evento — a ida e a volta ("20/10 a 09/11")."""
+    if ef is None or not ef.inicio:
+        return {}
+    fim = ef.fim or ef.inicio
+    ida, volta = ef.viagem_inicio, ef.viagem_fim or ef.viagem_inicio
+    viagem = ""
+    if ida and (ida, volta) != (ef.inicio, fim):
+        viagem = (ida.strftime("%d/%m") if ida == volta
+                  else f"{ida:%d/%m} a {volta:%d/%m}")
+    return {"inicio": ef.inicio, "fim": fim, "dias_evento": (fim - ef.inicio).days + 1,
+            "um_dia": fim == ef.inicio, "fonte": ef.fonte_periodo,
+            "frase": _periodo_em_frase(ef.inicio, fim), "viagem": viagem,
+            "do_evento": ef.fonte_periodo.startswith("Período do evento")}
+
+
+def _viaturas_da_tela(ef) -> dict:
+    """O bloco Transporte: as viaturas (com quem vai em cada uma) e, na ordem da equipe, a
+    viatura de cada servidor — com uma viatura só, todos vão nela; sem nenhuma, "sem"."""
+    if ef is None:
+        return {}
+    colunas = [{"viatura": g.viatura, "herdada": "viatura" in ef.herdados, "pessoas": []}
+               for g in ef.viaturas]
+    pessoas, sem = [], []
+    for s in ef.servidores:
+        v = ef.viatura_de(s)
+        alvo = next((c for c in colunas if v is not None and c["viatura"].pk == v.pk), None)
+        (alvo["pessoas"] if alvo else sem).append(s)
+        pessoas.append({"servidor": s, "viatura": alvo["viatura"].pk if alvo else None})
+    return {"colunas": colunas, "sem": sem if colunas else [], "pessoas": pessoas,
+            "destinos": [{"pk": c["viatura"].pk, "nome": c["viatura"].placa_formatada}
+                         for c in colunas]}
 
 
 def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int = 200):
@@ -178,6 +291,8 @@ def _tela(request: HttpRequest, form: FormularioTermo, termo=None, status: int =
                                                                         "pdf"]))
     return render(request, "viagens/termos/editar.html", {
         "form": form, "termo": termo, "oficio": oficio, "ef": ef, "voltar": voltar,
+        "embarque": _viaturas_da_tela(ef),
+        "periodo_evento": _periodo_da_tela(ef),
         "heranca": termos.heranca_do_oficio(oficio),
         "docs": docs, "previa": previa,
         "historico": (linha_do_tempo.do_termo(termo)

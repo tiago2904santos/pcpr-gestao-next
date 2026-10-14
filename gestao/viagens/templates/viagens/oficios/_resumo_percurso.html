@@ -4,8 +4,9 @@
           <div class="resumo__moldura">
           <ol class="resumo__trechos percurso-registro" aria-label="Trechos da viagem">
             {% for t in trechos %}
-              <li class="percurso-registro__trecho">
-                <div class="percurso-registro__dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small></div>
+              {% with estado=t|estado_trecho:trechos %}
+              <li class="percurso-registro__trecho{% if estado %} percurso-registro__trecho--{{ estado }}{% endif %}">
+                <div class="percurso-registro__dia"><b>{{ t.saida_em|date:"d/m" }}</b><small>{{ t.saida_em|date:"D" }}</small>{% if estado == "andando" %}<span class="sr-only"> (em andamento agora)</span>{% elif estado == "proximo" %}<span class="sr-only"> (próximo trecho)</span>{% elif estado == "feito" %}<span class="sr-only"> (concluído)</span>{% endif %}</div>
                 <div class="percurso-registro__rota">
                   <div class="percurso-registro__ponto">
                     <time datetime="{{ t.saida_em|date:'c' }}"><span class="sr-only">Saída </span>{{ t.saida_em|date:"H:i" }}</time>
@@ -21,6 +22,7 @@
                   </div>
                 </div>
               </li>
+              {% endwith %}
             {% endfor %}
           </ol>
           </div>

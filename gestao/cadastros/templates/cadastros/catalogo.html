@@ -86,7 +86,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
       </li>
     {% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
+  {# A paginação mora na barra de ações, que acompanha a rolagem. #}
 {% elif termo %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhum registro encontrado" texto="Confira a grafia ou busque de outro jeito." limpar_url=request.path %}
 {% elif aba == "inativos" %}
@@ -98,7 +98,7 @@ Ativos/Inativos e "Desativar" (tira das escolhas sem apagar; excluir só sem ví
 
 {% block depois_lista %}
 {% if acoes.criar %}
-<div class="barra-acoes barra-acoes--rodape">
+<div class="barra-acoes barra-acoes--colecao">{% include "componentes/paginacao_barra.html" %}
   <p class="barra-acoes__status">Excluir só vale para o que ainda não foi usado; o resto se desativa.</p>
   {% include "cadastros/_catalogo_criar.html" %}
 </div>

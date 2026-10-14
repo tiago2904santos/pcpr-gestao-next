@@ -18,8 +18,9 @@ Contexto esperado: migalhas, page_obj, querystring_base, total.
 </header>
 {% endblock %}
 {% block inicio_layout_lista %}{% endblock %}
-{% block abas_filtro %}{% endblock %}
+{# As abas de recorte abrem o cartão da lista (em cima da busca), num só conjunto com os filtros. #}
 <section class="{% block classe_area_lista %}cartao mt-4{% endblock %}" aria-labelledby="titulo-resultados">
+  {% block abas_filtro %}{% endblock %}
   {% block filtros %}{% endblock %}
   <div class="lista-resultados">
     {% include "componentes/erro_lista.html" %}

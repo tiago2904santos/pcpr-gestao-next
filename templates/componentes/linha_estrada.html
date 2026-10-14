@@ -1,0 +1,4 @@
+{% load ui %}{% comment %}
+A estrada da viagem em andamento: as faixas correm e o veículo fica onde a viagem está agora
+(progresso em passos de 10%, linha_lista.estado_temporal). Parâmetros: progresso, icone.
+{% endcomment %}<span class="estrada-linha" data-progresso="{{ progresso }}" title="Viagem em andamento: {{ progresso }}% do período"><span class="sr-only">Viagem em andamento, {{ progresso }}% do período</span><span class="estrada-linha__feito" aria-hidden="true"></span>{% icone icone|default:"car" classe="icone--sm estrada-linha__viatura" %}</span>

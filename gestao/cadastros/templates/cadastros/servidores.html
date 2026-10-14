@@ -93,7 +93,7 @@ Incompletos / Inativos e "Desativar".
       </li>
     {% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
+  {# A paginação mora na barra de ações, que acompanha a rolagem. #}
 {% elif termo or cargo %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhum servidor encontrado" texto="Confira a grafia, busque pelo CPF ou troque o cargo." limpar_url=request.path %}
 {% elif aba == "incompletos" %}
@@ -108,7 +108,7 @@ Incompletos / Inativos e "Desativar".
 
 {% block depois_lista %}
 {% if acoes.criar %}
-<div class="barra-acoes barra-acoes--rodape">
+<div class="barra-acoes barra-acoes--colecao">{% include "componentes/paginacao_barra.html" %}
   <p class="barra-acoes__status">Cadastro rápido: só o nome é obrigatório.</p>
   {% if editando %}<a class="botao botao--primario" href="?{{ querystring_base }}novo=1">{% icone "plus" %}Novo servidor</a>
   {% else %}<button type="button" class="botao botao--primario" data-abrir-dialogo="dialogo-servidor">{% icone "plus" %}Novo servidor</button>{% endif %}

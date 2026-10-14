@@ -747,7 +747,7 @@ class _Gerador:
     def termos_para_avaliar(self) -> None:
         """Termos de autorização (módulo 4): dos ofícios mais recentes de cada situação, um
         avulso com destinos próprios, um com viatura própria e um cancelado."""
-        from .models import TermoAutorizacao, TermoDestino
+        from .models import TermoAutorizacao, TermoDestino, TermoViatura
         ascom = self.unidades[0]
         autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
         if autor is None:
@@ -763,13 +763,28 @@ class _Gerador:
             TermoDestino.objects.create(termo=avulso, ordem=ordem,
                                         municipio=Municipio.objects.get(nome=nome, uf="PR"))
         avulso.servidores.set(self.servidores_por_unidade[ascom.pk][:3])
-        if criados and self.viaturas_por_unidade[ascom.pk]:
-            TermoAutorizacao.objects.filter(pk=criados[0].pk).update(
-                viatura=self.viaturas_por_unidade[ascom.pk][0])
+        viaturas = self.viaturas_por_unidade[ascom.pk]
+        if criados and viaturas:
+            TermoAutorizacao.objects.filter(pk=criados[0].pk).update(viatura=viaturas[0])
+            TermoViatura.objects.create(termo=criados[0], viatura=viaturas[0])
+        if len(viaturas) > 1:
+            # Duas viaturas, cada uma com a sua parte da equipe (o termo de cada servidor sai
+            # com a viatura em que ele vai; cada viatura tem o seu "termo da viatura").
+            equipe = self.servidores_por_unidade[ascom.pk][:3]
+            avulso.viatura = viaturas[0]
+            avulso.save(update_fields=["viatura"])
+            for ordem, (viatura, quem) in enumerate(((viaturas[0], equipe[:2]),
+                                                      (viaturas[1], equipe[2:]))):
+                TermoViatura.objects.create(termo=avulso, viatura=viatura,
+                                            ordem=ordem).servidores.set(quem)
+        self._termo_de_dois_oficios(ascom, autor)
         if len(criados) > 1:
             TermoAutorizacao.objects.filter(pk=criados[-1].pk).update(
                 situacao=TermoAutorizacao.Situacao.CANCELADO, cancelado_em=timezone.now(),
                 motivo_cancelamento="Evento adiado pela organização (DEMO).")
+
+    def _termo_de_dois_oficios(self, unidade, autor) -> None:
+        termo_de_dois_oficios(unidade, autor)
 
     def ordens_para_avaliar(self) -> None:
         """Ordens de serviço (módulo 5): das últimas viagens da ASCOM (uma de caminhão, com as
@@ -1228,3 +1243,33 @@ def impressao_digital() -> list[tuple]:
     )) + list(Servidor.objects.order_by("pk").values_list("nome", "cpf", "unidade__sigla")) + list(
         Roteiro.objects.order_by("pk").values_list("unidade__sigla", "situacao",
                                                    "quantidade_servidores", "diarias_total"))
+
+
+def termo_de_dois_oficios(unidade, autor):
+    """Um termo que junta dois ofícios da mesma viagem, cada um com a sua viatura: o termo
+    herda as duas, cada uma com a equipe do seu ofício (termos.viaturas_dos_oficios), e a
+    data do evento vem da viagem (termos.periodo_do_evento), não da ida e volta. Sem um par
+    assim no dataset, junta dois ofícios recentes numa viagem "Ação conjunta (DEMO)"."""
+    from .models import TermoAutorizacao, Viagem
+    candidatos = list(Oficio.objects.filter(
+        unidade=unidade, viatura__isnull=False, tipo_transporte=Oficio.TipoTransporte.VIATURA,
+        trechos__isnull=False, viajantes__isnull=False).exclude(
+        situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:12])
+    par = []
+    for o in candidatos:
+        if all(o.viatura_id != p.viatura_id and o.pk != p.pk for p in par):
+            par.append(o)
+        if len(par) == 2:
+            break
+    if len(par) < 2:
+        return None
+    saida = timezone.localtime(par[0].trechos.order_by("ordem").first().saida_em).date()
+    viagem = Viagem.objects.create(
+        unidade=unidade, criado_por=autor, titulo="Ação conjunta (DEMO)",
+        motivo="Duas equipes, cada uma na sua viatura (DEMO).",
+        data_inicio=saida + timedelta(days=1), data_fim=saida + timedelta(days=2))
+    Oficio.objects.filter(pk__in=[o.pk for o in par]).update(viagem=viagem)
+    termo = TermoAutorizacao.objects.create(unidade=unidade, oficio=par[0], criado_por=autor,
+                                            viatura=par[0].viatura)
+    termo.oficios.set(par)
+    return termo

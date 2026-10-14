@@ -56,10 +56,10 @@ dos lançamentos. Linha vazia apaga o resultado. Plano cancelado: só leitura.
 
   {% if editavel and linhas %}
   <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
-    <a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">Voltar</a>
-    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status">Salvamento manual. Salve os resultados antes de sair.</div>
-    <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar resultados</button>
+    <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Alterações não salvas — salve antes de sair." role="status"><span data-anuncio>Salvamento manual. Salve os resultados antes de sair.</span></div>
+    <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">Voltar</a>
+    <button type="submit" class="botao botao--primario" aria-keyshortcuts="Control+S">{% icone "save" %}Salvar resultados</button></div>
   </div>
-  {% else %}<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo"><a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">{% icone "arrow-left" classe="icone--sm" %}Voltar ao plano</a><span class="barra-acoes__status">{% if not editavel %}Consulta: resultados preservados.{% else %}Selecione atividades no plano para lançar resultados.{% endif %}</span></div>{% endif %}
+  {% else %}<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao"><div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>{% if not editavel %}Consulta: resultados preservados.{% else %}Selecione atividades no plano para lançar resultados.{% endif %}</span></div><div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:editar_plano' plano.pk %}">Voltar</a></div></div>{% endif %}
 </form>
 {% endblock %}

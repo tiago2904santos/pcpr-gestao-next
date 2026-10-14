@@ -8,6 +8,7 @@ que vem do cadastro.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 
@@ -41,3 +42,32 @@ CAMPOS: dict[str, CampoVinculado] = {c.chave: c for c in [
 
 def campos_do_documento(tipo: str) -> list[CampoVinculado]:
     return [c for c in CAMPOS.values() if c.documento == tipo]
+
+
+# Saída e chegada de cada trecho do roteiro ("trecho_3_saida"): escritas no documento como
+# "dd/mm/aaaa hh:mm", gravam no trecho — mudar a saída leva a chegada junto (os tempos
+# ficam); mudar a chegada refaz o tempo de viagem. As diárias se recalculam.
+_TRECHO = re.compile(r"^trecho_(\d{1,2})_(saida|chegada)$")
+
+
+def trecho_do_campo(chave: str) -> tuple[int, str] | None:
+    m = _TRECHO.match(chave or "")
+    return (int(m.group(1)), m.group(2)) if m else None
+
+
+def campo_de(chave: str) -> CampoVinculado | None:
+    """O campo vinculado da chave: um dos fixos ou a saída/chegada de um trecho."""
+    if chave in CAMPOS:
+        return CAMPOS[chave]
+    if chave == "destinos":
+        # "Destino da viagem": trocar o nome de um destino (Cidade/UF) troca a cidade em
+        # todos os trechos do roteiro. Incluir ou tirar destino é no roteiro da folha.
+        return CampoVinculado("destinos", "", "Destinos da viagem", "oficio", obrigatorio=True,
+                              maximo=600, secao="roteiro", formato="destinos")
+    trecho = trecho_do_campo(chave)
+    if trecho is None:
+        return None
+    ordem, lado = trecho
+    rotulo = f"{'Saída' if lado == 'saida' else 'Chegada'} do trecho {ordem}"
+    return CampoVinculado(chave, "", rotulo, "oficio", obrigatorio=True, maximo=16,
+                          secao="roteiro", formato="trecho")

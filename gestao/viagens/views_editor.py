@@ -97,8 +97,10 @@ def _estado(request: HttpRequest, oficio: Oficio, tipo: str, *,
     desatualizadas: list[str] = []
     if vigente is not None and not vigente.do_modelo:
         originais = regioes_do_modelo(tipo, dados)
+        fundidas = vigente.modelos or {}
         desatualizadas = [chave for chave, marca in vigente.impressoes.items()
-                          if chave in originais and impressao(originais[chave]) != marca]
+                          if chave in originais and chave not in fundidas
+                          and impressao(originais[chave]) != marca]
     campos = []
     pendencias = []
     for c in campos_do_documento(tipo):
@@ -169,7 +171,7 @@ def folha(request: HttpRequest, pk: int, tipo: str) -> HttpResponse:
             marcados = {b["chave"] for b in edicao.blocos_alterados}
     else:
         vigente = services.edicao_vigente(oficio, tipo)
-        regioes = dict(vigente.regioes) if vigente else {}
+        regioes = services.regioes_mescladas(vigente, tipo, dados) if vigente else {}
         marcados = {b["chave"] for b in vigente.blocos_alterados} if vigente else set()
     # O nonce é preguiçoso (e falso até ser lido): convertê-lo aqui gera o valor e garante
     # que o cabeçalho o carregue.
@@ -284,9 +286,26 @@ def campo(request: HttpRequest, pk: int, tipo: str, chave: str) -> JsonResponse:
     def comando():
         atual = services.salvar_campo_do_documento(oficio, request.user, chave, valor,
                                                    versao=versao)
-        from .documentos.campos import CAMPOS
-        return {"chave": chave, "valor": str(getattr(atual, CAMPOS[chave].atributo) or ""),
-                "versao_oficio": atual.versao}
+        from django.utils import timezone
+
+        from .documentos.campos import CAMPOS, trecho_do_campo
+        trecho = trecho_do_campo(chave)
+        if chave == "destinos":
+            from .documentos.dados import dados_do_oficio as _dados
+            # O roteiro da folha (paradas, trechos, mapa) vem de novo do servidor.
+            return {"chave": chave, "valor": ", ".join(_dados(atual)["destinos"]),
+                    "versao_oficio": atual.versao, "recarregar": ["#roteiro > .secao__conteudo"]}
+        if trecho is None:
+            return {"chave": chave, "valor": str(getattr(atual, CAMPOS[chave].atributo) or ""),
+                    "versao_oficio": atual.versao}
+        t = atual.trechos.get(ordem=trecho[0])
+        saida, chegada = timezone.localtime(t.saida_em), timezone.localtime(t.chegada_em)
+        momento = saida if trecho[1] == "saida" else chegada
+        minutos = t.tempo_viagem_min or 0
+        return {"chave": chave, "valor": f"{momento:%d/%m/%Y %H:%M}", "versao_oficio": atual.versao,
+                "trecho": {"ordem": t.ordem, "saida_data": f"{saida:%d/%m/%Y}",
+                           "saida_hora": f"{saida:%H:%M}",
+                           "tempo_viagem": f"{minutos // 60:02d}:{minutos % 60:02d}"}}
     return _executar(request, oficio, tipo, comando)
 
 

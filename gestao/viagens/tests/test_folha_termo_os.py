@@ -3,6 +3,7 @@ efeito colateral), a gravação automática e o histórico lido da trilha do ban
 
 from __future__ import annotations
 
+import re
 from datetime import date
 
 import pytest
@@ -82,7 +83,9 @@ class TestFolhaDaOS:
         for ancora in ("identificacao", "dados", "destinos", "equipe", "motivo", "assinatura",
                        "documento", "conferencia", "previa", "historico"):
             assert f'id="{ancora}"' in html
-        assert 'href="#equipe">Falta equipe' in html and 'href="#motivo">Falta motivo' in html
+        # Cada pendência da conferência é um atalho até o cartão (ícone + texto no link).
+        assert re.search(r'href="#equipe">.*?Falta equipe', html)
+        assert re.search(r'href="#motivo">.*?Falta motivo', html)
         assert reverse("viagens:folha_ordem", args=[ordem.pk]) in html
         assert f'data-autosave="{reverse("viagens:autosave_ordem", args=[ordem.pk])}"' in html
 
@@ -210,15 +213,15 @@ class TestFolhaDoTermo:
         termo, um = self._termo(c)
         cli = _cliente(c.usuarios["operador"])
         r = cli.post(reverse("viagens:autosave_termo", args=[termo.pk]), {
-            "evento": "Feira fictícia", "destinos": ["Londrina/PR"],
+            "destinos": ["Londrina/PR"],
             "servidores": [um.pk], "data_inicio": "12/03/2030"})
         assert r.json()["salvo"] is True
         termo.refresh_from_db()
-        assert termo.evento == "Feira fictícia"
-        assert linha_do_tempo.do_termo(termo)[0].descricao == "Alterou evento e período"
+        assert termo.evento == "PCPR na Comunidade"  # sem o campo, fica o que estava
+        assert linha_do_tempo.do_termo(termo)[0].descricao == "Alterou período"
         # Incompleto grava (o termo é rascunho); o que não grava é o período invertido.
         r = cli.post(reverse("viagens:autosave_termo", args=[termo.pk]), {
-            "evento": "Feira fictícia", "destinos": ["Londrina/PR"],
+            "destinos": ["Londrina/PR"],
             "data_inicio": "12/03/2030", "data_fim": "01/03/2030"})
         assert r.json()["salvo"] is False
 

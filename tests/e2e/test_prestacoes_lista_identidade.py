@@ -55,7 +55,7 @@ def test_busca_dialogo_enviar_equipe_completa(logado, dados_e2e, largura):
     expect(pg.locator(f"#ps-{a.pk}")).to_contain_text("Enviada em")
     a.refresh_from_db()
     assert a.protocolo_envio == "ENVIO-SINTETICO-HTMX" and a.situacao == "enviada"
-    assert pg.locator(".barra-acoes--colecao").evaluate("e=>getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes--colecao").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     pg.wait_for_load_state("networkidle")
     _axe_estavel(pg)

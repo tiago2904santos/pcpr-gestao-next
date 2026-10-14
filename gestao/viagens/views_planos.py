@@ -23,7 +23,16 @@ from gestao.cadastros import policies as cadastros_policies
 from gestao.cadastros.forms import FormularioHorario
 from gestao.cadastros.models import PresetAtividades
 
-from . import linha_do_tempo, planos, policies, prestacao, resultados
+from . import (
+    atencao_listas,
+    linha_do_tempo,
+    linha_lista,
+    planos,
+    policies,
+    prestacao,
+    resultados,
+    resumo_listas,
+)
 from .dominio import plano_trabalho as dominio
 from .forms import FormularioEvento, FormularioPlano
 from .models import Oficio, PlanoTrabalho
@@ -101,23 +110,25 @@ def lista(request: HttpRequest) -> HttpResponse:
     ordem = request.GET.get("ordem") or "-numero"
     if ordem not in ORDENS:
         ordem = "-numero"
-    qs = planos.com_dados(_buscar(_filtrar(base, aba), busca).order_by(*ORDENS[ordem]))
+    # "Pede atenção" (atencao_listas): urgentes (não gerado, começa em até 7 dias) e vazios.
+    hoje, agora = timezone.localdate(), timezone.now()
+    atencao = atencao_listas.recorte_pedido(request)
+    filtrado = _buscar(_filtrar(base, aba), busca)
+    ordenado = (atencao_listas.aplicar(filtrado, atencao_listas.PLANO, atencao, hoje)
+                if atencao else filtrado.order_by(*ORDENS[ordem]))
+    qs = planos.com_dados(ordenado)
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
-    linhas = [{"plano": p, "periodo": dominio.periodo_curto(*planos.periodo_geral(p)),
-               "eventos": len(p.eventos.all()) + 1 if p.eventos.all() else 0,
-               "efetivo": planos.efetivo_geral(p), "diarias": planos.diarias_geral(p),
-               "coordenador": planos.coordenador(p, "adm"),
-               "estado": planos.estado(p),
-               "editavel": policies.pode_editar_plano(request.user, p),
-               "cancelavel": policies.pode_cancelar_plano(request.user, p),
-               "excluivel": policies.pode_excluir_plano(request.user, p)}
-              for p in pagina.object_list]
+    linhas = [_linha_da_lista(request, p, agora) for p in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     return render(request, "viagens/planos/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
-        "ordem": ordem, "por_periodo": ordem in ("periodo", "-periodo"),
+        "ordem": ordem, "por_periodo": ordem in ("periodo", "-periodo"), "atencao": atencao,
+        "cartoes_atencao": atencao_listas.cartoes(
+            request, atencao_listas.PLANO, atencao,
+            atencao_listas.contas(base, atencao_listas.PLANO, hoje),
+            reverse("viagens:excluir_planos_vazios")),
         # O que as abas preservam ao trocar de situação (busca, ordem e o filtro do ofício).
         "querystring_abas": urlencode({k: v for k, v in (
             ("oficio", oficio_pk if oficio is not None else ""), ("q", busca),
@@ -130,6 +141,45 @@ def lista(request: HttpRequest) -> HttpResponse:
         "pode_criar": policies.pode_criar_plano(request.user),
         "voltar": request.get_full_path(),
         "migalhas": _migalhas(("Planos de trabalho", ""))})
+
+
+def _linha_da_lista(request: HttpRequest, p: PlanoTrabalho, agora) -> dict:
+    """Uma linha: o que falta (com atalho para o cartão), o tempo e a ação da vez."""
+    inicio, fim = planos.periodo_geral(p)
+    gerado = p.documento_gerado_em is not None
+    falta = [] if gerado or p.cancelado else planos.pendencias(p)
+    folha = reverse("viagens:editar_plano", args=[p.pk])
+    vazio = not (gerado or inicio or p.programa_id or p.programa_outros.strip()
+                 or p.oficios.all() or p.destinos.all() or p.eventos.all() or p.efetivo.all())
+    return {"plano": p, "periodo": dominio.periodo_curto(inicio, fim),
+            "eventos": len(p.eventos.all()) + 1 if p.eventos.all() else 0,
+            "efetivo": planos.efetivo_geral(p), "diarias": planos.diarias_geral(p),
+            "estado": planos.estado(p, falta), "vazio": vazio, "url_folha": folha,
+            "pendencias": [{"mensagem": f.mensagem, "url": f"{folha}#{f.secao}"} for f in falta],
+            "tempo": linha_lista.estado_temporal(inicio, fim, agora,
+                                                 pendente=not gerado and not p.cancelado),
+            "editavel": policies.pode_editar_plano(request.user, p),
+            "cancelavel": policies.pode_cancelar_plano(request.user, p),
+            "excluivel": policies.pode_excluir_plano(request.user, p)}
+
+
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo do plano (o mesmo desenho do resumo do ofício)."""
+    if not request.user.has_perm("viagens.view_planotrabalho"):
+        raise PermissionDenied
+    p = get_object_or_404(planos.com_dados(policies.planos_visiveis(request.user)), pk=pk)
+    linha = _linha_da_lista(request, p, timezone.now())
+    return render(request, "componentes/resumo_documento.html",
+                  {"r": resumo_listas.do_plano(p, linha), "p": p, "l": linha})
+
+
+@require_POST
+def excluir_vazios(request: HttpRequest) -> HttpResponse:
+    """"Excluir os vazios" da faixa de atenção (pede confirmação; regra de `planos.excluir`)."""
+    excluidos = atencao_listas.excluir_vazios(
+        request.user, policies.planos_visiveis(request.user), atencao_listas.PLANO)
+    messages.success(request, atencao_listas.mensagem_exclusao(atencao_listas.PLANO, excluidos))
+    return redirect("viagens:planos")
 
 
 # ---------------------------------------------------------------- folha

@@ -8,7 +8,7 @@
       {% with n=ef.servidores|length %}<span class="registro-hero__metadado{% if not n %} registro-hero__metadado--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem servidores{% endif %}</span>{% endwith %}
       <span class="registro-hero__metadado{% if not ef.destinos %} registro-hero__metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{{ ef.destino_texto|default:"sem destino" }}</span>
       <span class="registro-hero__metadado{% if not ef.periodo_curto %} registro-hero__metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ ef.periodo_curto|default:"sem datas" }}</span>
-      {% if ef.viatura %}<span class="registro-hero__metadado">{% icone "car" classe="icone--sm" %}{{ ef.viatura }}</span>{% endif %}
+      {% if ef.viaturas %}<span class="registro-hero__metadado">{% icone "car" classe="icone--sm" %}{% if ef.viaturas|length > 1 %}{{ ef.viaturas|length }} viaturas{% else %}{{ ef.viatura }}{% endif %}</span>{% endif %}
     </p>
     {% else %}
     <p class="registro-hero__metadados"><span class="registro-hero__metadado registro-hero__metadado--vazio">{% icone "file-signature" classe="icone--sm" %}Escolha um ofício, ou informe destino e data</span></p>

@@ -13,9 +13,9 @@ gravar "marin" pela metade daria erro a cada pausa do autosave).
   <div class="itin__local" role="group" aria-label="Destino {{ numero }}">
     <div class="campo itin__uf">
       <label class="campo__rotulo">UF</label>
-      <select class="selecao" data-uf aria-label="UF do destino">
+      <pc-select class="seletor"><select class="selecao" data-uf aria-label="UF do destino">
         {% for uf in ufs %}<option value="{{ uf }}"{% if uf == uf_atual %} selected{% endif %}>{{ uf }}</option>{% endfor %}
-      </select>
+      </select></pc-select>
     </div>
     <div class="campo itin__cidade">
       <label class="campo__rotulo">Destino <span data-numero>{{ numero }}</span></label>

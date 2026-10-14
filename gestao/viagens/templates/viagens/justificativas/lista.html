@@ -14,18 +14,18 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 É uma leitura dos ofícios — nada é copiado; escrever aqui grava no ofício.
 {% endcomment %}
 
-{% block abas_filtro %}
-<div class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Preenchimento da justificativa</p>
+{% comment %}As abas moram dentro do cartão de filtros (um só conjunto: recorte em cima, busca embaixo).{% endcomment %}
+{% block abas_filtro %}{% endblock %}
+
+{% block filtros %}
+<div class="filtro-conjunto">
 <nav class="abas abas--conteudo" id="abas-filtro" aria-label="Filtrar justificativas">
   {% for chave, rotulo, contador in abas %}
     <a class="aba" href="{% url 'viagens:justificativas' %}?aba={{ chave|default:'todas' }}{% if termo %}&amp;q={{ termo|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
       {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
     </a>
   {% endfor %}
-</nav></div>
-{% endblock %}
-
-{% block filtros %}
+</nav>
 <form class="filtros filtros--barra" role="search" method="get" action="{% url 'viagens:justificativas' %}"
       hx-get="{% url 'viagens:justificativas' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
       hx-trigger="submit, input changed delay:350ms from:#busca-justificativas">
@@ -36,6 +36,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
   </div>
   <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
+</div>
 {% endblock %}
 
 {% block resultados %}
@@ -47,7 +48,7 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
 {% if oficios %}
   <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for o in oficios %}
-      <li class="registro registro-operacional registro-operacional--relacoes">
+      <li class="registro registro-operacional registro-operacional--relacoes{% if o.tempo.urgencia %} registro--urgente registro--urgente-{{ o.tempo.urgencia }}{% endif %}">
         <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero=o.numero_formatado situacao=o.situacao compacta=True only %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
@@ -55,17 +56,18 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
             {% with d=o|destinos %}
             {% if o.editavel_aqui %}<a class="registro__link" href="{% url 'viagens:justificativas' %}?{{ querystring_base }}editar={{ o.pk }}"{% if d %} title="{{ d }}"{% endif %}>{% else %}<span class="registro__link registro__link--estatico"{% if d %} title="{{ d }}"{% endif %}>{% endif %}<span class="sr-only">Ofício {{ o.numero_formatado }} · </span><span class="registro__link-texto">{% if d %}{{ d }}{% else %}<span class="vazio-inline">Sem destino</span>{% endif %}</span>{% if o.editavel_aqui %}</a>{% else %}</span>{% endif %}
             {% endwith %}
-            <span class="registro__selos">{% if o.justificativa %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Preenchida</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pendente</span>{% endif %}{% if o.situacao == "emitido" %}<span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>{% endif %}</span>
+            <span class="registro__selos">{% if o.justificativa %}<span class="selo selo--sucesso selo--sem-ponto">{% icone "check" classe="icone--sm" %}Preenchida</span>{% else %}<span class="selo selo--aviso selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pendente</span>{% if o.tempo.urgencia %}{% include "componentes/linha_urgencia.html" with urgencia=o.tempo.urgencia dias=o.tempo.dias acao="justificar" %}{% endif %}{% endif %}{% if o.situacao == "emitido" %}<span class="selo selo--{{ o.situacao|tom_situacao }}">{{ o.get_situacao_display }}</span>{% endif %}</span>
           </div>
           {% if o.justificativa %}<p class="registro__texto quebra-palavras">{{ o.justificativa|truncatechars:220 }}</p>
           {% elif aba != "pendentes" %}<p class="registro__texto"><span class="vazio-inline">Nenhuma justificativa escrita.</span></p>{% endif %}
           <div class="registro__agenda">
             {% with p=o.trechos.all|periodo %}{% if p %}<span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{{ p }}</span></span>{% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}Sem período</span>{% endif %}{% endwith %}
             <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}Ofício de {{ o.data_oficio|date:"d/m/Y" }}</span>
+            {% if o.tempo.progresso is not None %}{% include "componentes/linha_estrada.html" with progresso=o.tempo.progresso icone=o|icone_transporte %}{% endif %}
           </div>
         </div>
         <div class="registro-operacional__recursos">
-          <span class="registro-operacional__rotulo">Prazo institucional</span>
+          
           {% if o.antecedencia is not None %}<span class="registro__meta-item">{% icone "timer" classe="icone--sm" %}<span>{% if o.antecedencia < 0 %}Saída antes do ofício (retroativa){% else %}{{ o.antecedencia|pluralizar:"dia,dias" }} de antecedência{% endif %} · {% if o.exige_justificativa %}obrigatória{% else %}dispensada{% endif %}</span></span>{% else %}<span class="registro__meta-item registro__meta-item--vazio">{% icone "timer" classe="icone--sm" %}Sem saída definida</span>{% endif %}
           {% if o.justificativa_modelo %}<span class="registro__meta-item" title="{{ o.justificativa_modelo.nome }}">{% icone "text-quote" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.justificativa_modelo.nome }}</span></span>{% endif %}
         </div>
@@ -103,13 +105,13 @@ Preenchidas, busca, regra de prazo, texto, modelo, editar numa janela, apagar e 
       </li>
     {% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" with paginacao_destino=lista_url %}
+  
 {% elif termo or aba %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma justificativa encontrada" texto="Confira a busca ou troque de aba." limpar_url=lista_url %}
 {% else %}
   {% include "componentes/vazio.html" with icone="check-circle-2" titulo="Nenhuma justificativa por aqui" texto="Quando um ofício sair com pouca antecedência, ele aparece aqui para ser justificado." %}
 {% endif %}
-<div class="barra-acoes barra-acoes--colecao"><p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or aba %} no filtro de agora{% endif %}</p><span class="texto-secundario texto-sm">O texto é gravado no próprio Ofício.</span></div>
+<div class="barra-acoes barra-acoes--colecao">{% include "componentes/paginacao_barra.html" with paginacao_destino=lista_url %}<p class="barra-acoes__status" role="status">{{ page_obj.paginator.count|pluralizar:"ofício,ofícios" }}{% if termo or aba %} no filtro de agora{% endif %}</p><span class="texto-secundario texto-sm">O texto é gravado no próprio Ofício.</span></div>
 </div>
 {% endblock %}
 

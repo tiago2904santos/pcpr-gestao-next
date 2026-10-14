@@ -42,7 +42,7 @@ function preencherDestinos(destinos) {
 function preencherPeriodo(inicio, fim) {
   const de = /** @type {HTMLInputElement | null} */ (document.querySelector("[data-periodo-de]"));
   const ate = /** @type {HTMLInputElement | null} */ (document.querySelector("[data-periodo-ate]"));
-  const visivel = /** @type {HTMLInputElement | null} */ (document.getElementById("termo-periodo"));
+  const visivel = /** @type {HTMLInputElement | null} */ (document.getElementById("termo-periodo"));  // escondido: o calendário lê dele
   if (!de || !inicio) return;
   de.value = inicio;
   if (ate) ate.value = fim;
@@ -60,16 +60,9 @@ function preencherEquipe(servidores) {
   avisar(multi);
 }
 
-/** @param {string} viatura */
-function preencherViatura(viatura) {
-  const select = /** @type {HTMLSelectElement | null} */ (document.querySelector("select[name='viatura']"));
-  if (!select || !viatura) return;
-  select.value = viatura;
-  avisar(select);
-}
-
 // Um ofício a mais nos vinculados: os campos recebem a união de todos (destinos de todos,
-// da primeira saída à última chegada, a equipe toda, a primeira viatura).
+// da primeira saída à última chegada, a equipe toda). As viaturas vêm pelo servidor: cada
+// ofício que entra traz a sua, com a equipe dele (termos.salvar), e o bloco se redesenha.
 document.addEventListener("pc-escolhido", async (evento) => {
   const origem = /** @type {HTMLElement} */ (evento.target);
   const campo = origem.closest("[data-oficio-do-termo]");
@@ -86,7 +79,6 @@ document.addEventListener("pc-escolhido", async (evento) => {
   preencherDestinos(dados.destinos || []);
   preencherPeriodo(dados.inicio || "", dados.fim || "");
   preencherEquipe(dados.servidores || []);
-  preencherViatura(dados.viatura || "");
   const mensagem = ids.length > 1
     ? `Dados dos ${ids.length} ofícios unidos nos campos. Confira e ajuste o que precisar.`
     : `Dados do ${opcao?.titulo || "ofício"} preenchidos. Confira e ajuste o que precisar.`;
@@ -94,5 +86,68 @@ document.addEventListener("pc-escolhido", async (evento) => {
 });
 
 
+// Transporte: tirar ou acrescentar uma viatura muda os cartões — o foco sai do controle
+// para que a gravação automática possa redesenhar o bloco (autosave.js não troca a região
+// que está em uso).
+document.addEventListener("change", (evento) => {
+  const alvo = /** @type {HTMLElement} */ (evento.target);
+  if (!alvo.closest?.("#transporte")) return;
+  if (alvo.matches("[data-remover-viatura], select[name='adicionar_viatura']")) {
+    /** @type {HTMLElement | null} */ (document.activeElement)?.blur?.();
+  }
+});
+
+// Quem vai em cada viatura (termos/editar.html): o seletor segmentado de cada servidor é
+// um grupo de rádios `viatura_do_<id>` — a gravação automática guarda a troca. Aqui só o
+// realce que desliza até a opção marcada e a conta de cada viatura, que muda na hora (o
+// bloco só é redesenhado quando o foco sai dele).
+/** @param {HTMLElement} escala @param {boolean} animar */
+function posicionarRealce(escala, animar) {
+  const marcado = /** @type {HTMLInputElement | null} */ (escala.querySelector("input:checked"));
+  const rotulo = /** @type {HTMLElement | null} */ (marcado?.nextElementSibling ?? null);
+  if (!rotulo || !rotulo.offsetWidth) return;
+  escala.classList.toggle("escala--parada", !animar);
+  escala.style.setProperty("--escala-x", `${rotulo.offsetLeft}px`);
+  escala.style.setProperty("--escala-w", `${rotulo.offsetWidth}px`);
+  escala.classList.add("escala--viva");
+  if (!animar) requestAnimationFrame(() => escala.classList.remove("escala--parada"));
+}
+
+function prepararEscalas() {
+  document.querySelectorAll("[data-escala]").forEach((e) => posicionarRealce(/** @type {HTMLElement} */ (e), false));
+}
+
+function recontarFrota() {
+  document.querySelectorAll("[data-frota-conta]").forEach((conta) => {
+    const id = /** @type {HTMLElement} */ (conta).dataset.frotaConta || "";
+    const n = String(document.querySelectorAll(`[data-escala] input[value="${CSS.escape(id)}"]:checked`).length);
+    if (conta.textContent === n) return;
+    conta.textContent = n;
+    conta.classList.remove("frota__conta--mudou");
+    void (/** @type {HTMLElement} */ (conta)).offsetWidth; // reinicia o pulo
+    conta.classList.add("frota__conta--mudou");
+  });
+}
+
+document.addEventListener("change", (evento) => {
+  const alvo = /** @type {HTMLElement} */ (evento.target);
+  const escala = /** @type {HTMLElement | null} */ (alvo.closest?.("[data-escala]") ?? null);
+  if (!escala) return;
+  posicionarRealce(escala, true);
+  recontarFrota();
+});
+prepararEscalas();
+document.fonts?.ready.then(prepararEscalas);
+window.addEventListener("resize", prepararEscalas);
+document.addEventListener("pcpr:pagina-refeita", () => requestAnimationFrame(prepararEscalas));
+
+// Data do evento: clicar nas folhas do calendário é o mesmo que o botão do calendário.
+document.addEventListener("click", (evento) => {
+  const folhas = /** @type {HTMLElement} */ (evento.target).closest?.("[data-abre-calendario]");
+  if (!folhas) return;
+  const botao = /** @type {HTMLButtonElement | null} */ (
+    folhas.closest(".mesa-evento")?.querySelector(".mesa-evento__botao") ?? null);
+  if (botao && !botao.disabled && botao.getAttribute("aria-expanded") !== "true") botao.click();
+});
 
 export {};

@@ -669,6 +669,10 @@ class EdicaoDocumento(models.Model):
     # Impressão (sha256) de cada região como o modelo a gerava quando o texto foi salvo:
     # se o cadastro mudar depois, a folha avisa que o texto editado ficou para trás.
     impressoes = models.JSONField(default=dict, blank=True)
+    # O HTML do modelo de cada região editada, na hora da edição: quando os dados mudam
+    # depois (um servidor a mais, outra viatura), a edição vai para o texto novo do modelo
+    # por fusão a três — o que a pessoa mudou fica, e os dados acompanham o cadastro.
+    modelos = models.JSONField("HTML do modelo por região, na edição", default=dict, blank=True)
     restaurada_de = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True,
                                       related_name="+")
     criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
@@ -815,6 +819,31 @@ class TermoAutorizacao(models.Model):
     @property
     def cancelado(self) -> bool:
         return self.situacao == self.Situacao.CANCELADO
+
+
+class TermoViatura(models.Model):
+    """Uma viatura do termo e quem vai nela. Com mais de um ofício, cada um costuma levar a
+    sua: o termo junta as viaturas (e a equipe de cada uma). Cada servidor vai numa só; o
+    termo dele sai com a viatura em que vai, e cada viatura tem o seu "termo da viatura".
+    `TermoAutorizacao.viatura` acompanha a primeira (conflitos de agenda, conferência da
+    viagem e o resto do sistema leem a principal)."""
+
+    termo = models.ForeignKey(TermoAutorizacao, on_delete=models.CASCADE,
+                              related_name="viaturas")
+    viatura = models.ForeignKey(Viatura, on_delete=models.PROTECT, related_name="+")
+    servidores = models.ManyToManyField(Servidor, blank=True, related_name="+",
+                                        verbose_name="quem vai nesta viatura")
+    ordem = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem", "id"]
+        verbose_name = "viatura do termo"
+        verbose_name_plural = "viaturas do termo"
+        constraints = [models.UniqueConstraint(fields=["termo", "viatura"],
+                                               name="termo_viatura_unica")]
+
+    def __str__(self) -> str:
+        return f"{self.viatura} ({self.termo})"
 
 
 class TermoDestino(models.Model):

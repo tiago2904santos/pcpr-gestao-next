@@ -85,7 +85,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-equipe">{% icone "users" classe="icone--sm" %}Equipe</h3>
-        <div class="secao__estado" id="estado-equipe" data-vivo><span class="texto-terciario texto-xs">sai agrupada por cargo</span></div>
+        <div class="secao__estado" id="estado-equipe" data-vivo>{% with n=form.servidores.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}<span class="texto-terciario texto-xs">sai agrupada por cargo</span></div>
       </div>
       {% include "viagens/_campo_equipe.html" with campo=form.servidores compacta=True %}
       {% if form.campos_de_funcao %}
@@ -147,14 +147,15 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     {% else %}
     {# Só fala quando falta algo; pronta para gerar, o botão do rodapé já diz tudo. O lugar fica (autosave). #}
     {% if not faltando %}<div id="conferencia" data-vivo hidden></div>{% else %}
-    <div class="alerta alerta--aviso" role="status" id="conferencia" data-vivo>
-      {% icone "list-checks" %}
-      <div class="alerta__corpo">
-        <p class="alerta__titulo">{{ faltando|length|pluralizar:"item falta,itens faltam" }} para o texto sair completo</p>
-        <ul class="checklist">
-          {% for p in pendencias %}<li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a></li>{% endfor %}
-        </ul>
+    <div class="prontidao-documental" role="status" id="conferencia" data-vivo>
+      <div class="prontidao-documental__cabecalho">
+        {% icone "list-checks" %}
+        <div><p class="prontidao-documental__rotulo">Conferência do cadastro</p>
+          <p class="prontidao-documental__titulo">{{ faltando|length|pluralizar:"item falta,itens faltam" }} para o texto sair completo</p></div>
       </div>
+      <ul class="checklist">
+        {% for p in pendencias %}{% include "componentes/conferencia_item.html" with secao=p.secao mensagem=p.mensagem only %}{% endfor %}
+      </ul>
     </div>
     {% endif %}
     {% endif %}
@@ -200,17 +201,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
       </div>
-      <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos da ordem de serviço">
-        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
-      </ol>
-      {% if historico|length > 6 %}
-        <details>
-          <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-          <ol class="historico__linhas historico__linhas--operacional mt-4" aria-label="Eventos anteriores">
-            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% endfor %}
-          </ol>
-        </details>
-      {% endif %}
+      {% include "componentes/historico_folha.html" with rotulo="Eventos da ordem de serviço" vazio="Sem eventos registrados." primeiros=":6" resto="6:" limite=6 %}
     </div>
     {% else %}
       <p class="vazio-inline">{% icone "file-text" classe="icone--sm" %}Ao criar, a OS recebe o número e o documento passa a aparecer aqui como vai sair.</p>

@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import re
-from copy import deepcopy
 from datetime import date, timedelta
 
 import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from gestao.cadastros.models import Municipio, Servidor
+from gestao.cadastros.models import Servidor
 from gestao.plataforma.models import MensagemOutbox
 from gestao.viagens import services, views
 from gestao.viagens.forms import FormularioOficio
@@ -63,16 +62,13 @@ def _dados_formulario(oficio):
 
 
 @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
-def test_resumo_copia_autorizada_e_protocolo_no_cabecalho(client, cenario, perfil):
-    # A nova missão restaura a consulta copiável autorizada no Resumo.
-    # Protocolo também permanece na identificação, sem conceder ações de edição.
+def test_resumo_sem_copia_e_com_protocolo_no_cabecalho(client, cenario, perfil):
+    # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
     client.force_login(cenario.usuarios[perfil])
     resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
     assert resposta.status_code == 200
-    assert resposta.context["copia"].fonte == "emissao"
     html = resposta.content.decode()
-    assert "data-dados-eprotocolo" in _bloco(resposta)
-    assert 'id="eprotocolo-resumo-1"' not in html
+    assert "data-dados-eprotocolo" not in html
     cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
     assert cabecalho is not None and "Protocolo " in cabecalho.group()
 
@@ -107,70 +103,11 @@ def test_get_com_copia_nao_escreve_negocio(client, cenario, rota, revisar):
     resposta = client.get(reverse(f"viagens:{rota}", args=[pk]),
                           {"revisar": "1"} if revisar else {})
     assert resposta.status_code == 200
-    assert "data-dados-eprotocolo" in resposta.content.decode()
+    assert ("data-dados-eprotocolo" in resposta.content.decode()) is (rota == "editar")
     assert Oficio.objects.filter(pk=pk).values().get() == antes
     assert Historico.objects.filter(oficio_id=pk).count() == historico
     assert list(Documento.objects.filter(oficio_id=pk).values()) == documentos
     assert MensagemOutbox.objects.count() == outbox
-
-
-def test_emitido_copia_snapshot_apos_renomear_cadastros(client, cenario):
-    client.force_login(cenario.usuarios["operador"])
-    oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
-    documento = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
-    snapshot = deepcopy(documento.dados)
-    antes = client.get(reverse("viagens:resumo", args=[oficio.pk])).context["copia"].dados
-    for servidor in Servidor.objects.filter(viagens__oficio=oficio):
-        Servidor.objects.filter(pk=servidor.pk).update(
-            nome=f"Nome atual após emissão {servidor.pk}")
-    destinos = oficio.trechos.exclude(destino_id=oficio.sede_id).values("destino_id")
-    Municipio.objects.filter(pk__in=destinos).update(nome="Destino atual após emissão")
-    resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
-    assert resposta.status_code == 200
-    assert resposta.context["copia"].dados == antes
-    # O bloco visível usa o snapshot, sem CPF/RG nem cadastros posteriores.
-    bloco = _bloco(resposta)
-    assert "Nome atual após emissão" not in bloco
-    assert "Destino atual após emissão" not in bloco
-    for viajante in snapshot["viajantes"]:
-        assert viajante["nome"] in bloco
-        assert viajante["cpf"] not in bloco
-        assert viajante["rg"] not in bloco
-    documento.refresh_from_db()
-    assert documento.dados == snapshot
-
-
-@pytest.mark.parametrize("situacao", [Documento.Situacao.GERANDO, Documento.Situacao.FALHOU])
-def test_resumo_copia_maior_versao_mesmo_sem_pdf_pronto(client, cenario, situacao):
-    client.force_login(cenario.usuarios["operador"])
-    oficio = Oficio.objects.get(pk=cenario.ids["oficio_emitido"])
-    anterior = oficio.documentos.get(tipo=Documento.Tipo.OFICIO)
-    Documento.objects.filter(pk=anterior.pk).update(situacao="pronto", sha256="a" * 64)
-    snapshot = deepcopy(anterior.dados)
-    snapshot["motivo"] = "Motivo da segunda emissão"
-    atual = Documento.objects.create(
-        oficio=oficio, tipo="oficio", versao=2, situacao=situacao,
-        dados=snapshot, emitido_por=cenario.usuarios["operador"],
-        erro="Falha de geração" if situacao == Documento.Situacao.FALHOU else "")
-    resposta = client.get(reverse("viagens:resumo", args=[oficio.pk]))
-    copia = resposta.context["copia"]
-    assert copia.versao == atual.versao == 2
-    assert copia.situacao_documento == situacao
-    assert "Motivo da segunda emissão" in _campos(copia)["Detalhamento"]
-    assert copia.fonte == "emissao"
-    assert "Motivo da segunda emissão" in _bloco(resposta)
-    assert resposta.context["pdf_oficio"] is None
-
-
-def test_snapshot_invalido_nao_reconstroi_com_cadastros_vivos(client, cenario):
-    client.force_login(cenario.usuarios["operador"])
-    pk = cenario.ids["oficio_emitido"]
-    Documento.objects.filter(oficio_id=pk).update(dados={})
-    resposta = client.get(reverse("viagens:resumo", args=[pk]))
-    assert resposta.status_code == 200
-    assert not resposta.context["copia"].disponivel
-    assert "Os dados desta emissão estão indisponíveis" in resposta.context["copia"].aviso
-    assert "data-dados-eprotocolo" in _bloco(resposta)
 
 
 def test_revisao_copia_assunto_da_data_efetiva_sem_gravar(client, monkeypatch):
@@ -193,9 +130,7 @@ def test_revisao_copia_assunto_da_data_efetiva_sem_gravar(client, monkeypatch):
     resposta = client.get(reverse("viagens:editar", args=[oficio.pk]), {"revisar": "1"})
     assert resposta.status_code == 200
     folha = _campos(resposta.context["copia"])
-    revisao = _campos(resposta.context["resumo"]["copia"])
     assert "autorização" in folha["Assunto"]
-    assert "convalidação" in revisao["Assunto"]
     html = resposta.content.decode()
     assert 'id="eprotocolo-folha-1"' in html
     assert 'id="eprotocolo-resumo-1"' not in html
@@ -222,7 +157,9 @@ def test_erro_de_roteiro_com_form_valido_nao_copia_instance_mutada(client, cenar
     assert oficio.motivo == original
 
 
-def test_previa_de_roteiro_nao_promete_copia_salva(client, cenario):
+def test_usar_roteiro_grava_e_a_copia_fica_disponivel(client, cenario):
+    """Aplicar um roteiro grava o percurso na hora: a cópia para o eProtocolo já sai dos
+    dados salvos."""
     usuario = cenario.usuarios["operador"]
     client.force_login(usuario)
     oficio = Oficio.objects.get(pk=cenario.ids["oficio_rascunho"])
@@ -233,14 +170,13 @@ def test_previa_de_roteiro_nao_promete_copia_salva(client, cenario):
     dados = _dados_formulario(oficio)
     dados.update({"acao": "usar_roteiro", "roteiro_modelo": roteiro.pk})
     resposta = client.post(reverse("viagens:editar", args=[oficio.pk]), dados)
-    assert resposta.status_code == 200
-    assert resposta.context["previa_diarias"]
-    assert not resposta.context["copia"].disponivel
-    assert "Salve o rascunho antes de copiar" in _bloco(resposta)
-    assert "data-copiar-alvo" not in _bloco(resposta)
+    assert resposta.status_code == 302
     oficio.refresh_from_db()
-    assert oficio.roteiro_id is None
-    assert oficio.versao == versao
+    assert oficio.roteiro_id == roteiro.pk
+    assert oficio.versao > versao
+    pagina = client.get(reverse("viagens:editar", args=[oficio.pk]))
+    assert pagina.context["copia"].disponivel
+    assert "data-copiar-alvo" in _bloco(pagina)
 
 
 @pytest.mark.parametrize("acao", ["adicionar", "remover", "motorista"])

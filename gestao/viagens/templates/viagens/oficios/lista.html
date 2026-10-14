@@ -19,9 +19,12 @@
 lista de 261 linhas, ninguém deve ter de voltar ao topo para começar um ofício.
 {% endcomment %}
 
-{% block abas_filtro %}<aside class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da viagem</p>{% include "viagens/oficios/_abas.html" %}</aside>{% endblock %}
+{% comment %}As abas do tempo da viagem moram dentro do cartão de filtros (um só conjunto: recorte em cima, busca embaixo).{% endcomment %}
+{% block abas_filtro %}{% endblock %}
 
 {% block filtros %}
+<div class="filtro-conjunto">
+{% include "viagens/oficios/_abas.html" %}
 {% comment %}
 Barra de filtros (D6): Busca · Documento (um clique, sempre à vista) · Filtros (n). O resto —
 ordem, períodos, ano, protocolo, veículo e diárias — mora na gaveta, que nunca abre sozinha:
@@ -107,6 +110,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
   </details>
   </div>
 </form>
+</div>
 {% endblock %}
 
 {% block resultados %}
@@ -122,6 +126,7 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
   {% endif %}
   {% include "viagens/oficios/_fichas.html" %}
   {% include "viagens/oficios/_refino.html" %}
+  {% include "componentes/atencao_lista.html" with cartoes=cartoes_atencao %}
   {% comment %}
   Título só para o leitor de tela, com ou sem busca (LP-26, QA I4): o termo já está no campo
   e o total na aba (e na barra, "N de M"); uma faixa "Resultados para … · N" era a 3ª vez
@@ -133,11 +138,11 @@ controle em si não é trocado, para o foco ficar onde a pessoa está.
     <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
       {% for o in oficios %}
         {# Agrupamento por mês: pela saída quando a ordem é por saída; senão pela data do ofício. #}
-        {% if o.grupo %}<li class="registros__grupo"><span>{% if por_saida %}{% if o.primeira_saida %}Saída em {{ o.primeira_saida|date:"F \d\e Y" }}{% else %}Sem data de saída{% endif %}{% else %}{{ o.data_oficio|date:"F \d\e Y" }}{% endif %}</span><span class="registros__grupo-conta"><span class="sr-only">: </span>{{ o.grupo.quantidade }}<span class="sr-only"> {% if o.grupo.quantidade == 1 %}ofício{% else %}ofícios{% endif %}</span>{% if o.grupo.parcial %} nesta página{% endif %}</span></li>{% endif %}
+        {% if o.grupo %}<li class="registros__grupo"><span>{% if por_saida %}{% if o.primeira_saida %}Saída em {{ o.primeira_saida|date:"F \d\e Y" }}{% else %}Sem data de saída{% endif %}{% else %}{{ o.data_oficio|date:"F \d\e Y" }}{% endif %}</span><span class="registros__grupo-conta"><span class="sr-only">: </span>{{ o.grupo.quantidade }}<span class="sr-only"> {% if o.grupo.quantidade == 1 %}ofício{% else %}ofícios{% endif %}</span>{% if o.grupo.parcial %} nesta página{% endif %}</span>{% if o.grupo.total %}<span class="registros__grupo-total" title="Diárias de {{ o.grupo.quantidade_mes|pluralizar:'ofício,ofícios' }} do mês neste recorte">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias do mês: </span>{{ o.grupo.total|moeda }}<small> no mês</small></span>{% endif %}</li>{% endif %}
         {% include "viagens/oficios/_registro.html" %}
       {% endfor %}
     </ul>
-    {% include "componentes/paginacao.html" %}
+    {# A paginação mora na barra de ações (_barra_status.html), que acompanha a rolagem. #}
   {% elif documento == "arquivado" and not termo and not avancados.ativos and not aba %}
     {% include "componentes/vazio.html" with icone="inbox" titulo="Nenhum ofício arquivado" texto="Arquive pelo menu ⋯ de um ofício para tirá-lo da lista de trabalho. Nada é apagado e dá para desarquivar." %}
   {% elif termo or tem_filtro or aba %}
