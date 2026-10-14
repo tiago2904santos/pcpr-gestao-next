@@ -74,7 +74,6 @@ def test_corrente_indisponivel_nao_promove_pdf_minuta_word_ou_assinatura(
     assert contexto["menu"].pdf is None and not contexto["menu"].minuta
     assert [linha["documento"].pk for linha in contexto["documentos_correntes"]] == [atual.pk]
     assert [linha["documento"].pk for linha in contexto["documentos_historicos"]] == [anterior.pk]
-    assert contexto["copia"].disponivel and contexto["copia"].versao == 2
     assert contexto["gerando"] is (situacao == "gerando")
     rodape = _rodape(resposta)
     assert reverse("viagens:previa", args=[emitido.pk]) not in rodape
@@ -167,7 +166,6 @@ def test_reaberto_mostra_minuta_e_vias_revogadas_no_historico(client, cenario, e
     assert "Ver minuta" in _rodape(resposta) and "Ver o PDF" not in _rodape(resposta)
     assert "Via assinada histórica · revogada" in resposta.content.decode()
     assert reverse("viagens:abrir_via_assinada", args=[via.pk]) in resposta.content.decode()
-    assert resposta.context["copia"].fonte == "rascunho"
 
 
 def test_cancelado_conserva_links_exatos_sem_corrente(client, cenario, emitido):
@@ -182,7 +180,6 @@ def test_cancelado_conserva_links_exatos_sem_corrente(client, cenario, emitido):
     assert reverse("viagens:baixar_documento", args=[documento.pk]) in resposta.content.decode()
     assert reverse("viagens:abrir_via_assinada", args=[via.pk]) in resposta.content.decode()
     assert "Ver minuta" not in _rodape(resposta)
-    assert resposta.context["copia"].disponivel and "cancelado" in resposta.context["copia"].aviso
 
 
 def test_projecao_materializada_uma_vez_com_todas_as_vias_sem_sql(
@@ -218,7 +215,6 @@ def test_polling_atualiza_documentos_e_rodape_em_ids_estaveis(client, cenario, e
     pronta = _ler(client, cenario, emitido)
     assert "data-resumo-poll" not in pronta.content.decode()
     assert "Ver o PDF" in _rodape(pronta) and "Baixar em Word" in _rodape(pronta)
-    assert pronta.context["copia"].versao == 2
     assert pronta.content.decode().count('id="resumo-rodape"') == 1
 
 

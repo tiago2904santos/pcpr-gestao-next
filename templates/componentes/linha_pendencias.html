@@ -1,0 +1,11 @@
+{% load ui %}{% comment %}
+O que falta, na linha: o número numa pílula âmbar; mouse ou foco abrem a lista, e cada item
+leva ao lugar certo da folha. Parâmetros: pendencias (itens com `mensagem` e `url`), url (a
+pílula), titulo ("Falta para emitir").
+{% endcomment %}<span class="pendencias-linha">
+  <a class="pendencias-linha__gatilho" href="{{ url }}">{% icone "list-checks" classe="icone--sm" %}{{ pendencias|length|pluralizar:"pendência,pendências" }}</a>
+  <span class="pendencias-linha__painel">
+    <span class="pendencias-linha__titulo">{{ titulo|default:"Falta para emitir" }}</span>
+    <span class="pendencias-linha__itens">{% for p in pendencias %}<a href="{{ p.url|default:url }}">{% icone "alert-circle" classe="icone--sm" %}<span>{{ p.mensagem }}</span></a>{% endfor %}</span>
+  </span>
+</span>

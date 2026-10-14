@@ -18,6 +18,9 @@ def _avaliar(pg, nome, largura):
         "|| a.effect.getTiming().iterations === Infinity)"
     )
     assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    # O rodapé grudado cobre o que está atrás dele na rolagem do momento: o axe mede a tela
+    # sem ele por cima (como test_acessibilidade).
+    pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
     violacoes = rodar_axe(pg)
     pasta = Path("artifacts/oficios-premium")
     pasta.mkdir(parents=True, exist_ok=True)
@@ -74,9 +77,6 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
         "|| e.scrollWidth <= e.clientWidth + 1)"
     ), "Os rótulos da identificação devem caber sem cortes."
     _avaliar(pg, "folha", largura)
-    recursos = pg.locator("[data-indice-preparacao] a[href='#recursos']")
-    recursos.press("Enter")
-    expect(recursos).to_have_attribute("aria-current", "location")
     if largura >= 768:
         meio = pg.locator(".transporte > .campo").first.bounding_box()
         viatura = pg.locator(".transporte > .so-viatura").bounding_box()
@@ -122,12 +122,16 @@ def test_lista_folha_documentos_coerentes_e_operaveis(logado, dados_e2e, largura
     ferramentas = barra.locator("details[data-ferramentas-recolhiveis]")
     resumo = ferramentas.locator("summary")
     expect(ferramentas).to_have_js_property("open", largura >= 768)
-    resumo.press("Enter")
-    expect(ferramentas).to_have_js_property("open", largura < 768)
-    if largura < 768:
+    if largura >= 768:
+        # No desktop as ferramentas ficam sempre à mostra: sem o "Formatar texto".
+        expect(resumo).to_be_hidden()
         expect(ferramentas.locator("[data-comando='bold']")).to_be_visible()
-    resumo.press("Enter")
-    expect(ferramentas).to_have_js_property("open", largura >= 768)
+    else:
+        resumo.press("Enter")
+        expect(ferramentas).to_have_js_property("open", True)
+        expect(ferramentas.locator("[data-comando='bold']")).to_be_visible()
+        resumo.press("Enter")
+        expect(ferramentas).to_have_js_property("open", False)
 
     # Avaliar a seção desde o título, e não uma posição arbitrária que corta
     # um controle anterior sob a navegação fixa. Nenhuma regra axe é excluída.

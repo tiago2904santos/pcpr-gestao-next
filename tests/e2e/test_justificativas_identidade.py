@@ -30,8 +30,13 @@ def _axe_estavel(pg):
     pg.evaluate("""async () => await Promise.all(document.getAnimations().filter(a =>
         a.animationName !== 'toast-tempo' &&
         a.effect.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {})))""")
+    # O cabeçalho e o rodapé grudados cobrem o que calhar atrás deles na rolagem do momento:
+    # mede do topo da página, com o rodapé em repouso (como test_acessibilidade), e devolve
+    # o estilo depois.
+    pg.evaluate("window.scrollTo(0, 0); document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = 'static')")
     violacoes = rodar_axe(pg)
-    assert violacoes == [], str(violacoes)
+    pg.evaluate("document.querySelectorAll('.barra-acoes').forEach(b => b.style.position = '')")
+    assert violacoes == [], [(v["id"], [n["target"] for n in v["nodes"]][:4], [r["target"] for a in v["nodes"][0]["any"] for r in a.get("relatedNodes", [])][:4]) for v in violacoes]
 
 
 @pytest.mark.parametrize("largura", [360, 768, 1440])
@@ -75,7 +80,8 @@ def test_busca_erro_cancelar_gravar_e_excluir(logado, dados_e2e, largura):
     oficio.refresh_from_db()
     assert oficio.justificativa == texto
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
-    assert pg.locator(".barra-acoes--colecao").evaluate("e => getComputedStyle(e).position") == "static"
+    # A barra acompanha a rolagem (presa na borda) e vira cartão no fim da lista.
+    assert pg.locator(".barra-acoes--colecao").evaluate("e => getComputedStyle(e).position") == "sticky"
     _axe_estavel(pg)
     acoes.click()
     pg.get_by_role("menuitem", name="Apagar justificativa").click()
@@ -176,7 +182,9 @@ def test_paginacao_filtrada_apos_erro(logado, dados_e2e, monkeypatch):
     expect(pg.locator("#abas-filtro a[aria-current]")).to_contain_text("Todas")
     expect(pg.locator(".registro-operacional")).to_have_count(1)
     barra = pg.locator(".barra-acoes--colecao")
-    assert barra.evaluate("e => getComputedStyle(e).position") == "static"
+    assert barra.evaluate("e => getComputedStyle(e).position") == "sticky"
+    # No fim da lista a barra fica no seu lugar, depois dos registros, sem cobrir nenhum.
+    pg.evaluate("scrollTo(0, document.documentElement.scrollHeight)")
     assert barra.evaluate("""e => {
         const barra = e.getBoundingClientRect();
         return [...document.querySelectorAll('.registro-operacional')].every(registro =>

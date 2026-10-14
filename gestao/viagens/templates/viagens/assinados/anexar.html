@@ -38,9 +38,10 @@ onde se veio.
       </div>
     </div>
   </section>
-  <div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo barra-acoes--confirmacao">
-    <a class="botao botao--texto" href="{{ voltar_url }}">{% icone "arrow-left" %}Voltar</a>
-    <button type="submit" class="botao botao--primario">{% icone "file-signature" %}{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</button>
+  <div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao barra-acoes--confirmacao">
+    <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>{% if s.via %}A via atual é substituída ao confirmar.{% else %}O PDF assinado fica junto do documento.{% endif %}</span></div>
+    <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{{ voltar_url }}">Voltar</a>
+    <button type="submit" class="botao botao--primario">{% icone "file-signature" %}{% if s.via %}Trocar via assinada{% else %}Anexar via assinada{% endif %}</button></div>
   </div>
 </form>
 {% endblock %}

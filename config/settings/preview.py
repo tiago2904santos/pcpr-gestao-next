@@ -24,6 +24,9 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SSL_REDIRECT", False)  # noqa: F405
 SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = env_bool("PREVIEW_HTTPS", False)  # noqa: F405
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")  # noqa: F405
+# Sem SMTP no PREVIEW (dados fictícios; ninguém recebe e-mail): o backend de console é de
+# propósito. O `check --deploy` da subida (preview-entrypoint.sh) reprovava isso no Django 6.1.
+SILENCED_SYSTEM_CHECKS = ["mail.E001"]
 
 # Iteração visual local (runserver): estáticos direto das pastas, sem collectstatic.
 if env_bool("PREVIEW_ESTATICOS_AO_VIVO", False):  # noqa: F405

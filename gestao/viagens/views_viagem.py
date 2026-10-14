@@ -18,7 +18,15 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from gestao.cadastros.forms import formularios_de_cadastro_rapido
 
-from . import policies, prestacao, viagem, viagem_conferencia
+from . import (
+    atencao_listas,
+    linha_lista,
+    policies,
+    prestacao,
+    resumo_listas,
+    viagem,
+    viagem_conferencia,
+)
 from .forms import FormularioViagem
 from .linha_do_tempo import da_viagem
 from .models import Viagem
@@ -93,18 +101,82 @@ def lista(request: HttpRequest) -> HttpResponse:
     from django.db.models import F
     ordem = ([F("data_inicio").asc(nulls_last=True), "pk"] if aba == "futuras"
              else ["-criado_em", "-pk"])
-    pagina = Paginator(qs.order_by(*ordem), POR_PAGINA).get_page(request.GET.get("pagina"))
-    hoje = timezone.localdate()
-    linhas = [{"v": v, "quando": viagem.dias_para(v, hoje),
-               "destinos": ", ".join(str(d.municipio) for d in v.destinos.all())}
-              for v in pagina.object_list]
+    # "Pede atenção" (atencao_listas): urgentes (documentos por gerar, começa em até 7 dias)
+    # e vazias.
+    hoje, agora = timezone.localdate(), timezone.now()
+    atencao = atencao_listas.recorte_pedido(request)
+    ordenado = (atencao_listas.aplicar(qs, atencao_listas.VIAGEM, atencao, hoje)
+                if atencao else qs.order_by(*ordem))
+    pagina = Paginator(ordenado, POR_PAGINA).get_page(request.GET.get("pagina"))
+    linhas = [_linha_da_lista(request.user, v, hoje, agora) for v in pagina.object_list]
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     return render(request, "viagens/viagem/lista.html", {
         "page_obj": pagina, "linhas": linhas, "abas": ABAS, "aba": aba, "busca": busca,
         "contagens": contagens, "pode_criar": policies.pode_criar_viagem(request.user),
+        "atencao": atencao,
+        "cartoes_atencao": atencao_listas.cartoes(
+            request, atencao_listas.VIAGEM, atencao,
+            atencao_listas.contas(base, atencao_listas.VIAGEM, hoje),
+            reverse("viagens:excluir_viagens_vazias")),
         "querystring_base": (filtros.urlencode() + "&") if filtros else "",
         "migalhas": _migalhas(("Todas as viagens", ""))})
+
+
+def _linha_da_lista(usuario, v, hoje, agora) -> dict:
+    """Uma linha: o que falta (lido do que a linha já traz), o tempo e a ação da vez."""
+    folha = reverse("viagens:editar_viagem", args=[v.pk])
+    destinos = [str(d.municipio) for d in v.destinos.all()]
+    pendente = v.situacao in (Viagem.Situacao.RASCUNHO, Viagem.Situacao.PREPARACAO)
+    pendencias = []
+    if pendente:
+        if not v.tipos.all():
+            pendencias.append({"mensagem": "Informe o tipo da viagem.", "url": f"{folha}#dados"})
+        if not v.data_inicio:
+            pendencias.append({"mensagem": "Informe o período da viagem.",
+                               "url": f"{folha}#dados"})
+        if not destinos:
+            pendencias.append({"mensagem": "Informe o destino da viagem.",
+                               "url": f"{folha}#dados"})
+        if not v.n_oficios:
+            pendencias.append({"mensagem": "Nenhum ofício ainda: gere os documentos.",
+                               "url": f"{folha}#documentos"})
+    vazio = (v.situacao == Viagem.Situacao.RASCUNHO and not (
+        v.titulo or v.motivo.strip() or v.data_inicio or destinos or v.tipos.all()
+        or v.n_oficios or v.n_ordens or v.n_planos))
+    return {"v": v, "quando": viagem.dias_para(v, hoje), "destinos": ", ".join(destinos),
+            "editavel": policies.pode_editar_viagem(usuario, v),
+            "pendencias": pendencias, "vazio": vazio, "url_folha": folha,
+            "tempo": linha_lista.estado_temporal(v.data_inicio, v.data_fim, agora,
+                                                 pendente=pendente)}
+
+
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo da viagem (o mesmo desenho do resumo do ofício)."""
+    policies.exigir(request.user.has_perm("viagens.view_viagem"))
+    v = get_object_or_404(
+        policies.viagens_visiveis(request.user).select_related("unidade")
+        .prefetch_related("destinos__municipio", "tipos")
+        .annotate(n_oficios=Count("oficios", distinct=True),
+                  n_ordens=Count("ordens", distinct=True),
+                  n_planos=Count("planos", distinct=True),
+                  n_termos=Count("termos", distinct=True),
+                  n_roteiros=Count("roteiros", distinct=True)), pk=pk)
+    linha = _linha_da_lista(request.user, v, timezone.localdate(), timezone.now())
+    documentos = {chave: getattr(v, f"n_{chave}")
+                  for chave in ("oficios", "ordens", "planos", "termos", "roteiros")}
+    return render(request, "componentes/resumo_documento.html",
+                  {"r": resumo_listas.da_viagem(v, linha, documentos), "v": v, "l": linha,
+                   "editavel": policies.pode_editar_viagem(request.user, v)})
+
+
+@require_POST
+def excluir_vazias(request: HttpRequest) -> HttpResponse:
+    """"Excluir as vazias" da faixa de atenção (pede confirmação; regra de `viagem.excluir`)."""
+    excluidas = atencao_listas.excluir_vazios(
+        request.user, policies.viagens_visiveis(request.user), atencao_listas.VIAGEM)
+    messages.success(request, atencao_listas.mensagem_exclusao(atencao_listas.VIAGEM, excluidas))
+    return redirect("viagens:viagens")
 
 
 @require_POST

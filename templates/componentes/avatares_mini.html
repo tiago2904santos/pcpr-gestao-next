@@ -1,0 +1,5 @@
+{% load ui %}{% comment %}
+Equipe na linha da lista: até três iniciais empilhadas (as mesmas dos cartões da folha),
+o motorista em grafite; sem ninguém, o ícone de equipe. `pessoas`: servidores ou itens com
+`.servidor` (viajantes). Decorativo: os nomes (e o "+N") vêm ao lado, no texto da linha.
+{% endcomment %}{% if pessoas %}<span class="avatares-mini" aria-hidden="true">{% for p in pessoas|slice:":3" %}{% with s=p.servidor|default:p %}<span class="avatares-mini__avatar{% if p.motorista %} avatares-mini__avatar--escuro{% endif %}">{{ s.iniciais }}</span>{% endwith %}{% endfor %}</span>{% else %}{% icone "users" classe="icone--sm" %}{% endif %}

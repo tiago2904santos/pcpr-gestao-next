@@ -146,7 +146,8 @@ def test_tela_lista_busca_e_abas(c):
                         destinos=[_londrina()])
     cli = _cliente(op)
     html = cli.get(reverse("viagens:viagens")).content.decode()
-    assert "Unidade Móvel · Londrina/PR" in html and "faltam 5 dias" in html
+    # Rascunho a 5 dias: o tempo vira o selo de urgência ("sai em 5 dias · gerar…").
+    assert "Unidade Móvel · Londrina/PR" in html and "sai em 5 dias" in html
     achadas = cli.get(reverse("viagens:viagens"), {"q": "londrina"}).content.decode()
     assert "Unidade Móvel" in achadas
     assert "Nenhuma viagem encontrada" in cli.get(reverse("viagens:viagens"),

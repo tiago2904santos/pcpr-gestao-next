@@ -10,24 +10,22 @@ Contratos institucionais preservados nas parciais; a ordem é de apresentação.
     <div class="mesa-registro__documentos">
       {% include "viagens/oficios/_resumo_documentos.html" %}
     </div>
+    {# Quem vai e em quê, na largura toda logo depois do registro: servidores e viatura na mesma fileira de cartões. #}
+    <div class="mesa-registro__equipe">
+      {% include "componentes/bloco_registro.html" with indice="01" titulo="Equipe e transporte" id_titulo="resumo-equipe" nota=viajantes|length|pluralizar:"servidor,servidores" conteudo="viagens/oficios/_resumo_equipe.html" %}
+    </div>
     <div class="mesa-registro__principal">
-    <section class="missao-registro" aria-labelledby="resumo-missao">
-      <h3 class="missao-registro__rotulo" id="resumo-missao">Motivo da viagem</h3>
-      <p class="missao-registro__texto">{{ oficio.motivo|default:"Motivo não informado." }}</p>
-    </section>
-      {% include "componentes/bloco_registro.html" with indice="01" titulo="Roteiro" id_titulo="resumo-roteiro" conteudo="viagens/oficios/_resumo_percurso.html" %}
-      {# Quem vai e em quê vem logo abaixo do roteiro: a mesma coluna de leitura da viagem. #}
-      {% include "componentes/bloco_registro.html" with indice="02" titulo="Equipe e transporte" id_titulo="resumo-equipe" nota=viajantes|length|pluralizar:"servidor,servidores" conteudo="viagens/oficios/_resumo_equipe.html" %}
+      {% include "componentes/bloco_registro.html" with indice="02" titulo="Roteiro" id_titulo="resumo-roteiro" conteudo="viagens/oficios/_resumo_percurso.html" %}
     </div>
     {# A conferência não distribui nem estica as seções da coluna de leitura. #}
     <div class="mesa-registro__coluna">
       <aside class="mesa-registro__contexto" aria-label="Conferência e registro do ofício">
         {% include "componentes/bloco_registro.html" with titulo="Diárias" icone="banknote" id_titulo="resumo-diarias" variante="conferencia" conteudo="viagens/oficios/_resumo_conferencia.html" %}
-        {% include "componentes/bloco_registro.html" with titulo="Registro institucional" icone="landmark" id_titulo="resumo-registro" conteudo="viagens/oficios/_resumo_registro.html" %}
       </aside>
     </div>
-    <div class="mesa-registro__copia">
-      {% include "componentes/dados_eprotocolo.html" with copiar_id="resumo-copia" compacto=True omitir_estado_pdf=True %}
+    {# Registro institucional na largura toda, antes das duas colunas: o motivo e a justificativa abrem a leitura. #}
+    <div class="mesa-registro__registro">
+      {% include "componentes/bloco_registro.html" with titulo="Registro institucional" icone="landmark" id_titulo="resumo-registro" conteudo="viagens/oficios/_resumo_registro.html" %}
     </div>
   </div></div>
 </div>

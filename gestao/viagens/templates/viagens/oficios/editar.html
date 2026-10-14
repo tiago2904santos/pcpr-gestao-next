@@ -8,7 +8,6 @@
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% block conteudo %}
 {% include "componentes/registro_hero.html" with pagina=True contexto="Cadastro do ofício" rotulo="Ofício" numero=oficio.numero_formatado situacao=oficio.situacao titulo="Preparar a viagem" situacao_template="viagens/oficios/_resumo_situacao.html" complemento_template="viagens/oficios/_preparacao_contexto.html" acoes_template="viagens/oficios/_preparacao_acoes.html" %}
-{% include "componentes/indice_preparacao.html" with itens=secoes pronto=prontidao.pode_emitir intermediario_chave="recursos" intermediario_rotulo="Equipe e transporte" %}
 
 {% if pode_excluir %}
 <form id="form-excluir" method="post" action="{% url 'viagens:excluir' oficio.pk %}" hidden
@@ -31,6 +30,8 @@ confirmação — e é ele que escreve no histórico.
   {# Sem controle de data manual: forms.clean preserva a escolha gravada e detecta uma nova data digitada. #}
   {{ form.roteiro }}
   {{ destinos.management_form }}
+  {# O bate-volta também: sem o controle do conjunto, o servidor não enxerga os blocos (nem gera os trechos). #}
+  {% if blocos %}{{ blocos.management_form }}{% endif %}
 </form>
 
 {% include "componentes/resumo_erros.html" %}
@@ -51,7 +52,7 @@ confirmação — e é ele que escreve no histórico.
   <section class="secao{% if secoes.0.ok %} secao--ok{% endif %}" id="identificacao" aria-labelledby="t-identificacao">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
-      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"dados" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}</div>
+      <div class="secao__estado">{% if mostrar_pendencias %}{% for p in prontidao|pendencias_da_secao:"dados" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}{% endif %}</div>
       {# `assunto.linha` já termina em ponto e `assunto.rotulo` já vem entre parênteses. #}
       <p class="secao__nota">{% if assunto %}Assunto calculado: <strong>{{ assunto.linha }}</strong> {{ assunto.rotulo }}{% else %}O assunto (Autorização ou Convalidação) é calculado pelo roteiro ao salvar.{% endif %}</p>
     </div>
@@ -89,7 +90,7 @@ confirmação — e é ele que escreve no histórico.
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-transporte">{% icone "car" classe="icone--sm" %}Transporte</h3>
         <div class="secao__estado">
-          {% for p in prontidao|pendencias_da_secao:"transporte" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}
+          {% if mostrar_pendencias %}{% for p in prontidao|pendencias_da_secao:"transporte" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}{% endif %}
           {# Sim/não com efeito no documento: interruptor no cabeçalho, como o "Bate-volta" do roteiro. #}
           <label class="interruptor" for="{{ form.porte_arma.auto_id }}" title="Ligue se os servidores transportarão arma de fogo">
             {{ form.porte_arma|campo_acessivel:"" }}
@@ -127,14 +128,14 @@ confirmação — e é ele que escreve no histórico.
   <section class="secao{% if secoes.1.ok %} secao--ok{% endif %}" id="roteiro" aria-labelledby="t-roteiro">
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-roteiro"><span class="secao__numero">3</span>Roteiro</h2>
-      <div class="secao__estado">{% for p in prontidao|pendencias_da_secao:"roteiro" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}</div>
+      <div class="secao__estado">{% if mostrar_pendencias %}{% for p in prontidao|pendencias_da_secao:"roteiro" %}{% include "componentes/pendencia.html" with mensagem=p.mensagem bloqueante=p.bloqueia only %}{% endfor %}{% endif %}</div>
       <p class="secao__nota">Defina o percurso e confira a rota. Datas, horários e chegada ficam nos trechos. Horário de Brasília.</p>
     </div>
     <div class="secao__conteudo">
     {% include "componentes/selecao_roteiro.html" with form_id="form-oficio" compacto=True %}
     {% include "viagens/_itinerario.html" with operacional=True %}
     {# Diárias: só leitura, refeitas ao salvar ou ao mudar a equipe (o HTMX troca o miolo). #}
-    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body" hx-swap="innerHTML">
+    <div id="diarias-secao" hx-get="{% url 'viagens:secao_diarias' oficio.pk %}" hx-trigger="equipe-alterada from:body, pcpr:dados-salvos from:document delay:200ms" hx-swap="innerHTML">
     {% include "viagens/oficios/_diarias.html" with bloco=True documental=True %}
     </div>
     </div>
@@ -214,17 +215,7 @@ confirmação — e é ele que escreve no histórico.
         <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
       </div>
-      <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos do ofício">
-        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos.</li>{% endfor %}
-      </ol>
-      {% if historico|length > 6 %}
-        <details>
-          <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-          <ol class="historico__linhas historico__linhas--operacional mt-4" aria-label="Eventos anteriores">
-            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% endfor %}
-          </ol>
-        </details>
-      {% endif %}
+      {% include "componentes/historico_folha.html" with rotulo="Eventos do ofício" vazio="Sem eventos." primeiros=":6" resto="6:" limite=6 %}
     </div>
     </div>
   </section>
@@ -245,6 +236,10 @@ altura do fluxo durante o autosave ou a proteção de saída.
     {% include "componentes/rodape_documento.html" with nome="ofício" finalizar_form="form-oficio" finalizar_acao="finalizar" finalizar_primario=True duplicar_form="duplicar-oficio" excluir_form=excluir_form %}
   </div>
 </div>
+{% comment %}"Limpar roteiro" (cartão do roteiro cadastrado): apaga trechos e vínculo — pede confirmação e espera o autosave.{% endcomment %}
+<form id="limpar-roteiro" method="post" action="{% url 'viagens:limpar_roteiro_oficio' oficio.pk %}" hidden data-esperar-salvamento
+      data-confirmar="Os trechos deste ofício são apagados{% if oficio.roteiro_id %} e ele deixa de estar ligado ao roteiro #{{ oficio.roteiro_id }}{% endif %}. As diárias ficam sem cálculo até você montar o percurso de novo."
+      data-confirmar-titulo="Limpar o roteiro?" data-confirmar-rotulo="Limpar roteiro" data-confirmar-perigo>{% csrf_token %}</form>
 <form id="duplicar-oficio" method="post" action="{% url 'viagens:duplicar_oficio' oficio.pk %}" hidden data-esperar-salvamento>{% csrf_token %}</form>
 {% include "componentes/dialogo_baixar.html" %}
 {% comment %}

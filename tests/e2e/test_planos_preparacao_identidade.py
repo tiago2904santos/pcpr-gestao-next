@@ -50,7 +50,7 @@ def test_preparacao_quantidade_calendario_e_conferencia(logado, dados_e2e, largu
     pg.keyboard.press("Escape")
     expect(calendario).to_be_focused()
     expect(pg.locator("#diarias .conferencia-serena--operacional")).to_contain_text("R$")
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     pg.evaluate("scrollTo(0,0)")
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     assert rodar_axe(pg) == []

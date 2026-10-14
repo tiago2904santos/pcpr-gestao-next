@@ -122,8 +122,8 @@ do servidor, com ele finalizado.
     {% else %}<p class="texto-secundario texto-sm">Nada removido nos últimos 30 dias.</p>{% endif %}
   </section>
 </div>
-<div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
-  <a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar à prestação</a>
-  <span class="texto-secundario texto-sm">Os arquivos são salvos ao anexar.</span>
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" data-status-salvamento role="status"><span data-anuncio>Os arquivos são salvos ao anexar.</span></div>
+  <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:prestacoes' %}?q={{ oficio.numero_formatado|urlencode }}">Voltar</a></div>
 </div>
 {% endblock %}

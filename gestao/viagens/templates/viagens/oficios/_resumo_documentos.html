@@ -9,7 +9,7 @@
     <div class="estado-documental">
       {% icone "file-pen-line" classe="icone--sm" %}
       <div><p class="estado-documental__titulo">A minuta está disponível</p><p class="estado-documental__nota">Ainda não há documento corrente. A minuta mostra os dados salvos do rascunho.</p></div>
-      {% if menu.minuta %}<a class="botao botao--sm" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">Ver minuta<span class="sr-only"> (PDF, nova aba)</span>{% icone "arrow-up-right" classe="icone--sm" %}</a>{% endif %}
+      {% if menu.minuta %}<a class="botao botao--sm" href="{% url 'viagens:previa' oficio.pk %}" target="_blank" rel="noopener">Ver minuta<span class="sr-only"> (PDF, nova aba)</span>{% icone "external-link" classe="icone--sm" %}</a>{% endif %}
     </div>
   {% elif oficio.situacao == "cancelado" %}<p class="vazio-inline">Ofício cancelado: os documentos emitidos permanecem no histórico.</p>
   {% else %}<p class="vazio-inline">A emissão corrente está indisponível. Confira o histórico e os documentos.</p>{% endif %}

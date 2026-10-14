@@ -106,8 +106,8 @@ def test_dossie_legivel_sem_rolagem_interna_e_com_acoes_operaveis(
     assert janela.locator(".dialogo__conteudo").evaluate(
         "e => getComputedStyle(e).overflowY === 'hidden'"
     ), "A barra do corpo não deve atravessar o cabeçalho escuro."
-    # Consulta copiável restaurada nesta missão; protocolo também no cabeçalho.
-    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(1)
+    # Sem o bloco de dados para o eProtocolo no Resumo; o protocolo fica no cabeçalho.
+    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(0)
     expect(janela.locator(".registro-hero__complemento")).to_contain_text(
         oficio.protocolo_formatado
     )

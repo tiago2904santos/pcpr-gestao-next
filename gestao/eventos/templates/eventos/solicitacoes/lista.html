@@ -69,11 +69,15 @@ de tempo ("Evento em N dias") e "pedido em cima da hora".
   <ul class="registros" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% include "eventos/solicitacoes/_registro.html" %}{% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
+  {# A paginação mora na barra que acompanha a rolagem (depois da lista). #}
 {% elif filtros.q or filtros.ativos or filtros.fila %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma solicitação encontrada com os filtros aplicados." texto="Ajuste a busca, os filtros ou troque de fila." limpar_url=request.path %}
 {% else %}
   {% url 'eventos:nova' as url_nova %}
   {% include "componentes/vazio.html" with icone="calendar-days" titulo="Nenhuma solicitação registrada ainda." texto="Registre o primeiro pedido de evento." acao_url=url_nova acao_rotulo="Nova solicitação" %}
 {% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% include "componentes/barra_paginacao.html" %}
 {% endblock %}

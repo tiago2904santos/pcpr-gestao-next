@@ -75,7 +75,7 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
     </li>
     {% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
+  {# A paginação mora na barra que acompanha a rolagem (depois da lista). #}
 {% elif termo %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nada encontrado" texto="Confira o termo da busca." limpar_url=request.path %}
 {% else %}
@@ -84,6 +84,7 @@ está em uso é recusado; a configuração do ofício e do protocolo é um regis
 {% endblock %}
 
 {% block depois_lista %}
+{% include "componentes/barra_paginacao.html" %}
 <dialog id="dialogo-cadastro" class="dialogo dialogo--largo" aria-labelledby="dialogo-cadastro-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'coffee:salvar' t.chave %}" enctype="multipart/form-data" novalidate>
     {% csrf_token %}

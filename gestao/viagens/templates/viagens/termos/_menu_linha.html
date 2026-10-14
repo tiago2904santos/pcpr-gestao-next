@@ -1,0 +1,26 @@
+{% load ui %}{% comment %}
+Itens do menu ⋮ do termo — os mesmos na linha da lista e no rodapé do resumo ("Mais
+ações"). Variáveis: `t`, `l` (a linha: editavel, cancelavel, excluivel) e, no
+resumo, `no_resumo` (sem "Ver resumo"). Os formulários de reativar/excluir moram na
+linha da lista (a janela abre por cima dela).
+{% endcomment %}
+{% if not no_resumo %}<button type="button" class="menu__item" role="menuitem" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo_termo' t.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML">{% icone "eye" %}Ver resumo</button>{% endif %}
+{% if l.editavel %}
+  <button type="button" class="menu__item" role="menuitem" data-baixar-documentos="{% url 'viagens:baixar_termo' t.pk %}" data-baixar-titulo="{{ t }}">{% icone "download" %}Baixar documentos</button>
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'pdf' %}" target="_blank" rel="noopener">{% icone "file-check-2" %}Todos em um PDF</a>
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:todos_termo' t.pk 'zip' %}">{% icone "download" %}Todos em DOCX (ZIP)</a>
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk 'generico' 'pdf' %}" target="_blank" rel="noopener">{% icone "file-text" %}Termo genérico (PDF)</a>
+  {% for g in ef.viaturas %}{% with id=g.viatura.pk|stringformat:"s" %}{% if forloop.first %}{% firstof "viatura" as chave %}{% else %}{% firstof "viatura-"|add:id as chave %}{% endif %}<a class="menu__item" role="menuitem" href="{% url 'viagens:documento_termo' t.pk chave 'pdf' %}" target="_blank" rel="noopener">{% icone "car" %}Termo da viatura {{ g.viatura.placa_formatada }} (PDF)</a>{% endwith %}{% endfor %}
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "pencil" %}Abrir (documentos de cada servidor)</a>
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}#previa">{% icone "file-signature" %}Anexar ou abrir termo assinado</a>
+{% else %}
+  <a class="menu__item" role="menuitem" href="{% url 'viagens:editar_termo' t.pk %}">{% icone "eye" %}Abrir</a>
+{% endif %}
+{% if l.cancelavel %}
+  <div class="menu__separador" role="separator"></div>
+  {% if t.cancelado %}<button type="submit" form="reativar-{{ t.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar</button>
+  {% else %}<button type="button" class="menu__item" role="menuitem" data-pedir-motivo="{% url 'viagens:cancelar_termo' t.pk %}" data-motivo-titulo="Cancelar o {{ t }}?" data-motivo-rotulo="Motivo do cancelamento" data-motivo-acao="Cancelar termo" data-motivo-ajuda="O termo continua na lista, em Cancelados; dá para reativar." data-motivo-perigo>{% icone "ban" %}Cancelar</button>{% endif %}
+{% endif %}
+{% if l.excluivel %}
+  <button type="submit" form="excluir-{{ t.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+{% endif %}

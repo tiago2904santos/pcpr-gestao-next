@@ -1,0 +1,6 @@
+{% comment %}
+Paginação dentro da barra de ações da lista (à esquerda, acompanha a rolagem). Com oob=True vai
+fora de banda na busca ao vivo (dentro de #resultados), para a barra trocar junto com a lista.
+Aceita paginacao_destino, como componentes/paginacao.html.
+{% endcomment %}
+<div class="barra-acoes__paginacao" id="paginacao-barra"{% if oob %} hx-swap-oob="true"{% endif %}>{% include "componentes/paginacao.html" with na_barra=True %}</div>

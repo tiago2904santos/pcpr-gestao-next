@@ -528,6 +528,17 @@ def _lista_servidores(request: HttpRequest, *, form=None, editando=None,
 
 
 @require_GET
+def dialogo_servidor(request: HttpRequest, pk: int) -> HttpResponse:
+    """A janela de edição do servidor, já preenchida, para abrir de outra tela (o documento
+    do ofício: clicar no nome do servidor → "Editar cadastro"). Grava pelo mesmo
+    `salvar_servidor`."""
+    policies.exigir(policies.pode_alterar_cadastro(request.user, Servidor))
+    servidor = get_object_or_404(Servidor, pk=pk)
+    return render(request, "componentes/dialogo_servidor.html", {
+        "form": FormularioServidor.de(servidor), "editando": servidor, "cadastro_rapido": True})
+
+
+@require_GET
 def servidores(request: HttpRequest) -> HttpResponse:
     return _lista_servidores(request)
 
@@ -643,6 +654,17 @@ def _lista_viaturas(request: HttpRequest, *, form=None, editando=None,
         "querystring_base": _querystring(parametros), "voltar": request.get_full_path(),
         "form": form, "editando": editando, "abrir_dialogo": abrir,
         "migalhas": _migalhas("Viaturas")}, status=status)
+
+
+@require_GET
+def dialogo_viatura(request: HttpRequest, pk: int) -> HttpResponse:
+    """A janela de edição da viatura, já preenchida (ver `dialogo_servidor`)."""
+    policies.exigir(policies.pode_alterar_cadastro(request.user, Viatura))
+    viatura = get_object_or_404(Viatura, pk=pk)
+    return render(request, "componentes/dialogo_viatura.html", {
+        "form": FormularioViatura.de(
+            viatura, fonte_motoristas=reverse("cadastros:buscar_servidores")),
+        "editando": viatura, "cadastro_rapido": True})
 
 
 @require_GET

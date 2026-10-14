@@ -19,10 +19,11 @@ from django.db.models import (
     Q,
     QuerySet,
     Subquery,
+    Sum,
     Value,
     prefetch_related_objects,
 )
-from django.db.models.functions import Coalesce, Concat, Trim, TruncDate
+from django.db.models.functions import Coalesce, Concat, Trim, TruncDate, TruncMonth
 from django.utils import timezone
 
 from gestao.cadastros.models import TabelaDiaria
@@ -36,6 +37,7 @@ from .dominio.documentos_versoes import (
     presenca_justificativa,
     selecionar_versoes,
 )
+from .linha_lista import DIAS_DE_URGENCIA  # o mesmo limiar da linha
 from .models import (
     Documento,
     Oficio,
@@ -148,7 +150,10 @@ def com_dados_de_lista(qs: QuerySet[Oficio]) -> QuerySet[Oficio]:
                   pdf_justificativa_arquivo=Subquery(
                       _pdf_da_justificativa.values("arquivo")[:1]),
                   via_oficio=_via(ViaAssinada.Tipo.OFICIO),
-                  via_justificativa=_via(ViaAssinada.Tipo.JUSTIFICATIVA))
+                  via_justificativa=_via(ViaAssinada.Tipo.JUSTIFICATIVA),
+                  # A ação da linha ("Prestar contas") some quando a equipe já prestou.
+                  contas_prestadas_lista=ExpressionWrapper(
+                      _contas_prestadas(), output_field=models.BooleanField()))
     )
 
 
@@ -204,6 +209,57 @@ def q_do_documento(documento: str) -> Q:
 def aplicar_recorte(qs: QuerySet[Oficio], aba: str, documento: str) -> QuerySet[Oficio]:
     return com_primeira_saida(qs).filter(q_da_aba(aba, fim_de_hoje()),
                                          q_do_documento(documento))
+
+
+# ---------------------------------------------------------------- atenção da lista
+# Dois recortes que a lista oferece por cima das abas: o rascunho que sai em poucos dias (é
+# o que precisa ser emitido já) e o rascunho vazio (criado e esquecido: sem roteiro, equipe,
+# protocolo, transporte nem documento — prende um número à toa).
+
+
+def q_rascunho_urgente(hoje: date) -> Q:
+    """Rascunho que sai de hoje até `DIAS_DE_URGENCIA` dias — exige `com_primeira_saida`."""
+    inicio = timezone.make_aware(datetime.combine(hoje, time.min))
+    fim = timezone.make_aware(datetime.combine(hoje + timedelta(days=DIAS_DE_URGENCIA), time.max))
+    return (NAO_ARQUIVADO & Q(situacao=Oficio.Situacao.RASCUNHO)
+            & Q(_saida__gte=inicio, _saida__lte=fim))
+
+
+def q_rascunho_vazio() -> Q:
+    return (NAO_ARQUIVADO & Q(situacao=Oficio.Situacao.RASCUNHO, protocolo="",
+                              viatura__isnull=True, transporte_descricao="")
+            # Subconsultas não correlacionadas: entram no filtro de uma contagem (agregação).
+            & ~Q(pk__in=Trecho.objects.values("oficio_id"))
+            & ~Q(pk__in=Viajante.objects.values("oficio_id"))
+            & ~Q(pk__in=Documento.objects.values("oficio_id")))
+
+
+ATENCOES = {"urgentes": "Rascunhos que saem em até 7 dias", "vazios": "Rascunhos vazios"}
+
+
+def q_da_atencao(atencao: str, hoje: date) -> Q:
+    if atencao == "urgentes":
+        return q_rascunho_urgente(hoje)
+    if atencao == "vazios":
+        return q_rascunho_vazio()
+    return Q()
+
+
+def atencao_da_lista(base: QuerySet[Oficio], hoje: date) -> dict[str, int]:
+    """Quantos rascunhos urgentes e vazios a pessoa enxerga — uma agregação só."""
+    return com_primeira_saida(base.order_by()).aggregate(
+        urgentes=Count("pk", filter=q_rascunho_urgente(hoje)),
+        vazios=Count("pk", filter=q_rascunho_vazio()))
+
+
+def totais_por_mes(qs: QuerySet[Oficio], por_saida: bool) -> dict[str, tuple[int, object]]:
+    """Mês → (ofícios, total de diárias) do recorte inteiro, não só da página. `qs` é o
+    recorte de `aplicar_recorte` (já traz `_saida`), sem os dados de lista: as anotações
+    agregadas dela duplicariam a soma."""
+    campo = "_saida" if por_saida else "data_oficio"
+    linhas = (qs.order_by().annotate(mes=TruncMonth(campo)).values("mes")
+              .annotate(n=Count("pk"), total=Sum("diarias_total")))
+    return {(f"{x['mes']:%Y-%m}" if x["mes"] else ""): (x["n"], x["total"] or 0) for x in linhas}
 
 
 def contagens_do_recorte(base: QuerySet[Oficio], filtrado: QuerySet[Oficio] | None,

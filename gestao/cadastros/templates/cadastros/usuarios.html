@@ -82,7 +82,7 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
       </li>
     {% endwith %}{% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
+  {# A paginação mora na barra que acompanha a rolagem (depois da lista). #}
 {% elif termo or perfil %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhum usuário encontrado" texto="Confira a grafia ou troque o perfil." limpar_url=request.path %}
 {% elif aba == "inativos" %}
@@ -93,6 +93,7 @@ acesso); ativar/inativar (nunca a si mesmo). Sem exclusão (como na referência)
 {% endblock %}
 
 {% block depois_lista %}
+{% include "componentes/barra_paginacao.html" %}
 {% if pode_criar or editando %}
 <dialog id="dialogo-usuario" class="dialogo dialogo--largo" aria-labelledby="dialogo-usuario-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
   <form method="post" action="{% url 'cadastros:salvar_usuario' %}" novalidate>

@@ -11,18 +11,18 @@
 Abas exclusivas, busca HTMX e20por página. Criação POST permanece separada da busca.
 Documentos e ações secundárias continuam na Folha.{% endcomment %}
 
-{% block abas_filtro %}
-<div class="colecao-operacional__indice"><p class="rotulo-caixa-alta colecao-operacional__rotulo">Tempo da viagem</p>
+{% comment %}As abas moram dentro do cartão de filtros (um só conjunto: recorte em cima, busca embaixo).{% endcomment %}
+{% block abas_filtro %}{% endblock %}
+
+{% block filtros %}
+<div class="filtro-conjunto">
 <nav class="abas" id="abas-filtro" aria-label="Situação das viagens">
   {% for chave, rotulo, contador in abas %}
     <a class="aba" href="?{% if chave %}aba={{ chave }}{% endif %}{% if busca %}{% if chave %}&amp;{% endif %}q={{ busca|urlencode }}{% endif %}"{% if chave == aba %} aria-current="page"{% endif %}>
       {{ rotulo }} <span class="aba__contagem">{{ contagens|get_item:contador }}</span>
     </a>
   {% endfor %}
-</nav></div>
-{% endblock %}
-
-{% block filtros %}
+</nav>
 <form class="filtros filtros--barra" role="search" method="get" action="{% url 'viagens:viagens' %}"
       hx-get="{% url 'viagens:viagens' %}" hx-target="#resultados" hx-select="#resultados" hx-select-oob="#abas-filtro" hx-swap="outerHTML" hx-push-url="true" hx-indicator=".lista-resultados"
       hx-trigger="submit, input changed delay:350ms from:#busca-viagens">
@@ -33,6 +33,7 @@ Documentos e ações secundárias continuam na Folha.{% endcomment %}
   </div>
   <div class="filtros__acoes" data-so-sem-js><button class="botao" type="submit">{% icone "filter" %}Aplicar</button></div>
 </form>
+</div>
 {% endblock %}
 
 {% block resultados %}
@@ -41,38 +42,57 @@ Documentos e ações secundárias continuam na Folha.{% endcomment %}
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Viagens{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}</span>
 </div>
+{% include "componentes/atencao_lista.html" with cartoes=cartoes_atencao %}
 {% if linhas %}
   <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with v=l.v %}
-      <li class="registro registro-operacional registro-operacional--relacoes registro-operacional--sem-acoes{% if v.cancelada %} registro--inativo{% endif %}">
+      <li class="registro registro-operacional registro-operacional--relacoes{% if v.cancelada %} registro--inativo{% elif v.situacao == "rascunho" or v.situacao == "preparacao" %} registro--rascunho{% endif %}{% if l.tempo.urgencia %} registro--urgente registro--urgente-{{ l.tempo.urgencia }}{% endif %}{% if l.vazio %} registro--vazio{% endif %}">
         <div class="placa" aria-hidden="true">{% if v.data_inicio %}{% with data=v.data_inicio|date:"d/m" %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero=data compacta=True only %}{% endwith %}{% else %}{% with id=v.pk|stringformat:"s" %}{% include "componentes/identidade_documental.html" with rotulo="Viagem" numero="#"|add:id compacta=True only %}{% endwith %}{% endif %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
-            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}" title="{{ v.titulo|default:'Viagem sem tipo' }}{% if l.destinos %} · {{ l.destinos }}{% endif %}"><span class="sr-only">Viagem #{{ v.pk }} · </span><span class="registro__link-texto">{{ v.titulo|default:"Viagem sem tipo" }}</span></a>
-            <span class="registro__selos">{% if v.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">{{ v.get_situacao_display }}</span>{% endif %}{% if l.quando %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ l.quando }}</span>{% endif %}</span>
+            <a class="registro__link" href="{% url 'viagens:editar_viagem' v.pk %}" data-abrir-dialogo="dialogo-resumo" hx-get="{% url 'viagens:resumo_viagem' v.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML" title="{{ v.titulo|default:'Viagem sem tipo' }}{% if l.destinos %} · {{ l.destinos }}{% endif %}"><span class="sr-only">Viagem #{{ v.pk }} · </span><span class="registro__link-texto">{{ v.titulo|default:"Viagem sem tipo" }}</span></a>
+            <span class="registro__selos">{% if v.cancelada %}<span class="selo selo--perigo selo--sem-ponto">Cancelada</span>{% elif l.vazio %}<span class="selo selo--neutro selo--sem-ponto selo--vazio" title="Sem tipo, período, destino nem documento">Vazia</span>{% else %}<span class="selo selo--neutro selo--sem-ponto">{{ v.get_situacao_display }}</span>{% endif %}{% if l.tempo.urgencia and not l.vazio %}{% include "componentes/linha_urgencia.html" with urgencia=l.tempo.urgencia dias=l.tempo.dias acao="gerar os documentos" %}{% elif l.quando %}<span class="registro__meta-item">{% icone "clock" classe="icone--sm" %}{{ l.quando }}</span>{% endif %}</span>
           </div>
           <div class="registro__agenda">
             <span class="registro__meta-item registro__meta-item--periodo">{% icone "calendar" classe="icone--sm" %}<span class="sr-only">Período: </span><span class="registro__meta-texto">{% if v.data_inicio %}{{ v.data_inicio|date:"d/m/Y" }}{% if v.data_fim and v.data_fim != v.data_inicio %} a {{ v.data_fim|date:"d/m/Y" }}{% endif %}{% else %}<span class="vazio-inline">Período não informado</span>{% endif %}</span></span>
             <span class="registro__meta-item"{% if l.destinos %} title="{{ l.destinos }}"{% endif %}>{% icone "map-pin" classe="icone--sm" %}<span class="registro__meta-texto">{% if l.destinos %}{{ l.destinos }}{% else %}<span class="vazio-inline">Sem destino</span>{% endif %}</span></span>
             <span class="registro__meta-item" title="{{ v.unidade.nome }}">{% icone "building-2" classe="icone--sm" %}<span class="registro__meta-texto">{{ v.unidade.sigla|default:v.unidade.nome }}</span></span>
+            {% if l.tempo.progresso is not None %}{% include "componentes/linha_estrada.html" with progresso=l.tempo.progresso %}{% endif %}
+            {% if l.pendencias and not l.vazio %}{% include "componentes/linha_pendencias.html" with pendencias=l.pendencias url=l.url_folha titulo="Falta para a viagem ficar pronta" %}{% endif %}
           </div>
         </div>
-        <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Ofícios, OS e Planos</span>
+        <div class="registro-operacional__recursos">
           <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.n_oficios %}{{ v.n_oficios|pluralizar:"ofício,ofícios" }}{% else %}<span class="vazio-inline">Nenhum ofício vinculado</span>{% endif %}</span>
           <span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{% if v.n_ordens or v.n_planos %}{% if v.n_ordens %}{{ v.n_ordens|pluralizar:"OS,OS" }}{% endif %}{% if v.n_ordens and v.n_planos %} · {% endif %}{% if v.n_planos %}{{ v.n_planos|pluralizar:"plano,planos" }}{% endif %}{% else %}<span class="vazio-inline">Nenhuma OS ou plano vinculado</span>{% endif %}</span>
+        </div>
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações da viagem #{{ v.pk }}">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              {% include "viagens/viagem/_menu_linha.html" %}
+            </div>
+          </pc-menu>
         </div>
       </li>
     {% endwith %}{% endfor %}
   </ul>
-  {% include "componentes/paginacao.html" %}
-{% elif busca or aba %}
+  
+{% elif busca or aba or atencao %}
   {% include "componentes/vazio.html" with icone="search" titulo="Nenhuma viagem encontrada" texto="Ajuste a busca ou troque de situação." limpar_url=request.path %}
 {% else %}
   {% include "componentes/vazio.html" with icone="map" titulo="Nenhuma viagem registrada ainda" texto="Crie uma viagem para juntar o roteiro, os ofícios, os termos, a OS e o plano de uma mesma ação." %}
 {% endif %}
-<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 and pode_criar %} barra-acoes--acompanha{% endif %}">
+<div class="barra-acoes barra-acoes--colecao{% if page_obj.paginator.num_pages > 1 and pode_criar %} barra-acoes--acompanha{% endif %}">{% include "componentes/paginacao_barra.html" %}
   <p class="{% if pode_criar %}barra-acoes__status{% else %}texto-secundario texto-sm{% endif %}" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}{% if busca or aba %} no filtro de agora{% endif %}</p>
   {% if pode_criar %}{% include "viagens/viagem/_botao_nova.html" %}{% endif %}
 </div>
 </div>
+{% endblock %}
+
+{% block depois_lista %}
+{# Janela de resumo (mesmo desenho da do ofício); o conteúdo vem por HTMX no clique. #}
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo dialogo--mesa" aria-label="Resumo">
+  <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="Fechar o resumo">{% icone "x" %}</button>
+  <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>{% include "viagens/oficios/_resumo_carregando.html" %}</div>
+</dialog>
 {% endblock %}

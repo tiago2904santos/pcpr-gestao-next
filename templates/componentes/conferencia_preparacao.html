@@ -3,11 +3,11 @@
 Usa a apresentação documental canônica; a ação pertence ao formulário consumidor.{% endcomment %}
 <div id="{{ conferencia_id|default:'conferencia' }}" data-vivo class="prontidao-documental{% if not pendencias %} prontidao-documental--pronta{% endif %}" role="status">
   <div class="prontidao-documental__cabecalho">
-    {% icone "list-checks" %}
+    {% if pendencias %}{% icone "list-checks" %}{% else %}{% icone "file-check-2" %}{% endif %}
     <div><p class="prontidao-documental__rotulo">Conferência do cadastro</p>
       <p class="prontidao-documental__titulo">{% if pendencias %}{{ pendencias|length|pluralizar:"item falta,itens faltam" }} para gerar{% else %}Tudo preenchido: dá para gerar o {{ nome }}{% endif %}</p>
     </div>
   </div>
-  {% if pendencias %}<ul class="checklist">{% for p in pendencias %}<li class="checklist__item"><a href="#{{ p.secao }}">{{ p.mensagem }}</a></li>{% endfor %}</ul>
+  {% if pendencias %}<ul class="checklist">{% for p in pendencias %}{% include "componentes/conferencia_item.html" with secao=p.secao mensagem=p.mensagem only %}{% endfor %}</ul>
   {% elif pode_finalizar %}<p class="prontidao-documental__nota">Confira os dados e finalize para gerar o documento.</p><button type="submit" form="{{ form_id }}" class="botao botao--primario">{% icone "file-check-2" %}Finalizar e gerar o {{ nome }}</button>{% endif %}
 </div>

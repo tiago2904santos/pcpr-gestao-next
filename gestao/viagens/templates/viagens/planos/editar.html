@@ -156,11 +156,12 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
       </div>
       {# Diárias: o mesmo bloco da folha do ofício (refeito a cada gravação). #}
       <div class="secao__bloco secao__bloco--integrado">
-        <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "banknote" classe="icone--sm" %}Diárias</h3></div>
+        <div class="secao__bloco-cabecalho"><h3 class="secao__bloco-titulo">{% icone "banknote" classe="icone--sm" %}Diárias</h3>
+          <div class="secao__estado">{% if calculo.total %}<span class="selo selo--sucesso selo--situacao-emitido">Calculado para {{ calculo.servidores|pluralizar:"servidor,servidores" }}</span>{% else %}<span class="selo selo--situacao-rascunho">Aguardando destino, efetivo e datas</span>{% endif %}</div></div>
         <div id="diarias" data-vivo>
           {% if not mensagens_calculo %}
             {% include "viagens/oficios/_diarias_corpo.html" with serena=True operacional=True sempre_por_servidor=True texto_vazio="As diárias aparecem aqui com o destino, o efetivo e a saída e a chegada na sede." %}
-          {% else %}<p class="texto-secundario" role="note">{{ mensagens_calculo|join:" " }}</p>
+          {% else %}<div class="alerta alerta--aviso" role="note">{% icone "info" %}<div class="alerta__corpo"><p class="alerta__titulo">Ainda não dá para calcular</p><p>{{ mensagens_calculo|join:" " }}</p></div></div>
           {% endif %}
         </div>
       </div>
@@ -293,17 +294,7 @@ a finalização existente exige pendências resolvidas e fixa a data documental.
         <h3 class="secao__bloco-titulo" id="t-hist">{% icone "history" classe="icone--sm" %}Histórico</h3>
         <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
       </div>
-      <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos do plano">
-        {% for h in historico|slice:":6" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
-      </ol>
-      {% if historico|length > 6 %}
-        <details>
-          <summary class="linha-tempo__mais">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar histórico completo</span></summary>
-          <ol class="historico__linhas historico__linhas--operacional mt-4" aria-label="Eventos anteriores">
-            {% for h in historico|slice:"6:" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% endfor %}
-          </ol>
-        </details>
-      {% endif %}
+      {% include "componentes/historico_folha.html" with rotulo="Eventos do plano" vazio="Sem eventos registrados." primeiros=":6" resto="6:" limite=6 %}
     </div>
     {% else %}
       <p class="vazio-inline">{% icone "file-text" classe="icone--sm" %}Ao criar, o plano recebe o número e o documento passa a aparecer aqui como vai sair.</p>

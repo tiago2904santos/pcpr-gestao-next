@@ -19,7 +19,7 @@ Copiar tudo tem região de seleção de texto para fallback quando Clipboard nã
             {% if forloop.last %}
               <textarea class="entrada" id="{{ copiar_id }}-{{ forloop.counter }}" rows="{% if compacto %}3{% else %}4{% endif %}" readonly>{{ campo.valor }}</textarea>
             {% else %}
-              <input class="entrada" id="{{ copiar_id }}-{{ forloop.counter }}" value="{{ campo.valor }}" readonly{% if forloop.counter == 4 and copia.aviso %} aria-describedby="{{ copiar_id }}-origem"{% endif %}>
+              <input class="entrada" id="{{ copiar_id }}-{{ forloop.counter }}" value="{{ campo.valor }}" placeholder="Ainda não informado" readonly{% if forloop.counter == 4 and copia.aviso %} aria-describedby="{{ copiar_id }}-origem"{% endif %}>
             {% endif %}
             <button type="button" class="botao botao--sm" data-copiar-alvo="{{ copiar_id }}-{{ forloop.counter }}" aria-live="polite">
               {% icone "copy" classe="icone--sm" %}<span data-copiar-rotulo>Copiar</span><span class="sr-only"> {{ campo.rotulo }}</span>

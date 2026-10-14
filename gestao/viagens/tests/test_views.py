@@ -167,7 +167,9 @@ class TestListaEPainel:
         assert "Nenhum ofício encontrado" in r.content.decode()
 
     def test_lista_tem_orcamento_de_consultas(self, operador, django_assert_max_num_queries):
-        with django_assert_max_num_queries(19):  # +1 sino, +1 anos do número, +1 contadores
+        # 21: +1 a faixa "pede atenção" (urgentes e vazios numa agregação) e +1 o total de
+        # diárias por mês do cabeçalho — constantes; a linha não consulta nada a mais.
+        with django_assert_max_num_queries(21):  # +1 sino, +1 anos do número, +1 contadores
             operador.get(reverse("viagens:oficios"))
 
     def test_busca_global_json(self, operador, cenario):
@@ -175,6 +177,42 @@ class TestListaEPainel:
         r = operador.get(reverse("painel:busca"), {"q": f"{oficio.numero}/{oficio.ano}"})
         assert r.json()["resultados"][0]["titulo"] == f"Ofício {oficio.numero_formatado}"
         assert operador.get(reverse("painel:busca"), {"q": "x"}).json() == {"resultados": []}
+
+
+class TestListaOQueFazerAgora:
+    """A lista diz o que fazer: rascunho que sai em breve, o que falta, a ação da vez, os
+    rascunhos vazios (com limpeza) e o total de diárias do mês."""
+
+    def test_rascunho_que_sai_em_breve_pede_atencao(self, operador, cenario):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        # O rascunho do cenário também pede justificativa: o filete é de urgência, o selo é
+        # o da justificativa (um alerta só por linha, D4).
+        assert "registro--urgente-aviso" in html and "Justificativa pendente" in html
+        assert "1 rascunho sai em até 7 dias" in html
+        html = operador.get(reverse("viagens:oficios"), {"atencao": "urgentes"}).content.decode()
+        assert f'data-destaque="oficio:{cenario.ids["oficio_rascunho"]}"' in html
+        assert f'data-destaque="oficio:{cenario.ids["oficio_emitido"]}"' not in html
+        assert "Rascunhos que saem em até 7 dias" in html  # a ficha que tira o recorte
+
+    def test_linha_mostra_o_que_falta_para_emitir(self, operador):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "pendencias-linha" in html and "Informe o protocolo do eProtocolo." in html
+
+    def test_rascunhos_vazios_filtram_e_saem_de_uma_vez(self, operador, cenario):
+        vazio, rascunho = cenario.ids["oficio_vazio"], cenario.ids["oficio_rascunho"]
+        html = operador.get(reverse("viagens:oficios"), {"atencao": "vazios"}).content.decode()
+        assert f'data-destaque="oficio:{vazio}"' in html
+        assert f'data-destaque="oficio:{rascunho}"' not in html
+        assert operador.get(reverse("viagens:excluir_vazios")).status_code == 405
+        assert operador.post(reverse("viagens:excluir_vazios")).status_code == 302
+        assert not Oficio.objects.filter(pk=vazio).exists()
+        # Preenchido fica; o vazio de outra unidade (que o operador não enxerga) também.
+        assert Oficio.objects.filter(pk=rascunho).exists()
+        assert Oficio.objects.filter(pk=cenario.ids["oficio_outra_unidade"]).exists()
+
+    def test_cabecalho_do_mes_soma_as_diarias(self, operador):
+        html = operador.get(reverse("viagens:oficios")).content.decode()
+        assert "registros__grupo-total" in html and "no mês" in html
 
 
 class TestNovoEEdicao:
@@ -1313,10 +1351,8 @@ class TestSelosDasListas:
         html = resposta.content.decode()
         assert "Fora do prazo" not in html
         assert "Justificativa pendente" in html  # o mesmo selo da linha
-        # Consulta copiável restaurada pela nova missão; prazo não se repete no corpo.
-        campos = {campo.rotulo: campo.valor for campo in resposta.context["copia"].dados.campos}
-        assert "Solicitação de autorização" in campos["Assunto"]
-        assert 'data-copiar-alvo="resumo-copia-2"' in html
+        # Os dados para o eProtocolo ficam só na folha; o prazo não se repete no corpo.
+        assert "data-dados-eprotocolo" not in html
         assert "3 dias de antecedência" in html
         # o prazo por escrito não se repete: o alerta de pendências já o diz
         assert html.count("de antecedência, e o prazo exige") == 1
@@ -1327,7 +1363,8 @@ class TestSelosDasListas:
         # O cenário da revisão deve estar em rascunho; o emitido oferece retificação.
         Oficio.objects.filter(pk=emitido.pk).update(situacao="rascunho")
         revisao = operador.get(reverse("viagens:editar", args=[emitido.pk]) + "?revisar=1")
-        assert "<dt>Justificativa</dt><dd>Dispensada</dd>" in revisao.content.decode()
+        assert re.search(r"<dt>Justificativa</dt>\s*<dd[^>]*>Dispensada</dd>",
+                         revisao.content.decode())
 
     def test_roteiros_e_termos_com_o_mesmo_selo(self, operador, cenario):
         html = operador.get(reverse("viagens:roteiros")).content.decode()
@@ -1396,7 +1433,8 @@ class TestLinhaDaLista:
         termos.salvar(cenario.usuarios["operador"], evento="Feira", data_inicio=hoje,
                       data_fim=hoje + timedelta(days=2), destinos=cidades)
         html = operador.get(reverse("viagens:termos")).content.decode()
-        assert ">+2</span>" in html and "começa hoje" in html
+        # Sem via assinada e começando hoje: o selo de urgência ("sai hoje · assinar").
+        assert ">+2</span>" in html and "sai hoje" in html
         assert f"{hoje:%d/%m} a {hoje + timedelta(days=2):%d/%m/%Y}" in html
         assert "registro-operacional--relacoes" in html and ">Avulso<" in html
 

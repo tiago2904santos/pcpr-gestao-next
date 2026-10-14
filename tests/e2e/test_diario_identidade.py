@@ -29,7 +29,7 @@ def test_resultado_vivo_estado_visivel_e_conclusao(logado, dados_e2e, largura):
     estado = pg.locator("[data-status-salvamento]")
     expect(estado).to_contain_text("Salvo automaticamente")
     expect(estado).to_be_visible()
-    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     chegada.fill("10470")
     expect(resultado).to_contain_text("470 km")

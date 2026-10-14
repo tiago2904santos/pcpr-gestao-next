@@ -23,7 +23,7 @@ def test_preparacao_e_lista_operacional(logado, dados_e2e, largura):
     pg.goto(f"/viagens/ordens/{ordem.pk}/")
     expect(pg.locator(".registro-hero")).to_contain_text(ordem.numero_formatado)
     expect(pg.locator("[data-destino] .itin__ordem").first).to_have_text("1")
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert pg.locator(".campo-equipe--compacta .equipe__cartoes").evaluate(
         """e => [...e.children].every(c => c.getBoundingClientRect().height < 80 &&
         c.getBoundingClientRect().width >= e.getBoundingClientRect().width * 0.4)"""
@@ -48,7 +48,7 @@ def test_preparacao_e_lista_operacional(logado, dados_e2e, largura):
     menu = pg.get_by_role("button", name=f"Ações da {ordem}")
     menu.focus()
     menu.press("Enter")
-    expect(pg.get_by_role("menuitem", name="Documento (PDF)", exact=True)).to_be_focused()
+    expect(pg.get_by_role("menuitem", name="Ver resumo", exact=True)).to_be_focused()  # o resumo abre o menu
     pg.keyboard.press("Escape")
     expect(menu).to_be_focused()
     pasta = Path("artifacts/ordens-identidade")

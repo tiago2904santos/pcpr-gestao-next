@@ -240,3 +240,21 @@ html.folha--leitura body {
   color: var(--cor-texto-secundario);
   text-align: center;
 }
+
+/* O que vem do cadastro (servidor, motorista, transporte): um clique abre a peça do
+   formulário que o altera. Ao passar o mouse, o trecho acende em azul (o amarelo é dos
+   campos que se escrevem aqui mesmo). Só na folha editável; o documento impresso não muda. */
+html.folha--editavel [data-entidade] {
+  cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva-padrao), box-shadow var(--duracao-rapida) var(--curva-padrao);
+}
+
+html.folha--editavel tr[data-entidade]:hover > td,
+html.folha--editavel span[data-entidade]:hover {
+  background: var(--cor-info-fundo);
+}
+
+html.folha--editavel span[data-entidade]:hover {
+  box-shadow: 0 0 0 2px var(--cor-info-fundo);
+  border-radius: 2px;
+}

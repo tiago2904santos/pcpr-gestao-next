@@ -51,6 +51,6 @@ def test_busca_atualiza_acoes_e_menu_mantem_teclado(logado, dados_e2e, largura):
     expect(pg.get_by_role("heading", name="Nenhum roteiro encontrado")).to_be_visible()
     expect(pg.locator(".barra-acoes__status")).to_have_text("0 roteiros")
     expect(pg.get_by_role("link", name="Novo roteiro")).to_be_visible()
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert rodar_axe(pg) == []
     assert pg.erros_console == []

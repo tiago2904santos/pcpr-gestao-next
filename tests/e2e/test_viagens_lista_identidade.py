@@ -46,7 +46,7 @@ def test_busca_atualiza_contadores_barra_e_preserva_foco(logado, dados_e2e, larg
     expect(pg.locator("#abas-filtro a[aria-current] .aba__contagem")).to_have_text("1")
     expect(busca).to_be_focused()
     expect(pg.locator(".registro-operacional__recursos")).to_contain_text("1 ofício")
-    assert pg.locator(".barra-acoes--colecao").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes--colecao").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     _axe_estavel(pg)
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     with pg.expect_response(lambda r: "/viagens/viagens/?" in r.url and r.request.headers.get("hx-request") == "true"):
@@ -56,8 +56,9 @@ def test_busca_atualiza_contadores_barra_e_preserva_foco(logado, dados_e2e, larg
     expect(pg.locator("#abas-filtro a[aria-current] .aba__contagem")).to_have_text("0")
     pg.get_by_role("link", name="Limpar filtros").click()
     expect(pg.locator(".registro-operacional")).to_have_count(2)
+    # A linha abre o resumo (como na lista de ofícios); "Abrir a viagem" leva à folha.
     pg.locator(".registro__link", has_text=v.titulo).press("Enter")
-    expect(pg.locator("#frase-viagem")).to_contain_text(v.titulo)
+    expect(pg.locator("#dialogo-resumo")).to_contain_text(v.titulo)
     assert pg.erros_console == []
 
 
@@ -137,7 +138,7 @@ def test_consulta_paginada_mantem_contagem_sem_barra_sobreposta(pagina, dados_e2
     pg.screenshot(path=str(tmp_path / f"consulta-paginada-{largura}.png"), full_page=True)
     expect(barra.get_by_role("status")).to_be_visible()
     expect(barra.get_by_role("status")).to_contain_text("21 viagens")
-    assert barra.evaluate("e => getComputedStyle(e).position") == "static"
+    assert barra.evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     pg.get_by_role("link", name="Próxima página", exact=True).click()
     expect(pg.locator(".registro-operacional")).to_have_count(1)
     expect(pg.get_by_role("searchbox", name="Buscar")).to_have_value("Consulta")

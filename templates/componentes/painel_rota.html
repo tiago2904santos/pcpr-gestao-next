@@ -1,10 +1,6 @@
 {% load viagens %}
 {# Painel compartilhado da preparação: mapa proporcional e legenda no mesmo bloco. #}
 <section class="itin__bloco itin__painel" aria-label="Rota">
-  <header class="itin__bloco-cabecalho">
-    <h3 class="itin__bloco-titulo">{% icone "map" %}Visão do percurso</h3>
-    <span class="itin__painel-nota">Sede · destinos · sede</span>
-  </header>
   <div class="itin__rota">
     <div class="itin__mapa" data-mapa>
       <p class="itin__mapa-vazio" data-mapa-vazio>{% icone "map" %}O mapa traça a rota assim que houver a sede e um destino.</p>
@@ -16,6 +12,5 @@
       <span class="itin__total">{% icone "arrow-right" classe="icone--sm" %}<span class="itin__total-rotulo">Ida</span><span class="itin__total-valor" data-ida-km>—</span><span class="itin__total-valor" data-ida-tempo>—</span></span>
       <span class="itin__total">{% icone "undo-2" classe="icone--sm" %}<span class="itin__total-rotulo itin__so-destinos">Ida e volta</span><span class="itin__total-rotulo itin__so-bv">Volta</span><span class="itin__total-valor" data-total-km>—</span><span class="itin__total-valor" data-total-tempo>—</span></span>
     </p>
-    <p class="itin__fonte" data-rota-fonte role="status"></p>
   </div>
 </section>

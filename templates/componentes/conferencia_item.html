@@ -1,0 +1,4 @@
+{% load viagens %}{% comment %}
+Uma pendência da Conferência do cadastro: atalho até o que falta (conferencia.js desliza até
+lá e acende os campos vazios). `aviso` = não impede (fica neutro, com a nota).
+{% endcomment %}<li class="checklist__item{% if aviso %} checklist__item--aviso{% endif %}"><a href="#{{ secao }}">{% if aviso %}{% icone "info" classe="icone--sm" %}{% else %}{% icone "alert-circle" classe="icone--sm" %}{% endif %}<span>{{ mensagem }}{% if aviso %} <span class="texto-secundario texto-sm">(não impede a emissão)</span>{% endif %}</span>{% icone "arrow-right" classe="icone--sm icone--seta" %}</a></li>

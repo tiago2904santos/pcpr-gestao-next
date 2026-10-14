@@ -59,11 +59,13 @@ Variáveis: form_id, sede_form, destinos, retorno, paradas, ultima_parada, mapa_
     <header class="itin__bloco-cabecalho itin__ferramentas">
       <h3 class="itin__bloco-titulo{% if etapa_trechos %} itin__bloco-titulo--etapa{% endif %}" id="itin-t-trechos">{% if etapa_trechos %}<span class="secao__numero">{{ etapa_trechos }}</span>{% else %}{% icone "navigation" %}{% endif %}Trechos</h3>
       <p class="itin__fonte itin__so-bv">Gerados pelos bate-voltas: para mudar um horário, mude o bate-volta.</p>
-      <button type="button" class="botao botao--sm itin__so-destinos" data-preencher-datas aria-haspopup="dialog" aria-expanded="false" hidden>{% icone "calendar-days" %}Preencher datas de saída</button>
+      <button type="button" class="botao itin__so-destinos" data-preencher-datas aria-haspopup="dialog" aria-expanded="false" hidden>{% icone "calendar-days" %}Preencher datas de saída</button>
     </header>
     <div class="itin__so-bv" data-previa-trechos="{% url 'viagens:previa_trechos_roteiro' %}">
 {% include "viagens/_trechos_gerados.html" %}
     </div>
+    {# Na folha larga os rótulos dos campos viram cabeçalho de coluna (uma vez só); cada campo mantém o seu rótulo para leitores de tela. #}
+    <div class="itin__trechos-colunas itin__so-destinos" aria-hidden="true"><span>{% icone "route" classe="icone--sm" %}Trecho</span><span>{% icone "calendar-days" classe="icone--sm" %}Saída<span class="campo__obrigatorio">*</span></span><span>{% icone "timer" classe="icone--sm" %}Tempo de viagem</span><span>{% icone "hourglass" classe="icone--sm" %}Adicional</span><span>{% icone "flag" classe="icone--sm" %}Chegada<small>calculada</small></span></div>
     <ol class="itin__trechos itin__so-destinos" aria-label="Trechos da viagem" data-trechos>
       {% for f, anterior in paradas %}{% include "viagens/_trecho_campos.html" with t=f de=anterior para=f.cidade.value numero=forloop.counter %}{% endfor %}
       {% include "viagens/_trecho_campos.html" with t=retorno de=ultima_parada para=sede_form.cidade.value volta=True %}

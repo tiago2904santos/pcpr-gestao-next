@@ -1,0 +1,13 @@
+{% load ui %}{% if cartoes %}
+<ul class="equipe-transporte resumo__cartoes pessoas--faixa" role="list">
+  {% for c in cartoes %}
+  <li class="pessoa{% if c.url %} pessoa--ligacao{% endif %}">
+    <span class="avatar{% if c.escuro %} avatar--escuro{% endif %}" aria-hidden="true">{% if c.icone %}{% icone c.icone classe="icone--sm" %}{% else %}{{ c.avatar }}{% endif %}</span>
+    <span class="pessoa__texto">
+      {% if c.url %}<a class="pessoa__nome" href="{{ c.url }}">{{ c.nome }}</a>{% else %}<span class="pessoa__nome">{{ c.nome }}</span>{% endif %}
+      {% if c.meta %}<span class="pessoa__meta">{{ c.meta }}</span>{% endif %}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<p class="vazio-inline">{{ vazio|default:"Nada por aqui ainda." }}</p>{% endif %}

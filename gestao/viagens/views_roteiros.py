@@ -18,7 +18,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from gestao.cadastros.models import Municipio
 
-from . import itinerario, policies, queries, services
+from . import itinerario, linha_lista, policies, queries, services
 from .dominio.bate_volta import BateVoltaInvalido
 from .dominio.diarias import Faixa, RoteiroIncalculavel, SemTabelaDeDiarias
 from .forms import FORM_ID_ROTEIRO, FormularioRoteiro
@@ -48,6 +48,25 @@ def oficios_do_roteiro(request: HttpRequest, pk: int) -> HttpResponse:
     })
 
 
+@require_GET
+def resumo(request: HttpRequest, pk: int) -> HttpResponse:
+    """Fragmento HTMX: a janela de resumo do roteiro (ofícios vinculados, percurso e diárias),
+    no mesmo desenho do resumo do ofício."""
+    if not request.user.has_perm("viagens.view_roteiro"):
+        raise PermissionDenied
+    roteiro = get_object_or_404(
+        queries.roteiros_de_lista(policies.roteiros_visiveis(request.user)).select_related("sede"),
+        pk=pk)
+    return render(request, "viagens/roteiros/_resumo.html", {
+        "roteiro": roteiro,
+        "trechos": list(roteiro.trechos.select_related("origem", "destino")),
+        "oficios": list(roteiro.oficios.prefetch_related("trechos__destino")
+                        .order_by("-ano", "-numero")[:50]),
+        "calculo": roteiro.diarias_calculo,
+        "pode_editar": request.user.has_perm("viagens.change_roteiro"),
+    })
+
+
 def lista(request: HttpRequest) -> HttpResponse:
     if not request.user.has_perm("viagens.view_roteiro"):
         raise PermissionDenied
@@ -58,6 +77,13 @@ def lista(request: HttpRequest) -> HttpResponse:
     qs = queries.roteiros_de_lista(qs).order_by(F("primeira_saida").desc(nulls_last=True),
                                                 "-criado_em")
     pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    pagina.object_list = list(pagina.object_list)
+    agora = timezone.now()
+    for r in pagina.object_list:  # a estrada da linha: o roteiro em andamento agora
+        primeira_saida = getattr(r, "primeira_saida", None)
+        ultima_chegada = getattr(r, "ultima_chegada", None)
+        r.tempo = linha_lista.estado_temporal(  # type: ignore[attr-defined]
+            None if r.situacao == "cancelado" else primeira_saida, ultima_chegada, agora)
     filtros = request.GET.copy()
     filtros.pop("pagina", None)
     contexto = {

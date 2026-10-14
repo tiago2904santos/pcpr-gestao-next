@@ -12,7 +12,7 @@ A busca não oferece quem já está na equipe (`excluir`, atualizado por multies
       {% if widget.cadastrar %}<button type="button" class="botao botao--icone" data-abrir-dialogo="{{ widget.cadastrar }}" aria-label="Cadastrar servidor">{% icone "plus" %}</button>{% endif %}
     </div>
   </div>
-  <ul class="resumo__cartoes equipe__cartoes multiescolha__lista" role="list" aria-label="Servidores da equipe">
+  <ul class="resumo__cartoes equipe__cartoes pessoas--faixa pessoas--compactas multiescolha__lista" role="list" aria-label="Servidores da equipe">
     {% for e in widget.escolhidos %}
       <li class="pessoa equipe__cartao multiescolha__item resumo__cartao--{{ e.largura }}" data-id="{{ e.id }}" data-servidor="{{ e.id }}" data-unidade="{{ e.unidade }}" data-nome="{{ e.titulo }}"{% if widget.motorista %} data-motorista{% endif %}>
         <input type="hidden" name="{{ widget.name }}" value="{{ e.id }}">

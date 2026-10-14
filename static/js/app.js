@@ -15,11 +15,14 @@ import "./componentes/acao.js";
 /** @type {Array<[string, () => Promise<unknown>]>} */
 const sobDemanda = [
   ["[data-copiar-alvo]", () => import("./componentes/copiar.js")],
+  ["#conferencia, .prontidao-documental", () => import("./componentes/conferencia.js")],
   ["pc-combobox", () => import("./componentes/combobox.js")],
   ["pc-abas", () => import("./componentes/abas.js")],
   [".abas, [data-rola-lado]", () => import("./componentes/abas-rolagem.js")],
   [".filtros__mais, [data-erro-lista]", () => import("./componentes/filtros.js")],
   ["[data-mascara]", () => import("./componentes/mascara.js")],
+  ["a.voltar-tarefa", () => import("./componentes/voltar-na-barra.js")],
+  [".barra-acoes--registro, .barra-acoes--colecao", () => import("./componentes/barra-grudada.js")],
   ["input[type='search'].entrada, input[data-limpavel]", () => import("./componentes/limpar.js")],
   ["form[data-proteger]", () => import("./componentes/protecao.js")],
   ["form[data-autosave]", () => import("./componentes/autosave.js")],
@@ -168,6 +171,7 @@ const quandoVisivel = [
     if (alvo instanceof HTMLElement && alvo.isConnected) iniciarBloco(alvo);
   }],
   ["pc-editor-documento", () => import("./componentes/editor-documento.js")],
+  ["pc-editor-documento[data-editavel]", () => import("./componentes/entidades-documento.js")],
 ];
 /** @type {Map<string, WeakSet<Element>>} */
 const iniciadosVisiveis = new Map();

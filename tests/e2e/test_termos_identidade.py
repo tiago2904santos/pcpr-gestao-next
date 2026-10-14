@@ -22,9 +22,9 @@ def test_relacoes_visiveis_destinos_e_acoes(logado, dados_e2e, largura):
     oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
     termo = termos.salvar(dados_e2e.usuarios["operador"], oficio=oficio)
     pg.goto(f"/viagens/termos/{termo.pk}/")
-    cartao = pg.locator("#transporte [data-viatura-cartao]")
+    cartao = pg.locator("#transporte .frota__viatura")
     expect(cartao).to_be_visible()
-    expect(cartao.locator("[data-recurso-titulo]")).to_contain_text(oficio.viatura.placa_formatada)
+    expect(cartao.locator(".frota__nome strong")).to_contain_text(oficio.viatura.placa_formatada)
     expect(pg.locator("[data-destino] [data-alca] .itin__ordem").first).to_have_text("1")
     # A antiga grade de seis colunas não pode esmagar os cartões compactos.
     equipe = pg.locator(".campo-equipe--compacta .equipe__cartoes")
@@ -32,22 +32,21 @@ def test_relacoes_visiveis_destinos_e_acoes(logado, dados_e2e, largura):
         """e => [...e.children].every(c => c.getBoundingClientRect().height < 80 &&
         c.getBoundingClientRect().width >= e.getBoundingClientRect().width * 0.4)"""
     )
-    # O calendário abre por teclado e retorna o foco, sem alterar o período.
-    calendario = pg.locator("pc-data[data-periodo] button.seletor__botao")
+    # O calendário (o botão da "Data do evento") abre por teclado e devolve o foco.
+    calendario = pg.locator(".mesa-evento pc-data[data-periodo] button.seletor__botao")
     calendario.focus()
     calendario.press("Enter")
     expect(calendario).to_have_attribute("aria-expanded", "true")
     pg.keyboard.press("Escape")
     expect(calendario).to_be_focused()
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert not pg.evaluate("document.documentElement.scrollWidth > innerWidth")
     assert rodar_axe(pg) == []
-    # Remover o recurso limpa o campo e grava a escolha verdadeira.
-    cartao.get_by_role("button", name="Remover viatura", exact=False).click()
-    expect(cartao).to_be_hidden()
+    # O "×" tira a viatura do termo e a gravação automática guarda.
+    cartao.locator("[data-remover-viatura]").uncheck()
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     termo.refresh_from_db()
-    assert termo.viatura_id is None
+    assert termo.viatura_id is None and not termo.viaturas.exists()
     # A lista não perde contagem/ação ao receber resultados por HTMX.
     pg.goto("/viagens/termos/")
     busca = pg.get_by_role("searchbox", name="Buscar")
@@ -89,7 +88,7 @@ def test_paginacao_e_consulta_sem_edicao(logado, dados_e2e):
     entrar(pg, "consulta")
     pg.goto(f"/viagens/termos/{termo.pk}/")
     expect(pg.locator("#form-termo fieldset").first).to_have_attribute("disabled", "")
-    expect(pg.locator("#id_evento")).to_be_disabled()
+    expect(pg.locator(".mesa-evento__botao")).to_be_disabled()
     expect(pg.locator("pc-editor-documento")).to_have_count(0)
     expect(pg.get_by_role("button", name="Finalizar", exact=True)).to_have_count(0)
     assert rodar_axe(pg) == []

@@ -226,34 +226,41 @@ class TestOficioUsaRoteiro:
         assert f'<option value="{cenario.ids["roteiro_cancelado"]}"' not in opcoes
         assert f'<option value="{cenario.ids["roteiro_outra_unidade"]}"' not in opcoes
 
-    def test_usar_roteiro_preenche_sem_gravar_e_preserva_o_digitado(self, operador, cenario):
+    def test_usar_roteiro_grava_trechos_vinculo_e_o_digitado(self, operador, cenario):
+        """Escolher um roteiro cadastrado decide o percurso: grava na hora (sem "confira e
+        salve")."""
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = self._dados_do_oficio(oficio, acao="usar_roteiro",
                                       roteiro_modelo=cenario.ids["roteiro"],
                                       motivo="Texto que a pessoa digitou")
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
-        html = r.content.decode()
-        assert r.status_code == 200
-        assert 'name="destino-0-cidade" value="Ponta Grossa/PR"' in html
-        assert "Texto que a pessoa digitou" in html
-        assert f'name="roteiro" value="{cenario.ids["roteiro"]}"' in html
-        assert oficio.trechos.count() == 0  # nada gravado ainda
+        assert r.status_code == 302, r.content.decode()[:600]
+        assert r["Location"].endswith("?salvo=1#roteiro")
+        oficio.refresh_from_db()
+        assert oficio.roteiro_id == cenario.ids["roteiro"] and oficio.trechos.count() == 2
+        assert oficio.motivo == "Texto que a pessoa digitou"
 
-    def test_usar_roteiro_ja_mostra_a_previa_das_diarias(self, operador, cenario):
-        """Com os trechos do roteiro na tela, a conta aparece antes de salvar.
-
-        Regressão: o bloco de diárias olhava primeiro o `diarias_erro` gravado no ofício
-        (ainda sem trechos) e dizia "Informe os trechos" com os trechos preenchidos logo
-        acima, ignorando a prévia que a view tinha calculado.
-        """
+    def test_usar_roteiro_ja_calcula_as_diarias(self, operador, cenario):
+        """Os trechos do roteiro entram gravados: as diárias saem calculadas, sem pedir
+        "Informe os trechos"."""
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
         dados = self._dados_do_oficio(oficio, acao="usar_roteiro",
                                       roteiro_modelo=cenario.ids["roteiro"])
-        html = operador.post(reverse("viagens:editar", args=[oficio.pk]),
-                             dados).content.decode()
-        assert "Ainda não dá para calcular" not in html
+        operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
+        url = reverse("viagens:editar", args=[oficio.pk]) + "?salvo=1"
+        html = operador.get(url).content.decode()
+        assert "Informe os trechos de ida e de volta" not in html
         assert "Valor total" in html and "Quantidade por servidor" in html
-        assert oficio.trechos.count() == 0  # a prévia não grava nada
+
+    def test_limpar_roteiro_apaga_trechos_e_vinculo(self, operador, cenario):
+        oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])
+        dados = self._dados_do_oficio(oficio, acao="usar_roteiro",
+                                      roteiro_modelo=cenario.ids["roteiro"])
+        operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
+        r = operador.post(reverse("viagens:limpar_roteiro_oficio", args=[oficio.pk]))
+        assert r.status_code == 302
+        oficio.refresh_from_db()
+        assert oficio.roteiro_id is None and oficio.trechos.count() == 0
 
     def test_salvar_depois_de_usar_grava_trechos_e_vinculo(self, operador, cenario):
         oficio = Oficio.objects.get(pk=cenario.ids["oficio_vazio"])

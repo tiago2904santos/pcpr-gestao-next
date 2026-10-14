@@ -13,7 +13,8 @@ function avisar(botao, texto) {
   if (!rotulo) return;
   const antes = rotulo.textContent;
   rotulo.textContent = texto;
-  window.setTimeout(() => { rotulo.textContent = antes; }, 1800);
+  botao.toggleAttribute("data-copiado", texto === "Copiado");
+  window.setTimeout(() => { rotulo.textContent = antes; botao.removeAttribute("data-copiado"); }, 1800);
 }
 
 document.addEventListener("click", async (evento) => {

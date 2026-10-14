@@ -100,3 +100,76 @@ bringing up nodes...
 
 ........................................................................ [  3%]
 ........................................................................ [  6%]
+......................................................F................. [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [100%]
+================================== FAILURES ===================================
+____________________ test_painel_numeros_alertas_e_grupos _____________________
+[gw0] win32 -- Python 3.13.15 C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Scripts\python.exe
+
+base = (<Usuario: Ana>, <Municipio: Curitiba/PR>, datetime.date(2026, 10, 13), <Fornecedor: Buffet Exemplo Ltda>)
+
+    def test_painel_numeros_alertas_e_grupos(base):
+        u, mun, hoje, _f = base
+        _os(u, mun, hoje, data_evento=hoje + timedelta(days=3), local_entrega="Auditório",
+            horario="09:00")
+        parada = _os(u, mun, hoje, data_evento=hoje - timedelta(days=12), quantidade=80)
+        Movimento.objects.filter(solicitacao=parada).update(em=timezone.now() - timedelta(days=20))
+        _os(u, mun, hoje, nota_fiscal="77", ordem_bancaria_em=hoje, protocolo_pagamento="1")
+        p = painel.montar(hoje)
+        assert p.indicadores.capacidade == 100 and p.indicadores.consumido == 100
+        assert p.indicadores.restante == 0 and p.indicadores.pendencias == 3
+        assert p.indicadores.gasto == Decimal("2000.00") and p.indicadores.pago == Decimal("200.00")
+        # Evento de 12 dias atrás cai no último mês completo: há ritmo, e o saldo zerado "acaba"
+        # hoje, antes do fim do contrato (como na referência).
+>       assert p.alertas_de_saldo[0].alerta.startswith("No ritmo dos últimos 3 meses (")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x0000022FBBDD9450>('No ritmo dos últimos 3 meses (')
+E        +    where <built-in method startswith of str object at 0x0000022FBBDD9450> = 'Restam apenas 0 de 100 unidades (limite de alerta: 15%).'.startswith
+E        +      where 'Restam apenas 0 de 100 unidades (limite de alerta: 15%).' = LoteAtivo(lote=<Lote: Lote 1 (2026)>, saldo=Saldo(total=100, consumido=100), fim=datetime.date(2026, 11, 27), alerta='Restam apenas 0 de 100 unidades (limite de alerta: 15%).').alerta
+
+gestao\coffee\tests\test_entregas_painel.py:109: AssertionError
+============================== warnings summary ===============================
+gestao/viagens/tests/test_assinados.py::TestOficio::test_anexar_prevalece_no_pdf_e_remover_volta_ao_gerado
+gestao/coffee/tests/test_certidoes.py::test_anexa_conferindo_tipo_cnpj_e_validade
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\weasyprint\text\ffi.py:528: DeprecationWarning: HarfBuzz-Subset will be required by future versions of WeasyPrint. Please install this library with your package manager.
+    warnings.warn(
+
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  C:\Users\tiago\OneDrive\Documentos\pcpr-gestao-next\.venv\Lib\site-packages\pypdf\_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED gestao/coffee/tests/test_entregas_painel.py::test_painel_numeros_alertas_e_grupos
+1 failed, 2375 passed, 5 warnings in 3098.00s (0:51:37)

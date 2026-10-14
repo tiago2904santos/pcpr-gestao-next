@@ -2,12 +2,24 @@
 {% if roteiros_disponiveis is not None %}
 <div class="selecao-recurso{% if compacto %} selecao-recurso--integrada{% endif %}">
   <div class="selecao-recurso__contexto">
-    {% if roteiro_aplicado %}
-      <div class="alerta alerta--info" role="status" id="roteiro-aplicado" tabindex="-1">{% icone "route" %}<div class="alerta__corpo"><p class="alerta__titulo">Trechos do roteiro #{{ roteiro_aplicado.pk }} preenchidos</p><p>Confira datas e horários e salve. Nada foi gravado ainda.</p></div></div>
+    {% if oficio.roteiro_id and compacto %}
+      {# Ofício montado a partir de um roteiro: o mesmo cabeçalho do cartão, cada texto numa linha só. #}
+      <div class="selecao-recurso__cabeca">
+        <span class="selecao-recurso__marca" aria-hidden="true">{% icone "route" %}</span>
+        <span class="selecao-recurso__textos"><span class="selecao-recurso__nome">Percurso do <a href="{% url 'viagens:editar_roteiro' oficio.roteiro_id %}">roteiro #{{ oficio.roteiro_id }}</a></span><span class="selecao-recurso__descricao">Mudanças aqui não alteram o roteiro.</span></span>
+      </div>
     {% elif oficio.roteiro_id %}
       <p class="usar-roteiro__origem">{% icone "route" classe="icone--sm" %}<span>Preenchido a partir do <a href="{% url 'viagens:editar_roteiro' oficio.roteiro_id %}">roteiro #{{ oficio.roteiro_id }}</a>. Mudanças aqui não alteram o roteiro.</span></p>
     {% else %}
+      {% if compacto %}
+      {# Cartão no desenho dos demais da folha (ícone em ladrilho, título e uma linha de explicação). #}
+      <div class="selecao-recurso__cabeca">
+        <span class="selecao-recurso__marca" aria-hidden="true">{% icone "route" %}</span>
+        <span class="selecao-recurso__textos"><span class="selecao-recurso__nome">Usar um roteiro cadastrado</span><span class="selecao-recurso__descricao">Preenche os trechos de uma vez. Ou monte o percurso abaixo.</span></span>
+      </div>
+      {% else %}
       <p class="selecao-recurso__titulo">{% icone "route" classe="icone--sm" %}Monte o percurso ou use um roteiro existente</p>
+      {% endif %}
     {% endif %}
   </div>
   {% if roteiros_disponiveis %}
@@ -19,11 +31,13 @@
         <pc-combobox class="combobox" data-placeholder="{% if compacto %}Buscar roteiro…{% else %}Destino, período ou número (#12)…{% endif %}">
           <select id="id_roteiro_modelo" name="roteiro_modelo" form="{{ form_id }}">
             <option value="">Selecione…</option>
-            {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}"{% if r.pk == roteiro_aplicado.pk %} selected{% endif %}>{{ r.rotulo }}</option>{% endfor %}
+            {% for r in roteiros_disponiveis %}<option value="{{ r.pk }}" data-meta="{{ r.meta }}">{{ r.rotulo }}</option>{% endfor %}
           </select>
         </pc-combobox>
       </div>
       <button type="submit" form="{{ form_id }}" name="acao" value="usar_roteiro" class="botao" formnovalidate{% if compacto %} aria-label="Usar este roteiro"{% endif %}>{% icone "arrow-right" %}{% if compacto %}Aplicar{% else %}Usar este roteiro{% endif %}</button>
+      {# Na folha do ofício: com percurso montado (ou vindo de um roteiro), dá para recomeçar do zero. #}
+      {% if compacto and oficio.pk and oficio.roteiro_id or compacto and oficio.pk and trechos %}<button type="submit" form="limpar-roteiro" class="botao">{% icone "x" %}Limpar</button>{% endif %}
     </div>
   </div>
   {% elif pode_criar_roteiro %}

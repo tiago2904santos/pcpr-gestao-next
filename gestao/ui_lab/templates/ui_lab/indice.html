@@ -50,15 +50,15 @@
           <li class="registro registro-operacional">
             <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="131/2026" compacta=True only %}</div>
             <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#operacional-lab"><span class="sr-only">Ofício 131/2026 · </span><span class="registro__link-texto">Arapongas/PR, Londrina/PR, Maringá/PR</span></a><span class="registro__selos"><span class="selo selo--sucesso">Emitido</span></span></div><div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">18/10 a 20/10/2026</span><span class="registro__meta-item registro__meta-item--protocolo">00.232.280-7</span></div></div>
-            <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Equipe e transporte</span><span class="registro__meta-item">Ana Luiza de Souza (motorista)</span><span class="registro__meta-item">ABC1D23 · Renault Duster</span></div>
-            <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias</span><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto"><span class="registro__valor">R$ 1.260,00</span><span class="registro__meta-detalhe">1 × 100% + 1 × 15%</span></span></span></div>
+            <div class="registro-operacional__recursos"><span class="registro__meta-item">Ana Luiza de Souza (motorista)</span><span class="registro__meta-item">ABC1D23 · Renault Duster</span></div>
+            <div class="registro-operacional__conferencia"><span class="registro__meta-item registro__meta-item--diarias"><span class="registro__meta-texto"><span class="registro__valor">R$ 1.260,00</span><span class="registro__meta-detalhe">1 × 100% + 1 × 15%</span></span></span></div>
             <div class="registro__acoes"><a class="botao botao--icone botao--sutil" href="#operacional-lab" aria-label="Ver registro 131/2026">{% icone "arrow-up-right" %}</a></div>
           </li>
           <li class="registro registro-operacional registro--inativo">
             <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="Ofício" numero="126/2026" compacta=True only %}</div>
             <div class="registro__corpo"><div class="registro__titulo"><a class="registro__link" href="#operacional-lab"><span class="sr-only">Ofício 126/2026 · </span><span class="registro__link-texto">Sem destino</span></a><span class="registro__selos"><span class="selo selo--perigo">Cancelado</span></span></div><div class="registro__agenda"><span class="registro__meta-item registro__meta-item--periodo">Sem período</span><span class="registro__meta-item registro__meta-item--protocolo">Sem protocolo</span></div></div>
-            <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Equipe e transporte</span><span class="registro__meta-item">Sem servidores</span><span class="registro__meta-item">Sem transporte</span></div>
-            <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias</span><span class="registro__meta-item registro__meta-item--diarias">Sem diárias</span></div>
+            <div class="registro-operacional__recursos"><span class="registro__meta-item">Sem servidores</span><span class="registro__meta-item">Sem transporte</span></div>
+            <div class="registro-operacional__conferencia"><span class="registro__meta-item registro__meta-item--diarias">Sem diárias</span></div>
             <div class="registro__acoes"><a class="botao botao--icone botao--sutil" href="#operacional-lab" aria-label="Ver registro 126/2026">{% icone "arrow-up-right" %}</a></div>
           </li>
         </ul>
@@ -1000,6 +1000,44 @@
             <p class="vazio__texto">Confira o número (ex.: 131/2026), o protocolo, a placa ou o nome — ou tire um filtro.</p>
             <div class="grupo-botoes"><a class="botao" href="#filtros-lab">{% icone "x" %}Limpar filtros</a><a class="botao" href="#filtros-lab">{% icone "x" %}Limpar busca</a><a class="botao botao--texto" href="#filtros-lab">Ver todos</a></div>
           </div>
+        </div>
+      </div>
+    </section>
+    <section class="cartao" id="termo-lab" aria-labelledby="t-termo-lab">
+      <div class="cartao__cabecalho"><h2 class="cartao__titulo" id="t-termo-lab"><span class="cartao__numero">23</span>Data do evento e lotação das viaturas</h2><span class="texto-secundario texto-sm">Termo de autorização. Calendário de mesa (.mesa-evento): as folhas do primeiro e do último dia, a duração, de onde vem a data e a ida/volta quando a viagem é maior; sem campo de texto — o botão do calendário (ou as folhas) abre o seletor, e a folha da frente levanta de leve ao passar o mouse. Lotação (.frota + .lotacao): viaturas em cartões e, com mais de uma, um seletor segmentado (.escala) por servidor, com o realce que desliza até a escolhida (termo.js; sem JS, a opção marcada ganha o fundo).</span></div>
+      <div class="pilha">
+        <div class="mesa-evento mesa-evento--evento">
+          <div class="mesa-evento__vivo">
+            <div class="mesa-evento__folhas" aria-hidden="true">
+              <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">out</span><strong class="mesa-evento__dia">20</strong><span class="mesa-evento__semana">ter</span></span></span>
+              <span class="mesa-evento__ate"><span class="mesa-evento__duracao">2 dias</span></span>
+              <span class="mesa-evento__folha"><span class="mesa-evento__pagina"><span class="mesa-evento__mes">out</span><strong class="mesa-evento__dia">21</strong><span class="mesa-evento__semana">qua</span></span></span>
+            </div>
+            <div class="mesa-evento__texto">
+              <p class="mesa-evento__rotulo" id="lab-mesa-rotulo">Data do evento</p>
+              <p class="mesa-evento__frase">20 a 21 de outubro de 2026</p>
+              <p class="mesa-evento__fonte">{% icone "badge-check" classe="icone--sm" %}Período do evento — Plano de Trabalho 02/2026/ASCOM</p>
+            </div>
+            <p class="mesa-evento__viagem">{% icone "car" classe="icone--sm" %}<span>Viagem <strong>20/10 a 09/11</strong></span></p>
+          </div>
+          <pc-data class="mesa-evento__seletor" data-periodo>
+            <input type="hidden" id="lab-mesa" value="20/10/2026 a 21/10/2026" aria-labelledby="lab-mesa-rotulo">
+            <button type="button" class="seletor__botao mesa-evento__botao" hidden aria-haspopup="dialog" aria-expanded="false" title="Alterar a data do evento">{% icone "calendar-days" %}</button>
+            <input type="hidden" data-periodo-de value="20/10/2026"><input type="hidden" data-periodo-ate value="21/10/2026">
+          </pc-data>
+        </div>
+        <ul class="frota" role="list">
+          <li class="frota__viatura"><span class="frota__icone" aria-hidden="true">{% icone "car" %}</span><span class="frota__nome"><strong>ZZA6A38</strong><small>Renault Duster · do ofício</small></span><span class="frota__conta">1</span></li>
+          <li class="frota__viatura"><span class="frota__icone" aria-hidden="true">{% icone "car" %}</span><span class="frota__nome"><strong>ZZF1J03</strong><small>Chevrolet S10 · do ofício</small></span><span class="frota__conta">1</span></li>
+        </ul>
+        <div class="lotacao" role="group" aria-labelledby="t-lab-lotacao">
+          <p class="lotacao__titulo" id="t-lab-lotacao">Quem vai em cada viatura</p>
+          <ul class="lotacao__lista" role="list">
+            <li class="lotacao__pessoa"><span class="lotacao__avatar" aria-hidden="true">AF</span><span class="lotacao__nome"><span>Adriana Dornelles Fontana</span><small>Agente de Polícia Judiciária</small></span>
+              <span class="escala" role="radiogroup" aria-label="Viatura de Adriana Dornelles Fontana"><span class="escala__realce" aria-hidden="true"></span><input type="radio" name="lab-vd-1" id="lab-vd-1a" checked><label for="lab-vd-1a">ZZA6A38</label><input type="radio" name="lab-vd-1" id="lab-vd-1b"><label for="lab-vd-1b">ZZF1J03</label><input type="radio" name="lab-vd-1" id="lab-vd-1c" value=""><label for="lab-vd-1c" class="escala__nenhuma">Nenhuma</label></span></li>
+            <li class="lotacao__pessoa"><span class="lotacao__avatar" aria-hidden="true">YQ</span><span class="lotacao__nome"><span>Yasmin Ribeiro Quintela</span><small>Investigador de Polícia</small></span>
+              <span class="escala" role="radiogroup" aria-label="Viatura de Yasmin Ribeiro Quintela"><span class="escala__realce" aria-hidden="true"></span><input type="radio" name="lab-vd-2" id="lab-vd-2a"><label for="lab-vd-2a">ZZA6A38</label><input type="radio" name="lab-vd-2" id="lab-vd-2b" checked><label for="lab-vd-2b">ZZF1J03</label><input type="radio" name="lab-vd-2" id="lab-vd-2c" value=""><label for="lab-vd-2c" class="escala__nenhuma">Nenhuma</label></span></li>
+          </ul>
         </div>
       </div>
     </section>

@@ -70,7 +70,7 @@ def test_autosave_regioes_menu_e_conflito(logado, dados_e2e, largura):
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")
     v.refresh_from_db()
     assert v.motivo == "Motivo sintético persistido."
-    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     menu = pg.get_by_role("button", name="Mais ações da viagem (cabeçalho)")
     menu.focus()
     menu.press("Enter")
@@ -125,7 +125,7 @@ def test_lote_erro_adicionar_remover_preserva_e_gera_rascunho(logado, dados_e2e,
     expect(pg.locator("#oficio-2")).to_have_count(0)
     expect(pg.locator('input[type=hidden][name="motorista_0"]')).to_have_value(str(motorista.pk))
     _axe_estavel(pg)
-    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     pg.screenshot(path=str(tmp_path / f"viagens-lote-preenchido-{largura}.png"), full_page=True)
     for nome in ["termos", "ordem", "plano"]:
         pg.locator(f'input[name="{nome}"]').uncheck()

@@ -27,7 +27,7 @@ from html.parser import HTMLParser
 MARCADOR_INICIO = "<!--[regiao:{}]-->"
 MARCADOR_FIM = "<!--[/regiao:{}]-->"
 _REGIAO = re.compile(r"<!--\[regiao:([a-z_]+)\]-->(.*?)<!--\[/regiao:\1\]-->", re.S)
-_CAMPO = re.compile(r'(<span\b[^>]*\bdata-campo="([a-z_]+)"[^>]*>)(.*?)(</span>)', re.S)
+_CAMPO = re.compile(r'(<span\b[^>]*\bdata-campo="([a-z0-9_]+)"[^>]*>)(.*?)(</span>)', re.S)
 _ESPACOS = re.compile(r"\s+")
 
 # O que o editor pode gravar. Tudo fora disto é descartado (a marcação, nunca o texto).
@@ -40,6 +40,8 @@ TAGS_VAZIAS = frozenset({"br"})
 ATRIBUTOS_PERMITIDOS = frozenset({
     "class", "colspan", "rowspan", "scope", "align", "style", "data-bloco", "data-rotulo",
     "data-campo", "data-obrigatorio", "data-multilinha", "data-quebra",
+    # Quem é quem no texto (servidor, motorista, transporte): o clique abre o formulário.
+    "data-entidade", "data-id",
 })
 CLASSES_PERMITIDAS = frozenset({
     "centro", "titulo-secao", "sem-borda", "marcacao", "assinatura", "nome", "cargo",
@@ -357,7 +359,10 @@ class _Saneador(HTMLParser):
                 # DOCX (revisão de segurança, 03/10/2026).
                 if not (valor.isascii() and valor.isdecimal() and 1 <= int(valor) <= MAX_SPAN):
                     continue
-            elif nome in ("data-bloco", "data-campo", "data-quebra", "scope"):
+            elif nome == "data-id":
+                if not (valor.isascii() and valor.isdecimal() and len(valor) <= 12):
+                    continue
+            elif nome in ("data-bloco", "data-campo", "data-quebra", "data-entidade", "scope"):
                 if not re.fullmatch(r"[a-z0-9_-]{1,40}", valor):
                     continue
             limpos.append(f' {nome}="{escape(valor, quote=True)}"')

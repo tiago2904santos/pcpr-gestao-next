@@ -1,0 +1,30 @@
+{% load viagens %}{% comment %}
+Histórico de uma folha (ofício, OS, plano, termo, viagem) como linha do tempo: os eventos
+agrupados por dia, cada um com o ícone do tipo; os mais recentes à vista e o resto em
+"Ver histórico completo". O filtro (Tudo, Dados, Equipe, Texto, Documentos) é só CSS — um
+grupo de rádios e :has() —, sem script.
+Parâmetros: historico, rotulo (o aria-label da lista), vazio (texto sem eventos),
+primeiros (":6") e resto ("6:"), limite (6).
+{% endcomment %}
+<div class="historico-folha">
+  {% if historico|length > 2 %}
+  <div class="historico-folha__filtros" role="radiogroup" aria-label="Mostrar no histórico">
+    <label><input type="radio" name="historico-filtro" form="historico-sem-formulario" value="tudo" checked>Tudo</label>
+    <label><input type="radio" name="historico-filtro" form="historico-sem-formulario" value="dados">{% icone "pencil" classe="icone--sm" %}Dados</label>
+    <label><input type="radio" name="historico-filtro" form="historico-sem-formulario" value="equipe">{% icone "users" classe="icone--sm" %}Equipe</label>
+    <label><input type="radio" name="historico-filtro" form="historico-sem-formulario" value="texto">{% icone "file-pen-line" classe="icone--sm" %}Texto</label>
+    <label><input type="radio" name="historico-filtro" form="historico-sem-formulario" value="documentos">{% icone "file-text" classe="icone--sm" %}Documentos</label>
+  </div>
+  {% endif %}
+  <ol class="historico__linhas historico__linhas--operacional" aria-label="{{ rotulo }}">
+    {% for h in historico|slice:primeiros %}{% ifchanged h.em|date:"Ymd" %}<li class="historico__dia" aria-hidden="true">{{ h.em|date:"l, d \d\e F" }}</li>{% endifchanged %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">{{ vazio|default:"Sem eventos registrados." }}</li>{% endfor %}
+  </ol>
+  {% if historico|length > limite %}
+  <details class="historico-folha__mais">
+    <summary class="historico-folha__abrir">{% icone "history" classe="icone--sm" %}<span class="linha-tempo__mais-abrir">Ver histórico completo ({{ historico|length }} eventos)</span><span class="linha-tempo__mais-fechar">Ocultar os eventos anteriores</span>{% icone "chevron-down" classe="icone--sm historico-folha__seta" %}</summary>
+    <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos anteriores">
+      {% for h in historico|slice:resto %}{% ifchanged h.em|date:"Ymd" %}<li class="historico__dia" aria-hidden="true">{{ h.em|date:"l, d \d\e F" }}</li>{% endifchanged %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% endfor %}
+    </ol>
+  </details>
+  {% endif %}
+</div>

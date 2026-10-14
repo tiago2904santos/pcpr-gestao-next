@@ -6,7 +6,12 @@ Paridade com `viagens_termos` da referência:
   do roteiro do ofício), período (saída e chegada), servidores (a equipe) e viatura;
 - pode juntar vários ofícios da mesma ação (mesma viagem ou mesmo roteiro — vinculos.py):
   herda a união deles (destinos de todos, da primeira saída à última chegada, a equipe
-  toda, a primeira viatura);
+  toda e a viatura de cada um, com quem vai nela);
+- pode ter mais de uma viatura (TermoViatura), cada uma com a sua equipe: o termo de cada
+  servidor sai com a viatura em que ele vai, e cada viatura tem o seu "termo da viatura";
+- o período é o **do evento**: vem do plano de trabalho, da OS ou da viagem dos ofícios
+  (nessa ordem, só quando início e fim estão preenchidos); sem nenhum, o da viagem (da
+  primeira saída à última chegada) — `periodo_do_evento`;
 - sem ofício, destino e data são obrigatórios; a data final, vazia, repete a inicial;
 - um documento por servidor (variante completa, com ou sem viatura), o **genérico** (só
   destino e período, para preencher à mão) e o **da viatura** (servidor em branco).
@@ -26,7 +31,7 @@ from django.utils import timezone
 from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servidor, Viatura
 
 from . import policies
-from .models import Oficio, TermoAutorizacao, TermoDestino, Trecho, Viajante
+from .models import Oficio, TermoAutorizacao, TermoDestino, TermoViatura, Trecho, Viajante
 
 
 class TermoInvalido(Exception):
@@ -51,11 +56,15 @@ PREFETCH_TERMOS = (
     Prefetch("oficio__viajantes", queryset=Viajante.objects.select_related(
         "servidor__cargo", "servidor__unidade").order_by("servidor__nome")),
     Prefetch("oficios", queryset=Oficio.objects.select_related(
-        "sede", "viatura__combustivel").order_by("ano", "numero")),
+        "sede", "viatura__combustivel", "viagem").order_by("ano", "numero")),
+    "oficios__planos", "oficios__ordens", "oficio__planos", "oficio__ordens",
     Prefetch("oficios__trechos", queryset=Trecho.objects.select_related("destino")
              .order_by("ordem")),
     Prefetch("oficios__viajantes", queryset=Viajante.objects.select_related(
         "servidor__cargo", "servidor__unidade").order_by("ordem", "id")),
+    Prefetch("viaturas", queryset=TermoViatura.objects.select_related(
+        "viatura__combustivel", "viatura__unidade").prefetch_related(
+        Prefetch("servidores", queryset=Servidor.objects.order_by("nome")))),
 )
 
 
@@ -67,13 +76,39 @@ def com_dados(qs):
 
 # ---------------------------------------------------------------- valores efetivos
 @dataclass
+class ViaturaDoTermo:
+    """Uma viatura e quem vai nela (vazio: ninguém marcado — com uma viatura só, todos)."""
+    viatura: Viatura
+    servidores: list[Servidor] = field(default_factory=list)
+
+
+@dataclass
 class Efetivo:
     destinos: list[Municipio] = field(default_factory=list)
     inicio: date | None = None
     fim: date | None = None
     servidores: list[Servidor] = field(default_factory=list)
-    viatura: Viatura | None = None
+    viaturas: list[ViaturaDoTermo] = field(default_factory=list)
     herdados: list[str] = field(default_factory=list)
+    # De onde vem o período ("Período do evento no Plano de Trabalho 05/2026", "Período da
+    # viagem (ofícios)", "Informado no termo") — a tela mostra junto da data.
+    fonte_periodo: str = ""
+    # A ida e a volta dos ofícios (mesmo quando a data do evento é outra): a tela desenha o
+    # evento dentro da viagem.
+    viagem_inicio: date | None = None
+    viagem_fim: date | None = None
+
+    @property
+    def viatura(self) -> Viatura | None:
+        """A principal (a primeira): o que o resto do sistema entende por "a viatura"."""
+        return self.viaturas[0].viatura if self.viaturas else None
+
+    def viatura_de(self, servidor: Servidor) -> Viatura | None:
+        """Em que viatura o servidor vai: a do grupo dele; com uma viatura só, todos nela."""
+        for grupo in self.viaturas:
+            if any(s.pk == servidor.pk for s in grupo.servidores):
+                return grupo.viatura
+        return self.viaturas[0].viatura if len(self.viaturas) == 1 else None
 
     @property
     def destino_texto(self) -> str:
@@ -155,7 +190,7 @@ def heranca_do_oficio(oficio: Oficio | None) -> dict[str, str]:
         "periodo": ef.periodo_curto,
         "servidores": f"{len(equipe)} servidor{'es' if len(equipe) != 1 else ''}: {nomes}"
         if equipe else "",
-        "viatura": str(ef.viatura) if ef.viatura else "",
+        "viatura": ", ".join(str(g.viatura) for g in ef.viaturas),
     }.items() if v}
 
 
@@ -167,14 +202,56 @@ def oficios_do_termo(termo: TermoAutorizacao) -> list[Oficio]:
     return oficios
 
 
+def viaturas_dos_oficios(oficios: list[Oficio]) -> list[ViaturaDoTermo]:
+    """A viatura de cada ofício (os que vão de viatura), com a equipe dele; a mesma viatura
+    em dois ofícios junta as equipes. Cada servidor fica na primeira em que aparece."""
+    grupos: list[ViaturaDoTermo] = []
+    alocados: set[int] = set()
+    for oficio in oficios:
+        if not (oficio.viatura_id and oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA):
+            continue
+        viatura = oficio.viatura
+        if viatura is None:
+            continue
+        grupo = next((g for g in grupos if g.viatura.pk == oficio.viatura_id), None)
+        if grupo is None:
+            grupo = ViaturaDoTermo(viatura)
+            grupos.append(grupo)
+        for v in oficio.viajantes.all():
+            if v.servidor_id not in alocados:
+                grupo.servidores.append(v.servidor)
+                alocados.add(v.servidor_id)
+    return grupos
+
+
+def periodo_do_evento(oficios: list[Oficio]) -> tuple[date | None, date | None, str]:
+    """A data do evento dos ofícios: a do plano de trabalho, senão a da OS, senão a da
+    viagem (Viagem/Evento) — só o que tem início e fim (preenchido pela metade não conta).
+    Mais de um da mesma fonte: do primeiro início ao último fim. Nada: (None, None, "")."""
+    fontes = (
+        ("Plano de Trabalho", lambda o: [p for p in o.planos.all() if not p.cancelado]),
+        ("OS", lambda o: [x for x in o.ordens.all() if not x.cancelada]),
+        ("Viagem", lambda o: [o.viagem] if o.viagem_id and not o.viagem.cancelada else []),
+    )
+    for nome, de in fontes:
+        achados = {r.pk: r for o in oficios for r in de(o) if r.data_inicio and r.data_fim}
+        if achados:
+            registros = list(achados.values())
+            inicio = min(r.data_inicio for r in registros)
+            fim = max(r.data_fim for r in registros)
+            quem = (f"{nome} {registros[0]}".replace(f"{nome} {nome}", nome)
+                    if len(registros) == 1 else f"{len(registros)} registros de {nome}")
+            return inicio, fim, f"Período do evento — {quem}"
+    return None, None, ""
+
+
 def uniao_dos_oficios(oficios: list[Oficio]) -> dict:
     """O que os ofícios dão juntos: destinos de todos (na ordem, sem repetir), da primeira
-    saída à última chegada, a equipe toda (sem repetir) e a primeira viatura."""
+    saída à última chegada, a equipe toda (sem repetir) e a viatura de cada um."""
     destinos: list[Municipio] = []
     servidores: list[Servidor] = []
     inicio: date | None = None
     fim: date | None = None
-    viatura = None
     for oficio in oficios:
         seus, saida, chegada = _do_oficio(oficio)
         destinos += [m for m in seus if m not in destinos]
@@ -184,11 +261,18 @@ def uniao_dos_oficios(oficios: list[Oficio]) -> dict:
             fim = max(fim, chegada) if fim else chegada
         servidores += [v.servidor for v in oficio.viajantes.all()
                        if v.servidor not in servidores]
-        if (viatura is None and oficio.viatura_id
-                and oficio.tipo_transporte == Oficio.TipoTransporte.VIATURA):
-            viatura = oficio.viatura
+    viaturas = viaturas_dos_oficios(oficios)
+    # O termo fala do evento: a data dele vence a ida e a volta (que fica de reserva).
+    evento_inicio, evento_fim, fonte = periodo_do_evento(oficios)
+    viagem_inicio, viagem_fim = inicio, fim
+    if evento_inicio:
+        inicio, fim = evento_inicio, evento_fim
+    elif inicio:
+        fonte = "Período da viagem — " + (f"Ofício {oficios[0].numero_formatado}"
+                                          if len(oficios) == 1 else f"{len(oficios)} ofícios")
     return {"destinos": destinos, "inicio": inicio, "fim": fim, "servidores": servidores,
-            "viatura": viatura}
+            "viaturas": viaturas, "viatura": viaturas[0].viatura if viaturas else None,
+            "fonte_periodo": fonte, "viagem_inicio": viagem_inicio, "viagem_fim": viagem_fim}
 
 
 def efetivo(termo: TermoAutorizacao) -> Efetivo:
@@ -199,22 +283,29 @@ def efetivo(termo: TermoAutorizacao) -> Efetivo:
     ef.destinos = [d.municipio for d in termo.destinos.all()] if termo.pk else []
     ef.inicio, ef.fim = termo.data_inicio, termo.data_fim or termo.data_inicio
     ef.servidores = list(termo.servidores.all()) if termo.pk else []
-    ef.viatura = termo.viatura if termo.viatura_id else None
+    ef.viaturas = [ViaturaDoTermo(tv.viatura, list(tv.servidores.all()))
+                   for tv in termo.viaturas.all()] if termo.pk else []
+    if ef.inicio:
+        ef.fonte_periodo = "Informado no termo"
     oficios = oficios_do_termo(termo)
     if not oficios:
         return ef
     base = uniao_dos_oficios(oficios)
+    ef.viagem_inicio, ef.viagem_fim = base["viagem_inicio"], base["viagem_fim"]
+    if ef.inicio and (ef.inicio, ef.fim) == (base["inicio"], base["fim"] or base["inicio"]):
+        ef.fonte_periodo = base["fonte_periodo"]  # o termo guardou o que veio dos ofícios
     if not ef.destinos and base["destinos"]:
         ef.destinos = base["destinos"]
         ef.herdados.append("destinos")
     if not ef.inicio and base["inicio"]:
         ef.inicio, ef.fim = base["inicio"], base["fim"]
+        ef.fonte_periodo = base["fonte_periodo"]
         ef.herdados.append("período")
     if not ef.servidores and base["servidores"]:
         ef.servidores = base["servidores"]
         ef.herdados.append("servidores")
-    if ef.viatura is None and base["viatura"] is not None:
-        ef.viatura = base["viatura"]
+    if not ef.viaturas and base["viaturas"]:
+        ef.viaturas = base["viaturas"]
         ef.herdados.append("viatura")
     return ef
 
@@ -222,14 +313,20 @@ def efetivo(termo: TermoAutorizacao) -> Efetivo:
 # ---------------------------------------------------------------- escrita
 @transaction.atomic
 def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
-           oficios=None, evento: str = "", data_inicio: date | None = None,
+           oficios=None, evento: str | None = None, data_inicio: date | None = None,
            data_fim: date | None = None, destinos: list[Municipio] | None = None,
-           servidores=(), viatura: Viatura | None = None, versao: str = "") -> TermoAutorizacao:
+           servidores=(), viatura: Viatura | None = None,
+           viaturas: list[tuple[Viatura, list[Servidor]]] | None = None,
+           versao: str = "") -> TermoAutorizacao:
     """Cria ou altera. `versao` (o `atualizado_em` que a tela abriu) recusa gravar por cima
     de quem salvou depois (a tela grava sozinha a cada pausa).
 
     `oficios`: os ofícios que o termo junta (`oficio`, um só, vale como lista de um). Juntar
-    mais de um exige que sejam da mesma ação (vinculos.incompatibilidade)."""
+    mais de um exige que sejam da mesma ação (vinculos.incompatibilidade).
+
+    `viaturas`: [(viatura, quem vai nela)], na ordem; `viatura` (uma só, sem equipe marcada)
+    vale como lista de uma. Um ofício que entra agora traz a viatura dele (com a equipe dele)
+    se ela ainda não está no termo — é o que "puxar dos ofícios" faz sozinho."""
     from .vinculos import incompatibilidade
     destinos = list(dict.fromkeys(destinos or []))  # sem repetir, na ordem informada
     oficios = list(dict.fromkeys(oficios if oficios is not None else ([oficio] if oficio else [])))
@@ -273,13 +370,18 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
     if data_fim and not data_inicio:
         raise TermoInvalido("Informe a data inicial.")
     termo.oficio = oficios[0] if oficios else None
-    termo.evento = " ".join((evento or "").split()) or TermoAutorizacao._meta.get_field(
-        "evento").default
+    if evento is not None or not termo.evento:  # sem o campo na tela, fica o que estava
+        termo.evento = " ".join((evento or "").split()) or TermoAutorizacao._meta.get_field(
+            "evento").default
     termo.data_inicio, termo.data_fim = data_inicio, (data_fim or data_inicio)
-    termo.viatura = viatura
+    if viaturas is None:
+        viaturas = [(viatura, [])] if viatura is not None else []
+    viaturas = _com_viaturas_dos_novos(viaturas, [o for o in oficios if o.pk not in ja_ligados])
+    termo.viatura = viaturas[0][0] if viaturas else None
     termo.save()
     termo.oficios.set(oficios)
     termo.servidores.set(servidores)
+    _gravar_viaturas(termo, viaturas)
     atuais = [d.municipio_id for d in termo.destinos.order_by("ordem", "id")]
     if atuais != [m.pk for m in destinos]:  # só regrava se mudou (trilha de auditoria limpa)
         termo.destinos.all().delete()
@@ -290,6 +392,49 @@ def salvar(usuario, *, pk: int | None = None, oficio: Oficio | None = None,
         termo.__dict__.pop("_prefetched_objects_cache", None)
         _herdar_texto_editado(termo, usuario, docs_antes)
     return termo
+
+
+def _com_viaturas_dos_novos(viaturas: list, novos: list[Oficio]) -> list:
+    """A lista informada mais a viatura de cada ofício que entrou agora (se ainda não está),
+    com a equipe dele que não esteja em outra viatura."""
+    viaturas = [(v, list(equipe)) for v, equipe in viaturas]
+    if not novos:
+        return viaturas
+    presentes = {v.pk for v, _ in viaturas}
+    alocados = {s.pk for _, equipe in viaturas for s in equipe}
+    for grupo in viaturas_dos_oficios(novos):
+        equipe = [s for s in grupo.servidores if s.pk not in alocados]
+        if grupo.viatura.pk in presentes:
+            for v, atual in viaturas:
+                if v.pk == grupo.viatura.pk:
+                    atual.extend(equipe)
+        else:
+            viaturas.append((grupo.viatura, equipe))
+            presentes.add(grupo.viatura.pk)
+        alocados.update(s.pk for s in equipe)
+    return viaturas
+
+
+def _gravar_viaturas(termo: TermoAutorizacao, viaturas: list) -> None:
+    """Regrava as viaturas só se mudaram (a trilha de auditoria fica limpa). Cada servidor
+    vai numa só: aparecendo em duas, vale a primeira."""
+    alocados: set[int] = set()
+    desejado: list[tuple[Viatura, list[int], int]] = []
+    for i, (viatura, equipe) in enumerate(viaturas):
+        if any(v.pk == viatura.pk for v, _, _ in desejado):
+            continue
+        ids = [s.pk for s in equipe if s.pk not in alocados]
+        alocados.update(ids)
+        desejado.append((viatura, ids, i))
+    atual = [(tv.viatura_id, sorted(tv.servidores.values_list("pk", flat=True)))
+             for tv in termo.viaturas.order_by("ordem", "id")]
+    if atual == [(v.pk, sorted(ids)) for v, ids, _ in desejado]:
+        return
+    termo.viaturas.all().delete()
+    for viatura, ids, ordem in desejado:
+        tv = TermoViatura.objects.create(termo=termo, viatura=viatura, ordem=ordem)
+        if ids:
+            tv.servidores.set(ids)
 
 
 def versao_de(termo: TermoAutorizacao) -> str:
@@ -346,16 +491,30 @@ def excluir(usuario, pk: int) -> str:
 GENERICO, VIATURA = "generico", "viatura"
 
 
+def chave_da_viatura(indice: int, viatura: Viatura) -> str:
+    """A primeira viatura guarda a chave de sempre ("viatura" — o texto editado de antes
+    continua valendo); as demais, "viatura-<id>"."""
+    return VIATURA if indice == 0 else f"{VIATURA}-{viatura.pk}"
+
+
+def viatura_da_chave(ef: Efetivo, chave: str) -> Viatura | None:
+    for i, grupo in enumerate(ef.viaturas):
+        if chave_da_viatura(i, grupo.viatura) == chave:
+            return grupo.viatura
+    return None
+
+
 def documentos_do_termo(termo: TermoAutorizacao, ef: Efetivo | None = None) -> list[dict]:
-    """Os documentos que o termo emite: um por servidor, o genérico e (havendo viatura) o
-    da viatura. `chave` é o que a rota de geração recebe."""
+    """Os documentos que o termo emite: um por servidor (com a viatura em que ele vai), o
+    genérico e um por viatura. `chave` é o que a rota de geração recebe."""
     ef = ef or efetivo(termo)
     docs = [{"chave": str(s.pk), "titulo": s.nome, "descricao": "Termo do servidor"}
             for s in ef.servidores]
     docs.append({"chave": GENERICO, "titulo": "Termo genérico",
                  "descricao": "Só destino e período, para preencher à mão"})
-    if ef.viatura is not None:
-        docs.append({"chave": VIATURA, "titulo": f"Termo da viatura {ef.viatura}",
+    for i, grupo in enumerate(ef.viaturas):
+        docs.append({"chave": chave_da_viatura(i, grupo.viatura),
+                     "titulo": f"Termo da viatura {grupo.viatura}",
                      "descricao": "Viatura preenchida, servidor em branco"})
     return docs
 
@@ -377,11 +536,17 @@ def _dados_do_modelo(termo: TermoAutorizacao, chave: str) -> dict:
         raise TermoInvalido("A unidade do termo ainda não tem configuração (cabeçalho e "
                             "rodapé): peça ao gestor para cadastrá-la.")
     participante = None
-    if chave not in (GENERICO, VIATURA):
+    if chave == GENERICO:
+        viatura = None
+    elif chave == VIATURA or chave.startswith(f"{VIATURA}-"):
+        viatura = viatura_da_chave(ef, chave)
+        if viatura is None:
+            raise TermoInvalido("Esta viatura não está no termo.")
+    else:
         participante = next((s for s in ef.servidores if str(s.pk) == chave), None)
         if participante is None:
             raise TermoInvalido("Este servidor não está no termo.")
-    viatura = ef.viatura if chave != GENERICO else None
+        viatura = ef.viatura_de(participante)
     sigla = termo.unidade.sigla or termo.unidade.nome
     return {
         "titulo": f"Termo de autorização #{termo.pk}",
@@ -418,7 +583,8 @@ def _partes(frase: str, ligacoes: tuple[str, ...]) -> tuple[str, str]:
 
 
 def nome_do_arquivo(termo: TermoAutorizacao, chave: str, extensao: str) -> str:
-    sufixo = {GENERICO: "generico", VIATURA: "viatura"}.get(chave, f"servidor-{chave}")
+    sufixo = (chave if chave == GENERICO or chave.startswith(VIATURA)
+              else f"servidor-{chave}")
     return f"termo-{termo.pk}-{sufixo}.{extensao}"
 
 
@@ -552,6 +718,10 @@ def regioes_vigentes(termo: TermoAutorizacao, chave: str, dados: dict | None = N
     return regioes
 
 
+def _de_servidor(chave: str) -> bool:
+    return chave != GENERICO and not chave.startswith(VIATURA)
+
+
 def _herdar_texto_editado(termo: TermoAutorizacao, usuario, docs_antes: set[str]) -> None:
     """Os documentos que surgiram agora (um servidor a mais, a viatura) nascem com o texto
     já editado nos irmãos: as mudanças do documento editado mais recente (de servidor, para
@@ -572,8 +742,8 @@ def _herdar_texto_editado(termo: TermoAutorizacao, usuario, docs_antes: set[str]
     if not editados:
         return
     for chave in novos:
-        de_servidor = chave not in (GENERICO, VIATURA)
-        mesmo_tipo = [par for par in editados if (par[0] not in (GENERICO, VIATURA)) == de_servidor]
+        de_servidor = _de_servidor(chave)
+        mesmo_tipo = [par for par in editados if _de_servidor(par[0]) == de_servidor]
         origem, _ = max(mesmo_tipo or editados, key=lambda par: par[1].criado_em)
         dados_origem = dados_do_documento(termo, origem)
         modelo_origem = regioes_do_modelo(dados_origem)
@@ -703,7 +873,8 @@ def duplicar(usuario, pk: int) -> TermoAutorizacao:
                           if o.situacao != Oficio.Situacao.CANCELADO],
         evento=origem.evento, data_inicio=origem.data_inicio, data_fim=origem.data_fim,
         destinos=[d.municipio for d in origem.destinos.order_by("ordem", "id")],
-        servidores=list(origem.servidores.all()), viatura=origem.viatura)
+        servidores=list(origem.servidores.all()),
+        viaturas=[(tv.viatura, list(tv.servidores.all())) for tv in origem.viaturas.all()])
     for doc in documentos_do_termo(novo):
         edicao = edicao_vigente(origem, doc["chave"])
         if edicao is not None and edicao.regioes:

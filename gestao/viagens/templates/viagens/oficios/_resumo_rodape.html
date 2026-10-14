@@ -18,7 +18,7 @@ Revisão antes de emitir: a mesma leitura, com a decisão no rodapé. Emitir ger
     <form method="post" action="{% url 'viagens:emitir' oficio.pk %}" class="dialogo__acao">
       {% csrf_token %}
       <input type="hidden" name="versao" value="{{ oficio.versao }}">
-      <button type="submit" class="botao botao--marca" data-vt="emissao-{{ oficio.pk }}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}>{% icone "stamp" %}Emitir ofício</button>
+      <button type="submit" class="botao botao--primario" data-vt="emissao-{{ oficio.pk }}"{% if not prontidao.pode_emitir %} disabled aria-disabled="true"{% endif %}>{% icone "stamp" %}Emitir ofício</button>
     </form>
   {% endif %}
 </div>
@@ -52,7 +52,9 @@ documento embora) e viraram um grupo dentro de "Mais ações".
     </div>
   </pc-menu>
   {% if pode_editar %}
-    <a class="botao botao--primario" id="resumo-abrir-{{ oficio.pk }}" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+    {# Rascunho pronto: emitir é o próximo passo (abre a revisão); abrir fica ao lado. #}
+    <a class="botao{% if not menu.emitir %} botao--primario{% endif %}" id="resumo-abrir-{{ oficio.pk }}" href="{% url 'viagens:editar' oficio.pk %}">{% icone "pencil" %}Abrir o ofício</a>
+    {% if menu.emitir %}<a class="botao botao--primario" id="resumo-emitir-{{ oficio.pk }}" href="{% url 'viagens:editar' oficio.pk %}?revisar=1">{% icone "stamp" %}Revisar e emitir</a>{% endif %}
   {% elif pode_retificar %}
     {% comment %}
     Ofício já emitido também se edita: ao confirmar, ele volta a rascunho marcado como

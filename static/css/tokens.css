@@ -123,6 +123,9 @@
   --cor-marca-fundo: var(--dourado-50);
   --cor-marca-fundo-forte: var(--dourado-100);
   --cor-marca-borda: var(--dourado-200);
+  /* Hover dos cartões clicáveis (borda e título): dourado da marca. */
+  --hover-cartao-borda: var(--cor-marca-borda);
+  --hover-cartao-texto: var(--cor-marca-texto);
 
   --cor-primaria: var(--grafite-900);
   --cor-primaria-hover: var(--grafite-800);

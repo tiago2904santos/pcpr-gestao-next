@@ -54,6 +54,8 @@ def test_todos_os_tokens_usados_existem():
               "--fundo-rotulo", "--fundo-entrada",
               # Itinerário: largura da coluna do trilho e centro vertical do marco.
               "--itin-trilho", "--itin-centro",
+              # Seletor segmentado do termo: posição e largura do realce (termo.js).
+              "--escala-x", "--escala-w",
               # Bloco de editores (termo, OS): largura do índice e altura da barra (medida
               # por editores.js); colunas da grade de filtros (com valor padrão no var()).
               "--largura-indice", "--altura-barra", "--filtros-colunas",
@@ -61,7 +63,17 @@ def test_todos_os_tokens_usados_existem():
               "--meta-x",
               # Índice da preparação: a largura da barra de progresso, definida pela classe
               # `indice-preparacao--pN` que o servidor calcula (CSP não aceita style inline).
-              "--progresso-preparacao"}
+              "--progresso-preparacao",
+              # Trechos do itinerário e conferência do bate-volta: as colunas do cabeçalho e
+              # dos cartões (a mesma grade nos dois).
+              "--trechos-colunas", "--gerados-colunas",
+              # Histórico da folha: o tamanho do marcador (o fio passa pelo centro dele).
+              "--historico-marcador",
+              # Relógio do seletor de hora: a casa e as faixas da grade.
+              "--relogio-casa", "--relogio-faixas",
+              # Estrada da linha (viagem em andamento): a posição da viatura, pela classe
+              # `data-progresso` que o servidor calcula (CSP não aceita style inline).
+              "--progresso-estrada"}
     faltando = sorted(usados - definidos - locais)
     assert not faltando, f"Tokens usados mas não definidos: {faltando}"
 

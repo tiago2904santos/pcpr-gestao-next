@@ -711,3 +711,85 @@
     --largura-indice: 6rem;
   }
 }
+
+/* =====================================================================
+   Estação de documento (operacional: ofício, termo, OS, plano) — redesenho.
+   Uma moldura clara, no padrão dos cartões da folha:
+   1. cabeçalho claro: o documento (ícone + nome), os selos de estado e, à direita, Texto/PDF,
+      Atualizar e Baixar — sem a faixa grafite;
+   2. ferramentas numa linha só, botões fantasmas agrupados por filetes finos (os rótulos
+      dos grupos saem da tela; o título de cada botão continua); nada de filete dourado;
+   3. embaixo, o índice de páginas num trilho leve e a mesa com a folha.
+   As regras ficam aqui, no fim do editor.css, para valerem sobre as antigas.
+   ===================================================================== */
+.editores.editores--documental.editores--operacional { border: 1px solid var(--cor-borda); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); box-shadow: none; }
+
+/* 1. Cabeçalho */
+.editores--operacional .editor.editor--operacional > .editor__barra,
+.editor.editor--operacional > .editor__barra { padding: 0; gap: 0; border: 0; border-bottom: 1px solid var(--cor-borda); border-radius: 0; background: var(--cor-superficie); box-shadow: var(--sombra-1); }
+.editor--operacional > .editor__barra > .editor__linha:first-child { gap: var(--esp-3); padding: var(--esp-3) var(--esp-4); background: var(--cor-superficie); color: var(--cor-texto); }
+.editor--operacional > .editor__barra > .editor__linha:first-child :is(button, a):focus-visible { --foco-cor: var(--cor-marca); --foco-contraste: var(--cor-superficie); }
+.editor--operacional .editor__estado { gap: var(--esp-2); color: var(--cor-texto-secundario); }
+.editor--operacional .editor__identidade { display: inline-flex; align-items: center; gap: var(--esp-2); margin-right: var(--esp-1); font-size: var(--texto-md); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.editor--operacional .editor__identidade-icone { display: inline-grid; place-items: center; width: var(--altura-controle-sm); height: var(--altura-controle-sm); border-radius: var(--raio-md); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.editor--operacional .editor__estado .selo { border: 1px solid var(--cor-borda); background: var(--cor-superficie-sutil); color: var(--cor-texto-secundario); }
+.editor--operacional .editor__paginas { padding: var(--esp-05) var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie-realce); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.editor--operacional .editor__linha:first-child .editor__pendencia { min-height: var(--altura-controle-sm); border: 1px solid var(--cor-aviso-borda); border-radius: var(--raio-pilula); background: var(--cor-aviso-fundo); color: var(--cor-aviso); box-shadow: none; font-weight: var(--peso-medio); }
+.editor--operacional .editor__linha:first-child .editor__pendencia::before { content: ""; width: var(--esp-2); height: var(--esp-2); margin-right: var(--esp-1); border-radius: var(--raio-pilula); background: var(--cor-aviso-solida); }
+.editor--operacional .editor__linha:first-child .editor__pendencia:hover { border-color: var(--cor-aviso-solida); background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.editor--operacional .editor__linha:first-child .botao { border-color: var(--cor-borda-forte); background: var(--cor-superficie); color: var(--cor-texto); box-shadow: var(--sombra-1); }
+.editor--operacional .editor__linha:first-child .botao:hover { border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.editor--operacional .editor__linha:first-child .editor__indice { border-color: transparent; box-shadow: none; }
+.editor--operacional .editor__linha:first-child .editor__indice[aria-expanded="true"] { background: var(--cor-superficie-realce); }
+.editor--operacional .editor__fim { gap: var(--esp-3); }
+.editor--operacional .editor__acoes { gap: var(--esp-2); }
+/* Texto | PDF: o segmentado claro do sistema. */
+.editor--operacional .editor__modos { padding: var(--esp-05); gap: var(--esp-05); border: 0; border-radius: var(--raio-md); background: var(--cor-superficie-realce); }
+.editor--operacional .editor__linha:first-child .editor__modos .botao { height: var(--altura-controle-sm); padding-inline: var(--esp-3); border: 0; border-radius: var(--raio-sm); background: transparent; color: var(--cor-texto-secundario); box-shadow: none; font-weight: var(--peso-medio); }
+.editor--operacional .editor__linha:first-child .editor__modos .botao:hover { background: var(--cor-superficie-sutil); color: var(--cor-texto); }
+.editor--operacional .editor__linha:first-child .editor__modos .botao[aria-pressed="true"],
+.editor--operacional .editor__linha:first-child .editor__modos .botao[aria-pressed="true"]:hover { background: var(--cor-superficie); color: var(--cor-texto); box-shadow: var(--sombra-1); font-weight: var(--peso-semi); }
+
+/* 2. Ferramentas: uma linha, botões fantasmas, grupos separados por filete. */
+.editor--operacional .editor__ferramentas { margin: 0; padding: 0; border: 0; border-top: 1px solid var(--cor-borda-sutil); background: var(--cor-superficie); }
+@media (min-width: 768px) { .editor--operacional .editor__ferramentas > summary { display: none; } }  /* no desktop as ferramentas ficam sempre à mostra */
+.editor--operacional .editor__ferramentas .editor__linha--ferramentas,
+.editor--operacional .editor__linha--ferramentas { flex-wrap: wrap; align-items: center; gap: var(--esp-1) 0; padding: var(--esp-2) var(--esp-3); border: 0; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo { display: flex; align-items: center; gap: var(--esp-05); padding: 0 var(--esp-2); border: 0; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo:first-child { padding-left: 0; }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo + .editor__grupo { padding-left: var(--esp-2); border-left: 1px solid var(--cor-borda); }
+.editor--operacional .editor__linha--ferramentas > .editor__grupo[hidden] { display: none; }
+.editor--operacional .editor__linha--ferramentas .editor__rotulo { display: none; }
+.editor--operacional .editor__controles { gap: var(--esp-05); }
+.editor--operacional .editor__linha--ferramentas .botao { min-height: var(--altura-controle-sm); border-color: transparent; background: transparent; box-shadow: none; color: var(--cor-texto-secundario); }
+.editor--operacional .editor__linha--ferramentas .botao--icone { width: var(--altura-controle-sm); padding: 0; }
+.editor--operacional .editor__linha--ferramentas .botao:hover:not(:disabled) { background: var(--cor-superficie-realce); color: var(--cor-texto); }
+.editor--operacional .editor__linha--ferramentas .botao[aria-pressed="true"] { border-color: var(--cor-marca-borda); background: var(--cor-marca-fundo); color: var(--cor-marca-texto); }
+.editor--operacional .editor__linha--ferramentas .botao:disabled { opacity: 0.35; }
+
+/* 3. Índice e mesa */
+.editores--operacional .editores__indice { gap: var(--esp-3); padding: var(--esp-4) var(--esp-3); border-right: 1px solid var(--cor-borda); background: var(--cor-superficie); }
+.editores--operacional .editores__pagina { padding: var(--esp-2); border-radius: var(--raio-md); transition: background-color var(--duracao-rapida) var(--curva-padrao); }
+.editores--operacional .editores__pagina:hover { background: var(--cor-superficie-sutil); }
+.editores--operacional .editores__pagina[aria-current="true"] { background: var(--cor-marca-fundo); }
+.editores--operacional .editores__miniatura { box-shadow: 0 0 0 1px var(--cor-borda), var(--sombra-1); }
+.editores--operacional .editores__pagina[aria-current="true"] .editores__miniatura { box-shadow: 0 0 0 2px var(--cor-marca), var(--sombra-2); }
+.editores--operacional .editores__legenda { font-size: var(--texto-xs); font-weight: var(--peso-medio); }
+.editores--operacional .editores__pagina[aria-current="true"] .editores__legenda { color: var(--cor-marca-texto); }
+.editores--operacional.editores--unidos .editores__titulo { display: flex; align-items: center; gap: var(--esp-2); margin: 0; padding: var(--esp-4) var(--esp-5) 0; background: transparent; font-size: var(--texto-sm); font-weight: var(--peso-semi); color: var(--cor-texto); }
+.editores--operacional.editores--unidos .editores__titulo .editores__numero { padding: var(--esp-05) var(--esp-2); border-radius: var(--raio-pilula); background: var(--cor-superficie); box-shadow: 0 0 0 1px var(--cor-borda); font-size: var(--texto-2xs); font-weight: var(--peso-semi); letter-spacing: var(--rastreio-rotulo); text-transform: uppercase; color: var(--cor-texto-secundario); }
+.editores--operacional.editores--unidos .editores__titulo .texto-terciario { color: var(--cor-texto-secundario); font-weight: var(--peso-normal); }  /* sobre a mesa do editor a terciária não tem contraste */
+/* Ajustes: o trilho do índice ocupa a altura toda (desenhado no fundo da moldura, já que o
+   índice acompanha a rolagem e só tem a altura das miniaturas) e a mesa em volta da folha é
+   a mesma cor da mesa de dentro dela (folha.css) — sem duas faixas de cinza. */
+.editores.editores--documental.editores--operacional.editores--unidos { background: linear-gradient(to right, var(--cor-superficie) calc(var(--largura-indice) - 1px), var(--cor-borda) calc(var(--largura-indice) - 1px) var(--largura-indice), var(--neutro-200) var(--largura-indice)); }
+.editores.editores--documental.editores--operacional.editores--unidos:is(.editores--sem-indice, .editores--pdf) { background: var(--neutro-200); }
+.editores--operacional .editores__indice { border-right: 0; background: transparent; }
+.editores.editores--operacional.editores--unidos .editor.editor--operacional > .editor__barra { border: 0; border-bottom: 1px solid var(--cor-borda); border-radius: 0; background: var(--cor-superficie); }
+/* A folha ocupa a mesa inteira (a própria folha já tem a mesa em volta do papel): sem a
+   moldura dupla, que deixava um contorno claro em volta do quadro. */
+.editores--operacional.editores--unidos .editor__folha { padding: 0; background: var(--neutro-200); }
+.editores--operacional .editor__quadro { background: var(--neutro-200); }
+/* Os botões do cabeçalho já nascem na própria camada de desenho: sem isso o navegador só a
+   cria no primeiro hover e o texto "assenta" meio pixel (parecia uma subidinha a cada carga). */
+.editor--operacional .editor__linha:first-child .botao { will-change: transform; backface-visibility: hidden; }

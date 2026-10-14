@@ -36,7 +36,7 @@ from gestao.cadastros.forms import FormularioServidor, FormularioViatura
 from gestao.cadastros.models import Municipio, Servidor
 from gestao.plataforma.templatetags.ui import formatar_moeda
 
-from . import exportacao, itinerario, policies, queries, rotas, services
+from . import exportacao, itinerario, linha_lista, policies, queries, rotas, services
 from .documentos.dados import dados_do_oficio
 from .documentos.pdf import ASSETS, buscar_recurso, html_do_documento
 from .dominio import busca as dominio_busca
@@ -49,7 +49,6 @@ from .forms import (
     FiltrosOficio,
     FormularioJustificativa,
     FormularioOficio,
-    iniciais_de_trechos,
     resolver_municipio,
 )
 from .models import Documento, Oficio
@@ -238,10 +237,12 @@ def _fichas(get: QueryDict, r: RecorteDaLista, refino_atual: dict | None) -> lis
     return [{"rotulo": rotulo, "url": _sem(get, *chaves)} for rotulo, chaves in fichas]
 
 
-def _grupos_por_mes(oficios: list, ordem: str, pagina) -> None:
+def _grupos_por_mes(oficios: list, ordem: str, pagina, totais: dict | None = None) -> None:
     """Cabeçalho de mês com quantos ofícios do mês estão nesta página (LP-26). O grupo que
-    continua na página vizinha diz "nesta página" — a conta não finge ser do mês todo."""
+    continua na página vizinha diz "nesta página" — a conta não finge ser do mês todo. O
+    total de diárias é do mês inteiro no recorte (`queries.totais_por_mes`)."""
     por_saida = ordem in ("saida", "-saida")
+    totais = totais or {}
 
     def chave(o):
         if por_saida:
@@ -258,7 +259,63 @@ def _grupos_por_mes(oficios: list, ordem: str, pagina) -> None:
     for i, grupo in enumerate(grupos):
         parcial = (i == 0 and pagina.has_previous()) or (
             i == len(grupos) - 1 and pagina.has_next())
-        grupo[0].grupo = {"quantidade": len(grupo), "parcial": parcial}
+        n_mes, total_mes = totais.get(chave(grupo[0]), (len(grupo), None))
+        grupo[0].grupo = {"quantidade": len(grupo), "parcial": parcial,
+                          "quantidade_mes": n_mes, "total": total_mes}
+
+
+# Linha da lista: o que falta, a urgência e a estrada. Sem consulta por linha — tudo vem
+# de `com_dados_de_lista` (equipe, trechos, unidade). As ações ficam só no ⋮ (pedido do
+# dono: nenhum botão no cartão).
+def _cartoes_de_atencao(request: HttpRequest, atencao: str, contas: dict) -> list[dict]:
+    """A faixa "pede atenção" (componentes/atencao_lista.html): cada cartão filtra a lista;
+    o ativo volta. Os vazios, à vista, ganham "Excluir" (para quem pode excluir)."""
+    get, cartoes = request.GET, []
+    if u := contas["urgentes"]:
+        cartoes.append({"tipo": "urgente", "icone": "timer", "ativo": atencao == "urgentes",
+                        "titulo": f"{u} rascunho{' sai' if u == 1 else 's saem'} em até 7 dias",
+                        "nota": "Emita antes da saída — o mais perto primeiro",
+                        "url": _sem(get, "atencao") if atencao == "urgentes"
+                        else _trocar(get, "atencao", "urgentes")})
+    if v := contas["vazios"]:
+        cartao = {"tipo": "vazio", "icone": "inbox", "ativo": atencao == "vazios",
+                  "titulo": f"{v} rascunho{' vazio' if v == 1 else 's vazios'}",
+                  "nota": "Sem roteiro, equipe, protocolo nem transporte",
+                  "url": _sem(get, "atencao") if atencao == "vazios"
+                  else _trocar(get, "atencao", "vazios")}
+        if request.user.has_perm("viagens.delete_oficio"):
+            cartao.update(
+                excluir_url=reverse("viagens:excluir_vazios"),
+                excluir_rotulo="Excluir o vazio" if v == 1 else f"Excluir os {v}",
+                excluir_confirmar=(
+                    f"{v} rascunho{' vazio é excluído' if v == 1 else 's vazios são excluídos'}"
+                    " e os números voltam a ficar disponíveis. Rascunhos com qualquer dado "
+                    "preenchido ficam."))
+        cartoes.append(cartao)
+    return cartoes
+
+
+def _situacao_da_linha(usuario, o, agora) -> dict:
+    trechos = trechos_de(o)
+    cancelado = o.situacao == Oficio.Situacao.CANCELADO
+    rascunho = o.situacao == Oficio.Situacao.RASCUNHO and not o.arquivado
+    linha: dict = {"pendencias": [], "vazio": False,
+                   **linha_lista.estado_temporal(
+                       trechos[0].saida_em if trechos and not cancelado else None,
+                       trechos[-1].chegada_em if trechos else None, agora, pendente=rascunho)}
+    if rascunho:
+        folha = reverse("viagens:editar", args=[o.pk])
+        pendencias = services.pendencias_que_impedem(o)
+        linha["pendencias"] = [{"mensagem": p.mensagem, "url": f"{folha}#{p.secao}"}
+                               for p in pendencias]
+        # D4: "Justificativa pendente" é o alerta que vence — a linha fica com o filete de
+        # urgência, mas o selo é o da justificativa.
+        linha["selo_urgencia"] = bool(linha["urgencia"]) and not any(
+            p.secao == "justificativa" for p in pendencias)
+        linha["url_conferencia"] = f"{folha}#conferencia"
+        linha["vazio"] = not (trechos or viajantes_de(o) or o.protocolo or o.viatura_id
+                              or o.transporte_descricao or getattr(o, "tem_documentos", False))
+    return linha
 
 
 def _mais_da_lista(request: HttpRequest) -> list[dict[str, str]]:
@@ -291,15 +348,33 @@ def lista(request: HttpRequest) -> HttpResponse:
         for leitura in leituras if contagem_leituras.get(leitura.escopo, 0)
     ]
     refino_atual = next((x for x in refinos if x["escopo"] == r.escopo), None)
-    pagina = Paginator(r.qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+    # "Atenção" (rascunhos que saem em até 7 dias; rascunhos vazios): um recorte por cima
+    # das abas, com ficha própria. Urgentes vêm na ordem da saída — o mais perto primeiro.
+    hoje = timezone.localdate()
+    atencao = request.GET.get("atencao") or ""
+    atencao = atencao if atencao in queries.ATENCOES else ""
+    qs = r.qs.filter(queries.q_da_atencao(atencao, hoje)) if atencao else r.qs
+    if atencao == "urgentes":
+        qs = qs.order_by("_saida", "pk")  # type: ignore[misc]  # anotação de com_primeira_saida
+    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
     pagina.object_list = list(pagina.object_list)  # avaliada uma vez: view e template
-    _grupos_por_mes(pagina.object_list, r.ordem, pagina)
+    # Urgentes vêm pela saída: os meses do cabeçalho também.
+    por_saida = r.ordem in ("saida", "-saida") or atencao == "urgentes"
+    totais = queries.totais_por_mes(queries.aplicar_recorte(r.filtrado, r.aba, r.documento)
+                                    .filter(queries.q_da_atencao(atencao, hoje)),
+                                    por_saida) if pagina.object_list else {}
+    _grupos_por_mes(pagina.object_list, "saida" if por_saida else r.ordem, pagina, totais)
+    agora = timezone.now()
+    for o in pagina.object_list:
+        o.linha = _situacao_da_linha(request.user, o, agora)  # type: ignore[attr-defined]
     contagens = queries.contagens_do_recorte(
         base, r.filtrado if (r.termo or r.avancados.validos) else None, r.aba, r.documento)
     get = request.GET
     filtros = get.copy()
     filtros.pop("pagina", None)
     fichas = _fichas(get, r, refino_atual)
+    if atencao:
+        fichas.insert(0, {"rotulo": queries.ATENCOES[atencao], "url": _sem(get, "atencao")})
     contexto = {
         "page_obj": pagina,
         "oficios": pagina.object_list,
@@ -315,7 +390,10 @@ def lista(request: HttpRequest) -> HttpResponse:
         "termo": r.termo,
         "ordem": r.ordem,
         "escopo": r.escopo,
-        "por_saida": r.ordem in ("saida", "-saida"),
+        "por_saida": por_saida,
+        "atencao": atencao,
+        "cartoes_atencao": _cartoes_de_atencao(request, atencao,
+                                               queries.atencao_da_lista(base, hoje)),
         "tem_filtro": r.tem_filtro,
         # Outra tela mandou abrir a janela de um ofício (roteiros → "usado em…"): ela já
         # vai desenhada no HTML, para abrir pronta em vez de piscar o esqueleto.
@@ -546,6 +624,22 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "viagens/oficios/editar.html", contexto, status=422)
 
 
+@require_POST
+def limpar_roteiro(request: HttpRequest, pk: int) -> HttpResponse:
+    """"Limpar roteiro" da folha: apaga os trechos e o vínculo com o roteiro cadastrado."""
+    oficio = _oficio_visivel(request, pk)
+    if not policies.pode_editar(request.user, oficio):
+        raise PermissionDenied
+    try:
+        services.limpar_roteiro(oficio, request.user)
+    except (services.RegraViolada, services.ConflitoDeEdicao) as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Roteiro limpo. Monte o percurso de novo ou aplique "
+                                   "outro roteiro.")
+    return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}#roteiro")
+
+
 def _opcoes_de_roteiro(roteiros) -> list[dict]:
     """Rótulo e detalhe de cada roteiro na escolha "Usar um roteiro cadastrado"."""
     opcoes = []
@@ -566,9 +660,8 @@ def _opcoes_de_roteiro(roteiros) -> list[dict]:
 
 
 def _usar_roteiro(request, oficio) -> HttpResponse:
-    """Preenche o itinerário (sede inclusive) com os trechos de um roteiro cadastrado,
-    preservando tudo o que foi digitado no resto da folha. Nada é gravado: a pessoa confere
-    e salva."""
+    """Aplica um roteiro cadastrado: grava os trechos dele (sede inclusive), o vínculo e as
+    diárias, preservando o que estiver válido no resto da folha."""
     escolhido = (request.POST.get("roteiro_modelo") or "").strip()
     roteiro = (policies.roteiros_visiveis(request.user).select_related("sede")
                .filter(pk=escolhido).first() if escolhido.isdigit() else None)
@@ -585,22 +678,24 @@ def _usar_roteiro(request, oficio) -> HttpResponse:
         contexto = _contexto_edicao(request, oficio, form, itin, erro)
         contexto.update(sujo=True, foco="alerta-roteiro")
         return render(request, "viagens/oficios/editar.html", contexto, status=422)
-    dados["roteiro"] = str(roteiro.pk)
+    # Escolher um roteiro cadastrado é decidir o percurso: grava na hora (trechos, vínculo e
+    # diárias), junto com o que estiver válido no resto da folha. Não há o que "informar" depois.
     form = FormularioOficio(dados, instance=oficio)
-    form.is_valid()
-    iniciais, inicial_retorno = iniciais_de_trechos(queries.trechos_do_roteiro(roteiro),
-                                                    roteiro.sede_id)
-    itin = itinerario.com_iniciais(FORM_ID, request.POST, destinos=iniciais,
-                                   retorno=inicial_retorno, sede=roteiro.sede)
-    # Os trechos vieram prontos do roteiro: as diárias já podem ser mostradas, mesmo antes
-    # de salvar — é a mesma conta do salvamento, sobre a equipe que o ofício já tem.
+    valido = form.is_valid()
+    gravar = {k: v for k, v in form.cleaned_data.items() if k != "versao"} if valido else {}
+    gravar.update(roteiro=roteiro, sede=roteiro.sede)
     informados = [services.TrechoInformado(t.origem_id, t.destino_id, t.saida_em, t.chegada_em)
                   for t in queries.trechos_do_roteiro(roteiro)]
-    equipe = max(1, len(viajantes_de(oficio)))
-    previa = services.calcular_informados(informados, roteiro.sede, equipe)
-    contexto = _contexto_edicao(request, oficio, form, itin, calculo=previa)
-    contexto.update(sujo=True, foco="roteiro-aplicado", roteiro_aplicado=roteiro)
-    return render(request, "viagens/oficios/editar.html", contexto)
+    try:
+        services.salvar_edicao(oficio, request.user, gravar, informados,
+                               versao=form.cleaned_data.get("versao") if valido else None)
+    except (services.ConflitoDeEdicao, services.RegraViolada) as exc:
+        itin = itinerario.com_iniciais(FORM_ID, request.POST)
+        contexto = _contexto_edicao(request, oficio, form, itin, str(exc))
+        contexto.update(sujo=True, foco="alerta-roteiro")
+        return render(request, "viagens/oficios/editar.html", contexto, status=422)
+    messages.success(request, f"Roteiro #{roteiro.pk} aplicado: trechos e diárias gravados.")
+    return redirect(f"{reverse('viagens:editar', args=[oficio.pk])}?salvo=1#roteiro")
 
 
 # ------------------------------------------------------------------ equipe (HTMX)
@@ -686,9 +781,6 @@ def _revisao_pedida(request: HttpRequest, oficio, folha: dict) -> dict:
         "data_anterior": data_anterior, "data_atualizada": data_anterior != oficio.data_oficio,
         "calculo": oficio.diarias_calculo, "viajantes": folha["viajantes"],
         "trechos": folha["trechos"], "documentos": folha["documentos"],
-        "copia": projetar_dados_eprotocolo(
-            oficio, documentos=folha["documentos"],
-            viajantes=folha["viajantes"], trechos=folha["trechos"]),
         "prontidao": (folha["prontidao"] if data_anterior == oficio.data_oficio
                       else services.verificar_prontidao(oficio)),
     }}
@@ -799,6 +891,23 @@ def reativar(request: HttpRequest, pk: int) -> HttpResponse:
                                   f"({oficio.get_situacao_display().lower()}). O cancelamento "
                                   "e a justificativa ficam no histórico.")
     return redirect(_voltar(request, oficio))
+
+
+@require_POST
+def excluir_vazios(request: HttpRequest) -> HttpResponse:
+    """"Excluir os rascunhos vazios" da faixa de atenção da lista (pede confirmação)."""
+    if not policies.pode_listar(request.user):
+        raise PermissionDenied
+    excluidos = services.excluir_rascunhos_vazios(
+        request.user, policies.oficios_visiveis(request.user))
+    if excluidos:
+        messages.success(request, f"{len(excluidos)} rascunho{'s' if len(excluidos) > 1 else ''} "
+                                  f"vazio{'s' if len(excluidos) > 1 else ''} excluído"
+                                  f"{'s' if len(excluidos) > 1 else ''} ({', '.join(excluidos)}); "
+                                  "os números voltam a ficar disponíveis.")
+    else:
+        messages.info(request, "Nenhum rascunho vazio para excluir.")
+    return redirect("viagens:oficios")
 
 
 @require_POST
@@ -922,8 +1031,6 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
         "calculo": oficio.diarias_calculo,
         "viajantes": viajantes,
         "trechos": trechos,
-        "copia": projetar_dados_eprotocolo(
-            oficio, documentos=documentos, viajantes=viajantes, trechos=trechos),
         "documentos": documentos,
         "projecao_documentos": projecao,
         "selecao_oficio": projecao.por_tipo("oficio"),
@@ -1224,6 +1331,11 @@ def _lista_justificativas(request: HttpRequest, *, form=None, editando=None, sta
         saida_dia = getattr(o, "saida_dia", None)  # anotado por queries.com_regra_de_prazo
         o.antecedencia = (  # type: ignore[attr-defined]
             (saida_dia - o.data_oficio).days if saida_dia else None)
+        trechos = trechos_de(o)  # urgência (sem justificativa, sai em até 7 dias) e estrada
+        o.tempo = linha_lista.estado_temporal(  # type: ignore[attr-defined]
+            trechos[0].saida_em if trechos and o.situacao != Oficio.Situacao.CANCELADO
+            else None, trechos[-1].chegada_em if trechos else None, timezone.now(),
+            pendente=not o.justificativa.strip())
     if form is None and (pk := request.GET.get("editar", "")).isdigit():
         editando = _oficio_visivel(request, int(pk))
         if policies.pode_editar(request.user, editando):

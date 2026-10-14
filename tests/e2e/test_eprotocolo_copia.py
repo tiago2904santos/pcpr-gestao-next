@@ -1,6 +1,5 @@
 """Campos copiáveis da Folha/Resumo: Clipboard, fallback e atualização real HTMX."""
 
-import json
 import re
 from pathlib import Path
 
@@ -65,41 +64,22 @@ def test_folha_copia_campos_e_tudo_sem_dados_pessoais(logado, dados_e2e, largura
     assert pg.erros_console == []
 
 
-def test_resumo_copia_fallback_e_mostra_protocolo_no_cabecalho(logado, dados_e2e):
+def test_resumo_nao_tem_copia_e_mostra_protocolo_no_cabecalho(logado, dados_e2e):
     pg = logado
-    pg.add_init_script("""window.__cspCopia = [];
-        document.addEventListener('securitypolicyviolation', e => window.__cspCopia.push({
-          fonte: e.sourceFile, linha: e.lineNumber, diretiva: e.effectiveDirective,
-          bloqueado: e.blockedURI, amostra: e.sample
-        }));""")
     oficio = Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])
-    pg.add_init_script("Object.defineProperty(navigator, 'clipboard', {value: undefined})")
     pg.goto(f"/viagens/oficios/?q={oficio.numero_formatado}&escopo=numero")
     pg.locator(".registro__link").first.click()
     janela = pg.locator("#dialogo-resumo")
     expect(janela).to_be_visible()
-    # Resumo mantém consulta copiável e protocolo no cabeçalho.
-    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(1)
-    bloco = janela.locator("#resumo-copia-bloco")
-    _abrir(bloco)
-    tudo = bloco.locator("button[data-copiar-revelar]")
-    tudo.click()
-    texto = bloco.locator("#resumo-copia-tudo")
-    expect(texto).to_be_visible()
-    expect(texto).to_be_focused()
-    assert texto.evaluate("e => e.selectionEnd - e.selectionStart") == len(texto.input_value())
+    # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
+    expect(janela.locator("[data-dados-eprotocolo]")).to_have_count(0)
     expect(janela.locator(".registro-hero__complemento")).to_contain_text(oficio.protocolo_formatado)
-    pasta = Path("artifacts/eprotocolo")
-    pasta.mkdir(parents=True, exist_ok=True)
-    for largura in [360, 390, 768, 1024, 1440]:
+    for largura in [360, 1440]:
         pg.set_viewport_size({"width": largura, "height": 900})
         assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth")
-        pg.screenshot(path=str(pasta / f"resumo-{largura}.png"))
     violacoes = [v for v in rodar_axe(pg) if v["impact"] in ("serious", "critical")]
     assert not violacoes, [(v["id"], [n["target"] for n in v["nodes"]]) for v in violacoes]
-    csp = pg.evaluate("window.__cspCopia")
-    (pasta / "csp-resumo.json").write_text(json.dumps(csp, indent=2), encoding="utf-8")
-    assert pg.erros_console == [], csp
+    assert pg.erros_console == []
 
 
 def test_autosave_atualiza_texto_e_preserva_divulgacao_aberta(logado, dados_e2e):

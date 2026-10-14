@@ -60,6 +60,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
             "meio": oficio.viatura.modelo, "placa": oficio.viatura.placa_formatada,
             "combustivel": getattr(oficio.viatura.combustivel, "nome", ""),
             "viatura": oficio.viatura.get_tipo_display(), "oficial": True,
+            "viatura_id": oficio.viatura_id,
         }
     else:
         # Fora da viatura oficial, o meio é o escolhido na lista; o detalhe (livre) vem
@@ -74,7 +75,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
     assunto = assunto_do_oficio(oficio)
 
     def linha_trecho(t):
-        return {"origem": f"{t.origem.nome}/{t.origem.uf}",
+        return {"ordem": t.ordem, "origem": f"{t.origem.nome}/{t.origem.uf}",
                 "destino": f"{t.destino.nome}/{t.destino.uf}",
                 "saida": _dt(t.saida_em), "chegada": _dt(t.chegada_em)}
 
@@ -102,7 +103,7 @@ def dados_do_oficio(oficio: Oficio) -> dict[str, Any]:
         "cabecalho_unidade": config.nome_extenso.upper(),
         "rodape": config.rodape,
         "viajantes": [
-            {"nome": v.servidor.nome, "cpf": v.servidor.cpf_formatado,
+            {"id": v.servidor_id, "nome": v.servidor.nome, "cpf": v.servidor.cpf_formatado,
              "rg": v.servidor.rg, "cargo": getattr(v.servidor.cargo, "nome", ""),
              "motorista": v.motorista}
             for v in viajantes

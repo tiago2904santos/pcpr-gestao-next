@@ -125,9 +125,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     <h2 class="secao__titulo" id="t-hist"><span class="secao__numero">5</span>Histórico</h2>
     <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
   </div>
-  <ol class="historico__linhas historico__linhas--operacional" aria-label="Eventos da viagem">
-    {% for h in historico|slice:":8" %}{% include "viagens/oficios/_evento.html" with operacional=True %}{% empty %}<li class="historico__linha historico__linha--vazia">Sem eventos registrados.</li>{% endfor %}
-  </ol>
+  {% include "componentes/historico_folha.html" with rotulo="Eventos da viagem" vazio="Sem eventos registrados." primeiros=":8" resto="8:" limite=8 %}
 </section>
 </div>
 
@@ -137,10 +135,10 @@ Rodapé como o do termo, da OS e do plano: Voltar · Gerar documentos · Ações
 (a viagem se grava sozinha). Gerar documentos abre o lote (um cartão por ofício: equipe,
 quem dirige e a viatura, e o que sai junto).
 {% endcomment %}
-<div class="barra-acoes barra-acoes--preparacao barra-acoes--fluxo">
+<div class="barra-acoes barra-acoes--registro barra-acoes--fluxo barra-acoes--preparacao">
+  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Gravando as alterações…" role="status">{% icone "check" classe="icone--sm" %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if quadro and not quadro.pronta %} <span>{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }}.</span>{% endif %}</div>
   <div class="barra-acoes__acoes"><a class="botao botao--texto" href="{% url 'viagens:viagens' %}">Voltar</a>
-  <div class="barra-acoes__status" data-status-salvamento data-texto-sujo="Gravando as alterações…" role="status">{% icone "check-circle-2" %}<span data-anuncio>Grava sozinho enquanto você preenche.</span>{% if quadro and not quadro.pronta %} <span>{{ quadro.pendencias|pluralizar:"item falta,itens faltam" }}.</span>{% endif %}</div>
-  <a class="botao{% if not docs.oficios %} botao--marca{% endif %}" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "file-plus-2" %}<span>Gerar <span class="barra-acoes__extra">documentos</span></span></a>
+  <a class="botao{% if not docs.oficios %} botao--primario{% endif %}" href="{% url 'viagens:gerar_documentos_viagem' v.pk %}">{% icone "file-plus-2" %}<span>Gerar <span class="barra-acoes__extra">documentos</span></span></a>
   {% include "viagens/viagem/_acoes.html" with onde="rodapé" dobrar=True %}
 </div></div>
 {# Baixar tudo (ZIP) gera na hora, com o item do menu em "processando". #}

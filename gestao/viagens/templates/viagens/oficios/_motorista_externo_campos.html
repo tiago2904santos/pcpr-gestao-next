@@ -3,10 +3,9 @@
           <div class="campo campo--lg so-servidor-externo">
             <label class="campo__rotulo" for="busca-motorista-externo">Servidor que vai dirigir</label>
             <pc-combobox class="combobox" data-fonte="{% url 'viagens:buscar_servidores' %}?oficio={{ oficio.pk }}&amp;q=" data-minimo="2">
-              <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}" aria-describedby="ajuda-motorista-externo"></div>
+              <div class="entrada-composta">{% icone "user-round" %}<input id="busca-motorista-externo" class="entrada" role="combobox" placeholder="Nome, CPF ou RG" autocomplete="off" value="{% if oficio.motorista_externo_servidor %}{{ oficio.motorista_externo_servidor.nome }}{% endif %}"></div>
               {{ form.motorista_externo_servidor }}
             </pc-combobox>
-            <p class="campo__ajuda" id="ajuda-motorista-externo">Cadastrado, mas fora desta equipe (viaja por outro ofício).</p>
           </div>
           {% comment %}
           Pessoa não cadastrada: só nome, ofício de origem e protocolo. Quem dirige por

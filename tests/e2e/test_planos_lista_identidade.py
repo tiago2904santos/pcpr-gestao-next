@@ -25,7 +25,7 @@ def test_lista_busca_ordem_menu_e_aba(logado, dados_e2e, largura):
     pg.goto("/viagens/planos/")
     expect(pg.locator(".registro-hero")).to_contain_text("Planos de trabalho")
     expect(pg.locator(".registro-operacional")).to_have_count(2)
-    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e => getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     busca = pg.get_by_role("searchbox", name="Buscar")
     busca.fill("sem-resultado-identidade-planos")
     expect(pg.locator(".barra-acoes__status")).to_contain_text("0 planos")
@@ -44,7 +44,8 @@ def test_lista_busca_ordem_menu_e_aba(logado, dados_e2e, largura):
     menu = pg.get_by_role("button", name=f"Ações do {a}", exact=True)
     menu.focus()
     menu.press("Enter")
-    expect(pg.get_by_role("menuitem", name="Abrir", exact=True)).to_be_focused()
+    expect(pg.get_by_role("menuitem", name="Ver resumo", exact=True)).to_be_focused()  # o resumo abre o menu
+    expect(pg.get_by_role("menuitem", name="Abrir", exact=True)).to_be_visible()
     expect(pg.get_by_role("menuitem", name="Abrir o plano (PDF)")).to_have_count(0)
     pg.keyboard.press("Escape")
     expect(menu).to_be_focused()

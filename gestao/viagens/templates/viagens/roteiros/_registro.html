@@ -7,11 +7,10 @@
     <div class="registro__titulo">
       {# Roteiro mantém "Sede → destinos" (D5): é o caminho que ele descreve. Uma linha, com reticências; tudo no title. #}
       {% with d=r|destinos %}
-      {% if r.situacao == "ativo" and pode_editar_roteiros %}
-        <a class="registro__link" href="{% url 'viagens:editar_roteiro' r.pk %}" title="{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span><span class="registro__link-texto">{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span></a>
-      {% else %}
-        <span class="registro__link registro__link--estatico" title="{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span><span class="registro__link-texto">{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span></span>
-      {% endif %}
+      {# Clicar abre o resumo do roteiro numa janela, sobre a lista; sem JavaScript, vai para a folha (ou para o próprio resumo, para quem só consulta). #}
+      <a class="registro__link" href="{% if r.situacao == "ativo" and pode_editar_roteiros %}{% url 'viagens:editar_roteiro' r.pk %}{% else %}{% url 'viagens:resumo_roteiro' r.pk %}{% endif %}" data-abrir-dialogo="dialogo-resumo"
+         hx-get="{% url 'viagens:resumo_roteiro' r.pk %}" hx-target="#resumo-dialogo" hx-swap="innerHTML"
+         title="{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}"><span class="sr-only">Roteiro #{{ r.pk }} · </span><span class="registro__link-texto">{{ r.sede.nome }}/{{ r.sede.uf }}{% if d %} → {{ d }}{% endif %}</span></a>
       {% endwith %}
       <span class="registro__selos">{% if r.situacao == "cancelado" %}<span class="selo selo--perigo selo--situacao-cancelado">Cancelado</span>{% else %}{% selo_tempo r.primeira_saida r.ultima_chegada %}{% endif %}</span>
     </div>
@@ -22,13 +21,14 @@
       {% else %}<span class="registro__meta-item registro__meta-item--periodo registro__meta-item--vazio">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">Sem período</span></span>{% endif %}
       {% endwith %}
       <span class="registro__meta-item registro__meta-item--trechos">{% icone "route" classe="icone--sm" %}<span class="registro__meta-texto">{{ r.total_trechos|pluralizar:"trecho,trechos" }}</span></span>
+      {% if r.tempo.progresso is not None %}{% include "componentes/linha_estrada.html" with progresso=r.tempo.progresso %}{% endif %}
       {% comment %}
       O cálculo do roteiro é sempre para um servidor (o ofício é que tem equipe), então a
       quantidade não diz nada aqui. O que interessa é onde este roteiro já foi usado.
       {% endcomment %}
     </div>
   </div>
-  <div class="registro-operacional__recursos"><span class="registro-operacional__rotulo">Uso do roteiro</span>
+  <div class="registro-operacional__recursos">
       {% if r.total_oficios %}
         {% comment %}
         Caixa de ações que abre ao pousar o mouse (ou ao focar pelo teclado): é só CSS —
@@ -52,7 +52,7 @@
 
       {% if r.observacoes %}<span class="registro__meta-item registro__meta-item--notas" title="{{ r.observacoes }}">{% icone "info" classe="icone--sm" %}<span class="sr-only">Observações: </span><span class="registro__meta-texto">{{ r.observacoes }}</span></span>{% endif %}
   </div>
-  <div class="registro-operacional__conferencia"><span class="registro-operacional__rotulo">Diárias estimadas</span>
+  <div class="registro-operacional__conferencia">
       {% if r.diarias_resumo %}<span class="registro__meta-item registro__meta-item--diarias" title="Diárias: {{ r.diarias_total|moeda }} · {{ r.diarias_resumo }}">{% icone "banknote" classe="icone--sm" %}<span class="sr-only">Diárias: </span><span class="registro__meta-texto"><span class="registro__valor">{{ r.diarias_total|moeda }}</span><span class="registro__meta-detalhe">{{ r.diarias_resumo }}</span></span></span>
       {% else %}<span class="registro__meta-item registro__meta-item--diarias registro__meta-item--vazio" title="Sem diárias calculadas">{% icone "banknote" classe="icone--sm" %}<span class="registro__meta-texto">Sem diárias</span></span>{% endif %}
   </div>

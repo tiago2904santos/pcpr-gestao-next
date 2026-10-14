@@ -9,7 +9,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from gestao.cadastros.models import ModeloTexto
+from gestao.cadastros.models import ModeloTexto, Municipio, Servidor
 from gestao.viagens import services
 from gestao.viagens.documentos import regioes as reg
 from gestao.viagens.documentos.dados import dados_do_oficio
@@ -114,7 +114,10 @@ class TestModelosMarcados:
         oficio = regioes_do_modelo("oficio", dados)
         assert list(oficio) == ["cabecalho", "corpo", "rodape"]
         assert reg.campos_presentes(oficio["cabecalho"]) == {"data_oficio", "protocolo"}
-        assert reg.campos_presentes(oficio["corpo"]) == {"motivo"}
+        corpo = reg.campos_presentes(oficio["corpo"])
+        # Além do motivo, os destinos e a saída/chegada de cada trecho são campos.
+        assert {c for c in corpo if not c.startswith("trecho_")} == {"motivo", "destinos"}
+        assert {"trecho_1_saida", "trecho_1_chegada"} <= corpo
         assert {e.chave for e in reg.elementos_marcados(oficio["corpo"])} >= {
             "saudacao",
             "equipe",
@@ -264,6 +267,59 @@ class TestServicosDeTexto:
             services.salvar_campo_do_documento(rascunho, usuario, "protocolo", "123")
         with pytest.raises(services.RegraViolada):
             services.salvar_campo_do_documento(rascunho, usuario, "inexistente", "x")
+
+    def test_saida_e_chegada_do_trecho_escritas_no_documento(self, rascunho, cenario):
+        """A data de um trecho escrita no documento grava no trecho: a saída leva a chegada
+        junto (mesmos tempos); a chegada refaz o tempo de viagem; as diárias se refazem."""
+        usuario = cenario.usuarios["operador"]
+        primeiro = rascunho.trechos.order_by("ordem").first()
+        assert primeiro is not None
+        duracao = primeiro.chegada_em - primeiro.saida_em
+        html = html_do_documento("oficio", dados_do_oficio(rascunho))
+        assert f'data-campo="trecho_{primeiro.ordem}_saida"' in html
+        nova_saida = timezone.localtime(primeiro.saida_em) + timedelta(hours=1)
+        atual = services.salvar_campo_do_documento(
+            rascunho, usuario, f"trecho_{primeiro.ordem}_saida", f"{nova_saida:%d/%m/%Y %H:%M}")
+        t = atual.trechos.get(ordem=primeiro.ordem)
+        assert t.saida_em == nova_saida and t.chegada_em - t.saida_em == duracao
+        nova_chegada = timezone.localtime(t.chegada_em) + timedelta(minutes=30)
+        antes = t.tempo_viagem_min or 0
+        atual = services.salvar_campo_do_documento(
+            atual, usuario, f"trecho_{primeiro.ordem}_chegada", f"{nova_chegada:%d/%m/%Y %H:%M}")
+        t = atual.trechos.get(ordem=primeiro.ordem)
+        assert t.chegada_em == nova_chegada and t.tempo_viagem_min == (
+            int((nova_chegada - t.saida_em).total_seconds() // 60) - t.tempo_adicional_min)
+        assert t.tempo_viagem_min != antes
+        with pytest.raises(services.RegraViolada, match="dd/mm/aaaa hh:mm"):
+            services.salvar_campo_do_documento(atual, usuario,
+                                               f"trecho_{primeiro.ordem}_saida", "amanhã")
+        with pytest.raises(services.RegraViolada, match="depois da saída"):
+            services.salvar_campo_do_documento(
+                atual, usuario, f"trecho_{primeiro.ordem}_chegada",
+                f"{timezone.localtime(t.saida_em):%d/%m/%Y %H:%M}")
+        # O documento mostra a data nova no campo.
+        html = html_do_documento("oficio", dados_do_oficio(atual))
+        assert f"{nova_chegada:%d/%m/%Y %H:%M}" in html
+
+    def test_destino_escrito_no_documento_troca_a_cidade_no_roteiro(self, rascunho, cenario):
+        usuario = cenario.usuarios["operador"]
+        destinos = dados_do_oficio(rascunho)["destinos"]
+        assert destinos
+        trechos = list(rascunho.trechos.all())
+        usados = {t.origem_id for t in trechos} | {t.destino_id for t in trechos}
+        outro = (Municipio.objects.exclude(pk__in=usados | {rascunho.sede_id})
+                 .order_by("nome").first())
+        assert outro is not None
+        escrito = ", ".join([f"{outro.nome}/{outro.uf}", *destinos[1:]])
+        atual = services.salvar_campo_do_documento(rascunho, usuario, "destinos", escrito)
+        assert dados_do_oficio(atual)["destinos"][0] == f"{outro.nome}/{outro.uf}"
+        assert atual.trechos.filter(destino=outro).exists()
+        with pytest.raises(services.RegraViolada, match="destino"):
+            services.salvar_campo_do_documento(atual, usuario, "destinos",
+                                               "Cidade Inventada/ZZ, " + escrito)
+        with pytest.raises(services.RegraViolada, match="Não encontrei"):
+            services.salvar_campo_do_documento(
+                atual, usuario, "destinos", ", ".join(["Cidade Inventada/ZZ", *destinos[1:]]))
 
     def test_textos_prontos(self, cenario):
         usuario = cenario.usuarios["operador"]
@@ -416,20 +472,47 @@ class TestVisoesDoEditor:
         r = operador.post(reverse("viagens:editor_remover_texto", args=[*args, pk]))
         assert r.status_code == 200 and all(t["id"] != pk for t in r.json()["textos"])
 
-    def test_estado_avisa_texto_desatualizado(self, operador, rascunho, cenario):
+    def test_estado_avisa_texto_desatualizado_so_de_edicao_antiga(self, operador, rascunho,
+                                                                   cenario):
+        """Edição com o modelo guardado acompanha os dados (fusão) e não fica
+        "desatualizada"; edição antiga, sem o modelo de então, continua avisando."""
         usuario = cenario.usuarios["operador"]
         original = regioes_do_modelo("oficio", dados_do_oficio(rascunho))
-        services.salvar_texto_do_documento(
+        e = services.salvar_texto_do_documento(
             rascunho,
             usuario,
             "oficio",
             {"cabecalho": original["cabecalho"].replace("Data:", "Data do ofício:")},
         )
+        assert set(e.modelos) == {"cabecalho"}
         services.salvar_dados(
             rascunho, usuario, {"data_oficio": rascunho.data_oficio + timedelta(days=1)}
         )
-        e = operador.get(reverse("viagens:editor_estado", args=[rascunho.pk, "oficio"])).json()
-        assert e["desatualizadas"] == ["cabecalho"]
+        url = reverse("viagens:editor_estado", args=[rascunho.pk, "oficio"])
+        assert operador.get(url).json()["desatualizadas"] == []
+        EdicaoDocumento.objects.filter(pk=e.pk).update(modelos={})
+        assert operador.get(url).json()["desatualizadas"] == ["cabecalho"]
+
+    def test_edicao_no_texto_e_dado_novo_ficam_os_dois(self, operador, rascunho, cenario):
+        """Mudar o título da tabela de servidores e depois pôr mais um servidor: o texto
+        mostra as duas coisas — a edição não precisa ser descartada para o dado entrar."""
+        usuario = cenario.usuarios["operador"]
+        original = regioes_do_modelo("oficio", dados_do_oficio(rascunho))
+        services.salvar_texto_do_documento(
+            rascunho, usuario, "oficio",
+            {"corpo": original["corpo"].replace('scope="col">Nome<', 'scope="col">Servidor<')},
+        )
+        novo = Servidor.objects.exclude(viagens__oficio=rascunho).order_by("nome").first()
+        services.adicionar_viajante(Oficio.objects.get(pk=rascunho.pk), usuario, novo)
+        rascunho.refresh_from_db()
+        corpo = services.regioes_vigentes(rascunho, "oficio")["corpo"]
+        assert 'scope="col">Servidor<' in corpo and novo.nome in corpo
+        folha = operador.get(reverse("viagens:folha", args=[rascunho.pk, "oficio"]))
+        html = folha.content.decode()
+        assert ">Servidor<" in html and novo.nome in html
+        # Na emissão, o instantâneo leva a mesma fusão.
+        assert services.regioes_vigentes(rascunho, "oficio") == services.regioes_mescladas(
+            services.edicao_vigente(rascunho, "oficio"), "oficio", dados_do_oficio(rascunho))
 
     def test_folha_de_edicao_traz_o_editor(self, operador, rascunho):
         html = operador.get(reverse("viagens:editar", args=[rascunho.pk])).content.decode()

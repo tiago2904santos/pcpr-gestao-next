@@ -19,7 +19,7 @@ calculada. Os tempos aparecem como texto — "Ajustar" abre os campos (ADR 0016)
     <div class="campo itin__chegada-campo">
       <span class="campo__rotulo" id="ch-{{ t.prefix }}">{% if volta %}Chegada na sede{% else %}Chegada{% endif %}{% if operacional %} · calculada{% endif %}</span>
       <div class="indicador indicador--compacto itin__chegada">
-        <output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if operacional %}<span data-chegada-data>{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</span> <strong data-chegada-hora></strong>{% else %}{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}{% endif %}</output>
+        {% if operacional %}{% icone "flag" classe="icone--sm itin__chegada-icone" %}{% endif %}<output class="indicador__valor" data-chegada aria-labelledby="ch-{{ t.prefix }}">{% if operacional %}<span data-chegada-data>{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}</span> <strong data-chegada-hora></strong>{% else %}{% if t.initial.chegada %}{{ t.initial.chegada|data_iso }}{% else %}—{% endif %}{% endif %}</output>
       </div>
     </div>
   </div>

@@ -1,0 +1,10 @@
+{% comment %}
+Barra de paginação para listas sem barra de ações própria: a contagem e as páginas na barra que
+acompanha a rolagem (como em Ofícios). Só aparece com mais de uma página.
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="barra-acoes barra-acoes--colecao">
+  <p class="barra-acoes__status" role="status">Mostrando {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ page_obj.paginator.count }}</p>
+  {% include "componentes/paginacao.html" with na_barra=True %}
+</div>
+{% endif %}

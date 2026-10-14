@@ -1,0 +1,1 @@
+{% load ui %}<div class="dialogo__linha-selos">{% for s in r.selos %}<span class="selo selo--{{ s.tom }}{% if s.tom == 'neutro' %} selo--sem-ponto{% endif %}">{{ s.texto }}</span>{% endfor %}</div>

@@ -23,7 +23,7 @@ def test_relato_conclusao_e_valores_individuais(logado, dados_e2e, largura):
     expect(valor).to_be_visible()
     expect(valor).to_have_accessible_description(re.compile("Liberada"))
     expect(linha.locator(".registro-valor__identidade")).to_contain_text("Liberada")
-    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "static"
+    assert pg.locator(".barra-acoes").evaluate("e=>getComputedStyle(e).position") == "sticky"  # rodapé grudado, como no ofício
     assert not pg.evaluate("document.documentElement.scrollWidth>innerWidth")
     expect(pg.locator("[data-status-salvamento]")).to_be_visible()
     texto = "Relato salvo antes de sair pelo teclado."
