@@ -8,5 +8,6 @@ alwaysApply: true
 - Toda avaliação, alteração ou entrega que envolva interface deve incluir capturas do resultado.
 - Para páginas web, enviar no mínimo as larguras 360 px e 1440 px, salvo quando outra largura for essencial ao caso.
 - As capturas devem mostrar o estado realmente validado, não uma tela genérica ou antiga.
-- Registrar as evidências em `docs/` conforme o ciclo obrigatório do `AGENTS.md` e também apresentá-las ao usuário na resposta.
+- Anexar as imagens diretamente na conversa para leitura no celular; não entregar apenas links, caminhos locais ou referência à pasta de evidências.
+- Registrar as evidências em `docs/` conforme o ciclo obrigatório do `AGENTS.md` e também anexá-las na resposta ao usuário.
 - Quando o ambiente impedir a captura, explicar claramente a limitação e não declarar aprovação visual.
