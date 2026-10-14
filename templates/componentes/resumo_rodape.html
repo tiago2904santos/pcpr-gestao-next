@@ -1,0 +1,19 @@
+{% load ui %}{% comment %}
+Rodapé do resumo, fora da rolagem — o mesmo arranjo do resumo do ofício: à esquerda, ler o
+documento (o PDF, a via assinada ou a minuta, em nova aba); à direita, "Mais ações" (o ⋮ da
+lista, sem o que já está à vista) e a ação principal. Quem não edita (ou o registro
+cancelado) abre a folha só para ler: o botão vira secundário, com o olho. Sem nada a
+fazer (roteiro para quem só lê), não há rodapé.
+{% endcomment %}{% if r.ler or r.menu_template or r.abrir_url %}<div class="dialogo__rodape" id="resumo-rodape" tabindex="-1" role="group" aria-label="Ações: {{ r.nome }}">
+  {% if r.ler %}<a class="botao botao--texto" href="{{ r.ler.url }}" target="_blank" rel="noopener">{% icone r.ler.icone %}{{ r.ler.rotulo }}<span class="sr-only"> de {{ r.nome }} (PDF, nova aba)</span></a>{% endif %}
+  {% if r.menu_template %}
+  <pc-menu class="menu" data-menu-flutuante>
+    <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
+    <div class="menu__painel menu__painel--acima" role="menu" hidden>
+      <p class="menu__folha-titulo" aria-hidden="true">{{ r.nome }}</p>
+      {% include r.menu_template with no_resumo=True %}
+    </div>
+  </pc-menu>
+  {% endif %}
+  {% if r.abrir_url %}<a class="botao{% if r.editavel %} botao--primario{% endif %}" href="{{ r.abrir_url }}">{% if r.editavel %}{% icone "pencil" %}{% else %}{% icone "eye" %}{% endif %}{{ r.abrir_rotulo }}</a>{% endif %}
+</div>{% endif %}

@@ -1,0 +1,11 @@
+{% comment %}
+Sub-header do resumo do ofício (componentes/resumo_hero_rodape.html): protocolo, datas do
+documento, unidade, viagem, quem criou e a última atualização. Custeio e
+porte de arma não entram: estão na folha e no documento.
+{% endcomment %}{% include "componentes/resumo_hero_dado.html" with rotulo="Protocolo" valor=oficio.protocolo_formatado|default:"Sem protocolo" only %}
+{% include "componentes/resumo_hero_dado.html" with rotulo="Ofício de" valor=oficio.data_oficio|date:"d/m/Y"|default:"Sem data" only %}
+{% if oficio.emitido_em %}{% include "componentes/resumo_hero_dado.html" with rotulo="Emitido em" valor=oficio.emitido_em|date:"d/m/Y H:i" only %}{% endif %}
+{% if oficio.unidade_id %}{% include "componentes/resumo_hero_dado.html" with rotulo="Unidade" valor=oficio.unidade only %}{% endif %}
+{% if oficio.viagem_id %}{% include "componentes/resumo_hero_dado.html" with rotulo="Viagem" valor=oficio.viagem.titulo|default:oficio.viagem_id only %}{% endif %}
+{% if oficio.criado_por_id %}{% include "componentes/resumo_hero_dado.html" with rotulo="Criado por" valor=oficio.criado_por.nome only %}{% endif %}
+{% include "componentes/resumo_hero_dado.html" with rotulo="Atualizado em" valor=oficio.atualizado_em|date:"d/m/Y H:i" only %}

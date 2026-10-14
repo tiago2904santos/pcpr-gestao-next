@@ -1054,22 +1054,15 @@ def _contexto_resumo(request: HttpRequest, oficio, *, revisao: bool = False) -> 
     }
 
 
-def _registros_do_oficio(request: HttpRequest, oficio) -> dict[str, bool]:
-    """Termos, OS e planos deste ofício que o usuário vê: existem? (uma consulta)."""
-    from django.db.models import Exists, OuterRef
+def _registros_do_oficio(request: HttpRequest, oficio) -> dict:
+    """Termos, OS e planos deste ofício que o usuário vê: os cartões do bloco de vínculos do
+    resumo e, para o menu ("Termos deste ofício"…), se existem."""
+    from . import resumo_listas
 
-    from .models import TermoAutorizacao
-
-    u, este = request.user, OuterRef("pk")
-    termos = policies.termos_visiveis(u).filter(
-        Q(oficio=este) | Q(pk__in=TermoAutorizacao.objects.filter(oficios=este).values("pk")))
-    linha = (Oficio.objects.filter(pk=oficio.pk).annotate(
-        termos_do_oficio=Exists(termos),
-        ordens_do_oficio=Exists(policies.ordens_visiveis(u).filter(oficios=este)),
-        planos_do_oficio=Exists(policies.planos_visiveis(u).filter(oficios=este)),
-    ).values_list("termos_do_oficio", "ordens_do_oficio", "planos_do_oficio").get())
-    return dict(zip(("termos_do_oficio", "ordens_do_oficio", "planos_do_oficio"), linha,
-                    strict=True))
+    vinculos = resumo_listas.vinculos_do_oficio(request.user, oficio)
+    tipos = {c["tipo"] for c in vinculos}
+    return {"vinculos": vinculos, "termos_do_oficio": "termo" in tipos,
+            "ordens_do_oficio": "ordem" in tipos, "planos_do_oficio": "plano" in tipos}
 
 
 def _vias_do_oficio(request: HttpRequest, oficio, projecao) -> list[dict]:

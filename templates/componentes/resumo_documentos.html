@@ -1,0 +1,20 @@
+{% load ui %}{% comment %}
+Documentos do resumo (OS, termo, plano), na mesma estação documental do ofício: cada peça
+abre o PDF e traz a via assinada na própria peça; sem documento gerado, a minuta. Só existe
+quando quem olha pode abrir os documentos (`pode_ver_documento_*`). Variável `d`:
+{nota, pecas: [{titulo, meta, url, via}], minuta: {url, nota}}.
+{% endcomment %}<section class="estacao-documental" aria-labelledby="resumo-documentos">
+  <header class="bloco-registro__cabecalho estacao-documental__cabecalho"><h3 class="resumo__titulo bloco-registro__titulo" id="resumo-documentos">{% icone "files" classe="icone--sm" %}Documentos</h3>{% if d.nota %}<span class="bloco-registro__nota">{{ d.nota }}</span>{% endif %}</header>
+  {% if d.pecas %}
+    <ul class="resumo__documentos" role="list">
+      {% for p in d.pecas %}<li class="estacao-documental__peca">{% include "componentes/peca_documental.html" with titulo=p.titulo meta=p.meta url=p.url only %}{% if p.via %}{% include "componentes/documento_assinatura.html" with c=p.via vazio="" only %}{% endif %}</li>{% endfor %}
+    </ul>
+    {% for p in d.pecas %}{% if p.via.s.via and p.via.pode %}{% include "viagens/assinados/_form_remover.html" with s=p.via.s titulo=p.via.titulo voltar=p.via.voltar %}{% endif %}{% endfor %}
+  {% elif d.minuta %}
+    <div class="estado-documental">
+      {% icone "file-pen-line" classe="icone--sm" %}
+      <div><p class="estado-documental__titulo">A minuta está disponível</p><p class="estado-documental__nota">{{ d.minuta.nota }}</p></div>
+      <a class="botao botao--sm" href="{{ d.minuta.url }}" target="_blank" rel="noopener">Ver minuta<span class="sr-only"> (PDF, nova aba)</span>{% icone "external-link" classe="icone--sm" %}</a>
+    </div>
+  {% endif %}
+</section>

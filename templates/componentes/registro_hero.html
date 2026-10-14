@@ -1,15 +1,18 @@
 {% comment %}Cabeçalho de registro oficial. Situação vem do domínio pela parcial indicada.{% endcomment %}
-<header class="registro-hero{% if pagina %} registro-hero--pagina{% endif %}">
+<header class="registro-hero{% if pagina %} registro-hero--pagina{% endif %}{% if rodape_template %} registro-hero--com-rodape{% endif %}">
   {% if numero %}<div class="registro-hero__identidade">{% include "componentes/identidade_documental.html" with rotulo=rotulo numero=numero situacao=situacao complemento=complemento_numero only %}</div>{% endif %}
   <div class="registro-hero__conteudo">
-    <p class="registro-hero__rotulo">{{ contexto }}</p>
+    {% if contexto %}<p class="registro-hero__rotulo">{{ contexto }}</p>{% endif %}
     {# Selos ao lado do título: o estado é parte da identificação, não um rodapé do cabeçalho. #}
     <div class="registro-hero__linha">
-      {% if pagina %}<h1 class="registro-hero__titulo">{% if numero %}<span class="sr-only">{{ rotulo }} {{ numero }}{% if complemento_numero %}/{{ complemento_numero }}{% endif %} — </span>{% endif %}{{ titulo }}</h1>{% else %}<h2 class="dialogo__titulo registro-hero__titulo">{{ titulo }}</h2>{% endif %}
+      {% if pagina %}<h1 class="registro-hero__titulo">{% if numero %}<span class="sr-only">{{ rotulo }} {{ numero }}{% if complemento_numero %}/{{ complemento_numero }}{% endif %} — </span>{% endif %}{{ titulo }}</h1>{% else %}<h2 class="dialogo__titulo registro-hero__titulo"{% if id_titulo %} id="{{ id_titulo }}"{% endif %}>{% if numero %}<span class="sr-only">{{ rotulo }} {{ numero }} — </span>{% endif %}{{ titulo }}</h2>{% endif %}
       {% if situacao_template %}{% include situacao_template %}{% endif %}
     </div>
     {% if complemento %}<p class="registro-hero__complemento">{{ complemento }}</p>{% endif %}
     {% if complemento_template %}{% include complemento_template %}{% endif %}
   </div>
   {% if acoes_template %}<div class="registro-hero__acoes">{% include acoes_template %}</div>{% endif %}
+  {% comment %}Pé do cabeçalho (resumos): o que não é número, destino nem data — situação,
+  protocolo, programa… — numa faixa à parte, na largura toda.{% endcomment %}
+  {% if rodape_template %}<div class="registro-hero__rodape">{% include rodape_template %}</div>{% endif %}
 </header>

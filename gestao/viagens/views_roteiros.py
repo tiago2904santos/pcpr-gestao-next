@@ -18,7 +18,7 @@ from django.views.decorators.vary import vary_on_headers
 
 from gestao.cadastros.models import Municipio
 
-from . import itinerario, linha_lista, policies, queries, services
+from . import itinerario, linha_lista, policies, queries, resumo_listas, services
 from .dominio.bate_volta import BateVoltaInvalido
 from .dominio.diarias import Faixa, RoteiroIncalculavel, SemTabelaDeDiarias
 from .forms import FORM_ID_ROTEIRO, FormularioRoteiro
@@ -57,13 +57,15 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
     roteiro = get_object_or_404(
         queries.roteiros_de_lista(policies.roteiros_visiveis(request.user)).select_related("sede"),
         pk=pk)
-    return render(request, "viagens/roteiros/_resumo.html", {
-        "roteiro": roteiro,
-        "trechos": list(roteiro.trechos.select_related("origem", "destino")),
-        "oficios": list(roteiro.oficios.prefetch_related("trechos__destino")
-                        .order_by("-ano", "-numero")[:50]),
-        "calculo": roteiro.diarias_calculo,
-        "pode_editar": request.user.has_perm("viagens.change_roteiro"),
+    trechos = list(roteiro.trechos.select_related("origem", "destino"))
+    oficios = list(roteiro.oficios.prefetch_related("trechos__destino")
+                   .order_by("-ano", "-numero")[:50])
+    pode_editar = policies.pode_cancelar_roteiro(request.user, roteiro)
+    return render(request, "componentes/resumo_documento.html", {
+        "r": resumo_listas.do_roteiro(roteiro, trechos, oficios, pode_editar),
+        "roteiro": roteiro, "trechos": trechos, "calculo": roteiro.diarias_calculo,
+        "diarias_erro": roteiro.diarias_erro,
+        "pode_criar_oficio": policies.pode_criar(request.user),
     })
 
 

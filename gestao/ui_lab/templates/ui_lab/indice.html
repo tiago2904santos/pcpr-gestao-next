@@ -475,6 +475,7 @@
         <button class="botao" type="button" data-abrir-dialogo="lab-dialogo">{% icone "info" %}Abrir diálogo</button>
         <button class="botao" type="button" data-abrir-dialogo="lab-dossie">{% icone "file-text" %}Dossiê de viagem</button>
         <button class="botao" type="button" data-abrir-dialogo="lab-dossie-vazio">{% icone "file-text" %}Dossiê sem dados</button>
+        <button class="botao" type="button" data-abrir-dialogo="lab-resumo-comum">{% icone "file-text" %}Resumo (casca comum)</button>
         <a class="botao" href="?oficio-direcao=documento">Explorar as três composições do Resumo</a>
         <form method="post" action="#sobreposicoes" data-confirmar="O ofício 131/2026 será cancelado. O número não volta a ser usado e a ação fica registrada no histórico." data-confirmar-titulo="Cancelar ofício?" data-confirmar-rotulo="Cancelar ofício" data-confirmar-perigo>
           <button class="botao botao--perigo-contorno" type="submit" data-lab="confirmar-perigo">{% icone "ban" %}Confirmação destrutiva</button>
@@ -1046,6 +1047,7 @@
 
 {% include "ui_lab/_dossie.html" with vazio=False %}
 {% include "ui_lab/_dossie.html" with vazio=True %}
+{% include "ui_lab/_resumo_comum.html" %}
 <dialog id="lab-dialogo" class="dialogo" aria-labelledby="lab-dialogo-titulo">
   <div class="dialogo__cabecalho"><span class="dialogo__icone">{% icone "info" %}</span><h2 class="dialogo__titulo" id="lab-dialogo-titulo">Emitir ofício 131/2026?</h2></div>
   <div class="dialogo__corpo"><p>Depois de emitido, os dados ficam travados e uma nova versão só pode ser gerada reabrindo o ofício (ação registrada).</p></div>

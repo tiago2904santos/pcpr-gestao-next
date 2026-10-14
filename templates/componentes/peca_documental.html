@@ -1,0 +1,4 @@
+{% load ui %}{% comment %}
+A peça de um documento no resumo (link para o PDF, nova aba): ícone, título e meta.
+Variáveis: `titulo`, `meta`, `url`.
+{% endcomment %}<a class="resumo__documento peca-documental" href="{{ url }}" target="_blank" rel="noopener">{% icone "file-text" %}<span class="ficha-documental__texto"><span>{{ titulo }}</span>{% if meta %}<small class="ficha-documental__meta">{{ meta }}</small>{% endif %}</span><span class="sr-only"> (nova aba)</span></a>

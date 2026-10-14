@@ -1,0 +1,14 @@
+{% load ui %}{% comment %}
+Itens do menu ⋮ do roteiro — os mesmos na linha da lista e no rodapé do resumo ("Mais
+ações"). Variáveis: `roteiro`, `pode_criar_oficio` e, no resumo, `no_resumo` (sem
+"Editar roteiro", que já é o botão principal). Os formulários moram na linha da lista
+(a janela abre por cima dela).
+{% endcomment %}{% if roteiro.situacao == "ativo" %}
+  {% if not no_resumo %}<a class="menu__item" role="menuitem" href="{% url 'viagens:editar_roteiro' roteiro.pk %}">{% icone "pencil" %}Editar roteiro</a>{% endif %}
+  {% if pode_criar_oficio and roteiro.total_trechos %}<button type="submit" form="r-oficio-{{ roteiro.pk }}" class="menu__item" role="menuitem">{% icone "file-plus-2" %}Criar ofício com este roteiro</button>{% endif %}
+  <button type="submit" form="r-cancelar-{{ roteiro.pk }}" class="menu__item" role="menuitem">{% icone "ban" %}Cancelar roteiro</button>
+{% else %}
+  <button type="submit" form="r-reativar-{{ roteiro.pk }}" class="menu__item" role="menuitem">{% icone "undo-2" %}Reativar roteiro</button>
+{% endif %}
+<div class="menu__separador" role="separator"></div>
+<button type="submit" form="r-excluir-{{ roteiro.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir roteiro</button>

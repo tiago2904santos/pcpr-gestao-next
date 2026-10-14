@@ -1,0 +1,1 @@
+{% load ui viagens %}{% comment %}A data em destaque no cabeçalho do resumo do ofício: o período dos trechos.{% endcomment %}<p class="registro-hero__data">{% icone "calendar-days" %}<span>{{ trechos|periodo_resumo|default:"Sem período" }}</span></p>

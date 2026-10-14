@@ -1,0 +1,9 @@
+{% load ui %}{% comment %}
+O porquê do registro, no alto do corpo do resumo: motivo, justificativa, observações ou
+atividades em texto corrido (sem cartão, com o filete dourado da identidade). Variável
+`itens`: [{rotulo, texto} | {rotulo, fichas: [...]}]; no ofício, os itens vêm do
+próprio template (`componentes/resumo_narrativa_item.html`).
+{% endcomment %}{% if itens or conteudo %}<section class="resumo-narrativa" aria-label="Motivo e contexto">
+  {% for n in itens %}{% include "componentes/resumo_narrativa_item.html" with rotulo=n.rotulo texto=n.texto fichas=n.fichas only %}{% endfor %}
+  {% if conteudo %}{% include conteudo %}{% endif %}
+</section>{% endif %}

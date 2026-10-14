@@ -1,3 +1,0 @@
-{% load ui %}<dl class="resumo__definicoes metadados">
-  {% for d in r.dados %}<div class="metadado{% if d.largo %} resumo__largo metadado--texto metadado--linha{% elif d.linha %} metadado--linha{% endif %}"><dt>{{ d.rotulo }}</dt><dd{% if d.largo or d.linha %} title="{{ d.valor }}"{% endif %}>{% if d.valor %}{{ d.valor }}{% else %}<span class="vazio-inline">Não informado</span>{% endif %}</dd></div>{% endfor %}
-</dl>

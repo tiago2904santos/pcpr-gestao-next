@@ -169,8 +169,10 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
         raise PermissionDenied
     p = get_object_or_404(planos.com_dados(policies.planos_visiveis(request.user)), pk=pk)
     linha = _linha_da_lista(request, p, timezone.now())
+    calculo, diarias_erro = resumo_listas.diarias_do_plano(p)
     return render(request, "componentes/resumo_documento.html",
-                  {"r": resumo_listas.do_plano(p, linha), "p": p, "l": linha})
+                  {"r": resumo_listas.do_plano(p, linha, request.user), "p": p, "l": linha,
+                   "calculo": calculo, "diarias_erro": diarias_erro})
 
 
 @require_POST

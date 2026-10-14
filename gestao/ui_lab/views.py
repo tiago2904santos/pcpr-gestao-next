@@ -16,6 +16,7 @@ from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.middleware.csp import get_nonce
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.csp import CSP
 from django.views.decorators.csp import csp_override
 
@@ -211,8 +212,43 @@ def indice(request: HttpRequest) -> HttpResponse:
                       "titulo": "Importar processo (exemplo)",
                       "descricao": "Ação rara da página, só para quem pode"}],
         **_itinerario_exemplo(),
+        "lab_resumo": _resumo_exemplo(),
     }
     return render(request, "ui_lab/indice.html", contexto)
+
+
+def _resumo_exemplo() -> dict:
+    """O `r` da casca comum dos resumos (gestao/viagens/resumo_listas.py), sintético."""
+    pdf = reverse("ui_lab:baixar_exemplo")
+    return {
+        "rotulo": "OS", "numero": "131/2026", "nome": "OS 131/2026",
+        "situacao": "rascunho", "situacao_texto": "Rascunho",
+        "contexto": "Resumo da ordem de serviço", "titulo": "Arapongas/PR",
+        "fatos": [{"icone": "calendar-days", "rotulo": "Período",
+                   "valor": "08/10/2026 — 10/10/2026", "nota": "3 dias"},
+                  {"icone": "users", "rotulo": "Equipe", "valor": "2 servidores"},
+                  {"icone": "layers", "rotulo": "Necessidade", "valor": "Operação policial"}],
+        "narrativa": [{"rotulo": "Motivo", "texto": "Apoio às atividades institucionais "
+                       "(exemplo sintético do UI Lab)."}],
+        "inicio": None, "fim": None, "urgencia": None, "cancelamento": None,
+        "pendencias": [{"mensagem": "Informe o motivo.", "url": "#sobreposicoes"}],
+        "falta_para": "o texto sair completo", "acao": "gerar",
+        "documentos": {"nota": "2 termos", "pecas": [
+            {"titulo": "Ana Beatriz Correia Lima", "meta": "PDF · Termo do servidor",
+             "url": pdf},
+            {"titulo": "Termo genérico", "meta": "PDF · Só destino e período", "url": pdf}]},
+        "blocos": [
+            {"icone": "users", "titulo": "Equipe", "nota": "2 servidores", "cartoes": [
+                {"avatar": "AL", "nome": "Ana Beatriz Correia Lima",
+                 "meta": "Agente de Polícia Judiciária"},
+                {"avatar": "BM", "nome": "Bruno Henrique Martins",
+                 "meta": "Escrivão de Polícia"}]},
+            {"icone": "file-text", "titulo": "Ofícios vinculados", "cartoes": [],
+             "vazio": "OS avulsa: nenhum ofício vinculado."}],
+        "ler": {"url": pdf, "rotulo": "Ver o PDF", "icone": "file-text"},
+        "menu_template": "", "abrir_url": "#sobreposicoes", "abrir_rotulo": "Abrir a OS",
+        "editavel": True,
+    }
 
 
 def busca_exemplo(request: HttpRequest) -> HttpResponse:

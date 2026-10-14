@@ -1,0 +1,8 @@
+{% comment %}A casca comum dos resumos (OS, termo, plano, viagem, roteiro) com dados sintéticos:
+cabeçalho com a faixa de fatos, conferência, narrativa, documentos (duas peças, colunas alinhadas), Registro, blocos
+numerados e rodapé. Sem menu (o ⋮ real depende do registro). Só um exemplo na página: os
+ids do resumo (resumo-titulo, resumo-documentos…) são os da janela real.{% endcomment %}
+<dialog id="lab-resumo-comum" class="dialogo dialogo--resumo dialogo--mesa" aria-labelledby="resumo-titulo">
+  <button class="botao botao--icone botao--sutil dialogo__fechar" type="button" data-fechar-dialogo aria-label="Fechar exemplo">{% icone "x" %}</button>
+  <div class="dialogo__conteudo">{% include "componentes/resumo_documento.html" with r=lab_resumo %}</div>
+</dialog>

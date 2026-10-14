@@ -86,6 +86,28 @@ def formatar_periodo(saida: datetime | None, chegada: datetime | None) -> str:
     return f"{ini:%d/%m/%Y} a {fim:%d/%m/%Y}"
 
 
+def periodo_do_resumo(inicio: date | datetime | None, fim: date | datetime | None) -> str:
+    """O período no cabeçalho das janelas de resumo: "26/10/2026 — 27/10/2026", ou só a
+    data quando começa e termina no mesmo dia. Data com hora vale pelo dia local."""
+    def dia(valor: date | datetime | None) -> date | None:
+        if isinstance(valor, datetime):
+            return timezone.localtime(valor).date()
+        return valor
+    i, f = dia(inicio), dia(fim)
+    if not i:
+        return ""
+    if not f or f == i:
+        return f"{i:%d/%m/%Y}"
+    return f"{i:%d/%m/%Y} — {f:%d/%m/%Y}"
+
+
+@register.filter
+def periodo_resumo(trechos) -> str:
+    """O período de trechos (ofício, roteiro) no formato do cabeçalho dos resumos."""
+    trechos = list(trechos)
+    return periodo_do_resumo(trechos[0].saida_em, trechos[-1].chegada_em) if trechos else ""
+
+
 @register.filter
 def lista_destinos(oficio) -> list[str]:
     """Destinos do ofício (ou roteiro), na ordem, sem repetir e sem a volta à sede."""

@@ -1,44 +1,40 @@
 {% load ui %}{% comment %}
-Janela de resumo de um documento de viagem (OS, termo, plano, viagem) no desenho do resumo
-do ofício: cabeçalho escuro com a identidade, o registro na largura toda, a equipe, os
-vínculos e a conferência ao lado; no rodapé, "Mais ações" (o mesmo ⋮ da linha) e Abrir.
-`r` vem da view (`resumo_listas.py`): rotulo, numero, situacao, contexto, titulo,
-complemento, selos [{texto, tom}], dados [{rotulo, valor, largo|linha}] (largo: a linha
-inteira; linha: uma célula só, sem quebra, cortada com reticências), equipe/vinculos
-[{avatar|icone, escuro, nome, meta, url}], equipe_titulo, vinculos_titulo, vinculos_vazio,
-pendencias [{mensagem, url}], pronto (texto quando nada falta), menu_template, abrir_url,
-abrir_rotulo, nome.
+Janela de resumo de um registro de viagem (OS, termo, plano, viagem, roteiro) no contrato
+comum dos resumos (docs/visual-agents/resumos/README.md), o mesmo do resumo do ofício:
+cabeçalho (número, destino e data em destaque; o resto no pé) → avisos → narrativa (o porquê) → documentos → blocos
+(cada um com o ícone do que mostra; os vínculos por último) →
+rodapé. A ordem do HTML é a ordem de leitura; o que não se aplica não é renderizado e não
+deixa vão. `r` vem de `resumo_listas.py` (as chaves estão descritas lá).
 {% endcomment %}
-{% include "componentes/registro_hero.html" with rotulo=r.rotulo numero=r.numero situacao=r.situacao contexto=r.contexto titulo=r.titulo complemento=r.complemento situacao_template="componentes/resumo_selos.html" %}
-<div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo">
+{% include "componentes/registro_hero.html" with id_titulo="resumo-titulo" rotulo=r.rotulo numero=r.numero situacao=r.situacao titulo=r.titulo situacao_template="componentes/resumo_selos.html" complemento_template="componentes/resumo_data.html" rodape_template="componentes/resumo_hero_rodape.html" %}
+<div class="dialogo__corpo" tabindex="0" role="region" aria-label="Conteúdo do resumo: {{ r.nome }}">
+  {% if r.cancelamento %}{% include "componentes/resumo_cancelamento.html" with titulo=r.cancelamento.titulo motivo=r.cancelamento.motivo only %}
+  {% elif r.pendencias %}{% include "componentes/resumo_conferencia.html" with pendencias=r.pendencias falta_para=r.falta_para only %}{% endif %}
+  {% include "componentes/resumo_narrativa.html" with itens=r.narrativa only %}
   <div class="mesa-registro"><div class="resumo">
-    <div class="mesa-registro__registro">
-      {% include "componentes/bloco_registro.html" with titulo="Registro" icone="landmark" id_titulo="resumo-registro" conteudo="componentes/resumo_dados.html" %}
-    </div>
-    <div class="mesa-registro__equipe">
-      {% include "componentes/bloco_registro.html" with indice="01" titulo=r.equipe_titulo id_titulo="resumo-equipe" nota=r.equipe_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.equipe vazio=r.equipe_vazio %}
-      {% if r.equipe_os_titulo %}
-        {% include "componentes/bloco_registro.html" with indice="02" titulo=r.equipe_os_titulo id_titulo="resumo-equipe-os" nota=r.equipe_os_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.equipe_os vazio=r.equipe_os_vazio %}
-      {% endif %}
-    </div>
+    {% if r.documentos %}
+    <div class="mesa-registro__documentos">{% include "componentes/resumo_documentos.html" with d=r.documentos %}</div>
+    {% endif %}
+    {% for b in r.blocos %}
+    {% if b.percurso %}
     <div class="mesa-registro__principal">
-      {% include "componentes/bloco_registro.html" with indice=r.vinculos_indice|default:"02" titulo=r.vinculos_titulo id_titulo="resumo-vinculos" nota=r.vinculos_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.vinculos vazio=r.vinculos_vazio %}
+      {% include "componentes/bloco_registro.html" with icone=b.icone titulo=b.titulo id_titulo="resumo-percurso" conteudo="viagens/oficios/_resumo_percurso.html" %}
     </div>
     <div class="mesa-registro__coluna">
-      <aside class="mesa-registro__contexto" aria-label="Conferência">
-        {% include "componentes/bloco_registro.html" with titulo="Conferência" icone="list-checks" id_titulo="resumo-conferencia" variante="conferencia" conteudo="componentes/resumo_pendencias.html" %}
-      </aside>
+      <div class="mesa-registro__contexto">
+        {% include "componentes/bloco_registro.html" with titulo="Diárias" icone="banknote" id_titulo="resumo-diarias" variante="conferencia" conteudo="componentes/resumo_diarias.html" %}
+      </div>
     </div>
+    {% elif b.diarias %}
+    <div class="mesa-registro__bloco">
+      {% include "componentes/bloco_registro.html" with titulo="Diárias" icone="banknote" id_titulo="resumo-diarias" nota=b.nota variante="conferencia" conteudo="componentes/resumo_diarias.html" %}
+    </div>
+    {% else %}
+    <div class="mesa-registro__bloco">{% with n=forloop.counter|stringformat:"d" %}
+      {% include "componentes/bloco_registro.html" with icone=b.icone titulo=b.titulo id_titulo="resumo-bloco-"|add:n nota=b.nota conteudo="componentes/resumo_cartoes.html" cartoes=b.cartoes vazio=b.vazio %}
+    {% endwith %}</div>
+    {% endif %}
+    {% endfor %}
   </div></div>
 </div>
-<div class="dialogo__rodape" id="resumo-rodape" tabindex="-1" role="group" aria-label="Ações">
-  <span class="texto-secundario">{{ r.rodape_nota }}</span>
-  <pc-menu class="menu" data-menu-flutuante>
-    <button type="button" class="botao" data-menu-botao aria-haspopup="menu">{% icone "ellipsis-vertical" %}Mais ações</button>
-    <div class="menu__painel menu__painel--acima" role="menu" hidden>
-      <p class="menu__folha-titulo" aria-hidden="true">{{ r.nome }}</p>
-      {% include r.menu_template with no_resumo=True %}
-    </div>
-  </pc-menu>
-  <a class="botao botao--primario" href="{{ r.abrir_url }}">{% icone "pencil" %}{{ r.abrir_rotulo }}</a>
-</div>
+{% include "componentes/resumo_rodape.html" %}

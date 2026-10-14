@@ -1363,7 +1363,7 @@ class TestSelosDasListas:
         # O cenário da revisão deve estar em rascunho; o emitido oferece retificação.
         Oficio.objects.filter(pk=emitido.pk).update(situacao="rascunho")
         revisao = operador.get(reverse("viagens:editar", args=[emitido.pk]) + "?revisar=1")
-        assert re.search(r"<dt>Justificativa</dt>\s*<dd[^>]*>Dispensada</dd>",
+        assert re.search(r"Justificativa</p>\s*<p class=\"resumo-narrativa__texto\">Dispensada<",
                          revisao.content.decode())
 
     def test_roteiros_e_termos_com_o_mesmo_selo(self, operador, cenario):

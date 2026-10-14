@@ -57,7 +57,7 @@
 
 {% block depois_lista %}
 {# Janela de resumo do roteiro (mesmo desenho da do ofício); o conteúdo vem por HTMX no clique. #}
-<dialog id="dialogo-resumo" class="dialogo dialogo--resumo dialogo--mesa" aria-label="Resumo do roteiro">
+<dialog id="dialogo-resumo" class="dialogo dialogo--resumo dialogo--mesa" aria-labelledby="resumo-titulo" aria-label="Resumo do roteiro">
   <button type="button" class="botao botao--icone botao--sutil dialogo__fechar" data-fechar-dialogo aria-label="Fechar o resumo">{% icone "x" %}</button>
   <div class="dialogo__conteudo" id="resumo-dialogo" data-corpo-dialogo>{% include "viagens/oficios/_resumo_carregando.html" %}</div>
 </dialog>
