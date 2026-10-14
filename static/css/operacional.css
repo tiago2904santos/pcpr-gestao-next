@@ -986,24 +986,6 @@ a.selo { min-height: var(--alvo-minimo); padding-inline: var(--esp-3); }
   .registros--operacionais > .registro.registro-operacional--relacoes { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr) var(--altura-controle); grid-template-areas: "identidade titulo recursos acoes" "identidade estado recursos acoes" "identidade agenda recursos acoes"; }
 }
 
-/* Registro em duas linhas: título e selos lado a lado; agenda embaixo. Equipe e ofícios
-   numa coluna à direita (sem rótulo), a partir de 1024px; abaixo disso descem para uma
-   faixa no pé do cartão. No celular os selos descem quando não cabem ao lado do título. */
-.registros--operacionais > .registro.registro-operacional--duas-linhas { grid-template-areas: "identidade acoes" "titulo titulo" "agenda agenda" "recursos recursos"; }
-.registros--operacionais .registro-operacional--duas-linhas .registro__titulo { grid-area: titulo; display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-1) var(--esp-3); min-width: 0; }
-.registros--operacionais .registro-operacional--duas-linhas .registro__link { flex: 0 1 auto; }
-.registros--operacionais .registro-operacional--duas-linhas .registro__selos { flex: none; }
-.registro-operacional--duas-linhas .registro-operacional__recursos .registro__meta-texto { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (min-width: 768px) {
-  .registros--operacionais > .registro.registro-operacional--duas-linhas { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1fr) var(--altura-controle); grid-template-areas: "identidade titulo acoes" "identidade agenda acoes" "identidade recursos acoes"; align-items: center; }
-  .registros--operacionais .registro-operacional--duas-linhas .registro__titulo { flex-wrap: nowrap; }
-  .registros--operacionais .registro-operacional--duas-linhas .registro__selos { flex-wrap: nowrap; }
-}
-@media (min-width: 1024px) {
-  .registros--operacionais > .registro.registro-operacional--duas-linhas { grid-template-columns: calc(var(--esp-4) * 8) minmax(0, 1.3fr) minmax(0, 1fr) var(--altura-controle); grid-template-areas: "identidade titulo recursos acoes" "identidade agenda recursos acoes"; }
-  .registro-operacional--duas-linhas .registro-operacional__recursos { grid-template-columns: minmax(0, 1fr); border-top: 0; padding-top: 0; }
-}
-
 /* Agenda de preparação: conteúdo, período e horário; escolha livre ocupa a linha
    seguinte. Mesma composição no formulário e no diálogo de evento. */
 .campos.campos--agenda { display: grid; grid-template-columns: minmax(0, 1fr); }

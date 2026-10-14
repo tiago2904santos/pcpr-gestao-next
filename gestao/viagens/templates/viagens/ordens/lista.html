@@ -45,7 +45,7 @@
 {% if linhas %}
   <ul class="registros registros--operacionais" aria-labelledby="titulo-resultados">
     {% for l in linhas %}{% with o=l.ordem %}
-      <li class="registro registro-operacional registro-operacional--duas-linhas{% if o.cancelada %} registro--inativo{% elif not o.documento_gerado_em %} registro--rascunho{% endif %}{% if l.tempo.urgencia %} registro--urgente registro--urgente-{{ l.tempo.urgencia }}{% endif %}{% if l.vazio %} registro--vazio{% endif %}">
+      <li class="registro registro-operacional registro-operacional--relacoes{% if o.cancelada %} registro--inativo{% elif not o.documento_gerado_em %} registro--rascunho{% endif %}{% if l.tempo.urgencia %} registro--urgente registro--urgente-{{ l.tempo.urgencia }}{% endif %}{% if l.vazio %} registro--vazio{% endif %}">
         <div class="placa" aria-hidden="true">{% include "componentes/identidade_documental.html" with rotulo="OS" numero=o.numero_formatado compacta=True only %}</div>
         <div class="registro__corpo">
           <div class="registro__titulo">
@@ -66,6 +66,7 @@
           </div>
         </div>
         <div class="registro-operacional__recursos">
+
           <span class="registro__meta-item" title="{{ o.servidores.all|join:', ' }}">{% include "componentes/avatares_mini.html" with pessoas=o.servidores.all %}<span class="registro__meta-texto">{% for servidor in o.servidores.all|slice:":3" %}{{ servidor.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem equipe</span>{% endfor %}</span>{% if o.servidores.all|length > 3 %}<span class="registro__mais" aria-hidden="true">+{{ o.servidores.all|length|add:"-3" }}</span><span class="sr-only"> e mais {{ o.servidores.all|length|add:"-3" }} servidores</span>{% endif %}</span>
           <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% for of in o.oficios.all %}{{ of }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Avulsa</span>{% endfor %}</span></span>
         </div>
