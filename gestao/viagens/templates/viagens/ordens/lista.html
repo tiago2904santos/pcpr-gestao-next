@@ -61,6 +61,10 @@
             {% if o.tipo != "padrao" %}<span class="registro__meta-item" title="{{ o.get_tipo_display }}">{% icone "layers" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.get_tipo_display }}</span></span>{% endif %}
           </div>
         </div>
+        <div class="registro-operacional__recursos">
+          <span class="registro__meta-item" title="{{ o.servidores.all|join:', ' }}">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">{% for servidor in o.servidores.all|slice:":3" %}{{ servidor.nome }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Sem equipe</span>{% endfor %}</span>{% if o.servidores.all|length > 3 %}<span class="registro__mais" aria-hidden="true">+{{ o.servidores.all|length|add:"-3" }}</span><span class="sr-only"> e mais {{ o.servidores.all|length|add:"-3" }} servidores</span>{% endif %}</span>
+          <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% for of in o.oficios.all %}{{ of }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="vazio-inline">Avulsa</span>{% endfor %}</span></span>
+        </div>
         <div class="registro__acoes">
           <pc-menu class="menu">
             <button type="button" class="botao botao--icone botao--sutil botao--menu-registro" data-menu-botao aria-haspopup="menu" aria-label="Ações da {{ o }}">{% icone "ellipsis-vertical" %}</button>
