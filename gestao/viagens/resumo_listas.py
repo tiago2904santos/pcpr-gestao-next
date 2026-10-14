@@ -184,9 +184,6 @@ def da_viagem(v, linha: dict, documentos: dict) -> dict:
         "selos": _selos_de_tempo(selos, linha["tempo"], "gerar os documentos"),
         "dados": [{"rotulo": "Período", "valor": periodo},
                   {"rotulo": "Tipos", "valor": ", ".join(str(t) for t in v.tipos.all())},
-                  {"rotulo": "Unidade", "valor": getattr(v.unidade, "sigla", "")
-                   or getattr(v.unidade, "nome", "")},
-                  {"rotulo": "Situação", "valor": v.get_situacao_display()},
                   {"rotulo": "Motivo", "valor": v.motivo, "largo": True}],
         "equipe_titulo": "Destinos",
         "equipe": [{"icone": "map-pin", "nome": str(d.municipio), "meta": ""}
@@ -194,7 +191,7 @@ def da_viagem(v, linha: dict, documentos: dict) -> dict:
         "equipe_nota": "", "equipe_vazio": "Sem destino informado.",
         "vinculos_titulo": "Documentos da viagem", "vinculos": vinculos,
         "vinculos_vazio": "Nenhum documento ainda: gere os documentos da viagem.",
-        "pendencias": linha["pendencias"], "pronto": "Tudo pronto",
+        "pendencias": linha["pendencias"], "pronto": "Tudo pronto", "pronto_neutro": True,
         "menu_template": "viagens/viagem/_menu_linha.html",
         "abrir_url": linha["url_folha"], "abrir_rotulo": "Abrir a viagem",
         "nome": f"Viagem #{v.pk}"}

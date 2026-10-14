@@ -589,6 +589,15 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
 .prontidao-documental .checklist__item { font-size: var(--texto-sm); line-height: var(--altura-linha); }
 .prontidao-documental .checklist__item a { color: var(--cor-texto); }
 .prontidao-documental > .botao { justify-self: start; }
+/* No resumo da Viagem, a ausência de pendências é uma confirmação serena: sem o
+   contorno nem o filete de atenção usados quando ainda existe algo a resolver. */
+.prontidao-documental--pronta.prontidao-documental--resumo-neutro,
+.prontidao-documental--pronta.prontidao-documental--resumo-neutro:hover {
+  translate: none;
+  border: 0;
+  background: var(--cor-superficie-sutil);
+  box-shadow: none;
+}
 @media (min-width: 1024px) {
   .preparacao-documental { gap: var(--esp-5); }
   .prontidao-documental { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto; align-items: center; gap: var(--esp-5); }

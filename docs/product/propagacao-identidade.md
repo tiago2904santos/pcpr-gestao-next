@@ -270,6 +270,11 @@ feedback verdadeiro de autosave. Lote com equipe compacta/viatura-cartão existe
 Nenhum editor próprio ou novo módulo de negócio. Limpeza apenas após consumidores
 migrados e provas; bases genéricas ainda necessárias em Prestação ficam preservadas.
 
+Na janela de resumo da Viagem, o bloco Registro mostra somente período, tipos e motivo:
+unidade e situação já aparecem no contexto da lista e do cabeçalho e não devem ser
+repetidas. Quando a conferência não tem pendências, “Tudo pronto” é uma confirmação
+neutra, sem contorno nem filete lateral; pendências continuam usando o destaque de aviso.
+
 ## Prestação de Contas — Lista operacional
 
 Rota /viagens/prestacoes/. Um grupo por Ofício e formulário por servidor;25Ofícios
