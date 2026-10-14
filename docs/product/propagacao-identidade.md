@@ -274,6 +274,10 @@ Na janela de resumo da Viagem, o bloco Registro mostra somente período, tipos e
 unidade e situação já aparecem no contexto da lista e do cabeçalho e não devem ser
 repetidas. Quando a conferência não tem pendências, “Tudo pronto” é uma confirmação
 neutra, sem contorno nem filete lateral; pendências continuam usando o destaque de aviso.
+No desktop, a janela acompanha a altura do conteúdo até o limite da tela; somente o que
+ultrapassar esse limite ganha rolagem, sem reservar uma altura vazia. Depois de Destinos,
+mostrar “Equipe da ordem de serviço” com os servidores das OS vinculadas à Viagem,
+sem repetir quem participa de mais de uma OS. Documentos da viagem permanece em seguida.
 
 ## Prestação de Contas — Lista operacional
 

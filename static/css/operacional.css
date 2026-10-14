@@ -123,7 +123,7 @@
 }
 
 /* Mesa de registro oficial — composição DETAIL com estação documental. */
-dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height: calc(100dvh - 2 * var(--esp-5)); max-height: calc(100dvh - 2 * var(--esp-5)); }
+dialog.dialogo--mesa { width: min(86rem, calc(100vw - 2 * var(--esp-5))); height: fit-content; max-height: calc(100dvh - 2 * var(--esp-5)); }
 /* A mesa ampla entra sem deslocar seus alvos sob o ponteiro. A saída mantém o
    contrato do diálogo; duração também obedece ao movimento reduzido dos tokens. */
 dialog.dialogo--mesa[open]:not(.dialogo--saindo) { animation: aparecer var(--duracao-instantanea) var(--curva-padrao); }

@@ -4062,7 +4062,7 @@ pc-transporte > .secao__bloco-cabecalho > .secao__estado > .interruptor { margin
    na altura da tela — o que passar disso rola dentro dela — e nunca deixa um vão embaixo. */
 .mesa-registro__coluna { grid-area: contexto; min-width: 0; align-self: stretch; }
 .mesa-registro__registro { grid-area: registro; min-width: 0; }
-.mesa-registro__equipe { grid-area: equipe; min-width: 0; }
+.mesa-registro__equipe { grid-area: equipe; min-width: 0; display: grid; gap: var(--esp-6); }
 /* Equipe e transporte: uma fileira de cartões (servidores + viatura), no mesmo desenho do cartão Registro institucional. */
 /* Cada linha se divide em colunas iguais e ocupa a largura toda (1 servidor + viatura = 2 colunas; 3 = 3; a última linha também se estica). */
 .dialogo--mesa .mesa-registro__equipe .equipe-transporte { display: flex; flex-wrap: wrap; gap: var(--esp-3); }
