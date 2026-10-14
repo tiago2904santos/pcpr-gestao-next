@@ -17,9 +17,12 @@ abrir_rotulo, nome.
     </div>
     <div class="mesa-registro__equipe">
       {% include "componentes/bloco_registro.html" with indice="01" titulo=r.equipe_titulo id_titulo="resumo-equipe" nota=r.equipe_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.equipe vazio=r.equipe_vazio %}
+      {% if r.equipe_os_titulo %}
+        {% include "componentes/bloco_registro.html" with indice="02" titulo=r.equipe_os_titulo id_titulo="resumo-equipe-os" nota=r.equipe_os_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.equipe_os vazio=r.equipe_os_vazio %}
+      {% endif %}
     </div>
     <div class="mesa-registro__principal">
-      {% include "componentes/bloco_registro.html" with indice="02" titulo=r.vinculos_titulo id_titulo="resumo-vinculos" nota=r.vinculos_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.vinculos vazio=r.vinculos_vazio %}
+      {% include "componentes/bloco_registro.html" with indice=r.vinculos_indice|default:"02" titulo=r.vinculos_titulo id_titulo="resumo-vinculos" nota=r.vinculos_nota conteudo="componentes/resumo_cartoes.html" cartoes=r.vinculos vazio=r.vinculos_vazio %}
     </div>
     <div class="mesa-registro__coluna">
       <aside class="mesa-registro__contexto" aria-label="Conferência">

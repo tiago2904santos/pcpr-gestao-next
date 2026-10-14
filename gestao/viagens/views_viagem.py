@@ -156,7 +156,7 @@ def resumo(request: HttpRequest, pk: int) -> HttpResponse:
     policies.exigir(request.user.has_perm("viagens.view_viagem"))
     v = get_object_or_404(
         policies.viagens_visiveis(request.user).select_related("unidade")
-        .prefetch_related("destinos__municipio", "tipos")
+        .prefetch_related("destinos__municipio", "tipos", "ordens__servidores__cargo")
         .annotate(n_oficios=Count("oficios", distinct=True),
                   n_ordens=Count("ordens", distinct=True),
                   n_planos=Count("planos", distinct=True),

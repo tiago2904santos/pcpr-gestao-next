@@ -24,6 +24,15 @@ def _servidores(servidores) -> list[dict]:
             for s in servidores]
 
 
+def _equipe_das_ordens(ordens) -> list[dict]:
+    """Servidores das OS da viagem, uma única vez mesmo quando estão em mais de uma OS."""
+    unicos = {}
+    for ordem in ordens:
+        for servidor in ordem.servidores.all():
+            unicos.setdefault(servidor.pk, servidor)
+    return _servidores(unicos.values())
+
+
 def _oficios(oficios) -> list[dict]:
     lista = reverse("viagens:oficios")
     return [{"icone": "file-text", "escuro": o.situacao == "emitido",
@@ -175,6 +184,7 @@ def da_viagem(v, linha: dict, documentos: dict) -> dict:
                     ("file-signature", documentos["termos"], "termo(s)", "autorizações"),
                     ("route", documentos["roteiros"], "roteiro(s)", "percursos"))
                 if n]
+    equipe_os = _equipe_das_ordens(v.ordens.all())
     return {
         "rotulo": "Viagem", "numero": f"#{v.pk}",
         "situacao": "cancelado" if v.cancelada else "rascunho",
@@ -188,6 +198,11 @@ def da_viagem(v, linha: dict, documentos: dict) -> dict:
         "equipe": [{"icone": "map-pin", "nome": str(d.municipio), "meta": ""}
                    for d in v.destinos.all()],
         "equipe_nota": "", "equipe_vazio": "Sem destino informado.",
+        "equipe_os_titulo": "Equipe da ordem de serviço", "equipe_os": equipe_os,
+        "equipe_os_nota": (f"{len(equipe_os)} servidor"
+                           f"{'es' if len(equipe_os) != 1 else ''}"),
+        "equipe_os_vazio": "Nenhum servidor nas ordens de serviço.",
+        "vinculos_indice": "03",
         "vinculos_titulo": "Documentos da viagem", "vinculos": vinculos,
         "vinculos_vazio": "Nenhum documento ainda: gere os documentos da viagem.",
         "pendencias": linha["pendencias"], "pronto": "Tudo pronto", "pronto_neutro": True,
