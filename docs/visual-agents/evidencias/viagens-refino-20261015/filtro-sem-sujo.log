@@ -1,0 +1,22 @@
+Bytecode compiled 4391 files in 4.06s
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /opt/venv/bin/python3
+cachedir: .pytest_cache
+django: version: 6.1.1, settings: config.settings.test (from env)
+hypothesis profile 'default'
+rootdir: /verificacao
+configfile: pyproject.toml
+plugins: cov-7.1.0, django-4.14.0, hypothesis-6.168.3, xdist-3.8.0, platformdirs-4.12.2
+created: 2/2 workers
+2 workers [3 items]
+
+scheduling tests via LoadScheduling
+
+tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[360] 
+tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[1440] 
+[gw1] [ 33%] PASSED tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[1440] 
+[gw0] [ 66%] PASSED tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[360] 
+tests/e2e/test_viagens_refino.py::test_enter_na_busca_compartilhada_tambem_preserva_plano 
+[gw0] [100%] PASSED tests/e2e/test_viagens_refino.py::test_enter_na_busca_compartilhada_tambem_preserva_plano 
+
+======================== 3 passed in 345.76s (0:05:45) =========================

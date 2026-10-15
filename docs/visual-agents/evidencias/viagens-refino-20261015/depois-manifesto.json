@@ -1,0 +1,114 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "futuras",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "vinculada",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "basica",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "cancelada",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "lote",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "futuras",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "vinculada",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "basica",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "cancelada",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  },
+  {
+    "tela": "lote",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": []
+  }
+]

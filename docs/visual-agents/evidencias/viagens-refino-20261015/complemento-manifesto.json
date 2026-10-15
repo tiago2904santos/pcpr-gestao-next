@@ -1,0 +1,20 @@
+[
+  {
+    "tela": "lote",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "lote",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  }
+]

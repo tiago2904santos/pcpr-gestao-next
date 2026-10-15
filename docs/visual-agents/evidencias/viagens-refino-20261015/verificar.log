@@ -1,0 +1,181 @@
+▶ ruff
+Bytecode compiled 4391 files in 5.49s
+All checks passed!
+▶ fronteiras
+Bytecode compiled 4391 files in 2.33s
+
+╔══╗─────────▶╔╗ ╔╗      ╔╗◀───┐
+╚╣╠╝◀─────┐  ╔╝╚╗║║────▶╔╝╚╗   │
+ ║║   ╔══╦══╦╩╗╔╝║║  ╔╦═╩╗╔╝╔═╦══╗
+ ║║╔══╣╔╗║╔╗║╔╣║ ║║ ╔╬╣╔╗║║ ║│║╔═╝
+╔╣╠╣║║║╚╝║╚╝║║║╚╗║╚═╝║║║║║╚╗║═╣║
+╚══╩╩╩╣╔═╩══╩╝╚═╝╚═══╩╩╝╚╩═╩╩═╩╝
+  └──▶║║                    ▲ 
+      ╚╝────────────────────┘
+
+
+---------
+Contracts
+---------
+
+Analyzed 602 files, 3213 dependencies.
+--------------------------------------
+
+Plataforma não depende de contextos de negócio KEPT (17 ignored imports)
+Regras de domínio puras não dependem do Django KEPT
+Cadastros não dependem de Viagens KEPT (1 ignored import)
+Integrações externas não dependem de contextos de negócio (ADR 0019) KEPT
+Domínio puro não conhece integrações externas (ADR 0019) KEPT
+Imprensa (ASCOM) é um contexto à parte: não depende de Viagens nem de Cadastros KEPT
+Regras do atendimento à imprensa são puras (sem Django) KEPT
+Publicações (ASCOM) é um contexto à parte: não depende de outros contextos KEPT
+Regras das publicações são puras (sem Django) KEPT
+Palestras (ASCOM) usa só os cadastros de base: não depende de outros contextos KEPT
+Regras das palestras são puras (sem Django) KEPT
+Eventos Sociais usa só os cadastros de base (Viagens entra pela integração E4) KEPT
+Coffee Break usa só os cadastros de base (Eventos e Palestras entram por 
+ganchos) KEPT
+Regras do Coffee Break são puras (sem Django) KEPT
+Regras de Eventos Sociais são puras (sem Django) KEPT
+Identidade é base: não depende de outros contextos KEPT
+
+Contracts: 16 kept, 0 broken.
+▶ mypy
+Bytecode compiled 4391 files in 2.49s
+Success: no issues found in 309 source files
+▶ bandit
+Bytecode compiled 4391 files in 3.14s
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: https is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: seguran is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: estreita is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: tipo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: a is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: constraint is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: garante is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: um is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: dono is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: n is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: criptografia is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: determinismo is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: s is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: o is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: pr is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: prio is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: manage is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: py is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: argumentos is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: fixos is not a test name or id, ignoring
+[tester]	WARNING	nosec encountered (B603), but no failed test on file gestao/viagens/management/commands/semear_demo.py:67
+[manager]	WARNING	Test in comment: esquema is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: verificado is not a test name or id, ignoring
+[manager]	WARNING	Test in comment: acima is not a test name or id, ignoring
+▶ migrações
+Bytecode compiled 4391 files in 2.94s
+▶ tipos JS
+▶ testes
+Bytecode compiled 4391 files in 1.87s
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+...................................................................F.... [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+_________________________ test_criar_pela_tela_e_folha _________________________
+[gw2] linux -- Python 3.13.16 /opt/venv/bin/python3
+
+c = Cenario(ids={'oficio_emitido': 97, 'oficio_rascunho': 98, 'oficio_vazio': 99, 'oficio_cancelado': 100, 'oficio_outra_u...tor': <Usuario: Gestora de Viagens>, 'consulta': <Usuario: Usuário de Consulta>, 'outra': <Usuario: Operadora da DPC>})
+
+    def test_criar_pela_tela_e_folha(c):
+        cli = _cliente(c.usuarios["operador"])
+        r = cli.post(reverse("viagens:nova_viagem"))
+        v = Viagem.objects.get()
+        assert r["Location"] == reverse("viagens:editar_viagem", args=[v.pk])
+        html = cli.get(r["Location"]).content.decode()
+        assert "Identificação" in html and "Documentos da viagem" in html
+>       assert "Falta o tipo" in html and "Nenhum ofício vinculado a esta viagem." in html
+E       assert ('Falta o tipo' in '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n' and 'Nenhum ofício vinculado a esta viagem.' in '\n<!doctype html>\n<html lang="pt-BR">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=devi...</kbd> abrir</span><span><kbd>Esc</kbd> fechar</span>\n    </div>\n  </dialog>\n</pc-comandos>\n\n\n</body>\n</html>\n')
+
+gestao/viagens/tests/test_viagem.py:164: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-15 14:55:12,853 WARNING gestao.plataforma.middleware Orçamento SQL excedido em /viagens/viagens/11/: 63 consultas (limite 25)
+------------------------------ Captured log call -------------------------------
+WARNING  gestao.plataforma.middleware:middleware.py:79 Orçamento SQL excedido em /viagens/viagens/11/: 63 consultas (limite 25)
+=============================== warnings summary ===============================
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_numero_desenhado_sem_alterar_a_via
+gestao/viagens/tests/test_carimbo.py::test_tela_previa_trava_e_permissoes
+  /opt/venv/lib/python3.13/site-packages/pypdf/_page.py:1342: DeprecationWarning: Calling `PageObject.replace_contents()` for pages not assigned to a writer is deprecated and will be removed in pypdf 7.0.0. Attach the page to the writer first or use `PdfWriter(clone_from=...)` directly. The existing approach has proved being unreliable.
+    self.replace_contents(ContentStream(new_content_array, self.pdf))
+
+gestao/viagens/tests/test_listas_atencao.py::test_listas_aceitam_o_recorte_de_atencao[vazios-viagens:termos]
+  /verificacao/gestao/viagens/views_termos.py:128: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'gestao.viagens.models.TermoAutorizacao'> QuerySet.
+    pagina = Paginator(qs, POR_PAGINA).get_page(request.GET.get("pagina"))
+
+gestao/viagens/tests/test_listas_atencao.py::test_listas_aceitam_o_recorte_de_atencao[vazios-viagens:viagens]
+  /verificacao/gestao/viagens/views_viagem.py:110: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'gestao.viagens.models.Viagem'> QuerySet.
+    pagina = Paginator(ordenado, POR_PAGINA).get_page(request.GET.get("pagina"))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED gestao/viagens/tests/test_viagem.py::test_criar_pela_tela_e_folha - as...
+1 failed, 2595 passed, 5 warnings in 3802.78s (1:03:22)

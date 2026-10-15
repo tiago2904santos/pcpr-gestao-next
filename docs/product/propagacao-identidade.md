@@ -234,6 +234,11 @@ lacunas/diferenças já levantadas ficam explícitas, não são ampliadas por um
 
 ## Viagens — Folha e geração em lote
 
+Atualização de composição em 15/10/2026: `viagens-refinamento-profundo.md` e ADR 0039.
+Documentos passam a vir logo após os dados; vínculos ficam recolhidos e filtráveis;
+etapas concluídas não empurram divergências para baixo. Os contratos funcionais
+descritos nesta seção permanecem, com a apresentação atual descrita no novo contrato.
+
 Refinamento de leitura (12/10): consulta e cancelada apresentam Tipo, Período
 e Destinos como metadados canônicos do Resumo, com rótulo discreto e valor íntegro.
 Sem formulário desabilitado, novo dado ou alteração de permissão. Tipo e destinos

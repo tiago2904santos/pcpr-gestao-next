@@ -1,5 +1,17 @@
 # Catálogo de componentes
 
+## Composição do hub Viagens — 15/10/2026
+
+`viagem/_documentos.html` agrupa as relações documentais canônicas com estado,
+origem, quantidade, vazio orientado e criação por formulário externo. A conferência
+usa disclosures nativos para as nove etapas reais; vínculos são disclosures com
+caixas de escolha e filtro local. `conjuntos.js` aceita controles opcionais: sem
+seletor de conjunto/botões, apenas filtra `.caixas__item` e conta marcados. Enter no
+filtro não envia o formulário; ocultar uma opção não altera sua seleção.
+Composição exclusiva em `viagens.css`, sem criar outra versão de campo, calendário,
+equipe, transporte ou modal. Contrato/QA: `product/viagens-refinamento-profundo.md`
+e `visual-agents/qa/viagens-refinamento-profundo-2026-10-15.md`.
+
 ## Identidade de registro e equipes — 12/10/2026
 
 `identidade_documental.html` aceita `placa=True` junto de `compacta=True` para

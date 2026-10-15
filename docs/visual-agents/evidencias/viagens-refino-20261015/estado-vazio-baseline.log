@@ -1,0 +1,133 @@
+Bytecode compiled 4391 files in 4.69s
+E                                                                        [100%]
+==================================== ERRORS ====================================
+________________ ERROR at setup of test_criar_pela_tela_e_folha ________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7fe580495f70>
+sql = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 15, 18, 3, 12, 703743, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 15, 18, 3, 12, 703851, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7fe580495f70>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/venv/lib/python3.13/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INERROR] (host=127.0.0.1 user=pcpr_test database=test_pcpr_viagens_browser) at 0x7fe5803b16d0>
+query = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 15, 18, 3, 12, 703743, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 15, 18, 3, 12, 703851, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "unidade_nome_unico"
+E           DETAIL:  Key (lower(nome::text))=(assessoria de comunicação social) already exists.
+
+/opt/venv/lib/python3.13/site-packages/psycopg/cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def c():
+>       cen = cenario_completo()
+              ^^^^^^^^^^^^^^^^^^
+
+gestao/viagens/tests/test_viagem.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gestao/viagens/tests/cenarios.py:76: in cenario_completo
+    ascom = Unidade.objects.create(sigla="ASCOM", nome="Assessoria de Comunicação Social")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/models/query.py:752: in create
+    obj.save(force_insert=True, using=self.db)
+/opt/venv/lib/python3.13/site-packages/django/db/models/base.py:904: in save
+    self.save_base(
+/opt/venv/lib/python3.13/site-packages/django/db/models/base.py:996: in save_base
+    updated = self._save_table(
+/opt/venv/lib/python3.13/site-packages/django/db/models/base.py:1201: in _save_table
+    results = self._do_insert(
+/opt/venv/lib/python3.13/site-packages/django/db/models/base.py:1253: in _do_insert
+    return manager._insert(
+/opt/venv/lib/python3.13/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/models/query.py:2166: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py:1954: in execute_sql
+    cursor.execute(sql, params)
+/opt/venv/lib/python3.13/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/opt/venv/lib/python3.13/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/venv/lib/python3.13/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+/opt/venv/lib/python3.13/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [INERROR] (host=127.0.0.1 user=pcpr_test database=test_pcpr_viagens_browser) at 0x7fe5803b16d0>
+query = 'INSERT INTO "cadastros_unidade" ("ativo", "criado_em", "atualizado_em", "sigla", "nome") VALUES (%s, %s, %s, %s, %s) RETURNING "cadastros_unidade"."id"'
+params = (True, datetime.datetime(2026, 10, 15, 18, 3, 12, 703743, tzinfo=datetime.timezone.utc), datetime.datetime(2026, 10, 15, 18, 3, 12, 703851, tzinfo=datetime.timezone.utc), 'ASCOM', 'Assessoria de Comunicação Social')
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "unidade_nome_unico"
+E           DETAIL:  Key (lower(nome::text))=(assessoria de comunicação social) already exists.
+
+/opt/venv/lib/python3.13/site-packages/psycopg/cursor.py:117: IntegrityError
+=========================== short test summary info ============================
+ERROR gestao/viagens/tests/test_viagem.py::test_criar_pela_tela_e_folha - dja...
+1 error in 46.58s

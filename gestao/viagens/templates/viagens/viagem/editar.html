@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% load static viagens %}
 {% block titulo %}{{ v }} · Viagens{% endblock %}
-{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}">{% endblock %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/formulario.css' %}"><link rel="stylesheet" href="{% static 'css/documento.css' %}"><link rel="stylesheet" href="{% static 'css/listas.css' %}"><link rel="stylesheet" href="{% static 'css/viagens.css' %}">{% endblock %}
 {% block migalhas %}{% include "componentes/migalhas.html" %}{% endblock %}
 {% comment %}
 Folha da viagem, com as peças e o arranjo das folhas do termo, da OS e do plano: placa,
 frase-resumo e ações no cabeçalho; cartões numerados — 1 Identificação (tipos, o período
-num calendário só e os blocos Destinos e Motivo), 2 Vincular documentos que já existem
-(gravam sozinhos), 3 Conferência (o que falta e o que não bate), 4 Documentos da viagem
-(cada um com situação, link para a folha dele e "Novo …" já vinculado) e 5 Histórico; e a
+num calendário só e os blocos Destinos e Motivo), 2 Documentos da viagem,
+3 Vínculos existentes recolhidos, 4 Conferência por etapa e coerência e 5 Histórico; e a
 barra do rodapé com Voltar, Gerar documentos e Ações. Sem permissão de editar (consulta)
 ou cancelada, os dados aparecem como texto, sem formulário.
 {% endcomment %}
-{% block classe_conteudo %}pagina--documental{% endblock %}
+{% block classe_conteudo %}pagina--documental pagina--viagem{% endblock %}
 {% block conteudo %}
 {% include "viagens/viagem/_cabecalho.html" %}
 
@@ -26,7 +25,7 @@ ou cancelada, os dados aparecem como texto, sem formulário.
 
 {% include "componentes/resumo_erros.html" %}
 
-<div class="documento documento--preparacao">
+<div class="documento documento--preparacao documento--viagem">
 {% if editavel %}
 <form method="post" action="{% url 'viagens:salvar_viagem' v.pk %}" novalidate id="form-viagem" class="formulario--secoes" data-proteger data-autosave="{% url 'viagens:autosave_viagem' v.pk %}">
   {% csrf_token %}
@@ -39,11 +38,11 @@ ou cancelada, os dados aparecem como texto, sem formulário.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-dados"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado" id="estado-dados" data-vivo>{% if not v.titulo %}<span class="selo selo--aviso selo--situacao-rascunho">Falta o tipo</span>{% endif %}{% if not v.data_inicio %}<span class="selo selo--aviso selo--situacao-rascunho">Falta período</span>{% endif %}{% if not destinos %}<span class="selo selo--aviso selo--situacao-rascunho">Falta destino</span>{% endif %}</div>
-      <p class="secao__nota" id="nota-dados" data-vivo>O título da viagem nasce dos tipos{% if v.titulo %}: <strong>{{ v.titulo }}</strong>{% endif %}. O termo, a OS e o plano criados daqui nascem com o período e os destinos; o ofício e a OS levam o motivo.</p>
+      <p class="secao__nota" id="nota-dados" data-vivo>Defina a ação, quando acontece e para onde a equipe vai. Esses dados orientam os documentos criados nesta viagem.</p>
     </div>
     <div class="pilha">
       {# Tipo seguido do calendário compartilhado, com largura própria. #}
-      <div class="pilha" id="periodo">
+      <div class="pilha viagem-agenda" id="periodo">
         {# Escolher um tipo com motivo cadastrado escreve o motivo, se ele está em branco (motivo-do-tipo.js). #}
         <div class="campo{% if form.tipos.errors %} campo--erro{% endif %}"{% if form.motivos_dos_tipos %} data-motivos-dos-tipos="{{ form.motivos_dos_tipos }}" data-alvo="{{ form.motivo.id_for_label }}"{% endif %}>
           <label class="campo__rotulo" for="tipos-gatilho" id="tipos-rotulo">Tipo da viagem</label>
@@ -68,52 +67,42 @@ ou cancelada, os dados aparecem como texto, sem formulário.
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-motivo">{% icone "file-pen-line" classe="icone--sm" %}Motivo</h3>
       </div>
-      <div class="pilha">
+      <div class="pilha viagem-motivo">
         {% include "componentes/campo.html" with campo=form.motivo %}
         {% include "componentes/campo.html" with campo=form.descricao %}
       </div>
     </div>
   </section>
 
-  {# 2. Vincular documentos que já existem. #}
+  {% include "viagens/viagem/_documentos.html" %}
+
+  {# Reaproveitamento fica disponível sem dominar a preparação. #}
   <section class="secao" id="vinculos" aria-labelledby="t-vinculos">
-    <div class="secao__cabecalho">
-      <h2 class="secao__titulo" id="t-vinculos"><span class="secao__numero">2</span>Vincular documentos existentes</h2>
+    <details class="viagem-vinculos">
+    <summary><h2 class="secao__titulo" id="t-vinculos"><span class="secao__numero">3</span>Vincular documentos existentes{% icone "chevron-down" classe="icone--sm viagem-vinculos__seta" %}</h2></summary>
+    <div class="viagem-vinculos__corpo">
       <p class="secao__nota">Reaproveite o que já foi feito: marque para vincular, desmarque para soltar. Aparecem os da unidade ainda sem viagem (os 40 mais recentes de cada tipo); o que chega pelo ofício já conta.</p>
+    <div class="pilha viagem-vinculos__grupos">
+      {% include "viagens/viagem/_vinculo.html" with campo=form.oficios icone="file-text" %}
+      {% include "viagens/viagem/_vinculo.html" with campo=form.roteiros icone="route" %}
+      {% include "viagens/viagem/_vinculo.html" with campo=form.planos icone="list-checks" %}
+      {% include "viagens/viagem/_vinculo.html" with campo=form.ordens icone="clipboard-list" %}
+      {% include "viagens/viagem/_vinculo.html" with campo=form.termos icone="file-signature" %}
     </div>
-    <div class="pilha">
-      {% include "viagens/viagem/_vinculo.html" with campo=form.oficios %}
-      {% include "viagens/viagem/_vinculo.html" with campo=form.roteiros %}
-      {% include "viagens/viagem/_vinculo.html" with campo=form.planos %}
-      {% include "viagens/viagem/_vinculo.html" with campo=form.ordens %}
-      {% include "viagens/viagem/_vinculo.html" with campo=form.termos %}
     </div>
+    </details>
   </section>
 </form>
 {% else %}
 {% include "viagens/viagem/_leitura.html" %}
+{% include "viagens/viagem/_documentos.html" %}
 {% endif %}
 
 {% if quadro %}{% include "viagens/viagem/_conferencia.html" %}{% endif %}
 
-{# 4. Os documentos da viagem (etapas 2–5 da referência). #}
-<section class="secao" id="documentos" aria-labelledby="t-docs" data-vivo>
-  <div class="secao__cabecalho">
-    <h2 class="secao__titulo" id="t-docs"><span class="secao__numero">4</span>Documentos da viagem</h2>
-    <p class="secao__nota">Cada documento abre na folha dele (com o caminho de volta para cá). "Novo" cria em rascunho, já ligado à viagem: o termo, a OS e o plano nascem com o período e os destinos; o ofício e a OS levam o motivo; o roteiro começa vazio para a sede e os trechos.</p>
-  </div>
-  <div class="secao__grupo secao__grupo--relacoes">
-  {% include "viagens/viagem/_bloco.html" with titulo="Roteiros" icone="route" lista=docs.roteiros tipo="roteiro" rotulo_novo="Novo roteiro" rota="viagens:editar_roteiro" vazio="Nenhum roteiro vinculado a esta viagem." precisa_semente=False %}
-  {% include "viagens/viagem/_bloco.html" with titulo="Ofícios e justificativas" icone="file-text" lista=docs.oficios tipo="oficio" rotulo_novo="Novo ofício" rota="viagens:editar" vazio="Nenhum ofício vinculado a esta viagem." precisa_semente=False %}
-  {% include "viagens/viagem/_bloco.html" with titulo="Planos de trabalho" icone="list-checks" lista=docs.planos tipo="plano" rotulo_novo="Novo plano" rota="viagens:editar_plano" vazio="Nenhum plano de trabalho vinculado a esta viagem." precisa_semente=True %}
-  {% include "viagens/viagem/_bloco.html" with titulo="Ordens de serviço" icone="clipboard-list" lista=docs.ordens tipo="ordem" rotulo_novo="Nova OS" rota="viagens:editar_ordem" vazio="Nenhuma ordem de serviço vinculada a esta viagem." precisa_semente=True %}
-  {% include "viagens/viagem/_bloco.html" with titulo="Termos de autorização" icone="file-signature" lista=docs.termos tipo="termo" rotulo_novo="Novo termo" rota="viagens:editar_termo" vazio="Nenhum termo vinculado a esta viagem." precisa_semente=True %}
-  </div>
-</section>
-
 <section class="secao" id="historico" aria-labelledby="t-hist">
   <div class="secao__cabecalho">
-    <h2 class="secao__titulo" id="t-hist"><span class="secao__numero">5</span>Histórico</h2>
+    <h2 class="secao__titulo" id="t-hist"><span class="secao__numero">{% if editavel %}5{% elif quadro %}4{% else %}3{% endif %}</span>Histórico</h2>
     <div class="secao__estado"><span class="texto-terciario texto-xs">{{ historico|length|pluralizar:"evento,eventos" }}</span></div>
   </div>
   {% include "componentes/historico_folha.html" with rotulo="Eventos da viagem" vazio="Sem eventos registrados." primeiros=":8" resto="8:" limite=8 %}

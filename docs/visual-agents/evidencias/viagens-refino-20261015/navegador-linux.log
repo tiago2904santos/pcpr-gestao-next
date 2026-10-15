@@ -1,0 +1,64 @@
+Bytecode compiled 4391 files in 4.31s
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /opt/venv/bin/python3
+cachedir: .pytest_cache
+django: version: 6.1.1, settings: config.settings.test (from env)
+hypothesis profile 'default'
+rootdir: /verificacao
+configfile: pyproject.toml
+plugins: cov-7.1.0, django-4.14.0, hypothesis-6.168.3, xdist-3.8.0, platformdirs-4.12.2
+created: 2/2 workers
+2 workers [24 items]
+
+scheduling tests via LoadScheduling
+
+tests/e2e/test_viagens_refino.py::test_conferencia_atalhos_e_leitura_do_objetivo[1440] 
+tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[360] 
+[gw1] [  4%] PASSED tests/e2e/test_viagens_refino.py::test_conferencia_atalhos_e_leitura_do_objetivo[1440] 
+[gw0] [  8%] PASSED tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[360] 
+tests/e2e/test_viagens_refino.py::test_enter_na_busca_compartilhada_tambem_preserva_plano 
+tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[1440] 
+[gw1] [ 12%] PASSED tests/e2e/test_viagens_refino.py::test_enter_na_busca_compartilhada_tambem_preserva_plano 
+[gw0] [ 16%] PASSED tests/e2e/test_viagens_refino.py::test_documentos_antes_dos_vinculos_e_busca_sem_gravacao[1440] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-360] 
+tests/e2e/test_viagens_refino.py::test_conferencia_atalhos_e_leitura_do_objetivo[360] 
+[gw1] [ 20%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-360] 
+[gw0] [ 25%] PASSED tests/e2e/test_viagens_refino.py::test_conferencia_atalhos_e_leitura_do_objetivo[360] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-768] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-768] 
+[gw1] [ 29%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-768] 
+[gw0] [ 33%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-768] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-1440] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-1440] 
+[gw1] [ 37%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[consulta-1440] 
+[gw0] [ 41%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-1440] 
+tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-360] 
+tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[360] 
+[gw1] [ 45%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_leitura_preserva_dados_e_hierarquia[cancelada-360] 
+tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[1440] 
+[gw1] [ 50%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[1440] 
+tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[360] 
+[gw1] [ 54%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[360] 
+tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[1440] 
+[gw0] [ 58%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[360] 
+[gw1] [ 62%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_lote_erro_adicionar_remover_preserva_e_gera_rascunho[1440] 
+tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[768] 
+tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[360] 
+[gw0] [ 66%] PASSED tests/e2e/test_viagens_folha_identidade.py::test_autosave_regioes_menu_e_conflito[768] 
+[gw1] [ 70%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[360] 
+tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[768] 
+tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[1440] 
+[gw0] [ 75%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[768] 
+[gw1] [ 79%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_busca_atualiza_contadores_barra_e_preserva_foco[1440] 
+tests/e2e/test_viagens_lista_identidade.py::test_paginacao_filtro_canceladas_e_consulta 
+tests/e2e/test_viagens_lista_identidade.py::test_vinte_registros_barra_e_ultima_pagina 
+[gw0] [ 83%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_paginacao_filtro_canceladas_e_consulta 
+[gw1] [ 87%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_vinte_registros_barra_e_ultima_pagina 
+tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[360] 
+tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[1440] 
+[gw0] [ 91%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[360] 
+[gw1] [ 95%] PASSED tests/e2e/test_viagens_lista_identidade.py::test_consulta_paginada_mantem_contagem_sem_barra_sobreposta[1440] 
+tests/e2e/test_viagem.py::test_viagem_do_zero 
+[gw0] [100%] PASSED tests/e2e/test_viagem.py::test_viagem_do_zero 
+
+======================= 24 passed in 1049.08s (0:17:29) ========================

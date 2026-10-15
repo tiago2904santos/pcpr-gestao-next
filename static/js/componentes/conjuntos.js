@@ -1,6 +1,7 @@
 // @ts-check
 /**
- * Atividades do plano de trabalho: aplicar um conjunto, filtrar por nome e limpar.
+ * Atividades do plano: conjuntos, filtro e limpeza. Vínculos da viagem reutilizam
+ * somente filtro/contagem; conjunto e botões são opcionais.
  *
  * Marcação: um contêiner [data-conjuntos] com
  *  - <select data-conjunto>, cada <option data-ids="1,2,3"> (as atividades do conjunto);
@@ -81,7 +82,14 @@ function preparar(raiz) {
     avisar();
   });
 
-  filtro?.addEventListener("input", () => {
+  // A busca só filtra: Enter não deve enviar o formulário de preparação.
+  filtro?.addEventListener("keydown", (evento) => {
+    if (evento.key === "Enter") evento.preventDefault();
+  });
+  // Busca não é dado do documento: não marca proteção/autosave como sujos.
+  filtro?.addEventListener("change", (evento) => evento.stopPropagation());
+  filtro?.addEventListener("input", (evento) => {
+    evento.stopPropagation();
     const termo = normalizar(filtro.value);
     let visiveis = 0;
     for (const c of caixas()) {

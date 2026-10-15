@@ -1,8 +1,9 @@
 {% extends "arquetipos/lista.html" %}
 {% block titulo %}Viagens{% endblock %}
-{% load viagens %}
+{% load static viagens %}
+{% block estilos %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/viagens.css' %}">{% endblock %}
 {% block preload_seletor %}{% endblock %}
-{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block classe_conteudo %}pagina--documental colecao-operacional colecao-operacional--consulta colecao-viagens{% endblock %}
 {% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Gestão de viagens" titulo="Viagens" complemento="Roteiro, equipe e documentos de uma mesma ação." %}{% endblock %}
 {% block inicio_layout_lista %}<div class="colecao-operacional__layout">{% endblock %}
 {% block fim_layout_lista %}</div>{% endblock %}
@@ -38,7 +39,7 @@ Documentos e ações secundárias continuam na Folha.{% endcomment %}
 
 {% block resultados %}
 <div id="resultados">
-<div class="lista-cabecalho sr-only">
+<div class="lista-cabecalho viagem-resultados__cabecalho">
   <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if busca %}Resultados para “{{ busca }}”{% else %}Viagens{% endif %}</h2>
   <span class="lista-cabecalho__total" role="status">{{ page_obj.paginator.count|pluralizar:"viagem,viagens" }}</span>
 </div>
@@ -61,7 +62,7 @@ Documentos e ações secundárias continuam na Folha.{% endcomment %}
             {% if l.pendencias and not l.vazio %}{% include "componentes/linha_pendencias.html" with pendencias=l.pendencias url=l.url_folha titulo="Falta para a viagem ficar pronta" %}{% endif %}
           </div>
         </div>
-        <div class="registro-operacional__recursos">
+        <div class="registro-operacional__recursos viagem-registro__documentos">
           <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}{% if v.n_oficios %}{{ v.n_oficios|pluralizar:"ofício,ofícios" }}{% else %}<span class="vazio-inline">Nenhum ofício vinculado</span>{% endif %}</span>
           <span class="registro__meta-item">{% icone "files" classe="icone--sm" %}{% if v.n_ordens or v.n_planos %}{% if v.n_ordens %}{{ v.n_ordens|pluralizar:"OS,OS" }}{% endif %}{% if v.n_ordens and v.n_planos %} · {% endif %}{% if v.n_planos %}{{ v.n_planos|pluralizar:"plano,planos" }}{% endif %}{% else %}<span class="vazio-inline">Nenhuma OS ou plano vinculado</span>{% endif %}</span>
         </div>

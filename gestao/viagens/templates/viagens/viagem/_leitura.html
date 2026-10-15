@@ -8,4 +8,5 @@
       <div class="metadado"><dt>Destinos</dt><dd>{% for m in destinos %}{{ m }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
     </dl>
     <div class="leitura-textual"><h3 class="rotulo-caixa-alta">Motivo</h3><p>{{ v.motivo|default:"—"|linebreaksbr }}</p></div>
+    {% if v.descricao %}<div class="leitura-textual"><h3 class="rotulo-caixa-alta">Descrição/objetivo</h3><p>{{ v.descricao|linebreaksbr }}</p></div>{% endif %}
   </section>

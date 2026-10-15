@@ -1,0 +1,109 @@
+/* Composição exclusiva do hub Viagens: controles e tokens do Design System. */
+.documento--viagem .secao > .secao__cabecalho { align-items: center; }
+.documento--viagem .secao__cabecalho > .secao__nota { flex-basis: 100%; max-width: none; }
+.documento--viagem .secao__bloco { margin-top: var(--esp-5); }
+.viagem-motivo { display: grid; gap: var(--esp-5); align-items: start; }
+.viagem-motivo .area-texto { min-height: 7rem; }
+.pagina--viagem #tipos-gatilho { height: auto; min-height: var(--altura-controle); padding-block: var(--esp-2); }
+.pagina--viagem #tipos-gatilho .seletor__valor { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.45; }
+.pagina--viagem #motivo { padding: var(--esp-5); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); --fundo-rotulo: var(--cor-superficie-sutil); }
+.pagina--viagem #motivo .secao__bloco-cabecalho { margin-bottom: var(--esp-4); }
+
+.viagem-documentos__orientacao { display: flex; align-items: start; gap: var(--esp-2); padding: var(--esp-3) var(--esp-4); margin-bottom: var(--esp-4); border-radius: var(--raio-md); background: var(--cor-marca-fundo); font-size: var(--texto-sm); color: var(--cor-texto-secundario); }
+.viagem-documentos__orientacao > .icone { flex: none; margin-top: var(--esp-05); color: var(--cor-marca-texto); }
+.viagem-documentos__orientacao a { color: var(--cor-texto); font-weight: var(--peso-semi); text-underline-offset: var(--esp-1); }
+.viagem-documentos .viagem-documentos__grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-3); }
+.viagem-documentos__grade > .viagem-documento { display: flex; flex-direction: column; gap: var(--esp-3); min-width: 0; margin: 0; padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie); }
+.viagem-documento .secao__bloco-cabecalho { margin: 0; flex-wrap: wrap; }
+.viagem-documento .secao__bloco-titulo { color: var(--cor-texto); text-transform: none; letter-spacing: normal; font-size: var(--texto-sm); }
+.viagem-documento .secao__bloco-titulo > .icone { color: var(--cor-marca-texto); }
+.viagem-documento .secao__estado { display: flex; flex-wrap: wrap; align-items: center; gap: var(--esp-2); }
+.viagem-documento .relacoes-documentais > li { border: 0; }
+.viagem-documento .peca-documental { padding: var(--esp-3); gap: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.viagem-documento .ficha-documental__texto { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.viagem-documento .ficha-documental__meta { margin-top: var(--esp-2); font-size: var(--texto-xs); }
+.viagem-documento .ficha-documental__meta > span:not(.selo) { display: inline-flex; align-items: center; gap: var(--esp-1); }
+.viagem-documento .peca-documental > .viagem-documento__abrir { flex: none; padding: 0; border: 0; background: transparent; color: var(--cor-texto-terciario); }
+.viagem-documento__vazio { display: flex; align-items: center; gap: var(--esp-3); flex: 1; padding-block: var(--esp-3); }
+.viagem-documento__marca { display: grid; place-items: center; flex: none; width: var(--esp-10); height: var(--esp-10); background: var(--cor-superficie-realce); border-radius: var(--raio-lg); color: var(--cor-texto-terciario); }
+.viagem-documento__vazio p { display: grid; gap: var(--esp-1); font-size: var(--texto-sm); }
+.viagem-documento__vazio strong { font-weight: var(--peso-medio); }
+.viagem-documento__vazio p > span { color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
+.viagem-documentos__nota { display: flex; align-items: start; gap: var(--esp-2); margin-top: var(--esp-4); font-size: var(--texto-xs); color: var(--cor-texto-secundario); }
+.viagem-documentos__nota > .icone { flex: none; }
+
+.viagem-vinculos > summary { cursor: pointer; list-style: none; }
+.viagem-vinculos > summary::-webkit-details-marker { display: none; }
+.viagem-vinculos__seta { margin-left: auto; transition: rotate var(--duracao-rapida); }
+.viagem-vinculos[open] .viagem-vinculos__seta { rotate: 180deg; }
+.viagem-vinculos__corpo { padding-top: var(--esp-4); }
+.viagem-vinculos__grupos { margin-top: var(--esp-4); gap: var(--esp-2); }
+.viagem-vinculo { border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); padding: var(--esp-3) var(--esp-4); }
+.viagem-vinculo > summary { display: flex; flex-wrap: wrap; gap: var(--esp-2); align-items: center; min-height: var(--alvo-minimo); }
+.viagem-vinculo > summary > .icone { color: var(--cor-marca-texto); }
+.viagem-vinculo__contagem { margin-left: auto; color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
+.viagem-vinculo .divulgacao__corpo { margin-top: var(--esp-4); }
+.viagem-vinculo__busca { margin-bottom: var(--esp-4); --fundo-rotulo: var(--cor-superficie-sutil); }
+.viagem-vinculo .caixas { grid-template-columns: minmax(0, 1fr); gap: var(--esp-2); }
+.viagem-vinculo .caixas__item { border: var(--borda-sutil); border-radius: var(--raio-md); padding: var(--esp-3); background: var(--cor-superficie); align-items: start; }
+.viagem-vinculo .caixas__item:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
+.viagem-vinculo .caixas__item[hidden] { display: none; }
+.viagem-vinculo .caixas__item > span { overflow-wrap: anywhere; }
+
+.pagina--viagem .viagem-conferencia { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.viagem-conferencia .prontidao-documental__cabecalho { padding-bottom: var(--esp-4); }
+.viagem-conferencia__concluidas > summary { display: flex; align-items: center; gap: var(--esp-2); width: fit-content; min-height: var(--altura-controle); color: var(--cor-texto-secundario); cursor: pointer; list-style: none; font-size: var(--texto-sm); }
+.viagem-conferencia__concluidas > summary::-webkit-details-marker { display: none; }
+.viagem-conferencia__concluidas[open] > summary > .icone { rotate: 180deg; }
+.viagem-conferencia__concluidas .viagem-etapas { margin-top: var(--esp-3); }
+.viagem-etapas { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--esp-3); list-style: none; padding: 0; margin: 0; }
+.viagem-etapas > li { min-width: 0; }
+.viagem-etapa { padding: var(--esp-3); border: var(--borda-sutil); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); }
+.viagem-etapa > summary { display: flex; align-items: center; gap: var(--esp-3); cursor: pointer; list-style: none; min-height: var(--altura-controle); }
+.viagem-etapa > summary::-webkit-details-marker { display: none; }
+.viagem-etapa__marca { display: grid; place-items: center; flex: none; width: var(--esp-8); height: var(--esp-8); border-radius: var(--raio-md); background: var(--cor-marca-fundo-forte); color: var(--cor-marca-texto); font-size: var(--texto-xs); font-weight: var(--peso-semi); }
+.viagem-etapa--pronta .viagem-etapa__marca { background: var(--cor-superficie-realce); color: var(--cor-texto-secundario); }
+.viagem-etapa__nome { display: grid; gap: var(--esp-1); flex: 1; font-size: var(--texto-sm); font-weight: var(--peso-semi); }
+.viagem-etapa__nome > small { color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); }
+.viagem-etapa__seta { color: var(--cor-texto-terciario); flex: none; }
+.viagem-etapa[open] .viagem-etapa__seta { rotate: 180deg; }
+.viagem-etapa .checklist { margin-top: var(--esp-3); padding-top: var(--esp-3); border-top: var(--borda-sutil); }
+.viagem-etapa .checklist__item a { display: flex; align-items: start; gap: var(--esp-2); }
+.viagem-etapa .checklist__item a > span { flex: 1; min-width: 0; }
+.viagem-etapa__concluida { margin-top: var(--esp-3); color: var(--cor-texto-secundario); font-size: var(--texto-xs); }
+.pagina--viagem #coerencia { padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-marca-fundo); }
+.pagina--viagem #coerencia .checklist__item { padding-block: var(--esp-3); border-bottom: var(--borda-sutil); }
+.pagina--viagem #coerencia .checklist__item:last-child { border-bottom: 0; }
+
+.viagem-resultados__cabecalho { display: flex; justify-content: space-between; gap: var(--esp-3); align-items: center; padding: var(--esp-4); color: var(--cor-texto-secundario); font-size: var(--texto-sm); }
+.viagem-resultados__cabecalho h2 { font-size: var(--texto-sm); font-weight: var(--peso-medio); }
+.colecao-viagens .registro__meta-item { min-width: 0; }
+.colecao-viagens .registro__meta-texto { white-space: normal; overflow-wrap: anywhere; }
+.colecao-viagens .viagem-registro__documentos { gap: var(--esp-2); }
+.viagem-registro__documentos > .registro__meta-item { padding: var(--esp-2) var(--esp-3); border-radius: var(--raio-md); background: var(--cor-superficie-sutil); font-size: var(--texto-xs); }
+
+.viagem-lote__contexto { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--esp-4); padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); margin-bottom: var(--esp-4); }
+.viagem-lote__contexto dt { color: var(--cor-texto-secundario); font-size: var(--texto-xs); margin-bottom: var(--esp-1); }
+.viagem-lote__contexto dd { font-weight: var(--peso-semi); font-size: var(--texto-sm); overflow-wrap: anywhere; }
+.viagem-lote__contexto small { display: block; color: var(--cor-texto-secundario); font-size: var(--texto-xs); font-weight: var(--peso-normal); margin-top: var(--esp-1); }
+.pagina--viagem-lote .secao__conteudo > .secao__bloco { margin: 0; padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); }
+.viagem-lote__opcoes { display: grid; gap: var(--esp-3); }
+.viagem-lote__opcoes > .escolha { align-items: start; padding: var(--esp-4); border: var(--borda-sutil); border-radius: var(--raio-lg); background: var(--cor-superficie-sutil); }
+.viagem-lote__opcoes > .escolha:has(:checked) { border-color: var(--cor-marca-texto); background: var(--cor-marca-fundo); }
+
+@media (min-width: 768px) {
+  .viagem-motivo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viagem-documentos .viagem-documentos__grade, .viagem-etapas, .viagem-vinculo .caixas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viagem-documentos__grade > .viagem-documento:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .viagem-lote__contexto { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .viagem-lote__opcoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .viagem-lote__opcoes > :is(legend, .campo__ajuda) { grid-column: 1 / -1; }
+}
+@media (min-width: 1280px) {
+  .viagem-etapas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .pagina--viagem .barra-acoes--preparacao { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+  .pagina--viagem .barra-acoes--preparacao [data-status-salvamento] { grid-column: 1 / -1; order: 2; display: flex; flex-wrap: wrap; margin: 0; width: 100%; border-radius: var(--raio-md); }
+  .viagem-vinculo__contagem { flex-basis: 100%; margin-left: 0; }
+}

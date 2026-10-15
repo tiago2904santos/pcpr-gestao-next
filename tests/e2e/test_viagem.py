@@ -26,6 +26,7 @@ def test_viagem_do_zero(logado, dados_e2e):
     assert v.titulo == "Unidade Móvel"
 
     # Vincular o ofício emitido (a lista abre ao clicar).
+    pg.locator(".viagem-vinculos > summary").click()
     pg.locator("#vinculos summary", has_text="Ofícios").click()
     pg.locator("#vinculos").get_by_role("checkbox").first.check()
     expect(pg.locator("[data-status-salvamento]")).to_contain_text("Salvo automaticamente")

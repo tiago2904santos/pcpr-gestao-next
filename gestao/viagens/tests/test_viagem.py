@@ -161,7 +161,9 @@ def test_criar_pela_tela_e_folha(c):
     assert r["Location"] == reverse("viagens:editar_viagem", args=[v.pk])
     html = cli.get(r["Location"]).content.decode()
     assert "Identificação" in html and "Documentos da viagem" in html
-    assert "Falta o tipo" in html and "Nenhum ofício vinculado a esta viagem." in html
+    assert "Falta o tipo" in html and "Prepare a equipe e a solicitação da viagem." in html
+    assert html.count('class="viagem-documento__vazio"') == 5
+    assert html.index('id="documentos"') < html.index('id="vinculos"')
 
 
 def test_lista_paginada_preserva_busca_abas_e_criacao_post(c):

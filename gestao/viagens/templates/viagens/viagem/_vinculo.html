@@ -1,11 +1,16 @@
-{% comment %}Um tipo de documento para vincular (caixas com nome acessível do grupo), recolhido quando nada está marcado.{% endcomment %}
-<details class="divulgacao"{% if campo.value %} open{% endif %}>
-  <summary>{% icone "plus" classe="icone--sm" %}{{ campo.label }} <span class="texto-terciario texto-xs">· {{ campo.field.queryset.count|pluralizar:"disponível,disponíveis" }}{% if campo.value %} · {{ campo.value|length|pluralizar:"marcado,marcados" }}{% endif %}</span></summary>
+{% comment %}Candidatos recolhidos por tipo; filtro local preserva caixas e seleção.{% endcomment %}
+<details class="divulgacao viagem-vinculo" data-conjuntos>
+  <summary>{% icone icone classe="icone--sm" %}<span>{{ campo.label }}</span><span class="viagem-vinculo__contagem">Selecionados: <span data-contagem>{{ campo.value|length }}</span> · Disponíveis: {{ campo.field.queryset.count }}</span></summary>
   <div class="divulgacao__corpo">
     {% if campo.field.queryset %}
+      <div class="campo viagem-vinculo__busca" data-ferramentas hidden>
+        <label class="campo__rotulo" for="buscar-vinculo-{{ campo.name }}">Buscar {{ campo.label|lower }} disponíveis</label>
+        <div class="entrada-composta">{% icone "search" classe="icone--sm" %}<input class="entrada" type="search" id="buscar-vinculo-{{ campo.name }}" data-filtro placeholder="Número, destino ou período" autocomplete="off"></div>
+      </div>
       <fieldset class="campo campo--documentos">
         <legend class="sr-only">{{ campo.label }} para vincular</legend>
         {{ campo }}
+        <p class="vazio-inline" data-sem-resultado hidden>Nenhum documento com esse texto entre as opções disponíveis.</p>
       </fieldset>
     {% else %}<p class="vazio-inline">Nada disponível agora.</p>{% endif %}
   </div>

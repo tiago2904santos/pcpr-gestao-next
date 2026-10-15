@@ -1,0 +1,128 @@
+[
+  {
+    "tela": "lista",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "futuras",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "vinculada",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "basica",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "cancelada",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "lote",
+    "largura": 360,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "lista",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "futuras",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "sem-resultado",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "vinculada",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "basica",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "cancelada",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  },
+  {
+    "tela": "lote",
+    "largura": 1440,
+    "status": 200,
+    "overflow": 0,
+    "erros_js": [],
+    "axe": [],
+    "posts_bloqueados": []
+  }
+]
