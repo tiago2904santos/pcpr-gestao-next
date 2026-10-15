@@ -60,7 +60,7 @@ PAPEIS: dict[str, Papel] = {
             *CADASTROS_DA_EQUIPE,
             "cadastros.view_tabeladiaria", "cadastros.view_configuracaoinstitucional",
             "cadastros.view_modelotexto", "cadastros.add_modelotexto",
-            "cadastros.change_modelotexto",
+            "cadastros.change_modelotexto", "viagens.view_modeloos",
         ],
     },
     "GESTOR_VIAGENS": {
@@ -79,6 +79,8 @@ PAPEIS: dict[str, Papel] = {
             "viagens.change_termoautorizacao", "viagens.delete_termoautorizacao",
             "viagens.view_ordemservico", "viagens.add_ordemservico",
             "viagens.change_ordemservico", "viagens.delete_ordemservico",
+            "viagens.view_modeloos", "viagens.add_modeloos", "viagens.change_modeloos",
+            "viagens.delete_modeloos",
             "viagens.view_planotrabalho", "viagens.add_planotrabalho",
             "viagens.change_planotrabalho", "viagens.delete_planotrabalho",
             "viagens.view_viagem", "viagens.add_viagem", "viagens.change_viagem",

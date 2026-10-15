@@ -28,6 +28,7 @@ from gestao.cadastros.models import (
     Viatura,
 )
 
+from .dominio import modelo_os as dominio_modelo
 from .dominio.numeracao import formatar_numero
 
 
@@ -863,22 +864,89 @@ class TermoDestino(models.Model):
         return str(self.municipio)
 
 
+class ModeloOS(models.Model):
+    """Modelo de Ordem de Serviço cadastrado pelo gestor: as funções que a equipe recebe e o
+    texto do documento por etapa da viagem (ida, antes do evento, evento, depois, volta), com
+    marcadores (`dominio.modelo_os`). O documento sai como a OS real: DETERMINO e itens I, II,
+    III… A OS sem modelo é a padrão (texto livre, no código)."""
+
+    # Só os que vêm com o sistema têm chave (a demonstração e a migração os acham por ela).
+    chave = models.SlugField(max_length=40, unique=True, null=True, blank=True)
+    nome = models.CharField("nome", max_length=60, unique=True)
+    referencia = models.CharField("referência (Ref.:)", max_length=120)
+    ida = models.TextField("ida", blank=True)
+    ida_e_antes = models.TextField("ida e véspera no mesmo dia", blank=True)
+    antes = models.TextField("dias antes do evento", blank=True)
+    evento = models.TextField("dias do evento", blank=True)
+    depois = models.TextField("dias depois do evento", blank=True)
+    depois_e_volta = models.TextField("dia seguinte e volta no mesmo dia", blank=True)
+    volta = models.TextField("volta", blank=True)
+    justificativas = models.TextField("justificativas", blank=True)  # um parágrafo por linha
+    finalidade = models.TextField("finalidade", blank=True)
+    ativo = models.BooleanField("ativo", default=True)
+    ordem = models.PositiveSmallIntegerField("ordem", default=100)
+    # Vem com o sistema: pode ser desativado, nunca apagado.
+    padrao_sistema = models.BooleanField("padrão do sistema", default=False)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["ordem", "nome"]
+        verbose_name = "modelo de OS"
+        verbose_name_plural = "modelos de OS"
+
+    def __str__(self) -> str:
+        return self.nome
+
+    def textos(self) -> dict[str, str]:
+        return {etapa: getattr(self, etapa) for etapa in dominio_modelo.ETAPAS}
+
+    @property
+    def usa_hora(self) -> bool:
+        return self.para_dominio().usa_hora
+
+    def para_dominio(self) -> dominio_modelo.Modelo:
+        return dominio_modelo.Modelo(
+            nome=self.nome, referencia=self.referencia, textos=self.textos(),
+            funcoes=tuple(dominio_modelo.Funcao(f.codigo, f.nome, f.texto, f.icone)
+                          for f in self.funcoes.all()),
+            justificativas=tuple(j.strip() for j in self.justificativas.splitlines()
+                                 if j.strip()),
+            finalidade=self.finalidade)
+
+
+class FuncaoOS(models.Model):
+    """Uma função que a equipe recebe num modelo de OS (condução, técnico, fotógrafo…), com o
+    texto da atribuição que sai no documento. `codigo` é o que `OrdemServico.funcoes` grava."""
+
+    modelo = models.ForeignKey(ModeloOS, on_delete=models.CASCADE, related_name="funcoes")
+    codigo = models.SlugField(max_length=30)
+    nome = models.CharField("nome", max_length=40)
+    icone = models.CharField("ícone", max_length=40, blank=True)
+    texto = models.TextField("atribuição")
+    ordem = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["ordem", "id"]
+        verbose_name = "função de OS"
+        verbose_name_plural = "funções de OS"
+        constraints = [models.UniqueConstraint(fields=["modelo", "codigo"],
+                                               name="funcaoos_codigo_unico")]
+
+    def __str__(self) -> str:
+        return self.nome
+
+
 class OrdemServico(models.Model):
     """Ordem de Serviço (paridade com `viagens_ordens` da referência): determina o
-    deslocamento de uma equipe — destinos, período, motivo — com o texto do tipo de
-    necessidade (`dominio.ordem_servico`). Não tem viatura, roteiro nem protocolo próprios:
-    liga-se aos ofícios. Numeração anual própria: menor lacuna liberada por exclusão, senão
-    o maior número + 1 ("OS 001/2026")."""
+    deslocamento de uma equipe — destinos, período, motivo — com o texto do modelo
+    (`ModeloOS`; sem modelo, o texto padrão de `dominio.ordem_servico`). Não tem viatura,
+    roteiro nem protocolo próprios: liga-se aos ofícios. Numeração anual própria: menor
+    lacuna liberada por exclusão, senão o maior número + 1 ("OS 001/2026")."""
 
     class Situacao(models.TextChoices):
         ATIVA = "ativa", "Ativa"
         CANCELADA = "cancelada", "Cancelada"
-
-    TIPOS = (("padrao", "Padrão / texto livre"),
-             ("operacao_retorno_posterior", "Operação policial - um dia posterior"),
-             ("caminhao", "Caminhão - dois dias antes e depois"),
-             ("microonibus", "Micro-ônibus"),
-             ("cerimonial_antecipado", "Cerimonial - ida antecipada"))
 
     unidade = models.ForeignKey(Unidade, on_delete=models.PROTECT, related_name="ordens")
     # Viagem que agrupa o documento (módulo 8); excluir a viagem não apaga documento.
@@ -887,10 +955,17 @@ class OrdemServico(models.Model):
     numero = models.PositiveIntegerField()
     ano = models.PositiveSmallIntegerField()
     oficios = models.ManyToManyField(Oficio, blank=True, related_name="ordens")
-    tipo = models.CharField("tipo de necessidade", max_length=40, choices=TIPOS,
-                            default="padrao")
+    # Nulo = OS padrão (texto livre). Desativar o modelo não mexe nas OS que o usam.
+    modelo = models.ForeignKey(ModeloOS, on_delete=models.PROTECT, null=True, blank=True,
+                               related_name="ordens", verbose_name="modelo")
     data_inicio = models.DateField("data inicial", null=True, blank=True)
     data_fim = models.DateField("data final", null=True, blank=True)
+    # O período do evento cabe no da OS: é o que separa ida, montagem, evento, desmontagem e
+    # volta nos modelos (copiado da Viagem do ofício ao ligar; editável).
+    data_evento_inicio = models.DateField("início do evento", null=True, blank=True)
+    data_evento_fim = models.DateField("fim do evento", null=True, blank=True)
+    # Só os modelos que usam `{hora}` pedem (o briefing da operação policial).
+    hora = models.TimeField("horário do briefing", null=True, blank=True)
     # A data que sai no documento: nasce na primeira geração e não muda sozinha (todas as
     # vias saem com a mesma data); ajusta-se na tela.
     data_documento = models.DateField("data do documento", null=True, blank=True)
@@ -898,7 +973,7 @@ class OrdemServico(models.Model):
     # documento oficial) — só se cancela.
     documento_gerado_em = models.DateTimeField(null=True, blank=True)
     servidores = models.ManyToManyField(Servidor, blank=True, related_name="ordens")
-    # {"<id do servidor>": "<função>"} nos tipos com função (caminhão, micro-ônibus, cerimonial).
+    # {"<id do servidor>": "<código da FuncaoOS>"} nos modelos com função.
     funcoes = models.JSONField("funções da equipe", default=dict, blank=True)
     motivo = models.TextField("motivo", blank=True)
     # Quem assina só esta OS; vazio, vale a configuração (substituto do período ou chefia).
@@ -924,6 +999,11 @@ class OrdemServico(models.Model):
                 condition=Q(data_fim__isnull=True) | Q(data_inicio__isnull=False,
                                                        data_fim__gte=models.F("data_inicio")),
                 name="os_periodo_ordenado"),
+            models.CheckConstraint(
+                condition=Q(data_evento_fim__isnull=True) | Q(
+                    data_evento_inicio__isnull=False,
+                    data_evento_fim__gte=models.F("data_evento_inicio")),
+                name="os_evento_ordenado"),
             models.CheckConstraint(
                 condition=~Q(situacao="cancelada") | ~Q(motivo_cancelamento=""),
                 name="os_cancelada_tem_motivo"),

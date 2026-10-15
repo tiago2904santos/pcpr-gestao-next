@@ -137,6 +137,33 @@ com volta intermediária à sede (bate-volta) → "ROTEIRO POR TRECHOS", numerad
 
 Protocolo (D1): obrigatório para emitir (pendência bloqueante); opcional no rascunho.
 
+## Modelos de OS (15/10/2026)
+
+Os tipos de necessidade viraram **modelos cadastráveis** (`ModeloOS`, `FuncaoOS`; cadastro do
+gestor em `/viagens/ordens/modelos/`). A OS sem modelo é a **padrão** (parágrafo único, no
+código). Com modelo, o documento sai como a OS real: `Ref.:`, autoridade, `DETERMINO` e itens
+`I - …`, `II - …`: primeiro um por **função** com alguém (texto da função com `{servidores}`),
+depois um por **etapa** da viagem — ida, dias antes do evento, evento, dias depois, volta —
+distribuída nos dias pelos dois períodos da OS (`dominio/modelo_os.distribuir_etapas`):
+
+| viagem | evento | itens de dias |
+|---|---|---|
+| 3–8 | 5–6 | ida (3) · antes (4) · evento (5–6) · depois (7) · volta (8) |
+| 4–7 | 5–6 | ida e véspera (4) · evento (5–6) · dia seguinte e volta (7) — textos combinados; sem eles, ida e volta simples |
+| 17–19 | 18 | ida (17) · evento (18) · volta (19) |
+| 18 | 18 | só evento |
+| 3–8 | — | a viagem inteira é evento |
+
+Marcadores dos textos: `{equipe}` (nomes com cargo), `{servidores}` (só nomes), `{destino}`
+("Londrina/PR"), `{municipio}` ("o município de Londrina/PR"), `{data}` ("no dia 4 de maio de
+2026" / "nos dias 5 e 6 …"), `{motivo}`, `{hora}` ("às 05h00min" — o modelo passa a pedir o
+horário do briefing na OS), `{sede}`. Justificativas e finalidade são opcionais no modelo.
+
+A OS ganhou `modelo`, `data_evento_inicio/fim` (copiados da Viagem do ofício ao ligar; o
+evento cabe no período da OS) e `hora`. Os quatro modelos do sistema (operação policial,
+caminhão, micro-ônibus, cerimonial — `viagens/modelos_do_sistema.py`) desativam-se, não se
+apagam; modelo em uso por alguma OS só se desativa.
+
 ## Cadastro da OS — contrato da tela (14/10/2026)
 
 O main removeu o bloco de assinatura e seu campo do cadastro da OS em `10a8764`.

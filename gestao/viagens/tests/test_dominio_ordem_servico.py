@@ -1,5 +1,5 @@
 """Textos da Ordem de Serviço (domínio puro). Paridade com o contexto do documento da
-referência: equipe agrupada por cargo, plural do cargo, períodos e um texto por tipo."""
+referência: equipe agrupada por cargo, plural do cargo, períodos e o texto padrão."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ class TestPeriodo:
         assert os_.periodo_por_extenso(inicio, fim) == texto
 
 
-class TestTextosPorTipo:
+class TestTextoPadrao:
     def _dados(self, **extra):
         base = {"destinos": ["Londrina/PR"], "inicio": date(2026, 7, 10),
                 "fim": date(2026, 7, 12), "motivo": "cobertura do evento", "equipe": [A, C]}
@@ -64,32 +64,6 @@ class TestTextosPorTipo:
             "Carla Duarte para o município de Londrina/PR, nos dias 10 a 12 de julho de 2026, "
             "para realizar cobertura do evento.")
         assert t["competencias"] == [] and t["justificativas"] == []
-
-    def test_operacao_um_dia_posterior(self):
-        t = os_.textos_da_os(self._dados(tipo=os_.OPERACAO_RETORNO_POSTERIOR))
-        assert t["referencia"] == "Deslocamento - Operação policial com um dia posterior"
-        assert "operação policial relacionada a cobertura do evento" in t["determinacao"]
-        assert len(t["justificativas"]) == 1
-
-    def test_caminhao_sem_funcoes_volta_ao_padrao(self):
-        t = os_.textos_da_os(self._dados(tipo=os_.CAMINHAO))
-        assert t["referencia"] == "Diligências"
-
-    def test_caminhao_com_funcoes(self):
-        t = os_.textos_da_os(self._dados(tipo=os_.CAMINHAO,
-                                         funcoes={1: os_.CONDUCAO, 3: os_.APOIO}))
-        assert t["referencia"] == "Deslocamento - Caminhão de apoio"
-        assert t["competencias"][0].startswith("Ana Lima – conduzir a Unidade Móvel")
-        assert "entre Curitiba e Londrina/PR" in t["competencias"][1]
-        assert len(t["justificativas"]) == 2
-
-    def test_cerimonial_com_varios_na_mesma_funcao(self):
-        t = os_.textos_da_os(self._dados(tipo=os_.CERIMONIAL_ANTECIPADO, equipe=[A, B],
-                                         funcoes={1: os_.APOIO, 2: os_.APOIO}))
-        assert t["competencias"] == [
-            "Ana Lima e Bruno Rocha: prestar apoio às atividades de Cerimonial, auxiliando na "
-            "organização do ambiente, recepção das autoridades e execução dos procedimentos "
-            "protocolares"]
 
     def test_sem_motivo_e_sem_destino(self):
         t = os_.textos_da_os(os_.DadosOS())
@@ -111,9 +85,3 @@ class TestRevisaoDeUX:
         t = os_.textos_da_os(os_.DadosOS(destinos=["Londrina/PR", "Maringá/PR"],
                                          motivo="X", equipe=[A]))
         assert "para os municípios de Londrina/PR e Maringá/PR" in t["determinacao"]
-
-    def test_faltam_funcoes(self):
-        assert os_.faltam_funcoes(os_.DadosOS(tipo=os_.MICROONIBUS, equipe=[A]))
-        assert not os_.faltam_funcoes(os_.DadosOS(tipo=os_.MICROONIBUS, equipe=[A],
-                                                  funcoes={1: os_.CONDUCAO}))
-        assert not os_.faltam_funcoes(os_.DadosOS(tipo=os_.PADRAO, equipe=[A]))

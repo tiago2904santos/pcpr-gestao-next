@@ -1,0 +1,136 @@
+{% extends "arquetipos/lista.html" %}
+{% block titulo %}Modelos de OS{% endblock %}
+{% block classe_conteudo %}colecao-operacional colecao-operacional--consulta{% endblock %}
+{% block cabecalho_lista %}{% include "componentes/registro_hero.html" with pagina=True contexto="Cadastros de viagens" titulo="Modelos de ordem de serviço" complemento="As funções da equipe e o texto de cada etapa da viagem (ida, antes, evento, depois, volta). O documento sai como DETERMINO e itens I, II, III…" acoes_template="viagens/ordens/_modelos_criar.html" %}{% endblock %}
+{% comment %}
+Cadastro dos modelos de OS (viagens/views_modelos_os.py): a mesma receita de Textos prontos —
+busca, um registro por modelo com o menu de ações; novo e editar numa janela. "Ver exemplo"
+abre a folha de uma OS fictícia com o modelo como está na janela, sem gravar.
+{% endcomment %}
+
+{% block filtros %}
+<form class="filtros" role="search" method="get" action="{% url 'viagens:modelos_os' %}">
+  <div class="campo filtros__busca">
+    <label class="campo__rotulo" for="busca-modelos">Buscar</label>
+    <div class="entrada-composta">{% icone "search" %}<input class="entrada" id="busca-modelos" type="search" name="q" value="{{ termo }}" placeholder="Nome ou referência" autocomplete="off"></div>
+  </div>
+  <div class="filtros__acoes"><button class="botao" type="submit">{% icone "filter" %}Buscar</button></div>
+</form>
+{% endblock %}
+
+{% block resultados %}
+<div class="lista-cabecalho">
+  <h2 class="peso-semi texto-lg" id="titulo-resultados">{% if termo %}Resultados para “{{ termo }}”{% else %}Modelos{% endif %}</h2>
+  <span class="lista-cabecalho__total" role="status">{{ ativos|pluralizar:"ativo,ativos" }}{% if inativos %} · {{ inativos|pluralizar:"inativo,inativos" }}{% endif %}</span>
+</div>
+<p class="lista-cabecalho__nota texto-secundario texto-sm">{% icone "info" classe="icone--sm" %}<span>A OS <b>padrão</b> (texto livre) não é um modelo: está sempre nas opções. Desativar um modelo o tira das opções sem mexer nas OS que já o usam.</span></p>
+{% if modelos %}
+  <ul class="registros" aria-labelledby="titulo-resultados">
+    {% for m in modelos %}
+      <li class="registro registro--catalogo{% if not m.ativo %} registro--inativo{% endif %}">
+        <span class="registro__icone" aria-hidden="true">{% icone "layers" %}</span>
+        <div class="registro__corpo">
+          <div class="registro__titulo">
+            {% if pode_gerir %}
+              <a class="registro__link" href="?editar={{ m.pk }}">{{ m.nome }}</a>
+            {% else %}
+              <span class="registro__link registro__link--estatico">{{ m.nome }}</span>
+            {% endif %}
+            {% if not m.ativo %}<span class="selo selo--neutro">Inativo</span>{% endif %}
+            {% if m.padrao_sistema %}<span class="selo selo--info selo--sem-ponto">Do sistema</span>{% endif %}
+            {% if m.pede_hora %}<span class="selo selo--neutro selo--sem-ponto">{% icone "clock" classe="icone--sm" %}Pede o horário do briefing</span>{% endif %}
+          </div>
+          <p class="registro__texto quebra-palavras">Ref.: {{ m.referencia }}</p>
+          <div class="registro__meta">
+            {% for f in m.funcoes.all %}<span class="registro__meta-item" title="{{ f.texto|truncatechars:160 }}">{% icone f.icone|default:"star" classe="icone--sm" %}<span class="registro__meta-texto">{{ f.nome }}</span></span>{% empty %}<span class="registro__meta-item">{% icone "users" classe="icone--sm" %}<span class="registro__meta-texto">Sem funções (a equipe sai agrupada por cargo)</span></span>{% endfor %}
+            <span class="registro__meta-item">{% icone "file-text" classe="icone--sm" %}<span class="registro__meta-texto">{% if m.n_ordens %}Em uso por {{ m.n_ordens|pluralizar:"OS,OS" }}{% else %}Nenhuma OS ainda{% endif %}</span></span>
+          </div>
+        </div>
+        {% if pode_gerir %}
+        <div class="registro__acoes">
+          <pc-menu class="menu">
+            <button type="button" class="botao botao--icone botao--sutil" data-menu-botao aria-haspopup="menu" aria-label="Ações de “{{ m.nome }}”">{% icone "ellipsis-vertical" %}</button>
+            <div class="menu__painel" role="menu" hidden>
+              <a class="menu__item" role="menuitem" href="?editar={{ m.pk }}">{% icone "pencil" %}Editar</a>
+              <button type="submit" form="m-ativo-{{ m.pk }}" class="menu__item" role="menuitem">{% if m.ativo %}{% icone "eye-off" %}Desativar{% else %}{% icone "undo-2" %}Reativar{% endif %}</button>
+              {% if m.excluivel %}
+                <div class="menu__separador" role="separator"></div>
+                <button type="submit" form="m-excluir-{{ m.pk }}" class="menu__item menu__item--perigo" role="menuitem">{% icone "trash-2" %}Excluir</button>
+              {% endif %}
+            </div>
+          </pc-menu>
+          <form id="m-ativo-{{ m.pk }}" method="post" action="{% url 'viagens:modelo_os_ativo' m.pk %}" hidden>{% csrf_token %}</form>
+          {% if m.excluivel %}
+            <form id="m-excluir-{{ m.pk }}" method="post" action="{% url 'viagens:modelo_os_excluir' m.pk %}" hidden data-confirmar="“{{ m.nome }}” será excluído. Para só tirá-lo das opções, use Desativar." data-confirmar-titulo="Excluir modelo de OS?" data-confirmar-rotulo="Excluir" data-confirmar-perigo>{% csrf_token %}</form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% elif termo %}
+  {% include "componentes/vazio.html" with icone="search" titulo="Nenhum modelo encontrado" texto="Confira a grafia ou procure por outra palavra." limpar_url="?" %}
+{% else %}
+  {% include "componentes/vazio.html" with icone="layers" titulo="Nenhum modelo de OS" texto="Cadastre o primeiro: funções da equipe e um texto por etapa da viagem." %}
+{% endif %}
+{% endblock %}
+
+{% block depois_lista %}
+{% if pode_gerir %}
+<div class="barra-acoes barra-acoes--colecao">
+  <p class="barra-acoes__status" role="status">{{ ativos|pluralizar:"modelo ativo,modelos ativos" }}</p>
+  {% include "viagens/ordens/_modelos_criar.html" %}
+</div>
+<dialog id="dialogo-modelo" class="dialogo dialogo--largo" aria-labelledby="dialogo-modelo-titulo"{% if abrir_dialogo %} data-abrir-ao-carregar{% endif %}>
+  <form method="post" action="{% url 'viagens:salvar_modelo_os' %}" novalidate>
+    {% csrf_token %}
+    {% if editando %}<input type="hidden" name="pk" value="{{ editando.pk }}">{% endif %}
+    <div class="dialogo__cabecalho">
+      <h2 class="dialogo__titulo" id="dialogo-modelo-titulo">{% if editando %}Editar “{{ editando.nome }}”{% else %}Novo modelo de OS{% endif %}</h2>
+    </div>
+    <div class="dialogo__corpo pilha">
+      {% if form.non_field_errors %}<div class="alerta alerta--perigo" role="alert">{% icone "alert-circle" %}<div class="alerta__corpo"><p>{{ form.non_field_errors|join:" " }}</p></div></div>{% endif %}
+      <fieldset class="grupo-campos" aria-label="Identificação do modelo">
+        <div class="campos">
+          {% include "componentes/campo.html" with campo=form.nome classe="campo--lg" %}
+          {% include "componentes/campo.html" with campo=form.referencia classe="campo--lg" %}
+        </div>
+      </fieldset>
+      <fieldset class="grupo-campos" aria-labelledby="t-etapas">
+        <legend class="campo__rotulo" id="t-etapas">Texto por etapa da viagem</legend>
+        <details class="texto-sm">
+          <summary>Marcadores que os textos aceitam</summary>
+          <p class="texto-secundario">Nas etapas: {% for m in marcadores_etapa %}<code>{{ "{" }}{{ m }}{{ "}" }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}. Nas funções: {% for m in marcadores_funcao %}<code>{{ "{" }}{{ m }}{{ "}" }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+          <p class="texto-secundario"><code>{{ "{equipe}" }}</code> = “do agente … Fulano e os escrivães A e B” · <code>{{ "{servidores}" }}</code> = “Ana e Bruno” · <code>{{ "{destino}" }}</code> = “Londrina/PR” · <code>{{ "{municipio}" }}</code> = “o município de Londrina/PR” · <code>{{ "{data}" }}</code> = “no dia 4 de maio de 2026” ou “nos dias 5 e 6 …” · <code>{{ "{hora}" }}</code> = “às 05h00min” (a OS passa a pedir o horário) · <code>{{ "{sede}" }}</code> = “Curitiba/PR”.</p>
+          <p class="texto-secundario">Com viagem 3–8 e evento 5–6 saem: ida (3), dias antes (4), evento (5–6), dias depois (7), volta (8). Com viagem 4–7, usam-se os textos combinados, se existirem.</p>
+        </details>
+        {% for campo in form.etapas %}{% include "componentes/campo.html" with campo=campo %}{% endfor %}
+      </fieldset>
+      <fieldset class="grupo-campos" aria-labelledby="t-funcoes">
+        <legend class="campo__rotulo" id="t-funcoes">Funções da equipe</legend>
+        <p class="texto-secundario texto-sm">Cada função vira um item antes dos dias, listando quem a tem. Deixe em branco as linhas que não usar. Use <code>{{ "{servidores}" }}</code> para os nomes.</p>
+        {% for linha in form.linhas_de_funcao %}
+          <fieldset class="grupo-campos" aria-label="Função {{ linha.n }}">
+            {{ linha.codigo }}
+            <div class="campos">
+              {% include "componentes/campo.html" with campo=linha.nome classe="campo--md" %}
+              {% include "componentes/campo.html" with campo=linha.icone classe="campo--md" %}
+            </div>
+            {% include "componentes/campo.html" with campo=linha.texto %}
+          </fieldset>
+        {% endfor %}
+      </fieldset>
+      <fieldset class="grupo-campos" aria-label="Justificativas e finalidade">
+        {% include "componentes/campo.html" with campo=form.justificativas %}
+        {% include "componentes/campo.html" with campo=form.finalidade %}
+      </fieldset>
+    </div>
+    <div class="dialogo__rodape">
+      <button type="button" class="botao botao--texto" data-fechar-dialogo>Cancelar</button>
+      <button type="submit" class="botao" formaction="{% url 'viagens:exemplo_modelo_os' %}" formtarget="_blank" formnovalidate>{% icone "eye" %}Ver exemplo</button>
+      <button type="submit" class="botao botao--primario">{% icone "save" %}{% if editando %}Salvar alterações{% else %}Criar modelo{% endif %}</button>
+    </div>
+  </form>
+</dialog>
+{% endif %}
+{% endblock %}
