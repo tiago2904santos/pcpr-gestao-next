@@ -1,0 +1,41 @@
+name: Publicar main na VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pcpr-vps-main
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Publicar commit com SSH restrito
+        env:
+          DEPLOY_COMMIT: ${{ github.sha }}
+          VPS_HOST: ${{ vars.PCPR_VPS_HOST }}
+          VPS_USER: ${{ vars.PCPR_VPS_USER }}
+          KNOWN_HOSTS: ${{ vars.PCPR_VPS_KNOWN_HOSTS }}
+          DEPLOY_KEY: ${{ secrets.PCPR_VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$DEPLOY_KEY" && test -n "$KNOWN_HOSTS"
+          key="$RUNNER_TEMP/pcpr-deploy-key"
+          hosts="$RUNNER_TEMP/pcpr-known-hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' > "$key"
+          printf '%s\n' "$KNOWN_HOSTS" | tr -d '\r' > "$hosts"
+          unset DEPLOY_KEY
+          ssh -i "$key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$hosts" \
+            -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            "$VPS_USER@$VPS_HOST" "deploy $DEPLOY_COMMIT"

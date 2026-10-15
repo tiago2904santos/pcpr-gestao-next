@@ -11,6 +11,11 @@ alterações, e esta pasta só acrescenta uma camada fina (entrada, health check
 > falta acesso SSH (§1). Ver as evidências em `docs/ops/implantacao-vps-evidencias.md`.
 > Produção: `deploy/PRODUCAO.md` (exige autorização explícita).
 
+**Atualização de 14/10/2026:** PREVIEW real em `pcpr.gerenciadorviagens.tech`,
+com volumes e Nginx existentes. Atualização manual registrada em
+`docs/ops/vps-main-20261014.md`. O deploy imediato a cada push no main dessa
+instância é descrito em `deploy/automatico/README.md` (ADR 0037); não ativa produção.
+
 ## Sumário
 1. [Acesso necessário](#1-acesso-necessário)
 2. [Arquitetura](#2-arquitetura)
