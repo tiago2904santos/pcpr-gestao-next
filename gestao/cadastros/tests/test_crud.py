@@ -262,6 +262,30 @@ class TestViatura:
                                                      "motoristas": [b.pk]})
         assert list(v.motoristas.all()) == [b]
 
+    def test_unidade_movel_pede_o_veiculo_e_aparece_na_busca(self, base):
+        c = _cliente(base["operador"])
+        r = c.post(reverse("cadastros:salvar_viatura"), {"placa": "ABC1D24",
+                                                         "tipo": "unidade_movel"})
+        assert r.status_code == 422 and "Informe qual é o veículo" in r.content.decode()
+        c.post(reverse("cadastros:salvar_viatura"), {"placa": "ABC1D24", "modelo": "Iveco",
+                                                     "tipo": "unidade_movel",
+                                                     "porte": "caminhao"})
+        caminhao = Viatura.objects.get(placa="ABC1D24")
+        assert caminhao.unidade_movel and caminhao.lenta
+        # O veículo só vale para a unidade móvel: trocar o tipo limpa.
+        c.post(reverse("cadastros:salvar_viatura"), {"pk": caminhao.pk, "placa": "ABC1D24",
+                                                     "modelo": "Iveco", "tipo": "caracterizada",
+                                                     "porte": "caminhao"})
+        caminhao.refresh_from_db()
+        assert caminhao.porte == "" and not caminhao.lenta
+        Viatura.objects.filter(pk=caminhao.pk).update(tipo="unidade_movel", porte="caminhao")
+        van = Viatura.objects.create(placa="ABC1D25", modelo="Sprinter",
+                                     tipo="unidade_movel", porte="van")
+        assert van.unidade_movel and not van.lenta
+        Viatura.objects.create(placa="ABC1D26", modelo="Gol", tipo="caracterizada")
+        html = c.get(reverse("cadastros:viaturas") + "?q=unidade movel").content.decode()
+        assert "Iveco" in html and "Sprinter" in html and "Gol" not in html
+
     def test_filtro_por_combustivel_conta_tambem_as_sem_combustivel(self, base):
         Viatura.objects.create(placa="ABC1234", combustivel=base["diesel"])
         Viatura.objects.create(placa="ABC1235")

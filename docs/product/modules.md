@@ -65,7 +65,7 @@ Telas citadas da referência são descritas por função (não por implementaç�
 |---|---|---|---|
 | Viagem (assistente) | Amarra solicitação → roteiros → ofícios → PT/OS → termos; painel "o que falta, por área" | lista, painel, 5 etapas, coerência, geração em lote, ZIP | Viagem, EquipePrevista, ViagemDocumentoSolicitacao |
 | Termos de autorização | Termo individual, genérico, por viatura, lote ZIP/PDF | lista, form, prévia | TermoAutorizacao |
-| Ordens de serviço | OS com tipo de necessidade e funções | lista, form, geração | OrdemServico |
+| Ordens de serviço | OS padrão ou por tipo fixo (funções e itens por etapa da viagem) | lista, form, geração | OrdemServico, ModeloOS, FuncaoOS |
 | Planos de trabalho | PT simples/multievento, metas, efetivo, resultados | lista, form, eventos, resultados | PlanoTrabalho, EventoPlano, EfetivoPlano… |
 | Prestação de contas | Por ofício/servidor: diário de bordo, RT, comprovantes, consolidado, importação do processo eProtocolo, diário no celular (token) | lista, stepper diário → RT → documentos → PDF final | PrestacaoContas, PrestacaoServidor, RelatorioTecnico, DiarioBordo… |
 

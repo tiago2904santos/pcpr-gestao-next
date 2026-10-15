@@ -221,6 +221,17 @@ def indice(request: HttpRequest) -> HttpResponse:
                       "descricao": "Ação rara da página, só para quem pode"}],
         **_itinerario_exemplo(),
         "lab_resumo": _resumo_exemplo(),
+        # Seletor de função da equipe na OS (viagens/widgets/_funcao_escolha.html).
+        "lab_funcoes": [
+            {"valor": "conducao", "rotulo": "Condução", "icone": "bus",
+             "dica": "Dirige o micro-ônibus na ida e na volta"},
+            {"valor": "tecnico", "rotulo": "Técnico", "icone": "wrench",
+             "dica": "Instala, configura e opera os equipamentos"},
+            {"valor": "apoio", "rotulo": "Apoio", "icone": "hand-helping",
+             "dica": "Escolta, montagem e organização"}],
+        "lab_equipe_funcoes": [("Ana Exemplo", "Agente de Polícia Judiciária · ASCOM", "conducao"),
+                               ("Bruno Exemplo", "Investigador de Polícia · ASCOM", "tecnico"),
+                               ("Carla Exemplo", "Escrivã de Polícia · ASCOM", "")],
     }
     return render(request, "ui_lab/indice.html", contexto)
 

@@ -182,6 +182,18 @@ class Viatura(Ativavel):
     class Tipo(models.TextChoices):
         CARACTERIZADA = "caracterizada", "Caracterizada"
         DESCARACTERIZADA = "descaracterizada", "Descaracterizada"
+        # Ônibus, caminhão ou van da estrutura itinerante: escolhê-la no ofício já põe a OS
+        # no tipo "Unidade móvel" e marca a atividade de unidade móvel no plano.
+        UNIDADE_MOVEL = "unidade_movel", "Unidade móvel"
+
+    class Porte(models.TextChoices):
+        """Qual veículo é a unidade móvel. A van anda como uma viatura; os outros são mais
+        lentos na estrada (o tempo de cada trecho do ofício sai maior)."""
+
+        VAN = "van", "Van"
+        MICRO_ONIBUS = "micro_onibus", "Micro-ônibus"
+        ONIBUS = "onibus", "Ônibus"
+        CAMINHAO = "caminhao", "Caminhão"
 
     # Como na referência, só a placa é obrigatória; o resto pode ser completado depois.
     placa = models.CharField("placa", max_length=7, unique=True)
@@ -189,6 +201,8 @@ class Viatura(Ativavel):
     combustivel = models.ForeignKey(Combustivel, on_delete=models.PROTECT, null=True,
                                     blank=True, related_name="viaturas")
     tipo = models.CharField("tipo", max_length=20, choices=Tipo.choices, blank=True)
+    porte = models.CharField("veículo da unidade móvel", max_length=20, choices=Porte.choices,
+                             blank=True)
     unidade = models.ForeignKey(
         Unidade, on_delete=models.PROTECT, null=True, blank=True, related_name="viaturas"
     )
@@ -205,7 +219,9 @@ class Viatura(Ativavel):
             models.CheckConstraint(
                 condition=models.Q(placa__regex=r"^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$"),
                 name="viatura_placa_formato",
-            )
+            ),
+            models.CheckConstraint(condition=models.Q(porte="") | models.Q(tipo="unidade_movel"),
+                                   name="viatura_porte_so_unidade_movel"),
         ]
 
     def __str__(self) -> str:
@@ -214,6 +230,16 @@ class Viatura(Ativavel):
     @property
     def placa_formatada(self) -> str:
         return formatar_placa(self.placa)
+
+    @property
+    def unidade_movel(self) -> bool:
+        return self.tipo == self.Tipo.UNIDADE_MOVEL
+
+    @property
+    def lenta(self) -> bool:
+        """Unidade móvel pesada (micro-ônibus, ônibus, caminhão): trechos mais demorados."""
+        return self.unidade_movel and self.porte in (
+            self.Porte.MICRO_ONIBUS, self.Porte.ONIBUS, self.Porte.CAMINHAO)
 
     @property
     def faltando(self) -> list[str]:
@@ -485,7 +511,19 @@ class TipoViagem(Ativavel):
     """Tipo de viagem (referência: "uma viagem pode ter mais de um, e o título dela nasce
     deles" — ex.: PCPR na Comunidade)."""
 
+    class TipoOS(models.TextChoices):
+        """Os tipos de OS fixos de Viagens (`viagens/modelos_do_sistema.py`), pela chave:
+        Cadastros não importa Viagens, e um teste confere que as listas batem."""
+
+        OPERACAO_POLICIAL = "operacao_policial", "Operação policial"
+        UNIDADE_MOVEL = "unidade_movel", "Unidade móvel"
+        CERIMONIAL = "cerimonial", "Cerimonial"
+
     nome = models.CharField("nome", max_length=120)
+    # Escolher o tipo na viagem já escreve o motivo (se estiver em branco) e a OS criada na
+    # viagem já nasce com o tipo de OS.
+    motivo = models.TextField("motivo", blank=True)
+    tipo_os = models.CharField("tipo de OS", max_length=40, choices=TipoOS.choices, blank=True)
 
     class Meta:
         ordering = ["nome"]

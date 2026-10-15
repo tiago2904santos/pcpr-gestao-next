@@ -590,7 +590,7 @@ def editar(request: HttpRequest, pk: int) -> HttpResponse:
         try:
             dados = {k: v for k, v in form.cleaned_data.items() if k != "versao"}
             dados["sede"] = itin.sede.cleaned_data["cidade"]
-            trechos = None if vazio else itinerario.trechos(itin)
+            trechos = None if vazio else itinerario.trechos(itin, lento=_lenta(form))
             oficio = services.salvar_edicao(oficio, request.user, dados, trechos,
                                             versao=form.cleaned_data.get("versao"))
         except services.ConflitoDeEdicao as exc:
@@ -823,7 +823,7 @@ def autosave(request: HttpRequest, pk: int) -> JsonResponse:
         dados["sede"] = itin.sede.cleaned_data["cidade"]
         if itin.valido():
             try:
-                trechos = itinerario.trechos(itin)
+                trechos = itinerario.trechos(itin, lento=_lenta(form))
             except services.RegraViolada:
                 trechos = None
     try:
@@ -1252,6 +1252,12 @@ def buscar_servidores(request: HttpRequest) -> JsonResponse:
 
 
 
+def _lenta(form) -> bool:
+    """A viatura escolhida no ofício é unidade móvel pesada (trechos mais demorados)."""
+    return bool(getattr((getattr(form, "cleaned_data", None) or {}).get("viatura"), "lenta",
+                        False))
+
+
 # ------------------------------------------------------------------ rota (mapa do itinerário)
 @require_GET
 def rota(request: HttpRequest) -> JsonResponse:
@@ -1261,6 +1267,7 @@ def rota(request: HttpRequest) -> JsonResponse:
             or request.user.has_perm("viagens.view_roteiro")):
         raise PermissionDenied
     textos = [t.strip() for t in request.GET.getlist("p")][:12]
+    lento = request.GET.get("lento") == "1"  # viatura unidade móvel pesada
     pontos: list[dict] = []
     municipios: list[Municipio | None] = []
     for texto in textos:
@@ -1279,7 +1286,7 @@ def rota(request: HttpRequest) -> JsonResponse:
         if a is None or b is None:
             pernas.append(None)
             continue
-        p = rotas.calcular(a, b)
+        p = rotas.calcular(a, b, lento=lento)
         pernas.append({"km": float(p.km), "minutos": p.minutos,
                        "adicional_sugerido": p.adicional_sugerido, "fonte": p.fonte,
                        "tracado": p.tracado})

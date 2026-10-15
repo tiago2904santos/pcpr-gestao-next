@@ -292,3 +292,21 @@ class TestFormularioDoItinerario:
         dados = _post_edicao(oficio, **{"destino-0-tempo_viagem": "abc"})
         r = operador.post(reverse("viagens:editar", args=[oficio.pk]), dados)
         assert r.status_code == 422 and "hh:mm" in r.content.decode()
+
+
+class TestVeiculoLento:
+    """Unidade móvel pesada (micro-ônibus, ônibus, caminhão): a estrada demora mais; a van
+    anda como viatura."""
+
+    def test_tempo_de_veiculo_lento(self):
+        from gestao.viagens.dominio.tempos_rota import tempo_de_veiculo_lento
+
+        assert tempo_de_veiculo_lento(0) == 0
+        assert tempo_de_veiculo_lento(60) == 75  # 60 × 74/60 = 74 → passo de 15
+        assert tempo_de_veiculo_lento(300) == 375  # 370 → 375
+
+    def test_rota_lenta_demora_mais(self, cenario, settings):
+        settings.ROTAS_PROVEDOR = ""
+        comum = rotas.calcular(_m("Curitiba"), _m("Ponta Grossa"))
+        lenta = rotas.calcular(_m("Curitiba"), _m("Ponta Grossa"), lento=True)
+        assert lenta.km == comum.km and lenta.minutos > comum.minutos

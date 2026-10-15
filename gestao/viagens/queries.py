@@ -26,7 +26,7 @@ from django.db.models import (
 from django.db.models.functions import Coalesce, Concat, Trim, TruncDate, TruncMonth
 from django.utils import timezone
 
-from gestao.cadastros.models import TabelaDiaria
+from gestao.cadastros.models import TabelaDiaria, Viatura
 
 from . import prestacao
 from .dominio import busca, recorte
@@ -343,8 +343,8 @@ def contar_leituras(qs: QuerySet[Oficio], leituras: list[busca.Leitura]) -> dict
     })
 
 
-# Categorias de veículo que a frota não guarda em campo próprio: o que as distingue hoje
-# é o modelo da viatura ou a descrição do transporte ("Ônibus de linha", "Unidade Móvel").
+# Categorias de veículo: a viatura cadastrada como unidade móvel (e o veículo dela) e, nas
+# demais, o modelo da viatura ou a descrição do transporte ("Ônibus de linha", "Unidade Móvel").
 PALAVRAS_DE_VEICULO = {
     "unidade_movel": ("unidade móvel", "unidade movel"),
     "onibus": ("ônibus", "onibus"),
@@ -359,6 +359,10 @@ def _filtro_de_veiculo(chave: str) -> Q:
     if chave == "sem":
         return Q(viatura__isnull=True, transporte_descricao="")
     filtro = Q()
+    if chave == "unidade_movel":
+        filtro |= Q(viatura__tipo=Viatura.Tipo.UNIDADE_MOVEL)
+    elif chave in Viatura.Porte.values:
+        filtro |= Q(viatura__porte=chave)
     for palavra in PALAVRAS_DE_VEICULO.get(chave, ()):
         filtro |= (Q(viatura__modelo__unaccent__icontains=palavra)
                    | Q(transporte_descricao__unaccent__icontains=palavra))

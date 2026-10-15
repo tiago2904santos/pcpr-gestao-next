@@ -5,9 +5,10 @@
 <title>{{ d.titulo }}</title>
 <meta name="author" content="{{ d.unidade_nome }}">
 {% comment %}
-Ordem de Serviço (paridade com os modelos da referência: o padrão e o "de modelos", com
-competências da equipe e justificativas por tipo de necessidade). Os textos vêm de
-dominio/ordem_servico.py; aqui só a composição.
+Ordem de Serviço. Sem modelo: o texto padrão (parágrafo único, dominio/ordem_servico.py).
+Com modelo: DETERMINO e itens I, II, III… — um por função, depois um por etapa da viagem
+(dominio/modelo_os.py) — e, se o modelo os tem, justificativas e finalidade. Aqui só a
+composição.
 {% endcomment %}
 {% if folha %}<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
@@ -27,6 +28,8 @@ dominio/ordem_servico.py; aqui só a composição.
   .determino { text-align: center; font-weight: bold; margin: 6mm 0; letter-spacing: 0.05em; }
   ul.competencias { margin: 0 0 4mm 6mm; padding-left: 4mm; }
   ul.competencias li { margin-bottom: 2mm; text-align: justify; }
+  ol.itens { list-style: none; margin: 0 0 4mm; padding: 0; }
+  ol.itens li { margin-bottom: 4mm; text-align: justify; }
   .local-data { margin-top: 8mm; text-align: right; }
   .assinatura { text-align: center; margin-top: 16mm; }
   .assinatura p { margin: 0; text-align: center; }
@@ -58,10 +61,11 @@ dominio/ordem_servico.py; aqui só a composição.
     <p class="referencia" data-bloco="referencia" data-rotulo="Referência"><strong>Ref.:</strong> {{ d.referencia }}</p>
     <p data-bloco="autoridade" data-rotulo="Quem determina">Eu, <strong>{{ d.assina.nome|default:"________________" }}</strong>, {{ d.assina.cargo|default:"________________" }} da Polícia Civil do Paraná, no uso das atribuições que me foram conferidas pelo Delegado-Geral {% if d.delegado_geral %}{{ d.delegado_geral }}{% else %}<span class="branco"></span>{% endif %}, bem como pelo Conselho da Polícia Civil,</p>
     <p class="determino" data-bloco="determino" data-rotulo="Determino">DETERMINO</p>
-    <p data-bloco="determinacao" data-rotulo="Determinação">{{ d.determinacao }}</p>
-    {% if d.competencias %}<ul class="competencias" data-bloco="competencias" data-rotulo="Competências da equipe">{% for c in d.competencias %}<li>{{ c }};</li>{% endfor %}</ul>{% endif %}
+    {% if d.itens %}<ol class="itens">{% for n, t in d.itens %}<li data-bloco="item-{{ forloop.counter }}" data-rotulo="Item {{ n }}">{{ n }} - {{ t }}</li>{% endfor %}</ol>
+    {% else %}<p data-bloco="determinacao" data-rotulo="Determinação">{{ d.determinacao }}</p>
+    {% if d.competencias %}<ul class="competencias" data-bloco="competencias" data-rotulo="Competências da equipe">{% for c in d.competencias %}<li>{{ c }};</li>{% endfor %}</ul>{% endif %}{% endif %}
     {% for j in d.justificativas %}<p data-bloco="justificativa-{{ forloop.counter }}" data-rotulo="Justificativa {{ forloop.counter }}">{{ j }}</p>{% endfor %}
-    <p data-bloco="finalidade" data-rotulo="Finalidade">{{ d.finalidade }}</p>
+    {% if d.finalidade %}<p data-bloco="finalidade" data-rotulo="Finalidade">{{ d.finalidade }}</p>{% endif %}
     {% endregiao %}
     <p class="local-data">{{ d.sede|default:"Curitiba" }}, {{ d.data_extenso }}.</p>
     {% regiao "assinatura" "Assinatura" %}

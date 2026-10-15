@@ -47,7 +47,7 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__cabecalho">
       <h2 class="secao__titulo" id="t-identificacao"><span class="secao__numero">1</span>Identificação</h2>
       <div class="secao__estado" id="estado-destinos" data-vivo>{% for p in pendencias %}<span class="selo selo--aviso selo--situacao-rascunho">{{ p.mensagem }}</span>{% endfor %}</div>
-      <p class="secao__nota">Ligar ofícios une nos campos os destinos, o período e a equipe deles (e o motivo, se estiver em branco) — confira e ajuste. Mais de um ofício, só da mesma viagem ou do mesmo roteiro. O tipo de necessidade escolhe o texto do documento.</p>
+      <p class="secao__nota">Ligar ofícios une nos campos os destinos, o período, a equipe e o motivo deles (este só se estiver em branco) — confira e ajuste. O dia do evento vem da viagem. Mais de um ofício, só da mesma viagem ou do mesmo roteiro. O tipo de OS escolhe o texto do documento e as funções da equipe.</p>
     </div>
 
     <div class="pilha" id="dados">
@@ -56,10 +56,13 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
         {{ form.oficios }}
         {% if form.oficios.errors %}<p class="campo__erro">{% icone "alert-circle" classe="icone--sm" %}<span>{{ form.oficios.errors|join:" " }}</span></p>{% endif %}
       </div>
-      {# Tipo seguido do calendário compartilhado, com ida e volta. #}
+      {# Tipo de OS seguido do calendário compartilhado, com ida e volta; se o tipo pede, o horário do briefing (funcoes-equipe.js mostra e esconde). O período do evento não se digita: vem da viagem (ordens.evento_do_vinculo). #}
       <div class="pilha">
-        {% include "componentes/campo.html" with campo=form.tipo ajuda_oculta=True %}
+        {% include "componentes/campo.html" with campo=form.modelo ajuda_oculta=True %}
         {% periodo_calendario form.data_inicio form.data_fim prefixo="ordem" rotulo="Período da ordem de serviço" natureza="viagem" editavel=editavel %}
+        <div data-campo-hora{% if not form.usa_hora %} hidden{% endif %}>
+          {% include "componentes/campo.html" with campo=form.hora classe="campo--sm" ajuda="Entra no item do briefing (ex.: 05:00)." %}
+        </div>
       </div>
     </div>
 
@@ -75,19 +78,9 @@ se refazem depois de cada gravação — os ids delas são parte do contrato.
     <div class="secao__bloco" id="equipe" aria-labelledby="t-equipe">
       <div class="secao__bloco-cabecalho">
         <h3 class="secao__bloco-titulo" id="t-equipe">{% icone "users" classe="icone--sm" %}Equipe</h3>
-        <div class="secao__estado" id="estado-equipe" data-vivo>{% with n=form.servidores.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}<span class="texto-terciario texto-xs">sai agrupada por cargo</span></div>
+        <div class="secao__estado" id="estado-equipe" data-vivo>{% with n=form.servidores.value|length %}<span class="selo{% if n %} selo--sucesso selo--situacao-emitido{% else %} selo--situacao-rascunho{% endif %}" data-equipe-contagem>{{ n|pluralizar:"servidor,servidores" }}</span>{% endwith %}<span class="texto-terciario texto-xs" data-equipe-nota>{% if form.servidores.field.widget.funcoes.ativas %}sai com a função de cada um{% else %}sai agrupada por cargo{% endif %}</span></div>
       </div>
       {% include "viagens/_campo_equipe.html" with campo=form.servidores compacta=True %}
-      {% if form.campos_de_funcao %}
-        <fieldset class="grupo-campos grupo-campos--afastado">
-          <legend>Função de cada um</legend>
-          <div class="campos">
-            {% for campo in form.funcoes_da_equipe %}{% include "componentes/campo.html" with campo=campo classe="campo--lg" %}{% endfor %}
-          </div>
-        </fieldset>
-      {% elif form.tipo_com_funcao %}
-        <p class="alerta alerta--info">{% icone "info" %}As funções aparecem aqui assim que a equipe for gravada.</p>
-      {% endif %}
     </div>
 
     <div class="secao__bloco" id="motivo" aria-labelledby="t-motivo">

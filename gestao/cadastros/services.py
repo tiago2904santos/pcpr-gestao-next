@@ -28,6 +28,7 @@ from .models import (
     Servidor,
     SubstituicaoAssinante,
     TabelaDiaria,
+    TipoViagem,
     Unidade,
     Viatura,
 )
@@ -196,7 +197,7 @@ def salvar_servidor(usuario, *, nome: str, cargo: Cargo | None = None, cpf: str 
 
 # ---------------------------------------------------------------- viaturas
 @transaction.atomic
-def salvar_viatura(usuario, *, placa: str, modelo: str = "", tipo: str = "",
+def salvar_viatura(usuario, *, placa: str, modelo: str = "", tipo: str = "", porte: str = "",
                    combustivel: Combustivel | None = None, unidade: Unidade | None = None,
                    motoristas=(), pk: int | None = None) -> Viatura:
     if pk:
@@ -206,6 +207,8 @@ def salvar_viatura(usuario, *, placa: str, modelo: str = "", tipo: str = "",
         policies.exigir(policies.pode_criar_cadastro(usuario, Viatura))
         viatura = Viatura()
     viatura.placa, viatura.modelo, viatura.tipo = placa, modelo, tipo
+    # O veículo só vale para a unidade móvel (o banco garante).
+    viatura.porte = porte if tipo == Viatura.Tipo.UNIDADE_MOVEL else ""
     viatura.combustivel, viatura.unidade = combustivel, unidade
     _gravar(viatura, f"Já existe uma viatura com a placa {viatura.placa_formatada}.")
     viatura.motoristas.set(list(motoristas))
@@ -367,6 +370,20 @@ def salvar_atividade(usuario, *, nome: str, meta: str, recurso: str = "",
     atividade.nome, atividade.meta, atividade.recurso = nome, meta.strip(), recurso.strip()
     _gravar(atividade, f"Já existe uma atividade com o código {atividade.codigo}.")
     return atividade
+
+
+@transaction.atomic
+def salvar_tipo_viagem(usuario, *, nome: str, motivo: str = "", tipo_os: str = "",
+                       pk: int | None = None) -> TipoViagem:
+    if pk:
+        _exigir_alterar(usuario, TipoViagem)
+        tipo = TipoViagem.objects.select_for_update().get(pk=pk)
+    else:
+        policies.exigir(policies.pode_criar_cadastro(usuario, TipoViagem))
+        tipo = TipoViagem()
+    tipo.nome, tipo.motivo, tipo.tipo_os = nome, motivo.strip(), tipo_os
+    _gravar(tipo, f"Já existe um tipo de viagem chamado “{nome}”.")
+    return tipo
 
 
 @transaction.atomic

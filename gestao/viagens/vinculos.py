@@ -58,3 +58,9 @@ def resumo(oficio: Oficio) -> str:
         periodo = f"{ida:%d/%m/%Y}" if ida == volta else f"{ida:%d/%m} a {volta:%d/%m/%Y}"
     return " · ".join(p for p in (oficio.get_situacao_display(), ", ".join(destinos), periodo)
                       if p)
+
+
+def tem_unidade_movel(oficios: Iterable[Oficio]) -> bool:
+    """Algum dos ofícios vai numa viatura unidade móvel (van, micro-ônibus, ônibus,
+    caminhão)? A OS nova vem no tipo "Unidade móvel" e o plano marca a atividade."""
+    return any(o.viatura is not None and o.viatura.unidade_movel for o in oficios)

@@ -47,7 +47,7 @@ from .models import (
     Viajante,
 )
 from .queries import buscar_tabelas_vigentes
-from .vinculos import incompatibilidade
+from .vinculos import incompatibilidade, tem_unidade_movel
 
 MAX_OFICIOS, MAX_DESTINOS, MAX_LINHAS, MAX_EVENTOS = 20, 30, 50, 20
 MANTER = object()  # "a tela não mandou": o valor gravado fica como está
@@ -292,6 +292,15 @@ def estado(plano: PlanoTrabalho, falta: list | None = None) -> tuple[str, str]:
     return "Pronto para gerar", "info"
 
 
+def com_unidade_movel(atividades) -> list[AtividadePlano]:
+    """As atividades mais a de unidade móvel (se ativa e se ainda não estiver)."""
+    atividades = list(atividades)
+    if any(a.codigo == AtividadePlano.UNIDADE_MOVEL for a in atividades):
+        return atividades
+    um = AtividadePlano.objects.filter(codigo=AtividadePlano.UNIDADE_MOVEL, ativo=True).first()
+    return [*atividades, um] if um else atividades
+
+
 def conjunto_padrao() -> list[AtividadePlano]:
     """As atividades do conjunto padrão (gravadas em todo plano novo)."""
     from gestao.cadastros.models import PresetAtividades
@@ -407,8 +416,10 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
            efetivo: list[LinhaInformada] | None = None, atividades=None,
            contextualizacao: str | None = None, coordenacao: str | None = None,
            consideracoes: str | None = None, assinante: Servidor | object | None = MANTER,
-           data_documento: date | object | None = MANTER) -> tuple[PlanoTrabalho, list[str]]:
-    """Cria (numera) ou altera. Devolve o plano e o que veio dos ofícios.
+           data_documento: date | object | None = MANTER,
+           unidade_movel: bool = False) -> tuple[PlanoTrabalho, list[str]]:
+    """Cria (numera) ou altera. Devolve o plano e o que veio dos ofícios. `unidade_movel`:
+    o plano novo já marca a atividade (a viagem dele vai numa unidade móvel).
 
     `efetivo`/`atividades`/textos `None`: a tela não os mandou — ficam como estão. Os campos
     vazios recebem dos ofícios na criação e quando um ofício é ligado agora."""
@@ -437,6 +448,8 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
                 coordenador_adm_genero = config.coordenador_plano_genero
         if atividades is None:
             atividades = conjunto_padrao()  # o padrão já nasce gravado (não só na tela)
+            if unidade_movel:
+                atividades = com_unidade_movel(atividades)
     if (len(oficios) > MAX_OFICIOS or len(destinos) > MAX_DESTINOS
             or (efetivo is not None and len(efetivo) > MAX_LINHAS)):
         raise PlanoInvalido(f"Limites: {MAX_OFICIOS} ofícios, {MAX_DESTINOS} destinos e "
@@ -471,6 +484,11 @@ def salvar(usuario, *, pk: int | None = None, versao: str = "", oficios=(),
         if not saida_em and not chegada_em and base["saida"]:
             saida_em, chegada_em = base["saida"], base["chegada"]
             copiados.append("deslocamento")
+        # Ofício que vai em unidade móvel: a atividade já vem marcada.
+        novos = [o for o in oficios if o.pk not in ja_ligados]
+        if tem_unidade_movel(novos):
+            marcadas = list(plano.atividades.all()) if pk and atividades is None else []
+            atividades = com_unidade_movel(atividades if atividades is not None else marcadas)
 
     # Vários programas (a tela manda `programas`); `programa`, um só, vale como lista de um.
     programas = list(programas) if programas is not None else ([programa] if programa else [])

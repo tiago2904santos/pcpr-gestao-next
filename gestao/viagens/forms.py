@@ -38,8 +38,18 @@ from gestao.plataforma.widgets import (
     SelecaoDeTexto,
 )
 
+from .dominio.escrita import lista_com_e
 from .dominio.numeracao import formatar_numero
-from .models import Oficio, OrdemServico, PlanoTrabalho, Roteiro, TermoAutorizacao, Trecho
+from .models import (
+    FuncaoOS,
+    ModeloOS,
+    Oficio,
+    OrdemServico,
+    PlanoTrabalho,
+    Roteiro,
+    TermoAutorizacao,
+    Trecho,
+)
 from .queries import trechos_de
 
 FORM_ID = "form-oficio"
@@ -219,8 +229,15 @@ class SelecaoDeViatura(forms.Select):
                 "data-nomes": "|".join(m.nome.split()[0] for m in viatura.motoristas.all()),
                 "data-meta": " · ".join(p for p in (
                     getattr(viatura.combustivel, "nome", ""),
-                    viatura.get_tipo_display(), sigla) if p),
+                    viatura.get_tipo_display(), viatura.get_porte_display(), sigla) if p),
+                # Digitar "unidade móvel" (ou "caminhão") acha as viaturas desse tipo.
+                "data-busca": " ".join(p for p in (
+                    viatura.get_tipo_display(), viatura.get_porte_display()) if p),
             })
+            if viatura.unidade_movel:
+                opcao["attrs"]["data-unidade-movel"] = ""
+            if viatura.lenta:
+                opcao["attrs"]["data-lenta"] = ""
         return opcao
 
 
@@ -683,6 +700,10 @@ class CampoEquipe(EscolhaMultiplaRemota):
         self.rotulo, self.cadastrar, self.maximo = rotulo, cadastrar, maximo
         # Quem está aqui dirige (o "Quem dirige" do lote): a viatura dele entra sozinha.
         self.motorista = motorista
+        # OS com modelo que tem funções: o seletor em cada cartão. {"campo_tipo" (id do campo
+        # Modelo), "por_tipo": {id do modelo: [opção]}, "ativas": [opção], "escolhidas",
+        # "com_hora": [ids dos modelos que pedem o horário do briefing]}.
+        self.funcoes: dict[str, Any] | None = None
 
     def get_context(self, name, value, attrs):
         from .templatetags.viagens import larguras_de_cartoes
@@ -699,11 +720,39 @@ class CampoEquipe(EscolhaMultiplaRemota):
                 e["unidade"] = getattr(s, "unidade_id", "") or ""
         for e, largura in zip(escolhidos, larguras_de_cartoes(len(escolhidos)), strict=False):
             e["largura"] = largura
+        if self.funcoes:
+            for e in escolhidos:
+                e["funcao"] = self.funcoes["escolhidas"].get(str(e["id"]), "")
         contexto["widget"].update({
             "rotulo": self.rotulo, "cadastrar": self.cadastrar, "maximo": self.maximo,
-            "motorista": self.motorista,
+            "motorista": self.motorista, "funcoes": self.funcoes,
+            "funcoes_json": json.dumps(self.funcoes["por_tipo"]) if self.funcoes else "",
+            "com_hora_json": json.dumps(self.funcoes["com_hora"]) if self.funcoes else "",
             "excluir": ",".join(str(e["id"]) for e in escolhidos)})
         return contexto
+
+
+def _opcao_de_funcao(funcao: FuncaoOS) -> dict[str, str]:
+    """Como a função aparece no seletor do cartão da equipe: rótulo, ícone e a dica (o começo
+    da atribuição que vai para o documento, sem os marcadores)."""
+    dica = re.sub(r"\{[a-z_]+\}", "…", funcao.texto).strip()
+    if len(dica) > 110:
+        dica = dica[:110].rstrip() + "…"
+    return {"valor": funcao.codigo, "rotulo": funcao.nome, "icone": funcao.icone or "users",
+            "dica": dica}
+
+
+def ajuda_do_modelo(modelo: ModeloOS | None) -> str:
+    """A ajuda do campo Tipo de OS: o que o escolhido faz com o formulário e o documento."""
+    if modelo is None:
+        return "Texto simples: quem vai, para onde, quando e para quê."
+    partes = ["Itens por dia da viagem e do evento"]
+    nomes = [f.nome for f in modelo.funcoes.all()]
+    if nomes:
+        partes.append(f"funções: {lista_com_e(nomes)}")
+    if modelo.usa_hora:
+        partes.append("pede o horário do briefing")
+    return " · ".join(partes) + "."
 
 
 class CampoOficios(EscolhaMultiplaRemota):
@@ -931,10 +980,10 @@ class FormularioOrdem(forms.Form):
     oficios = forms.ModelMultipleChoiceField(
         label="Ofícios vinculados", queryset=Oficio.objects.none(), required=False,
         help_text="")  # a nota do cartão explica o que vem dos ofícios
-    tipo = forms.ChoiceField(label="Tipo de necessidade", choices=OrdemServico.TIPOS,
-                             widget=Selecao(),
-                             help_text="Muda o texto do documento (referência, justificativas "
-                                       "e atribuições da equipe).")
+    modelo = forms.ModelChoiceField(
+        label="Tipo de OS", queryset=ModeloOS.objects.none(), required=False,
+        empty_label="OS padrão", widget=Selecao(),
+        help_text="Escolhe o texto do documento e as funções da equipe.")
     destinos = CampoMunicipios(label="Destinos", required=False)
     # Período num campo só na tela (<pc-data data-periodo>, ida e volta no mesmo calendário),
     # como no termo: estes dois levam as pontas.
@@ -942,6 +991,10 @@ class FormularioOrdem(forms.Form):
                                   widget=forms.HiddenInput(attrs={"data-periodo-de": ""}))
     data_fim = forms.DateField(label="Data final", required=False, input_formats=FORMATOS_DATA,
                                widget=forms.HiddenInput(attrs={"data-periodo-ate": ""}))
+    # O horário do briefing: só nos tipos que o pedem (`{hora}` no texto).
+    hora = forms.TimeField(label="Horário do briefing", required=False, input_formats=["%H:%M"],
+                           widget=forms.TimeInput(attrs=_attrs("entrada", type="time"),
+                                                  format="%H:%M"))
     servidores = forms.ModelMultipleChoiceField(label="Equipe", queryset=Servidor.objects.none(),
                                                 required=False)
     motivo_modelo = forms.ModelChoiceField(
@@ -973,29 +1026,57 @@ class FormularioOrdem(forms.Form):
         self.fields["destinos"].widget.fonte = fonte_municipios
         cast(forms.ModelChoiceField, self.fields["motivo_modelo"]).queryset = (
             ModeloTexto.objects.filter(ativo=True, tipo=ModeloTexto.Tipo.MOTIVO))
-        # Funções da equipe (tipos com função): um campo por servidor já gravado na OS.
-        self.campos_de_funcao: list[tuple[Servidor, str]] = []
-        tipo = (self.data.get("tipo") if self.is_bound else None) or (
-            ordem.tipo if ordem else "padrao")
-        from .dominio.ordem_servico import (
-            EFEITO_DO_TIPO,
-            FRASE_DO_MOTIVO,
-            FUNCOES,
-            FUNCOES_DO_TIPO,
-        )
-        self.fields["tipo"].help_text = EFEITO_DO_TIPO.get(tipo, "")
-        self.fields["motivo"].help_text = (f"Completa a frase “{FRASE_DO_MOTIVO.get(tipo, '')}” "
-                                           "(sem ponto final; a inicial vira minúscula).")
-        permitidas = FUNCOES_DO_TIPO.get(tipo)
-        if ordem is not None and permitidas:
-            opcoes = [("", "Sem função")] + [(c, r) for c, r in FUNCOES if c in permitidas]
-            for s in ordem.servidores.select_related("cargo").order_by("nome"):
-                nome = f"funcao_{s.pk}"
-                rotulo = s.nome  # o cargo já está no cartão da pessoa, logo acima
-                self.fields[nome] = forms.ChoiceField(
-                    label=rotulo, choices=opcoes, required=False, widget=Selecao(),
-                    initial=(ordem.funcoes or {}).get(str(s.pk), ""))
-                self.campos_de_funcao.append((s, nome))
+        # Os tipos (fixos, `modelos_do_sistema`): os ativos e o que a OS já tem.
+        campo_modelo = cast(forms.ModelChoiceField, self.fields["modelo"])
+        modelos_qs = ModeloOS.objects.filter(
+            Q(ativo=True) | Q(pk=ordem.modelo_id if ordem else None)).prefetch_related("funcoes")
+        campo_modelo.queryset = modelos_qs
+        modelos = list(modelos_qs)
+        if self.is_bound:
+            pedido = str(self.data.get("modelo") or "")
+            self.modelo_escolhido = next((m for m in modelos if str(m.pk) == pedido), None)
+        else:
+            self.modelo_escolhido = next(
+                (m for m in modelos if ordem and m.pk == ordem.modelo_id), None)
+        modelo = self.modelo_escolhido
+        campo_modelo.help_text = ajuda_do_modelo(modelo)
+        self.fields["motivo"].help_text = (
+            "Completa a frase “… para realizar ___.” (sem ponto final; a inicial vira "
+            "minúscula)." if modelo is None else
+            "Entra nos itens do documento (sem ponto final; a inicial vira "
+            "minúscula).")
+        # Funções da equipe (modelo com funções): um campo por pessoa da equipe — a que está
+        # na tela (pode ter acabado de entrar) ou, sem envio, a gravada. Quem escolhe é o
+        # seletor no próprio cartão (viagens/widgets/equipe.html, funcoes-equipe.js).
+        self.campos_de_funcao: list[tuple[str, str]] = []
+        gravadas = (ordem.funcoes or {}) if ordem else {}
+        if self.is_bound:
+            enviados = (self.data.getlist("servidores") if hasattr(self.data, "getlist")
+                        else self.data.get("servidores") or [])
+            ids = [str(i) for i in enviados if str(i).isdigit()]
+        else:
+            ids = [str(pk) for pk in atuais]
+        permitidas = list(modelo.funcoes.all()) if modelo else []
+        opcoes = [("", "Sem função")] + [(f.codigo, f.nome) for f in permitidas]
+        for sid in ids if permitidas else ():
+            nome = f"funcao_{sid}"
+            self.fields[nome] = forms.ChoiceField(choices=opcoes, required=False,
+                                                  initial=gravadas.get(sid, ""))
+            self.campos_de_funcao.append((sid, nome))
+        equipe.widget.funcoes = {
+            "campo_tipo": self["modelo"].auto_id,
+            "por_tipo": {str(m.pk): [_opcao_de_funcao(f) for f in m.funcoes.all()]
+                         for m in modelos},
+            "ativas": [_opcao_de_funcao(f) for f in permitidas],
+            "escolhidas": {sid: (self.data.get(f"funcao_{sid}", "") if self.is_bound
+                                 else gravadas.get(sid, "")) for sid in ids},
+            "com_hora": [str(m.pk) for m in modelos if m.usa_hora],
+        }
+
+    @property
+    def usa_hora(self) -> bool:
+        """O modelo escolhido pede o horário do briefing (o campo aparece)."""
+        return self.modelo_escolhido is not None and self.modelo_escolhido.usa_hora
 
     def periodo_texto(self) -> str:
         """O que o campo de período mostra: "13/10/2026 a 15/10/2026", ou só a ida."""
@@ -1005,25 +1086,16 @@ class FormularioOrdem(forms.Form):
         de, ate = texto("data_inicio"), texto("data_fim")
         return f"{de} a {ate}" if de and ate else de
 
-    @property
-    def funcoes_da_equipe(self):
-        """Os campos de função já ligados ao formulário (para o template)."""
-        return [self[nome] for _s, nome in self.campos_de_funcao]
-
-    @property
-    def tipo_com_funcao(self) -> bool:
-        from .dominio.ordem_servico import FUNCOES_DO_TIPO
-        return (self["tipo"].value() or "padrao") in FUNCOES_DO_TIPO
-
     @classmethod
     def de(cls, ordem, **kwargs):
         from .ordens import versao_de
         return cls(ordem=ordem, initial={
             "versao": versao_de(ordem),
-            "oficios": [o.pk for o in ordem.oficios.all()], "tipo": ordem.tipo,
+            "oficios": [o.pk for o in ordem.oficios.all()], "modelo": ordem.modelo_id,
             "destinos": [str(d.municipio) for d in ordem.destinos.all()],
             "data_inicio": ordem.data_inicio,
             "data_fim": ordem.data_fim if ordem.data_fim != ordem.data_inicio else None,
+            "hora": ordem.hora,
             "servidores": [s.pk for s in ordem.servidores.all()], "motivo": ordem.motivo},
             **kwargs)
 
@@ -1037,10 +1109,10 @@ class FormularioOrdem(forms.Form):
         if dados.get("motivo_modelo") and not (dados.get("motivo") or "").strip():
             dados["motivo"] = dados["motivo_modelo"].texto
         dados.pop("motivo_modelo", None)
-        # Sem campos de função na tela (OS nova, tipo sem função), as gravadas ficam.
-        funcoes = {str(s.pk): dados.get(nome) for s, nome in self.campos_de_funcao
+        # Sem campos de função na tela (OS nova, modelo sem função), as gravadas ficam.
+        funcoes = {sid: dados.get(nome) for sid, nome in self.campos_de_funcao
                    if dados.get(nome)}
-        for _s, nome in self.campos_de_funcao:
+        for _sid, nome in self.campos_de_funcao:
             dados.pop(nome, None)
         dados["funcoes"] = funcoes if self.campos_de_funcao else None
         return dados
@@ -1489,8 +1561,11 @@ class FormularioViagem(forms.Form):
         super().__init__(*args, **kwargs)
         self._mostrados: dict[str, list[int]] = {}
         atuais = list(viagem.tipos.values_list("pk", flat=True))
-        cast(forms.ModelMultipleChoiceField, self.fields["tipos"]).queryset = (
-            TipoViagem.objects.filter(Q(ativo=True) | Q(pk__in=atuais)).order_by("nome"))
+        tipos = TipoViagem.objects.filter(Q(ativo=True) | Q(pk__in=atuais)).order_by("nome")
+        cast(forms.ModelMultipleChoiceField, self.fields["tipos"]).queryset = tipos
+        # {id do tipo: motivo} para a tela escrever o motivo ao escolher o tipo.
+        motivos = {str(t.pk): t.motivo for t in tipos if t.motivo.strip()}
+        self.motivos_dos_tipos = json.dumps(motivos, ensure_ascii=False) if motivos else ""
         self.fields["destinos"].widget.fonte = fonte_municipios
         for tipo, qs in candidatos(viagem).items():
             # Os desta viagem sempre; dos livres, os 40 mais recentes (lista curta, legível).

@@ -60,7 +60,7 @@
           </div>
           <div class="registro__agenda">
             <span class="registro__meta-item{% if not l.periodo %} registro__meta-item--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}<span class="registro__meta-texto">{{ l.periodo|default:"Sem período" }}</span></span>
-            {% if o.tipo != "padrao" %}<span class="registro__meta-item" title="{{ o.get_tipo_display }}">{% icone "layers" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.get_tipo_display }}</span></span>{% endif %}
+            {% if o.modelo_id %}<span class="registro__meta-item" title="{{ o.modelo.nome }}">{% icone "layers" classe="icone--sm" %}<span class="registro__meta-texto">{{ o.modelo.nome }}</span></span>{% endif %}
             {% if l.tempo.progresso is not None %}{% include "componentes/linha_estrada.html" with progresso=l.tempo.progresso %}{% endif %}
             {% if l.pendencias and not o.cancelada and not l.vazio %}{% include "componentes/linha_pendencias.html" with pendencias=l.pendencias url=l.url_folha titulo="Falta para a OS sair completa" %}{% endif %}
           </div>

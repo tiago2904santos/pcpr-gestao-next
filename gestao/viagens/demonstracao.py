@@ -64,6 +64,9 @@ SEMENTE = 20_261_001
 OFICIOS_BASE = 260
 SERVIDORES_BASE = 170
 VIATURAS_BASE = 48
+# O motivo que o tipo de viagem "Operação Policial" traz (o mesmo da migração 0017 de Cadastros).
+MOTIVO_OPERACAO = ("Acompanhar a operação policial, prestando assessoria de imprensa, atendimento "
+                   "aos veículos de comunicação e suporte de comunicação.")
 
 TABELAS = (
     "coffee_certidao", "coffee_via", "coffee_movimento", "coffee_solicitacao",
@@ -727,6 +730,13 @@ class _Gerador:
         Servidor.objects.create(nome="Joana Prates Vieira", ativo=False, unidade=ascom,
                                 cargo=Cargo.objects.get(nome="Escrivão de Polícia"))
         Viatura.objects.create(placa="ZZQ7B20", unidade=ascom)  # só a placa: incompleta
+        # Unidades móveis da ASCOM: o caminhão é lento na estrada; a van anda como viatura.
+        diesel = (Combustivel.objects.filter(nome__icontains="diesel").first()
+                  or Combustivel.objects.filter(ativo=True).first())
+        for placa, modelo, porte in (("ZZU1001", "Caminhão Unidade Móvel", Viatura.Porte.CAMINHAO),
+                                     ("ZZU1002", "Van Unidade Móvel", Viatura.Porte.VAN)):
+            Viatura.objects.create(placa=placa, modelo=modelo, combustivel=diesel, unidade=ascom,
+                                   tipo=Viatura.Tipo.UNIDADE_MOVEL, porte=porte)
         Combustivel.objects.create(nome="Etanol", ativo=False)
         Cargo.objects.create(nome="Auxiliar Administrativo", ativo=False)
         # Assinantes por tipo e substituição (ASCOM): a justificativa tem titular próprio e
@@ -787,31 +797,43 @@ class _Gerador:
         termo_de_dois_oficios(unidade, autor)
 
     def ordens_para_avaliar(self) -> None:
-        """Ordens de serviço (módulo 5): das últimas viagens da ASCOM (uma de caminhão, com as
-        funções da equipe), uma avulsa e uma cancelada; nome do Delegado-Geral fictício."""
+        """Ordens de serviço (módulo 5): das últimas viagens da ASCOM — uma de cada modelo
+        do sistema (caminhão com viagem 3–8 e evento 5–6; micro-ônibus; cerimonial com
+        viagem 4–7 e evento 5–6), uma padrão, uma avulsa de operação policial com o horário
+        do briefing e uma cancelada; nome do Delegado-Geral fictício."""
         from . import ordens
+        from .models import ModeloOS
         ConfiguracaoInstitucional.objects.update(delegado_geral_nome="Delegado-Geral (DEMO)")
         ascom = self.unidades[0]
         autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
         if autor is None:
             return
         recentes = list(Oficio.objects.filter(unidade=ascom, trechos__isnull=False).exclude(
-            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:4])
+            situacao=Oficio.Situacao.CANCELADO).distinct().order_by("-ano", "-numero")[:5])
+        modelos = {m.chave: m for m in ModeloOS.objects.exclude(chave=None)}
+        # (modelo, dias antes do evento, dias depois) — o período da OS abre em volta do evento.
+        plano = [("unidade_movel", 2, 2), ("operacao_policial", 0, 0), ("cerimonial", 1, 1),
+                 (None, 0, 0), (None, 0, 0)]
         criadas = []
-        for i, o in enumerate(recentes):
+        for (chave, antes, depois), o in zip(plano, recentes, strict=False):
             dados = ordens.dados_dos_oficios([o])
+            modelo = modelos.get(chave) if chave else None
             ano = self.hoje.year
+            evento_inicio, evento_fim = dados["inicio"], dados["fim"]
+            inicio = evento_inicio - timedelta(days=antes) if evento_inicio else None
+            fim = evento_fim + timedelta(days=depois) if evento_fim else None
             ordem = OrdemServico.objects.create(
                 unidade=ascom, ano=ano, numero=ordens.reservar_numero(ano), criado_por=autor,
-                tipo="caminhao" if i == 0 else "padrao", data_inicio=dados["inicio"],
-                data_fim=dados["fim"], motivo=dados["motivo"])
+                modelo=modelo, data_inicio=inicio, data_fim=fim,
+                data_evento_inicio=evento_inicio if modelo else None,
+                data_evento_fim=evento_fim if modelo else None, motivo=dados["motivo"])
             ordem.oficios.set([o])
             ordem.servidores.set(dados["servidores"])
             for posicao, m in enumerate(dados["destinos"]):
                 OrdemServicoDestino.objects.create(ordem=ordem, municipio=m, posicao=posicao)
-            if i == 0:
-                funcoes = ("conducao", "apoio", "tecnico")
-                ordem.funcoes = {str(s.pk): funcoes[k % 3]
+            codigos = list(modelo.funcoes.values_list("codigo", flat=True)) if modelo else []
+            if codigos:  # a operação policial não tem funções
+                ordem.funcoes = {str(s.pk): codigos[k % len(codigos)]
                                  for k, s in enumerate(dados["servidores"])}
                 ordem.save(update_fields=["funcoes"])
             criadas.append(ordem)
@@ -821,10 +843,12 @@ class _Gerador:
                 motivo_cancelamento="Viagem cancelada pela organização (DEMO).")
         avulsa = OrdemServico.objects.create(
             unidade=ascom, ano=self.hoje.year, numero=ordens.reservar_numero(self.hoje.year),
-            criado_por=autor, tipo="operacao_retorno_posterior",
-            data_inicio=self.hoje + timedelta(days=12), data_fim=self.hoje + timedelta(days=13),
+            criado_por=autor, modelo=modelos.get("operacao_policial"),
+            data_inicio=self.hoje + timedelta(days=12), data_fim=self.hoje + timedelta(days=14),
+            data_evento_inicio=self.hoje + timedelta(days=13),
+            data_evento_fim=self.hoje + timedelta(days=13), hora=time(5, 0),
             motivo="cobertura da operação (DEMO)")
-        avulsa.servidores.set(self.servidores_por_unidade[ascom.pk][:2])
+        avulsa.servidores.set(self.servidores_por_unidade[ascom.pk][:1])
         OrdemServicoDestino.objects.create(ordem=avulsa, posicao=0,
                                            municipio=Municipio.objects.get(nome="Cascavel",
                                                                            uf="PR"))
@@ -835,8 +859,13 @@ class _Gerador:
         from gestao.cadastros.models import TipoViagem
 
         from .models import PlanoTrabalho, Viagem, ViagemDestino
-        tipos = [TipoViagem.objects.get_or_create(nome=n)[0]
-                 for n in ("PCPR na Comunidade", "Unidade Móvel", "Operação (DEMO)")]
+        tipos = [TipoViagem.objects.get_or_create(nome=n, defaults=extra)[0]
+                 for n, extra in (
+                     ("PCPR na Comunidade", {}),
+                     ("Unidade Móvel", {"tipo_os": TipoViagem.TipoOS.UNIDADE_MOVEL}),
+                     ("Operação Policial", {"tipo_os": TipoViagem.TipoOS.OPERACAO_POLICIAL,
+                                            "motivo": MOTIVO_OPERACAO}),
+                     ("Cerimonial", {"tipo_os": TipoViagem.TipoOS.CERIMONIAL}))]
         ascom = self.unidades[0]
         autor = Usuario.objects.filter(lotacao__unidade=ascom).order_by("pk").first()
         oficio = (Oficio.objects.filter(unidade=ascom, trechos__isnull=False)

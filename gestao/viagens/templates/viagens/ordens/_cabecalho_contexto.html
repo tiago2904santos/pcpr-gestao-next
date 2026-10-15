@@ -8,7 +8,7 @@
       {% elif faltando %}<span class="selo selo--aviso">{{ faltando|length|pluralizar:"pendência,pendências" }}</span>
       {% else %}<span class="selo selo--sucesso">Pronta para gerar</span>{% endif %}
       {% if via.s.via and pode_ver_documento %}{% include "viagens/assinados/_selo.html" with s=via.s %}{% endif %}
-      {% if ordem.tipo != "padrao" %}<span class="registro-hero__metadado">{% icone "layers" classe="icone--sm" %}{{ ordem.get_tipo_display }}</span>{% endif %}
+      {% if ordem.modelo_id %}<span class="registro-hero__metadado">{% icone "layers" classe="icone--sm" %}{{ ordem.modelo.nome }}</span>{% endif %}
       {% with n=ordem.servidores.all|length %}<span class="registro-hero__metadado{% if not n %} registro-hero__metadado registro-hero__metadado--vazio{% endif %}">{% icone "users" classe="icone--sm" %}{% if n %}{{ n|pluralizar:"servidor,servidores" }}{% else %}sem equipe{% endif %}</span>{% endwith %}
       <span class="registro-hero__metadado{% if not ordem.destinos.all %} registro-hero__metadado registro-hero__metadado--vazio{% endif %}">{% icone "map-pin" classe="icone--sm" %}{% for d in ordem.destinos.all %}{{ d.municipio }}{% if not forloop.last %}, {% endif %}{% empty %}sem destino{% endfor %}</span>
       <span class="registro-hero__metadado{% if not periodo %} registro-hero__metadado registro-hero__metadado--vazio{% endif %}">{% icone "calendar" classe="icone--sm" %}{{ periodo|default:"sem datas" }}{% if periodo and not ordem.cancelada %} · {% if ordem.data_inicio > hoje %}prevista{% elif ordem.data_fim >= hoje %}em andamento{% else %}realizada{% endif %}{% endif %}</span>

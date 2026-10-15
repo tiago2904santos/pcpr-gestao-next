@@ -5,8 +5,8 @@ Paridade com `viagens_ordens` da referência:
   maior número + 1 (`dominio.numeracao.proximo_numero`, a mesma regra do ofício);
 - ao ligar ofícios, a OS **copia** deles o que estiver em branco — destinos, período, equipe
   e motivo (na referência, a tela copiava ao vincular);
-- o texto do documento depende do tipo de necessidade (`dominio.ordem_servico`); nos tipos
-  com função, cada um da equipe recebe a sua (condução, técnico, apoio…);
+- o texto do documento vem do modelo da OS (`ModeloOS`, `dominio.modelo_os`: itens por função
+  e por etapa da viagem) ou, sem modelo, do texto padrão (`dominio.ordem_servico`);
 - quem assina: o assinante desta OS; senão o substituto do período ou a chefia da unidade;
 - a data do documento nasce na primeira geração e vale para todas as vias.
 
@@ -15,7 +15,7 @@ Toda gravação passa por aqui; a auditoria é do banco (trigger).
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, time
 from typing import cast
 
 from django.db import transaction
@@ -26,10 +26,13 @@ from gestao.cadastros.models import ConfiguracaoInstitucional, Municipio, Servid
 from gestao.cadastros.services import quem_assina
 
 from . import policies
+from .dominio import modelo_os as dominio_modelo
 from .dominio import ordem_servico as dominio
 from .dominio.numeracao import proximo_numero
+from .modelos_do_sistema import UNIDADE_MOVEL as CHAVE_UNIDADE_MOVEL
 from .models import (
     LacunaOrdemServico,
+    ModeloOS,
     NumeracaoOrdemServico,
     Oficio,
     OrdemServico,
@@ -37,7 +40,7 @@ from .models import (
     Trecho,
     Viajante,
 )
-from .vinculos import incompatibilidade
+from .vinculos import incompatibilidade, tem_unidade_movel
 
 # "Não mexa": a data do documento só muda quando quem chama a informa.
 MANTER = object()
@@ -60,7 +63,8 @@ PREFETCH_ORDENS = (
 
 
 def com_dados(qs):
-    return qs.select_related("unidade", "assinante__cargo").prefetch_related(*PREFETCH_ORDENS)
+    return qs.select_related("unidade", "assinante__cargo", "modelo").prefetch_related(
+        *PREFETCH_ORDENS)
 
 
 def carregar(ordem: OrdemServico) -> OrdemServico:
@@ -90,7 +94,7 @@ def proximo_numero_do_ano(ano: int) -> int:
 
 # ---------------------------------------------------------------- cópia do ofício
 def dados_dos_oficios(oficios: list[Oficio]) -> dict:
-    """Destinos (na ordem, sem repetir), período (primeira saída a última chegada), equipe e
+    """Destinos (na ordem, sem repetir), período (primeira saída a última chegada), equipe,
     o motivo do primeiro ofício — o que a OS em branco copia."""
     prefetch_related_objects(
         oficios, Prefetch("trechos", queryset=Trecho.objects.select_related("destino")
@@ -118,9 +122,44 @@ def dados_dos_oficios(oficios: list[Oficio]) -> dict:
             "motivo": motivo}
 
 
+def evento_do_vinculo(viagem, oficios, inicio: date | None,
+                      fim: date | None) -> tuple[date | None, date | None]:
+    """O período do evento pelo vínculo da OS: a Viagem dela ou, sem ela, a do primeiro
+    ofício ligado que tem uma — recortado ao período da OS (ida e volta dos trechos). Sem
+    Viagem com datas, ou com o evento todo fora do período, não há evento (a viagem inteira
+    conta como evento no documento)."""
+    if viagem is None:
+        viagem = next((o.viagem for o in oficios if o.viagem_id), None)
+    if viagem is None or not viagem.data_inicio:
+        return None, None
+    ev_ini, ev_fim = viagem.data_inicio, viagem.data_fim or viagem.data_inicio
+    if inicio:
+        ev_ini, ev_fim = max(ev_ini, inicio), min(ev_fim, fim or inicio)
+    return (ev_ini, ev_fim) if ev_ini <= ev_fim else (None, None)
+
+
+def tipo_sugerido(viagem=None, oficios=()) -> ModeloOS | None:
+    """O tipo com que a OS nasce: o do tipo da viagem (cadastro "Tipos de viagem") ou, sem
+    ele, "Unidade móvel" quando um ofício (ligado ou da viagem) vai numa unidade móvel."""
+    oficios = list(oficios)
+    if viagem is None:
+        viagem = next((o.viagem for o in oficios if o.viagem_id), None)
+    chaves: list[str] = []
+    if viagem is not None:
+        chaves = [t.tipo_os for t in viagem.tipos.all() if t.tipo_os]
+        oficios += [o for o in viagem.oficios.exclude(situacao=Oficio.Situacao.CANCELADO)
+                    .select_related("viatura") if o not in oficios]
+    if not chaves and tem_unidade_movel(oficios):
+        chaves = [CHAVE_UNIDADE_MOVEL]
+    if not chaves:
+        return None
+    return ModeloOS.objects.filter(chave__in=chaves, ativo=True).order_by("ordem").first()
+
+
 # ---------------------------------------------------------------- escrita
-def _funcoes_validas(tipo: str, funcoes: dict, servidores: list[Servidor]) -> dict[str, str]:
-    permitidas = dominio.FUNCOES_DO_TIPO.get(tipo)
+def _funcoes_validas(modelo: ModeloOS | None, funcoes: dict,
+                     servidores: list[Servidor]) -> dict[str, str]:
+    permitidas = set(modelo.funcoes.values_list("codigo", flat=True)) if modelo else set()
     if not permitidas:
         return {}
     ids = {str(s.pk) for s in servidores}
@@ -135,8 +174,11 @@ def _funcoes_validas(tipo: str, funcoes: dict, servidores: list[Servidor]) -> di
 
 
 @transaction.atomic
-def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PADRAO,
+def salvar(usuario, *, pk: int | None = None, oficios=(), modelo: ModeloOS | None = None,
            destinos=(), data_inicio: date | None = None, data_fim: date | None = None,
+           data_evento_inicio: date | object | None = MANTER,
+           data_evento_fim: date | object | None = MANTER,
+           hora: time | None = None,
            servidores=(), motivo: str = "", funcoes: dict | None = None,
            assinante: Servidor | object | None = MANTER,
            data_documento: date | object | None = MANTER,
@@ -163,8 +205,9 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
         ano = timezone.localdate().year
         ordem = OrdemServico(unidade=policies.unidade_do_usuario(usuario), ano=ano,
                              numero=reservar_numero(ano), criado_por=usuario)
-    if tipo not in dict(OrdemServico.TIPOS):
-        raise OrdemInvalida("Tipo de necessidade desconhecido.")
+    # Modelo desativado: fica só em quem já o tinha (as OS antigas continuam gerando).
+    if modelo is not None and not modelo.ativo and modelo.pk != ordem.modelo_id:
+        raise OrdemInvalida("Este modelo de OS está desativado.")
     if len(oficios) > MAX_OFICIOS or len(servidores) > MAX_SERVIDORES \
             or len(destinos) > MAX_DESTINOS:
         raise OrdemInvalida(f"Limites: {MAX_OFICIOS} ofícios, {MAX_SERVIDORES} servidores e "
@@ -208,12 +251,38 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
         if not motivo.strip() and base["motivo"]:
             motivo = base["motivo"]
             copiados.append("motivo")
+        # OS padrão (o tipo "vazio"): o tipo vem do tipo da viagem ou da unidade móvel.
+        if modelo is None and (sugerido := tipo_sugerido(ordem.viagem if pk else None,
+                                                         oficios)):
+            modelo = sugerido
+            copiados.append("tipo de OS")
         if len(destinos) > MAX_DESTINOS or len(servidores) > MAX_SERVIDORES:
             raise OrdemInvalida("Os ofícios somam destinos ou servidores demais para uma OS: "
                                 f"no máximo {MAX_DESTINOS} destinos e {MAX_SERVIDORES} "
                                 "servidores. Escolha-os à mão.")
-    ordem.tipo = tipo
-    ordem.data_inicio, ordem.data_fim = data_inicio, (data_fim or data_inicio)
+    data_fim = data_fim or data_inicio
+    if data_evento_inicio is MANTER and data_evento_fim is MANTER:
+        # A tela não tem o campo: o período do evento vem do vínculo (a Viagem da OS ou a do
+        # ofício), refeito a cada gravação — os trechos dão a ida e a volta.
+        data_evento_inicio, data_evento_fim = evento_do_vinculo(
+            ordem.viagem if pk else None, oficios, data_inicio, data_fim)
+    else:
+        data_evento_inicio = cast("date | None", None if data_evento_inicio is MANTER
+                                  else data_evento_inicio)
+        data_evento_fim = cast("date | None", None if data_evento_fim is MANTER
+                               else data_evento_fim) or data_evento_inicio
+        if data_evento_inicio and data_evento_fim and data_evento_fim < data_evento_inicio:
+            raise OrdemInvalida("O fim do evento não pode ser anterior ao início.")
+        # O evento cabe no período da OS: é o que separa ida, visita técnica ou montagem,
+        # evento, desmontagem e volta no documento (dominio.modelo_os.distribuir_etapas).
+        if data_evento_inicio and data_inicio and (
+                data_evento_inicio < data_inicio
+                or cast("date", data_evento_fim) > cast("date", data_fim)):
+            raise OrdemInvalida("O período do evento precisa caber no período da OS.")
+    ordem.modelo = modelo
+    ordem.data_inicio, ordem.data_fim = data_inicio, data_fim
+    ordem.data_evento_inicio, ordem.data_evento_fim = data_evento_inicio, data_evento_fim
+    ordem.hora = hora
     ordem.motivo = (motivo or "").strip()
     if assinante is not MANTER:  # a tela não tem o campo (a assinatura terá módulo próprio)
         ordem.assinante = cast("Servidor | None", assinante)
@@ -221,7 +290,7 @@ def salvar(usuario, *, pk: int | None = None, oficios=(), tipo: str = dominio.PA
         ordem.data_documento = cast("date | None", data_documento)
     if funcoes is None:  # a tela não mostrou as funções: valem as gravadas
         funcoes = ordem.funcoes if pk else {}
-    ordem.funcoes = _funcoes_validas(tipo, funcoes, servidores)
+    ordem.funcoes = _funcoes_validas(modelo, funcoes, servidores)
     ordem.save()
     ordem.oficios.set(oficios)
     ordem.servidores.set(servidores)
@@ -311,8 +380,10 @@ def faltando(ordem: OrdemServico) -> list[str]:
         falta.append("equipe")
     if not ordem.motivo.strip():
         falta.append("motivo")
-    if dominio.faltam_funcoes(dados_do_dominio(ordem)):
-        falta.append("função da equipe")
+    if ordem.modelo is not None:
+        dados = dados_do_dominio(ordem)
+        falta += [f for f in dominio_modelo.faltam_para_o_modelo(dados, ordem.modelo.para_dominio())
+                  if f not in falta]
     return falta
 
 
@@ -325,15 +396,39 @@ def periodo_curto(ordem: OrdemServico) -> str:
     return f"{i:%d/%m} a {f:%d/%m/%Y}" if i.year == f.year else f"{i:%d/%m/%Y} a {f:%d/%m/%Y}"
 
 
+def sede_da_unidade(unidade) -> str:
+    """"Curitiba/PR" da configuração da unidade (o retorno nos modelos); vazio sem sede."""
+    config = ConfiguracaoInstitucional.objects.filter(unidade=unidade).select_related(
+        "sede").first()
+    return str(config.sede) if config is not None and config.sede_id else ""
+
+
 def dados_do_dominio(ordem: OrdemServico) -> dominio.DadosOS:
     carregar(ordem)
+    evento = (ordem.data_evento_inicio, ordem.data_evento_fim)
+    if evento[0] is None:  # ainda não gravada depois de entrar na viagem: o vínculo diz
+        evento = evento_do_vinculo(ordem.viagem, list(ordem.oficios.all()), ordem.data_inicio,
+                                   ordem.data_fim)
     return dominio.DadosOS(
-        tipo=ordem.tipo,
+        tipo=dominio.PADRAO,
         destinos=[f"{d.municipio.nome}/{d.municipio.uf}" for d in ordem.destinos.all()],
         inicio=ordem.data_inicio, fim=ordem.data_fim, motivo=ordem.motivo,
         equipe=[dominio.Pessoa(s.pk, s.nome, getattr(s.cargo, "nome", ""))
                 for s in ordem.servidores.all()],
-        funcoes={int(k): v for k, v in (ordem.funcoes or {}).items() if str(k).isdecimal()})
+        funcoes={int(k): v for k, v in (ordem.funcoes or {}).items() if str(k).isdecimal()},
+        evento_inicio=evento[0], evento_fim=evento[1],
+        hora=ordem.hora, sede=sede_da_unidade(ordem.unidade))
+
+
+def textos_do_documento(ordem: OrdemServico) -> dict:
+    """Com modelo, os itens I, II, III… (`dominio.modelo_os`); sem, o texto padrão."""
+    dados = dados_do_dominio(ordem)
+    if ordem.modelo is None:
+        return {**dominio.textos_da_os(dados), "itens": []}
+    t = dominio_modelo.itens_da_os(dados, ordem.modelo.para_dominio())
+    return {"referencia": t.referencia, "determinacao": "", "competencias": [],
+            "itens": [(dominio_modelo.romano(n), texto) for n, texto in enumerate(t.itens, 1)],
+            "justificativas": t.justificativas, "finalidade": t.finalidade}
 
 
 @transaction.atomic
@@ -367,7 +462,7 @@ def dados_do_documento(ordem: OrdemServico, *, fixar: bool = True) -> dict:
         nome, cargo = ordem.assinante.nome, getattr(ordem.assinante.cargo, "nome", "")
     else:
         nome, cargo, _ = quem_assina(config, "ordem_servico", data_doc)
-    textos = dominio.textos_da_os(dados_do_dominio(ordem))
+    textos = textos_do_documento(ordem)
     return {
         "titulo": f"Ordem de Serviço {ordem.numero_formatado}",
         "numero": ordem.numero_formatado,
@@ -511,8 +606,11 @@ def duplicar(usuario, pk: int) -> OrdemServico:
     nova, _ = salvar(
         usuario, oficios=[o for o in origem.oficios.all()
                           if o.situacao != Oficio.Situacao.CANCELADO],
-        tipo=origem.tipo, destinos=[d.municipio for d in origem.destinos.order_by("posicao", "id")],
+        modelo=origem.modelo,
+        destinos=[d.municipio for d in origem.destinos.order_by("posicao", "id")],
         data_inicio=origem.data_inicio, data_fim=origem.data_fim,
+        data_evento_inicio=origem.data_evento_inicio, data_evento_fim=origem.data_evento_fim,
+        hora=origem.hora,
         servidores=list(origem.servidores.all()), motivo=origem.motivo,
         funcoes=dict(origem.funcoes or {}), assinante=origem.assinante)
     edicao = edicao_vigente(origem)

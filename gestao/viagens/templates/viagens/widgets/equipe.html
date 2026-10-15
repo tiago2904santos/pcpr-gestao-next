@@ -2,7 +2,10 @@
 A equipe (viagens.forms.CampoEquipe): o componente da folha do ofício
 (viagens/oficios/_equipe.html), com os escolhidos indo junto com o formulário.
 A busca não oferece quem já está na equipe (`excluir`, atualizado por multiescolha.js).
-{% endcomment %}<pc-multiescolha class="equipe-campo" data-nome="{{ widget.name }}" data-variante="equipe"{% if widget.motorista %} data-motorista{% endif %}{% if widget.maximo %} data-maximo="{{ widget.maximo }}"{% endif %}>
+Na OS com modelo que tem funções, cada cartão traz o seletor de função e, acima, o resumo
+por função; `data-com-hora` diz quais modelos pedem o horário do briefing (funcoes-equipe.js
+mostra os campos do evento e do horário conforme o modelo).
+{% endcomment %}<pc-multiescolha class="equipe-campo" data-nome="{{ widget.name }}" data-variante="equipe"{% if widget.motorista %} data-motorista{% endif %}{% if widget.maximo %} data-maximo="{{ widget.maximo }}"{% endif %}{% if widget.funcoes %} data-funcoes="{{ widget.funcoes_json }}" data-com-hora="{{ widget.com_hora_json }}" data-campo-tipo="{{ widget.funcoes.campo_tipo }}"{% endif %}>
   <div class="campo equipe__busca">
     <label class="campo__rotulo" for="{{ widget.attrs.id }}">{{ widget.rotulo }}</label>
     <div class="campo__com-acao">
@@ -12,6 +15,8 @@ A busca não oferece quem já está na equipe (`excluir`, atualizado por multies
       {% if widget.cadastrar %}<button type="button" class="botao botao--icone" data-abrir-dialogo="{{ widget.cadastrar }}" aria-label="Cadastrar servidor">{% icone "plus" %}</button>{% endif %}
     </div>
   </div>
+  {% if widget.funcoes %}{# Quantos em cada função (funcoes-equipe.js mantém em dia; some sem tipo com função). #}
+  <div class="funcoes-resumo" data-funcoes-resumo{% if not widget.funcoes.ativas %} hidden{% endif %}></div>{% endif %}
   <ul class="resumo__cartoes equipe__cartoes pessoas--faixa pessoas--compactas multiescolha__lista" role="list" aria-label="Servidores da equipe">
     {% for e in widget.escolhidos %}
       <li class="pessoa equipe__cartao multiescolha__item resumo__cartao--{{ e.largura }}" data-id="{{ e.id }}" data-servidor="{{ e.id }}" data-unidade="{{ e.unidade }}" data-nome="{{ e.titulo }}"{% if widget.motorista %} data-motorista{% endif %}>
@@ -24,6 +29,7 @@ A busca não oferece quem já está na equipe (`excluir`, atualizado por multies
         <span class="equipe__acoes">
           <button type="button" class="equipe__acao equipe__acao--remover" data-remover aria-label="Remover {{ e.titulo }} da equipe" title="Remover da equipe">{% icone "x" classe="icone--sm" %}</button>
         </span>
+        {% if widget.funcoes.ativas %}{% include "viagens/widgets/_funcao_escolha.html" with sid=e.id nome=e.titulo opcoes=widget.funcoes.ativas escolhida=e.funcao only %}{% endif %}
       </li>
     {% endfor %}
   </ul>

@@ -159,9 +159,10 @@ def test_ordem_com_funcoes_sem_violacoes(logado, dados_e2e, largura):
     """A tela de uma OS salva de tipo com funções (campos de função da equipe à vista)."""
     from gestao.identidade.models import Usuario
     from gestao.viagens import ordens
-    from gestao.viagens.models import Oficio
+    from gestao.viagens.models import ModeloOS, Oficio
 
-    ordem, _ = ordens.salvar(Usuario.objects.get(login="operador"), tipo="caminhao",
+    ordem, _ = ordens.salvar(Usuario.objects.get(login="operador"),
+                             modelo=ModeloOS.objects.get(chave="unidade_movel"),
                              oficios=[Oficio.objects.get(pk=dados_e2e.ids["oficio_emitido"])])
     logado.set_viewport_size({"width": largura, "height": 900})
     _avaliar(logado, f"/viagens/ordens/{ordem.pk}/")

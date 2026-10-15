@@ -67,6 +67,8 @@ export class PcItinerario extends HTMLElement {
   mapaRota = null;
   /** A pessoa já mexeu em algo (só então vale pedir a prévia das diárias). */
   tocado = false;
+  /** A viatura era lenta na última rota pedida (undefined: ainda não pediu). @type {boolean | undefined} */
+  lentoAntes = undefined;
   arrastando = /** @type {HTMLElement | null} */ (null);
 
   connectedCallback() {
@@ -88,6 +90,8 @@ export class PcItinerario extends HTMLElement {
     this.addEventListener("pc-selecionado", (e) => this.escolheuCidade(e));
     this.addEventListener("keydown", (e) => this.tecla(e));
     this.addEventListener("pointerdown", (e) => this.comecarArraste(e));
+    // A viatura fica fora do itinerário (seção Transporte), no mesmo formulário.
+    document.addEventListener("change", (e) => this.trocouViatura(e));
 
     // O painel Rota (mapa, pinos, traçado) é o mesmo de <pc-destinos>: mapa-rota.js.
     this.mapaRota = new MapaDaRota(this);
@@ -769,7 +773,10 @@ export class PcItinerario extends HTMLElement {
     this.pedido = new AbortController();
     this.setAttribute("aria-busy", "true");
     try {
-      this.aplicarRota(await /** @type {MapaDaRota} */ (this.mapaRota).buscar(pontos, this.pedido.signal));
+      const lento = this.veiculoLento();
+      const trocou = this.lentoAntes !== undefined && this.lentoAntes !== lento;
+      this.lentoAntes = lento;
+      this.aplicarRota(await /** @type {MapaDaRota} */ (this.mapaRota).buscar(pontos, this.pedido.signal, lento), trocou);
     } catch (erro) {
       if (/** @type {Error} */ (erro).name !== "AbortError") {
         this.texto("[data-rota-fonte]", "Não foi possível calcular a rota agora; informe os tempos manualmente.");
@@ -779,8 +786,30 @@ export class PcItinerario extends HTMLElement {
     }
   }
 
-  /** @param {any} rota */
-  aplicarRota(rota) {
+  /**
+   * A viatura do ofício é unidade móvel pesada (micro-ônibus, ônibus, caminhão)? A opção
+   * escolhida traz `data-lenta` (forms.SelecaoDeViatura). Fora do ofício, nunca.
+   */
+  veiculoLento() {
+    const id = this.dataset.form;
+    const form = id ? document.getElementById(id) : this.closest("form");
+    const viatura = form instanceof HTMLFormElement ? form.elements.namedItem("viatura") : null;
+    return viatura instanceof HTMLSelectElement && Boolean(viatura.selectedOptions[0]?.hasAttribute("data-lenta"));
+  }
+
+  /**
+   * Trocar a viatura entre uma lenta e uma comum refaz os tempos que a pessoa não digitou.
+   * @param {Event} e
+   */
+  trocouViatura(e) {
+    const alvo = e.target;
+    if (!(alvo instanceof HTMLSelectElement) || alvo.name !== "viatura") return;
+    if (alvo.form?.id !== this.dataset.form) return;
+    if (this.veiculoLento() !== this.lentoAntes) this.agendarRota(0);
+  }
+
+  /** @param {any} rota @param {boolean} [trocouVeiculo] */
+  aplicarRota(rota, trocouVeiculo = false) {
     const trechos = this.classList.contains("itin--bate-volta") ? [] : this.trechos();
     let estimativa = false;
     rota.pernas.forEach((/** @type {any} */ perna, /** @type {number} */ i) => {
@@ -800,7 +829,7 @@ export class PcItinerario extends HTMLElement {
       for (const [campo, minutos] of /** @type {[HTMLInputElement | null, number][]} */ ([[viagem, perna.minutos], [adicional, perna.adicional_sugerido]])) {
         if (!campo) continue;
         if (nova) delete campo.dataset.manual;
-        if (nova || (!campo.value && !campo.dataset.manual)) campo.value = hhmm(minutos);
+        if (nova || ((trocouVeiculo || !campo.value) && !campo.dataset.manual)) campo.value = hhmm(minutos);
       }
     });
     // A fonte só fala quando há o que avisar: a rota por estrada é o esperado, e dizer isso
