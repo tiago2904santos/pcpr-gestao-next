@@ -63,14 +63,15 @@ def _dados_formulario(oficio):
 
 @pytest.mark.parametrize("perfil", ["consulta", "operador", "gestor"])
 def test_resumo_sem_copia_e_com_protocolo_no_cabecalho(client, cenario, perfil):
-    # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo na identificação.
+    # Os dados para o eProtocolo vivem só na folha; o Resumo mostra o protocolo no sub-header
+    # (o cabeçalho destaca só número, destino e data — test_resumos_padrao).
     client.force_login(cenario.usuarios[perfil])
     resposta = client.get(reverse("viagens:resumo", args=[cenario.ids["oficio_emitido"]]))
     assert resposta.status_code == 200
     html = resposta.content.decode()
     assert "data-dados-eprotocolo" not in html
-    cabecalho = re.search(r'<p class="registro-hero__complemento">.*?</p>', html, re.S)
-    assert cabecalho is not None and "Protocolo " in cabecalho.group()
+    sub = html[html.index('class="resumo-subheader"'):html.index('class="resumo-corpo"')]
+    assert "Protocolo" in sub and "12.345.678-9" in sub
 
 
 @pytest.mark.parametrize("rota", ["editar", "resumo"])
